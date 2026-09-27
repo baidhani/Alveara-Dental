@@ -1,7 +1,7 @@
 {
   "schemaVersion": "2",
-  "generatedBy": "ALV-CONTROL bootstrap R01",
-  "generatedAt": "2026-09-27T20:11:21.949Z",
+  "generatedBy": "ALV-CONTROL bootstrap R02",
+  "generatedAt": "2026-09-27T22:17:54.318Z",
   "counts": {
     "totalActiveFirstReleaseRecords": 53,
     "courseRecords": 19,
@@ -211,7 +211,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-001",
       "dependencies": [
-        "STORY-001"
+        "STORY-001",
+        "ALV-N001",
+        "ALV-N002"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -259,7 +261,10 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-001-C01"
+        "STORY-001",
+        "ALV-001-C01",
+        "ALV-N001",
+        "ALV-N002"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -356,7 +361,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-002",
       "dependencies": [
-        "STORY-002"
+        "STORY-002",
+        "ALV-001-C01",
+        "ALV-N002"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -404,7 +411,9 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-002-C01"
+        "ALV-001-C01",
+        "ALV-002-C01",
+        "ALV-N002"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -452,7 +461,8 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-N003"
+        "ALV-N002",
+        "ALV-002-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -549,7 +559,8 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-003",
       "dependencies": [
-        "STORY-003"
+        "STORY-003",
+        "ALV-N003"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -597,7 +608,9 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-003-C01"
+        "ALV-003-C01",
+        "ALV-002-C01",
+        "ALV-N009"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -694,7 +707,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-004",
       "dependencies": [
-        "STORY-004"
+        "STORY-004",
+        "ALV-N003",
+        "ALV-003-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -791,7 +806,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-011",
       "dependencies": [
-        "STORY-011"
+        "STORY-011",
+        "ALV-004-C01",
+        "ALV-N010"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -888,7 +905,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-005",
       "dependencies": [
-        "STORY-005"
+        "STORY-005",
+        "ALV-011-C01",
+        "ALV-002-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -936,7 +955,9 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-005-C01"
+        "ALV-005-C01",
+        "ALV-002-C01",
+        "ALV-011-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1033,7 +1054,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-006",
       "dependencies": [
-        "STORY-006"
+        "STORY-006",
+        "ALV-005-C01",
+        "ALV-N011"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1130,7 +1153,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-012",
       "dependencies": [
-        "STORY-012"
+        "STORY-012",
+        "ALV-005-C01",
+        "ALV-N011"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1227,7 +1252,10 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-013",
       "dependencies": [
-        "STORY-013"
+        "STORY-013",
+        "ALV-006-C01",
+        "ALV-012-C01",
+        "ALV-N011"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1275,7 +1303,8 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-013-C01"
+        "ALV-N003",
+        "ALV-002-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1372,7 +1401,9 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-015",
       "dependencies": [
-        "STORY-015"
+        "STORY-015",
+        "ALV-N005",
+        "ALV-013-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1420,8 +1451,7 @@
       "storyType": "course",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-015-C01",
-        "ALV-N005"
+        "ALV-015-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1519,7 +1549,10 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-007",
       "dependencies": [
-        "STORY-007"
+        "STORY-007",
+        "ALV-003-C01",
+        "ALV-N005",
+        "ALV-002-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1617,6 +1650,9 @@
       "parentCourseStory": "STORY-008",
       "dependencies": [
         "STORY-008",
+        "ALV-015-C01",
+        "ALV-N005",
+        "ALV-006-C01",
         "ALV-007-C01"
       ],
       "optional": false,
@@ -1666,6 +1702,7 @@
       "parentCourseStory": "STORY-007",
       "dependencies": [
         "STORY-007",
+        "ALV-007-C01",
         "ALV-008-C01"
       ],
       "optional": false,
@@ -1763,7 +1800,10 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-016",
       "dependencies": [
-        "STORY-016"
+        "STORY-016",
+        "ALV-005-C01",
+        "ALV-N011",
+        "ALV-002-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1860,7 +1900,11 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-010",
       "dependencies": [
-        "STORY-010"
+        "STORY-010",
+        "ALV-N010",
+        "ALV-003-C01",
+        "ALV-002-C01",
+        "ALV-N004"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -1957,7 +2001,10 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-009",
       "dependencies": [
-        "STORY-009"
+        "STORY-009",
+        "ALV-015-C01",
+        "ALV-004-C01",
+        "ALV-N002"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2006,7 +2053,8 @@
       "parentCourseStory": "STORY-009",
       "dependencies": [
         "STORY-009",
-        "ALV-009-C01"
+        "ALV-009-C01",
+        "ALV-010-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2103,7 +2151,10 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-017",
       "dependencies": [
-        "STORY-017"
+        "STORY-017",
+        "ALV-003-C01",
+        "ALV-007-C01",
+        "ALV-010-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2200,7 +2251,10 @@
       "storyType": "companion",
       "parentCourseStory": "STORY-018",
       "dependencies": [
-        "STORY-018"
+        "STORY-018",
+        "ALV-017-C01",
+        "ALV-010-C01",
+        "ALV-007-C02"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2249,7 +2303,10 @@
       "parentCourseStory": "STORY-018",
       "dependencies": [
         "STORY-018",
-        "ALV-018-C01"
+        "ALV-018-C01",
+        "ALV-017-C01",
+        "ALV-004-C01",
+        "ALV-007-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2297,7 +2354,10 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-018-C02"
+        "ALV-007-C02",
+        "ALV-009-C01",
+        "ALV-011-C01",
+        "ALV-017-C01"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2345,7 +2405,10 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-N006"
+        "ALV-005-C01",
+        "ALV-006-C01",
+        "ALV-013-C01",
+        "ALV-N011"
       ],
       "optional": true,
       "qualityGateContribution": [
@@ -2393,7 +2456,10 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-N007"
+        "ALV-N007",
+        "ALV-N006",
+        "ALV-015-C01",
+        "ALV-009-C01"
       ],
       "optional": true,
       "qualityGateContribution": [
@@ -2441,7 +2507,9 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-N012"
+        "ALV-N004",
+        "ALV-018-C01",
+        "ALV-N002"
       ],
       "optional": false,
       "qualityGateContribution": [
@@ -2489,6 +2557,12 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
+        "ALV-001-C01",
+        "ALV-002-C01",
+        "ALV-N004",
+        "ALV-010-C01",
+        "ALV-018-C01",
+        "ALV-018-C02",
         "ALV-N013"
       ],
       "optional": false,
@@ -2537,7 +2611,13 @@
       "storyType": "new_production",
       "parentCourseStory": null,
       "dependencies": [
-        "ALV-N014"
+        "ALV-N004",
+        "ALV-N006",
+        "ALV-N013",
+        "ALV-N014",
+        "ALV-018-C01",
+        "ALV-018-C02",
+        "ALV-007-C02"
       ],
       "optional": false,
       "qualityGateContribution": [

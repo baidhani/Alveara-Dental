@@ -102,6 +102,7 @@ Format per criterion: **Method** (test/measurement) · **Environment/Dataset** �
 | F6 | Core product works with public internet unavailable and with AI disabled | Manual walkthrough with network disconnected from public internet (LAN only) and AI feature flag off | Release-candidate build, LAN-only environment | All core (non-AI) workflows complete | NOT YET EVALUABLE | — | — | |
 | F7 | Optional AI, if included, remains reviewable, source-aware and non-authoritative | Manual review of AI output provenance/citations | Release-candidate build with AI enabled | Every AI output traceable to source; no AI output is the sole record of a clinical/financial fact | NOT YET EVALUABLE | — | — | N/A if `ALV-N007`/`ALV-N012` deliberately deferred |
 | F8 | No dead-end placeholder action or misleading sample/live/health/clinical/financial state remains in critical workflows | Manual UI audit of every critical screen | Release-candidate build | Zero placeholder buttons/fake data presented as real in critical paths | NOT YET EVALUABLE | — | — | |
+| F9 | Operational runbook and release evidence are complete | Manual review of runbook doc + release evidence package against a predeclared completeness checklist | Release-candidate build, final runbook draft | Every checklist item present and reviewed; no "TBD" placeholder in a required runbook section | NOT YET EVALUABLE | — | — | Checklist itself must be predeclared before evaluation, not authored after the fact |
 
 ---
 
