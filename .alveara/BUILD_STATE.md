@@ -2,11 +2,23 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-CONTROL bootstrap R02 (APPROVED), against commit `5d67b10` (STORY-000 verified) plus subsequent course-portal sync commits. Execution-control bootstrap is closed; item 2 (`ALV-N001`) is now the next authorized execution item.
+Last updated: ALV-N001 attempt R01 (`AWAITING_REVIEW`), implementation commit `c0368655e3bea674956252b8428e5cf8c29a346b`.
 
 ## Production implementation status
 
-**Production (`ALV-*`) implementation has not begun.** `src/` and `tests/` are empty. No application shell, API, database, authentication, or any product domain code exists yet.
+**Production implementation has begun with ALV-N001 (application shell), `AWAITING_REVIEW`.** No other `ALV-*` story has started. `tests/` at the repo root now holds only the STORY-000 coexistence/regression check (`story-000-coexistence.test.mjs`); no domain/database/authentication code exists yet.
+
+## Application shell (ALV-N001, AWAITING_REVIEW — not yet COMPLETE)
+
+- **Stack decision:** ASP.NET Core Web API (C#, .NET 10) + React 19 + TypeScript (Vite) client, chosen for the client-independent API boundary and JS ecosystem maturity for accessibility/offline tooling. Recorded here as the durable decision; do not re-litigate per-story.
+- **`src/Alveara.Api`** — ASP.NET Core Web API. Currently exposes only `GET /api/health` (liveness check consumed by the client's connection-status hook). CORS scoped to `http://localhost:5173`/`https://localhost:5173` (the Vite dev server) only.
+- **`src/alveara-client`** — React + TypeScript (Vite) application shell:
+  - Design tokens (`src/styles/tokens.css`): colour (light/dark), typography, spacing, radius, elevation, icon sizing, density, focus ring — single source of truth for all components.
+  - `AppShell` — responsive sidebar navigation driven by `moduleRegistry.ts` (currently 2 entries: Dashboard, Component Showcase), patient-context placeholder region, light/dark theme toggle (persisted to `localStorage`), disconnected-banner wired to `useConnectionStatus` (polls `/api/health` every 15s).
+  - Reusable components built so far: `Button`, `PageHeader`, `FormField` (with `aria-invalid`/`aria-describedby`/`role=alert` wiring), `LoadingState`/`EmptyState`/`ErrorState`, `DisconnectedBanner`, `Notification` (toast) system. Demonstrated on `/showcase`.
+  - **No permission-aware navigation yet, by design** — `moduleRegistry.ts` lists every module unconditionally because authentication/RBAC do not exist. `ALV-N009` adds real filtering against this same registry.
+  - Responsive breakpoint at 820px collapses the sidebar to a top bar.
+- **Root STORY-000 Command Center is untouched** — `index.html`, `assets/app.js`, `assets/styles.css` at the repo root are unchanged; the production app lives entirely under `src/alveara-client` and `src/Alveara.Api`.
 
 ## What actually exists in the repository
 
@@ -20,12 +32,11 @@ Last updated: ALV-CONTROL bootstrap R02 (APPROVED), against commit `5d67b10` (ST
 
 ## What does not exist yet
 
-- Any Alveara application shell separate from the course Command Center (`ALV-N001`).
 - Any architecture/deployment/database/background-job foundation (`ALV-N002`).
 - Authentication, RBAC, MFA, audit logging, or any security control beyond what the course portal's own STORY-001/002 will eventually require.
 - Any patient, scheduling, clinical, billing, document, or reporting functionality.
 - Any encrypted backup/restore capability.
-- Any of the 34 first-release `ALV-*` stories' implementation.
+- Any of the remaining 33 first-release `ALV-*` stories' implementation (only `ALV-N001` has started, and it is `AWAITING_REVIEW`, not `COMPLETE`).
 
 ## Known limitations / open items
 
