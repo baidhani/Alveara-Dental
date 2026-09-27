@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alveara Dental — Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AD</div>
+        <div class="brand-text">
+          Alveara Dental
+          <small>Command Center</small>
+        </div>
+      </div>
+
+      <nav id="tabs-nav" class="tabs-vertical"></nav>
+
+      <div class="sidebar-footer">
+        <div id="theme-toggle" class="theme-toggle"></div>
+        <div id="mode-toggle" class="mode-toggle"></div>
+        <span id="data-stamp" class="data-stamp unknown">Data as of: loading…</span>
+      </div>
+    </aside>
+
+    <div class="main-wrap">
+      <main id="tab-content">
+        <div class="empty-state">Loading…</div>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

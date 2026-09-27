@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "totals": {
+    "stories_total": 18,
+    "stories_verified": 4,
+    "criteria_total": 74,
+    "criteria_passed": 19,
+    "points_awarded": 220
+  },
+  "stories": [
+    { "id": "STORY-001", "verification": { "state": "verified", "commit": "a1b2c3d", "points": 60 } },
+    { "id": "STORY-002", "verification": { "state": "verified", "commit": "b2c3d4e", "points": 40 } },
+    { "id": "STORY-003", "verification": { "state": "in_progress", "commit": null, "points": 0 } },
+    { "id": "STORY-004", "verification": { "state": "submitted", "commit": "c3d4e5f", "points": 0 } },
+    { "id": "STORY-011", "verification": { "state": "verified", "commit": "d4e5f6a", "points": 55 } },
+    { "id": "STORY-005", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-006", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-012", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-013", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-015", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-007", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-008", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-014", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-016", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-009", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-010", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-017", "verification": { "state": "not_started", "commit": null, "points": 0 } },
+    { "id": "STORY-018", "verification": { "state": "not_started", "commit": null, "points": 0 } }
+  ]
+}
