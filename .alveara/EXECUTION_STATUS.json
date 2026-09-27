@@ -1,0 +1,2576 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "ALV-CONTROL bootstrap R01",
+  "generatedAt": "2026-09-27T20:11:21.949Z",
+  "counts": {
+    "totalActiveFirstReleaseRecords": 53,
+    "courseRecords": 19,
+    "alvRecords": 34
+  },
+  "records": [
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 1,
+      "phase": "Foundation",
+      "storyId": "STORY-000",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [],
+      "optional": false,
+      "qualityGateContribution": [],
+      "status": "COMPLETE",
+      "attempt": null,
+      "acceptance": {
+        "total": 5,
+        "passed": 5
+      },
+      "tests": {
+        "status": "n/a_course_verified_by_portal",
+        "summary": "See course portal STORY-000 verification"
+      },
+      "demo": "verified_by_course_portal",
+      "parentRegression": "n/a",
+      "implementationCommit": "5d67b100eb4d363e714d362cc07414ea7fc4ba7a",
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "APPROVED_EXTERNAL_COURSE_PORTAL",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": "5d67b100eb4d363e714d362cc07414ea7fc4ba7a",
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": "2026-09-27T19:54:59.856Z",
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 2,
+      "phase": "Foundation",
+      "storyId": "ALV-N001",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "STORY-000"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "READY",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 3,
+      "phase": "Foundation",
+      "storyId": "ALV-N002",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N001"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 9,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 4,
+      "phase": "Security & Foundation",
+      "storyId": "STORY-001",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N002"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 5,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-001-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-001",
+      "dependencies": [
+        "STORY-001"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 6,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-N009",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-001-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 5,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 7,
+      "phase": "Security & Foundation",
+      "storyId": "STORY-002",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N009"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 8,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-002-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-002",
+      "dependencies": [
+        "STORY-002"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 9,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-N003",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-002-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 5,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 10,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-N004",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N003"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate A"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 11,
+      "phase": "Patient & Front Office",
+      "storyId": "STORY-003",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N004"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 12,
+      "phase": "Patient & Front Office",
+      "storyId": "ALV-003-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-003",
+      "dependencies": [
+        "STORY-003"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 13,
+      "phase": "Patient & Front Office",
+      "storyId": "ALV-N010",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-003-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 14,
+      "phase": "Patient & Front Office",
+      "storyId": "STORY-004",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N010"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 15,
+      "phase": "Patient & Front Office",
+      "storyId": "ALV-004-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-004",
+      "dependencies": [
+        "STORY-004"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 16,
+      "phase": "Patient & Front Office",
+      "storyId": "STORY-011",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-004-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 17,
+      "phase": "Patient & Front Office",
+      "storyId": "ALV-011-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-011",
+      "dependencies": [
+        "STORY-011"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate B"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 18,
+      "phase": "Clinical Core",
+      "storyId": "STORY-005",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-011-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 19,
+      "phase": "Clinical Core",
+      "storyId": "ALV-005-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-005",
+      "dependencies": [
+        "STORY-005"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 20,
+      "phase": "Clinical Core",
+      "storyId": "ALV-N011",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-005-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 21,
+      "phase": "Clinical Core",
+      "storyId": "STORY-006",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N011"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 22,
+      "phase": "Clinical Core",
+      "storyId": "ALV-006-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-006",
+      "dependencies": [
+        "STORY-006"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 23,
+      "phase": "Clinical Core",
+      "storyId": "STORY-012",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-006-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 24,
+      "phase": "Clinical Core",
+      "storyId": "ALV-012-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-012",
+      "dependencies": [
+        "STORY-012"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 25,
+      "phase": "Clinical Core",
+      "storyId": "STORY-013",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-012-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 26,
+      "phase": "Clinical Core",
+      "storyId": "ALV-013-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-013",
+      "dependencies": [
+        "STORY-013"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 27,
+      "phase": "Clinical Core",
+      "storyId": "ALV-N005",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-013-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 5,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 28,
+      "phase": "Clinical Core",
+      "storyId": "STORY-015",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N005"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 29,
+      "phase": "Clinical Core",
+      "storyId": "ALV-015-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-015",
+      "dependencies": [
+        "STORY-015"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 30,
+      "phase": "Clinical Core",
+      "storyId": "STORY-014",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-015-C01",
+        "ALV-N005"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate C"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 31,
+      "phase": "Treatment & Finance",
+      "storyId": "STORY-007",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "STORY-014"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 32,
+      "phase": "Treatment & Finance",
+      "storyId": "ALV-007-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-007",
+      "dependencies": [
+        "STORY-007"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 33,
+      "phase": "Treatment & Finance",
+      "storyId": "STORY-008",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-007-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 34,
+      "phase": "Treatment & Finance",
+      "storyId": "ALV-008-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-008",
+      "dependencies": [
+        "STORY-008",
+        "ALV-007-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 35,
+      "phase": "Treatment & Finance",
+      "storyId": "ALV-007-C02",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-007",
+      "dependencies": [
+        "STORY-007",
+        "ALV-008-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 36,
+      "phase": "Treatment & Finance",
+      "storyId": "STORY-016",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-007-C02"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 37,
+      "phase": "Treatment & Finance",
+      "storyId": "ALV-016-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-016",
+      "dependencies": [
+        "STORY-016"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 38,
+      "phase": "Operations & Data",
+      "storyId": "STORY-010",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-016-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 39,
+      "phase": "Operations & Data",
+      "storyId": "ALV-010-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-010",
+      "dependencies": [
+        "STORY-010"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 40,
+      "phase": "Operations & Data",
+      "storyId": "STORY-009",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-010-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 41,
+      "phase": "Operations & Data",
+      "storyId": "ALV-009-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-009",
+      "dependencies": [
+        "STORY-009"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 42,
+      "phase": "Operations & Data",
+      "storyId": "ALV-009-C02",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-009",
+      "dependencies": [
+        "STORY-009",
+        "ALV-009-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 4,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 43,
+      "phase": "Operations & Data",
+      "storyId": "STORY-017",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-009-C02"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 44,
+      "phase": "Operations & Data",
+      "storyId": "ALV-017-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-017",
+      "dependencies": [
+        "STORY-017"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 45,
+      "phase": "Operations & Data",
+      "storyId": "STORY-018",
+      "storyType": "course",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-017-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": null,
+        "passed": null
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "n/a_course_verified_separately",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "externalVerification": "course_portal"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 46,
+      "phase": "Operations & Data",
+      "storyId": "ALV-018-C01",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-018",
+      "dependencies": [
+        "STORY-018"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 47,
+      "phase": "Operations & Data",
+      "storyId": "ALV-018-C02",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-018",
+      "dependencies": [
+        "STORY-018",
+        "ALV-018-C01"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 8,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 48,
+      "phase": "Operations & Data",
+      "storyId": "ALV-N006",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-018-C02"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 49,
+      "phase": "Optional AI",
+      "storyId": "ALV-N007",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N006"
+      ],
+      "optional": true,
+      "qualityGateContribution": [
+        "Gate F"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 5,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 50,
+      "phase": "Optional AI",
+      "storyId": "ALV-N012",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N007"
+      ],
+      "optional": true,
+      "qualityGateContribution": [
+        "Gate F"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 51,
+      "phase": "Release Engineering",
+      "storyId": "ALV-N013",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N012"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate F"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 52,
+      "phase": "Release Engineering",
+      "storyId": "ALV-N014",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N013"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate F"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 5,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 53,
+      "phase": "Release Engineering",
+      "storyId": "ALV-N008",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N014"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate F"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 8,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    }
+  ]
+}
