@@ -1,0 +1,38 @@
+.alv-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 360px;
+}
+
+.alv-form-field__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.alv-form-field__input {
+  height: var(--density-control-height);
+  padding: 0 var(--density-control-padding-x);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.alv-form-field__input--error {
+  border-color: var(--color-danger);
+}
+
+.alv-form-field__hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.alv-form-field__error {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+}

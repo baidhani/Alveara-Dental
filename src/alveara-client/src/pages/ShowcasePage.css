@@ -1,0 +1,21 @@
+.showcase-section {
+  margin-bottom: var(--space-8);
+}
+
+.showcase-section h2 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-3);
+}
+
+.showcase-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.showcase-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

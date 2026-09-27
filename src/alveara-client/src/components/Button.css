@@ -1,0 +1,48 @@
+.alv-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--density-control-height);
+  padding: 0 var(--density-control-padding-x);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.12s ease, border-color 0.12s ease, opacity 0.12s ease;
+  white-space: nowrap;
+}
+
+.alv-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.alv-button--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+.alv-button--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.alv-button--secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+.alv-button--secondary:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.alv-button--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+.alv-button--danger:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}

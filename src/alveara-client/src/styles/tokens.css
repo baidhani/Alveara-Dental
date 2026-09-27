@@ -1,0 +1,130 @@
+/*
+  Alveara design tokens — the single place brand colours, spacing, and density
+  are defined. Components must reference these variables, never a literal
+  hex/px value, so a later rebrand or density change is a one-file edit.
+*/
+:root {
+  /* ---- Semantic colour (neutral placeholder palette; swap for brand) ---- */
+  --color-bg: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #dde2e8;
+  --color-border-strong: #b9c2cc;
+  --color-text: #16202b;
+  --color-text-muted: #5c6a78;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #2d5f7c;
+  --color-primary-hover: #244d65;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #4f7a8f;
+
+  --color-success: #2f7d4f;
+  --color-success-bg: #e7f4ec;
+  --color-warning: #b5751b;
+  --color-warning-bg: #fdf3e7;
+  --color-danger: #b3372c;
+  --color-danger-bg: #fbeceb;
+  --color-info: #2d5f7c;
+  --color-info-bg: #e9f1f5;
+
+  --color-focus-ring: #1a6fb0;
+
+  /* ---- Sidebar (distinct surface, intentionally dark in both themes) ---- */
+  --sidebar-bg: #14202b;
+  --sidebar-bg-alt: #1b2c3a;
+  --sidebar-text: #c7d2dc;
+  --sidebar-text-muted: #7d8fa0;
+  --sidebar-active-bg: #223a4b;
+  --sidebar-border: #24384a;
+
+  /* ---- Typography ---- */
+  --font-sans: "Inter", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-md: 0.9375rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-xxl: 1.75rem;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ---- Spacing scale ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* ---- Radius / elevation ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(15, 20, 28, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 20, 28, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 20, 28, 0.14);
+
+  /* ---- Icon sizing ---- */
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+
+  /* ---- Density: "comfortable" default for desktop clinical/office use ---- */
+  --density-control-height: 40px;
+  --density-control-padding-x: 14px;
+  --density-row-height: 44px;
+
+  /* ---- Focus ---- */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+}
+
+/* Compact density variant, opt-in via [data-density="compact"] on <html>,
+   for later tablet/high-volume front-desk use — not applied by default. */
+:root[data-density="compact"] {
+  --density-control-height: 32px;
+  --density-control-padding-x: 10px;
+  --density-row-height: 36px;
+  --space-4: 12px;
+  --space-6: 18px;
+}
+
+/* Dark theme — same structural tokens, different values. Sidebar tokens are
+   intentionally stable across themes since the sidebar is always dark. */
+:root[data-theme="dark"] {
+  --color-bg: #0e151d;
+  --color-surface: #182531;
+  --color-surface-raised: #1e2d3a;
+  --color-border: #2a3946;
+  --color-border-strong: #3c4d5c;
+  --color-text: #e7ecf2;
+  --color-text-muted: #98a7b6;
+  --color-text-inverse: #0e151d;
+
+  --color-primary: #5fa2c7;
+  --color-primary-hover: #7fb8d8;
+  --color-accent: #74acc4;
+
+  --color-success: #4fae79;
+  --color-success-bg: rgba(79, 174, 121, 0.15);
+  --color-warning: #d99a45;
+  --color-warning-bg: rgba(181, 117, 27, 0.16);
+  --color-danger: #d9695c;
+  --color-danger-bg: rgba(179, 55, 44, 0.16);
+  --color-info: #5fa2c7;
+  --color-info-bg: rgba(45, 95, 124, 0.2);
+
+  --color-focus-ring: #7fc4f0;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+}

@@ -3,3 +3,9 @@
 tmp/
 node_modules/
 __pycache__/
+dist/
+bin/
+obj/
+*.user
+.vs/
+node_modules/.tmp/
