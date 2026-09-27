@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-CONTROL bootstrap R01, against commit `5d67b10` (STORY-000 verified) plus subsequent course-portal sync commits.
+Last updated: ALV-CONTROL bootstrap R02 (APPROVED), against commit `5d67b10` (STORY-000 verified) plus subsequent course-portal sync commits. Execution-control bootstrap is closed; item 2 (`ALV-N001`) is now the next authorized execution item.
 
 ## Production implementation status
 
