@@ -306,7 +306,7 @@ function renderDetail(rawId) {
     html = `<h3>Story verification state</h3><table class="trace-table"><thead><tr><th>Story</th><th>State</th></tr></thead><tbody>${rows}</tbody></table>`;
   } else if (tab === "overview-points") {
     html = `<h3>Points by story</h3><ul>${(progress.stories || [])
-      .map((s) => `<li>${escapeHtml(s.id)}: ${num(s.verification?.points)}</li>`)
+      .map((s) => `<li>${escapeHtml(s.id)}: ${num(s.verification?.points_awarded)}</li>`)
       .join("")}</ul>`;
   } else if (tab === "outcomes") {
     const m = (plan.derived?.measures || [])[Number(key)];
@@ -330,7 +330,7 @@ function renderDetail(rawId) {
       ? `<h3>${escapeHtml(story.id)} — ${escapeHtml(story.title)}</h3>
          <p>${escapeHtml(story.narrative)}</p>
          <p>Release: ${escapeHtml(story.release)} · Due: ${escapeHtml(story.due_on)} (first given: ${escapeHtml(story.due_baseline_on)})</p>
-         <p>State: ${verifiedBadge(story.id)}${prog?.verification?.commit ? ` · commit ${escapeHtml(prog.verification.commit)}` : ""}</p>`
+         <p>State: ${verifiedBadge(story.id)}${prog?.verification?.commit_sha ? ` · commit ${escapeHtml(prog.verification.commit_sha.slice(0, 7))}` : ""}</p>`
       : `<p>No detail available.</p>`;
   } else if (tab === "agents") {
     const owner = STORY_OWNERS.find((o) => o.name === decodeURIComponent(key));
