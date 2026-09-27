@@ -1,9 +1,21 @@
 {
   "schema_version": 2,
-  "_how_to_use": "Start with every criterion false — that is the correct starting state, not an unfinished one. false means \"not claimed\": either not done, or done but not yet checked. Set one to true only after you have read the code and confirmed it is genuinely true today. Nothing is lost by leaving a line false; a story sitting at 3 of 5 reports honestly and the portal shows you which two are left. Do not retype the criterion text — flip the boolean beside it.",
+  "project": "Alveara Dental",
+  "totals": {
+    "stories_total": 19,
+    "stories_verified": 0,
+    "stories_submitted": 1,
+    "stories_in_progress": 0,
+    "stories_not_started": 18,
+    "criteria_total": 59,
+    "criteria_passed": 3,
+    "points_awarded": 1579
+  },
   "stories": [
     {
       "id": "STORY-000",
+      "release": null,
+      "acceptance_total": 5,
       "criteria": [
         {
           "text": "Given the Command Center, when it is opened, then every tab is reachable and every card drills down one level.",
@@ -25,7 +37,709 @@
           "text": "Trust — no tab shows a number, a connection or a result the project has not actually produced.",
           "passed": true
         }
-      ]
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "submitted",
+        "criteria_passed": 3,
+        "criteria_total": 5,
+        "verified_at": null,
+        "commit_sha": "5d67b100eb4d363e714d362cc07414ea7fc4ba7a",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/5d67b100eb4d363e714d362cc07414ea7fc4ba7a",
+        "commit_at": "2026-09-27T19:50:33Z",
+        "points_awarded": 145,
+        "outstanding": [
+          "Given the Command Center, when any tab renders, then .colaberry/plan.json and .colaberry/progress.json are both committed in this repo and every tab reads its content from them at runtime rather than from hard-coded values.",
+          "Given the Command Center, when any tab is shown, then .colaberry/manifest.json is committed in this repo and every tab shows how old that data is and warns when the age exceeds a week."
+        ]
+      }
+    },
+    {
+      "id": "STORY-001",
+      "release": "r0",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a new user, when they register, then their account is created with secure password storage.",
+          "passed": false
+        },
+        {
+          "text": "Given a user, when they attempt to log in with incorrect credentials multiple times, then their account is locked.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All account and role changes are audited with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a new user, when they register, then their account is created with secure password storage.",
+          "Given a user, when they attempt to log in with incorrect credentials multiple times, then their account is locked.",
+          "Trust: All account and role changes are audited with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-002",
+      "release": "r0",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a user changes their role, when the change is saved, then the action is logged with a timestamp.",
+          "passed": false
+        },
+        {
+          "text": "Given a user attempts to modify an audit log, when they do not have permission, then the action is denied.",
+          "passed": false
+        },
+        {
+          "text": "Trust: Audit logs are immutable and protected from unauthorized modification.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a user changes their role, when the change is saved, then the action is logged with a timestamp.",
+          "Given a user attempts to modify an audit log, when they do not have permission, then the action is denied.",
+          "Trust: Audit logs are immutable and protected from unauthorized modification."
+        ]
+      }
+    },
+    {
+      "id": "STORY-003",
+      "release": "r1",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a new patient, when they provide their information, then the system captures demographics and contact details.",
+          "passed": false
+        },
+        {
+          "text": "Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All registration actions are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a new patient, when they provide their information, then the system captures demographics and contact details.",
+          "Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.",
+          "Trust: All registration actions are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-004",
+      "release": "r1",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a provider is available, when an appointment is scheduled, then it is confirmed without conflicts.",
+          "passed": false
+        },
+        {
+          "text": "Given a provider is double-booked, when a new appointment is attempted, then the system rejects it.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All scheduling actions are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a provider is available, when an appointment is scheduled, then it is confirmed without conflicts.",
+          "Given a provider is double-booked, when a new appointment is attempted, then the system rejects it.",
+          "Trust: All scheduling actions are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-005",
+      "release": "r2",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient encounter, when documented, then the system records medical and dental history.",
+          "passed": false
+        },
+        {
+          "text": "Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All documentation changes are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a patient encounter, when documented, then the system records medical and dental history.",
+          "Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.",
+          "Trust: All documentation changes are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-006",
+      "release": "r2",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a tooth is selected, when a condition is recorded, then it is saved with the correct lifecycle state.",
+          "passed": false
+        },
+        {
+          "text": "Given a completed treatment, when recorded, then the odontogram updates to reflect the change.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All odontogram updates are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a tooth is selected, when a condition is recorded, then it is saved with the correct lifecycle state.",
+          "Given a completed treatment, when recorded, then the odontogram updates to reflect the change.",
+          "Trust: All odontogram updates are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-007",
+      "release": "r3",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a procedure is completed, when billed, then the charge is recorded with the correct amount.",
+          "passed": false
+        },
+        {
+          "text": "Given a payment is made, when recorded, then the balance updates and history is preserved.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All billing actions are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a procedure is completed, when billed, then the charge is recorded with the correct amount.",
+          "Given a payment is made, when recorded, then the balance updates and history is preserved.",
+          "Trust: All billing actions are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-008",
+      "release": "r3",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.",
+          "passed": false
+        },
+        {
+          "text": "Given a treatment plan is revised, when updated, then the original plan is preserved.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All treatment plan changes are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.",
+          "Given a treatment plan is revised, when updated, then the original plan is preserved.",
+          "Trust: All treatment plan changes are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-009",
+      "release": "r4",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a follow-up task is created, when due, then a reminder is sent to the responsible party.",
+          "passed": false
+        },
+        {
+          "text": "Given a task is completed, when marked, then the completion history is updated.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All follow-up actions are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a follow-up task is created, when due, then a reminder is sent to the responsible party.",
+          "Given a task is completed, when marked, then the completion history is updated.",
+          "Trust: All follow-up actions are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-010",
+      "release": "r4",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a document is imported, when categorized, then it is linked with the correct metadata.",
+          "passed": false
+        },
+        {
+          "text": "Given a form is e-signed, when completed, then the signed version is preserved.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All document actions are logged with user and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a document is imported, when categorized, then it is linked with the correct metadata.",
+          "Given a form is e-signed, when completed, then the signed version is preserved.",
+          "Trust: All document actions are logged with user and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-011",
+      "release": "r1",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.",
+          "passed": false
+        },
+        {
+          "text": "Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All status changes are logged with timestamps and user IDs.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.",
+          "Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.",
+          "Trust: All status changes are logged with timestamps and user IDs."
+        ]
+      }
+    },
+    {
+      "id": "STORY-012",
+      "release": "r2",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient record, when periodontal charting is performed, then the system records probing depth, recession, and bleeding.",
+          "passed": false
+        },
+        {
+          "text": "Given incorrect charting data, when saved, then the system rejects the input and prompts for correction.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All charting entries are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a patient record, when periodontal charting is performed, then the system records probing depth, recession, and bleeding.",
+          "Given incorrect charting data, when saved, then the system rejects the input and prompts for correction.",
+          "Trust: All charting entries are logged with user ID and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-013",
+      "release": "r2",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient encounter, when a diagnosis is recorded, then it is linked to the patient and treatment plan.",
+          "passed": false
+        },
+        {
+          "text": "Given a diagnosis entry error, when saved, then the system prompts for correction.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All diagnosis entries are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a patient encounter, when a diagnosis is recorded, then it is linked to the patient and treatment plan.",
+          "Given a diagnosis entry error, when saved, then the system prompts for correction.",
+          "Trust: All diagnosis entries are logged with user ID and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-014",
+      "release": "r3",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a new procedure, when added to the catalog, then it includes a code, description, and fee.",
+          "passed": false
+        },
+        {
+          "text": "Given an incorrect procedure entry, when saved, then the system prompts for correction.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All catalog changes are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a new procedure, when added to the catalog, then it includes a code, description, and fee.",
+          "Given an incorrect procedure entry, when saved, then the system prompts for correction.",
+          "Trust: All catalog changes are logged with user ID and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-015",
+      "release": "r2",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.",
+          "passed": false
+        },
+        {
+          "text": "Given an error in treatment plan entry, when saved, then the system prompts for correction.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All treatment plan entries are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 88,
+        "outstanding": [
+          "Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.",
+          "Given an error in treatment plan entry, when saved, then the system prompts for correction.",
+          "Trust: All treatment plan entries are logged with user ID and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-016",
+      "release": "r3",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.",
+          "passed": false
+        },
+        {
+          "text": "Given an incorrect prescription entry, when saved, then the system prompts for correction.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All prescription entries are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 38,
+        "outstanding": [
+          "Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.",
+          "Given an incorrect prescription entry, when saved, then the system prompts for correction.",
+          "Trust: All prescription entries are logged with user ID and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-017",
+      "release": "r4",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given duplicate patient records, when detected, then the system suggests a controlled merge.",
+          "passed": false
+        },
+        {
+          "text": "Given a merge conflict, when resolved, then the system preserves linked data.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All merge actions are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 38,
+        "outstanding": [
+          "Given duplicate patient records, when detected, then the system suggests a controlled merge.",
+          "Given a merge conflict, when resolved, then the system preserves linked data.",
+          "Trust: All merge actions are logged with user ID and timestamp."
+        ]
+      }
+    },
+    {
+      "id": "STORY-018",
+      "release": "r4",
+      "acceptance_total": 3,
+      "criteria": [
+        {
+          "text": "Given a patient record, when exported, then the system provides a portable data format.",
+          "passed": false
+        },
+        {
+          "text": "Given an incorrect import file, when processed, then the system rejects it and prompts for correction.",
+          "passed": false
+        },
+        {
+          "text": "Trust: All export and import actions are logged with user ID and timestamp.",
+          "passed": false
+        }
+      ],
+      "files_touched": [],
+      "tests_added": [],
+      "notes": null,
+      "updated_at": null,
+      "verification": {
+        "state": "not_started",
+        "criteria_passed": 0,
+        "criteria_total": 3,
+        "verified_at": null,
+        "commit_sha": null,
+        "commit_url": null,
+        "commit_at": null,
+        "points_awarded": 38,
+        "outstanding": [
+          "Given a patient record, when exported, then the system provides a portable data format.",
+          "Given an incorrect import file, when processed, then the system rejects it and prompts for correction.",
+          "Trust: All export and import actions are logged with user ID and timestamp."
+        ]
+      }
     }
   ]
 }

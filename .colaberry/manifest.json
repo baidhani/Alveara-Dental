@@ -1,0 +1,118 @@
+{
+  "generated_at": "2026-09-27T19:52:28.821Z",
+  "plan_version": 1,
+  "plan_sha256": "6f87e846da2da669f44192c1688b0d821ddf5ed59c5ba36b544463846a7aa5e8",
+  "correlation_id": "6b987992-18f7-4c21-a486-d0d17b511434",
+  "project_id": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "truth_revision": 1,
+  "files": [
+    {
+      "path": "docs/REQUIREMENTS.md",
+      "sha256": "4a9b8e927d75afbcfbfe76ad884a03ebe54b94b22bae75980686ad24af44454b"
+    },
+    {
+      "path": "docs/STORIES.md",
+      "sha256": "9cb245d7f4915a05326cd339643fefa5d257adda3fb646c6ae84a88172dbd84a"
+    },
+    {
+      "path": "docs/TRACEABILITY.md",
+      "sha256": "68d5ec2d5b55bb01909d93623ff15d9bac6f7bad6089c6288d1d1bd022eb6127"
+    },
+    {
+      "path": "docs/DATA_CONTRACT.md",
+      "sha256": "d56e89edcfe36725945d961cf3479b646507d1fa855bba0dcdfff3f8f8a658b0"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "8e307c3aafce901db80ff39f374dc96ef67e6ee498838f8e9d82604276e2fc3d"
+    },
+    {
+      "path": "docs/stories/STORY-001.md",
+      "sha256": "43ff5177e5b11e38cb4e01c29e6e5e88b99b2b4901a0e7e4cda519ee36fbb23c"
+    },
+    {
+      "path": "docs/stories/STORY-002.md",
+      "sha256": "e99a197e1e242d74d5ae8a0e88eaeb94db7cea17ec0632a55b16314dadc0c8a1"
+    },
+    {
+      "path": "docs/stories/STORY-003.md",
+      "sha256": "c4c73b551dccdc6b690ddd5507e83ea020294ee50b8653980b872795454551fc"
+    },
+    {
+      "path": "docs/stories/STORY-004.md",
+      "sha256": "cad2e0841051fa843f01b295d19f0ae77df86be7f82507b667d97ef8a5e5a735"
+    },
+    {
+      "path": "docs/stories/STORY-005.md",
+      "sha256": "e9d91daf0e0614d6998a6af6a00d52ca3252adaf2e59f6d16025f658a6da7160"
+    },
+    {
+      "path": "docs/stories/STORY-006.md",
+      "sha256": "bf62ae44221376ba17dadd3808ffd78472941e27ba55b8eec94ebfdb8ee5f250"
+    },
+    {
+      "path": "docs/stories/STORY-007.md",
+      "sha256": "99b731ba52a5e4aa41dae0f29c769997cde5a017827b9e9d65b807580458801f"
+    },
+    {
+      "path": "docs/stories/STORY-008.md",
+      "sha256": "56cf4c2d5e67bcb4f2a381f3d0fe1c7f2323270f9a7f6d3f918c0a848a389458"
+    },
+    {
+      "path": "docs/stories/STORY-009.md",
+      "sha256": "8f08f4e9ad07ca35113025c754842d6c91e4c28813f7f59445b378c3d68c9eee"
+    },
+    {
+      "path": "docs/stories/STORY-010.md",
+      "sha256": "1069967788b8fc2e52730a033009ec6d8f8f36029a3fe5d76fd98505e844717c"
+    },
+    {
+      "path": "docs/stories/STORY-011.md",
+      "sha256": "0594c9f6f94c800f4ebc72b39ca1cd70d4607469f67b93f31cb982408092571c"
+    },
+    {
+      "path": "docs/stories/STORY-012.md",
+      "sha256": "1913ee910d36740d128205bb33edc69e54097e8c92c82957237f293ac33d672b"
+    },
+    {
+      "path": "docs/stories/STORY-013.md",
+      "sha256": "5c9f0d7f9a56207c777372602aabeb79d21a070adf517097d45a4ada6f1367ff"
+    },
+    {
+      "path": "docs/stories/STORY-014.md",
+      "sha256": "befbec2df9d7da87cbd4f17ba213204dfa57a848d884305135342e49c948ca3f"
+    },
+    {
+      "path": "docs/stories/STORY-015.md",
+      "sha256": "44cc80714d7059cc0d30b11a4cfcdca2d0155c87b12751f1e814d476ca6a73aa"
+    },
+    {
+      "path": "docs/stories/STORY-016.md",
+      "sha256": "426b1026b3fca4de7c258d6ae7b5fd0cd1a9d79995f33d8b7cf3643e82448bf0"
+    },
+    {
+      "path": "docs/stories/STORY-017.md",
+      "sha256": "2caa8a135ccac0b0875f958e8fc83264af1ca91007c94f0e26dcda35688b884b"
+    },
+    {
+      "path": "docs/stories/STORY-018.md",
+      "sha256": "169420edc7658f17cc0d3daf18909854b0ac571856fb6a9d7de1ce9056bec48d"
+    },
+    {
+      "path": "docs/stories/STORY-000.md",
+      "sha256": "f14248165fc3805927f2aef5c1fceb6380009096d6a4f1fb7dc9f963ab77463e"
+    },
+    {
+      "path": ".colaberry/plan.json",
+      "sha256": "7c711a3e27b9a4251f1a0b62c13f34b63770cf5704953bce81be95c4f19bfdc4"
+    },
+    {
+      "path": ".colaberry/progress.json",
+      "sha256": "411811ab6fb363400fae12e5015f6686b05f3613ee95f0a95ec1b92816998ae2"
+    },
+    {
+      "path": ".colaberry/profile.json",
+      "sha256": "43a7d5d3a86fb8558b4e787b6577e46fe70390c2aa2e57ec6c94167144fd0440"
+    }
+  ]
+}

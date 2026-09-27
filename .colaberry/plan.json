@@ -1,0 +1,934 @@
+{
+  "schema_version": 2,
+  "project_name": "Alveara Dental",
+  "descriptor": "A modern dental EHR and PMS for general dentistry, with core clinical and administrative functions usable offline, and a client-independent domain model for future expansion.",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "kind": "SAFE",
+      "cluster": "Security",
+      "priority": "must",
+      "statement": "The system must support unique user accounts with secure password storage and configurable session timeout.",
+      "from_dimensions": [
+        "security_context"
+      ],
+      "fulfilled_by": [
+        "STORY-001"
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "kind": "SAFE",
+      "cluster": "Security",
+      "priority": "must",
+      "statement": "The system must provide role-based access control (RBAC) for dentist, hygienist, assistant, front desk, billing, office manager, and admin roles.",
+      "from_dimensions": [
+        "security_context"
+      ],
+      "fulfilled_by": [
+        "STORY-001"
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "kind": "SAFE",
+      "cluster": "Audit",
+      "priority": "must",
+      "statement": "The system must audit account and role changes with user and timestamp.",
+      "from_dimensions": [
+        "security_context"
+      ],
+      "fulfilled_by": [
+        "STORY-002"
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "kind": "FUNC",
+      "cluster": "Patient Registration",
+      "priority": "must",
+      "statement": "The system must allow patient registration with demographics, contact information, and family/household relationships.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-003"
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "kind": "FUNC",
+      "cluster": "Scheduling",
+      "priority": "must",
+      "statement": "The system must support scheduling with multiple providers, operatories, appointment types, and configurable durations.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-004"
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "kind": "FUNC",
+      "cluster": "Patient Flow",
+      "priority": "must",
+      "statement": "The system must track patient flow states from scheduled to completed, including check-in and treatment.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-011"
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "kind": "FUNC",
+      "cluster": "Clinical Documentation",
+      "priority": "must",
+      "statement": "The system must support structured clinical documentation including medical and dental history, allergies, and medications.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-005"
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "kind": "FUNC",
+      "cluster": "Odontogram",
+      "priority": "must",
+      "statement": "The system must provide an interactive odontogram with tooth and surface selection, supporting existing, diagnosed, planned, and completed states.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-006"
+      ]
+    },
+    {
+      "id": "REQ-009",
+      "kind": "FUNC",
+      "cluster": "Periodontal Charting",
+      "priority": "must",
+      "statement": "The system must support periodontal charting with probing depth, recession, and bleeding.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-012"
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "kind": "FUNC",
+      "cluster": "Diagnosis",
+      "priority": "must",
+      "statement": "The system must allow structured diagnosis linked to patient, encounter, and treatment plan.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-013"
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "kind": "FUNC",
+      "cluster": "Procedure/Fee Catalog",
+      "priority": "must",
+      "statement": "The system must manage a procedure/fee catalog with codes, descriptions, and fees.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-014"
+      ]
+    },
+    {
+      "id": "REQ-012",
+      "kind": "FUNC",
+      "cluster": "Treatment Planning",
+      "priority": "must",
+      "statement": "The system must support treatment planning with diagnosis linkage, proposed procedures, and fee estimates.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-015"
+      ]
+    },
+    {
+      "id": "REQ-013",
+      "kind": "FUNC",
+      "cluster": "Procedure Completion",
+      "priority": "must",
+      "statement": "The system must transition planned care into completed procedures, updating clinical history and billing.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-008"
+      ]
+    },
+    {
+      "id": "REQ-014",
+      "kind": "FUNC",
+      "cluster": "Billing",
+      "priority": "must",
+      "statement": "The system must handle billing with charges, payments, and adjustments, preserving financial history.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-007"
+      ]
+    },
+    {
+      "id": "REQ-015",
+      "kind": "FUNC",
+      "cluster": "Documents/Forms",
+      "priority": "must",
+      "statement": "The system must import and categorize documents and forms, supporting e-signature and metadata linkage.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-010"
+      ]
+    },
+    {
+      "id": "REQ-016",
+      "kind": "FUNC",
+      "cluster": "Prescriptions/Safety",
+      "priority": "must",
+      "statement": "The system must support prescriptions with medication, dosage, and allergy checks.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-016"
+      ]
+    },
+    {
+      "id": "REQ-017",
+      "kind": "FUNC",
+      "cluster": "Follow-up/Tasks",
+      "priority": "must",
+      "statement": "The system must enable follow-up tasks with recall intervals, reminders, and completion history.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-009"
+      ]
+    },
+    {
+      "id": "REQ-018",
+      "kind": "FUNC",
+      "cluster": "Duplicate Merge",
+      "priority": "must",
+      "statement": "The system must support duplicate detection and controlled merge of patient records, preserving linked data.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-017"
+      ]
+    },
+    {
+      "id": "REQ-019",
+      "kind": "FUNC",
+      "cluster": "Data Portability",
+      "priority": "must",
+      "statement": "The system must provide data portability with patient export and import capabilities.",
+      "from_dimensions": [
+        "desired_outcome"
+      ],
+      "fulfilled_by": [
+        "STORY-018"
+      ]
+    },
+    {
+      "id": "REQ-020",
+      "kind": "CONSTRAINT",
+      "cluster": "Deployment",
+      "priority": "must",
+      "statement": "The system must support local Windows server deployment with a responsive web client usable offline.",
+      "from_dimensions": [
+        "constraints"
+      ],
+      "fulfilled_by": []
+    }
+  ],
+  "releases": [
+    {
+      "key": "r0",
+      "demo": "Demonstrate secure login, RBAC, and audit capabilities holding under concurrent access.",
+      "goal": "Establish core security and foundational infrastructure.",
+      "name": "Foundation and Security",
+      "week_end": 4,
+      "week_start": 1,
+      "story_ids": [
+        "STORY-001",
+        "STORY-002"
+      ],
+      "starts_on": "2026-10-01",
+      "ends_on": "2026-10-01",
+      "is_demo_target": true
+    },
+    {
+      "key": "r1",
+      "demo": "Show end-to-end patient registration and scheduling with conflict prevention.",
+      "goal": "Enable patient registration and scheduling workflows.",
+      "name": "Patient Management and Scheduling",
+      "week_end": 8,
+      "week_start": 5,
+      "story_ids": [
+        "STORY-003",
+        "STORY-004",
+        "STORY-011"
+      ],
+      "starts_on": "2026-10-01",
+      "ends_on": "2026-10-01",
+      "is_demo_target": false
+    },
+    {
+      "key": "r2",
+      "demo": "Demonstrate clinical documentation linked to treatment planning and odontogram updates.",
+      "goal": "Support clinical documentation and treatment planning.",
+      "name": "Clinical Documentation and Treatment Planning",
+      "week_end": 12,
+      "week_start": 9,
+      "story_ids": [
+        "STORY-005",
+        "STORY-006",
+        "STORY-012",
+        "STORY-013",
+        "STORY-015"
+      ],
+      "starts_on": "2026-10-01",
+      "ends_on": "2026-10-01",
+      "is_demo_target": false
+    },
+    {
+      "key": "r3",
+      "demo": "Complete a treatment plan, generate billing, and update patient financial history.",
+      "goal": "Enable billing workflows and procedure completion.",
+      "name": "Billing and Procedure Completion",
+      "week_end": 16,
+      "week_start": 13,
+      "story_ids": [
+        "STORY-007",
+        "STORY-008",
+        "STORY-014",
+        "STORY-016"
+      ],
+      "starts_on": "2026-10-01",
+      "ends_on": "2026-10-01",
+      "is_demo_target": false
+    },
+    {
+      "key": "r4",
+      "demo": "Manage follow-up tasks, import/export patient data, and categorize documents.",
+      "goal": "Support follow-up tasks, document management, and data portability.",
+      "name": "Follow-up and Data Management",
+      "week_end": 20,
+      "week_start": 17,
+      "story_ids": [
+        "STORY-009",
+        "STORY-010",
+        "STORY-017",
+        "STORY-018"
+      ],
+      "starts_on": "2026-10-01",
+      "ends_on": "2026-10-01",
+      "is_demo_target": false
+    }
+  ],
+  "stories": [
+    {
+      "id": "STORY-001",
+      "title": "Implement secure user authentication and RBAC",
+      "release": "r0",
+      "fulfills": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "narrative": "As an admin, I want secure user authentication and role-based access control, so that user access is appropriately managed.",
+      "acceptance": [
+        "Given a new user, when they register, then their account is created with secure password storage.",
+        "Given a user, when they attempt to log in with incorrect credentials multiple times, then their account is locked.",
+        "Trust: All account and role changes are audited with user and timestamp."
+      ],
+      "blocked_by": [],
+      "owner_agent": "Security Team",
+      "failure_paths": [
+        "Incorrect password entry",
+        "Account lockout",
+        "Role misassignment",
+        "Audit failure",
+        "Session timeout"
+      ],
+      "task_guidance": "Implement user authentication using secure password storage and RBAC for defined roles.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-002",
+      "title": "Establish audit logging for critical actions",
+      "release": "r0",
+      "fulfills": [
+        "REQ-003"
+      ],
+      "narrative": "As a system auditor, I want audit logging for critical actions, so that changes are traceable.",
+      "acceptance": [
+        "Given a user changes their role, when the change is saved, then the action is logged with a timestamp.",
+        "Given a user attempts to modify an audit log, when they do not have permission, then the action is denied.",
+        "Trust: Audit logs are immutable and protected from unauthorized modification."
+      ],
+      "blocked_by": [],
+      "owner_agent": "Audit Team",
+      "failure_paths": [
+        "Unauthorized log modification",
+        "Audit log corruption",
+        "Missing audit entries",
+        "Incorrect timestamp",
+        "Unauthorized access"
+      ],
+      "task_guidance": "Set up audit logging for account and role changes, ensuring immutability.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-003",
+      "title": "Implement patient registration workflow",
+      "release": "r1",
+      "fulfills": [
+        "REQ-004"
+      ],
+      "narrative": "As a front desk staff, I want to register patients, so that their information is accurately captured in the system.",
+      "acceptance": [
+        "Given a new patient, when they provide their information, then the system captures demographics and contact details.",
+        "Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.",
+        "Trust: All registration actions are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-002"
+      ],
+      "owner_agent": "Patient Management Team",
+      "failure_paths": [
+        "Incomplete registration",
+        "Duplicate entry",
+        "Data validation failure",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Develop patient registration forms capturing demographics and contact information.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-004",
+      "title": "Enable appointment scheduling with conflict prevention",
+      "release": "r1",
+      "fulfills": [
+        "REQ-005"
+      ],
+      "narrative": "As a scheduler, I want to schedule appointments without conflicts, so that provider and operatory availability is respected.",
+      "acceptance": [
+        "Given a provider is available, when an appointment is scheduled, then it is confirmed without conflicts.",
+        "Given a provider is double-booked, when a new appointment is attempted, then the system rejects it.",
+        "Trust: All scheduling actions are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-002"
+      ],
+      "owner_agent": "Scheduling Team",
+      "failure_paths": [
+        "Double booking",
+        "Unavailable provider",
+        "Operatory conflict",
+        "Audit failure",
+        "Incorrect duration"
+      ],
+      "task_guidance": "Implement scheduling logic to prevent provider and operatory conflicts.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-005",
+      "title": "Develop clinical documentation module",
+      "release": "r2",
+      "fulfills": [
+        "REQ-007"
+      ],
+      "narrative": "As a clinician, I want to document patient encounters, so that clinical history is accurately recorded.",
+      "acceptance": [
+        "Given a patient encounter, when documented, then the system records medical and dental history.",
+        "Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.",
+        "Trust: All documentation changes are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-003"
+      ],
+      "owner_agent": "Clinical Documentation Team",
+      "failure_paths": [
+        "Incomplete documentation",
+        "Amendment failure",
+        "Data loss",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Create structured forms for medical and dental history documentation.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-006",
+      "title": "Implement interactive odontogram",
+      "release": "r2",
+      "fulfills": [
+        "REQ-008"
+      ],
+      "narrative": "As a dentist, I want an interactive odontogram, so that I can accurately record dental conditions and treatments.",
+      "acceptance": [
+        "Given a tooth is selected, when a condition is recorded, then it is saved with the correct lifecycle state.",
+        "Given a completed treatment, when recorded, then the odontogram updates to reflect the change.",
+        "Trust: All odontogram updates are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-005"
+      ],
+      "owner_agent": "Clinical Documentation Team",
+      "failure_paths": [
+        "Incorrect tooth selection",
+        "Data entry error",
+        "Odontogram update failure",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Develop an interactive odontogram interface for recording dental conditions.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-007",
+      "title": "Enable billing workflow with financial history preservation",
+      "release": "r3",
+      "fulfills": [
+        "REQ-014"
+      ],
+      "narrative": "As a billing specialist, I want to manage billing, so that financial transactions are accurately recorded and preserved.",
+      "acceptance": [
+        "Given a procedure is completed, when billed, then the charge is recorded with the correct amount.",
+        "Given a payment is made, when recorded, then the balance updates and history is preserved.",
+        "Trust: All billing actions are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-006"
+      ],
+      "owner_agent": "Billing Team",
+      "failure_paths": [
+        "Incorrect billing amount",
+        "Payment misallocation",
+        "Adjustment error",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Implement billing logic to handle charges, payments, and adjustments.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-008",
+      "title": "Complete treatment plan and update clinical history",
+      "release": "r3",
+      "fulfills": [
+        "REQ-013"
+      ],
+      "narrative": "As a clinician, I want to complete treatment plans, so that patient care is accurately reflected in their clinical history.",
+      "acceptance": [
+        "Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.",
+        "Given a treatment plan is revised, when updated, then the original plan is preserved.",
+        "Trust: All treatment plan changes are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-006"
+      ],
+      "owner_agent": "Clinical Documentation Team",
+      "failure_paths": [
+        "Incomplete treatment update",
+        "Data loss",
+        "Plan revision error",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Develop logic to transition treatment plans into completed procedures.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-009",
+      "title": "Manage follow-up tasks and reminders",
+      "release": "r4",
+      "fulfills": [
+        "REQ-017"
+      ],
+      "narrative": "As a clinician, I want to manage follow-up tasks, so that patient care is continuous and timely.",
+      "acceptance": [
+        "Given a follow-up task is created, when due, then a reminder is sent to the responsible party.",
+        "Given a task is completed, when marked, then the completion history is updated.",
+        "Trust: All follow-up actions are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-008"
+      ],
+      "owner_agent": "Follow-up Team",
+      "failure_paths": [
+        "Missed reminder",
+        "Task completion error",
+        "Data entry error",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Implement task management logic for follow-up and reminders.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-010",
+      "title": "Implement document import and categorization",
+      "release": "r4",
+      "fulfills": [
+        "REQ-015"
+      ],
+      "narrative": "As an admin, I want to import and categorize documents, so that patient records are comprehensive and organized.",
+      "acceptance": [
+        "Given a document is imported, when categorized, then it is linked with the correct metadata.",
+        "Given a form is e-signed, when completed, then the signed version is preserved.",
+        "Trust: All document actions are logged with user and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-008"
+      ],
+      "owner_agent": "Document Management Team",
+      "failure_paths": [
+        "Incorrect categorization",
+        "Metadata error",
+        "E-signature failure",
+        "Audit failure",
+        "Concurrency issues"
+      ],
+      "task_guidance": "Develop import logic for documents and forms with metadata linkage.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-011",
+      "title": "Track patient flow states from scheduled to completed",
+      "release": "r1",
+      "fulfills": [
+        "REQ-006"
+      ],
+      "narrative": "As a receptionist, I want to track patient flow states from scheduled to completed, so that I can manage patient appointments efficiently.",
+      "acceptance": [
+        "Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.",
+        "Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.",
+        "Trust: All status changes are logged with timestamps and user IDs."
+      ],
+      "blocked_by": [
+        "STORY-004"
+      ],
+      "owner_agent": "Receptionist",
+      "failure_paths": [
+        "Patient status fails to update on check-in.",
+        "Patient status fails to update on treatment completion.",
+        "System fails to log status change."
+      ],
+      "task_guidance": "Implement state transitions for patient flow in the appointment module, ensuring each state change is logged.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-012",
+      "title": "Support periodontal charting with probing depth, recession, and bleeding",
+      "release": "r2",
+      "fulfills": [
+        "REQ-009"
+      ],
+      "narrative": "As a dentist, I want to perform periodontal charting with probing depth, recession, and bleeding, so that I can accurately assess patient periodontal health.",
+      "acceptance": [
+        "Given a patient record, when periodontal charting is performed, then the system records probing depth, recession, and bleeding.",
+        "Given incorrect charting data, when saved, then the system rejects the input and prompts for correction.",
+        "Trust: All charting entries are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-005"
+      ],
+      "owner_agent": "Dentist",
+      "failure_paths": [
+        "Incorrect data is accepted in charting.",
+        "Charting data fails to save.",
+        "System fails to log charting entries."
+      ],
+      "task_guidance": "Develop a periodontal charting interface within the clinical documentation module, ensuring data validation and logging.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-013",
+      "title": "Allow structured diagnosis linked to patient, encounter, and treatment plan",
+      "release": "r2",
+      "fulfills": [
+        "REQ-010"
+      ],
+      "narrative": "As a clinician, I want to record structured diagnoses linked to patient, encounter, and treatment plan, so that I can maintain comprehensive patient records.",
+      "acceptance": [
+        "Given a patient encounter, when a diagnosis is recorded, then it is linked to the patient and treatment plan.",
+        "Given a diagnosis entry error, when saved, then the system prompts for correction.",
+        "Trust: All diagnosis entries are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-005"
+      ],
+      "owner_agent": "Clinician",
+      "failure_paths": [
+        "Diagnosis fails to link to patient record.",
+        "Incorrect diagnosis data is accepted.",
+        "System fails to log diagnosis entries."
+      ],
+      "task_guidance": "Integrate diagnosis entry into the clinical documentation module, ensuring linkage to patient and treatment plan.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-014",
+      "title": "Manage procedure/fee catalog with codes, descriptions, and fees",
+      "release": "r3",
+      "fulfills": [
+        "REQ-011"
+      ],
+      "narrative": "As a billing manager, I want to manage a procedure/fee catalog with codes, descriptions, and fees, so that I can ensure accurate billing.",
+      "acceptance": [
+        "Given a new procedure, when added to the catalog, then it includes a code, description, and fee.",
+        "Given an incorrect procedure entry, when saved, then the system prompts for correction.",
+        "Trust: All catalog changes are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-007"
+      ],
+      "owner_agent": "Billing Manager",
+      "failure_paths": [
+        "Procedure fails to save in the catalog.",
+        "Incorrect procedure data is accepted.",
+        "System fails to log catalog changes."
+      ],
+      "task_guidance": "Develop a procedure/fee catalog management interface, ensuring data validation and logging.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-015",
+      "title": "Support treatment planning with diagnosis linkage, proposed procedures, and fee estimates",
+      "release": "r2",
+      "fulfills": [
+        "REQ-012"
+      ],
+      "narrative": "As a dentist, I want to create treatment plans with diagnosis linkage, proposed procedures, and fee estimates, so that I can provide patients with comprehensive care plans.",
+      "acceptance": [
+        "Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.",
+        "Given an error in treatment plan entry, when saved, then the system prompts for correction.",
+        "Trust: All treatment plan entries are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-005"
+      ],
+      "owner_agent": "Dentist",
+      "failure_paths": [
+        "Treatment plan fails to link to diagnosis.",
+        "Incorrect treatment plan data is accepted.",
+        "System fails to log treatment plan entries."
+      ],
+      "task_guidance": "Integrate treatment planning into the clinical documentation module, ensuring linkage to diagnosis and fee estimates.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-016",
+      "title": "Support prescriptions with medication, dosage, and allergy checks",
+      "release": "r3",
+      "fulfills": [
+        "REQ-016"
+      ],
+      "narrative": "As a clinician, I want to prescribe medications with dosage and allergy checks, so that I can ensure patient safety.",
+      "acceptance": [
+        "Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.",
+        "Given an incorrect prescription entry, when saved, then the system prompts for correction.",
+        "Trust: All prescription entries are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-013"
+      ],
+      "owner_agent": "Clinician",
+      "failure_paths": [
+        "Allergy check fails during prescription.",
+        "Incorrect dosage is accepted.",
+        "System fails to log prescription entries."
+      ],
+      "task_guidance": "Develop a prescription module with allergy and dosage checks, ensuring data validation and logging.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-017",
+      "title": "Support duplicate detection and controlled merge of patient records",
+      "release": "r4",
+      "fulfills": [
+        "REQ-018"
+      ],
+      "narrative": "As a system administrator, I want to detect and merge duplicate patient records, so that I can maintain accurate patient data.",
+      "acceptance": [
+        "Given duplicate patient records, when detected, then the system suggests a controlled merge.",
+        "Given a merge conflict, when resolved, then the system preserves linked data.",
+        "Trust: All merge actions are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-014"
+      ],
+      "owner_agent": "System Administrator",
+      "failure_paths": [
+        "Duplicate records are not detected.",
+        "Merge conflicts are not resolved correctly.",
+        "System fails to log merge actions."
+      ],
+      "task_guidance": "Implement duplicate detection algorithms and a controlled merge interface, ensuring data integrity and logging.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    },
+    {
+      "id": "STORY-018",
+      "title": "Provide data portability with patient export and import capabilities",
+      "release": "r4",
+      "fulfills": [
+        "REQ-019"
+      ],
+      "narrative": "As a data manager, I want to export and import patient data, so that I can ensure data portability and compliance.",
+      "acceptance": [
+        "Given a patient record, when exported, then the system provides a portable data format.",
+        "Given an incorrect import file, when processed, then the system rejects it and prompts for correction.",
+        "Trust: All export and import actions are logged with user ID and timestamp."
+      ],
+      "blocked_by": [
+        "STORY-017"
+      ],
+      "owner_agent": "Data Manager",
+      "failure_paths": [
+        "Exported data is not in a portable format.",
+        "Incorrect import files are accepted.",
+        "System fails to log export/import actions."
+      ],
+      "task_guidance": "Develop export and import functionalities for patient data, ensuring format compliance and logging.",
+      "due_on": "2026-10-01",
+      "due_baseline_on": "2026-10-01"
+    }
+  ],
+  "agents": [],
+  "project": {
+    "name": "Alveara Dental",
+    "descriptor": "A modern dental EHR and PMS for general dentistry, with core clinical and administrative functions usable offline, and a client-independent domain model for future expansion.",
+    "repo_url": "https://github.com/baidhani/Alveara-Dental",
+    "plan_version": 1,
+    "plan_sha256": "6f87e846da2da669f44192c1688b0d821ddf5ed59c5ba36b544463846a7aa5e8"
+  },
+  "schedule": {
+    "build_start": "2026-10-01",
+    "build_end": "2026-10-01",
+    "demo_day": "2026-10-08",
+    "build_weeks": 1,
+    "demo_release_key": "r0",
+    "roadmap_release_keys": [
+      "r1",
+      "r2",
+      "r3",
+      "r4"
+    ],
+    "prep": [
+      {
+        "key": "PREP-1",
+        "title": "Write the demo narrative: the problem, the one moment, the guardrail",
+        "due_on": "2026-10-02"
+      },
+      {
+        "key": "PREP-2",
+        "title": "Record a first run-through and watch it back",
+        "due_on": "2026-10-03"
+      },
+      {
+        "key": "PREP-3",
+        "title": "Build the slides — what it does, who for, the number it moves",
+        "due_on": "2026-10-05"
+      },
+      {
+        "key": "PREP-4",
+        "title": "Rehearse with one other person and take their notes",
+        "due_on": "2026-10-06"
+      },
+      {
+        "key": "PREP-5",
+        "title": "Record the final demo video",
+        "due_on": "2026-10-07"
+      },
+      {
+        "key": "PREP-6",
+        "title": "Present at Demo Day",
+        "due_on": "2026-10-08"
+      }
+    ]
+  },
+  "derived": {
+    "measures": [],
+    "guardrails": [
+      {
+        "id": "REQ-001",
+        "statement": "The system must support unique user accounts with secure password storage and configurable session timeout."
+      },
+      {
+        "id": "REQ-002",
+        "statement": "The system must provide role-based access control (RBAC) for dentist, hygienist, assistant, front desk, billing, office manager, and admin roles."
+      },
+      {
+        "id": "REQ-003",
+        "statement": "The system must audit account and role changes with user and timestamp."
+      }
+    ],
+    "systems": [],
+    "roles": [
+      "admin",
+      "system auditor",
+      "front desk staff",
+      "scheduler",
+      "clinician",
+      "dentist",
+      "billing specialist",
+      "receptionist",
+      "billing manager",
+      "system administrator",
+      "data manager"
+    ],
+    "counts": {
+      "requirements_total": 20,
+      "requirements_by_kind": {
+        "CONSTRAINT": 1,
+        "FUNC": 16,
+        "SAFE": 3
+      },
+      "stories_total": 18,
+      "releases_total": 5,
+      "agents_total": 0,
+      "failure_paths_total": 58,
+      "agents_by_autonomy": {}
+    }
+  }
+}
