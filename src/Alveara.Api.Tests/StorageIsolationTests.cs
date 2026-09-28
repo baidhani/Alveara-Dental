@@ -95,7 +95,9 @@ public class StorageIsolationTests : IClassFixture<TestDatabaseFixture>
         }
 
         var defaultStorageRoot = Path.GetFullPath(Path.Combine(projectDir, "App_Data", "blobs"));
-        var defaultClientBuildPath = Path.GetFullPath(Path.Combine(projectDir, "..", "alveara-client", "dist"));
+        // Matches Program.cs's primary default (the publish-output layout): wwwroot under the
+        // content root, populated by Alveara.Api.csproj's CopyClientBuildToPublishOutput target.
+        var defaultClientBuildPath = Path.GetFullPath(Path.Combine(projectDir, "wwwroot"));
 
         Assert.NotEqual(defaultStorageRoot, defaultClientBuildPath, StringComparer.OrdinalIgnoreCase);
         Assert.False(

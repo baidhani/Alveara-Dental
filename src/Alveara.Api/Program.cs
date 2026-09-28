@@ -62,6 +62,12 @@ builder.Services.AddHostedService<BackgroundJobHostedService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// N002-R03-02: registered first so no unhandled exception (including a raw SQL/EF exception
+// carrying literal database values) reaches the built-in developer-exception-page/hosting
+// diagnostics logger before this safe summary does.
+app.UseMiddleware<Alveara.Api.Architecture.Logging.SafeExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -75,15 +81,26 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// N002-R02-01: this is what makes "a LAN client can use the production shell with no public
-// internet" a real, single-process topology rather than an API-only demonstration. The built
-// React client (npm run build's dist/) is served as static files from this same Kestrel process,
-// with an SPA fallback so client-side routes (e.g. /system-status) resolve to index.html on a
-// direct request or refresh. In development the client is normally served separately by Vite
-// (see vite.config.ts's dev proxy); this path only activates when a build actually exists, so it
-// never masks the dev workflow.
-var clientBuildPath = builder.Configuration["ClientBuildPath"]
-    ?? Path.Combine(builder.Environment.ContentRootPath, "..", "alveara-client", "dist");
+// N002-R02-01/N002-R03-01: this is what makes "a LAN client can use the production shell with no
+// public internet" a real, single-process topology rather than an API-only demonstration. The
+// built React client is served as static files from this same Kestrel process, with an SPA
+// fallback so client-side routes (e.g. /system-status) resolve to index.html on a direct request
+// or refresh.
+//
+// The default path is `wwwroot` under the content root — the same directory `dotnet publish`
+// actually populates (see Alveara.Api.csproj's CopyClientBuildToPublishOutput target), so a real
+// published server output serves the shell without any extra manual step. During ordinary
+// repository-layout development (no publish, client normally served separately by Vite — see
+// vite.config.ts's dev proxy), this also transparently picks up a `dist/` a developer built
+// directly into `src/alveara-client/` if `wwwroot` doesn't exist, so nothing about the dev
+// workflow breaks. Either way, this path only activates when a build actually exists.
+var clientBuildPath = builder.Configuration["ClientBuildPath"];
+if (string.IsNullOrEmpty(clientBuildPath))
+{
+    var wwwroot = Path.Combine(builder.Environment.ContentRootPath, "wwwroot");
+    var repoLayoutDist = Path.Combine(builder.Environment.ContentRootPath, "..", "alveara-client", "dist");
+    clientBuildPath = File.Exists(Path.Combine(wwwroot, "index.html")) ? wwwroot : repoLayoutDist;
+}
 clientBuildPath = Path.GetFullPath(clientBuildPath);
 
 if (Directory.Exists(clientBuildPath) && File.Exists(Path.Combine(clientBuildPath, "index.html")))

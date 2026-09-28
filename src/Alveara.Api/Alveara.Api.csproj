@@ -16,4 +16,26 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
   </ItemGroup>
 
+  <!--
+    N002-R03-01: `dotnet publish` must produce a self-contained server output that includes the
+    built client, not just the API. Without this target, Program.cs's static-file serving only
+    ever worked against the repository's own working tree (where a developer had separately run
+    `npm run build`), never against the actual deployable publish output.
+  -->
+  <PropertyGroup>
+    <ClientProjectDir>$(MSBuildThisFileDirectory)..\alveara-client\</ClientProjectDir>
+  </PropertyGroup>
+
+  <Target Name="BuildClientForPublish" BeforeTargets="Publish">
+    <Exec Command="npm ci" WorkingDirectory="$(ClientProjectDir)" />
+    <Exec Command="npm run build" WorkingDirectory="$(ClientProjectDir)" />
+  </Target>
+
+  <Target Name="CopyClientBuildToPublishOutput" AfterTargets="Publish" DependsOnTargets="BuildClientForPublish">
+    <ItemGroup>
+      <ClientBuildFiles Include="$(ClientProjectDir)dist\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(ClientBuildFiles)" DestinationFolder="$(PublishDir)wwwroot\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>
