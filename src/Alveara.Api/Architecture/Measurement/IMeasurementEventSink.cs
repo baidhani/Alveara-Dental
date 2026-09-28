@@ -11,8 +11,10 @@ public sealed class MeasurementEventSink(AlveraDbContext db) : IMeasurementEvent
 {
     public async Task RecordAsync(string eventName, int schemaVersion, object properties, CancellationToken cancellationToken = default)
     {
+        MeasurementEventValidator.ValidateEventName(eventName);
+        MeasurementEventValidator.ValidateSchemaVersion(schemaVersion);
         var propertiesJson = System.Text.Json.JsonSerializer.Serialize(properties);
-        MeasurementEventValidator.ValidateProperties(propertiesJson); // throws if a disallowed key is present
+        MeasurementEventValidator.ValidateProperties(propertiesJson); // throws if a disallowed/nested/oversized/out-of-range value is present
 
         db.MeasurementEvents.Add(new MeasurementEvent
         {

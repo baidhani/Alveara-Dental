@@ -43,18 +43,34 @@ public sealed class LocalDiskBlobStorage : IBlobStorage
     public async Task<StoredBlob> StoreAsync(Stream content, CancellationToken cancellationToken = default)
     {
         var id = Guid.NewGuid();
-        var path = PathFor(id);
+        var finalPath = PathFor(id);
+        // Write to a temp file first, then atomically move it into place only on success
+        // (N002-R01-06): writing directly to the final path left a partial, corrupt file behind
+        // under a real blob id if the stream was interrupted (disk full, cancellation, etc.).
+        var tempPath = finalPath + ".tmp-" + Guid.NewGuid().ToString("N");
 
-        using var sha256 = SHA256.Create();
-        await using (var fileStream = File.Create(path))
-        await using (var hashingStream = new CryptoStream(fileStream, sha256, CryptoStreamMode.Write, leaveOpen: false))
+        try
         {
-            await content.CopyToAsync(hashingStream, cancellationToken);
-        }
+            using var sha256 = SHA256.Create();
+            await using (var fileStream = File.Create(tempPath))
+            await using (var hashingStream = new CryptoStream(fileStream, sha256, CryptoStreamMode.Write, leaveOpen: false))
+            {
+                await content.CopyToAsync(hashingStream, cancellationToken);
+            }
 
-        var hash = Convert.ToHexStringLower(sha256.Hash!);
-        var size = new FileInfo(path).Length;
-        return new StoredBlob(id, hash, size);
+            File.Move(tempPath, finalPath, overwrite: false);
+
+            var hash = Convert.ToHexStringLower(sha256.Hash!);
+            var size = new FileInfo(finalPath).Length;
+            return new StoredBlob(id, hash, size);
+        }
+        catch
+        {
+            // Never leave a partial artifact under a real blob id, and never leave the orphaned
+            // temp file behind either.
+            if (File.Exists(tempPath)) File.Delete(tempPath);
+            throw;
+        }
     }
 
     public Task<Stream> OpenReadAsync(Guid blobId, CancellationToken cancellationToken = default)

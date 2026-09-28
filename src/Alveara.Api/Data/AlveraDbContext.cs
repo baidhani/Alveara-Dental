@@ -17,6 +17,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<ProviderProfile> ProviderProfiles => Set<ProviderProfile>();
 
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
+    public DbSet<BackgroundJobEffectReceipt> BackgroundJobEffectReceipts => Set<BackgroundJobEffectReceipt>();
     public DbSet<MeasurementEvent> MeasurementEvents => Set<MeasurementEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +46,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         modelBuilder.Entity<BackgroundJob>(e =>
         {
             e.HasIndex(j => j.IdempotencyKey).IsUnique();
+        });
+
+        modelBuilder.Entity<BackgroundJobEffectReceipt>(e =>
+        {
+            e.HasKey(r => r.JobId);
         });
     }
 }

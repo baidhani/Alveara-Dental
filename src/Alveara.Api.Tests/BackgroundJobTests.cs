@@ -1,4 +1,6 @@
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Data;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Alveara.Api.Tests;
@@ -16,7 +18,7 @@ public sealed class CountingJobHandler : IBackgroundJobHandler
     public int ExecutionCount { get; private set; }
     public List<Guid> ExecutedJobIds { get; } = [];
 
-    public Task ExecuteAsync(BackgroundJob job, CancellationToken cancellationToken)
+    public Task ExecuteAsync(BackgroundJob job, AlveraDbContext transactionalDb, CancellationToken cancellationToken)
     {
         ExecutionCount++;
         ExecutedJobIds.Add(job.Id);
@@ -27,8 +29,33 @@ public sealed class CountingJobHandler : IBackgroundJobHandler
 public sealed class AlwaysFailsJobHandler : IBackgroundJobHandler
 {
     public string JobType { get; } = $"test.always-fails.{Guid.NewGuid():N}";
-    public Task ExecuteAsync(BackgroundJob job, CancellationToken cancellationToken) =>
+    public Task ExecuteAsync(BackgroundJob job, AlveraDbContext transactionalDb, CancellationToken cancellationToken) =>
         throw new InvalidOperationException("Simulated persistent failure.");
+}
+
+/// <summary>
+/// A handler whose effect is a real database row written through the SAME transactional context
+/// the runner gives it — this is the pattern N002-R01-01 requires: any local-DB effect commits
+/// atomically with the job's completion receipt, so a crash between "effect committed" and
+/// "job marked Succeeded" cannot cause the effect to be silently reapplied on retry.
+/// </summary>
+public sealed class DatabaseEffectJobHandler : IBackgroundJobHandler
+{
+    public string JobType { get; } = $"test.db-effect-job.{Guid.NewGuid():N}";
+    public string TargetUsernamePrefix { get; } = $"effect-{Guid.NewGuid():N}";
+
+    public Task ExecuteAsync(BackgroundJob job, AlveraDbContext transactionalDb, CancellationToken cancellationToken)
+    {
+        // A representative "local-database effect": inserting a row through the *same* context
+        // the runner will commit together with the effect receipt and Succeeded status.
+        transactionalDb.UserAccounts.Add(new Alveara.Api.Architecture.Identity.UserAccount
+        {
+            Id = Guid.NewGuid(),
+            Username = $"{TargetUsernamePrefix}-{job.Id:N}",
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+        });
+        return Task.CompletedTask;
+    }
 }
 
 public class BackgroundJobTests : IClassFixture<TestDatabaseFixture>
@@ -163,5 +190,192 @@ public class BackgroundJobTests : IClassFixture<TestDatabaseFixture>
         Assert.Equal(BackgroundJobStatus.Failed, job2!.Status);
         Assert.Equal(2, job2.AttemptCount);
         Assert.Contains("Simulated persistent failure", job2.LastError);
+    }
+
+    // --- N002-R01-01 regression: the runner previously committed "InProgress" and "Succeeded" as
+    // two separate SaveChanges calls, with the handler's own effect potentially committed
+    // independently in between — a crash in that window let a recovered retry re-apply the same
+    // effect. The runner now writes the handler's effect (via the shared transactionalDb), a
+    // completion receipt, and the Succeeded status in ONE transaction. ---
+
+    [Fact]
+    public async Task A_handler_s_effect_and_the_job_s_completion_commit_atomically_in_one_transaction()
+    {
+        var handler = new DatabaseEffectJobHandler();
+        Guid jobId;
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var queue = new BackgroundJobQueue(db);
+            var job = await queue.EnqueueAsync($"effect:{Guid.NewGuid()}", handler.JobType, null);
+            jobId = job.Id;
+
+            var runner = new BackgroundJobRunner(db, [handler]);
+            await runner.ProcessOnceAsync();
+        }
+
+        await using var verifyDb = _fixture.CreateContext();
+        var job2 = await verifyDb.BackgroundJobs.FindAsync(jobId);
+        Assert.Equal(BackgroundJobStatus.Succeeded, job2!.Status);
+
+        var effectRows = verifyDb.UserAccounts.Count(u => u.Username.StartsWith(handler.TargetUsernamePrefix));
+        Assert.Equal(1, effectRows); // exactly one effect row — not zero (lost) and not duplicated
+
+        var receiptExists = verifyDb.BackgroundJobEffectReceipts.Any(r => r.JobId == jobId);
+        Assert.True(receiptExists);
+    }
+
+    [Fact]
+    public async Task Recovery_does_not_re_invoke_the_handler_when_an_effect_receipt_already_exists_for_the_job()
+    {
+        // Simulates a handler whose effect is NOT a simple row in the shared transactionalDb (an
+        // "outbox-style" handler that manages its own durable commit for a non-local effect) —
+        // the effect + receipt were already committed by a prior attempt, then the process
+        // crashed before the job's own status could be updated in that same prior attempt. This
+        // is the defensive path the effect-receipt check exists for.
+        var handler = new CountingJobHandler();
+        Guid jobId;
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var job = new Alveara.Api.Architecture.BackgroundWork.BackgroundJob
+            {
+                Id = Guid.NewGuid(),
+                IdempotencyKey = $"already-applied:{Guid.NewGuid()}",
+                JobType = handler.JobType,
+                Status = BackgroundJobStatus.InProgress,
+                StartedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-10),
+                CreatedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-10),
+            };
+            db.BackgroundJobs.Add(job);
+            db.BackgroundJobEffectReceipts.Add(new Alveara.Api.Architecture.BackgroundWork.BackgroundJobEffectReceipt
+            {
+                JobId = job.Id,
+                RecordedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-10),
+            });
+            await db.SaveChangesAsync();
+            jobId = job.Id;
+        }
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var runner = new BackgroundJobRunner(db, [handler]);
+            await runner.RecoverStuckJobsAsync();
+            await runner.ProcessOnceAsync();
+        }
+
+        Assert.Equal(0, handler.ExecutionCount); // handler must NOT be re-invoked — the effect already happened
+
+        await using var verifyDb = _fixture.CreateContext();
+        var job2 = await verifyDb.BackgroundJobs.FindAsync(jobId);
+        Assert.Equal(BackgroundJobStatus.Succeeded, job2!.Status);
+    }
+
+    [Fact]
+    public async Task Two_concurrent_attempts_to_claim_the_same_job_result_in_exactly_one_execution()
+    {
+        // N002-R01-01 also flagged that claiming was read-then-write, not atomic, so two readers
+        // could both believe they owned the same Pending job. TryClaimAsync uses a single
+        // conditional UPDATE instead; this proves only one of two concurrent runner instances
+        // actually executes the handler.
+        var handler = new CountingJobHandler();
+        Guid jobId;
+
+        await using (var seedDb = _fixture.CreateContext())
+        {
+            var queue = new BackgroundJobQueue(seedDb);
+            var job = await queue.EnqueueAsync($"race:{Guid.NewGuid()}", handler.JobType, null);
+            jobId = job.Id;
+        }
+
+        await using var dbA = _fixture.CreateContext();
+        await using var dbB = _fixture.CreateContext();
+        var runnerA = new BackgroundJobRunner(dbA, [handler]);
+        var runnerB = new BackgroundJobRunner(dbB, [handler]);
+
+        await Task.WhenAll(runnerA.ProcessOnceAsync(), runnerB.ProcessOnceAsync());
+
+        Assert.Equal(1, handler.ExecutionCount);
+        Assert.Equal(jobId, Assert.Single(handler.ExecutedJobIds));
+    }
+
+    [Fact]
+    public async Task Recovery_marks_a_job_that_already_exhausted_MaxAttempts_as_Failed_instead_of_looping_forever()
+    {
+        var handler = new AlwaysFailsJobHandler();
+        Guid jobId;
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var job = new Alveara.Api.Architecture.BackgroundWork.BackgroundJob
+            {
+                Id = Guid.NewGuid(),
+                IdempotencyKey = $"exhausted:{Guid.NewGuid()}",
+                JobType = handler.JobType,
+                Status = BackgroundJobStatus.InProgress,
+                AttemptCount = 3,
+                MaxAttempts = 3,
+                StartedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-10),
+                CreatedAtUtc = DateTimeOffset.UtcNow.AddMinutes(-10),
+            };
+            db.BackgroundJobs.Add(job);
+            await db.SaveChangesAsync();
+            jobId = job.Id;
+        }
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var runner = new BackgroundJobRunner(db, [handler]);
+            var recovered = await runner.RecoverStuckJobsAsync();
+            Assert.Equal(1, recovered);
+        }
+
+        await using var verifyDb = _fixture.CreateContext();
+        var job2 = await verifyDb.BackgroundJobs.FindAsync(jobId);
+        Assert.Equal(BackgroundJobStatus.Failed, job2!.Status); // not reset to Pending yet again
+    }
+
+    [Fact]
+    public async Task Hosted_service_style_recovery_runs_on_every_poll_not_only_once_at_startup()
+    {
+        // N002-R01-02: a process that restarts within the 5-minute stuck threshold would
+        // otherwise never re-check a job it claimed just before crashing, because the old hosted
+        // service only called RecoverStuckJobsAsync once, before the loop started. This proves
+        // the runner's recovery step is safe to call repeatedly and picks up a job that only
+        // *becomes* stale between two calls (simulating "quick restart, then enough time passes").
+        var handler = new CountingJobHandler();
+        Guid jobId;
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var job = new Alveara.Api.Architecture.BackgroundWork.BackgroundJob
+            {
+                Id = Guid.NewGuid(),
+                IdempotencyKey = $"quick-restart:{Guid.NewGuid()}",
+                JobType = handler.JobType,
+                Status = BackgroundJobStatus.InProgress,
+                StartedAtUtc = DateTimeOffset.UtcNow, // NOT yet stale — a "quick restart" scenario
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+            };
+            db.BackgroundJobs.Add(job);
+            await db.SaveChangesAsync();
+            jobId = job.Id;
+        }
+
+        await using var db2 = _fixture.CreateContext();
+        var runner = new BackgroundJobRunner(db2, [handler]);
+
+        var firstAttemptRecovered = await runner.RecoverStuckJobsAsync();
+        Assert.Equal(0, firstAttemptRecovered); // too soon — correctly not recovered yet
+
+        // Time passes; the job is still InProgress from the caller's point of view. A real
+        // deployment calls RecoverStuckJobsAsync on every poll (not only at startup), so the next
+        // call — once the threshold has elapsed — must recover it.
+        await db2.BackgroundJobs
+            .Where(j => j.Id == jobId)
+            .ExecuteUpdateAsync(s => s.SetProperty(j => j.StartedAtUtc, DateTimeOffset.UtcNow.AddMinutes(-10)));
+
+        var secondAttemptRecovered = await runner.RecoverStuckJobsAsync();
+        Assert.Equal(1, secondAttemptRecovered);
     }
 }
