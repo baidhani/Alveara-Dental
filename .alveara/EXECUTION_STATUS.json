@@ -121,20 +121,25 @@
         "Gate A"
       ],
       "status": "AWAITING_REVIEW",
-      "attempt": "R02",
+      "attempt": "R03",
       "acceptance": {
         "total": 9,
-        "passed": 9
+        "passed": 7,
+        "partial": 2,
+        "partialItems": [
+          "Local Windows server / LAN client / no public internet — application-level topology now established (single-origin shell serving, genuine non-bypassed TLS validation over the real LAN interface via curl --resolve, proven storage-root isolation); a genuinely separate physical LAN client machine, a real production Windows Service account, and disabling public internet on this machine were not exercised (would require infrastructure/authorization outside this story's sandboxed scope) — honestly not claimed as fully established.",
+          "LAN client uses API rather than direct database/storage access — least-privilege SQL access and blob-storage web-isolation are both now proven; same limitation as above prevents a full separate-client demonstration."
+        ]
       },
       "tests": {
         "status": "passed",
-        "summary": "136 automated tests (was 57): 61 API xUnit against a real migrated/upgraded SQL Server (LocalDB) database including a real separate-process database-outage test and a real least-privilege SQL login test, 28 client vitest, 40 real-browser Playwright, 7 repo-root node --test. All passing, rerun repeatedly for flakiness. Manually verified real LAN (192.168.1.180, non-loopback) HTTP+HTTPS reachability with genuine TLS handshake."
+        "summary": "141 automated tests (was 136): 66 API xUnit (was 61) against a real migrated/upgraded SQL Server (LocalDB) database, including a real separate-process database-outage test, a real least-privilege SQL login test, new concurrent-enqueue/PHI-safe-logging tests, a proven partial-migration-rollback test, and new blob storage isolation tests; 28 client vitest; 40 real-browser Playwright; 7 repo-root node --test. All passing, rerun repeatedly for flakiness. Manually verified real LAN (192.168.1.180, non-loopback) HTTP+HTTPS reachability with genuine TLS handshake, now including the served production shell itself, not just the API."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "848d0fc8ce2644914429d41f4280c9133990840f",
+      "implementationCommit": "951b4250ff642be111a724a9a167620943a53fa3",
       "evidenceCommit": null,
-      "handoffPath": ".alveara/handoffs/ALV-N002/R02.md",
+      "handoffPath": ".alveara/handoffs/ALV-N002/R03.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
