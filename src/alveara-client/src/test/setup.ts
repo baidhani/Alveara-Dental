@@ -4,11 +4,19 @@ import { toHaveNoViolations } from "jest-axe";
 
 expect.extend(toHaveNoViolations);
 
-// Default: pretend the local API is reachable, so tests unrelated to the
-// disconnected state aren't flaky. Individual tests can override this.
+// Default: pretend the local API is reachable and returns the real health
+// payload shape, so tests unrelated to the disconnected state aren't flaky.
+// A bare { ok: true } is not enough — useConnectionStatus also checks
+// content-type and parses the JSON body, precisely to reject the kind of
+// non-API 200 response that N001-R01-01 found. Individual tests override this.
 beforeEach(() => {
   vi.stubGlobal(
     "fetch",
-    vi.fn().mockResolvedValue({ ok: true } as Response)
+    vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ status: "ok" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    )
   );
 });

@@ -16,7 +16,10 @@ interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 export function FormField({ label, hint, error, id, ...rest }: FormFieldProps) {
   const autoId = useId();
   const fieldId = id ?? autoId;
-  const hintId = hint ? `${fieldId}-hint` : undefined;
+  // hintId must only be set when the hint <p> actually renders (i.e. no
+  // error is present) — otherwise aria-describedby points at a node that
+  // doesn't exist. (Found in ALV-N001 R01 review, N001-R01 notes.)
+  const hintId = hint && !error ? `${fieldId}-hint` : undefined;
   const errorId = error ? `${fieldId}-error` : undefined;
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 

@@ -19,4 +19,25 @@ describe("FormField — validation/error failure path", () => {
     expect(screen.getByText("We'll never share this.")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  it("simultaneous hint + error: hint is hidden and aria-describedby only references the rendered error (no dangling id)", () => {
+    render(
+      <FormField
+        label="Email address"
+        hint="We'll never share this."
+        error="Enter a valid email address."
+      />
+    );
+
+    expect(screen.queryByText("We'll never share this.")).not.toBeInTheDocument();
+
+    const input = screen.getByLabelText("Email address");
+    const error = screen.getByRole("alert");
+    const describedBy = input.getAttribute("aria-describedby") ?? "";
+
+    expect(describedBy).toBe(error.id); // exactly the error id, nothing else
+    for (const id of describedBy.split(/\s+/).filter(Boolean)) {
+      expect(document.getElementById(id)).not.toBeNull(); // every referenced id must exist in the DOM
+    }
+  });
 });

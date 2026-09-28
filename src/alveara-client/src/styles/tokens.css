@@ -109,8 +109,13 @@
   --color-text-muted: #98a7b6;
   --color-text-inverse: #0e151d;
 
-  --color-primary: #5fa2c7;
-  --color-primary-hover: #7fb8d8;
+  /* N001-R01-03 fix: the previous #5fa2c7/#7fb8d8 pair gave white-text contrast
+     of only ~2.8:1 / ~2.2:1 (WCAG AA normal text requires 4.5:1). These two
+     values give ~10.3:1 / ~7.6:1 against white. --color-accent is decorative
+     (brand-mark gradient only, never a text-bearing control background) and
+     is unchanged. */
+  --color-primary: #1f4459;
+  --color-primary-hover: #27587a;
   --color-accent: #74acc4;
 
   --color-success: #4fae79;

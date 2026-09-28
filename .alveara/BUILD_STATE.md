@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-N001 attempt R01 (`AWAITING_REVIEW`), implementation commit `c0368655e3bea674956252b8428e5cf8c29a346b`.
+Last updated: ALV-N001 attempt R02 (`AWAITING_REVIEW`) — see `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA.
 
 ## Production implementation status
 
@@ -11,18 +11,21 @@ Last updated: ALV-N001 attempt R01 (`AWAITING_REVIEW`), implementation commit `c
 ## Application shell (ALV-N001, AWAITING_REVIEW — not yet COMPLETE)
 
 - **Stack decision:** ASP.NET Core Web API (C#, .NET 10) + React 19 + TypeScript (Vite) client, chosen for the client-independent API boundary and JS ecosystem maturity for accessibility/offline tooling. Recorded here as the durable decision; do not re-litigate per-story.
-- **`src/Alveara.Api`** — ASP.NET Core Web API. Currently exposes only `GET /api/health` (liveness check consumed by the client's connection-status hook). CORS scoped to `http://localhost:5173`/`https://localhost:5173` (the Vite dev server) only.
+- **`src/Alveara.Api`** — ASP.NET Core Web API. Currently exposes only `GET /api/health` (liveness check consumed by the client's connection-status hook). CORS scoped to `http://localhost:5173`/`https://localhost:5173` (the Vite dev server) only. **Canonical dev port: 5072** (the `http` profile in `Properties/launchSettings.json`) — the client's Vite dev proxy (`vite.config.ts`) targets this exact port; keep them in sync if either changes.
 - **`src/alveara-client`** — React + TypeScript (Vite) application shell:
-  - Design tokens (`src/styles/tokens.css`): colour (light/dark), typography, spacing, radius, elevation, icon sizing, density, focus ring — single source of truth for all components.
-  - `AppShell` — responsive sidebar navigation driven by `moduleRegistry.ts` (currently 2 entries: Dashboard, Component Showcase), patient-context placeholder region, light/dark theme toggle (persisted to `localStorage`), disconnected-banner wired to `useConnectionStatus` (polls `/api/health` every 15s).
-  - Reusable components built so far: `Button`, `PageHeader`, `FormField` (with `aria-invalid`/`aria-describedby`/`role=alert` wiring), `LoadingState`/`EmptyState`/`ErrorState`, `DisconnectedBanner`, `Notification` (toast) system. Demonstrated on `/showcase`.
+  - Design tokens (`src/styles/tokens.css`): colour (light/dark), typography, spacing, radius, elevation, icon sizing, density, focus ring — single source of truth for all components. Dark-theme `--color-primary`/`--color-primary-hover` are `#1f4459`/`#27587a` (≥7.5:1 white-text contrast; a regression test in `src/styles/contrast.test.ts` enforces ≥4.5:1 for both themes after an earlier attempt shipped ~2.8:1/~2.2:1).
+  - `AppShell` — responsive sidebar navigation driven by `moduleRegistry.ts` (currently 2 entries: Dashboard, Component Showcase; tolerates an empty registry without crashing), patient-context placeholder region, light/dark theme toggle (persisted to `localStorage`), disconnected-banner wired to `useConnectionStatus`.
+  - `useConnectionStatus` polls `/api/health` every 15s, validates both HTTP status **and** the JSON body shape (`{status:"ok"}`) — a bare `res.ok` check previously treated Vite's dev-server HTML fallback (a real 200) as a healthy API when no proxy/listener was behind it. Each check now also times out after 4s and never overlaps a still-in-flight check.
+  - Reusable components: `Button`/`ButtonLink` (the latter for link-styled navigation actions — never nest a `<button>` inside an `<a>`), `PageHeader`, `FormField` (labelled, `aria-invalid`/`aria-describedby`/`role=alert`; `aria-describedby` only ever references an id that is actually rendered), `LoadingState`/`EmptyState`/`ErrorState`, `DisconnectedBanner`, `Notification` (toast) system. Demonstrated on `/showcase`.
   - **No permission-aware navigation yet, by design** — `moduleRegistry.ts` lists every module unconditionally because authentication/RBAC do not exist. `ALV-N009` adds real filtering against this same registry.
-  - Responsive breakpoint at 820px collapses the sidebar to a top bar.
+  - Responsive breakpoint at 820px collapses the sidebar to a top bar; verified with real-browser (Playwright/Chromium) tests at both a 1280×800 desktop and a 768×1024 tablet viewport, not just DOM-structural jsdom checks.
+  - Real-browser accessibility smoke coverage (`e2e/accessibility.spec.ts`, axe via Playwright) now spans Dashboard, Showcase, and the not-found page, in both light and dark theme — not the dashboard alone.
 - **Root STORY-000 Command Center is untouched** — `index.html`, `assets/app.js`, `assets/styles.css` at the repo root are unchanged; the production app lives entirely under `src/alveara-client` and `src/Alveara.Api`.
+- **Test tooling:** `npm run test` (vitest, jsdom) for unit/component tests; `npm run test:e2e` (Playwright, real Chromium) for browser-rendered shell/accessibility tests — the two are mutually exclusive by file location (`e2e/` vs. everywhere else) and vitest's config explicitly excludes `e2e/`.
 
 ## What actually exists in the repository
 
-- **Course scaffold** (`src/`, `docs/`, `tests/`, `.claude/agents/`, `README.md`, `PROGRESS.md`) — created by the course project-folder scaffolding step. `src/`, `tests/`, and `.claude/agents/` are empty directories.
+- **Course scaffold** (`docs/`, `README.md`, `PROGRESS.md`, `.claude/agents/`) — created by the course project-folder scaffolding step. `.claude/agents/` remains an empty directory. `src/` and `tests/` were also part of the scaffold but are **no longer empty** — see "Application shell" below; `src/` now holds the ALV-N001 implementation and `tests/` holds the STORY-000 coexistence check.
 - **Git repository** — initialized, connected to GitHub origin `https://github.com/baidhani/Alveara-Dental`, branch `main`. A push webhook to `https://enterprise.colaberry.ai/api/webhook/github` was registered and observed delivering successfully (HTTP 200) at the time of the STORY-000 session; this is repository-history evidence of past activity, not a live re-check of current service configuration, and should be reconfirmed before being relied upon.
 - **`.colaberry/`** — course/platform-controlled. Contains `connect.txt` (pairing proof), `plan.json`, `progress.json`, `manifest.json`, `profile.json`, written/rewritten by the course platform's sync process. Not modified by this bootstrap.
 - **`docs/`** — course/platform-controlled. Contains `STORIES.md`, `REQUIREMENTS.md`, `TRACEABILITY.md`, `DATA_CONTRACT.md`, and `docs/stories/STORY-000.md` through `STORY-018.md`. Not modified by this bootstrap.
