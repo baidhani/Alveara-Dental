@@ -2,13 +2,13 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-N001 attempt R02 (`AWAITING_REVIEW`) — see `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA.
+Last updated: ALV-N001 `COMPLETE` (approved attempt R02, reviewed and closed) — see `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs. `ALV-N002` is now `READY`.
 
 ## Production implementation status
 
-**Production implementation has begun with ALV-N001 (application shell), `AWAITING_REVIEW`.** No other `ALV-*` story has started. `tests/` at the repo root now holds only the STORY-000 coexistence/regression check (`story-000-coexistence.test.mjs`); no domain/database/authentication code exists yet.
+**`ALV-N001` (application shell) is `COMPLETE`.** No other `ALV-*` story has started. `tests/` at the repo root now holds only the STORY-000 coexistence/regression check (`story-000-coexistence.test.mjs`); no domain/database/authentication code exists yet.
 
-## Application shell (ALV-N001, AWAITING_REVIEW — not yet COMPLETE)
+## Application shell (ALV-N001, COMPLETE — approved attempt R02)
 
 - **Stack decision:** ASP.NET Core Web API (C#, .NET 10) + React 19 + TypeScript (Vite) client, chosen for the client-independent API boundary and JS ecosystem maturity for accessibility/offline tooling. Recorded here as the durable decision; do not re-litigate per-story.
 - **`src/Alveara.Api`** — ASP.NET Core Web API. Currently exposes only `GET /api/health` (liveness check consumed by the client's connection-status hook). CORS scoped to `http://localhost:5173`/`https://localhost:5173` (the Vite dev server) only. **Canonical dev port: 5072** (the `http` profile in `Properties/launchSettings.json`) — the client's Vite dev proxy (`vite.config.ts`) targets this exact port; keep them in sync if either changes.
@@ -39,7 +39,7 @@ Last updated: ALV-N001 attempt R02 (`AWAITING_REVIEW`) — see `.alveara/EXECUTI
 - Authentication, RBAC, MFA, audit logging, or any security control beyond what the course portal's own STORY-001/002 will eventually require.
 - Any patient, scheduling, clinical, billing, document, or reporting functionality.
 - Any encrypted backup/restore capability.
-- Any of the remaining 33 first-release `ALV-*` stories' implementation (only `ALV-N001` has started, and it is `AWAITING_REVIEW`, not `COMPLETE`).
+- Any of the remaining 33 first-release `ALV-*` stories' implementation. `ALV-N002` is `READY` (its only dependency, `ALV-N001`, is now `COMPLETE`) but has not started.
 
 ## Known limitations / open items
 
