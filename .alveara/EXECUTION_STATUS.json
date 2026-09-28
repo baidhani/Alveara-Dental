@@ -121,20 +121,20 @@
         "Gate A"
       ],
       "status": "AWAITING_REVIEW",
-      "attempt": "R01",
+      "attempt": "R02",
       "acceptance": {
         "total": 9,
         "passed": 9
       },
       "tests": {
         "status": "passed",
-        "summary": "API: 39 xUnit tests against a real migrated SQL Server (LocalDB) database (migrations, transaction rollback, timezone/DST, money rounding, background-job restart-recovery/idempotency/retry, measurement-event validation, blob-storage integrity, backup snapshot, system-status graceful degradation, no-public-internet source scan, PHI-safe logging). Client: 3 new vitest tests (SystemStatusPage) + 4 new real-browser Playwright tests, all passing (63 total client tests: 23 vitest + 40 Playwright). Repo-root: 3 new node --test checks (no-direct-db-access topology) + 4 existing STORY-000 coexistence checks, all passing. Manually verified end-to-end against the real dev API + LocalDB."
+        "summary": "136 automated tests (was 57): 61 API xUnit against a real migrated/upgraded SQL Server (LocalDB) database including a real separate-process database-outage test and a real least-privilege SQL login test, 28 client vitest, 40 real-browser Playwright, 7 repo-root node --test. All passing, rerun repeatedly for flakiness. Manually verified real LAN (192.168.1.180, non-loopback) HTTP+HTTPS reachability with genuine TLS handshake."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "7d312b47f9c451ff142e189f8430589658cd353f",
+      "implementationCommit": "848d0fc8ce2644914429d41f4280c9133990840f",
       "evidenceCommit": null,
-      "handoffPath": ".alveara/handoffs/ALV-N002/R01.md",
+      "handoffPath": ".alveara/handoffs/ALV-N002/R02.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
