@@ -73,20 +73,20 @@
         "Gate A"
       ],
       "status": "AWAITING_REVIEW",
-      "attempt": "R01",
+      "attempt": "R02",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Client: 6 test files, 8 tests (accessibility/keyboard/responsive/routing/disconnected smoke + FormField validation), all passing via vitest. API: 1 integration test (health endpoint), passing via dotnet test. Repo-root: 4 STORY-000 coexistence/regression checks, passing via node --test."
+        "summary": "Client: 9 vitest files / 20 tests passing (added: useConnectionStatus regression x6, contrast regression x4, empty-registry failure path, FormField simultaneous hint+error). Real-browser: 32 Playwright/Chromium tests passing (20 shell-behaviour + 12 axe accessibility), across desktop (1280x800) and tablet (768x1024) viewports, both light and dark theme. API: 1 integration test passing (dotnet test). Repo-root: 4 STORY-000 coexistence checks passing (node --test). 2 production builds succeed with zero errors."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "c0368655e3bea674956252b8428e5cf8c29a346b",
+      "implementationCommit": "586256bc1cc1ebc1afbed302eb8c0d7296ffc330",
       "evidenceCommit": null,
-      "handoffPath": ".alveara/handoffs/ALV-N001/R01.md",
+      "handoffPath": ".alveara/handoffs/ALV-N001/R02.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
