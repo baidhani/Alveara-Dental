@@ -121,25 +121,25 @@
         "Gate A"
       ],
       "status": "AWAITING_REVIEW",
-      "attempt": "R03",
+      "attempt": "R04",
       "acceptance": {
         "total": 9,
         "passed": 7,
-        "partial": 2,
-        "partialItems": [
-          "Local Windows server / LAN client / no public internet — application-level topology now established (single-origin shell serving, genuine non-bypassed TLS validation over the real LAN interface via curl --resolve, proven storage-root isolation); a genuinely separate physical LAN client machine, a real production Windows Service account, and disabling public internet on this machine were not exercised (would require infrastructure/authorization outside this story's sandboxed scope) — honestly not claimed as fully established.",
-          "LAN client uses API rather than direct database/storage access — least-privilege SQL access and blob-storage web-isolation are both now proven; same limitation as above prevents a full separate-client demonstration."
+        "notEstablished": 2,
+        "notEstablishedItems": [
+          "Local Windows server / LAN client / no public internet — the code-level defect (client missing from `dotnet publish` output) is fixed and reverified; a real LAN hostname with a certificate a genuinely separate client trusts, and disabling public internet while preserving LAN reachability, are not established and require infrastructure (a VirtualBox VM) currently being provisioned by the product owner.",
+          "LAN client uses API rather than direct database/storage access — no OS-level least-privilege service identity or filesystem ACL has been configured or tested; same infrastructure dependency as above."
         ]
       },
       "tests": {
         "status": "passed",
-        "summary": "141 automated tests (was 136): 66 API xUnit (was 61) against a real migrated/upgraded SQL Server (LocalDB) database, including a real separate-process database-outage test, a real least-privilege SQL login test, new concurrent-enqueue/PHI-safe-logging tests, a proven partial-migration-rollback test, and new blob storage isolation tests; 28 client vitest; 40 real-browser Playwright; 7 repo-root node --test. All passing, rerun repeatedly for flakiness. Manually verified real LAN (192.168.1.180, non-loopback) HTTP+HTTPS reachability with genuine TLS handshake, now including the served production shell itself, not just the API."
+        "summary": "142 automated tests (was 141): 67 API xUnit (was 66; +1 framework-level PHI-safe logging test using the real configured logging pipeline) against a real migrated/upgraded SQL Server (LocalDB) database; 28 client vitest; 40 real-browser Playwright; 7 repo-root node --test. All passing. Additionally reproduced the R03 reviewer's clean `dotnet publish` check directly: a fresh publish output now serves `/`, `/system-status`, and `/api/health` at 200 (previously 404/404/200)."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "951b4250ff642be111a724a9a167620943a53fa3",
-      "evidenceCommit": "1b96e48ab88874bd5bea7f670e22d62f1b2508be",
-      "handoffPath": ".alveara/handoffs/ALV-N002/R03.md",
+      "implementationCommit": "b0ff9a4348231603f432a4f596f97763b8de23a8",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N002/R04.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
@@ -147,7 +147,10 @@
         "reviewedImplementationCommit": null,
         "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "Acceptance item 1 (Local Windows server / LAN client / no public internet) is NOT ESTABLISHED — pending VirtualBox VM infrastructure provisioning (bridged networking, LAN-hostname certificate trust, reversible internet-disable procedure). See .alveara/handoffs/ALV-N002/R04-evidence/NEXT_STORY_IMPACT.md.",
+        "Acceptance item 7 (LAN client uses API rather than direct database/storage access) is NOT ESTABLISHED — pending the same infrastructure, plus a real least-privilege OS service identity and storage-root ACLs."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
