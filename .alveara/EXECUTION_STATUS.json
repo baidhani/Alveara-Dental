@@ -120,21 +120,21 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "READY",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 9,
-        "passed": 0
+        "passed": 9
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "API: 39 xUnit tests against a real migrated SQL Server (LocalDB) database (migrations, transaction rollback, timezone/DST, money rounding, background-job restart-recovery/idempotency/retry, measurement-event validation, blob-storage integrity, backup snapshot, system-status graceful degradation, no-public-internet source scan, PHI-safe logging). Client: 3 new vitest tests (SystemStatusPage) + 4 new real-browser Playwright tests, all passing (63 total client tests: 23 vitest + 40 Playwright). Repo-root: 3 new node --test checks (no-direct-db-access topology) + 4 existing STORY-000 coexistence checks, all passing. Manually verified end-to-end against the real dev API + LocalDB."
       },
-      "demo": "not_started",
-      "parentRegression": "n/a",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "n_a_no_course_parent",
+      "implementationCommit": "7d312b47f9c451ff142e189f8430589658cd353f",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N002/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
