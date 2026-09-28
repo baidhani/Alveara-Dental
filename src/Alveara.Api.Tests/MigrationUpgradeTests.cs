@@ -104,7 +104,7 @@ public class MigrationFailureTests : IAsyncLifetime
             sql => sql.MigrationsAssembly(typeof(MigrationFailureTests).Assembly.FullName)).Options);
 
     [Fact]
-    public async Task A_failing_migration_does_not_leave_the_schema_half_upgraded_or_destroy_existing_data()
+    public async Task A_partially_executed_failing_migration_is_fully_rolled_back_not_left_half_applied_and_does_not_destroy_existing_data()
     {
         Guid seededId;
         await using (var db = CreateContext())
@@ -129,6 +129,39 @@ public class MigrationFailureTests : IAsyncLifetime
         var preservedRow = await verifyDb.Rows.FindAsync(seededId);
         Assert.NotNull(preservedRow); // pre-existing data survived the failed migration attempt
         Assert.Equal("pre-existing data", preservedRow!.Note);
+
+        // The key N002-R02-04 assertion: statement 1 (ADD COLUMN) genuinely executed before
+        // statement 2 failed. If SQL Server's per-migration transaction only protected against
+        // "never ran" rather than actually rolling back a partially-executed migration, this
+        // column would still exist here.
+        var columnExists = await ColumnExistsAsync(verifyDb, "Rows", "AddedByPartialMigration");
+        Assert.False(columnExists, "The first statement's effect must be rolled back along with the migration, not left half-applied.");
+    }
+
+    private static async Task<bool> ColumnExistsAsync(FailureTestDbContext db, string tableName, string columnName)
+    {
+        var connection = db.Database.GetDbConnection();
+        var wasClosed = connection.State != System.Data.ConnectionState.Open;
+        if (wasClosed) await connection.OpenAsync();
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @table AND COLUMN_NAME = @column";
+            var tableParam = command.CreateParameter();
+            tableParam.ParameterName = "@table";
+            tableParam.Value = tableName;
+            command.Parameters.Add(tableParam);
+            var columnParam = command.CreateParameter();
+            columnParam.ParameterName = "@column";
+            columnParam.Value = columnName;
+            command.Parameters.Add(columnParam);
+            var count = (int)(await command.ExecuteScalarAsync())!;
+            return count > 0;
+        }
+        finally
+        {
+            if (wasClosed) await connection.CloseAsync();
+        }
     }
 }
 
@@ -165,17 +198,27 @@ public class FailureTestInitialMigration : Migration
     }
 }
 
-/// <summary>Deliberately references a non-existent column to force a real SQL failure mid-migration.</summary>
+/// <summary>
+/// Performs a REAL, observable DDL change first (adds a genuine column), then fails on a second
+/// statement — so a passing test proves SQL Server's per-migration transaction actually rolls
+/// back a *partially executed* migration, not merely that an immediately-failing single-statement
+/// migration leaves no trace (N002-R02-04: the R02 version of this migration only had the second,
+/// always-failing statement, so it could not distinguish "never ran" from "ran and rolled back").
+/// </summary>
 [DbContext(typeof(FailureTestDbContext))]
 [Migration("00000000000002_BrokenSecondMigration")]
 public class FailureTestBrokenMigration : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
+        // Statement 1: succeeds — a real, checkable schema change.
+        migrationBuilder.Sql("ALTER TABLE [Rows] ADD [AddedByPartialMigration] INT NULL;");
+        // Statement 2: fails — forces the whole migration (including statement 1) to roll back.
         migrationBuilder.Sql("ALTER TABLE [Rows] DROP COLUMN [ThisColumnDoesNotExist];");
     }
 
     protected override void Down(MigrationBuilder migrationBuilder)
     {
+        migrationBuilder.Sql("ALTER TABLE [Rows] DROP COLUMN IF EXISTS [AddedByPartialMigration];");
     }
 }

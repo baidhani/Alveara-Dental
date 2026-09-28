@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using Alveara.Api.Architecture.Logging;
 using Alveara.Api.Data;
 
 namespace Alveara.Api.Architecture.BackgroundWork;
@@ -13,9 +15,14 @@ namespace Alveara.Api.Architecture.BackgroundWork;
 /// (see N002-R01-01).
 ///
 /// For an effect that is NOT representable as a row in this database (e.g. a future handler that
-/// calls an external system), the handler itself is responsible for idempotency: check whether
-/// its own external effect was already applied (e.g. via a domain-specific marker it writes
-/// through <paramref name="transactionalDb"/>) before performing the non-transactional action.
+/// calls an external system), a local "check a marker, then act" sequence is NOT sufficient on
+/// its own (per N002-R02-03): a crash after the external action but before the marker commits
+/// still allows a duplicate on retry, for the same reason N002-R01-01 existed. Such a handler
+/// must instead give the external system a stable idempotency token it honors itself (so a
+/// duplicate call is a safe no-op at the target), or use a proper outbox/inbox delivery pattern.
+/// This story does not implement such a handler — it only establishes the local-effect contract
+/// above; the external-effect contract is future work for whichever story adds the first
+/// non-transactional handler.
 /// </summary>
 public interface IBackgroundJobHandler
 {
@@ -34,9 +41,13 @@ public interface IBackgroundJobQueue
 
 public sealed class BackgroundJobQueue(AlveraDbContext db) : IBackgroundJobQueue
 {
+    // SQL Server error numbers for a unique-constraint/unique-index violation.
+    private const int UniqueConstraintViolation = 2627;
+    private const int UniqueIndexViolation = 2601;
+
     public async Task<BackgroundJob> EnqueueAsync(string idempotencyKey, string jobType, string? payloadJson, CancellationToken cancellationToken = default)
     {
-        var existing = await db.BackgroundJobs.SingleOrDefaultAsync(j => j.IdempotencyKey == idempotencyKey, cancellationToken);
+        var existing = await db.BackgroundJobs.AsNoTracking().SingleOrDefaultAsync(j => j.IdempotencyKey == idempotencyKey, cancellationToken);
         if (existing is not null) return existing;
 
         var job = new BackgroundJob
@@ -49,9 +60,27 @@ public sealed class BackgroundJobQueue(AlveraDbContext db) : IBackgroundJobQueue
             CreatedAtUtc = DateTimeOffset.UtcNow,
         };
         db.BackgroundJobs.Add(job);
-        await db.SaveChangesAsync(cancellationToken);
-        return job;
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            return job;
+        }
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+        {
+            // N002-R02-03: two concurrent callers can both pass the read-check above before
+            // either commits. The unique index on IdempotencyKey then makes exactly one insert
+            // win; the loser converges on the winner's row instead of surfacing a raw database
+            // exception, so EnqueueAsync keeps its documented "idempotent enqueue" contract even
+            // under a genuine race, not only when calls happen to be sequential.
+            db.ChangeTracker.Clear(); // discard the failed insert attempt from this context
+            return await db.BackgroundJobs.AsNoTracking().SingleAsync(j => j.IdempotencyKey == idempotencyKey, cancellationToken);
+        }
     }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException ex) =>
+        ex.InnerException is SqlException sqlEx &&
+        sqlEx.Errors.Cast<SqlError>().Any(e => e.Number is UniqueConstraintViolation or UniqueIndexViolation);
 }
 
 /// <summary>
@@ -75,7 +104,10 @@ public sealed class BackgroundJobQueue(AlveraDbContext db) : IBackgroundJobQueue
 /// restart-recovery and idempotency are deterministically testable without an actual process
 /// restart.
 /// </summary>
-public sealed class BackgroundJobRunner(AlveraDbContext db, IEnumerable<IBackgroundJobHandler> handlers)
+public sealed class BackgroundJobRunner(
+    AlveraDbContext db,
+    IEnumerable<IBackgroundJobHandler> handlers,
+    Microsoft.Extensions.Logging.ILogger<BackgroundJobRunner>? logger = null)
 {
     private static readonly TimeSpan StuckThreshold = TimeSpan.FromMinutes(5);
 
@@ -186,7 +218,10 @@ public sealed class BackgroundJobRunner(AlveraDbContext db, IEnumerable<IBackgro
             db.ChangeTracker.Clear();
             var exhausted = snapshot.AttemptCount >= snapshot.MaxAttempts;
             var statusAfterFailure = exhausted ? BackgroundJobStatus.Failed : BackgroundJobStatus.Pending;
-            await SetStatusAsync(jobId, statusAfterFailure, ex.Message, cancellationToken);
+            var safeSummary = SafeErrorSummary(ex, jobId);
+            await SetStatusAsync(jobId, statusAfterFailure, safeSummary, cancellationToken);
+            // Safe-summary only (never ex.Message) — see SafeErrorSummary's doc comment.
+            logger?.LogWarning("Background job execution failed: {SafeSummary}", safeSummary);
         }
 
         return true;
@@ -213,6 +248,19 @@ public sealed class BackgroundJobRunner(AlveraDbContext db, IEnumerable<IBackgro
                     .SetProperty(j => j.LastError, error),
                 cancellationToken);
     }
+
+    /// <summary>
+    /// PHI-safe diagnostic boundary (N002-R02-02): a handler's exception message is caller-
+    /// supplied text this runner cannot assume is free of patient content — a future handler
+    /// might throw something like "Failed to process appointment for Jane Doe." This never
+    /// persists <c>ex.Message</c> anywhere; it persists only the exception's .NET type name
+    /// (a developer-controlled identifier, not caller data) plus a correlation token, which is
+    /// enough for an operator to find the job and its real stack trace in a dedicated,
+    /// access-controlled diagnostics sink (not yet built — out of this story's scope) without
+    /// exposing potentially sensitive text in an ordinary database column or log line.
+    /// </summary>
+    private static string SafeErrorSummary(Exception ex, Guid jobId) =>
+        $"{ex.GetType().Name} ({PhiSafeLog.Correlate("BackgroundJob", jobId)})";
 }
 
 /// <summary>
@@ -252,7 +300,13 @@ public sealed class BackgroundJobHostedService(
             {
                 // Must never escape: an unhandled exception here would stop the whole host
                 // (N002-R01-03), e.g. if the database is briefly unavailable at startup.
-                logger.LogError(ex, "Background job poll failed; will retry next interval.");
+                //
+                // Logged as the exception TYPE only, not the full exception/ex.Message
+                // (N002-R02-02): this catch is a defense-in-depth backstop for anything
+                // unexpected escaping ExecuteSingleJobAsync's own try/catch, so this runner
+                // cannot assume the escaped exception's message is free of caller-supplied
+                // (potentially patient-related) content either.
+                logger.LogError("Background job poll failed ({ExceptionType}); will retry next interval.", ex.GetType().Name);
             }
 
             try

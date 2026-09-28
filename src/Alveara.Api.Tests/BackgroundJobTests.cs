@@ -189,7 +189,11 @@ public class BackgroundJobTests : IClassFixture<TestDatabaseFixture>
         var job2 = await verifyDb.BackgroundJobs.FindAsync(jobId);
         Assert.Equal(BackgroundJobStatus.Failed, job2!.Status);
         Assert.Equal(2, job2.AttemptCount);
-        Assert.Contains("Simulated persistent failure", job2.LastError);
+        // N002-R02-02: LastError must be a safe type-name + correlation summary, never the raw
+        // exception message — see the dedicated PHI-boundary tests below for the full proof.
+        Assert.Contains(nameof(InvalidOperationException), job2.LastError);
+        Assert.Contains(jobId.ToString("N"), job2.LastError);
+        Assert.DoesNotContain("Simulated persistent failure", job2.LastError);
     }
 
     // --- N002-R01-01 regression: the runner previously committed "InProgress" and "Succeeded" as
@@ -377,5 +381,141 @@ public class BackgroundJobTests : IClassFixture<TestDatabaseFixture>
 
         var secondAttemptRecovered = await runner.RecoverStuckJobsAsync();
         Assert.Equal(1, secondAttemptRecovered);
+    }
+
+    // --- N002-R02-02 regression: reproduces the reviewer's exact synthetic-PHI-shaped
+    // exception-message scenario and proves it no longer reaches persisted storage. ---
+
+    [Fact]
+    public async Task A_handler_exception_containing_synthetic_patient_like_text_never_reaches_persisted_LastError()
+    {
+        var handler = new ThrowsWithMessageJobHandler("Synthetic patient Alice Example, treatment detail");
+        Guid jobId;
+
+        await using (var db = _fixture.CreateContext())
+        {
+            var job = new Alveara.Api.Architecture.BackgroundWork.BackgroundJob
+            {
+                Id = Guid.NewGuid(),
+                IdempotencyKey = $"phi-boundary:{Guid.NewGuid()}",
+                JobType = handler.JobType,
+                MaxAttempts = 1,
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+            };
+            db.BackgroundJobs.Add(job);
+            await db.SaveChangesAsync();
+            jobId = job.Id;
+
+            var runner = new BackgroundJobRunner(db, [handler]);
+            await runner.ProcessOnceAsync();
+        }
+
+        await using var verifyDb = _fixture.CreateContext();
+        var job2 = await verifyDb.BackgroundJobs.FindAsync(jobId);
+        Assert.Equal(BackgroundJobStatus.Failed, job2!.Status);
+        Assert.DoesNotContain("Alice Example", job2.LastError);
+        Assert.DoesNotContain("patient", job2.LastError, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(nameof(InvalidOperationException), job2.LastError);
+        Assert.Contains(jobId.ToString("N"), job2.LastError);
+    }
+
+    // --- N002-R02-03 regression: two concurrent enqueue calls for the same idempotency key,
+    // synchronized against a real database, must both converge on one durable job — not have one
+    // caller observe a raw DbUpdateException. ---
+
+    [Fact]
+    public async Task Two_concurrent_enqueue_calls_for_the_same_idempotency_key_both_succeed_and_return_the_same_job()
+    {
+        var idempotencyKey = $"concurrent-enqueue:{Guid.NewGuid()}";
+        var jobType = $"test.concurrent-enqueue.{Guid.NewGuid():N}";
+
+        await using var dbA = _fixture.CreateContext();
+        await using var dbB = _fixture.CreateContext();
+        var queueA = new BackgroundJobQueue(dbA);
+        var queueB = new BackgroundJobQueue(dbB);
+
+        var results = await Task.WhenAll(
+            queueA.EnqueueAsync(idempotencyKey, jobType, null),
+            queueB.EnqueueAsync(idempotencyKey, jobType, null));
+
+        Assert.Equal(results[0].Id, results[1].Id); // both callers converge on the same durable job
+
+        await using var verifyDb = _fixture.CreateContext();
+        var count = verifyDb.BackgroundJobs.Count(j => j.IdempotencyKey == idempotencyKey);
+        Assert.Equal(1, count); // exactly one row, not zero (lost) and not two (duplicated)
+
+        // Clean up: this job is deliberately never processed, and the test database is shared
+        // across every [Fact] in this class — left Pending forever, it would be picked up (and
+        // correctly rejected as "no handler registered," but still counted) by another test's
+        // ProcessOnceAsync call, inflating that test's expected per-call processed count for a
+        // reason unrelated to what that test is checking (the same class of bug fixed earlier in
+        // this file for the idempotent-enqueue test).
+        verifyDb.BackgroundJobs.RemoveRange(verifyDb.BackgroundJobs.Where(j => j.IdempotencyKey == idempotencyKey));
+        await verifyDb.SaveChangesAsync();
+    }
+}
+
+/// <summary>Test handler whose exception message can be set to arbitrary (synthetic) content, to prove the runner never persists it verbatim.</summary>
+public sealed class ThrowsWithMessageJobHandler(string message) : IBackgroundJobHandler
+{
+    public string JobType { get; } = $"test.throws-with-message.{Guid.NewGuid():N}";
+    public Task ExecuteAsync(BackgroundJob job, AlveraDbContext transactionalDb, CancellationToken cancellationToken) =>
+        throw new InvalidOperationException(message);
+}
+
+/// <summary>Captures every formatted log message so a test can assert on exactly what was logged, without wiring a real logging provider.</summary>
+public sealed class CapturingLogger<T> : Microsoft.Extensions.Logging.ILogger<T>
+{
+    public List<string> Messages { get; } = [];
+
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+    public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
+
+    public void Log<TState>(
+        Microsoft.Extensions.Logging.LogLevel logLevel,
+        Microsoft.Extensions.Logging.EventId eventId,
+        TState state,
+        Exception? exception,
+        Func<TState, Exception?, string> formatter)
+    {
+        Messages.Add(formatter(state, exception));
+    }
+}
+
+public class BackgroundJobPhiSafeLoggingTests : IClassFixture<TestDatabaseFixture>
+{
+    private readonly TestDatabaseFixture _fixture;
+
+    public BackgroundJobPhiSafeLoggingTests(TestDatabaseFixture fixture)
+    {
+        _fixture = fixture;
+    }
+
+    [Fact]
+    public async Task The_configured_logging_sink_never_receives_the_raw_exception_message_only_the_safe_summary()
+    {
+        var handler = new ThrowsWithMessageJobHandler("Synthetic patient Bob Example, diagnosis detail");
+        var capturingLogger = new CapturingLogger<BackgroundJobRunner>();
+
+        await using var db = _fixture.CreateContext();
+        var job = new Alveara.Api.Architecture.BackgroundWork.BackgroundJob
+        {
+            Id = Guid.NewGuid(),
+            IdempotencyKey = $"phi-log-boundary:{Guid.NewGuid()}",
+            JobType = handler.JobType,
+            MaxAttempts = 1,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+        };
+        db.BackgroundJobs.Add(job);
+        await db.SaveChangesAsync();
+
+        var runner = new BackgroundJobRunner(db, [handler], capturingLogger);
+        await runner.ProcessOnceAsync();
+
+        var allLogText = string.Join("\n", capturingLogger.Messages);
+        Assert.DoesNotContain("Bob Example", allLogText);
+        Assert.DoesNotContain("diagnosis", allLogText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(nameof(InvalidOperationException), allLogText); // operators still get a safe, correlatable signal
+        Assert.Contains(job.Id.ToString("N"), allLogText);
     }
 }
