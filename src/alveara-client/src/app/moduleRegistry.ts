@@ -16,4 +16,5 @@ export interface ModuleDefinition {
 export const moduleRegistry: ModuleDefinition[] = [
   { id: "dashboard", label: "Dashboard", path: "/" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
+  { id: "system-status", label: "System Status", path: "/system-status" },
 ];

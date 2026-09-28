@@ -2,11 +2,29 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-N001 `COMPLETE` (approved attempt R02, reviewed and closed) — see `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs. `ALV-N002` is now `READY`.
+Last updated: ALV-N002 attempt R01 (`AWAITING_REVIEW`) — see `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`.** No other `ALV-*` story has started. `tests/` at the repo root now holds only the STORY-000 coexistence/regression check (`story-000-coexistence.test.mjs`); no domain/database/authentication code exists yet.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `AWAITING_REVIEW`.** No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+
+## Core architecture (ALV-N002, AWAITING_REVIEW — not yet COMPLETE)
+
+- **Database engine decision:** SQL Server Express for the actual local Windows server deployment; SQL LocalDB (the same SQL Server engine) for development and automated tests — a deliberate, documented choice, not a shortcut: both speak the same T-SQL/EF Core SqlServer-provider surface, so tests exercise real migrations/transactions/constraints, not an in-memory fake. Chosen (with the product owner) over SQLite specifically because a dental practice has multiple concurrent LAN writers (front desk, clinicians, billing) and SQLite serializes writes practice-wide.
+- **`src/Alveara.Api/Data/AlveraDbContext.cs`** — the single EF Core DbContext; `src/Alveara.Api/Migrations/` holds the initial schema migration (`InitialArchitecture`), applied and verified against a real SQL Server (LocalDB) database.
+- **`src/Alveara.Api/Architecture/`** — the cross-cutting invariants this story exists to establish, each with its own tests:
+  - `Time/PracticeClock.cs` — practice-timezone (`America/Chicago` by default, configurable) ↔ UTC conversion; explicitly rejects (or, when asked, explicitly resolves) DST spring-forward-invalid and fall-back-ambiguous local times rather than silently guessing.
+  - `Money/Money.cs` — `decimal`-backed, USD/2dp, banker's-rounding (round-half-to-even) money type; never `double`/`float`.
+  - `Identity/IdentityEntities.cs` — `UserAccount`, `StaffProfile`, `ProviderProfile` as three distinct, explicitly-linked entities. No authentication logic yet — that's STORY-001/ALV-001-C01.
+  - `Storage/IBlobStorage.cs` — local-disk blob storage seam; stored identity is a generated Guid, never a caller-supplied filename; SHA-256 integrity verification. No document module yet — that's ALV-N010/ALV-010-C01.
+  - `Backup/IBackupSnapshotProvider.cs` — `SqlServerBackupSnapshotProvider` uses real `BACKUP DATABASE`, not a raw file copy. Consumed later by `ALV-N004`.
+  - `BackgroundWork/BackgroundJobRunner.cs` — durable, persisted background-job mechanism: idempotent enqueue (unique `IdempotencyKey`), restart recovery (`RecoverStuckJobsAsync` resets jobs stuck `InProgress` for >5 minutes back to `Pending`), bounded retries (`MaxAttempts`), no distributed broker. `BackgroundJobHostedService` polls every 10s in production; `BackgroundJobRunner`'s own methods are unit-tested directly (not only through the hosted-service loop) so restart recovery is deterministically testable.
+  - `Measurement/MeasurementEvent.cs` — versioned (`SchemaVersion`), privacy-minimized operational events; `MeasurementEventValidator` rejects any property key not on a small allow-list, so a PHI-shaped field (e.g. `patientName`) can't be recorded even accidentally.
+  - `Logging/PhiSafeLog.cs` — correlation-token convention (entity type + id only, never a free-text field) for ordinary diagnostic logs.
+- **`src/Alveara.Api/Controllers/SystemStatusController.cs`** (`GET /api/systemstatus`) — truthful app version / local-server / database / background-runner status; degrades gracefully (never a 500) when the database is unreachable.
+- **Client `SystemStatusPage`** (`/system-status`, in the module registry) — admin-visible status page reading the above endpoint; explicitly distinguishes "local server unavailable" (server/API unreachable) from "public internet" state (`navigator.onLine`, with an honest caveat that this is a best-effort browser signal, not an internet-reachability probe, and does not imply local-server reachability either way).
+- **Server-owned database topology enforced two ways:** the connection string exists only in server-side configuration (never sent to the client — see `tests/no-direct-db-access.test.mjs`, which also proves the client project has no SQL/DB driver dependency at all), and the API's health/status endpoints are the only way any client ever learns about database state.
+- **No public-internet dependency for core workflows:** `NoPublicInternetDependencyTests.cs` scans the API's source for any reference to a non-localhost HTTP endpoint and finds none, so no core request-handling code path could reach the public internet even by accident.
 
 ## Application shell (ALV-N001, COMPLETE — approved attempt R02)
 
@@ -35,11 +53,11 @@ Last updated: ALV-N001 `COMPLETE` (approved attempt R02, reviewed and closed) �
 
 ## What does not exist yet
 
-- Any architecture/deployment/database/background-job foundation (`ALV-N002`).
-- Authentication, RBAC, MFA, audit logging, or any security control beyond what the course portal's own STORY-001/002 will eventually require.
-- Any patient, scheduling, clinical, billing, document, or reporting functionality.
-- Any encrypted backup/restore capability.
-- Any of the remaining 33 first-release `ALV-*` stories' implementation. `ALV-N002` is `READY` (its only dependency, `ALV-N001`, is now `COMPLETE`) but has not started.
+- Authentication, RBAC, MFA, audit logging, or any security control beyond what the course portal's own STORY-001/002 will eventually require. (`ALV-N002`'s identity entities are schema-only; no login logic exists.)
+- Any patient, scheduling, clinical, billing, document, or reporting functionality. (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves.)
+- Any encrypted backup/restore capability (`ALV-N004` builds this on top of `IBackupSnapshotProvider`).
+- Windows-service install/deployment automation — `ALV-N002` runs via `dotnet run`/LocalDB in dev; actual SQL Server Express + Windows Service packaging is `ALV-N013`'s job.
+- Any of the remaining 32 first-release `ALV-*` stories' implementation.
 
 ## Known limitations / open items
 
