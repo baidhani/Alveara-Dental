@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 1,
+    "stories_verified": 2,
     "stories_submitted": 0,
-    "stories_in_progress": 18,
+    "stories_in_progress": 17,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 5,
-    "points_awarded": 1621
+    "criteria_passed": 8,
+    "points_awarded": 1663
   },
   "stories": [
     {
@@ -94,19 +94,15 @@
       "notes": "PBKDF2-HMAC-SHA256 password hashing (210k iterations, random salt per hash). Cookie-based session auth with per-account configurable SessionTimeoutMinutes driving server-side ticket expiration (verified by setting an already-elapsed timeout and confirming rejection, not by inspecting cookie headers, since a non-persistent cookie carries no Expires attribute even though the server still enforces it). Account lockout after 5 failed attempts (15 min), using an atomic ExecuteUpdateAsync increment so concurrent failed logins cannot lose an increment to a race - verified with a real concurrent-request test. All account/role-change events (register, login success/failure, lockout, role change) write an audit entry in the same DB transaction as the change itself. Known regression (not fixed, flagged for reviewer): adding the non-nullable Role column broke Alveara.Api.Tests/MigrationUpgradeTests.cs (from ALV-N002), whose \"seed on an older migration\" test inserts via the current EF model rather than raw SQL matching that older schema. Out of this story's file scope; needs a follow-up fix to MigrationUpgradeTests.cs itself.",
       "updated_at": "2026-09-29T15:50:44Z",
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a new user, when they register, then their account is created with secure password storage.",
-          "Given a user, when they attempt to log in with incorrect credentials multiple times, then their account is locked.",
-          "Trust: All account and role changes are audited with user and timestamp."
-        ]
+        "verified_at": "2026-09-29T15:52:11.639Z",
+        "commit_sha": "3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
+        "commit_at": "2026-09-29T15:52:00Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
