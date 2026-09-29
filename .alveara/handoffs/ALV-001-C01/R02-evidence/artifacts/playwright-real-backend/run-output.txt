@@ -1,0 +1,10 @@
+
+Running 5 tests using 1 worker
+
+  ok 1 [chromium] › e2e\auth-real-backend.spec.ts:41:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (285ms)
+  ok 2 [chromium] › e2e\auth-real-backend.spec.ts:50:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (839ms)
+  ok 3 [chromium] › e2e\auth-real-backend.spec.ts:64:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (1.4s)
+  ok 4 [chromium] › e2e\auth-real-backend.spec.ts:95:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout (403ms)
+  ok 5 [chromium] › e2e\auth-real-backend.spec.ts:109:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (109ms)
+
+  5 passed (5.3s)

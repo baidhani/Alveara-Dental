@@ -220,35 +220,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "148 of 148 backend (dotnet test) + 34 of 34 frontend (vitest) passing. Includes the full STORY-001 regression suite (revised only where it encoded the removed insecure caller-selected-role-assignment behavior), plus new coverage for bootstrap one-time/race-safety, registration role-lockdown, login/lockout rearm/concurrency-race, structural timing-parity, MFA enrollment/challenge/recovery, password reset, permission matrix (unit + HTTP), rate limiting, cookie security attributes, and account/session audit entries. Independently re-verified by the R01 reviewer: 148 API + 34 client, all passing. See .alveara/handoffs/ALV-001-C01/R01-evidence/TEST_RESULTS.md."
+        "summary": "158 of 158 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 5 of 5 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 10 new backend tests this attempt close the pending-enrollment, challenge-invalidation, and MFA/recovery-audit findings from the R01 review; 6 new frontend tests cover the new MfaSettingsPage/PermissionMatrixPage/AdminUserDetailPage. See .alveara/handoffs/ALV-001-C01/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "01afb667cb18d37643ae48ca3341477b05b04ed",
-      "evidenceCommit": "c1424da8702f819a73c3496b7820b0964e51e42e",
-      "handoffPath": ".alveara/handoffs/ALV-001-C01/R01.md",
+      "implementationCommit": "f5757719df03eb2e3a7759e0a89eefca71232739",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-001-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "01afb667cb18d37643ae48ca3341477b05b04ed",
-        "reviewedEvidenceCommit": "c1424da8702f819a73c3496b7820b0964e51e42e"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-001-C01-R01-01 (P1): BeginMfaEnrollmentAsync replaces the active TOTP secret and deletes all recovery codes before any replacement factor is confirmed - an authenticated session can disable a confirmed MFA factor just by starting re-enrollment and abandoning it.",
-        "ALV-001-C01-R01-02 (P1): the MFA challenge payload is not bound to the account's SecurityStamp, so a challenge issued before a password reset or explicit session revocation remains usable to mint a new session for up to 5 minutes afterward.",
-        "ALV-001-C01-R01-03 (P1): Totp.cs is a hand-rolled TOTP/Base32 implementation, contrary to the Engineering/Product Reference's proven-cryptography rule (no custom crypto - use a maintained library/platform facility).",
-        "ALV-001-C01-R01-04 (P1): MFA/recovery lifecycle events (enrollment/replacement, recovery-code consumption, challenge success) are not audited; LoginSucceeded is recorded before the MFA factor is actually verified.",
-        "ALV-001-C01-R01-05 (P1): no MFA enrollment/replacement UI, no permission-matrix UI, no authorized session-timeout configuration UI/API, and no live-browser demonstration of the security-administration UI."
-      ],
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-001-C01/R02.md 'Corrections made' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the five R01 findings (ALV-001-C01-R01-01 through -05). Original R01 review text preserved at .alveara/reviews/ALV-001-C01/R01.md.",
       "revalidation": {
         "required": false,
         "reason": null

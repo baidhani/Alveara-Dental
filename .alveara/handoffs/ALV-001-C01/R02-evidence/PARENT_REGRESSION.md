@@ -1,0 +1,3 @@
+# ALV-001-C01 R02 — Parent (STORY-001) Regression
+
+No change from R01's assessment (`.alveara/handoffs/ALV-001-C01/R01-evidence/PARENT_REGRESSION.md`, itself independently confirmed PASS by the R01 reviewer's "Acceptance assessment" table: "Original STORY-001 acceptance and 102-test baseline | PASS; expanded backend suite passes 148/148"). This attempt's corrections touch only MFA/challenge/audit/UI code paths introduced by `ALV-001-C01` itself — no STORY-001-originated test was modified in R02. The full STORY-001 regression suite continues to pass as part of the 158/158 total (see `TEST_RESULTS.md`).
