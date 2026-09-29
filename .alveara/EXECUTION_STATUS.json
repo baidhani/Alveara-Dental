@@ -120,29 +120,39 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R05",
       "acceptance": {
         "total": 9,
-        "passed": 9
+        "passed": 7,
+        "partial": 2,
+        "partialItems": [
+          "Local Windows server / LAN client / no public internet — real bridged client, trusted LAN hostname, shell and API credibly demonstrated; public internet remained available to the browser client itself (only the server host's internet was blocked).",
+          "LAN client uses API rather than direct database/storage access — HTTP topology and restricted-SQL-capability tests exist; the actual server process/service identity/storage ACL and a client direct-access denial were not exercised together (the R05 ACL demo used a stand-in folder and accounts on the client VM, not the server's real runtime)."
+        ]
       },
       "tests": {
         "status": "passed",
-        "summary": "142 automated tests, unchanged from R04 (67 API xUnit + 28 client vitest + 40 real-browser Playwright + 7 repo-root node --test), re-run as a sanity check — no application source changed this attempt. Acceptance items 1 and 7 closed via real infrastructure (VirtualBox VM bridged onto the LAN, real LAN-hostname certificate trust validated with no bypass, a real firewall-level public-internet cutoff with simultaneous LAN-success confirmation, real OS-level least-privilege account + ACL enforcement with a genuine negative-access denial) — see .alveara/handoffs/ALV-N002/R05-evidence/DEMO_EVIDENCE.md for the full transcript."
+        "summary": "142 automated tests, unchanged from R04 (67 API xUnit + 28 client vitest + 40 real-browser Playwright + 7 repo-root node --test) — reviewer independently reran and confirmed all 142 passing. R05's own package inaccurately claimed the full 142 as rerun for R05 when only the 67 API tests actually were (N002-R05-04, P2) — corrected for R06."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
       "implementationCommit": "dae6250e57489199c82669427807be46c718b566",
-      "evidenceCommit": null,
+      "evidenceCommit": "49219fddee6131220206c316e5d6e5f00f965acd",
       "handoffPath": ".alveara/handoffs/ALV-N002/R05.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N002/R05.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "dae6250e57489199c82669427807be46c718b566",
+        "reviewedEvidenceCommit": "49219fddee6131220206c316e5d6e5f00f965acd"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "N002-R05-01 (P1): the browser/LAN client's own public-internet access was not blocked or tested — only the server host's was.",
+        "N002-R05-02 (P1): the service-identity/ACL demonstration used a stand-in folder and accounts on the client VM, not the actual server process, its real storage root, or a client direct-access denial against the real database/storage.",
+        "N002-R05-03 (P1): R05 was started before R04 received an independent review decision, bypassing the required stop-for-review protocol.",
+        "N002-R05-04 (P2): the R05 package inaccurately claimed all 142 tests were rerun for R05 when only 67 were."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
