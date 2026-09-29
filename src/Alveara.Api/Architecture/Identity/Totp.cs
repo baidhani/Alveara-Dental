@@ -1,4 +1,7 @@
 using System.Security.Cryptography;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Alveara.Api.Tests")]
 
 namespace Alveara.Api.Architecture.Identity;
 
@@ -56,6 +59,31 @@ public static class Totp
             | (hash[offset + 3] & 0xFF);
         var code = binaryCode % (int)Math.Pow(10, Digits);
         return code.ToString().PadLeft(Digits, '0');
+    }
+
+    /// <summary>Test-only: computes the code a real authenticator app would show right now for this
+    /// secret, so tests can drive enrollment/challenge without a real device.</summary>
+    internal static string GenerateCodeForTests(byte[] secret, DateTimeOffset? atUtc = null) =>
+        ComputeCode(secret, (atUtc ?? DateTimeOffset.UtcNow).ToUnixTimeSeconds() / StepSeconds);
+
+    /// <summary>Test-only: decodes the Base32 secret <see cref="ToBase32"/> hands to an
+    /// authenticator app, so tests can recover the raw secret bytes to compute codes with.</summary>
+    internal static byte[] FromBase32(string base32)
+    {
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var bytes = new List<byte>();
+        int bits = 0, value = 0;
+        foreach (var c in base32)
+        {
+            value = (value << 5) | alphabet.IndexOf(char.ToUpperInvariant(c));
+            bits += 5;
+            if (bits >= 8)
+            {
+                bytes.Add((byte)((value >> (bits - 8)) & 0xFF));
+                bits -= 8;
+            }
+        }
+        return bytes.ToArray();
     }
 
     /// <summary>Verifies a submitted code against the secret, tolerating +/- one 30s step of clock skew.</summary>
