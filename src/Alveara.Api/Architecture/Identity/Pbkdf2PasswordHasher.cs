@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace Alveara.Api.Architecture.Identity;
 
@@ -15,6 +16,22 @@ public static class Pbkdf2PasswordHasher
     private const int KeySizeBytes = 32;
     private const int Iterations = 210_000; // OWASP-recommended floor for PBKDF2-HMAC-SHA256 as of 2023.
 
+    // ALV-001-C01: a fixed, valid-shaped hash Verify runs against for a login whose username
+    // doesn't exist, so that branch pays the same PBKDF2 work a real (wrong-password) verification
+    // would — the specific fix for the timing-based username-enumeration side channel. Computed
+    // once, from a value that is not a real password and is never used for anything else.
+    public static readonly string DummyHashForUnknownUser = Hash("dummy-hash-for-unknown-user-timing-parity");
+
+    // Test-visible instrumentation only: proves structurally (call count) that the unknown-user
+    // and wrong-password login paths perform the same number of PBKDF2 verifications, rather than
+    // relying solely on a flaky wall-clock timing assertion. A process-wide counter only gives a
+    // reliable answer if nothing else in the process calls Verify concurrently while it's being
+    // measured - the test assembly disables collection parallelization for exactly this reason
+    // (see CollectionBehaviorSetup.cs).
+    private static long _verifyCallCount;
+    public static long VerifyCallCount => Interlocked.Read(ref _verifyCallCount);
+    public static void ResetVerifyCallCountForTests() => Interlocked.Exchange(ref _verifyCallCount, 0);
+
     public static string Hash(string password)
     {
         var salt = RandomNumberGenerator.GetBytes(SaltSizeBytes);
@@ -24,6 +41,8 @@ public static class Pbkdf2PasswordHasher
 
     public static bool Verify(string password, string encodedHash)
     {
+        Interlocked.Increment(ref _verifyCallCount);
+
         var parts = encodedHash.Split('$');
         if (parts.Length != 4 || parts[0] != "pbkdf2-sha256")
         {

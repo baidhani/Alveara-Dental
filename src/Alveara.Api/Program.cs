@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
 using Alveara.Api.Architecture.Identity;
@@ -61,14 +62,40 @@ builder.Services.AddScoped<BackgroundJobRunner>();
 builder.Services.AddSingleton<BackgroundJobRunnerHeartbeat>();
 builder.Services.AddHostedService<BackgroundJobHostedService>();
 
-// STORY-001: authentication + RBAC. Cookie-based session, since the client is served
+// STORY-001/ALV-001-C01: authentication + RBAC. Cookie-based session, since the client is served
 // same-origin (see the static-file-serving block below) — no bearer-token plumbing needed for a
 // LAN-only app. The default challenge/forbid behavior redirects to a login *page*, which makes
 // no sense for a JSON API, so both are overridden to return plain status codes instead.
 builder.Services.AddScoped<AccountService>();
+
+// Data Protection backs both the MFA-secret-at-rest protector and the short-lived MFA challenge
+// token. Keys are persisted to disk (not the default in-memory/user-profile location) so a
+// restart doesn't invalidate every enrolled MFA secret or in-flight challenge.
+var dataProtectionKeysPath = builder.Configuration["DataProtectionKeysPath"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+
+// CSRF protection for cookie-authenticated state-changing calls (ALV-001-C01 requirement). A
+// double-submit pattern: the client reads the token from a non-HttpOnly cookie the antiforgery
+// middleware sets and echoes it back in this header on any state-changing request.
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-Token";
+    options.Cookie.Name = "Alveara-CSRF";
+});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+        // Deployment-appropriate cookie attributes: HttpOnly is the ASP.NET Core cookie-auth
+        // default already; Secure and SameSite are set explicitly here rather than left implicit.
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest // dev also runs over plain HTTP on localhost
+            : CookieSecurePolicy.Always;
+
         options.Events.OnRedirectToLogin = context =>
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -78,6 +105,33 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             return Task.CompletedTask;
+        };
+
+        // ALV-001-C01 "explicit sign-out/revocation": a session's SecurityStamp claim is checked
+        // against the account's current value on every request. Rotating the stamp (password
+        // reset, role change, disable, MFA change, or an explicit "revoke all sessions" call)
+        // invalidates every cookie issued before the rotation — real server-side revocation
+        // without a server-side session store.
+        options.Events.OnValidatePrincipal = async context =>
+        {
+            var stampClaim = context.Principal?.FindFirst("security_stamp")?.Value;
+            var userIdClaim = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (stampClaim is null || userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                context.RejectPrincipal();
+                return;
+            }
+
+            var db = context.HttpContext.RequestServices.GetRequiredService<AlveraDbContext>();
+            var currentStamp = await db.UserAccounts
+                .Where(u => u.Id == userId)
+                .Select(u => (Guid?)u.SecurityStamp)
+                .SingleOrDefaultAsync();
+
+            if (currentStamp is null || currentStamp.Value.ToString() != stampClaim)
+            {
+                context.RejectPrincipal();
+            }
         };
     });
 builder.Services.AddAuthorization();
@@ -102,6 +156,7 @@ app.UseCors(LocalClientCorsPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseAntiforgery();
 
 app.MapControllers();
 

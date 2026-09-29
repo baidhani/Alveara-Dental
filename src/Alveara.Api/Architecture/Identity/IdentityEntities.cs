@@ -24,6 +24,28 @@ public class UserAccount
 
     public int SessionTimeoutMinutes { get; set; } = 30;
     public DateTimeOffset CreatedAtUtc { get; set; }
+
+    // ALV-001-C01 additions below.
+
+    /// <summary>A disabled account can never authenticate, regardless of password/MFA/lockout state.</summary>
+    public bool IsDisabled { get; set; }
+
+    /// <summary>
+    /// Regenerated on password change, MFA change, disable, or role change. Embedded as a claim
+    /// in the session cookie and checked on every request (see CookieAuthenticationOptions'
+    /// OnValidatePrincipal) — a stamp mismatch means the session was issued before a
+    /// security-relevant change and is rejected, giving real server-side "sign out everywhere"
+    /// without needing a server-side session store.
+    /// </summary>
+    public Guid SecurityStamp { get; set; } = Guid.NewGuid();
+
+    public bool MfaEnabled { get; set; }
+
+    /// <summary>
+    /// The TOTP secret, protected at rest via ASP.NET Core's Data Protection API (never stored or
+    /// logged in plaintext). Null until MFA enrollment completes.
+    /// </summary>
+    public string? MfaSecretProtected { get; set; }
 }
 
 /// <summary>An employment/staff record — may or may not have a login (e.g. a biller might not).</summary>

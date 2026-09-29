@@ -28,4 +28,12 @@ public static class AuditEventTypes
     public const string LoginFailed = "LoginFailed";
     public const string AccountLockedOut = "AccountLockedOut";
     public const string RoleChanged = "RoleChanged";
+
+    // ALV-001-C01 additions.
+    public const string AccountEnabled = "AccountEnabled";
+    public const string AccountDisabled = "AccountDisabled";
+    public const string MfaEnabled = "MfaEnabled";
+    public const string PasswordResetIssued = "PasswordResetIssued";
+    public const string PasswordReset = "PasswordReset";
+    public const string SessionsRevoked = "SessionsRevoked";
 }
