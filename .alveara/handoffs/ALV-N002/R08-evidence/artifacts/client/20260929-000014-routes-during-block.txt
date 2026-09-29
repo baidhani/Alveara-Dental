@@ -1,0 +1,5 @@
+﻿=== Route sweep: during-block ===
+OK  200  https://alveara-server.local:7180/  CapturedAtUtc=2026-09-29T05:01:02.3208686Z
+OK  200  https://alveara-server.local:7180/system-status  CapturedAtUtc=2026-09-29T05:01:02.3820500Z
+OK  200  https://alveara-server.local:7180/api/health  CapturedAtUtc=2026-09-29T05:01:02.4319433Z
+OK  200  https://alveara-server.local:7180/api/systemstatus  CapturedAtUtc=2026-09-29T05:01:02.4896599Z

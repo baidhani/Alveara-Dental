@@ -1,0 +1,24 @@
+﻿Block applied at (UTC): 2026-09-29T05:00:59.2205160Z
+Scheduled auto-revert at: 09/29/2026 00:06:02
+
+--- Public-internet probe BEFORE block ---
+
+Pinging 8.8.8.8 with 32 bytes of data:
+Reply from 8.8.8.8: bytes=32 time=4ms TTL=115
+Reply from 8.8.8.8: bytes=32 time=3ms TTL=115
+
+Ping statistics for 8.8.8.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 3ms, Maximum = 4ms, Average = 3ms
+
+
+--- Public-internet probe DURING block (expected to fail) ---
+
+Pinging 8.8.8.8 with 32 bytes of data:
+General failure.
+General failure.
+
+Ping statistics for 8.8.8.8:
+    Packets: Sent = 2, Received = 0, Lost = 2 (100% loss),
+

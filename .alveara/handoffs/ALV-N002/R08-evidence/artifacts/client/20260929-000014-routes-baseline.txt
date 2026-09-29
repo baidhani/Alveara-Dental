@@ -1,0 +1,5 @@
+﻿=== Route sweep: baseline ===
+OK  200  https://alveara-server.local:7180/  CapturedAtUtc=2026-09-29T05:00:14.7805133Z
+OK  200  https://alveara-server.local:7180/system-status  CapturedAtUtc=2026-09-29T05:00:14.8252468Z
+OK  200  https://alveara-server.local:7180/api/health  CapturedAtUtc=2026-09-29T05:00:14.8991036Z
+OK  200  https://alveara-server.local:7180/api/systemstatus  CapturedAtUtc=2026-09-29T05:00:15.0130972Z

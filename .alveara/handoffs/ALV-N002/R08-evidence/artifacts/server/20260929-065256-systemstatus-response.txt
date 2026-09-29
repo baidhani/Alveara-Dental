@@ -1,0 +1,5 @@
+﻿StatusCode: 200
+Body: {"appVersion":"1.0.0.0","localServerReachable":true,"database":{"reachable":true},"backgroundRunner":{"status":"healthy","lastPollUtc":"2026-09-29T11:52:52.5739807+00:00"}}
+
+Result: PASS: HTTP 200, database.reachable=true
+CapturedAtUtc: 2026-09-29T11:52:56.7011029Z

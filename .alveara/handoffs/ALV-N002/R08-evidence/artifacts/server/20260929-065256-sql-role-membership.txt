@@ -1,0 +1,11 @@
+﻿
+role_name     member_name      
+---------     -----------      
+db_datareader alveara_app_login
+db_datawriter alveara_app_login
+
+
+
+
+Result: PASS: exactly db_datareader + db_datawriter
+CapturedAtUtc: 2026-09-29T11:52:56.7354216Z

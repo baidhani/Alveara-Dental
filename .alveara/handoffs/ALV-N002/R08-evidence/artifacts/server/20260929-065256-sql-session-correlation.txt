@@ -1,0 +1,10 @@
+﻿
+session_id login_name        host_name      program_name                                      host_process_id status  
+---------- ----------        ---------      ------------                                      --------------- ------  
+        51 alveara_app_login WINDOWS-11-VM3 EFCore/10.0.12 (Microsoft Windows 10.0.26200 X64)            7172 sleeping
+
+
+
+
+Result: PASS: live session(s) under alveara_app_login report host_process_id=7172, matching the running API process
+CapturedAtUtc: 2026-09-29T11:52:56.7090251Z

@@ -1,0 +1,21 @@
+﻿{
+    "capturedAtUtc":  "2026-09-29T11:52:58.8550164Z",
+    "serviceAccountName":  "svc-alveara-api",
+    "ordinaryAccountName":  "test-ordinary-user",
+    "apiProcessName":  "Alveara.Api",
+    "apiPid":  7172,
+    "apiBaseUrl":  "https://alveara-server.local:7180",
+    "storageRoot":  "C:\\AlveaaraServer\\App_Data\\blobs",
+    "sqlInstance":  "localhost\\SQLEXPRESS",
+    "sqlDatabase":  "AlveraLanServerDemo",
+    "sqlLogin":  "alveara_app_login",
+    "results":  {
+                    "processIdentity":  "PASS: running as svc-alveara-api (PID 7172)",
+                    "systemStatusResponse":  "PASS: HTTP 200, database.reachable=true",
+                    "sqlSessionLinkedToApi":  "PASS: live session(s) under alveara_app_login report host_process_id=7172, matching the running API process",
+                    "sqlRoles":  "PASS: exactly db_datareader + db_datawriter",
+                    "storageAcl":  "PASS: only svc-alveara-api (+ Administrators) present, no broad-access entries",
+                    "ordinaryDenial":  "PASS: ordinary account denied, and result file confirms the actual runtime identity was test-ordinary-user",
+                    "serviceWriteRead":  "PASS: service account genuinely wrote/read the real storage root, and result file confirms the actual runtime identity was svc-alveara-api"
+                }
+}

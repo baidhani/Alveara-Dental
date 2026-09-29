@@ -1,0 +1,8 @@
+﻿C:\AlveaaraServer\App_Data\blobs BUILTIN\Administrators:(OI)(CI)(F)
+                                 WINDOWS-11-VM3\svc-alveara-api:(OI)(CI)(F)
+
+Successfully processed 1 files; Failed processing 0 files
+
+
+Result: PASS: only svc-alveara-api (+ Administrators) present, no broad-access entries
+CapturedAtUtc: 2026-09-29T11:52:56.7497121Z
