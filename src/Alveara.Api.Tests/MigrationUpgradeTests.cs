@@ -33,21 +33,23 @@ public class MigrationUpgradeTests : IClassFixture<TestDatabaseFixture>
             await migrator.MigrateAsync(firstMigration); // downgrade to only the initial migration
         }
 
-        Guid seededUserId;
+        Guid seededUserId = Guid.NewGuid();
         await using (var db = _fixture.CreateContext())
         {
             var applied = await db.Database.GetAppliedMigrationsAsync();
             Assert.Single(applied); // confirms we are genuinely starting from the older schema
 
-            var user = new Alveara.Api.Architecture.Identity.UserAccount
-            {
-                Id = Guid.NewGuid(),
-                Username = $"pre-upgrade-user-{Guid.NewGuid():N}",
-                CreatedAtUtc = DateTimeOffset.UtcNow,
-            };
-            db.UserAccounts.Add(user);
-            await db.SaveChangesAsync();
-            seededUserId = user.Id;
+            // Seeded via raw SQL matching the *older* schema's exact column set (Id, Username,
+            // PasswordHash, SessionTimeoutMinutes, CreatedAtUtc — no Role, no lockout columns,
+            // which only exist from AddAuthenticationAndRbac onward). Seeding through the
+            // current EF model here would insert columns this downgraded table doesn't have yet
+            // and fail with a SQL error the moment any later migration adds a required column —
+            // exactly the regression STORY-001 exposed. This row represents data that genuinely
+            // predates every column added after the first migration, so it must be written the
+            // way the first migration's schema actually looked, not the current one.
+            await db.Database.ExecuteSqlInterpolatedAsync($@"
+                INSERT INTO UserAccounts (Id, Username, PasswordHash, SessionTimeoutMinutes, CreatedAtUtc)
+                VALUES ({seededUserId}, {$"pre-upgrade-user-{Guid.NewGuid():N}"}, NULL, 30, {DateTimeOffset.UtcNow})");
         }
 
         // The actual upgrade.
