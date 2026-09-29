@@ -121,25 +121,20 @@
         "Gate A"
       ],
       "status": "AWAITING_REVIEW",
-      "attempt": "R04",
+      "attempt": "R05",
       "acceptance": {
         "total": 9,
-        "passed": 7,
-        "notEstablished": 2,
-        "notEstablishedItems": [
-          "Local Windows server / LAN client / no public internet — the code-level defect (client missing from `dotnet publish` output) is fixed and reverified; a real LAN hostname with a certificate a genuinely separate client trusts, and disabling public internet while preserving LAN reachability, are not established and require infrastructure (a VirtualBox VM) currently being provisioned by the product owner.",
-          "LAN client uses API rather than direct database/storage access — no OS-level least-privilege service identity or filesystem ACL has been configured or tested; same infrastructure dependency as above."
-        ]
+        "passed": 9
       },
       "tests": {
         "status": "passed",
-        "summary": "142 automated tests (was 141): 67 API xUnit (was 66; +1 framework-level PHI-safe logging test using the real configured logging pipeline) against a real migrated/upgraded SQL Server (LocalDB) database; 28 client vitest; 40 real-browser Playwright; 7 repo-root node --test. All passing. Additionally reproduced the R03 reviewer's clean `dotnet publish` check directly: a fresh publish output now serves `/`, `/system-status`, and `/api/health` at 200 (previously 404/404/200)."
+        "summary": "142 automated tests, unchanged from R04 (67 API xUnit + 28 client vitest + 40 real-browser Playwright + 7 repo-root node --test), re-run as a sanity check — no application source changed this attempt. Acceptance items 1 and 7 closed via real infrastructure (VirtualBox VM bridged onto the LAN, real LAN-hostname certificate trust validated with no bypass, a real firewall-level public-internet cutoff with simultaneous LAN-success confirmation, real OS-level least-privilege account + ACL enforcement with a genuine negative-access denial) — see .alveara/handoffs/ALV-N002/R05-evidence/DEMO_EVIDENCE.md for the full transcript."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "b0ff9a4348231603f432a4f596f97763b8de23a8",
+      "implementationCommit": "dae6250e57489199c82669427807be46c718b566",
       "evidenceCommit": null,
-      "handoffPath": ".alveara/handoffs/ALV-N002/R04.md",
+      "handoffPath": ".alveara/handoffs/ALV-N002/R05.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
@@ -147,10 +142,7 @@
         "reviewedImplementationCommit": null,
         "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "Acceptance item 1 (Local Windows server / LAN client / no public internet) is NOT ESTABLISHED — pending VirtualBox VM infrastructure provisioning (bridged networking, LAN-hostname certificate trust, reversible internet-disable procedure). See .alveara/handoffs/ALV-N002/R04-evidence/NEXT_STORY_IMPACT.md.",
-        "Acceptance item 7 (LAN client uses API rather than direct database/storage access) is NOT ESTABLISHED — pending the same infrastructure, plus a real least-privilege OS service identity and storage-root ACLs."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
