@@ -15,6 +15,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<UserAccount> UserAccounts => Set<UserAccount>();
     public DbSet<StaffProfile> StaffProfiles => Set<StaffProfile>();
     public DbSet<ProviderProfile> ProviderProfiles => Set<ProviderProfile>();
+    public DbSet<AuditLogEntry> AuditLogEntries => Set<AuditLogEntry>();
 
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
     public DbSet<BackgroundJobEffectReceipt> BackgroundJobEffectReceipts => Set<BackgroundJobEffectReceipt>();

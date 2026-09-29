@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
 using Alveara.Api.Architecture.Storage;
 using Alveara.Api.Architecture.Time;
@@ -59,6 +61,27 @@ builder.Services.AddScoped<BackgroundJobRunner>();
 builder.Services.AddSingleton<BackgroundJobRunnerHeartbeat>();
 builder.Services.AddHostedService<BackgroundJobHostedService>();
 
+// STORY-001: authentication + RBAC. Cookie-based session, since the client is served
+// same-origin (see the static-file-serving block below) — no bearer-token plumbing needed for a
+// LAN-only app. The default challenge/forbid behavior redirects to a login *page*, which makes
+// no sense for a JSON API, so both are overridden to return plain status codes instead.
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        };
+    });
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -77,6 +100,7 @@ app.UseHttpsRedirection();
 
 app.UseCors(LocalClientCorsPolicy);
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

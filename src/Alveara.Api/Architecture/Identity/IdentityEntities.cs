@@ -3,19 +3,24 @@ namespace Alveara.Api.Architecture.Identity;
 /// <summary>
 /// Three distinct entities per ALV-N002's identity-separation requirement. A person's login
 /// account, their staff employment profile, and their clinical provider profile are related but
-/// distinct concepts, linked explicitly rather than conflated. No authentication logic lives here
-/// yet — that is STORY-001/ALV-001-C01's job; this story only establishes the schema boundary so
-/// later scheduling/clinical attribution never has to depend on the auth table's identity.
+/// distinct concepts, linked explicitly rather than conflated.
 /// </summary>
 public class UserAccount
 {
     public Guid Id { get; set; }
     public required string Username { get; set; }
 
-    // Populated by STORY-001/ALV-001-C01. Nullable here because this story does not implement
-    // authentication; it only reserves the column so the auth story doesn't have to migrate a
-    // differently-shaped table later.
+    // STORY-001: PBKDF2 hash, never the plaintext password. Nullable only because ALV-N002
+    // seeded this column before this story existed; every account this story creates has one.
     public string? PasswordHash { get; set; }
+
+    public Role Role { get; set; }
+
+    // STORY-001 account-lockout state. A failed login increments the counter; reaching the
+    // configured threshold sets LockedOutUntilUtc, after which further attempts — even with the
+    // correct password — are rejected until that time passes. A successful login resets both.
+    public int FailedLoginAttempts { get; set; }
+    public DateTimeOffset? LockedOutUntilUtc { get; set; }
 
     public int SessionTimeoutMinutes { get; set; } = 30;
     public DateTimeOffset CreatedAtUtc { get; set; }

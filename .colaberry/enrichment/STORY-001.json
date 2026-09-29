@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-001",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-09-29T15:50:44Z",
+  "sourceCommitSha": null,
+  "factProposals": [
+    {
+      "dimension": "security_context",
+      "value": "User accounts authenticate with PBKDF2-HMAC-SHA256 password hashing (210,000 iterations, random salt per password) and a server-enforced, per-account configurable session timeout via cookie authentication tickets.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/Pbkdf2PasswordHasher.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "RBAC is enforced per-request via ASP.NET Core [Authorize(Roles=...)] against a single Role claim per account, drawn from a fixed seven-value set: Dentist, Hygienist, Assistant, FrontDesk, Billing, OfficeManager, Admin.",
+      "evidence": "src/Alveara.Api/Controllers/AuthController.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "An account is locked out for 15 minutes after 5 consecutive failed login attempts; the lockout genuinely blocks login (even with the correct password) until that time elapses, and the failed-attempt counter is incremented atomically so it holds under concurrent failed-login attempts against the same account.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/AccountService.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Account registration, login success/failure, account lockout, and role changes each write an audit log entry (event type, target account, performing account where applicable, timestamp) in the same database transaction as the change itself.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/AuditLogEntry.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Modeled RBAC as a single Role enum value per account rather than a many-role or composable-claims model.",
+      "rationale": "REQ-002 lists seven roles that are job titles, not composable capabilities, so one role per account is the simplest model that satisfies the requirement as written.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/Role.cs"
+    },
+    {
+      "statement": "Used ASP.NET Core cookie authentication rather than a bearer token for sessions.",
+      "rationale": "The client is served same-origin from the same Kestrel process (established in ALV-N002), so there is no cross-origin token requirement a cookie can't satisfy more simply.",
+      "evidence": "src/Alveara.Api/Program.cs"
+    },
+    {
+      "statement": "Incremented the failed-login-attempt counter with an atomic database UPDATE rather than a load-modify-save cycle.",
+      "rationale": "Release r0's stated landing condition explicitly requires demonstrating RBAC and audit capabilities holding under concurrent access; a load-modify-save counter can lose an increment when two failed logins race.",
+      "evidence": "src/Alveara.Api.Tests/AccountServiceLoginTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "No password-reset or email-verification flow exists yet; only registration, login, logout, and admin-driven role change.",
+      "evidence": "src/Alveara.Api/Controllers/AuthController.cs"
+    },
+    {
+      "statement": "The lockout threshold (5 attempts) and duration (15 minutes) are fixed constants, not yet configurable per practice or per admin setting.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/AccountService.cs"
+    },
+    {
+      "statement": "Adding the non-nullable Role column exposed a pre-existing gap in an ALV-N002 test (MigrationUpgradeTests.cs), which seeds a row representing an older schema version through the current EF model rather than raw SQL matching that older schema, and now fails when a later migration adds a required column. Not fixed as part of this story since the affected file is outside STORY-001's scope; flagged for the reviewer.",
+      "evidence": "src/Alveara.Api.Tests/MigrationUpgradeTests.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/Pbkdf2PasswordHasherTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AccountServiceRegistrationTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AccountServiceLoginTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AccountServiceRoleChangeTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AuthControllerTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AuthControllerRbacTests.cs" }
+  ],
+  "measurementEvents": []
+}

@@ -61,21 +61,38 @@
       "criteria": [
         {
           "text": "Given a new user, when they register, then their account is created with secure password storage.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a user, when they attempt to log in with incorrect credentials multiple times, then their account is locked.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All account and role changes are audited with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
-      "updated_at": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Identity/Role.cs",
+        "src/Alveara.Api/Architecture/Identity/IdentityEntities.cs",
+        "src/Alveara.Api/Architecture/Identity/AuditLogEntry.cs",
+        "src/Alveara.Api/Architecture/Identity/Pbkdf2PasswordHasher.cs",
+        "src/Alveara.Api/Architecture/Identity/AccountService.cs",
+        "src/Alveara.Api/Controllers/AuthController.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20260929134742_AddAuthenticationAndRbac.cs"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/Pbkdf2PasswordHasherTests.cs",
+        "src/Alveara.Api.Tests/AccountServiceRegistrationTests.cs",
+        "src/Alveara.Api.Tests/AccountServiceLoginTests.cs",
+        "src/Alveara.Api.Tests/AccountServiceRoleChangeTests.cs",
+        "src/Alveara.Api.Tests/AuthControllerTests.cs",
+        "src/Alveara.Api.Tests/AuthControllerRbacTests.cs"
+      ],
+      "notes": "PBKDF2-HMAC-SHA256 password hashing (210k iterations, random salt per hash). Cookie-based session auth with per-account configurable SessionTimeoutMinutes driving server-side ticket expiration (verified by setting an already-elapsed timeout and confirming rejection, not by inspecting cookie headers, since a non-persistent cookie carries no Expires attribute even though the server still enforces it). Account lockout after 5 failed attempts (15 min), using an atomic ExecuteUpdateAsync increment so concurrent failed logins cannot lose an increment to a race - verified with a real concurrent-request test. All account/role-change events (register, login success/failure, lockout, role change) write an audit entry in the same DB transaction as the change itself. Known regression (not fixed, flagged for reviewer): adding the non-nullable Role column broke Alveara.Api.Tests/MigrationUpgradeTests.cs (from ALV-N002), whose \"seed on an older migration\" test inserts via the current EF model rather than raw SQL matching that older schema. Out of this story's file scope; needs a follow-up fix to MigrationUpgradeTests.cs itself.",
+      "updated_at": "2026-09-29T15:50:44Z",
       "verification": {
         "state": "in_progress",
         "criteria_passed": 0,
