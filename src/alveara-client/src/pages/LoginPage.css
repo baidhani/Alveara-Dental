@@ -1,0 +1,31 @@
+.alv-login {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.alv-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.alv-login__banner {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-login__banner--danger {
+  background: var(--color-danger-surface, rgba(220, 38, 38, 0.1));
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+}
+
+.alv-login__banner--warning {
+  background: var(--color-warning-surface, rgba(217, 119, 6, 0.1));
+  color: var(--color-warning, #b45309);
+  border: 1px solid var(--color-warning, #b45309);
+}

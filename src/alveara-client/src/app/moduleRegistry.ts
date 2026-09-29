@@ -1,11 +1,12 @@
 /**
  * Module registry for the shell's navigation.
  *
- * Authentication/RBAC do not exist yet (ALV-N001 is pre-auth). This registry
- * therefore lists every module unconditionally — it must NOT be read as "the
- * signed-in user can see all of these," because there is no signed-in user
- * concept yet. Permission-aware filtering is added by ALV-N009, which
- * consumes this same registry rather than replacing it.
+ * ALV-001-C01 adds real authentication/RBAC, but permission-aware filtering of this list is
+ * explicitly ALV-N009's job (it consumes this same registry rather than replacing it) - so this
+ * still lists every module unconditionally, including Security Administration. The page itself
+ * (AdminUsersPage) enforces its own permission check and shows PermissionDenied rather than
+ * relying on the nav to hide it, so this is not a security gap in the meantime, just an
+ * unpolished nav for a caller who can't use what they clicked.
  */
 export interface ModuleDefinition {
   id: string;
@@ -17,4 +18,5 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "dashboard", label: "Dashboard", path: "/" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
+  { id: "admin-users", label: "Security Administration", path: "/admin/users" },
 ];

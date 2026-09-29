@@ -1,0 +1,36 @@
+.alv-admin-users {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-4);
+}
+
+.alv-admin-users th,
+.alv-admin-users td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.alv-admin-users__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.alv-status-badge {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-status-badge--enabled {
+  background: var(--color-success-surface, rgba(22, 163, 74, 0.12));
+  color: var(--color-success, #15803d);
+}
+
+.alv-status-badge--disabled {
+  background: var(--color-danger-surface, rgba(220, 38, 38, 0.1));
+  color: var(--color-danger);
+}
