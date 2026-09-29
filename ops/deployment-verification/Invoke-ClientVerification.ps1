@@ -1,14 +1,14 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    ALV-N002 deployment verification — LAN client side.
+    ALV-N002 deployment verification  -  LAN client side.
 
 .DESCRIPTION
     Captures durable, timestamped, machine-generated evidence that a genuinely
     separate LAN client can reach the deployed Alveara shell/API with real
     (non-bypassed) TLS validation, cannot reach the server's database port or
     storage filesystem directly, and can still do all of that while its OWN
-    public internet access is unavailable — with a before/during/after
+    public internet access is unavailable  -  with a before/during/after
     timestamp trail proving the isolation window and the LAN success were
     simultaneous, not sequential claims stitched together afterward.
 

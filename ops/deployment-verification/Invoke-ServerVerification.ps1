@@ -1,13 +1,13 @@
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    ALV-N002 deployment verification — server side.
+    ALV-N002 deployment verification  -  server side.
 
 .DESCRIPTION
     Captures durable, timestamped, machine-generated evidence that the deployed
     Alveara API is running under a dedicated least-privilege service identity,
     connected through a least-privilege SQL login, with its storage root
-    protected by real NTFS ACLs — and that an unrelated local account is
+    protected by real NTFS ACLs  -  and that an unrelated local account is
     genuinely denied access to that same storage root.
 
     This exists because narrative descriptions of manually-run commands are not
@@ -30,7 +30,7 @@
 
 .PARAMETER StorageRoot
     The real path LocalDiskBlobStorage resolves to on this server (i.e. the
-    actual ContentRootPath/App_Data/blobs the running process uses — not a
+    actual ContentRootPath/App_Data/blobs the running process uses  -  not a
     stand-in folder).
 
 .PARAMETER SqlInstance
@@ -151,7 +151,7 @@ try {
 Write-Output "(Run the following manually as $ServiceAccountName if this script isn't already elevated as that identity: )"
 Write-Output "  Start-Process powershell.exe -Credential (Get-Credential $ServiceAccountName) -ArgumentList '-NoProfile','-ExecutionPolicy','Bypass','-File','$writeScript' -Wait"
 Write-Output "Then re-read: Get-Content '$OutputDir\$stamp-svc-write-result.txt'"
-$results.serviceWriteRead = "MANUAL STEP REQUIRED — see console output above; result file: $OutputDir\$stamp-svc-write-result.txt"
+$results.serviceWriteRead = "MANUAL STEP REQUIRED  -  see console output above; result file: $OutputDir\$stamp-svc-write-result.txt"
 
 $summary = [ordered]@{
     capturedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
