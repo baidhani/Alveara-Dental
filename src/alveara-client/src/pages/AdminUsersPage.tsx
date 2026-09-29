@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { LoadingState, ErrorState, EmptyState } from "../components/StatePatterns";
 import { PermissionDenied } from "../components/PermissionDenied";
@@ -120,6 +121,7 @@ export function AdminUsersPage() {
               <th>Role</th>
               <th>Status</th>
               <th>MFA</th>
+              <th>Details</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -151,6 +153,11 @@ export function AdminUsersPage() {
                   </span>
                 </td>
                 <td>{user.mfaEnabled ? "Enabled" : "Not enabled"}</td>
+                <td>
+                  <Link to={`/admin/users/${user.id}`} state={{ user }}>
+                    View
+                  </Link>
+                </td>
                 <td className="alv-admin-users__actions">
                   {canManageStatus && (
                     <Button variant="secondary" onClick={() => handleToggleEnabled(user)}>

@@ -46,6 +46,15 @@ public class UserAccount
     /// logged in plaintext). Null until MFA enrollment completes.
     /// </summary>
     public string? MfaSecretProtected { get; set; }
+
+    /// <summary>
+    /// R02 (review finding ALV-001-C01-R01-01): a newly generated secret sits here, inert, from
+    /// the moment enrollment/replacement begins until a correct code confirms it. The active
+    /// <see cref="MfaSecretProtected"/>/<see cref="MfaEnabled"/> state is never touched until that
+    /// confirmation succeeds, so starting (and abandoning) re-enrollment can never disable an
+    /// already-established factor.
+    /// </summary>
+    public string? PendingMfaSecretProtected { get; set; }
 }
 
 /// <summary>An employment/staff record — may or may not have a login (e.g. a biller might not).</summary>

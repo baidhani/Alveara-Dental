@@ -25,6 +25,12 @@ public class InvalidMfaCodeException() : Exception("Invalid MFA code.");
 public class MfaNotEnabledException() : Exception("MFA is not enabled for this account.");
 public class InvalidOrExpiredResetTokenException() : Exception("Invalid or expired password reset token.");
 
+// R02 (review finding ALV-001-C01-R01-01): replacing an already-established MFA factor requires
+// step-up reauthentication (the caller's current password), not just an active session.
+public class CurrentPasswordRequiredToReplaceMfaException() : Exception("Current password is required to replace an existing MFA factor.");
+public class InvalidCurrentPasswordException() : Exception("Current password is incorrect.");
+public class InvalidSessionTimeoutException(int minutes) : Exception($"Session timeout of {minutes} minutes is outside the allowed range.");
+
 /// <summary>An in-progress login that has passed the password check but still needs an MFA code.</summary>
 public class MfaChallengeRequiredException(string challengeToken) : Exception("MFA code required.")
 {
@@ -259,10 +265,14 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
 
         if (refreshed.MfaEnabled)
         {
-            AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Password verified for '{username}'; MFA challenge issued.");
+            // R02 (review finding ALV-001-C01-R01-04): password verification alone is not a
+            // successful login while MFA is enabled - that used to be recorded as LoginSucceeded,
+            // which was misleading. The real success event now fires only from
+            // CompleteMfaChallengeAsync, once the second factor is actually verified.
+            AddAudit(AuditEventTypes.PasswordVerifiedMfaPending, account.Id, account.Id, $"Password verified for '{username}'; MFA challenge issued.");
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-            throw new MfaChallengeRequiredException(IssueMfaChallengeToken(refreshed.Id));
+            throw new MfaChallengeRequiredException(IssueMfaChallengeToken(refreshed.Id, refreshed.SecurityStamp));
         }
 
         AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{username}'.");
@@ -273,13 +283,18 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
 
     // ---------- MFA ----------
 
-    public string IssueMfaChallengeToken(Guid userAccountId)
+    /// <summary>The challenge is bound to the account's SecurityStamp at issue time (review
+    /// finding ALV-001-C01-R01-02): any stamp-rotating operation (password reset, role/status
+    /// change, explicit session revocation, or an MFA factor replacement) implicitly invalidates
+    /// every outstanding challenge, since completion re-checks the stamp against the account's
+    /// current value.</summary>
+    public string IssueMfaChallengeToken(Guid userAccountId, Guid securityStamp)
     {
-        var payload = JsonSerializer.Serialize(new MfaChallengePayload(userAccountId, DateTimeOffset.UtcNow.Add(MfaChallengeLifetime)));
+        var payload = JsonSerializer.Serialize(new MfaChallengePayload(userAccountId, securityStamp, DateTimeOffset.UtcNow.Add(MfaChallengeLifetime)));
         return MfaChallengeProtector.Protect(payload);
     }
 
-    private record MfaChallengePayload(Guid UserAccountId, DateTimeOffset ExpiresAtUtc);
+    private record MfaChallengePayload(Guid UserAccountId, Guid SecurityStamp, DateTimeOffset ExpiresAtUtc);
 
     /// <summary>Completes a login that <see cref="LoginAsync"/> paused for an MFA code.</summary>
     public async Task<UserAccount> CompleteMfaChallengeAsync(string challengeToken, string code, CancellationToken cancellationToken = default)
@@ -300,21 +315,33 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             throw new InvalidOrExpiredMfaChallengeException();
         }
 
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == payload.UserAccountId, cancellationToken);
-        if (account is null || account.IsDisabled || !account.MfaEnabled || account.MfaSecretProtected is null)
+        // AsNoTracking: an earlier tracked load of this same account elsewhere in this DbContext
+        // (e.g. ChangeRoleAsync/SetAccountEnabledAsync during setup) would otherwise shadow this
+        // read with a stale SecurityStamp, defeating the very check this method exists to make.
+        var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == payload.UserAccountId, cancellationToken);
+        if (account is null || account.IsDisabled || !account.MfaEnabled || account.MfaSecretProtected is null
+            || account.SecurityStamp != payload.SecurityStamp)
         {
+            // A stamp mismatch is treated identically to expiry/invalidity - it never reveals
+            // *why* the challenge no longer works (e.g. "your session was revoked"), which would
+            // itself be an information leak about account state.
             throw new InvalidOrExpiredMfaChallengeException();
         }
 
         var secret = Convert.FromBase64String(MfaSecretProtector.Unprotect(account.MfaSecretProtected));
         if (Totp.Verify(secret, code))
         {
+            await using var successTransaction = await db.Database.BeginTransactionAsync(cancellationToken);
+            AddAudit(AuditEventTypes.MfaChallengeSucceeded, account.Id, account.Id, $"MFA challenge completed via authenticator code for '{account.Username}'.");
+            AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{account.Username}' (MFA).");
+            await db.SaveChangesAsync(cancellationToken);
+            await successTransaction.CommitAsync(cancellationToken);
             return account;
         }
 
         // Fall back to a one-time recovery code.
         var recoveryCodes = await db.Set<MfaRecoveryCode>()
-            .Where(r => r.UserAccountId == account.Id && r.UsedAtUtc == null)
+            .Where(r => r.UserAccountId == account.Id && r.UsedAtUtc == null && !r.IsPending)
             .ToListAsync(cancellationToken);
         foreach (var recoveryCode in recoveryCodes)
         {
@@ -330,28 +357,64 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                     await transaction.CommitAsync(cancellationToken);
                     continue;
                 }
+                AddAudit(AuditEventTypes.MfaRecoveryCodeUsed, account.Id, account.Id, $"One-time recovery code consumed for '{account.Username}'.");
+                AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{account.Username}' (MFA recovery code).");
+                await db.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
                 return account;
             }
         }
 
+        await using var failureTransaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        AddAudit(AuditEventTypes.MfaChallengeFailed, account.Id, account.Id, $"MFA challenge failed (invalid code) for '{account.Username}'.");
+        await db.SaveChangesAsync(cancellationToken);
+        await failureTransaction.CommitAsync(cancellationToken);
         throw new InvalidMfaCodeException();
     }
 
-    /// <summary>Generates a new TOTP secret and recovery codes for the account. MFA is not yet
-    /// active — <see cref="ConfirmMfaEnrollmentAsync"/> must verify one code first.</summary>
-    public async Task<(string Base32Secret, IReadOnlyList<string> RecoveryCodes)> BeginMfaEnrollmentAsync(Guid userAccountId, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// R02 (review finding ALV-001-C01-R01-01): generates a new TOTP secret and recovery codes as
+    /// a PENDING set only - the account's active factor (<see cref="UserAccount.MfaSecretProtected"/>,
+    /// <see cref="UserAccount.MfaEnabled"/>) and existing (non-pending) recovery codes are left
+    /// completely untouched until <see cref="ConfirmMfaEnrollmentAsync"/> verifies a code against
+    /// the new secret. Starting (and abandoning) enrollment can therefore never disable an
+    /// established factor. Replacing an already-active factor additionally requires the caller's
+    /// current password as step-up reauthentication.
+    /// </summary>
+    public async Task<(string Base32Secret, IReadOnlyList<string> RecoveryCodes)> BeginMfaEnrollmentAsync(Guid userAccountId, string? currentPassword = null, CancellationToken cancellationToken = default)
     {
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == userAccountId, cancellationToken)
+        // AsNoTracking + ExecuteUpdateAsync throughout (matching ConfirmMfaEnrollmentAsync's
+        // style) rather than a tracked load/mutate/SaveChanges: this method and Confirm can be
+        // called back-to-back against the *same* DbContext (every test in this file does exactly
+        // that), and a tracked entity left in the change tracker here would shadow Confirm's own
+        // fresh reads of the same row with stale in-memory values.
+        var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == userAccountId, cancellationToken)
             ?? throw new AccountNotFoundException(userAccountId);
 
+        var isReplacement = account.MfaEnabled;
+        if (isReplacement)
+        {
+            if (string.IsNullOrEmpty(currentPassword))
+            {
+                throw new CurrentPasswordRequiredToReplaceMfaException();
+            }
+            if (account.PasswordHash is null || !Pbkdf2PasswordHasher.Verify(currentPassword, account.PasswordHash))
+            {
+                throw new InvalidCurrentPasswordException();
+            }
+        }
+
         var secretBytes = Totp.GenerateSecret();
-        account.MfaSecretProtected = MfaSecretProtector.Protect(Convert.ToBase64String(secretBytes));
-        account.MfaEnabled = false; // not active until confirmed
+        var protectedSecret = MfaSecretProtector.Protect(Convert.ToBase64String(secretBytes));
+
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
+        await db.UserAccounts.Where(u => u.Id == userAccountId)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.PendingMfaSecretProtected, protectedSecret), cancellationToken);
 
         var recoveryCodes = new List<string>(RecoveryCodeCount);
-        var existing = db.Set<MfaRecoveryCode>().Where(r => r.UserAccountId == userAccountId);
-        db.Set<MfaRecoveryCode>().RemoveRange(existing);
+        var existingPending = db.Set<MfaRecoveryCode>().Where(r => r.UserAccountId == userAccountId && r.IsPending);
+        db.Set<MfaRecoveryCode>().RemoveRange(existingPending); // only ever removes a prior, still-unconfirmed pending set
         for (var i = 0; i < RecoveryCodeCount; i++)
         {
             var raw = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(6));
@@ -362,32 +425,64 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                 UserAccountId = userAccountId,
                 CodeHash = Pbkdf2PasswordHasher.Hash(raw),
                 CreatedAtUtc = DateTimeOffset.UtcNow,
+                IsPending = true,
             });
         }
 
+        AddAudit(isReplacement ? AuditEventTypes.MfaReplacementStarted : AuditEventTypes.MfaEnrollmentStarted, account.Id, account.Id,
+            isReplacement ? $"MFA factor replacement started for '{account.Username}'; existing factor remains active until confirmed." : $"MFA enrollment started for '{account.Username}'.");
         await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return (Totp.ToBase32(secretBytes), recoveryCodes);
     }
 
     public async Task ConfirmMfaEnrollmentAsync(Guid userAccountId, string code, CancellationToken cancellationToken = default)
     {
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == userAccountId, cancellationToken)
+        // AsNoTracking deliberately: every mutation below goes through ExecuteUpdateAsync (raw
+        // SQL, bypassing the change tracker) for atomicity, so a tracked copy of this entity would
+        // sit stale in the context's identity map afterward and shadow fresh reads by any other
+        // code sharing this DbContext instance - the same reason LoginAsync loads untracked too.
+        var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == userAccountId, cancellationToken)
             ?? throw new AccountNotFoundException(userAccountId);
-        if (account.MfaSecretProtected is null)
+        if (account.PendingMfaSecretProtected is null)
         {
             throw new MfaNotEnabledException();
         }
 
-        var secret = Convert.FromBase64String(MfaSecretProtector.Unprotect(account.MfaSecretProtected));
+        var wasAlreadyEnabled = account.MfaEnabled;
+        var secret = Convert.FromBase64String(MfaSecretProtector.Unprotect(account.PendingMfaSecretProtected));
         if (!Totp.Verify(secret, code))
         {
             throw new InvalidMfaCodeException();
         }
 
+        // Atomic, concurrency-safe promotion: gated on PendingMfaSecretProtected still being set,
+        // so two racing confirmations (or a confirmation racing a fresh BeginMfaEnrollmentAsync
+        // call) can promote at most once. A losing racer's 0-row update is treated the same as
+        // "nothing pending" rather than silently double-applying.
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        account.MfaEnabled = true;
-        BumpSecurityStamp(account);
-        AddAudit(AuditEventTypes.MfaEnabled, account.Id, account.Id, $"MFA enabled for '{account.Username}'.");
+        var pendingSecretAtStart = account.PendingMfaSecretProtected;
+        var rows = await db.UserAccounts
+            .Where(u => u.Id == userAccountId && u.PendingMfaSecretProtected == pendingSecretAtStart)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.MfaSecretProtected, u => u.PendingMfaSecretProtected)
+                .SetProperty(u => u.PendingMfaSecretProtected, (string?)null)
+                .SetProperty(u => u.MfaEnabled, true)
+                .SetProperty(u => u.SecurityStamp, Guid.NewGuid()), cancellationToken);
+        if (rows == 0)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw new MfaNotEnabledException(); // already confirmed (or replaced again) by a concurrent request
+        }
+
+        var oldActiveCodes = db.Set<MfaRecoveryCode>().Where(r => r.UserAccountId == userAccountId && !r.IsPending);
+        db.Set<MfaRecoveryCode>().RemoveRange(oldActiveCodes);
+        await db.Set<MfaRecoveryCode>()
+            .Where(r => r.UserAccountId == userAccountId && r.IsPending)
+            .ExecuteUpdateAsync(s => s.SetProperty(r => r.IsPending, false), cancellationToken);
+
+        AddAudit(wasAlreadyEnabled ? AuditEventTypes.MfaReplaced : AuditEventTypes.MfaEnabled, account.Id, account.Id,
+            wasAlreadyEnabled ? $"MFA factor replaced for '{account.Username}'; all sessions and prior challenges invalidated." : $"MFA enabled for '{account.Username}'.");
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }
@@ -431,6 +526,36 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             BumpSecurityStamp(account);
             AddAudit(enabled ? AuditEventTypes.AccountEnabled : AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
                 $"Account '{account.Username}' {(enabled ? "enabled" : "disabled")}.");
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+        return account;
+    }
+
+    private const int MinSessionTimeoutMinutes = 5;
+    private const int MaxSessionTimeoutMinutes = 1440; // 24 hours
+
+    /// <summary>R02 (review finding ALV-001-C01-R01-05): an authorized, validated way to configure
+    /// an account's session timeout - previously the field existed and was enforced but had no
+    /// API/UI to actually set it.</summary>
+    public async Task<UserAccount> SetSessionTimeoutAsync(Guid targetUserAccountId, int sessionTimeoutMinutes, Guid performedByUserAccountId, CancellationToken cancellationToken = default)
+    {
+        if (sessionTimeoutMinutes < MinSessionTimeoutMinutes || sessionTimeoutMinutes > MaxSessionTimeoutMinutes)
+        {
+            throw new InvalidSessionTimeoutException(sessionTimeoutMinutes);
+        }
+
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == targetUserAccountId, cancellationToken)
+            ?? throw new AccountNotFoundException(targetUserAccountId);
+
+        if (account.SessionTimeoutMinutes != sessionTimeoutMinutes)
+        {
+            var previous = account.SessionTimeoutMinutes;
+            account.SessionTimeoutMinutes = sessionTimeoutMinutes;
+            AddAudit(AuditEventTypes.SessionTimeoutChanged, account.Id, performedByUserAccountId,
+                $"Session timeout for '{account.Username}' changed from {previous} to {sessionTimeoutMinutes} minutes.");
             await db.SaveChangesAsync(cancellationToken);
         }
 

@@ -19,4 +19,6 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users" },
+  { id: "admin-permissions", label: "Permission Matrix", path: "/admin/permissions" },
+  { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];

@@ -17,12 +17,23 @@ export interface AdminUserSummary {
   role: string;
   isDisabled: boolean;
   mfaEnabled: boolean;
+  sessionTimeoutMinutes: number;
   createdAtUtc: string;
 }
 
 export interface MyPermissions {
   role: string;
   permissions: string[];
+}
+
+export interface PermissionMatrixEntry {
+  role: string;
+  permissions: string[];
+}
+
+export interface MfaEnrollmentResult {
+  base32Secret: string;
+  recoveryCodes: string[];
 }
 
 export class ApiError extends Error {
@@ -55,7 +66,10 @@ async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
     throw new ApiError(res.status, error, message ?? `Request failed with status ${res.status}.`, body);
   }
   if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
+  // Some endpoints (e.g. mfa/confirm, logout) return 200 with an empty body rather than 204 -
+  // reading as text first avoids res.json() throwing "Unexpected end of JSON input" on those.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 export async function fetchCsrfToken(): Promise<string> {
@@ -146,4 +160,22 @@ export async function issuePasswordReset(userId: string): Promise<{ token: strin
 
 export async function revokeSessions(userId: string): Promise<void> {
   await requestWithCsrf<void>(`/api/auth/${userId}/revoke-sessions`, "POST");
+}
+
+export async function setSessionTimeout(userId: string, sessionTimeoutMinutes: number): Promise<void> {
+  await requestWithCsrf<void>(`/api/auth/${userId}/session-timeout`, "PUT", { sessionTimeoutMinutes });
+}
+
+export async function getPermissionMatrix(): Promise<PermissionMatrixEntry[]> {
+  return request<PermissionMatrixEntry[]>("/api/auth/permission-matrix");
+}
+
+/** currentPassword is required only when replacing an already-active MFA factor - the server
+ *  rejects with current_password_required if it's needed and missing. */
+export async function enrollMfa(currentPassword?: string): Promise<MfaEnrollmentResult> {
+  return requestWithCsrf<MfaEnrollmentResult>("/api/auth/mfa/enroll", "POST", { currentPassword: currentPassword ?? null });
+}
+
+export async function confirmMfa(code: string): Promise<void> {
+  await requestWithCsrf<void>("/api/auth/mfa/confirm", "POST", { code });
 }

@@ -16,11 +16,13 @@ public record BootstrapAdminRequest(string Username, string Password, string Sec
 public record LoginRequest(string Username, string Password);
 public record MfaChallengeRequest(string ChallengeToken, string Code);
 public record ConfirmMfaRequest(string Code);
+public record EnrollMfaRequest(string? CurrentPassword);
+public record SetSessionTimeoutRequest(int SessionTimeoutMinutes);
 public record ChangeRoleRequest(string Role);
 public record SetEnabledRequest(bool Enabled);
 public record CompleteResetRequest(Guid UserId, string Token, string NewPassword);
 public record AccountResponse(Guid Id, string Username, string Role);
-public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDisabled, bool MfaEnabled, DateTimeOffset CreatedAtUtc);
+public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDisabled, bool MfaEnabled, int SessionTimeoutMinutes, DateTimeOffset CreatedAtUtc);
 
 /// <summary>
 /// STORY-001 + ALV-001-C01: registration, first-admin bootstrap, login (with MFA/lockout/disabled
@@ -197,11 +199,22 @@ public class AuthController(AccountService accountService, IConfiguration config
     [HttpPost("mfa/enroll")]
     [Authorize]
     [RequireCsrfToken]
-    public async Task<IActionResult> EnrollMfa(CancellationToken cancellationToken)
+    public async Task<IActionResult> EnrollMfa([FromBody] EnrollMfaRequest? request, CancellationToken cancellationToken)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var (secret, recoveryCodes) = await accountService.BeginMfaEnrollmentAsync(userId, cancellationToken);
-        return Ok(new { base32Secret = secret, recoveryCodes });
+        try
+        {
+            var (secret, recoveryCodes) = await accountService.BeginMfaEnrollmentAsync(userId, request?.CurrentPassword, cancellationToken);
+            return Ok(new { base32Secret = secret, recoveryCodes });
+        }
+        catch (CurrentPasswordRequiredToReplaceMfaException)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, new { error = "current_password_required", message = "Enter your current password to replace an existing MFA factor." });
+        }
+        catch (InvalidCurrentPasswordException)
+        {
+            return Unauthorized(new { error = "invalid_current_password" });
+        }
     }
 
     [HttpPost("mfa/confirm")]
@@ -219,6 +232,10 @@ public class AuthController(AccountService accountService, IConfiguration config
         {
             return BadRequest(new { error = "invalid_mfa_code" });
         }
+        catch (MfaNotEnabledException)
+        {
+            return BadRequest(new { error = "no_pending_enrollment", message = "There is no MFA enrollment in progress to confirm." });
+        }
     }
 
     // ---------- Admin-only account/role/session administration ----------
@@ -230,7 +247,7 @@ public class AuthController(AccountService accountService, IConfiguration config
     {
         var users = await db.UserAccounts
             .OrderBy(u => u.Username)
-            .Select(u => new AdminUserSummary(u.Id, u.Username, u.Role.ToString(), u.IsDisabled, u.MfaEnabled, u.CreatedAtUtc))
+            .Select(u => new AdminUserSummary(u.Id, u.Username, u.Role.ToString(), u.IsDisabled, u.MfaEnabled, u.SessionTimeoutMinutes, u.CreatedAtUtc))
             .ToListAsync(cancellationToken);
         return Ok(users);
     }
@@ -273,6 +290,28 @@ public class AuthController(AccountService accountService, IConfiguration config
         catch (AccountNotFoundException)
         {
             return NotFound(new { error = "account_not_found" });
+        }
+    }
+
+    [HttpPut("{userId:guid}/session-timeout")]
+    [Authorize]
+    [RequirePermission(Permission.ManageAccountStatus)]
+    [RequireCsrfToken]
+    public async Task<IActionResult> SetSessionTimeout(Guid userId, [FromBody] SetSessionTimeoutRequest request, CancellationToken cancellationToken)
+    {
+        var performedByUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        try
+        {
+            var account = await accountService.SetSessionTimeoutAsync(userId, request.SessionTimeoutMinutes, performedByUserId, cancellationToken);
+            return Ok(new { account.Id, account.Username, account.SessionTimeoutMinutes });
+        }
+        catch (AccountNotFoundException)
+        {
+            return NotFound(new { error = "account_not_found" });
+        }
+        catch (InvalidSessionTimeoutException)
+        {
+            return BadRequest(new { error = "invalid_session_timeout", message = "Session timeout must be between 5 and 1440 minutes." });
         }
     }
 

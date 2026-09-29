@@ -12,4 +12,11 @@ public class MfaRecoveryCode
     public required string CodeHash { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset? UsedAtUtc { get; set; }
+
+    /// <summary>R02: true while this code belongs to a not-yet-confirmed enrollment/replacement.
+    /// Pending codes are usable for nothing until <c>ConfirmMfaEnrollmentAsync</c> promotes them
+    /// (clears this flag) and deletes the previously-active set in the same transaction — so
+    /// starting (and abandoning) re-enrollment never invalidates the recovery codes a user
+    /// already has in hand.</summary>
+    public bool IsPending { get; set; }
 }

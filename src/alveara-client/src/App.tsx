@@ -7,6 +7,9 @@ import { LoginPage } from "./pages/LoginPage";
 import { MfaChallengePage } from "./pages/MfaChallengePage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
+import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
+import { MfaSettingsPage } from "./pages/MfaSettingsPage";
+import { PermissionMatrixPage } from "./pages/PermissionMatrixPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -28,6 +31,9 @@ export function App() {
               <Route path="/showcase" element={<ShowcasePage />} />
               <Route path="/system-status" element={<SystemStatusPage />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/users/:userId" element={<AdminUserDetailPage />} />
+              <Route path="/admin/permissions" element={<PermissionMatrixPage />} />
+              <Route path="/settings/mfa" element={<MfaSettingsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>

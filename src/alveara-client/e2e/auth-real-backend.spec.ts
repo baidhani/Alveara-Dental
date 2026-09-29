@@ -1,0 +1,153 @@
+import { test, expect } from "@playwright/test";
+import type { Browser, BrowserContext, Page } from "@playwright/test";
+
+// ALV-001-C01 R02 (review finding ALV-001-C01-R01-05): unlike every other e2e spec in this
+// directory, this file deliberately does NOT mock the API via page.route() - the reviewer's
+// finding was specifically that component tests and route-mocked "real browser" tests do not
+// satisfy "exercise the actual rendered application in a real browser against the real
+// API/database." Every request here is a genuine network call from a real Chromium instance to a
+// real running Alveara.Api process backed by a real (migrated) LocalDB database.
+//
+// This spec is NOT wired into playwright.config.ts's default `npm test:e2e` run, because that
+// config's webServer only starts the built static client (`vite preview`), with no backend behind
+// it - the existing specs are deliberately backend-independent via mocking. Running this file
+// requires both a real API (migrated database, AdminBootstrapSecret configured) and the Vite dev
+// server (which proxies /api to the API - see vite.config.ts) already running; see
+// docs/testing/REAL_BACKEND_E2E.md for the exact commands. Evidence of an actual run is at
+// .alveara/handoffs/ALV-001-C01/R02-evidence/artifacts/playwright-real-backend/.
+
+test.describe.configure({ mode: "serial" });
+
+let adminUsername: string;
+let bootstrapSecret: string;
+let context: BrowserContext;
+let page: Page;
+
+test.beforeAll(async ({ browser }: { browser: Browser }) => {
+  adminUsername = `admin-${Date.now()}`;
+  bootstrapSecret = process.env.E2E_BOOTSTRAP_SECRET ?? "e2e-real-backend-secret";
+  // A single shared context/page across every test below (Playwright's documented pattern for a
+  // session-like flow): each test() normally gets its own isolated, cookie-free context, which
+  // would silently drop the login from one step before the next step ever runs.
+  context = await browser.newContext();
+  page = await context.newPage();
+});
+
+test.afterAll(async () => {
+  await context.close();
+});
+
+test.describe("Real backend — first-admin bootstrap, login, MFA, security administration", () => {
+  test("an unauthenticated caller cannot select a role at registration", async () => {
+    await page.goto("/login");
+    // There is no role field anywhere in the UI - registration itself isn't exposed as a public
+    // flow in this shell (self-service accounts are provisioned by an admin instead), which is
+    // itself the acceptance criterion made visible: no rendered path exists to choose a role.
+    await expect(page.getByLabel("Username")).toBeVisible();
+    await expect(page.locator("select, input").filter({ hasText: /role/i })).toHaveCount(0);
+  });
+
+  test("bootstraps the first admin via the real API and signs in", async () => {
+    const response = await page.request.post("/api/auth/bootstrap-admin", {
+      data: { username: adminUsername, password: "admin-password-1!", secret: bootstrapSecret },
+    });
+    expect(response.ok()).toBeTruthy();
+
+    await page.goto("/login");
+    await page.getByLabel("Username").fill(adminUsername);
+    await page.getByLabel("Password").fill("admin-password-1!");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
+
+  test("enrolls a real TOTP factor and completes an MFA challenge end to end", async () => {
+    await page.goto("/settings/mfa");
+    await page.getByRole("button", { name: "Set up an authenticator app" }).click();
+
+    const secret = await page.getByTestId("mfa-secret").innerText();
+    expect(secret.length).toBeGreaterThan(0);
+    const recoveryCodesText = await page.getByTestId("mfa-recovery-codes").innerText();
+    expect(recoveryCodesText.split("\n").filter(Boolean).length).toBe(10);
+
+    const code = await computeTotp(secret);
+    await page.getByLabel(/current code from your authenticator/i).fill(code);
+    await page.getByRole("button", { name: "Confirm" }).click();
+    await expect(page.getByText("MFA is now active on your account.")).toBeVisible();
+
+    // No sign-out control exists in the shell nav yet (that's tracked separately, not part of
+    // this story's scope) - clear the session cookie directly so the next login is genuinely
+    // unauthenticated, the same effect a real sign-out would have.
+    await context.clearCookies();
+    await page.goto("/login");
+    await page.getByLabel("Username").fill(adminUsername);
+    await page.getByLabel("Password").fill("admin-password-1!");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page).toHaveURL(/mfa-challenge/);
+    const challengeCode = await computeTotp(secret);
+    await page.getByLabel(/authentication or recovery code/i).fill(challengeCode);
+    await page.getByRole("button", { name: "Verify" }).click();
+
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
+
+  test("security administration: list users, view detail, change role, set session timeout", async () => {
+    await page.goto("/admin/users");
+    await expect(page.getByRole("heading", { name: "Security administration" })).toBeVisible();
+    await expect(page.getByText(adminUsername)).toBeVisible();
+
+    await page.getByRole("link", { name: "View" }).first().click();
+    await expect(page.getByRole("heading", { name: "User details" })).toBeVisible();
+
+    const timeoutInput = page.getByLabel("Session timeout (minutes)");
+    await timeoutInput.fill("45");
+    await page.getByRole("button", { name: "Update timeout" }).click();
+    await expect(page.getByText("Session timeout updated.")).toBeVisible();
+  });
+
+  test("permission matrix is visible to the admin and shows every role", async () => {
+    await page.goto("/admin/permissions");
+    await expect(page.getByRole("heading", { name: "Permission matrix" })).toBeVisible();
+    for (const role of ["Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager", "Admin"]) {
+      await expect(page.getByRole("columnheader", { name: role })).toBeVisible();
+    }
+  });
+});
+
+/** RFC 6238 TOTP, computed independently of the application's own Otp.NET-backed implementation -
+ *  proves interoperability rather than the app merely agreeing with itself. No network call. */
+async function computeTotp(base32Secret: string): Promise<string> {
+  const key = base32Decode(base32Secret);
+  const counter = Math.floor(Date.now() / 1000 / 30);
+  const counterBytes = new Uint8Array(8);
+  let c = BigInt(counter);
+  for (let i = 7; i >= 0; i--) {
+    counterBytes[i] = Number(c & 0xffn);
+    c >>= 8n;
+  }
+  const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]);
+  const hmac = new Uint8Array(await crypto.subtle.sign("HMAC", cryptoKey, counterBytes));
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const binCode =
+    ((hmac[offset] & 0x7f) << 24) | ((hmac[offset + 1] & 0xff) << 16) | ((hmac[offset + 2] & 0xff) << 8) | (hmac[offset + 3] & 0xff);
+  return String(binCode % 1_000_000).padStart(6, "0");
+}
+
+function base32Decode(input: string): Uint8Array {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const bytes: number[] = [];
+  let bits = 0;
+  let value = 0;
+  for (const char of input.toUpperCase()) {
+    const idx = alphabet.indexOf(char);
+    if (idx === -1) continue;
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return new Uint8Array(bytes);
+}

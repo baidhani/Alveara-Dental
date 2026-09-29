@@ -1,0 +1,21 @@
+.alv-mfa-enroll__secret {
+  font-family: monospace;
+  font-size: var(--font-size-lg);
+  letter-spacing: 0.1em;
+  padding: var(--space-3);
+  background: var(--color-surface-muted, rgba(127, 127, 127, 0.08));
+  border-radius: var(--radius-sm);
+  word-break: break-all;
+}
+
+.alv-mfa-enroll__codes {
+  font-family: monospace;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-1) var(--space-4);
+  list-style: none;
+  padding: var(--space-3);
+  background: var(--color-surface-muted, rgba(127, 127, 127, 0.08));
+  border-radius: var(--radius-sm);
+  max-width: 420px;
+}

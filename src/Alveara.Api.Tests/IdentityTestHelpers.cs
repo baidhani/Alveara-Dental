@@ -19,6 +19,14 @@ public static class IdentityTestHelpers
     public static AccountService CreateAccountService(AlveraDbContext db) =>
         new(db, new EphemeralDataProtectionProvider());
 
+    /// <summary>Same as <see cref="CreateAccountService(AlveraDbContext)"/> but against a caller-supplied
+    /// provider - needed whenever two AccountService instances (different DbContexts, e.g. a
+    /// concurrency test) must decrypt data protected by each other, since two independently
+    /// created EphemeralDataProtectionProvider instances do not share key material (matching
+    /// production, where the provider is a singleton shared across all scoped DbContexts).</summary>
+    public static AccountService CreateAccountService(AlveraDbContext db, IDataProtectionProvider provider) =>
+        new(db, provider);
+
     public static Task<UserAccount> BootstrapAdminAsync(AccountService service, string username = "", string password = "bootstrap-admin-password") =>
         service.BootstrapFirstAdminAsync(
             string.IsNullOrEmpty(username) ? $"admin-{Guid.NewGuid():N}" : username,

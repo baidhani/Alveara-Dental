@@ -36,4 +36,16 @@ public static class AuditEventTypes
     public const string PasswordResetIssued = "PasswordResetIssued";
     public const string PasswordReset = "PasswordReset";
     public const string SessionsRevoked = "SessionsRevoked";
+
+    // ALV-001-C01 R02 additions (review findings 01/02/04): the MFA lifecycle now has its own
+    // distinct, fully-audited events. PasswordVerifiedMfaPending replaces the R01 mistake of
+    // recording LoginSucceeded before the second factor was actually verified.
+    public const string PasswordVerifiedMfaPending = "PasswordVerifiedMfaPending";
+    public const string MfaChallengeSucceeded = "MfaChallengeSucceeded";
+    public const string MfaChallengeFailed = "MfaChallengeFailed";
+    public const string MfaRecoveryCodeUsed = "MfaRecoveryCodeUsed";
+    public const string MfaEnrollmentStarted = "MfaEnrollmentStarted";
+    public const string MfaReplacementStarted = "MfaReplacementStarted";
+    public const string MfaReplaced = "MfaReplaced";
+    public const string SessionTimeoutChanged = "SessionTimeoutChanged";
 }
