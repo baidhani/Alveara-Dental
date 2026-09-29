@@ -2,13 +2,13 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-N002 attempt R08 (`AWAITING_REVIEW`) — see `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA.
+Last updated: ALV-N002 attempt R08 — **`COMPLETE`**, approved 2026-09-29. See `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs and `.alveara/reviews/ALV-N002/R08.md` for the approval decision.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `AWAITING_REVIEW`.** No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29.** No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
 
-## Core architecture (ALV-N002, AWAITING_REVIEW — not yet COMPLETE)
+## Core architecture (ALV-N002, COMPLETE — approved attempt R08)
 
 - **Database engine decision:** SQL Server Express for the actual local Windows server deployment; SQL LocalDB (the same SQL Server engine) for development and automated tests — a deliberate, documented choice, not a shortcut: both speak the same T-SQL/EF Core SqlServer-provider surface, so tests exercise real migrations/transactions/constraints, not an in-memory fake. Chosen (with the product owner) over SQLite specifically because a dental practice has multiple concurrent LAN writers (front desk, clinicians, billing) and SQLite serializes writes practice-wide.
 - **`src/Alveara.Api/Data/AlveraDbContext.cs`** — the single EF Core DbContext; `src/Alveara.Api/Migrations/` holds two migrations (`InitialArchitecture`, `AddBackgroundJobEffectReceipts`), both applied and verified against a real SQL Server (LocalDB) database — including a genuine **upgrade** of an already-populated database from the first migration to the second (not just a fresh-database apply).
