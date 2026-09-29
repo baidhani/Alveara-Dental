@@ -2,11 +2,21 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: ALV-N002 attempt R08 — **`COMPLETE`**, approved 2026-09-29. See `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs and `.alveara/reviews/ALV-N002/R08.md` for the approval decision.
+Last updated: `ALV-001-C01` attempt R01 — implementation and evidence committed, set to **`AWAITING_REVIEW`**. See `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs and `.alveara/handoffs/ALV-001-C01/R01.md` for the full handoff.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29.** No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified.** `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) has landed implementation + evidence for attempt R01 and is `AWAITING_REVIEW` — not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+
+## Authentication and security administration (ALV-001-C01, AWAITING_REVIEW — attempt R01)
+
+- **`src/Alveara.Api/Architecture/Identity/AccountService.cs`** — registration (`RegisterAsync`, no role parameter — self-service accounts are always `Role.Unassigned` + disabled), one-time offline-capable first-admin bootstrap (`BootstrapFirstAdminAsync`, atomicity via a fixed-PK `BootstrapState` singleton row, not application check-then-act), login with concurrency-safe rearming lockout and timing-safe unknown-user handling (`LoginAsync`), hand-rolled RFC 6238 TOTP MFA (`Totp.cs`; enrollment/challenge/recovery-code methods on `AccountService`), admin-issued one-time password reset (no email/SMS dependency), account enable/disable, and session revocation via `SecurityStamp` rotation.
+- **`src/Alveara.Api/Architecture/Identity/Permission.cs` / `PermissionMatrix.cs` / `RequirePermissionAttribute.cs`** — a genuine named-permission matrix mapped to the seven course-defined roles (dentist, hygienist, assistant, front desk, billing, office manager, admin), replacing a single hardcoded `[Authorize(Roles=Admin)]` gate. Also names clinical/scheduling/billing permissions no module enforces yet, for future stories to authorize against instead of inventing their own role checks.
+- **Session security:** cookies are `HttpOnly`, `SameSite=Strict`, and `Secure` outside Development; a `SecurityStamp` claim is validated against the database on every request (`Program.cs`'s `OnValidatePrincipal`), giving real server-side "sign out everywhere" with no server-side session store. CSRF protection (double-submit via ASP.NET Core's `IAntiforgery`) covers every `[Authorize]`-protected state-changing auth endpoint. IP-based rate limiting (sliding window, configurable) covers every unauthenticated auth-attempt endpoint.
+- **`src/alveara-client`** — `contexts/AuthContext.tsx` (re-derives session state from `GET /api/auth/permissions` on every mount), `services/authApi.ts`, and four new pages: `LoginPage` (distinct invalid-credentials/disabled/lockout/rate-limited/session-expired messaging), `MfaChallengePage` (one field accepts a live TOTP code or a one-time recovery code), `ResetPasswordPage`, `AdminUsersPage` (user list + role/enable/reset/revoke actions, each permission-gated, showing `PermissionDenied` rather than a generic error when a caller's role lacks the required permission). Security Administration is in the nav registry unconditionally, matching the pre-`ALV-N009` convention already documented in `moduleRegistry.ts` — `AdminUsersPage` enforces its own permission check regardless of nav visibility.
+- **Migration `20260929173614_AddMfaSecurityAndBootstrap`** — four new `UserAccount` columns (`IsDisabled`, `SecurityStamp`, `MfaEnabled`, `MfaSecretProtected`) and three new tables (`MfaRecoveryCode`, `PasswordResetToken`, `BootstrapState`).
+- **148 backend / 34 frontend automated tests pass** (see `.alveara/handoffs/ALV-001-C01/R01-evidence/TEST_RESULTS.md`), plus a live-server `curl`-driven end-to-end demonstration covering registration lockdown, bootstrap one-time-use, admin-driven role/enable, CSRF enforcement, full MFA enrollment→challenge→login (codes computed independently in Python from the server's own returned secret — no network call anywhere in the MFA path), and lockout threshold/correct-password-rejection-while-locked (see `DEMO_EVIDENCE.md`).
+- **Known limitation:** no live-browser/Playwright pass was performed on the four new React pages this attempt — coverage there is `vitest`/Testing Library component tests plus `tsc`/`oxlint`, not a visual/manual click-through. Flagged in the handoff for the reviewer.
 
 ## Core architecture (ALV-N002, COMPLETE — approved attempt R08)
 
@@ -65,8 +75,8 @@ Last updated: ALV-N002 attempt R08 — **`COMPLETE`**, approved 2026-09-29. See 
 
 ## What does not exist yet
 
-- Authentication, RBAC, MFA, audit logging, or any security control beyond what the course portal's own STORY-001/002 will eventually require. (`ALV-N002`'s identity entities are schema-only; no login logic exists.)
-- Any patient, scheduling, clinical, billing, document, or reporting functionality. (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves.)
+- Permission-aware navigation (authorization-aware nav filtering is `ALV-N009`'s job, explicitly deferred — see `ALV-001-C01`'s section above and `moduleRegistry.ts`'s own comment).
+- Any patient, scheduling, clinical, billing, document, or reporting functionality. (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
 - Any encrypted backup/restore capability (`ALV-N004` builds this on top of `IBackupSnapshotProvider`).
 - Windows-service install/deployment automation — `ALV-N002` runs via `dotnet run`/LocalDB in dev; actual SQL Server Express + Windows Service packaging is `ALV-N013`'s job.
 - Any of the remaining 32 first-release `ALV-*` stories' implementation.

@@ -190,11 +190,8 @@
         "reviewedImplementationCommit": "3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
         "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "SECURITY (P1, deferred to ALV-001-C01 per reviewer recommendation): unauthenticated /api/auth/register accepts a caller-selected role, including Admin, with no restriction (src/Alveara.Api/Controllers/AuthController.cs).",
-        "SECURITY (P1, deferred to ALV-001-C01 per reviewer recommendation): account lockout does not rearm after the first lockout expires; AccountService.cs only sets LockedOutUntilUtc when it is null, which is never cleared except by a successful login.",
-        "SECURITY (P2, deferred to ALV-001-C01 per reviewer recommendation): unknown-username login skips PBKDF2 verification entirely, producing a timing side-channel for username enumeration despite identical response bodies."
-      ],
+      "blockingIssues": [],
+      "blockingIssuesResolvedBy": "ALV-001-C01 attempt R01 (AWAITING_REVIEW, not yet COMPLETE) — closed the caller-selected-role, lockout-rearm, and timing-side-channel findings; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -223,21 +220,21 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "148 of 148 backend (dotnet test) + 34 of 34 frontend (vitest) passing. Includes the full STORY-001 regression suite (revised only where it encoded the removed insecure caller-selected-role-assignment behavior), plus new coverage for bootstrap one-time/race-safety, registration role-lockdown, login/lockout rearm/concurrency-race, structural timing-parity, MFA enrollment/challenge/recovery, password reset, permission matrix (unit + HTTP), rate limiting, cookie security attributes, and account/session audit entries. See .alveara/handoffs/ALV-001-C01/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "01afb667cb18d37643ae48ca3341477b05b04ed",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-001-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
