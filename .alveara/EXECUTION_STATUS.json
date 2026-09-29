@@ -175,8 +175,8 @@
         "passed": 3
       },
       "tests": {
-        "status": "passed_with_known_regression",
-        "summary": "101 of 102 API tests pass. The one failure (MigrationUpgradeTests.cs) is a pre-existing test-design gap this story's schema change exposed, not a defect in this story's own work; a fix is tracked as a separate follow-up commit."
+        "status": "passed",
+        "summary": "102 of 102 API tests pass. MigrationUpgradeTests.cs's pre-existing test-design gap (seeding via the current EF model instead of raw SQL matching the older schema), which this story's Role column exposed, was fixed in a follow-up commit (8fb17c3)."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
