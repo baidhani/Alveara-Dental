@@ -120,39 +120,29 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R06",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R07",
       "acceptance": {
         "total": 9,
-        "passed": 7,
-        "partial": 2,
-        "partialItems": [
-          "Local Windows server / LAN client / no public internet — plausible and partly corroborated (two distinct bridged VMs observed running), but the simultaneous client-isolation workflow was not durably reviewable or replayable: the claimed HTTPS service was not listening at review time, and evidence was narrative rather than machine-captured.",
-          "LAN client uses API rather than direct database/storage access — two-machine topology exists, but the claimed runtime identity, SQL role, real-path ACL, and client denials lack durable independently verifiable outputs."
-        ]
+        "passed": 9
       },
       "tests": {
         "status": "passed",
-        "summary": "142 automated tests, independently rerun and confirmed passing by the reviewer (67 API xUnit + 28 client vitest + 40 real-browser Playwright + 7 repo-root node --test)."
+        "summary": "142 automated tests, all genuinely rerun this attempt (67 API xUnit + 28 client vitest + 40 real-browser Playwright + 7 repo-root node --test), all passing. Acceptance items 1 and 7 now backed by committed, machine-generated, timestamped evidence files (not narrative) captured by the new ops/deployment-verification/ harness against the real two-VM topology established in R06. See .alveara/handoffs/ALV-N002/R07-evidence/DEMO_EVIDENCE.md."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": null,
-      "evidenceCommit": "c3338059f64d0f27d32fbfd17cf33163e8d38de0",
-      "handoffPath": ".alveara/handoffs/ALV-N002/R06.md",
+      "implementationCommit": "967b1e8c16ebc7e986c4a5e7b3d00909641080d2",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N002/R07.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N002/R06.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
         "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": "c3338059f64d0f27d32fbfd17cf33163e8d38de0"
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "N002-R06-01 (P1): a successful attempt cannot use NOCOMMIT or a null implementation SHA; R07 must have a real implementation commit (a checked-in, versioned verification harness) and a separate evidence commit.",
-        "N002-R06-02 (P1): acceptance items 1 and 7 need durable, machine-captured evidence (timestamped command transcripts/output files from both machines), not narrative prose describing what was observed.",
-        "N002-R06-03 (P2): the R06 handoff inaccurately implied R04 has a review decision; R04 remains unreviewed and must be stated as such.",
-        "N002-R06-04 (P2): the reviewer found packaged snapshots differed from evidence-commit blobs by line-ending normalization; R07 must validate byte-for-byte against raw git blobs before delivery."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

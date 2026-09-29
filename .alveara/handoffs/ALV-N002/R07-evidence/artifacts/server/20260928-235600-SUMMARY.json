@@ -1,0 +1,17 @@
+﻿{
+    "capturedAtUtc":  "2026-09-29T04:56:05.1593759Z",
+    "serviceAccountName":  "svc-alveara-api",
+    "ordinaryAccountName":  "test-ordinary-user",
+    "apiProcessName":  "Alveara.Api",
+    "storageRoot":  "C:\\AlveaaraServer\\App_Data\\blobs",
+    "sqlInstance":  "localhost\\SQLEXPRESS",
+    "sqlDatabase":  "AlveraLanServerDemo",
+    "sqlLogin":  "alveara_app_login",
+    "results":  {
+                    "processIdentity":  "PASS: running as svc-alveara-api",
+                    "sqlRoles":  "PASS: exactly db_datareader + db_datawriter",
+                    "storageAcl":  "PASS: only svc-alveara-api (+ Administrators) present, no broad-access entries",
+                    "ordinaryDenial":  "PASS: ordinary account denied",
+                    "serviceWriteRead":  "PASS: SUCCESS: written by svc-alveara-api at 2026-09-28T23:56:58.8658701-05:00"
+                }
+}

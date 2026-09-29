@@ -1,0 +1,13 @@
+﻿Rule removed by scheduled task: True
+--- Public-internet probe AFTER revert (expected to succeed) ---
+
+Pinging 8.8.8.8 with 32 bytes of data:
+Reply from 8.8.8.8: bytes=32 time=4ms TTL=115
+Reply from 8.8.8.8: bytes=32 time=4ms TTL=115
+
+Ping statistics for 8.8.8.8:
+    Packets: Sent = 2, Received = 2, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 4ms, Maximum = 4ms, Average = 4ms
+
+CapturedAtUtc: 2026-09-29T05:06:04.1831774Z

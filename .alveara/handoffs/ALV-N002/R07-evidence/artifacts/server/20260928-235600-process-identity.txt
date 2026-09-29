@@ -1,0 +1,4 @@
+﻿PID=7172 Name=Alveara.Api.exe Owner=WINDOWS-11-VM3\svc-alveara-api CommandLine="C:\AlveaaraServer\Alveara.Api.exe"
+
+Result: PASS: running as svc-alveara-api
+CapturedAtUtc: 2026-09-29T04:56:00.5440837Z
