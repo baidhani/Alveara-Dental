@@ -574,15 +574,21 @@ Parent course story: STORY-001 — its completion contract is immutable and must
 
 **User story:** As an administrator, I want production-grade identity controls so that accounts, MFA, sessions and role permissions are safely managed.
 
-**Why this story exists:** Completes the security atoms dropped by the generated REQ while permanently preserving STORY-001 completion behavior.
+**Why this story exists:** Completes the security atoms dropped by the generated REQ while permanently preserving STORY-001 completion behavior. The portal-verified STORY-001 implementation also exposed three concrete security gaps that this companion must close: unauthenticated callers can currently select any registration role including `Admin`; an expired lockout does not rearm after further failed attempts; and unknown-user login skips password-KDF work, leaving a timing-based username-enumeration signal despite identical response bodies.
+
+**Current implementation baseline observed before this prompt:** STORY-001 is portal-verified at implementation commit `3e0a7b75cdc88af5e51978772a9f8b02e2a227b2`, its course completion is synchronized in `.alveara/EXECUTION_STATUS.json`, and the repaired baseline is 102 of 102 API tests passing. The three deferred security findings are recorded as `blockingIssues` on the STORY-001 ledger entry and are mandatory closure items for this companion.
 
 **Implementation scope**
 
 - MFA enrollment/challenge/recovery path
 - At least one supported first-release MFA factor and recovery path must function while the local server has no public-internet access (for example standards-based local-capable OTP/recovery-code mechanisms); email/SMS cannot be the only path
+- Remove caller-selected roles from unauthenticated registration. An unauthenticated caller must never be able to create an `Admin` account or select another privileged role.
+- Implement a safe, offline-capable first-admin provisioning mechanism. It must be explicitly initialized, one-time, protected by installation/bootstrap material stored outside source control, and disabled after successful provisioning. Subsequent account creation and role assignment require authorized administration.
 - Account disable/enable
 - Password reset/recovery without storing recoverable passwords
 - Configurable session timeout and explicit sign-out/revocation
+- Correct the account-lockout lifecycle so lockout rearms after expiry and remains correct under concurrency, including a correct-password request racing with the failed attempt that triggers lockout
+- Make unknown-user authentication perform equivalent password-KDF work to wrong-password authentication so response equality is not undermined by an obvious timing side channel
 - Granular permission matrix mapped to dentist, hygienist, assistant, front desk, billing, office manager, admin
 - Security-administration UI for users, roles and permission visibility
 - Audit security-sensitive account, MFA, recovery and role changes
@@ -596,7 +602,12 @@ Parent course story: STORY-001 — its completion contract is immutable and must
 **Security, audit, and data-integrity requirements**
 
 - Server/API authorization is authoritative
+- Public/self-service account creation cannot assign roles or permissions; privileged role assignment is an authorized administrative operation
+- First-admin bootstrap is local/offline-capable, one-time, secret-protected, auditable, and permanently unavailable after successful initialization unless a separately authorized recovery procedure explicitly resets it
 - Rate-limit or throttle repeated authentication attempts as appropriate
+- Cookie-authenticated state-changing operations are protected against CSRF, and authentication cookies use deployment-appropriate `Secure`, `HttpOnly`, and `SameSite` settings
+- Unknown and known-incorrect usernames receive indistinguishable public responses and equivalent password-hash verification work
+- Lockout threshold, expiry, rearm, and concurrent attempts are enforced atomically by the server; a stale successful-login request cannot clear a lockout triggered concurrently
 - Recovery artifacts/secrets are never logged
 - Recovery codes/secrets are stored and displayed using one-time/hashed-or-protected semantics appropriate to the chosen mechanism
 
@@ -604,26 +615,41 @@ Parent course story: STORY-001 — its completion contract is immutable and must
 
 - MFA unavailable/invalid
 - Recovery token invalid/expired
+- First-admin bootstrap material missing/invalid, bootstrap repeated after initialization, or two bootstrap attempts race
 - Disabled account attempts login
+- Lockout expires and repeated failures must trigger a new lockout
+- Correct-password login races with the failure that reaches the lockout threshold
+- Unknown username attempts authentication without creating a useful response or KDF-work timing distinction
 - Session expires during work
 - Unauthorized role/permission change
+- Cross-site request attempts a cookie-authenticated state change
 
 **Acceptance / stop condition**
 
-- Original STORY-001 tests still pass unchanged
+- The three original STORY-001 acceptance criteria remain true word for word. Existing STORY-001 tests remain regression coverage except tests that encode the known insecure behavior of unauthenticated caller-selected role assignment; revise only those tests and replace them with secure registration/bootstrap/administration coverage without weakening the course contract.
+- The verified 102-of-102 API-test baseline remains green, with all new companion tests also passing
+- An unauthenticated caller cannot select a role, create an `Admin`, or invoke the authorized account/role-administration path
+- A first administrator can be provisioned exactly once using the protected offline-capable bootstrap flow; invalid, repeated, and concurrent bootstrap attempts fail safely
 - A configured MFA path can be enrolled and challenged
 - At least one MFA/recovery path is demonstrated successfully with public internet unavailable
 - Disabled user cannot authenticate
+- Lockout triggers, expires, and rearms correctly; concurrent threshold/rearm races cannot admit a stale successful login or lose failed-attempt state
+- Unknown-user and wrong-password attempts produce the same public result and perform equivalent password-KDF work
 - At least one role-allowed and role-denied action is proven at API/service level
 - Session timeout is enforced
+- Cookie-authenticated state changes reject missing/invalid CSRF protection, and issued authentication cookies carry the required security attributes
 - Security administration changes are audited
+- The three deferred STORY-001 security `blockingIssues` are cleared only after the corresponding tests and demo evidence pass
 
 **Required tests**
 
-- Original STORY-001 tests as regression
+- Original STORY-001 acceptance regression tests, preserving existing tests except the narrowly identified insecure role-selection assertions described above
+- Registration and first-admin bootstrap tests: unauthenticated role rejection, one-time success, invalid/reused bootstrap material, concurrent bootstrap race, and authorized subsequent account/role administration
 - MFA tests including no-public-internet challenge/recovery
 - Permission matrix tests
-- Session expiry tests
+- Lockout tests covering expiry, rearm, concurrent failed attempts, and correct-password/threshold races
+- Unknown-user timing-work tests that structurally prove equivalent password-KDF work without relying only on flaky wall-clock thresholds
+- Session expiry, revocation, cookie-security, and CSRF tests
 - Account disable/recovery tests
 
 **Out of scope / future extension** Enterprise Entra/AD/SSO/passkeys can plug into the identity boundary later.
