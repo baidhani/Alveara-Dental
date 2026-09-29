@@ -158,6 +158,40 @@ public class AuthController(AccountService accountService, IConfiguration config
         return Ok(new { token = tokens.RequestToken });
     }
 
+    /// <summary>The current caller's own permissions, for client-side "can I do this" UI decisions
+    /// (e.g. hiding/disabling actions a role can't reach) - never the source of truth for access
+    /// control itself, which is always re-checked server-side via [RequirePermission].</summary>
+    [HttpGet("permissions")]
+    [Authorize]
+    public IActionResult MyPermissions()
+    {
+        var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+        if (!Enum.TryParse<Role>(roleClaim, out var role))
+        {
+            return Unauthorized();
+        }
+        return Ok(new
+        {
+            role = role.ToString(),
+            permissions = PermissionMatrix.PermissionsFor(role).Select(p => p.ToString()).OrderBy(p => p),
+        });
+    }
+
+    /// <summary>The full role -> permission matrix, for the security-administration UI's
+    /// permission-visibility screen.</summary>
+    [HttpGet("permission-matrix")]
+    [Authorize]
+    [RequirePermission(Permission.ViewPermissionMatrix)]
+    public IActionResult GetPermissionMatrix()
+    {
+        var matrix = Enum.GetValues<Role>().Select(role => new
+        {
+            role = role.ToString(),
+            permissions = PermissionMatrix.PermissionsFor(role).Select(p => p.ToString()).OrderBy(p => p),
+        });
+        return Ok(matrix);
+    }
+
     // ---------- MFA enrollment (self-service, for the current authenticated user) ----------
 
     [HttpPost("mfa/enroll")]
@@ -190,7 +224,8 @@ public class AuthController(AccountService accountService, IConfiguration config
     // ---------- Admin-only account/role/session administration ----------
 
     [HttpGet("users")]
-    [Authorize(Roles = nameof(Role.Admin))]
+    [Authorize]
+    [RequirePermission(Permission.ManageUsers)]
     public async Task<IActionResult> ListUsers(CancellationToken cancellationToken)
     {
         var users = await db.UserAccounts
@@ -201,7 +236,8 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPut("{userId:guid}/role")]
-    [Authorize(Roles = nameof(Role.Admin))]
+    [Authorize]
+    [RequirePermission(Permission.ManageRoles)]
     [RequireCsrfToken]
     public async Task<IActionResult> ChangeRole(Guid userId, [FromBody] ChangeRoleRequest request, CancellationToken cancellationToken)
     {
@@ -223,7 +259,8 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPut("{userId:guid}/enabled")]
-    [Authorize(Roles = nameof(Role.Admin))]
+    [Authorize]
+    [RequirePermission(Permission.ManageAccountStatus)]
     [RequireCsrfToken]
     public async Task<IActionResult> SetEnabled(Guid userId, [FromBody] SetEnabledRequest request, CancellationToken cancellationToken)
     {
@@ -240,7 +277,8 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPost("{userId:guid}/reset-password")]
-    [Authorize(Roles = nameof(Role.Admin))]
+    [Authorize]
+    [RequirePermission(Permission.IssuePasswordResets)]
     [RequireCsrfToken]
     public async Task<IActionResult> IssuePasswordReset(Guid userId, CancellationToken cancellationToken)
     {
@@ -273,7 +311,8 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPost("{userId:guid}/revoke-sessions")]
-    [Authorize(Roles = nameof(Role.Admin))]
+    [Authorize]
+    [RequirePermission(Permission.RevokeSessions)]
     [RequireCsrfToken]
     public async Task<IActionResult> RevokeSessions(Guid userId, CancellationToken cancellationToken)
     {
