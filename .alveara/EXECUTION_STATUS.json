@@ -220,7 +220,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -228,21 +228,27 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "148 of 148 backend (dotnet test) + 34 of 34 frontend (vitest) passing. Includes the full STORY-001 regression suite (revised only where it encoded the removed insecure caller-selected-role-assignment behavior), plus new coverage for bootstrap one-time/race-safety, registration role-lockdown, login/lockout rearm/concurrency-race, structural timing-parity, MFA enrollment/challenge/recovery, password reset, permission matrix (unit + HTTP), rate limiting, cookie security attributes, and account/session audit entries. See .alveara/handoffs/ALV-001-C01/R01-evidence/TEST_RESULTS.md."
+        "summary": "148 of 148 backend (dotnet test) + 34 of 34 frontend (vitest) passing. Includes the full STORY-001 regression suite (revised only where it encoded the removed insecure caller-selected-role-assignment behavior), plus new coverage for bootstrap one-time/race-safety, registration role-lockdown, login/lockout rearm/concurrency-race, structural timing-parity, MFA enrollment/challenge/recovery, password reset, permission matrix (unit + HTTP), rate limiting, cookie security attributes, and account/session audit entries. Independently re-verified by the R01 reviewer: 148 API + 34 client, all passing. See .alveara/handoffs/ALV-001-C01/R01-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "01afb667cb18d37643ae48ca3341477b05b04ed",
-      "evidenceCommit": null,
+      "evidenceCommit": "c1424da8702f819a73c3496b7820b0964e51e42e",
       "handoffPath": ".alveara/handoffs/ALV-001-C01/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "01afb667cb18d37643ae48ca3341477b05b04ed",
+        "reviewedEvidenceCommit": "c1424da8702f819a73c3496b7820b0964e51e42e"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-001-C01-R01-01 (P1): BeginMfaEnrollmentAsync replaces the active TOTP secret and deletes all recovery codes before any replacement factor is confirmed - an authenticated session can disable a confirmed MFA factor just by starting re-enrollment and abandoning it.",
+        "ALV-001-C01-R01-02 (P1): the MFA challenge payload is not bound to the account's SecurityStamp, so a challenge issued before a password reset or explicit session revocation remains usable to mint a new session for up to 5 minutes afterward.",
+        "ALV-001-C01-R01-03 (P1): Totp.cs is a hand-rolled TOTP/Base32 implementation, contrary to the Engineering/Product Reference's proven-cryptography rule (no custom crypto - use a maintained library/platform facility).",
+        "ALV-001-C01-R01-04 (P1): MFA/recovery lifecycle events (enrollment/replacement, recovery-code consumption, challenge success) are not audited; LoginSucceeded is recorded before the MFA factor is actually verified.",
+        "ALV-001-C01-R01-05 (P1): no MFA enrollment/replacement UI, no permission-matrix UI, no authorized session-timeout configuration UI/API, and no live-browser demonstration of the security-administration UI."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
