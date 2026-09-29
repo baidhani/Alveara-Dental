@@ -1,5 +1,7 @@
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
 using Alveara.Api.Architecture.Identity;
@@ -136,6 +138,31 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization();
 
+// ALV-001-C01 "rate-limit/throttle repeated authentication attempts": distinct from per-account
+// lockout (AccountService.LoginAsync) - this throttles by caller IP address, so it also protects
+// register/bootstrap/mfa-challenge/reset-password against distributed attempts spread across many
+// different usernames, which per-account lockout alone cannot. Sliding window, no queueing (an
+// over-limit caller is rejected immediately with 429, never made to wait server-side).
+var authAttemptsPermitLimit = builder.Configuration.GetValue<int?>("AuthAttemptRateLimit:PermitLimit") ?? 10;
+var authAttemptsWindow = TimeSpan.FromSeconds(builder.Configuration.GetValue<int?>("AuthAttemptRateLimit:WindowSeconds") ?? 60);
+builder.Services.AddRateLimiter(options =>
+{
+    options.OnRejected = (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        return ValueTask.CompletedTask;
+    };
+    options.AddPolicy("AuthAttempts", httpContext => RateLimitPartition.GetSlidingWindowLimiter(
+        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new SlidingWindowRateLimiterOptions
+        {
+            PermitLimit = authAttemptsPermitLimit,
+            Window = authAttemptsWindow,
+            SegmentsPerWindow = 4,
+            QueueLimit = 0,
+        }));
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -157,6 +184,7 @@ app.UseCors(LocalClientCorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
+app.UseRateLimiter();
 
 app.MapControllers();
 

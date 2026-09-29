@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Data;
@@ -33,6 +34,7 @@ public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDis
 public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db) : ControllerBase
 {
     [HttpPost("register")]
+    [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
         try
@@ -54,6 +56,7 @@ public class AuthController(AccountService accountService, IConfiguration config
 
     /// <summary>One-time, offline-capable first-admin provisioning. Disabled forever after the first success.</summary>
     [HttpPost("bootstrap-admin")]
+    [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> BootstrapAdmin([FromBody] BootstrapAdminRequest request, CancellationToken cancellationToken)
     {
         var configuredSecret = configuration["AdminBootstrapSecret"];
@@ -82,6 +85,7 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
         try
@@ -109,6 +113,7 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPost("mfa/challenge")]
+    [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> CompleteMfaChallenge([FromBody] MfaChallengeRequest request, CancellationToken cancellationToken)
     {
         try
@@ -253,6 +258,7 @@ public class AuthController(AccountService accountService, IConfiguration config
     }
 
     [HttpPost("reset-password/complete")]
+    [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> CompletePasswordReset([FromBody] CompleteResetRequest request, CancellationToken cancellationToken)
     {
         try
