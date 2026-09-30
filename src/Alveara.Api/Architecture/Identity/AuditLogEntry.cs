@@ -54,4 +54,10 @@ public static class AuditEventTypes
     // distinct event type so an audit reader can tell a step-up failure from an actual login
     // failure, even though both count toward (and can trigger) the same account lockout.
     public const string MfaStepUpFailed = "MfaStepUpFailed";
+
+    // ALV-001-C01 R04 addition (review finding ALV-001-C01-R03-02): a privacy-safe event for a
+    // challenge that could not be consumed because it was already consumed (replayed), expired,
+    // or revoked - never logs the token or code, and is indistinguishable across those three
+    // causes in its own right, matching the public-facing exception's own refusal to disclose why.
+    public const string MfaChallengeReplayRejected = "MfaChallengeReplayRejected";
 }
