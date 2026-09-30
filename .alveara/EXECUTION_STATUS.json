@@ -272,21 +272,21 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 5,
-        "passed": 0
+        "passed": 5
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "178 of 178 backend (dotnet test, up from 176) + 54 of 54 frontend (vitest, up from 40) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; up from 6). Deterministic nav-filtering/account/sign-out tests, route-guard tests (signed-out denial, permission-denied rendering, permitted access, post-login return-to-intended-page), AuthContext unit tests (defensive permission check, session-expiry-soon timing, reactive 401 handling, sign-out state clearing), a real-HTTP backend test proving a genuine MFA-confirm session-continuity bug this story's route guards surfaced and fixed, and 2 new real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N009/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "n/a",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "1127f01bf36fcc4e60cd83627d51d5878d854314",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N009/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
