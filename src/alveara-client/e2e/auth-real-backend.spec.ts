@@ -77,9 +77,8 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.getByRole("button", { name: "Confirm" }).click();
     await expect(page.getByText("MFA is now active on your account.")).toBeVisible();
 
-    // No sign-out control exists in the shell nav yet (that's tracked separately, not part of
-    // this story's scope) - clear the session cookie directly so the next login is genuinely
-    // unauthenticated, the same effect a real sign-out would have.
+    // Clear the session cookie directly (equivalent to a real sign-out, which ALV-N009 exercises
+    // separately at the end of this file) so the next login is genuinely unauthenticated.
     await context.clearCookies();
     await page.goto("/login");
     await page.getByLabel("Username").fill(adminUsername);
@@ -141,6 +140,65 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     for (const role of ["Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager", "Admin"]) {
       await expect(page.getByRole("columnheader", { name: role })).toBeVisible();
     }
+  });
+
+  // ---------- ALV-N009: authorization-aware navigation, session UX, identity context ----------
+
+  test("a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API", async () => {
+    // Create and sign in as a limited-permission (Dentist) user, while still holding the admin's
+    // authenticated session/CSRF token from the tests above.
+    const csrfResponse = await page.request.get("/api/auth/csrf-token");
+    const { token: csrf } = await csrfResponse.json();
+    const limitedUsername = `dentist-${Date.now()}`;
+    const registerResponse = await page.request.post("/api/auth/register", {
+      data: { username: limitedUsername, password: "dentist-password-1!" },
+    });
+    expect(registerResponse.ok()).toBeTruthy();
+    const { id: limitedUserId } = await registerResponse.json();
+    const roleResponse = await page.request.put(`/api/auth/${limitedUserId}/role`, {
+      headers: { "X-CSRF-Token": csrf },
+      data: { role: "Dentist" },
+    });
+    expect(roleResponse.ok()).toBeTruthy();
+    const enableResponse = await page.request.put(`/api/auth/${limitedUserId}/enabled`, {
+      headers: { "X-CSRF-Token": csrf },
+      data: { enabled: true },
+    });
+    expect(enableResponse.ok()).toBeTruthy();
+
+    await context.clearCookies();
+    await page.goto("/login");
+    await page.getByLabel("Username").fill(limitedUsername);
+    await page.getByLabel("Password").fill("dentist-password-1!");
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+
+    // Real server-derived nav filtering, not a hard-coded client assumption: this account holds
+    // neither ManageUsers nor ViewPermissionMatrix, so neither admin link is rendered.
+    await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Security Administration" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Permission Matrix" })).toHaveCount(0);
+
+    // Direct URL to each hidden route is still denied server-authoritatively - the client-side
+    // guard shows permission-denied before the page's own protected data fetch even starts, and
+    // the server itself would reject the underlying API calls regardless of what the client shows.
+    await page.goto("/admin/users");
+    await expect(page.getByText(/don't have permission/i)).toBeVisible();
+    await page.goto("/admin/permissions");
+    await expect(page.getByText(/don't have permission/i)).toBeVisible();
+  });
+
+  test("the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again", async () => {
+    await page.goto("/");
+    await expect(page.getByText("Dentist", { exact: true })).toBeVisible(); // role, shown in the sidebar account area
+
+    await page.getByRole("button", { name: "Sign out" }).click();
+    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+
+    // UI-state clearing: a direct URL to a protected route after sign-out is denied again, not
+    // served from any stale client-held state.
+    await page.goto("/admin/users");
+    await expect(page.getByText(/your session expired/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Security administration" })).toHaveCount(0);
   });
 });
 

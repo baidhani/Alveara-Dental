@@ -160,22 +160,28 @@ public class AuthController(AccountService accountService, IConfiguration config
         return Ok(new { token = tokens.RequestToken });
     }
 
-    /// <summary>The current caller's own permissions, for client-side "can I do this" UI decisions
-    /// (e.g. hiding/disabling actions a role can't reach) - never the source of truth for access
-    /// control itself, which is always re-checked server-side via [RequirePermission].</summary>
+    /// <summary>The current caller's own identity/permissions, for client-side "who am I, can I do
+    /// this" UI decisions (nav filtering, account menu, session-expiry UX) - never the source of
+    /// truth for access control itself, which is always re-checked server-side via
+    /// [RequirePermission]. ALV-N009: also returns the real cookie expiry (read from the
+    /// authentication ticket, not recomputed client-side) so the shell can warn before the session
+    /// actually expires rather than only reacting after the fact.</summary>
     [HttpGet("permissions")]
     [Authorize]
-    public IActionResult MyPermissions()
+    public async Task<IActionResult> MyPermissions()
     {
         var roleClaim = User.FindFirstValue(ClaimTypes.Role);
         if (!Enum.TryParse<Role>(roleClaim, out var role))
         {
             return Unauthorized();
         }
+        var authenticateResult = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok(new
         {
+            username = User.FindFirstValue(ClaimTypes.Name),
             role = role.ToString(),
             permissions = PermissionMatrix.PermissionsFor(role).Select(p => p.ToString()).OrderBy(p => p),
+            sessionExpiresAtUtc = authenticateResult.Properties?.ExpiresUtc,
         });
     }
 
@@ -230,7 +236,13 @@ public class AuthController(AccountService accountService, IConfiguration config
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         try
         {
-            await accountService.ConfirmMfaEnrollmentAsync(userId, request.Code, cancellationToken);
+            var account = await accountService.ConfirmMfaEnrollmentAsync(userId, request.Code, cancellationToken);
+            // ALV-N009: confirmation rotates SecurityStamp (by design - it invalidates every OTHER
+            // outstanding session), which would otherwise also invalidate the caller's own current
+            // cookie on their very next request. Re-issuing the cookie here with the fresh stamp
+            // keeps the confirming caller's own session genuinely valid, rather than silently
+            // signing them out as a side effect of the action they just took.
+            await SignInAsync(account);
             return Ok();
         }
         catch (InvalidMfaCodeException)

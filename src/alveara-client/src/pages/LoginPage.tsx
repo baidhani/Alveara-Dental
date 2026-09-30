@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { FormField } from "../components/FormField";
 import { Button } from "../components/Button";
@@ -30,7 +30,15 @@ export function LoginPage() {
   const [formState, setFormState] = useState<LoginFormState>({ kind: "idle" });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { refresh } = useAuth();
+
+  // ALV-N009: RequireAuth records where a direct/deep-link caller was denied (see
+  // RouteGuards.tsx) so a successful sign-in returns them there instead of always to "/" -
+  // `state.from` is only ever a location object this app itself set, never attacker-controlled
+  // input, so using it directly to navigate is safe.
+  const from = (location.state as { from?: { pathname: string; search: string } } | null)?.from;
+  const redirectTo = from ? `${from.pathname}${from.search}` : "/";
 
   const sessionExpired = searchParams.get("reason") === "expired";
 
@@ -45,7 +53,7 @@ export function LoginPage() {
         return;
       }
       await refresh();
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 429) {

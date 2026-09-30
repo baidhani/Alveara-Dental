@@ -77,6 +77,24 @@ public class AuthControllerPermissionMatrixTests : IAsyncLifetime
         Assert.DoesNotContain("ManageUsers", permissions);
     }
 
+    // ALV-N009: the shell needs the caller's own username (for the account menu) and the real
+    // cookie expiry (for session-expiry UX) alongside role/permissions.
+    [Fact]
+    public async Task GET_permissions_also_returns_the_caller_s_username_and_a_future_session_expiry()
+    {
+        await using var factory = CreateFactory();
+        var (adminClient, csrf, _) = await CreateLoggedInAdminClientAsync(factory);
+        var billingClient = await CreateLoggedInUserClientAsync(factory, adminClient, csrf, "Billing");
+
+        var response = await billingClient.GetAsync("/api/auth/permissions");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(string.IsNullOrEmpty(body.GetProperty("username").GetString()));
+        var sessionExpiresAtUtc = body.GetProperty("sessionExpiresAtUtc").GetDateTimeOffset();
+        Assert.True(sessionExpiresAtUtc > DateTimeOffset.UtcNow, "session expiry must be in the future for a freshly logged-in session");
+    }
+
     [Fact]
     public async Task PUT_role_is_allowed_for_a_role_holding_ManageRoles_and_denied_for_one_that_does_not()
     {

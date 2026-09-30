@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppShell } from "./app/AppShell";
+import { RequireAuth, RequirePermission } from "./app/RouteGuards";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ShowcasePage } from "./pages/ShowcasePage";
 import { SystemStatusPage } from "./pages/SystemStatusPage";
@@ -13,12 +14,22 @@ import { PermissionMatrixPage } from "./pages/PermissionMatrixPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
+import { DisconnectedBanner } from "./components/DisconnectedBanner";
+import { useConnectionStatus } from "./hooks/useConnectionStatus";
 
 export function App() {
+  // ALV-N009: rendered above every route (auth pages included, not just the signed-in shell) -
+  // "can't reach the server" is a connectivity fact independent of whether the caller happens to
+  // be signed in yet, and the caller needs to see it on the login screen just as much as anywhere
+  // else (a failed permissions check during a genuine outage should never look like a plain
+  // "session expired" with no further explanation).
+  const connectionStatus = useConnectionStatus();
+
   return (
     <NotificationProvider>
       <AuthProvider>
         <BrowserRouter>
+          {connectionStatus === "disconnected" && <DisconnectedBanner />}
           <Routes>
             {/* Unauthenticated auth flows render outside the app shell - there's no signed-in
                 identity yet for the shell's nav/patient-context regions to reflect. */}
@@ -26,13 +37,45 @@ export function App() {
             <Route path="/mfa-challenge" element={<MfaChallengePage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-            <Route element={<AppShell />}>
+            {/* ALV-N009: every route behind the shell requires a real session - RequireAuth denies
+                (redirecting to /login) before AppShell or any child route even mounts, so a
+                direct/deep-link URL can never flash protected content or start a protected data
+                fetch first. Permission-specific routes additionally require RequirePermission;
+                the server remains the actual authority for both checks (see RouteGuards.tsx). */}
+            <Route
+              element={
+                <RequireAuth>
+                  <AppShell />
+                </RequireAuth>
+              }
+            >
               <Route path="/" element={<DashboardPage />} />
               <Route path="/showcase" element={<ShowcasePage />} />
               <Route path="/system-status" element={<SystemStatusPage />} />
-              <Route path="/admin/users" element={<AdminUsersPage />} />
-              <Route path="/admin/users/:userId" element={<AdminUserDetailPage />} />
-              <Route path="/admin/permissions" element={<PermissionMatrixPage />} />
+              <Route
+                path="/admin/users"
+                element={
+                  <RequirePermission permission="ManageUsers">
+                    <AdminUsersPage />
+                  </RequirePermission>
+                }
+              />
+              <Route
+                path="/admin/users/:userId"
+                element={
+                  <RequirePermission permission="ManageUsers">
+                    <AdminUserDetailPage />
+                  </RequirePermission>
+                }
+              />
+              <Route
+                path="/admin/permissions"
+                element={
+                  <RequirePermission permission="ViewPermissionMatrix">
+                    <PermissionMatrixPage />
+                  </RequirePermission>
+                }
+              />
               <Route path="/settings/mfa" element={<MfaSettingsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>

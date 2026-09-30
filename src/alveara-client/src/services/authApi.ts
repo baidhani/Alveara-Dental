@@ -22,8 +22,12 @@ export interface AdminUserSummary {
 }
 
 export interface MyPermissions {
+  username: string;
   role: string;
   permissions: string[];
+  /** ISO 8601, or null if the server couldn't determine it - the real cookie expiry, not a
+   *  client-computed guess (see AuthController.MyPermissions). */
+  sessionExpiresAtUtc: string | null;
 }
 
 export interface PermissionMatrixEntry {
@@ -59,9 +63,21 @@ async function parseErrorBody(res: Response): Promise<{ error: string; message?:
   }
 }
 
+// ALV-N009: any authenticated call can discover mid-session that the cookie is no longer valid
+// (expired, or revoked server-side) - not just the initial permissions check. AuthContext
+// registers a handler here so a 401 from ANY call (not only getMyPermissions) can transition the
+// shell to signed-out immediately, rather than leaving stale protected UI on screen until the
+// next unrelated re-render happens to call refresh().
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  onUnauthorized = handler;
+}
+
 async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, { credentials: "include", ...init });
   if (!res.ok) {
+    if (res.status === 401) onUnauthorized?.();
     const { error, message, body } = await parseErrorBody(res);
     throw new ApiError(res.status, error, message ?? `Request failed with status ${res.status}.`, body);
   }

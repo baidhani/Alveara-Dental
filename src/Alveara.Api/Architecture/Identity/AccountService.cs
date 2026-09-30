@@ -544,7 +544,12 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         return (Totp.ToBase32(secretBytes), recoveryCodes);
     }
 
-    public async Task ConfirmMfaEnrollmentAsync(Guid userAccountId, string code, CancellationToken cancellationToken = default)
+    /// <summary>Returns the account as it stands immediately after confirmation (in particular, its
+    /// freshly-rotated <see cref="UserAccount.SecurityStamp"/>) - ALV-N009: the caller's own
+    /// current session's auth cookie is about to be stamped-invalid by that same rotation, so the
+    /// controller needs this value to re-issue the cookie in the same request and keep the caller
+    /// who just confirmed MFA from being silently signed out by their own action.</summary>
+    public async Task<UserAccount> ConfirmMfaEnrollmentAsync(Guid userAccountId, string code, CancellationToken cancellationToken = default)
     {
         // AsNoTracking deliberately: every mutation below goes through ExecuteUpdateAsync (raw
         // SQL, bypassing the change tracker) for atomicity, so a tracked copy of this entity would
@@ -593,6 +598,8 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             wasAlreadyEnabled ? $"MFA factor replaced for '{account.Username}'; all sessions and prior challenges invalidated." : $"MFA enabled for '{account.Username}'.");
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
+
+        return await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == userAccountId, cancellationToken);
     }
 
     // ---------- Administrative operations ----------
