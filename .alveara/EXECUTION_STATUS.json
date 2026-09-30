@@ -191,7 +191,7 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedBy": "ALV-001-C01, in progress as of attempt R02 (CHANGES_REQUIRED for unrelated MFA-replay/step-up-throttling findings, not yet COMPLETE) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01/R02 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. This descriptive reference will be updated to name the approved attempt once ALV-001-C01 closes. Original finding text preserved in this file's git history.",
+      "blockingIssuesResolvedBy": "ALV-001-C01, in progress as of attempt R03 (AWAITING_REVIEW, not yet COMPLETE) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. This descriptive reference will be updated to name the approved attempt once ALV-001-C01 closes. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -220,32 +220,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "158 of 158 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 5 of 5 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R02 reviewer: same counts, all passing. Reviewer additionally found (outside the submitted suites) that an identical MFA challenge/TOTP submission can be replayed to mint a second session - see blockingIssues."
+        "summary": "168 of 168 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 10 new backend tests and 1 new Playwright test this attempt close the MFA-challenge-replay and step-up-throttling findings from the R02 review; the new Playwright test directly reproduces the R02 reviewer's own live replay reproduction and confirms it now fails. See .alveara/handoffs/ALV-001-C01/R03-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "f5757719df03eb2e3a7759e0a89eefca71232739",
-      "evidenceCommit": "7867f67ee46bc5bc60841666b6816c3aeb5f2c5f",
-      "handoffPath": ".alveara/handoffs/ALV-001-C01/R02.md",
+      "implementationCommit": "3203c05f843f9c5b98968dba5bc9ee3da820cab7",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-001-C01/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "f5757719df03eb2e3a7759e0a89eefca71232739",
-        "reviewedEvidenceCommit": "7867f67ee46bc5bc60841666b6816c3aeb5f2c5f"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-001-C01-R02-01 (P1): the MFA challenge (challenge token + TOTP/recovery code) is not consumed atomically on success - an identical successful submission can be replayed to mint a second authenticated session. Reviewer reproduced live: same challenge-token/code body submitted twice both returned 200 and issued a cookie.",
-        "ALV-001-C01-R02-02 (P1): POST /api/auth/mfa/enroll's current-password step-up verifier is not covered by the AuthAttempts rate limiter or any account-lockout-equivalent boundary, letting a stolen authenticated session make unlimited online password guesses against that endpoint."
-      ],
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-001-C01/R03.md 'Corrections made' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R02 findings (ALV-001-C01-R02-01, -02). Original R02 review text preserved at .alveara/reviews/ALV-001-C01/R02.md.",
       "revalidation": {
         "required": false,
         "reason": null
