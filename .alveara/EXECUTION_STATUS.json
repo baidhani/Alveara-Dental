@@ -191,7 +191,7 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedBy": "ALV-001-C01, in progress as of attempt R03 (AWAITING_REVIEW, not yet COMPLETE) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. This descriptive reference will be updated to name the approved attempt once ALV-001-C01 closes. Original finding text preserved in this file's git history.",
+      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -220,7 +220,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R06",
       "acceptance": {
         "total": 7,
@@ -228,27 +228,27 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "175 of 175 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 3 superseded uncontrolled-race tests removed and 4 deterministic tests added this attempt, using three new internal no-op-in-production test-only coordination seams on AccountService, closing the two evidence-gap findings from the R05 review. Each new test run 3 consecutive times locally with no flake. See .alveara/handoffs/ALV-001-C01/R06-evidence/TEST_RESULTS.md."
+        "summary": "175 of 175 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R06 reviewer: same counts (221 total), all passing, against a fresh reviewer-owned migrated database and a real API process. Both R05 evidence-gap findings closed by tests that provably force each disputed concurrency branch (deterministic seam-based coordination), not scheduler-dependent outcomes."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "d6fd2810b42e871d690e4032ab27c2603348a47b",
-      "evidenceCommit": null,
+      "evidenceCommit": "df5b7f25351b7c0af4bf86b43e397e4d0f4a2278",
       "handoffPath": ".alveara/handoffs/ALV-001-C01/R06.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R06.md",
+        "approvedAttempt": "R06",
+        "reviewedImplementationCommit": "d6fd2810b42e871d690e4032ab27c2603348a47b",
+        "reviewedEvidenceCommit": "df5b7f25351b7c0af4bf86b43e397e4d0f4a2278"
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R06 - see .alveara/handoffs/ALV-001-C01/R06.md 'Corrections made' and R06-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R05 findings (ALV-001-C01-R05-01, -02). Original R05 review text preserved at .alveara/reviews/ALV-001-C01/R05.md.",
+      "blockingIssuesResolvedInAttempt": "R06 - see .alveara/handoffs/ALV-001-C01/R06.md 'Corrections made' and R06-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R05 findings (ALV-001-C01-R05-01, -02). All prior findings (R01: 5, R02: 2, R03: 3, R04: 2, R05: 2) were corrected in their respective attempts; independently APPROVED at R06 per .alveara/reviews/ALV-001-C01/R06.md.",
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": "2026-09-30T10:55:00.000Z"
     },
     {
       "schemaVersion": "2",
