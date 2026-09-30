@@ -379,12 +379,14 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                     .ExecuteUpdateAsync(s => s.SetProperty(r => r.UsedAtUtc, DateTimeOffset.UtcNow), cancellationToken);
                 if (rows == 0)
                 {
-                    // Another concurrent request already consumed this exact code. The challenge
-                    // itself is already spent (and its rejection is not separately audited here -
-                    // the code-level race below covers it): the caller must obtain a fresh
-                    // challenge either way.
-                    await db.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
+                    // R05 (review finding ALV-001-C01-R04-02): a DIFFERENT concurrently-completing
+                    // challenge already consumed this exact recovery code before this one's
+                    // conditional update ran. Rolling back (rather than committing) undoes THIS
+                    // challenge's own consumption too, so it is never left partially consumed with
+                    // no owning success/failure audit - this attempt genuinely failed with this
+                    // code and must not burn the challenge for it. The loop's fallthrough below
+                    // (or the next matching code, if any) records the one failure audit.
+                    await transaction.RollbackAsync(cancellationToken);
                     continue;
                 }
                 AddAudit(AuditEventTypes.MfaRecoveryCodeUsed, account.Id, account.Id, $"One-time recovery code consumed for '{account.Username}'.");

@@ -615,24 +615,37 @@ public class AccountServiceMfaTests : IAsyncLifetime
         var (secretB32, _) = await service.BeginMfaEnrollmentAsync(account.Id);
         await service.ConfirmMfaEnrollmentAsync(account.Id, Totp.GenerateCodeForTests(Totp.FromBase32(secretB32)));
 
-        // Three failures below the 5-attempt threshold: any single further failure, anywhere
-        // sharing the counter, crosses it.
-        for (var i = 0; i < 3; i++)
+        // R05 (review finding ALV-001-C01-R04-01): exactly FOUR failures, one below the real
+        // 5-attempt threshold (MaxFailedLoginAttempts) - the racing FIFTH failure below is the one
+        // that must be capable of actually crossing it. The prior attempt primed only three and
+        // raced a fourth (3+1=4, never reaching 5), so AccountLockedOutException was never
+        // reachable on the racing side and the test passed vacuously regardless of correctness.
+        for (var i = 0; i < 4; i++)
         {
             await Assert.ThrowsAsync<InvalidLoginException>(() => service.LoginAsync(username, "wrong"));
         }
+        var primed = await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == account.Id);
+        Assert.Equal(4, primed.FailedLoginAttempts);
+        Assert.Null(primed.LockedOutUntilUtc);
 
         await using var dbA = _fixture.CreateContext();
         await using var dbB = _fixture.CreateContext();
         var serviceA = IdentityTestHelpers.CreateAccountService(dbA);
         var serviceB = IdentityTestHelpers.CreateAccountService(dbB);
 
-        // Race a correct step-up password against the wrong login password that crosses the
-        // threshold. taskB always fails (its password is wrong); the question is whether taskA
-        // - despite having the CORRECT password - can win a race against the lock it didn't cause.
+        // Race a correct step-up password against the FIFTH wrong login password - the one that
+        // genuinely crosses the threshold. taskB always fails (its password is wrong); the
+        // question is whether taskA - despite having the CORRECT password - can win a race
+        // against the lock it didn't cause.
         var taskA = Record.ExceptionAsync(() => serviceA.BeginMfaEnrollmentAsync(account.Id, currentPassword: "password"));
         var taskB = Record.ExceptionAsync(() => serviceB.LoginAsync(username, "wrong"));
         var results = await Task.WhenAll(taskA, taskB);
+
+        // taskB (the fifth failure) must always throw - either it lost the race for last place and
+        // only observes InvalidLoginException, or it is the one that actually crosses the
+        // threshold and throws AccountLockedOutException itself.
+        Assert.True(results[1] is InvalidLoginException or AccountLockedOutException,
+            $"Unexpected exception from the fifth failing login: {results[1]}");
 
         // Only two outcomes are permitted for the correct step-up: it completed before the lock
         // (no exception), or the lock won the race (AccountLockedOutException) - never a silent
@@ -641,16 +654,26 @@ public class AccountServiceMfaTests : IAsyncLifetime
             $"Unexpected exception from the correct step-up attempt: {results[0]}");
 
         var refreshed = await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == account.Id);
+        var pendingRecoveryCount = await db.Set<MfaRecoveryCode>().CountAsync(r => r.UserAccountId == account.Id && r.IsPending);
         if (results[0] is null)
         {
-            // Step-up won the race and genuinely completed: pending MFA material was created.
+            // Step-up won the race and genuinely completed: pending MFA material was created, and
+            // the fifth failure - having lost the race for the counter - did not leave the
+            // account locked (it incremented the freshly-reset counter to 1, not 5).
             Assert.NotNull(refreshed.PendingMfaSecretProtected);
+            Assert.Equal(10, pendingRecoveryCount);
+            Assert.Null(refreshed.LockedOutUntilUtc);
+            Assert.Equal(1, refreshed.FailedLoginAttempts);
         }
         else
         {
-            // Lockout won the race: no pending material was created by the rejected step-up.
+            // Lockout won the race: no pending secret or pending recovery codes were created by
+            // the rejected step-up, and the account is genuinely locked with the counter at the
+            // real threshold.
             Assert.Null(refreshed.PendingMfaSecretProtected);
+            Assert.Equal(0, pendingRecoveryCount);
             Assert.NotNull(refreshed.LockedOutUntilUtc);
+            Assert.Equal(5, refreshed.FailedLoginAttempts);
         }
     }
 
@@ -737,5 +760,90 @@ public class AccountServiceMfaTests : IAsyncLifetime
         // what rejected the replay.
         var stillUnused = await db.Set<MfaRecoveryCode>().CountAsync(r => r.UserAccountId == account.Id && !r.IsPending && r.UsedAtUtc == null);
         Assert.Equal(9, stillUnused);
+    }
+
+    // ---------- R05 additions (review finding ALV-001-C01-R04-02: two-challenges-one-recovery-code race) ----------
+
+    [Fact]
+    public async Task Two_distinct_challenges_racing_the_same_recovery_code_leave_exactly_one_success_and_the_losing_challenge_unconsumed()
+    {
+        var sharedProvider = new EphemeralDataProtectionProvider();
+
+        await using var setupDb = _fixture.CreateContext();
+        var setupService = IdentityTestHelpers.CreateAccountService(setupDb, sharedProvider);
+        var username = $"user-{Guid.NewGuid():N}";
+        var account = await IdentityTestHelpers.RegisterEnabledAsync(setupService, setupDb, username, "password", Role.OfficeManager);
+        var (secretB32, recoveryCodes) = await setupService.BeginMfaEnrollmentAsync(account.Id);
+        await setupService.ConfirmMfaEnrollmentAsync(account.Id, Totp.GenerateCodeForTests(Totp.FromBase32(secretB32)));
+
+        // Two SEPARATE, independently-issued challenges for the same account - e.g. two devices
+        // each starting a login. Both are valid and unconsumed at this point.
+        var challenge1 = await Assert.ThrowsAsync<MfaChallengeRequiredException>(() => setupService.LoginAsync(username, "password"));
+        var challenge2 = await Assert.ThrowsAsync<MfaChallengeRequiredException>(() => setupService.LoginAsync(username, "password"));
+        Assert.NotEqual(challenge1.ChallengeToken, challenge2.ChallengeToken);
+
+        var sharedRecoveryCode = recoveryCodes[0];
+
+        await using var dbA = _fixture.CreateContext();
+        await using var dbB = _fixture.CreateContext();
+        var serviceA = IdentityTestHelpers.CreateAccountService(dbA, sharedProvider);
+        var serviceB = IdentityTestHelpers.CreateAccountService(dbB, sharedProvider);
+
+        // Race the SAME still-unused recovery code against two DIFFERENT challenges.
+        var taskA = Record.ExceptionAsync(() => serviceA.CompleteMfaChallengeAsync(challenge1.ChallengeToken, sharedRecoveryCode));
+        var taskB = Record.ExceptionAsync(() => serviceB.CompleteMfaChallengeAsync(challenge2.ChallengeToken, sharedRecoveryCode));
+        var results = await Task.WhenAll(taskA, taskB);
+
+        // Exactly one of the two racing completions actually succeeded; the other genuinely failed
+        // (the code it submitted was valid, but already spent) - never both, never neither.
+        Assert.Single(results, r => r is null);
+        Assert.Single(results, r => r is InvalidMfaCodeException);
+
+        await using var verifyDb = _fixture.CreateContext();
+        Assert.Single(verifyDb.AuditLogEntries.Where(a => a.TargetUserAccountId == account.Id && a.EventType == AuditEventTypes.MfaRecoveryCodeUsed));
+        Assert.Single(verifyDb.AuditLogEntries.Where(a => a.TargetUserAccountId == account.Id && a.EventType == AuditEventTypes.LoginSucceeded));
+        Assert.Single(verifyDb.AuditLogEntries.Where(a => a.TargetUserAccountId == account.Id && a.EventType == AuditEventTypes.MfaChallengeFailed));
+        Assert.Equal(1, await verifyDb.Set<MfaRecoveryCode>().CountAsync(r => r.UserAccountId == account.Id && r.UsedAtUtc != null));
+
+        // Exactly one of the two challenges is consumed (the winner's); the other was rolled back
+        // to unconsumed rather than left partially consumed with no owning success/failure record
+        // - the P1 gap this test exists to close.
+        var allChallenges = await verifyDb.Set<MfaChallenge>().Where(c => c.UserAccountId == account.Id).ToListAsync();
+        Assert.Equal(2, allChallenges.Count);
+        Assert.Single(allChallenges, c => c.ConsumedAtUtc != null);
+        Assert.Single(allChallenges, c => c.ConsumedAtUtc == null);
+    }
+
+    [Fact]
+    public async Task When_a_recovery_code_race_is_lost_the_losing_challenge_can_still_be_completed_afterward_with_a_different_code()
+    {
+        // Proves the rollback (not just the audit) genuinely restores the losing challenge to a
+        // usable state, rather than merely hiding the loss behind an audit entry.
+        await using var db = _fixture.CreateContext();
+        var service = IdentityTestHelpers.CreateAccountService(db);
+        var username = $"user-{Guid.NewGuid():N}";
+        var account = await IdentityTestHelpers.RegisterEnabledAsync(service, db, username, "password", Role.Billing);
+        var (secretB32, recoveryCodes) = await service.BeginMfaEnrollmentAsync(account.Id);
+        await service.ConfirmMfaEnrollmentAsync(account.Id, Totp.GenerateCodeForTests(Totp.FromBase32(secretB32)));
+        var challenge = await Assert.ThrowsAsync<MfaChallengeRequiredException>(() => service.LoginAsync(username, "password"));
+
+        // Simulate having lost a recovery-code race by consuming the code out from under this
+        // challenge directly (deterministic stand-in for the concurrent-loser branch exercised by
+        // the real two-context test above).
+        await using (var mutateDb = _fixture.CreateContext())
+        {
+            var candidates = await mutateDb.Set<MfaRecoveryCode>().Where(r => r.UserAccountId == account.Id && !r.IsPending).ToListAsync();
+            var codeRow = candidates.Single(r => Pbkdf2PasswordHasher.Verify(recoveryCodes[0], r.CodeHash));
+            codeRow.UsedAtUtc = DateTimeOffset.UtcNow;
+            await mutateDb.SaveChangesAsync();
+        }
+
+        await Assert.ThrowsAsync<InvalidMfaCodeException>(
+            () => service.CompleteMfaChallengeAsync(challenge.ChallengeToken, recoveryCodes[0]));
+
+        // The challenge itself must still be usable afterward with a DIFFERENT, still-valid code -
+        // proving it was genuinely rolled back to unconsumed, not silently burned by the loss.
+        var second = await service.CompleteMfaChallengeAsync(challenge.ChallengeToken, recoveryCodes[1]);
+        Assert.Equal(account.Id, second.Id);
     }
 }
