@@ -95,6 +95,34 @@ public class AuthControllerPermissionMatrixTests : IAsyncLifetime
         Assert.True(sessionExpiresAtUtc > DateTimeOffset.UtcNow, "session expiry must be in the future for a freshly logged-in session");
     }
 
+    // ALV-N009 R03 (review finding ALV-N009-R02-01): a background client-side poll observing
+    // session state (see AuthContext.tsx's revalidation poll) must never itself keep an otherwise
+    // idle session alive - that would defeat the admin-configured SessionTimeoutMinutes. Proven
+    // deterministically here by repeating the exact authenticated call the poll makes and asserting
+    // the server-reported expiry is byte-identical across calls - with SlidingExpiration left at
+    // its ASP.NET Core default (true), the second call's expiry would be later than the first.
+    [Fact]
+    public async Task GET_permissions_does_not_extend_the_session_expiry_on_repeated_calls_SlidingExpiration_is_off()
+    {
+        await using var factory = CreateFactory();
+        var (adminClient, csrf, _) = await CreateLoggedInAdminClientAsync(factory);
+        var billingClient = await CreateLoggedInUserClientAsync(factory, adminClient, csrf, "Billing");
+
+        var first = await billingClient.GetAsync("/api/auth/permissions");
+        var firstBody = await first.Content.ReadFromJsonAsync<JsonElement>();
+        var firstExpiry = firstBody.GetProperty("sessionExpiresAtUtc").GetDateTimeOffset();
+
+        // Several more calls, exactly like AuthContext.tsx's background revalidation poll and
+        // focus/visibility handlers would make while the caller is otherwise idle.
+        for (var i = 0; i < 3; i++)
+        {
+            var repeat = await billingClient.GetAsync("/api/auth/permissions");
+            var repeatBody = await repeat.Content.ReadFromJsonAsync<JsonElement>();
+            var repeatExpiry = repeatBody.GetProperty("sessionExpiresAtUtc").GetDateTimeOffset();
+            Assert.Equal(firstExpiry, repeatExpiry);
+        }
+    }
+
     [Fact]
     public async Task PUT_role_is_allowed_for_a_role_holding_ManageRoles_and_denied_for_one_that_does_not()
     {

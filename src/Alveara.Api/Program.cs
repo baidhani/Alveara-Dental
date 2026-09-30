@@ -98,6 +98,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             ? CookieSecurePolicy.SameAsRequest // dev also runs over plain HTTP on localhost
             : CookieSecurePolicy.Always;
 
+        // ALV-N009 R03 (review finding ALV-N009-R02-01): explicitly non-sliding. The default
+        // (true) silently renews ExpiresUtc on any authenticated request once past the renewal
+        // midpoint - including background client polling that exists purely to *observe* session
+        // state (see AuthContext.tsx's revalidation poll), not to represent genuine user activity.
+        // With sliding renewal on, that observation traffic itself would keep an otherwise-idle
+        // session alive indefinitely, defeating the admin-configured SessionTimeoutMinutes. Fixed
+        // ExpiresUtc (set once at sign-in in SignInAsync, below) makes the configured timeout an
+        // honest, deterministic deadline regardless of what polls or observes the session.
+        options.SlidingExpiration = false;
+
         options.Events.OnRedirectToLogin = context =>
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;

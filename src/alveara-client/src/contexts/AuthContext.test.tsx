@@ -235,6 +235,141 @@ describe("AuthContext (ALV-N009)", () => {
     expect(permissionsCallCount).toBeGreaterThan(1);
   });
 
+  it("R03: an older in-flight refresh cannot restore signed-in state after a newer 401 already cleared it", async () => {
+    let resolveOlder!: (r: Response) => void;
+    const olderResponse = new Promise<Response>((resolve) => {
+      resolveOlder = resolve;
+    });
+    let callCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => {
+        callCount += 1;
+        // Call 1 (mount's refresh()) is deliberately left pending - it represents an older request
+        // that resolves LAST, after a newer one has already superseded its decision. Every call
+        // after that resolves immediately with a 401, simulating the session having been revoked
+        // (e.g. a role change elsewhere) by the time the newer request lands.
+        if (callCount === 1) return olderResponse;
+        return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
+      })
+    );
+
+    function ProbeWithRefresh() {
+      const { refresh } = useAuth();
+      return (
+        <div>
+          <Probe />
+          <button onClick={() => refresh()}>refresh</button>
+        </div>
+      );
+    }
+
+    render(
+      <AuthProvider>
+        <ProbeWithRefresh />
+      </AuthProvider>
+    );
+
+    // Mount's own refresh() (call 1) is still pending - nothing has resolved yet.
+    expect(screen.getByTestId("kind")).toHaveTextContent("loading");
+
+    // A newer refresh() (call 2) resolves immediately with a 401 and clears to signed-out.
+    await act(async () => {
+      screen.getByText("refresh").click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+
+    // NOW the older call (1) finally resolves with a successful signed-in body. It must be
+    // ignored - a newer decision (the 401 above) already superseded it - or this would silently
+    // resurrect a session that was just revoked.
+    await act(async () => {
+      resolveOlder(
+        jsonResponse({
+          username: "u",
+          role: "Admin",
+          permissions: ["ManageUsers"],
+          sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString(),
+        })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId("kind")).toHaveTextContent("signed-out");
+  });
+
+  it("R03: logout() invalidates an older in-flight refresh so it cannot restore state after sign-out", async () => {
+    let resolveOlder!: (r: Response) => void;
+    const olderResponse = new Promise<Response>((resolve) => {
+      resolveOlder = resolve;
+    });
+    let permissionsCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL) => {
+        const u = String(url);
+        if (u.includes("/api/auth/logout")) return Promise.resolve(jsonResponse(undefined));
+        if (u.includes("/api/auth/permissions")) {
+          permissionsCallCount += 1;
+          // Mount's own refresh() (call 1) resolves immediately, signed in; a manually-triggered
+          // second refresh() (call 2) is left pending until after logout() completes.
+          if (permissionsCallCount === 1) {
+            return Promise.resolve(
+              jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+            );
+          }
+          return olderResponse;
+        }
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+
+    function ProbeWithControls() {
+      const { refresh, logout } = useAuth();
+      return (
+        <div>
+          <Probe />
+          <button onClick={() => refresh()}>refresh</button>
+          <button onClick={() => logout()}>logout</button>
+        </div>
+      );
+    }
+
+    render(
+      <AuthProvider>
+        <ProbeWithControls />
+      </AuthProvider>
+    );
+
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-in"));
+
+    // Kick off a second refresh() that will stay pending through the logout below.
+    act(() => {
+      screen.getByText("refresh").click();
+    });
+
+    await act(async () => {
+      screen.getByText("logout").click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+
+    // The refresh() started before logout() now resolves with an old, still-signed-in body - it
+    // must not undo the explicit sign-out.
+    await act(async () => {
+      resolveOlder(
+        jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId("kind")).toHaveTextContent("signed-out");
+  });
+
   it("ApiError with status 401 from getMyPermissions itself resolves to signed-out, not a thrown crash", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ error: "unauthorized" }, 401)));
 
