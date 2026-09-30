@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 2,
+    "stories_verified": 3,
     "stories_submitted": 0,
-    "stories_in_progress": 17,
+    "stories_in_progress": 16,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 8,
-    "points_awarded": 1663
+    "criteria_passed": 11,
+    "points_awarded": 1705
   },
   "stories": [
     {
@@ -141,19 +141,15 @@
       "notes": "Role-change logging (criterion 1) already existed from STORY-001's AccountService/AuditLogEntry work - AccountServiceRoleChangeTests.cs already proved it, reconfirmed here as still passing. New this story: GET /api/auth/audit-log gated on the existing Permission.ViewAuditLog (OfficeManager/Admin allowed, others 403) for read-side permission enforcement, and an AlveraDbContext.SaveChanges guard that throws AuditLogImmutableException on any update/delete of an AuditLogEntry regardless of caller - there is no API endpoint that permits modifying or deleting an entry at all, so 'attempts to modify... denied' holds unconditionally for every role, which is the strongest form of that guarantee. Full backend suite: 184/184 passing.",
       "updated_at": "2026-09-30T22:35:00.000Z",
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a user changes their role, when the change is saved, then the action is logged with a timestamp.",
-          "Given a user attempts to modify an audit log, when they do not have permission, then the action is denied.",
-          "Trust: Audit logs are immutable and protected from unauthorized modification."
-        ]
+        "verified_at": "2026-09-30T22:29:21.247Z",
+        "commit_sha": "cc9f83d81ad739b3fc90848339dc6690fe8bb521",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/cc9f83d81ad739b3fc90848339dc6690fe8bb521",
+        "commit_at": "2026-09-30T22:29:04Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
