@@ -220,32 +220,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R04",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R05",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "172 of 172 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R04 reviewer: same counts (218 total), all passing. Reviewer additionally found the new step-up race test is seeded one attempt short of the lockout threshold (passes vacuously, does not exercise the claimed race) and that the recovery-code losing-race branch still commits challenge consumption without its failure audit in the same transaction - see blockingIssues."
+        "summary": "174 of 174 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 1 test corrected in place (threshold math fix, now primes exactly 4 failed attempts and races the genuine 5th) plus 2 new backend tests this attempt close the two P1 findings from the R04 review: a real two-DbContext race between two distinct challenges on one shared recovery code, and a deterministic rollback reproduction. See .alveara/handoffs/ALV-001-C01/R05-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "1d15cfd564a6b2432ca0777158e6610a4980b525",
-      "evidenceCommit": "e1a9fa0af52563dde73c2b22cefdc6a2b1c8e947",
-      "handoffPath": ".alveara/handoffs/ALV-001-C01/R04.md",
+      "implementationCommit": "9fd920abc551942089807d10c598695d76635d4b",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-001-C01/R05.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R04.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "1d15cfd564a6b2432ca0777158e6610a4980b525",
-        "reviewedEvidenceCommit": "e1a9fa0af52563dde73c2b22cefdc6a2b1c8e947"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-001-C01-R04-01 (P1, evidence gap): A_correct_step_up_password_cannot_proceed_past_a_concurrent_failure_that_crosses_the_lockout_threshold primes only 3 failed attempts (claiming 'one below' a 5-attempt threshold) and races a single further failure - 3+1=4, not 5, so MaxFailedLoginAttempts is never reached, AccountLockedOutException is never exercised on the racing side, and the test passes vacuously regardless of whether the production row-count check actually works under a genuine threshold race.",
-        "ALV-001-C01-R04-02 (P1): on the recovery-code path, two distinct valid challenges can concurrently submit the same still-unused recovery code; each consumes its own challenge in its own transaction, but the losing request's recovery-code conditional update affects zero rows and that transaction commits with no audit for the loss (only a separate MfaChallengeFailed transaction runs afterward) - the exact unaudited-consumed-challenge window R03 required R04 to close, now recreated for the two-challenges-one-code race specifically, plus it burns the loser's otherwise-valid challenge instead of rolling back."
-      ],
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-001-C01/R05.md 'Corrections made' and R05-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R04 findings (ALV-001-C01-R04-01, -02). Original R04 review text preserved at .alveara/reviews/ALV-001-C01/R04.md.",
       "revalidation": {
         "required": false,
         "reason": null
