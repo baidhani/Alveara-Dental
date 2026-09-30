@@ -220,7 +220,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -228,22 +228,25 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "168 of 168 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 10 new backend tests and 1 new Playwright test this attempt close the MFA-challenge-replay and step-up-throttling findings from the R02 review; the new Playwright test directly reproduces the R02 reviewer's own live replay reproduction and confirms it now fails. See .alveara/handoffs/ALV-001-C01/R03-evidence/TEST_RESULTS.md."
+        "summary": "168 of 168 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R03 reviewer: same counts (214 total), all passing. Reviewer additionally found (outside the submitted suites) a stale-success concurrency gap in the step-up path and an audit/transaction-atomicity gap in challenge consumption - see blockingIssues."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "3203c05f843f9c5b98968dba5bc9ee3da820cab7",
-      "evidenceCommit": null,
+      "evidenceCommit": "ede2fd1408c8060ac00b7e5c893afe7d10c5e6d7",
       "handoffPath": ".alveara/handoffs/ALV-001-C01/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R03.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "3203c05f843f9c5b98968dba5bc9ee3da820cab7",
+        "reviewedEvidenceCommit": "ede2fd1408c8060ac00b7e5c893afe7d10c5e6d7"
       },
-      "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-001-C01/R03.md 'Corrections made' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R02 findings (ALV-001-C01-R02-01, -02). Original R02 review text preserved at .alveara/reviews/ALV-001-C01/R02.md.",
+      "blockingIssues": [
+        "ALV-001-C01-R03-01 (P1): BeginMfaEnrollmentAsync's correct-password step-up path does not check the affected-row count of its conditional counter-reset update, so it can proceed to create/replace pending MFA material even when a concurrent failing request just won the race and locked the account - the same stale-success class LoginAsync's own success path explicitly guards against.",
+        "ALV-001-C01-R03-02 (P1): TryConsumeChallengeAsync commits its conditional challenge-consumption update in a separate transaction from CompleteMfaChallengeAsync's success/audit transaction (and, on the recovery path, from the recovery-code consumption transaction), so a failure in between can leave a consumed challenge with no corresponding audit or (for recovery) no recovery-code state change. A rejected replay (TryConsumeChallengeAsync returning false) also writes no audit entry at all, contrary to R02's explicit requirement to audit both the one success and the rejected replay.",
+        "ALV-001-C01-R03-03 (P2, control integrity, now corrected): the stored .alveara/reviews/ALV-001-C01/R02.md differed from the delivered R02 artifact by one byte-level edit (smart quotes normalized to straight quotes around a quoted sentence) despite being required to be stored unchanged. Restored byte-for-byte from the delivered artifact (verified via SHA-256 match) as part of processing this R03 decision, before any R04 implementation work began."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
