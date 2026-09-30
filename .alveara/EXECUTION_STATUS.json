@@ -321,19 +321,19 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "184 of 184 backend passing (up from 179). New: AlveraDbContext.SaveChanges/SaveChangesAsync guard rejecting any update/delete of an AuditLogEntry (AuditLogImmutabilityTests.cs, 4 tests), and GET /api/auth/audit-log gated on Permission.ViewAuditLog (AuthControllerPermissionMatrixTests.cs, 1 test). Role-change audit logging with a timestamp already existed from STORY-001."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "cc9f83d81ad739b3fc90848339dc6690fe8bb521",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
@@ -348,8 +348,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-09-30T22:29:21.247Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit cc9f83d81ad739b3fc90848339dc6690fe8bb521 - see .colaberry/progress.json (STORY-002.verification.state == \"verified\", 3/3 criteria, 130 points awarded)."
     },
     {
       "schemaVersion": "2",
