@@ -272,33 +272,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 5,
         "passed": 5
       },
       "tests": {
         "status": "passed",
-        "summary": "178 of 178 backend (dotnet test, up from 176) + 54 of 54 frontend (vitest, up from 40) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; up from 6). Deterministic nav-filtering/account/sign-out tests, route-guard tests (signed-out denial, permission-denied rendering, permitted access, post-login return-to-intended-page), AuthContext unit tests (defensive permission check, session-expiry-soon timing, reactive 401 handling, sign-out state clearing), a real-HTTP backend test proving a genuine MFA-confirm session-continuity bug this story's route guards surfaced and fixed, and 2 new real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N009/R01-evidence/TEST_RESULTS.md."
+        "summary": "178 of 178 backend (dotnet test, unchanged from R01, no backend file touched this attempt) + 57 of 57 frontend (vitest, up from 54) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; unchanged from R01). Three new deterministic tests this attempt directly reproduce and prove the fix for all three R01 review findings: an expiry-boundary fake-timer test (ALV-N009-R01-01), a bounded-poll revalidation fake-timer test (ALV-N009-R01-02), and a protected-URL-to-login-to-MFA-challenge-to-original-URL route test (ALV-N009-R01-03). See .alveara/handoffs/ALV-N009/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "1127f01bf36fcc4e60cd83627d51d5878d854314",
-      "evidenceCommit": "b1d14e840d7c29dc20d551b78cba1a8b6b9f9b17",
-      "handoffPath": ".alveara/handoffs/ALV-N009/R01.md",
+      "implementationCommit": "c7ed14c321b1f167baa4b4e58646aa4d9d1a2c64",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N009/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N009/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "1127f01bf36fcc4e60cd83627d51d5878d854314",
-        "reviewedEvidenceCommit": "b1d14e840d7c29dc20d551b78cba1a8b6b9f9b17"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N009-R01-01 (P1): passing the authoritative session expiry does not sign the client out or unmount protected UI (AuthContext.tsx expiry poller only clears sessionExpiringSoon, never transitions state to signed-out).",
-        "ALV-N009-R01-02 (P1): signed-in permission/role changes are not revalidated on route navigation, focus, or interval; stale identity/nav/protected state persists until an unrelated API call happens to return 401.",
-        "ALV-N009-R01-03 (P2): the validated deep-link return destination is dropped when reauthentication requires MFA (MfaChallengePage always navigates to \"/\" after success instead of the originally denied location)."
-      ],
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-N009/R02.md 'Corrections made this attempt' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the three R01 findings (ALV-N009-R01-01, -02, -03). Independent review pending at R02 per .alveara/reviews/ALV-N009/R01.md (prior decision: CHANGES_REQUIRED).",
       "revalidation": {
         "required": false,
         "reason": null
