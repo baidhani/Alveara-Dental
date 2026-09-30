@@ -272,7 +272,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 5,
@@ -288,14 +288,18 @@
       "evidenceCommit": "4bb653aefe87c14481cd701dc78e664999596e6b",
       "handoffPath": ".alveara/handoffs/ALV-N009/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N009/R02.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "c7ed14c321b1f167baa4b4e58646aa4d9d1a2c64",
+        "reviewedEvidenceCommit": "4bb653aefe87c14481cd701dc78e664999596e6b"
       },
-      "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-N009/R02.md 'Corrections made this attempt' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the three R01 findings (ALV-N009-R01-01, -02, -03). Independent review pending at R02 per .alveara/reviews/ALV-N009/R01.md (prior decision: CHANGES_REQUIRED).",
+      "blockingIssues": [
+        "ALV-N009-R02-01 (P1): the 30s authenticated background poll renews the default ASP.NET Core sliding-expiration cookie even while the caller is idle, defeating the configured session timeout.",
+        "ALV-N009-R02-02 (P1): refresh() applies responses in completion order with no request-generation/sequencing guard, so an older in-flight success can overwrite a newer 401/logout and resurrect stale signed-in state.",
+        "ALV-N009-R02-03 (P2): the packaged status snapshot (commit 25aa26c) does not match the manifest's declared evidence SHA (4bb653a), and GIT_STATE.md never records the evidence SHA once known, both due to an unnecessary supplemental SHA-backfill commit outside the documented two-commit HANDOFF_SCHEMA sequence."
+      ],
+      "blockingIssuesResolvedInAttempt": null,
       "revalidation": {
         "required": false,
         "reason": null
