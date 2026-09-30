@@ -272,7 +272,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R03",
       "acceptance": {
         "total": 5,
@@ -280,27 +280,27 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "179 of 179 backend (dotnet test, up from 178) + 59 of 59 frontend (vitest, up from 57) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; unchanged from R01). New this attempt: a backend test proving repeated authenticated calls never extend the session expiry (ALV-N009-R02-01, SlidingExpiration now off), and two frontend tests forcing the exact out-of-order refresh-completion scenarios the R02 review's probe used (ALV-N009-R02-02, requestSeqRef ordering guard). See .alveara/handoffs/ALV-N009/R03-evidence/TEST_RESULTS.md."
+        "summary": "179 of 179 backend (dotnet test, up from 178) + 59 of 59 frontend (vitest, up from 57) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; unchanged from R01). New this attempt: a backend test proving repeated authenticated calls never extend the session expiry (ALV-N009-R02-01, SlidingExpiration now off), and two frontend tests forcing the exact out-of-order refresh-completion scenarios the R02 review's probe used (ALV-N009-R02-02, requestSeqRef ordering guard). Independently re-verified by the R03 reviewer: same counts (246 total) plus a separate reviewer-only midpoint/expiry integration probe against a controlled cookie clock, all passing, against an isolated reviewer database and a real API process. See .alveara/handoffs/ALV-N009/R03-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "47a80c3c1f2d2a8bc4fec008ae601c140516991e",
-      "evidenceCommit": null,
+      "evidenceCommit": "3c0fd46844a5349e24e5307eb9675a2fbd207d9c",
       "handoffPath": ".alveara/handoffs/ALV-N009/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N009/R03.md",
+        "approvedAttempt": "R03",
+        "reviewedImplementationCommit": "47a80c3c1f2d2a8bc4fec008ae601c140516991e",
+        "reviewedEvidenceCommit": "3c0fd46844a5349e24e5307eb9675a2fbd207d9c"
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N009/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the three R02 findings (ALV-N009-R02-01, -02, -03). Independent review pending at R03 per .alveara/reviews/ALV-N009/R02.md (prior decision: CHANGES_REQUIRED).",
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N009/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the three R02 findings (ALV-N009-R02-01, -02, -03). All prior findings (R01: 3, R02: 3) were corrected in their respective attempts; independently APPROVED at R03 per .alveara/reviews/ALV-N009/R03.md.",
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": "2026-09-30T21:15:00.000Z"
     },
     {
       "schemaVersion": "2",

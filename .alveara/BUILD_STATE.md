@@ -2,13 +2,13 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N009` attempt R03 — implementation committed, set to **`AWAITING_REVIEW`**. R02 was independently reviewed and returned `CHANGES_REQUIRED` (background polling silently renewed the sliding-expiration cookie, defeating idle timeout; an out-of-order refresh response could resurrect a cleared session; a packaging traceability gap); R03 corrects all three. See `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA, `.alveara/reviews/ALV-N009/R02.md` for the review, and `.alveara/handoffs/ALV-N009/R03.md` for the full R03 handoff.
+Last updated: `ALV-N009` attempt R03 — independently reviewed and **`APPROVED`**, now `COMPLETE`. See `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs, `.alveara/reviews/ALV-N009/R03.md` for the approval, and `.alveara/handoffs/ALV-N009/R03.md` for the full R03 handoff.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30.** `ALV-N009` (authorization-aware navigation, session UX, and identity context) has landed implementation for attempt R03 (correcting R02's `CHANGES_REQUIRED` review) and is `AWAITING_REVIEW` — not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30.** No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
 
-## Authorization-aware navigation, session UX, and identity context (ALV-N009, AWAITING_REVIEW — attempt R03)
+## Authorization-aware navigation, session UX, and identity context (ALV-N009, COMPLETE — approved attempt R03)
 
 R03 corrections (responding to R02's independent review, `.alveara/reviews/ALV-N009/R02.md`, decision `CHANGES_REQUIRED`):
 
