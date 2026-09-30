@@ -504,16 +504,24 @@ function renderPM() {
   if (!plan || !progress) return requireData("Project Management", "Releases, tasks, and due dates.");
 
   const releases = plan.releases || [];
-  const maxStories = Math.max(1, ...releases.map((r) => r.story_ids.length));
 
+  // Real completion, not story-count share: a release's bar reflects how many of its own
+  // stories are actually verified in progress.json, not how large the release is relative to
+  // the others (the previous version scaled width by story_ids.length / maxStories, which drew
+  // a full-looking bar for a release that hadn't started work at all).
   const ganttRows = releases
     .map((r) => {
-      const widthPct = Math.round((r.story_ids.length / maxStories) * 100);
+      const total = r.story_ids.length;
+      const verifiedCount = r.story_ids.filter((id) => {
+        const prog = (progress.stories || []).find((p) => p.id === id);
+        return prog?.verification?.state === "verified";
+      }).length;
+      const widthPct = total > 0 ? Math.round((verifiedCount / total) * 100) : 0;
       return `
         <div style="margin-bottom:10px">
           <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px">
             <span><strong>${escapeHtml(r.key)}</strong> ${escapeHtml(r.name)}${r.is_demo_target ? ' <span class="tag must">demo target</span>' : ""}</span>
-            <span class="sub">${escapeHtml(r.starts_on)} → ${escapeHtml(r.ends_on)}</span>
+            <span class="sub">${verifiedCount} / ${total} stories verified · ${escapeHtml(r.starts_on)} → ${escapeHtml(r.ends_on)}</span>
           </div>
           <div style="background:var(--color-bg);border:1px solid var(--color-border);border-radius:999px;height:10px;overflow:hidden">
             <div style="width:${widthPct}%;height:100%;background:linear-gradient(90deg,var(--color-primary),var(--color-accent))"></div>
