@@ -220,7 +220,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R04",
       "acceptance": {
         "total": 7,
@@ -228,22 +228,24 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "172 of 172 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 4 new backend tests this attempt close the two P1 findings from the R03 review: a real two-DbContext concurrency test racing a correct step-up against the failure that crosses lockout threshold, plus sequential/concurrent/recovery-path audit-assertion tests proving exactly one success audit and the appropriate rejected-attempt audit exist. See .alveara/handoffs/ALV-001-C01/R04-evidence/TEST_RESULTS.md."
+        "summary": "172 of 172 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R04 reviewer: same counts (218 total), all passing. Reviewer additionally found the new step-up race test is seeded one attempt short of the lockout threshold (passes vacuously, does not exercise the claimed race) and that the recovery-code losing-race branch still commits challenge consumption without its failure audit in the same transaction - see blockingIssues."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "1d15cfd564a6b2432ca0777158e6610a4980b525",
-      "evidenceCommit": null,
+      "evidenceCommit": "e1a9fa0af52563dde73c2b22cefdc6a2b1c8e947",
       "handoffPath": ".alveara/handoffs/ALV-001-C01/R04.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R04.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "1d15cfd564a6b2432ca0777158e6610a4980b525",
+        "reviewedEvidenceCommit": "e1a9fa0af52563dde73c2b22cefdc6a2b1c8e947"
       },
-      "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R04 - see .alveara/handoffs/ALV-001-C01/R04.md 'Corrections made' and R04-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the three R03 findings (ALV-001-C01-R03-01, -02, -03). Original R03 review text preserved at .alveara/reviews/ALV-001-C01/R03.md.",
+      "blockingIssues": [
+        "ALV-001-C01-R04-01 (P1, evidence gap): A_correct_step_up_password_cannot_proceed_past_a_concurrent_failure_that_crosses_the_lockout_threshold primes only 3 failed attempts (claiming 'one below' a 5-attempt threshold) and races a single further failure - 3+1=4, not 5, so MaxFailedLoginAttempts is never reached, AccountLockedOutException is never exercised on the racing side, and the test passes vacuously regardless of whether the production row-count check actually works under a genuine threshold race.",
+        "ALV-001-C01-R04-02 (P1): on the recovery-code path, two distinct valid challenges can concurrently submit the same still-unused recovery code; each consumes its own challenge in its own transaction, but the losing request's recovery-code conditional update affects zero rows and that transaction commits with no audit for the loss (only a separate MfaChallengeFailed transaction runs afterward) - the exact unaudited-consumed-challenge window R03 required R04 to close, now recreated for the two-challenges-one-code race specifically, plus it burns the loser's otherwise-valid challenge instead of rolling back."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
