@@ -272,7 +272,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 5,
@@ -285,16 +285,20 @@
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "1127f01bf36fcc4e60cd83627d51d5878d854314",
-      "evidenceCommit": null,
+      "evidenceCommit": "b1d14e840d7c29dc20d551b78cba1a8b6b9f9b17",
       "handoffPath": ".alveara/handoffs/ALV-N009/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N009/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "1127f01bf36fcc4e60cd83627d51d5878d854314",
+        "reviewedEvidenceCommit": "b1d14e840d7c29dc20d551b78cba1a8b6b9f9b17"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N009-R01-01 (P1): passing the authoritative session expiry does not sign the client out or unmount protected UI (AuthContext.tsx expiry poller only clears sessionExpiringSoon, never transitions state to signed-out).",
+        "ALV-N009-R01-02 (P1): signed-in permission/role changes are not revalidated on route navigation, focus, or interval; stale identity/nav/protected state persists until an unrelated API call happens to return 401.",
+        "ALV-N009-R01-03 (P2): the validated deep-link return destination is dropped when reauthentication requires MFA (MfaChallengePage always navigates to \"/\" after success instead of the originally denied location)."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
