@@ -272,34 +272,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 5,
         "passed": 5
       },
       "tests": {
         "status": "passed",
-        "summary": "178 of 178 backend (dotnet test, unchanged from R01, no backend file touched this attempt) + 57 of 57 frontend (vitest, up from 54) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; unchanged from R01). Three new deterministic tests this attempt directly reproduce and prove the fix for all three R01 review findings: an expiry-boundary fake-timer test (ALV-N009-R01-01), a bounded-poll revalidation fake-timer test (ALV-N009-R01-02), and a protected-URL-to-login-to-MFA-challenge-to-original-URL route test (ALV-N009-R01-03). See .alveara/handoffs/ALV-N009/R02-evidence/TEST_RESULTS.md."
+        "summary": "179 of 179 backend (dotnet test, up from 178) + 59 of 59 frontend (vitest, up from 57) passing, plus 8 of 8 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking; unchanged from R01). New this attempt: a backend test proving repeated authenticated calls never extend the session expiry (ALV-N009-R02-01, SlidingExpiration now off), and two frontend tests forcing the exact out-of-order refresh-completion scenarios the R02 review's probe used (ALV-N009-R02-02, requestSeqRef ordering guard). See .alveara/handoffs/ALV-N009/R03-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "c7ed14c321b1f167baa4b4e58646aa4d9d1a2c64",
-      "evidenceCommit": "4bb653aefe87c14481cd701dc78e664999596e6b",
-      "handoffPath": ".alveara/handoffs/ALV-N009/R02.md",
+      "implementationCommit": "47a80c3c1f2d2a8bc4fec008ae601c140516991e",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N009/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N009/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "c7ed14c321b1f167baa4b4e58646aa4d9d1a2c64",
-        "reviewedEvidenceCommit": "4bb653aefe87c14481cd701dc78e664999596e6b"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N009-R02-01 (P1): the 30s authenticated background poll renews the default ASP.NET Core sliding-expiration cookie even while the caller is idle, defeating the configured session timeout.",
-        "ALV-N009-R02-02 (P1): refresh() applies responses in completion order with no request-generation/sequencing guard, so an older in-flight success can overwrite a newer 401/logout and resurrect stale signed-in state.",
-        "ALV-N009-R02-03 (P2): the packaged status snapshot (commit 25aa26c) does not match the manifest's declared evidence SHA (4bb653a), and GIT_STATE.md never records the evidence SHA once known, both due to an unnecessary supplemental SHA-backfill commit outside the documented two-commit HANDOFF_SCHEMA sequence."
-      ],
-      "blockingIssuesResolvedInAttempt": null,
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N009/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the three R02 findings (ALV-N009-R02-01, -02, -03). Independent review pending at R03 per .alveara/reviews/ALV-N009/R02.md (prior decision: CHANGES_REQUIRED).",
       "revalidation": {
         "required": false,
         "reason": null
