@@ -199,6 +199,7 @@ public class AuthController(AccountService accountService, IConfiguration config
     [HttpPost("mfa/enroll")]
     [Authorize]
     [RequireCsrfToken]
+    [EnableRateLimiting("AuthAttempts")]
     public async Task<IActionResult> EnrollMfa([FromBody] EnrollMfaRequest? request, CancellationToken cancellationToken)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -214,6 +215,10 @@ public class AuthController(AccountService accountService, IConfiguration config
         catch (InvalidCurrentPasswordException)
         {
             return Unauthorized(new { error = "invalid_current_password" });
+        }
+        catch (AccountLockedOutException ex)
+        {
+            return StatusCode(StatusCodes.Status423Locked, new { error = "account_locked", lockedUntilUtc = ex.LockedOutUntilUtc });
         }
     }
 

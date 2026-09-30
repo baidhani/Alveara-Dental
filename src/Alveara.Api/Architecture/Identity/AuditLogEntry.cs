@@ -48,4 +48,10 @@ public static class AuditEventTypes
     public const string MfaReplacementStarted = "MfaReplacementStarted";
     public const string MfaReplaced = "MfaReplaced";
     public const string SessionTimeoutChanged = "SessionTimeoutChanged";
+
+    // ALV-001-C01 R03 addition (review finding ALV-001-C01-R02-02): the MFA-replacement
+    // step-up password check now shares the login lockout boundary; its own failures get a
+    // distinct event type so an audit reader can tell a step-up failure from an actual login
+    // failure, even though both count toward (and can trigger) the same account lockout.
+    public const string MfaStepUpFailed = "MfaStepUpFailed";
 }

@@ -212,33 +212,12 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
 
         if (!passwordCorrect)
         {
-            await db.UserAccounts.Where(u => u.Id == account.Id)
-                .ExecuteUpdateAsync(s => s.SetProperty(u => u.FailedLoginAttempts, u => u.FailedLoginAttempts + 1), cancellationToken);
-            var afterIncrement = await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == account.Id, cancellationToken);
-
-            AddAudit(AuditEventTypes.LoginFailed, account.Id, account.Id,
-                $"Failed login attempt {afterIncrement.FailedLoginAttempts} of {MaxFailedLoginAttempts} for '{username}'.");
-
-            var justLockedOut = false;
-            DateTimeOffset lockoutUntil = default;
-            if (afterIncrement.FailedLoginAttempts >= MaxFailedLoginAttempts)
-            {
-                lockoutUntil = DateTimeOffset.UtcNow.Add(LockoutDuration);
-                var rowsLocked = await db.UserAccounts
-                    .Where(u => u.Id == account.Id && (u.LockedOutUntilUtc == null || u.LockedOutUntilUtc <= DateTimeOffset.UtcNow))
-                    .ExecuteUpdateAsync(s => s.SetProperty(u => u.LockedOutUntilUtc, lockoutUntil), cancellationToken);
-                justLockedOut = rowsLocked > 0;
-                if (justLockedOut)
-                {
-                    AddAudit(AuditEventTypes.AccountLockedOut, account.Id, account.Id,
-                        $"Account '{username}' locked out until {lockoutUntil:O} after {afterIncrement.FailedLoginAttempts} failed attempts.");
-                }
-            }
-
+            var justLockedOutUntil = await RecordFailedAuthenticationAttemptAsync(
+                account.Id, username, AuditEventTypes.LoginFailed, "login", cancellationToken);
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            if (justLockedOut)
+            if (justLockedOutUntil is { } lockoutUntil)
             {
                 throw new AccountLockedOutException(lockoutUntil);
             }
@@ -269,10 +248,11 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             // successful login while MFA is enabled - that used to be recorded as LoginSucceeded,
             // which was misleading. The real success event now fires only from
             // CompleteMfaChallengeAsync, once the second factor is actually verified.
+            var challengeToken = IssueMfaChallenge(refreshed.Id, refreshed.SecurityStamp);
             AddAudit(AuditEventTypes.PasswordVerifiedMfaPending, account.Id, account.Id, $"Password verified for '{username}'; MFA challenge issued.");
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-            throw new MfaChallengeRequiredException(IssueMfaChallengeToken(refreshed.Id, refreshed.SecurityStamp));
+            throw new MfaChallengeRequiredException(challengeToken);
         }
 
         AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{username}'.");
@@ -283,18 +263,33 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
 
     // ---------- MFA ----------
 
-    /// <summary>The challenge is bound to the account's SecurityStamp at issue time (review
-    /// finding ALV-001-C01-R01-02): any stamp-rotating operation (password reset, role/status
-    /// change, explicit session revocation, or an MFA factor replacement) implicitly invalidates
-    /// every outstanding challenge, since completion re-checks the stamp against the account's
-    /// current value.</summary>
-    public string IssueMfaChallengeToken(Guid userAccountId, Guid securityStamp)
+    /// <summary>
+    /// The challenge is bound to the account's SecurityStamp at issue time (review finding
+    /// ALV-001-C01-R01-02): any stamp-rotating operation implicitly invalidates every outstanding
+    /// challenge. R03 (review finding ALV-001-C01-R02-01): the challenge is also now backed by a
+    /// durable, one-time-consumable <see cref="MfaChallenge"/> row - the protected token carries
+    /// only its id (plus a stamp/expiry copy for a fast DB-free rejection of an obviously stale
+    /// token), and that row, not the token's mere validity, is what <see cref="CompleteMfaChallengeAsync"/>
+    /// atomically consumes on success. Adds to <c>db</c>'s pending change set; the caller is
+    /// responsible for calling <c>SaveChangesAsync</c> (matches <c>AddAudit</c>'s existing
+    /// convention in this class).
+    /// </summary>
+    private string IssueMfaChallenge(Guid userAccountId, Guid securityStamp)
     {
-        var payload = JsonSerializer.Serialize(new MfaChallengePayload(userAccountId, securityStamp, DateTimeOffset.UtcNow.Add(MfaChallengeLifetime)));
+        var challengeId = Guid.NewGuid();
+        var expiresAtUtc = DateTimeOffset.UtcNow.Add(MfaChallengeLifetime);
+        db.Set<MfaChallenge>().Add(new MfaChallenge
+        {
+            Id = challengeId,
+            UserAccountId = userAccountId,
+            SecurityStamp = securityStamp,
+            ExpiresAtUtc = expiresAtUtc,
+        });
+        var payload = JsonSerializer.Serialize(new MfaChallengePayload(challengeId, userAccountId, securityStamp, expiresAtUtc));
         return MfaChallengeProtector.Protect(payload);
     }
 
-    private record MfaChallengePayload(Guid UserAccountId, Guid SecurityStamp, DateTimeOffset ExpiresAtUtc);
+    private record MfaChallengePayload(Guid ChallengeId, Guid UserAccountId, Guid SecurityStamp, DateTimeOffset ExpiresAtUtc);
 
     /// <summary>Completes a login that <see cref="LoginAsync"/> paused for an MFA code.</summary>
     public async Task<UserAccount> CompleteMfaChallengeAsync(string challengeToken, string code, CancellationToken cancellationToken = default)
@@ -331,6 +326,15 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         var secret = Convert.FromBase64String(MfaSecretProtector.Unprotect(account.MfaSecretProtected));
         if (Totp.Verify(secret, code))
         {
+            if (!await TryConsumeChallengeAsync(payload.ChallengeId, account.Id, cancellationToken))
+            {
+                // Correct code, but this exact challenge was already consumed by an earlier (or
+                // concurrently racing) completion - reject the replay rather than mint a second
+                // session. Same exception as any other invalid/expired challenge: it never
+                // distinguishes "replayed" from "just expired."
+                throw new InvalidOrExpiredMfaChallengeException();
+            }
+
             await using var successTransaction = await db.Database.BeginTransactionAsync(cancellationToken);
             AddAudit(AuditEventTypes.MfaChallengeSucceeded, account.Id, account.Id, $"MFA challenge completed via authenticator code for '{account.Username}'.");
             AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{account.Username}' (MFA).");
@@ -347,13 +351,23 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         {
             if (Pbkdf2PasswordHasher.Verify(code, recoveryCode.CodeHash))
             {
+                // Consume the challenge itself before the specific recovery code, so a replay of
+                // this same challenge token can never succeed regardless of which valid code (or
+                // which factor) satisfies it.
+                if (!await TryConsumeChallengeAsync(payload.ChallengeId, account.Id, cancellationToken))
+                {
+                    throw new InvalidOrExpiredMfaChallengeException();
+                }
+
                 await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
                 var rows = await db.Set<MfaRecoveryCode>()
                     .Where(r => r.Id == recoveryCode.Id && r.UsedAtUtc == null)
                     .ExecuteUpdateAsync(s => s.SetProperty(r => r.UsedAtUtc, DateTimeOffset.UtcNow), cancellationToken);
                 if (rows == 0)
                 {
-                    // Another concurrent request already consumed this exact code.
+                    // Another concurrent request already consumed this exact code (the challenge
+                    // itself is already spent at this point too - the caller must obtain a fresh
+                    // challenge either way).
                     await transaction.CommitAsync(cancellationToken);
                     continue;
                 }
@@ -370,6 +384,20 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         await db.SaveChangesAsync(cancellationToken);
         await failureTransaction.CommitAsync(cancellationToken);
         throw new InvalidMfaCodeException();
+    }
+
+    /// <summary>Atomically marks an MFA challenge consumed, gated on it not already being consumed
+    /// (or expired/belonging to a different account) - a single conditional UPDATE, not
+    /// read-then-write, so two concurrent completions of the exact same challenge can affect at
+    /// most one row between them. Returns false if the challenge was already consumed, doesn't
+    /// exist, has expired, or belongs to a different account.</summary>
+    private async Task<bool> TryConsumeChallengeAsync(Guid challengeId, Guid userAccountId, CancellationToken cancellationToken)
+    {
+        var rows = await db.Set<MfaChallenge>()
+            .Where(c => c.Id == challengeId && c.UserAccountId == userAccountId
+                && c.ConsumedAtUtc == null && c.ExpiresAtUtc > DateTimeOffset.UtcNow)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.ConsumedAtUtc, DateTimeOffset.UtcNow), cancellationToken);
+        return rows > 0;
     }
 
     /// <summary>
@@ -398,10 +426,40 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             {
                 throw new CurrentPasswordRequiredToReplaceMfaException();
             }
+
+            // R03 (review finding ALV-001-C01-R02-02): the step-up password check shares the
+            // exact same lockout boundary as an ordinary login - a stolen authenticated cookie
+            // cannot use this endpoint as an unthrottled password oracle. A currently-locked
+            // account is rejected here too, before even attempting the comparison.
+            if (await RearmAndCheckLockoutAsync(account.Id, cancellationToken) is { } lockedUntil)
+            {
+                throw new AccountLockedOutException(lockedUntil);
+            }
+
             if (account.PasswordHash is null || !Pbkdf2PasswordHasher.Verify(currentPassword, account.PasswordHash))
             {
+                await using var failTransaction = await db.Database.BeginTransactionAsync(cancellationToken);
+                var justLockedOutUntil = await RecordFailedAuthenticationAttemptAsync(
+                    account.Id, account.Username, AuditEventTypes.MfaStepUpFailed, "MFA step-up reauthentication", cancellationToken);
+                await db.SaveChangesAsync(cancellationToken);
+                await failTransaction.CommitAsync(cancellationToken);
+
+                if (justLockedOutUntil is { } newLockoutUntil)
+                {
+                    throw new AccountLockedOutException(newLockoutUntil);
+                }
                 throw new InvalidCurrentPasswordException();
             }
+
+            // Correct step-up password: reset the counter, matching a successful login's
+            // convention (conditional on not concurrently locked, same as LoginAsync's own
+            // success path - a race with a failing request that just crossed the threshold must
+            // not be silently overridden here either).
+            await db.UserAccounts
+                .Where(u => u.Id == account.Id && (u.LockedOutUntilUtc == null || u.LockedOutUntilUtc <= DateTimeOffset.UtcNow))
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(u => u.FailedLoginAttempts, 0)
+                    .SetProperty(u => u.LockedOutUntilUtc, (DateTimeOffset?)null), cancellationToken);
         }
 
         var secretBytes = Totp.GenerateSecret();
@@ -631,6 +689,59 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     }
 
     // ---------- helpers ----------
+
+    /// <summary>
+    /// R03 (review finding ALV-001-C01-R02-02): the shared lockout boundary an authentication-
+    /// adjacent failure counts against - extracted from <see cref="LoginAsync"/>'s original
+    /// inline logic so <see cref="BeginMfaEnrollmentAsync"/>'s step-up password check can share
+    /// the exact same threshold/lockout state rather than being a separate, unthrottled password
+    /// oracle. Increments the account's <see cref="UserAccount.FailedLoginAttempts"/> counter
+    /// (atomically, via <c>ExecuteUpdateAsync</c>) and locks the account if the threshold is
+    /// reached. Returns the new lockout timestamp if this call is the one that crossed the
+    /// threshold, otherwise null. Caller is responsible for wrapping this in a transaction and
+    /// calling <c>SaveChangesAsync</c> (this method only adds the audit entry to the pending
+    /// change set, matching <c>AddAudit</c>'s existing convention).
+    /// </summary>
+    private async Task<DateTimeOffset?> RecordFailedAuthenticationAttemptAsync(
+        Guid accountId, string username, string auditEventType, string attemptKind, CancellationToken cancellationToken)
+    {
+        await db.UserAccounts.Where(u => u.Id == accountId)
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.FailedLoginAttempts, u => u.FailedLoginAttempts + 1), cancellationToken);
+        var afterIncrement = await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == accountId, cancellationToken);
+
+        AddAudit(auditEventType, accountId, accountId,
+            $"Failed {attemptKind} attempt {afterIncrement.FailedLoginAttempts} of {MaxFailedLoginAttempts} for '{username}'.");
+
+        if (afterIncrement.FailedLoginAttempts >= MaxFailedLoginAttempts)
+        {
+            var lockoutUntil = DateTimeOffset.UtcNow.Add(LockoutDuration);
+            var rowsLocked = await db.UserAccounts
+                .Where(u => u.Id == accountId && (u.LockedOutUntilUtc == null || u.LockedOutUntilUtc <= DateTimeOffset.UtcNow))
+                .ExecuteUpdateAsync(s => s.SetProperty(u => u.LockedOutUntilUtc, lockoutUntil), cancellationToken);
+            if (rowsLocked > 0)
+            {
+                AddAudit(AuditEventTypes.AccountLockedOut, accountId, accountId,
+                    $"Account '{username}' locked out until {lockoutUntil:O} after {afterIncrement.FailedLoginAttempts} failed attempts.");
+                return lockoutUntil;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>Rearms a stale lock (clears it if expired) and returns the account's current
+    /// lockout timestamp, if still actively locked. Shared by <see cref="LoginAsync"/> and
+    /// <see cref="BeginMfaEnrollmentAsync"/>'s step-up check - both must rearm before deciding
+    /// whether an attempt is currently blocked.</summary>
+    private async Task<DateTimeOffset?> RearmAndCheckLockoutAsync(Guid accountId, CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        await db.UserAccounts.Where(u => u.Id == accountId && u.LockedOutUntilUtc != null && u.LockedOutUntilUtc <= now)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.FailedLoginAttempts, 0)
+                .SetProperty(u => u.LockedOutUntilUtc, (DateTimeOffset?)null), cancellationToken);
+        var current = await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == accountId, cancellationToken);
+        return current.LockedOutUntilUtc is { } lockedUntil && lockedUntil > now ? lockedUntil : null;
+    }
 
     private static void BumpSecurityStamp(UserAccount account) => account.SecurityStamp = Guid.NewGuid();
 

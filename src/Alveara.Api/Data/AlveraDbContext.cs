@@ -19,6 +19,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<MfaRecoveryCode> MfaRecoveryCodes => Set<MfaRecoveryCode>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<BootstrapState> BootstrapStates => Set<BootstrapState>();
+    public DbSet<MfaChallenge> MfaChallenges => Set<MfaChallenge>();
 
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
     public DbSet<BackgroundJobEffectReceipt> BackgroundJobEffectReceipts => Set<BackgroundJobEffectReceipt>();
@@ -65,6 +66,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         modelBuilder.Entity<PasswordResetToken>(e =>
         {
             e.HasIndex(t => t.UserAccountId);
+        });
+
+        modelBuilder.Entity<MfaChallenge>(e =>
+        {
+            e.HasIndex(c => c.UserAccountId);
         });
     }
 }

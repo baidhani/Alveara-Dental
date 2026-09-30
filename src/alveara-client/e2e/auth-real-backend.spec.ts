@@ -20,6 +20,7 @@ test.describe.configure({ mode: "serial" });
 
 let adminUsername: string;
 let bootstrapSecret: string;
+let mfaSecret: string;
 let context: BrowserContext;
 let page: Page;
 
@@ -67,6 +68,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
 
     const secret = await page.getByTestId("mfa-secret").innerText();
     expect(secret.length).toBeGreaterThan(0);
+    mfaSecret = secret;
     const recoveryCodesText = await page.getByTestId("mfa-recovery-codes").innerText();
     expect(recoveryCodesText.split("\n").filter(Boolean).length).toBe(10);
 
@@ -90,6 +92,33 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.getByRole("button", { name: "Verify" }).click();
 
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
+
+  test("replaying the exact same successful MFA challenge submission is rejected, not accepted twice", async () => {
+    // R03 (review finding ALV-001-C01-R02-01): the reviewer's own live reproduction submitted an
+    // identical challenge-token/code body twice via direct HTTP calls and got 200 both times.
+    // This test reproduces that exact shape against the real API and asserts it's now fixed.
+    await context.clearCookies();
+    const loginResponse = await page.request.post("/api/auth/login", {
+      data: { username: adminUsername, password: "admin-password-1!" },
+    });
+    expect(loginResponse.status()).toBe(202); // MFA required
+    const { challengeToken } = await loginResponse.json();
+
+    // Re-derive the active secret via a fresh enrollment replacement isn't needed here - the
+    // account's current factor is still the one from the previous test, so recompute its code
+    // from the same secret captured in that test's closure.
+    const code = await computeTotp(mfaSecret);
+
+    const first = await page.request.post("/api/auth/mfa/challenge", {
+      data: { challengeToken, code },
+    });
+    expect(first.status()).toBe(200);
+
+    const second = await page.request.post("/api/auth/mfa/challenge", {
+      data: { challengeToken, code },
+    });
+    expect(second.status()).not.toBe(200);
   });
 
   test("security administration: list users, view detail, change role, set session timeout", async () => {
