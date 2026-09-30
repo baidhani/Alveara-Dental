@@ -10,6 +10,9 @@ import "./LoginPage.css";
 
 interface LocationState {
   challengeToken?: string;
+  /** ALV-N009 R02: the deep-link destination LoginPage was carrying before MFA interrupted it,
+   *  so a successful challenge returns the caller there instead of always to "/". */
+  redirectTo?: string;
 }
 
 /**
@@ -22,7 +25,9 @@ export function MfaChallengePage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { refresh } = useAuth();
-  const challengeToken = (location.state as LocationState | null)?.challengeToken;
+  const state = location.state as LocationState | null;
+  const challengeToken = state?.challengeToken;
+  const redirectTo = state?.redirectTo ?? "/";
 
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +54,7 @@ export function MfaChallengePage() {
     try {
       await completeMfaChallenge(challengeToken!, code);
       await refresh();
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 429)) {
         setError(

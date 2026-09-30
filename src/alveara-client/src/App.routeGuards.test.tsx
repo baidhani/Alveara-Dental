@@ -111,4 +111,57 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     await waitFor(() => expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument());
     vi.unstubAllGlobals();
   });
+
+  it("R02: returns a caller to the page they were denied even when reauthentication requires MFA", async () => {
+    let permissionsCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions")) {
+          permissionsCallCount += 1;
+          return Promise.resolve(
+            permissionsCallCount === 1
+              ? jsonResponse({ error: "unauthorized" }, 401)
+              : jsonResponse({
+                  username: "admin-1",
+                  role: "Admin",
+                  permissions: ["ViewPermissionMatrix"],
+                  sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString(),
+                })
+          );
+        }
+        if (u.includes("/api/auth/login")) {
+          return Promise.resolve(jsonResponse({ mfaRequired: true, challengeToken: "challenge-token-1" }));
+        }
+        if (u.includes("/api/auth/mfa/challenge")) {
+          return Promise.resolve(jsonResponse({ id: "11111111-1111-1111-1111-111111111111", username: "admin-1", role: "Admin" }));
+        }
+        if (u.includes("/api/auth/permission-matrix")) return Promise.resolve(jsonResponse([]));
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+    window.history.pushState({}, "", "/admin/permissions");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument());
+
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("Username"), "admin-1");
+    await user.type(screen.getByLabelText("Password"), "correct-password");
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Enter your authentication code" })).toBeInTheDocument());
+
+    await user.type(screen.getByLabelText("Authentication or recovery code"), "123456");
+    await user.click(screen.getByRole("button", { name: "Verify" }));
+
+    // Landed back on the ORIGINALLY requested page (/admin/permissions), not the default
+    // dashboard - the redirect destination survived the extra MFA hop, and the permission it
+    // requires is enforced at that destination too.
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument());
+    vi.unstubAllGlobals();
+  });
 });

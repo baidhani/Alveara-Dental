@@ -159,6 +159,82 @@ describe("AuthContext (ALV-N009)", () => {
     expect(screen.getByTestId("has-manage-users")).toHaveTextContent("false");
   });
 
+  it("R02: crosses the authoritative session expiry and unmounts protected state (was: only cleared the warning flag)", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const soon = new Date(Date.now() + 30 * 1000).toISOString(); // 30s out
+    let permissionsCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => {
+        permissionsCallCount += 1;
+        // First call (mount) returns the still-valid session with a near expiry; once the
+        // boundary is crossed, refresh() re-asks the server and the cookie is genuinely expired.
+        if (permissionsCallCount === 1) {
+          return Promise.resolve(jsonResponse({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: soon }));
+        }
+        return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
+      })
+    );
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.getByTestId("kind")).toHaveTextContent("signed-in");
+
+    // Cross the 30s expiry boundary without any other API call happening in between.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(45_000);
+    });
+
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+    expect(permissionsCallCount).toBeGreaterThan(1);
+  });
+
+  it("R02: revalidates a signed-in session on a bounded poll and clears state when access was revoked elsewhere", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    let permissionsCallCount = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => {
+        permissionsCallCount += 1;
+        const farFuture = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+        // First call (mount) is signed in with ManageUsers; every call after that simulates the
+        // role having been changed by another admin session mid-visit (no permission survives).
+        if (permissionsCallCount === 1) {
+          return Promise.resolve(
+            jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: farFuture })
+          );
+        }
+        return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
+      })
+    );
+
+    render(
+      <AuthProvider>
+        <Probe />
+      </AuthProvider>
+    );
+
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-in"));
+    expect(screen.getByTestId("has-manage-users")).toHaveTextContent("true");
+    expect(permissionsCallCount).toBe(1);
+
+    // No navigation, no focus event, no unrelated protected call - just time passing, which is
+    // exactly the "moving among routes that don't fetch protected data" scenario the review flagged.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+    expect(permissionsCallCount).toBeGreaterThan(1);
+  });
+
   it("ApiError with status 401 from getMyPermissions itself resolves to signed-out, not a thrown crash", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ error: "unauthorized" }, 401)));
 

@@ -49,7 +49,10 @@ export function LoginPage() {
     try {
       const result = await login(username, password);
       if ("mfaRequired" in result) {
-        navigate("/mfa-challenge", { state: { challengeToken: result.challengeToken } });
+        // ALV-N009 R02: carry the validated redirect destination through to the MFA challenge so
+        // a deep-link caller who happens to have MFA enabled lands back where they were denied,
+        // not at "/" - the same `from` state RequireAuth set, just passed one hop further.
+        navigate("/mfa-challenge", { state: { challengeToken: result.challengeToken, redirectTo } });
         return;
       }
       await refresh();

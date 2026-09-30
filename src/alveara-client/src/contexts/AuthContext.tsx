@@ -26,6 +26,10 @@ interface AuthContextValue {
  *  divided in half, so even the shortest possible session gets a meaningful warning window. */
 const SESSION_EXPIRY_WARNING_MS = 2 * 60 * 1000;
 const SESSION_EXPIRY_CHECK_INTERVAL_MS = 15 * 1000;
+/** ALV-N009 R02: bounded revalidation poll for signed-in sessions - catches a role/permission
+ *  change made elsewhere (another admin session) without waiting on an unrelated API call to
+ *  happen to 401. Also backs the focus/visibility revalidation below. */
+const SESSION_REVALIDATION_INTERVAL_MS = 30 * 1000;
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -67,6 +71,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [refresh]);
 
+  // ALV-N009 R02: revalidate a signed-in session's identity/permissions/role on a bounded poll and
+  // whenever the tab regains focus or becomes visible again - catches a permission or role change
+  // made elsewhere (e.g. another admin session) during this visit, rather than only discovering it
+  // the next time an unrelated protected call happens to return 401. The server's rotated
+  // SecurityStamp makes a stale cookie fail this call the moment it fires, so refresh() here both
+  // picks up a widened/narrowed permission set and clears state if access was revoked outright.
+  const isSignedIn = state.kind === "signed-in";
+  useEffect(() => {
+    if (!isSignedIn) return;
+    const interval = setInterval(refresh, SESSION_REVALIDATION_INTERVAL_MS);
+    const onFocusOrVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("focus", onFocusOrVisible);
+    document.addEventListener("visibilitychange", onFocusOrVisible);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocusOrVisible);
+      document.removeEventListener("visibilitychange", onFocusOrVisible);
+    };
+  }, [isSignedIn, refresh]);
+
   // ALV-N009: react to a 401 from ANY authenticated call, not just the permissions check -
   // transitions straight to signed-out without another round-trip, since the 401 already proves
   // the session is gone. Registered/unregistered with this provider's own lifetime.
@@ -80,7 +106,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ALV-N009: proactively warn before the real server-issued expiry arrives, rather than only
   // reacting after a request already failed. Polls a plain wall-clock comparison - no separate
-  // request to the server - so it costs nothing beyond the timer itself.
+  // request to the server - so it costs nothing beyond the timer itself, except at the boundary
+  // itself (see below).
+  //
+  // ALV-N009 R02: once the authoritative expiry passes, re-ask the server via refresh() rather
+  // than assuming signed-out locally. This is deliberate, not merely convenient: cookie auth here
+  // uses sliding-expiration renewal, so a session the caller kept actively using may have already
+  // been renewed server-side past the expiry timestamp this client captured at the last refresh.
+  // refresh() reconciles against the current server truth either way - a genuinely expired cookie
+  // 401s and this clears to signed-out; a transparently renewed one returns a fresh
+  // sessionExpiresAtUtc and this effect re-arms against it.
   const sessionExpiresAtUtc = state.kind === "signed-in" ? state.sessionExpiresAtUtc : null;
   useEffect(() => {
     if (!sessionExpiresAtUtc) {
@@ -90,12 +125,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const expiresAtMs = new Date(sessionExpiresAtUtc).getTime();
     const check = () => {
       const remainingMs = expiresAtMs - Date.now();
-      setSessionExpiringSoon(remainingMs > 0 && remainingMs <= SESSION_EXPIRY_WARNING_MS);
+      if (remainingMs <= 0) {
+        refresh();
+        return;
+      }
+      setSessionExpiringSoon(remainingMs <= SESSION_EXPIRY_WARNING_MS);
     };
     check();
     const interval = setInterval(check, SESSION_EXPIRY_CHECK_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [sessionExpiresAtUtc]);
+  }, [sessionExpiresAtUtc, refresh]);
 
   const hasPermission = useCallback(
     (permission: string) =>
