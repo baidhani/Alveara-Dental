@@ -220,7 +220,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R05",
       "acceptance": {
         "total": 7,
@@ -228,22 +228,24 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "174 of 174 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). 1 test corrected in place (threshold math fix, now primes exactly 4 failed attempts and races the genuine 5th) plus 2 new backend tests this attempt close the two P1 findings from the R04 review: a real two-DbContext race between two distinct challenges on one shared recovery code, and a deterministic rollback reproduction. See .alveara/handoffs/ALV-001-C01/R05-evidence/TEST_RESULTS.md."
+        "summary": "174 of 174 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R05 reviewer: same counts (220 total), all passing. Reviewer found both corrected concurrency tests rely on uncontrolled scheduling and can pass through a benign ordering without ever exercising the critical branch (stale-success rejection, or recovery-code rollback) they claim to prove - see blockingIssues."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "9fd920abc551942089807d10c598695d76635d4b",
-      "evidenceCommit": null,
+      "evidenceCommit": "1a09c196e91877122f8e7c6234553f05b00ac92d",
       "handoffPath": ".alveara/handoffs/ALV-001-C01/R05.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R05.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "9fd920abc551942089807d10c598695d76635d4b",
+        "reviewedEvidenceCommit": "1a09c196e91877122f8e7c6234553f05b00ac92d"
       },
-      "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-001-C01/R05.md 'Corrections made' and R05-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R04 findings (ALV-001-C01-R04-01, -02). Original R04 review text preserved at .alveara/reviews/ALV-001-C01/R04.md.",
+      "blockingIssues": [
+        "ALV-001-C01-R05-01 (P1, evidence gap): the step-up race test starts two uncontrolled concurrent tasks and accepts either outcome, with no barrier/fault hook controlling whether the fifth failure locks before or after the step-up's conditional reset, and no assertion proves both branches actually ran - repeated uncontrolled runs can all take the same benign step-up-first path without ever exercising the stale-success rejection.",
+        "ALV-001-C01-R05-02 (P1, evidence gap): the recovery-code rollback tests can pass without executing the rollback branch - the deterministic reproduction marks the code used BEFORE calling CompleteMfaChallengeAsync, so the service's own UsedAtUtc==null query excludes it and the method never reaches the conditional update at all; the two-context race test has no coordination forcing both requests to load/verify the same unused code before either consumes it, so the losing side can likewise bypass the branch entirely and still show a compatible final state."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
