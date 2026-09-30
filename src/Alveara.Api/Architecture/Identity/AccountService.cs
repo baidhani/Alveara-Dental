@@ -56,6 +56,14 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     private IDataProtector MfaSecretProtector => dataProtectionProvider.CreateProtector("Alveara.MfaSecret.v1");
     private IDataProtector MfaChallengeProtector => dataProtectionProvider.CreateProtector("Alveara.MfaChallenge.v1");
 
+    // R06 (review finding ALV-001-C01-R05-01/-02): narrow, test-only coordination seams - null and
+    // therefore a no-op in production - that let a test deterministically pause execution at an
+    // exact point in a race window instead of relying on uncontrolled task scheduling. Each is
+    // awaited only when a test has set it; nothing about the production code path changes.
+    internal Func<Task>? TestHook_BeforeStepUpConditionalReset { get; set; }
+    internal Func<Task>? TestHook_AfterRecoveryCodeVerifiedBeforeConsumption { get; set; }
+    internal Func<Task>? TestHook_AfterRecoveryCodeConsumedBeforeCommit { get; set; }
+
     // ---------- Registration (self-service, no role/privilege) ----------
 
     /// <summary>
@@ -360,6 +368,11 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         {
             if (Pbkdf2PasswordHasher.Verify(code, recoveryCode.CodeHash))
             {
+                if (TestHook_AfterRecoveryCodeVerifiedBeforeConsumption is not null)
+                {
+                    await TestHook_AfterRecoveryCodeVerifiedBeforeConsumption();
+                }
+
                 // Consume the challenge itself, the specific recovery code, and the resulting
                 // audit entry all inside one transaction (R04, review finding
                 // ALV-001-C01-R03-02) - a rollback restores all three together.
@@ -389,6 +402,12 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                     await transaction.RollbackAsync(cancellationToken);
                     continue;
                 }
+
+                if (TestHook_AfterRecoveryCodeConsumedBeforeCommit is not null)
+                {
+                    await TestHook_AfterRecoveryCodeConsumedBeforeCommit();
+                }
+
                 AddAudit(AuditEventTypes.MfaRecoveryCodeUsed, account.Id, account.Id, $"One-time recovery code consumed for '{account.Username}'.");
                 AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{account.Username}' (MFA recovery code).");
                 await db.SaveChangesAsync(cancellationToken);
@@ -467,6 +486,11 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                     throw new AccountLockedOutException(newLockoutUntil);
                 }
                 throw new InvalidCurrentPasswordException();
+            }
+
+            if (TestHook_BeforeStepUpConditionalReset is not null)
+            {
+                await TestHook_BeforeStepUpConditionalReset();
             }
 
             // Correct step-up password: reset the counter, matching a successful login's
