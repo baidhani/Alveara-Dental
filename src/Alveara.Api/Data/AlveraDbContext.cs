@@ -73,4 +73,31 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(c => c.UserAccountId);
         });
     }
+
+    // STORY-002 Trust requirement: audit log entries are immutable. Enforced here, at the single
+    // point every write in the process passes through, rather than per-caller — so no future
+    // service, script, or admin tool can accidentally (or deliberately) update or delete an
+    // existing entry, no matter what permission it holds. A legitimate audit trail can only ever
+    // grow by insertion.
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ThrowIfAuditLogEntryMutationAttempted();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        ThrowIfAuditLogEntryMutationAttempted();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void ThrowIfAuditLogEntryMutationAttempted()
+    {
+        var attemptedMutation = ChangeTracker.Entries<AuditLogEntry>()
+            .Any(e => e.State is EntityState.Modified or EntityState.Deleted);
+        if (attemptedMutation)
+        {
+            throw new AuditLogImmutableException();
+        }
+    }
 }

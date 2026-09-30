@@ -200,6 +200,34 @@ public class AuthController(AccountService accountService, IConfiguration config
         return Ok(matrix);
     }
 
+    /// <summary>STORY-002: audit log visibility, gated on ViewAuditLog so only a system auditor or
+    /// admin can read it - "when they do not have permission, then the action is denied" applies to
+    /// reading as much as to any attempt to alter it (see AlveraDbContext's SaveChanges guard for
+    /// the immutability side of that Trust requirement; there is no update/delete endpoint at all).
+    /// Most-recent-first, bounded to at most 500 rows per call so a growing audit trail can never
+    /// produce an unbounded response.</summary>
+    [HttpGet("audit-log")]
+    [Authorize]
+    [RequirePermission(Permission.ViewAuditLog)]
+    public async Task<IActionResult> GetAuditLog([FromQuery] int take = 100, CancellationToken cancellationToken = default)
+    {
+        var bounded = Math.Clamp(take, 1, 500);
+        var entries = await db.AuditLogEntries
+            .OrderByDescending(a => a.TimestampUtc)
+            .Take(bounded)
+            .Select(a => new
+            {
+                a.Id,
+                a.EventType,
+                a.TargetUserAccountId,
+                a.PerformedByUserAccountId,
+                a.Details,
+                a.TimestampUtc,
+            })
+            .ToListAsync(cancellationToken);
+        return Ok(entries);
+    }
+
     // ---------- MFA enrollment (self-service, for the current authenticated user) ----------
 
     [HttpPost("mfa/enroll")]

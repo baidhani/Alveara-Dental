@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-002",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-09-30T22:35:00Z",
+  "sourceCommitSha": null,
+  "factProposals": [
+    {
+      "dimension": "security_context",
+      "value": "Audit log entries are immutable at the persistence layer: AlveraDbContext.SaveChanges/SaveChangesAsync throws AuditLogImmutableException if any AuditLogEntry is in the Modified or Deleted change-tracker state, regardless of caller or permission. Only insertion is ever permitted.",
+      "evidence": "src/Alveara.Api/Data/AlveraDbContext.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Audit logs are readable via GET /api/auth/audit-log, gated on the Permission.ViewAuditLog permission (held by Admin and OfficeManager; denied with 403 for every other role). Results are most-recent-first and bounded to at most 500 rows per call.",
+      "evidence": "src/Alveara.Api/Controllers/AuthController.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Interpreted 'a user attempts to modify an audit log, when they do not have permission, then the action is denied' as an unconditional guarantee rather than a permission-differentiated one: no permission in the system grants audit-log modification, and no API endpoint accepts one, so the denial holds for every role including Admin. This is the strongest form of the stated criterion, not a narrower substitute for it.",
+      "rationale": "There is no legitimate business reason for any caller, however privileged, to alter or remove an existing audit entry - granting a 'ManageAuditLog' permission that some role could hold would create exactly the tampering risk the story exists to prevent.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/AuditLogImmutableException.cs"
+    },
+    {
+      "statement": "Enforced immutability at the EF Core SaveChanges layer (a single choke point every write passes through) rather than only at the API/controller layer.",
+      "rationale": "A controller-level check only protects callers who go through that specific endpoint; a persistence-layer guard protects the guarantee against any future service, script, or admin tool that might otherwise touch AuditLogEntries directly.",
+      "evidence": "src/Alveara.Api/Data/AlveraDbContext.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "GET /api/auth/audit-log has no filtering (by date range, event type, or target user) yet - it returns the most recent up-to-500 entries only. Acceptable for this story's scope (prove logging + permission-gated visibility + immutability); a dedicated audit-review UI would need filtering/pagination.",
+      "evidence": "src/Alveara.Api/Controllers/AuthController.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AuditLogImmutabilityTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AuthControllerPermissionMatrixTests.cs#GET_audit_log_is_allowed_for_a_role_holding_ViewAuditLog_and_denied_for_one_that_does_not" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AccountServiceRoleChangeTests.cs" }
+  ],
+  "measurementEvents": []
+}

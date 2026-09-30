@@ -123,6 +123,31 @@ public class AuthControllerPermissionMatrixTests : IAsyncLifetime
         }
     }
 
+    // STORY-002 acceptance: "Given a user attempts to [access] an audit log, when they do not have
+    // permission, then the action is denied." OfficeManager holds ViewAuditLog (PermissionMatrix.cs);
+    // FrontDesk does not, so it is the negative case here.
+    [Fact]
+    public async Task GET_audit_log_is_allowed_for_a_role_holding_ViewAuditLog_and_denied_for_one_that_does_not()
+    {
+        await using var factory = CreateFactory();
+        var (adminClient, csrf, adminId) = await CreateLoggedInAdminClientAsync(factory);
+
+        var officeManagerClient = await CreateLoggedInUserClientAsync(factory, adminClient, csrf, "OfficeManager");
+        var allowedResponse = await officeManagerClient.GetAsync("/api/auth/audit-log");
+        Assert.Equal(HttpStatusCode.OK, allowedResponse.StatusCode);
+        var entries = await allowedResponse.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(entries.GetArrayLength() > 0);
+        // The admin's own bootstrap/login already wrote at least one entry naming them.
+        Assert.Contains(entries.EnumerateArray(), e =>
+            e.TryGetProperty("performedByUserAccountId", out var performedBy) && performedBy.ValueKind != JsonValueKind.Null
+            && performedBy.GetGuid() == adminId
+            || e.TryGetProperty("targetUserAccountId", out var target) && target.GetGuid() == adminId);
+
+        var frontDeskClient = await CreateLoggedInUserClientAsync(factory, adminClient, csrf, "FrontDesk");
+        var deniedResponse = await frontDeskClient.GetAsync("/api/auth/audit-log");
+        Assert.Equal(HttpStatusCode.Forbidden, deniedResponse.StatusCode);
+    }
+
     [Fact]
     public async Task PUT_role_is_allowed_for_a_role_holding_ManageRoles_and_denied_for_one_that_does_not()
     {
