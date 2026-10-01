@@ -72,7 +72,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R03",
       "acceptance": {
         "total": 6,
@@ -80,32 +80,34 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "176 of 176 frontend (vitest; 18 new buttonContrast tests pin every Button variant/state in both themes at 4.5:1 and fail against the old CSS/tokens), tsc clean, build clean, lint exit 0 (pre-existing warnings only); authenticated real-API axe scan, default + hover + keyboard-focus states, 8 shell routes x 2 themes (48 scans): 0 critical/serious. No backend source changed (375/375 backend from the approved baseline)."
+        "summary": "176 of 176 frontend (vitest; 18 new buttonContrast tests pin every Button variant/state in both themes at 4.5:1 and fail against the old CSS/tokens), tsc clean, build clean, lint exit 0 (pre-existing warnings only); authenticated real-API axe scan, default + hover + keyboard-focus states, 8 shell routes x 2 themes (48 scans): 0 critical/serious. No backend source changed (375/375 backend from the approved baseline). Independently re-verified by the R03 reviewer: integrated frontend 188/188, build, lint, 12/12 real-backend browser workflow (extended timeouts), 48 integrated shell axe scans (0 critical/serious), seven-role navigation matrix, root Command Center and repository checks."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
       "implementationCommit": "70bb64a53edcf0c82a8c2cc60f038ebd37c29c77",
-      "evidenceCommit": null,
+      "evidenceCommit": "51037334a70e3de4ce56b864ff41340317954750",
       "handoffPath": ".alveara/handoffs/ALV-N001/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N001/R03.md",
+        "approvedAttempt": "R03",
+        "reviewedImplementationCommit": "70bb64a53edcf0c82a8c2cc60f038ebd37c29c77",
+        "reviewedEvidenceCommit": "51037334a70e3de4ce56b864ff41340317954750"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-09-28T01:22:24.101Z",
+      "completedAt": "2026-10-01T21:27:31.000Z",
       "reopened": {
         "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) required stable-state checks of the ALV-N001 danger-button observation. Settled default-state scans show no persistent danger-button defect, but the state scans added while repairing ALV-001-C01 found a REAL shared-design defect: .alv-button--secondary:hover/focus sets its text to --color-primary, which in the dark theme is a button BACKGROUND colour (#1f4459), giving about 1.8:1 contrast on the dark surface (axe color-contrast, serious) on every page with a secondary button. Narrow correction of Button.css only. Next attempt: R03.",
         "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
         "nextAttempt": "R03",
         "priorApprovedAttempt": "R02",
-        "downstreamAssessment": "Visual-only change to one component state's text/border colour using an existing token (--color-info); no component API, markup, behaviour or token definition changes. Completed descendants are not marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite and the authenticated axe state scan to demonstrate that."
+        "downstreamAssessment": "Visual-only change to one component state's text/border colour using an existing token (--color-info); no component API, markup, behaviour or token definition changes. Completed descendants are not marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite and the authenticated axe state scan to demonstrate that.",
+        "resolvedByAttempt": "R03",
+        "resolvedAt": "2026-10-01T21:27:31.000Z"
       },
       "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N001/R03.md: secondary-button hover/focus text no longer uses a dark-theme button-background colour; dark danger text raised to AA; contrast regression test pins every Button variant/state in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md."
     },
