@@ -373,34 +373,36 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "195 of 195 backend (dotnet test, up from 184; 11 new tests this attempt, not 15 as originally misreported) passing, plus 8 of 8 real-backend/real-browser Playwright tests (unchanged in assertion). An intermediate attempt (RowVersion placed on UserAccount directly) surfaced 3 genuine ALV-001-C01 regressions, caught and fixed before this commit by moving the concurrency demonstration to StaffProfile instead. See .alveara/handoffs/ALV-002-C01/R01-evidence/TEST_RESULTS.md."
+        "summary": "197 of 197 backend (dotnet test, up from 195; 2 new tests this attempt: a genuine audit-INSERT persistence-failure test, and an idempotency-violation-specificity test) passing, plus 69 of 69 frontend (up from 59; 10 new: AuditLogPage.test.tsx x4, ConcurrencyConflictBanner.test.tsx x4, App.routeGuards.test.tsx x2) and 9 of 9 real-backend/real-browser Playwright tests (up from 8; 1 new: the audit log page shows real entries this session produced). See .alveara/handoffs/ALV-002-C01/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "ef19d25cb8c1d687d56bb489c379291a92db301c",
-      "evidenceCommit": "569a09b0e855124748761ef73f6a3de58c88f322",
-      "handoffPath": ".alveara/handoffs/ALV-002-C01/R01.md",
+      "implementationCommit": "59fd1365252e18413b594bdd1f0eda9d7dbfb292",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-002-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-002-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "ef19d25cb8c1d687d56bb489c379291a92db301c",
-        "reviewedEvidenceCommit": "569a09b0e855124748761ef73f6a3de58c88f322"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-002-C01-R01-01 (P1): the required basic permission-aware audit/history viewer is missing - GET /api/auth/audit-log has no consuming frontend page, route, or nav entry.",
-        "ALV-002-C01-R01-02 (P2): the required reusable stale-edit/conflict presentation pattern is missing - ConcurrencyConflictException.ToProblem()'s shape has no UI component or interaction presenting it.",
-        "ALV-002-C01-R01-03 (P2): the audit-failure test only exercises preflight rejection (the immutability guard throws before any INSERT), not a genuine audit-write persistence failure/rollback of a new, valid consequential command.",
-        "ALV-002-C01-R01-04 (P2): MANIFEST.json/handoff test-count math and generatedAt timestamp are inaccurate (claimed 15 new tests against a stale 179 baseline instead of 11 new against 184; generatedAt predates both commits it names)."
-      ],
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-002-C01/R02.md 'Corrections made this attempt' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the four R01 findings (ALV-002-C01-R01-01, -02, -03, -04). Independent review pending at R02 per .alveara/reviews/ALV-002-C01/R01.md (prior decision: CHANGES_REQUIRED).",
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
     {
       "schemaVersion": "2",
       "controlSet": {

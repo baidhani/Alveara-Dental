@@ -1,0 +1,24 @@
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\auth-real-backend.spec.ts:42:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (304ms)
+  ok 2 [chromium] › e2e\auth-real-backend.spec.ts:51:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (716ms)
+  ok 3 [chromium] › e2e\auth-real-backend.spec.ts:65:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (1.5s)
+  ok 4 [chromium] › e2e\auth-real-backend.spec.ts:96:3 › Real backend — first-admin bootstrap, login, MFA, security administration › replaying the exact same successful MFA challenge submission is rejected, not accepted twice (89ms)
+  ok 5 [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout (374ms)
+  ok 6 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (139ms)
+  ok 7 [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin (147ms)
+  ok 8 [chromium] › e2e\auth-real-backend.spec.ts:159:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API (562ms)
+  ok 9 [chromium] › e2e\auth-real-backend.spec.ts:205:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again (247ms)
+
+  9 passed (5.0s)
+
+Run context: ALV-002-C01 R02 regression, against a freshly dropped/re-migrated `AlveraE2E` LocalDB
+database and a real `dotnet run` API process (src/Alveara.Api), via
+`npx playwright test --config=playwright.auth.config.ts` from src/alveara-client, run against
+implementation commit 59fd1365252e18413b594bdd1f0eda9d7dbfb292.
+
+Test 7 is new this attempt (ALV-002-C01-R01-01 correction): proves the new permission-aware audit
+viewer renders genuine audit entries this session's own actions produced (SessionTimeoutChanged
+from test 5, LoginSucceeded from this session's own sign-in). Test 8 was extended to also assert
+the Audit Log nav link is hidden and /admin/audit-log is denied directly for a caller without
+ViewAuditLog.
