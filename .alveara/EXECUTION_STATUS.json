@@ -424,7 +424,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 5,
@@ -437,16 +437,18 @@
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "4d4f3c34994aa8beed63582250cb0722cd633ee9",
-      "evidenceCommit": null,
+      "evidenceCommit": "8d36408fa3b0141fcb600b81fbea142fd96a07c5",
       "handoffPath": ".alveara/handoffs/ALV-N003/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N003/R02.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "4d4f3c34994aa8beed63582250cb0722cd633ee9",
+        "reviewedEvidenceCommit": "8d36408fa3b0141fcb600b81fbea142fd96a07c5"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N003-R02-01 (P2): AvailabilityTab binds write completions to provider identity only; a delayed weekly-save response from an abandoned editing session (A-save -> B -> A -> new draft) overwrites the new unsaved draft, and blocked-time add/remove completions share the pattern. Completions must be bound to an editing-session generation, and an in-flight save must not replace edits entered after its submitted snapshot."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
