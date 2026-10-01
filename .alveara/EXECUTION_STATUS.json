@@ -474,37 +474,35 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "358 of 358 backend (full dotnet test run) plus 1 later-added test (BackupRecoveryHardeningTests class re-run 14 of 14; 359 listed), 158 of 158 frontend (up from 156) and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R02-evidence/TEST_RESULTS.md."
+        "summary": "366 of 366 backend (full dotnet test; 7 new deployment-consistency/verified-before-serve tests), 158 of 158 frontend and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R03-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "f8969c29d29c2c924ac05b725de6935bc739eef5",
-      "evidenceCommit": "ce627742d5d70221cae069be9c64d04383c967a7",
-      "handoffPath": ".alveara/handoffs/ALV-N004/R02.md",
+      "implementationCommit": "4b99e2a3e0761e4272b5208f5ff61edbfd0c588c",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N004/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N004/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "f8969c29d29c2c924ac05b725de6935bc739eef5",
-        "reviewedEvidenceCommit": "ce627742d5d70221cae069be9c64d04383c967a7"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N004-R02-01 (P1): DeploymentGuardMiddleware blocks only the Mismatch state; domain requests proceed while deployment verification is Unchecked/pending/retrying. A positively verified matching state must be required, with an explicit pending-verification refusal and preserved operator endpoints.",
-        "ALV-N004-R02-02 (P1): a restore drill can report Succeeded/FullyVerified for a backup whose manifest/deployment asset (running settings) contradicts the captured database's DeploymentInvariants record; agreement must be ensured at backup time and validated after restore, with legacy missing-record handling."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N004/R03.md: ALV-N004-R02-01 (domain requests served only after positive deployment verification; 503 deployment_unverified) and ALV-N004-R02-02 (backup refused on a host contradicting its database's record; restore validates asset == manifest and restored database == manifest). Independent review pending at R03 per .alveara/reviews/ALV-N004/R02.md (prior decision: CHANGES_REQUIRED)."
     },
     {
       "schemaVersion": "2",
