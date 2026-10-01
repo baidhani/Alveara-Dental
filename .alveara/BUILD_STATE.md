@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N001` attempt R03 (reopened by the Gate A review) - independently reviewed and **`APPROVED`**, now `COMPLETE`. `ALV-001-C01` R07 and `ALV-002-C01` R04 are approved and awaiting their ordered closures. Gate A remains **FAIL** and `STORY-003` blocked until the remaining corrections are closed and Gate A is rerun. See `.alveara/reviews/ALV-N001/R03.md`.
+Last updated: `ALV-001-C01` attempt R07 - independently reviewed and **`APPROVED`**, now `COMPLETE`; `ALV-N003` and `ALV-N004` revalidated (PASS) and restored to `COMPLETE`. `ALV-002-C01` R04 is approved and awaits its ordered closure. Gate A remains **FAIL** and `STORY-003` blocked until the remaining corrections are closed and Gate A is rerun. See `.alveara/reviews/ALV-001-C01/R07.md`.
 
 ## Production implementation status
 
