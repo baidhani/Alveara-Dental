@@ -373,33 +373,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "197 of 197 backend (dotnet test, up from 195; 2 new tests this attempt: a genuine audit-INSERT persistence-failure test, and an idempotency-violation-specificity test) passing, plus 69 of 69 frontend (up from 59; 10 new: AuditLogPage.test.tsx x4, ConcurrencyConflictBanner.test.tsx x4, App.routeGuards.test.tsx x2) and 9 of 9 real-backend/real-browser Playwright tests (up from 8; 1 new: the audit log page shows real entries this session produced). See .alveara/handoffs/ALV-002-C01/R02-evidence/TEST_RESULTS.md."
+        "summary": "199 of 199 backend (dotnet test, up from 197; 2 new tests this attempt: audit-log metadata round-trip and default-100/take=500/clamp window) passing, plus 70 of 70 frontend (up from 69; 1 new: AuditLogPage request-window contract) and 9 of 9 real-backend/real-browser Playwright tests (test 7 now also asserts the real SessionTimeoutChanged row visibly shows UserAccount). See .alveara/handoffs/ALV-002-C01/R03-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "59fd1365252e18413b594bdd1f0eda9d7dbfb292",
-      "evidenceCommit": "0ae3e3cdd2b219a30b31718f5bfce0335fbdd003",
-      "handoffPath": ".alveara/handoffs/ALV-002-C01/R02.md",
+      "implementationCommit": "cc053dae1a37d0404d45682387301fe1f344b558",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-002-C01/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-002-C01/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "59fd1365252e18413b594bdd1f0eda9d7dbfb292",
-        "reviewedEvidenceCommit": "0ae3e3cdd2b219a30b31718f5bfce0335fbdd003"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-002-C01-R02-01 (P2): GET /api/auth/audit-log projects only Id, EventType, TargetUserAccountId, PerformedByUserAccountId, Details and TimestampUtc; it omits the shared EntityType, Reason and CorrelationId the viewer contract expects, so the viewer's entity type column renders a dash for new events.",
-        "ALV-002-C01-R02-02 (P2): AuditLogPage claims the most recent 500 events but getAuditLog() sends no take parameter, so the server default of 100 applies."
-      ],
-      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-002-C01/R02.md 'Corrections made this attempt' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the four R01 findings (ALV-002-C01-R01-01, -02, -03, -04). Independent review pending at R02 per .alveara/reviews/ALV-002-C01/R01.md (prior decision: CHANGES_REQUIRED).",
+      "blockingIssues": [],
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-002-C01/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the tests closing ALV-002-C01-R02-01 and ALV-002-C01-R02-02. Independent review pending at R03 per .alveara/reviews/ALV-002-C01/R02.md (prior decision: CHANGES_REQUIRED).",
       "revalidation": {
         "required": false,
         "reason": null

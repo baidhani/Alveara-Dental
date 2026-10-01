@@ -2,13 +2,21 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-002-C01` attempt R02 — implementation committed, set to **`AWAITING_REVIEW`**. R01 was independently reviewed and returned `CHANGES_REQUIRED` (missing audit viewer UI, missing conflict presentation UI, audit-failure test didn't exercise real persistence failure, inaccurate package metadata); R02 corrects all four. `STORY-002` (course story, audit logging) is `COMPLETE`, portal-verified. See `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA, `.alveara/reviews/ALV-002-C01/R01.md` for the review, and `.alveara/handoffs/ALV-002-C01/R02.md` for the full R02 handoff.
+Last updated: `ALV-002-C01` attempt R03 - implementation committed, set to **`AWAITING_REVIEW`**. R02 was independently reviewed and returned `CHANGES_REQUIRED` (the audit API omitted the shared entity/reason/correlation metadata the viewer expects, and the viewer claimed a 500-event window while requesting the default 100); R03 corrects both. `STORY-002` (course story, audit logging) is `COMPLETE`, portal-verified. See `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA, `.alveara/reviews/ALV-002-C01/R02.md` for the review, and `.alveara/handoffs/ALV-002-C01/R03.md` for the full R03 handoff.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `STORY-002` (audit logging for critical actions) is `COMPLETE`, portal-verified on 2026-09-30.** `ALV-002-C01` (shared audit, concurrency, and record-lifecycle primitives) has landed implementation for attempt R02 (correcting R01's `CHANGES_REQUIRED` review) and is `AWAITING_REVIEW` — not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `STORY-002` (audit logging for critical actions) is `COMPLETE`, portal-verified on 2026-09-30.** `ALV-002-C01` (shared audit, concurrency, and record-lifecycle primitives) has landed implementation for attempt R03 (correcting R02's `CHANGES_REQUIRED` review) and is `AWAITING_REVIEW` — not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
 
-## Shared audit, concurrency, and record-lifecycle primitives (ALV-002-C01, AWAITING_REVIEW — attempt R02)
+## Shared audit, concurrency, and record-lifecycle primitives (ALV-002-C01, AWAITING_REVIEW - attempt R03)
+
+R03 corrections (responding to R02's independent review, `.alveara/reviews/ALV-002-C01/R02.md`, decision `CHANGES_REQUIRED`):
+
+- **The real audit API now returns the shared metadata.** `AuthController.GetAuditLog` also projects `EntityType`, `Reason`, `CorrelationId` (null for legacy/metadata-less rows); gate, ordering, and 500 bound unchanged. Proven by an API round-trip test through the real `AuditService.Record` path and a real-browser assertion that the real `SessionTimeoutChanged` row visibly shows `UserAccount`. (R02's handoff claim that the endpoint already returned this was inaccurate; corrected here.)
+- **The viewer requests the window it claims.** `authApi.AUDIT_LOG_WINDOW = 500` drives both the `?take=500` request and the page description; a frontend request-contract test and a backend 130-event window test (default 100, `take=500` all, `take=9999` clamped) prove it.
+- 199 backend / 70 frontend / 9 real-backend Playwright tests pass. See `.alveara/handoffs/ALV-002-C01/R03-evidence/`.
+
+## Shared audit, concurrency, and record-lifecycle primitives (ALV-002-C01, R02 - superseded by R03 above)
 
 R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-002-C01/R01.md`, decision `CHANGES_REQUIRED`):
 

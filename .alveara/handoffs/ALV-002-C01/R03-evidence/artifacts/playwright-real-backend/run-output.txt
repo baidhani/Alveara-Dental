@@ -1,0 +1,14 @@
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\auth-real-backend.spec.ts:42:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (290ms)
+  ok 2 [chromium] › e2e\auth-real-backend.spec.ts:51:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (761ms)
+  ok 3 [chromium] › e2e\auth-real-backend.spec.ts:65:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (1.5s)
+  ok 4 [chromium] › e2e\auth-real-backend.spec.ts:96:3 › Real backend — first-admin bootstrap, login, MFA, security administration › replaying the exact same successful MFA challenge submission is rejected, not accepted twice (77ms)
+  ok 5 [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout (426ms)
+  ok 6 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (137ms)
+  ok 7 [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin (153ms)
+  ok 8 [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API (584ms)
+  ok 9 [chromium] › e2e\auth-real-backend.spec.ts:210:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again (249ms)
+
+  9 passed (6.7s)
