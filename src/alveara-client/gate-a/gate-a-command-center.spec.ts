@@ -56,16 +56,28 @@ test("A1: the root Command Center satisfies STORY-000's five Done-means checks a
   evidence.tabs = tabs;
   const reached: string[] = [];
   const drill: Record<string, number> = {};
+  const drilled: string[] = [];
   for (const t of tabs) {
     await page.locator(`#tabs-nav button[data-tab="${t.id}"]`).click();
     await expect(page.locator(`#tabs-nav button[data-tab="${t.id}"].active`)).toBeVisible();
     await expect(page.locator("#tab-content")).not.toContainText("Loading…");
     await expect(page.locator(".sample-banner").first()).toContainText("SAMPLE DATA");
     reached.push(t.label ?? "");
-    drill[t.label ?? ""] = await page.locator("#tab-content [data-drill], #tab-content .card, #tab-content details, #tab-content tr").count();
+    // "every card drills down one level": activate the first drill-down card on the tab and require a detail panel with a close control
+    const cards = page.locator("#tab-content [data-detail]");
+    drill[t.label ?? ""] = await cards.count();
+    if (drill[t.label ?? ""] > 0) {
+      await cards.first().click();
+      await expect(page.locator("#close-detail"), `${t.label}: drill-down detail opens`).toBeVisible();
+      await page.locator("#close-detail").click();
+      await expect(page.locator("#close-detail")).toHaveCount(0);
+      drilled.push(t.label ?? "");
+    }
   }
   evidence.tabsReached = reached;
   evidence.cardsPerTab = drill;
+  evidence.tabsWithDrillDownActivated = drilled;
+  expect(drilled.length, "at least one tab drill-down was actually activated").toBeGreaterThan(0);
 
   // (3)+(4)+(5) real mode: reads .colaberry/* at runtime, shows data age, no sample label, counts equal progress.json
   requested.length = 0;
@@ -86,6 +98,7 @@ test("A1: the root Command Center satisfies STORY-000's five Done-means checks a
   await expect(page.locator("#tab-content")).not.toContainText("Loading…");
   const pmText = await page.locator("#tab-content").innerText();
   evidence.pmTabContainsVerifiedCount = pmText.includes(String(verified));
+  expect(evidence.pmTabContainsVerifiedCount, `Project Management tab shows the ${verified} verified stories recorded in progress.json`).toBe(true);
   expect(errors, "no uncaught page errors").toEqual([]);
 
   // the week-old warning rule is implemented in the shipped app.js (the data is current, so it is not triggered here)

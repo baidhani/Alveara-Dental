@@ -129,8 +129,19 @@ test("A6: for each of the 7 roles, rendered navigation matches server-authoritat
     }
     // the server itself refuses the underlying data calls a hidden page would make
     const serverChecks: Record<string, number> = {};
-    for (const api of ["/api/auth/users", "/api/auth/audit-log?take=1", "/api/auth/permission-matrix", "/api/backup/status", "/api/config/practice"]) {
+    // expected status per endpoint is derived from the role's OWN permission list (server-authoritative), so a regression fails automatically
+    const REQUIRES: Record<string, string> = {
+      "/api/auth/users": "ManageUsers", "/api/auth/audit-log?take=1": "ViewAuditLog", "/api/auth/permission-matrix": "ViewPermissionMatrix",
+      "/api/backup/status": "ViewBackupStatus", "/api/config/practice": "ManagePracticeConfiguration",
+    };
+    for (const [api, permission] of Object.entries(REQUIRES)) {
       serverChecks[api] = (await page.request.get(api)).status();
+      expect(serverChecks[api], `${role} GET ${api} (requires ${permission})`).toBe(permissions.permissions.includes(permission) ? 200 : 403);
+    }
+    // each guarded page's link/route is allowed exactly when the role holds that page's permission
+    const PAGE_REQUIRES: Record<string, string> = { "/admin/users": "ManageUsers", "/admin/permissions": "ViewPermissionMatrix", "/admin/audit-log": "ViewAuditLog", "/admin/configuration": "ManagePracticeConfiguration", "/admin/backup": "ViewBackupStatus" };
+    for (const route of GUARDED) {
+      expect(rows[route].denied, `${role} ${route} requires ${PAGE_REQUIRES[route]}`).toBe(!permissions.permissions.includes(PAGE_REQUIRES[route]));
     }
     matrix[role] = { permissions: permissions.permissions, navLinks: hrefs, guardedRoutes: rows, serverChecks };
     await context.close();
