@@ -474,7 +474,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 7,
@@ -487,22 +487,24 @@
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "f8969c29d29c2c924ac05b725de6935bc739eef5",
-      "evidenceCommit": null,
+      "evidenceCommit": "ce627742d5d70221cae069be9c64d04383c967a7",
       "handoffPath": ".alveara/handoffs/ALV-N004/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N004/R02.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "f8969c29d29c2c924ac05b725de6935bc739eef5",
+        "reviewedEvidenceCommit": "ce627742d5d70221cae069be9c64d04383c967a7"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N004-R02-01 (P1): DeploymentGuardMiddleware blocks only the Mismatch state; domain requests proceed while deployment verification is Unchecked/pending/retrying. A positively verified matching state must be required, with an explicit pending-verification refusal and preserved operator endpoints.",
+        "ALV-N004-R02-02 (P1): a restore drill can report Succeeded/FullyVerified for a backup whose manifest/deployment asset (running settings) contradicts the captured database's DeploymentInvariants record; agreement must be ensured at backup time and validated after restore, with legacy missing-record handling."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-N004/R02.md 'Corrections made this attempt': ALV-N004-R01-01 (history-free archive recovery), R01-02 (standard OpenPGP via BouncyCastle), R01-03 (Data Protection compatibility preserved), R01-04 (deployment settings captured, checked and enforced). Independent review pending at R02 per .alveara/reviews/ALV-N004/R01.md (prior decision: CHANGES_REQUIRED)."
+      "completedAt": null
     },
     {
       "schemaVersion": "2",
