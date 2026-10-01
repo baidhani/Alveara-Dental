@@ -88,7 +88,8 @@ full verifications/restore drills have passed. A drill older than `VerificationC
    `components_present`, `component_hashes_match`, `restored_schema_matches`,
    `row_counts_match_snapshot_window`, `representative_records_readable`,
    `restored_keys_decrypt_restored_data` (the restored key ring decrypts the restored MFA secrets),
-   `deployment_settings_recorded` and `deployment_settings_match_this_server` (see *Deployment settings*).
+   `deployment_settings_recorded`, `deployment_settings_match_this_server`, `deployment_asset_matches_manifest`
+   and `restored_database_deployment_matches_manifest` (see *Deployment settings*).
    `covers_all_asset_classes` is a warning if the backup predates a newly managed asset class.
 6. A successful drill counts toward probation and marks the backup **Fully verified**.
 7. Inspect the recovered data if you wish (the isolated database and `.../extracted/documents|dataProtectionKeys`),
@@ -136,11 +137,22 @@ example `Set PracticeTimeZone = Asia/Tokyo and DataProtection:ApplicationName = 
 does not record them is **not recoverable** (`deployment_settings_recorded`), and the coverage warning shows
 the backup as incomplete.
 
-The running application also enforces them. On first start it records the effective values in the database
-(`DeploymentInvariants`); on every start and every minute it compares. A database restored onto a server
-configured differently produces a **DEPLOYMENT MISMATCH**: the **System Status** page and `/api/systemstatus`
-report `deployment.state = mismatch` with the settings to apply, and every domain API call is refused with
-**503 `deployment_mismatch`** (health, system status, sign-in and backup/recovery stay available so you can fix it).
+**One story, three places.** The settings recorded in the manifest, in the `deploymentConfiguration` file and in the
+captured database (`DeploymentInvariants`) must agree. A backup is therefore **refused** (`deployment_mismatch`, a
+visible failed backup with a notification) when the host runs under settings that differ from its database's record,
+and a database with no record yet is recorded from the running settings first. A restore drill then checks that the
+asset file equals the manifest and that the **restored database's record equals the manifest** before it can report
+success or advance verification; a contradictory archive is rejected (`deployment_asset_matches_manifest`,
+`restored_database_deployment_matches_manifest`).
+
+The running application also enforces them, **positively**: domain API calls are served only after the settings have
+been *verified* to match. On first start it records the effective values in the database; on every start and every
+minute it compares. A request that arrives before the first check finished triggers that check and waits for it
+(bounded); if it cannot complete (database unreachable, check failing) the answer is **503 `deployment_unverified`**.
+A database restored onto a server configured differently produces a **DEPLOYMENT MISMATCH**: the **System Status**
+page and `/api/systemstatus` report `deployment.state = mismatch` with the settings to apply, and every domain API
+call is refused with **503 `deployment_mismatch`**. In both cases health, system status, sign-in and backup/recovery
+stay available so you can fix it.
 Apply the recorded settings and restart. If a change is **intentional**, set `Deployment:AdoptCurrentSettings=true`
 for one start; the new values are re-recorded and a warning is logged. Remove the setting afterwards.
 

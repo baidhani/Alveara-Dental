@@ -111,9 +111,45 @@ public sealed class DeploymentInvariantStatus
     private volatile DeploymentInvariantSnapshot _snapshot = new(DeploymentInvariantState.Unchecked, []);
     public DeploymentInvariantSnapshot Snapshot => _snapshot;
     public void Set(DeploymentInvariantState state, IReadOnlyList<DeploymentMismatch> mismatches) => _snapshot = new(state, mismatches);
+
+    /// <summary>
+    /// Runs one verification now. Set by <see cref="DeploymentInvariantMonitor"/>; lets a request that arrives before the
+    /// first background check finishes trigger it (and wait, bounded) instead of being served unverified.
+    /// </summary>
+    public Func<CancellationToken, Task>? Verifier { get; set; }
 }
 
 public sealed record DeploymentInvariantSnapshot(DeploymentInvariantState State, IReadOnlyList<DeploymentMismatch> Mismatches);
+
+/// <summary>Reads, or on first use records, the deployment settings the database's data is created under (shared by the monitor and by backup).</summary>
+public static class DeploymentInvariantStore
+{
+    public static async Task<DeploymentInvariantRecord> EnsureRecordedAsync(AlveraDbContext db, DeploymentSettings current, CancellationToken cancellationToken)
+    {
+        var record = await db.DeploymentInvariants.SingleOrDefaultAsync(cancellationToken);
+        if (record is not null) return record;
+
+        var added = new DeploymentInvariantRecord
+        {
+            PracticeTimeZoneId = current.PracticeTimeZoneId, DataProtectionApplicationName = current.DataProtectionApplicationName,
+            RecordedAtUtc = DateTimeOffset.UtcNow, UpdatedAtUtc = DateTimeOffset.UtcNow,
+        };
+        db.DeploymentInvariants.Add(added);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            return added;
+        }
+        catch (DbUpdateException)
+        {
+            db.ChangeTracker.Clear(); // another instance recorded first: use theirs
+            return await db.DeploymentInvariants.SingleAsync(cancellationToken);
+        }
+    }
+
+    public static DeploymentSettings AsSettings(DeploymentInvariantRecord record, string currency) =>
+        new(DeploymentSettings.CurrentFormatVersion, record.PracticeTimeZoneId, record.DataProtectionApplicationName, currency);
+}
 
 /// <summary>
 /// ALV-N004 R02 (review finding ALV-N004-R01-04): makes the deployment invariants enforceable on a RECOVERED
@@ -130,9 +166,11 @@ public sealed class DeploymentInvariantMonitor(
 {
     private static readonly TimeSpan RecheckInterval = TimeSpan.FromSeconds(60);
     private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(5);
+    private readonly SemaphoreSlim _checkLock = new(1, 1);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        status.Verifier = CheckOnceAsync;
         while (!stoppingToken.IsCancellationRequested)
         {
             var checkedOk = false;
@@ -154,35 +192,26 @@ public sealed class DeploymentInvariantMonitor(
 
     public async Task CheckOnceAsync(CancellationToken cancellationToken)
     {
+        await _checkLock.WaitAsync(cancellationToken); // the background loop and an early request never check at once
+        try
+        {
+            await CheckLockedAsync(cancellationToken);
+        }
+        finally
+        {
+            _checkLock.Release();
+        }
+    }
+
+    private async Task CheckLockedAsync(CancellationToken cancellationToken)
+    {
         await using var scope = scopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AlveraDbContext>();
         var current = settings.Current;
 
-        var record = await db.DeploymentInvariants.SingleOrDefaultAsync(cancellationToken);
-        if (record is null)
-        {
-            db.DeploymentInvariants.Add(new DeploymentInvariantRecord
-            {
-                PracticeTimeZoneId = current.PracticeTimeZoneId, DataProtectionApplicationName = current.DataProtectionApplicationName,
-                RecordedAtUtc = DateTimeOffset.UtcNow, UpdatedAtUtc = DateTimeOffset.UtcNow,
-            });
-            try
-            {
-                await db.SaveChangesAsync(cancellationToken);
-            }
-            catch (DbUpdateException)
-            {
-                db.ChangeTracker.Clear(); // another instance recorded first: compare against theirs below
-                record = await db.DeploymentInvariants.SingleAsync(cancellationToken);
-            }
-            if (record is null)
-            {
-                status.Set(DeploymentInvariantState.Ok, []);
-                return;
-            }
-        }
+        var record = await DeploymentInvariantStore.EnsureRecordedAsync(db, current, cancellationToken);
 
-        var recorded = new DeploymentSettings(DeploymentSettings.CurrentFormatVersion, record.PracticeTimeZoneId, record.DataProtectionApplicationName, current.Currency);
+        var recorded = DeploymentInvariantStore.AsSettings(record, current.Currency);
         var differences = recorded.DifferencesFrom(current).ToList(); // "this" = what the data was created under, "other" = what this server is configured with
 
         if (differences.Count > 0 && configuration.GetValue<bool>("Deployment:AdoptCurrentSettings"))
@@ -209,32 +238,68 @@ public sealed class DeploymentInvariantMonitor(
 }
 
 /// <summary>
-/// While the deployment invariants do not match, refuse every domain API call with 503 - except the endpoints an
-/// operator needs to see and fix the problem (health, system status, sign-in, and the backup/recovery tooling).
-/// Better an explicit refusal than appointments silently reinterpreted in the wrong time zone or accounts that
-/// cannot complete MFA.
+/// Domain API calls are served ONLY once the deployment invariants have been positively verified as matching the data.
+/// While they are unverified (startup, database not yet reachable, check failing) the answer is 503 `deployment_unverified`;
+/// while they mismatch it is 503 `deployment_mismatch` - in both cases except the endpoints an operator needs to see and
+/// fix the problem (health, system status, sign-in, and the backup/recovery tooling). A request that arrives before the
+/// first background check finished triggers that check itself and waits for it (bounded), so a healthy server is not
+/// needlessly refused. Better an explicit refusal than appointments silently reinterpreted in the wrong time zone or
+/// accounts that cannot complete MFA.
 /// </summary>
-public sealed class DeploymentGuardMiddleware(RequestDelegate next, DeploymentInvariantStatus status)
+public sealed class DeploymentGuardMiddleware(RequestDelegate next, DeploymentInvariantStatus status, ILogger<DeploymentGuardMiddleware>? logger = null)
 {
     private static readonly string[] Allowed = ["/api/health", "/api/systemstatus", "/api/auth", "/api/backup"];
+    private static readonly TimeSpan EarlyVerificationTimeout = TimeSpan.FromSeconds(5);
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var snapshot = status.Snapshot;
         var path = context.Request.Path.Value ?? "";
-        if (snapshot.State == DeploymentInvariantState.Mismatch
-            && path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase)
-            && !Allowed.Any(a => path.StartsWith(a, StringComparison.OrdinalIgnoreCase)))
+        var guarded = path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase) && !Allowed.Any(a => path.StartsWith(a, StringComparison.OrdinalIgnoreCase));
+        if (!guarded)
         {
-            context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-            await context.Response.WriteAsJsonAsync(new
-            {
-                error = "deployment_mismatch",
-                message = "This server is configured differently from the settings its data was created under. Apply the recorded settings (see System Status) and restart.",
-                mismatches = snapshot.Mismatches,
-            });
+            await next(context);
             return;
         }
-        await next(context);
+
+        var snapshot = status.Snapshot;
+        if (snapshot.State == DeploymentInvariantState.Unchecked && status.Verifier is { } verify)
+        {
+            try
+            {
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
+                timeout.CancelAfter(EarlyVerificationTimeout);
+                await verify(timeout.Token);
+            }
+            catch (Exception ex) when (ex is OperationCanceledException or Microsoft.Data.SqlClient.SqlException or DbUpdateException or InvalidOperationException)
+            {
+                logger?.LogWarning("Early deployment verification did not complete ({ExceptionType}); refusing the request as unverified.", ex.GetType().Name);
+            }
+            snapshot = status.Snapshot;
+        }
+
+        switch (snapshot.State)
+        {
+            case DeploymentInvariantState.Ok:
+                await next(context);
+                return;
+            case DeploymentInvariantState.Mismatch:
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    error = "deployment_mismatch",
+                    message = "This server is configured differently from the settings its data was created under. Apply the recorded settings (see System Status) and restart.",
+                    mismatches = snapshot.Mismatches,
+                });
+                return;
+            default:
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                context.Response.Headers.RetryAfter = "5";
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    error = "deployment_unverified",
+                    message = "The server is still verifying that its configuration matches the data (or could not yet). Try again shortly; see System Status.",
+                });
+                return;
+        }
     }
 }

@@ -275,6 +275,206 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         }
     }
 
+    // ---------- R02-02: manifest, deployment asset and captured database must agree ----------
+
+    private async Task SetRecordedInvariantAsync(string timeZoneId)
+    {
+        await using var db = _env.NewDb();
+        await db.Database.ExecuteSqlRawAsync(
+            "DELETE FROM DeploymentInvariants; INSERT INTO DeploymentInvariants (Id, PracticeTimeZoneId, DataProtectionApplicationName, RecordedAtUtc, UpdatedAtUtc) VALUES ({0}, {1}, {2}, SYSDATETIMEOFFSET(), SYSDATETIMEOFFSET())",
+            DeploymentInvariantRecord.SingletonId, timeZoneId, BackupTestEnvironment.DataProtectionApplicationName);
+    }
+
+    [Fact]
+    public async Task A_host_configured_against_its_databases_recorded_settings_cannot_produce_a_backup_at_all()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SetRecordedInvariantAsync("America/Chicago");
+        _env.Deployment.Current = _env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" }; // the host runs under another zone than the data was created under
+
+        await using (var db = _env.NewDb())
+        {
+            var ex = await Assert.ThrowsAnyAsync<Exception>(() => _env.NewBackupService(db).RunBackupAsync(BackupKind.Manual, "manual:mismatched-host", _actor, default));
+            Assert.Equal("deployment_mismatch", BackupFailure.Classify(ex).Code);
+        }
+
+        await using var verify = _env.NewDb();
+        var failed = await verify.BackupRecords.SingleAsync(r => r.IdempotencyKey == "manual:mismatched-host");
+        Assert.Equal((BackupStatus.Failed, "deployment_mismatch"), (failed.Status, failed.FailureCode));
+        Assert.Empty(Directory.EnumerateFiles(_env.SetsDirectory));          // nothing trusted (or even partial) was written
+        Assert.Contains(_env.Notifier.Delivered, n => n.Kind == "BackupFailed" && n.BackupRecordId == failed.Id);
+    }
+
+    [Fact]
+    public async Task A_legacy_database_without_a_deployment_record_gets_one_from_the_running_settings_and_the_backup_then_recovers_consistently()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        await using (var db = _env.NewDb()) await db.Database.ExecuteSqlRawAsync("DELETE FROM DeploymentInvariants;");
+
+        var record = await BackupAsync();
+        Assert.Equal(BackupStatus.Succeeded, record.Status);
+        await using (var db = _env.NewDb())
+            Assert.Equal(_env.Deployment.Current.PracticeTimeZoneId, (await db.DeploymentInvariants.SingleAsync()).PracticeTimeZoneId);
+
+        var archiveRef = await ImportArchiveAndLoseHistoryAsync(record);
+        var drill = await ArchiveDrillAsync(archiveRef);
+        Assert.Equal("Succeeded", drill.Outcome);
+        Assert.Contains(ChecksOf(drill), c => c.Name == "restored_database_deployment_matches_manifest" && c.Passed);
+        Assert.Contains(ChecksOf(drill), c => c.Name == "deployment_asset_matches_manifest" && c.Passed);
+    }
+
+    [Fact]
+    public async Task A_contradictory_archive_whose_manifest_disagrees_with_its_captured_database_never_reports_success()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        await SetRecordedInvariantAsync("America/Chicago");
+        var record = await BackupAsync(); // consistent: Chicago everywhere
+
+        // An authentic-but-altered archive: manifest AND asset now say Tokyo, the captured database still says Chicago.
+        var crafted = await _env.CraftAlteredBackupAsync(record.Id, content =>
+        {
+            var assetPath = Path.Combine(content, ManagedAssetClasses.DeploymentConfiguration, DeploymentSettings.FileName);
+            var tokyo = _env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" };
+            File.WriteAllText(assetPath, System.Text.Json.JsonSerializer.Serialize(tokyo, DeploymentSettings.Json));
+            var manifest = BackupTestEnvironment.ReadManifest(content);
+            BackupTestEnvironment.WriteManifest(content, manifest with
+            {
+                Deployment = tokyo,
+                Components = manifest.Components.Select(c => c.AssetClass == ManagedAssetClasses.DeploymentConfiguration
+                    ? c with { Sha256 = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(assetPath))) } : c).ToList(),
+            });
+        });
+        _env.Deployment.Current = _env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" }; // the recovering server follows the manifest's advice
+
+        await using var db = _env.NewDb();
+        var drill = await _env.NewRestoreService(db).RestoreDrillAsync(crafted, _env.Key.EncryptedPrivateKeyPem, BackupTestEnvironment.Passphrase, _actor, default);
+        if (drill.TargetDatabase is not null) _restoredDatabases.Add(drill.TargetDatabase);
+
+        Assert.Equal(("Failed", "restore_validation_failed"), (drill.Outcome, drill.FailureCode));
+        Assert.False(ChecksOf(drill).Single(c => c.Name == "restored_database_deployment_matches_manifest").Passed);
+        var stored = await db.BackupRecords.AsNoTracking().SingleAsync(r => r.Id == crafted);
+        Assert.NotEqual(BackupVerificationStatus.FullyVerified, stored.VerificationStatus); // confidence is not advanced
+        Assert.False(await _env.RestoreProvider.DatabaseExistsAsync(drill.TargetDatabase!, default));
+    }
+
+    [Fact]
+    public async Task A_deployment_asset_that_contradicts_the_manifest_is_rejected_before_anything_is_restored()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        var record = await BackupAsync();
+        var crafted = await _env.CraftAlteredBackupAsync(record.Id, content =>
+        {
+            var assetPath = Path.Combine(content, ManagedAssetClasses.DeploymentConfiguration, DeploymentSettings.FileName);
+            File.WriteAllText(assetPath, System.Text.Json.JsonSerializer.Serialize(_env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" }, DeploymentSettings.Json));
+            var manifest = BackupTestEnvironment.ReadManifest(content);
+            BackupTestEnvironment.WriteManifest(content, manifest with // component hash fixed up so ONLY the manifest/asset disagreement remains
+            {
+                Components = manifest.Components.Select(c => c.AssetClass == ManagedAssetClasses.DeploymentConfiguration
+                    ? c with { Sha256 = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(assetPath))) } : c).ToList(),
+            });
+        });
+
+        await using var db = _env.NewDb();
+        var drill = await _env.NewRestoreService(db).RestoreDrillAsync(crafted, _env.Key.EncryptedPrivateKeyPem, BackupTestEnvironment.Passphrase, _actor, default);
+        if (drill.TargetDatabase is not null) _restoredDatabases.Add(drill.TargetDatabase);
+
+        Assert.Equal(("Failed", "deployment_asset_matches_manifest"), (drill.Outcome, drill.FailureCode));
+        Assert.False(await _env.RestoreProvider.DatabaseExistsAsync(drill.TargetDatabase!, default));
+    }
+
+    // ---------- R02-01: domain requests are served only after a POSITIVE verification ----------
+
+    private static async Task<(int Status, bool Reached, string Body)> RequestAsync(DeploymentGuardMiddleware middleware, string path, Func<bool>? reached = null)
+    {
+        var context = new DefaultHttpContext { Response = { Body = new MemoryStream() } };
+        context.Request.Path = path;
+        await middleware.InvokeAsync(context);
+        context.Response.Body.Position = 0;
+        return (context.Response.StatusCode, reached?.Invoke() ?? false, await new StreamReader(context.Response.Body).ReadToEndAsync());
+    }
+
+    [Fact]
+    public async Task Domain_requests_wait_until_deployment_invariants_are_verified_and_are_refused_while_unverified()
+    {
+        var reachedDomain = false;
+        var status = new DeploymentInvariantStatus(); // fresh: Unchecked, no verifier has run
+        var middleware = new DeploymentGuardMiddleware(_ => { reachedDomain = true; return Task.CompletedTask; }, status);
+
+        var unverified = await RequestAsync(middleware, "/api/config/scheduling");
+        Assert.Equal(503, unverified.Status);
+        Assert.Contains("deployment_unverified", unverified.Body);
+        Assert.False(reachedDomain);
+
+        // The operator endpoints stay reachable while unverified, so the problem can be seen and fixed.
+        foreach (var path in new[] { "/api/health", "/api/systemstatus", "/api/auth/login", "/api/backup/status", "/api/backup/archives" })
+        {
+            reachedDomain = false;
+            var allowed = await RequestAsync(middleware, path);
+            Assert.True(reachedDomain && allowed.Status == 200, path);
+        }
+
+        // Matching and verified: served.
+        status.Set(DeploymentInvariantState.Ok, []);
+        reachedDomain = false;
+        Assert.Equal(200, (await RequestAsync(middleware, "/api/config/scheduling")).Status);
+        Assert.True(reachedDomain);
+
+        // Mismatch: refused with its own code.
+        status.Set(DeploymentInvariantState.Mismatch, [new DeploymentMismatch("PracticeTimeZone", "Asia/Tokyo", "America/Chicago")]);
+        reachedDomain = false;
+        var mismatch = await RequestAsync(middleware, "/api/config/scheduling");
+        Assert.Equal(503, mismatch.Status);
+        Assert.Contains("deployment_mismatch", mismatch.Body);
+        Assert.False(reachedDomain);
+    }
+
+    [Fact]
+    public async Task A_request_that_arrives_before_the_first_check_triggers_it_and_is_served_only_when_it_verifies()
+    {
+        var reachedDomain = false;
+        var status = new DeploymentInvariantStatus();
+        var calls = 0;
+        status.Verifier = _ => { calls++; status.Set(DeploymentInvariantState.Ok, []); return Task.CompletedTask; };
+        var middleware = new DeploymentGuardMiddleware(_ => { reachedDomain = true; return Task.CompletedTask; }, status);
+
+        var served = await RequestAsync(middleware, "/api/config/scheduling");
+
+        Assert.Equal((200, true, 1), (served.Status, reachedDomain, calls));
+        reachedDomain = false;
+        await RequestAsync(middleware, "/api/config/scheduling"); // already verified: no second check
+        Assert.Equal(1, calls);
+    }
+
+    [Fact]
+    public async Task A_failing_or_unreachable_initial_check_keeps_domain_requests_refused_instead_of_letting_them_through()
+    {
+        var reachedDomain = false;
+
+        // 1. The verifier throws (an unexpected failure).
+        var failing = new DeploymentInvariantStatus { Verifier = _ => throw new InvalidOperationException("boom") };
+        var refusedFailing = await RequestAsync(new DeploymentGuardMiddleware(_ => { reachedDomain = true; return Task.CompletedTask; }, failing), "/api/config/scheduling");
+        Assert.Equal(503, refusedFailing.Status);
+        Assert.Contains("deployment_unverified", refusedFailing.Body);
+
+        // 2. The REAL monitor cannot reach its database during the initial check (delayed/failed start).
+        var services = new ServiceCollection();
+        services.AddDbContext<Alveara.Api.Data.AlveraDbContext>(o => o.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=AlveraDoesNotExist_" + Guid.NewGuid().ToString("N") + ";Trusted_Connection=True;TrustServerCertificate=True;Connect Timeout=3"));
+        await using var provider = services.BuildServiceProvider();
+        var status = new DeploymentInvariantStatus();
+        var monitor = new DeploymentInvariantMonitor(provider.GetRequiredService<IServiceScopeFactory>(), _env.Deployment, status, new ConfigurationBuilder().Build(), NullLogger<DeploymentInvariantMonitor>.Instance);
+        status.Verifier = monitor.CheckOnceAsync;
+
+        var refusedUnreachable = await RequestAsync(new DeploymentGuardMiddleware(_ => { reachedDomain = true; return Task.CompletedTask; }, status), "/api/config/scheduling");
+
+        Assert.Equal(503, refusedUnreachable.Status);
+        Assert.Contains("deployment_unverified", refusedUnreachable.Body);
+        Assert.Equal(DeploymentInvariantState.Unchecked, status.Snapshot.State);
+        Assert.False(reachedDomain);
+    }
+
     [Fact]
     public async Task A_backup_with_no_recorded_deployment_settings_is_not_recoverable()
     {

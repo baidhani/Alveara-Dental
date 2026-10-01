@@ -245,6 +245,7 @@ public class BackupRestoreService(
             mismatched.Count == 0 ? "Every component matches the hash in the manifest." : $"{mismatched.Count} component(s) do not match the manifest hashes."));
 
         checks.AddRange(DeploymentChecks(manifest));
+        checks.Add(await DeploymentAssetAgreementAsync(extracted, ct));
 
         var missingClasses = ManagedAssetClasses.All.Where(c => !manifest.AssetClasses.Contains(c)).ToList();
         checks.Add(new("covers_all_asset_classes", missingClasses.Count == 0,
@@ -272,6 +273,26 @@ public class BackupRestoreService(
                     ? "This server is configured with the deployment settings the data was created under."
                     : $"This server is configured differently ({string.Join(", ", differences.Select(d => d.Setting))}). Set {required} on this server, restart, and run recovery again."),
         ];
+    }
+
+    /// <summary>The deployment asset file inside the set must say exactly what the manifest says (R02-02).</summary>
+    private static async Task<ValidationCheck> DeploymentAssetAgreementAsync(Extracted extracted, CancellationToken ct)
+    {
+        const string name = "deployment_asset_matches_manifest";
+        var path = Path.Combine(extracted.Root, ManagedAssetClasses.DeploymentConfiguration, DeploymentSettings.FileName);
+        if (extracted.Manifest.Deployment is null) return new(name, true, "No deployment settings are recorded (reported by deployment_settings_recorded).", Blocking: false);
+        if (!File.Exists(path)) return new(name, false, "The deployment settings file listed for this backup is missing from the set.");
+        try
+        {
+            var asset = JsonSerializer.Deserialize<DeploymentSettings>(await File.ReadAllTextAsync(path, ct), DeploymentSettings.Json);
+            return asset is not null && asset.DifferencesFrom(extracted.Manifest.Deployment).Count == 0
+                ? new(name, true, "The deployment settings file and the manifest agree.")
+                : new(name, false, "The deployment settings file contradicts the manifest: this backup is internally inconsistent.");
+        }
+        catch (JsonException)
+        {
+            return new(name, false, "The deployment settings file in the set is unreadable.");
+        }
     }
 
     // ---------- Full verification (decrypt + inventory + RESTORE VERIFYONLY; nothing is restored) ----------
@@ -445,6 +466,8 @@ public class BackupRestoreService(
         checks.Add(new("representative_records_readable", true,
             $"Read {accounts} account(s) and {audits} audit entr{(audits == 1 ? "y" : "ies")} from the restored database" + (latestAudit is null ? "." : $" (latest event: {latestAudit}).")));
 
+        checks.Add(await RestoredDeploymentRecordAsync(extracted, connectionString, ct));
+
         var keysDirectory = Path.Combine(extracted.Root, ManagedAssetClasses.DataProtectionKeys);
         var secrets = await restoredDb.UserAccounts.AsNoTracking().Where(u => u.MfaSecretProtected != null).Select(u => u.MfaSecretProtected!).Take(5).ToListAsync(ct);
         if (secrets.Count == 0)
@@ -468,6 +491,31 @@ public class BackupRestoreService(
             }
         }
         return checks;
+    }
+
+    /// <summary>
+    /// The restored database records the settings its data was created under; they must equal what the manifest told the
+    /// operator to apply, or applying them would make the recovered application reject its own data (R02-02). A missing
+    /// record is a failure too: a backup of this format is only produced after the record exists.
+    /// </summary>
+    private static async Task<ValidationCheck> RestoredDeploymentRecordAsync(Extracted extracted, string connectionString, CancellationToken ct)
+    {
+        const string name = "restored_database_deployment_matches_manifest";
+        if (extracted.Manifest.Deployment is not { } recorded) return new(name, false, "The backup records no deployment settings to compare with the restored database.");
+        try
+        {
+            await using var db = new AlveraDbContext(new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(connectionString).Options);
+            var row = await db.DeploymentInvariants.AsNoTracking().SingleOrDefaultAsync(ct);
+            if (row is null) return new(name, false, "The restored database has no deployment-settings record, so the settings the manifest asks you to apply cannot be confirmed against its data.");
+            var differences = DeploymentInvariantStore.AsSettings(row, recorded.Currency).DifferencesFrom(recorded);
+            return differences.Count == 0
+                ? new(name, true, "The restored database's recorded deployment settings equal the backup manifest's.")
+                : new(name, false, $"The restored database records different deployment settings than the backup manifest ({string.Join(", ", differences.Select(d => d.Setting))}); the backup is internally contradictory.");
+        }
+        catch (Microsoft.Data.SqlClient.SqlException)
+        {
+            return new(name, false, "The restored database has no readable deployment-settings record.");
+        }
     }
 
     /// <summary>Drops the isolated restore database and deletes its directory (only ever the target this drill created).</summary>

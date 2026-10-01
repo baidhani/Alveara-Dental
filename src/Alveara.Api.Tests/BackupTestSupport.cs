@@ -98,7 +98,7 @@ public sealed class BackupTestEnvironment : IDisposable
     public async Task ResetBackupStateAsync()
     {
         await using var db = NewDb();
-        await db.Database.ExecuteSqlRawAsync("DELETE FROM BackupNotifications; DELETE FROM RestoreDrills; DELETE FROM BackupRecords; DELETE FROM BackupSettings; DELETE FROM BackgroundJobEffectReceipts; DELETE FROM BackgroundJobs; UPDATE UserAccounts SET MfaSecretProtected = NULL;"); // secrets from other tests were protected with ANOTHER test's key ring
+        await db.Database.ExecuteSqlRawAsync("DELETE FROM BackupNotifications; DELETE FROM RestoreDrills; DELETE FROM BackupRecords; DELETE FROM BackupSettings; DELETE FROM DeploymentInvariants; DELETE FROM BackgroundJobEffectReceipts; DELETE FROM BackgroundJobs; UPDATE UserAccounts SET MfaSecretProtected = NULL;"); // secrets from other tests were protected with ANOTHER test's key ring
         foreach (var f in Directory.EnumerateFiles(SetsDirectory)) File.Delete(f);
     }
 

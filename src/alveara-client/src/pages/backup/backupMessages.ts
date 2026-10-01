@@ -12,6 +12,7 @@ const MESSAGES: Record<string, string> = {
   invalid_recovery_key: "The recovery key file is not a valid key.",
   deployment_settings_recorded: "This backup does not record the deployment settings it needs to be recovered safely.",
   deployment_settings_match_this_server: "This server is configured differently from the settings the data was created under. Apply the settings shown and restart.",
+  deployment_unverified: "The server is still verifying that its configuration matches the data. Try again shortly (see System Status).",
   deployment_mismatch: "This server is configured differently from the settings its data was created under (see System Status).",
   step_up_failed: "Your current password was not accepted.",
   account_locked: "Too many wrong passwords - this account is temporarily locked.",

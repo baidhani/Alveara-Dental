@@ -174,6 +174,22 @@ public class BackupService(
     /// Runs one backup. Idempotent by <paramref name="idempotencyKey"/>: the same key never produces a second
     /// backup (a Succeeded row is returned as-is; a Failed/stale-Running row is retried in place).
     /// </summary>
+    /// <summary>
+    /// The manifest, the deployment asset and the captured database must tell ONE story. The database records the
+    /// settings its data was created under; if this host runs under different ones the backup would be internally
+    /// contradictory (R02-02), so it fails visibly instead. A database with no record yet (legacy) is recorded from
+    /// the running settings first - this host is then, by definition, the one the data belongs to.
+    /// </summary>
+    private async Task EnsureDeploymentAgreesAsync(DeploymentSettings running, CancellationToken ct)
+    {
+        await using var fresh = new AlveraDbContext(new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(paths.ConnectionString).Options);
+        var record = await DeploymentInvariantStore.EnsureRecordedAsync(fresh, running, ct);
+        var differences = DeploymentInvariantStore.AsSettings(record, running.Currency).DifferencesFrom(running);
+        if (differences.Count > 0)
+            throw new BackupException("deployment_mismatch",
+                $"This server is configured differently from the settings its data was created under ({string.Join(", ", differences.Select(d => d.Setting))}). Apply the recorded settings (see System Status) before backing up.", 409);
+    }
+
     public async Task<BackupRecord> RunBackupAsync(BackupKind kind, string idempotencyKey, Guid? actor, CancellationToken ct)
     {
         var settings = await LoadOrCreateSettingsAsync(ct);
@@ -220,9 +236,13 @@ public class BackupService(
             Directory.CreateDirectory(Path.Combine(work, "content", "database"));
             var content = Path.Combine(work, "content");
 
+            var captured = deploymentSettings.Current;
+            await EnsureDeploymentAgreesAsync(captured, ct); // never snapshot a database from a host configured against its recorded settings
+
             var countsBefore = await DatabaseFacts.TableRowCountsAsync(paths.ConnectionString, ct);
             var dbFile = Path.Combine(content, "database", "alveara.bak");
             await snapshotProvider.CreateSnapshotAsync(dbFile, ct);
+            await EnsureDeploymentAgreesAsync(captured, ct); // and the record did not change under the snapshot
             var countsAfter = await DatabaseFacts.TableRowCountsAsync(paths.ConnectionString, ct);
 
             var components = new List<BackupManifestComponent>
@@ -239,7 +259,7 @@ public class BackupService(
 
             var migration = await DatabaseFacts.LatestMigrationAsync(paths.ConnectionString, ct);
             var manifest = new BackupManifest(BackupManifest.CurrentFormatVersion, recordId, DateTimeOffset.UtcNow, AppVersion, migration,
-                paths.DatabaseName, classes, components, countsBefore, countsAfter, deploymentSettings.Current);
+                paths.DatabaseName, classes, components, countsBefore, countsAfter, captured);
             await File.WriteAllTextAsync(Path.Combine(content, BackupManifest.FileName), JsonSerializer.Serialize(manifest, BackupManifest.Json), ct);
 
             var zipPath = Path.Combine(work, "set.zip");

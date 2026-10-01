@@ -37,7 +37,7 @@ function StatusGrid({ status, internetSignal }: { status: SystemStatus; internet
           <h3>Deployment settings</h3>
           <p>
             <StatusDot tone={status.deployment.state === "ok" ? "success" : status.deployment.state === "mismatch" ? "danger" : "unknown"} />
-            {status.deployment.state === "ok" ? "Match the data" : status.deployment.state === "mismatch" ? "MISMATCH - the application refuses data requests" : "Not yet checked"}
+            {status.deployment.state === "ok" ? "Match the data" : status.deployment.state === "mismatch" ? "MISMATCH - the application refuses data requests" : "Not yet verified - the application refuses data requests until it is"}
           </p>
           {status.deployment.mismatches.length > 0 && (
             <ul>
