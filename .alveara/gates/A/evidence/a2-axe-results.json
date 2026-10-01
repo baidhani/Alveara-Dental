@@ -1,0 +1,273 @@
+{
+  "tags": [
+    "wcag2a",
+    "wcag2aa"
+  ],
+  "routes": [
+    "/",
+    "/showcase",
+    "/system-status",
+    "/admin/users",
+    "/admin/permissions",
+    "/admin/audit-log",
+    "/admin/configuration",
+    "/admin/backup",
+    "/settings/mfa",
+    "/this-route-does-not-exist"
+  ],
+  "results": [
+    {
+      "route": "/",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/showcase",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 22
+    },
+    {
+      "route": "/showcase",
+      "theme": "dark",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 2,
+          "targets": [
+            {
+              "target": [
+                "section:nth-child(2) > .showcase-row > .alv-button--danger.alv-button"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 3.14 (foreground color: #d9695c, background color: #483a3e, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "section:nth-child(5) > .showcase-row > .alv-button--danger.alv-button"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 3.14 (foreground color: #d9695c, background color: #483a3e, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "blocking": 1,
+      "passes": 22
+    },
+    {
+      "route": "/system-status",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/system-status",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/admin/users",
+      "theme": "light",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 8,
+          "targets": [
+            {
+              "target": [
+                "tr:nth-child(1) > td:nth-child(3) > .alv-status-badge.alv-status-badge--enabled"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 4.09 (foreground color: #2f7d4f, background color: #d9ece4, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "tr:nth-child(2) > td:nth-child(3) > .alv-status-badge.alv-status-badge--enabled"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 4.09 (foreground color: #2f7d4f, background color: #d9ece4, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "tr:nth-child(3) > td:nth-child(3) > .alv-status-badge.alv-status-badge--enabled"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 4.09 (foreground color: #2f7d4f, background color: #d9ece4, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "tr:nth-child(4) > td:nth-child(3) > .alv-status-badge.alv-status-badge--enabled"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 4.09 (foreground color: #2f7d4f, background color: #d9ece4, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "blocking": 1,
+      "passes": 23
+    },
+    {
+      "route": "/admin/users",
+      "theme": "dark",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 16,
+          "targets": [
+            {
+              "target": [
+                "tr:nth-child(1) > td:nth-child(5) > a[data-discover=\"true\"]"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 1.77 (foreground color: #1f4459, background color: #0e151d, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "tr:nth-child(1) > .alv-admin-users__actions > .alv-button--danger.alv-button"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 4.14 (foreground color: #d9695c, background color: #35272c, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "tr:nth-child(2) > td:nth-child(5) > a[data-discover=\"true\"]"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 1.77 (foreground color: #1f4459, background color: #0e151d, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "target": [
+                "tr:nth-child(2) > .alv-admin-users__actions > .alv-button--danger.alv-button"
+              ],
+              "summary": "Fix any of the following:   Element has insufficient color contrast of 4.14 (foreground color: #d9695c, background color: #35272c, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ],
+      "blocking": 1,
+      "passes": 23
+    },
+    {
+      "route": "/admin/permissions",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 21
+    },
+    {
+      "route": "/admin/permissions",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 21
+    },
+    {
+      "route": "/admin/audit-log",
+      "theme": "light",
+      "violations": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "nodes": 1,
+          "targets": [
+            {
+              "target": [
+                ".alv-audit-log-scroll"
+              ],
+              "summary": "Fix any of the following:   Element should have focusable content   Element should be focusable"
+            }
+          ]
+        }
+      ],
+      "blocking": 1,
+      "passes": 21
+    },
+    {
+      "route": "/admin/audit-log",
+      "theme": "dark",
+      "violations": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "nodes": 1,
+          "targets": [
+            {
+              "target": [
+                ".alv-audit-log-scroll"
+              ],
+              "summary": "Fix any of the following:   Element should have focusable content   Element should be focusable"
+            }
+          ]
+        }
+      ],
+      "blocking": 1,
+      "passes": 21
+    },
+    {
+      "route": "/admin/configuration",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/admin/configuration",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/admin/backup",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/admin/backup",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/settings/mfa",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/settings/mfa",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/this-route-does-not-exist",
+      "theme": "light",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/this-route-does-not-exist",
+      "theme": "dark",
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    }
+  ],
+  "blockingTotal": 5
+}

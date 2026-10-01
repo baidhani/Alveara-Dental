@@ -1,0 +1,7 @@
+
+Running 1 test using 1 worker
+
+KEYGEN_MS [6013,3256,3008,6700,1829,2593]
+  ok 1 [chromium] › gate-a\gate-a-keygen-timing.spec.ts:4:1 › recovery key generation latency against the real API (24.0s)
+
+  1 passed (24.3s)

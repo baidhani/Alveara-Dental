@@ -1,0 +1,32 @@
+
+Running 3 tests using 1 worker
+
+  ok 1 [chromium] › gate-a\gate-a-browser.spec.ts:62:1 › A2: no critical/serious axe violations on any shell route, light and dark, authenticated against the real API (23.5s)
+  ok 2 [chromium] › gate-a\gate-a-browser.spec.ts:82:1 › A6: for each of the 7 roles, rendered navigation matches server-authoritative access (no client-only enforcement) (25.6s)
+  x  3 [chromium] › gate-a\gate-a-browser.spec.ts:119:1 › A2 verdict: zero critical/serious axe violations across all shell routes (6ms)
+
+
+  1) [chromium] › gate-a\gate-a-browser.spec.ts:119:1 › A2 verdict: zero critical/serious axe violations across all shell routes 
+
+    Error: critical/serious axe violations across all shell routes (see a2-axe-results.json)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 5
+
+      119 | test("A2 verdict: zero critical/serious axe violations across all shell routes", async () => {
+      120 |   const recorded = JSON.parse((await import("node:fs")).readFileSync(path.join(OUT, "a2-axe-results.json"), "utf-8")) as { blockingTotal: number };
+    > 121 |   expect(recorded.blockingTotal, "critical/serious axe violations across all shell routes (see a2-axe-results.json)").toBe(0);
+          |                                                                                                                       ^
+      122 | });
+      123 |
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\gate-a\gate-a-browser.spec.ts:121:119
+
+    Error Context: test-results\gate-a-browser-A2-verdict--1a776-ons-across-all-shell-routes-chromium\error-context.md
+
+    Error Context: test-results\gate-a-browser-A2-verdict--1a776-ons-across-all-shell-routes-chromium\error-context.md
+
+  1 failed
+    [chromium] › gate-a\gate-a-browser.spec.ts:119:1 › A2 verdict: zero critical/serious axe violations across all shell routes 
+  2 passed (53.0s)

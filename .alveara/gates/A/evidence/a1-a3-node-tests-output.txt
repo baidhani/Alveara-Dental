@@ -1,0 +1,15 @@
+✔ the client project depends on no SQL/database driver package (1.4142ms)
+✔ if a production client build exists, its bundled JS contains no SQL Server connection-string shape (2.6034ms)
+✔ the API's connection string is only ever read from server-side configuration, never hard-coded in client source (8.8886ms)
+✔ root STORY-000 Command Center entry point still exists (0.98ms)
+✔ root Command Center still reads .colaberry/* at runtime rather than hard-coding plan content (1.1119ms)
+✔ the production Alveara app lives in its own separate project paths (0.2569ms)
+✔ the production app did not replace or rename the root Command Center (0.4263ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 92.3946

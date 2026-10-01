@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N004` attempt R05 - independently reviewed and **`APPROVED`**, now `COMPLETE`. See `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs, `.alveara/reviews/ALV-N004/R05.md` for the approval, and `.alveara/handoffs/ALV-N004/R05.md` for the full R05 handoff. **Gate A is the next scheduled action (a mandatory stop) and has not been evaluated; STORY-003 has not started.**
+Last updated: **Gate A evaluated: FAIL** (criterion A2, accessibility) on 2026-10-01 after `ALV-N004` closure. See `.alveara/gates/A/GATE_A_REPORT.md` and `.alveara/QUALITY_GATES.md`. `STORY-003` is not authorized; the responsible stories (`ALV-N001`, `ALV-001-C01`, `ALV-002-C01`) need the specific contrast / keyboard-focus defects repaired before Gate A is rerun.
 
 ## Production implementation status
 

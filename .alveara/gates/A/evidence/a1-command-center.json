@@ -1,0 +1,65 @@
+{
+  "tabs": [
+    {
+      "id": "overview",
+      "label": "Overview"
+    },
+    {
+      "id": "outcomes",
+      "label": "Outcomes"
+    },
+    {
+      "id": "users",
+      "label": "Users & Use Case"
+    },
+    {
+      "id": "guardrails",
+      "label": "Guardrails"
+    },
+    {
+      "id": "systems",
+      "label": "Systems"
+    },
+    {
+      "id": "pm",
+      "label": "Project Management"
+    },
+    {
+      "id": "agents",
+      "label": "AI Agents"
+    },
+    {
+      "id": "kb",
+      "label": "Knowledge Base"
+    },
+    {
+      "id": "datamodel",
+      "label": "Data Model"
+    }
+  ],
+  "tabsReached": [
+    "Overview",
+    "Outcomes",
+    "Users & Use Case",
+    "Guardrails",
+    "Systems",
+    "Project Management",
+    "AI Agents",
+    "Knowledge Base",
+    "Data Model"
+  ],
+  "cardsPerTab": {
+    "Overview": 4,
+    "Outcomes": 0,
+    "Users & Use Case": 6,
+    "Guardrails": 3,
+    "Systems": 0,
+    "Project Management": 19,
+    "AI Agents": 14,
+    "Knowledge Base": 21,
+    "Data Model": 19
+  },
+  "dataStamp": "Data as of September 30, 2026 (19 hours ago)",
+  "progressJsonVerifiedStories": 3,
+  "pmTabContainsVerifiedCount": true
+}
