@@ -7,13 +7,28 @@ import type { Page, Route } from "@playwright/test";
 // the desktop viewport (1280x800) and once at the tablet viewport
 // (768x1024), via the two Playwright projects in playwright.config.ts.
 
+/** The shell is behind the sign-in gate since ALV-001-C01/ALV-N009: these mocked specs present an authenticated administrator
+ *  (same response shape as GET /api/auth/permissions) so they reach the real shell pages again. The authenticated, real-API
+ *  accessibility check is src/alveara-client/gate-a/gate-a-browser.spec.ts. */
+async function mockAuthenticated(page: Page) {
+  await page.route("**/api/auth/permissions", (route: Route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog", "ViewPermissionMatrix", "ManagePracticeConfiguration", "ManageBackups", "ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }),
+    })
+  );
+  await page.route("**/api/auth/csrf-token", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ token: "e2e-csrf" }) }));
+}
+
 async function mockHealthy(page: Page) {
+  await mockAuthenticated(page);
   await page.route("**/api/health", (route: Route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ status: "ok" }) })
   );
 }
 
 async function mockDown(page: Page) {
+  await mockAuthenticated(page);
   await page.route("**/api/health", (route: Route) => route.abort("failed"));
 }
 
@@ -55,6 +70,7 @@ test.describe("Application shell — real browser walkthrough", () => {
   test("keyboard-only path: skip link, tab into navigation, activate with Enter", async ({ page }) => {
     await mockHealthy(page);
     await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible(); // the shell mounts after the authenticated session resolves
 
     await page.keyboard.press("Tab");
     await expect(page.getByText("Skip to main content")).toBeFocused();

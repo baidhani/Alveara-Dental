@@ -1,7 +1,21 @@
 import { test, expect } from "@playwright/test";
 import type { Page, Route } from "@playwright/test";
 
+/** The shell is behind the sign-in gate since ALV-001-C01/ALV-N009: these mocked specs present an authenticated administrator
+ *  (same response shape as GET /api/auth/permissions) so they reach the real shell pages again. The authenticated, real-API
+ *  accessibility check is src/alveara-client/gate-a/gate-a-browser.spec.ts. */
+async function mockAuthenticated(page: Page) {
+  await page.route("**/api/auth/permissions", (route: Route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog", "ViewPermissionMatrix", "ManagePracticeConfiguration", "ManageBackups", "ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }),
+    })
+  );
+  await page.route("**/api/auth/csrf-token", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ token: "e2e-csrf" }) }));
+}
+
 async function mockHealthEndpoint(page: Page) {
+  await mockAuthenticated(page);
   await page.route("**/api/health", (route: Route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ status: "ok" }) })
   );
