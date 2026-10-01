@@ -1,0 +1,24 @@
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] › e2e\auth-real-backend.spec.ts:42:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (242ms)
+  ok 2 [chromium] › e2e\auth-real-backend.spec.ts:51:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (499ms)
+  ok 3 [chromium] › e2e\auth-real-backend.spec.ts:65:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (1.5s)
+  ok 4 [chromium] › e2e\auth-real-backend.spec.ts:96:3 › Real backend — first-admin bootstrap, login, MFA, security administration › replaying the exact same successful MFA challenge submission is rejected, not accepted twice (69ms)
+  ok 5 [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout (404ms)
+  ok 6 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (130ms)
+  ok 7 [chromium] › e2e\auth-real-backend.spec.ts:147:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API (460ms)
+  ok 8 [chromium] › e2e\auth-real-backend.spec.ts:190:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again (202ms)
+
+  8 passed (5.2s)
+
+Run context: ALV-002-C01 R01 regression, against a freshly dropped/re-migrated `AlveraE2E` LocalDB
+database and a real `dotnet run` API process (src/Alveara.Api), via
+`npx playwright test --config=playwright.auth.config.ts` from src/alveara-client.
+No new Playwright tests were added for ALV-002-C01: the shared audit/concurrency/idempotency/
+lifecycle primitives are backend-architecture-level infrastructure proven by xunit integration
+tests against a real LocalDB (ConcurrencyGuardTests.cs, IdempotencyGuardTests.cs,
+RecordLifecycleGuardTests.cs, AuditLogImmutabilityTests.cs). This run exists to prove the existing
+8 real-backend/real-browser auth/RBAC/MFA/security-administration flows (STORY-001/ALV-001-C01/
+ALV-N009) still pass unmodified against the corrected code - the only production file this story
+changed that those flows exercise is AccountService.AddAudit's internal delegation to the shared
+AuditService (zero call-site/behavior change) and AlveraDbContext (new unrelated DbSets/config).

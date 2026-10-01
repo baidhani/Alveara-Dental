@@ -2,11 +2,27 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N009` attempt R03 — independently reviewed and **`APPROVED`**, now `COMPLETE`. See `.alveara/EXECUTION_STATUS.json` for the exact implementation/evidence commit SHAs, `.alveara/reviews/ALV-N009/R03.md` for the approval, and `.alveara/handoffs/ALV-N009/R03.md` for the full R03 handoff.
+Last updated: `ALV-002-C01` attempt R01 — implementation committed, set to **`AWAITING_REVIEW`**. `STORY-002` (course story, audit logging) is `COMPLETE`, portal-verified. See `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA and `.alveara/handoffs/ALV-002-C01/R01.md` for the full handoff.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30.** No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `STORY-002` (audit logging for critical actions) is `COMPLETE`, portal-verified on 2026-09-30.** `ALV-002-C01` (shared audit, concurrency, and record-lifecycle primitives) has landed implementation for attempt R01 and is `AWAITING_REVIEW` — not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+
+## Shared audit, concurrency, and record-lifecycle primitives (ALV-002-C01, AWAITING_REVIEW — attempt R01)
+
+- **`src/Alveara.Api/Architecture/Auditing/AuditService.cs`** (new) — shared audit-event write primitive (actor, timestamp, action, entity type/id, reason, correlation). `AccountService.AddAudit` now delegates to it with zero call-site changes across all 22 existing audit writes.
+- **`src/Alveara.Api/Architecture/Identity/AuditLogEntry.cs`** — gained nullable `EntityType`/`Reason`/`CorrelationId` columns; `TargetUserAccountId` kept as-is (not renamed) so STORY-002's existing queries/tests are untouched.
+- **`src/Alveara.Api/Architecture/Concurrency/`** (new) — `ConcurrencyConflictException`/`ConcurrencyConflictProblem`/`ConcurrencySaveGuard`, wrapping EF Core's `DbUpdateConcurrencyException` into a shared, API/UI-usable conflict shape. Demonstrated via `StaffProfile.RowVersion` — **not** `UserAccount`, which already has its own deliberate concurrency design (atomic `ExecuteUpdateAsync` bulk updates for the lockout counter/login-success reset) that a generic version token would conflict with; this was tried first and caught 3 genuine `ALV-001-C01` regressions before being corrected.
+- **`src/Alveara.Api/Architecture/Idempotency/`** (new) — `IdempotencyReceipt`/`IdempotencyGuard`, generalizing `BackgroundJob.IdempotencyKey`'s pattern beyond background jobs to any consequential command, backed by a real database unique constraint.
+- **`src/Alveara.Api/Architecture/Lifecycle/RecordLifecycleGuard.cs`** (new) — `RecordLifecycleAction` enum (`Finalize`/`Amend`/`Addendum`/`Void`/`Reversal`/`Inactivate`) and a generic transition guard; no domain record or state machine, by design.
+- **195 backend tests pass** (up from 184), plus the **real-browser, real-backend Playwright suite** (8/8, unchanged in assertion). See `.alveara/handoffs/ALV-002-C01/R01-evidence/`.
+
+## Audit logging for critical actions (STORY-002, COMPLETE — portal-verified)
+
+- **`src/Alveara.Api/Data/AlveraDbContext.cs`** — `SaveChanges`/`SaveChangesAsync` guard throwing `AuditLogImmutableException` on any `Modified`/`Deleted` `AuditLogEntry`; only insertion is ever permitted.
+- **`src/Alveara.Api/Controllers/AuthController.cs`** — `GET /api/auth/audit-log`, gated on `Permission.ViewAuditLog` (Admin/OfficeManager allowed, other roles 403), most-recent-first, bounded to 500 rows.
+- Role-change audit logging with a timestamp already existed from `STORY-001`.
+- Portal-verified `COMPLETE` at commit `cc9f83d81ad739b3fc90848339dc6690fe8bb521` (3/3 criteria, 130 points).
 
 ## Authorization-aware navigation, session UX, and identity context (ALV-N009, COMPLETE — approved attempt R03)
 

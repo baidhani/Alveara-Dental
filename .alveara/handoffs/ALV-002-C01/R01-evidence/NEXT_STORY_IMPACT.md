@@ -1,0 +1,13 @@
+# ALV-002-C01 R01 — Next Story Impact
+
+## New for future stories to build on
+
+- **`Architecture/Auditing/AuditService.Record(...)` is the established shared audit-write primitive.** Any future domain (clinical notes, procedure completion, billing, etc.) that needs an audit trail calls this instead of inventing its own `AuditLogEntry`-equivalent — it already carries actor, timestamp, action, target/entity identity, reason, and correlation metadata, and already benefits from the existing immutability guard and the `GET /api/auth/audit-log` viewer (filterable by `EntityType` once a future story needs that).
+- **`Architecture/Concurrency/ConcurrencySaveGuard.SaveOrThrowConflictAsync` + `ConcurrencyConflictException`/`ConcurrencyConflictProblem` are the established optimistic-concurrency pattern.** A future mutable record (a treatment plan, a procedure, a charge) that needs stale-edit protection adds an `IsRowVersion()`-configured column and calls this guard — but **first check whether the target entity already has its own bespoke concurrency-safety design** (as `UserAccount` does) before assuming a generic version token is a safe fit; this story found a real conflict there and the fix (choosing a different representative record) is the template for how to notice and resolve that class of conflict.
+- **`Architecture/Idempotency/IdempotencyGuard` is the established pattern for "this consequential command must not double-apply its effect."** Generalizes `BackgroundJob.IdempotencyKey` beyond background jobs - a future HTTP-triggered consequential command (e.g. "charge this patient," "send this reminder") calls `AlreadyProcessedAsync` before acting and `MarkProcessed` in the same transaction as its effect, exactly like `AuditService.Record`'s own "stage on the same context, save once" pattern.
+- **`Architecture/Lifecycle/RecordLifecycleAction`/`RecordLifecycleGuard` name the vocabulary a future domain's lifecycle story should reuse** (`Finalize`/`Amend`/`Addendum`/`Void`/`Reversal`/`Inactivate`) rather than inventing new terms, while still owning its own record type and allowed-transition rules entirely.
+- **A cautionary, reusable lesson:** before attaching a generic cross-cutting primitive (concurrency token, audit hook, idempotency check) to an existing entity, search for that entity's own existing bulk-update/`ExecuteUpdateAsync`/raw-SQL paths first - they bypass the change tracker and can silently conflict with change-tracker-based primitives in ways that only surface as flaky-looking test failures.
+
+## Prompt changes relevant to the next scheduled item
+
+None identified that require the Execution Plan document itself to change before item 9 (`ALV-N003`) begins.

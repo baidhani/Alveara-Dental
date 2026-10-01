@@ -373,21 +373,21 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "195 of 195 backend (dotnet test, up from 184) passing, plus 8 of 8 real-backend/real-browser Playwright tests (unchanged in assertion). 15 new tests this attempt: ConcurrencyGuardTests.cs (3, optimistic-concurrency/stale-edit rejection against StaffProfile.RowVersion), IdempotencyGuardTests.cs (4, duplicate-command-key rejection via a real DB unique constraint), RecordLifecycleGuardTests.cs (3, synthetic allowed-transition-set unit tests), and one new AuditLogImmutabilityTests.cs test proving a business change cannot commit if its coupled audit write is invalid. An intermediate attempt (RowVersion placed on UserAccount directly) surfaced 3 genuine ALV-001-C01 regressions, caught and fixed before this commit by moving the concurrency demonstration to StaffProfile instead - see .alveara/handoffs/ALV-002-C01/R01.md 'A genuine conflict found and resolved'. See .alveara/handoffs/ALV-002-C01/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "ef19d25cb8c1d687d56bb489c379291a92db301c",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-002-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
