@@ -41,6 +41,8 @@ export interface BackupRecord {
   verificationFailureCode: string | null;
   /** True only after a successful restore drill: "verify only" never sets it and never counts toward trust. */
   restoreProven: boolean;
+  /** A defect proven in the archive itself; permanent - no later check clears it. */
+  archiveDefectCode: string | null;
 }
 
 export interface BackupStatus {

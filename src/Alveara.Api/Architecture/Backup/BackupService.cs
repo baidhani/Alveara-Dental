@@ -408,15 +408,18 @@ public class BackupService(
 
         if (failure is null)
         {
-            if (record.VerificationStatus != BackupVerificationStatus.FullyVerified) record.VerificationStatus = BackupVerificationStatus.HashVerified;
-            record.VerifiedAtUtc = DateTimeOffset.UtcNow;
-            record.VerificationFailureCode = null;
-            AuditService.Record(db, BackupAuditEvents.HashVerified, nameof(BackupRecord), recordId, actor, "Backup file hash verified.");
+            if (!record.HasArchiveDefect) // a passing byte check says nothing about a defect already proven inside the archive
+            {
+                if (record.VerificationStatus != BackupVerificationStatus.FullyVerified) record.VerificationStatus = BackupVerificationStatus.HashVerified;
+                record.VerifiedAtUtc = DateTimeOffset.UtcNow;
+                record.VerificationFailureCode = null;
+            }
+            AuditService.Record(db, BackupAuditEvents.HashVerified, nameof(BackupRecord), recordId, actor,
+                record.HasArchiveDefect ? $"Backup file hash verified; the recorded archive defect ({record.ArchiveDefectCode}) remains." : "Backup file hash verified.");
         }
         else
         {
-            record.VerificationStatus = BackupVerificationStatus.VerificationFailed;
-            record.VerificationFailureCode = failure;
+            record.MarkVerificationFailed(failure, DateTimeOffset.UtcNow);
             AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), recordId, actor, $"Backup verification failed: {failure}.");
         }
         await db.SaveChangesAsync(ct);

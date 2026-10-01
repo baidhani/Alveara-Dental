@@ -21,7 +21,7 @@ const settings = (over: Partial<BackupSettings> = {}): BackupSettings => ({
 const record = (over: Partial<BackupRecord> = {}): BackupRecord => ({
   id: "b1", kind: "Manual", status: "Succeeded", startedAtUtc: "2026-09-30T08:00:00Z", completedAtUtc: "2026-09-30T08:01:00Z", fileName: "alveara-backup-1.abk",
   sizeBytes: 5_242_880, sha256: "ff", includedAssetClasses: ["database", "documents", "dataProtectionKeys"], schemaMigration: "2026", appVersion: "1",
-  failureCode: null, failureMessage: null, verificationStatus: "HashVerified", verifiedAtUtc: "2026-09-30T08:01:00Z", verificationFailureCode: null, restoreProven: false, ...over,
+  failureCode: null, failureMessage: null, verificationStatus: "HashVerified", verifiedAtUtc: "2026-09-30T08:01:00Z", verificationFailureCode: null, restoreProven: false, archiveDefectCode: null, ...over,
 });
 
 const status = (over: Partial<BackupStatus> = {}): BackupStatus => ({

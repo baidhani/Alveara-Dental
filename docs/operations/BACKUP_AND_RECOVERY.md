@@ -79,7 +79,7 @@ older than `VerificationCadenceDays` is flagged **overdue**. A failed verificati
 **A proven defect is permanent.** If a drill (or any check) finds the archive itself defective - for example its manifest
 contradicts its captured database, a component is missing or altered, or the database media is damaged - the backup is
 recorded as *Verification FAILED* with that reason and its restore proof is cleared. An archive is immutable, so a
-weaker check later (such as verify-only) cannot erase that failure or earn credit; the audit trail records the attempt.
+weaker check later (a file-hash check, verify-only, a wrong key, a missing or unreachable file, even a passing run of any of them) cannot erase that failure or earn credit. The defect is stored durably in its own field (`ArchiveDefectCode`), apart from the latest-check fields, and is returned by the API; the history keeps showing it; the audit trail records each later attempt.
 Failures that depend on the recovering server or the supplied key (wrong key, different server settings) do not
 poison the backup.
 

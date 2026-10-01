@@ -301,23 +301,15 @@ public class BackupRestoreService(
     /// Failures that are properties of the ARCHIVE itself (not of the recovering server or the supplied key): once seen they
     /// are permanent, because an archive is immutable. A weaker check passing later must never erase them.
     /// </summary>
-    internal static readonly IReadOnlySet<string> ArchiveDefectCodes = new HashSet<string>(StringComparer.Ordinal)
-    {
-        "restore_validation_failed", "deployment_asset_matches_manifest", "deployment_settings_recorded", "documents_complete", "components_present",
-        "component_hashes_match", "database_backup_damaged", "manifest_missing", "manifest_invalid", "corrupt_or_tampered",
-    };
-
-    internal static bool HasKnownArchiveDefect(BackupRecord record) =>
-        record.VerificationStatus == BackupVerificationStatus.VerificationFailed && record.VerificationFailureCode is { } code && ArchiveDefectCodes.Contains(code);
 
     public async Task<BackupRecord> VerifyFullAsync(Guid recordId, string privateKeyPem, string passphrase, Guid actor, CancellationToken ct)
     {
         var record = await db.BackupRecords.SingleOrDefaultAsync(r => r.Id == recordId, ct) ?? throw new BackupException("not_found", "Backup not found.", 404);
-        if (HasKnownArchiveDefect(record))
+        if (record.HasArchiveDefect)
         {
-            // A drill (or an earlier verification) already proved this archive defective; a media-only check cannot overrule that.
+            // An earlier check already proved this archive defective (durably, independent of the latest-check fields); a media-only check cannot overrule that.
             AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), recordId, actor,
-                $"Verify-only not applied: this backup has a recorded defect ({record.VerificationFailureCode}) that a media check does not clear.");
+                $"Verify-only not applied: this backup has a recorded archive defect ({record.ArchiveDefectCode}) that a media check does not clear.");
             await db.SaveChangesAsync(ct);
             return record;
         }
@@ -349,9 +341,7 @@ public class BackupRestoreService(
         }
         else
         {
-            record.VerificationStatus = BackupVerificationStatus.VerificationFailed;
-            record.VerificationFailureCode = failureCode;
-            if (ArchiveDefectCodes.Contains(failureCode)) record.RestoreProvenAtUtc = null;
+            record.MarkVerificationFailed(failureCode, DateTimeOffset.UtcNow);
             AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), recordId, actor, $"Backup verification failed: {failureCode}.");
         }
         await db.SaveChangesAsync(ct);
@@ -440,7 +430,7 @@ public class BackupRestoreService(
         if (failureCode is null)
         {
             drill.Outcome = "Succeeded";
-            if (record is not null)
+            if (record is not null && !record.HasArchiveDefect) // a recorded archive defect is never credited, whatever a later run says
             {
                 record.VerificationStatus = BackupVerificationStatus.FullyVerified;
                 record.VerifiedAtUtc = DateTimeOffset.UtcNow;
@@ -455,13 +445,10 @@ public class BackupRestoreService(
             drill.Outcome = "Failed";
             drill.FailureCode = failureCode;
             drill.FailureMessage = failureMessage;
-            if (record is not null && ArchiveDefectCodes.Contains(failureCode))
+            if (record is not null && ArchiveDefects.IsDefect(failureCode))
             {
                 // The archive itself is defective (e.g. its manifest contradicts its captured database): invalidate its recovery credit for good.
-                record.VerificationStatus = BackupVerificationStatus.VerificationFailed;
-                record.VerificationFailureCode = failureCode;
-                record.VerifiedAtUtc = DateTimeOffset.UtcNow;
-                record.RestoreProvenAtUtc = null;
+                record.MarkVerificationFailed(failureCode, DateTimeOffset.UtcNow);
                 AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), record.Id, actor, $"Restore drill proved the backup defective: {failureCode}.");
             }
             // Nothing half-restored is left lying around: remove the isolated target we created.

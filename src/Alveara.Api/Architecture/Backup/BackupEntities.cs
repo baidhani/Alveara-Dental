@@ -45,6 +45,21 @@ public enum BackupNotificationDelivery
 /// half is shown to the administrator exactly once at setup and is never stored here, in logs, or
 /// inside any backup.
 /// </summary>
+/// <summary>
+/// Failure codes that are properties of the ARCHIVE itself (not of the recovering server, the supplied key or the
+/// destination). Once seen they are permanent, because an archive is immutable.
+/// </summary>
+public static class ArchiveDefects
+{
+    public static readonly IReadOnlySet<string> Codes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "restore_validation_failed", "deployment_asset_matches_manifest", "deployment_settings_recorded", "documents_complete", "components_present",
+        "component_hashes_match", "database_backup_damaged", "manifest_missing", "manifest_invalid", "corrupt_or_tampered",
+    };
+
+    public static bool IsDefect(string? code) => code is not null && Codes.Contains(code);
+}
+
 public class BackupSettings
 {
     public static readonly Guid SingletonId = new("00000000-0000-0000-0000-00000000b4c4");
@@ -126,6 +141,40 @@ public class BackupRecord
     /// counts toward trust/probation. A drill that finds the archive itself defective clears it for good.
     /// </summary>
     public DateTimeOffset? RestoreProvenAtUtc { get; set; }
+
+    /// <summary>
+    /// A defect proven in the ARCHIVE ITSELF (see <see cref="ArchiveDefects"/>). Stored apart from the mutable "latest check"
+    /// fields on purpose: an archive is immutable, so once this is set it is permanent, no later check (hash, verify-only,
+    /// wrong key, destination error, drill) can clear or replace it, and it keeps the backup failed and without restore proof.
+    /// </summary>
+    public string? ArchiveDefectCode { get; set; }
+    public DateTimeOffset? ArchiveDefectAtUtc { get; set; }
+
+    public bool HasArchiveDefect => ArchiveDefectCode is not null;
+
+    /// <summary>
+    /// The ONE way a failed check is written: a known archive defect is never replaced by a different (weaker or environmental)
+    /// failure, and an archive-intrinsic failure becomes the permanent defect.
+    /// </summary>
+    public void MarkVerificationFailed(string code, DateTimeOffset now)
+    {
+        if (!HasArchiveDefect && ArchiveDefects.IsDefect(code))
+        {
+            ArchiveDefectCode = code;
+            ArchiveDefectAtUtc = now;
+        }
+        if (HasArchiveDefect)
+        {
+            VerificationStatus = BackupVerificationStatus.VerificationFailed;
+            VerificationFailureCode = ArchiveDefectCode;
+            RestoreProvenAtUtc = null;
+            VerifiedAtUtc = ArchiveDefectAtUtc;
+            return;
+        }
+        VerificationStatus = BackupVerificationStatus.VerificationFailed;
+        VerificationFailureCode = code;
+        VerifiedAtUtc = now;
+    }
 }
 
 /// <summary>A restore into an isolated target (a drill): where it went and what was validated.</summary>

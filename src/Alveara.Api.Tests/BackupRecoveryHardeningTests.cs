@@ -582,6 +582,98 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         Assert.Equal((0, false), (count, trusted));
     }
 
+    private async Task VerifyHashOnlyAsync(Guid id)
+    {
+        await using var db = _env.NewDb();
+        await _env.NewBackupService(db).VerifyHashAsync(id, _actor, default);
+    }
+
+    /// <summary>The durable defect, its visible/API representation, zero confidence and no restore proof - whatever happened since.</summary>
+    private async Task AssertDefectPreservedAsync(Guid id, string expectedDefect)
+    {
+        var (record, count, trusted) = await StateAsync(id);
+        Assert.Equal(expectedDefect, record.ArchiveDefectCode);                                   // durable, independent of the latest-check fields
+        Assert.NotNull(record.ArchiveDefectAtUtc);
+        Assert.Equal((BackupVerificationStatus.VerificationFailed, expectedDefect), (record.VerificationStatus, record.VerificationFailureCode)); // history shows the defect
+        Assert.Null(record.RestoreProvenAtUtc);
+        Assert.Equal((0, false), (count, trusted));
+        var dto = Alveara.Api.Controllers.BackupRecordDto.From(record)!;                          // and so does the API
+        Assert.Equal((expectedDefect, "VerificationFailed", expectedDefect, false), (dto.ArchiveDefectCode, dto.VerificationStatus, dto.VerificationFailureCode, dto.RestoreProven));
+    }
+
+    [Fact]
+    public async Task A_failed_consistency_drill_then_a_passing_hash_check_then_verify_only_keeps_the_defect()
+    {
+        var crafted = await CraftContradictoryArchiveAsync();
+        await HistoryDrillAsync(crafted);
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+
+        await VerifyHashOnlyAsync(crafted);                  // bytes are intact: says nothing about the defect inside
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+
+        await VerifyOnlyAsync(crafted);
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+    }
+
+    [Fact]
+    public async Task A_failed_consistency_drill_then_a_hash_failure_or_environment_error_then_weaker_successes_keeps_the_original_defect()
+    {
+        var crafted = await CraftContradictoryArchiveAsync();
+        await HistoryDrillAsync(crafted);
+        string path;
+        await using (var db = _env.NewDb()) path = BackupService.ResolveBackupPath(await db.BackupRecords.AsNoTracking().SingleAsync(r => r.Id == crafted));
+        var original = await File.ReadAllBytesAsync(path);
+
+        File.WriteAllBytes(path, [9, 9, 9]);                 // the bytes change: a hash failure, a DIFFERENT and weaker failure code
+        await VerifyHashOnlyAsync(crafted);
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+
+        File.Delete(path);                                   // an environment problem: file missing
+        await VerifyHashOnlyAsync(crafted);
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+
+        await File.WriteAllBytesAsync(path, original);       // everything is fine again; the archive's defect is not
+        await VerifyHashOnlyAsync(crafted);
+        await VerifyOnlyAsync(crafted);
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+    }
+
+    [Fact]
+    public async Task A_direct_failed_drill_then_verify_only_persists_the_reason_in_durable_state_and_the_api()
+    {
+        var crafted = await CraftContradictoryArchiveAsync();
+        await HistoryDrillAsync(crafted);
+
+        await VerifyOnlyAsync(crafted);
+
+        await AssertDefectPreservedAsync(crafted, "restore_validation_failed");
+    }
+
+    [Fact]
+    public async Task A_wrong_key_or_a_server_mismatch_is_not_an_archive_defect_and_does_not_poison_a_good_backup()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        var record = await BackupAsync();
+
+        await using (var db = _env.NewDb())
+        {
+            var wrong = await _env.NewRestoreService(db).VerifyFullAsync(record.Id, _env.Key.EncryptedPrivateKeyPem, "an entirely wrong passphrase", _actor, default);
+            Assert.Equal(BackupVerificationStatus.VerificationFailed, wrong.VerificationStatus);
+        }
+        Assert.Null((await StateAsync(record.Id)).Record.ArchiveDefectCode);        // wrong key: environmental
+
+        _env.Deployment.Current = _env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" };
+        var mismatchDrill = await HistoryDrillAsync(record.Id);                      // server mismatch: environmental
+        Assert.Equal("deployment_settings_match_this_server", mismatchDrill.FailureCode);
+        Assert.Null((await StateAsync(record.Id)).Record.ArchiveDefectCode);
+
+        _env.Deployment.Current = _env.Deployment.Current with { PracticeTimeZoneId = BackupTestEnvironment.DefaultTimeZoneId };
+        Assert.Equal("Succeeded", (await HistoryDrillAsync(record.Id)).Outcome);     // the good backup still earns credit
+        var good = await StateAsync(record.Id);
+        Assert.Equal((1, BackupVerificationStatus.FullyVerified), (good.Count, good.Record.VerificationStatus));
+    }
+
     [Fact]
     public async Task A_valid_drill_earns_credit_and_a_later_verify_only_keeps_it_while_a_later_media_failure_removes_it()
     {
