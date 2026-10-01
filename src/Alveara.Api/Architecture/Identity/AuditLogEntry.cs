@@ -19,6 +19,23 @@ public class AuditLogEntry
 
     public required string Details { get; set; }
     public DateTimeOffset TimestampUtc { get; set; }
+
+    // ALV-002-C01 additions: this table is the concrete storage behind the shared
+    // Architecture/Auditing/AuditService, not just Identity's own audit trail. TargetUserAccountId
+    // is kept (not renamed) so STORY-002's existing tests/queries against it are untouched, but
+    // EntityType now names what kind of thing it identifies - every write through this story
+    // onward sets it explicitly; historical STORY-001/ALV-001-C01 rows predate the column and are
+    // simply null, which is honest (they really do predate this metadata) rather than backfilled
+    // with a guess.
+    public string? EntityType { get; set; }
+
+    /// <summary>Free-text business reason/context for the action, when the caller supplied one -
+    /// distinct from <see cref="Details"/>, which is a fixed, code-generated summary.</summary>
+    public string? Reason { get; set; }
+
+    /// <summary>Links this entry to other events/requests that resulted from the same logical
+    /// operation (e.g. a multi-step workflow, or a retried/idempotent command).</summary>
+    public Guid? CorrelationId { get; set; }
 }
 
 public static class AuditEventTypes

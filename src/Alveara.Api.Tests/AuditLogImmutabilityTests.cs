@@ -91,4 +91,32 @@ public class AuditLogImmutabilityTests : IAsyncLifetime
 
         Assert.Equal(1, affected);
     }
+
+    // ALV-002-C01: "consequential action must not silently succeed without its required audit
+    // trail." Both the business change and its coupled audit write live on the SAME DbContext and
+    // commit via the SAME SaveChangesAsync call (see AuditService.Record's own doc comment) - so if
+    // anything about that audit write is rejected, the business change is rejected right along with
+    // it, atomically. This test proves that coupling directly: it deliberately makes the "audit
+    // write" side of a single SaveChanges call invalid (reusing the immutability guard above as the
+    // failure trigger) and shows the business change never persisted either.
+    [Fact]
+    public async Task A_business_change_cannot_commit_if_its_coupled_audit_write_is_invalid()
+    {
+        var seededAudit = await SeedAuditEntryAsync();
+        var accountId = seededAudit.TargetUserAccountId;
+
+        await using var db = _fixture.CreateContext();
+        var account = await db.UserAccounts.SingleAsync(a => a.Id == accountId);
+        var originalTimeout = account.SessionTimeoutMinutes;
+        account.SessionTimeoutMinutes = originalTimeout + 100; // the business change
+
+        var existingEntry = await db.AuditLogEntries.SingleAsync(a => a.Id == seededAudit.Id);
+        existingEntry.Details = "tampered"; // stands in for "the required audit write is invalid"
+
+        await Assert.ThrowsAsync<AuditLogImmutableException>(() => db.SaveChangesAsync());
+
+        await using var verify = _fixture.CreateContext();
+        var reloadedAccount = await verify.UserAccounts.SingleAsync(a => a.Id == accountId);
+        Assert.Equal(originalTimeout, reloadedAccount.SessionTimeoutMinutes);
+    }
 }

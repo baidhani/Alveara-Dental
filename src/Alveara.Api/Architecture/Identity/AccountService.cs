@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Data;
 
 namespace Alveara.Api.Architecture.Identity;
@@ -802,18 +803,12 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
 
     private static void BumpSecurityStamp(UserAccount account) => account.SecurityStamp = Guid.NewGuid();
 
-    private void AddAudit(string eventType, Guid targetUserAccountId, Guid? performedByUserAccountId, string details)
-    {
-        db.AuditLogEntries.Add(new AuditLogEntry
-        {
-            Id = Guid.NewGuid(),
-            EventType = eventType,
-            TargetUserAccountId = targetUserAccountId,
-            PerformedByUserAccountId = performedByUserAccountId,
-            Details = details,
-            TimestampUtc = DateTimeOffset.UtcNow,
-        });
-    }
+    // ALV-002-C01: every account/role audit write in this service now goes through the shared
+    // AuditService primitive - this wrapper exists only so all 20+ existing call sites keep their
+    // exact original call shape (no behavior or schema change for STORY-002/ALV-001-C01's own
+    // passing tests), while genuinely routing through the shared path other domains will use too.
+    private void AddAudit(string eventType, Guid targetUserAccountId, Guid? performedByUserAccountId, string details) =>
+        AuditService.Record(db, eventType, entityType: "UserAccount", targetUserAccountId, performedByUserAccountId, details);
 
     private static bool IsUniqueConstraintViolation(DbUpdateException ex) =>
         ex.InnerException is SqlException sqlEx &&

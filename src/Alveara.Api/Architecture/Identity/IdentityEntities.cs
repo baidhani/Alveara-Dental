@@ -65,6 +65,23 @@ public class StaffProfile
     public UserAccount? UserAccount { get; set; }
     public required string DisplayName { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
+
+    /// <summary>
+    /// ALV-002-C01: SQL Server rowversion, configured via EF Core's <c>IsRowVersion()</c>
+    /// (AlveraDbContext). StaffProfile is this story's representative currently-existing mutable
+    /// record for demonstrating optimistic-concurrency/stale-edit rejection (see
+    /// ConcurrencyGuardTests.cs) - chosen over UserAccount specifically because UserAccount already
+    /// has its own deliberate concurrency-safety design (atomic ExecuteUpdateAsync bulk updates for
+    /// the lockout counter, login-success reset, etc. - see AccountService) that a generic
+    /// change-tracker-based version token would conflict with: those bulk updates bypass the
+    /// change tracker entirely, so a RowVersion column on UserAccount would go stale in any
+    /// already-tracked entity and spuriously reject legitimate, non-concurrent, sequential updates
+    /// (confirmed by three ALV-001-C01 regression failures when this was tried against UserAccount
+    /// directly). StaffProfile has no competing bulk-update path, so it demonstrates the primitive
+    /// cleanly without disturbing ALV-001-C01's already-approved concurrency design.
+    /// Auto-managed by the database; application code never sets it.
+    /// </summary>
+    public byte[] RowVersion { get; set; } = [];
 }
 
 /// <summary>

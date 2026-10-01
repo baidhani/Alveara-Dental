@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
 
@@ -24,6 +25,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
     public DbSet<BackgroundJobEffectReceipt> BackgroundJobEffectReceipts => Set<BackgroundJobEffectReceipt>();
     public DbSet<MeasurementEvent> MeasurementEvents => Set<MeasurementEvent>();
+    public DbSet<IdempotencyReceipt> IdempotencyReceipts => Set<IdempotencyReceipt>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +40,13 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
                 .WithMany()
                 .HasForeignKey(s => s.UserAccountId)
                 .OnDelete(DeleteBehavior.SetNull);
+            // ALV-002-C01: SQL Server rowversion - the database, not application code, maintains
+            // this on every UPDATE, and EF Core includes it in the WHERE clause of any UPDATE it
+            // generates, so a save against a stale-read row affects zero rows and EF raises
+            // DbUpdateConcurrencyException (translated by ConcurrencySaveGuard). See
+            // StaffProfile.RowVersion's own doc comment for why StaffProfile, not UserAccount, is
+            // this story's representative record.
+            e.Property(s => s.RowVersion).IsRowVersion();
         });
 
         modelBuilder.Entity<ProviderProfile>(e =>
@@ -72,9 +81,17 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         {
             e.HasIndex(c => c.UserAccountId);
         });
+
+        modelBuilder.Entity<IdempotencyReceipt>(e =>
+        {
+            // ALV-002-C01: the real duplicate-command guarantee - a database-enforced unique
+            // constraint, not an application-level check-then-act race (see IdempotencyGuard).
+            e.HasIndex(r => new { r.CommandType, r.IdempotencyKey }).IsUnique();
+        });
     }
 
-    // STORY-002 Trust requirement: audit log entries are immutable. Enforced here, at the single
+    // STORY-002 Trust requirement (generalized by ALV-002-C01's shared AuditService, which writes
+    // through this same table): audit log entries are immutable. Enforced here, at the single
     // point every write in the process passes through, rather than per-caller — so no future
     // service, script, or admin tool can accidentally (or deliberately) update or delete an
     // existing entry, no matter what permission it holds. A legitimate audit trail can only ever
