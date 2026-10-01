@@ -58,7 +58,9 @@ export function AuditLogPage() {
       )}
 
       {state.kind === "loaded" && state.entries.length > 0 && (
-        <div className="alv-audit-log-scroll">
+        <div className="alv-audit-log-scroll" role="region" aria-label="Audit log entries (scrollable table)" tabIndex={0}>
+          {/* Gate A review GATE-A-02 (ALV-002-C01 R04): the table scrolls horizontally, so this region must be reachable and
+              scrollable from the keyboard (axe scrollable-region-focusable) and announced as a named region. */}
           <table className="alv-audit-log">
             <thead>
               <tr>

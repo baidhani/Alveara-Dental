@@ -3,6 +3,12 @@
   margin-top: var(--space-4);
 }
 
+/* A focusable scroll region needs a visible focus indicator (Gate A review GATE-A-02). */
+.alv-audit-log-scroll:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
 .alv-audit-log {
   border-collapse: collapse;
   width: 100%;
