@@ -142,6 +142,18 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     }
   });
 
+  // ALV-002-C01 (review finding ALV-002-C01-R01-01): real-browser verification of the new
+  // permission-aware audit viewer, reading genuine audit entries this session's own earlier
+  // actions already produced against the real API/database (bootstrap, login, and the session
+  // timeout change from the previous test) - not fixture data.
+  test("the audit log page shows real audit entries this session produced, as the admin", async () => {
+    await page.goto("/admin/audit-log");
+    await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible();
+    await expect(page.getByText("SessionTimeoutChanged")).toBeVisible(); // from the previous test
+    await expect(page.getByText("LoginSucceeded").first()).toBeVisible(); // from this very session's own sign-ins
+    await expect(page.getByText(/don't have permission/i)).toHaveCount(0);
+  });
+
   // ---------- ALV-N009: authorization-aware navigation, session UX, identity context ----------
 
   test("a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API", async () => {
@@ -174,9 +186,10 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 
     // Real server-derived nav filtering, not a hard-coded client assumption: this account holds
-    // neither ManageUsers nor ViewPermissionMatrix, so neither admin link is rendered.
+    // neither ManageUsers, ViewPermissionMatrix, nor ViewAuditLog, so none of those links render.
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Security Administration" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Permission Matrix" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Audit Log" })).toHaveCount(0);
 
     // Direct URL to each hidden route is still denied server-authoritatively - the client-side
     // guard shows permission-denied before the page's own protected data fetch even starts, and
@@ -184,6 +197,8 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.goto("/admin/users");
     await expect(page.getByText(/don't have permission/i)).toBeVisible();
     await page.goto("/admin/permissions");
+    await expect(page.getByText(/don't have permission/i)).toBeVisible();
+    await page.goto("/admin/audit-log");
     await expect(page.getByText(/don't have permission/i)).toBeVisible();
   });
 
