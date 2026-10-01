@@ -474,7 +474,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -487,16 +487,21 @@
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "bd50b4a8cc3f391e5b7217a421962e6ea1e327af",
-      "evidenceCommit": null,
+      "evidenceCommit": "ce8d6bdb3893abee1116c97666f44bbe49d63f6e",
       "handoffPath": ".alveara/handoffs/ALV-N004/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N004/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "bd50b4a8cc3f391e5b7217a421962e6ea1e327af",
+        "reviewedEvidenceCommit": "ce8d6bdb3893abee1116c97666f44bbe49d63f6e"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N004-R01-01 (P1): recovery requires the BackupRecord history in the database being recovered; there is no archive import/discovery entry point, so recovery onto a fresh installation after loss of the original database cannot follow the runbook through the supported UI/API.",
+        "ALV-N004-R01-02 (P1): BackupCrypto defines a custom authenticated-encryption container (ALVBK framing, chunk/nonce/AAD/final-chunk parser), violating the explicit 'no custom cryptographic formats' requirement; a maintained reviewed library/platform facility implementing a documented format must replace it.",
+        "ALV-N004-R01-03 (P1): the fixed Data Protection application name makes existing protected MFA secrets unreadable (old discriminator); compatibility or an explicit tested upgrade is required.",
+        "ALV-N004-R01-04 (P1): the 'full-state' set omits the practice time zone (deployment configuration consumed by IPracticeClock); critical non-secret deployment settings must be captured, applied or verified on recovery, with a non-default-zone recovery test."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
