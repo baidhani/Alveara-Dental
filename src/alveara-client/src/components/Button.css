@@ -32,9 +32,13 @@
   color: var(--color-text);
   border-color: var(--color-border-strong);
 }
-.alv-button--secondary:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+/* Gate A review (ALV-N001 R03): the hover/focus text previously used --color-primary, which in the dark theme is a BUTTON
+   BACKGROUND colour (#1f4459) - about 1.8:1 on the dark surface. --color-info is the readable accent text colour in both
+   themes (see src/styles/buttonContrast.test.ts). */
+.alv-button--secondary:hover:not(:disabled),
+.alv-button--secondary:focus-visible:not(:disabled) {
+  border-color: var(--color-info);
+  color: var(--color-info);
 }
 
 .alv-button--danger {

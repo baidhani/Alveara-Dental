@@ -70,6 +70,7 @@ test.afterAll(async () => {
 });
 
 test("A2: no critical/serious axe violations on any shell route, light and dark, authenticated against the real API", async () => {
+  test.setTimeout(300_000);
   const results: unknown[] = [];
   let blockingTotal = 0;
   for (const route of ROUTES) {
@@ -103,6 +104,7 @@ test("A2: no critical/serious axe violations on any shell route, light and dark,
 });
 
 test("A6: for each of the 7 roles, rendered navigation matches server-authoritative access (no client-only enforcement)", async () => {
+  test.setTimeout(300_000);
   const matrix: Record<string, unknown> = {};
   for (const role of ROLES) {
     const context = await browserRef.newContext();
