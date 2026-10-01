@@ -72,7 +72,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REOPENED",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -99,7 +99,14 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-09-28T01:22:24.101Z"
+      "completedAt": "2026-09-28T01:22:24.101Z",
+      "reopened": {
+        "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) required stable-state checks of the ALV-N001 danger-button observation. Settled default-state scans show no persistent danger-button defect, but the state scans added while repairing ALV-001-C01 found a REAL shared-design defect: .alv-button--secondary:hover/focus sets its text to --color-primary, which in the dark theme is a button BACKGROUND colour (#1f4459), giving about 1.8:1 contrast on the dark surface (axe color-contrast, serious) on every page with a secondary button. Narrow correction of Button.css only. Next attempt: R03.",
+        "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
+        "nextAttempt": "R03",
+        "priorApprovedAttempt": "R02",
+        "downstreamAssessment": "Visual-only change to one component state's text/border colour using an existing token (--color-info); no component API, markup, behaviour or token definition changes. Completed descendants are not marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite and the authenticated axe state scan to demonstrate that."
+      }
     },
     {
       "schemaVersion": "2",

@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: Gate A independent review (`.alveara/gates/A/reviews/4b69d32.md`) confirmed **FAIL (A2)**; `ALV-001-C01` (next attempt R07: user-administration badge/link contrast) and `ALV-002-C01` (next attempt R04: keyboard-reachable audit scroll region) are `REOPENED` with narrow correction scope. `ALV-N001` is not reopened. `STORY-003` remains blocked until Gate A is rerun and passes.
+Last updated: Gate A independent review (`.alveara/gates/A/reviews/4b69d32.md`) confirmed **FAIL (A2)**; `ALV-001-C01` (next attempt R07: user-administration badge/link contrast) and `ALV-002-C01` (next attempt R04: keyboard-reachable audit scroll region) are `REOPENED` with narrow correction scope. `ALV-N001` is not reopened. `STORY-003` remains blocked until Gate A is rerun and passes. **Update:** stable hover/focus axe scans found a real shared-design defect (secondary button hover/focus text uses a dark-theme button-background colour, ~1.8:1), so `ALV-N001` is also `REOPENED` (next attempt R03, Button.css only).
 
 ## Production implementation status
 
