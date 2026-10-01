@@ -12,7 +12,7 @@ const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "-"
 const VERIFICATION_LABEL: Record<VerificationStatus, string> = {
   NotVerified: "Not verified",
   HashVerified: "File hash verified only",
-  FullyVerified: "Fully verified (restorable)",
+  FullyVerified: "Contents verified - restore drill still needed",
   VerificationFailed: "Verification FAILED",
 };
 
@@ -68,7 +68,7 @@ export function BackupHistory({ records, canManage, onChanged, onRestore }: { re
               <td>{r.includedAssetClasses.length === 0 ? "-" : r.includedAssetClasses.map(assetLabel).join(", ")}</td>
               <td>
                 <span className={`alv-status-badge alv-status-badge--${r.verificationStatus === "FullyVerified" ? "enabled" : r.verificationStatus === "VerificationFailed" ? "disabled" : "neutral"}`}>
-                  {r.status === "Succeeded" ? VERIFICATION_LABEL[r.verificationStatus] : "-"}
+                  {r.status === "Succeeded" ? r.verificationStatus === "FullyVerified" && r.restoreProven ? "Fully verified (restorable)" : VERIFICATION_LABEL[r.verificationStatus] : "-"}
                 </span>
                 {r.verificationStatus === "VerificationFailed" && <div>{describeBackupCode(r.verificationFailureCode)}</div>}
               </td>

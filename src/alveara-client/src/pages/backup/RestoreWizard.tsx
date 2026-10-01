@@ -94,10 +94,10 @@ export function RestoreWizard({ record, archive, onClose, onChanged }: { record?
         if (mine !== session.current) return;
         const ok = verified.verificationStatus === "FullyVerified";
         setStage({
-          kind: "done", ok, title: ok ? "Backup fully verified" : "Verification failed", checks: [],
-          detail: ok ? "The backup decrypted with your recovery key, every component matched its recorded hash, and SQL Server accepted the database backup. Nothing was restored." : describeBackupCode(verified.verificationFailureCode),
+          kind: "done", ok, title: ok ? "Backup contents verified" : "Verification failed", checks: [],
+          detail: ok ? "The backup decrypted with your recovery key, every component matched its recorded hash, and SQL Server accepted the database backup. Nothing was restored, so this does NOT prove the data restores into a consistent application and does not count toward trust - only a restore drill does." : describeBackupCode(verified.verificationFailureCode),
         });
-        notify(ok ? "success" : "danger", ok ? "Backup fully verified." : "Backup verification failed.");
+        notify(ok ? "success" : "danger", ok ? "Backup contents verified (restore drill still needed)." : "Backup verification failed.");
       } else {
         const drill = archive ? await runArchiveRestoreDrill(archive.ref, material()) : await runRestoreDrill(record!.id, material());
         if (mine !== session.current) return;

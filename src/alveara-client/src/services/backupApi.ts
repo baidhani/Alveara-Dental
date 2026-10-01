@@ -39,6 +39,8 @@ export interface BackupRecord {
   verificationStatus: VerificationStatus;
   verifiedAtUtc: string | null;
   verificationFailureCode: string | null;
+  /** True only after a successful restore drill: "verify only" never sets it and never counts toward trust. */
+  restoreProven: boolean;
 }
 
 export interface BackupStatus {

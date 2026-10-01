@@ -475,6 +475,157 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         Assert.False(reachedDomain);
     }
 
+    // ---------- R03-01: verification credit must never survive (or precede) a proven archive defect ----------
+
+    private sealed class MutatingRestoreProvider(IDatabaseRestoreProvider inner, string connectionString, string sqlAfterRestore) : IDatabaseRestoreProvider
+    {
+        public Task<bool> VerifyBackupAsync(string backupFilePath, CancellationToken ct) => inner.VerifyBackupAsync(backupFilePath, ct);
+        public async Task RestoreToNewDatabaseAsync(string backupFilePath, string targetDatabase, string targetDirectory, CancellationToken ct)
+        {
+            await inner.RestoreToNewDatabaseAsync(backupFilePath, targetDatabase, targetDirectory, ct);
+            var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString) { InitialCatalog = targetDatabase };
+            await using var connection = new Microsoft.Data.SqlClient.SqlConnection(builder.ConnectionString);
+            await connection.OpenAsync(ct);
+            await using var command = new Microsoft.Data.SqlClient.SqlCommand(sqlAfterRestore, connection);
+            await command.ExecuteNonQueryAsync(ct);
+        }
+        public Task DropDatabaseAsync(string databaseName, CancellationToken ct) => inner.DropDatabaseAsync(databaseName, ct);
+        public Task<bool> DatabaseExistsAsync(string databaseName, CancellationToken ct) => inner.DatabaseExistsAsync(databaseName, ct);
+        public string ConnectionStringFor(string databaseName) => inner.ConnectionStringFor(databaseName);
+    }
+
+    /// <summary>An authentic archive whose manifest and asset say Tokyo while its captured database says Chicago; the recovering server is then set to Tokyo.</summary>
+    private async Task<Guid> CraftContradictoryArchiveAsync()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        await SetRecordedInvariantAsync("America/Chicago");
+        var record = await BackupAsync();
+        var crafted = await _env.CraftAlteredBackupAsync(record.Id, content =>
+        {
+            var assetPath = Path.Combine(content, ManagedAssetClasses.DeploymentConfiguration, DeploymentSettings.FileName);
+            var tokyo = _env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" };
+            File.WriteAllText(assetPath, System.Text.Json.JsonSerializer.Serialize(tokyo, DeploymentSettings.Json));
+            var manifest = BackupTestEnvironment.ReadManifest(content);
+            BackupTestEnvironment.WriteManifest(content, manifest with
+            {
+                Deployment = tokyo,
+                Components = manifest.Components.Select(c => c.AssetClass == ManagedAssetClasses.DeploymentConfiguration
+                    ? c with { Sha256 = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(assetPath))) } : c).ToList(),
+            });
+        });
+        _env.Deployment.Current = _env.Deployment.Current with { PracticeTimeZoneId = "Asia/Tokyo" };
+        return crafted;
+    }
+
+    private async Task<BackupRecord> VerifyOnlyAsync(Guid id)
+    {
+        await using var db = _env.NewDb();
+        return await _env.NewRestoreService(db).VerifyFullAsync(id, _env.Key.EncryptedPrivateKeyPem, BackupTestEnvironment.Passphrase, _actor, default);
+    }
+
+    private async Task<RestoreDrillRecord> HistoryDrillAsync(Guid id, IDatabaseRestoreProvider? provider = null)
+    {
+        await using var db = _env.NewDb();
+        var drill = await _env.NewRestoreService(db, provider).RestoreDrillAsync(id, _env.Key.EncryptedPrivateKeyPem, BackupTestEnvironment.Passphrase, _actor, default);
+        if (drill.TargetDatabase is not null) _restoredDatabases.Add(drill.TargetDatabase);
+        return drill;
+    }
+
+    private async Task<(BackupRecord Record, int Count, bool Trusted)> StateAsync(Guid id)
+    {
+        await using var db = _env.NewDb();
+        var status = await _env.NewBackupService(db).GetStatusAsync(default);
+        return (await db.BackupRecords.AsNoTracking().SingleAsync(r => r.Id == id), status.SuccessfulVerificationCount, status.Trusted);
+    }
+
+    [Fact]
+    public async Task Verify_only_never_counts_toward_trust_so_an_unknown_contradiction_earns_no_recovery_credit()
+    {
+        var crafted = await CraftContradictoryArchiveAsync();
+
+        await VerifyOnlyAsync(crafted);
+
+        var (record, count, trusted) = await StateAsync(crafted);
+        Assert.Equal(BackupVerificationStatus.FullyVerified, record.VerificationStatus); // media/inventory proof is real and stays visible...
+        Assert.Null(record.RestoreProvenAtUtc);                                           // ...but is not restore proof
+        Assert.Equal(0, count);
+        Assert.False(trusted);
+    }
+
+    [Fact]
+    public async Task Verify_only_then_a_failed_consistency_drill_leaves_the_backup_failed_with_no_credit()
+    {
+        var crafted = await CraftContradictoryArchiveAsync();
+        await VerifyOnlyAsync(crafted);
+
+        var drill = await HistoryDrillAsync(crafted);
+
+        Assert.Equal(("Failed", "restore_validation_failed"), (drill.Outcome, drill.FailureCode));
+        var (record, count, _) = await StateAsync(crafted);
+        Assert.Equal((BackupVerificationStatus.VerificationFailed, "restore_validation_failed"), (record.VerificationStatus, record.VerificationFailureCode));
+        Assert.Null(record.RestoreProvenAtUtc);
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
+    public async Task A_failed_consistency_drill_then_verify_only_cannot_erase_the_failure_or_earn_credit()
+    {
+        var crafted = await CraftContradictoryArchiveAsync();
+        await HistoryDrillAsync(crafted);
+
+        var afterVerify = await VerifyOnlyAsync(crafted);
+
+        Assert.Equal(BackupVerificationStatus.VerificationFailed, afterVerify.VerificationStatus);
+        var (record, count, trusted) = await StateAsync(crafted);
+        Assert.Equal((BackupVerificationStatus.VerificationFailed, "restore_validation_failed"), (record.VerificationStatus, record.VerificationFailureCode));
+        Assert.Equal((0, false), (count, trusted));
+    }
+
+    [Fact]
+    public async Task A_valid_drill_earns_credit_and_a_later_verify_only_keeps_it_while_a_later_media_failure_removes_it()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        var record = await BackupAsync();
+
+        await VerifyOnlyAsync(record.Id);
+        Assert.Equal(0, (await StateAsync(record.Id)).Count);       // media proof alone: no credit
+
+        var drill = await HistoryDrillAsync(record.Id);
+        Assert.Equal("Succeeded", drill.Outcome);
+        var earned = await StateAsync(record.Id);
+        Assert.NotNull(earned.Record.RestoreProvenAtUtc);
+        Assert.Equal(1, earned.Count);
+
+        await VerifyOnlyAsync(record.Id);                            // a weaker check later changes nothing
+        Assert.Equal(1, (await StateAsync(record.Id)).Count);
+
+        File.WriteAllBytes(Path.Combine(_env.SetsDirectory, record.FileName!), [1, 2, 3]); // the file is damaged afterwards
+        await using (var db = _env.NewDb()) await _env.NewBackupService(db).VerifyHashAsync(record.Id, _actor, default);
+        Assert.Equal(0, (await StateAsync(record.Id)).Count);        // a failed status no longer counts
+    }
+
+    [Fact]
+    public async Task A_restored_database_with_a_missing_or_unreadable_deployment_record_fails_the_drill_and_earns_nothing()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        var record = await BackupAsync();
+
+        var missingRow = await HistoryDrillAsync(record.Id, new MutatingRestoreProvider(_env.RestoreProvider, _env.Fixture.ConnectionString, "DELETE FROM DeploymentInvariants;"));
+        Assert.Equal(("Failed", "restore_validation_failed"), (missingRow.Outcome, missingRow.FailureCode));
+        Assert.Contains("no deployment-settings record", ChecksOf(missingRow).Single(c => c.Name == "restored_database_deployment_matches_manifest" && !c.Passed).Detail);
+
+        var noTable = await HistoryDrillAsync(record.Id, new MutatingRestoreProvider(_env.RestoreProvider, _env.Fixture.ConnectionString, "DROP TABLE DeploymentInvariants;"));
+        Assert.Equal(("Failed", "restore_validation_failed"), (noTable.Outcome, noTable.FailureCode));
+        Assert.Contains("no readable deployment-settings record", ChecksOf(noTable).Single(c => c.Name == "restored_database_deployment_matches_manifest" && !c.Passed).Detail);
+
+        var (stored, count, _) = await StateAsync(record.Id);
+        Assert.Equal(BackupVerificationStatus.VerificationFailed, stored.VerificationStatus);
+        Assert.Equal(0, count);
+    }
+
     [Fact]
     public async Task A_backup_with_no_recorded_deployment_settings_is_not_recoverable()
     {

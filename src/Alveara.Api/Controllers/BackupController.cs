@@ -20,12 +20,12 @@ public record StepUpRequest(string? CurrentPassword);
 public record BackupRecordDto(
     Guid Id, string Kind, string Status, DateTimeOffset StartedAtUtc, DateTimeOffset? CompletedAtUtc, string? FileName, long? SizeBytes, string? Sha256,
     IReadOnlyList<string> IncludedAssetClasses, string? SchemaMigration, string? AppVersion, string? FailureCode, string? FailureMessage,
-    string VerificationStatus, DateTimeOffset? VerifiedAtUtc, string? VerificationFailureCode)
+    string VerificationStatus, DateTimeOffset? VerifiedAtUtc, string? VerificationFailureCode, bool RestoreProven)
 {
     public static BackupRecordDto? From(BackupRecord? r) => r is null ? null : new(
         r.Id, r.Kind.ToString(), r.Status.ToString(), r.StartedAtUtc, r.CompletedAtUtc, r.FileName, r.SizeBytes, r.Sha256,
         (r.IncludedAssetClasses ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries), r.SchemaMigration, r.AppVersion, r.FailureCode, r.FailureMessage,
-        r.VerificationStatus.ToString(), r.VerifiedAtUtc, r.VerificationFailureCode);
+        r.VerificationStatus.ToString(), r.VerifiedAtUtc, r.VerificationFailureCode, r.RestoreProvenAtUtc is not null && r.VerificationStatus == BackupVerificationStatus.FullyVerified);
 }
 
 /// <summary>An archive is chosen by the "ref" the listing returned (folder + file name) - never by a free path.</summary>

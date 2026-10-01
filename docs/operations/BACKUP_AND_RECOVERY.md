@@ -63,8 +63,8 @@ server), or `Backup:Root` to relocate them all.
 |---|---|---|---|
 | Written + re-read (every backup) | no | the file on disk matches the hash recorded at creation | that it can be decrypted or restored |
 | **Check file hash** (any time) | no | the bytes are unchanged since creation (detects bit-rot/tampering/truncation) | restorability |
-| **Verify only** (wizard) | yes | decrypts and authenticates; every component matches the manifest; SQL Server accepts the database backup (`RESTORE VERIFYONLY`); schema/format compatible | that the application runs on it |
-| **Restore drill** (wizard) | yes | all of the above **plus** a real restore into an isolated database and post-restore validation (below) | - |
+| **Verify only** (wizard) | yes | decrypts and authenticates; every component matches the manifest; SQL Server accepts the database backup (`RESTORE VERIFYONLY`); schema/format compatible | that the captured database agrees with the rest of the set, or that the application runs on it. **It never counts toward trust** |
+| **Restore drill** (wizard) | yes | all of the above **plus** a real restore into an isolated database and post-restore validation (below), including that the restored database's deployment settings equal the manifest's | - (this is the **only** check that earns restore proof and trust) |
 
 History keeps *backup succeeded*, *verification state* and *failure* as separate facts. A backup that has only
 been hash-checked is shown as **"File hash verified only"**, never as "verified".
@@ -72,8 +72,16 @@ been hash-checked is shown as **"File hash verified only"**, never as "verified"
 ### Probation (confidence workflow)
 
 Scheduled backups run from day one, but are labelled **on probation** until `RequiredSuccessfulVerifications`
-full verifications/restore drills have passed. A drill older than `VerificationCadenceDays` is flagged
-**overdue**. A failed verification never counts.
+**restore drills** have passed (each on a backup that is still not known to be defective). Verify-only is a useful
+media/contents check and is shown as "Contents verified - restore drill still needed", but it never counts. A drill
+older than `VerificationCadenceDays` is flagged **overdue**. A failed verification never counts.
+
+**A proven defect is permanent.** If a drill (or any check) finds the archive itself defective - for example its manifest
+contradicts its captured database, a component is missing or altered, or the database media is damaged - the backup is
+recorded as *Verification FAILED* with that reason and its restore proof is cleared. An archive is immutable, so a
+weaker check later (such as verify-only) cannot erase that failure or earn credit; the audit trail records the attempt.
+Failures that depend on the recovering server or the supplied key (wrong key, different server settings) do not
+poison the backup.
 
 ## Restore drill procedure (do this after setup, then at the cadence you chose)
 

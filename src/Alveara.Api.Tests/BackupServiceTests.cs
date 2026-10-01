@@ -436,6 +436,8 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
 
         await db.BackupRecords.Where(r => r.Id == record.Id).ExecuteUpdateAsync(s => s
             .SetProperty(r => r.VerificationStatus, BackupVerificationStatus.FullyVerified).SetProperty(r => r.VerifiedAtUtc, DateTimeOffset.UtcNow));
+        Assert.Equal(0, (await service.GetStatusAsync(default)).SuccessfulVerificationCount); // verify-only (media) never counts toward trust
+        await db.BackupRecords.Where(r => r.Id == record.Id).ExecuteUpdateAsync(s => s.SetProperty(r => r.RestoreProvenAtUtc, DateTimeOffset.UtcNow)); // a restore drill is what earns it
         var verified = await service.GetStatusAsync(default);
         Assert.Equal(1, verified.SuccessfulVerificationCount);
         Assert.False(verified.VerificationOverdue);

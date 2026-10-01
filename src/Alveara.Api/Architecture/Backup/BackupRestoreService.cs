@@ -297,9 +297,30 @@ public class BackupRestoreService(
 
     // ---------- Full verification (decrypt + inventory + RESTORE VERIFYONLY; nothing is restored) ----------
 
+    /// <summary>
+    /// Failures that are properties of the ARCHIVE itself (not of the recovering server or the supplied key): once seen they
+    /// are permanent, because an archive is immutable. A weaker check passing later must never erase them.
+    /// </summary>
+    internal static readonly IReadOnlySet<string> ArchiveDefectCodes = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "restore_validation_failed", "deployment_asset_matches_manifest", "deployment_settings_recorded", "documents_complete", "components_present",
+        "component_hashes_match", "database_backup_damaged", "manifest_missing", "manifest_invalid", "corrupt_or_tampered",
+    };
+
+    internal static bool HasKnownArchiveDefect(BackupRecord record) =>
+        record.VerificationStatus == BackupVerificationStatus.VerificationFailed && record.VerificationFailureCode is { } code && ArchiveDefectCodes.Contains(code);
+
     public async Task<BackupRecord> VerifyFullAsync(Guid recordId, string privateKeyPem, string passphrase, Guid actor, CancellationToken ct)
     {
         var record = await db.BackupRecords.SingleOrDefaultAsync(r => r.Id == recordId, ct) ?? throw new BackupException("not_found", "Backup not found.", 404);
+        if (HasKnownArchiveDefect(record))
+        {
+            // A drill (or an earlier verification) already proved this archive defective; a media-only check cannot overrule that.
+            AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), recordId, actor,
+                $"Verify-only not applied: this backup has a recorded defect ({record.VerificationFailureCode}) that a media check does not clear.");
+            await db.SaveChangesAsync(ct);
+            return record;
+        }
         var work = Path.Combine(paths.StagingRoot, $"verify-{Guid.NewGuid():N}");
         string? failureCode = null;
         try
@@ -324,12 +345,13 @@ public class BackupRestoreService(
         {
             record.VerificationStatus = BackupVerificationStatus.FullyVerified;
             record.VerificationFailureCode = null;
-            AuditService.Record(db, BackupAuditEvents.FullyVerified, nameof(BackupRecord), recordId, actor, "Backup fully verified with the recovery key (decrypted, inventory and SQL Server media check passed).");
+            AuditService.Record(db, BackupAuditEvents.FullyVerified, nameof(BackupRecord), recordId, actor, "Backup verified with the recovery key (decrypted, inventory and SQL Server media check passed). Restorability into a consistent application state is proven only by a restore drill.");
         }
         else
         {
             record.VerificationStatus = BackupVerificationStatus.VerificationFailed;
             record.VerificationFailureCode = failureCode;
+            if (ArchiveDefectCodes.Contains(failureCode)) record.RestoreProvenAtUtc = null;
             AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), recordId, actor, $"Backup verification failed: {failureCode}.");
         }
         await db.SaveChangesAsync(ct);
@@ -355,12 +377,15 @@ public class BackupRestoreService(
     public async Task<RestoreDrillRecord> RestoreDrillFromArchiveAsync(string archiveRef, string privateKeyPem, string passphrase, Guid actor, CancellationToken ct)
     {
         var source = await ArchiveSourceAsync(archiveRef, ct);
+        var sha = await FileTreeAssetSource.HashFileAsync(source.Path, ct);
+        // The very same bytes recorded in this server's history are that backup: the drill's result then applies to its trust state too.
+        var known = await db.BackupRecords.SingleOrDefaultAsync(r => r.FileName == source.Name && r.Sha256 == sha && r.Status == BackupStatus.Succeeded, ct);
         var drill = new RestoreDrillRecord
         {
-            Id = Guid.NewGuid(), BackupRecordId = null, SourceKind = "Archive", ArchiveFileName = source.Name,
-            ArchiveSha256 = await FileTreeAssetSource.HashFileAsync(source.Path, ct), StartedAtUtc = DateTimeOffset.UtcNow, InitiatedByUserAccountId = actor,
+            Id = Guid.NewGuid(), BackupRecordId = known?.Id, SourceKind = "Archive", ArchiveFileName = source.Name,
+            ArchiveSha256 = sha, StartedAtUtc = DateTimeOffset.UtcNow, InitiatedByUserAccountId = actor,
         };
-        return await RunDrillAsync(drill, source, null, privateKeyPem, passphrase, actor, ct);
+        return await RunDrillAsync(drill, source, known, privateKeyPem, passphrase, actor, ct);
     }
 
     private async Task<RestoreDrillRecord> RunDrillAsync(
@@ -420,6 +445,7 @@ public class BackupRestoreService(
                 record.VerificationStatus = BackupVerificationStatus.FullyVerified;
                 record.VerifiedAtUtc = DateTimeOffset.UtcNow;
                 record.VerificationFailureCode = null;
+                record.RestoreProvenAtUtc = DateTimeOffset.UtcNow; // the ONLY place restore proof (and so trust) is earned
             }
             AuditService.Record(db, BackupAuditEvents.RestoreDrillCompleted, nameof(RestoreDrillRecord), drill.Id, actor, "Restore drill into an isolated target completed and validated.");
             await db.SaveChangesAsync(ct);
@@ -429,6 +455,15 @@ public class BackupRestoreService(
             drill.Outcome = "Failed";
             drill.FailureCode = failureCode;
             drill.FailureMessage = failureMessage;
+            if (record is not null && ArchiveDefectCodes.Contains(failureCode))
+            {
+                // The archive itself is defective (e.g. its manifest contradicts its captured database): invalidate its recovery credit for good.
+                record.VerificationStatus = BackupVerificationStatus.VerificationFailed;
+                record.VerificationFailureCode = failureCode;
+                record.VerifiedAtUtc = DateTimeOffset.UtcNow;
+                record.RestoreProvenAtUtc = null;
+                AuditService.Record(db, BackupAuditEvents.VerificationFailed, nameof(BackupRecord), record.Id, actor, $"Restore drill proved the backup defective: {failureCode}.");
+            }
             // Nothing half-restored is left lying around: remove the isolated target we created.
             await SafeRemoveTargetAsync(drill, CancellationToken.None);
             AuditService.Record(db, BackupAuditEvents.RestoreDrillFailed, nameof(RestoreDrillRecord), drill.Id, actor, $"Restore drill failed: {failureCode}.");

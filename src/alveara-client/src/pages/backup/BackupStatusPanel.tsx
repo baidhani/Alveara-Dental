@@ -54,7 +54,7 @@ export function BackupStatusPanel({ status }: { status: BackupStatus }) {
         <div>
           <dt>Verification</dt>
           <dd>
-            {status.successfulVerificationCount} of {settings.requiredSuccessfulVerifications} required full verification(s) or restore drill(s) passed. Last: {when(status.lastFullVerificationAtUtc)}
+            {status.successfulVerificationCount} of {settings.requiredSuccessfulVerifications} required restore drill(s) passed. Last: {when(status.lastFullVerificationAtUtc)}
           </dd>
         </div>
       </dl>
@@ -63,17 +63,17 @@ export function BackupStatusPanel({ status }: { status: BackupStatus }) {
         <div className="alv-backup-alert alv-backup-alert--warning" role="status">
           <p className="alv-backup-alert__title">Scheduled backups are on probation</p>
           <p>
-            Unattended backups are not yet trusted: only {status.successfulVerificationCount} of {settings.requiredSuccessfulVerifications} required full verification(s) or
-            restore drill(s) have succeeded. Verify a backup with the recovery key to build confidence.
+            Unattended backups are not yet trusted: only {status.successfulVerificationCount} of {settings.requiredSuccessfulVerifications} required restore drill(s)
+            have succeeded. Run a restore drill with the recovery key to build confidence (verify-only does not count).
           </p>
         </div>
       )}
 
       {lastSuccess && status.verificationOverdue && (
         <div className="alv-backup-alert alv-backup-alert--warning" role="status">
-          <p className="alv-backup-alert__title">A full verification is overdue</p>
+          <p className="alv-backup-alert__title">A restore drill is overdue</p>
           <p>
-            No full verification or restore drill has passed in the last {settings.verificationCadenceDays} day(s). A backup that has only been hash-checked is not proven restorable.
+            No restore drill has passed in the last {settings.verificationCadenceDays} day(s). A backup that has only been hash-checked or verified is not proven restorable; only a restore drill counts toward trust.
           </p>
         </div>
       )}

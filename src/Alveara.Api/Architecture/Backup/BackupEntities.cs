@@ -118,6 +118,14 @@ public class BackupRecord
     public BackupVerificationStatus VerificationStatus { get; set; } = BackupVerificationStatus.NotVerified;
     public DateTimeOffset? VerifiedAtUtc { get; set; }
     public string? VerificationFailureCode { get; set; }
+
+    /// <summary>
+    /// When a restore drill proved this backup restores into a working, internally consistent application state. ONLY a
+    /// successful drill sets it. "Verify only" proves the file decrypts, matches its manifest and that SQL Server accepts the
+    /// database media - not that the captured database agrees with the rest of the set - so it never sets this and never
+    /// counts toward trust/probation. A drill that finds the archive itself defective clears it for good.
+    /// </summary>
+    public DateTimeOffset? RestoreProvenAtUtc { get; set; }
 }
 
 /// <summary>A restore into an isolated target (a drill): where it went and what was validated.</summary>

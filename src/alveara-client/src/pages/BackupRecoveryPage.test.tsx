@@ -21,7 +21,7 @@ const settings = (over: Partial<BackupSettings> = {}): BackupSettings => ({
 const record = (over: Partial<BackupRecord> = {}): BackupRecord => ({
   id: "b1", kind: "Manual", status: "Succeeded", startedAtUtc: "2026-09-30T08:00:00Z", completedAtUtc: "2026-09-30T08:01:00Z", fileName: "alveara-backup-1.abk",
   sizeBytes: 5_242_880, sha256: "ff", includedAssetClasses: ["database", "documents", "dataProtectionKeys"], schemaMigration: "2026", appVersion: "1",
-  failureCode: null, failureMessage: null, verificationStatus: "HashVerified", verifiedAtUtc: "2026-09-30T08:01:00Z", verificationFailureCode: null, ...over,
+  failureCode: null, failureMessage: null, verificationStatus: "HashVerified", verifiedAtUtc: "2026-09-30T08:01:00Z", verificationFailureCode: null, restoreProven: false, ...over,
 });
 
 const status = (over: Partial<BackupStatus> = {}): BackupStatus => ({
@@ -94,7 +94,7 @@ describe("Backup & recovery page - truthful status", () => {
     expect(await screen.findByText(/Last successful backup/)).toBeInTheDocument();
     expect(screen.getByText(/Every 24 hour\(s\), keeping the latest 7/)).toBeInTheDocument();
     expect(screen.getByText(/D:\\Backups/)).toBeInTheDocument();
-    expect(screen.getByText(/2 of 2 required full verification/)).toBeInTheDocument();
+    expect(screen.getByText(/2 of 2 required restore drill/)).toBeInTheDocument();
     expect(screen.getByLabelText("Asset coverage")).toHaveTextContent(/includes every managed asset class: Database, Documents, Encryption keys/);
     expect(screen.queryByText("The most recent backup FAILED")).not.toBeInTheDocument();
   });
@@ -117,13 +117,13 @@ describe("Backup & recovery page - truthful status", () => {
     stubApi({ status: status({ trusted: false, successfulVerificationCount: 0 }) });
     renderPage();
     expect(await screen.findByText("Scheduled backups are on probation")).toBeInTheDocument();
-    expect(screen.getByText(/only 0 of 2 required full verification/)).toBeInTheDocument();
+    expect(screen.getByText(/only 0 of 2 required restore drill/)).toBeInTheDocument();
   });
 
   it("flags an overdue full verification even when the file hash passed", async () => {
     stubApi({ status: status({ verificationOverdue: true, lastFullVerificationAtUtc: null }) });
     renderPage();
-    expect(await screen.findByText("A full verification is overdue")).toBeInTheDocument();
+    expect(await screen.findByText("A restore drill is overdue")).toBeInTheDocument();
     expect(screen.getByText(/not proven restorable/)).toBeInTheDocument();
   });
 
@@ -144,7 +144,7 @@ describe("Backup & recovery page - truthful status", () => {
   it("history keeps success, failure and verification as separate truths", async () => {
     stubApi({
       history: [
-        record({ id: "b1", verificationStatus: "FullyVerified" }),
+        record({ id: "b1", verificationStatus: "FullyVerified", restoreProven: true }),
         record({ id: "b2", startedAtUtc: "2026-09-29T08:00:00Z", verificationStatus: "HashVerified" }),
         record({ id: "b3", startedAtUtc: "2026-09-28T08:00:00Z", status: "Failed", failureCode: "destination_unavailable", includedAssetClasses: [], sizeBytes: null, verificationStatus: "NotVerified" }),
         record({ id: "b4", startedAtUtc: "2026-09-27T08:00:00Z", verificationStatus: "VerificationFailed", verificationFailureCode: "hash_mismatch" }),
@@ -453,15 +453,15 @@ describe("Restore wizard", () => {
     expect(call.body).toMatchObject({ currentPassword: "my-password", passphrase: "my recovery passphrase" });
   });
 
-  it("verify-only proves restorability without restoring", async () => {
+  it("verify-only verifies the contents without restoring and says it does not count toward trust", async () => {
     const api = stubApi({ handlers: { "/preflight": () => jsonResponse(preflightOk), "/api/backup/backups/b1/verify": () => jsonResponse(record({ verificationStatus: "FullyVerified" })) } });
     renderPage();
     await openWizard();
     await fillMaterial();
     await userEvent.click(screen.getByRole("button", { name: "Check compatibility and recovery material" }));
     await userEvent.click(await screen.findByRole("button", { name: /Verify only/ }));
-    expect(await screen.findByText("Backup fully verified")).toBeInTheDocument();
-    expect(screen.getByText(/Nothing was restored/)).toBeInTheDocument();
+    expect(await screen.findByText("Backup contents verified")).toBeInTheDocument();
+    expect(screen.getByText(/does NOT prove the data restores/)).toBeInTheDocument();
     expect(api.calls.some((c) => c.url.includes("/b1/restore-drill"))).toBe(false);
   });
 

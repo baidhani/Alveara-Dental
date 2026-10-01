@@ -85,7 +85,7 @@ export function BackupSettingsForm({ settings, onSaved }: { settings: BackupSett
             </p>
           )}
           <FormField label="Hours between scheduled backups" type="number" min={1} max={168} value={form.interval} error={errors.interval} onChange={(e) => set({ interval: e.target.value })} />
-          <FormField label="Backups to keep" type="number" min={1} max={365} value={form.retention} error={errors.retention} onChange={(e) => set({ retention: e.target.value })} hint="The newest fully verified backup is always kept." />
+          <FormField label="Backups to keep" type="number" min={1} max={365} value={form.retention} error={errors.retention} onChange={(e) => set({ retention: e.target.value })} hint="The newest restore-proven backup is always kept." />
           <FormField label="Backup folder" value={form.destination} error={errors.destination} onChange={(e) => set({ destination: e.target.value })} hint={`Leave blank to use the default (${settings.destinationIsDefault ? settings.destinationDirectory : "server default"}).`} />
           <FormField label="Verifications required before scheduled backups are trusted" type="number" min={0} max={10} value={form.required} error={errors.required} onChange={(e) => set({ required: e.target.value })} hint="Full verifications or restore drills with the recovery key." />
           <FormField label="Re-verify at least every (days)" type="number" min={1} max={365} value={form.cadence} error={errors.cadence} onChange={(e) => set({ cadence: e.target.value })} />

@@ -364,7 +364,8 @@ public class BackupService(
         var settings = await db.BackupSettings.AsNoTracking().SingleOrDefaultAsync(ct);
         if (settings is null) return 0;
         var succeeded = await db.BackupRecords.Where(r => r.Status == BackupStatus.Succeeded).OrderByDescending(r => r.StartedAtUtc).ToListAsync(ct);
-        var newestVerified = succeeded.FirstOrDefault(r => r.VerificationStatus == BackupVerificationStatus.FullyVerified);
+        var newestVerified = succeeded.FirstOrDefault(r => r.VerificationStatus == BackupVerificationStatus.FullyVerified && r.RestoreProvenAtUtc != null)
+                           ?? succeeded.FirstOrDefault(r => r.VerificationStatus == BackupVerificationStatus.FullyVerified); // prefer the one proven by a drill
         var purged = 0;
         foreach (var old in succeeded.Skip(Math.Max(1, settings.RetentionCount)))
         {
@@ -459,11 +460,13 @@ public class BackupService(
         var lastFailure = await records.Where(r => r.Status == BackupStatus.Failed).OrderByDescending(r => r.CompletedAtUtc).FirstOrDefaultAsync(ct);
         var latest = await records.Where(r => r.Status != BackupStatus.Purged).OrderByDescending(r => r.StartedAtUtc).FirstOrDefaultAsync(ct);
 
-        var verifications = await db.RestoreDrills.AsNoTracking().Where(d => d.Outcome == "Succeeded").Select(d => d.CompletedAtUtc).ToListAsync(ct);
-        var fullyVerified = await records.Where(r => r.VerificationStatus == BackupVerificationStatus.FullyVerified).Select(r => r.VerifiedAtUtc).ToListAsync(ct);
-        var proof = verifications.Concat(fullyVerified).Where(t => t is not null).Select(t => t!.Value).ToList();
-        var lastProof = proof.Count == 0 ? (DateTimeOffset?)null : proof.Max();
-        var count = Math.Max(verifications.Count, fullyVerified.Count);
+        // Trust is earned ONLY by restore drills (application-level proof), and only while the backup is still not known to be defective.
+        // "Verify only" (media/inventory) is a useful check but never counts, so a backup later proven contradictory cannot have earned credit through it.
+        var proven = await records
+            .Where(r => r.RestoreProvenAtUtc != null && r.VerificationStatus == BackupVerificationStatus.FullyVerified)
+            .Select(r => r.RestoreProvenAtUtc!.Value).ToListAsync(ct);
+        var lastProof = proven.Count == 0 ? (DateTimeOffset?)null : proven.Max();
+        var count = proven.Count;
 
         var included = (lastSuccess?.IncludedAssetClasses ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries);
         var missing = lastSuccess is null ? ManagedAssetClasses.All.ToList() : ManagedAssetClasses.All.Where(c => !included.Contains(c)).ToList();
