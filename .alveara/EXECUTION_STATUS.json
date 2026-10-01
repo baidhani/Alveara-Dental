@@ -474,36 +474,35 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R04",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R05",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "371 of 371 backend (full dotnet test; 5 new verification/credit-ordering tests), 158 of 158 frontend and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R04-evidence/TEST_RESULTS.md."
+        "summary": "375 of 375 backend (full dotnet test; 4 new defect-persistence tests), 158 of 158 frontend and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R05-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "7d50581a8ff7e458da286ff9922456e75410317a",
-      "evidenceCommit": "646d442b3c035b105ebabc7c2d89fd13a442aede",
-      "handoffPath": ".alveara/handoffs/ALV-N004/R04.md",
+      "implementationCommit": "2d9819320f02944fc4ab8055a919abf06cd8a8c5",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N004/R05.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N004/R04.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "7d50581a8ff7e458da286ff9922456e75410317a",
-        "reviewedEvidenceCommit": "646d442b3c035b105ebabc7c2d89fd13a442aede"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N004-R04-01 (P1): VerifyHashAsync overwrites the mutable latest-check fields (VerificationStatus/VerificationFailureCode) that the archive-defect guard in VerifyFullAsync depends on, so failed drill -> hash pass -> verify-only returns the backup to FullyVerified with the failure cleared. A proven archive defect must be stored durably and independently of the latest-check status and enforced across every mutation path (hash, verify-only, drills, failure paths)."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-N004/R05.md: ALV-N004-R04-01 (a proven archive defect is stored durably in its own fields and enforced across every verification path: hash, verify-only, drills, failure paths). Independent review pending at R05 per .alveara/reviews/ALV-N004/R04.md (prior decision: CHANGES_REQUIRED)."
     },
     {
       "schemaVersion": "2",
