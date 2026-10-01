@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { AuditLogPage } from "./AuditLogPage";
+import { AUDIT_LOG_WINDOW } from "../services/authApi";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -32,6 +33,20 @@ describe("AuditLogPage (ALV-002-C01)", () => {
     await waitFor(() => expect(screen.getByText("RoleChanged")).toBeInTheDocument());
     expect(screen.getByText(/Role changed from Assistant to Hygienist/)).toBeInTheDocument();
     expect(screen.getByText("UserAccount")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("requests exactly the window its description claims (take=500), not the server's smaller default", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse([]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AuditLogPage />);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const requestedUrl = String(fetchMock.mock.calls[0][0]);
+    expect(requestedUrl).toContain("/api/auth/audit-log");
+    expect(requestedUrl).toContain(`take=${AUDIT_LOG_WINDOW}`);
+    expect(screen.getByText(new RegExp(`most recent ${AUDIT_LOG_WINDOW} `))).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 

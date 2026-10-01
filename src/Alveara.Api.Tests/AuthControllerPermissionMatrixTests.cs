@@ -2,7 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Data;
+using Microsoft.Extensions.DependencyInjection;
 using Alveara.Api.Controllers;
 using Xunit;
 
@@ -146,6 +149,65 @@ public class AuthControllerPermissionMatrixTests : IAsyncLifetime
         var frontDeskClient = await CreateLoggedInUserClientAsync(factory, adminClient, csrf, "FrontDesk");
         var deniedResponse = await frontDeskClient.GetAsync("/api/auth/audit-log");
         Assert.Equal(HttpStatusCode.Forbidden, deniedResponse.StatusCode);
+    }
+
+    // ALV-002-C01 R03 (review finding R02-01): the read endpoint must serialize the shared
+    // AuditService metadata, or the viewer renders it as a dash. Round-trips all three fields from
+    // an event staged through the real AuditService.Record path, and checks rows with no
+    // reason/correlation supplied stay honestly null.
+    [Fact]
+    public async Task GET_audit_log_round_trips_entity_type_reason_and_correlation_id()
+    {
+        await using var factory = CreateFactory();
+        var (adminClient, _, adminId) = await CreateLoggedInAdminClientAsync(factory);
+        var correlationId = Guid.NewGuid();
+        var entityId = Guid.NewGuid();
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AlveraDbContext>();
+            AuditService.Record(db, "ContractProbeWithMetadata", "UserAccount", entityId, adminId, "with metadata", "probe reason", correlationId);
+            AuditService.Record(db, "ContractProbeWithoutMetadata", "UserAccount", entityId, adminId, "no reason/correlation");
+            await db.SaveChangesAsync();
+        }
+
+        var entries = await (await adminClient.GetAsync("/api/auth/audit-log?take=500")).Content.ReadFromJsonAsync<JsonElement>();
+
+        var withMetadata = entries.EnumerateArray().Single(e => e.GetProperty("eventType").GetString() == "ContractProbeWithMetadata");
+        Assert.Equal("UserAccount", withMetadata.GetProperty("entityType").GetString());
+        Assert.Equal("probe reason", withMetadata.GetProperty("reason").GetString());
+        Assert.Equal(correlationId, withMetadata.GetProperty("correlationId").GetGuid());
+
+        var withoutMetadata = entries.EnumerateArray().Single(e => e.GetProperty("eventType").GetString() == "ContractProbeWithoutMetadata");
+        Assert.Equal("UserAccount", withoutMetadata.GetProperty("entityType").GetString());
+        Assert.Equal(JsonValueKind.Null, withoutMetadata.GetProperty("reason").ValueKind);
+        Assert.Equal(JsonValueKind.Null, withoutMetadata.GetProperty("correlationId").ValueKind);
+    }
+
+    // ALV-002-C01 R03 (review finding R02-02): the server default is 100 and its maximum 500, so a
+    // client that wants the larger window must ask for it. Proves both bounds with >100 events.
+    [Fact]
+    public async Task GET_audit_log_defaults_to_100_rows_and_honors_take_up_to_500()
+    {
+        await using var factory = CreateFactory();
+        var (adminClient, _, adminId) = await CreateLoggedInAdminClientAsync(factory);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AlveraDbContext>();
+            for (var i = 0; i < 130; i++)
+                AuditService.Record(db, "WindowProbe", "UserAccount", adminId, adminId, $"window probe {i}");
+            await db.SaveChangesAsync();
+        }
+
+        var defaultEntries = await (await adminClient.GetAsync("/api/auth/audit-log")).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(100, defaultEntries.GetArrayLength());
+
+        var wideEntries = await (await adminClient.GetAsync("/api/auth/audit-log?take=500")).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(wideEntries.GetArrayLength() > 100);
+        Assert.True(wideEntries.GetArrayLength() <= 500);
+        Assert.Equal(130, wideEntries.EnumerateArray().Count(e => e.GetProperty("eventType").GetString() == "WindowProbe"));
+
+        var oversized = await (await adminClient.GetAsync("/api/auth/audit-log?take=9999")).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(oversized.GetArrayLength() <= 500);
     }
 
     [Fact]

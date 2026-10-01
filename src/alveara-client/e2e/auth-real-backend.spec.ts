@@ -151,6 +151,11 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible();
     await expect(page.getByText("SessionTimeoutChanged")).toBeVisible(); // from the previous test
     await expect(page.getByText("LoginSucceeded").first()).toBeVisible(); // from this very session's own sign-ins
+    // ALV-002-C01 R03 (review finding R02-01): the shared entity metadata must actually reach the
+    // viewer. The SessionTimeoutChanged row was written through the shared AuditService with
+    // EntityType = "UserAccount"; its row must show that, not a dash.
+    const timeoutRow = page.getByRole("row").filter({ hasText: "SessionTimeoutChanged" }).first();
+    await expect(timeoutRow).toContainText("UserAccount");
     await expect(page.getByText(/don't have permission/i)).toHaveCount(0);
   });
 

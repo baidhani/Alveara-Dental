@@ -223,6 +223,11 @@ public class AuthController(AccountService accountService, IConfiguration config
                 a.PerformedByUserAccountId,
                 a.Details,
                 a.TimestampUtc,
+                // ALV-002-C01 R03: the shared AuditService metadata. Legacy rows written before it
+                // existed honestly serialize these as null rather than being invented.
+                a.EntityType,
+                a.Reason,
+                a.CorrelationId,
             })
             .ToListAsync(cancellationToken);
         return Ok(entries);

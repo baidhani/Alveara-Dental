@@ -211,9 +211,14 @@ export async function getPermissionMatrix(): Promise<PermissionMatrixEntry[]> {
   return request<PermissionMatrixEntry[]>("/api/auth/permission-matrix");
 }
 
-/** ALV-002-C01: most-recent-first, server-bounded to 500 rows (see AuthController.GetAuditLog). */
+/** ALV-002-C01 R03: the window the audit viewer asks for. Equals the server's maximum
+ *  (AuthController.GetAuditLog clamps `take` to 500; its default is only 100), and the page's
+ *  visible description is generated from this same constant so the two cannot drift apart. */
+export const AUDIT_LOG_WINDOW = 500;
+
+/** ALV-002-C01: most-recent-first, explicitly requesting AUDIT_LOG_WINDOW rows. */
 export async function getAuditLog(): Promise<AuditLogEntry[]> {
-  return request<AuditLogEntry[]>("/api/auth/audit-log");
+  return request<AuditLogEntry[]>(`/api/auth/audit-log?take=${AUDIT_LOG_WINDOW}`);
 }
 
 /** ALV-002-C01 R02: true if `err` is a 409 carrying the shared concurrency-conflict shape - the

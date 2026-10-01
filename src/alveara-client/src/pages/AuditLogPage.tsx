@@ -3,7 +3,7 @@ import { PageHeader } from "../components/PageHeader";
 import { LoadingState, EmptyState, ErrorState } from "../components/StatePatterns";
 import { PermissionDenied } from "../components/PermissionDenied";
 import { Button } from "../components/Button";
-import { ApiError, getAuditLog } from "../services/authApi";
+import { ApiError, AUDIT_LOG_WINDOW, getAuditLog } from "../services/authApi";
 import type { AuditLogEntry } from "../services/authApi";
 import "./AuditLogPage.css";
 
@@ -46,7 +46,7 @@ export function AuditLogPage() {
     <>
       <PageHeader
         title="Audit log"
-        description="Who did what, and when - the most recent 500 account, role, and session events. Entries cannot be edited or deleted once written."
+        description={`Who did what, and when - the most recent ${AUDIT_LOG_WINDOW} account, role, and session events. Entries cannot be edited or deleted once written.`}
       />
 
       {state.kind === "loading" && <LoadingState label="Loading audit log…" />}
