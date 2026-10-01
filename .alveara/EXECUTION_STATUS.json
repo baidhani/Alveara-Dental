@@ -424,37 +424,35 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 5,
         "passed": 5
       },
       "tests": {
         "status": "passed",
-        "summary": "262 of 262 backend (dotnet test, up from 252; 10 new: AvailabilityConcurrencyTests 5 real SQL Server races, SchedulingConfigurationTests +4 DST regressions, ConfigurationApiTests +1 revision contract) passing, plus 113 of 113 frontend (up from 101; 12 new: App.unsavedNavigation 5, ConfigurationHubPage +4, ConfigEntityPanel +3) and 11 of 11 real-backend/real-browser Playwright tests (up from 10; 1 new real-dialog navigation guard). See .alveara/handoffs/ALV-N003/R02-evidence/TEST_RESULTS.md."
+        "summary": "262 of 262 backend (dotnet test, unchanged source, full suite re-run), 122 of 122 frontend (up from 113; 9 new: availability editing-session completion regressions 6, ConfigEntityPanel 2, practice form 1) and 11 of 11 real-backend/real-browser Playwright tests, all passing. See .alveara/handoffs/ALV-N003/R03-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "4d4f3c34994aa8beed63582250cb0722cd633ee9",
-      "evidenceCommit": "8d36408fa3b0141fcb600b81fbea142fd96a07c5",
-      "handoffPath": ".alveara/handoffs/ALV-N003/R02.md",
+      "implementationCommit": "39350c586cba3ad8af746f3d6a71e9c70894fa6c",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N003/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N003/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "4d4f3c34994aa8beed63582250cb0722cd633ee9",
-        "reviewedEvidenceCommit": "8d36408fa3b0141fcb600b81fbea142fd96a07c5"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N003-R02-01 (P2): AvailabilityTab binds write completions to provider identity only; a delayed weekly-save response from an abandoned editing session (A-save -> B -> A -> new draft) overwrites the new unsaved draft, and blocked-time add/remove completions share the pattern. Completions must be bound to an editing-session generation, and an in-flight save must not replace edits entered after its submitted snapshot."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
       "completedAt": null,
-      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-N003/R02.md 'Corrections made this attempt' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the permanent regression closing each of ALV-N003-R01-01 through -05. Independent review pending at R02 per .alveara/reviews/ALV-N003/R01.md (prior decision: CHANGES_REQUIRED)."
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N003/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the permanent regressions closing ALV-N003-R02-01 (editing-session-bound write completions). Independent review pending at R03 per .alveara/reviews/ALV-N003/R02.md (prior decision: CHANGES_REQUIRED)."
     },
     {
       "schemaVersion": "2",
