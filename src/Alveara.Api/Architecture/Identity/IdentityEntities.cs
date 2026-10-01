@@ -66,6 +66,12 @@ public class StaffProfile
     public required string DisplayName { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
 
+    /// <summary>ALV-N003: inactivated, never deleted - a former staff member's history must keep resolving.</summary>
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>ALV-N003: free-text job title (e.g. "Front desk lead"); distinct from the login Role.</summary>
+    public string? JobTitle { get; set; }
+
     /// <summary>
     /// ALV-002-C01: SQL Server rowversion, configured via EF Core's <c>IsRowVersion()</c>
     /// (AlveraDbContext). StaffProfile is this story's representative currently-existing mutable
@@ -97,4 +103,10 @@ public class ProviderProfile
     public StaffProfile? StaffProfile { get; set; }
     public required string Specialty { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
+
+    /// <summary>ALV-N003: inactivated, never deleted - past appointments/records still resolve this provider.</summary>
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>ALV-N003: optimistic-concurrency token (see StaffProfile.RowVersion).</summary>
+    public byte[] RowVersion { get; set; } = [];
 }

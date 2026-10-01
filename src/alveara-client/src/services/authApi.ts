@@ -99,7 +99,7 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
 }
 
-async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+export async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, { credentials: "include", ...init });
   if (!res.ok) {
     if (res.status === 401) onUnauthorized?.();
@@ -118,7 +118,7 @@ export async function fetchCsrfToken(): Promise<string> {
   return body.token;
 }
 
-async function requestWithCsrf<T>(url: string, method: string, body?: unknown): Promise<T> {
+export async function requestWithCsrf<T>(url: string, method: string, body?: unknown): Promise<T> {
   const csrfToken = await fetchCsrfToken();
   return request<T>(url, {
     method,

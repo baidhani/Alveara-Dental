@@ -34,4 +34,8 @@ public enum Permission
     // Billing.
     ViewBilling,
     ManageBilling,
+
+    // ALV-N003: practice, staff, provider, operatory, appointment-type, and availability
+    // configuration. Appended last so existing members' ordinal values are undisturbed.
+    ManagePracticeConfiguration,
 }

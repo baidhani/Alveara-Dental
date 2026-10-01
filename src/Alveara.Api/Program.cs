@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
 using Alveara.Api.Architecture.Storage;
@@ -54,6 +55,12 @@ builder.Services.AddSingleton<IPracticeClock>(
 var storageRoot = builder.Configuration["StorageRoot"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "blobs");
 builder.Services.AddSingleton<IBlobStorage>(_ => new LocalDiskBlobStorage(storageRoot));
+
+// ALV-N003: practice/staff/provider/operatory/appointment-type/availability configuration, and
+// the read model scheduling consumes.
+builder.Services.AddScoped<PracticeConfigurationService>();
+builder.Services.AddScoped<StaffProviderService>();
+builder.Services.AddScoped<SchedulingConfiguration>();
 
 // Measurement events.
 builder.Services.AddScoped<IMeasurementEventSink, MeasurementEventSink>();

@@ -159,6 +159,84 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByText(/don't have permission/i)).toHaveCount(0);
   });
 
+  // ---------- ALV-N003: practice, staff, provider, operatory, and scheduling configuration ----------
+
+  test("practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log", async () => {
+    await page.goto("/admin/configuration");
+    await expect(page.getByRole("heading", { name: "Practice configuration" })).toBeVisible();
+
+    // Practice information (time zone/currency are reflected read-only from the deployment).
+    await expect(page.getByLabel("Time zone")).toHaveValue("America/Chicago");
+    await expect(page.getByLabel("Currency")).toHaveValue("USD");
+    await page.getByLabel("Practice name").fill("E2E Dental");
+    await page.getByRole("button", { name: "Save practice information" }).click();
+    await expect(page.getByText("Practice information saved.")).toBeVisible();
+
+    // The one active location, then what hangs off it.
+    await page.getByRole("button", { name: "Add location" }).click();
+    await page.getByLabel("Location name").fill("Main Office");
+    await page.getByRole("button", { name: "Add location" }).last().click();
+    await expect(page.getByText("Added the location.")).toBeVisible();
+
+    await page.getByRole("tab", { name: "Appointment types" }).click();
+    await page.getByRole("button", { name: "Add appointment type" }).click();
+    await page.getByLabel("Appointment type name").fill("E2E Exam");
+    await page.getByLabel("Default duration (minutes)").fill("45");
+    await page.getByRole("button", { name: "Add appointment type" }).last().click();
+    await expect(page.getByRole("cell", { name: "45 min", exact: true })).toBeVisible();
+
+    await page.getByRole("tab", { name: "Operatories" }).click();
+    await page.getByRole("button", { name: "Add operatory" }).click();
+    await page.getByLabel("Operatory name").fill("E2E Op 1");
+    await page.getByRole("button", { name: "Add operatory" }).last().click();
+    await expect(page.getByRole("cell", { name: "E2E Op 1", exact: true })).toBeVisible();
+
+    // Staff -> provider -> weekly hours (practice-local wall clock).
+    await page.getByRole("tab", { name: "Staff" }).click();
+    await page.getByRole("button", { name: "Add staff profile" }).click();
+    await page.getByLabel("Display name").fill("Dr. E2E");
+    await page.getByLabel("Job title").fill("Dentist");
+    await page.getByRole("button", { name: "Add staff profile" }).last().click();
+    await expect(page.getByRole("cell", { name: "Dr. E2E", exact: true })).toBeVisible();
+
+    await page.getByRole("tab", { name: "Providers" }).click();
+    await page.getByRole("button", { name: "Add provider" }).click();
+    await page.getByLabel("Staff member").selectOption({ label: "Dr. E2E" });
+    await page.getByLabel("Specialty").fill("General dentistry");
+    await page.getByRole("button", { name: "Add provider" }).last().click();
+    await expect(page.getByRole("cell", { name: "General dentistry", exact: true })).toBeVisible();
+
+    await page.getByRole("tab", { name: "Availability" }).click();
+    await page.getByLabel("Provider").selectOption({ label: "Dr. E2E - General dentistry" });
+    await page.getByRole("button", { name: "Add window" }).click();
+    await page.getByRole("button", { name: "Save weekly hours" }).click();
+    await expect(page.getByText("Weekly availability saved.")).toBeVisible();
+
+    // Immediately consumable: the scheduling preview reads the same read model scheduling uses.
+    await page.getByRole("tab", { name: "Scheduling preview" }).click();
+    await expect(page.getByText(/Active location: Main Office - times in America\/Chicago/)).toBeVisible();
+    await expect(page.getByText(/Dr\. E2E/)).toBeVisible();
+    await expect(page.getByText(/Monday 09:00-17:00/)).toBeVisible();
+    await expect(page.getByText("E2E Op 1")).toBeVisible();
+    await expect(page.getByText("E2E Exam - 45 min")).toBeVisible();
+
+    // Inactivating an operatory removes it from scheduling but keeps it resolvable (Show inactive).
+    await page.getByRole("tab", { name: "Operatories" }).click();
+    await page.getByRole("button", { name: "Inactivate E2E Op 1" }).click();
+    await expect(page.getByText("Inactivated the operatory.")).toBeVisible();
+    await page.getByLabel("Show inactive").check();
+    await expect(page.getByRole("row").filter({ hasText: "E2E Op 1" })).toContainText("Inactive");
+    await page.getByRole("tab", { name: "Scheduling preview" }).click();
+    await expect(page.getByText("E2E Exam - 45 min")).toBeVisible();
+    await expect(page.getByText("E2E Op 1")).toHaveCount(0);
+
+    // Material changes were audited through the shared audit path, with their entity type.
+    await page.goto("/admin/audit-log");
+    await expect(page.getByRole("row").filter({ hasText: "Operatory" }).filter({ hasText: "ConfigurationCreated" }).first()).toBeVisible();
+    await expect(page.getByRole("row").filter({ hasText: "Operatory" }).filter({ hasText: "ConfigurationInactivated" }).first()).toBeVisible();
+    await expect(page.getByRole("row").filter({ hasText: "ProviderAvailabilityReplaced" }).first()).toBeVisible();
+  });
+
   // ---------- ALV-N009: authorization-aware navigation, session UX, identity context ----------
 
   test("a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API", async () => {
@@ -195,6 +273,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Security Administration" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Permission Matrix" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Audit Log" })).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Practice Configuration" })).toHaveCount(0); // ALV-N003
 
     // Direct URL to each hidden route is still denied server-authoritatively - the client-side
     // guard shows permission-denied before the page's own protected data fetch even starts, and
@@ -205,6 +284,9 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByText(/don't have permission/i)).toBeVisible();
     await page.goto("/admin/audit-log");
     await expect(page.getByText(/don't have permission/i)).toBeVisible();
+    await page.goto("/admin/configuration"); // ALV-N003: the same guard protects the configuration hub
+    await expect(page.getByText(/don't have permission/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Practice configuration" })).toHaveCount(0);
   });
 
   test("the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again", async () => {

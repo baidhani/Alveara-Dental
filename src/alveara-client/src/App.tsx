@@ -12,6 +12,7 @@ import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
 import { MfaSettingsPage } from "./pages/MfaSettingsPage";
 import { PermissionMatrixPage } from "./pages/PermissionMatrixPage";
 import { AuditLogPage } from "./pages/AuditLogPage";
+import { ConfigurationHubPage } from "./pages/ConfigurationHubPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -82,6 +83,14 @@ export function App() {
                 element={
                   <RequirePermission permission="ViewAuditLog">
                     <AuditLogPage />
+                  </RequirePermission>
+                }
+              />
+              <Route
+                path="/admin/configuration"
+                element={
+                  <RequirePermission permission="ManagePracticeConfiguration">
+                    <ConfigurationHubPage />
                   </RequirePermission>
                 }
               />

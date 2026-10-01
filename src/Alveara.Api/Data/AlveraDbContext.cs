@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
@@ -27,6 +28,14 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<MeasurementEvent> MeasurementEvents => Set<MeasurementEvent>();
     public DbSet<IdempotencyReceipt> IdempotencyReceipts => Set<IdempotencyReceipt>();
 
+    // ALV-N003: practice/scheduling configuration.
+    public DbSet<PracticeSettings> PracticeSettings => Set<PracticeSettings>();
+    public DbSet<PracticeLocation> PracticeLocations => Set<PracticeLocation>();
+    public DbSet<Operatory> Operatories => Set<Operatory>();
+    public DbSet<AppointmentType> AppointmentTypes => Set<AppointmentType>();
+    public DbSet<ProviderWeeklyAvailability> ProviderWeeklyAvailabilities => Set<ProviderWeeklyAvailability>();
+    public DbSet<ProviderBlockedTime> ProviderBlockedTimes => Set<ProviderBlockedTime>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<UserAccount>(e =>
@@ -47,6 +56,15 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             // StaffProfile.RowVersion's own doc comment for why StaffProfile, not UserAccount, is
             // this story's representative record.
             e.Property(s => s.RowVersion).IsRowVersion();
+
+            // ALV-N003: a staff profile is inactivated, never deleted. Names are unique (a small
+            // practice disambiguates, and it makes create idempotent), and a login account links to
+            // at most one staff profile.
+            e.Property(s => s.IsActive).HasDefaultValue(true);
+            e.Property(s => s.DisplayName).HasMaxLength(120);
+            e.Property(s => s.JobTitle).HasMaxLength(80);
+            e.HasIndex(s => s.DisplayName).IsUnique();
+            e.HasIndex(s => s.UserAccountId).IsUnique().HasFilter("[UserAccountId] IS NOT NULL");
         });
 
         modelBuilder.Entity<ProviderProfile>(e =>
@@ -55,6 +73,59 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
                 .WithMany()
                 .HasForeignKey(p => p.StaffProfileId)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.Property(p => p.IsActive).HasDefaultValue(true);
+            e.Property(p => p.Specialty).HasMaxLength(80);
+            e.Property(p => p.RowVersion).IsRowVersion();
+            e.HasIndex(p => p.StaffProfileId).IsUnique(); // one provider profile per staff member
+        });
+
+        // ALV-N003 configuration. Every foreign key into configuration is Restrict: referenced
+        // configuration can only be inactivated, never destructively deleted out from under history.
+        modelBuilder.Entity<PracticeSettings>(e =>
+        {
+            e.Property(s => s.Name).HasMaxLength(120);
+            e.Property(s => s.Phone).HasMaxLength(40);
+            e.Property(s => s.AddressLine).HasMaxLength(200);
+            e.Property(s => s.RowVersion).IsRowVersion();
+        });
+
+        modelBuilder.Entity<PracticeLocation>(e =>
+        {
+            e.Property(l => l.Name).HasMaxLength(120);
+            e.Property(l => l.RowVersion).IsRowVersion();
+            e.HasIndex(l => l.Name).IsUnique();
+            // First release supports exactly one ACTIVE location: a unique index over IsActive,
+            // filtered to active rows, makes a second active location impossible at the database
+            // even if the service's friendly check were bypassed or raced.
+            e.HasIndex(l => l.IsActive).IsUnique().HasFilter("[IsActive] = 1").HasDatabaseName("UX_PracticeLocations_SingleActive");
+        });
+
+        modelBuilder.Entity<Operatory>(e =>
+        {
+            e.Property(o => o.Name).HasMaxLength(120);
+            e.Property(o => o.RowVersion).IsRowVersion();
+            e.HasOne(o => o.Location).WithMany().HasForeignKey(o => o.LocationId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(o => new { o.LocationId, o.Name }).IsUnique();
+        });
+
+        modelBuilder.Entity<AppointmentType>(e =>
+        {
+            e.Property(t => t.Name).HasMaxLength(120);
+            e.Property(t => t.RowVersion).IsRowVersion();
+            e.HasIndex(t => t.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<ProviderWeeklyAvailability>(e =>
+        {
+            e.HasOne(a => a.ProviderProfile).WithMany().HasForeignKey(a => a.ProviderProfileId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(a => new { a.ProviderProfileId, a.DayOfWeek });
+        });
+
+        modelBuilder.Entity<ProviderBlockedTime>(e =>
+        {
+            e.Property(b => b.Reason).HasMaxLength(200);
+            e.HasOne(b => b.ProviderProfile).WithMany().HasForeignKey(b => b.ProviderProfileId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(b => new { b.ProviderProfileId, b.StartUtc });
         });
 
         modelBuilder.Entity<BackgroundJob>(e =>

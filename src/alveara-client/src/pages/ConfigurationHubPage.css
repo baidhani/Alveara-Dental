@@ -1,0 +1,31 @@
+.alv-config-tabs {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-border);
+  margin-top: var(--space-4);
+}
+
+.alv-config-tabs__tab {
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.alv-config-tabs__tab--active {
+  border-color: var(--color-border);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-surface, transparent);
+}
+
+.alv-config-panel__window {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}

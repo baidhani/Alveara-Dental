@@ -104,6 +104,46 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     vi.unstubAllGlobals();
   });
 
+  it("ALV-N003: denies practice configuration to a caller without ManagePracticeConfiguration, hiding its nav link", async () => {
+    stubFetch({
+      permissions: () =>
+        jsonResponse({ username: "front-1", role: "FrontDesk", permissions: ["ViewSchedule"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+    });
+    window.history.pushState({}, "", "/admin/configuration");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByText(/don't have permission/i)).toBeInTheDocument());
+    expect(screen.queryByRole("heading", { name: "Practice configuration" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Practice Configuration" })).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("ALV-N003: renders the configuration hub directly for a practice manager, with its nav link", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions"))
+          return Promise.resolve(
+            jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ManagePracticeConfiguration"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+          );
+        if (u.includes("/api/config/practice"))
+          return Promise.resolve(jsonResponse({ id: null, name: null, phone: null, addressLine: null, timeZoneId: "America/Chicago", currency: "USD", configured: false, rowVersion: null }));
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse([]));
+      })
+    );
+    window.history.pushState({}, "", "/admin/configuration");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Practice configuration" })).toBeInTheDocument());
+    expect(screen.queryByText(/don't have permission/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Practice Configuration" })).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
   it("returns a caller to the page they were denied once they sign in", async () => {
     let permissionsCallCount = 0;
     vi.stubGlobal(
