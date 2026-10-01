@@ -474,21 +474,21 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "343 of 343 backend (dotnet test, up from 262; 81 new against real SQL Server BACKUP/RESTORE: BackupCryptoTests 20, BackupServiceTests 20, BackupRestoreTests 20, BackupSchedulerTests 9, BackupApiTests 12) passing, plus 156 of 156 frontend (up from 122; 34 new: BackupRecoveryPage 32, route guards 2) and 12 of 12 real-backend/real-browser Playwright tests (up from 11; 1 new real backup + isolated restore flow). See .alveara/handoffs/ALV-N004/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
+      "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "bd50b4a8cc3f391e5b7217a421962e6ea1e327af",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N004/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
