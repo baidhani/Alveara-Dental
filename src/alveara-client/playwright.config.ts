@@ -9,7 +9,7 @@ export const TABLET_VIEWPORT = { width: 768, height: 1024 };
 export default defineConfig({
   testDir: "./e2e",
   // auth-real-backend.spec.ts needs a real API + database and runs via playwright.auth.config.ts (docs/testing/REAL_BACKEND_E2E.md); the rest run against the static build with mocked, authenticated API responses.
-  testIgnore: "auth-real-backend.spec.ts",
+  testIgnore: ["auth-real-backend.spec.ts", "patient-registration-real-backend.spec.ts"],
   fullyParallel: true,
   reporter: [["list"]],
   use: {

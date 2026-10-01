@@ -1,0 +1,66 @@
+.alv-patient-reg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.alv-patient-reg__section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.alv-patient-reg__section legend {
+  padding: 0 var(--space-2);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.alv-patient-reg__section .alv-form-field {
+  max-width: none;
+}
+
+.alv-patient-reg__banner {
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-text);
+}
+
+.alv-patient-reg__banner p {
+  margin: 0;
+}
+
+.alv-patient-reg__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alv-patient-reg__dirty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.alv-patient-reg__done {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-text);
+}
+
+.alv-patient-reg__done-title {
+  margin-top: 0;
+}
+
+.alv-patient-reg__id {
+  font-family: var(--font-mono, monospace);
+  overflow-wrap: anywhere;
+}

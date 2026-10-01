@@ -5,6 +5,7 @@ using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
+using Alveara.Api.Architecture.Patients;
 
 namespace Alveara.Api.Data;
 
@@ -43,6 +44,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<RestoreDrillRecord> RestoreDrills => Set<RestoreDrillRecord>();
     public DbSet<BackupNotificationRecord> BackupNotifications => Set<BackupNotificationRecord>();
     public DbSet<DeploymentInvariantRecord> DeploymentInvariants => Set<DeploymentInvariantRecord>();
+
+    // STORY-003: patient registration.
+    public DbSet<Patient> Patients => Set<Patient>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -193,6 +197,29 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(n => n.Delivery).HasConversion<string>().HasMaxLength(20);
             e.Property(n => n.DeliveryFailureCode).HasMaxLength(60);
             e.HasIndex(n => n.CreatedAtUtc);
+        });
+
+        // STORY-003: patients are registered, never deleted by the application. The unique DuplicateKey
+        // is the database-level guarantee behind "duplicate entry" and concurrent double-registration.
+        modelBuilder.Entity<Patient>(e =>
+        {
+            e.Property(p => p.FirstName).HasMaxLength(80);
+            e.Property(p => p.MiddleName).HasMaxLength(80);
+            e.Property(p => p.LastName).HasMaxLength(80);
+            e.Property(p => p.Sex).HasMaxLength(30);
+            e.Property(p => p.Phone).HasMaxLength(40);
+            e.Property(p => p.Email).HasMaxLength(200);
+            e.Property(p => p.AddressLine1).HasMaxLength(200);
+            e.Property(p => p.AddressLine2).HasMaxLength(200);
+            e.Property(p => p.City).HasMaxLength(100);
+            e.Property(p => p.State).HasMaxLength(50);
+            e.Property(p => p.PostalCode).HasMaxLength(20);
+            e.Property(p => p.DuplicateKey).HasMaxLength(260);
+            e.Property(p => p.RowVersion).IsRowVersion();
+            e.Property(p => p.RegistrationKey).HasMaxLength(100);
+            e.HasIndex(p => p.DuplicateKey).IsUnique();
+            e.HasIndex(p => p.RegistrationKey).IsUnique().HasFilter("[RegistrationKey] IS NOT NULL");
+            e.HasIndex(p => p.LastName);
         });
 
         modelBuilder.Entity<BackgroundJob>(e =>

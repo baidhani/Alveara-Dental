@@ -62,6 +62,7 @@ builder.Services.AddSingleton<IBlobStorage>(_ => new LocalDiskBlobStorage(storag
 builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
 builder.Services.AddScoped<SchedulingConfiguration>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationService>();
 
 // Measurement events.
 builder.Services.AddScoped<IMeasurementEventSink, MeasurementEventSink>();

@@ -25,7 +25,8 @@ public static class PermissionMatrix
             Permission.ViewPatientRecords, Permission.ViewSchedule),
 
         [Role.FrontDesk] = Set(
-            Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling),
+            Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
+            Permission.RegisterPatients),
 
         [Role.Billing] = Set(
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords),
@@ -34,7 +35,7 @@ public static class PermissionMatrix
             Permission.ViewPatientRecords, Permission.ManageAppointments, Permission.ViewSchedule,
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewAuditLog, Permission.ViewPermissionMatrix,
             Permission.ManagePracticeConfiguration, // the "practice manager" of ALV-N003
-            Permission.ViewBackupStatus),
+            Permission.ViewBackupStatus, Permission.RegisterPatients),
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

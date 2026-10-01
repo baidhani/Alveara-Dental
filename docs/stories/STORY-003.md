@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a new patient, when they provide their information, then the system captures demographics and contact details.
-- [ ] Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.
-- [ ] Trust: All registration actions are logged with user and timestamp.
+- [x] Given a new patient, when they provide their information, then the system captures demographics and contact details.
+- [x] Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.
+- [x] Trust: All registration actions are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.

@@ -58,3 +58,26 @@ role from the real API response.
 
 Evidence from an actual run is committed at
 `.alveara/handoffs/ALV-001-C01/R02-evidence/artifacts/playwright-real-backend/`.
+
+## STORY-003: patient registration walkthrough
+
+`e2e/patient-registration-real-backend.spec.ts` is the same kind of un-mocked run for patient
+registration. Start the API exactly as in step 2, **also setting
+`AuthAttemptRateLimit__PermitLimit=500`** (the spec signs in an admin, a front-desk user and two
+dentists from one address, which the default limit of 10 would cut off), then from
+`src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:PATIENT_E2E_OUT = "C:\tmp\patient-e2e"   # optional: where the JSON results and screenshots go
+npx playwright test --config=playwright.patients.config.ts
+```
+
+It signs in as a front-desk user and shows: an incomplete form prompts for every missing required
+field (and stores nothing); a valid registration is read back from the real API with all its
+demographics and contact details; registering the same person again is refused with the existing
+record named; the form can be completed from the keyboard alone; the audit log holds one
+`PatientRegistered` entry per registration with the user and a timestamp and no patient details;
+and a dentist has no nav link, no page and a 403 from the API. It also runs axe over the form
+(default, error and success states) in light and dark. Like `auth-real-backend.spec.ts`, it is
+excluded from the default mocked `npm run test:e2e`.

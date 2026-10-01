@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-003",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-01T23:55:00Z",
+  "sourceCommitSha": "51e5354362a2ff7fc6510e3152ba18fd3c7711af",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Front desk staff, office managers and admins can register patients: the new RegisterPatients permission is granted to exactly those three roles; dentists, hygienists, assistants and billing cannot (the API returns 403 and the nav link is hidden).",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "A registered patient holds demographics (first, middle and last name, date of birth as a calendar date, optional sex) and contact details (phone, optional email, address with city, state and postal code). Required: first name, last name, date of birth, phone, address line 1, city, state, postal code.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Patient.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "Registration is a POST to /api/patients that requires an Idempotency-Key header and a CSRF token; the front-desk form sends one key per registration attempt and reuses it on a retry.",
+      "evidence": "src/Alveara.Api/Controllers/PatientsController.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Registration refuses: incomplete or invalid input (400 with a message per field, nothing stored), the same person again (409 naming the existing patient), a missing idempotency key (400), and any registration whose audit entry cannot be written (the patient is rolled back with it). Two simultaneous registrations of one person produce exactly one patient.",
+      "evidence": "src/Alveara.Api.Tests/PatientRegistrationServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every registration writes a PatientRegistered audit entry, in the same save as the patient, recording the registering user and a timestamp. The entry holds no patient names or contact data; it points at the patient by id.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/PatientRegistrationService.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "A successful registration returns 201 with the stored patient and its id; a retry with the same idempotency key returns 200 with the same patient.",
+      "evidence": "src/Alveara.Api.Tests/PatientsApiTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Registration is limited to demographics and contact details. REQ-004's family/household relationships clause is left to the companion story ALV-003-C01 and was not built here.",
+      "rationale": "STORY-003's three acceptance criteria do not mention households, and the master plan's own gap analysis assigns household and a separate guarantor to ALV-003-C01.",
+      "evidence": "docs/stories/STORY-003.md"
+    },
+    {
+      "statement": "A unique database index on a normalized last-name, first-name and date-of-birth key blocks a second registration of the same person.",
+      "rationale": "It is the only guarantee that holds when two registrations race; the friendly pre-check alone cannot. It is also stricter than a duplicate warning, so a later story that wants warn-and-override will have to relax it.",
+      "evidence": "src/Alveara.Api/Data/AlveraDbContext.cs"
+    },
+    {
+      "statement": "The registration idempotency key is stored on the patient row (a unique filtered index) so a retry returns the original patient, instead of using the shared idempotency receipt table.",
+      "rationale": "The receipt table does not record which entity a command created, and a retry has to return that same patient.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/PatientRegistrationService.cs"
+    },
+    {
+      "statement": "The audit entry is staged in the same SaveChanges as the patient rather than written afterward.",
+      "rationale": "A registration can then never exist without its audit trail, which satisfies the trust criterion even when audit storage fails.",
+      "evidence": "src/Alveara.Api.Tests/PatientRegistrationServiceTests.cs#If_the_audit_write_fails_the_registration_is_not_stored_either"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "No household or family relationships and no separate guarantor: REQ-004 is only partly satisfied by this story. ALV-003-C01 is planned to complete it.",
+      "evidence": "docs/REQUIREMENTS.md#L105-L109"
+    },
+    {
+      "statement": "Patients can only be registered and read back by id. There is no patient search, edit, active/inactive state or duplicate-warning override yet; a duplicate is refused outright.",
+      "evidence": "src/Alveara.Api/Controllers/PatientsController.cs"
+    },
+    {
+      "statement": "Only front desk, office manager and admin hold RegisterPatients, and reading a patient by id uses the same permission, so clinical roles cannot yet open the record this story creates.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "statement": "Phone and email checks are shape checks only (at least 7 digits; one @ with a dot after it). Addresses are free text with no postal validation, and dates of birth before 1900 or in the future are rejected.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/PatientRegistrationService.cs#L148"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientRegistrationServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientsApiTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientModelTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/pages/PatientRegistrationPage.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/patient-registration-real-backend.spec.ts" }
+  ],
+  "measurementEvents": []
+}

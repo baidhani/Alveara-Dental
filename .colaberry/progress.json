@@ -159,20 +159,45 @@
       "criteria": [
         {
           "text": "Given a new patient, when they provide their information, then the system captures demographics and contact details.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All registration actions are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Patients/Patient.cs",
+        "src/Alveara.Api/Architecture/Patients/PatientRegistrationService.cs",
+        "src/Alveara.Api/Controllers/PatientsController.cs",
+        "src/Alveara.Api/Architecture/Identity/Permission.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261001231149_AddPatients.cs",
+        "src/alveara-client/src/pages/PatientRegistrationPage.tsx",
+        "src/alveara-client/src/pages/PatientRegistrationPage.css",
+        "src/alveara-client/src/services/patientsApi.ts",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/src/app/moduleRegistry.ts",
+        "src/alveara-client/playwright.patients.config.ts",
+        "src/alveara-client/playwright.config.ts",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        "docs/stories/STORY-003.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/PatientModelTests.cs",
+        "src/Alveara.Api.Tests/PatientRegistrationServiceTests.cs",
+        "src/Alveara.Api.Tests/PatientsApiTests.cs",
+        "src/alveara-client/src/pages/PatientRegistrationPage.test.tsx",
+        "src/alveara-client/src/App.patientRoute.test.tsx",
+        "src/alveara-client/e2e/patient-registration-real-backend.spec.ts"
+      ],
+      "notes": "Demographics and contact details only. REQ-004's family/household clause is not in STORY-003's acceptance and is owned by ALV-003-C01 per the master plan. Verified: backend 420/420, frontend 199/199, mocked browser 40/40, real-backend browser walkthrough 7/7 (axe: 0 critical/serious, light+dark).",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

@@ -17,6 +17,7 @@ export interface ModuleDefinition {
 
 export const moduleRegistry: ModuleDefinition[] = [
   { id: "dashboard", label: "Dashboard", path: "/" },
+  { id: "register-patient", label: "Register Patient", path: "/patients/register", requiredPermission: "RegisterPatients" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users", requiredPermission: "ManageUsers" },

@@ -44,4 +44,7 @@ public enum Permission
     // granted to the practice manager so a failed backup cannot go unnoticed.
     ManageBackups,
     ViewBackupStatus,
+
+    // STORY-003: registering patients (demographics + contact). Appended last so existing ordinals are undisturbed.
+    RegisterPatients,
 }
