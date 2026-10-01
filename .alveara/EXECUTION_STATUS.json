@@ -373,7 +373,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -386,16 +386,19 @@
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "59fd1365252e18413b594bdd1f0eda9d7dbfb292",
-      "evidenceCommit": null,
+      "evidenceCommit": "0ae3e3cdd2b219a30b31718f5bfce0335fbdd003",
       "handoffPath": ".alveara/handoffs/ALV-002-C01/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-002-C01/R02.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "59fd1365252e18413b594bdd1f0eda9d7dbfb292",
+        "reviewedEvidenceCommit": "0ae3e3cdd2b219a30b31718f5bfce0335fbdd003"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-002-C01-R02-01 (P2): GET /api/auth/audit-log projects only Id, EventType, TargetUserAccountId, PerformedByUserAccountId, Details and TimestampUtc; it omits the shared EntityType, Reason and CorrelationId the viewer contract expects, so the viewer's entity type column renders a dash for new events.",
+        "ALV-002-C01-R02-02 (P2): AuditLogPage claims the most recent 500 events but getAuditLog() sends no take parameter, so the server default of 100 applies."
+      ],
       "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-002-C01/R02.md 'Corrections made this attempt' and R02-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the four R01 findings (ALV-002-C01-R01-01, -02, -03, -04). Independent review pending at R02 per .alveara/reviews/ALV-002-C01/R01.md (prior decision: CHANGES_REQUIRED).",
       "revalidation": {
         "required": false,
