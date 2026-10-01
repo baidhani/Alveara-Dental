@@ -474,39 +474,35 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "343 of 343 backend (dotnet test, up from 262; 81 new against real SQL Server BACKUP/RESTORE: BackupCryptoTests 20, BackupServiceTests 20, BackupRestoreTests 20, BackupSchedulerTests 9, BackupApiTests 12) passing, plus 156 of 156 frontend (up from 122; 34 new: BackupRecoveryPage 32, route guards 2) and 12 of 12 real-backend/real-browser Playwright tests (up from 11; 1 new real backup + isolated restore flow). See .alveara/handoffs/ALV-N004/R01-evidence/TEST_RESULTS.md."
+        "summary": "358 of 358 backend (full dotnet test run) plus 1 later-added test (BackupRecoveryHardeningTests class re-run 14 of 14; 359 listed), 158 of 158 frontend (up from 156) and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "bd50b4a8cc3f391e5b7217a421962e6ea1e327af",
-      "evidenceCommit": "ce8d6bdb3893abee1116c97666f44bbe49d63f6e",
-      "handoffPath": ".alveara/handoffs/ALV-N004/R01.md",
+      "implementationCommit": "f8969c29d29c2c924ac05b725de6935bc739eef5",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N004/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N004/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "bd50b4a8cc3f391e5b7217a421962e6ea1e327af",
-        "reviewedEvidenceCommit": "ce8d6bdb3893abee1116c97666f44bbe49d63f6e"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N004-R01-01 (P1): recovery requires the BackupRecord history in the database being recovered; there is no archive import/discovery entry point, so recovery onto a fresh installation after loss of the original database cannot follow the runbook through the supported UI/API.",
-        "ALV-N004-R01-02 (P1): BackupCrypto defines a custom authenticated-encryption container (ALVBK framing, chunk/nonce/AAD/final-chunk parser), violating the explicit 'no custom cryptographic formats' requirement; a maintained reviewed library/platform facility implementing a documented format must replace it.",
-        "ALV-N004-R01-03 (P1): the fixed Data Protection application name makes existing protected MFA secrets unreadable (old discriminator); compatibility or an explicit tested upgrade is required.",
-        "ALV-N004-R01-04 (P1): the 'full-state' set omits the practice time zone (deployment configuration consumed by IPracticeClock); critical non-secret deployment settings must be captured, applied or verified on recovery, with a non-default-zone recovery test."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "blockingIssuesResolvedInAttempt": "R02 - see .alveara/handoffs/ALV-N004/R02.md 'Corrections made this attempt': ALV-N004-R01-01 (history-free archive recovery), R01-02 (standard OpenPGP via BouncyCastle), R01-03 (Data Protection compatibility preserved), R01-04 (deployment settings captured, checked and enforced). Independent review pending at R02 per .alveara/reviews/ALV-N004/R01.md (prior decision: CHANGES_REQUIRED)."
     },
     {
       "schemaVersion": "2",
