@@ -228,30 +228,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "REOPENED",
-      "attempt": "R06",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R07",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "175 of 175 backend (dotnet test) + 40 of 40 frontend (vitest) passing, plus 6 of 6 real-backend/real-browser Playwright tests (e2e/auth-real-backend.spec.ts against a real running API and real migrated database, no mocking). Independently re-verified by the R06 reviewer: same counts (221 total), all passing, against a fresh reviewer-owned migrated database and a real API process. Both R05 evidence-gap findings closed by tests that provably force each disputed concurrency branch (deterministic seam-based coordination), not scheduler-dependent outcomes."
+        "summary": "184 of 184 frontend (vitest; 8 new adminUsersContrast tests pin the status-badge and link contrast at 4.5:1 in both themes and fail against the old CSS), tsc clean, build clean, lint exit 0 (pre-existing warnings only); authenticated real-API axe scan with seeded real data of every page that renders the shared status badge (users, user detail, configuration operatories/appointment types, backup), both themes, default + hover + keyboard-focus: 0 critical/serious (30 scans); real-backend/real-browser Playwright 12 of 12 (extended timeouts). No backend source changed (375/375 backend from the approved baseline)."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "d6fd2810b42e871d690e4032ab27c2603348a47b",
-      "evidenceCommit": "df5b7f25351b7c0af4bf86b43e397e4d0f4a2278",
-      "handoffPath": ".alveara/handoffs/ALV-001-C01/R06.md",
+      "implementationCommit": "5c4b5db8200e10276372db09769ebe172ac0f097",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-001-C01/R07.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-001-C01/R06.md",
-        "approvedAttempt": "R06",
-        "reviewedImplementationCommit": "d6fd2810b42e871d690e4032ab27c2603348a47b",
-        "reviewedEvidenceCommit": "df5b7f25351b7c0af4bf86b43e397e4d0f4a2278"
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R06 - see .alveara/handoffs/ALV-001-C01/R06.md 'Corrections made' and R06-evidence/ACCEPTANCE_EVIDENCE.md for the specific test closing each of the two R05 findings (ALV-001-C01-R05-01, -02). All prior findings (R01: 5, R02: 2, R03: 3, R04: 2, R05: 2) were corrected in their respective attempts; independently APPROVED at R06 per .alveara/reviews/ALV-001-C01/R06.md.",
+      "blockingIssuesResolvedInAttempt": "R07 - see .alveara/handoffs/ALV-001-C01/R07.md: GATE-A-01 corrected (status badge and user-table link contrast, both themes; root causes: non-existent surface tokens and a button-background colour used for links) with a contrast regression test and real-data revalidation of every shared badge use. Independent review pending per .alveara/gates/A/reviews/4b69d32.md.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -446,7 +446,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R03",
       "acceptance": {
         "total": 5,
@@ -470,8 +470,10 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "ALV-001-C01 R07 changed the shared .alv-status-badge styling used by this story's pages. Revalidated with real data in .alveara/handoffs/ALV-001-C01/R07-evidence (axe, both themes, default/hover/focus: 0 critical/serious; component suites unchanged). Restore to COMPLETE on approval of ALV-001-C01 R07.",
+        "triggeredBy": "ALV-001-C01 R07",
+        "evidence": ".alveara/handoffs/ALV-001-C01/R07-evidence/artifacts/badge-uses-axe-results.json"
       },
       "completedAt": "2026-10-01T12:54:00.000Z",
       "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N003/R03.md and R03-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 5, R02: 1) were corrected in their respective attempts; independently APPROVED at R03 per .alveara/reviews/ALV-N003/R03.md."
@@ -496,7 +498,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R05",
       "acceptance": {
         "total": 7,
@@ -520,8 +522,10 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "ALV-001-C01 R07 changed the shared .alv-status-badge styling used by this story's pages. Revalidated with real data in .alveara/handoffs/ALV-001-C01/R07-evidence (axe, both themes, default/hover/focus: 0 critical/serious; component suites unchanged). Restore to COMPLETE on approval of ALV-001-C01 R07.",
+        "triggeredBy": "ALV-001-C01 R07",
+        "evidence": ".alveara/handoffs/ALV-001-C01/R07-evidence/artifacts/badge-uses-axe-results.json"
       },
       "completedAt": "2026-10-01T18:16:25.000Z",
       "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-N004/R05.md and R05-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 4, R02: 2, R03: 1, R04: 1) were corrected in their respective attempts; independently APPROVED at R05 per .alveara/reviews/ALV-N004/R05.md."

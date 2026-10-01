@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N001` attempt R03 (reopened by the Gate A review) - implementation committed, **`AWAITING_REVIEW`**: secondary-button hover/focus and dark danger-button text now meet WCAG AA (Button.css, one dark token, a new contrast regression test). `ALV-001-C01` (R07) and `ALV-002-C01` (R04) remain `REOPENED`; Gate A remains **FAIL** and `STORY-003` blocked until all corrections are approved and Gate A is rerun. See `.alveara/handoffs/ALV-N001/R03.md`.
+Last updated: `ALV-001-C01` attempt R07 (reopened by the Gate A review) - implementation committed, **`AWAITING_REVIEW`**: security-administration status badges and links meet WCAG AA contrast in both themes (styling only). `ALV-N001` R03 is `AWAITING_REVIEW` (shared Button contrast); `ALV-N003` and `ALV-N004` are `REVALIDATION_REQUIRED` (shared badge class; revalidated with real data in the R07 evidence); `ALV-002-C01` remains `REOPENED`. Gate A remains **FAIL** and `STORY-003` blocked until all corrections are approved and Gate A is rerun. See `.alveara/handoffs/ALV-001-C01/R07.md`.
 
 ## Production implementation status
 

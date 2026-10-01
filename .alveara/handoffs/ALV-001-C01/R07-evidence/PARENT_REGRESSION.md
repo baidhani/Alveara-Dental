@@ -1,0 +1,3 @@
+# ALV-001-C01 R07 - Parent (STORY-001) Regression
+
+`STORY-001` (secure authentication and RBAC, portal-verified) is unaffected: this attempt changes only CSS and a CSS contrast test. No file under `Architecture/Identity/`, no controller, no route guard, no authentication or authorization frontend logic was touched. The unmodified real-backend/real-browser suite (registration without role selection, bootstrap, login, MFA enrolment and challenge, replay rejection, role administration, permission matrix, audit, limited-role denial, sign-out) passes 12/12, and the STORY-001 backend suites are unchanged within the approved 375-test baseline.
