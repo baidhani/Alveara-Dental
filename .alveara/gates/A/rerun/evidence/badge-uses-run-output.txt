@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ok 1 [chromium] › gate-a\gate-a-badge-uses.spec.ts:24:1 › badge uses: users, user detail, configuration rows and backup history have no critical/serious axe violations (36.3s)
+
+  1 passed (38.4s)

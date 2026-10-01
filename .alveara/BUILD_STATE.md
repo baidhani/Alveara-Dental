@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-002-C01` attempt R04 - independently reviewed and **`APPROVED`**, now `COMPLETE`. All three Gate A corrections (`ALV-N001` R03, `ALV-001-C01` R07, `ALV-002-C01` R04) are closed and `ALV-N003`/`ALV-N004` are restored to `COMPLETE`. **Gate A remains FAIL until a fresh criterion-by-criterion evaluation on the integrated repository passes; the next scheduled action is that rerun. `STORY-003` is not authorized.** See `.alveara/reviews/ALV-002-C01/R04.md`.
+Last updated: **Gate A rerun 2026-10-01: PASS** (all nine criteria; thresholds unchanged) after the A2 corrections (`ALV-N001` R03, `ALV-001-C01` R07, `ALV-002-C01` R04) were approved and closed. See `.alveara/gates/A/rerun/GATE_A_RERUN_REPORT.md`. The next scheduled item is `STORY-003` (original course story: execute its current course-portal prompt, then record `STORY-003: record course completion`); it has not started.
 
 ## Production implementation status
 

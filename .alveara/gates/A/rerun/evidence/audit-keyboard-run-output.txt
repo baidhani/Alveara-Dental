@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ok 1 [chromium] › gate-a\gate-a-audit-keyboard.spec.ts:24:1 › audit viewer scroll region: keyboard reachable, visibly focused, scrollable by keyboard, axe-clean in both themes (4.5s)
+
+  1 passed (6.7s)

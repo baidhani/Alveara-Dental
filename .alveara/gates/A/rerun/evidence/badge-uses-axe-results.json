@@ -1,0 +1,105 @@
+{
+  "blockingTotal": 0,
+  "results": [
+    {
+      "page": "/admin/users",
+      "theme": "light",
+      "badgesOnPage": 2,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/users",
+      "theme": "dark",
+      "badgesOnPage": 2,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/users/:id",
+      "theme": "light",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/users/:id",
+      "theme": "dark",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "light",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "dark",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "light",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "dark",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "light",
+      "badgesOnPage": 3,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "dark",
+      "badgesOnPage": 3,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    }
+  ]
+}
