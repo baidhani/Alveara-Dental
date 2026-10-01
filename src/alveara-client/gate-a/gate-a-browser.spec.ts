@@ -16,9 +16,19 @@ import path from "node:path";
 const OUT = process.env.GATE_A_OUT ?? path.join(process.cwd(), "gate-a-out");
 mkdirSync(OUT, { recursive: true });
 
-const ROUTES = ["/", "/showcase", "/system-status", "/admin/users", "/admin/permissions", "/admin/audit-log", "/admin/configuration", "/admin/backup", "/settings/mfa", "/this-route-does-not-exist"];
+const ALL_ROUTES = ["/", "/showcase", "/system-status", "/admin/users", "/admin/permissions", "/admin/audit-log", "/admin/configuration", "/admin/backup", "/settings/mfa", "/this-route-does-not-exist"];
+const ROUTES = process.env.GATE_A_ROUTES ? process.env.GATE_A_ROUTES.split(",") : ALL_ROUTES;
 const GUARDED = ["/admin/users", "/admin/permissions", "/admin/audit-log", "/admin/configuration", "/admin/backup"];
 const ROLES = ["Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager", "Admin"];
+
+/** Wait for every finite animation/transition to finish and the page to stop changing before measuring. */
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    const finite = document.getAnimations().filter((a) => Number.isFinite(a.effect?.getComputedTiming().endTime as number)); // infinite loaders never finish
+    await Promise.race([Promise.all(finite.map((a) => a.finished.catch(() => undefined))), new Promise((r) => setTimeout(r, 3000))]);
+  });
+  await page.waitForTimeout(400);
+}
 
 test.describe.configure({ mode: "serial" });
 
@@ -69,10 +79,23 @@ test("A2: no critical/serious axe violations on any shell route, light and dark,
       const current = await admin.locator("html").getAttribute("data-theme");
       if (current !== theme) await admin.getByRole("button", { name: /Light|Dark/ }).click();
       await expect(admin.locator("html")).toHaveAttribute("data-theme", theme);
+      await settle(admin); // finite CSS transitions (e.g. button background 0.12s) must be finished or axe samples blended colours
       const axe = await new AxeBuilder({ page: admin }).withTags(["wcag2a", "wcag2aa"]).analyze();
       const blocking = axe.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
       blockingTotal += blocking.length;
-      results.push({ route, theme, violations: axe.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.length, targets: v.nodes.slice(0, 4).map((n) => ({ target: n.target, summary: (n.failureSummary ?? "").split(String.fromCharCode(10)).slice(0, 3).join(" ") })) })), blocking: blocking.length, passes: axe.passes.length });
+      // interaction states: hovered and keyboard-focused controls on the page (default state was scanned above)
+      const states: Record<string, number> = {};
+      for (const state of ["hover", "focus"] as const) {
+        const target = admin.locator("main a, main button, main [tabindex]").first();
+        if (await target.count()) {
+          if (state === "hover") await target.hover(); else { await admin.keyboard.press("Tab"); await target.focus(); }
+          await settle(admin);
+          const r2 = await new AxeBuilder({ page: admin }).withTags(["wcag2a", "wcag2aa"]).analyze();
+          states[state] = r2.violations.filter((v) => v.impact === "critical" || v.impact === "serious").length;
+          blockingTotal += states[state];
+        }
+      }
+      results.push({ route, theme, stateScans: states, violations: axe.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.length, targets: v.nodes.slice(0, 4).map((n) => ({ target: n.target, summary: (n.failureSummary ?? "").split(String.fromCharCode(10)).slice(0, 3).join(" ") })) })), blocking: blocking.length, passes: axe.passes.length });
     }
   }
   writeFileSync(path.join(OUT, "a2-axe-results.json"), JSON.stringify({ tags: ["wcag2a", "wcag2aa"], routes: ROUTES, results, blockingTotal }, null, 2));
