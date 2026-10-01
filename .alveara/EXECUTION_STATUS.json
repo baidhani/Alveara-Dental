@@ -424,7 +424,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R03",
       "acceptance": {
         "total": 5,
@@ -432,27 +432,27 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "262 of 262 backend (dotnet test, unchanged source, full suite re-run), 122 of 122 frontend (up from 113; 9 new: availability editing-session completion regressions 6, ConfigEntityPanel 2, practice form 1) and 11 of 11 real-backend/real-browser Playwright tests, all passing. See .alveara/handoffs/ALV-N003/R03-evidence/TEST_RESULTS.md."
+        "summary": "262 of 262 backend (dotnet test, unchanged source, full suite re-run), 122 of 122 frontend (up from 113; 9 new: availability editing-session completion regressions 6, ConfigEntityPanel 2, practice form 1) and 11 of 11 real-backend/real-browser Playwright tests, all passing. See .alveara/handoffs/ALV-N003/R03-evidence/TEST_RESULTS.md. Independently re-verified by the R03 reviewer: repository frontend 122/122, original R02 reviewer probe passing, focused backend 20/20 against real SQL Server, build, lint and real-browser 11/11."
       },
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "39350c586cba3ad8af746f3d6a71e9c70894fa6c",
-      "evidenceCommit": null,
+      "evidenceCommit": "d8d2a21365728ca1fb31d532ce4f6fc43481396d",
       "handoffPath": ".alveara/handoffs/ALV-N003/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N003/R03.md",
+        "approvedAttempt": "R03",
+        "reviewedImplementationCommit": "39350c586cba3ad8af746f3d6a71e9c70894fa6c",
+        "reviewedEvidenceCommit": "d8d2a21365728ca1fb31d532ce4f6fc43481396d"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N003/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the permanent regressions closing ALV-N003-R02-01 (editing-session-bound write completions). Independent review pending at R03 per .alveara/reviews/ALV-N003/R02.md (prior decision: CHANGES_REQUIRED)."
+      "completedAt": "2026-10-01T12:54:00.000Z",
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N003/R03.md and R03-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 5, R02: 1) were corrected in their respective attempts; independently APPROVED at R03 per .alveara/reviews/ALV-N003/R03.md."
     },
     {
       "schemaVersion": "2",
