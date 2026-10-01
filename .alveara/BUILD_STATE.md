@@ -2,13 +2,21 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N004` attempt R03 - implementation committed, set to **`AWAITING_REVIEW`**. R02 was independently reviewed and returned `CHANGES_REQUIRED` (two P1 findings); R03 corrects them. See `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA, `.alveara/reviews/ALV-N004/R02.md` for the review, and `.alveara/handoffs/ALV-N004/R03.md` for the full handoff.
+Last updated: `ALV-N004` attempt R04 - implementation committed, set to **`AWAITING_REVIEW`**. R03 was independently reviewed and returned `CHANGES_REQUIRED` (verify-only could promote a contradictory archive and earn confidence); R04 corrects it. See `.alveara/EXECUTION_STATUS.json` for the exact implementation commit SHA, `.alveara/reviews/ALV-N004/R03.md` for the review, and `.alveara/handoffs/ALV-N004/R04.md` for the full handoff.
 
 ## Production implementation status
 
-**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `ALV-N003` (practice, staff, provider, operatory, appointment-type, and scheduling configuration) is `COMPLETE`, approved as attempt R03 on 2026-10-01. `STORY-002` (audit logging for critical actions) is `COMPLETE`, portal-verified on 2026-09-30.** `ALV-002-C01` (shared audit, concurrency, and record-lifecycle primitives) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `ALV-N004` (encrypted full-state backup, verification, restore, and recovery operations) has landed implementation for attempt R03 (correcting R02's `CHANGES_REQUIRED` review) and is `AWAITING_REVIEW` - not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+**`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `ALV-N003` (practice, staff, provider, operatory, appointment-type, and scheduling configuration) is `COMPLETE`, approved as attempt R03 on 2026-10-01. `STORY-002` (audit logging for critical actions) is `COMPLETE`, portal-verified on 2026-09-30.** `ALV-002-C01` (shared audit, concurrency, and record-lifecycle primitives) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `ALV-N004` (encrypted full-state backup, verification, restore, and recovery operations) has landed implementation for attempt R04 (correcting R03's `CHANGES_REQUIRED` review) and is `AWAITING_REVIEW` - not yet `COMPLETE`. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
 
-## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, AWAITING_REVIEW - attempt R03)
+## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, AWAITING_REVIEW - attempt R04)
+
+R04 correction (responding to R03's independent review, `.alveara/reviews/ALV-N004/R03.md`, decision `CHANGES_REQUIRED`) - adds to the R03 bullets below:
+
+- **Restore proof is earned only by a restore drill** (`BackupRecord.RestoreProvenAtUtc`, migration `AddRestoreProof`). Trust/probation, overdue age and retention protection count restore-proven backups only; verify-only stays a distinct, labelled "Contents verified - restore drill still needed" state that never counts.
+- **A proven archive defect is permanent:** a drill finding an archive-intrinsic defect marks the backup `VerificationFailed`, clears its proof and is audited; a later verify-only cannot erase it. Failures depending on the recovering server or key do not poison the backup.
+- 371 backend / 158 frontend / 12 real-backend Playwright tests pass. Gate A is not evaluated. See `.alveara/handoffs/ALV-N004/R04-evidence/`.
+
+### R03 content (R03 bullets below remain in force unless R04 changes them)
 
 R03 correction (responding to R02's independent review, `.alveara/reviews/ALV-N004/R02.md`, decision `CHANGES_REQUIRED`) - adds to the R02 bullets below:
 

@@ -474,36 +474,35 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R03",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R04",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "366 of 366 backend (full dotnet test; 7 new deployment-consistency/verified-before-serve tests), 158 of 158 frontend and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R03-evidence/TEST_RESULTS.md."
+        "summary": "371 of 371 backend (full dotnet test; 5 new verification/credit-ordering tests), 158 of 158 frontend and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R04-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "4b99e2a3e0761e4272b5208f5ff61edbfd0c588c",
-      "evidenceCommit": "5b297bdacd2b673ca82f467307358a6cb889793f",
-      "handoffPath": ".alveara/handoffs/ALV-N004/R03.md",
+      "implementationCommit": "7d50581a8ff7e458da286ff9922456e75410317a",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N004/R04.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N004/R03.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "4b99e2a3e0761e4272b5208f5ff61edbfd0c588c",
-        "reviewedEvidenceCommit": "5b297bdacd2b673ca82f467307358a6cb889793f"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N004-R03-01 (P1): VerifyFullAsync (verify-only) grants FullyVerified and counts toward trust/probation for an archive whose manifest contradicts its captured database (only a restore drill detects it); a failed consistency drill does not prevent a later verify-only promotion. Verification/trust state must reflect scope and failure evidence, and a proven archive defect must permanently invalidate recovery credit."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "blockingIssuesResolvedInAttempt": "R04 - see .alveara/handoffs/ALV-N004/R04.md: ALV-N004-R03-01 (restore proof/trust earned only by a restore drill; verify-only is a distinct non-counting state; a proven archive defect permanently voids recovery credit and cannot be erased by a weaker check). Independent review pending at R04 per .alveara/reviews/ALV-N004/R03.md (prior decision: CHANGES_REQUIRED)."
     },
     {
       "schemaVersion": "2",
