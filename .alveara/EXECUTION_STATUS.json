@@ -474,7 +474,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R04",
       "acceptance": {
         "total": 7,
@@ -487,22 +487,23 @@
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "7d50581a8ff7e458da286ff9922456e75410317a",
-      "evidenceCommit": null,
+      "evidenceCommit": "646d442b3c035b105ebabc7c2d89fd13a442aede",
       "handoffPath": ".alveara/handoffs/ALV-N004/R04.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N004/R04.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "7d50581a8ff7e458da286ff9922456e75410317a",
+        "reviewedEvidenceCommit": "646d442b3c035b105ebabc7c2d89fd13a442aede"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N004-R04-01 (P1): VerifyHashAsync overwrites the mutable latest-check fields (VerificationStatus/VerificationFailureCode) that the archive-defect guard in VerifyFullAsync depends on, so failed drill -> hash pass -> verify-only returns the backup to FullyVerified with the failure cleared. A proven archive defect must be stored durably and independently of the latest-check status and enforced across every mutation path (hash, verify-only, drills, failure paths)."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "blockingIssuesResolvedInAttempt": "R04 - see .alveara/handoffs/ALV-N004/R04.md: ALV-N004-R03-01 (restore proof/trust earned only by a restore drill; verify-only is a distinct non-counting state; a proven archive defect permanently voids recovery credit and cannot be erased by a weaker check). Independent review pending at R04 per .alveara/reviews/ALV-N004/R03.md (prior decision: CHANGES_REQUIRED)."
+      "completedAt": null
     },
     {
       "schemaVersion": "2",
