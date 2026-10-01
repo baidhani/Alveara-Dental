@@ -424,7 +424,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 5,
@@ -437,16 +437,22 @@
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "848fce82e9b4d1b96059c5087b5dacea77ae1679",
-      "evidenceCommit": null,
+      "evidenceCommit": "da11e56532416afe3f7dd935082251c2c258935d",
       "handoffPath": ".alveara/handoffs/ALV-N003/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N003/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "848fce82e9b4d1b96059c5087b5dacea77ae1679",
+        "reviewedEvidenceCommit": "da11e56532416afe3f7dd935082251c2c258935d"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N003-R01-01 (P1): AvailabilityTab applies every schedule/blocked-time response to shared state without checking the provider is still selected, so a delayed response shows (and a save could submit) one provider's schedule under another.",
+        "ALV-N003-R01-02 (P1): concurrent whole-schedule replacements are not versioned; two replacements of an initially empty schedule both commit, persisting the overlapping union of both sets.",
+        "ALV-N003-R01-03 (P2): main-shell navigation (React Router links, back/forward) bypasses unsaved-change protection; only beforeunload and in-panel handlers are guarded.",
+        "ALV-N003-R01-04 (P2): the availability check compares only local endpoint times, so a slot crossing the DST fall-back repeated hour (2026-11-01 06:50Z, 30 min, window 01:30-02:00) is falsely reported available.",
+        "ALV-N003-R01-05 (P2): a failed conflict-reload request closes the unsaved draft form instead of retaining the draft with a retryable error."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
