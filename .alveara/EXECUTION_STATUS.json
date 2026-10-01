@@ -474,7 +474,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -487,22 +487,23 @@
       "demo": "verified",
       "parentRegression": "n/a",
       "implementationCommit": "4b99e2a3e0761e4272b5208f5ff61edbfd0c588c",
-      "evidenceCommit": null,
+      "evidenceCommit": "5b297bdacd2b673ca82f467307358a6cb889793f",
       "handoffPath": ".alveara/handoffs/ALV-N004/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N004/R03.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "4b99e2a3e0761e4272b5208f5ff61edbfd0c588c",
+        "reviewedEvidenceCommit": "5b297bdacd2b673ca82f467307358a6cb889793f"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N004-R03-01 (P1): VerifyFullAsync (verify-only) grants FullyVerified and counts toward trust/probation for an archive whose manifest contradicts its captured database (only a restore drill detects it); a failed consistency drill does not prevent a later verify-only promotion. Verification/trust state must reflect scope and failure evidence, and a proven archive defect must permanently invalidate recovery credit."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N004/R03.md: ALV-N004-R02-01 (domain requests served only after positive deployment verification; 503 deployment_unverified) and ALV-N004-R02-02 (backup refused on a host contradicting its database's record; restore validates asset == manifest and restored database == manifest). Independent review pending at R03 per .alveara/reviews/ALV-N004/R02.md (prior decision: CHANGES_REQUIRED)."
+      "completedAt": null
     },
     {
       "schemaVersion": "2",
