@@ -17,20 +17,39 @@
   flex-wrap: wrap;
 }
 
+/*
+  Gate A review GATE-A-01 (ALV-001-C01 R07): badge and link colours must meet WCAG AA (4.5:1 for this small text) in BOTH
+  themes. The badge previously coloured its text with the status colour on a tint taken from tokens that do not exist
+  (--color-*-surface fell back to a literal rgba), giving 4.09:1 in the light theme; the dark-theme link used
+  --color-primary, which is a BUTTON background in that theme (1.77:1). The text now always uses --color-text on the real
+  status background token, and the status is still conveyed by the label ("Enabled"/"Disabled") and a status-coloured border.
+  Contrast is pinned by src/styles/adminUsersContrast.test.ts.
+*/
 .alv-status-badge {
   display: inline-block;
   padding: 2px var(--space-2);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 }
 
 .alv-status-badge--enabled {
-  background: var(--color-success-surface, rgba(22, 163, 74, 0.12));
-  color: var(--color-success, #15803d);
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
 }
 
 .alv-status-badge--disabled {
-  background: var(--color-danger-surface, rgba(220, 38, 38, 0.1));
-  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger);
+}
+
+/* --color-info is the readable link/accent text colour in both themes (a button background is not). */
+.alv-admin-users a {
+  color: var(--color-info);
+}
+
+.alv-admin-users a:hover {
+  text-decoration-thickness: 2px;
 }
