@@ -424,21 +424,21 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 5,
-        "passed": 0
+        "passed": 5
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "252 of 252 backend (dotnet test, up from 199; 53 new: PracticeConfigurationServiceTests 21, StaffProviderServiceTests 22, SchedulingConfigurationTests 3, ConfigurationApiTests 7) passing, plus 101 of 101 frontend (up from 70; 31 new: ConfigEntityPanel 16, ConfigurationHubPage 13, route guards 2) and 10 of 10 real-backend/real-browser Playwright tests (up from 9; 1 new end-to-end configuration flow, and the limited-permission test extended). See .alveara/handoffs/ALV-N003/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
+      "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "848fce82e9b4d1b96059c5087b5dacea77ae1679",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N003/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
