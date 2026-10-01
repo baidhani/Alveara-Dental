@@ -72,27 +72,27 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "REOPENED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Client: 9 vitest files / 20 tests passing (added: useConnectionStatus regression x6, contrast regression x4, empty-registry failure path, FormField simultaneous hint+error). Real-browser: 32 Playwright/Chromium tests passing (20 shell-behaviour + 12 axe accessibility), across desktop (1280x800) and tablet (768x1024) viewports, both light and dark theme. API: 1 integration test passing (dotnet test). Repo-root: 4 STORY-000 coexistence checks passing (node --test). 2 production builds succeed with zero errors."
+        "summary": "176 of 176 frontend (vitest; 18 new buttonContrast tests pin every Button variant/state in both themes at 4.5:1 and fail against the old CSS/tokens), tsc clean, build clean, lint exit 0 (pre-existing warnings only); authenticated real-API axe scan, default + hover + keyboard-focus states, 8 shell routes x 2 themes (48 scans): 0 critical/serious. No backend source changed (375/375 backend from the approved baseline)."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "586256bc1cc1ebc1afbed302eb8c0d7296ffc330",
-      "evidenceCommit": "ffcdd5bf5a74b645bd294a23765d5da5391710c5",
-      "handoffPath": ".alveara/handoffs/ALV-N001/R02.md",
+      "implementationCommit": "70bb64a53edcf0c82a8c2cc60f038ebd37c29c77",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N001/R03.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-N001/R02.md",
-        "approvedAttempt": "R02",
-        "reviewedImplementationCommit": "586256bc1cc1ebc1afbed302eb8c0d7296ffc330",
-        "reviewedEvidenceCommit": "ffcdd5bf5a74b645bd294a23765d5da5391710c5"
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
       "revalidation": {
@@ -106,7 +106,8 @@
         "nextAttempt": "R03",
         "priorApprovedAttempt": "R02",
         "downstreamAssessment": "Visual-only change to one component state's text/border colour using an existing token (--color-info); no component API, markup, behaviour or token definition changes. Completed descendants are not marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite and the authenticated axe state scan to demonstrate that."
-      }
+      },
+      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N001/R03.md: secondary-button hover/focus text no longer uses a dark-theme button-background colour; dark danger text raised to AA; contrast regression test pins every Button variant/state in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md."
     },
     {
       "schemaVersion": "2",

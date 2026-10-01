@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: Gate A independent review (`.alveara/gates/A/reviews/4b69d32.md`) confirmed **FAIL (A2)**; `ALV-001-C01` (next attempt R07: user-administration badge/link contrast) and `ALV-002-C01` (next attempt R04: keyboard-reachable audit scroll region) are `REOPENED` with narrow correction scope. `ALV-N001` is not reopened. `STORY-003` remains blocked until Gate A is rerun and passes. **Update:** stable hover/focus axe scans found a real shared-design defect (secondary button hover/focus text uses a dark-theme button-background colour, ~1.8:1), so `ALV-N001` is also `REOPENED` (next attempt R03, Button.css only).
+Last updated: `ALV-N001` attempt R03 (reopened by the Gate A review) - implementation committed, **`AWAITING_REVIEW`**: secondary-button hover/focus and dark danger-button text now meet WCAG AA (Button.css, one dark token, a new contrast regression test). `ALV-001-C01` (R07) and `ALV-002-C01` (R04) remain `REOPENED`; Gate A remains **FAIL** and `STORY-003` blocked until all corrections are approved and Gate A is rerun. See `.alveara/handoffs/ALV-N001/R03.md`.
 
 ## Production implementation status
 

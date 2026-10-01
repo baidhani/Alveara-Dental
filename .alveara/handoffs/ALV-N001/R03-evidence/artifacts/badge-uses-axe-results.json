@@ -1,0 +1,348 @@
+{
+  "blockingTotal": 15,
+  "results": [
+    {
+      "page": "/admin/users",
+      "theme": "light",
+      "state": "default",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge--enabled"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/users",
+      "theme": "light",
+      "state": "hover",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge--enabled"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/users",
+      "theme": "light",
+      "state": "focus",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge--enabled"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/users",
+      "theme": "light",
+      "badgesOnPage": 2,
+      "blockingByState": {
+        "default": 1,
+        "hover": 1,
+        "focus": 1
+      }
+    },
+    {
+      "page": "/admin/users",
+      "theme": "dark",
+      "state": "default",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "tr:nth-child(1) > td:nth-child(5) > a[data-discover=\"true\"]"
+            ],
+            [
+              "tr:nth-child(2) > td:nth-child(5) > a[data-discover=\"true\"]"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/users",
+      "theme": "dark",
+      "state": "hover",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "tr:nth-child(1) > td:nth-child(5) > a[data-discover=\"true\"]"
+            ],
+            [
+              "tr:nth-child(2) > td:nth-child(5) > a[data-discover=\"true\"]"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/users",
+      "theme": "dark",
+      "state": "focus",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "tr:nth-child(1) > td:nth-child(5) > a[data-discover=\"true\"]"
+            ],
+            [
+              "tr:nth-child(2) > td:nth-child(5) > a[data-discover=\"true\"]"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/users",
+      "theme": "dark",
+      "badgesOnPage": 2,
+      "blockingByState": {
+        "default": 1,
+        "hover": 1,
+        "focus": 1
+      }
+    },
+    {
+      "page": "/admin/users/:id",
+      "theme": "light",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/users/:id",
+      "theme": "dark",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "light",
+      "state": "default",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "light",
+      "state": "hover",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "light",
+      "state": "focus",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "light",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 1,
+        "hover": 1,
+        "focus": 1
+      }
+    },
+    {
+      "page": "/admin/configuration (operatories)",
+      "theme": "dark",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "light",
+      "state": "default",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "light",
+      "state": "hover",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "light",
+      "state": "focus",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              ".alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "light",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 1,
+        "hover": 1,
+        "focus": 1
+      }
+    },
+    {
+      "page": "/admin/configuration (appointment types)",
+      "theme": "dark",
+      "badgesOnPage": 1,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "light",
+      "state": "default",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "td:nth-child(3) > .alv-status-badge--enabled.alv-status-badge"
+            ],
+            [
+              "li > .alv-status-badge--enabled.alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "light",
+      "state": "hover",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "td:nth-child(3) > .alv-status-badge--enabled.alv-status-badge"
+            ],
+            [
+              "li > .alv-status-badge--enabled.alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "light",
+      "state": "focus",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "nodes": [
+            [
+              "td:nth-child(3) > .alv-status-badge--enabled.alv-status-badge"
+            ],
+            [
+              "li > .alv-status-badge--enabled.alv-status-badge"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "light",
+      "badgesOnPage": 3,
+      "blockingByState": {
+        "default": 1,
+        "hover": 1,
+        "focus": 1
+      }
+    },
+    {
+      "page": "/admin/backup",
+      "theme": "dark",
+      "badgesOnPage": 3,
+      "blockingByState": {
+        "default": 0,
+        "hover": 0,
+        "focus": 0
+      }
+    }
+  ]
+}

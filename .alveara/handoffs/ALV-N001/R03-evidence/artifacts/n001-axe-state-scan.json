@@ -1,0 +1,177 @@
+{
+  "tags": [
+    "wcag2a",
+    "wcag2aa"
+  ],
+  "routes": [
+    "/",
+    "/showcase",
+    "/system-status",
+    "/admin/permissions",
+    "/admin/configuration",
+    "/admin/backup",
+    "/settings/mfa",
+    "/this-route-does-not-exist"
+  ],
+  "results": [
+    {
+      "route": "/",
+      "theme": "light",
+      "stateScans": {},
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/",
+      "theme": "dark",
+      "stateScans": {},
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/showcase",
+      "theme": "light",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 22
+    },
+    {
+      "route": "/showcase",
+      "theme": "dark",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 22
+    },
+    {
+      "route": "/system-status",
+      "theme": "light",
+      "stateScans": {},
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/system-status",
+      "theme": "dark",
+      "stateScans": {},
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/admin/permissions",
+      "theme": "light",
+      "stateScans": {},
+      "violations": [],
+      "blocking": 0,
+      "passes": 21
+    },
+    {
+      "route": "/admin/permissions",
+      "theme": "dark",
+      "stateScans": {},
+      "violations": [],
+      "blocking": 0,
+      "passes": 21
+    },
+    {
+      "route": "/admin/configuration",
+      "theme": "light",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/admin/configuration",
+      "theme": "dark",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/admin/backup",
+      "theme": "light",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/admin/backup",
+      "theme": "dark",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 24
+    },
+    {
+      "route": "/settings/mfa",
+      "theme": "light",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/settings/mfa",
+      "theme": "dark",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/this-route-does-not-exist",
+      "theme": "light",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    },
+    {
+      "route": "/this-route-does-not-exist",
+      "theme": "dark",
+      "stateScans": {
+        "hover": 0,
+        "focus": 0
+      },
+      "violations": [],
+      "blocking": 0,
+      "passes": 19
+    }
+  ],
+  "blockingTotal": 0
+}
