@@ -119,6 +119,35 @@ describe("ConfigurationHubPage (ALV-N003)", () => {
     });
   });
 
+  it("disables the practice form while a save is in flight, so its response cannot overwrite newer typing", async () => {
+    let finish!: (r: Response) => void;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+        const u = String(url);
+        if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "csrf" }));
+        if (u.includes("/api/config/practice")) {
+          if (init?.method === "PUT") return new Promise<Response>((resolve) => (finish = resolve));
+          return Promise.resolve(jsonResponse({ id: null, name: null, phone: null, addressLine: null, timeZoneId: "America/Chicago", currency: "USD", configured: false, rowVersion: null }));
+        }
+        return Promise.resolve(jsonResponse([]));
+      })
+    );
+    renderHub();
+    await userEvent.type(await screen.findByLabelText("Practice name"), "Alveara");
+    await userEvent.click(screen.getByRole("button", { name: "Save practice information" }));
+
+    await waitFor(() => expect(screen.getByLabelText("Practice name")).toBeDisabled());
+    expect(screen.getByLabelText("Phone")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save practice information" })).toBeDisabled();
+
+    await act(async () =>
+      finish(jsonResponse({ id: "x", name: "Alveara", phone: null, addressLine: null, timeZoneId: "America/Chicago", currency: "USD", configured: true, rowVersion: "v2" }))
+    );
+    await waitFor(() => expect(screen.getByLabelText("Practice name")).toBeEnabled());
+    expect(screen.getByLabelText("Practice name")).toHaveValue("Alveara");
+  });
+
   it("previews exactly what scheduling will be offered, from the scheduling read model", async () => {
     stubApi();
     renderHub();
@@ -365,6 +394,207 @@ describe("Availability tab provider binding and revisions (ALV-N003 R02)", () =>
     await userEvent.click(screen.getByRole("button", { name: "Reload current version" })); // retry succeeds
     await waitFor(() => expect(screen.getByLabelText("Start time for window 1")).toHaveValue("10:00"));
     expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument();
+  });
+});
+
+describe("Availability editing-session completion protection (ALV-N003 R03)", () => {
+  const p2 = { id: "p2", staffProfileId: "s2", displayName: "Dr. Chen", specialty: "Hygiene", isActive: true, rowVersion: "v" };
+  const monday = (start: string, end = "17:00") => ({ dayOfWeek: 1, startLocal: start, endLocal: end });
+  const block = { id: "b1", startUtc: "2026-05-04T14:00:00Z", endUtc: "2026-05-04T15:00:00Z", startLocal: "2026-05-04T09:00", endLocal: "2026-05-04T10:00", reason: "Meeting" };
+  type Windows = ReturnType<typeof monday>[];
+
+  /**
+   * Fully hand-driven API: GET availability answers from a per-provider queue (the last answer repeats);
+   * the first `hold.*` writes of each kind are held until the test completes them, so a response can be
+   * delivered in a different editing session than the one that issued it.
+   */
+  function drivenApi(availability: Record<string, Windows[]>, revisions: Record<string, number[]>, blocked: (typeof block)[] = []) {
+    const held = { put: [] as ((r: Response) => void)[], post: [] as ((r: Response) => void)[], del: [] as ((r: Response) => void)[] };
+    const hold = { put: 0, post: 0, del: 0 };
+    const puts: { url: string; body: { windows: unknown[]; revision: number } }[] = [];
+    const reads: Record<string, number> = {};
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+        const u = String(url);
+        if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "csrf" }));
+        const avail = u.match(/providers\/(p\d)\/availability/);
+        if (avail) {
+          const id = avail[1];
+          if (init?.method === "PUT") {
+            const body = JSON.parse(init.body as string);
+            puts.push({ url: u, body });
+            if (hold.put > 0) {
+              hold.put -= 1;
+              return new Promise<Response>((resolve) => held.put.push(resolve));
+            }
+            return Promise.resolve(jsonResponse({ revision: body.revision + 1, windows: body.windows }));
+          }
+          const n = (reads[id] = (reads[id] ?? 0) + 1);
+          const windows = availability[id][Math.min(n, availability[id].length) - 1];
+          const revision = revisions[id][Math.min(n, revisions[id].length) - 1];
+          return Promise.resolve(jsonResponse({ revision, windows }));
+        }
+        if (/providers\/p\d\/blocked-time/.test(u)) {
+          if (init?.method === "POST") {
+            if (hold.post > 0) {
+              hold.post -= 1;
+              return new Promise<Response>((resolve) => held.post.push(resolve));
+            }
+            return Promise.resolve(jsonResponse(block, 201));
+          }
+          if (init?.method === "DELETE") {
+            if (hold.del > 0) {
+              hold.del -= 1;
+              return new Promise<Response>((resolve) => held.del.push(resolve));
+            }
+            return Promise.resolve(new Response(null, { status: 204 }));
+          }
+          return Promise.resolve(jsonResponse(blocked));
+        }
+        if (u.includes("/api/config/providers")) return Promise.resolve(jsonResponse([provider, p2]));
+        return Promise.resolve(jsonResponse([]));
+      })
+    );
+    return { held, hold, puts };
+  }
+
+  async function select(id: string) {
+    await userEvent.selectOptions(screen.getByLabelText("Provider"), id);
+  }
+
+  async function openTab() {
+    renderHub();
+    await userEvent.click(screen.getByRole("tab", { name: "Availability" }));
+    await screen.findByLabelText("Provider");
+  }
+
+  /** A-save (held) -> B -> A (fresh read, revision 2) and returns the reopened A editor's start input. */
+  async function abandonSaveAndReopenSameProvider(api: ReturnType<typeof drivenApi>) {
+    api.hold.put = 1;
+    await openTab();
+    await select("p1");
+    const start = await screen.findByLabelText("Start time for window 1");
+    await userEvent.clear(start);
+    await userEvent.type(start, "08:00");
+    await userEvent.click(screen.getByRole("button", { name: "Save weekly hours" })); // response held; server has "committed" revision 2
+    await select("p2");
+    await screen.findByDisplayValue("13:00");
+    await select("p1");
+    await waitFor(() => expect(screen.getByLabelText("Start time for window 1")).toHaveValue("08:00"));
+    return screen.getByLabelText("Start time for window 1");
+  }
+
+  it("ignores a delayed save response from an abandoned session when the same provider is reopened and edited again (A-save -> B -> A -> new draft -> old response)", async () => {
+    const api = drivenApi({ p1: [[monday("09:00")], [monday("08:00")]], p2: [[monday("13:00")]] }, { p1: [1, 2], p2: [5] });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    const fresh = await abandonSaveAndReopenSameProvider(api);
+    await userEvent.clear(fresh);
+    await userEvent.type(fresh, "10:00"); // a NEW unsaved draft
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+
+    await act(async () => api.held.put[0](jsonResponse({ revision: 2, windows: [monday("08:00")] }))); // the abandoned session's response lands
+
+    expect(screen.getByLabelText("Start time for window 1")).toHaveValue("10:00"); // draft not overwritten
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument(); // still dirty
+    expect(screen.queryByText("Weekly availability saved.")).not.toBeInTheDocument(); // no success notice from the dead session
+
+    await userEvent.click(screen.getByRole("button", { name: "Save weekly hours" })); // still saveable, at the revision this session loaded
+    await waitFor(() => expect(api.puts).toHaveLength(2));
+    expect(api.puts[1].body).toEqual({ windows: [monday("10:00")], revision: 2 });
+  });
+
+  it("ignores a delayed save ERROR from an abandoned session too", async () => {
+    const api = drivenApi({ p1: [[monday("09:00")], [monday("08:00")]], p2: [[monday("13:00")]] }, { p1: [1, 2], p2: [5] });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    await abandonSaveAndReopenSameProvider(api);
+
+    await act(async () => api.held.put[0](jsonResponse({ error: "concurrency_conflict", entityType: "ProviderAvailability", entityId: "p1" }, 409)));
+
+    expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument();
+  });
+
+  it("keeps edits typed while a save is in flight, and advances the baseline and revision so they remain dirty and saveable", async () => {
+    const api = drivenApi({ p1: [[monday("09:00")]] }, { p1: [1] });
+    api.hold.put = 1;
+    await openTab();
+    await select("p1");
+    const start = await screen.findByLabelText("Start time for window 1");
+    await userEvent.clear(start);
+    await userEvent.type(start, "08:00");
+    await userEvent.click(screen.getByRole("button", { name: "Save weekly hours" })); // in flight, snapshot = 08:00-17:00
+    expect(screen.getByRole("button", { name: "Saving…" })).toBeDisabled(); // no second concurrent save
+
+    const end = screen.getByLabelText("End time for window 1");
+    await userEvent.clear(end);
+    await userEvent.type(end, "16:00"); // typed after the snapshot
+
+    await act(async () => api.held.put[0](jsonResponse({ revision: 2, windows: [monday("08:00", "17:00")] })));
+
+    expect(screen.getByLabelText("End time for window 1")).toHaveValue("16:00"); // not clobbered by the response
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Save weekly hours" }));
+    await waitFor(() => expect(api.puts).toHaveLength(2));
+    expect(api.puts[1].body).toEqual({ windows: [monday("08:00", "16:00")], revision: 2 });
+  });
+
+  async function startBlockDraft() {
+    await userEvent.type(screen.getByLabelText("Blocked from"), "2026-05-04T09:00");
+    await userEvent.type(screen.getByLabelText("Blocked until"), "2026-05-04T10:00");
+    await userEvent.type(screen.getByLabelText("Reason (optional)"), "Meeting");
+  }
+
+  async function abandonBlockedAddAndReopenSameProvider(api: ReturnType<typeof drivenApi>) {
+    api.hold.post = 1;
+    await openTab();
+    await select("p1");
+    await screen.findByLabelText("Blocked from");
+    await startBlockDraft();
+    await userEvent.click(screen.getByRole("button", { name: "Add blocked time" })); // POST held
+    await select("p2");
+    await screen.findByDisplayValue("13:00");
+    await select("p1");
+    await screen.findByLabelText("Blocked from");
+  }
+
+  it("a delayed blocked-time ADD from an abandoned session does not wipe the new draft or announce success", async () => {
+    const api = drivenApi({ p1: [[monday("09:00")]], p2: [[monday("13:00")]] }, { p1: [1], p2: [5] });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    await abandonBlockedAddAndReopenSameProvider(api);
+    await userEvent.type(screen.getByLabelText("Reason (optional)"), "new draft");
+
+    await act(async () => api.held.post[0](jsonResponse(block, 201)));
+
+    expect(screen.getByLabelText("Reason (optional)")).toHaveValue("new draft");
+    expect(screen.queryByText("Blocked time added.")).not.toBeInTheDocument();
+  });
+
+  it("a delayed blocked-time ADD error from an abandoned session is not shown in the new session", async () => {
+    const api = drivenApi({ p1: [[monday("09:00")]], p2: [[monday("13:00")]] }, { p1: [1], p2: [5] });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    await abandonBlockedAddAndReopenSameProvider(api);
+
+    await act(async () => api.held.post[0](jsonResponse({ error: "invalid_local_time", message: "Stale session error" }, 400)));
+
+    expect(screen.queryByText("Stale session error")).not.toBeInTheDocument();
+  });
+
+  it("a delayed blocked-time REMOVE from an abandoned session does not notify or replace the fresh list", async () => {
+    const api = drivenApi({ p1: [[monday("09:00")]], p2: [[monday("13:00")]] }, { p1: [1], p2: [5] }, [block]);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    api.hold.del = 1;
+    await openTab();
+    await select("p1");
+    await userEvent.click(await screen.findByRole("button", { name: /Remove blocked time starting/ })); // DELETE held
+    await select("p2");
+    await screen.findByDisplayValue("13:00");
+    await select("p1");
+    await screen.findByText("Meeting");
+
+    await act(async () => api.held.del[0](new Response(null, { status: 204 })));
+
+    expect(screen.queryByText("Blocked time removed.")).not.toBeInTheDocument();
+    expect(screen.getByText("Meeting")).toBeInTheDocument(); // the new session's own (fresh) list is untouched
   });
 });
 

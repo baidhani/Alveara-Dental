@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { Button } from "./Button";
 import { FormField } from "./FormField";
@@ -73,6 +73,15 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
   const [reloadError, setReloadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  /**
+   * ALV-N003 R03: the editing-session generation. It advances every time the form is opened for a
+   * record or closed, and every async completion (save, conflict reload) is discarded unless it still
+   * belongs to the session that issued it - a provider/record id alone cannot tell an abandoned
+   * session from a new one on the same record. While a save is in flight the form's inputs and the
+   * other rows' Edit buttons are disabled (the explicit pending-write policy), so nothing typed
+   * after the submitted snapshot can be overwritten by its response.
+   */
+  const formSession = useRef(0);
 
   const dirty = formOpen && JSON.stringify(values) !== JSON.stringify(initialValues);
   useUnsavedChangesWarning(dirty);
@@ -97,6 +106,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
 
   function openForm(row: T | null) {
     if (!confirmDiscard(dirty)) return;
+    formSession.current += 1;
     const initial = row ? toValues(row) : Object.fromEntries(fields.map((f) => [f.name, ""]));
     setEditing(row);
     setInitialValues(initial);
@@ -110,9 +120,11 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
 
   function closeForm() {
     if (!confirmDiscard(dirty)) return;
+    formSession.current += 1;
     setFormOpen(false);
     setEditing(null);
     setConflict(null);
+    setReloadError(null);
     setFormError(null);
   }
 
@@ -122,18 +134,25 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
+    const session = formSession.current;
     setSaving(true);
     setFormError(null);
     try {
       if (editing) await update(editing, values);
       else await create(values);
+      if (session !== formSession.current) {
+        await refresh(); // the write committed, so the list is stale - but the form it came from is gone: no UI feedback
+        return;
+      }
       notify("success", editing ? `Saved changes to the ${noun}.` : `Added the ${noun}.`);
+      formSession.current += 1;
       setFormOpen(false);
       setEditing(null);
       setInitialValues({});
       setValues({});
       await refresh();
     } catch (err) {
+      if (session !== formSession.current) return;
       if (isConcurrencyConflict(err)) {
         setConflict(err.body);
       } else if (err instanceof ApiError && err.status === 403) {
@@ -144,7 +163,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
         setFormError(`Could not save the ${noun}. Check your connection and try again.`);
       }
     } finally {
-      setSaving(false);
+      setSaving(false); // forms cannot be opened or closed while saving, so this always belongs to the form that started it
     }
   }
 
@@ -156,6 +175,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
    */
   async function reloadAfterConflict() {
     const id = editing?.id;
+    const session = formSession.current;
     setReloadError(null);
     let fresh: T | null;
     try {
@@ -168,11 +188,14 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
         fresh = rows.find((r) => r.id === id) ?? null;
       }
     } catch (err) {
+      if (session !== formSession.current) return;
       setReloadError(err instanceof ApiError ? err.message : `Could not reload the ${noun}. Check your connection and try again.`);
       return; // keep the draft, the conflict banner and the form
     }
+    if (session !== formSession.current) return; // the user closed or switched forms meanwhile: never touch the new session
 
     if (fresh) {
+      formSession.current += 1; // the editor is repopulated with the other editor's version: a new session
       const next = toValues(fresh);
       setEditing(fresh);
       setInitialValues(next);
@@ -244,7 +267,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                 Show inactive
               </label>
             </div>
-            <Button variant="primary" onClick={() => openForm(null)} disabled={!!createDisabledReason}>
+            <Button variant="primary" onClick={() => openForm(null)} disabled={!!createDisabledReason || saving}>
               Add {noun}
             </Button>
           </div>
@@ -281,7 +304,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                       </span>
                     </td>
                     <td className="alv-config-panel__actions">
-                      <Button onClick={() => openForm(row)} aria-label={`Edit ${searchText(row)}`}>
+                      <Button onClick={() => openForm(row)} disabled={saving} aria-label={`Edit ${searchText(row)}`}>
                         Edit
                       </Button>
                       <Button onClick={() => toggleActive(row)} aria-label={`${row.isActive ? "Inactivate" : "Reactivate"} ${searchText(row)}`}>
@@ -305,6 +328,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
               {reloadError} Your edits are still here - use "Reload current version" to try again.
             </p>
           )}
+          <fieldset className="alv-config-panel__fields" disabled={saving}>
           {fields
             .filter((f) => editing === null || !f.createOnly)
             .map((field) =>
@@ -349,6 +373,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                 />
               )
             )}
+          </fieldset>
           {formError && (
             <p className="alv-form-field__error" role="alert">
               {formError}

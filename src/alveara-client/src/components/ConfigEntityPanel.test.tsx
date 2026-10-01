@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ConfigEntityPanel } from "./ConfigEntityPanel";
 import { validateFields } from "./validateFields";
@@ -238,6 +238,50 @@ describe("ConfigEntityPanel conflict recovery (ALV-N003 R02)", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Reload current version" }));
     await waitFor(() => expect(screen.queryByLabelText("Name")).not.toBeInTheDocument());
+  });
+});
+
+describe("ConfigEntityPanel completion protection (ALV-N003 R03)", () => {
+  it("enforces a pending-write policy: inputs and other rows' Edit buttons are disabled while a save is in flight", async () => {
+    let finish!: (v: unknown) => void;
+    const update = vi.fn().mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    const load = vi.fn().mockResolvedValue([row(), row({ id: "r2", name: "Cleaning" })]);
+    setup({ update, load });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Edit Exam" }));
+    await userEvent.type(screen.getByLabelText("Name"), "!");
+    await userEvent.click(document.querySelector("form button[type=submit]")!);
+
+    await waitFor(() => expect(screen.getByLabelText("Name")).toBeDisabled());
+    expect(screen.getByRole("button", { name: "Edit Cleaning" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Add appointment type" })).toBeDisabled();
+
+    await act(async () => finish({}));
+    await waitFor(() => expect(screen.queryByRole("form", { name: "Edit appointment type" })).not.toBeInTheDocument());
+    expect(screen.getByRole("button", { name: "Edit Cleaning" })).toBeEnabled();
+  });
+
+  it("ignores a delayed conflict reload that completes after the user closed the form", async () => {
+    const conflictBody = { error: "concurrency_conflict", entityType: "AppointmentType", entityId: "r1" };
+    const update = vi.fn().mockRejectedValue(new ApiError(409, "concurrency_conflict", "conflict", conflictBody));
+    let release!: (rows: Row[]) => void;
+    const load = vi
+      .fn()
+      .mockResolvedValueOnce([row()])
+      .mockReturnValueOnce(new Promise<Row[]>((resolve) => (release = resolve)));
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    setup({ update, load });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Edit Exam" }));
+    await userEvent.type(screen.getByLabelText("Name"), "!");
+    await userEvent.click(document.querySelector("form button[type=submit]")!);
+    await userEvent.click(await screen.findByRole("button", { name: "Reload current version" })); // reload held
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));                          // user abandons the session
+    expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
+
+    await act(async () => release([row({ rowVersion: "v2", name: "Exam (changed elsewhere)" })]));
+
+    expect(screen.queryByLabelText("Name")).not.toBeInTheDocument(); // the abandoned session's reload did not reopen the form
   });
 });
 

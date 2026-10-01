@@ -30,6 +30,7 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
   const [formError, setFormError] = useState<string | null>(null);
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
   const [panelDirty, setPanelDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const dirty = JSON.stringify(form) !== JSON.stringify(initial);
   useUnsavedChangesWarning(dirty);
@@ -64,6 +65,7 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
       return;
     }
     setNameError(null);
+    setSaving(true); // pending-write policy: inputs are disabled until the response, so it can never overwrite newer typing
     try {
       const info = await savePractice({ ...form, name: form.name.trim(), rowVersion: state.info.rowVersion });
       setState({ kind: "loaded", info });
@@ -73,6 +75,8 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
     } catch (err) {
       if (isConcurrencyConflict(err)) setConflict(err.body);
       else setFormError(err instanceof ApiError ? err.message : "Could not save. Check your connection and try again.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -87,18 +91,20 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
           <h2 className="alv-config-panel__form-title">Practice information</h2>
           {!state.info.configured && <p className="alv-config-panel__note">The practice has not been named yet.</p>}
           {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={load} />}
+          <fieldset className="alv-config-panel__fields" disabled={saving}>
           <FormField label="Practice name" value={form.name} maxLength={120} error={nameError ?? undefined} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <FormField label="Phone" value={form.phone} maxLength={40} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <FormField label="Address" value={form.addressLine} maxLength={200} onChange={(e) => setForm({ ...form, addressLine: e.target.value })} />
           <FormField label="Time zone" value={state.info.timeZoneId} readOnly hint="Set by the deployment so every appointment time converts consistently." />
           <FormField label="Currency" value={state.info.currency} readOnly hint="Fixed for the first release." />
+          </fieldset>
           {formError && (
             <p className="alv-form-field__error" role="alert">
               {formError}
             </p>
           )}
           <div className="alv-config-panel__form-actions">
-            <Button type="submit" variant="primary" disabled={!dirty}>
+            <Button type="submit" variant="primary" disabled={!dirty || saving}>
               Save practice information
             </Button>
             {dirty && <span className="alv-config-panel__dirty">Unsaved changes</span>}

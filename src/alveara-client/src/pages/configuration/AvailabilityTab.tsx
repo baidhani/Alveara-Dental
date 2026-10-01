@@ -27,10 +27,14 @@ type ProvidersState = { kind: "loading" } | { kind: "denied" } | { kind: "error"
  * time is entered in practice-local time and the server converts it (rejecting a daylight-saving
  * gap/overlap rather than guessing).
  *
- * ALV-N003 R02: every piece of editor state is bound to the provider it was loaded for. Requests are
- * numbered; a response that has been superseded (the user picked another provider meanwhile) is
- * discarded, the editor is cleared and hidden while the newly selected provider loads, and a save
- * always submits the rows of the provider they were loaded for - never whatever is currently selected.
+ * ALV-N003 R02/R03: asynchronous completion protection is bound to an EDITING SESSION, not to a
+ * provider id. A session starts every time an editor is (re)populated - choosing a provider and every
+ * successful (re)load - and `sessionRef` advances at each of those moments. Every request captures the
+ * session it was issued in and its completion (success, error, notification, follow-up refresh) is
+ * discarded unless that session is still current. Provider identity alone cannot do this: switching
+ * A -> B -> A makes an abandoned session's response look current again. Within a session, a save also
+ * must not clobber edits typed after the snapshot it submitted: a draft counter is captured at submit
+ * and a changed draft keeps the user's newer rows (only the saved baseline and revision advance).
  */
 export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {
   const { notify } = useNotifications();
@@ -51,8 +55,14 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   const [blockForm, setBlockForm] = useState({ start: "", end: "", reason: "" });
   const [blockError, setBlockError] = useState<string | null>(null);
 
-  const selectedRef = useRef("");
+  /** Advances whenever an editor is (re)populated; every async completion must match the session it started in. */
+  const sessionRef = useRef(0);
+  /** Request identity for loads, independent of provider identity. */
   const loadSeq = useRef(0);
+  /** Incremented on every schedule edit / blocked-time form edit, to detect input typed during an in-flight write. */
+  const draftRef = useRef(0);
+  const blockDraftRef = useRef(0);
+  const [saving, setSaving] = useState(false);
 
   const blockDirty = blockForm.start !== "" || blockForm.end !== "" || blockForm.reason !== "";
   const scheduleDirty = loadedFor !== "" && snapshot(rows) !== saved;
@@ -88,6 +98,10 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
     try {
       const [schedule, blocks] = await Promise.all([getAvailability(id), listBlockedTime(id)]);
       if (seq !== loadSeq.current) return; // superseded by a newer selection/load: discard
+      sessionRef.current += 1;             // a freshly populated editor is a new editing session
+      draftRef.current += 1;
+      blockDraftRef.current += 1;
+      setSaving(false);
       const loadedRows = toRows(schedule.windows);
       setRows(loadedRows);
       setSaved(snapshot(loadedRows));
@@ -112,8 +126,11 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
 
   function chooseProvider(id: string) {
     if (!confirmDiscard(dirty)) return;
-    loadSeq.current += 1; // invalidate anything still in flight for the previous provider
-    selectedRef.current = id;
+    loadSeq.current += 1;    // invalidate any load still in flight
+    sessionRef.current += 1; // abandon the current editing session: its write completions must now be ignored
+    draftRef.current += 1;
+    blockDraftRef.current += 1;
+    setSaving(false);
     setProviderId(id);
     // Clear everything bound to the previous provider immediately, so it can never be shown or saved under the new one.
     setLoadedFor("");
@@ -133,44 +150,70 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   }
 
   function updateRow(key: number, patch: Partial<WindowRow>) {
+    draftRef.current += 1;
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
+  }
+
+  function addWindow() {
+    draftRef.current += 1;
+    setRows((prev) => [...prev, { key: nextKey++, dayOfWeek: "1", startLocal: "09:00", endLocal: "17:00" }]);
+  }
+
+  function removeWindow(key: number) {
+    draftRef.current += 1;
+    setRows((prev) => prev.filter((r) => r.key !== key));
+  }
+
+  function editBlockForm(patch: Partial<{ start: string; end: string; reason: string }>) {
+    blockDraftRef.current += 1;
+    setBlockForm((prev) => ({ ...prev, ...patch }));
   }
 
   async function saveSchedule() {
     const targetId = loadedFor; // the provider these rows were loaded for
-    if (targetId === "" || targetId !== selectedRef.current) return;
+    if (targetId === "" || saving) return;
     const found = validateWindows(rows);
     setErrors(found);
     setSaveError(null);
     if (Object.keys(found).length > 0) return;
+
+    const session = sessionRef.current;     // the editing session this write belongs to
+    const draftAtSubmit = draftRef.current; // what the user had typed when they submitted
+    setSaving(true);
     try {
       const result = await replaceAvailability(
         targetId,
         rows.map((r) => ({ dayOfWeek: Number(r.dayOfWeek), startLocal: r.startLocal, endLocal: r.endLocal })),
         revision
       );
-      if (selectedRef.current !== targetId) return; // the user moved on; this result belongs to another editor session
-      const next = toRows(result.windows);
-      setRows(next);
-      setSaved(snapshot(next));
+      if (session !== sessionRef.current) return; // abandoned session (even if the same provider is open again): ignore
       setRevision(result.revision);
       setConflict(null);
+      const savedRows = toRows(result.windows);
+      if (draftRef.current === draftAtSubmit) {
+        setRows(savedRows);
+      }
+      // else: the user kept typing while the save was in flight - keep their newer rows, which now differ
+      // from the new saved baseline and so remain dirty and saveable at the new revision.
+      setSaved(snapshot(savedRows));
       notify("success", "Weekly availability saved.");
     } catch (err) {
-      if (selectedRef.current !== targetId) return;
+      if (session !== sessionRef.current) return;
       if (isConcurrencyConflict(err)) {
         setConflict(err.body);
         setReloadError(null);
       } else {
         setSaveError(err instanceof ApiError ? err.message : "Could not save availability. Check your connection and try again.");
       }
+    } finally {
+      if (session === sessionRef.current) setSaving(false);
     }
   }
 
   async function submitBlock(event: FormEvent) {
     event.preventDefault();
     const targetId = loadedFor;
-    if (targetId === "" || targetId !== selectedRef.current) return;
+    if (targetId === "") return;
     setBlockError(null);
     if (!blockForm.start || !blockForm.end) {
       setBlockError("Enter both a start and an end.");
@@ -180,30 +223,33 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
       setBlockError("Blocked time must end after it starts.");
       return;
     }
+    const session = sessionRef.current;
+    const blockDraftAtSubmit = blockDraftRef.current;
     try {
       await addBlockedTime(targetId, blockForm.start, blockForm.end, blockForm.reason.trim());
       const blocks = await listBlockedTime(targetId);
-      if (selectedRef.current !== targetId) return;
-      setBlockForm({ start: "", end: "", reason: "" });
+      if (session !== sessionRef.current) return;
+      if (blockDraftRef.current === blockDraftAtSubmit) setBlockForm({ start: "", end: "", reason: "" }); // never wipe newer typing
       setBlocked(blocks);
       notify("success", "Blocked time added.");
     } catch (err) {
-      if (selectedRef.current !== targetId) return;
+      if (session !== sessionRef.current) return;
       setBlockError(err instanceof ApiError ? err.message : "Could not add blocked time.");
     }
   }
 
   async function removeBlock(id: string) {
     const targetId = loadedFor;
-    if (targetId === "" || targetId !== selectedRef.current) return;
+    if (targetId === "") return;
+    const session = sessionRef.current;
     try {
       await removeBlockedTime(targetId, id);
       const blocks = await listBlockedTime(targetId);
-      if (selectedRef.current !== targetId) return;
+      if (session !== sessionRef.current) return;
       setBlocked(blocks);
       notify("success", "Blocked time removed.");
     } catch (err) {
-      if (selectedRef.current !== targetId) return;
+      if (session !== sessionRef.current) return;
       notify("danger", err instanceof ApiError ? err.message : "Could not remove blocked time.");
     }
   }
@@ -269,7 +315,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
                 <span className="alv-visually-hidden">End time for window {i + 1}</span>
                 <input type="time" value={row.endLocal} onChange={(e) => updateRow(row.key, { endLocal: e.target.value })} />
               </label>
-              <Button type="button" onClick={() => setRows((prev) => prev.filter((r) => r.key !== row.key))} aria-label={`Remove window ${i + 1}`}>
+              <Button type="button" onClick={() => removeWindow(row.key)} aria-label={`Remove window ${i + 1}`}>
                 Remove
               </Button>
               {errors[i] && (
@@ -285,11 +331,11 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
             </p>
           )}
           <div className="alv-config-panel__form-actions">
-            <Button type="button" onClick={() => setRows((prev) => [...prev, { key: nextKey++, dayOfWeek: "1", startLocal: "09:00", endLocal: "17:00" }])}>
+            <Button type="button" onClick={addWindow}>
               Add window
             </Button>
-            <Button type="button" variant="primary" onClick={saveSchedule} disabled={!scheduleDirty}>
-              Save weekly hours
+            <Button type="button" variant="primary" onClick={saveSchedule} disabled={!scheduleDirty || saving}>
+              {saving ? "Saving…" : "Save weekly hours"}
             </Button>
             {scheduleDirty && <span className="alv-config-panel__dirty">Unsaved changes</span>}
           </div>
@@ -323,9 +369,9 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
             </table>
           )}
           <form className="alv-config-panel__form" onSubmit={submitBlock} noValidate aria-label="Add blocked time">
-            <FormField label="Blocked from" type="datetime-local" value={blockForm.start} onChange={(e) => setBlockForm({ ...blockForm, start: e.target.value })} />
-            <FormField label="Blocked until" type="datetime-local" value={blockForm.end} onChange={(e) => setBlockForm({ ...blockForm, end: e.target.value })} />
-            <FormField label="Reason (optional)" type="text" maxLength={200} value={blockForm.reason} onChange={(e) => setBlockForm({ ...blockForm, reason: e.target.value })} />
+            <FormField label="Blocked from" type="datetime-local" value={blockForm.start} onChange={(e) => editBlockForm({ start: e.target.value })} />
+            <FormField label="Blocked until" type="datetime-local" value={blockForm.end} onChange={(e) => editBlockForm({ end: e.target.value })} />
+            <FormField label="Reason (optional)" type="text" maxLength={200} value={blockForm.reason} onChange={(e) => editBlockForm({ reason: e.target.value })} />
             {blockError && (
               <p className="alv-form-field__error" role="alert">
                 {blockError}
