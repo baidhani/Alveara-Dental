@@ -392,7 +392,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R04",
       "acceptance": {
         "total": 6,
@@ -400,19 +400,19 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "188 of 188 frontend (vitest; 4 new AuditLogPage keyboard tests incl. jest-axe), tsc clean, build clean, lint exit 0 (pre-existing warnings only); real-API/real-Chromium evidence with overflowing audit data at a 560px viewport in both themes: Tab reaches the region, 2px visible focus outline, ArrowRight scrolls it 0->240px, 0 axe violations (scrollable-region-focusable no longer fires), a Dentist is still denied the page and the API (403); real-backend/real-browser Playwright 12 of 12 (extended timeouts). No backend source changed (375/375 backend from the approved baseline)."
+        "summary": "188 of 188 frontend (vitest; 4 new AuditLogPage keyboard tests incl. jest-axe), tsc clean, build clean, lint exit 0 (pre-existing warnings only); real-API/real-Chromium evidence with overflowing audit data at a 560px viewport in both themes: Tab reaches the region, 2px visible focus outline, ArrowRight scrolls it 0->240px, 0 axe violations (scrollable-region-focusable no longer fires), a Dentist is still denied the page and the API (403); real-backend/real-browser Playwright 12 of 12 (extended timeouts). No backend source changed (375/375 backend from the approved baseline). Independently re-verified by the R04 reviewer: integrated frontend 188/188, build, lint, 12/12 real-backend browser workflow (extended timeouts), 48 integrated shell axe scans (0 critical/serious), seven-role navigation matrix, root Command Center and repository checks."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "7a318450d22aabc17a75ef4a0a1dd208d4280e95",
-      "evidenceCommit": null,
+      "evidenceCommit": "3613873395efa5520eced90fd33402239fb7f503",
       "handoffPath": ".alveara/handoffs/ALV-002-C01/R04.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-002-C01/R04.md",
+        "approvedAttempt": "R04",
+        "reviewedImplementationCommit": "7a318450d22aabc17a75ef4a0a1dd208d4280e95",
+        "reviewedEvidenceCommit": "3613873395efa5520eced90fd33402239fb7f503"
       },
       "blockingIssues": [],
       "blockingIssuesResolvedInAttempt": "R04 - see .alveara/handoffs/ALV-002-C01/R04.md: GATE-A-02 corrected (audit viewer scroll region is a named, keyboard-reachable region with a visible focus outline), with unit tests and real-API browser evidence using overflowing data in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md.",
@@ -420,13 +420,15 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-01T03:34:51.000Z",
+      "completedAt": "2026-10-01T21:27:31.000Z",
       "reopened": {
         "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) GATE-A-02: the audit viewer's .alv-audit-log-scroll region is scrollable but not keyboard-reachable (axe scrollable-region-focusable, both themes). Narrow correction: a keyboard-reachable, identified scroll region with visible focus. Next attempt: R04.",
         "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
         "nextAttempt": "R04",
         "priorApprovedAttempt": "R03",
-        "downstreamAssessment": "Page-local presentation corrections; no shared design token, shared component or backend contract is to change, so no completed descendant is marked REVALIDATION_REQUIRED unless the correction attempt changes shared styles (then the attempt must say which). ALV-N001 is not reopened: its danger-button observation is not confirmed under stable measurement and is revalidated by the corrected gate scan."
+        "downstreamAssessment": "Page-local presentation corrections; no shared design token, shared component or backend contract is to change, so no completed descendant is marked REVALIDATION_REQUIRED unless the correction attempt changes shared styles (then the attempt must say which). ALV-N001 is not reopened: its danger-button observation is not confirmed under stable measurement and is revalidated by the corrected gate scan.",
+        "resolvedByAttempt": "R04",
+        "resolvedAt": "2026-10-01T21:27:31.000Z"
       }
     },
     {
