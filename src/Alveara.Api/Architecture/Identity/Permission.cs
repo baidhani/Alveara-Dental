@@ -38,4 +38,10 @@ public enum Permission
     // ALV-N003: practice, staff, provider, operatory, appointment-type, and availability
     // configuration. Appended last so existing members' ordinal values are undisturbed.
     ManagePracticeConfiguration,
+
+    // ALV-N004: backup and recovery. Managing backups (settings, recovery key, manual backup,
+    // verification, restore drills) is administrator-only; seeing backup status/failures is also
+    // granted to the practice manager so a failed backup cannot go unnoticed.
+    ManageBackups,
+    ViewBackupStatus,
 }

@@ -77,4 +77,7 @@ public static class AuditEventTypes
     // or revoked - never logs the token or code, and is indistinguishable across those three
     // causes in its own right, matching the public-facing exception's own refusal to disclose why.
     public const string MfaChallengeReplayRejected = "MfaChallengeReplayRejected";
+
+    // ALV-N004: a wrong current password on a sensitive administrative step-up (backup/recovery).
+    public const string SensitiveActionStepUpFailed = "SensitiveActionStepUpFailed";
 }

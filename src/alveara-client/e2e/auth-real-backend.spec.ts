@@ -261,6 +261,68 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   });
 
+  // ---------- ALV-N004: encrypted backup, verification, and restore into an isolated target ----------
+
+  test("backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target", async () => {
+    await page.goto("/admin/backup");
+    await expect(page.getByRole("heading", { name: "Backup & recovery" })).toBeVisible();
+    await expect(page.getByText("No recovery key is set up")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Run backup now" })).toBeDisabled();
+
+    // Recovery key: shown once, acknowledged, then gone from the screen.
+    const passphrase = "e2e recovery passphrase 42";
+    await page.getByRole("button", { name: "Set up recovery key" }).click();
+    await page.getByLabel("Recovery passphrase").fill(passphrase);
+    await page.getByLabel("Confirm passphrase").fill(passphrase);
+    await page.getByLabel("Your current password").fill("admin-password-1!");
+    await page.getByRole("button", { name: "Create recovery key" }).click();
+    const keyBox = page.getByLabel("Recovery key file contents");
+    await expect(keyBox).toBeVisible();
+    const recoveryKey = await keyBox.inputValue();
+    expect(recoveryKey).toContain("BEGIN ENCRYPTED PRIVATE KEY");
+    await page.getByLabel(/I have stored the recovery key file/).check();
+    await page.getByRole("button", { name: /Done - clear the key/ }).click();
+    await expect(keyBox).toHaveCount(0);
+    await expect(page.getByText("No recovery key is set up")).toHaveCount(0);
+
+    // A real SQL Server backup of the real database, encrypted to the recovery key.
+    await page.getByRole("button", { name: "Run backup now" }).click();
+    await expect(page.getByText("Backup completed.")).toBeVisible();
+    const historyRow = page.getByRole("row").filter({ hasText: "Manual" }).first();
+    await expect(historyRow).toContainText("Succeeded");
+    await expect(historyRow).toContainText("File hash verified only"); // backed up != proven restorable
+    await expect(historyRow).toContainText("Database, Documents, Encryption keys");
+    await expect(page.getByLabel("Asset coverage")).toContainText("includes every managed asset class");
+
+    // The restore wizard: explicit recovery material, compatibility checks, then an ISOLATED restore.
+    await historyRow.getByRole("button", { name: /Verify or restore/ }).click();
+    const wizard = page.getByRole("dialog", { name: "Restore wizard" });
+    await expect(wizard).toContainText("never overwrites your live data");
+    await wizard.getByLabel("Or paste the key file contents").fill(recoveryKey);
+    await wizard.getByLabel("Recovery passphrase").fill(passphrase);
+    await wizard.getByLabel("Your current password").fill("admin-password-1!");
+    await wizard.getByRole("button", { name: "Check compatibility and recovery material" }).click();
+    await expect(wizard).toContainText("The recovery key and passphrase match this backup.");
+    await wizard.getByLabel(/I understand a restore drill creates a new isolated database/).check();
+    await wizard.getByRole("button", { name: "Restore into an isolated target" }).click();
+    await expect(wizard.getByText("Restore drill succeeded")).toBeVisible({ timeout: 120_000 });
+    await expect(wizard).toContainText("AlveraRestore_");
+    await expect(wizard).toContainText("Your live data was not touched");
+    await wizard.getByRole("button", { name: "Close" }).click();
+
+    // The drill counts as full verification; the isolated copy can then be removed (with the password).
+    await expect(page.getByRole("row").filter({ hasText: "Manual" }).first()).toContainText("Fully verified (restorable)");
+    await page.getByRole("button", { name: "Remove target…" }).click();
+    await page.getByLabel("Your current password").fill("admin-password-1!");
+    await page.getByRole("button", { name: "Remove the restored copy" }).click();
+    await expect(page.getByText("The isolated restore target was removed.")).toBeVisible();
+
+    // Audited through the shared audit path.
+    await page.goto("/admin/audit-log");
+    for (const eventType of ["RecoveryKeyConfigured", "BackupCreated", "RestoreDrillCompleted", "RestoreTargetRemoved"])
+      await expect(page.getByRole("row").filter({ hasText: eventType }).first()).toBeVisible();
+  });
+
   // ---------- ALV-N009: authorization-aware navigation, session UX, identity context ----------
 
   test("a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API", async () => {
@@ -298,6 +360,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Permission Matrix" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Audit Log" })).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Practice Configuration" })).toHaveCount(0); // ALV-N003
+    await expect(page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Backup & Recovery" })).toHaveCount(0); // ALV-N004
 
     // Direct URL to each hidden route is still denied server-authoritatively - the client-side
     // guard shows permission-denied before the page's own protected data fetch even starts, and
@@ -311,6 +374,9 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.goto("/admin/configuration"); // ALV-N003: the same guard protects the configuration hub
     await expect(page.getByText(/don't have permission/i)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Practice configuration" })).toHaveCount(0);
+    await page.goto("/admin/backup"); // ALV-N004
+    await expect(page.getByText(/don't have permission/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Backup & recovery" })).toHaveCount(0);
   });
 
   test("the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again", async () => {

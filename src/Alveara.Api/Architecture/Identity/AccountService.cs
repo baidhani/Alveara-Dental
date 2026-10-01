@@ -54,7 +54,9 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     private static readonly TimeSpan ResetTokenLifetime = TimeSpan.FromHours(1);
     private const int RecoveryCodeCount = 10;
 
-    private IDataProtector MfaSecretProtector => dataProtectionProvider.CreateProtector("Alveara.MfaSecret.v1");
+    /// <summary>Public so backup restore validation can prove restored keys decrypt restored MFA secrets (ALV-N004).</summary>
+    public const string MfaSecretProtectorPurpose = "Alveara.MfaSecret.v1";
+    private IDataProtector MfaSecretProtector => dataProtectionProvider.CreateProtector(MfaSecretProtectorPurpose);
     private IDataProtector MfaChallengeProtector => dataProtectionProvider.CreateProtector("Alveara.MfaChallenge.v1");
 
     // R06 (review finding ALV-001-C01-R05-01/-02): narrow, test-only coordination seams - null and
@@ -436,6 +438,37 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                 && c.ConsumedAtUtc == null && c.ExpiresAtUtc > DateTimeOffset.UtcNow)
             .ExecuteUpdateAsync(s => s.SetProperty(c => c.ConsumedAtUtc, DateTimeOffset.UtcNow), cancellationToken);
         return rows > 0;
+    }
+
+    /// <summary>
+    /// ALV-N004: step-up reauthentication for a sensitive administrative action (backup recovery key,
+    /// verification, restore). The current password is checked through the SAME lockout boundary as an
+    /// ordinary login and MFA step-up - a stolen session cookie cannot use this as an unthrottled
+    /// password oracle - and a wrong password is audited as its own event.
+    /// </summary>
+    public async Task ReauthenticateAsync(Guid userAccountId, string? currentPassword, CancellationToken cancellationToken = default)
+    {
+        var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == userAccountId, cancellationToken)
+            ?? throw new AccountNotFoundException(userAccountId);
+        if (string.IsNullOrEmpty(currentPassword)) throw new InvalidCurrentPasswordException();
+
+        if (await RearmAndCheckLockoutAsync(account.Id, cancellationToken) is { } lockedUntil)
+            throw new AccountLockedOutException(lockedUntil);
+
+        if (account.PasswordHash is null || !Pbkdf2PasswordHasher.Verify(currentPassword, account.PasswordHash))
+        {
+            await using var failTransaction = await db.Database.BeginTransactionAsync(cancellationToken);
+            var justLockedOutUntil = await RecordFailedAuthenticationAttemptAsync(
+                account.Id, account.Username, AuditEventTypes.SensitiveActionStepUpFailed, "sensitive action step-up reauthentication", cancellationToken);
+            await db.SaveChangesAsync(cancellationToken);
+            await failTransaction.CommitAsync(cancellationToken);
+            if (justLockedOutUntil is { } newLockoutUntil) throw new AccountLockedOutException(newLockoutUntil);
+            throw new InvalidCurrentPasswordException();
+        }
+
+        await db.UserAccounts
+            .Where(u => u.Id == account.Id && (u.LockedOutUntilUtc == null || u.LockedOutUntilUtc <= DateTimeOffset.UtcNow))
+            .ExecuteUpdateAsync(s => s.SetProperty(u => u.FailedLoginAttempts, 0).SetProperty(u => u.LockedOutUntilUtc, (DateTimeOffset?)null), cancellationToken);
     }
 
     /// <summary>

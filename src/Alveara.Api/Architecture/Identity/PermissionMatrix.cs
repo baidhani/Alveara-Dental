@@ -33,7 +33,8 @@ public static class PermissionMatrix
         [Role.OfficeManager] = Set(
             Permission.ViewPatientRecords, Permission.ManageAppointments, Permission.ViewSchedule,
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewAuditLog, Permission.ViewPermissionMatrix,
-            Permission.ManagePracticeConfiguration), // the "practice manager" of ALV-N003
+            Permission.ManagePracticeConfiguration, // the "practice manager" of ALV-N003
+            Permission.ViewBackupStatus),
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

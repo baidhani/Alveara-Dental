@@ -15,6 +15,7 @@ import { MfaSettingsPage } from "./pages/MfaSettingsPage";
 import { PermissionMatrixPage } from "./pages/PermissionMatrixPage";
 import { AuditLogPage } from "./pages/AuditLogPage";
 import { ConfigurationHubPage } from "./pages/ConfigurationHubPage";
+import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -106,6 +107,14 @@ function createAppRouter() {
             element={
               <RequirePermission permission="ManagePracticeConfiguration">
                 <ConfigurationHubPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/admin/backup"
+            element={
+              <RequirePermission permission="ViewBackupStatus">
+                <BackupRecoveryPage />
               </RequirePermission>
             }
           />

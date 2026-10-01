@@ -144,6 +144,53 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     vi.unstubAllGlobals();
   });
 
+  it("ALV-N004: denies Backup & Recovery to a caller without ViewBackupStatus, hiding its nav link", async () => {
+    stubFetch({
+      permissions: () =>
+        jsonResponse({ username: "front-1", role: "FrontDesk", permissions: ["ViewSchedule"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+    });
+    window.history.pushState({}, "", "/admin/backup");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByText(/don't have permission/i)).toBeInTheDocument());
+    expect(screen.queryByRole("heading", { name: "Backup & recovery" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Backup & Recovery" })).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("ALV-N004: renders Backup & Recovery for a practice manager who can view status, with its nav link", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions"))
+          return Promise.resolve(
+            jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+          );
+        if (u.includes("/api/backup/status"))
+          return Promise.resolve(
+            jsonResponse({
+              settings: { scheduleEnabled: false, scheduleIntervalHours: 24, retentionCount: 7, destinationDirectory: "D:\\b", destinationIsDefault: true, recoveryKeyConfigured: false, recoveryKeyFingerprint: null, recoveryKeyConfiguredAtUtc: null, requiredSuccessfulVerifications: 2, verificationCadenceDays: 30, rowVersion: "" },
+              lastSuccess: null, lastFailure: null, latestAttemptFailed: false, successfulVerificationCount: 0, trusted: false, lastFullVerificationAtUtc: null, verificationOverdue: false,
+              requiredAssetClasses: ["database"], lastSuccessCoversAllAssetClasses: false, missingAssetClasses: ["database"],
+            })
+          );
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse([]));
+      })
+    );
+    window.history.pushState({}, "", "/admin/backup");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Backup & recovery" })).toBeInTheDocument());
+    expect(screen.queryByText(/don't have permission/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Backup & Recovery" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Run backup now" })).not.toBeInTheDocument(); // view-only: no management actions
+    vi.unstubAllGlobals();
+  });
+
   it("returns a caller to the page they were denied once they sign in", async () => {
     let permissionsCallCount = 0;
     vi.stubGlobal(

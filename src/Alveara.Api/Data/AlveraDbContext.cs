@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Backup;
 using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
@@ -35,6 +36,12 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<AppointmentType> AppointmentTypes => Set<AppointmentType>();
     public DbSet<ProviderWeeklyAvailability> ProviderWeeklyAvailabilities => Set<ProviderWeeklyAvailability>();
     public DbSet<ProviderBlockedTime> ProviderBlockedTimes => Set<ProviderBlockedTime>();
+
+    // ALV-N004: backup and recovery.
+    public DbSet<BackupSettings> BackupSettings => Set<BackupSettings>();
+    public DbSet<BackupRecord> BackupRecords => Set<BackupRecord>();
+    public DbSet<RestoreDrillRecord> RestoreDrills => Set<RestoreDrillRecord>();
+    public DbSet<BackupNotificationRecord> BackupNotifications => Set<BackupNotificationRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -127,6 +134,55 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(b => b.Reason).HasMaxLength(200);
             e.HasOne(b => b.ProviderProfile).WithMany().HasForeignKey(b => b.ProviderProfileId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(b => new { b.ProviderProfileId, b.StartUtc });
+        });
+
+        // ALV-N004: backup history is append-mostly and never deleted by the application (a purged
+        // backup keeps its row, status Purged). Statuses are stored as strings so history stays readable.
+        modelBuilder.Entity<BackupSettings>(e =>
+        {
+            e.Property(s => s.RowVersion).IsRowVersion();
+            e.Property(s => s.DestinationDirectory).HasMaxLength(500);
+            e.Property(s => s.RecoveryKeyFingerprint).HasMaxLength(64);
+        });
+
+        modelBuilder.Entity<BackupRecord>(e =>
+        {
+            e.Property(r => r.Kind).HasConversion<string>().HasMaxLength(20);
+            e.Property(r => r.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(r => r.VerificationStatus).HasConversion<string>().HasMaxLength(30);
+            e.Property(r => r.IdempotencyKey).HasMaxLength(200);
+            e.Property(r => r.FileName).HasMaxLength(200);
+            e.Property(r => r.DestinationDirectory).HasMaxLength(500);
+            e.Property(r => r.Sha256).HasMaxLength(64);
+            e.Property(r => r.IncludedAssetClasses).HasMaxLength(200);
+            e.Property(r => r.SchemaMigration).HasMaxLength(200);
+            e.Property(r => r.AppVersion).HasMaxLength(100);
+            e.Property(r => r.RecoveryKeyFingerprint).HasMaxLength(64);
+            e.Property(r => r.FailureCode).HasMaxLength(60);
+            e.Property(r => r.FailureMessage).HasMaxLength(500);
+            e.Property(r => r.VerificationFailureCode).HasMaxLength(60);
+            e.HasIndex(r => r.IdempotencyKey).IsUnique(); // the same slot/job can never create two backups
+            e.HasIndex(r => r.StartedAtUtc);
+        });
+
+        modelBuilder.Entity<RestoreDrillRecord>(e =>
+        {
+            e.Property(d => d.Outcome).HasMaxLength(20);
+            e.Property(d => d.FailureCode).HasMaxLength(60);
+            e.Property(d => d.FailureMessage).HasMaxLength(500);
+            e.Property(d => d.TargetDatabase).HasMaxLength(100);
+            e.Property(d => d.TargetDirectory).HasMaxLength(500);
+            e.HasOne<BackupRecord>().WithMany().HasForeignKey(d => d.BackupRecordId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(d => d.StartedAtUtc);
+        });
+
+        modelBuilder.Entity<BackupNotificationRecord>(e =>
+        {
+            e.Property(n => n.Kind).HasMaxLength(60);
+            e.Property(n => n.Message).HasMaxLength(1000);
+            e.Property(n => n.Delivery).HasConversion<string>().HasMaxLength(20);
+            e.Property(n => n.DeliveryFailureCode).HasMaxLength(60);
+            e.HasIndex(n => n.CreatedAtUtc);
         });
 
         modelBuilder.Entity<BackgroundJob>(e =>

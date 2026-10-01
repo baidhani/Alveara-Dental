@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Backup;
 using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
@@ -83,7 +84,33 @@ builder.Services.AddScoped<AccountService>();
 var dataProtectionKeysPath = builder.Configuration["DataProtectionKeysPath"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
 builder.Services.AddDataProtection()
+    .SetApplicationName(BackupConstants.DataProtectionApplicationName) // fixed, so restored keys still decrypt after a move to another folder/server (ALV-N004)
     .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+
+// ALV-N004: encrypted full-state backup, verification, restore and recovery. Every on-disk location
+// is server-owned configuration (never user input).
+var backupRoot = builder.Configuration["Backup:Root"] ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "backup");
+var backupPaths = new BackupPaths(
+    DefaultBackupDirectory: builder.Configuration["Backup:Directory"] ?? Path.Combine(backupRoot, "sets"),
+    StagingRoot: builder.Configuration["Backup:StagingRoot"] ?? Path.Combine(backupRoot, "staging"),
+    RestoreRoot: builder.Configuration["Backup:RestoreRoot"] ?? Path.Combine(backupRoot, "restore"),
+    NotificationDirectory: builder.Configuration["Backup:NotificationDirectory"] ?? Path.Combine(backupRoot, "notifications"),
+    ConnectionString: connectionString,
+    DatabaseName: new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString).InitialCatalog);
+builder.Services.AddSingleton(backupPaths);
+builder.Services.AddSingleton<IBackupSnapshotProvider>(_ => new SqlServerBackupSnapshotProvider(connectionString, backupPaths.DatabaseName));
+builder.Services.AddSingleton<IDatabaseRestoreProvider>(_ => new SqlServerRestoreProvider(connectionString));
+builder.Services.AddSingleton<IBackupNotifier, FileDropBackupNotifier>();
+// One source per persistent asset class except the database (handled with SQL Server's own BACKUP).
+// A later story that adds a new on-disk store registers another IBackupAssetSource and adds its
+// class to ManagedAssetClasses.
+builder.Services.AddSingleton<IBackupAssetSource>(_ => new FileTreeAssetSource(ManagedAssetClasses.Documents, storageRoot, relative => relative.Contains(".tmp-", StringComparison.Ordinal)));
+builder.Services.AddSingleton<IBackupAssetSource>(_ => new FileTreeAssetSource(ManagedAssetClasses.DataProtectionKeys, dataProtectionKeysPath));
+builder.Services.AddScoped<BackupService>();
+builder.Services.AddScoped<BackupRestoreService>();
+builder.Services.AddScoped<BackupScheduler>();
+builder.Services.AddScoped<IBackgroundJobHandler, ScheduledBackupJobHandler>();
+builder.Services.AddHostedService<BackupSchedulerHostedService>();
 
 // CSRF protection for cookie-authenticated state-changing calls (ALV-001-C01 requirement). A
 // double-submit pattern: the client reads the token from a non-HttpOnly cookie the antiforgery

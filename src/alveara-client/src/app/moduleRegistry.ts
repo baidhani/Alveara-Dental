@@ -23,5 +23,6 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "admin-permissions", label: "Permission Matrix", path: "/admin/permissions", requiredPermission: "ViewPermissionMatrix" },
   { id: "audit-log", label: "Audit Log", path: "/admin/audit-log", requiredPermission: "ViewAuditLog" },
   { id: "practice-config", label: "Practice Configuration", path: "/admin/configuration", requiredPermission: "ManagePracticeConfiguration" },
+  { id: "backup-recovery", label: "Backup & Recovery", path: "/admin/backup", requiredPermission: "ViewBackupStatus" },
   { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];
