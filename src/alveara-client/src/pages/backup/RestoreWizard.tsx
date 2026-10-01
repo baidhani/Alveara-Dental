@@ -4,8 +4,8 @@ import { FormField } from "../../components/FormField";
 import { useNotifications } from "../../components/Notification";
 import { useUnsavedChangesWarning } from "../../hooks/useUnsavedChangesWarning";
 import { ApiError } from "../../services/authApi";
-import { preflightBackup, runRestoreDrill, verifyBackupFully } from "../../services/backupApi";
-import type { BackupRecord, PreflightResult, RecoveryMaterial, RestoreDrill, ValidationCheck } from "../../services/backupApi";
+import { preflightArchive, preflightBackup, runArchiveRestoreDrill, runRestoreDrill, verifyBackupFully } from "../../services/backupApi";
+import type { ArchiveInfo, BackupRecord, PreflightResult, RecoveryMaterial, RestoreDrill, ValidationCheck } from "../../services/backupApi";
 import { describeBackupCode, describeBackupError } from "./backupMessages";
 
 type Stage =
@@ -35,7 +35,8 @@ function CheckList({ checks }: { checks: ValidationCheck[] }) {
  * to a wizard SESSION: closing (or restarting) the wizard abandons in-flight requests, whose late results
  * are discarded rather than shown against a different session.
  */
-export function RestoreWizard({ record, onClose, onChanged }: { record: BackupRecord; onClose: () => void; onChanged: () => void }) {
+export function RestoreWizard({ record, archive, onClose, onChanged }: { record?: BackupRecord; archive?: ArchiveInfo; onClose: () => void; onChanged: () => void }) {
+  // Exactly one source: a recorded backup (history) or a retained archive file found on disk (disaster recovery, no history needed).
   const { notify } = useNotifications();
   const [stage, setStage] = useState<Stage>({ kind: "material" });
   const [keyText, setKeyText] = useState("");
@@ -74,7 +75,7 @@ export function RestoreWizard({ record, onClose, onChanged }: { record: BackupRe
     const mine = ++session.current;
     setStage({ kind: "checking" });
     try {
-      const result = await preflightBackup(record.id, material());
+      const result = archive ? await preflightArchive(archive.ref, material()) : await preflightBackup(record!.id, material());
       if (mine !== session.current) return;
       setStage({ kind: "preflight", result });
     } catch (err) {
@@ -89,7 +90,7 @@ export function RestoreWizard({ record, onClose, onChanged }: { record: BackupRe
     setStage({ kind: "running", action });
     try {
       if (action === "verify") {
-        const verified = await verifyBackupFully(record.id, material());
+        const verified = await verifyBackupFully(record!.id, material());
         if (mine !== session.current) return;
         const ok = verified.verificationStatus === "FullyVerified";
         setStage({
@@ -98,7 +99,7 @@ export function RestoreWizard({ record, onClose, onChanged }: { record: BackupRe
         });
         notify(ok ? "success" : "danger", ok ? "Backup fully verified." : "Backup verification failed.");
       } else {
-        const drill = await runRestoreDrill(record.id, material());
+        const drill = archive ? await runArchiveRestoreDrill(archive.ref, material()) : await runRestoreDrill(record!.id, material());
         if (mine !== session.current) return;
         setStage({ kind: "done", ok: true, title: "Restore drill succeeded", checks: drill.checks, drill });
         notify("success", "Restore drill succeeded.");
@@ -127,7 +128,9 @@ export function RestoreWizard({ record, onClose, onChanged }: { record: BackupRe
 
   return (
     <section className="alv-config-panel__form alv-backup-wizard" role="dialog" aria-label="Restore wizard" aria-modal="false">
-      <h2 className="alv-config-panel__form-title">Restore wizard - backup of {new Date(record.startedAtUtc).toLocaleString()}</h2>
+      <h2 className="alv-config-panel__form-title">
+        Restore wizard - {archive ? `retained backup file ${archive.fileName}` : `backup of ${new Date(record!.startedAtUtc).toLocaleString()}`}
+      </h2>
       <p className="alv-backup-alert alv-backup-alert--info">
         This never overwrites your live data. A restore creates a NEW, isolated copy (its own database and folder) so you can check it before anything else is done. Putting a restored copy
         into production is a separate, deliberate offline procedure (see the recovery runbook).
@@ -179,9 +182,11 @@ export function RestoreWizard({ record, onClose, onChanged }: { record: BackupRe
             <input type="checkbox" checked={understood} onChange={(e) => setUnderstood(e.target.checked)} />I understand a restore drill creates a new isolated database and does not change live data
           </label>
           <div className="alv-config-panel__form-actions">
-            <Button disabled={!stage.result.canRestore} onClick={() => run("verify")}>
-              Verify only (nothing is restored)
-            </Button>
+            {!archive && (
+              <Button disabled={!stage.result.canRestore} onClick={() => run("verify")}>
+                Verify only (nothing is restored)
+              </Button>
+            )}
             <Button variant="primary" disabled={!stage.result.canRestore || !understood} onClick={() => run("drill")}>
               Restore into an isolated target
             </Button>

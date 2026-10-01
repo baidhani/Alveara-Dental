@@ -1,5 +1,12 @@
-using System.Buffers.Binary;
 using System.Security.Cryptography;
+using System.Text;
+using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Bcpg.OpenPgp;
+using Org.BouncyCastle.Bcpg.Sig;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
 
 namespace Alveara.Api.Architecture.Backup;
 
@@ -9,273 +16,249 @@ public sealed class BackupCryptoException(string code, string message) : Excepti
     public string Code { get; } = code;
 }
 
-/// <summary>The recovery key pair for a freshly configured installation.</summary>
-public sealed record RecoveryKeyMaterial(string PublicKeyPem, string EncryptedPrivateKeyPem, string Fingerprint);
+/// <summary>
+/// The recovery key pair for an installation: both halves as ASCII-armored OpenPGP key blocks, the
+/// encryption key's fingerprint, and the generated passphrase protecting the private half.
+/// <see cref="EncryptedPrivateKeyPem"/> and <see cref="Passphrase"/> are shown to the administrator once and never stored.
+/// </summary>
+public sealed record RecoveryKeyMaterial(string PublicKeyPem, string EncryptedPrivateKeyPem, string Fingerprint, string Passphrase = "");
 
 /// <summary>
-/// ALV-N004's encryption layer. Every primitive is a platform one - nothing here invents
-/// cryptography:
-/// <list type="bullet">
-/// <item>RSA-3072 + OAEP-SHA256 (<see cref="RSA"/>) wraps a per-backup random 256-bit data key, so the server holds
-///   only the PUBLIC half: it can encrypt every unattended backup but can never decrypt one, and the
-///   recovery secret (the private key, itself exported with PBES2/PBKDF2-SHA256 600k + AES-256 via
-///   <c>ExportEncryptedPkcs8PrivateKeyPem</c>) exists only in the administrator's custody - never in a
-///   backup, the database, configuration, or a log.</item>
-/// <item>AES-256-GCM (<see cref="AesGcm"/>) provides authenticated encryption of the content.</item>
-/// </list>
-/// The only thing implemented here is the minimal framing that applies AES-GCM to a large stream:
-/// the standard "STREAM" chunking construction (fixed-size chunks, per-chunk nonce = random prefix ||
-/// counter, additional-authenticated-data binding the header, chunk index, length and a final-chunk
-/// flag), so reordering, truncation, extension or header tampering all fail authentication.
-/// File layout: magic "ALVBK" | version | key fingerprint (32) | wrapped-key length (2) | wrapped key |
-/// nonce prefix (8) | chunk size (4) | then repeated: ciphertext length (4) | ciphertext+tag.
+/// ALV-N004's encryption layer: <b>OpenPGP (RFC 4880 / RFC 9580), implemented by the maintained
+/// BouncyCastle library</b>. A backup is an ordinary OpenPGP message - public-key encrypted
+/// (RSA-3072) with AES-256, integrity-protected by the format's own Modification Detection Code - so
+/// it is a documented, interoperable, authenticated container (any OpenPGP implementation, e.g.
+/// GnuPG, decrypts it with the recovery key; the tests prove this against a real <c>gpg</c>). This
+/// class defines NO cipher, key-derivation or container format of its own: key generation,
+/// session-key wrapping, bulk encryption, packet framing, integrity checking and passphrase
+/// protection of the private key are all the library's. What remains here is plumbing: choose the
+/// recipient key, stream bytes through the library, and translate its failures into stable codes.
+/// <para>
+/// The server holds only the PUBLIC key: it can encrypt every unattended backup but can never
+/// decrypt one. The private half exists only in the administrator's offline custody, protected by a
+/// server-generated high-entropy passphrase (OpenPGP's own string-to-key derivation is deliberately
+/// not relied on for strength, which is why the passphrase is generated, never chosen by a person).
+/// </para>
+/// <para>
+/// Integrity: OpenPGP's MDC is verified over the whole stream before this class reports success, and
+/// decrypted output is only ever written to scratch space that callers discard on failure - nothing
+/// from an unauthenticated message is ever trusted or extracted.
+/// </para>
 /// </summary>
 public static class BackupCrypto
 {
-    private static readonly byte[] Magic = "ALVBK"u8.ToArray();
-    private const byte FormatVersion = 1;
-    public const int ChunkSize = 1 << 20; // 1 MiB of plaintext per chunk
-    private const int NonceSize = 12;
-    private const int TagSize = 16;
-    private const int NoncePrefixSize = 8;
-    private const int Pbkdf2Iterations = 600_000;
+    private const int BufferSize = 1 << 16;
+    private const int MinimumPassphraseLength = 16;
+    private const string KeyUserId = "Alveara backup recovery key";
 
-    public static RecoveryKeyMaterial GenerateRecoveryKey(string passphrase)
+    // ---------- key material ----------
+
+    public static string GeneratePassphrase()
     {
-        if (string.IsNullOrEmpty(passphrase) || passphrase.Length < 12)
-            throw new BackupCryptoException("weak_passphrase", "The recovery key passphrase must be at least 12 characters.");
-
-        using var rsa = RSA.Create(3072);
-        var spki = rsa.ExportSubjectPublicKeyInfo();
-        var encryptedPrivate = rsa.ExportEncryptedPkcs8PrivateKeyPem(
-            passphrase, new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, Pbkdf2Iterations));
-        return new RecoveryKeyMaterial(rsa.ExportSubjectPublicKeyInfoPem(), encryptedPrivate, Fingerprint(spki));
+        // 24 characters of RFC 4648 base32 = 120 bits from the platform CSPRNG, grouped for transcription.
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        var chars = new char[24];
+        for (var i = 0; i < chars.Length; i++) chars[i] = alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
+        return string.Join('-', Enumerable.Range(0, 6).Select(g => new string(chars, g * 4, 4)));
     }
 
-    public static string FingerprintOfPublicKeyPem(string publicKeyPem)
+    public static RecoveryKeyMaterial GenerateRecoveryKey(string? passphrase = null)
     {
-        using var rsa = ImportPublic(publicKeyPem);
-        return Fingerprint(rsa.ExportSubjectPublicKeyInfo());
+        passphrase ??= GeneratePassphrase();
+        if (passphrase.Length < MinimumPassphraseLength)
+            throw new BackupCryptoException("weak_passphrase", $"The recovery key passphrase must be at least {MinimumPassphraseLength} characters.");
+
+        var random = new SecureRandom();
+        var generator = new RsaKeyPairGenerator();
+        generator.Init(new RsaKeyGenerationParameters(BigInteger.ValueOf(0x10001), random, 3072, 80));
+        var master = new PgpKeyPair(PublicKeyAlgorithmTag.RsaGeneral, generator.GenerateKeyPair(), DateTime.UtcNow);
+        var encryption = new PgpKeyPair(PublicKeyAlgorithmTag.RsaGeneral, generator.GenerateKeyPair(), DateTime.UtcNow);
+
+        var masterPackets = new PgpSignatureSubpacketGenerator();
+        masterPackets.SetKeyFlags(false, PgpKeyFlags.CanCertify | PgpKeyFlags.CanSign);
+        masterPackets.SetPreferredSymmetricAlgorithms(false, [(int)SymmetricKeyAlgorithmTag.Aes256]);
+        masterPackets.SetPreferredHashAlgorithms(false, [(int)HashAlgorithmTag.Sha256]);
+        var encryptionPackets = new PgpSignatureSubpacketGenerator();
+        encryptionPackets.SetKeyFlags(false, PgpKeyFlags.CanEncryptCommunications | PgpKeyFlags.CanEncryptStorage);
+
+        var ringGenerator = new PgpKeyRingGenerator(
+            PgpSignature.PositiveCertification, master, KeyUserId, SymmetricKeyAlgorithmTag.Aes256, HashAlgorithmTag.Sha256,
+            passphrase.ToCharArray(), true, masterPackets.Generate(), null, random);
+        ringGenerator.AddSubKey(encryption, encryptionPackets.Generate(), null);
+
+        var secretRing = ringGenerator.GenerateSecretKeyRing();
+        var publicRing = ringGenerator.GeneratePublicKeyRing();
+        var encryptionKey = publicRing.GetPublicKeys().Cast<PgpPublicKey>().Single(k => !k.IsMasterKey && k.IsEncryptionKey);
+        return new RecoveryKeyMaterial(Armor(publicRing.Encode), Armor(secretRing.Encode), Convert.ToHexStringLower(encryptionKey.GetFingerprint()), passphrase);
     }
 
-    private static string Fingerprint(byte[] spki) => Convert.ToHexStringLower(SHA256.HashData(spki));
-
-    private static RSA ImportPublic(string publicKeyPem)
+    private static string Armor(Action<Stream> write)
     {
-        var rsa = RSA.Create();
+        using var buffer = new MemoryStream();
+        using (var armored = new ArmoredOutputStream(buffer)) write(armored);
+        return Encoding.ASCII.GetString(buffer.ToArray());
+    }
+
+    private static PgpPublicKey EncryptionKeyOf(string publicKeyArmor)
+    {
         try
         {
-            rsa.ImportFromPem(publicKeyPem);
-            return rsa;
+            using var stream = PgpUtilities.GetDecoderStream(new MemoryStream(Encoding.ASCII.GetBytes(publicKeyArmor)));
+            var rings = new PgpPublicKeyRingBundle(stream);
+            return rings.GetKeyRings().Cast<PgpPublicKeyRing>().SelectMany(r => r.GetPublicKeys().Cast<PgpPublicKey>()).First(k => !k.IsMasterKey && k.IsEncryptionKey);
         }
-        catch (Exception ex) when (ex is CryptographicException or ArgumentException)
+        catch (Exception ex) when (ex is PgpException or IOException or InvalidOperationException or ArgumentException)
         {
-            rsa.Dispose();
             throw new BackupCryptoException("invalid_recovery_key", "The configured recovery public key is not valid.");
         }
     }
 
-    /// <summary>Encrypts <paramref name="plaintext"/> to <paramref name="output"/> for the holder of the recovery key.</summary>
-    public static async Task EncryptAsync(Stream plaintext, Stream output, string recoveryPublicKeyPem, CancellationToken cancellationToken = default)
+    public static string FingerprintOfPublicKeyPem(string publicKeyArmor) => Convert.ToHexStringLower(EncryptionKeyOf(publicKeyArmor).GetFingerprint());
+
+    private static PgpSecretKeyRingBundle SecretKeysOf(string secretKeyArmor)
     {
-        using var rsa = ImportPublic(recoveryPublicKeyPem);
-        var fingerprint = SHA256.HashData(rsa.ExportSubjectPublicKeyInfo());
-        var dek = RandomNumberGenerator.GetBytes(32);
-        var wrapped = rsa.Encrypt(dek, RSAEncryptionPadding.OaepSHA256);
-        var noncePrefix = RandomNumberGenerator.GetBytes(NoncePrefixSize);
-
-        var header = new byte[Magic.Length + 1 + 32 + 2 + wrapped.Length + NoncePrefixSize + 4];
-        var span = header.AsSpan();
-        Magic.CopyTo(span); span = span[Magic.Length..];
-        span[0] = FormatVersion; span = span[1..];
-        fingerprint.CopyTo(span); span = span[32..];
-        BinaryPrimitives.WriteUInt16BigEndian(span, (ushort)wrapped.Length); span = span[2..];
-        wrapped.CopyTo(span); span = span[wrapped.Length..];
-        noncePrefix.CopyTo(span); span = span[NoncePrefixSize..];
-        BinaryPrimitives.WriteInt32BigEndian(span, ChunkSize);
-        await output.WriteAsync(header, cancellationToken);
-
-        var headerHash = SHA256.HashData(header);
-        using var aes = new AesGcm(dek, TagSize);
-
-        var current = new byte[ChunkSize];
-        var next = new byte[ChunkSize];
-        var currentLength = await ReadFullAsync(plaintext, current, cancellationToken);
-        uint counter = 0;
-        while (true)
-        {
-            var nextLength = currentLength == ChunkSize ? await ReadFullAsync(plaintext, next, cancellationToken) : 0;
-            var isFinal = nextLength == 0;
-            await WriteChunkAsync(aes, noncePrefix, headerHash, counter, isFinal, current.AsMemory(0, currentLength), output, cancellationToken);
-            if (isFinal) break;
-            (current, next) = (next, current);
-            currentLength = nextLength;
-            counter++;
-        }
-
-        CryptographicOperations.ZeroMemory(dek);
-    }
-
-    private static async Task WriteChunkAsync(AesGcm aes, byte[] noncePrefix, byte[] headerHash, uint counter, bool isFinal,
-        ReadOnlyMemory<byte> plain, Stream output, CancellationToken cancellationToken)
-    {
-        var nonce = new byte[NonceSize];
-        noncePrefix.CopyTo(nonce, 0);
-        BinaryPrimitives.WriteUInt32BigEndian(nonce.AsSpan(NoncePrefixSize), counter);
-
-        var cipherLength = plain.Length + TagSize;
-        var aad = BuildAad(headerHash, counter, isFinal, cipherLength);
-        var cipher = new byte[plain.Length];
-        var tag = new byte[TagSize];
-        aes.Encrypt(nonce, plain.Span, cipher, tag, aad);
-
-        var lengthPrefix = new byte[4];
-        BinaryPrimitives.WriteInt32BigEndian(lengthPrefix, cipherLength);
-        await output.WriteAsync(lengthPrefix, cancellationToken);
-        await output.WriteAsync(cipher, cancellationToken);
-        await output.WriteAsync(tag, cancellationToken);
-    }
-
-    private static byte[] BuildAad(byte[] headerHash, uint counter, bool isFinal, int cipherLength)
-    {
-        var aad = new byte[32 + 4 + 1 + 4];
-        headerHash.CopyTo(aad, 0);
-        BinaryPrimitives.WriteUInt32BigEndian(aad.AsSpan(32), counter);
-        aad[36] = isFinal ? (byte)1 : (byte)0;
-        BinaryPrimitives.WriteInt32BigEndian(aad.AsSpan(37), cipherLength);
-        return aad;
-    }
-
-    /// <summary>The recovery-key fingerprint a backup was encrypted for, read from its header without any key.</summary>
-    public static async Task<string> ReadFingerprintAsync(Stream input, CancellationToken cancellationToken = default)
-    {
-        var (_, fingerprint, _, _, _) = await ReadHeaderAsync(input, cancellationToken);
-        return Convert.ToHexStringLower(fingerprint);
-    }
-
-    private static async Task<(byte[] Header, byte[] Fingerprint, byte[] Wrapped, byte[] NoncePrefix, int ChunkSize)> ReadHeaderAsync(Stream input, CancellationToken cancellationToken)
-    {
-        var fixedPart = new byte[Magic.Length + 1 + 32 + 2];
-        if (await ReadFullAsync(input, fixedPart, cancellationToken) != fixedPart.Length || !fixedPart.AsSpan(0, Magic.Length).SequenceEqual(Magic))
-            throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
-        if (fixedPart[Magic.Length] != FormatVersion)
-            throw new BackupCryptoException("unsupported_version", "This backup was written in a format this version cannot read.");
-
-        var fingerprint = fixedPart.AsSpan(Magic.Length + 1, 32).ToArray();
-        var wrappedLength = BinaryPrimitives.ReadUInt16BigEndian(fixedPart.AsSpan(Magic.Length + 1 + 32));
-        if (wrappedLength is 0 or > 1024)
-            throw new BackupCryptoException("corrupt_or_tampered", "The backup header is damaged.");
-
-        var rest = new byte[wrappedLength + NoncePrefixSize + 4];
-        if (await ReadFullAsync(input, rest, cancellationToken) != rest.Length)
-            throw new BackupCryptoException("corrupt_or_tampered", "The backup header is truncated.");
-
-        var wrapped = rest.AsSpan(0, wrappedLength).ToArray();
-        var noncePrefix = rest.AsSpan(wrappedLength, NoncePrefixSize).ToArray();
-        var chunkSize = BinaryPrimitives.ReadInt32BigEndian(rest.AsSpan(wrappedLength + NoncePrefixSize));
-        if (chunkSize != ChunkSize)
-            throw new BackupCryptoException("corrupt_or_tampered", "The backup header is damaged.");
-
-        var header = new byte[fixedPart.Length + rest.Length];
-        fixedPart.CopyTo(header, 0);
-        rest.CopyTo(header, fixedPart.Length);
-        return (header, fingerprint, wrapped, noncePrefix, chunkSize);
-    }
-
-    /// <summary>
-    /// Decrypts and authenticates a whole backup. A wrong key, a corrupted/truncated/extended file and a
-    /// non-backup file are distinguished by <see cref="BackupCryptoException.Code"/>; nothing is written
-    /// to <paramref name="output"/> for a chunk that fails authentication.
-    /// </summary>
-    public static async Task DecryptAsync(Stream input, Stream output, string encryptedPrivateKeyPem, string passphrase, CancellationToken cancellationToken = default)
-    {
-        var (header, fingerprint, wrapped, noncePrefix, _) = await ReadHeaderAsync(input, cancellationToken);
-
-        using var rsa = RSA.Create();
         try
         {
-            rsa.ImportFromEncryptedPem(encryptedPrivateKeyPem, passphrase);
+            return new PgpSecretKeyRingBundle(PgpUtilities.GetDecoderStream(new MemoryStream(Encoding.ASCII.GetBytes(secretKeyArmor ?? ""))));
         }
-        catch (Exception ex) when (ex is CryptographicException or ArgumentException)
+        catch (Exception ex) when (ex is PgpException or IOException or ArgumentException or InvalidCastException)
         {
-            // Wrong passphrase and a malformed key file are deliberately indistinguishable here.
+            // A malformed key file and a wrong passphrase are deliberately indistinguishable to the caller.
             throw new BackupCryptoException("wrong_recovery_key", "The recovery key or its passphrase is wrong.");
         }
-        if (!SHA256.HashData(rsa.ExportSubjectPublicKeyInfo()).AsSpan().SequenceEqual(fingerprint))
-            throw new BackupCryptoException("wrong_recovery_key", "This recovery key does not belong to this backup.");
+    }
 
-        byte[] dek;
-        try
-        {
-            dek = rsa.Decrypt(wrapped, RSAEncryptionPadding.OaepSHA256);
-        }
-        catch (CryptographicException)
-        {
-            throw new BackupCryptoException("corrupt_or_tampered", "The backup's key block could not be unwrapped.");
-        }
+    /// <summary>The id (upper-case hex) of the recovery key's ENCRYPTION key, readable from the key file without its passphrase.</summary>
+    public static string EncryptionKeyIdOfSecretKey(string secretKeyArmor)
+    {
+        var secret = SecretKeysOf(secretKeyArmor).GetKeyRings().Cast<PgpSecretKeyRing>().SelectMany(r => r.GetSecretKeys().Cast<PgpSecretKey>()).FirstOrDefault(k => !k.IsMasterKey && k.PublicKey.IsEncryptionKey);
+        return secret is null ? throw new BackupCryptoException("wrong_recovery_key", "The recovery key or its passphrase is wrong.") : secret.KeyId.ToString("X16");
+    }
 
-        try
+    /// <summary>Proves the passphrase unlocks the key file's encryption key (without decrypting anything).</summary>
+    public static void EnsurePassphraseUnlocks(string secretKeyArmor, string passphrase)
+    {
+        var secret = SecretKeysOf(secretKeyArmor).GetKeyRings().Cast<PgpSecretKeyRing>().SelectMany(r => r.GetSecretKeys().Cast<PgpSecretKey>()).FirstOrDefault(k => !k.IsMasterKey && k.PublicKey.IsEncryptionKey)
+            ?? throw new BackupCryptoException("wrong_recovery_key", "The recovery key or its passphrase is wrong.");
+        try { secret.ExtractPrivateKey((passphrase ?? "").ToCharArray()); }
+        catch (PgpException) { throw new BackupCryptoException("wrong_recovery_key", "The recovery key or its passphrase is wrong."); }
+    }
+
+    // ---------- encryption ----------
+
+    /// <summary>Encrypts <paramref name="plaintext"/> to <paramref name="output"/> as an OpenPGP message for the holder of the recovery key. Streams in 64 KiB buffers (bounded memory for any size).</summary>
+    public static Task EncryptAsync(Stream plaintext, Stream output, string recoveryPublicKeyArmor, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
         {
-            var headerHash = SHA256.HashData(header);
-            using var aes = new AesGcm(dek, TagSize);
-            uint counter = 0;
-            var lengthBuffer = new byte[4];
-            while (true)
+            var key = EncryptionKeyOf(recoveryPublicKeyArmor);
+            var generator = new PgpEncryptedDataGenerator(SymmetricKeyAlgorithmTag.Aes256, withIntegrityPacket: true, new SecureRandom());
+            generator.AddMethod(key);
+            using var encrypted = generator.Open(output, new byte[BufferSize]);
+            using var literal = new PgpLiteralDataGenerator().Open(encrypted, PgpLiteralData.Binary, "backup.zip", DateTime.UtcNow, new byte[BufferSize]);
+            var buffer = new byte[BufferSize];
+            int read;
+            while ((read = plaintext.Read(buffer, 0, buffer.Length)) > 0)
             {
-                var read = await ReadFullAsync(input, lengthBuffer, cancellationToken);
-                if (read != 4) throw new BackupCryptoException("corrupt_or_tampered", "The backup is truncated.");
-                var cipherLength = BinaryPrimitives.ReadInt32BigEndian(lengthBuffer);
-                if (cipherLength < TagSize || cipherLength > ChunkSize + TagSize)
-                    throw new BackupCryptoException("corrupt_or_tampered", "The backup is damaged.");
-
-                var buffer = new byte[cipherLength];
-                if (await ReadFullAsync(input, buffer, cancellationToken) != cipherLength)
-                    throw new BackupCryptoException("corrupt_or_tampered", "The backup is truncated.");
-
-                var plain = new byte[cipherLength - TagSize];
-                var nonce = new byte[NonceSize];
-                noncePrefix.CopyTo(nonce, 0);
-                BinaryPrimitives.WriteUInt32BigEndian(nonce.AsSpan(NoncePrefixSize), counter);
-
-                // Is this the final chunk? Try "final" first only if nothing follows; otherwise it must authenticate as non-final.
-                var atEnd = input.CanSeek ? input.Position == input.Length : await PeekIsEndAsync(input, cancellationToken);
-                var aad = BuildAad(headerHash, counter, atEnd, cipherLength);
-                try
-                {
-                    aes.Decrypt(nonce, buffer.AsSpan(0, plain.Length), buffer.AsSpan(plain.Length, TagSize), plain, aad);
-                }
-                catch (CryptographicException)
-                {
-                    throw new BackupCryptoException("corrupt_or_tampered", "The backup failed authentication: it is corrupt or has been altered.");
-                }
-
-                await output.WriteAsync(plain, cancellationToken);
-                if (atEnd) return;
-                counter++;
+                cancellationToken.ThrowIfCancellationRequested();
+                literal.Write(buffer, 0, read);
             }
-        }
-        finally
+        }, cancellationToken);
+
+    // ---------- reading / decryption ----------
+
+    private static PgpEncryptedDataList ReadEncryptedList(PgpObjectFactory factory)
+    {
+        try
         {
-            CryptographicOperations.ZeroMemory(dek);
+            var first = factory.NextPgpObject();
+            return first as PgpEncryptedDataList ?? factory.NextPgpObject() as PgpEncryptedDataList
+                ?? throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
+        }
+        catch (Exception ex) when (ex is IOException or PgpException or InvalidCastException or ArgumentException)
+        {
+            throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
         }
     }
 
-    private static async Task<bool> PeekIsEndAsync(Stream input, CancellationToken cancellationToken)
-    {
-        // Non-seekable fallback is not used by this application (backups are files); fail closed.
-        await Task.CompletedTask;
-        throw new BackupCryptoException("corrupt_or_tampered", "Backups must be read from a seekable file.");
-    }
-
-    private static async Task<int> ReadFullAsync(Stream stream, byte[] buffer, CancellationToken cancellationToken)
-    {
-        var total = 0;
-        while (total < buffer.Length)
+    /// <summary>The recipient key id (upper-case hex) a backup was encrypted for, read from its first packet without any secret.</summary>
+    public static Task<string> ReadRecipientKeyIdAsync(Stream input, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
         {
-            var n = await stream.ReadAsync(buffer.AsMemory(total), cancellationToken);
-            if (n == 0) break;
-            total += n;
+            var list = ReadEncryptedList(new PgpObjectFactory(PgpUtilities.GetDecoderStream(input)));
+            var recipient = list.GetEncryptedDataObjects().Cast<PgpEncryptedData>().OfType<PgpPublicKeyEncryptedData>().FirstOrDefault()
+                ?? throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
+            return recipient.KeyId.ToString("X16");
+        }, cancellationToken);
+
+    /// <summary>
+    /// Decrypts and authenticates a whole backup into <paramref name="output"/>. A wrong key or passphrase, a
+    /// corrupted/truncated/extended/tampered file and a non-backup file are distinguished by
+    /// <see cref="BackupCryptoException.Code"/>. The output is only complete and trustworthy if this method returns.
+    /// </summary>
+    public static Task DecryptAsync(Stream input, Stream output, string encryptedPrivateKeyArmor, string passphrase, CancellationToken cancellationToken = default) =>
+        Task.Run(() =>
+        {
+            var writes = new WriteFaultCapturingStream(output);
+            try
+            {
+                var factory = new PgpObjectFactory(PgpUtilities.GetDecoderStream(input));
+                var list = ReadEncryptedList(factory);
+                var secrets = SecretKeysOf(encryptedPrivateKeyArmor);
+
+                PgpPublicKeyEncryptedData? message = null;
+                PgpSecretKey? secretKey = null;
+                foreach (var candidate in list.GetEncryptedDataObjects().Cast<PgpEncryptedData>().OfType<PgpPublicKeyEncryptedData>())
+                {
+                    secretKey = secrets.GetSecretKey(candidate.KeyId);
+                    if (secretKey is not null) { message = candidate; break; }
+                }
+                if (message is null || secretKey is null)
+                    throw new BackupCryptoException("wrong_recovery_key", "This recovery key does not belong to this backup.");
+
+                PgpPrivateKey privateKey;
+                try { privateKey = secretKey.ExtractPrivateKey((passphrase ?? "").ToCharArray()); }
+                catch (PgpException) { throw new BackupCryptoException("wrong_recovery_key", "The recovery key or its passphrase is wrong."); }
+
+                using var clear = message.GetDataStream(privateKey);
+                var content = new PgpObjectFactory(clear);
+                var item = content.NextPgpObject();
+                if (item is PgpCompressedData compressed)
+                    item = new PgpObjectFactory(compressed.GetDataStream()).NextPgpObject();
+                var literal = item as PgpLiteralData ?? throw new BackupCryptoException("corrupt_or_tampered", "The backup contains no data.");
+
+                var buffer = new byte[BufferSize];
+                using (var data = literal.GetInputStream())
+                {
+                    int read;
+                    while ((read = data.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        writes.Write(buffer, 0, read);
+                    }
+                }
+
+                if (!message.IsIntegrityProtected() || !message.Verify())
+                    throw new BackupCryptoException("corrupt_or_tampered", "The backup failed authentication: it is corrupt or has been altered.");
+                if (factory.NextPgpObject() is not null) // nothing may follow the one authenticated message
+                    throw new BackupCryptoException("corrupt_or_tampered", "The backup has unexpected data after its end.");
+            }
+            catch (BackupCryptoException) { throw; }
+            catch (Exception) when (writes.Fault is not null) { throw writes.Fault; } // a failing DESTINATION (e.g. disk full) is not a damaged backup
+            catch (Exception ex) when (ex is PgpException or IOException or EndOfStreamException or InvalidCastException or ArgumentException or InvalidOperationException or FormatException)
+            {
+                throw new BackupCryptoException("corrupt_or_tampered", "The backup failed authentication: it is corrupt or has been altered.");
+            }
+        }, cancellationToken);
+
+    /// <summary>Remembers a failure of the destination stream so it is reported as such, not as a corrupt backup.</summary>
+    private sealed class WriteFaultCapturingStream(Stream inner)
+    {
+        public Exception? Fault { get; private set; }
+
+        public void Write(byte[] buffer, int offset, int count)
+        {
+            try { inner.Write(buffer, offset, count); }
+            catch (Exception ex) { Fault = ex; throw; }
         }
-        return total;
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Backup;
 using Alveara.Api.Data;
 
 namespace Alveara.Api.Controllers;
@@ -13,7 +14,7 @@ namespace Alveara.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class SystemStatusController(AlveraDbContext db, BackgroundJobRunnerHeartbeat heartbeat) : ControllerBase
+public class SystemStatusController(AlveraDbContext db, BackgroundJobRunnerHeartbeat heartbeat, DeploymentInvariantStatus deployment) : ControllerBase
 {
     private static readonly TimeSpan RunnerStaleThreshold = TimeSpan.FromSeconds(30);
 
@@ -48,6 +49,8 @@ public class SystemStatusController(AlveraDbContext db, BackgroundJobRunnerHeart
             localServerReachable = true, // trivially true: we're answering this request
             database = new { reachable = databaseReachable },
             backgroundRunner = new { status = runnerStatus, lastPollUtc = lastPoll },
+            // ALV-N004 R02: does this server's configuration match the settings its data was created under?
+            deployment = new { state = deployment.Snapshot.State.ToString().ToLowerInvariant(), mismatches = deployment.Snapshot.Mismatches },
         });
     }
 }

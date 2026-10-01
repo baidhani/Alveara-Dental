@@ -39,6 +39,7 @@ public class BackupSchedulerTests : IClassFixture<TestDatabaseFixture>, IDisposa
         services.AddSingleton(_env.Paths);
         services.AddSingleton<IBackupSnapshotProvider>(new SqlServerBackupSnapshotProvider(_env.Fixture.ConnectionString, _env.Paths.DatabaseName));
         services.AddSingleton<IBackupNotifier>(_env.Notifier);
+        services.AddSingleton<IDeploymentSettingsProvider>(_env.Deployment);
         foreach (var source in sources ?? _env.Sources) services.AddSingleton(source);
         services.AddScoped<BackupService>();
         return services.BuildServiceProvider();

@@ -270,16 +270,16 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("button", { name: "Run backup now" })).toBeDisabled();
 
     // Recovery key: shown once, acknowledged, then gone from the screen.
-    const passphrase = "e2e recovery passphrase 42";
     await page.getByRole("button", { name: "Set up recovery key" }).click();
-    await page.getByLabel("Recovery passphrase").fill(passphrase);
-    await page.getByLabel("Confirm passphrase").fill(passphrase);
+    await expect(page.getByLabel("Recovery passphrase")).toHaveCount(0); // the server generates the passphrase; the user never chooses a weak one
     await page.getByLabel("Your current password").fill("admin-password-1!");
     await page.getByRole("button", { name: "Create recovery key" }).click();
     const keyBox = page.getByLabel("Recovery key file contents");
     await expect(keyBox).toBeVisible();
     const recoveryKey = await keyBox.inputValue();
-    expect(recoveryKey).toContain("BEGIN ENCRYPTED PRIVATE KEY");
+    expect(recoveryKey).toContain("BEGIN PGP PRIVATE KEY BLOCK"); // a standard OpenPGP key block, restorable with stock tooling
+    const passphrase = await page.getByLabel("Recovery passphrase (generated)").inputValue();
+    expect(passphrase.length).toBeGreaterThanOrEqual(24);
     await page.getByLabel(/I have stored the recovery key file/).check();
     await page.getByRole("button", { name: /Done - clear the key/ }).click();
     await expect(keyBox).toHaveCount(0);
@@ -291,7 +291,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     const historyRow = page.getByRole("row").filter({ hasText: "Manual" }).first();
     await expect(historyRow).toContainText("Succeeded");
     await expect(historyRow).toContainText("File hash verified only"); // backed up != proven restorable
-    await expect(historyRow).toContainText("Database, Documents, Encryption keys");
+    await expect(historyRow).toContainText("Database, Deployment settings, Documents, Encryption keys");
     await expect(page.getByLabel("Asset coverage")).toContainText("includes every managed asset class");
 
     // The restore wizard: explicit recovery material, compatibility checks, then an ISOLATED restore.
@@ -316,6 +316,24 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.getByLabel("Your current password").fill("admin-password-1!");
     await page.getByRole("button", { name: "Remove the restored copy" }).click();
     await expect(page.getByText("The isolated restore target was removed.")).toBeVisible();
+
+    // Disaster recovery: the retained file is discoverable and restorable WITHOUT using the backup history at all.
+    const archivePanel = page.getByRole("region", { name: "Recover from a retained backup file" });
+    await expect(archivePanel).toContainText(".abk");
+    await archivePanel.getByRole("button", { name: /Restore from alveara-backup-/ }).first().click();
+    const archiveWizard = page.getByRole("dialog", { name: "Restore wizard" });
+    await expect(archiveWizard).toContainText("retained backup file");
+    await archiveWizard.getByLabel("Or paste the key file contents").fill(recoveryKey);
+    await archiveWizard.getByLabel("Recovery passphrase").fill(passphrase);
+    await archiveWizard.getByLabel("Your current password").fill("admin-password-1!");
+    await archiveWizard.getByRole("button", { name: "Check compatibility and recovery material" }).click();
+    await expect(archiveWizard).toContainText("The backup file is present.");
+    await expect(archiveWizard.getByRole("button", { name: /Verify only/ })).toHaveCount(0);
+    await archiveWizard.getByLabel(/I understand a restore drill creates a new isolated database/).check();
+    await archiveWizard.getByRole("button", { name: "Restore into an isolated target" }).click();
+    await expect(archiveWizard.getByText("Restore drill succeeded")).toBeVisible({ timeout: 120_000 });
+    await expect(archiveWizard).toContainText("deployment settings the data was created under");
+    await archiveWizard.getByRole("button", { name: "Close" }).click();
 
     // Audited through the shared audit path.
     await page.goto("/admin/audit-log");

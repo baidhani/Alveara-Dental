@@ -5,6 +5,8 @@ export interface SystemStatus {
   localServerReachable: boolean;
   database: { reachable: boolean };
   backgroundRunner: { status: "not_yet_polled" | "healthy" | "stale"; lastPollUtc: string | null };
+  /** Whether this server is configured with the deployment settings (practice time zone, Data Protection name) its data was created under. */
+  deployment?: { state: "unchecked" | "ok" | "mismatch"; mismatches: { setting: string; recorded: string; current: string }[] };
 }
 
 export type SystemStatusFetchState =

@@ -32,6 +32,25 @@ function StatusGrid({ status, internetSignal }: { status: SystemStatus; internet
         </p>
       </div>
 
+      {status.deployment && (
+        <div className="status-card">
+          <h3>Deployment settings</h3>
+          <p>
+            <StatusDot tone={status.deployment.state === "ok" ? "success" : status.deployment.state === "mismatch" ? "danger" : "unknown"} />
+            {status.deployment.state === "ok" ? "Match the data" : status.deployment.state === "mismatch" ? "MISMATCH - the application refuses data requests" : "Not yet checked"}
+          </p>
+          {status.deployment.mismatches.length > 0 && (
+            <ul>
+              {status.deployment.mismatches.map((m) => (
+                <li key={m.setting}>
+                  Set <code>{m.setting}</code> to <code>{m.recorded}</code> (currently <code>{m.current}</code>), then restart.
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div className="status-card">
         <h3>Database</h3>
         <p>

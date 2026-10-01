@@ -7,9 +7,10 @@ import { useNotifications } from "../components/Notification";
 import { useAuth } from "../contexts/AuthContext";
 import { ApiError } from "../services/authApi";
 import {
-  getBackupHistory, getBackupNotifications, getBackupStatus, getRestoreDrills, runManualBackup, sendTestNotification,
+  getArchives, getBackupHistory, getBackupNotifications, getBackupStatus, getRestoreDrills, runManualBackup, sendTestNotification,
 } from "../services/backupApi";
-import type { BackupNotification, BackupRecord, BackupStatus, RestoreDrill } from "../services/backupApi";
+import type { ArchiveInfo, BackupNotification, BackupRecord, BackupStatus, RestoreDrill } from "../services/backupApi";
+import { ArchivePanel } from "./backup/ArchivePanel";
 import { BackupStatusPanel } from "./backup/BackupStatusPanel";
 import { RecoveryKeyPanel } from "./backup/RecoveryKeyPanel";
 import { BackupSettingsForm } from "./backup/BackupSettingsForm";
@@ -22,6 +23,7 @@ interface Loaded {
   status: BackupStatus;
   history: BackupRecord[];
   drills: RestoreDrill[];
+  archives: ArchiveInfo[];
   notifications: BackupNotification[];
 }
 
@@ -39,6 +41,7 @@ export function BackupRecoveryPage() {
   const canManage = hasPermission("ManageBackups");
   const [state, setState] = useState<PageState>({ kind: "loading" });
   const [wizardFor, setWizardFor] = useState<BackupRecord | null>(null);
+  const [archiveWizardFor, setArchiveWizardFor] = useState<ArchiveInfo | null>(null);
   const [running, setRunning] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const generation = useRef(0);
@@ -48,12 +51,13 @@ export function BackupRecoveryPage() {
     if (initial) setState({ kind: "loading" });
     try {
       const [status, history] = await Promise.all([getBackupStatus(), getBackupHistory()]);
-      const [drills, notifications] = await Promise.all([
+      const [drills, archives, notifications] = await Promise.all([
         canManage ? getRestoreDrills() : Promise.resolve<RestoreDrill[]>([]),
+        canManage ? getArchives().catch(() => [] as ArchiveInfo[]) : Promise.resolve<ArchiveInfo[]>([]),
         getBackupNotifications().catch(() => [] as BackupNotification[]),
       ]);
       if (mine !== generation.current) return; // a newer refresh superseded this one
-      setState({ kind: "loaded", data: { status, history, drills, notifications } });
+      setState({ kind: "loaded", data: { status, history, drills, archives, notifications } });
     } catch (err) {
       if (mine !== generation.current) return;
       if (err instanceof ApiError && err.status === 403) setState({ kind: "denied" });
@@ -126,6 +130,8 @@ export function BackupRecoveryPage() {
           {canManage && <BackupSettingsForm settings={state.data.status.settings} onSaved={refresh} />}
 
           {wizardFor && <RestoreWizard record={wizardFor} onClose={() => setWizardFor(null)} onChanged={refresh} />}
+          {archiveWizardFor && <RestoreWizard archive={archiveWizardFor} onClose={() => setArchiveWizardFor(null)} onChanged={refresh} />}
+          {canManage && <ArchivePanel archives={state.data.archives} onRestore={setArchiveWizardFor} />}
 
           <BackupHistory records={state.data.history} canManage={canManage} onChanged={refresh} onRestore={setWizardFor} />
           {canManage && <RestoreDrillList drills={state.data.drills} onChanged={refresh} />}

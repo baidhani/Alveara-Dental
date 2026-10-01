@@ -8,7 +8,8 @@ namespace Alveara.Api.Architecture.Backup;
 /// Where backup/restore work happens on disk. All of it is server-owned configuration (never user
 /// input): <c>Backup:Directory</c> (the default destination), <c>Backup:StagingRoot</c> (scratch space the
 /// SQL Server service account must be able to write for BACKUP/RESTORE), <c>Backup:RestoreRoot</c>
-/// (isolated restore targets), and <c>Backup:NotificationDirectory</c> (a local drop folder).
+/// (isolated restore targets), <c>Backup:NotificationDirectory</c> (a local drop folder), and
+/// <c>Backup:ImportDirectory</c> (where an operator drops retained <c>.abk</c> archives on a replacement server).
 /// </summary>
 public sealed record BackupPaths(
     string DefaultBackupDirectory,
@@ -16,7 +17,8 @@ public sealed record BackupPaths(
     string RestoreRoot,
     string NotificationDirectory,
     string ConnectionString,
-    string DatabaseName);
+    string DatabaseName,
+    string ImportDirectory);
 
 public sealed record StagedFile(string AssetClass, string RelativePath, string Sha256, long SizeBytes);
 

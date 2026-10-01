@@ -83,9 +83,14 @@ builder.Services.AddScoped<AccountService>();
 // restart doesn't invalidate every enrolled MFA secret or in-flight challenge.
 var dataProtectionKeysPath = builder.Configuration["DataProtectionKeysPath"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
-builder.Services.AddDataProtection()
-    .SetApplicationName(BackupConstants.DataProtectionApplicationName) // fixed, so restored keys still decrypt after a move to another folder/server (ALV-N004)
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+var dataProtection = builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+// ALV-N004 R02 (review finding ALV-N004-R01-03): the application name is deliberately NOT forced. Existing MFA secrets
+// were protected under the framework's default discriminator (the content-root path), and changing it would make
+// them unreadable. An installation that must survive a move to another folder/server sets DataProtection:ApplicationName
+// (backups record the effective value, and a restore says exactly what to set); leaving it unset keeps the legacy
+// default, so existing payloads keep working untouched.
+var dataProtectionApplicationName = builder.Configuration["DataProtection:ApplicationName"];
+if (!string.IsNullOrWhiteSpace(dataProtectionApplicationName)) dataProtection.SetApplicationName(dataProtectionApplicationName);
 
 // ALV-N004: encrypted full-state backup, verification, restore and recovery. Every on-disk location
 // is server-owned configuration (never user input).
@@ -96,11 +101,16 @@ var backupPaths = new BackupPaths(
     RestoreRoot: builder.Configuration["Backup:RestoreRoot"] ?? Path.Combine(backupRoot, "restore"),
     NotificationDirectory: builder.Configuration["Backup:NotificationDirectory"] ?? Path.Combine(backupRoot, "notifications"),
     ConnectionString: connectionString,
-    DatabaseName: new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString).InitialCatalog);
+    DatabaseName: new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString).InitialCatalog,
+    ImportDirectory: builder.Configuration["Backup:ImportDirectory"] ?? Path.Combine(backupRoot, "import"));
 builder.Services.AddSingleton(backupPaths);
 builder.Services.AddSingleton<IBackupSnapshotProvider>(_ => new SqlServerBackupSnapshotProvider(connectionString, backupPaths.DatabaseName));
 builder.Services.AddSingleton<IDatabaseRestoreProvider>(_ => new SqlServerRestoreProvider(connectionString));
 builder.Services.AddSingleton<IBackupNotifier, FileDropBackupNotifier>();
+builder.Services.AddSingleton<IDeploymentSettingsProvider, RuntimeDeploymentSettingsProvider>();
+builder.Services.AddSingleton<DeploymentInvariantStatus>();
+builder.Services.AddHostedService<DeploymentInvariantMonitor>();
+builder.Services.AddSingleton<IBackupAssetSource, DeploymentConfigurationSource>();
 // One source per persistent asset class except the database (handled with SQL Server's own BACKUP).
 // A later story that adds a new on-disk store registers another IBackupAssetSource and adds its
 // class to ManagedAssetClasses.
@@ -229,6 +239,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 app.UseRateLimiter();
+
+// ALV-N004 R02: refuse domain API calls while the deployment settings do not match what the data was created under.
+app.UseMiddleware<DeploymentGuardMiddleware>();
 
 app.MapControllers();
 

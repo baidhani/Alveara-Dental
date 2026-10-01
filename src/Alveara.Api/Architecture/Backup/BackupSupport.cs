@@ -23,7 +23,8 @@ public sealed record BackupManifest(
     IReadOnlyList<string> AssetClasses,
     IReadOnlyList<BackupManifestComponent> Components,
     IReadOnlyDictionary<string, long> TableRowCountsBefore,
-    IReadOnlyDictionary<string, long> TableRowCountsAfter)
+    IReadOnlyDictionary<string, long> TableRowCountsAfter,
+    DeploymentSettings? Deployment = null)
 {
     public const int CurrentFormatVersion = 1;
     public const string FileName = "manifest.json";

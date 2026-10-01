@@ -42,6 +42,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<BackupRecord> BackupRecords => Set<BackupRecord>();
     public DbSet<RestoreDrillRecord> RestoreDrills => Set<RestoreDrillRecord>();
     public DbSet<BackupNotificationRecord> BackupNotifications => Set<BackupNotificationRecord>();
+    public DbSet<DeploymentInvariantRecord> DeploymentInvariants => Set<DeploymentInvariantRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -172,8 +173,17 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(d => d.FailureMessage).HasMaxLength(500);
             e.Property(d => d.TargetDatabase).HasMaxLength(100);
             e.Property(d => d.TargetDirectory).HasMaxLength(500);
+            e.Property(d => d.SourceKind).HasMaxLength(20).HasDefaultValue("History");
+            e.Property(d => d.ArchiveFileName).HasMaxLength(200);
+            e.Property(d => d.ArchiveSha256).HasMaxLength(64);
             e.HasOne<BackupRecord>().WithMany().HasForeignKey(d => d.BackupRecordId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(d => d.StartedAtUtc);
+        });
+
+        modelBuilder.Entity<DeploymentInvariantRecord>(e =>
+        {
+            e.Property(d => d.PracticeTimeZoneId).HasMaxLength(100);
+            e.Property(d => d.DataProtectionApplicationName).HasMaxLength(500);
         });
 
         modelBuilder.Entity<BackupNotificationRecord>(e =>

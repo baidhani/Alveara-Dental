@@ -31,7 +31,7 @@ public sealed record BackupStatusView(
 /// <summary>
 /// ALV-N004: creates, records, retains and hash-verifies encrypted full-state backups. A backup set
 /// is one file: a ZIP (SQL Server BACKUP DATABASE output + every registered asset source + a
-/// manifest with per-file SHA-256) encrypted with AES-256-GCM under a per-backup key wrapped to the
+/// manifest with per-file SHA-256) encrypted as a standard OpenPGP message (AES-256 with integrity protection) to the
 /// recovery PUBLIC key (see <see cref="BackupCrypto"/>). The server can therefore create backups
 /// unattended but cannot read them back - restoring needs the recovery key held by the administrator.
 /// </summary>
@@ -40,7 +40,8 @@ public class BackupService(
     BackupPaths paths,
     IBackupSnapshotProvider snapshotProvider,
     IEnumerable<IBackupAssetSource> assetSources,
-    IBackupNotifier notifier)
+    IBackupNotifier notifier,
+    IDeploymentSettingsProvider deploymentSettings)
 {
     private static readonly TimeSpan StaleRunningThreshold = TimeSpan.FromMinutes(30);
     public static readonly string AppVersion = typeof(BackupService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
@@ -134,12 +135,14 @@ public class BackupService(
     }
 
     /// <summary>
-    /// Generates the recovery key pair. Only the PUBLIC half is stored; the encrypted private key is
-    /// returned ONCE to the caller for the administrator's offline custody and is never persisted,
-    /// logged, or written into any backup - so required recovery material cannot exist only inside
-    /// the backups it unlocks. Replacing an existing key is explicit: older backups still need the old key.
+    /// Generates the recovery key pair (an OpenPGP key) and a high-entropy passphrase for it. Only the PUBLIC half is
+    /// stored; the passphrase-protected private key and the passphrase are returned ONCE to the caller for the
+    /// administrator's offline custody and are never persisted, logged, or written into any backup - so required
+    /// recovery material cannot exist only inside the backups it unlocks. Replacing an existing key is explicit:
+    /// older backups still need the old key. <paramref name="passphrase"/> is for tests; production passes null so
+    /// the passphrase is generated (never person-chosen).
     /// </summary>
-    public async Task<string> ConfigureRecoveryKeyAsync(string passphrase, bool replaceExisting, Guid actor, CancellationToken ct)
+    public async Task<(string PrivateKey, string Passphrase)> ConfigureRecoveryKeyAsync(string? passphrase, bool replaceExisting, Guid actor, CancellationToken ct)
     {
         var settings = await LoadOrCreateSettingsAsync(ct);
         if (settings.RecoveryPublicKeyPem is not null && !replaceExisting)
@@ -148,7 +151,7 @@ public class BackupService(
         RecoveryKeyMaterial material;
         try
         {
-            material = BackupCrypto.GenerateRecoveryKey(passphrase);
+            material = await Task.Run(() => BackupCrypto.GenerateRecoveryKey(passphrase), ct);
         }
         catch (BackupCryptoException ex)
         {
@@ -162,7 +165,7 @@ public class BackupService(
         AuditService.Record(db, BackupAuditEvents.RecoveryKeyConfigured, nameof(BackupSettings), BackupSettings.SingletonId, actor,
             replaceExisting ? "Recovery key replaced (fingerprint recorded; no key material logged)." : "Recovery key configured (fingerprint recorded; no key material logged).");
         await ConfigurationWrite.SaveAsync(db, nameof(BackupSettings), BackupSettings.SingletonId, ct);
-        return material.EncryptedPrivateKeyPem;
+        return (material.EncryptedPrivateKeyPem, material.Passphrase);
     }
 
     // ---------- Creating a backup ----------
@@ -236,7 +239,7 @@ public class BackupService(
 
             var migration = await DatabaseFacts.LatestMigrationAsync(paths.ConnectionString, ct);
             var manifest = new BackupManifest(BackupManifest.CurrentFormatVersion, recordId, DateTimeOffset.UtcNow, AppVersion, migration,
-                paths.DatabaseName, classes, components, countsBefore, countsAfter);
+                paths.DatabaseName, classes, components, countsBefore, countsAfter, deploymentSettings.Current);
             await File.WriteAllTextAsync(Path.Combine(content, BackupManifest.FileName), JsonSerializer.Serialize(manifest, BackupManifest.Json), ct);
 
             var zipPath = Path.Combine(work, "set.zip");

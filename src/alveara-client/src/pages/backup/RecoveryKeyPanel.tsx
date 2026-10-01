@@ -11,7 +11,7 @@ import { describeBackupError } from "./backupMessages";
 type Step =
   | { kind: "idle" }
   | { kind: "form"; replace: boolean }
-  | { kind: "show"; recoveryKey: string; fingerprint: string };
+  | { kind: "show"; recoveryKey: string; passphrase: string; fingerprint: string };
 
 /**
  * Recovery key setup. The server keeps only the PUBLIC half; the encrypted private key is returned
@@ -23,8 +23,6 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
   const { notify } = useNotifications();
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [currentPassword, setCurrentPassword] = useState("");
-  const [passphrase, setPassphrase] = useState("");
-  const [confirmPassphrase, setConfirmPassphrase] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
@@ -37,8 +35,6 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
     session.current += 1;
     setStep({ kind: "idle" });
     setCurrentPassword("");
-    setPassphrase("");
-    setConfirmPassphrase("");
     setError(null);
     setAcknowledged(false);
     setBusy(false);
@@ -48,19 +44,15 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
     event.preventDefault();
     if (step.kind !== "form") return;
     setError(null);
-    if (passphrase.length < 12) return setError("The passphrase must be at least 12 characters.");
-    if (passphrase !== confirmPassphrase) return setError("The two passphrases do not match.");
     if (!currentPassword) return setError("Enter your current password to confirm this action.");
 
     const mySession = ++session.current;
     setBusy(true);
     try {
-      const result = await configureRecoveryKey(currentPassword, passphrase, step.replace);
+      const result = await configureRecoveryKey(currentPassword, step.replace);
       if (mySession !== session.current) return; // the panel was reset meanwhile
       setCurrentPassword("");
-      setPassphrase("");
-      setConfirmPassphrase("");
-      setStep({ kind: "show", recoveryKey: result.recoveryKey, fingerprint: result.fingerprint });
+      setStep({ kind: "show", recoveryKey: result.recoveryKey, passphrase: result.passphrase, fingerprint: result.fingerprint });
       onChanged();
     } catch (err) {
       if (mySession === session.current) setError(describeBackupError(err));
@@ -71,10 +63,10 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
 
   function download(recoveryKey: string, fingerprint: string) {
     try {
-      const url = URL.createObjectURL(new Blob([recoveryKey], { type: "application/x-pem-file" }));
+      const url = URL.createObjectURL(new Blob([recoveryKey], { type: "application/pgp-keys" }));
       const link = document.createElement("a");
       link.href = url;
-      link.download = `alveara-recovery-key-${fingerprint.slice(0, 8)}.pem`;
+      link.download = `alveara-recovery-key-${fingerprint.slice(0, 8)}.asc`;
       link.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -113,8 +105,7 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
             </p>
           )}
           <fieldset className="alv-config-panel__fields" disabled={busy}>
-            <FormField label="Recovery passphrase" type="password" autoComplete="new-password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} hint="At least 12 characters. You will need it to restore." />
-            <FormField label="Confirm passphrase" type="password" autoComplete="new-password" value={confirmPassphrase} onChange={(e) => setConfirmPassphrase(e.target.value)} />
+            <p>The system generates a long random passphrase for the key (a person-chosen one would be the weakest link) and shows both once.</p>
             <FormField label="Your current password" type="password" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
           </fieldset>
           {error && (
@@ -139,6 +130,12 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
             This is the only time the recovery key is shown. Without this file AND its passphrase, backups can never be restored - not even by us. Store both OFFLINE (for example, a safe).
           </p>
           <textarea readOnly aria-label="Recovery key file contents" className="alv-backup-key" rows={8} value={step.recoveryKey} />
+          <div className="alv-form-field">
+            <label className="alv-form-field__label" htmlFor="recovery-passphrase-shown">
+              Recovery passphrase (generated)
+            </label>
+            <input id="recovery-passphrase-shown" className="alv-form-field__input alv-backup-key" readOnly value={step.passphrase} onFocus={(e) => e.currentTarget.select()} />
+          </div>
           <div className="alv-config-panel__form-actions">
             <Button onClick={() => download(step.recoveryKey, step.fingerprint)}>Download recovery key file</Button>
           </div>

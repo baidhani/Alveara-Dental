@@ -19,8 +19,7 @@ public class BackupApiTests : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private readonly string _root = Path.Combine(Path.GetTempPath(), $"alveara-backup-api-{Guid.NewGuid():N}");
     private const string AdminPassword = "admin-password";
-    private const string Passphrase = "correct horse battery staple 42";
-
+    
     public Task InitializeAsync() => _fixture.InitializeAsync();
 
     public async Task DisposeAsync()
@@ -82,11 +81,12 @@ public class BackupApiTests : IAsyncLifetime
     private static async Task<JsonElement> JsonOf(HttpResponseMessage response) => await response.Content.ReadFromJsonAsync<JsonElement>();
 
     /// <summary>Sets up the recovery key through the API, returning the private key file contents the administrator would store offline.</summary>
-    private static async Task<string> SetUpRecoveryKeyAsync(HttpClient admin, string csrf)
+    private static async Task<(string Key, string Passphrase)> SetUpRecoveryKeyAsync(HttpClient admin, string csrf)
     {
-        var response = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, Passphrase, false)));
+        var response = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, false)));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        return (await JsonOf(response)).GetProperty("recoveryKey").GetString()!;
+        var body = await JsonOf(response);
+        return (body.GetProperty("recoveryKey").GetString()!, body.GetProperty("passphrase").GetString()!);
     }
 
     // ---------- authorization ----------
@@ -116,7 +116,7 @@ public class BackupApiTests : IAsyncLifetime
         foreach (var (method, url, body) in new (HttpMethod, string, object?)[]
         {
             (HttpMethod.Post, "/api/backup/backups", null),
-            (HttpMethod.Post, "/api/backup/recovery-key", new ConfigureRecoveryKeyRequest("x", Passphrase, false)),
+            (HttpMethod.Post, "/api/backup/recovery-key", new ConfigureRecoveryKeyRequest("x", false)),
             (HttpMethod.Put, "/api/backup/settings", new SaveBackupSettingsRequest(false, 24, 7, null, 2, 30, null)),
             (HttpMethod.Post, $"/api/backup/backups/{Guid.NewGuid()}/verify", new RecoveryMaterialRequest("x", "k", "p")),
             (HttpMethod.Post, $"/api/backup/backups/{Guid.NewGuid()}/restore-drill", new RecoveryMaterialRequest("x", "k", "p")),
@@ -159,7 +159,7 @@ public class BackupApiTests : IAsyncLifetime
 
         foreach (var password in new string?[] { null, "", "not-my-password" })
         {
-            var response = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(password, Passphrase, false)));
+            var response = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(password, false)));
             Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
             Assert.Equal("step_up_failed", (await JsonOf(response)).GetProperty("error").GetString());
         }
@@ -185,12 +185,12 @@ public class BackupApiTests : IAsyncLifetime
 
         HttpResponseMessage last = null!;
         for (var i = 0; i < 5; i++)
-            last = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest($"wrong-{i}", Passphrase, false)));
+            last = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest($"wrong-{i}", false)));
         Assert.Equal(HttpStatusCode.TooManyRequests, last.StatusCode);
         Assert.Equal("account_locked", (await JsonOf(last)).GetProperty("error").GetString());
 
         // Even the CORRECT password is now refused until the lockout passes.
-        var correct = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, Passphrase, false)));
+        var correct = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, false)));
         Assert.Equal(HttpStatusCode.TooManyRequests, correct.StatusCode);
         Assert.False((await JsonOf(await admin.GetAsync("/api/backup/status"))).GetProperty("settings").GetProperty("recoveryKeyConfigured").GetBoolean());
     }
@@ -198,37 +198,41 @@ public class BackupApiTests : IAsyncLifetime
     // ---------- recovery key ----------
 
     [Fact]
-    public async Task The_recovery_key_is_shown_once_never_cached_never_echoed_and_replacing_it_is_explicit()
+    public async Task The_recovery_key_and_its_generated_passphrase_are_shown_once_never_cached_never_echoed_and_replacing_it_is_explicit()
     {
         await using var factory = CreateFactory();
         var (admin, csrf) = await AdminAsync(factory);
 
-        var response = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, Passphrase, false)));
+        var response = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, false)));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("no-store", response.Headers.CacheControl?.ToString());
         var body = await JsonOf(response);
         var privateKey = body.GetProperty("recoveryKey").GetString()!;
-        Assert.StartsWith("-----BEGIN ENCRYPTED PRIVATE KEY-----", privateKey);
+        var passphrase = body.GetProperty("passphrase").GetString()!;
+        Assert.StartsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----", privateKey);
+        Assert.Matches("^([A-Z2-7]{4}-){5}[A-Z2-7]{4}$", passphrase); // generated server-side: 120 bits, never person-chosen
         Assert.Contains("OFFLINE", body.GetProperty("warning").GetString());
 
         // Nothing the API serves afterwards contains the private key or the passphrase.
         foreach (var url in new[] { "/api/backup/status", "/api/backup/history", "/api/backup/notifications", "/api/auth/audit-log?take=500" })
         {
             var text = await (await admin.GetAsync(url)).Content.ReadAsStringAsync();
-            Assert.DoesNotContain("ENCRYPTED PRIVATE KEY", text);
-            Assert.DoesNotContain(Passphrase, text);
+            Assert.DoesNotContain("PRIVATE KEY", text);
+            Assert.DoesNotContain(passphrase, text);
         }
         var status = await JsonOf(await admin.GetAsync("/api/backup/status"));
         Assert.True(status.GetProperty("settings").GetProperty("recoveryKeyConfigured").GetBoolean());
         Assert.Equal(body.GetProperty("fingerprint").GetString(), status.GetProperty("settings").GetProperty("recoveryKeyFingerprint").GetString());
 
-        var again = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, Passphrase, false)));
+        var again = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, false)));
         Assert.Equal(HttpStatusCode.Conflict, again.StatusCode);
         Assert.Equal("recovery_key_exists", (await JsonOf(again)).GetProperty("error").GetString());
 
-        var weak = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, "short", true)));
-        Assert.Equal(HttpStatusCode.BadRequest, weak.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, Passphrase, true)))).StatusCode);
+        var replaced = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/recovery-key", csrf, new ConfigureRecoveryKeyRequest(AdminPassword, true)));
+        Assert.Equal(HttpStatusCode.OK, replaced.StatusCode);
+        var replacement = await JsonOf(replaced);
+        Assert.NotEqual(passphrase, replacement.GetProperty("passphrase").GetString());
+        Assert.NotEqual(body.GetProperty("fingerprint").GetString(), replacement.GetProperty("fingerprint").GetString());
     }
 
     [Fact]
@@ -248,7 +252,7 @@ public class BackupApiTests : IAsyncLifetime
     {
         await using var factory = CreateFactory();
         var (admin, csrf) = await AdminAsync(factory);
-        var privateKey = await SetUpRecoveryKeyAsync(admin, csrf);
+        var (privateKey, passphrase) = await SetUpRecoveryKeyAsync(admin, csrf);
 
         var created = await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/backups", csrf));
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
@@ -256,7 +260,7 @@ public class BackupApiTests : IAsyncLifetime
         var id = backup.GetProperty("id").GetGuid();
         Assert.Equal("Succeeded", backup.GetProperty("status").GetString());
         Assert.Equal("HashVerified", backup.GetProperty("verificationStatus").GetString());
-        Assert.Equal(3, backup.GetProperty("includedAssetClasses").GetArrayLength());
+        Assert.Equal(4, backup.GetProperty("includedAssetClasses").GetArrayLength());
         Assert.DoesNotContain("PRIVATE", backup.ToString());
 
         var history = await JsonOf(await admin.GetAsync("/api/backup/history"));
@@ -264,7 +268,7 @@ public class BackupApiTests : IAsyncLifetime
 
         Assert.Equal("HashVerified", (await JsonOf(await admin.SendAsync(Req(HttpMethod.Post, $"/api/backup/backups/{id}/verify-hash", csrf)))).GetProperty("verificationStatus").GetString());
 
-        var material = new RecoveryMaterialRequest(AdminPassword, privateKey, Passphrase);
+        var material = new RecoveryMaterialRequest(AdminPassword, privateKey, passphrase);
         var preflight = await JsonOf(await admin.SendAsync(Req(HttpMethod.Post, $"/api/backup/backups/{id}/preflight", csrf, material)));
         Assert.True(preflight.GetProperty("canRestore").GetBoolean());
 
@@ -305,18 +309,18 @@ public class BackupApiTests : IAsyncLifetime
     {
         await using var factory = CreateFactory();
         var (admin, csrf) = await AdminAsync(factory);
-        await SetUpRecoveryKeyAsync(admin, csrf);
+        var (_, passphrase) = await SetUpRecoveryKeyAsync(admin, csrf);
         var id = (await JsonOf(await admin.SendAsync(Req(HttpMethod.Post, "/api/backup/backups", csrf)))).GetProperty("id").GetGuid();
-        var foreign = BackupCrypto.GenerateRecoveryKey(Passphrase);
+        var foreign = BackupCrypto.GenerateRecoveryKey();
 
-        var response = await admin.SendAsync(Req(HttpMethod.Post, $"/api/backup/backups/{id}/restore-drill", csrf, new RecoveryMaterialRequest(AdminPassword, foreign.EncryptedPrivateKeyPem, Passphrase)));
+        var response = await admin.SendAsync(Req(HttpMethod.Post, $"/api/backup/backups/{id}/restore-drill", csrf, new RecoveryMaterialRequest(AdminPassword, foreign.EncryptedPrivateKeyPem, foreign.Passphrase)));
 
         Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         var text = await response.Content.ReadAsStringAsync();
         Assert.Equal("wrong_recovery_key", JsonDocument.Parse(text).RootElement.GetProperty("failureCode").GetString());
         Assert.DoesNotContain("PRIVATE", text);
-        Assert.DoesNotContain(Passphrase, text);
-        Assert.DoesNotContain("AlveraRestore_" + "x", text);
+        Assert.DoesNotContain(foreign.Passphrase, text);
+        Assert.DoesNotContain(passphrase, text);
 
         var notifications = await JsonOf(await admin.GetAsync("/api/backup/notifications"));
         Assert.Contains(notifications.EnumerateArray(), n => n.GetProperty("kind").GetString() == "RestoreDrillFailed");

@@ -13,15 +13,10 @@ public sealed record ValidationCheck(string Name, bool Passed, string Detail, bo
 
 public sealed record PreflightResult(bool CanRestore, IReadOnlyList<ValidationCheck> Checks);
 
-public static class BackupConstants
-{
-    /// <summary>
-    /// Fixed Data Protection application name. Without it the framework isolates keys by the install
-    /// path, so a backup restored to a different folder or server could not decrypt the MFA secrets it
-    /// contains - a silent recovery failure.
-    /// </summary>
-    public const string DataProtectionApplicationName = "Alveara.Dental";
-}
+/// <summary>A retained backup archive found on disk, independent of any database row.</summary>
+public sealed record ArchiveInfo(
+    string Ref, string Location, string FileName, long SizeBytes, DateTimeOffset ModifiedUtc,
+    bool Readable, string? RecipientKeyId, bool KeyMatchesConfiguredRecoveryKey, bool InHistory);
 
 /// <summary>
 /// ALV-N004: verification and restore. Restore is ALWAYS into an isolated target (a new, differently
@@ -29,9 +24,79 @@ public static class BackupConstants
 /// application, that restores over the live database or live files. Promoting a verified restore to
 /// production is an explicit offline procedure (see the recovery runbook), not an in-app operation.
 /// </summary>
-public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDatabaseRestoreProvider restoreProvider, IBackupNotifier notifier)
+public class BackupRestoreService(
+    AlveraDbContext db, BackupPaths paths, IDatabaseRestoreProvider restoreProvider, IBackupNotifier notifier, IDeploymentSettingsProvider deploymentSettings)
 {
     private sealed record Extracted(BackupManifest Manifest, string Root);
+
+    /// <summary>
+    /// A backup file to read: either a recorded backup (its recorded hash is checked) or a RETAINED ARCHIVE found on
+    /// disk with no database row at all (disaster recovery: the lost server's history is gone). Authenticity of an
+    /// archive comes from its authenticated decryption and the inventory inside it, never from a hash that lived in
+    /// the lost database.
+    /// </summary>
+    private sealed record Source(string Path, string Name, string? ExpectedSha256, BackupRecord? Record);
+
+    private static Source SourceOf(BackupRecord record) => new(BackupService.ResolveBackupPath(record), record.FileName ?? "", record.Sha256, record);
+
+    private string DestinationDirectory(BackupSettings? settings) =>
+        string.IsNullOrWhiteSpace(settings?.DestinationDirectory) ? paths.DefaultBackupDirectory : settings.DestinationDirectory;
+
+    /// <summary>Resolves "destination:NAME.abk" / "import:NAME.abk" to a file inside one of the two archive folders - never an arbitrary path.</summary>
+    private async Task<Source> ArchiveSourceAsync(string archiveRef, CancellationToken ct)
+    {
+        var colon = archiveRef?.IndexOf(':') ?? -1;
+        if (colon <= 0) throw new BackupException("archive_unknown", "Choose one of the listed backup files.", 404);
+        var location = archiveRef![..colon];
+        var name = archiveRef[(colon + 1)..];
+        if (name != Path.GetFileName(name) || !name.EndsWith(".abk", StringComparison.OrdinalIgnoreCase))
+            throw new BackupException("archive_unknown", "Choose one of the listed backup files.", 404);
+
+        var settings = await db.BackupSettings.AsNoTracking().SingleOrDefaultAsync(ct);
+        var directory = location switch
+        {
+            "destination" => DestinationDirectory(settings),
+            "import" => paths.ImportDirectory,
+            _ => throw new BackupException("archive_unknown", "Choose one of the listed backup files.", 404),
+        };
+        var path = Path.Combine(directory, name);
+        if (!File.Exists(path)) throw new BackupException("backup_file_missing", "That backup file is no longer in its folder.", 404);
+        return new Source(path, name, null, null);
+    }
+
+    // ---------- Archive discovery (needs no history) ----------
+
+    /// <summary>
+    /// Lists the retained <c>.abk</c> files in the backup destination and the import folder, reading only each file's
+    /// OpenPGP header (the recipient key id) - no secret and no database row required. This is the disaster-recovery
+    /// entry point: on a replacement server with an empty history, copy the retained archive into the import folder.
+    /// </summary>
+    public async Task<IReadOnlyList<ArchiveInfo>> ListArchivesAsync(CancellationToken ct)
+    {
+        var settings = await db.BackupSettings.AsNoTracking().SingleOrDefaultAsync(ct);
+        var configuredKeyId = settings?.RecoveryKeyFingerprint is { Length: >= 16 } fp ? fp[^16..].ToUpperInvariant() : null;
+        var known = await db.BackupRecords.AsNoTracking().Where(r => r.FileName != null).Select(r => r.FileName!).ToListAsync(ct);
+
+        var folders = new List<(string Location, string Directory)> { ("destination", DestinationDirectory(settings)), ("import", paths.ImportDirectory) };
+        var found = new List<ArchiveInfo>();
+        foreach (var (location, directory) in folders.DistinctBy(f => Path.GetFullPath(f.Directory)))
+        {
+            if (!Directory.Exists(directory)) continue;
+            foreach (var file in new DirectoryInfo(directory).EnumerateFiles("*.abk").OrderByDescending(f => f.LastWriteTimeUtc).Take(200))
+            {
+                string? recipient = null;
+                try
+                {
+                    await using var stream = file.OpenRead();
+                    recipient = await BackupCrypto.ReadRecipientKeyIdAsync(stream, ct);
+                }
+                catch (Exception ex) when (ex is BackupCryptoException or IOException) { /* listed as unreadable */ }
+                found.Add(new ArchiveInfo($"{location}:{file.Name}", location, file.Name, file.Length, file.LastWriteTimeUtc, recipient is not null,
+                    recipient, recipient is not null && recipient == configuredKeyId, known.Contains(file.Name)));
+            }
+        }
+        return found;
+    }
 
     // ---------- Preflight ----------
 
@@ -65,6 +130,22 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         return new PreflightResult(checks.All(c => c.Passed || !c.Blocking), checks);
     }
 
+    /// <summary>
+    /// Preflight for a RETAINED ARCHIVE with no history row. There is no recorded hash to compare (it lived in the lost
+    /// database); the checks are that the file is a readable backup, which recovery key it was made for, and that the
+    /// supplied key and passphrase are that key - the archive's contents are authenticated when it is decrypted.
+    /// </summary>
+    public async Task<PreflightResult> PreflightArchiveAsync(string archiveRef, string privateKeyPem, string passphrase, CancellationToken ct)
+    {
+        var source = await ArchiveSourceAsync(archiveRef, ct);
+        var checks = new List<ValidationCheck> { new("archive_present", true, "The backup file is present.") };
+        var material = await CheckRecoveryMaterialAsync(source.Path, privateKeyPem, passphrase, ct);
+        checks.Add(new("archive_is_a_backup", material.Name != "recovery_material_matches" || material.Passed || !material.Detail.Contains("not an Alveara backup"), "The file is an Alveara backup."));
+        checks.Add(material);
+        checks.Add(new("integrity_verified_on_decryption", true, "There is no recorded hash for a retained archive; its contents are verified by authenticated decryption and the manifest when you restore.", Blocking: false));
+        return new PreflightResult(checks.All(c => c.Passed || !c.Blocking), checks);
+    }
+
     private static async Task<ValidationCheck> CheckRecoveryMaterialAsync(string path, string privateKeyPem, string passphrase, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(privateKeyPem) || string.IsNullOrEmpty(passphrase))
@@ -72,32 +153,27 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         try
         {
             await using var stream = File.OpenRead(path);
-            var headerFingerprint = await BackupCrypto.ReadFingerprintAsync(stream, ct);
-            using var rsa = System.Security.Cryptography.RSA.Create();
-            rsa.ImportFromEncryptedPem(privateKeyPem, passphrase);
-            var keyFingerprint = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(rsa.ExportSubjectPublicKeyInfo()));
-            return keyFingerprint == headerFingerprint
-                ? new ValidationCheck("recovery_material_matches", true, "The recovery key and passphrase match this backup.")
-                : new ValidationCheck("recovery_material_matches", false, "This recovery key does not belong to this backup.");
+            var recipient = await BackupCrypto.ReadRecipientKeyIdAsync(stream, ct);
+            if (BackupCrypto.EncryptionKeyIdOfSecretKey(privateKeyPem) != recipient)
+                return new ValidationCheck("recovery_material_matches", false, "This recovery key does not belong to this backup.");
+            BackupCrypto.EnsurePassphraseUnlocks(privateKeyPem, passphrase);
+            return new ValidationCheck("recovery_material_matches", true, "The recovery key and passphrase match this backup.");
         }
         catch (BackupCryptoException ex)
         {
             return new ValidationCheck("recovery_material_matches", false, ex.Message);
         }
-        catch (Exception ex) when (ex is System.Security.Cryptography.CryptographicException or ArgumentException)
-        {
-            return new ValidationCheck("recovery_material_matches", false, "The recovery key or its passphrase is wrong.");
-        }
     }
 
     // ---------- Decrypt + extract + inventory ----------
 
-    private async Task<Extracted> ExtractAsync(BackupRecord record, string privateKeyPem, string passphrase, string workDirectory, CancellationToken ct)
+    private async Task<Extracted> ExtractAsync(Source source, string privateKeyPem, string passphrase, string workDirectory, CancellationToken ct)
     {
-        if (record.Status != BackupStatus.Succeeded) throw new BackupException("backup_not_available", "Only a successful, retained backup can be restored.", 409);
-        var path = BackupService.ResolveBackupPath(record);
+        if (source.Record is { } record && record.Status != BackupStatus.Succeeded)
+            throw new BackupException("backup_not_available", "Only a successful, retained backup can be restored.", 409);
+        var path = source.Path;
         if (!File.Exists(path)) throw new BackupException("backup_file_missing", "The backup file is missing from its destination.");
-        if (await FileTreeAssetSource.HashFileAsync(path, ct) != record.Sha256)
+        if (source.ExpectedSha256 is not null && await FileTreeAssetSource.HashFileAsync(path, ct) != source.ExpectedSha256)
             throw new BackupException("hash_mismatch", "The backup file does not match its recorded hash: it is corrupt or has been altered.");
 
         Directory.CreateDirectory(workDirectory);
@@ -168,10 +244,34 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         checks.Add(new("component_hashes_match", mismatched.Count == 0,
             mismatched.Count == 0 ? "Every component matches the hash in the manifest." : $"{mismatched.Count} component(s) do not match the manifest hashes."));
 
+        checks.AddRange(DeploymentChecks(manifest));
+
         var missingClasses = ManagedAssetClasses.All.Where(c => !manifest.AssetClasses.Contains(c)).ToList();
         checks.Add(new("covers_all_asset_classes", missingClasses.Count == 0,
             missingClasses.Count == 0 ? "The backup covers every currently managed asset class." : $"Not covered by this backup: {string.Join(", ", missingClasses)}.", Blocking: false));
         return checks;
+    }
+
+    /// <summary>
+    /// R01-04: the deployment settings the data was created under must be recorded in the backup AND match this server,
+    /// otherwise recovery is blocked with the exact settings to apply (a restored schedule must not be silently
+    /// reinterpreted in another time zone, nor MFA secrets left undecryptable).
+    /// </summary>
+    private List<ValidationCheck> DeploymentChecks(BackupManifest manifest)
+    {
+        if (manifest.Deployment is not { } recorded)
+            return [new("deployment_settings_recorded", false, "This backup does not record the deployment settings (practice time zone, Data Protection application name); it cannot be restored without risking misread schedules and unusable MFA.")];
+
+        var differences = recorded.DifferencesFrom(deploymentSettings.Current);
+        var required = string.Join(" and ", recorded.RequiredSettings().Select(s => $"{s.Setting} = {s.Value}"));
+        return
+        [
+            new("deployment_settings_recorded", true, $"The backup records its deployment settings ({required})."),
+            new("deployment_settings_match_this_server", differences.Count == 0,
+                differences.Count == 0
+                    ? "This server is configured with the deployment settings the data was created under."
+                    : $"This server is configured differently ({string.Join(", ", differences.Select(d => d.Setting))}). Set {required} on this server, restart, and run recovery again."),
+        ];
     }
 
     // ---------- Full verification (decrypt + inventory + RESTORE VERIFYONLY; nothing is restored) ----------
@@ -183,7 +283,7 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         string? failureCode = null;
         try
         {
-            var extracted = await ExtractAsync(record, privateKeyPem, passphrase, work, ct);
+            var extracted = await ExtractAsync(SourceOf(record), privateKeyPem, passphrase, work, ct);
             var checks = await InventoryChecksAsync(extracted, ct);
             var failed = checks.FirstOrDefault(c => !c.Passed && c.Blocking);
             if (failed is not null) failureCode = failed.Name;
@@ -223,7 +323,29 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
     public async Task<RestoreDrillRecord> RestoreDrillAsync(Guid recordId, string privateKeyPem, string passphrase, Guid actor, CancellationToken ct)
     {
         var record = await db.BackupRecords.SingleOrDefaultAsync(r => r.Id == recordId, ct) ?? throw new BackupException("not_found", "Backup not found.", 404);
-        var drill = new RestoreDrillRecord { Id = Guid.NewGuid(), BackupRecordId = recordId, StartedAtUtc = DateTimeOffset.UtcNow, InitiatedByUserAccountId = actor };
+        var drill = new RestoreDrillRecord { Id = Guid.NewGuid(), BackupRecordId = recordId, SourceKind = "History", StartedAtUtc = DateTimeOffset.UtcNow, InitiatedByUserAccountId = actor };
+        return await RunDrillAsync(drill, SourceOf(record), record, privateKeyPem, passphrase, actor, ct);
+    }
+
+    /// <summary>
+    /// Disaster-recovery entry point (R01-01): restores a RETAINED ARCHIVE into an isolated target with no backup history
+    /// in this database at all. The archive's SHA-256 is recorded on the drill for traceability.
+    /// </summary>
+    public async Task<RestoreDrillRecord> RestoreDrillFromArchiveAsync(string archiveRef, string privateKeyPem, string passphrase, Guid actor, CancellationToken ct)
+    {
+        var source = await ArchiveSourceAsync(archiveRef, ct);
+        var drill = new RestoreDrillRecord
+        {
+            Id = Guid.NewGuid(), BackupRecordId = null, SourceKind = "Archive", ArchiveFileName = source.Name,
+            ArchiveSha256 = await FileTreeAssetSource.HashFileAsync(source.Path, ct), StartedAtUtc = DateTimeOffset.UtcNow, InitiatedByUserAccountId = actor,
+        };
+        return await RunDrillAsync(drill, source, null, privateKeyPem, passphrase, actor, ct);
+    }
+
+    private async Task<RestoreDrillRecord> RunDrillAsync(
+        RestoreDrillRecord drill, Source source, BackupRecord? record, string privateKeyPem, string passphrase, Guid actor, CancellationToken ct)
+    {
+        var recordId = record?.Id;
         var targetDirectory = Path.Combine(paths.RestoreRoot, drill.Id.ToString("N"));
         var targetDatabase = TargetDatabaseName(drill.Id);
         drill.TargetDirectory = targetDirectory;
@@ -236,7 +358,7 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         string? failureMessage = null;
         try
         {
-            var extracted = await ExtractAsync(record, privateKeyPem, passphrase, targetDirectory, ct);
+            var extracted = await ExtractAsync(source, privateKeyPem, passphrase, targetDirectory, ct);
             checks.AddRange(await InventoryChecksAsync(extracted, ct));
             var blocking = checks.FirstOrDefault(c => !c.Passed && c.Blocking);
             if (blocking is not null)
@@ -272,9 +394,12 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         if (failureCode is null)
         {
             drill.Outcome = "Succeeded";
-            record.VerificationStatus = BackupVerificationStatus.FullyVerified;
-            record.VerifiedAtUtc = DateTimeOffset.UtcNow;
-            record.VerificationFailureCode = null;
+            if (record is not null)
+            {
+                record.VerificationStatus = BackupVerificationStatus.FullyVerified;
+                record.VerifiedAtUtc = DateTimeOffset.UtcNow;
+                record.VerificationFailureCode = null;
+            }
             AuditService.Record(db, BackupAuditEvents.RestoreDrillCompleted, nameof(RestoreDrillRecord), drill.Id, actor, "Restore drill into an isolated target completed and validated.");
             await db.SaveChangesAsync(ct);
         }
@@ -330,7 +455,9 @@ public class BackupRestoreService(AlveraDbContext db, BackupPaths paths, IDataba
         {
             try
             {
-                var provider = DataProtectionProvider.Create(new DirectoryInfo(keysDirectory), o => o.SetApplicationName(BackupConstants.DataProtectionApplicationName));
+                // The backup recorded the application discriminator its secrets were protected under; use exactly that (a replacement server must be configured with it).
+                var applicationName = extracted.Manifest.Deployment?.DataProtectionApplicationName;
+                var provider = DataProtectionProvider.Create(new DirectoryInfo(keysDirectory), o => { if (!string.IsNullOrEmpty(applicationName)) o.SetApplicationName(applicationName); });
                 var protector = provider.CreateProtector(AccountService.MfaSecretProtectorPurpose);
                 foreach (var secret in secrets) protector.Unprotect(secret);
                 checks.Add(new("restored_keys_decrypt_restored_data", true, $"The restored Data Protection keys decrypted {secrets.Count} restored MFA secret(s)."));

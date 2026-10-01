@@ -67,9 +67,25 @@ export interface PreflightResult {
   checks: ValidationCheck[];
 }
 
+export interface ArchiveInfo {
+  /** "destination:NAME.abk" or "import:NAME.abk" - the only way an archive is chosen (never a free path). */
+  ref: string;
+  location: "destination" | "import";
+  fileName: string;
+  sizeBytes: number;
+  modifiedUtc: string;
+  readable: boolean;
+  recipientKeyId: string | null;
+  keyMatchesConfiguredRecoveryKey: boolean;
+  inHistory: boolean;
+}
+
 export interface RestoreDrill {
   id: string;
-  backupRecordId: string;
+  backupRecordId: string | null;
+  sourceKind: "History" | "Archive";
+  archiveFileName: string | null;
+  archiveSha256: string | null;
   startedAtUtc: string;
   completedAtUtc: string | null;
   outcome: string;
@@ -114,9 +130,14 @@ export const getBackupNotifications = (take = 20) => request<BackupNotification[
 
 export const saveBackupSettings = (input: BackupSettingsInput) => requestWithCsrf<BackupSettings>("/api/backup/settings", "PUT", input);
 
-/** Returns the encrypted private recovery key exactly once; the server keeps only the public half. */
-export const configureRecoveryKey = (currentPassword: string, passphrase: string, replaceExisting: boolean) =>
-  requestWithCsrf<{ recoveryKey: string; fingerprint: string; warning: string }>("/api/backup/recovery-key", "POST", { currentPassword, passphrase, replaceExisting });
+/** Returns the private recovery key AND its server-generated passphrase exactly once; the server keeps only the public half. */
+export const configureRecoveryKey = (currentPassword: string, replaceExisting: boolean) =>
+  requestWithCsrf<{ recoveryKey: string; passphrase: string; fingerprint: string; warning: string }>("/api/backup/recovery-key", "POST", { currentPassword, replaceExisting });
+
+/** Disaster recovery: retained .abk files in the backup folder and the import folder, found with NO backup history needed. */
+export const getArchives = () => request<ArchiveInfo[]>("/api/backup/archives");
+export const preflightArchive = (archive: string, m: RecoveryMaterial) => requestWithCsrf<PreflightResult>("/api/backup/archives/preflight", "POST", { archive, ...m });
+export const runArchiveRestoreDrill = (archive: string, m: RecoveryMaterial) => requestWithCsrf<RestoreDrill>("/api/backup/archives/restore-drill", "POST", { archive, ...m });
 
 export const runManualBackup = () => requestWithCsrf<BackupRecord>("/api/backup/backups", "POST");
 export const verifyBackupHash = (id: string) => requestWithCsrf<BackupRecord>(`/api/backup/backups/${id}/verify-hash`, "POST");

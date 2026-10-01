@@ -7,7 +7,12 @@ import { ApiError } from "../../services/authApi";
 const MESSAGES: Record<string, string> = {
   recovery_key_required: "Set up the recovery key first - backups cannot be encrypted without it.",
   recovery_key_exists: "A recovery key already exists. Replacing it means older backups still need the OLD key.",
-  weak_passphrase: "The recovery passphrase must be at least 12 characters.",
+  weak_passphrase: "The recovery passphrase is too short.",
+  archive_unknown: "Choose one of the listed backup files.",
+  invalid_recovery_key: "The recovery key file is not a valid key.",
+  deployment_settings_recorded: "This backup does not record the deployment settings it needs to be recovered safely.",
+  deployment_settings_match_this_server: "This server is configured differently from the settings the data was created under. Apply the settings shown and restart.",
+  deployment_mismatch: "This server is configured differently from the settings its data was created under (see System Status).",
   step_up_failed: "Your current password was not accepted.",
   account_locked: "Too many wrong passwords - this account is temporarily locked.",
   destination_unavailable: "The backup destination is not available or not writable.",
@@ -56,6 +61,7 @@ export const ASSET_CLASS_LABELS: Record<string, string> = {
   database: "Database",
   documents: "Documents",
   dataProtectionKeys: "Encryption keys",
+  deploymentConfiguration: "Deployment settings",
 };
 
 export const assetLabel = (cls: string) => ASSET_CLASS_LABELS[cls] ?? cls;

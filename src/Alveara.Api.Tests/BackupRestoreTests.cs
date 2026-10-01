@@ -389,7 +389,7 @@ public class BackupRestoreTests : IClassFixture<TestDatabaseFixture>, IDisposabl
             // Replace the real keys with an unrelated set, and keep the manifest consistent so ONLY the key/data mismatch remains.
             var keysDir = Path.Combine(content, ManagedAssetClasses.DataProtectionKeys);
             foreach (var f in Directory.EnumerateFiles(keysDir)) File.Delete(f);
-            var otherKeys = DataProtectionProvider.Create(new DirectoryInfo(keysDir), o => o.SetApplicationName(BackupConstants.DataProtectionApplicationName));
+            var otherKeys = DataProtectionProvider.Create(new DirectoryInfo(keysDir), o => o.SetApplicationName(BackupTestEnvironment.DataProtectionApplicationName));
             otherKeys.CreateProtector("anything").Protect("force key generation");
             var manifest = BackupTestEnvironment.ReadManifest(content);
             var components = manifest.Components.Where(c => c.AssetClass != ManagedAssetClasses.DataProtectionKeys).Concat(
@@ -435,6 +435,7 @@ public class BackupRestoreTests : IClassFixture<TestDatabaseFixture>, IDisposabl
             builder.UseSetting("StorageRoot", Path.Combine(extracted, ManagedAssetClasses.Documents));
             builder.UseSetting("DataProtectionKeysPath", Path.Combine(extracted, ManagedAssetClasses.DataProtectionKeys));
             builder.UseSetting("Backup:Root", Path.Combine(_env.Root, "recovered-app-backup"));
+            builder.UseSetting("DataProtection:ApplicationName", BackupTestEnvironment.DataProtectionApplicationName); // the recorded deployment setting, applied as the runbook says
             builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         });
         var client = factory.CreateClient();

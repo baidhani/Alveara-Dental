@@ -6,7 +6,7 @@ import { MemoryRouter } from "react-router-dom";
 import { BackupRecoveryPage } from "./BackupRecoveryPage";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../components/Notification";
-import type { BackupRecord, BackupSettings, BackupStatus, RestoreDrill } from "../services/backupApi";
+import type { ArchiveInfo, BackupRecord, BackupSettings, BackupStatus, RestoreDrill } from "../services/backupApi";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -34,6 +34,7 @@ interface Api {
   status: BackupStatus;
   history: BackupRecord[];
   drills: RestoreDrill[];
+  archives: ArchiveInfo[];
   notifications: unknown[];
   permissions: string[];
   handlers: Record<string, (init?: RequestInit) => Response | Promise<Response>>;
@@ -41,7 +42,7 @@ interface Api {
 }
 
 function stubApi(over: Partial<Api> = {}): Api {
-  const api: Api = { status: status(), history: [record()], drills: [], notifications: [], permissions: ["ViewBackupStatus", "ManageBackups"], handlers: {}, calls: [], ...over };
+  const api: Api = { status: status(), history: [record()], drills: [], archives: [], notifications: [], permissions: ["ViewBackupStatus", "ManageBackups"], handlers: {}, calls: [], ...over };
   vi.stubGlobal(
     "fetch",
     vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
@@ -55,6 +56,7 @@ function stubApi(over: Partial<Api> = {}): Api {
       if (u.includes("/api/backup/status")) return Promise.resolve(jsonResponse(api.status));
       if (u.includes("/api/backup/history")) return Promise.resolve(jsonResponse(api.history));
       if (u.includes("/api/backup/restore-drills")) return Promise.resolve(jsonResponse(api.drills));
+      if (u.includes("/api/backup/archives") && method === "GET") return Promise.resolve(jsonResponse(api.archives));
       if (u.includes("/api/backup/notifications")) return Promise.resolve(jsonResponse(api.notifications));
       return Promise.resolve(jsonResponse({}));
     })
@@ -80,7 +82,7 @@ afterEach(() => {
 });
 
 const drill = (over: Partial<RestoreDrill> = {}): RestoreDrill => ({
-  id: "d1", backupRecordId: "b1", startedAtUtc: "2026-09-30T09:00:00Z", completedAtUtc: "2026-09-30T09:02:00Z", outcome: "Succeeded", failureCode: null, failureMessage: null,
+  id: "d1", backupRecordId: "b1", sourceKind: "History", archiveFileName: null, archiveSha256: null, startedAtUtc: "2026-09-30T09:00:00Z", completedAtUtc: "2026-09-30T09:02:00Z", outcome: "Succeeded", failureCode: null, failureMessage: null,
   targetDatabase: "AlveraRestore_abc", targetDirectory: "C:\\restore\\abc", targetRemoved: false,
   checks: [{ name: "documents_complete", passed: true, detail: "Every document/blob listed in the manifest is present.", blocking: true }], ...over,
 });
@@ -214,19 +216,13 @@ describe("Recovery key setup", () => {
     stubApi({ status: status({ settings: settings({ recoveryKeyConfigured: false, scheduleEnabled: false }), lastSuccess: null }), history: [] });
   }
 
-  it("validates the passphrase and password before calling the server", async () => {
+  it("requires the current password before calling the server and never asks the user to choose a passphrase", async () => {
     await openSetup();
     renderPage();
     await userEvent.click(await screen.findByRole("button", { name: "Set up recovery key" }));
-    await userEvent.type(screen.getByLabelText("Recovery passphrase"), "short");
+    expect(screen.queryByLabelText("Recovery passphrase")).not.toBeInTheDocument(); // the server generates a strong one
     await userEvent.click(screen.getByRole("button", { name: "Create recovery key" }));
-    expect(await screen.findByText("The passphrase must be at least 12 characters.")).toBeInTheDocument();
-
-    await userEvent.clear(screen.getByLabelText("Recovery passphrase"));
-    await userEvent.type(screen.getByLabelText("Recovery passphrase"), "long enough passphrase");
-    await userEvent.type(screen.getByLabelText("Confirm passphrase"), "different passphrase!!");
-    await userEvent.click(screen.getByRole("button", { name: "Create recovery key" }));
-    expect(await screen.findByText("The two passphrases do not match.")).toBeInTheDocument();
+    expect(await screen.findByText("Enter your current password to confirm this action.")).toBeInTheDocument();
   });
 
   it("reports a wrong current password without creating a key", async () => {
@@ -237,8 +233,6 @@ describe("Recovery key setup", () => {
     });
     renderPage();
     await userEvent.click(await screen.findByRole("button", { name: "Set up recovery key" }));
-    await userEvent.type(screen.getByLabelText("Recovery passphrase"), "long enough passphrase");
-    await userEvent.type(screen.getByLabelText("Confirm passphrase"), "long enough passphrase");
     await userEvent.type(screen.getByLabelText("Your current password"), "wrong");
     await userEvent.click(screen.getByRole("button", { name: "Create recovery key" }));
     expect(await screen.findByText("Your current password was not accepted.")).toBeInTheDocument();
@@ -246,21 +240,20 @@ describe("Recovery key setup", () => {
   });
 
   it("shows the key exactly once, demands acknowledgement, clears it from the screen, and never writes it to browser storage", async () => {
-    const privateKey = "-----BEGIN ENCRYPTED PRIVATE KEY-----\nSECRETSECRETSECRET\n-----END ENCRYPTED PRIVATE KEY-----";
+    const privateKey = "-----BEGIN PGP PRIVATE KEY BLOCK-----\nSECRETSECRETSECRET\n-----END PGP PRIVATE KEY BLOCK-----";
     stubApi({
       status: status({ settings: settings({ recoveryKeyConfigured: false, scheduleEnabled: false }), lastSuccess: null }),
       history: [],
-      handlers: { "/api/backup/recovery-key": () => jsonResponse({ recoveryKey: privateKey, fingerprint: "abcdef0123456789", warning: "store offline" }) },
+      handlers: { "/api/backup/recovery-key": () => jsonResponse({ recoveryKey: privateKey, passphrase: "GENERATED-PASSPHRASE-1234", fingerprint: "abcdef0123456789", warning: "store offline" }) },
     });
     renderPage();
     await userEvent.click(await screen.findByRole("button", { name: "Set up recovery key" }));
-    await userEvent.type(screen.getByLabelText("Recovery passphrase"), "long enough passphrase");
-    await userEvent.type(screen.getByLabelText("Confirm passphrase"), "long enough passphrase");
     await userEvent.type(screen.getByLabelText("Your current password"), "my-password");
     await userEvent.click(screen.getByRole("button", { name: "Create recovery key" }));
 
     const keyBox = await screen.findByLabelText("Recovery key file contents");
     expect(keyBox).toHaveValue(privateKey);
+    expect(screen.getByLabelText("Recovery passphrase (generated)")).toHaveValue("GENERATED-PASSPHRASE-1234");
     expect(screen.getByText(/only time the recovery key is shown/)).toBeInTheDocument();
     const done = screen.getByRole("button", { name: /Done - clear the key/ });
     expect(done).toBeDisabled(); // cannot leave without acknowledging
@@ -270,6 +263,8 @@ describe("Recovery key setup", () => {
 
     expect(screen.queryByLabelText("Recovery key file contents")).not.toBeInTheDocument();
     expect(document.body.textContent).not.toContain("SECRETSECRETSECRET");
+    expect(screen.queryByLabelText("Recovery passphrase (generated)")).not.toBeInTheDocument();
+    expect(document.body.innerHTML).not.toContain("GENERATED-PASSPHRASE-1234");
     expect(window.localStorage.length + window.sessionStorage.length).toBe(0);
   });
 
@@ -278,6 +273,56 @@ describe("Recovery key setup", () => {
     renderPage();
     await userEvent.click(await screen.findByRole("button", { name: "Replace recovery key" }));
     expect(screen.getByText(/only affects FUTURE backups/)).toBeInTheDocument();
+  });
+});
+
+describe("Disaster recovery from a retained archive (no backup history)", () => {
+  const archive = (over: Partial<ArchiveInfo> = {}): ArchiveInfo => ({
+    ref: "import:alveara-backup-lost.abk", location: "import", fileName: "alveara-backup-lost.abk", sizeBytes: 2_000_000, modifiedUtc: "2026-09-30T08:00:00Z",
+    readable: true, recipientKeyId: "ABCDEF0123456789", keyMatchesConfiguredRecoveryKey: false, inHistory: false, ...over,
+  });
+
+  it("lists a retained archive and offers recovery even when the history is empty", async () => {
+    stubApi({ history: [], archives: [archive(), archive({ ref: "import:junk.abk", fileName: "junk.abk", readable: false })] });
+    renderPage();
+    expect(await screen.findByRole("heading", { name: "Recover from a retained backup file" })).toBeInTheDocument();
+    expect(await screen.findByText("alveara-backup-lost.abk")).toBeInTheDocument();
+    expect(screen.getByText("Not in history")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Restore from alveara-backup-lost.abk" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Restore from junk.abk" })).toBeDisabled();
+  });
+
+  it("restores from the archive through the archive endpoints, with no verify-only shortcut, and shows the deployment-settings failure plainly", async () => {
+    const failed = drill({
+      id: "d9", backupRecordId: null, sourceKind: "Archive", archiveFileName: "alveara-backup-lost.abk", outcome: "Failed", failureCode: "deployment_settings_match_this_server",
+      failureMessage: "This server is configured differently (PracticeTimeZone). Set PracticeTimeZone = Asia/Tokyo and DataProtection:ApplicationName = X, restart, and run recovery again.",
+      checks: [{ name: "deployment_settings_match_this_server", passed: false, detail: "Set PracticeTimeZone = Asia/Tokyo and DataProtection:ApplicationName = X.", blocking: true }],
+    });
+    const api = stubApi({
+      history: [], archives: [archive()],
+      handlers: {
+        "/api/backup/archives/preflight": () => jsonResponse({ canRestore: true, checks: [{ name: "archive_present", passed: true, detail: "The backup file is present.", blocking: true }] }),
+        "/api/backup/archives/restore-drill": () => jsonResponse(failed, 422),
+      },
+    });
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Restore from alveara-backup-lost.abk" }));
+    const dialog = await screen.findByRole("dialog", { name: "Restore wizard" });
+    await userEvent.type(within(dialog).getByLabelText("Or paste the key file contents"), "-----BEGIN PGP PRIVATE KEY BLOCK-----");
+    await userEvent.type(within(dialog).getByLabelText("Recovery passphrase"), "generated passphrase value");
+    await userEvent.type(within(dialog).getByLabelText("Your current password"), "my-password");
+    await userEvent.click(within(dialog).getByRole("button", { name: /Check compatibility/ }));
+    await within(dialog).findByText(/The backup file is present/);
+    expect(within(dialog).queryByRole("button", { name: /Verify only/ })).not.toBeInTheDocument();
+
+    await userEvent.click(within(dialog).getByLabelText(/I understand a restore drill/));
+    await userEvent.click(within(dialog).getByRole("button", { name: /Restore into an isolated target/ }));
+
+    expect(await within(dialog).findByText("Restore drill failed")).toBeInTheDocument();
+    expect(within(dialog).getAllByText(/Set PracticeTimeZone = Asia\/Tokyo/).length).toBeGreaterThan(0);
+    const call = api.calls.find((c) => c.url.includes("/api/backup/archives/restore-drill"))!;
+    expect(call.body).toMatchObject({ archive: "import:alveara-backup-lost.abk", currentPassword: "my-password", passphrase: "generated passphrase value" });
+    expect(api.calls.some((c) => c.url.includes("/api/backup/backups/"))).toBe(false);
   });
 });
 
@@ -356,7 +401,7 @@ describe("Restore wizard", () => {
   }
 
   async function fillMaterial() {
-    await userEvent.type(screen.getByLabelText("Or paste the key file contents"), "-----BEGIN ENCRYPTED PRIVATE KEY-----");
+    await userEvent.type(screen.getByLabelText("Or paste the key file contents"), "-----BEGIN PGP PRIVATE KEY BLOCK-----");
     await userEvent.type(screen.getByLabelText("Recovery passphrase"), "my recovery passphrase");
     await userEvent.type(screen.getByLabelText("Your current password"), "my-password");
   }

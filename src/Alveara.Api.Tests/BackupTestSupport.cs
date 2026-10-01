@@ -23,6 +23,12 @@ public sealed class TogglableNotifier : IBackupNotifier
     }
 }
 
+/// <summary>A deployment-settings provider the test controls (the "server configuration" of the backed-up or the recovering installation).</summary>
+public sealed class StubDeploymentSettings(string timeZoneId, string dataProtectionApplicationName) : IDeploymentSettingsProvider
+{
+    public DeploymentSettings Current { get; set; } = new(DeploymentSettings.CurrentFormatVersion, timeZoneId, dataProtectionApplicationName, "USD");
+}
+
 /// <summary>An asset source whose staging can be made to fail (disk full, I/O error) to exercise failure paths.</summary>
 public sealed class FailingAssetSource(Exception exception) : IBackupAssetSource
 {
@@ -48,6 +54,10 @@ public sealed class FailingRestoreProvider(IDatabaseRestoreProvider inner) : IDa
 public sealed class BackupTestEnvironment : IDisposable
 {
     public const string Passphrase = "correct horse battery staple 42";
+    public const string DataProtectionApplicationName = "Alveara.Tests.Application";
+    public const string DefaultTimeZoneId = "America/Chicago";
+    public StubDeploymentSettings Deployment { get; } = new(DefaultTimeZoneId, DataProtectionApplicationName);
+    public string ImportRoot => Path.Combine(Root, "import");
     public string Root { get; } = Path.Combine(Path.GetTempPath(), $"alveara-backup-tests-{Guid.NewGuid():N}");
     public string SetsDirectory => Path.Combine(Root, "sets");
     public string BlobRoot => Path.Combine(Root, "blobs");
@@ -65,23 +75,24 @@ public sealed class BackupTestEnvironment : IDisposable
         Fixture = fixture;
         foreach (var d in new[] { SetsDirectory, BlobRoot, KeysRoot }) Directory.CreateDirectory(d);
         var databaseName = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(fixture.ConnectionString).InitialCatalog;
-        Paths = new BackupPaths(SetsDirectory, Path.Combine(Root, "staging"), Path.Combine(Root, "restore"), Path.Combine(Root, "notifications"), fixture.ConnectionString, databaseName);
+        Paths = new BackupPaths(SetsDirectory, Path.Combine(Root, "staging"), Path.Combine(Root, "restore"), Path.Combine(Root, "notifications"), fixture.ConnectionString, databaseName, ImportRoot);
         RestoreProvider = new SqlServerRestoreProvider(fixture.ConnectionString);
         Sources =
         [
             new FileTreeAssetSource(ManagedAssetClasses.Documents, BlobRoot, rel => rel.Contains(".tmp-", StringComparison.Ordinal)),
             new FileTreeAssetSource(ManagedAssetClasses.DataProtectionKeys, KeysRoot),
+            new DeploymentConfigurationSource(Deployment),
         ];
-        DataProtection = DataProtectionProvider.Create(new DirectoryInfo(KeysRoot), o => o.SetApplicationName(BackupConstants.DataProtectionApplicationName));
+        DataProtection = DataProtectionProvider.Create(new DirectoryInfo(KeysRoot), o => o.SetApplicationName(DataProtectionApplicationName));
     }
 
     public AlveraDbContext NewDb() => Fixture.CreateContext();
 
     public BackupService NewBackupService(AlveraDbContext db, IBackupNotifier? notifier = null, IEnumerable<IBackupAssetSource>? sources = null) =>
-        new(db, Paths, new SqlServerBackupSnapshotProvider(Fixture.ConnectionString, Paths.DatabaseName), sources ?? Sources, notifier ?? Notifier);
+        new(db, Paths, new SqlServerBackupSnapshotProvider(Fixture.ConnectionString, Paths.DatabaseName), sources ?? Sources, notifier ?? Notifier, Deployment);
 
     public BackupRestoreService NewRestoreService(AlveraDbContext db, IDatabaseRestoreProvider? provider = null, IBackupNotifier? notifier = null) =>
-        new(db, Paths, provider ?? RestoreProvider, notifier ?? Notifier);
+        new(db, Paths, provider ?? RestoreProvider, notifier ?? Notifier, Deployment);
 
     /// <summary>Starts from a clean slate for backup bookkeeping (history, drills, notifications, settings) so tests do not see each other's rows.</summary>
     public async Task ResetBackupStateAsync()
@@ -95,9 +106,9 @@ public sealed class BackupTestEnvironment : IDisposable
     public async Task<RecoveryKeyMaterial> ConfigureRecoveryKeyAsync(bool replace = false)
     {
         await using var db = NewDb();
-        var privatePem = await NewBackupService(db).ConfigureRecoveryKeyAsync(Passphrase, replace, Guid.NewGuid(), default);
+        var (privatePem, _) = await NewBackupService(db).ConfigureRecoveryKeyAsync(Passphrase, replace, Guid.NewGuid(), default);
         var settings = await db.BackupSettings.AsNoTracking().SingleAsync();
-        Key = new RecoveryKeyMaterial(settings.RecoveryPublicKeyPem!, privatePem, settings.RecoveryKeyFingerprint!);
+        Key = new RecoveryKeyMaterial(settings.RecoveryPublicKeyPem!, privatePem, settings.RecoveryKeyFingerprint!, Passphrase);
         return Key;
     }
 

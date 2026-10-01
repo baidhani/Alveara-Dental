@@ -12,7 +12,7 @@ namespace Alveara.Api.Controllers;
 public record SaveBackupSettingsRequest(
     bool ScheduleEnabled, int ScheduleIntervalHours, int RetentionCount, string? DestinationDirectory,
     int RequiredSuccessfulVerifications, int VerificationCadenceDays, string? RowVersion);
-public record ConfigureRecoveryKeyRequest(string? CurrentPassword, string? Passphrase, bool ReplaceExisting);
+public record ConfigureRecoveryKeyRequest(string? CurrentPassword, bool ReplaceExisting);
 /// <summary>The recovery key file contents and passphrase travel only in the request body and are never stored or logged.</summary>
 public record RecoveryMaterialRequest(string? CurrentPassword, string? RecoveryKey, string? Passphrase);
 public record StepUpRequest(string? CurrentPassword);
@@ -28,12 +28,15 @@ public record BackupRecordDto(
         r.VerificationStatus.ToString(), r.VerifiedAtUtc, r.VerificationFailureCode);
 }
 
+/// <summary>An archive is chosen by the "ref" the listing returned (folder + file name) - never by a free path.</summary>
+public record ArchiveRecoveryRequest(string? CurrentPassword, string? Archive, string? RecoveryKey, string? Passphrase);
+
 public record RestoreDrillDto(
-    Guid Id, Guid BackupRecordId, DateTimeOffset StartedAtUtc, DateTimeOffset? CompletedAtUtc, string Outcome, string? FailureCode, string? FailureMessage,
+    Guid Id, Guid? BackupRecordId, string SourceKind, string? ArchiveFileName, string? ArchiveSha256, DateTimeOffset StartedAtUtc, DateTimeOffset? CompletedAtUtc, string Outcome, string? FailureCode, string? FailureMessage,
     string? TargetDatabase, string? TargetDirectory, bool TargetRemoved, IReadOnlyList<ValidationCheck> Checks)
 {
     public static RestoreDrillDto From(RestoreDrillRecord d) => new(
-        d.Id, d.BackupRecordId, d.StartedAtUtc, d.CompletedAtUtc, d.Outcome, d.FailureCode, d.FailureMessage, d.TargetDatabase, d.TargetDirectory, d.TargetRemoved,
+        d.Id, d.BackupRecordId, d.SourceKind, d.ArchiveFileName, d.ArchiveSha256, d.StartedAtUtc, d.CompletedAtUtc, d.Outcome, d.FailureCode, d.FailureMessage, d.TargetDatabase, d.TargetDirectory, d.TargetRemoved,
         d.ValidationJson is null ? [] : JsonSerializer.Deserialize<List<ValidationCheck>>(d.ValidationJson, BackupManifest.Json) ?? []);
 }
 
@@ -119,21 +122,25 @@ public class BackupController(
         Ok(await backups.SaveSettingsAsync(r.ScheduleEnabled, r.ScheduleIntervalHours, r.RetentionCount, r.DestinationDirectory,
             r.RequiredSuccessfulVerifications, r.VerificationCadenceDays, r.RowVersion, Actor, ct)));
 
-    /// <summary>Returns the encrypted private recovery key ONCE; only the public half is stored. The response must not be cached.</summary>
+    /// <summary>
+    /// Returns the passphrase-protected private recovery key AND its generated passphrase ONCE; only the public half is
+    /// stored. The response must not be cached.
+    /// </summary>
     [HttpPost("recovery-key")]
     [RequirePermission(Permission.ManageBackups)]
     [RequireCsrfToken]
     public Task<IActionResult> ConfigureRecoveryKey([FromBody] ConfigureRecoveryKeyRequest r, CancellationToken ct) => Run(async () =>
     {
         await StepUpAsync(r.CurrentPassword, ct);
-        var privateKey = await backups.ConfigureRecoveryKeyAsync(r.Passphrase ?? "", r.ReplaceExisting, Actor, ct);
+        var (privateKey, passphrase) = await backups.ConfigureRecoveryKeyAsync(null, r.ReplaceExisting, Actor, ct);
         Response.Headers.CacheControl = "no-store";
         var settings = await backups.GetSettingsAsync(ct);
         return Ok(new
         {
             recoveryKey = privateKey,
+            passphrase,
             fingerprint = settings.RecoveryKeyFingerprint,
-            warning = "Store this recovery key file and its passphrase OFFLINE, away from this server. It is shown only once. Without both, backups cannot be restored.",
+            warning = "Store this recovery key file and its passphrase OFFLINE, away from this server. They are shown only once. Without both, backups cannot be restored.",
         });
     });
 
@@ -193,6 +200,32 @@ public class BackupController(
         await StepUpAsync(r.CurrentPassword, ct);
         RequireMaterial(r);
         var drill = await restores.RestoreDrillAsync(id, r.RecoveryKey!, r.Passphrase!, Actor, ct);
+        return StatusCode(drill.Outcome == "Succeeded" ? StatusCodes.Status201Created : StatusCodes.Status422UnprocessableEntity, RestoreDrillDto.From(drill));
+    });
+
+    // ---------- Disaster recovery from a retained archive (no backup history needed) ----------
+
+    [HttpGet("archives")]
+    [RequirePermission(Permission.ManageBackups)]
+    public Task<IActionResult> Archives(CancellationToken ct) => Run(async () => Ok(await restores.ListArchivesAsync(ct)));
+
+    [HttpPost("archives/preflight")]
+    [RequirePermission(Permission.ManageBackups)]
+    [RequireCsrfToken]
+    public Task<IActionResult> PreflightArchive([FromBody] ArchiveRecoveryRequest r, CancellationToken ct) => Run(async () =>
+    {
+        await StepUpAsync(r.CurrentPassword, ct);
+        return Ok(await restores.PreflightArchiveAsync(r.Archive ?? "", r.RecoveryKey ?? "", r.Passphrase ?? "", ct));
+    });
+
+    [HttpPost("archives/restore-drill")]
+    [RequirePermission(Permission.ManageBackups)]
+    [RequireCsrfToken]
+    public Task<IActionResult> RestoreDrillFromArchive([FromBody] ArchiveRecoveryRequest r, CancellationToken ct) => Run(async () =>
+    {
+        await StepUpAsync(r.CurrentPassword, ct);
+        RequireMaterial(new RecoveryMaterialRequest(r.CurrentPassword, r.RecoveryKey, r.Passphrase));
+        var drill = await restores.RestoreDrillFromArchiveAsync(r.Archive ?? "", r.RecoveryKey!, r.Passphrase!, Actor, ct);
         return StatusCode(drill.Outcome == "Succeeded" ? StatusCodes.Status201Created : StatusCodes.Status422UnprocessableEntity, RestoreDrillDto.From(drill));
     });
 

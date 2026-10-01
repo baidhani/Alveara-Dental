@@ -124,7 +124,16 @@ public class BackupRecord
 public class RestoreDrillRecord
 {
     public Guid Id { get; set; }
-    public Guid BackupRecordId { get; set; }
+    /// <summary>The history row restored from; NULL when the drill restored a retained archive file whose history row does not exist (disaster recovery).</summary>
+    public Guid? BackupRecordId { get; set; }
+
+    /// <summary>"History" (a recorded backup) or "Archive" (a retained .abk file, independent of any database row).</summary>
+    public string SourceKind { get; set; } = "History";
+
+    /// <summary>For an archive drill: which retained file (name only) and its SHA-256 at the time.</summary>
+    public string? ArchiveFileName { get; set; }
+    public string? ArchiveSha256 { get; set; }
+
     public DateTimeOffset StartedAtUtc { get; set; }
     public DateTimeOffset? CompletedAtUtc { get; set; }
     public Guid? InitiatedByUserAccountId { get; set; }
@@ -167,5 +176,8 @@ public static class ManagedAssetClasses
     public const string Documents = "documents";
     public const string DataProtectionKeys = "dataProtectionKeys";
 
-    public static readonly IReadOnlyList<string> All = [Database, Documents, DataProtectionKeys];
+    /// <summary>The non-secret deployment settings (practice time zone, Data Protection application name) without which restored data is misinterpreted or unreadable.</summary>
+    public const string DeploymentConfiguration = "deploymentConfiguration";
+
+    public static readonly IReadOnlyList<string> All = [Database, Documents, DataProtectionKeys, DeploymentConfiguration];
 }

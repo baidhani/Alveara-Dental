@@ -71,7 +71,7 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
         var file = await File.ReadAllBytesAsync(BackupService.ResolveBackupPath(record));
         var text = Encoding.Latin1.GetString(file);
 
-        Assert.StartsWith("ALVBK", text, StringComparison.Ordinal);
+        Assert.DoesNotContain("ALVBK", text, StringComparison.Ordinal); // no application-defined container: this is a standard OpenPGP message
         Assert.DoesNotContain("TAPE", text, StringComparison.Ordinal);                  // SQL Server backup media header
         Assert.DoesNotContain("<key id=", text, StringComparison.Ordinal);              // Data Protection key XML
         Assert.DoesNotContain("PK\u0003\u0004", text, StringComparison.Ordinal);         // ZIP local-file signature
@@ -88,7 +88,7 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
         // 1. The server stores only the public half.
         await using var db = _env.NewDb();
         var settings = await db.BackupSettings.AsNoTracking().SingleAsync();
-        Assert.DoesNotContain("PRIVATE", settings.RecoveryPublicKeyPem!);
+        Assert.DoesNotContain("PRIVATE", settings.RecoveryPublicKeyPem!, StringComparison.Ordinal);
         Assert.NotEqual(privatePem, settings.RecoveryPublicKeyPem);
 
         // 2. Nothing in the audit trail or history carries key material.
@@ -109,7 +109,7 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
         foreach (var file in Directory.EnumerateFiles(Path.Combine(work, "x"), "*", SearchOption.AllDirectories))
         {
             var content = Encoding.Latin1.GetString(await File.ReadAllBytesAsync(file));
-            Assert.DoesNotContain("ENCRYPTED PRIVATE KEY", content);
+            Assert.DoesNotContain("PGP PRIVATE KEY BLOCK", content, StringComparison.Ordinal);
         }
     }
 
@@ -387,24 +387,26 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
     }
 
     [Fact]
-    public async Task Configuring_the_recovery_key_returns_the_private_half_once_stores_only_the_public_half_and_replacement_is_explicit()
+    public async Task Configuring_the_recovery_key_returns_the_private_half_and_a_generated_passphrase_once_stores_only_the_public_half_and_replacement_is_explicit()
     {
         await using var db = _env.NewDb();
         var service = _env.NewBackupService(db);
         var auditedBefore = await db.AuditLogEntries.CountAsync(a => a.EventType == BackupAuditEvents.RecoveryKeyConfigured);
 
-        var privatePem = await service.ConfigureRecoveryKeyAsync(BackupTestEnvironment.Passphrase, false, _actor, default);
+        var (privatePem, generated) = await service.ConfigureRecoveryKeyAsync(null, false, _actor, default); // production path: the passphrase is generated
         var settings = await db.BackupSettings.AsNoTracking().SingleAsync();
-        Assert.StartsWith("-----BEGIN ENCRYPTED PRIVATE KEY-----", privatePem);
+        Assert.StartsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----", privatePem);
+        Assert.Matches("^([A-Z2-7]{4}-){5}[A-Z2-7]{4}$", generated);
         Assert.Equal(BackupCrypto.FingerprintOfPublicKeyPem(settings.RecoveryPublicKeyPem!), settings.RecoveryKeyFingerprint);
+        BackupCrypto.EnsurePassphraseUnlocks(privatePem, generated); // the generated passphrase really unlocks the returned key
 
-        var ex = await Assert.ThrowsAsync<BackupException>(() => service.ConfigureRecoveryKeyAsync(BackupTestEnvironment.Passphrase, false, _actor, default));
+        var ex = await Assert.ThrowsAsync<BackupException>(() => service.ConfigureRecoveryKeyAsync(null, false, _actor, default));
         Assert.Equal(("recovery_key_exists", 409), (ex.Code, ex.StatusCode));
 
         var weak = await Assert.ThrowsAsync<BackupException>(() => service.ConfigureRecoveryKeyAsync("short", true, _actor, default));
         Assert.Equal("weak_passphrase", weak.Code);
 
-        await service.ConfigureRecoveryKeyAsync(BackupTestEnvironment.Passphrase, true, _actor, default);
+        await service.ConfigureRecoveryKeyAsync(null, true, _actor, default);
         Assert.NotEqual(settings.RecoveryKeyFingerprint, (await db.BackupSettings.AsNoTracking().SingleAsync()).RecoveryKeyFingerprint);
         var audited = await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == BackupAuditEvents.RecoveryKeyConfigured).ToListAsync();
         Assert.Equal(auditedBefore + 2, audited.Count);
@@ -448,6 +450,6 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
         await db.BackupRecords.Where(r => r.Id == record.Id).ExecuteUpdateAsync(s2 => s2.SetProperty(r => r.IncludedAssetClasses, "database,documents"));
         var incomplete = await service.GetStatusAsync(default);
         Assert.False(incomplete.LastSuccessCoversAllAssetClasses);
-        Assert.Equal(new[] { ManagedAssetClasses.DataProtectionKeys }, incomplete.MissingAssetClasses);
+        Assert.Equal(new[] { ManagedAssetClasses.DataProtectionKeys, ManagedAssetClasses.DeploymentConfiguration }, incomplete.MissingAssetClasses);
     }
 }
