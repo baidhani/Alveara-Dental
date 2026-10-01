@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { ConfigurationHubPage } from "./ConfigurationHubPage";
@@ -24,7 +24,7 @@ function stubApi(overrides: Record<string, (init?: RequestInit) => Response> = {
       return Promise.resolve(jsonResponse({ id: null, name: null, phone: null, addressLine: null, timeZoneId: "America/Chicago", currency: "USD", configured: false, rowVersion: null }));
     }
     if (u.includes("/api/config/locations")) return Promise.resolve(jsonResponse([]));
-    if (u.includes("/api/config/providers/p1/availability")) return Promise.resolve(jsonResponse([{ dayOfWeek: 2, startLocal: "09:00", endLocal: "17:00" }]));
+    if (u.includes("/api/config/providers/p1/availability")) return Promise.resolve(jsonResponse({ revision: 3, windows: [{ dayOfWeek: 2, startLocal: "09:00", endLocal: "17:00" }] }));
     if (u.includes("/api/config/providers/p1/blocked-time")) return Promise.resolve(jsonResponse([]));
     if (u.includes("/api/config/providers")) return Promise.resolve(jsonResponse([provider]));
     if (u.includes("/api/config/scheduling")) {
@@ -171,7 +171,9 @@ describe("Availability tab", () => {
   it("loads a provider's weekly hours and saves an edited schedule atomically", async () => {
     const fetchMock = stubApi({
       "/api/config/providers/p1/availability": (init) =>
-        init?.method === "PUT" ? jsonResponse([{ dayOfWeek: 2, startLocal: "08:00", endLocal: "17:00" }]) : jsonResponse([{ dayOfWeek: 2, startLocal: "09:00", endLocal: "17:00" }]),
+        init?.method === "PUT"
+          ? jsonResponse({ revision: 4, windows: [{ dayOfWeek: 2, startLocal: "08:00", endLocal: "17:00" }] })
+          : jsonResponse({ revision: 3, windows: [{ dayOfWeek: 2, startLocal: "09:00", endLocal: "17:00" }] }),
     });
     await openAvailability();
     const save = screen.getByRole("button", { name: "Save weekly hours" });
@@ -186,7 +188,8 @@ describe("Availability tab", () => {
     await waitFor(() => {
       const put = fetchMock.mock.calls.find(([u, init]) => String(u).includes("/availability") && (init as RequestInit | undefined)?.method === "PUT");
       expect(put).toBeDefined();
-      expect(JSON.parse((put![1] as RequestInit).body as string)).toEqual({ windows: [{ dayOfWeek: 2, startLocal: "08:00", endLocal: "17:00" }] });
+      // The revision the schedule was read at travels with the replacement (R02: versioned aggregate).
+      expect(JSON.parse((put![1] as RequestInit).body as string)).toEqual({ windows: [{ dayOfWeek: 2, startLocal: "08:00", endLocal: "17:00" }], revision: 3 });
     });
     await waitFor(() => expect(screen.queryByText("Unsaved changes")).not.toBeInTheDocument());
   });
@@ -228,6 +231,140 @@ describe("Availability tab", () => {
     renderHub();
     await userEvent.click(screen.getByRole("tab", { name: "Availability" }));
     expect(await screen.findByText("No active providers yet")).toBeInTheDocument();
+  });
+});
+
+describe("Availability tab provider binding and revisions (ALV-N003 R02)", () => {
+  const p2 = { id: "p2", staffProfileId: "s2", displayName: "Dr. Chen", specialty: "Hygiene", isActive: true, rowVersion: "v" };
+
+  /** Per-provider availability responses the test completes by hand, so ordering is fully deterministic. */
+  function deferredApi() {
+    const pending: Record<string, ((r: Response) => void)[]> = {};
+    const requests: { url: string; init?: RequestInit }[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+        const u = String(url);
+        requests.push({ url: u, init });
+        if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "csrf" }));
+        const availability = u.match(/providers\/(p\d)\/availability/);
+        if (availability && init?.method !== "PUT") {
+          return new Promise<Response>((resolve) => {
+            (pending[availability[1]] ??= []).push(resolve);
+          });
+        }
+        if (availability && init?.method === "PUT") {
+          const body = JSON.parse(init.body as string);
+          return Promise.resolve(jsonResponse({ revision: body.revision + 1, windows: body.windows }));
+        }
+        if (/providers\/p\d\/blocked-time/.test(u)) return Promise.resolve(jsonResponse([]));
+        if (u.includes("/api/config/providers")) return Promise.resolve(jsonResponse([provider, p2]));
+        return Promise.resolve(jsonResponse([]));
+      })
+    );
+    const complete = (id: string, revision: number, start: string, end = "17:00") =>
+      act(async () => {
+        pending[id].shift()!(jsonResponse({ revision, windows: [{ dayOfWeek: 1, startLocal: start, endLocal: end }] }));
+      });
+    return { complete, requests };
+  }
+
+  async function openAvailability() {
+    renderHub();
+    await userEvent.click(screen.getByRole("tab", { name: "Availability" }));
+    return screen.findByLabelText("Provider");
+  }
+
+  it("discards a delayed response for a provider that is no longer selected, and never shows or saves its rows under the new one", async () => {
+    const { complete, requests } = deferredApi();
+    const picker = await openAvailability();
+
+    await userEvent.selectOptions(picker, "p1"); // A: response left pending
+    await userEvent.selectOptions(picker, "p2"); // B selected meanwhile
+    await complete("p2", 7, "13:00");            // B's response arrives first
+    expect(await screen.findByLabelText("Start time for window 1")).toHaveValue("13:00");
+
+    await complete("p1", 2, "09:00");            // A's older response arrives last
+    expect(screen.getByLabelText("Provider")).toHaveValue("p2");
+    expect(screen.getByLabelText("Start time for window 1")).toHaveValue("13:00"); // still B's hours, not A's 09:00
+
+    // Editing and saving submits B's rows to B at B's revision - never A's.
+    await userEvent.clear(screen.getByLabelText("End time for window 1"));
+    await userEvent.type(screen.getByLabelText("End time for window 1"), "18:00");
+    await userEvent.click(screen.getByRole("button", { name: "Save weekly hours" }));
+    await waitFor(() => expect(requests.some((r) => r.init?.method === "PUT")).toBe(true));
+    const put = requests.find((r) => r.init?.method === "PUT")!;
+    expect(put.url).toContain("/providers/p2/availability");
+    expect(JSON.parse(put.init!.body as string)).toEqual({ windows: [{ dayOfWeek: 1, startLocal: "13:00", endLocal: "18:00" }], revision: 7 });
+  });
+
+  it("hides the previous provider's editor immediately while the newly selected provider loads", async () => {
+    const { complete } = deferredApi();
+    const picker = await openAvailability();
+    await userEvent.selectOptions(picker, "p1");
+    await complete("p1", 1, "09:00");
+    expect(await screen.findByRole("group", { name: "Window 1" })).toBeInTheDocument();
+
+    await userEvent.selectOptions(picker, "p2");
+    // p2 still pending: nothing of p1's schedule may remain visible or savable.
+    expect(screen.queryByRole("group", { name: "Window 1" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Save weekly hours" })).not.toBeInTheDocument();
+    expect(screen.getByText("Loading schedule…")).toBeInTheDocument();
+  });
+
+  it("still asks before discarding a dirty schedule when switching providers", async () => {
+    const { complete } = deferredApi();
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    const picker = await openAvailability();
+    await userEvent.selectOptions(picker, "p1");
+    await complete("p1", 1, "09:00");
+    await userEvent.clear(await screen.findByLabelText("Start time for window 1"));
+    await userEvent.type(screen.getByLabelText("Start time for window 1"), "08:00");
+
+    await userEvent.selectOptions(picker, "p2");
+    expect(confirm).toHaveBeenCalled();
+    expect(screen.getByLabelText("Provider")).toHaveValue("p1");
+    expect(screen.getByLabelText("Start time for window 1")).toHaveValue("08:00");
+  });
+
+  const conflictBody = { error: "concurrency_conflict", entityType: "ProviderAvailability", entityId: "p1" };
+
+  it("presents a stale schedule save with the shared conflict banner, keeps the draft if the reload fails, and recovers on retry", async () => {
+    let reads = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
+        const u = String(url);
+        if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "csrf" }));
+        if (u.includes("/providers/p1/availability")) {
+          if (init?.method === "PUT") return Promise.resolve(jsonResponse(conflictBody, 409));
+          reads += 1;
+          if (reads === 1) return Promise.resolve(jsonResponse({ revision: 1, windows: [{ dayOfWeek: 1, startLocal: "09:00", endLocal: "17:00" }] }));
+          if (reads === 2) return Promise.reject(new Error("network down"));
+          return Promise.resolve(jsonResponse({ revision: 2, windows: [{ dayOfWeek: 1, startLocal: "10:00", endLocal: "16:00" }] }));
+        }
+        if (u.includes("/providers/p1/blocked-time")) return Promise.resolve(jsonResponse([]));
+        if (u.includes("/api/config/providers")) return Promise.resolve(jsonResponse([provider]));
+        return Promise.resolve(jsonResponse([]));
+      })
+    );
+    renderHub();
+    await userEvent.click(screen.getByRole("tab", { name: "Availability" }));
+    await userEvent.selectOptions(await screen.findByLabelText("Provider"), "p1");
+    await userEvent.clear(await screen.findByLabelText("Start time for window 1"));
+    await userEvent.type(screen.getByLabelText("Start time for window 1"), "08:00");
+    await userEvent.click(screen.getByRole("button", { name: "Save weekly hours" }));
+
+    expect(await screen.findByText("Someone else changed this while you were editing")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Reload current version" })); // reload fails
+    expect(await screen.findByText(/Could not reload|network down/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Start time for window 1")).toHaveValue("08:00");          // draft intact
+    expect(screen.getByText("Someone else changed this while you were editing")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Reload current version" })); // retry succeeds
+    await waitFor(() => expect(screen.getByLabelText("Start time for window 1")).toHaveValue("10:00"));
+    expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument();
   });
 });
 

@@ -178,7 +178,8 @@ describe("ConfigEntityPanel (ALV-N003 reusable configuration pattern)", () => {
     await userEvent.click(screen.getByRole("button", { name: "Reload current version" }));
 
     await waitFor(() => expect(screen.getByLabelText("Name")).toHaveValue("Exam (changed elsewhere)"));
-    expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument();
+    expect(update).toHaveBeenCalledTimes(1); // reloading must never re-submit the stale edit
+    await waitFor(() => expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument());
   });
 
   it("inactivates and reactivates instead of deleting - there is no delete action at all", async () => {
@@ -192,6 +193,51 @@ describe("ConfigEntityPanel (ALV-N003 reusable configuration pattern)", () => {
     setup({ createDisabledReason: "Create an active location first." });
     expect(await screen.findByText("Create an active location first.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add appointment type" })).toBeDisabled();
+  });
+});
+
+describe("ConfigEntityPanel conflict recovery (ALV-N003 R02)", () => {
+  const conflictBody = { error: "concurrency_conflict", entityType: "AppointmentType", entityId: "r1" };
+  const conflictingUpdate = () => vi.fn().mockRejectedValue(new ApiError(409, "concurrency_conflict", "conflict", conflictBody));
+
+  async function reachConflict(props: ReturnType<typeof setup>) {
+    await userEvent.click(await screen.findByRole("button", { name: "Edit Exam" }));
+    await userEvent.type(screen.getByLabelText("Name"), "!");
+    await userEvent.click(document.querySelector("form button[type=submit]")!);
+    await screen.findByText("Someone else changed this while you were editing");
+    return props;
+  }
+
+  it("keeps the draft, the form and the conflict when the reload request fails, and recovers on retry", async () => {
+    const load = vi.fn().mockResolvedValueOnce([row()]).mockRejectedValueOnce(new Error("network down")).mockResolvedValue([row({ rowVersion: "v2", name: "Exam (current)" })]);
+    await reachConflict(setup({ update: conflictingUpdate(), load }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Reload current version" }));
+    expect(await screen.findByText(/Could not reload the appointment type/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Name")).toHaveValue("Exam!");                                          // draft intact
+    expect(screen.getByText("Someone else changed this while you were editing")).toBeInTheDocument();   // conflict intact
+
+    await userEvent.click(screen.getByRole("button", { name: "Reload current version" }));              // retry
+    await waitFor(() => expect(screen.getByLabelText("Name")).toHaveValue("Exam (current)"));
+    expect(screen.queryByText(/Could not reload/)).not.toBeInTheDocument();
+  });
+
+  it("finds a record that was inactivated by the other editor instead of treating it as gone", async () => {
+    const load = vi.fn().mockImplementation(async (includeInactive: boolean) =>
+      load.mock.calls.length === 1 ? [row()] : includeInactive ? [row({ isActive: false, rowVersion: "v2", name: "Exam (retired)" })] : []
+    );
+    await reachConflict(setup({ update: conflictingUpdate(), load }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Reload current version" }));
+    await waitFor(() => expect(screen.getByLabelText("Name")).toHaveValue("Exam (retired)"));
+  });
+
+  it("closes the form only when a successful read proves the record no longer exists", async () => {
+    const load = vi.fn().mockResolvedValueOnce([row()]).mockResolvedValue([]);
+    await reachConflict(setup({ update: conflictingUpdate(), load }));
+
+    await userEvent.click(screen.getByRole("button", { name: "Reload current version" }));
+    await waitFor(() => expect(screen.queryByLabelText("Name")).not.toBeInTheDocument());
   });
 });
 

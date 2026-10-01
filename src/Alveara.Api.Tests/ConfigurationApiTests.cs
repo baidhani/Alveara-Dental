@@ -167,6 +167,34 @@ public class ConfigurationApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task The_availability_schedule_carries_a_revision_and_a_stale_or_missing_one_is_rejected()
+    {
+        await using var factory = CreateFactory();
+        var (admin, csrf) = await AdminAsync(factory);
+        await admin.SendAsync(Req(HttpMethod.Post, "/api/config/locations", csrf, new SaveLocationRequest("Main Office", null)));
+        var staff = await (await admin.SendAsync(Req(HttpMethod.Post, "/api/config/staff", csrf, new SaveStaffRequest("Dr. Rev", null, null, null)))).Content.ReadFromJsonAsync<JsonElement>();
+        var provider = await (await admin.SendAsync(Req(HttpMethod.Post, "/api/config/providers", csrf, new SaveProviderRequest(staff.GetProperty("id").GetGuid(), "Dentistry", null)))).Content.ReadFromJsonAsync<JsonElement>();
+        var id = provider.GetProperty("id").GetGuid();
+        var window = new Alveara.Api.Architecture.Configuration.AvailabilityWindow(DayOfWeek.Monday, "09:00", "12:00");
+
+        var initial = await (await admin.GetAsync($"/api/config/providers/{id}/availability")).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(0, initial.GetProperty("revision").GetInt32());
+
+        var first = await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/providers/{id}/availability", csrf, new ReplaceAvailabilityRequest([window], 0)));
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        Assert.Equal(1, (await first.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("revision").GetInt32());
+
+        var stale = await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/providers/{id}/availability", csrf, new ReplaceAvailabilityRequest([window], 0)));
+        Assert.Equal(HttpStatusCode.Conflict, stale.StatusCode);
+        var problem = await stale.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("concurrency_conflict", problem.GetProperty("error").GetString());
+        Assert.Equal("ProviderAvailability", problem.GetProperty("entityType").GetString());
+
+        var missing = await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/providers/{id}/availability", csrf, new ReplaceAvailabilityRequest([window], null)));
+        Assert.Equal("revision_required", (await missing.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("error").GetString());
+    }
+
+    [Fact]
     public async Task End_to_end_configuration_is_audited_and_consumed_by_the_scheduling_read_model()
     {
         await using var factory = CreateFactory();
@@ -186,7 +214,7 @@ public class ConfigurationApiTests : IAsyncLifetime
         var provider = await Ok(await admin.SendAsync(Req(HttpMethod.Post, "/api/config/providers", csrf, new SaveProviderRequest(staff.GetProperty("id").GetGuid(), "Dentistry", null))));
         var providerId = provider.GetProperty("id").GetGuid();
         await Ok(await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/providers/{providerId}/availability", csrf,
-            new ReplaceAvailabilityRequest([new Alveara.Api.Architecture.Configuration.AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")]))));
+            new ReplaceAvailabilityRequest([new Alveara.Api.Architecture.Configuration.AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], 0))));
 
         var snapshot = await Ok(await admin.GetAsync("/api/config/scheduling"));
         Assert.Equal(operatory.GetProperty("id").GetGuid(), snapshot.GetProperty("operatories")[0].GetProperty("id").GetGuid());

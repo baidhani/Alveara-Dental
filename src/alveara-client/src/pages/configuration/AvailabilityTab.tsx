@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../components/Button";
+import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import { FormField } from "../../components/FormField";
 import { EmptyState, ErrorState, LoadingState } from "../../components/StatePatterns";
 import { PermissionDenied } from "../../components/PermissionDenied";
 import { useNotifications } from "../../components/Notification";
 import { confirmDiscard, useUnsavedChangesWarning } from "../../hooks/useUnsavedChangesWarning";
-import { ApiError } from "../../services/authApi";
+import { ApiError, isConcurrencyConflict } from "../../services/authApi";
+import type { ConcurrencyConflictProblem } from "../../services/authApi";
 import { addBlockedTime, getAvailability, listBlockedTime, listProviders, removeBlockedTime, replaceAvailability } from "../../services/configApi";
 import type { BlockedTime, ProviderRecord } from "../../services/configApi";
 import { DAY_NAMES, validateWindows } from "./availabilityRules";
@@ -21,25 +23,40 @@ type ProvidersState = { kind: "loading" } | { kind: "denied" } | { kind: "error"
 
 /**
  * Provider weekly availability (practice-local wall-clock hours) and blocked time. The weekly
- * schedule is edited as a whole and replaced atomically; blocked time is entered in practice-local
- * time and the server converts it (rejecting a daylight-saving gap/overlap rather than guessing).
+ * schedule is edited as a whole and replaced atomically, against the revision that was read; blocked
+ * time is entered in practice-local time and the server converts it (rejecting a daylight-saving
+ * gap/overlap rather than guessing).
+ *
+ * ALV-N003 R02: every piece of editor state is bound to the provider it was loaded for. Requests are
+ * numbered; a response that has been superseded (the user picked another provider meanwhile) is
+ * discarded, the editor is cleared and hidden while the newly selected provider loads, and a save
+ * always submits the rows of the provider they were loaded for - never whatever is currently selected.
  */
 export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {
   const { notify } = useNotifications();
   const [providersState, setProvidersState] = useState<ProvidersState>({ kind: "loading" });
   const [providerId, setProviderId] = useState("");
+  /** The provider whose schedule is actually in `rows`/`revision`/`blocked`; "" while nothing valid is loaded. */
+  const [loadedFor, setLoadedFor] = useState("");
   const [rows, setRows] = useState<WindowRow[]>([]);
   const [saved, setSaved] = useState("[]");
+  const [revision, setRevision] = useState(0);
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
+  const [reloadError, setReloadError] = useState<string | null>(null);
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleFailed, setScheduleFailed] = useState(false);
   const [blocked, setBlocked] = useState<BlockedTime[]>([]);
   const [blockForm, setBlockForm] = useState({ start: "", end: "", reason: "" });
   const [blockError, setBlockError] = useState<string | null>(null);
 
+  const selectedRef = useRef("");
+  const loadSeq = useRef(0);
+
   const blockDirty = blockForm.start !== "" || blockForm.end !== "" || blockForm.reason !== "";
-  const dirty = snapshot(rows) !== saved || blockDirty;
+  const scheduleDirty = loadedFor !== "" && snapshot(rows) !== saved;
+  const dirty = scheduleDirty || blockDirty;
   useUnsavedChangesWarning(dirty);
   useEffect(() => {
     onDirtyChange(dirty);
@@ -58,35 +75,61 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
     loadProviders();
   }, [loadProviders]);
 
-  async function loadSchedule(id: string) {
-    setScheduleLoading(true);
-    setScheduleFailed(false);
+  /**
+   * Loads one provider's schedule. `keepDraftOnFailure` is for conflict recovery, where the user's
+   * draft is still on screen: only a SUCCESSFUL reload may replace it, a failed one leaves it intact.
+   */
+  async function loadSchedule(id: string, keepDraftOnFailure = false) {
+    const seq = ++loadSeq.current;
+    if (!keepDraftOnFailure) {
+      setScheduleLoading(true);
+      setScheduleFailed(false);
+    }
     try {
-      const [windows, blocks] = await Promise.all([getAvailability(id), listBlockedTime(id)]);
-      const loadedRows = toRows(windows);
+      const [schedule, blocks] = await Promise.all([getAvailability(id), listBlockedTime(id)]);
+      if (seq !== loadSeq.current) return; // superseded by a newer selection/load: discard
+      const loadedRows = toRows(schedule.windows);
       setRows(loadedRows);
       setSaved(snapshot(loadedRows));
+      setRevision(schedule.revision);
       setBlocked(blocks);
-    } catch {
-      setScheduleFailed(true);
+      setLoadedFor(id);
+      setConflict(null);
+      setReloadError(null);
+      setSaveError(null);
+      setErrors({});
+    } catch (err) {
+      if (seq !== loadSeq.current) return;
+      if (keepDraftOnFailure) {
+        setReloadError(err instanceof ApiError ? err.message : "Could not reload the current schedule. Check your connection and try again.");
+      } else {
+        setScheduleFailed(true);
+      }
     } finally {
-      setScheduleLoading(false);
+      if (seq === loadSeq.current) setScheduleLoading(false);
     }
   }
 
   function chooseProvider(id: string) {
     if (!confirmDiscard(dirty)) return;
+    loadSeq.current += 1; // invalidate anything still in flight for the previous provider
+    selectedRef.current = id;
     setProviderId(id);
+    // Clear everything bound to the previous provider immediately, so it can never be shown or saved under the new one.
+    setLoadedFor("");
+    setRows([]);
+    setSaved("[]");
+    setRevision(0);
+    setBlocked([]);
     setErrors({});
     setSaveError(null);
+    setConflict(null);
+    setReloadError(null);
+    setScheduleFailed(false);
+    setScheduleLoading(false);
     setBlockForm({ start: "", end: "", reason: "" });
     setBlockError(null);
     if (id) loadSchedule(id);
-    else {
-      setRows([]);
-      setSaved("[]");
-      setBlocked([]);
-    }
   }
 
   function updateRow(key: number, patch: Partial<WindowRow>) {
@@ -94,26 +137,40 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   }
 
   async function saveSchedule() {
+    const targetId = loadedFor; // the provider these rows were loaded for
+    if (targetId === "" || targetId !== selectedRef.current) return;
     const found = validateWindows(rows);
     setErrors(found);
     setSaveError(null);
     if (Object.keys(found).length > 0) return;
     try {
       const result = await replaceAvailability(
-        providerId,
-        rows.map((r) => ({ dayOfWeek: Number(r.dayOfWeek), startLocal: r.startLocal, endLocal: r.endLocal }))
+        targetId,
+        rows.map((r) => ({ dayOfWeek: Number(r.dayOfWeek), startLocal: r.startLocal, endLocal: r.endLocal })),
+        revision
       );
-      const next = toRows(result);
+      if (selectedRef.current !== targetId) return; // the user moved on; this result belongs to another editor session
+      const next = toRows(result.windows);
       setRows(next);
       setSaved(snapshot(next));
+      setRevision(result.revision);
+      setConflict(null);
       notify("success", "Weekly availability saved.");
     } catch (err) {
-      setSaveError(err instanceof ApiError ? err.message : "Could not save availability. Check your connection and try again.");
+      if (selectedRef.current !== targetId) return;
+      if (isConcurrencyConflict(err)) {
+        setConflict(err.body);
+        setReloadError(null);
+      } else {
+        setSaveError(err instanceof ApiError ? err.message : "Could not save availability. Check your connection and try again.");
+      }
     }
   }
 
   async function submitBlock(event: FormEvent) {
     event.preventDefault();
+    const targetId = loadedFor;
+    if (targetId === "" || targetId !== selectedRef.current) return;
     setBlockError(null);
     if (!blockForm.start || !blockForm.end) {
       setBlockError("Enter both a start and an end.");
@@ -124,21 +181,29 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
       return;
     }
     try {
-      await addBlockedTime(providerId, blockForm.start, blockForm.end, blockForm.reason.trim());
+      await addBlockedTime(targetId, blockForm.start, blockForm.end, blockForm.reason.trim());
+      const blocks = await listBlockedTime(targetId);
+      if (selectedRef.current !== targetId) return;
       setBlockForm({ start: "", end: "", reason: "" });
-      setBlocked(await listBlockedTime(providerId));
+      setBlocked(blocks);
       notify("success", "Blocked time added.");
     } catch (err) {
+      if (selectedRef.current !== targetId) return;
       setBlockError(err instanceof ApiError ? err.message : "Could not add blocked time.");
     }
   }
 
   async function removeBlock(id: string) {
+    const targetId = loadedFor;
+    if (targetId === "" || targetId !== selectedRef.current) return;
     try {
-      await removeBlockedTime(providerId, id);
-      setBlocked(await listBlockedTime(providerId));
+      await removeBlockedTime(targetId, id);
+      const blocks = await listBlockedTime(targetId);
+      if (selectedRef.current !== targetId) return;
+      setBlocked(blocks);
       notify("success", "Blocked time removed.");
     } catch (err) {
+      if (selectedRef.current !== targetId) return;
       notify("danger", err instanceof ApiError ? err.message : "Could not remove blocked time.");
     }
   }
@@ -151,6 +216,8 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   if (providersState.providers.length === 0) {
     return <EmptyState title="No active providers yet" description="Add a provider on the Providers tab, then set their working hours here." />;
   }
+
+  const editorReady = providerId !== "" && loadedFor === providerId && !scheduleLoading && !scheduleFailed;
 
   return (
     <section className="alv-config-panel" aria-label="Availability">
@@ -171,10 +238,16 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
       {providerId && scheduleLoading && <LoadingState label="Loading schedule…" />}
       {providerId && scheduleFailed && <ErrorState title="Could not load this provider's schedule" action={<Button onClick={() => loadSchedule(providerId)}>Retry</Button>} />}
 
-      {providerId && !scheduleLoading && !scheduleFailed && (
+      {editorReady && (
         <>
           <h2 className="alv-config-panel__form-title">Weekly hours</h2>
           <p className="alv-config-panel__note">Times are practice-local wall-clock hours; they mean the same hours before and after a daylight-saving change.</p>
+          {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={() => loadSchedule(providerId, true)} />}
+          {reloadError && (
+            <p className="alv-form-field__error" role="alert">
+              {reloadError} Your edits are still here - use "Reload current version" to try again.
+            </p>
+          )}
           {rows.length === 0 && <EmptyState title="No weekly hours yet" description="Add a window to make this provider schedulable." />}
           {rows.map((row, i) => (
             <div key={row.key} className="alv-config-panel__window" role="group" aria-label={`Window ${i + 1}`}>
@@ -215,10 +288,10 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
             <Button type="button" onClick={() => setRows((prev) => [...prev, { key: nextKey++, dayOfWeek: "1", startLocal: "09:00", endLocal: "17:00" }])}>
               Add window
             </Button>
-            <Button type="button" variant="primary" onClick={saveSchedule} disabled={snapshot(rows) === saved}>
+            <Button type="button" variant="primary" onClick={saveSchedule} disabled={!scheduleDirty}>
               Save weekly hours
             </Button>
-            {snapshot(rows) !== saved && <span className="alv-config-panel__dirty">Unsaved changes</span>}
+            {scheduleDirty && <span className="alv-config-panel__dirty">Unsaved changes</span>}
           </div>
 
           <h2 className="alv-config-panel__form-title">Blocked time</h2>

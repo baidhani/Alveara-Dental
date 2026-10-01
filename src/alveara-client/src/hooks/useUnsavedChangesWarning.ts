@@ -1,13 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
+import { useUnsavedChangesRegistry } from "../contexts/unsavedChangesStore";
 
 export const DISCARD_PROMPT = "You have unsaved changes. Discard them?";
 
 /**
- * ALV-N003 unsaved-change protection, browser half: while `dirty`, closing the tab or reloading
- * triggers the browser's native "leave site?" prompt. In-app navigation (cancel, switching rows or
- * tabs) is guarded separately with `confirmDiscard`, since the browser event never fires for it.
+ * ALV-N003 unsaved-change protection. While `dirty`:
+ * - closing the tab or reloading triggers the browser's native "leave site?" prompt
+ *   (`beforeunload`), and
+ * - the editor is registered with the app-wide unsaved-changes registry (R02), which the
+ *   router-level NavigationGuard reads so shell links and back/forward also ask first.
+ * In-panel navigation (cancel, switching rows/tabs) is guarded separately with `confirmDiscard`.
  */
 export function useUnsavedChangesWarning(dirty: boolean) {
+  const key = useId();
+  const register = useUnsavedChangesRegistry()?.register;
+
+  useEffect(() => {
+    register?.(key, dirty);
+    return () => register?.(key, false); // an unmounted editor never keeps blocking navigation
+  }, [dirty, key, register]);
+
   useEffect(() => {
     if (!dirty) return;
     const handler = (event: BeforeUnloadEvent) => {

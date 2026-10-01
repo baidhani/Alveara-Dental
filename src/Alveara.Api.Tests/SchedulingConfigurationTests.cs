@@ -39,7 +39,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
         var type = await practice.CreateAppointmentTypeAsync("New patient exam", 60, _actor, default);
         var staff = await people.CreateStaffAsync("Dr. Rivera", "Dentist", null, _actor, default);
         var provider = await people.CreateProviderAsync(staff.Id, "General dentistry", _actor, default);
-        await people.ReplaceAvailabilityAsync(provider.Id, [new AvailabilityWindow(DayOfWeek.Wednesday, "08:00", "16:00")], _actor, default);
+        await people.ReplaceCurrentAsync(provider.Id, [new AvailabilityWindow(DayOfWeek.Wednesday, "08:00", "16:00")], _actor);
 
         var snapshot = await scheduling.GetSnapshotAsync(default);
         Assert.Equal("America/Chicago", snapshot.TimeZoneId);
@@ -95,7 +95,7 @@ public class SchedulingConfigurationTests : IAsyncLifetime
 
         var staff = await people.CreateStaffAsync("Dr. Rivera", null, null, _actor, default);
         var provider = await people.CreateProviderAsync(staff.Id, "Dentistry", _actor, default);
-        await people.ReplaceAvailabilityAsync(provider.Id, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor, default);
+        await people.ReplaceCurrentAsync(provider.Id, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor);
         // Tuesday 2026-01-13, block 12:00-13:00 local (CST) = 18:00Z-19:00Z.
         await people.AddBlockedTimeAsync(provider.Id, new DateTime(2026, 1, 13, 12, 0, 0), new DateTime(2026, 1, 13, 13, 0, 0), "Lunch", _actor, default);
 
@@ -110,5 +110,67 @@ public class SchedulingConfigurationTests : IAsyncLifetime
         Assert.Equal("blocked_time", (await At("2026-01-13T17:45:00Z", 30)).Reason);           // overlaps the block's start
         Assert.True((await At("2026-01-13T19:00:00Z", 30)).Available);                         // starts exactly when the block ends
         await Assert.ThrowsAsync<ConfigurationException>(() => At("2026-01-13T15:00:00Z", 7)); // invalid duration is rejected, not guessed
+    }
+
+    private async Task<(SchedulingConfiguration Scheduling, Guid ProviderId)> ConfigureAsync(Alveara.Api.Data.AlveraDbContext db, params AvailabilityWindow[] windows)
+    {
+        var people = new StaffProviderService(db, Clock);
+        var staff = await people.CreateStaffAsync("Dr. Rivera", null, null, _actor, default);
+        var provider = await people.CreateProviderAsync(staff.Id, "Dentistry", _actor, default);
+        await people.ReplaceCurrentAsync(provider.Id, windows, _actor);
+        return (new SchedulingConfiguration(db, Clock), provider.Id);
+    }
+
+    [Fact]
+    public async Task A_slot_crossing_the_fall_back_hour_is_not_reported_available_even_if_its_endpoints_look_inside_the_window()
+    {
+        await using var db = _fixture.CreateContext();
+        // Sunday 2026-11-01: clocks fall back 02:00 CDT -> 01:00 CST. Window 01:30-02:00 local.
+        var (scheduling, providerId) = await ConfigureAsync(db, new AvailabilityWindow(DayOfWeek.Sunday, "01:30", "02:00"));
+
+        // 06:50Z = 01:50 CDT; +30 min = 07:20Z = 01:20 CST. Endpoints "01:50 -> 01:20" straddle the repeated hour.
+        var crossing = await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-11-01T06:50:00Z"), 30, default);
+        Assert.False(crossing.Available);
+        Assert.Equal("crosses_dst_transition", crossing.Reason);
+
+        // Same wall-clock window a week earlier (no transition) behaves normally.
+        var normal = await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-10-25T06:30:00Z"), 30, default); // 01:30 CDT Sunday
+        Assert.True(normal.Available);
+    }
+
+    [Fact]
+    public async Task A_slot_crossing_the_spring_forward_gap_is_refused_and_slots_either_side_of_the_transition_are_unaffected()
+    {
+        await using var db = _fixture.CreateContext();
+        // Sunday 2026-03-08: 02:00 CST jumps to 03:00 CDT (07:59:59Z -> 08:00:00Z).
+        var (scheduling, providerId) = await ConfigureAsync(db, new AvailabilityWindow(DayOfWeek.Sunday, "00:30", "05:00"));
+
+        var crossing = await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-03-08T07:30:00Z"), 60, default); // 01:30 CST -> 03:30 CDT
+        Assert.False(crossing.Available);
+        Assert.Equal("crosses_dst_transition", crossing.Reason);
+
+        Assert.True((await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-03-08T06:30:00Z"), 60, default)).Available);  // 00:30-01:30 CST, wholly before
+        Assert.True((await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-03-08T08:00:00Z"), 60, default)).Available);  // 03:00-04:00 CDT, wholly after
+    }
+
+    [Fact]
+    public async Task A_slot_ending_exactly_at_the_transition_instant_is_judged_by_its_own_wall_clock_not_refused()
+    {
+        await using var db = _fixture.CreateContext();
+        var (scheduling, providerId) = await ConfigureAsync(db, new AvailabilityWindow(DayOfWeek.Sunday, "00:30", "02:00"));
+        // 06:00Z-07:00Z = 01:00-02:00 CDT, ending exactly at the fold instant (07:00Z): no offset change inside the slot.
+        var endsAtFold = await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-11-01T06:00:00Z"), 60, default);
+        Assert.True(endsAtFold.Available);
+    }
+
+    [Fact]
+    public async Task Blocked_time_overlap_is_still_checked_in_utc_across_the_transition()
+    {
+        await using var db = _fixture.CreateContext();
+        var (scheduling, providerId) = await ConfigureAsync(db, new AvailabilityWindow(DayOfWeek.Sunday, "00:00", "01:00"));
+        await new StaffProviderService(db, Clock).AddBlockedTimeAsync(providerId, new DateTime(2026, 11, 1, 0, 30, 0), new DateTime(2026, 11, 1, 0, 45, 0), null, _actor, default);
+        // 00:30-00:45 CDT = 05:30Z-05:45Z.
+        var blocked = await scheduling.CheckProviderAvailabilityAsync(providerId, DateTimeOffset.Parse("2026-11-01T05:30:00Z"), 15, default);
+        Assert.Equal("blocked_time", blocked.Reason);
     }
 }

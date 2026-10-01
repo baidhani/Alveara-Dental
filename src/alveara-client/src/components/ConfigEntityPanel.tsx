@@ -71,6 +71,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
+  const [reloadError, setReloadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const dirty = formOpen && JSON.stringify(values) !== JSON.stringify(initialValues);
@@ -103,6 +104,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
     setErrors({});
     setFormError(null);
     setConflict(null);
+    setReloadError(null);
     setFormOpen(true);
   }
 
@@ -146,20 +148,45 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
     }
   }
 
+  /**
+   * ALV-N003 R02 (review finding ALV-N003-R01-05): recovery replaces the user's draft ONLY after a
+   * valid fresh record has actually been obtained. A failed read leaves the form, the draft and the
+   * conflict exactly as they were, with a retryable error - it is not the same thing as "the record
+   * no longer exists".
+   */
   async function reloadAfterConflict() {
-    const rows = await refresh();
-    const fresh = rows?.find((r) => r.id === editing?.id) ?? null;
+    const id = editing?.id;
+    setReloadError(null);
+    let fresh: T | null;
+    try {
+      let rows = await load(includeInactive);
+      setState({ kind: "loaded", rows });
+      fresh = rows.find((r) => r.id === id) ?? null;
+      if (!fresh && !includeInactive) {
+        // Not in the active list: it may have been inactivated by whoever changed it. Look there before concluding it is gone.
+        rows = await load(true);
+        fresh = rows.find((r) => r.id === id) ?? null;
+      }
+    } catch (err) {
+      setReloadError(err instanceof ApiError ? err.message : `Could not reload the ${noun}. Check your connection and try again.`);
+      return; // keep the draft, the conflict banner and the form
+    }
+
     if (fresh) {
       const next = toValues(fresh);
       setEditing(fresh);
       setInitialValues(next);
       setValues(next);
+      setConflict(null);
+      setFormError(null);
     } else {
+      // Genuinely gone (the read succeeded and it is in neither list): nothing left to edit.
+      notify("warning", `This ${noun} no longer exists. Your changes could not be saved.`);
       setFormOpen(false);
       setEditing(null);
+      setConflict(null);
+      setFormError(null);
     }
-    setConflict(null);
-    setFormError(null);
   }
 
   async function toggleActive(row: T) {
@@ -273,6 +300,11 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
         <form className="alv-config-panel__form" onSubmit={handleSubmit} noValidate aria-label={title}>
           <h2 className="alv-config-panel__form-title">{title}</h2>
           {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={reloadAfterConflict} />}
+          {conflict && reloadError && (
+            <p className="alv-form-field__error" role="alert">
+              {reloadError} Your edits are still here - use "Reload current version" to try again.
+            </p>
+          )}
           {fields
             .filter((f) => editing === null || !f.createOnly)
             .map((field) =>

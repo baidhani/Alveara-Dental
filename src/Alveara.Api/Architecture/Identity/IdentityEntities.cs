@@ -109,4 +109,15 @@ public class ProviderProfile
 
     /// <summary>ALV-N003: optimistic-concurrency token (see StaffProfile.RowVersion).</summary>
     public byte[] RowVersion { get; set; } = [];
+
+    /// <summary>
+    /// ALV-N003 R02 (review finding ALV-N003-R01-02): the revision of this provider's WEEKLY
+    /// SCHEDULE, a versioned aggregate whose rows live in another table. Every replacement must
+    /// present the revision the caller read and increments it in the SAME transaction as the row
+    /// replacement, so two replacements that both read the same schedule cannot both commit - the
+    /// second one's UPDATE matches zero rows and is rejected as a conflict, instead of the two
+    /// merging into a union neither caller asked for. Deliberately separate from
+    /// <see cref="RowVersion"/> so editing a specialty never conflicts with editing hours.
+    /// </summary>
+    public int AvailabilityRevision { get; set; }
 }

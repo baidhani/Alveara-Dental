@@ -15,7 +15,7 @@ public record SaveAppointmentTypeRequest(string? Name, int DefaultDurationMinute
 public record SaveStaffRequest(string? DisplayName, string? JobTitle, Guid? UserAccountId, string? RowVersion);
 public record SaveProviderRequest(Guid? StaffProfileId, string? Specialty, string? RowVersion);
 public record SetActiveRequest(bool IsActive, string? RowVersion);
-public record ReplaceAvailabilityRequest(List<AvailabilityWindow>? Windows);
+public record ReplaceAvailabilityRequest(List<AvailabilityWindow>? Windows, int? Revision);
 public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, string? Reason);
 
 /// <summary>
@@ -236,16 +236,18 @@ public class ConfigurationController(
 
     private static object WindowDto(ProviderWeeklyAvailability a) => new { dayOfWeek = (int)a.DayOfWeek, startLocal = a.StartLocal.ToString("HH:mm"), endLocal = a.EndLocal.ToString("HH:mm") };
 
+    private static object ScheduleDto(ProviderAvailabilitySchedule s) => new { revision = s.Revision, windows = s.Windows.Select(WindowDto) };
+
     [HttpGet("providers/{id:guid}/availability")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     public Task<IActionResult> GetAvailability(Guid id, CancellationToken ct) =>
-        Run(async () => Ok((await staffProviders.GetAvailabilityAsync(id, ct)).Select(WindowDto)));
+        Run(async () => Ok(ScheduleDto(await staffProviders.GetAvailabilityScheduleAsync(id, ct))));
 
     [HttpPut("providers/{id:guid}/availability")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     [RequireCsrfToken]
     public Task<IActionResult> ReplaceAvailability(Guid id, [FromBody] ReplaceAvailabilityRequest request, CancellationToken ct) =>
-        Run(async () => Ok((await staffProviders.ReplaceAvailabilityAsync(id, request.Windows ?? [], Actor, ct)).Select(WindowDto)));
+        Run(async () => Ok(ScheduleDto(await staffProviders.ReplaceAvailabilityAsync(id, request.Windows ?? [], request.Revision, Actor, ct))));
 
     private object BlockedDto(ProviderBlockedTime b, IPracticeClock clock) => new
     {

@@ -62,6 +62,11 @@ export interface AvailabilityWindow {
   startLocal: string;
   endLocal: string;
 }
+/** A provider's weekly schedule plus the revision a later replacement must present (R02: the schedule is a versioned aggregate). */
+export interface AvailabilitySchedule {
+  revision: number;
+  windows: AvailabilityWindow[];
+}
 export interface BlockedTime {
   id: string;
   startUtc: string;
@@ -133,9 +138,9 @@ export const setProviderActive = (id: string, isActive: boolean, rowVersion: str
   requestWithCsrf<ProviderRecord>(`/api/config/providers/${id}/active`, "PUT", { isActive, rowVersion });
 
 // ---------- Availability + blocked time ----------
-export const getAvailability = (providerId: string) => request<AvailabilityWindow[]>(`/api/config/providers/${providerId}/availability`);
-export const replaceAvailability = (providerId: string, windows: AvailabilityWindow[]) =>
-  requestWithCsrf<AvailabilityWindow[]>(`/api/config/providers/${providerId}/availability`, "PUT", { windows });
+export const getAvailability = (providerId: string) => request<AvailabilitySchedule>(`/api/config/providers/${providerId}/availability`);
+export const replaceAvailability = (providerId: string, windows: AvailabilityWindow[], revision: number) =>
+  requestWithCsrf<AvailabilitySchedule>(`/api/config/providers/${providerId}/availability`, "PUT", { windows, revision });
 export const listBlockedTime = (providerId: string) => request<BlockedTime[]>(`/api/config/providers/${providerId}/blocked-time`);
 export const addBlockedTime = (providerId: string, startLocal: string, endLocal: string, reason: string) =>
   requestWithCsrf<BlockedTime>(`/api/config/providers/${providerId}/blocked-time`, "POST", { startLocal, endLocal, reason });

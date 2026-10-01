@@ -2,6 +2,8 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { moduleRegistry } from "./moduleRegistry";
 import { useAuth } from "../contexts/AuthContext";
+import { useUnsavedChangesRegistry } from "../contexts/unsavedChangesStore";
+import { confirmDiscard } from "../hooks/useUnsavedChangesWarning";
 import "./AppShell.css";
 
 const THEME_KEY = "alveara-theme";
@@ -40,10 +42,13 @@ export function AppShell() {
   const { theme, setTheme } = usePersistedTheme();
   const { state, hasPermission, logout, sessionExpiringSoon } = useAuth();
   const navigate = useNavigate();
+  const unsaved = useUnsavedChangesRegistry();
 
   const visibleModules = moduleRegistry.filter((mod) => !mod.requiredPermission || hasPermission(mod.requiredPermission));
 
   async function handleSignOut() {
+    // Signing out discards any open draft, so it asks first like every other voluntary exit.
+    if (!confirmDiscard(unsaved?.anyDirty ?? false)) return;
     await logout();
     navigate("/login", { replace: true });
   }

@@ -7,6 +7,7 @@ using Alveara.Api.Data;
 namespace Alveara.Api.Architecture.Configuration;
 
 public record AvailabilityWindow(DayOfWeek DayOfWeek, string StartLocal, string EndLocal);
+public record ProviderAvailabilitySchedule(int Revision, IReadOnlyList<ProviderWeeklyAvailability> Windows);
 public record LinkableAccount(Guid Id, string Username, string Role, bool IsDisabled, Guid? LinkedStaffId);
 
 /// <summary>
@@ -174,16 +175,32 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
 
     // ---------- Weekly availability (practice-local wall-clock) ----------
 
-    public async Task<List<ProviderWeeklyAvailability>> GetAvailabilityAsync(Guid providerId, CancellationToken ct)
+    public async Task<List<ProviderWeeklyAvailability>> GetAvailabilityAsync(Guid providerId, CancellationToken ct) =>
+        (await GetAvailabilityScheduleAsync(providerId, ct)).Windows.ToList();
+
+    /// <summary>The provider's weekly schedule together with the revision a later replacement must present.</summary>
+    public async Task<ProviderAvailabilitySchedule> GetAvailabilityScheduleAsync(Guid providerId, CancellationToken ct)
     {
-        await GetProviderAsync(providerId, ct);
-        return await db.ProviderWeeklyAvailabilities.AsNoTracking().Where(a => a.ProviderProfileId == providerId)
+        var provider = await GetProviderAsync(providerId, ct);
+        var windows = await db.ProviderWeeklyAvailabilities.AsNoTracking().Where(a => a.ProviderProfileId == providerId)
             .OrderBy(a => a.DayOfWeek).ThenBy(a => a.StartLocal).ToListAsync(ct);
+        return new ProviderAvailabilitySchedule(provider.AvailabilityRevision, windows);
     }
 
-    /// <summary>Atomically replaces the provider's whole weekly schedule after validating every window.</summary>
-    public async Task<List<ProviderWeeklyAvailability>> ReplaceAvailabilityAsync(Guid providerId, IReadOnlyList<AvailabilityWindow> windows, Guid actor, CancellationToken ct)
+    /// <summary>
+    /// Atomically replaces the provider's whole weekly schedule after validating every window.
+    /// The schedule is a versioned aggregate: the caller must present the revision it read
+    /// (<paramref name="expectedRevision"/>), and the revision bump, row replacement and audit entry
+    /// commit in one transaction. A stale revision - including the race where two callers both read
+    /// the same (even empty) schedule - is rejected as a <see cref="Concurrency.ConcurrencyConflictException"/>
+    /// rather than merged or silently overwritten.
+    /// </summary>
+    public async Task<ProviderAvailabilitySchedule> ReplaceAvailabilityAsync(
+        Guid providerId, IReadOnlyList<AvailabilityWindow> windows, int? expectedRevision, Guid actor, CancellationToken ct)
     {
+        if (expectedRevision is null)
+            throw new ConfigurationException("revision_required",
+                "The schedule revision you are editing is required so a concurrent change is never overwritten. Reload and try again.");
         var provider = await db.ProviderProfiles.SingleOrDefaultAsync(p => p.Id == providerId, ct) ?? throw PracticeConfigurationService.NotFound("Provider profile");
         if (!provider.IsActive)
             throw new ConfigurationException("provider_inactive", "Availability cannot be changed for an inactive provider.", 409);
@@ -199,6 +216,11 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
             }
         }
 
+        // Compare against the revision the CALLER read, and bump it: this UPDATE is what makes a
+        // concurrent replacement lose (zero rows matched -> conflict) instead of both inserting.
+        db.Entry(provider).Property(p => p.AvailabilityRevision).OriginalValue = expectedRevision.Value;
+        provider.AvailabilityRevision = expectedRevision.Value + 1;
+
         var existing = await db.ProviderWeeklyAvailabilities.Where(a => a.ProviderProfileId == providerId).ToListAsync(ct);
         db.ProviderWeeklyAvailabilities.RemoveRange(existing);
         db.ProviderWeeklyAvailabilities.AddRange(parsed.Select(w => new ProviderWeeklyAvailability
@@ -207,8 +229,8 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         }));
         ConfigurationWrite.Audit(db, ConfigurationAuditEvents.ProviderAvailabilityReplaced, nameof(ProviderProfile), providerId, actor,
             $"Weekly availability replaced with {parsed.Count} window(s).");
-        await ConfigurationWrite.SaveAsync(db, nameof(ProviderProfile), providerId, ct);
-        return await GetAvailabilityAsync(providerId, ct);
+        await ConfigurationWrite.SaveAsync(db, "ProviderAvailability", providerId, ct);
+        return await GetAvailabilityScheduleAsync(providerId, ct);
     }
 
     private static (DayOfWeek DayOfWeek, TimeOnly StartLocal, TimeOnly EndLocal) Parse(AvailabilityWindow w)

@@ -63,8 +63,22 @@ public class SchedulingConfiguration(AlveraDbContext db, IPracticeClock clock)
             return new AvailabilityCheck(false, "provider_inactive");
 
         var endUtc = startUtc.AddMinutes(durationMinutes);
+
+        // ALV-N003 R02 (review finding ALV-N003-R01-04): weekly hours are practice-local wall-clock,
+        // and wall-clock time does NOT advance monotonically across a daylight-saving change (the
+        // fall-back hour repeats; the spring-forward hour is skipped). Comparing a slot's two local
+        // endpoints to a window therefore proves nothing about the instants in between - a slot
+        // starting at 01:50 CDT and ending at 01:20 CST looks "inside" 01:30-02:00. Rather than guess
+        // at ambiguous local boundaries, a slot whose elapsed time spans a UTC-offset change is
+        // refused outright (conservative: offices do not book across the transition hour).
+        var offsetAtStart = clock.PracticeTimeZone.GetUtcOffset(startUtc);
+        var offsetAtLastInstant = clock.PracticeTimeZone.GetUtcOffset(endUtc.AddTicks(-1));
+        if (offsetAtStart != offsetAtLastInstant)
+            return new AvailabilityCheck(false, "crosses_dst_transition");
+
+        // With a constant offset, wall-clock arithmetic on the start IS the elapsed slot.
         var localStart = clock.ToPracticeLocal(startUtc);
-        var localEnd = clock.ToPracticeLocal(endUtc);
+        var localEnd = localStart.AddMinutes(durationMinutes);
         if (localStart.Date != localEnd.Date && localEnd.TimeOfDay != TimeSpan.Zero)
             return new AvailabilityCheck(false, "outside_working_hours");
 

@@ -237,6 +237,30 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(page.getByRole("row").filter({ hasText: "ProviderAvailabilityReplaced" }).first()).toBeVisible();
   });
 
+  // ALV-N003 R02 (review finding ALV-N003-R01-03): a real browser, real dialog. Main-shell navigation
+  // must ask before discarding a dirty configuration draft; declining keeps the page and the text.
+  test("unsaved configuration edits survive an attempt to leave through the main navigation", async () => {
+    await page.goto("/admin/configuration");
+    const name = page.getByLabel("Practice name");
+    await expect(name).toHaveValue("E2E Dental"); // saved by the previous test
+    await name.fill("E2E Dental - unsaved edit");
+
+    const dialogs: string[] = [];
+    page.once("dialog", (dialog) => {
+      dialogs.push(dialog.message());
+      void dialog.dismiss(); // refuse to discard
+    });
+    await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Dashboard" }).click();
+    await expect.poll(() => dialogs.length).toBe(1);
+    expect(dialogs[0]).toMatch(/unsaved changes/i);
+    await expect(page).toHaveURL(/\/admin\/configuration$/);
+    await expect(name).toHaveValue("E2E Dental - unsaved edit");
+
+    page.once("dialog", (dialog) => void dialog.accept()); // now agree to discard
+    await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Dashboard" }).click();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  });
+
   // ---------- ALV-N009: authorization-aware navigation, session UX, identity context ----------
 
   test("a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API", async () => {

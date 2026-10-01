@@ -28,7 +28,8 @@ export function ConcurrencyConflictBanner({
         This {problem.entityType.toLowerCase()} record was updated by someone else since you opened it. Your changes
         were not saved, so nothing was overwritten - reload to see the current version before trying again.
       </p>
-      <Button variant="primary" onClick={onReload}>
+      {/* type="button": this banner renders inside edit forms; a default (submit) button would re-submit the stale edit on every reload click. */}
+      <Button type="button" variant="primary" onClick={onReload}>
         Reload current version
       </Button>
     </div>

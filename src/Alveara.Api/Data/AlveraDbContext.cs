@@ -76,6 +76,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(p => p.IsActive).HasDefaultValue(true);
             e.Property(p => p.Specialty).HasMaxLength(80);
             e.Property(p => p.RowVersion).IsRowVersion();
+            e.Property(p => p.AvailabilityRevision).IsConcurrencyToken().HasDefaultValue(0);
             e.HasIndex(p => p.StaffProfileId).IsUnique(); // one provider profile per staff member
         });
 

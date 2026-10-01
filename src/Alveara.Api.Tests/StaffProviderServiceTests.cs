@@ -220,7 +220,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
         var (db, service) = NewService();
         await using (db)
         {
-            await service.ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor, default);
+            await service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor);
             var provider = await service.GetProviderAsync(providerId, default);
             await service.SetProviderActiveAsync(providerId, false, Version(provider.RowVersion), _actor, default);
 
@@ -240,7 +240,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
         var (db, service) = NewService();
         await using (db)
         {
-            await service.ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor, default);
+            await service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor);
         }
 
         await using var raw = _fixture.CreateContext();
@@ -261,11 +261,11 @@ public class StaffProviderServiceTests : IAsyncLifetime
         var (db, service) = NewService();
         await using (db)
         {
-            var saved = await service.ReplaceAvailabilityAsync(providerId,
-                [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "12:00"), new AvailabilityWindow(DayOfWeek.Tuesday, "13:00", "17:30")], _actor, default);
-            Assert.Equal(2, saved.Count);
-            Assert.Equal(new TimeOnly(9, 0), saved[0].StartLocal);
-            Assert.Equal(new TimeOnly(17, 30), saved[1].EndLocal);
+            var saved = await service.ReplaceCurrentAsync(providerId,
+                [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "12:00"), new AvailabilityWindow(DayOfWeek.Tuesday, "13:00", "17:30")], _actor);
+            Assert.Equal(2, saved.Windows.Count);
+            Assert.Equal(new TimeOnly(9, 0), saved.Windows[0].StartLocal);
+            Assert.Equal(new TimeOnly(17, 30), saved.Windows[1].EndLocal);
         }
 
         await using var verify = _fixture.CreateContext();
@@ -285,7 +285,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
         await using (db)
         {
             var ex = await Assert.ThrowsAsync<ConfigurationException>(
-                () => service.ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, start, end)], _actor, default));
+                () => service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, start, end)], _actor));
             Assert.Equal(expectedCode, ex.Code);
         }
     }
@@ -297,10 +297,10 @@ public class StaffProviderServiceTests : IAsyncLifetime
         var (db, service) = NewService();
         await using (db)
         {
-            await service.ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor, default);
+            await service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor);
 
-            var ex = await Assert.ThrowsAsync<ConfigurationException>(() => service.ReplaceAvailabilityAsync(providerId,
-                [new AvailabilityWindow(DayOfWeek.Friday, "08:00", "12:00"), new AvailabilityWindow(DayOfWeek.Friday, "11:00", "15:00")], _actor, default));
+            var ex = await Assert.ThrowsAsync<ConfigurationException>(() => service.ReplaceCurrentAsync(providerId,
+                [new AvailabilityWindow(DayOfWeek.Friday, "08:00", "12:00"), new AvailabilityWindow(DayOfWeek.Friday, "11:00", "15:00")], _actor));
             Assert.Equal("availability_overlap", ex.Code);
 
             await using var verify = _fixture.CreateContext();
@@ -320,7 +320,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
             var provider = await service.GetProviderAsync(providerId, default);
             await service.SetProviderActiveAsync(providerId, false, Version(provider.RowVersion), _actor, default);
             var ex = await Assert.ThrowsAsync<ConfigurationException>(
-                () => service.ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor, default));
+                () => service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Monday, "08:00", "12:00")], _actor));
             Assert.Equal("provider_inactive", ex.Code);
         }
     }
@@ -392,7 +392,7 @@ public class StaffProviderServiceTests : IAsyncLifetime
         var (db, service) = NewService();
         await using (db)
         {
-            await service.ReplaceAvailabilityAsync(providerId, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor, default);
+            await service.ReplaceCurrentAsync(providerId, [new AvailabilityWindow(DayOfWeek.Tuesday, "09:00", "17:00")], _actor);
             var scheduling = new SchedulingConfiguration(db, Clock);
 
             // Tuesday 2026-01-13 09:00 CST = 15:00Z and Tuesday 2026-07-14 09:00 CDT = 14:00Z are both 09:00 local.
