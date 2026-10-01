@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-001-C01` attempt R07 (reopened by the Gate A review) - implementation committed, **`AWAITING_REVIEW`**: security-administration status badges and links meet WCAG AA contrast in both themes (styling only). `ALV-N001` R03 is `AWAITING_REVIEW` (shared Button contrast); `ALV-N003` and `ALV-N004` are `REVALIDATION_REQUIRED` (shared badge class; revalidated with real data in the R07 evidence); `ALV-002-C01` remains `REOPENED`. Gate A remains **FAIL** and `STORY-003` blocked until all corrections are approved and Gate A is rerun. See `.alveara/handoffs/ALV-001-C01/R07.md`.
+Last updated: `ALV-002-C01` attempt R04 (reopened by the Gate A review) - implementation committed, **`AWAITING_REVIEW`**: the audit viewer's scroll region is a named, keyboard-reachable region with a visible focus outline. Sibling corrections awaiting review: `ALV-N001` R03 (shared Button contrast) and `ALV-001-C01` R07 (security-administration badge/link contrast; `ALV-N003` and `ALV-N004` are `REVALIDATION_REQUIRED` for the shared badge class). Gate A remains **FAIL** and `STORY-003` blocked until all corrections are approved and Gate A is rerun. See `.alveara/handoffs/ALV-002-C01/R04.md`.
 
 ## Production implementation status
 

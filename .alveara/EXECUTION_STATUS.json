@@ -388,30 +388,30 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "REOPENED",
-      "attempt": "R03",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R04",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "199 of 199 backend (dotnet test, up from 197; 2 new tests this attempt: audit-log metadata round-trip and default-100/take=500/clamp window) passing, plus 70 of 70 frontend (up from 69; 1 new: AuditLogPage request-window contract) and 9 of 9 real-backend/real-browser Playwright tests (test 7 now also asserts the real SessionTimeoutChanged row visibly shows UserAccount). See .alveara/handoffs/ALV-002-C01/R03-evidence/TEST_RESULTS.md. Independently re-verified by the R03 reviewer: focused 28-test backend subset, 70 frontend, 9 real-backend Playwright, client build and lint, all passing."
+        "summary": "188 of 188 frontend (vitest; 4 new AuditLogPage keyboard tests incl. jest-axe), tsc clean, build clean, lint exit 0 (pre-existing warnings only); real-API/real-Chromium evidence with overflowing audit data at a 560px viewport in both themes: Tab reaches the region, 2px visible focus outline, ArrowRight scrolls it 0->240px, 0 axe violations (scrollable-region-focusable no longer fires), a Dentist is still denied the page and the API (403); real-backend/real-browser Playwright 12 of 12 (extended timeouts). No backend source changed (375/375 backend from the approved baseline)."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "cc053dae1a37d0404d45682387301fe1f344b558",
-      "evidenceCommit": "e9877dc9e6aa65a18815b4c3693a87fdfc08a21f",
-      "handoffPath": ".alveara/handoffs/ALV-002-C01/R03.md",
+      "implementationCommit": "7a318450d22aabc17a75ef4a0a1dd208d4280e95",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-002-C01/R04.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-002-C01/R03.md",
-        "approvedAttempt": "R03",
-        "reviewedImplementationCommit": "cc053dae1a37d0404d45682387301fe1f344b558",
-        "reviewedEvidenceCommit": "e9877dc9e6aa65a18815b4c3693a87fdfc08a21f"
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-002-C01/R03.md 'Corrections made this attempt' and R03-evidence/ACCEPTANCE_EVIDENCE.md for the tests closing ALV-002-C01-R02-01 and -02. All prior findings (R01: 4, R02: 2) were corrected in their respective attempts; independently APPROVED at R03 per .alveara/reviews/ALV-002-C01/R03.md.",
+      "blockingIssuesResolvedInAttempt": "R04 - see .alveara/handoffs/ALV-002-C01/R04.md: GATE-A-02 corrected (audit viewer scroll region is a named, keyboard-reachable region with a visible focus outline), with unit tests and real-API browser evidence using overflowing data in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md.",
       "revalidation": {
         "required": false,
         "reason": null

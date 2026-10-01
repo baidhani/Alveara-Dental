@@ -1,0 +1,36 @@
+{
+  "light": {
+    "overflow": {
+      "scrollWidth": 1105,
+      "clientWidth": 528
+    },
+    "reachedByTab": true,
+    "outline": {
+      "style": "solid",
+      "width": "2px"
+    },
+    "scrollLeftBefore": 0,
+    "scrollLeftAfter": 240,
+    "axeViolations": [],
+    "blocking": 0
+  },
+  "dark": {
+    "overflow": {
+      "scrollWidth": 1105,
+      "clientWidth": 528
+    },
+    "reachedByTab": true,
+    "outline": {
+      "style": "solid",
+      "width": "2px"
+    },
+    "scrollLeftBefore": 0,
+    "scrollLeftAfter": 240,
+    "axeViolations": [],
+    "blocking": 0
+  },
+  "permissionGating": {
+    "dentistPageDenied": true,
+    "dentistApiStatus": 403
+  }
+}
