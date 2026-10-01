@@ -1,3 +1,4 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Data;
 
@@ -8,9 +9,12 @@ namespace Alveara.Api.Architecture.Idempotency;
 /// genuine race (two concurrent callers submitting the same command/key at once) is the database's
 /// own unique index on (CommandType, IdempotencyKey) - <see cref="MarkProcessed"/> can still throw
 /// a unique-constraint <see cref="DbUpdateException"/> if two callers race past
-/// <see cref="AlreadyProcessedAsync"/> simultaneously, and callers should treat that exception the
-/// same as "already processed" (the command's effect was, or is about to be, applied by whichever
-/// caller's receipt actually committed).
+/// <see cref="AlreadyProcessedAsync"/> simultaneously. A caller MUST check
+/// <see cref="IsDuplicateReceiptViolation"/> before treating a caught <see cref="DbUpdateException"/>
+/// as "already processed" - R02 (review finding ALV-002-C01-R01-04's "Preserve and clarify" note):
+/// a broad catch on the exception TYPE alone would also swallow a genuinely failed, unrelated
+/// write in the same SaveChanges call (e.g. a constraint violation on the command's own business
+/// effect) and misreport it as a successfully-deduplicated command.
 /// </summary>
 public static class IdempotencyGuard
 {
@@ -30,4 +34,15 @@ public static class IdempotencyGuard
             RecordedAtUtc = DateTimeOffset.UtcNow,
         });
     }
+
+    /// <summary>True only if the exception is genuinely this receipt's own unique-index violation
+    /// (SQL Server error 2601/2627 naming the IdempotencyReceipts unique index) - never true for an
+    /// unrelated constraint violation or any other failure that happened to occur in the same
+    /// SaveChanges call. A caller must only treat the command as "already processed" when this
+    /// returns true; otherwise the exception is a genuine failure and must propagate.</summary>
+    public static bool IsDuplicateReceiptViolation(DbUpdateException ex) =>
+        ex.InnerException is SqlException sqlEx &&
+        sqlEx.Errors.Cast<SqlError>().Any(e =>
+            (e.Number is 2601 or 2627) &&
+            e.Message.Contains("IX_IdempotencyReceipts_CommandType_IdempotencyKey", StringComparison.OrdinalIgnoreCase));
 }

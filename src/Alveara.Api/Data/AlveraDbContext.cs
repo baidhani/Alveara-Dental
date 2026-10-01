@@ -91,11 +91,16 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     }
 
     // STORY-002 Trust requirement (generalized by ALV-002-C01's shared AuditService, which writes
-    // through this same table): audit log entries are immutable. Enforced here, at the single
-    // point every write in the process passes through, rather than per-caller — so no future
-    // service, script, or admin tool can accidentally (or deliberately) update or delete an
-    // existing entry, no matter what permission it holds. A legitimate audit trail can only ever
-    // grow by insertion.
+    // through this same table): audit log entries are immutable. Enforced here against every
+    // CHANGE-TRACKED SaveChanges/SaveChangesAsync call - which is how every ordinary caller writes
+    // (AuditService.Record, AccountService, and every browser-facing API path never have direct
+    // database access per ALV-N002's server-owned-database-topology rule) - so no future service,
+    // script, or admin tool using the normal EF Core change tracker can accidentally (or
+    // deliberately) update or delete an existing entry, no matter what permission it holds. This
+    // does NOT cover EF Core bulk operations (ExecuteUpdateAsync/ExecuteDeleteAsync) or raw SQL
+    // issued directly against this table, which bypass the change tracker entirely - no code path
+    // in this codebase does either against AuditLogEntries today, and adding one would need its own
+    // explicit safeguard, not an assumption that this guard already covers it.
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         ThrowIfAuditLogEntryMutationAttempted();

@@ -1,0 +1,31 @@
+.alv-audit-log-scroll {
+  overflow-x: auto;
+  margin-top: var(--space-4);
+}
+
+.alv-audit-log {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.alv-audit-log th,
+.alv-audit-log td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.alv-audit-log td:last-child {
+  white-space: normal;
+}
+
+.alv-audit-log__id {
+  color: var(--color-text-muted);
+  font-size: 0.85em;
+}
+
+.alv-audit-log__self {
+  color: var(--color-text-muted);
+  font-style: italic;
+}

@@ -51,6 +51,20 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     vi.unstubAllGlobals();
   });
 
+  it("ALV-002-C01: denies the audit log to a caller without ViewAuditLog, and permits it to one who holds it", async () => {
+    stubFetch({
+      permissions: () =>
+        jsonResponse({ username: "billing-1", role: "Billing", permissions: ["ManageBilling"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+    });
+    window.history.pushState({}, "", "/admin/audit-log");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByText(/don't have permission/i)).toBeInTheDocument());
+    expect(screen.queryByRole("link", { name: "Audit Log" })).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
   it("renders the protected page for a signed-in caller who holds the required permission", async () => {
     stubFetch({
       permissions: () =>
@@ -63,6 +77,30 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
 
     await waitFor(() => expect(screen.getByRole("heading", { name: "Security administration" })).toBeInTheDocument());
     expect(screen.queryByText(/don't have permission/i)).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("ALV-002-C01: renders the audit log directly for a signed-in caller who holds ViewAuditLog", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions"))
+          return Promise.resolve(
+            jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+          );
+        if (u.includes("/api/auth/audit-log")) return Promise.resolve(jsonResponse([]));
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+    window.history.pushState({}, "", "/admin/audit-log");
+
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Audit log" })).toBeInTheDocument());
+    expect(screen.queryByText(/don't have permission/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Audit Log" })).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 

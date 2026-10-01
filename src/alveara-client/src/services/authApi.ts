@@ -35,6 +35,31 @@ export interface PermissionMatrixEntry {
   permissions: string[];
 }
 
+/** ALV-002-C01: shared audit-event shape (GET /api/auth/audit-log), matching
+ *  Architecture/Auditing/AuditService.Record's fields - actor, timestamp, action, and
+ *  target/entity identity. entityType/reason/correlationId are null for historical rows written
+ *  before this story added them. */
+export interface AuditLogEntry {
+  id: string;
+  eventType: string;
+  targetUserAccountId: string;
+  performedByUserAccountId: string | null;
+  details: string;
+  timestampUtc: string;
+  entityType: string | null;
+  reason: string | null;
+  correlationId: string | null;
+}
+
+/** ALV-002-C01 R02 (review finding ALV-002-C01-R01-02): the shared conflict-result shape a
+ *  mutable-record edit flow's 409 response carries, matching the backend's
+ *  ConcurrencyConflictException.ToProblem() exactly. */
+export interface ConcurrencyConflictProblem {
+  error: "concurrency_conflict";
+  entityType: string;
+  entityId: string;
+}
+
 export interface MfaEnrollmentResult {
   base32Secret: string;
   recoveryCodes: string[];
@@ -184,6 +209,18 @@ export async function setSessionTimeout(userId: string, sessionTimeoutMinutes: n
 
 export async function getPermissionMatrix(): Promise<PermissionMatrixEntry[]> {
   return request<PermissionMatrixEntry[]>("/api/auth/permission-matrix");
+}
+
+/** ALV-002-C01: most-recent-first, server-bounded to 500 rows (see AuthController.GetAuditLog). */
+export async function getAuditLog(): Promise<AuditLogEntry[]> {
+  return request<AuditLogEntry[]>("/api/auth/audit-log");
+}
+
+/** ALV-002-C01 R02: true if `err` is a 409 carrying the shared concurrency-conflict shape - the
+ *  one place every future mutable-record edit flow checks before rendering the reusable
+ *  `ConcurrencyConflictBanner` (see components/ConcurrencyConflictBanner.tsx). */
+export function isConcurrencyConflict(err: unknown): err is ApiError & { body: ConcurrencyConflictProblem } {
+  return err instanceof ApiError && err.status === 409 && err.body.error === "concurrency_conflict";
 }
 
 /** currentPassword is required only when replacing an already-active MFA factor - the server

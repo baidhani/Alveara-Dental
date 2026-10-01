@@ -66,6 +66,52 @@ public class IdempotencyGuardTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task IsDuplicateReceiptViolation_is_true_for_the_receipt_s_own_unique_index_and_false_for_an_unrelated_failure()
+    {
+        const string commandType = "test.distinguish-violation";
+        var key = Guid.NewGuid().ToString();
+
+        await using (var first = _fixture.CreateContext())
+        {
+            IdempotencyGuard.MarkProcessed(first, commandType, key);
+            await first.SaveChangesAsync();
+        }
+
+        await using var duplicate = _fixture.CreateContext();
+        IdempotencyGuard.MarkProcessed(duplicate, commandType, key);
+        var duplicateEx = await Assert.ThrowsAsync<DbUpdateException>(() => duplicate.SaveChangesAsync());
+        Assert.True(IdempotencyGuard.IsDuplicateReceiptViolation(duplicateEx));
+
+        // An unrelated failure (duplicate username -> UserAccounts' own unique index) must NOT be
+        // mistaken for "already processed" merely because it is also a DbUpdateException.
+        await using var unrelated = _fixture.CreateContext();
+        var username = $"user-{Guid.NewGuid():N}";
+        unrelated.UserAccounts.Add(new Alveara.Api.Architecture.Identity.UserAccount
+        {
+            Id = Guid.NewGuid(),
+            Username = username,
+            PasswordHash = "x",
+            Role = Alveara.Api.Architecture.Identity.Role.Unassigned,
+            IsDisabled = true,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+        });
+        await unrelated.SaveChangesAsync();
+
+        await using var unrelatedDuplicate = _fixture.CreateContext();
+        unrelatedDuplicate.UserAccounts.Add(new Alveara.Api.Architecture.Identity.UserAccount
+        {
+            Id = Guid.NewGuid(),
+            Username = username, // collides on Username, not on any IdempotencyReceipts index
+            PasswordHash = "x",
+            Role = Alveara.Api.Architecture.Identity.Role.Unassigned,
+            IsDisabled = true,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+        });
+        var unrelatedEx = await Assert.ThrowsAsync<DbUpdateException>(() => unrelatedDuplicate.SaveChangesAsync());
+        Assert.False(IdempotencyGuard.IsDuplicateReceiptViolation(unrelatedEx));
+    }
+
+    [Fact]
     public async Task Inserting_a_new_idempotency_receipt_persists_its_recorded_timestamp()
     {
         const string commandType = "test.timestamp";
