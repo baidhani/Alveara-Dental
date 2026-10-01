@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **Gate A evaluated: FAIL** (criterion A2, accessibility) on 2026-10-01 after `ALV-N004` closure. See `.alveara/gates/A/GATE_A_REPORT.md` and `.alveara/QUALITY_GATES.md`. `STORY-003` is not authorized; the responsible stories (`ALV-N001`, `ALV-001-C01`, `ALV-002-C01`) need the specific contrast / keyboard-focus defects repaired before Gate A is rerun.
+Last updated: Gate A independent review (`.alveara/gates/A/reviews/4b69d32.md`) confirmed **FAIL (A2)**; `ALV-001-C01` (next attempt R07: user-administration badge/link contrast) and `ALV-002-C01` (next attempt R04: keyboard-reachable audit scroll region) are `REOPENED` with narrow correction scope. `ALV-N001` is not reopened. `STORY-003` remains blocked until Gate A is rerun and passes.
 
 ## Production implementation status
 

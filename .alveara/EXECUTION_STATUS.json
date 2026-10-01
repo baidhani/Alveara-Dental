@@ -220,7 +220,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REOPENED",
       "attempt": "R06",
       "acceptance": {
         "total": 7,
@@ -248,7 +248,14 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-09-30T10:55:00.000Z"
+      "completedAt": "2026-09-30T10:55:00.000Z",
+      "reopened": {
+        "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) GATE-A-01: on /admin/users the enabled status badge (4.09:1, light) and the user-detail links (1.77:1, dark) fail the 4.5:1 axe contrast requirement. Narrow correction of the styling only; no authentication/backend change. Next attempt: R07.",
+        "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
+        "nextAttempt": "R07",
+        "priorApprovedAttempt": "R06",
+        "downstreamAssessment": "Page-local presentation corrections; no shared design token, shared component or backend contract is to change, so no completed descendant is marked REVALIDATION_REQUIRED unless the correction attempt changes shared styles (then the attempt must say which). ALV-N001 is not reopened: its danger-button observation is not confirmed under stable measurement and is revalidated by the corrected gate scan."
+      }
     },
     {
       "schemaVersion": "2",
@@ -373,7 +380,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REOPENED",
       "attempt": "R03",
       "acceptance": {
         "total": 6,
@@ -401,7 +408,14 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-01T03:34:51.000Z"
+      "completedAt": "2026-10-01T03:34:51.000Z",
+      "reopened": {
+        "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) GATE-A-02: the audit viewer's .alv-audit-log-scroll region is scrollable but not keyboard-reachable (axe scrollable-region-focusable, both themes). Narrow correction: a keyboard-reachable, identified scroll region with visible focus. Next attempt: R04.",
+        "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
+        "nextAttempt": "R04",
+        "priorApprovedAttempt": "R03",
+        "downstreamAssessment": "Page-local presentation corrections; no shared design token, shared component or backend contract is to change, so no completed descendant is marked REVALIDATION_REQUIRED unless the correction attempt changes shared styles (then the attempt must say which). ALV-N001 is not reopened: its danger-button observation is not confirmed under stable measurement and is revalidated by the corrected gate scan."
+      }
     },
     {
       "schemaVersion": "2",
