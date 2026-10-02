@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 3,
+    "stories_verified": 4,
     "stories_submitted": 0,
-    "stories_in_progress": 16,
+    "stories_in_progress": 15,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 11,
-    "points_awarded": 1705
+    "criteria_passed": 14,
+    "points_awarded": 1747
   },
   "stories": [
     {
@@ -200,19 +200,15 @@
       "notes": "Demographics and contact details only. REQ-004's family/household clause is not in STORY-003's acceptance and is owned by ALV-003-C01 per the master plan. Verified: backend 420/420, frontend 199/199, mocked browser 40/40, real-backend browser walkthrough 7/7 (axe: 0 critical/serious, light+dark).",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a new patient, when they provide their information, then the system captures demographics and contact details.",
-          "Given a patient with incomplete information, when they attempt to register, then the system prompts for required fields.",
-          "Trust: All registration actions are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-01T23:58:41.458Z",
+        "commit_sha": "014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
+        "commit_at": "2026-10-01T23:56:19Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
