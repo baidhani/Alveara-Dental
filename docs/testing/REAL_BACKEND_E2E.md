@@ -101,3 +101,23 @@ through edits and hidden/shown by the search filter; switching patients on a del
 requirement (email) set by an administrator, shown on the form and enforced by the server; keyboard-only registration and search; the audit trail; a dentist
 who can read but not change patients; and axe scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the
 default mocked `npm run test:e2e`.
+
+## ALV-N010: versioned forms and consents walkthrough
+
+`e2e/forms-real-backend.spec.ts` is the un-mocked run for forms and consents. Prepare a fresh database and start the API exactly as for the STORY-003
+walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:FORMS_E2E_OUT = "C:	mporms-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.forms.config.ts
+```
+
+It signs in as an office manager, a front-desk user, a dentist and a billing user and shows: a versioned template built through the UI (and refused to the front
+desk); a form started for a patient, a draft that survives a reload, and a required answer blocking review; a template edit during completion leaving the draft on
+its own version while offering the newer one; the review screen showing exactly what will be signed, missing signer details refused, and a keyboard-only
+signature recording signer, relationship and template version; two further template versions leaving the signed copy and its fingerprint unchanged; the same
+submit again returning the first result and a different key refused as already signed; a response lost after the server stored the signature - the screen
+says the outcome is unknown and "Sign again" (same key) leaves exactly one signature; the front desk refused a void, the office manager voiding with a reason
+while the signed copy stays visible; a dentist who can complete forms and billing who can only read them; and another patient's forms never appearing - then axe
+scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.

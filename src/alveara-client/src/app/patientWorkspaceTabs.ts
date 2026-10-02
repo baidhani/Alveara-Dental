@@ -19,4 +19,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "details", label: "Details", path: "" },
   { id: "household", label: "Household & guarantor", path: "household" },
   { id: "history", label: "History", path: "history" },
+  // ALV-N010: forms and consents (shown only to roles that may view them).
+  { id: "forms", label: "Forms", path: "forms", requiredPermission: "ViewSignedForms" },
 ];

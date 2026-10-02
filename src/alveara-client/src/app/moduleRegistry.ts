@@ -28,6 +28,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "audit-log", label: "Audit Log", path: "/admin/audit-log", requiredPermission: "ViewAuditLog" },
   { id: "practice-config", label: "Practice Configuration", path: "/admin/configuration", requiredPermission: "ManagePracticeConfiguration" },
   { id: "patient-requirements", label: "Patient Registration Settings", path: "/admin/patient-registration", requiredPermission: "ManagePracticeConfiguration" },
+  { id: "form-templates", label: "Form Templates", path: "/admin/form-templates", requiredPermission: "ManageFormTemplates" },
   { id: "backup-recovery", label: "Backup & Recovery", path: "/admin/backup", requiredPermission: "ViewBackupStatus" },
   { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];

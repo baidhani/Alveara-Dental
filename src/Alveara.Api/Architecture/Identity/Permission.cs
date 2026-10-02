@@ -50,4 +50,10 @@ public enum Permission
 
     // ALV-003-C01: editing patient details, household/guarantor links and active state.
     EditPatients,
+
+    // ALV-N010: versioned forms, consents and signatures. Appended last so existing ordinals are undisturbed.
+    ManageFormTemplates,
+    CompleteForms,
+    ViewSignedForms,
+    VoidForms,
 }

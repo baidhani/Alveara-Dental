@@ -10,6 +10,8 @@ import { usePatientContext } from "../contexts/patientContextStore";
 import type { PatientDetail } from "../services/patientsApi";
 import { HouseholdGuarantorPanel } from "./HouseholdGuarantorPanel";
 import { PatientDetailsPanel } from "./PatientDetailsPanel";
+import { PatientFormView } from "./forms/PatientFormView";
+import { PatientFormsPanel } from "./forms/PatientFormsPanel";
 import { PatientHistoryPanel } from "./PatientHistoryPanel";
 import "./PatientWorkspace.css";
 
@@ -88,6 +90,17 @@ export function PatientDetailsTab() {
 export function PatientHouseholdTab() {
   const { patient, reload } = useOutletContext<WorkspaceOutlet>();
   return <HouseholdGuarantorPanel patient={patient} onChanged={reload} />;
+}
+
+export function PatientFormsTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  return <PatientFormsPanel patient={patient} />;
+}
+
+export function PatientFormTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  const { formId = "" } = useParams();
+  return <PatientFormView key={formId} patient={patient} formId={formId} />;
 }
 
 export function PatientHistoryTab() {

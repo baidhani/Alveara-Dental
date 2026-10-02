@@ -45,3 +45,7 @@ registered or edited.
 ## Permissions
 `RegisterPatients` (register, duplicate check), `EditPatients` (edit, status, household, guarantor), `ViewPatientRecords` (search, detail, history, requirement
 settings read), `ManagePracticeConfiguration` (change requirements). Front desk holds the first three; the server re-checks every call.
+
+## Forms tab (ALV-N010)
+The first module to use the tab extension point: `Forms` (`/patients/:id/forms`) is listed in `src/app/patientWorkspaceTabs.ts` with
+`requiredPermission: "ViewSignedForms"`. See `docs/FORMS_AND_CONSENTS.md`.

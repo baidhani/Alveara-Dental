@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
 using Alveara.Api.Architecture.Backup;
 using Alveara.Api.Architecture.Configuration;
+using Alveara.Api.Architecture.Forms;
 using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
@@ -50,6 +51,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Household> Households => Set<Household>();
     public DbSet<PatientHistoryEntry> PatientHistory => Set<PatientHistoryEntry>();
     public DbSet<PatientRegistrationSettings> PatientRegistrationSettings => Set<PatientRegistrationSettings>();
+    public DbSet<FormTemplate> FormTemplates => Set<FormTemplate>();
+    public DbSet<FormTemplateVersion> FormTemplateVersions => Set<FormTemplateVersion>();
+    public DbSet<PatientForm> PatientForms => Set<PatientForm>();
+    public DbSet<SignedFormSnapshot> SignedFormSnapshots => Set<SignedFormSnapshot>();
+    public DbSet<PatientFormEvent> PatientFormEvents => Set<PatientFormEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -249,6 +255,61 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(h => new { h.PatientId, h.ChangedAtUtc });
         });
 
+        // ALV-N010: versioned forms. Versions and signed snapshots are never updated or deleted (see the SaveChanges guard and the
+        // database triggers in the AddVersionedForms migration); every relationship is Restrict. The unique indexes are the
+        // database-level guarantees: one version number per template, one signed snapshot per form, one open draft per
+        // patient per template.
+        modelBuilder.Entity<FormTemplate>(e =>
+        {
+            e.Property(t => t.Key).HasMaxLength(60);
+            e.Property(t => t.Category).HasMaxLength(30);
+            e.Property(t => t.RowVersion).IsRowVersion();
+            e.HasIndex(t => t.Key).IsUnique();
+        });
+        modelBuilder.Entity<FormTemplateVersion>(e =>
+        {
+            e.Property(v => v.Title).HasMaxLength(200);
+            e.Property(v => v.ContentHash).HasMaxLength(64);
+            e.Property(v => v.ChangeNote).HasMaxLength(400);
+            e.HasOne<FormTemplate>().WithMany().HasForeignKey(v => v.TemplateId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(v => new { v.TemplateId, v.VersionNumber }).IsUnique();
+        });
+        modelBuilder.Entity<PatientForm>(e =>
+        {
+            e.Property(f => f.Status).HasMaxLength(10);
+            e.Property(f => f.VoidReason).HasMaxLength(400);
+            e.Property(f => f.RowVersion).IsRowVersion();
+            e.HasOne<Patient>().WithMany().HasForeignKey(f => f.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<FormTemplate>().WithMany().HasForeignKey(f => f.TemplateId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<FormTemplateVersion>().WithMany().HasForeignKey(f => f.TemplateVersionId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(f => new { f.PatientId, f.StartedAtUtc });
+            e.HasIndex(f => new { f.PatientId, f.TemplateId }).IsUnique().HasFilter("[Status] = 'Draft'");
+        });
+        modelBuilder.Entity<SignedFormSnapshot>(e =>
+        {
+            e.Property(s => s.TemplateKey).HasMaxLength(60);
+            e.Property(s => s.Category).HasMaxLength(30);
+            e.Property(s => s.Title).HasMaxLength(200);
+            e.Property(s => s.SignerName).HasMaxLength(200);
+            e.Property(s => s.SignerRelationship).HasMaxLength(30);
+            e.Property(s => s.SignerRelationshipNote).HasMaxLength(200);
+            e.Property(s => s.SignatureMethod).HasMaxLength(30);
+            e.Property(s => s.SignatureText).HasMaxLength(200);
+            e.Property(s => s.Attestation).HasMaxLength(1000);
+            e.Property(s => s.SnapshotHash).HasMaxLength(64);
+            e.HasOne<PatientForm>().WithMany().HasForeignKey(s => s.PatientFormId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Patient>().WithMany().HasForeignKey(s => s.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(s => s.PatientFormId).IsUnique();
+            e.HasIndex(s => new { s.PatientId, s.SignedAtUtc });
+        });
+        modelBuilder.Entity<PatientFormEvent>(e =>
+        {
+            e.Property(v => v.EventType).HasMaxLength(20);
+            e.Property(v => v.Detail).HasMaxLength(400);
+            e.HasOne<PatientForm>().WithMany().HasForeignKey(v => v.PatientFormId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(v => new { v.PatientFormId, v.OccurredAtUtc });
+        });
+
         modelBuilder.Entity<BackgroundJob>(e =>
         {
             e.HasIndex(j => j.IdempotencyKey).IsUnique();
@@ -312,6 +373,12 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         if (attemptedMutation)
         {
             throw new AuditLogImmutableException();
+        }
+
+        // ALV-N010: a published template version or a signed snapshot can be added but never changed or removed.
+        if (ChangeTracker.Entries().Any(e => (e.Entity is SignedFormSnapshot or FormTemplateVersion) && (e.State is EntityState.Modified or EntityState.Deleted)))
+        {
+            throw new SignedRecordImmutableException();
         }
     }
 }

@@ -1,0 +1,159 @@
+/* ALV-N010: forms. Status is carried by the WORD in the badge and its border; text always uses the body text colour on a surface/tint (never a status colour as text). */
+.alv-form-status {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.alv-form-status--draft {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.alv-form-status--signed {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.alv-form-status--void {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.alv-forms__start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.alv-forms__banner {
+  padding: var(--space-3);
+  border: 1px solid var(--color-info);
+  border-radius: var(--radius-sm);
+  background: var(--color-info-bg);
+  color: var(--color-text);
+}
+
+.alv-forms__banner p {
+  margin: 0 0 var(--space-2);
+}
+
+.alv-forms__banner--void {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.alv-forms__wording {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  max-width: 70ch;
+}
+
+.alv-forms__legal {
+  max-width: 70ch;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.alv-forms__attestation {
+  max-width: 70ch;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.alv-forms__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.alv-forms__hash {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--font-size-xs);
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+}
+
+.alv-forms__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* Template editor */
+.alv-template-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: var(--space-5, 24px);
+  align-items: start;
+}
+
+.alv-template-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.alv-template-list__item {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.alv-template-list__item[aria-current="true"] {
+  border-color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-template-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alv-template-field {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.alv-template-field legend {
+  font-size: var(--font-size-sm);
+  padding: 0 var(--space-1);
+}
+
+@media (max-width: 760px) {
+  .alv-template-layout {
+    grid-template-columns: 1fr;
+  }
+}

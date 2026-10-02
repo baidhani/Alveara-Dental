@@ -80,6 +80,11 @@ export class FakePatientServer {
     };
   }
 
+  /** A subclass can serve other API areas (ALV-N010's forms) ahead of the patient routes; return null to fall through. */
+  protected async handleExtra(_path: string, _method: string, _headers: Record<string, string>, _body: Record<string, unknown> | null, _url: URL): Promise<Response | null> {
+    return null;
+  }
+
   private async handle(url: string, init?: RequestInit): Promise<Response> {
     const u = new URL(url, "http://x");
     const method = init?.method ?? "GET";
@@ -91,6 +96,8 @@ export class FakePatientServer {
     if (path === "/api/auth/permissions")
       return json(200, { username: "desk-1", role: "FrontDesk", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1_800_000).toISOString() });
     if (path === "/api/health") return json(200, { status: "ok" });
+    const extra = await this.handleExtra(path, method, headers, body, u);
+    if (extra) return extra;
     if (!path.startsWith("/api/patients")) return json(200, []);
 
     this.calls.push({ method, url, headers, body });

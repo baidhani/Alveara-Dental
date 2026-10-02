@@ -19,7 +19,8 @@ import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientDetailsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientDetailsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -123,6 +124,14 @@ function createAppRouter() {
             }
           />
           <Route
+            path="/admin/form-templates"
+            element={
+              <RequirePermission permission="ManageFormTemplates">
+                <FormTemplatesPage />
+              </RequirePermission>
+            }
+          />
+          <Route
             path="/admin/backup"
             element={
               <RequirePermission permission="ViewBackupStatus">
@@ -157,6 +166,8 @@ function createAppRouter() {
             <Route index element={<PatientDetailsTab />} />
             <Route path="household" element={<PatientHouseholdTab />} />
             <Route path="history" element={<PatientHistoryTab />} />
+            <Route path="forms" element={<RequirePermission permission="ViewSignedForms"><PatientFormsTab /></RequirePermission>} />
+            <Route path="forms/:formId" element={<RequirePermission permission="ViewSignedForms"><PatientFormTab /></RequirePermission>} />
           </Route>
           <Route path="/settings/mfa" element={<MfaSettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />

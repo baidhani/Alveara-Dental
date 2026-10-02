@@ -15,28 +15,32 @@ public static class PermissionMatrix
 
         [Role.Dentist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes, Permission.ManageTreatmentPlans,
-            Permission.ViewSchedule, Permission.ViewBilling),
+            Permission.ViewSchedule, Permission.ViewBilling,
+            Permission.CompleteForms, Permission.ViewSignedForms), // ALV-N010
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
-            Permission.ViewSchedule),
+            Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms),
 
         [Role.Assistant] = Set(
-            Permission.ViewPatientRecords, Permission.ViewSchedule),
+            Permission.ViewPatientRecords, Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms),
 
         [Role.FrontDesk] = Set(
             Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
             Permission.RegisterPatients, Permission.EditPatients,
-            Permission.ViewPatientRecords), // ALV-003-C01: front desk must find and open the patients it registers
+            Permission.ViewPatientRecords, // ALV-003-C01: front desk must find and open the patients it registers
+            Permission.CompleteForms, Permission.ViewSignedForms), // ALV-N010: forms are completed at the front desk
 
         [Role.Billing] = Set(
-            Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords),
+            Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords,
+            Permission.ViewSignedForms), // ALV-N010: read-only (financial forms)
 
         [Role.OfficeManager] = Set(
             Permission.ViewPatientRecords, Permission.ManageAppointments, Permission.ViewSchedule,
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewAuditLog, Permission.ViewPermissionMatrix,
             Permission.ManagePracticeConfiguration, // the "practice manager" of ALV-N003
-            Permission.ViewBackupStatus, Permission.RegisterPatients, Permission.EditPatients),
+            Permission.ViewBackupStatus, Permission.RegisterPatients, Permission.EditPatients,
+            Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms), // ALV-N010
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };
