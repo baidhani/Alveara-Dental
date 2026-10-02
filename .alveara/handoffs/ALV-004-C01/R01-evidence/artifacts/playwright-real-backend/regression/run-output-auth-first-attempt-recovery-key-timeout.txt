@@ -1,0 +1,40 @@
+  ok  6 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (209ms)
+  ok  7 [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin (213ms)
+  ok  8 [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log (3.4s)
+  ok  9 [chromium] › e2e\auth-real-backend.spec.ts:242:3 › Real backend — first-admin bootstrap, login, MFA, security administration › unsaved configuration edits survive an attempt to leave through the main navigation (411ms)
+  x  10 [chromium] › e2e\auth-real-backend.spec.ts:266:3 › Real backend — first-admin bootstrap, login, MFA, security administration › backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target (6.1s)
+  -  11 [chromium] › e2e\auth-real-backend.spec.ts:346:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API
+  -  12 [chromium] › e2e\auth-real-backend.spec.ts:400:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again
+
+
+  1) [chromium] › e2e\auth-real-backend.spec.ts:266:3 › Real backend — first-admin bootstrap, login, MFA, security administration › backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByLabel('Recovery key file contents')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByLabel('Recovery key file contents') with timeout 5000ms
+      - waiting for getByLabel('Recovery key file contents')
+
+
+      276 |     await page.getByRole("button", { name: "Create recovery key" }).click();
+      277 |     const keyBox = page.getByLabel("Recovery key file contents");
+    > 278 |     await expect(keyBox).toBeVisible();
+          |                          ^
+      279 |     const recoveryKey = await keyBox.inputValue();
+      280 |     expect(recoveryKey).toContain("BEGIN PGP PRIVATE KEY BLOCK"); // a standard OpenPGP key block, restorable with stock tooling
+      281 |     const passphrase = await page.getByLabel("Recovery passphrase (generated)").inputValue();
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\auth-real-backend.spec.ts:278:26
+
+    Error Context: test-results\auth-real-backend-Real-bac-09c5b--it-into-an-isolated-target-chromium\error-context.md
+
+    Error Context: test-results\auth-real-backend-Real-bac-09c5b--it-into-an-isolated-target-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\auth-real-backend.spec.ts:266:3 › Real backend — first-admin bootstrap, login, MFA, security administration › backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target 
+  2 did not run
+  9 passed (16.3s)

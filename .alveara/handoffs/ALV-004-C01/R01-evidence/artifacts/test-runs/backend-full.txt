@@ -1,0 +1,3 @@
+
+Passed!  - Failed:     0, Passed:   721, Skipped:     0, Total:   721, Duration: 38 m 17 s - Alveara.Api.Tests.dll (net10.0)
+EXIT 0

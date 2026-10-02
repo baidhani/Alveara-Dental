@@ -1,0 +1,17 @@
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] › e2e\calendar-real-backend.spec.ts:136:1 › SETUP: the practice (two providers, two operatories, two types, a blocked lunch) and six patients (1.3s)
+  ok  2 [chromium] › e2e\calendar-real-backend.spec.ts:154:1 › CALENDAR: the day view shows the practice's real provider and operatory assignments at the right time and size, with working hours and filters (3.1s)
+  ok  3 [chromium] › e2e\calendar-real-backend.spec.ts:186:1 › BOOK + CONFLICTS: the drawer books an appointment; provider, operatory, patient, hours and blocked-time conflicts are each explained and nothing is booked (6.8s)
+  ok  4 [chromium] › e2e\calendar-real-backend.spec.ts:236:1 › RESCHEDULE: moving an appointment through the drawer, a refused move, and the history that remembers where it was (695ms)
+  ok  5 [chromium] › e2e\calendar-real-backend.spec.ts:262:1 › STALE EDIT: a second user moves the appointment first; the first user's change is reported and NOT applied, and Reload shows the real state (3.1s)
+  ok  6 [chromium] › e2e\calendar-real-backend.spec.ts:287:1 › CONCURRENT EDITS: six appointments racing into one slot produce one winner; two users rescheduling the same appointment produce one change; no double booking (512ms)
+  ok  7 [chromium] › e2e\calendar-real-backend.spec.ts:307:1 › CANCEL: a cancellation needs a reason, the appointment stays on the calendar marked cancelled (and holds no time), and its history is kept (3.0s)
+  ok  8 [chromium] › e2e\calendar-real-backend.spec.ts:334:1 › NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record (3.1s)
+  ok  9 [chromium] › e2e\calendar-real-backend.spec.ts:363:1 › PATIENT OVERLAP + WEEK VIEW: a patient cannot be in two places at once; the week view puts overlapping providers side by side (2.6s)
+  ok 10 [chromium] › e2e\calendar-real-backend.spec.ts:380:1 › PERMISSIONS: a dentist sees the calendar and appointment details but cannot change anything (the API returns 403); billing has no Calendar (1.6s)
+  ok 11 [chromium] › e2e\calendar-real-backend.spec.ts:405:1 › KEYBOARD: an appointment can be rescheduled without a mouse (382ms)
+  ok 12 [chromium] › e2e\calendar-real-backend.spec.ts:421:1 › ACCEPTANCE: the audit trail holds every create, reschedule, cancel, no-show and refusal with user and time, and no patient details or reasons (55ms)
+
+  12 passed (30.5s)

@@ -1,0 +1,131 @@
+{
+  "axe": {
+    "day-view-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "day-view-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "conflict-explained-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "conflict-explained-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "stale-edit-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "stale-edit-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "cancelled-drawer-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "cancelled-drawer-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "no-show-on-calendar-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "no-show-on-calendar-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "week-view-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "week-view-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    }
+  },
+  "stamp": 1790954436135,
+  "calendar": {
+    "providerColumns": 2,
+    "a1": {
+      "top": "120px",
+      "height": "60px"
+    },
+    "a2": {
+      "top": "210px",
+      "height": "30px"
+    },
+    "filtersWork": true
+  },
+  "conflicts": {
+    "provider": true,
+    "operatory": true,
+    "patient": true,
+    "outsideHours": true,
+    "blockedTime": true,
+    "bookedAfterRefusals": 3
+  },
+  "reschedule": {
+    "moved": true,
+    "historyRemembersPrevious": true,
+    "refusedMoveLeftItWhereItWas": true
+  },
+  "staleEdit": {
+    "reported": true,
+    "otherUsersChangeStood": true
+  },
+  "concurrency": {
+    "sixWayRaceWinners": 1,
+    "sameAppointmentTwoWay": [
+      200,
+      409
+    ]
+  },
+  "cancel": {
+    "reasonRequired": true,
+    "stillOnCalendar": true,
+    "freedTheSlot": true
+  },
+  "noShow": {
+    "refusedBeforeStart": "no_show_too_early",
+    "markedAfterStart": true,
+    "shownDistinctly": true
+  },
+  "weekView": {
+    "sevenDays": true,
+    "overlappingSideBySide": true,
+    "patientOverlapRefused": "patient_double_booked"
+  },
+  "permissions": {
+    "dentistApiStatus": 403,
+    "billingCalendarLink": false
+  },
+  "keyboard": {
+    "rescheduled": true,
+    "escapeClosesDrawer": true
+  },
+  "audit": {
+    "AppointmentScheduled": 11,
+    "AppointmentRescheduled": 5,
+    "AppointmentCancelled": 1,
+    "AppointmentNoShow": 1,
+    "AppointmentRejected": 12
+  }
+}
