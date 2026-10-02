@@ -1,0 +1,12 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+
+ Test Files  49 passed (49)
+      Tests  516 passed (516)
+   Start at  17:47:44
+   Duration  18.78s (tests 55%, environment 20%, import 17%, setup 5%, transform 2%)
+
+    Isolate  49 workers spawned · ~1.02s startup each (spawn + environment, per file)
+             at least ~1.15s faster with isolate: false — reuses workers across files instead of one per file
+

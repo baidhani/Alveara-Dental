@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\patient-flow-real-backend.spec.ts:123:1 › SETUP: the practice (one provider pair, two operatories, an exam type) and patients (976ms)
+  ok  2 [chromium] › e2e\patient-flow-real-backend.spec.ts:143:1 › CHECK-IN: a scheduled patient checks in from the calendar and their status becomes checked in, on the drawer, the calendar and the server (3.2s)
+  ok  3 [chromium] › e2e\patient-flow-real-backend.spec.ts:171:1 › COMPLETE: treatment is started and completed and the status becomes completed; a finished visit still holds its time (2.7s)
+  ok  4 [chromium] › e2e\patient-flow-real-backend.spec.ts:194:1 › SKIP TREATMENT: a checked-in patient can go straight to completed (118ms)
+  ok  5 [chromium] › e2e\patient-flow-real-backend.spec.ts:205:1 › REFUSALS: out-of-order moves, repeats, a cancelled appointment and an unknown one behave and change nothing (479ms)
+  ok  6 [chromium] › e2e\patient-flow-real-backend.spec.ts:245:1 › STALE EDIT: a second user moves the patient first; a repeat of their move is a quiet no-op, a different move is reported and not applied, and Reload shows the real state (3.3s)
+  ok  7 [chromium] › e2e\patient-flow-real-backend.spec.ts:279:1 › RACE: six people pressing Check in at once produce exactly one check-in (103ms)
+  ok  8 [chromium] › e2e\patient-flow-real-backend.spec.ts:289:1 › PERMISSIONS: a dentist sees where the patient is but cannot move them (403); billing has no Calendar (1.4s)
+  ok  9 [chromium] › e2e\patient-flow-real-backend.spec.ts:312:1 › KEYBOARD: a patient can be checked in and completed without a mouse (530ms)
+  ok 10 [chromium] › e2e\patient-flow-real-backend.spec.ts:330:1 › ACCEPTANCE: every status change is in the audit log with the user and the time, and in the appointment's history, with no patient details (55ms)
+
+  10 passed (16.9s)

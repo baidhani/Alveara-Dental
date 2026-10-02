@@ -1,0 +1,9 @@
+
+Running 4 tests using 4 workers
+
+  ok 2 [desktop] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode (636ms)
+  ok 4 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode (573ms)
+  ok 1 [desktop] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (687ms)
+  ok 3 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (657ms)
+
+  4 passed (3.1s)

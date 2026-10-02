@@ -1,0 +1,12 @@
+
+Running 7 tests using 1 worker
+
+  ok 1 [chromium] › e2e\patient-registration-real-backend.spec.ts:96:1 › front desk reaches Register Patient from the nav; the form marks required fields and scans clean in both themes (2.1s)
+  ok 2 [chromium] › e2e\patient-registration-real-backend.spec.ts:107:1 › ACCEPTANCE 2: an incomplete registration prompts for each required field and stores nothing (2.0s)
+  ok 3 [chromium] › e2e\patient-registration-real-backend.spec.ts:124:1 › ACCEPTANCE 1: a valid registration captures demographics and contact details (read back from the real API) (2.2s)
+  ok 4 [chromium] › e2e\patient-registration-real-backend.spec.ts:146:1 › FAILURE PATH: registering the same person again is refused and names the existing record (322ms)
+  ok 5 [chromium] › e2e\patient-registration-real-backend.spec.ts:158:1 › keyboard-only: the whole form can be completed and submitted without a mouse (436ms)
+  ok 6 [chromium] › e2e\patient-registration-real-backend.spec.ts:172:1 › ACCEPTANCE 3: the audit trail records each registration with the user and a timestamp (and no patient details) (348ms)
+  ok 7 [chromium] › e2e\patient-registration-real-backend.spec.ts:188:1 › a dentist (no RegisterPatients) has no nav link and is denied the page and the API (664ms)
+
+  7 passed (12.1s)

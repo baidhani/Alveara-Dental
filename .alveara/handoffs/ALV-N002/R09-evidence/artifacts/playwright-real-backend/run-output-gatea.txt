@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ok 1 [chromium] › gate-a\gate-a-browser.spec.ts:72:1 › A2: no critical/serious axe violations on any shell route, light and dark, authenticated against the real API (56.9s)
+  ok 2 [chromium] › gate-a\gate-a-browser.spec.ts:106:1 › A6: for each of the 7 roles, rendered navigation matches server-authoritative access (no client-only enforcement) (26.3s)
+  ok 3 [chromium] › gate-a\gate-a-browser.spec.ts:155:1 › A2 verdict: zero critical/serious axe violations across all shell routes (2ms)
+
+  3 passed (1.4m)

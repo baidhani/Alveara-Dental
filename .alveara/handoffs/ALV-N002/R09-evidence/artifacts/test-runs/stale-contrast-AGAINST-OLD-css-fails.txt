@@ -1,0 +1,261 @@
+
+Running 4 tests using 4 workers
+
+  ok 1 [desktop] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (676ms)
+  ok 4 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (655ms)
+  x  2 [desktop] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode (627ms)
+  x  3 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode (632ms)
+
+
+  1) [desktop] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode 
+
+    Error: [
+      [
+        [
+          "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+        ],
+        [
+          "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+        ]
+      ]
+    ]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fdf3e7",
+    +               "contrastRatio": 3.46,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"status-stale-banner\" role=\"alert\"><strong>Status is stale.</strong> The last successful check was at 10/2/2026, 5:47:25 PM. The most recent check failed, timed out, or returned an unexpected response — the values below are not current.</div>",
+    +                 "target": Array [
+    +                   ".status-stale-banner",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<div class=\"status-stale-banner\" role=\"alert\"><strong>Status is stale.</strong> The last successful check was at 10/2/2026, 5:47:25 PM. The most recent check failed, timed out, or returned an unexpected response — the values below are not current.</div>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".status-stale-banner",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fdf3e7",
+    +               "contrastRatio": 3.46,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"status-stale-banner\" role=\"alert\"><strong>Status is stale.</strong> The last successful check was at 10/2/2026, 5:47:25 PM. The most recent check failed, timed out, or returned an unexpected response — the values below are not current.</div>",
+    +                 "target": Array [
+    +                   ".status-stale-banner",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<strong>Status is stale.</strong>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "strong",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      35 |
+      36 |     const results = await new AxeBuilder({ page }).include(".status-stale-banner").withRules(["color-contrast"]).analyze();
+    > 37 |     expect(results.violations, JSON.stringify(results.violations.map((v) => v.nodes.map((n) => n.any.map((a) => a.message))), null, 2)).toEqual([]);
+         |                                                                                                                                         ^
+      38 |   });
+      39 | }
+      40 |
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\system-status-stale-contrast.spec.ts:37:137
+
+    Error Context: test-results\system-status-stale-contra-155dc-contrast-rule-in-light-mode-desktop\error-context.md
+
+  2) [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode 
+
+    Error: [
+      [
+        [
+          "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+        ],
+        [
+          "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+        ]
+      ]
+    ]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fdf3e7",
+    +               "contrastRatio": 3.46,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"status-stale-banner\" role=\"alert\"><strong>Status is stale.</strong> The last successful check was at 10/2/2026, 5:47:25 PM. The most recent check failed, timed out, or returned an unexpected response — the values below are not current.</div>",
+    +                 "target": Array [
+    +                   ".status-stale-banner",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<div class=\"status-stale-banner\" role=\"alert\"><strong>Status is stale.</strong> The last successful check was at 10/2/2026, 5:47:25 PM. The most recent check failed, timed out, or returned an unexpected response — the values below are not current.</div>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".status-stale-banner",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#fdf3e7",
+    +               "contrastRatio": 3.46,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "9.8pt (13px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<div class=\"status-stale-banner\" role=\"alert\"><strong>Status is stale.</strong> The last successful check was at 10/2/2026, 5:47:25 PM. The most recent check failed, timed out, or returned an unexpected response — the values below are not current.</div>",
+    +                 "target": Array [
+    +                   ".status-stale-banner",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<strong>Status is stale.</strong>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "strong",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      35 |
+      36 |     const results = await new AxeBuilder({ page }).include(".status-stale-banner").withRules(["color-contrast"]).analyze();
+    > 37 |     expect(results.violations, JSON.stringify(results.violations.map((v) => v.nodes.map((n) => n.any.map((a) => a.message))), null, 2)).toEqual([]);
+         |                                                                                                                                         ^
+      38 |   });
+      39 | }
+      40 |
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\system-status-stale-contrast.spec.ts:37:137
+
+    Error Context: test-results\system-status-stale-contra-155dc-contrast-rule-in-light-mode-tablet\error-context.md
+
+  2 failed
+    [desktop] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode 
+    [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode 
+  2 passed (3.2s)
