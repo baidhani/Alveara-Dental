@@ -65,6 +65,16 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
         return await action(Manager(db, clock));
     }
 
+    /// <summary>STORY-011: the patient-flow service (check in, start treatment, complete).</summary>
+    public AppointmentFlowService Flow(AlveraDbContext db, IMeasurementEventSink? measurements = null) =>
+        new(db, Clock, measurements);
+
+    public async Task<AppointmentView> FlowAsync(Func<AppointmentFlowService, Task<AppointmentView>> action)
+    {
+        await using var db = fixture.CreateContext();
+        return await action(Flow(db));
+    }
+
     public async Task<AppointmentView> ReloadAsync(Guid id)
     {
         await using var db = fixture.CreateContext();

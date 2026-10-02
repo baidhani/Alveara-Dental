@@ -506,20 +506,52 @@
       "criteria": [
         {
           "text": "Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All status changes are logged with timestamps and user IDs.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Scheduling/PatientFlow.cs",
+        "src/Alveara.Api/Architecture/Scheduling/AppointmentFlowService.cs",
+        "src/Alveara.Api/Architecture/Scheduling/AppointmentRowVersion.cs",
+        "src/Alveara.Api/Architecture/Scheduling/Appointment.cs",
+        "src/Alveara.Api/Architecture/Scheduling/AppointmentManager.cs",
+        "src/Alveara.Api/Architecture/Scheduling/AppointmentViews.cs",
+        "src/Alveara.Api/Architecture/Scheduling/SchedulingModels.cs",
+        "src/Alveara.Api/Controllers/AppointmentsController.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261002162214_AddPatientFlow.cs",
+        "src/alveara-client/src/pages/calendar/AppointmentPanel.tsx",
+        "src/alveara-client/src/pages/calendar/CalendarGrid.tsx",
+        "src/alveara-client/src/pages/calendar/calendarLayout.ts",
+        "src/alveara-client/src/pages/calendar/explainRefusal.ts",
+        "src/alveara-client/src/pages/calendar/Calendar.css",
+        "src/alveara-client/src/services/schedulingApi.ts",
+        "src/alveara-client/playwright.flow.config.ts",
+        "src/alveara-client/playwright.config.ts",
+        "docs/SCHEDULING.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        ".colaberry/enrichment/STORY-011.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/PatientFlowRulesTests.cs",
+        "src/Alveara.Api.Tests/PatientFlowLifecycleTests.cs",
+        "src/Alveara.Api.Tests/PatientFlowApiTests.cs",
+        "src/Alveara.Api.Tests/SchedulingTestSupport.cs",
+        "src/alveara-client/src/PatientFlow.test.tsx",
+        "src/alveara-client/src/pages/calendar/calendarLayout.test.ts",
+        "src/alveara-client/src/test/fakeCalendarServer.ts",
+        "src/alveara-client/e2e/patient-flow-real-backend.spec.ts"
+      ],
+      "notes": "Patient flow (Scheduled, CheckedIn, InTreatment, Completed) is a separate state from the booking status, so a visit under way still holds its time and no STORY-004 / ALV-004-C01 contract changed. Forward only; InTreatment optional; repeats are no-ops; every move is logged (history + PHI-free audit) in the same save as the change, so a failed log stores nothing. Once checked in, reschedule/cancel/no-show are refused. Known limits: no too-early-to-check-in rule; only ManageAppointments roles can move a patient; no undo. Verified: 767/767 backend, 446/446 frontend, 10/10 real-backend walkthrough, 74 mocked browser.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

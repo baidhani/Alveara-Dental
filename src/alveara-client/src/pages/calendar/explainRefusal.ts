@@ -30,6 +30,8 @@ export async function explainRefusal(err: unknown, names: { provider?: string; o
     case "schedule_busy":
       return ["The schedule is busy right now. Please try again in a moment."];
     case "appointment_not_scheduled":
+    case "appointment_in_progress": // STORY-011: the patient has checked in, so the appointment can no longer be moved or cancelled
+    case "invalid_flow_transition":
     case "no_show_too_early":
     case "reason_required":
     case "reason_too_long":

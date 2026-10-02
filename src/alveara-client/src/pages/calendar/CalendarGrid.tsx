@@ -2,7 +2,7 @@ import type { MouseEvent } from "react";
 import type { SchedulingSnapshot } from "../../services/configApi";
 import type { Appointment } from "../../services/schedulingApi";
 import { timeOf } from "../../services/schedulingApi";
-import { PIXELS_PER_MINUTE, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, hhmm, minutesOf, placeColumn, slotMinuteAt, statusWord } from "./calendarLayout";
+import { PIXELS_PER_MINUTE, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, hhmm, flowWord, minutesOf, placeColumn, slotMinuteAt, statusWord } from "./calendarLayout";
 import type { Placed } from "./calendarLayout";
 
 export type CalendarView = "day" | "week";
@@ -21,7 +21,7 @@ interface GridProps {
 }
 
 const blockLabel = (a: Appointment) =>
-  `${timeOf(a.startLocal)} to ${timeOf(a.endLocal)}, ${a.patientName}, ${a.appointmentTypeName}, ${a.providerName}, ${a.operatoryName}, ${statusWord(a.status)}`;
+  `${timeOf(a.startLocal)} to ${timeOf(a.endLocal)}, ${a.patientName}, ${a.appointmentTypeName}, ${a.providerName}, ${a.operatoryName}, ${flowWord(a) ?? statusWord(a.status)}`;
 
 /**
  * ALV-004-C01: the calendar grid. The day view has one column per provider (the practice's real assignments); the week view has one column per day,
@@ -101,7 +101,8 @@ function Block({ placed, selected, onOpen }: { placed: Placed; selected: boolean
   const compact = placed.heightPx < 56; // a short appointment: one line, so the patient and status are never cropped
   const cls = `cal__block cal__block--${a.status.toLowerCase()}${compact ? " cal__block--compact" : ""}${selected ? " cal__block--selected" : ""}`;
   // the status is written in the first line (never a separate row that a short block could crop): "09:00–10:00 · Cancelled"
-  const time = `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}${a.status !== "Scheduled" ? ` · ${statusWord(a.status)}` : ""}`;
+  const word = a.status !== "Scheduled" ? statusWord(a.status) : flowWord(a); // STORY-011: a visit under way says so too
+  const time = `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}${word ? ` · ${word}` : ""}`;
   return (
     <button
       type="button"
@@ -112,6 +113,7 @@ function Block({ placed, selected, onOpen }: { placed: Placed; selected: boolean
       aria-pressed={selected}
       data-appointment={a.id}
       data-status={a.status}
+      data-flow={a.flowState ?? "Scheduled"}
       onClick={() => onOpen(a)}
     >
       <span className="cal__block-time">{time}</span>

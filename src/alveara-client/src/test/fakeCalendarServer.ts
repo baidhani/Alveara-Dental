@@ -1,12 +1,15 @@
 import { FakeScheduleServer } from "./fakeScheduleServer";
 import { json } from "./fakePatientServer";
-import type { Appointment, AppointmentEvent } from "../services/schedulingApi";
+import type { Appointment, AppointmentEvent, PatientFlowState } from "../services/schedulingApi";
 import { practiceNow } from "../pages/calendar/calendarLayout";
 
 /**
  * ALV-004-C01: an in-memory stand-in for the lifecycle half of the scheduling API (reschedule, cancel, no-show, notes, history, patient overlap and the
  * calendar's all-status list) on top of the booking fake. It models the response SHAPES and the refusals the drawer must explain - not the whole rule set;
  * those are proven by the backend tests and the real-backend walkthrough. Row versions are checked, so a stale change is the shared 409.
+ *
+ * STORY-011 adds patient flow (check-in, start-treatment, complete): the same response shapes and refusals as the backend (a move out of order is
+ * 409 invalid_flow_transition, a repeat is a no-op, and cancel / no-show / reschedule are 409 appointment_in_progress once the patient has checked in).
  */
 export class FakeCalendarServer extends FakeScheduleServer {
   private versions = new Map<string, number>();
@@ -15,9 +18,10 @@ export class FakeCalendarServer extends FakeScheduleServer {
   dropNextResponseFor: string | null = null;
 
   /** An appointment already on the books with a row version and a "Scheduled" history entry. */
-  seed(over: Parameters<FakeScheduleServer["addAppointment"]>[0] & { status?: string; notes?: string; cancelReason?: string }): Appointment {
+  seed(over: Parameters<FakeScheduleServer["addAppointment"]>[0] & { status?: string; notes?: string; cancelReason?: string; flowState?: PatientFlowState }): Appointment {
     const a = this.addAppointment(over);
     a.status = over.status ?? "Scheduled";
+    a.flowState = over.flowState ?? "Scheduled";
     a.notes = over.notes ?? null;
     a.cancelReason = over.cancelReason ?? null;
     this.touch(a);
@@ -90,6 +94,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
           const created = (await response.clone().json()) as Appointment;
           const stored = this.appointments.find((a) => a.id === created.id)!;
           stored.notes = (body?.notes as string | null) ?? null;
+          stored.flowState = "Scheduled";
           this.touch(stored);
           this.events.set(stored.id, [{ eventType: "Scheduled", actorUserId: "u1", occurredAtUtc: "2026-10-02T10:00:00Z", detail: `Scheduled for ${stored.durationMinutes} minutes.`, previousStartLocal: null, previousProviderName: null, previousOperatoryName: null }]);
           return json(201, stored);
@@ -103,7 +108,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
         return a ? json(200, a) : json(404, { error: "appointment_not_found", message: "That appointment was not found." });
       }
 
-      if (id && action && ["reschedule", "cancel", "no-show", "notes"].includes(action)) {
+      if (id && action && ["reschedule", "cancel", "no-show", "notes", "check-in", "start-treatment", "complete"].includes(action)) {
         this.scheduleCalls.push({ method, url: u.pathname, headers, body });
         const a = this.appointments.find((x) => x.id === id);
         if (!a) return json(404, { error: "appointment_not_found", message: "That appointment was not found." });
@@ -122,8 +127,32 @@ export class FakeCalendarServer extends FakeScheduleServer {
     return (this as unknown as { keys: Map<string, string> }).keys.has(key);
   }
 
+  private static readonly FLOW_TARGET: Record<string, PatientFlowState> = { "check-in": "CheckedIn", "start-treatment": "InTreatment", complete: "Completed" };
+  private static readonly FLOW_EVENT: Record<string, string> = { CheckedIn: "CheckedIn", InTreatment: "TreatmentStarted", Completed: "Completed" };
+  private static readonly FLOW_ORDER: PatientFlowState[] = ["Scheduled", "CheckedIn", "InTreatment", "Completed"];
+
+  /** STORY-011. Mirrors PatientFlowRules: forward only, InTreatment may be skipped, check-in may not. */
+  private flow(a: Appointment, action: string, body: Record<string, unknown>): Response {
+    const target = FakeCalendarServer.FLOW_TARGET[action];
+    const from = a.flowState ?? "Scheduled";
+    if (a.status === "Scheduled" && from === target) return json(200, a); // already there: nothing to do, whatever the version
+    if (body.rowVersion !== a.rowVersion) return this.conflict(a.id);
+    if (a.status !== "Scheduled") return json(409, { error: "appointment_not_scheduled", message: `Patient flow applies only to a scheduled appointment; this one is ${a.status}.` });
+    const order = FakeCalendarServer.FLOW_ORDER;
+    const step = order.indexOf(target) - order.indexOf(from);
+    const allowed = step === 1 || (from === "CheckedIn" && target === "Completed");
+    if (!allowed) return json(409, { error: "invalid_flow_transition", message: `A visit cannot go from ${from} to ${target}.` });
+    a.flowState = target; a.flowChangedAtUtc = "2026-10-02T10:00:00Z";
+    this.touch(a); this.log(a, FakeCalendarServer.FLOW_EVENT[target], `${from} -> ${target}`);
+    return json(200, a);
+  }
+
   private lifecycle(a: Appointment, action: string, body: Record<string, unknown>): Response {
+    if (action in FakeCalendarServer.FLOW_TARGET) return this.flow(a, action, body);
     const stale = body.rowVersion !== a.rowVersion;
+    const arrived = a.status === "Scheduled" && (a.flowState ?? "Scheduled") !== "Scheduled";
+    if (arrived && ["cancel", "no-show", "reschedule"].includes(action) && !(stale || (action === "cancel" && !String(body.reason ?? "").trim())))
+      return json(409, { error: "appointment_in_progress", message: "This appointment cannot be changed: the patient has already checked in." });
     if (action === "cancel") {
       const reason = String(body.reason ?? "").trim();
       if (!reason) return json(400, { error: "reason_required", message: "A reason for the cancellation is required." });

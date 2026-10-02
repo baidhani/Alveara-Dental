@@ -28,7 +28,8 @@ internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock 
         return new AppointmentView(
             a1.Id, a1.PatientId, $"{row.FirstName} {row.LastName}", a1.ProviderProfileId, row.Provider, a1.OperatoryId, row.Operatory, a1.AppointmentTypeId, row.Type,
             a1.StartUtc, a1.EndUtc, Local(a1.StartUtc), Local(a1.EndUtc), a1.DurationMinutes, a1.Status, a1.CreatedAtUtc,
-            Convert.ToBase64String(a1.RowVersion), a1.Notes, a1.CancelReason, a1.StatusChangedAtUtc);
+            Convert.ToBase64String(a1.RowVersion), a1.Notes, a1.CancelReason, a1.StatusChangedAtUtc,
+            a1.FlowState, a1.FlowChangedAtUtc);
     }
 
     public async Task<IReadOnlyList<AppointmentEventView>> HistoryAsync(Guid appointmentId, CancellationToken ct)

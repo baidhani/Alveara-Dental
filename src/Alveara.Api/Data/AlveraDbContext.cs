@@ -279,6 +279,14 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(a => a.Notes).HasMaxLength(1000);
             e.Property(a => a.CancelReason).HasMaxLength(400);
             e.HasIndex(a => new { a.Status, a.StartUtc });
+            // STORY-011: patient flow. The database refuses an unknown flow state, and refuses any flow beyond Scheduled on an appointment
+            // that is Cancelled or NoShow (last line of defence behind the service's rule).
+            e.Property(a => a.FlowState).HasMaxLength(20).HasDefaultValue(PatientFlowStates.Scheduled);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Appointments_FlowState", "[FlowState] IN ('Scheduled','CheckedIn','InTreatment','Completed')");
+                t.HasCheckConstraint("CK_Appointments_FlowNeedsScheduled", "[FlowState] = 'Scheduled' OR [Status] = 'Scheduled'");
+            });
         });
 
         // ALV-004-C01: an appointment's history. Append-only; Restrict like every other relationship.

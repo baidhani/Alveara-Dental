@@ -29,6 +29,9 @@ export interface Appointment {
   notes?: string | null;
   cancelReason?: string | null;
   statusChangedAtUtc?: string | null;
+  /** STORY-011: where the patient is in the visit (see PatientFlowState). Absent on appointments from before patient flow existed. */
+  flowState?: PatientFlowState;
+  flowChangedAtUtc?: string | null;
 }
 
 export interface ScheduleInput {
@@ -83,6 +86,9 @@ export const dateOf = (local: string) => local.slice(0, 10);
 
 export type AppointmentStatus = "Scheduled" | "Cancelled" | "NoShow";
 
+/** STORY-011: Scheduled -> CheckedIn -> InTreatment (optional) -> Completed. Only a Scheduled appointment has a flow. */
+export type PatientFlowState = "Scheduled" | "CheckedIn" | "InTreatment" | "Completed";
+
 export interface AppointmentEvent {
   eventType: string;
   actorUserId: string | null;
@@ -118,3 +124,9 @@ export const cancelAppointment = (id: string, reason: string, rowVersion: string
 export const markNoShow = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/no-show`, "POST", { rowVersion });
 export const updateAppointmentNotes = (id: string, notes: string, rowVersion: string) =>
   requestWithCsrf<Appointment>(`/api/appointments/${id}/notes`, "PUT", { notes, rowVersion });
+
+// ---------- STORY-011: patient flow ----------
+
+export const checkInPatient = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/check-in`, "POST", { rowVersion });
+export const startTreatment = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/start-treatment`, "POST", { rowVersion });
+export const completeTreatment = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/complete`, "POST", { rowVersion });

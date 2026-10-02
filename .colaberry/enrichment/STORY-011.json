@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-011",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-02T17:00:00Z",
+  "sourceCommitSha": "2140638",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A booked appointment has a patient-flow state - Scheduled, CheckedIn, InTreatment or Completed - kept separately from its booking status (Scheduled, Cancelled, NoShow), together with who last moved it and when. Every existing appointment starts at Scheduled.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/Appointment.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Front desk staff, office managers and admins (the existing ManageAppointments permission) can check a patient in, start treatment and complete treatment. Dentists, hygienists and assistants can see where a patient is in the visit but cannot move them (the API returns 403 and the buttons are not shown); billing has no calendar access.",
+      "evidence": "src/Alveara.Api.Tests/PatientFlowApiTests.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "Every appointment returned by the scheduling API carries its flow state and when it last changed. The calendar block and the appointment drawer state the patient's progress in words (Checked in, In treatment, Completed), and the appointment's history lists each move with who and when.",
+      "evidence": "src/alveara-client/src/PatientFlow.test.tsx"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "A patient-flow move is refused when it skips check-in, goes backwards, applies to a cancelled or no-show appointment, or carries a stale or missing version; once a patient has checked in the appointment can no longer be rescheduled, cancelled or marked no-show. Repeating a move that has already happened changes nothing. Each refusal returns a stable code and nothing is stored.",
+      "evidence": "src/Alveara.Api.Tests/PatientFlowLifecycleTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every patient-flow change is written to the audit log with the signed-in user and a timestamp, and to the appointment's own history, in the same save as the change: if the log cannot be written the status does not change. The audit entries carry no patient names, times or notes.",
+      "evidence": "src/Alveara.Api.Tests/PatientFlowLifecycleTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "A checked-in, in-treatment or completed visit still holds its provider, operatory and patient time, so it cannot be double-booked. The database itself refuses an unknown flow state and refuses any flow beyond Scheduled on a cancelled or no-show appointment.",
+      "evidence": "src/Alveara.Api/Data/AlveraDbContext.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Patient flow is a separate state on the appointment rather than extra values of its booking status.",
+      "rationale": "The booking status decides whether an appointment holds time, and every conflict rule, the calendar and the existing scheduling tests depend on 'Scheduled' meaning that. Keeping flow separate means a visit under way still holds its time and none of those contracts change.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/PatientFlow.cs"
+    },
+    {
+      "statement": "Flow only moves forward; InTreatment may be skipped (checked in to completed) but check-in may not be.",
+      "rationale": "The story names only check-in and completion, while REQ-006 also mentions treatment, so treatment is a recorded step that is optional. A silent undo of a check-in would break the 'every change is logged' trust criterion; a correction is left to a later story.",
+      "evidence": "src/Alveara.Api.Tests/PatientFlowRulesTests.cs"
+    },
+    {
+      "statement": "Asking for the state the appointment is already in is a quiet no-op regardless of the version the caller holds, while any other move needs the current version.",
+      "rationale": "Two receptionists pressing Check in, or a retry after a dropped connection, should end in one check-in without alarming anyone; a different move on top of someone else's change must still be reported as a conflict.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentFlowService.cs"
+    },
+    {
+      "statement": "The history entry and audit entry are written in the same save as the state change, so the state cannot change without a record.",
+      "rationale": "The trust criterion requires every status change to be logged with timestamp and user, and the third failure path is the log failing; making the change and its log atomic removes the half-done state.",
+      "evidence": "src/Alveara.Api.Tests/PatientFlowLifecycleTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "There is no 'too early to check in' rule: a patient can be checked in days before the appointment, because booking only requires a future start and the story asks for no same-day rule.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentFlowService.cs"
+    },
+    {
+      "statement": "Only roles holding ManageAppointments can move a patient; clinicians cannot mark treatment complete from their own login, because no clinical-completion permission has been defined.",
+      "evidence": "src/Alveara.Api/Controllers/AppointmentsController.cs"
+    },
+    {
+      "statement": "A mistaken check-in cannot be undone in this story.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/PatientFlow.cs"
+    },
+    {
+      "statement": "'Completed' marks the visit's treatment complete; it does not create a clinical encounter, treatment record or charge.",
+      "evidence": "docs/SCHEDULING.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientFlowRulesTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientFlowLifecycleTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientFlowApiTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/PatientFlow.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/patient-flow-real-backend.spec.ts" }
+  ],
+  "measurementEvents": []
+}

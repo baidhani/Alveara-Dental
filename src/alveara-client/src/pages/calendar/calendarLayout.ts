@@ -119,6 +119,12 @@ export function placeColumn(appointments: Appointment[], day: string, axisStartM
 /** What a block says, in words (never colour alone): the status is spelled out for anything that is not simply scheduled. */
 export const statusWord = (status: string) => (status === "Cancelled" ? "Cancelled" : status === "NoShow" ? "No-show" : "Scheduled");
 
+/**
+ * STORY-011: the flow of a scheduled appointment in words, or null while the patient has simply not arrived yet (nothing to say). Never colour alone.
+ */
+export const flowWord = (a: { status: string; flowState?: string }): string | null =>
+  a.status !== "Scheduled" ? null : a.flowState === "CheckedIn" ? "Checked in" : a.flowState === "InTreatment" ? "In treatment" : a.flowState === "Completed" ? "Completed" : null;
+
 /** Which appointments belong in a day column. An appointment is in the column of every day it touches. */
 export const appointmentsOnDay = (appointments: Appointment[], day: string) =>
   appointments.filter((a) => dateOf(a.startLocal) <= day && day <= dateOf(a.endLocal) && !(dateOf(a.endLocal) === day && minutesOf(a.endLocal) === 0 && dateOf(a.startLocal) !== day));

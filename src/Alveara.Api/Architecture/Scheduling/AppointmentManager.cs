@@ -52,6 +52,7 @@ public class AppointmentManager(
         EnsureCurrent(appointment, request.RowVersion);
         if (appointment.Status != AppointmentStatuses.Scheduled)
             throw new SchedulingException("appointment_not_scheduled", $"Only a scheduled appointment can be rescheduled; this one is {Describe(appointment.Status)}.", 409);
+        EnsureNotArrived(appointment, "rescheduled");
 
         DateTimeOffset startUtc;
         try
@@ -130,6 +131,7 @@ public class AppointmentManager(
         EnsureCurrent(appointment, rowVersion);
         if (appointment.Status != AppointmentStatuses.Scheduled)
             throw new SchedulingException("appointment_not_scheduled", $"Only a scheduled appointment can be cancelled; this one is {Describe(appointment.Status)}.", 409);
+        EnsureNotArrived(appointment, "cancelled");
 
         var now = clock.UtcNow;
         appointment.Status = AppointmentStatuses.Cancelled;
@@ -155,6 +157,7 @@ public class AppointmentManager(
         EnsureCurrent(appointment, rowVersion);
         if (appointment.Status != AppointmentStatuses.Scheduled)
             throw new SchedulingException("appointment_not_scheduled", $"Only a scheduled appointment can be marked as a no-show; this one is {Describe(appointment.Status)}.", 409);
+        EnsureNotArrived(appointment, "marked as a no-show");
         var now = clock.UtcNow;
         if (now < appointment.StartUtc)
             throw new SchedulingException("no_show_too_early", "An appointment can only be marked as a no-show once its start time has passed.", 409);
@@ -199,29 +202,16 @@ public class AppointmentManager(
         await db.Appointments.SingleOrDefaultAsync(a => a.Id == id, ct)
             ?? throw new SchedulingException("appointment_not_found", "That appointment was not found.", 404);
 
-    /// <summary>
-    /// The caller must have read the CURRENT version. A stale one is the shared concurrency conflict, reported before any other rule so the user is told
-    /// "someone changed this" rather than a confusing consequence of it. The version is also pinned for the save, so a change that lands between this
-    /// check and the write is caught too.
-    /// </summary>
-    private void EnsureCurrent(Appointment appointment, string? rowVersion)
-    {
-        if (string.IsNullOrWhiteSpace(rowVersion))
-            throw new SchedulingException("row_version_required", "The version you are working on is required so a concurrent change is never overwritten. Reload and try again.", 400);
-        byte[] supplied;
-        try
-        {
-            supplied = Convert.FromBase64String(rowVersion);
-        }
-        catch (FormatException)
-        {
-            throw new SchedulingException("row_version_invalid", "The supplied version is not valid. Reload and try again.", 400);
-        }
-        if (!supplied.AsSpan().SequenceEqual(appointment.RowVersion)) throw new ConcurrencyConflictException(nameof(Appointment), appointment.Id);
-        db.Entry(appointment).Property(nameof(Appointment.RowVersion)).OriginalValue = supplied;
-    }
+    private void EnsureCurrent(Appointment appointment, string? rowVersion) => AppointmentRowVersion.EnsureCurrent(db, appointment, rowVersion);
 
     private Task SaveAsync(Guid id, CancellationToken ct) => ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(Appointment), id, ct);
+
+    /// <summary>STORY-011: once the patient has checked in the visit is under way, so it can no longer be moved, cancelled or called a no-show.</summary>
+    private static void EnsureNotArrived(Appointment appointment, string action)
+    {
+        if (appointment.FlowState != PatientFlowStates.Scheduled)
+            throw new SchedulingException("appointment_in_progress", $"This appointment cannot be {action}: the patient has already checked in.", 409);
+    }
 
     private static string Describe(string status) => status switch
     {

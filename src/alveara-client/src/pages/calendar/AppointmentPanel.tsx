@@ -6,10 +6,11 @@ import type { SchedulingSnapshot } from "../../services/configApi";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
 import {
-  cancelAppointment, dateOf, getAppointment, getAppointmentHistory, markNoShow, rescheduleAppointment, timeOf, updateAppointmentNotes,
+  cancelAppointment, checkInPatient, completeTreatment, dateOf, getAppointment, getAppointmentHistory, markNoShow, rescheduleAppointment, startTreatment, timeOf,
+  updateAppointmentNotes,
 } from "../../services/schedulingApi";
 import type { Appointment, AppointmentEvent } from "../../services/schedulingApi";
-import { statusWord } from "./calendarLayout";
+import { flowWord, statusWord } from "./calendarLayout";
 import { explainRefusal } from "./explainRefusal";
 import { PlacementFields } from "./PlacementFields";
 import type { Placement } from "./PlacementFields";
@@ -25,13 +26,18 @@ interface Props {
 
 type Mode = "details" | "reschedule" | "cancel";
 
-const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Rescheduled: "Rescheduled", Cancelled: "Cancelled", NoShow: "Marked as a no-show", NotesChanged: "Note changed" };
+const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Rescheduled: "Rescheduled", Cancelled: "Cancelled", NoShow: "Marked as a no-show", NotesChanged: "Note changed",
+  CheckedIn: "Patient checked in", TreatmentStarted: "Treatment started", Completed: "Treatment completed",
+};
 
 /**
  * ALV-004-C01: one appointment in the drawer - its details and history, and (for staff who may manage appointments) reschedule, cancel with a reason,
  * mark as a no-show, and edit the note. Every change carries the version this panel last loaded: if someone else changed the appointment meanwhile the
  * change is refused and the user is told (never applied on top), and Reload shows the current appointment. Cancelled and no-show appointments stay
  * readable here with their reason, who/when and full history.
+ *
+ * STORY-011 adds the patient's flow through the visit: Check in, Start treatment and Complete treatment (each also carrying the version). Once the patient
+ * has checked in the appointment can no longer be rescheduled, cancelled or marked as a no-show, so those buttons are not offered (the server refuses too).
  */
 export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, onChanged }: Props) {
   const [current, setCurrent] = useState(appointment);
@@ -117,18 +123,25 @@ export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, o
   };
 
   const scheduled = current.status === "Scheduled";
+  const flow = current.flowState ?? "Scheduled";
+  const arrived = flow !== "Scheduled";
+  const flowLabel = flowWord(current);
   const started = nowLocal >= current.startLocal;
   const noteDirty = note.trim() !== (current.notes ?? "").trim();
 
   return (
     <div className="cal-panel">
       <h2 className="alv-workspace__section-title" id="cal-drawer-title" tabIndex={-1}>{current.patientName}</h2>
-      <p className="cal-panel__status"><span className={`cal-badge cal-badge--${current.status.toLowerCase()}`}>{statusWord(current.status)}</span></p>
+      <p className="cal-panel__status">
+        <span className={`cal-badge cal-badge--${current.status.toLowerCase()}`}>{statusWord(current.status)}</span>
+        {flowLabel && <span className={`cal-badge cal-badge--flow-${flow.toLowerCase()}`} data-testid="flow-badge">{flowLabel}</span>}
+      </p>
       <dl className="alv-form-answers">
         <div className="alv-form-answers__row"><dt>When</dt><dd>{dateOf(current.startLocal)} {timeOf(current.startLocal)}–{timeOf(current.endLocal)} ({current.durationMinutes} min)</dd></div>
         <div className="alv-form-answers__row"><dt>Provider</dt><dd>{current.providerName}</dd></div>
         <div className="alv-form-answers__row"><dt>Operatory</dt><dd>{current.operatoryName}</dd></div>
         <div className="alv-form-answers__row"><dt>Type</dt><dd>{current.appointmentTypeName}</dd></div>
+        {flowLabel && current.flowChangedAtUtc && <div className="alv-form-answers__row"><dt>{flowLabel} recorded</dt><dd>{new Date(current.flowChangedAtUtc).toLocaleString()}</dd></div>}
         {current.status === "Cancelled" && <div className="alv-form-answers__row"><dt>Reason cancelled</dt><dd>{current.cancelReason}</dd></div>}
         {current.statusChangedAtUtc && current.status !== "Scheduled" && <div className="alv-form-answers__row"><dt>{statusWord(current.status)} recorded</dt><dd>{new Date(current.statusChangedAtUtc).toLocaleString()}</dd></div>}
       </dl>
@@ -137,17 +150,23 @@ export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, o
       {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={() => void reload()} />}
       {lines.length > 0 && <div className="alv-schedule__refusal" role="alert">{lines.map((l) => <p key={l}>{l}</p>)}</div>}
 
-      {mode === "details" && canManage && (
-        <div className="cal-panel__actions">
-          {scheduled && <Button onClick={() => { setMode("reschedule"); setLines([]); setSaved(null); }} disabled={busy}>Reschedule</Button>}
-          {scheduled && <Button variant="danger" onClick={() => { setMode("cancel"); setLines([]); setSaved(null); }} disabled={busy}>Cancel appointment</Button>}
-          {scheduled && (
-            <Button onClick={() => void run(() => markNoShow(current.id, version), "Marked as a no-show.")} disabled={busy || !started}
-              aria-describedby={!started ? "noshow-hint" : undefined}>Mark no-show</Button>
-          )}
+      {mode === "details" && canManage && scheduled && flow !== "Completed" && (
+        <div className="cal-panel__actions" role="group" aria-label="Patient flow">
+          {flow === "Scheduled" && <Button variant="primary" onClick={() => void run(() => checkInPatient(current.id, version), "Patient checked in.")} disabled={busy}>Check in</Button>}
+          {flow === "CheckedIn" && <Button variant="primary" onClick={() => void run(() => startTreatment(current.id, version), "Treatment started.")} disabled={busy}>Start treatment</Button>}
+          {(flow === "CheckedIn" || flow === "InTreatment") && <Button variant={flow === "InTreatment" ? "primary" : undefined} onClick={() => void run(() => completeTreatment(current.id, version), "Treatment completed.")} disabled={busy}>Complete treatment</Button>}
         </div>
       )}
-      {mode === "details" && canManage && scheduled && !started && <p id="noshow-hint" className="alv-workspace__note">A no-show can be recorded once the start time has passed.</p>}
+
+      {mode === "details" && canManage && scheduled && !arrived && (
+        <div className="cal-panel__actions">
+          <Button onClick={() => { setMode("reschedule"); setLines([]); setSaved(null); }} disabled={busy}>Reschedule</Button>
+          <Button variant="danger" onClick={() => { setMode("cancel"); setLines([]); setSaved(null); }} disabled={busy}>Cancel appointment</Button>
+          <Button onClick={() => void run(() => markNoShow(current.id, version), "Marked as a no-show.")} disabled={busy || !started}
+            aria-describedby={!started ? "noshow-hint" : undefined}>Mark no-show</Button>
+        </div>
+      )}
+      {mode === "details" && canManage && scheduled && !arrived && !started && <p id="noshow-hint" className="alv-workspace__note">A no-show can be recorded once the start time has passed.</p>}
 
       {mode === "reschedule" && (
         <form className="alv-workspace__form" onSubmit={submitReschedule} noValidate aria-label="Reschedule appointment">

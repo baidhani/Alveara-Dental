@@ -27,8 +27,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.
-- [ ] Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.
-- [ ] Trust: All status changes are logged with timestamps and user IDs.
+- [x] Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.
+- [x] Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.
+- [x] Trust: All status changes are logged with timestamps and user IDs.
 
 When every box above is ticked, stop and show the demo.

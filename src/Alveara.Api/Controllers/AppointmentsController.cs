@@ -25,11 +25,15 @@ public record NotesBody(string? Notes, string? RowVersion);
 ///
 /// ALV-004-C01 adds reschedule, cancel (with a reason), no-show and notes. Each carries the <c>rowVersion</c> the caller read; a stale one is the shared
 /// 409 <c>concurrency_conflict</c>. All of them need <see cref="Permission.ManageAppointments"/> and a CSRF token.
+///
+/// STORY-011 adds patient flow: <c>check-in</c>, <c>start-treatment</c> and <c>complete</c>, with the same row version, permission and CSRF rules.
+/// Repeating a move changes nothing; a move the flow rules refuse is 409 <c>invalid_flow_transition</c>; once a patient has checked in the appointment
+/// can no longer be rescheduled, cancelled or marked no-show (409 <c>appointment_in_progress</c>).
 /// </summary>
 [ApiController]
 [Route("api/appointments")]
 [Authorize]
-public class AppointmentsController(AppointmentScheduler scheduler, AppointmentManager manager, IPracticeClock clock) : ControllerBase
+public class AppointmentsController(AppointmentScheduler scheduler, AppointmentManager manager, AppointmentFlowService flow, IPracticeClock clock) : ControllerBase
 {
     private const int MaxRangeDays = 31;
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -125,6 +129,26 @@ public class AppointmentsController(AppointmentScheduler scheduler, AppointmentM
     [RequireCsrfToken]
     public Task<IActionResult> Notes(Guid id, [FromBody] NotesBody body, CancellationToken ct) =>
         Run(async () => Ok(await manager.UpdateNotesAsync(id, body.Notes, body.RowVersion, Actor, ct)));
+
+    // ---------- STORY-011: patient flow ----------
+
+    [HttpPost("{id:guid}/check-in")]
+    [RequirePermission(Permission.ManageAppointments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> CheckIn(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
+        Run(async () => Ok(await flow.CheckInAsync(id, body.RowVersion, Actor, ct)));
+
+    [HttpPost("{id:guid}/start-treatment")]
+    [RequirePermission(Permission.ManageAppointments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> StartTreatment(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
+        Run(async () => Ok(await flow.StartTreatmentAsync(id, body.RowVersion, Actor, ct)));
+
+    [HttpPost("{id:guid}/complete")]
+    [RequirePermission(Permission.ManageAppointments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Complete(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
+        Run(async () => Ok(await flow.CompleteAsync(id, body.RowVersion, Actor, ct)));
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {

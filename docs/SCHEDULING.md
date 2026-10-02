@@ -14,7 +14,7 @@ How an appointment is booked without conflicts, for the stories that build on it
 3. The provider is available - **ALV-N003's rule, reused unchanged**: inside one weekly window on one practice-local day, not in blocked time, not spanning a daylight-saving change.
 4. The provider has no overlapping `Scheduled` appointment -> `provider_double_booked` (409, names the appointment already holding the time).
 5. The operatory has no overlapping `Scheduled` appointment -> `operatory_conflict` (409, likewise).
-Not in this story: patient-overlap (the same patient in two places at once), reschedule, cancel, no-show, notes, a calendar view - all `ALV-004-C01`.
+Not in this story: patient-overlap (the same patient in two places at once), reschedule, cancel, no-show, notes, a calendar view - all `ALV-004-C01`.  Patient flow (check-in to completed) is STORY-011, below.
 
 ## No double booking under a race
 A plain "check, then insert" lets two simultaneous requests both pass the check. So steps 4-5 and the insert run in **one transaction that first takes an exclusive SQL Server application lock (`sp_getapplock`, transaction-scoped) on the operatory and on the provider**, always in the same sorted order so two requests can never deadlock. The second request waits, then sees the first one's appointment and is refused. Locks are released when the transaction ends, committed or not. A request that cannot get the lock in 10 seconds gets `503 schedule_busy` (retry). The race tests were checked by removing the lock: they then fail.
@@ -97,3 +97,48 @@ ALV-004-C01 extends STORY-004 without changing its contract: STORY-004's own tes
   workspace; the shared component itself is not edited here.
 - At most 500 appointments are returned for a range; the week view's side-by-side lanes get narrow when many providers overlap (the full details are in each block's
   label and in the drawer).
+
+
+---
+
+# Patient flow: from scheduled to completed (STORY-011)
+
+STORY-011 tracks where a patient is in the visit. It extends ALV-004-C01 without changing any of its contracts: STORY-004's and ALV-004-C01's own tests are
+unchanged and pass.
+
+## What exists
+- **`Appointment.FlowState`** (with `FlowChangedAtUtc` / `FlowChangedByUserId`): `Scheduled` -> `CheckedIn` -> `InTreatment` -> `Completed`. It is **separate from
+  `Status`** (Scheduled / Cancelled / NoShow). Status says whether the appointment still holds time and drives every conflict rule; flow says how far the visit has
+  got. Only an appointment whose Status is `Scheduled` has a flow, so a checked-in, in-treatment or completed visit **still holds its provider, operatory and
+  patient time** and the conflict rules and calendar are unchanged. Migration `AddPatientFlow` (existing rows start at `Scheduled`).
+- **`PatientFlowRules.Decide`** - one pure function, tested on every pair of states. Forward only; `InTreatment` may be skipped (`CheckedIn` -> `Completed`);
+  check-in may not be skipped; nothing moves backwards (a mistaken check-in is a correction for a later story, not a silent undo); asking for the current state is a no-op.
+- **`AppointmentFlowService`** - `CheckInAsync`, `StartTreatmentAsync`, `CompleteAsync`.
+- **API** `POST api/appointments/{id}/check-in`, `.../start-treatment`, `.../complete`, each with `{ rowVersion }`; `ManageAppointments` and a CSRF token. The appointment
+  view (list, detail, every response) carries `flowState` and `flowChangedAtUtc`.
+- **UI** the calendar drawer offers the next step (Check in; Start treatment / Complete treatment; nothing once completed), a badge and the calendar block say it in words
+  ("09:00-10:00 - Checked in") and the history shows it.
+
+## The rules
+- **Every status change is logged**, in the same save as the change: an `AppointmentEvent` history entry (`CheckedIn`, `TreatmentStarted`, `Completed`; detail
+  `"<from> -> <to>"`, who, when) and a PHI-free audit entry (`PatientCheckedIn`, `PatientTreatmentStarted`, `PatientTreatmentCompleted`, with the user and a timestamp, the
+  appointment id as the target, and no names, times or notes). **If the log cannot be written the status does not change either**, so a state can never change without a record.
+- **Repeats are harmless.** Asking for the state the appointment is already in changes nothing and writes nothing, whatever version the caller holds (a retried request, a
+  dropped connection, two people pressing Check in at once end in one check-in).
+- **Every real move carries the row version the caller read**; a stale one is the shared 409 `concurrency_conflict`, never applied on top of someone else's change.
+- **Once the patient has checked in** the appointment can no longer be rescheduled, cancelled or marked no-show (409 `appointment_in_progress`). A cancelled or no-show appointment has no flow (409 `appointment_not_scheduled`).
+- **The database backs the service**: `CK_Appointments_FlowState` refuses an unknown state and `CK_Appointments_FlowNeedsScheduled` refuses any flow past Scheduled on a Cancelled or NoShow appointment.
+- Stable codes added: 409 `invalid_flow_transition`, 409 `appointment_in_progress`. Measurement: `appointment.flow` (`category` = the target state or the refusal code, `outcome`).
+
+## Failure paths (the story's three) and what happens
+| Failure | Behaviour |
+|---|---|
+| Status fails to update on check-in / on completion | Nothing is stored; the caller gets a clear refusal or error and the appointment is exactly where it was. The same request can be retried safely. |
+| The status change cannot be logged | The change is not stored either (one save). The caller gets an error; retrying works once logging is back. |
+| Two people move the patient at once | One wins; the other gets the shared conflict (or, for the same move, a quiet no-op). One history and audit entry per move. |
+
+## Known limits (this story)
+- **No "too early to check in" rule**: booking requires a future start, so a patient can be checked in days before the appointment. The story asks for none; a same-day rule can be added later.
+- **Only roles with `ManageAppointments`** (front desk, office manager, admin) can move a patient. Dentists, hygienists and assistants can see the flow but cannot mark treatment complete from their own login; that needs a clinical-completion permission, which no story has defined yet.
+- **No undo**: a mistaken check-in cannot be reversed in this story.
+- **"Completed" means the visit's treatment is marked complete**; it does not create a clinical encounter or charge (those are later stories).

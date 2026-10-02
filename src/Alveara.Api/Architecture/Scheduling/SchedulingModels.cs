@@ -12,7 +12,8 @@ public record AppointmentView(
     Guid Id, Guid PatientId, string PatientName, Guid ProviderId, string ProviderName, Guid OperatoryId, string OperatoryName,
     Guid AppointmentTypeId, string AppointmentTypeName, DateTimeOffset StartUtc, DateTimeOffset EndUtc, string StartLocal, string EndLocal,
     int DurationMinutes, string Status, DateTimeOffset CreatedAtUtc,
-    string? RowVersion = null, string? Notes = null, string? CancelReason = null, DateTimeOffset? StatusChangedAtUtc = null);
+    string? RowVersion = null, string? Notes = null, string? CancelReason = null, DateTimeOffset? StatusChangedAtUtc = null,
+    string FlowState = PatientFlowStates.Scheduled, DateTimeOffset? FlowChangedAtUtc = null);
 
 public static class SchedulingAuditEvents
 {
@@ -24,6 +25,10 @@ public static class SchedulingAuditEvents
     public const string Cancelled = "AppointmentCancelled";
     public const string NoShow = "AppointmentNoShow";
     public const string NotesChanged = "AppointmentNotesChanged";
+    // STORY-011: patient flow
+    public const string PatientCheckedIn = "PatientCheckedIn";
+    public const string TreatmentStarted = "PatientTreatmentStarted";
+    public const string TreatmentCompleted = "PatientTreatmentCompleted";
 }
 
 /// <summary>A scheduling request was refused. <see cref="Code"/> is stable for the UI.</summary>

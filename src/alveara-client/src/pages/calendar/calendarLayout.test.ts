@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Appointment } from "../../services/schedulingApi";
 import {
-  addDays, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, hhmm, minutesOf, placeColumn, practiceNow, slotMinuteAt, viewDays, weekStart,
+  addDays, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, flowWord, hhmm, minutesOf, placeColumn, practiceNow, slotMinuteAt, viewDays, weekStart,
 } from "./calendarLayout";
 
 const appt = (id: string, start: string, end: string, over: Partial<Appointment> = {}): Appointment => ({
@@ -113,5 +113,20 @@ describe("placing appointments in a column", () => {
     expect(slotMinuteAt(14, 420)).toBe(420);
     expect(slotMinuteAt(15, 420)).toBe(435);
     expect(slotMinuteAt(125, 420)).toBe(540);
+  });
+});
+
+describe("flowWord (STORY-011)", () => {
+  it("says nothing for a patient who has not arrived and names each later state in words", () => {
+    expect(flowWord({ status: "Scheduled" })).toBeNull();
+    expect(flowWord({ status: "Scheduled", flowState: "Scheduled" })).toBeNull();
+    expect(flowWord({ status: "Scheduled", flowState: "CheckedIn" })).toBe("Checked in");
+    expect(flowWord({ status: "Scheduled", flowState: "InTreatment" })).toBe("In treatment");
+    expect(flowWord({ status: "Scheduled", flowState: "Completed" })).toBe("Completed");
+  });
+
+  it("never reports a flow for a cancelled or no-show appointment, whatever the data says", () => {
+    expect(flowWord({ status: "Cancelled", flowState: "CheckedIn" })).toBeNull();
+    expect(flowWord({ status: "NoShow", flowState: "Completed" })).toBeNull();
   });
 });

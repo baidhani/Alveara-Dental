@@ -269,3 +269,28 @@
 .cal-drawer .alv-concurrency-conflict__title {
   color: var(--color-text);
 }
+
+/* STORY-011: the patient's flow through the visit. The words carry the meaning; the outline only reinforces it. */
+.cal-badge--flow-checkedin,
+.cal-badge--flow-intreatment {
+  border-width: 2px;
+  border-color: var(--color-primary);
+  background: var(--color-info-bg);
+}
+
+.cal-badge--flow-completed {
+  border-width: 2px;
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.cal__block[data-flow="CheckedIn"],
+.cal__block[data-flow="InTreatment"] {
+  border-width: 2px;
+  border-color: var(--color-primary);
+}
+
+.cal__block[data-flow="Completed"] {
+  border-width: 2px;
+  border-color: var(--color-success);
+}

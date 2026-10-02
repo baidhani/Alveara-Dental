@@ -36,6 +36,12 @@ public class Appointment
     public DateTimeOffset? StatusChangedAtUtc { get; set; }
     public Guid? StatusChangedByUserId { get; set; }
 
+    /// <summary>STORY-011: how far the visit has got (see <see cref="PatientFlowStates"/>). Only meaningful while Status is Scheduled.</summary>
+    public string FlowState { get; set; } = PatientFlowStates.Scheduled;
+    /// <summary>When and by whom the flow last moved (null until the first move).</summary>
+    public DateTimeOffset? FlowChangedAtUtc { get; set; }
+    public Guid? FlowChangedByUserId { get; set; }
+
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid? CreatedByUserId { get; set; }
     public byte[] RowVersion { get; set; } = [];
@@ -72,4 +78,8 @@ public static class AppointmentEventTypes
     public const string Cancelled = "Cancelled";
     public const string NoShow = "NoShow";
     public const string NotesChanged = "NotesChanged";
+    // STORY-011: patient flow. Each event's Detail holds "<from> -> <to>".
+    public const string CheckedIn = "CheckedIn";
+    public const string TreatmentStarted = "TreatmentStarted";
+    public const string Completed = "Completed";
 }

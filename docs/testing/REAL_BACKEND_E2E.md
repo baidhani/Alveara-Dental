@@ -163,3 +163,22 @@ users moving the same appointment producing one change; a cancellation with a re
 before the start and recorded after it; patient overlap refused and the week view putting overlapping appointments side by side; a dentist who can look but not change (403)
 and billing with no Calendar; a keyboard-only reschedule; the audit trail holding every action with user and time and no patient details or reasons - then axe scans of each
 screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
+
+## STORY-011: patient flow walkthrough
+
+`e2e/patient-flow-real-backend.spec.ts` is the un-mocked run for patient flow. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough
+above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:FLOW_E2E_OUT = "C:\tmp\flow-e2e"       # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.flow.config.ts
+```
+
+It configures the practice through the real configuration API, then signs in as front-desk users, a dentist and a billing user and shows: a scheduled patient checked in
+from the calendar drawer and then started and completed (the status in the drawer, on the calendar block and on the server); a checked-in patient going straight to completed;
+out-of-order, repeated, stale and unknown moves, and cancel / no-show / reschedule refused after check-in; a second user moving the patient first (a repeat is a quiet no-op, a
+different move is reported and not applied); six simultaneous check-ins producing one; a dentist who can see the flow but not move it (403); a keyboard-only check-in and
+completion; the audit log holding every move with user and time and no patient details - with axe scans in light and dark. It needs no `sqlcmd`. Like the other real-backend specs it
+is excluded from the default mocked `npm run test:e2e`.
