@@ -34,3 +34,10 @@
   - What changed: `.status-stale-banner` text uses `--color-warning-text` (3.46:1 -> 5.39:1 light); new shared test helper `styles/contrastSupport.ts` (resolves tokens and CSS fallbacks, composites translucent tints)
   - Verification: 516/516 frontend (`vitest`, 14 new in `systemStatusContrast.test.ts`, 1 fails against the old CSS), `tsc -b`, build and lint pass, mocked Playwright 82/82 (4 new real-browser stale-banner axe tests driving the page clock; they fail against the old CSS at 3.46:1), real-backend: Gate A scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10, auth 12/12
   - Notes: colour-only; ALV-001-C01 (login banner) and ALV-N004 (backup warning text) are the next separate attempts
+
+- [x] ALV-001-C01 R08: login banners meet WCAG AA in both themes (expired-session warning 3.16:1 and MFA success message; set to AWAITING_REVIEW, not COMPLETE)
+  - Date: 2026-10-02
+  - Session: CC-20261002-f7c1
+  - What changed: `.alv-login__banner--warning` text uses `--color-warning-text`; new `.alv-login__banner--success` class (uses `--color-success-text`) replaces the inline style in `MfaSettingsPage.tsx`
+  - Verification: 526/526 frontend (`vitest`, 10 new in `loginContrast.test.ts`, 4 fail against the old code), `tsc -b`, build and lint pass, mocked Playwright 90/90 (8 new real-browser banner axe runs; the warning runs fail against the old CSS at 3.16:1), real-backend: Gate A scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10, auth 12/12 (incl. MFA confirmation)
+  - Notes: colour-only plus one inline style moved to CSS; ALV-N004 (backup warning text and its intermittent stale-settings test) is the next separate attempt

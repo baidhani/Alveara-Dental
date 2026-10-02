@@ -177,7 +177,7 @@ export function MfaSettingsPage() {
       )}
 
       {state.kind === "confirmed" && (
-        <div className="alv-login__banner" style={{ background: "var(--color-success-surface, rgba(22,163,74,0.12))", color: "var(--color-success, #15803d)" }}>
+        <div className="alv-login__banner alv-login__banner--success">
           MFA is now active on your account.
         </div>
       )}
