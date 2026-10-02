@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N001` approved at attempt R04 and recorded **`COMPLETE`** by review closure; finding F1 is closed. Still required before Gate B: the `ALV-002-C01` conflict-banner correction (F2, with removal of the page-level workarounds) and the `ALV-N002` `.status-stale-banner` correction, each as its own reopened attempt. `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
+Last updated: `ALV-002-C01` is **`REOPENED`** (next attempt R05) for finding F2 (conflict-banner title contrast) and removal of the three page-level workarounds, as required by the `ALV-011-C01` R01 and `ALV-N001` R04 reviews; `ALV-N002` (`.status-stale-banner`) follows as its own attempt. `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
 
 ## Production implementation status
 
