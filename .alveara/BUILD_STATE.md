@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-003-C01` attempt R01 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`). `STORY-003` is `COMPLETE` (portal-verified, unchanged); Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation commit SHA and `.alveara/handoffs/ALV-003-C01/R01.md` for the handoff. Gate B is not evaluated.
+Last updated: `ALV-003-C01` attempt R02 - R01 was reviewed `CHANGES_REQUIRED` (evidence commit missing from the control record; no product defect); R02 reuses implementation commit `fdafb00` and is set to **`AWAITING_REVIEW`** (not `COMPLETE`). `STORY-003` is `COMPLETE` (portal-verified, unchanged); Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-003-C01/R02.md` for the handoff. Gate B is not evaluated.
 
 ## Production implementation status
 
@@ -16,7 +16,7 @@ Last updated: `ALV-003-C01` attempt R01 - implementation committed, set to **`AW
 - **API** `api/patients`: register, duplicate-check, search, detail, history, update, active, guarantor, household, `registration-settings`. Permissions: `RegisterPatients`, **`EditPatients`** (new), `ViewPatientRecords` (front desk now holds it; clinical roles and billing can read but not change patients), `ManagePracticeConfiguration` (practice requirements).
 - **Practice requirements**: a practice may require email and/or sex in addition to the always-required fields (`PatientRegistrationSettings`, `/admin/patient-registration`); enforced by the server, reflected in the forms.
 - **UI**: the shell's patient-context placeholder is replaced by the shared **patient header**; persistent **patient workspace** `/patients/:patientId` (Details, Household & guarantor, History) whose tabs come from `src/app/patientWorkspaceTabs.ts` (the extension point for later stories); patient search `/patients`; registration with the duplicate comparison panel. Switching patients drops the previous patient immediately and discards late responses. See `docs/PATIENT_WORKSPACE.md`.
-- **Findings recorded, not fixed here** (shared components of completed stories): success-toast contrast 4.45:1 (`ALV-N001`) and conflict-banner title contrast 3.46:1 (`ALV-002-C01`); this story avoids the toast and overrides the banner title inside the patient workspace only. See `R01.md` F1/F2.
+- **Findings recorded, not fixed here** (shared components of completed stories): success-toast contrast 4.45:1 (`ALV-N001`) and conflict-banner title contrast 3.46:1 (`ALV-002-C01`); this story avoids the toast and overrides the banner title inside the patient workspace only. See `R01.md` F1/F2. Per the R01 review these are open findings against `ALV-N001` and `ALV-002-C01` and must be corrected through reopened-story attempts before Gate B is evaluated.
 - 492 backend / 319 frontend / 40 mocked-browser / 14 real-backend walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. STORY-003's own tests are unchanged and pass. Gate B (rows B1, B3) is not evaluated. See `.alveara/handoffs/ALV-003-C01/R01-evidence/`.
 
 ## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, COMPLETE - approved attempt R05)
