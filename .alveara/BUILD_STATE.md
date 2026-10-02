@@ -30,6 +30,13 @@ Last updated: `STORY-004` (appointment scheduling with conflict prevention) is `
 - **Findings carried forward, not fixed here**: `ALV-N001` success-toast contrast 4.45:1 (F1) and `ALV-002-C01` conflict-banner title contrast 3.46:1 (F2) remain open and must be corrected through reopened-story attempts before Gate B is evaluated.
 - 602 backend / 371 frontend / 40 mocked-browser / 10 forms walkthrough / 14 workspace walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. Gate B is not evaluated. See `.alveara/handoffs/ALV-N010/R01-evidence/`.
 
+## Command Center (root `index.html` + `assets/`)
+
+- **Real data only.** The Sample/Real switch, the sample banner and `assets/sample/*` were removed on the owner's request. This retires STORY-000's criterion 2 ("sample mode ... visibly labelled"), which no longer describes anything; the portal's recorded verification of STORY-000 (`.colaberry/progress.json`) is historical and unchanged. Gate A's A1 evidence spec (`src/alveara-client/gate-a/gate-a-command-center.spec.ts`) now asserts the absence of any sample mode instead (and still checks the other four Done-means checks); it was re-run and passes. Gate A's recorded status is unchanged.
+- **Project Management has two views.** *Portal stories* (the course portal's stories, from `.colaberry/plan.json` + `progress.json`, unchanged) and *Engineering stories (companions & new)* - every `companion` and `new_production` record of `.alveara/EXECUTION_STATUS.json`, with type, the portal story it extends, status, attempt and review decision, and a drill-down per story. The page fetches the ledger at runtime and says so if it cannot be read; it shows only what the ledger records.
+- **Contrast fix:** the page's muted-text colour was 4.25:1 on the page background (below WCAG AA); it is now 5.5:1.
+- Permanent real-browser coverage: `src/alveara-client/e2e/command-center.spec.ts` (18 tests across desktop and tablet, expectations computed from the committed data files, axe in light and dark).
+
 ## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, COMPLETE - approved attempt R05)
 
 R05 correction (responding to R04's independent review, `.alveara/reviews/ALV-N004/R04.md`, decision `CHANGES_REQUIRED`) - adds to the R04 bullets below:

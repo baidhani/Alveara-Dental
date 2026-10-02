@@ -10,7 +10,8 @@ import type { Server } from "node:http";
  * Nothing is mocked; the production app is not involved (coexistence is proven by the repo-level node tests).
  *
  *  1. every tab is reachable and every card drills down one level
- *  2. sample mode is visibly labelled
+ *  2. (retired) sample mode was removed on request: there is NO sample mode, no sample data and no sample label anywhere; the page shows real data only
+ *     (see .alveara/BUILD_STATE.md, 'Command Center'). This check now asserts that absence instead of a sample label.
  *  3. tabs read .colaberry/plan.json and progress.json at runtime (observed network requests), both committed
  *  4. .colaberry/manifest.json committed and the data age shown (and a week-old warning rule exists)
  *  5. trust - no tab shows a number the project has not produced (the verified counts shown equal progress.json)
@@ -50,7 +51,8 @@ test("A1: the root Command Center satisfies STORY-000's five Done-means checks a
   await page.goto(base + "/index.html");
   await expect(page.locator("#tabs-nav button").first()).toBeVisible();
 
-  // (2) sample mode is the default and visibly labelled on every tab
+  // (2) there is no sample mode: no switch, no sample data requested, no sample label on any tab
+  expect(await page.locator('#mode-toggle').count(), 'no sample/real switch').toBe(0);
   const tabs = await page.locator("#tabs-nav button").evaluateAll((els) => els.map((e) => ({ id: (e as HTMLElement).dataset.tab, label: e.textContent })));
   expect(tabs.length).toBeGreaterThanOrEqual(9);
   evidence.tabs = tabs;
@@ -61,7 +63,7 @@ test("A1: the root Command Center satisfies STORY-000's five Done-means checks a
     await page.locator(`#tabs-nav button[data-tab="${t.id}"]`).click();
     await expect(page.locator(`#tabs-nav button[data-tab="${t.id}"].active`)).toBeVisible();
     await expect(page.locator("#tab-content")).not.toContainText("Loading…");
-    await expect(page.locator(".sample-banner").first()).toContainText("SAMPLE DATA");
+    await expect(page.locator(".sample-banner"), `${t.label}: no sample label (there is no sample data)`).toHaveCount(0);
     reached.push(t.label ?? "");
     // "every card drills down one level": activate the first drill-down card on the tab and require a detail panel with a close control
     const cards = page.locator("#tab-content [data-detail]");
@@ -79,11 +81,9 @@ test("A1: the root Command Center satisfies STORY-000's five Done-means checks a
   evidence.tabsWithDrillDownActivated = drilled;
   expect(drilled.length, "at least one tab drill-down was actually activated").toBeGreaterThan(0);
 
-  // (3)+(4)+(5) real mode: reads .colaberry/* at runtime, shows data age, no sample label, counts equal progress.json
-  requested.length = 0;
-  await page.locator('#mode-toggle button[data-mode="real"]').click();
+  // (3)+(4)+(5) real data only: reads .colaberry/* at runtime, shows data age, counts equal progress.json
   await expect(page.locator("#data-stamp")).not.toContainText("loading");
-  await expect(page.locator(".sample-banner")).toHaveCount(0);
+  expect(requested.some((u) => u.includes("assets/sample")), "no sample data is ever requested").toBe(false);
   expect(requested.some((u) => u.endsWith(".colaberry/plan.json")), "plan.json fetched at runtime").toBe(true);
   expect(requested.some((u) => u.endsWith(".colaberry/progress.json")), "progress.json fetched at runtime").toBe(true);
   expect(requested.some((u) => u.endsWith(".colaberry/manifest.json")), "manifest.json fetched at runtime").toBe(true);

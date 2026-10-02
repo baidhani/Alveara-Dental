@@ -4,7 +4,7 @@
   --color-surface: #ffffff;
   --color-border: #e4e8ee;
   --color-text: #17202b;
-  --color-text-muted: #6b7686;
+  --color-text-muted: #596473; /* 5.5:1 on the page background (the earlier #6b7686 was 4.25:1, below WCAG AA) */
   --color-primary: #2d5f7c;
   --color-primary-dark: #1f4459;
   --color-primary-contrast: #ffffff;
@@ -209,7 +209,7 @@ nav.tabs-vertical button.active::before {
   transform: scale(1.3);
 }
 
-/* ---------- Sidebar: footer (mode toggle + data stamp) ---------- */
+/* ---------- Sidebar: footer (theme toggle + data stamp) ---------- */
 
 .sidebar-footer {
   padding: 16px 20px 22px;
@@ -219,32 +219,8 @@ nav.tabs-vertical button.active::before {
   gap: 12px;
 }
 
-.mode-toggle {
-  display: inline-flex;
-  border: 1px solid var(--sidebar-border);
-  border-radius: 999px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.18);
-  width: 100%;
-}
 
-.mode-toggle button {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--sidebar-text-muted);
-  padding: 7px 14px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
-}
 
-.mode-toggle button.active {
-  background: var(--color-primary);
-  color: #fff;
-}
 
 .theme-toggle {
   display: inline-flex;
@@ -297,20 +273,8 @@ nav.tabs-vertical button.active::before {
   font-style: italic;
 }
 
-/* ---------- Content: banners ---------- */
+/* ---------- Project Management sub-tabs ---------- */
 
-.sample-banner {
-  background: var(--surface-warning-soft);
-  border: 1px solid var(--color-warning);
-  color: var(--color-warning);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  padding: 7px 14px;
-  border-radius: 999px;
-  margin-bottom: 18px;
-  display: inline-block;
-}
 
 .pause-banner {
   background: var(--surface-accent-soft);
@@ -495,4 +459,35 @@ p.tab-desc {
   main#tab-content {
     padding: 24px 20px 40px;
   }
+}
+
+.subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-border);
+  margin: 4px 0 18px;
+}
+
+.subtab {
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: var(--color-text);
+  padding: 9px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.subtab:hover {
+  background: var(--color-bg);
+}
+
+.subtab.active {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  box-shadow: inset 0 -3px 0 var(--color-primary);
 }

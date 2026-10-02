@@ -1,6 +1,7 @@
 /* Alveara Dental Command Center
-   Reads .colaberry/plan.json, progress.json, manifest.json at runtime.
-   Nothing here hard-codes plan content — sample mode uses its own bundled sample files. */
+   Reads .colaberry/plan.json, progress.json, manifest.json at runtime (written by the portal on sync), and the
+   engineering ledger .alveara/EXECUTION_STATUS.json for the companion and new-production stories the portal does not track.
+   It shows real data only: nothing here hard-codes plan content, and there is no sample mode. */
 
 const TABS = [
   { id: "overview", label: "Overview", built: true },
@@ -57,12 +58,13 @@ const DATA_MODEL_ENTITIES = [
 ];
 
 const state = {
-  mode: "sample", // "sample" | "real"
   activeTab: "overview",
+  pmView: "portal", // Project Management sub-tab: "portal" | "engineering"
   plan: null,
   progress: null,
   manifest: null,
-  dataMissing: false, // true when real mode found no .colaberry data files
+  ledger: null, // .alveara/EXECUTION_STATUS.json (engineering stories); null when it could not be read
+  dataMissing: false, // true when the .colaberry data files could not be read
   theme: "light", // "light" | "dark"
 };
 
@@ -114,20 +116,7 @@ async function fetchJson(path) {
 }
 
 async function loadData() {
-  if (state.mode === "sample") {
-    const [plan, progress, manifest] = await Promise.all([
-      fetchJson("assets/sample/plan.json"),
-      fetchJson("assets/sample/progress.json"),
-      fetchJson("assets/sample/manifest.json"),
-    ]);
-    state.plan = plan;
-    state.progress = progress;
-    state.manifest = manifest;
-    state.dataMissing = false;
-    return;
-  }
-
-  // Real mode: read from .colaberry/, written by the platform on sync.
+  // Read from .colaberry/, written by the platform on sync.
   try {
     const [plan, progress, manifest] = await Promise.all([
       fetchJson(".colaberry/plan.json"),
@@ -143,6 +132,13 @@ async function loadData() {
     state.progress = null;
     state.manifest = null;
     state.dataMissing = true;
+  }
+
+  // The engineering ledger is optional for the portal tabs: if it cannot be read only the Engineering stories view says so.
+  try {
+    state.ledger = await fetchJson(".alveara/EXECUTION_STATUS.json");
+  } catch (err) {
+    state.ledger = null;
   }
 }
 
@@ -182,27 +178,6 @@ function formatRelativeAge(ms) {
   return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
-function sampleBanner() {
-  return state.mode === "sample"
-    ? '<div class="sample-banner">SAMPLE DATA — not from your real project</div>'
-    : "";
-}
-
-function renderModeToggle() {
-  const el = document.getElementById("mode-toggle");
-  el.innerHTML = `
-    <button data-mode="sample" class="${state.mode === "sample" ? "active" : ""}">Sample</button>
-    <button data-mode="real" class="${state.mode === "real" ? "active" : ""}">Real</button>
-  `;
-  el.querySelectorAll("button").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      state.mode = btn.dataset.mode;
-      await loadData();
-      renderAll();
-    });
-  });
-}
-
 function renderTabsNav() {
   const el = document.getElementById("tabs-nav");
   el.innerHTML = TABS.map(
@@ -231,10 +206,9 @@ function renderOverview() {
 
   if (!plan || !progress) {
     return `
-      ${sampleBanner()}
       <h1 class="tab-title">Overview</h1>
       <p class="tab-desc">The single screen you'd show someone in thirty seconds.</p>
-      <div class="empty-state">No project data available yet. Switch to Sample, or sync from the portal.</div>
+      <div class="empty-state">No project data available yet. Sync from the portal to load it.</div>
     `;
   }
 
@@ -242,7 +216,6 @@ function renderOverview() {
   const demoRelease = (plan.releases || []).find((r) => r.key === plan.schedule?.demo_release_key);
 
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Overview</h1>
     <p class="tab-desc">${escapeHtml(plan.project?.name || "")} — ${escapeHtml(plan.project?.descriptor || "")}</p>
 
@@ -332,6 +305,18 @@ function renderDetail(rawId) {
          <p>Release: ${escapeHtml(story.release)} · Due: ${escapeHtml(story.due_on)} (first given: ${escapeHtml(story.due_baseline_on)})</p>
          <p>State: ${verifiedBadge(story.id)}${prog?.verification?.commit_sha ? ` · commit ${escapeHtml(prog.verification.commit_sha.slice(0, 7))}` : ""}</p>`
       : `<p>No detail available.</p>`;
+  } else if (tab === "eng") {
+    const r = (state.ledger?.records || []).find((x) => x.storyId === key);
+    html = r
+      ? `<h3>${escapeHtml(r.storyId)} — ${escapeHtml(ENGINEERING_TYPES[r.storyType] || r.storyType)} story ${escapeHtml(r.num)}</h3>
+         <p>Phase: ${escapeHtml(r.phase)}${r.parentCourseStory ? ` · Extends portal story ${escapeHtml(r.parentCourseStory)}` : ""}</p>
+         <p>Depends on: ${(r.dependencies || []).length ? (r.dependencies || []).map(escapeHtml).join(", ") : "nothing"}</p>
+         <p>Status: ${engineeringStatusTag(r.status)}${r.attempt ? ` · attempt ${escapeHtml(r.attempt)}` : ""}${r.acceptance?.total != null ? ` · acceptance ${escapeHtml(r.acceptance.passed)} of ${escapeHtml(r.acceptance.total)}` : ""}</p>
+         ${r.review?.decision && r.review.decision !== "pending" ? `<p>Review decision: ${escapeHtml(r.review.decision.replace(/_/g, " "))}${r.review.decisionArtifact ? ` (${escapeHtml(r.review.decisionArtifact)})` : ""}</p>` : ""}
+         ${r.implementationCommit ? `<p>Implementation commit ${escapeHtml(r.implementationCommit.slice(0, 7))}${r.completedAt ? ` · completed ${escapeHtml(r.completedAt)}` : ""}</p>` : ""}
+         ${r.tests?.summary ? `<p>Tests: ${escapeHtml(r.tests.summary)}</p>` : ""}
+         ${(r.blockingIssues || []).length ? `<p>Blocking issues: ${(r.blockingIssues || []).map(escapeHtml).join(" · ")}</p>` : ""}`
+      : `<p>No detail available.</p>`;
   } else if (tab === "agents") {
     const owner = STORY_OWNERS.find((o) => o.name === decodeURIComponent(key));
     html = owner
@@ -375,14 +360,21 @@ function renderTabContent() {
   });
 
   if (state.activeTab === "kb") wireKbChat();
+  if (state.activeTab === "pm") {
+    el.querySelectorAll("[data-pm-view]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.pmView = btn.dataset.pmView;
+        renderTabContent();
+      });
+    });
+  }
 }
 
 function requireData(title, desc) {
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">${title}</h1>
     <p class="tab-desc">${desc}</p>
-    <div class="empty-state">No project data available yet. Switch to Sample, or sync from the portal.</div>
+    <div class="empty-state">No project data available yet. Sync from the portal to load it.</div>
   `;
 }
 
@@ -405,7 +397,6 @@ function renderOutcomes() {
     : `<div class="empty-state">No numeric target is defined in the plan yet. This tab will show one card per measure once <code>plan.derived.measures</code> carries them.</div>`;
 
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Outcomes</h1>
     <p class="tab-desc">The numbers this project has to move.</p>
     ${body}
@@ -419,7 +410,6 @@ function renderUsers() {
   const roles = plan.derived?.roles || [];
 
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Users & Use Case</h1>
     <p class="tab-desc">Roles taken from your own stories' "As a &lt;role&gt;, I want …" narratives.</p>
     <div class="card-grid">
@@ -471,7 +461,6 @@ function renderGuardrails() {
     .join("");
 
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Guardrails</h1>
     <p class="tab-desc">Promises this system makes, and whether anything currently enforces them.</p>
     <div class="card-grid">${cards || '<div class="empty-state">No SAFE requirements declared.</div>'}</div>
@@ -491,17 +480,35 @@ function renderSystems() {
     : `<div class="empty-state">Your plan names no external system yet. Every indicator here will render grey and labelled "not checked from here" until your own running system reports otherwise.</div>`;
 
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Systems</h1>
     <p class="tab-desc">What this project connects to — and whether that connection is actually live.</p>
     ${body}
   `;
 }
 
-function renderPM() {
+const ENGINEERING_TYPES = { companion: "Companion", new_production: "New production" };
+const ENGINEERING_STATUS_LABELS = {
+  PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", BLOCKED: "Blocked",
+  REOPENED: "Reopened", COMPLETE: "Complete",
+};
+
+/** Companion and new-production stories from the engineering ledger, in plan order. */
+function engineeringRecords() {
+  return (state.ledger?.records || [])
+    .filter((r) => r.storyType === "companion" || r.storyType === "new_production")
+    .slice()
+    .sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
+}
+
+function engineeringStatusTag(status) {
+  const cls = status === "COMPLETE" ? "verified" : ["CHANGES_REQUIRED", "BLOCKED", "REOPENED"].includes(status) ? "gap" : "";
+  return `<span class="tag ${cls}">${escapeHtml(ENGINEERING_STATUS_LABELS[status] || status)}</span>`;
+}
+
+function renderPortalStories() {
   const plan = state.plan;
   const progress = state.progress;
-  if (!plan || !progress) return requireData("Project Management", "Releases, tasks, and due dates.");
+  if (!plan || !progress) return `<div class="empty-state">No portal data available yet. Sync from the portal to load it.</div>`;
 
   const releases = plan.releases || [];
 
@@ -551,21 +558,76 @@ function renderPM() {
     .join("");
 
   return `
-    ${sampleBanner()}
-    <h1 class="tab-title">Project Management</h1>
-    <p class="tab-desc">Build ${escapeHtml(plan.schedule?.build_start)} → ${escapeHtml(plan.schedule?.build_end)}. Demo day ${escapeHtml(plan.schedule?.demo_day)}.</p>
+    <p class="tab-desc">Build ${escapeHtml(plan.schedule?.build_start)} → ${escapeHtml(plan.schedule?.build_end)}. Demo day ${escapeHtml(plan.schedule?.demo_day)}. These are the course portal's stories; the portal verifies them.</p>
     <div class="detail-panel" style="margin-bottom:20px">${ganttRows}</div>
     <table class="trace-table">
       <thead><tr><th>Story</th><th>Title</th><th>Release</th><th>Due</th><th>State</th></tr></thead>
       <tbody>${taskRows}</tbody>
     </table>
+  `;
+}
+
+function renderEngineeringStories() {
+  const records = engineeringRecords();
+  if (!state.ledger) {
+    return `<div class="empty-state">The engineering ledger (.alveara/EXECUTION_STATUS.json) could not be loaded, so the companion and new-production stories cannot be shown.</div>`;
+  }
+  const count = (status) => records.filter((r) => r.status === status).length;
+  const companions = records.filter((r) => r.storyType === "companion").length;
+  const created = records.length - companions;
+
+  const rows = records
+    .map((r) => {
+      const review = r.review?.decision && r.review.decision !== "pending" ? r.review.decision.replace(/_/g, " ") : "—";
+      return `
+        <tr data-detail="eng:${escapeHtml(r.storyId)}" style="cursor:pointer">
+          <td>${escapeHtml(r.num)}</td>
+          <td>${escapeHtml(r.storyId)}</td>
+          <td>${escapeHtml(ENGINEERING_TYPES[r.storyType] || r.storyType)}</td>
+          <td>${escapeHtml(r.parentCourseStory || "—")}</td>
+          <td>${engineeringStatusTag(r.status)}</td>
+          <td>${escapeHtml(r.attempt || "—")}</td>
+          <td>${escapeHtml(review)}</td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  return `
+    <p class="tab-desc">Companion stories extend a portal story; new-production stories add engineering work the portal does not track. They are reviewed independently and recorded in the engineering ledger (.alveara/EXECUTION_STATUS.json), not verified by the portal.</p>
+    <div class="detail-panel" style="margin-bottom:20px">
+      <strong>${records.length} engineering stories</strong> — ${companions} companion, ${created} new production ·
+      ${count("COMPLETE")} complete · ${count("AWAITING_REVIEW")} awaiting review · ${count("CHANGES_REQUIRED")} changes required · ${count("PLANNED")} planned
+    </div>
+    <table class="trace-table">
+      <thead><tr><th>#</th><th>Story</th><th>Type</th><th>Extends portal story</th><th>Status</th><th>Attempt</th><th>Review</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderPM() {
+  const views = [
+    { id: "portal", label: "Portal stories" },
+    { id: "engineering", label: "Engineering stories (companions & new)" },
+  ];
+  const tabs = views
+    .map(
+      (v) => `<button type="button" role="tab" id="pm-tab-${v.id}" data-pm-view="${v.id}" aria-selected="${state.pmView === v.id}" aria-controls="pm-panel" class="subtab${state.pmView === v.id ? " active" : ""}">${v.label}</button>`
+    )
+    .join("");
+  return `
+    <h1 class="tab-title">Project Management</h1>
+    <div class="subtabs" role="tablist" aria-label="Story groups">${tabs}</div>
+    <div id="pm-panel" role="tabpanel" aria-labelledby="pm-tab-${state.pmView}">
+      ${state.pmView === "engineering" ? renderEngineeringStories() : renderPortalStories()}
+    </div>
     <div id="detail-panel"></div>
   `;
 }
 
 function renderAgents() {
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">AI Agents</h1>
     <p class="tab-desc">Your plan does not carry a scoped agent roster yet — these are story <em>owners</em>, not AI agents.</p>
     <div class="card-grid">
@@ -603,7 +665,6 @@ function renderKB() {
     .join("");
 
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Knowledge Base</h1>
     <p class="tab-desc">Requirements traceability, and a chat panel scoped to this page's data.</p>
     <table class="trace-table">
@@ -647,7 +708,7 @@ function wireKbChat() {
 function answerKbQuestion(q) {
   const plan = state.plan;
   const progress = state.progress;
-  if (!plan || !progress) return "No project data is loaded — switch to Sample or sync from the portal. (Knowledge Base tab)";
+  if (!plan || !progress) return "No project data is loaded — sync from the portal. (Knowledge Base tab)";
 
   const reqMatch = /REQ-\d+/i.exec(q);
   if (reqMatch) {
@@ -684,7 +745,6 @@ function answerKbQuestion(q) {
 
 function renderDataModel() {
   return `
-    ${sampleBanner()}
     <h1 class="tab-title">Data Model</h1>
     <p class="tab-desc">A starting sketch derived from the requirements register — not the final answer. Review before tables are created.</p>
     <div class="card-grid">
@@ -701,7 +761,6 @@ function renderDataModel() {
 
 function renderAll() {
   renderThemeToggle();
-  renderModeToggle();
   renderTabsNav();
   formatDataStamp();
   renderTabContent();
