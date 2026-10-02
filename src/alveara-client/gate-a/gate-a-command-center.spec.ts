@@ -67,12 +67,19 @@ test("A1: the root Command Center satisfies STORY-000's five Done-means checks a
     reached.push(t.label ?? "");
     // "every card drills down one level": activate the first drill-down card on the tab and require a detail panel with a close control
     const cards = page.locator("#tab-content [data-detail]");
-    drill[t.label ?? ""] = await cards.count();
-    if (drill[t.label ?? ""] > 0) {
+    const expandable = page.locator("#tab-content tr[data-expand]"); // Project Management: a portal story expands in place to show its attached engineering stories
+    drill[t.label ?? ""] = (await cards.count()) + (await expandable.count());
+    if ((await cards.count()) > 0) {
       await cards.first().click();
       await expect(page.locator("#close-detail"), `${t.label}: drill-down detail opens`).toBeVisible();
       await page.locator("#close-detail").click();
       await expect(page.locator("#close-detail")).toHaveCount(0);
+      drilled.push(t.label ?? "");
+    } else if ((await expandable.count()) > 0) {
+      await expandable.first().click();
+      await expect(page.locator("[data-expanded-panel]"), `${t.label}: expanding a story opens its detail`).toHaveCount(1);
+      await expandable.first().click();
+      await expect(page.locator("[data-expanded-panel]")).toHaveCount(0);
       drilled.push(t.label ?? "");
     }
   }

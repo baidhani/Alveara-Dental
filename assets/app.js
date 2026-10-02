@@ -60,6 +60,7 @@ const DATA_MODEL_ENTITIES = [
 const state = {
   activeTab: "overview",
   pmView: "portal", // Project Management sub-tab: "portal" | "engineering"
+  expandedStories: new Set(), // portal story ids currently expanded in Project Management
   plan: null,
   progress: null,
   manifest: null,
@@ -361,6 +362,24 @@ function renderTabContent() {
 
   if (state.activeTab === "kb") wireKbChat();
   if (state.activeTab === "pm") {
+    el.querySelectorAll("tr[data-expand]").forEach((row) => {
+      row.addEventListener("click", () => {
+        const id = row.dataset.expand;
+        if (state.expandedStories.has(id)) state.expandedStories.delete(id);
+        else state.expandedStories.add(id);
+        renderTabContent();
+        el.querySelector(`[data-expand-btn="${CSS.escape(id)}"]`)?.focus(); // keep keyboard focus on the story that was toggled
+      });
+    });
+    el.querySelectorAll("[data-eng-open]").forEach((btn) => {
+      btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        state.pmView = "engineering";
+        renderTabContent();
+        renderDetail(`eng:${btn.dataset.engOpen}`);
+        document.getElementById("detail-panel")?.scrollIntoView({ block: "nearest" });
+      });
+    });
     el.querySelectorAll("[data-pm-view]").forEach((btn) => {
       btn.addEventListener("click", () => {
         state.pmView = btn.dataset.pmView;
@@ -500,6 +519,74 @@ function engineeringRecords() {
     .sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
 }
 
+/**
+ * The engineering stories attached to a portal story, from the engineering ledger:
+ *  - companions: ledger records whose parentCourseStory is this story (they extend it);
+ *  - prerequisites: the engineering stories the ledger lists as dependencies of this story's own record (they must be complete before it starts).
+ * Returns null when the ledger could not be read, so the page can say so instead of implying there are none.
+ */
+function attachedEngineering(storyId) {
+  if (!state.ledger) return null;
+  const records = state.ledger.records || [];
+  const byId = new Map(records.map((r) => [r.storyId, r]));
+  const companions = records.filter((r) => r.parentCourseStory === storyId).sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
+  const own = byId.get(storyId);
+  const prerequisites = (own?.dependencies || [])
+    .filter((id) => id.startsWith("ALV-"))
+    .map((id) => byId.get(id))
+    .filter(Boolean);
+  return { companions, prerequisites };
+}
+
+function engineeringSummaryCell(storyId) {
+  const a = attachedEngineering(storyId);
+  if (!a) return "—";
+  const all = [...a.companions, ...a.prerequisites];
+  if (all.length === 0) return "None";
+  const done = all.filter((r) => r.status === "COMPLETE").length;
+  return `${all.length} attached · ${done} complete`;
+}
+
+function attachedRow(r, relationship) {
+  return `
+    <tr>
+      <td><button type="button" class="link-btn" data-eng-open="${escapeHtml(r.storyId)}">${escapeHtml(r.storyId)}</button></td>
+      <td>${escapeHtml(relationship)}</td>
+      <td>${escapeHtml(ENGINEERING_TYPES[r.storyType] || r.storyType)}</td>
+      <td>${engineeringStatusTag(r.status)}</td>
+      <td>${escapeHtml(r.attempt || "—")}</td>
+      <td>${escapeHtml(r.review?.decision && r.review.decision !== "pending" ? r.review.decision.replace(/_/g, " ") : "—")}</td>
+    </tr>
+  `;
+}
+
+/** What an expanded portal story shows: its own facts, then the engineering stories attached to it and their status. */
+function renderStoryExpansion(story, prog) {
+  const attached = attachedEngineering(story.id);
+  let engineering;
+  if (!attached) {
+    engineering = `<p class="sub">The engineering ledger (.alveara/EXECUTION_STATUS.json) could not be loaded, so the attached engineering stories cannot be shown.</p>`;
+  } else if (attached.companions.length + attached.prerequisites.length === 0) {
+    engineering = `<p class="sub">No engineering stories are attached to this story.</p>`;
+  } else {
+    engineering = `
+      <table class="trace-table attached-table">
+        <caption class="sub">Engineering stories attached to ${escapeHtml(story.id)}</caption>
+        <thead><tr><th>Story</th><th>Relationship</th><th>Type</th><th>Status</th><th>Attempt</th><th>Review</th></tr></thead>
+        <tbody>
+          ${attached.companions.map((r) => attachedRow(r, "Extends this story")).join("")}
+          ${attached.prerequisites.map((r) => attachedRow(r, "Must be complete before it starts")).join("")}
+        </tbody>
+      </table>`;
+  }
+  return `
+    <p>${escapeHtml(story.narrative || "")}</p>
+    <p class="sub">Release ${escapeHtml(story.release)} · Due ${escapeHtml(story.due_on)} · Portal state: ${verifiedBadge(story.id)}${prog?.verification?.commit_sha ? ` · commit ${escapeHtml(prog.verification.commit_sha.slice(0, 7))}` : ""}</p>
+    <h3 class="expansion-title">Engineering stories</h3>
+    ${engineering}
+  `;
+}
+
 function engineeringStatusTag(status) {
   const cls = status === "COMPLETE" ? "verified" : ["CHANGES_REQUIRED", "BLOCKED", "REOPENED"].includes(status) ? "gap" : "";
   return `<span class="tag ${cls}">${escapeHtml(ENGINEERING_STATUS_LABELS[status] || status)}</span>`;
@@ -542,26 +629,29 @@ function renderPortalStories() {
     .map((s) => {
       const prog = (progress.stories || []).find((p) => p.id === s.id);
       const state_ = prog?.verification?.state || "not_started";
+      const open = state.expandedStories.has(s.id);
       const slippageDays = s.due_on && s.due_baseline_on
         ? Math.round((new Date(s.due_on) - new Date(s.due_baseline_on)) / 86400000)
         : 0;
       return `
-        <tr data-detail="pm:${s.id}" style="cursor:pointer">
-          <td>${escapeHtml(s.id)}</td>
+        <tr class="story-row${open ? " open" : ""}" data-expand="${escapeHtml(s.id)}" style="cursor:pointer">
+          <td><button type="button" class="link-btn" data-expand-btn="${escapeHtml(s.id)}" aria-expanded="${open}" aria-controls="expansion-${escapeHtml(s.id)}">${escapeHtml(s.id)}</button></td>
           <td>${escapeHtml(s.title)}</td>
           <td>${escapeHtml(s.release)}</td>
           <td>${escapeHtml(s.due_on)}${slippageDays ? ` <span class="tag gap">${slippageDays > 0 ? "+" : ""}${slippageDays}d slip</span>` : ""}</td>
           <td><span class="tag ${state_ === "verified" ? "verified" : ""}">${escapeHtml(state_)}</span></td>
+          <td>${escapeHtml(engineeringSummaryCell(s.id))}</td>
         </tr>
+        ${open ? `<tr class="story-expansion" id="expansion-${escapeHtml(s.id)}" data-expanded-panel="${escapeHtml(s.id)}"><td colspan="6">${renderStoryExpansion(s, prog)}</td></tr>` : ""}
       `;
     })
     .join("");
 
   return `
-    <p class="tab-desc">Build ${escapeHtml(plan.schedule?.build_start)} → ${escapeHtml(plan.schedule?.build_end)}. Demo day ${escapeHtml(plan.schedule?.demo_day)}. These are the course portal's stories; the portal verifies them.</p>
+    <p class="tab-desc">Build ${escapeHtml(plan.schedule?.build_start)} → ${escapeHtml(plan.schedule?.build_end)}. Demo day ${escapeHtml(plan.schedule?.demo_day)}. These are the course portal's stories; the portal verifies them. Select a story to see the engineering stories attached to it.</p>
     <div class="detail-panel" style="margin-bottom:20px">${ganttRows}</div>
     <table class="trace-table">
-      <thead><tr><th>Story</th><th>Title</th><th>Release</th><th>Due</th><th>State</th></tr></thead>
+      <thead><tr><th>Story</th><th>Title</th><th>Release</th><th>Due</th><th>State</th><th>Engineering stories</th></tr></thead>
       <tbody>${taskRows}</tbody>
     </table>
   `;

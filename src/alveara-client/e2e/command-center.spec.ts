@@ -21,6 +21,16 @@ const ledger = readJson<{ records: LedgerRecord[] }>(".alveara/EXECUTION_STATUS.
 const plan = readJson<{ stories: { id: string }[] }>(".colaberry/plan.json");
 const progress = readJson<{ stories: { id: string; verification?: { state?: string } }[] }>(".colaberry/progress.json");
 const engineering = ledger.records.filter((r) => r.storyType === "companion" || r.storyType === "new_production");
+const STATUS_LABELS: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+
+/** The engineering stories attached to a portal story, computed from the ledger the same way the page documents it. */
+function attached(storyId: string) {
+  const byId = new Map(ledger.records.map((r) => [r.storyId, r]));
+  const companions = ledger.records.filter((r) => r.parentCourseStory === storyId).sort((a, b) => a.num - b.num);
+  const own = ledger.records.find((r) => r.storyId === storyId && r.storyType === "course") as (LedgerRecord & { dependencies: string[] }) | undefined;
+  const prerequisites = (own?.dependencies ?? []).filter((d) => d.startsWith("ALV-")).map((d) => byId.get(d)!).filter(Boolean);
+  return { companions, prerequisites };
+}
 
 let server: Server;
 let base = "";
@@ -77,6 +87,88 @@ test.describe("real data only", () => {
   });
 });
 
+test.describe("expanding a portal story shows its attached engineering stories", () => {
+  test("every portal story's row says how many engineering stories are attached, computed from the ledger", async ({ page }) => {
+    await openPm(page);
+    for (const story of plan.stories) {
+      const { companions, prerequisites } = attached(story.id);
+      const all = [...companions, ...prerequisites];
+      const row = page.locator(`#pm-panel tr[data-expand="${story.id}"]`);
+      if (all.length === 0) await expect(row, story.id).toContainText("None");
+      else await expect(row, story.id).toContainText(`${all.length} attached · ${all.filter((r) => r.status === "COMPLETE").length} complete`);
+    }
+  });
+
+  test("clicking a story expands it in place with its own facts and each attached engineering story and its status; clicking again collapses it", async ({ page }) => {
+    await openPm(page);
+    const story = plan.stories.find((s) => s.id === "STORY-004")!;
+    const { companions, prerequisites } = attached(story.id);
+    expect(companions.map((r) => r.storyId), "the ledger has ALV-004-C01 extending STORY-004").toContain("ALV-004-C01");
+    expect(prerequisites.map((r) => r.storyId), "and ALV-N010 as its prerequisite").toContain("ALV-N010");
+
+    const button = page.locator('[data-expand-btn="STORY-004"]');
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await page.locator('#pm-panel tr[data-expand="STORY-004"]').click();
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+
+    const panel = page.locator('[data-expanded-panel="STORY-004"]');
+    await expect(panel).toBeVisible();
+    await expect(panel).toContainText("As a scheduler"); // the story's own narrative
+    for (const r of companions) {
+      const row = panel.locator("tbody tr", { hasText: r.storyId });
+      await expect(row, r.storyId).toContainText("Extends this story");
+      await expect(row, r.storyId).toContainText(STATUS_LABELS[r.status] ?? r.status);
+      await expect(row, r.storyId).toContainText("Companion");
+    }
+    for (const r of prerequisites) {
+      const row = panel.locator("tbody tr", { hasText: r.storyId });
+      await expect(row, r.storyId).toContainText("Must be complete before it starts");
+      await expect(row, r.storyId).toContainText(STATUS_LABELS[r.status] ?? r.status);
+    }
+    await expect(panel.locator("tbody tr")).toHaveCount(companions.length + prerequisites.length);
+
+    await page.locator('#pm-panel tr[data-expand="STORY-004"]').click();
+    await expect(panel).toHaveCount(0);
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test("several stories can be open at once, and a story with nothing attached says so", async ({ page }) => {
+    await openPm(page);
+    const without = plan.stories.find((s) => { const a = attached(s.id); return a.companions.length + a.prerequisites.length === 0; });
+    await page.locator('#pm-panel tr[data-expand="STORY-003"]').click();
+    await page.locator('#pm-panel tr[data-expand="STORY-004"]').click();
+    await expect(page.locator("[data-expanded-panel]")).toHaveCount(2);
+    if (without) {
+      await page.locator(`#pm-panel tr[data-expand="${without.id}"]`).click();
+      await expect(page.locator(`[data-expanded-panel="${without.id}"]`)).toContainText("No engineering stories are attached to this story.");
+    }
+  });
+
+  test("the expansion works from the keyboard and keeps focus on the story that was toggled", async ({ page }) => {
+    await openPm(page);
+    const button = page.locator('[data-expand-btn="STORY-003"]');
+    await button.focus();
+    await page.keyboard.press("Enter");
+    await expect(button).toHaveAttribute("aria-expanded", "true");
+    await expect(button).toBeFocused();
+    await expect(page.locator('[data-expanded-panel="STORY-003"]')).toContainText("ALV-003-C01");
+    await page.keyboard.press("Enter");
+    await expect(button).toHaveAttribute("aria-expanded", "false");
+    await expect(button).toBeFocused();
+  });
+
+  test("an attached engineering story can be opened from the expansion and shows its full details in the Engineering view", async ({ page }) => {
+    await openPm(page);
+    await page.locator('#pm-panel tr[data-expand="STORY-003"]').click();
+    await page.locator('[data-expanded-panel="STORY-003"]').getByRole("button", { name: "ALV-003-C01" }).click();
+    await expect(page.getByRole("tab", { name: /Engineering stories/ })).toHaveAttribute("aria-selected", "true");
+    const detail = page.locator("#detail-panel");
+    await expect(detail).toContainText("ALV-003-C01");
+    await expect(detail).toContainText("Extends portal story STORY-003");
+    await expect(detail).toContainText("Review decision: APPROVED");
+  });
+});
+
 test.describe("Project Management: portal stories and engineering stories", () => {
   test("has two views; Portal stories is the default and shows every portal story with the verified count from progress.json", async ({ page }) => {
     await openPm(page);
@@ -86,7 +178,8 @@ test.describe("Project Management: portal stories and engineering stories", () =
     await expect(page.getByRole("tab", { name: /Engineering stories/ })).toHaveAttribute("aria-selected", "false");
 
     const rows = page.locator("#pm-panel table tbody tr");
-    await expect(rows).toHaveCount(plan.stories.length);
+    await expect(page.locator("#pm-panel tr[data-expand]")).toHaveCount(plan.stories.length);
+    await expect(rows).toHaveCount(plan.stories.length); // none expanded yet
     const verified = progress.stories.filter((s) => s.verification?.state === "verified").length;
     await expect(page.locator("#pm-panel")).toContainText(String(verified));
     await expect(page.locator("#pm-panel")).not.toContainText("ALV-"); // engineering stories are not mixed into the portal view
@@ -128,9 +221,9 @@ test.describe("Project Management: portal stories and engineering stories", () =
     await expect(page.locator("#close-detail")).toHaveCount(0);
 
     await page.getByRole("tab", { name: "Portal stories" }).click();
-    await expect(page.locator("#pm-panel table tbody tr")).toHaveCount(plan.stories.length);
-    await page.locator("#pm-panel table tbody tr").first().click(); // a portal story still drills down
-    await expect(page.locator("#close-detail")).toBeVisible();
+    await expect(page.locator("#pm-panel tr[data-expand]")).toHaveCount(plan.stories.length);
+    await page.locator('#pm-panel tr[data-expand]').first().click(); // a portal story still opens
+    await expect(page.locator("[data-expanded-panel]")).toHaveCount(1);
   });
 
   test("the views can be switched from the keyboard", async ({ page }) => {
@@ -146,7 +239,9 @@ test.describe("Project Management: portal stories and engineering stories", () =
   test("if the engineering ledger cannot be read, that view says so and the portal view still works", async ({ page }) => {
     await page.route("**/.alveara/EXECUTION_STATUS.json", (route) => route.fulfill({ status: 404, body: "not found" }));
     await openPm(page);
-    await expect(page.locator("#pm-panel table tbody tr")).toHaveCount(plan.stories.length);
+    await expect(page.locator("#pm-panel tr[data-expand]")).toHaveCount(plan.stories.length);
+    await page.locator('#pm-panel tr[data-expand="STORY-004"]').click();
+    await expect(page.locator('[data-expanded-panel="STORY-004"]')).toContainText("could not be loaded, so the attached engineering stories cannot be shown");
     await page.getByRole("tab", { name: /Engineering stories/ }).click();
     await expect(page.locator("#pm-panel")).toContainText("could not be loaded");
     await expect(page.locator("#pm-panel table")).toHaveCount(0);
@@ -158,6 +253,7 @@ test.describe("Project Management: portal stories and engineering stories", () =
       await openPm(page);
       for (const view of ["Portal stories", "Engineering stories"]) {
         await page.getByRole("tab", { name: new RegExp(view) }).click();
+        if (view === "Portal stories") await page.locator('#pm-panel tr[data-expand="STORY-004"]').click(); // scan with a story expanded
         await page.waitForTimeout(200);
         const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
         const blocking = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
