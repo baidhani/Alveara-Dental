@@ -718,26 +718,26 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 673 of 673 (71 new against real SQL Server: AppointmentSchedulerTests 41, AppointmentsApiTests 30); frontend 390 of 390 (19 new schedule tests); mocked browser 40 of 40; real-backend browser walkthrough 10 of 10 with 0 critical/serious axe violations in light and dark; earlier real-backend walkthroughs (patient workspace 14, patient registration 7, auth 12, forms 10, Gate A 3) and repository checks 7 of 7 still pass. Booking only: reschedule, cancel, no-show, patient-overlap and the calendar are owned by ALV-004-C01."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "d0024f39d4edcbd26fba9353ed5a88b8179fcb70",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "d0024f39d4edcbd26fba9353ed5a88b8179fcb70",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -745,8 +745,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-02T13:12:14.072Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit d0024f39d4edcbd26fba9353ed5a88b8179fcb70 - see .colaberry/progress.json (STORY-004.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-02T13:12:14.072Z; portal sync commit e1b9305)."
     },
     {
       "schemaVersion": "2",
