@@ -143,7 +143,7 @@
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
       "implementationCommit": "4ba0085393df501923da0602b75c2143387a8a2b",
-      "evidenceCommit": null,
+      "evidenceCommit": "6c578f255af54bab23766f025b8346b21d795b21",
       "handoffPath": ".alveara/handoffs/ALV-N002/R09.md",
       "review": {
         "decision": "pending",
