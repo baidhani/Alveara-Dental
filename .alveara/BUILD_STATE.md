@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-004-C01` attempt R01 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`). `STORY-004` is `COMPLETE` (portal-verified at `d0024f3`, unchanged); `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-004-C01/R01.md` for the handoff. Gate B is not evaluated.
+Last updated: `ALV-004-C01` approved at attempt R01 and recorded **`COMPLETE`** by review closure. `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
 
 ## Production implementation status
 
@@ -39,7 +39,7 @@ Last updated: `ALV-004-C01` attempt R01 - implementation committed, set to **`AW
 - **Contrast fix:** the page's muted-text colour was 4.25:1 on the page background (below WCAG AA); it is now 5.5:1.
 - Permanent real-browser coverage: `src/alveara-client/e2e/command-center.spec.ts` (14 tests, each run at desktop and tablet width, expectations computed from the committed data files, axe in light and dark).
 
-## Scheduler: calendar, reschedule, cancel, no-show and patient overlap (ALV-004-C01, AWAITING_REVIEW - attempt R01)
+## Scheduler: calendar, reschedule, cancel, no-show and patient overlap (ALV-004-C01, COMPLETE - approved attempt R01)
 
 - **Appointment lifecycle**: `Appointment.Status` is `Scheduled`, `Cancelled` or `NoShow`; **only `Scheduled` holds time** (provider, operatory and patient), so a cancelled or no-show appointment stays on the record and in the calendar without blocking anything. Notes (<= 1000 chars, never in the audit log), cancel reason, who/when of a status change, and an append-only `AppointmentEvent` history (`Scheduled`, `Rescheduled` with the previous start/provider/operatory, `Cancelled` with the reason, `NoShow`, `NotesChanged`). Migration `AddAppointmentLifecycle`.
 - **One conflict rule for booking and rescheduling** (`SchedulingGuards`): provider, then operatory, then **patient** overlap, each naming the appointment in the way; no override exists (no override policy is authorized). Booking and rescheduling take SQL Server application locks on provider, operatory and patient (sorted, transaction-scoped), so racing requests give one winner; removing the locks makes the race tests fail.
