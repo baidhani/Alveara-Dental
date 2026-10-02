@@ -569,26 +569,26 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 420 of 420 (45 new: PatientModelTests, PatientRegistrationServiceTests, PatientsApiTests); frontend 199 of 199 (11 new); mocked browser 40 of 40; real-backend browser walkthrough 7 of 7 with 0 critical/serious axe violations in light and dark. Demographics and contact details only; REQ-004's household clause is owned by ALV-003-C01."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -596,8 +596,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-01T23:58:41.458Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 014ef9d31ee788da7ca9ca0b959792de6fb0ecc0 - see .colaberry/progress.json (STORY-003.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-01T23:58:41.458Z; portal sync commit c285556)."
     },
     {
       "schemaVersion": "2",

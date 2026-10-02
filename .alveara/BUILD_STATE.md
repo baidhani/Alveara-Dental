@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **Gate A rerun 2026-10-01: PASS** (all nine criteria; thresholds unchanged) after the A2 corrections (`ALV-N001` R03, `ALV-001-C01` R07, `ALV-002-C01` R04) were approved and closed. See `.alveara/gates/A/rerun/GATE_A_RERUN_REPORT.md`. The next scheduled item is `STORY-003` (original course story: execute its current course-portal prompt, then record `STORY-003: record course completion`); it has not started.
+Last updated: **`STORY-003` (patient registration workflow) is `COMPLETE`, portal-verified** (3/3 criteria, verified 2026-10-01T23:58:41Z at commit `014ef9d`; see `.colaberry/progress.json`). It captures demographics and contact details only; REQ-004's family/household clause is owned by `ALV-003-C01`. Gate A is PASS (rerun 2026-10-01). The next scheduled item is `ALV-003-C01` (item 12); it has not started.
 
 ## Production implementation status
 
