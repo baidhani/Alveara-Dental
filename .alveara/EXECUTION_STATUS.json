@@ -870,21 +870,21 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "957 of 957 backend (dotnet test, up from 767; 190 new against real SQL Server: VisitStateMachineTests 54, VisitWorkflowSchemaTests 13, VisitWorkflowTests 22, VisitOccupancyTests 6, VisitAssignmentTests 11, CheckInReadinessTests 15, VisitBoardTests 10, VisitPermissionTests 12, VisitsApiTests 47), 484 of 484 frontend (up from 446; 38 new: FlowBoard 23, visitHelpers 13, FormTemplates 2), 74 of 74 mocked browser, 15 of 15 real-backend/real-browser ALV-011-C01 visit board walkthrough (10 axe scans, 0 serious or critical violations), regression on the real backend: STORY-011 walkthrough 10 of 10, ALV-004-C01 calendar 12 of 12, STORY-004 10 of 10, forms 10 of 10, patient workspace 14 of 14, STORY-003 7 of 7, auth 12 of 12 on its 3rd and 4th runs (its recovery-key step is timing-sensitive and failed on the first two; disclosed), Gate A route scans 3 of 3, repository checks 7 of 7. STORY-011's seven files are byte-identical to the verified commit and pass. See .alveara/handoffs/ALV-011-C01/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "7923986a34d091da0172e0c8c84efd397175083c",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-011-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
