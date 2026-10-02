@@ -7,6 +7,7 @@ using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
 using Alveara.Api.Architecture.Patients;
+using Alveara.Api.Architecture.Scheduling;
 
 namespace Alveara.Api.Data;
 
@@ -51,6 +52,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Household> Households => Set<Household>();
     public DbSet<PatientHistoryEntry> PatientHistory => Set<PatientHistoryEntry>();
     public DbSet<PatientRegistrationSettings> PatientRegistrationSettings => Set<PatientRegistrationSettings>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<FormTemplate> FormTemplates => Set<FormTemplate>();
     public DbSet<FormTemplateVersion> FormTemplateVersions => Set<FormTemplateVersion>();
     public DbSet<PatientForm> PatientForms => Set<PatientForm>();
@@ -253,6 +255,25 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(h => h.NewValue).HasMaxLength(400);
             e.HasOne<Patient>().WithMany().HasForeignKey(h => h.PatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(h => new { h.PatientId, h.ChangedAtUtc });
+        });
+
+        // STORY-004: appointments. Every relationship is Restrict (a provider, operatory, type or patient with appointments can
+        // never be deleted out from under them). The period indexes serve the overlap checks; the unique ScheduleKey makes a
+        // retried request unable to book twice; the check constraint is a last line of defence against an inverted period.
+        modelBuilder.Entity<Appointment>(e =>
+        {
+            e.Property(a => a.Status).HasMaxLength(20);
+            e.Property(a => a.ScheduleKey).HasMaxLength(100);
+            e.Property(a => a.RowVersion).IsRowVersion();
+            e.HasOne<Patient>().WithMany().HasForeignKey(a => a.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<ProviderProfile>().WithMany().HasForeignKey(a => a.ProviderProfileId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Operatory>().WithMany().HasForeignKey(a => a.OperatoryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<AppointmentType>().WithMany().HasForeignKey(a => a.AppointmentTypeId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(a => new { a.ProviderProfileId, a.StartUtc });
+            e.HasIndex(a => new { a.OperatoryId, a.StartUtc });
+            e.HasIndex(a => new { a.PatientId, a.StartUtc });
+            e.HasIndex(a => a.ScheduleKey).IsUnique().HasFilter("[ScheduleKey] IS NOT NULL");
+            e.ToTable(t => t.HasCheckConstraint("CK_Appointments_Period", "[EndUtc] > [StartUtc]"));
         });
 
         // ALV-N010: versioned forms. Versions and signed snapshots are never updated or deleted (see the SaveChanges guard and the

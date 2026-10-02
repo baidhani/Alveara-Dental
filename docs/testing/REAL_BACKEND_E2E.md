@@ -109,7 +109,7 @@ walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from
 
 ```powershell
 $env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
-$env:FORMS_E2E_OUT = "C:	mporms-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+$env:FORMS_E2E_OUT = "C:\tmp\forms-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
 npx playwright test --config=playwright.forms.config.ts
 ```
 
@@ -121,3 +121,22 @@ submit again returning the first result and a different key refused as already s
 says the outcome is unknown and "Sign again" (same key) leaves exactly one signature; the front desk refused a void, the office manager voiding with a reason
 while the signed copy stays visible; a dentist who can complete forms and billing who can only read them; and another patient's forms never appearing - then axe
 scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
+## STORY-004: appointment scheduling walkthrough
+
+`e2e/schedule-real-backend.spec.ts` is the un-mocked run for scheduling. Prepare a fresh database and start the API exactly as for the STORY-003
+walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:SCHEDULE_E2E_OUT = "C:\tmp\schedule-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.schedule.config.ts
+```
+
+It configures the practice through the real configuration API (two providers working Monday-Friday 08:00-17:00, two operatories, two appointment types, a blocked lunch),
+then signs in as a front-desk user and shows: an appointment with an available provider confirmed and listed; a double-booked provider refused in words (naming the
+provider and the time already taken) with nothing booked; an operatory in use, a time outside working hours, blocked time and an incorrect duration each refused in words;
+a back-to-back appointment accepted; a response lost after the server booked (the page says the outcome is unknown and "Book again" books exactly once); six simultaneous
+requests for one slot producing exactly one appointment; the audit trail holding every booking and every refusal with a user and time and no patient details; a dentist who
+can see the schedule but not book (the API returns 403) and billing with no Schedule page; and a keyboard-only booking - then axe scans of each state in light and dark.
+Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.

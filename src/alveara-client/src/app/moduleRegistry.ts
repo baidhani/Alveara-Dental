@@ -21,6 +21,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "dashboard", label: "Dashboard", path: "/" },
   { id: "patients", label: "Patients", path: "/patients", requiredPermission: "ViewPatientRecords", activeWhen: (p) => p.startsWith("/patients") && p !== "/patients/register" },
   { id: "register-patient", label: "Register Patient", path: "/patients/register", requiredPermission: "RegisterPatients" },
+  { id: "schedule", label: "Schedule", path: "/schedule", requiredPermission: "ViewSchedule" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users", requiredPermission: "ManageUsers" },

@@ -218,20 +218,46 @@
       "criteria": [
         {
           "text": "Given a provider is available, when an appointment is scheduled, then it is confirmed without conflicts.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a provider is double-booked, when a new appointment is attempted, then the system rejects it.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All scheduling actions are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Scheduling/Appointment.cs",
+        "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs",
+        "src/Alveara.Api/Architecture/Scheduling/SchedulingModels.cs",
+        "src/Alveara.Api/Controllers/AppointmentsController.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261002044735_AddAppointments.cs",
+        "src/alveara-client/src/pages/scheduling/SchedulePage.tsx",
+        "src/alveara-client/src/pages/scheduling/SchedulePage.css",
+        "src/alveara-client/src/pages/scheduling/scheduleMessages.ts",
+        "src/alveara-client/src/services/schedulingApi.ts",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/src/app/moduleRegistry.ts",
+        "src/alveara-client/playwright.schedule.config.ts",
+        "src/alveara-client/playwright.config.ts",
+        "docs/SCHEDULING.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        "docs/stories/STORY-004.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/SchedulingTestSupport.cs",
+        "src/Alveara.Api.Tests/AppointmentSchedulerTests.cs",
+        "src/Alveara.Api.Tests/AppointmentsApiTests.cs",
+        "src/alveara-client/src/Schedule.test.tsx",
+        "src/alveara-client/src/test/fakeScheduleServer.ts",
+        "src/alveara-client/e2e/schedule-real-backend.spec.ts"
+      ],
+      "notes": "Booking only: a provider/operatory conflict, an unavailable provider, an invalid duration and a double booking are refused with a stable code and nothing stored; reschedule, cancel, no-show, patient-overlap and the calendar view are owned by ALV-004-C01. No double booking even when two people book the same slot at once (database application locks per provider and operatory; removing the lock makes the race tests fail). Bookings and refused attempts are audited with user and time. Verified: backend 673/673, frontend 390/390, mocked browser 40/40, real-backend browser walkthrough 10/10 (axe: 0 critical/serious, light+dark), earlier real-backend walkthroughs (patient workspace 14/14, patient registration 7/7, auth 12/12, forms 10/10, Gate A 3/3) still pass.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

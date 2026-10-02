@@ -1,0 +1,53 @@
+.alv-schedule__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 720px;
+}
+
+.alv-schedule__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.alv-schedule__result {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-text);
+}
+
+.alv-schedule__result-slot {
+  margin: 0;
+}
+
+.alv-schedule__refusal {
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-text);
+}
+
+.alv-schedule__refusal p {
+  margin: 0 0 var(--space-2);
+}
+
+.alv-schedule__refusal p:last-child {
+  margin-bottom: 0;
+}
+
+.alv-schedule__day {
+  margin-top: var(--space-5, 24px);
+}
+
+.alv-schedule__day-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}

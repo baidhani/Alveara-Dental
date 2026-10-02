@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-004",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-02T12:00:00Z",
+  "sourceCommitSha": "8957f42365f5c5f9dea1864ff798de6e23531df4",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Front desk staff, office managers and admins can book appointments (the existing ManageAppointments permission). Dentists, hygienists and assistants can view the schedule but not book (the API returns 403 and the booking form is not shown); billing has no schedule access at all.",
+      "evidence": "src/Alveara.Api.Tests/AppointmentsApiTests.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "An appointment records the patient, provider, operatory and appointment type, a period stored as UTC instants (start inclusive, end exclusive), the booked duration in minutes, a status (only 'Scheduled' exists so far), the idempotency key of the request that created it, and who created it and when.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/Appointment.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "Booking takes a patient, provider, operatory and appointment type, a practice-local start date and time, and an optional duration in minutes (default: the appointment type's configured duration, 5-480 minutes in steps of 5).",
+      "evidence": "src/Alveara.Api/Controllers/AppointmentsController.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "A booking returns the confirmed appointment with provider, operatory, type, patient name and start/end both as UTC instants and as practice-local times. The schedule can be listed by day range (up to 31 days), provider and operatory.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "A booking is refused when the provider already has an overlapping appointment, when the operatory is already in use, when the provider is unavailable (outside weekly working hours, blocked time, inactive, or spanning a daylight-saving change), when the duration is invalid, when the start is in the past or not a real local time, or when the patient, operatory or appointment type is inactive. Back-to-back appointments are allowed. Each refusal returns a stable code and nothing is stored.",
+      "evidence": "src/Alveara.Api.Tests/AppointmentSchedulerTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every booking and every refused conflict or unavailability attempt is written to the audit log with the signed-in user and a timestamp, and the log carries no patient details. The booking and its audit entry are saved together: if the audit write fails the appointment is not stored.",
+      "evidence": "src/Alveara.Api.Tests/AppointmentSchedulerTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "A provider cannot be in two appointments at once and an operatory cannot hold two appointments at once; this holds even when two people book the same slot at the same moment. Only a 'Scheduled' appointment blocks time.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Appointment periods are half-open, so an appointment may start at the exact moment another ends.",
+      "rationale": "Back-to-back booking is normal in a dental schedule; treating a shared boundary as a conflict would force artificial gaps.",
+      "evidence": "src/Alveara.Api.Tests/AppointmentSchedulerTests.cs"
+    },
+    {
+      "statement": "No double booking is enforced by taking an exclusive database application lock on the provider and on the operatory inside the booking transaction, always in the same order, rather than by a unique index or a plain check-then-insert.",
+      "rationale": "'These two time ranges must not overlap' cannot be expressed as a unique index, and check-then-insert lets two simultaneous requests both pass. Removing the lock makes the race tests fail, which shows they detect the problem.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs"
+    },
+    {
+      "statement": "Refused conflict and unavailability attempts are audited as well as successful bookings; malformed requests (bad duration, past start) are not.",
+      "rationale": "The acceptance says all scheduling actions are logged with user and timestamp; a refused double booking is a scheduling action worth tracing, while a malformed request is not an attempt to schedule.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs"
+    },
+    {
+      "statement": "Booking requires an Idempotency-Key, and the page keeps one key per distinct request so that pressing Book again after a dropped connection cannot book twice.",
+      "rationale": "The project rule that every side effect is idempotent; a lost response is indistinguishable from a lost request, so the retry must be safe.",
+      "evidence": "src/alveara-client/src/pages/scheduling/SchedulePage.tsx"
+    },
+    {
+      "statement": "Reschedule, cancel, no-show, patient-overlap detection and the calendar view were not built here.",
+      "rationale": "The master plan assigns them to the later companion story ALV-004-C01; STORY-004's acceptance covers confirming a conflict-free booking and rejecting a double booking.",
+      "evidence": "docs/SCHEDULING.md"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "Only new bookings exist: there is no way yet to reschedule, cancel or mark a no-show, and the same patient can be booked in two places at once.",
+      "evidence": "docs/SCHEDULING.md"
+    },
+    {
+      "statement": "A start time in the past is refused, so historical appointments cannot be entered.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs"
+    },
+    {
+      "statement": "The provider's availability is read before the locks are taken, so blocked time added in the same instant as a booking may not be seen by that booking.",
+      "evidence": "src/Alveara.Api/Architecture/Scheduling/AppointmentScheduler.cs"
+    },
+    {
+      "statement": "The schedule page is a booking form and a day list, not a calendar, and a day list shows at most 500 appointments.",
+      "evidence": "src/alveara-client/src/pages/scheduling/SchedulePage.tsx"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AppointmentSchedulerTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/AppointmentsApiTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/Schedule.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/schedule-real-backend.spec.ts" }
+  ],
+  "measurementEvents": []
+}

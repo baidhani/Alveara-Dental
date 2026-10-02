@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a provider is available, when an appointment is scheduled, then it is confirmed without conflicts.
-- [ ] Given a provider is double-booked, when a new appointment is attempted, then the system rejects it.
-- [ ] Trust: All scheduling actions are logged with user and timestamp.
+- [x] Given a provider is available, when an appointment is scheduled, then it is confirmed without conflicts.
+- [x] Given a provider is double-booked, when a new appointment is attempted, then the system rejects it.
+- [x] Trust: All scheduling actions are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.
