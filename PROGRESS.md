@@ -13,3 +13,10 @@
   - What changed: the full visit chain (confirm, check in, ready, seat, treatment, check out, completed) with one patient per room, visit-time provider/operatory, required-form check-in readiness, new front-office/chairside permissions, and the live visit board at /flow
   - Verification: 957/957 backend (`dotnet test`, 190 new against real SQL Server), 484/484 frontend (`vitest`, 38 new), `tsc -b` and production build pass, 74/74 mocked browser, 15/15 real-backend/real-browser walkthrough (axe clean in light and dark); STORY-011 (10/10), ALV-004-C01 (12/12), STORY-004 (10/10), ALV-N010 (10/10), workspace (14/14), STORY-003 (7/7), Gate A route scans (3/3) and repository checks (7/7) unchanged; auth walkthrough 12/12 on the 3rd and 4th runs (a timing-sensitive recovery-key step failed on the first two, ALV-N004's test, untouched)
   - Notes: STORY-011's seven files are byte-identical to the verified commit; Gate B is not evaluated (F1/F2 contrast findings still open); see .alveara/handoffs/ALV-011-C01/R01.md
+
+- [x] ALV-N001 R04: status text colours meet WCAG AA in both themes (finding F1 and siblings; set to AWAITING_REVIEW, not COMPLETE)
+  - Date: 2026-10-02
+  - Session: CC-20261002-f7c1
+  - What changed: new text-only tokens `--color-success-text` / `--color-warning-text`, dark `--color-info` lightened, and the success/warning notifications and the shell session-warning banner repointed; 4.45:1 / 3.47:1 / 4.42:1 / 4.05:1 / 4.39:1 pairings now >= 4.5:1
+  - Verification: 498/498 frontend (`vitest`, 14 new in `statusContrast.test.ts`, 9 of them fail against the old values), `tsc -b`, build and lint pass, mocked Playwright 78/78 (4 new real-browser notification axe tests, which fail against the old CSS at 4.45:1 and 3.46:1), real-backend: Gate A route scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10
+  - Notes: colour-only; the ALV-002-C01 banner (F2) and the removal of its three page workarounds are the next separate attempt; the system-status stale banner (ALV-N002) has the same warning-pair defect and is reported, not changed

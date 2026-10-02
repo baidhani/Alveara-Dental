@@ -23,6 +23,10 @@
   --color-success-bg: #e7f4ec;
   --color-warning: #b5751b;
   --color-warning-bg: #fdf3e7;
+  /* Text-only variants of the status colours. --color-success / --color-warning stay as they are for borders and icons (non-text
+     contrast needs 3:1); text on the tinted status backgrounds needs 4.5:1, which the plain values miss (4.45:1 / 3.47:1). */
+  --color-success-text: #286f45;
+  --color-warning-text: #8a5a14;
   --color-danger: #b3372c;
   --color-danger-bg: #fbeceb;
   --color-info: #2d5f7c;
@@ -122,11 +126,14 @@
   --color-success-bg: rgba(79, 174, 121, 0.15);
   --color-warning: #d99a45;
   --color-warning-bg: rgba(181, 117, 27, 0.16);
+  --color-success-text: #6bc795;
+  --color-warning-text: #d99a45;
   /* Gate A review (ALV-N001 R03): #d9695c gave 4.15:1 / 3.78:1 for the danger button's text on its own tinted background over
      --color-surface / --color-surface-raised (AA needs 4.5:1); #e58a7f gives 5.1:1 or better on every surface. */
   --color-danger: #e58a7f;
   --color-danger-bg: rgba(179, 55, 44, 0.16);
-  --color-info: #5fa2c7;
+  /* ALV-N001 R04: #5fa2c7 gave 4.39:1 for the info notification over --color-surface-raised; #78b4d6 gives 5.4:1 or better on every surface. */
+  --color-info: #78b4d6;
   --color-info-bg: rgba(45, 95, 124, 0.2);
 
   --color-focus-ring: #7fc4f0;
