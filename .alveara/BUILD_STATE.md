@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-002-C01` approved at attempt R05 and recorded **`COMPLETE`** by review closure; finding F2 is closed. Still required before Gate B, each as its own reopened attempt: the `ALV-N002` `.status-stale-banner`, the `ALV-001-C01` login expired-session banner (`LoginPage.css`, 3.16:1) and the `ALV-N004` backup warning text (`BackupRecoveryPage.css`, 3.08:1). `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
+Last updated: `ALV-N002` is **`REOPENED`** (next attempt R09) for the System Status page stale-data banner warning-text contrast (3.47:1), as required by the `ALV-002-C01` R05 review; `ALV-001-C01` (login expired-session banner) and `ALV-N004` (backup warning text) follow as their own attempts before Gate B. `ALV-002-C01` (F2 closed), `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
 
 ## Production implementation status
 
