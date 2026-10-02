@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-003-C01` approved at attempt R02 (R01 was `CHANGES_REQUIRED` for a missing evidence commit in the control record) and recorded **`COMPLETE`** by review closure. `STORY-003` is `COMPLETE` (portal-verified, unchanged); Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings below must be corrected before it is.
+Last updated: `ALV-N010` attempt R01 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`). `ALV-003-C01` is `COMPLETE` (approved R02); `STORY-003` is `COMPLETE` (portal-verified, unchanged); Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-N010/R01.md` for the handoff. Gate B is not evaluated.
 
 ## Production implementation status
 
@@ -18,6 +18,17 @@ Last updated: `ALV-003-C01` approved at attempt R02 (R01 was `CHANGES_REQUIRED` 
 - **UI**: the shell's patient-context placeholder is replaced by the shared **patient header**; persistent **patient workspace** `/patients/:patientId` (Details, Household & guarantor, History) whose tabs come from `src/app/patientWorkspaceTabs.ts` (the extension point for later stories); patient search `/patients`; registration with the duplicate comparison panel. Switching patients drops the previous patient immediately and discards late responses. See `docs/PATIENT_WORKSPACE.md`.
 - **Findings recorded, not fixed here** (shared components of completed stories): success-toast contrast 4.45:1 (`ALV-N001`) and conflict-banner title contrast 3.46:1 (`ALV-002-C01`); this story avoids the toast and overrides the banner title inside the patient workspace only. See `R01.md` F1/F2. Per the R01 review these are open findings against `ALV-N001` and `ALV-002-C01` and must be corrected through reopened-story attempts before Gate B is evaluated.
 - 492 backend / 319 frontend / 40 mocked-browser / 14 real-backend walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. STORY-003's own tests are unchanged and pass. Gate B (rows B1, B3) is not evaluated. See `.alveara/handoffs/ALV-003-C01/R01-evidence/`.
+
+## Versioned forms, consents, and e-signature foundation (ALV-N010, AWAITING_REVIEW - attempt R01)
+
+- **Templates are versioned**: `FormTemplate` (stable key, category Privacy/Financial/General consent/Treatment, active flag) + immutable `FormTemplateVersion` rows (title, wording, field definitions, SHA-256 content hash). Editing publishes a NEW version (template row version guards two administrators); no version is ever updated or deleted.
+- **Patient forms**: `PatientForm` is `Draft` -> `Signed` -> (`Void`) or `Draft` -> `Void`, pinned to the template version it started on (a newer version is offered, never forced); one open draft per patient per template (unique filtered index). Append-only `PatientFormEvent` history (Started, Signed, Voided, Superseded).
+- **Signed snapshots are immutable**: `SignedFormSnapshot` is a verbatim copy of the version's wording/fields, the answers as saved at signing, the signer (free-text name + relationship, typed-name signature, attestation text), time, capturing staff member and a SHA-256; one per form (unique index). Enforced by an application guard in `AlveraDbContext` AND by `INSTEAD OF UPDATE, DELETE` triggers on `SignedFormSnapshots` and `FormTemplateVersions` (migration `AddVersionedForms`; a future migration altering those tables must drop and recreate the triggers deliberately).
+- **Signing is one atomic, idempotent save** (snapshot + status + history event + audit entry + idempotency receipt, `Idempotency-Key` required): same key = same result; another key on a signed form = 409 `already_signed`; a failed/cancelled save leaves a plain draft. Voiding needs a reason and (for a signed form) `VoidForms`; correction = void + a new form.
+- **API** `api/forms/...` and `api/patients/{id}/forms|signed-documents`. Permissions (appended): `ManageFormTemplates`, `CompleteForms`, `ViewSignedForms`, `VoidForms`. Audit names the template key and version only (no answers, signer names or void reasons); measurement event `form.signed` (schema v1). Read-only seam for the document library: `SignedFormDocumentDescriptor` (no answers).
+- **UI**: patient workspace **Forms** tab (the first consumer of the `patientWorkspaceTabs` extension point), pre-sign review, signed copy + history, Form Templates administration (`/admin/form-templates`). Status is always spelled in words. See `docs/FORMS_AND_CONSENTS.md`. Template wording is the practice's own; no legal sufficiency is claimed.
+- **Findings carried forward, not fixed here**: `ALV-N001` success-toast contrast 4.45:1 (F1) and `ALV-002-C01` conflict-banner title contrast 3.46:1 (F2) remain open and must be corrected through reopened-story attempts before Gate B is evaluated.
+- 602 backend / 371 frontend / 40 mocked-browser / 10 forms walkthrough / 14 workspace walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. Gate B is not evaluated. See `.alveara/handoffs/ALV-N010/R01-evidence/`.
 
 ## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, COMPLETE - approved attempt R05)
 
@@ -216,7 +227,7 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 
 ## What does not exist yet
 
-- Any scheduling, clinical, billing, document, or reporting functionality (patient registration and the patient identity workspace now exist - `STORY-003`, `ALV-003-C01` complete). (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
+- Any scheduling, clinical, billing, or reporting functionality, and any document/image library (versioned forms and consents now exist - `ALV-N010` in review) (patient registration and the patient identity workspace now exist - `STORY-003`, `ALV-003-C01` complete). (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
 - Any encrypted backup/restore capability (`ALV-N004` builds this on top of `IBackupSnapshotProvider`).
 - Windows-service install/deployment automation — `ALV-N002` runs via `dotnet run`/LocalDB in dev; actual SQL Server Express + Windows Service packaging is `ALV-N013`'s job.
 - Any of the remaining 32 first-release `ALV-*` stories' implementation.

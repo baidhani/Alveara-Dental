@@ -670,21 +670,21 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "602 of 602 backend (dotnet test, up from 492; 110 new against real SQL Server: FormTemplateVersionTests, FormSigningTests, SignedFormSnapshotTests, FormLifecycleTests, FormsApiTests), 371 of 371 frontend (up from 319; 52 new: PatientForms 27, FormTemplates 13, formsContrast 12), 40 of 40 mocked browser, 10 of 10 real-backend/real-browser ALV-N010 forms walkthrough (14 axe scans, 0 violations), regression on the real backend: ALV-003-C01 walkthrough 14 of 14, STORY-003 original walkthrough 7 of 7, auth real-backend 12 of 12, Gate A route scans 3 of 3, repository checks 7 of 7. See .alveara/handoffs/ALV-N010/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
+      "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "a4c6c4ff5dc98404ecec851cad28206dce9adaf0",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N010/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

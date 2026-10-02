@@ -1,0 +1,121 @@
+{
+  "axe": {
+    "template-admin-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "template-admin-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "draft-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "draft-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "review-with-errors-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "review-with-errors-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "signed-copy-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "signed-copy-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "unknown-outcome-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "unknown-outcome-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "void-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "void-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "forms-list-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "forms-list-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    }
+  },
+  "stamp": 1790912361868,
+  "templateAdministration": {
+    "createdAsOfficeManager": true,
+    "frontDeskRefusedUi": true,
+    "frontDeskRefusedApi": 403
+  },
+  "draft": {
+    "savedAndReloaded": true,
+    "requiredAnswerBlocksReview": true
+  },
+  "templateChangeDuringCompletion": {
+    "draftStayedOnVersion1": true,
+    "newerVersionOffered": 2
+  },
+  "signature": {
+    "signer": "Pat Forms",
+    "relationship": "Parent",
+    "templateVersion": 1,
+    "hash": "0e9931900cd4ff448e0379e6afff5e5db3b23411ce25a5a6949023180f894e3f",
+    "byKeyboard": true
+  },
+  "immutability": {
+    "laterTemplateVersions": 3,
+    "fingerprintUnchanged": true,
+    "replayStatus": 200,
+    "differentKeyStatus": 409,
+    "signedDocuments": 1
+  },
+  "interruptedSignature": {
+    "sameKeyOnRetry": true,
+    "signedEvents": 1
+  },
+  "void": {
+    "frontDeskApiStatus": 403,
+    "voidedWithReason": "Signed on the wrong visit",
+    "signedCopyStillVisible": true
+  },
+  "role-dentist": {
+    "canComplete": true
+  },
+  "role-billing": {
+    "canComplete": false
+  },
+  "patientSwitch": {
+    "otherPatientSeesNoForms": true,
+    "wrongPatientFormHidden": true
+  }
+}
