@@ -24,7 +24,7 @@
     },
     {
       "path": "artifacts/INDEX.md",
-      "sha256": "ade736f1a48fc135ab4ea5fd690e5756dc30cc056f201a36f08db47bcae7392e"
+      "sha256": "c11acf6488c258fde0657718d11636445c1dec8677c7123416e068138d566e7b"
     },
     {
       "path": "artifacts/week-01/claude.md",
@@ -33,6 +33,10 @@
     {
       "path": "artifacts/week-02/readme.md",
       "sha256": "4093d4980972038f6d13387e96237645443de410f12b618535bd6771864449d7"
+    },
+    {
+      "path": "artifacts/week-03/workflow-plan.md",
+      "sha256": "7f12af90dec1a4891a09d5a5c25f37f3b159e642bbeefbaf3ea93207b56a065f"
     },
     {
       "path": "artifacts/week-04/library-report.md",
