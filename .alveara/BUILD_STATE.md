@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-011-C01` approved at attempt R01 and recorded **`COMPLETE`** by review closure. `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
+Last updated: `ALV-N001` is **`REOPENED`** (next attempt R04) by the `ALV-011-C01` R01 review: the shared notification colours (finding F1 and the same defect in the warning/info variants) must be corrected before Gate B; `ALV-002-C01` (finding F2) follows as its own attempt. `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
 
 ## Production implementation status
 

@@ -72,7 +72,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REOPENED",
       "attempt": "R03",
       "acceptance": {
         "total": 6,
@@ -101,13 +101,11 @@
       },
       "completedAt": "2026-10-01T21:27:31.000Z",
       "reopened": {
-        "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) required stable-state checks of the ALV-N001 danger-button observation. Settled default-state scans show no persistent danger-button defect, but the state scans added while repairing ALV-001-C01 found a REAL shared-design defect: .alv-button--secondary:hover/focus sets its text to --color-primary, which in the dark theme is a button BACKGROUND colour (#1f4459), giving about 1.8:1 contrast on the dark surface (axe color-contrast, serious) on every page with a secondary button. Narrow correction of Button.css only. Next attempt: R03.",
-        "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
-        "nextAttempt": "R03",
-        "priorApprovedAttempt": "R02",
-        "downstreamAssessment": "Visual-only change to one component state's text/border colour using an existing token (--color-info); no component API, markup, behaviour or token definition changes. Completed descendants are not marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite and the authenticated axe state scan to demonstrate that.",
-        "resolvedByAttempt": "R03",
-        "resolvedAt": "2026-10-01T21:27:31.000Z"
+        "reason": "ALV-011-C01 R01 review (.alveara/reviews/ALV-011-C01/R01.md) required the open contrast findings F1/F2 to be corrected at the responsible stories before Gate B. F1: .alv-notification--success is --color-success on --color-success-bg = 4.45:1 in the light theme (AA needs 4.5:1). A computed sweep of every Notification variant over every surface in both themes found the same class of defect in this story's files: the light-theme warning variant is 3.47:1, the dark success variant is 4.42:1 / 4.05:1 over surface / raised surface, the dark info variant is 4.39:1 over raised surface; the session-warning banner in AppShell.css uses the failing warning pair. Correction: text-only colour tokens and a contrast test that fails against the old values.",
+        "reviewArtifact": ".alveara/reviews/ALV-011-C01/R01.md",
+        "nextAttempt": "R04",
+        "priorApprovedAttempt": "R03",
+        "downstreamAssessment": "Colour-only: new text tokens (--color-success-text, --color-warning-text) are added, one dark-theme value (--color-info) is lightened, and four selectors are repointed. No component API, markup or behaviour changes. Completed descendants that use --color-info as text (Button secondary, shell links, patient workspace, duplicate panel, admin users) get a lighter colour in the dark theme only, which can only raise their contrast; the attempt must prove it with the full frontend suite, the existing contrast tests and the authenticated axe state scan. Page-local workarounds for F2 are removed by the ALV-002-C01 attempt, not here."
       },
       "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N001/R03.md: secondary-button hover/focus text no longer uses a dark-theme button-background colour; dark danger text raised to AA; contrast regression test pins every Button variant/state in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md."
     },
