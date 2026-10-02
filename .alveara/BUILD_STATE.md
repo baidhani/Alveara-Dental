@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-011-C01` attempt R01 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`). `STORY-011` (portal-verified at `207791d`), `ALV-004-C01` (approved R01), `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-011-C01/R01.md` for the handoff. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
+Last updated: `ALV-011-C01` approved at attempt R01 and recorded **`COMPLETE`** by review closure. `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
 
 ## Production implementation status
 
@@ -49,7 +49,7 @@ Last updated: `ALV-011-C01` attempt R01 - implementation committed, set to **`AW
 - **Findings carried forward, not fixed here**: `ALV-N001` success-toast contrast 4.45:1 (F1) and `ALV-002-C01` conflict-banner title contrast 3.46:1 (F2) remain open; the calendar drawer applies the same scoped workaround as the patient workspace. They must be corrected through reopened-story attempts before Gate B is evaluated.
 - 721 backend / 434 frontend / 68 mocked-browser / 12 calendar walkthrough / 10 scheduling walkthrough / 10 forms / 14 workspace / 7 STORY-003 / 12 auth (on retry; its recovery-key step is timing-sensitive on this machine) / 3 Gate A route-scan / 7 repository tests pass. STORY-004's own tests are unchanged and pass. Gate B (row B4) is not evaluated. See `.alveara/handoffs/ALV-004-C01/R01-evidence/`.
 
-## Visit workflow and live board (ALV-011-C01, AWAITING_REVIEW - attempt R01)
+## Visit workflow and live board (ALV-011-C01, COMPLETE - approved attempt R01)
 
 - **The whole visit chain**: `Scheduled -> Confirmed -> CheckedIn -> Ready -> Seated -> InTreatment -> CheckedOut -> Completed` in the `Appointment.FlowState` column STORY-011 added (its four values unchanged). `VisitStateMachine` is one pure function tested on all 64 pairs and is a **superset of STORY-011's `PatientFlowRules`** (a test compares every original pair); STORY-011's shortcuts stay legal. Cancelled and no-show remain the booking `Status`, never visit states. Confirmed has not arrived (still movable/cancellable); from check-in on `appointment_in_progress`. Migration `AddVisitWorkflow` (case-sensitive state check; `VisitProviderProfileId`/`VisitOperatoryId`; `FormTemplates.RequiredAtCheckIn`).
 - **Who and where**: `VisitAssignmentService` keeps the provider/operatory the patient is actually with apart from the booking (the calendar and conflict rules never move). Both ids required, active, repeats are no-ops, real changes need the row version; completed/cancelled/no-show cannot be reassigned.
