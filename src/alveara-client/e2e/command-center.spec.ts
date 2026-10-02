@@ -43,7 +43,7 @@ test.beforeAll(async () => {
     const rel = url === "/" ? "index.html" : url.replace(/^\//, "");
     const file = path.join(ROOT, rel);
     if (!file.startsWith(ROOT) || !existsSync(file)) { res.writeHead(404); res.end("not found"); return; }
-    const type = file.endsWith(".json") ? "application/json" : file.endsWith(".js") ? "text/javascript" : file.endsWith(".css") ? "text/css" : "text/html";
+    const type = file.endsWith(".json") ? "application/json" : file.endsWith(".js") ? "text/javascript" : file.endsWith(".css") ? "text/css" : file.endsWith(".png") ? "image/png" : "text/html";
     res.writeHead(200, { "Content-Type": type });
     res.end(readFileSync(file));
   });
@@ -59,6 +59,39 @@ async function openPm(page: import("@playwright/test").Page) {
   await page.locator('#tabs-nav button[data-tab="pm"]').click();
   await expect(page.getByRole("heading", { name: "Project Management" })).toBeVisible();
 }
+
+test.describe("the logo", () => {
+  test("shows in the sidebar in place of the old text mark, loads at a usable size, and is decorative because the name sits beside it", async ({ page }) => {
+    await page.goto(base + "/index.html");
+    const logo = page.locator(".brand .brand-logo");
+    await expect(logo).toBeVisible();
+    expect(await logo.evaluate((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0), "the image actually loaded").toBe(true);
+    await expect(logo).toHaveAttribute("alt", "");
+    const box = (await logo.boundingBox())!;
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([40, 44]);
+    await expect(page.locator(".brand .brand-text")).toContainText("Alveara Dental"); // the name the logo sits beside
+    await expect(page.locator(".brand-mark")).toHaveCount(0);                          // the old "AD" square is gone
+    expect(requested.some((u) => u.endsWith("assets/logo-88.png") || u.endsWith("assets/logo-176.png")), "a logo file was requested").toBe(true);
+  });
+
+  test("stays visible in the dark theme", async ({ page }) => {
+    await page.goto(base + "/index.html");
+    await page.getByRole("button", { name: /Dark/ }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator(".brand .brand-logo")).toBeVisible();
+  });
+
+  test("the browser-tab icon is declared and each icon file is served as an image", async ({ page }) => {
+    await page.goto(base + "/index.html");
+    const hrefs = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll((els) => els.map((e) => (e as HTMLLinkElement).getAttribute("href")));
+    expect(hrefs).toEqual(expect.arrayContaining(["assets/favicon-32.png", "assets/favicon-192.png"]));
+    for (const href of new Set(hrefs)) {
+      const res = await page.request.get(`${base}/${href}`);
+      expect(res.status(), href).toBe(200);
+      expect((await res.body()).subarray(0, 4).toString("hex"), `${href} is a PNG`).toBe("89504e47");
+    }
+  });
+});
 
 test.describe("real data only", () => {
   test("there is no sample/real switch, no sample label on any tab, and no sample data is ever requested", async ({ page }) => {
