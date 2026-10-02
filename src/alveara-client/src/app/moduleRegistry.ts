@@ -13,10 +13,13 @@ export interface ModuleDefinition {
   label: string;
   path: string;
   requiredPermission?: string;
+  /** Optional override of when this entry is highlighted (default: the current path starts with `path`). */
+  activeWhen?: (pathname: string) => boolean;
 }
 
 export const moduleRegistry: ModuleDefinition[] = [
   { id: "dashboard", label: "Dashboard", path: "/" },
+  { id: "patients", label: "Patients", path: "/patients", requiredPermission: "ViewPatientRecords", activeWhen: (p) => p.startsWith("/patients") && p !== "/patients/register" },
   { id: "register-patient", label: "Register Patient", path: "/patients/register", requiredPermission: "RegisterPatients" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
@@ -24,6 +27,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "admin-permissions", label: "Permission Matrix", path: "/admin/permissions", requiredPermission: "ViewPermissionMatrix" },
   { id: "audit-log", label: "Audit Log", path: "/admin/audit-log", requiredPermission: "ViewAuditLog" },
   { id: "practice-config", label: "Practice Configuration", path: "/admin/configuration", requiredPermission: "ManagePracticeConfiguration" },
+  { id: "patient-requirements", label: "Patient Registration Settings", path: "/admin/patient-registration", requiredPermission: "ManagePracticeConfiguration" },
   { id: "backup-recovery", label: "Backup & Recovery", path: "/admin/backup", requiredPermission: "ViewBackupStatus" },
   { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];

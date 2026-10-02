@@ -1,0 +1,51 @@
+.alv-patient-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 480px;
+}
+
+.alv-patient-picker__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.alv-patient-picker__selected {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.alv-patient-picker__status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.alv-patient-picker__results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.alv-patient-picker__result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.alv-patient-picker__result:hover:not(:disabled),
+.alv-patient-picker__result:focus-visible {
+  background: var(--color-info-bg);
+}

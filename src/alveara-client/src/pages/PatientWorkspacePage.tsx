@@ -1,0 +1,96 @@
+import { useLayoutEffect } from "react";
+import { NavLink, Outlet, useOutletContext, useParams } from "react-router-dom";
+import { patientWorkspaceTabs } from "../app/patientWorkspaceTabs";
+import { Button } from "../components/Button";
+import { PageHeader } from "../components/PageHeader";
+import { ErrorState, LoadingState } from "../components/StatePatterns";
+import { SafeLink } from "../components/SafeLink";
+import { useAuth } from "../contexts/AuthContext";
+import { usePatientContext } from "../contexts/patientContextStore";
+import type { PatientDetail } from "../services/patientsApi";
+import { HouseholdGuarantorPanel } from "./HouseholdGuarantorPanel";
+import { PatientDetailsPanel } from "./PatientDetailsPanel";
+import { PatientHistoryPanel } from "./PatientHistoryPanel";
+import "./PatientWorkspace.css";
+
+interface WorkspaceOutlet {
+  patient: PatientDetail;
+  reload: () => void;
+}
+
+/**
+ * ALV-003-C01: the persistent patient workspace (/patients/:patientId/...). It makes the URL's patient THE patient in context
+ * (the shared header in the shell shows the same one) and renders the workspace tabs from `patientWorkspaceTabs` - the extension
+ * point later stories add their tabs to.
+ *
+ * Patient switching is the safety-critical part:
+ * - the context is selected in a layout effect, before the browser paints, so the previous patient's header never shows under the new URL;
+ * - nothing from the context is rendered unless it is for THIS URL's patient (`state.patientId === patientId`), so there is no frame
+ *   where patient B's URL shows patient A's data;
+ * - the tab content is keyed by patient id, so every panel's own state (form values, pickers, history) is discarded on a switch.
+ */
+export function PatientWorkspacePage() {
+  const { patientId = "" } = useParams();
+  const { state, selectPatient, reload } = usePatientContext();
+  const { hasPermission } = useAuth();
+
+  useLayoutEffect(() => {
+    if (patientId) selectPatient(patientId);
+  }, [patientId, selectPatient]);
+
+  if (state.kind === "none" || state.patientId !== patientId || state.kind === "loading") {
+    return <LoadingState label="Loading patient…" />;
+  }
+  if (state.kind === "not-found") {
+    return (
+      <ErrorState
+        title="That patient was not found"
+        description="The link may be wrong. Search for the patient instead."
+        action={<SafeLink to="/patients" className="alv-button alv-button--primary">Find a patient</SafeLink>}
+      />
+    );
+  }
+  if (state.kind === "denied") {
+    return <ErrorState title="You don't have permission to view this" description="Your role does not hold the permission to view patient records." />;
+  }
+  if (state.kind === "error") {
+    return <ErrorState title="Could not load the patient" action={<Button onClick={reload}>Retry</Button>} />;
+  }
+
+  const patient = state.patient;
+  const tabs = patientWorkspaceTabs.filter((t) => !t.requiredPermission || hasPermission(t.requiredPermission));
+
+  return (
+    <div key={patient.id}>
+      <PageHeader title="Patient workspace" description="Everything about this patient in one place. The patient shown above stays selected while you move between sections." />
+      <nav className="alv-workspace__tabs" aria-label="Patient workspace sections">
+        {tabs.map((tab) => (
+          <NavLink
+            key={tab.id}
+            to={tab.path ? `/patients/${patient.id}/${tab.path}` : `/patients/${patient.id}`}
+            end={tab.path === ""}
+            className={({ isActive }) => `alv-workspace__tab${isActive ? " alv-workspace__tab--active" : ""}`}
+          >
+            {tab.label}
+          </NavLink>
+        ))}
+      </nav>
+      <Outlet context={{ patient, reload } satisfies WorkspaceOutlet} />
+    </div>
+  );
+}
+
+export function PatientDetailsTab() {
+  const { patient, reload } = useOutletContext<WorkspaceOutlet>();
+  return <PatientDetailsPanel patient={patient} onChanged={reload} />;
+}
+
+export function PatientHouseholdTab() {
+  const { patient, reload } = useOutletContext<WorkspaceOutlet>();
+  return <HouseholdGuarantorPanel patient={patient} onChanged={reload} />;
+}
+
+export function PatientHistoryTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  return <PatientHistoryPanel patient={patient} />;
+}

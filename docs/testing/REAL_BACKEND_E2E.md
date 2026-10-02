@@ -81,3 +81,23 @@ record named; the form can be completed from the keyboard alone; the audit log h
 and a dentist has no nav link, no page and a 403 from the API. It also runs axe over the form
 (default, error and success states) in light and dark. Like `auth-real-backend.spec.ts`, it is
 excluded from the default mocked `npm run test:e2e`.
+
+## ALV-003-C01: patient identity workspace walkthrough
+
+`e2e/patient-workspace-real-backend.spec.ts` is the un-mocked run for the patient identity workspace. Start the API exactly as for the STORY-003
+walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:WORKSPACE_E2E_OUT = "C:\tmp\workspace-e2e"   # optional: where the JSON results and screenshots go
+npx playwright test --config=playwright.workspace.config.ts
+```
+
+It signs in as front-desk users, a practice administrator and a dentist and shows: a likely duplicate compared side by side and registered only after a
+human chooses to (the existing record untouched), an exact duplicate blocked; search by name words, birth date and phone in any formatting; the
+shared patient header staying in context across tabs; an edit saved with history; a stale edit by a second user refused without overwriting; household and
+guarantor held independently (a guarantor outside the household); invalid relationships refused with the server's reason; inactivate/reactivate preserved
+through edits and hidden/shown by the search filter; switching patients on a deliberately slow connection never showing the previous patient; a practice
+requirement (email) set by an administrator, shown on the form and enforced by the server; keyboard-only registration and search; the audit trail; a dentist
+who can read but not change patients; and axe scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the
+default mocked `npm run test:e2e`.

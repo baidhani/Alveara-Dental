@@ -5,25 +5,6 @@
   margin-top: var(--space-4);
 }
 
-.alv-patient-reg__section {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-.alv-patient-reg__section legend {
-  padding: 0 var(--space-2);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text);
-}
-
-.alv-patient-reg__section .alv-form-field {
-  max-width: none;
-}
-
 .alv-patient-reg__banner {
   padding: var(--space-3);
   border: 1px solid var(--color-danger);
@@ -63,4 +44,11 @@
 .alv-patient-reg__id {
   font-family: var(--font-mono, monospace);
   overflow-wrap: anywhere;
+}
+
+.alv-patient-reg__done-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
 }

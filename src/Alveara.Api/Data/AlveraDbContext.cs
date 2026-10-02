@@ -47,6 +47,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
 
     // STORY-003: patient registration.
     public DbSet<Patient> Patients => Set<Patient>();
+    public DbSet<Household> Households => Set<Household>();
+    public DbSet<PatientHistoryEntry> PatientHistory => Set<PatientHistoryEntry>();
+    public DbSet<PatientRegistrationSettings> PatientRegistrationSettings => Set<PatientRegistrationSettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -220,6 +223,30 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(p => p.DuplicateKey).IsUnique();
             e.HasIndex(p => p.RegistrationKey).IsUnique().HasFilter("[RegistrationKey] IS NOT NULL");
             e.HasIndex(p => p.LastName);
+            // ALV-003-C01: relationships are Restrict - a household or guarantor can never be deleted out from under a patient.
+            e.Property(p => p.IsActive).HasDefaultValue(true);
+            e.Property(p => p.HouseholdRelationship).HasMaxLength(30);
+            e.HasOne(p => p.Household).WithMany().HasForeignKey(p => p.HouseholdId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(p => p.Guarantor).WithMany().HasForeignKey(p => p.GuarantorPatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(p => p.HouseholdId);
+            e.HasIndex(p => p.GuarantorPatientId);
+            e.HasIndex(p => p.DateOfBirth);
+        });
+
+        modelBuilder.Entity<PatientRegistrationSettings>(e =>
+        {
+            e.Property(x => x.RowVersion).IsRowVersion();
+            e.HasIndex(x => x.Singleton).IsUnique();
+        });
+
+        modelBuilder.Entity<PatientHistoryEntry>(e =>
+        {
+            e.Property(h => h.ChangeType).HasMaxLength(40);
+            e.Property(h => h.FieldName).HasMaxLength(40);
+            e.Property(h => h.OldValue).HasMaxLength(400);
+            e.Property(h => h.NewValue).HasMaxLength(400);
+            e.HasOne<Patient>().WithMany().HasForeignKey(h => h.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(h => new { h.PatientId, h.ChangedAtUtc });
         });
 
         modelBuilder.Entity<BackgroundJob>(e =>

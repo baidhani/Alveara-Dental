@@ -162,10 +162,54 @@
   background: var(--color-surface);
 }
 
-.alv-shell__patient-context-placeholder {
-  font-size: var(--font-size-xs);
+.alv-patient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.alv-patient-header__identity {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.alv-patient-header__name {
+  font-size: var(--font-size-md, 1rem);
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-patient-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alv-patient-header__none {
+  margin: 0;
+  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  font-style: italic;
+}
+
+.alv-patient-header__link {
+  color: var(--color-info);
+  font-size: var(--font-size-sm);
+}
+
+.alv-patient-header__button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-info);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .alv-shell__content {

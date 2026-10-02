@@ -26,7 +26,8 @@ public static class PermissionMatrix
 
         [Role.FrontDesk] = Set(
             Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
-            Permission.RegisterPatients),
+            Permission.RegisterPatients, Permission.EditPatients,
+            Permission.ViewPatientRecords), // ALV-003-C01: front desk must find and open the patients it registers
 
         [Role.Billing] = Set(
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords),
@@ -35,7 +36,7 @@ public static class PermissionMatrix
             Permission.ViewPatientRecords, Permission.ManageAppointments, Permission.ViewSchedule,
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewAuditLog, Permission.ViewPermissionMatrix,
             Permission.ManagePracticeConfiguration, // the "practice manager" of ALV-N003
-            Permission.ViewBackupStatus, Permission.RegisterPatients),
+            Permission.ViewBackupStatus, Permission.RegisterPatients, Permission.EditPatients),
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

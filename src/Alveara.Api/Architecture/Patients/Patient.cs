@@ -43,6 +43,24 @@ public class Patient
     public Guid? CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
 
+    // ALV-003-C01: identity workspace state.
+
+    /// <summary>A patient is inactivated, never deleted, so history, audit entries and relationships keep resolving.</summary>
+    public bool IsActive { get; set; } = true;
+
+    /// <summary>The household this patient belongs to (null = none). Independent of <see cref="GuarantorPatientId"/>.</summary>
+    public Guid? HouseholdId { get; set; }
+    public Household? Household { get; set; }
+    /// <summary>How this patient relates to the household (one of <see cref="HouseholdRelationships.All"/>); set exactly when <see cref="HouseholdId"/> is.</summary>
+    public string? HouseholdRelationship { get; set; }
+
+    /// <summary>The patient financially responsible for this one (null = responsible for themselves). Independent of <see cref="HouseholdId"/>.</summary>
+    public Guid? GuarantorPatientId { get; set; }
+    public Patient? Guarantor { get; set; }
+
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
+    public Guid? UpdatedByUserId { get; set; }
+
     /// <summary>SQL Server rowversion: a stale save is rejected, never silently overwrites (ALV-002-C01).</summary>
     public byte[] RowVersion { get; set; } = [];
 

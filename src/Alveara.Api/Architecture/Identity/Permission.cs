@@ -47,4 +47,7 @@ public enum Permission
 
     // STORY-003: registering patients (demographics + contact). Appended last so existing ordinals are undisturbed.
     RegisterPatients,
+
+    // ALV-003-C01: editing patient details, household/guarantor links and active state.
+    EditPatients,
 }

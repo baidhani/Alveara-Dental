@@ -1,0 +1,180 @@
+.alv-workspace__tabs {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
+.alv-workspace__tab {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.alv-workspace__tab--active {
+  border-color: var(--color-border);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-surface);
+}
+
+.alv-workspace__section-title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-lg, 1.125rem);
+}
+
+.alv-workspace__subtitle {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--font-size-md, 1rem);
+}
+
+.alv-workspace__panel,
+.alv-workspace__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.alv-workspace__block {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.alv-workspace__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.alv-workspace__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.alv-workspace__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.alv-workspace__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.alv-workspace__select {
+  max-width: 260px;
+}
+
+.alv-workspace__note {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.alv-workspace__dirty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.alv-workspace__link {
+  color: var(--color-info);
+}
+
+.alv-workspace__list {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.alv-workspace__banner {
+  padding: var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-text);
+}
+
+.alv-workspace__banner p {
+  margin: 0;
+}
+
+.alv-workspace__status {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.alv-workspace__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alv-workspace__table th,
+.alv-workspace__table td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.alv-workspace__caption {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-2);
+}
+
+.alv-workspace__search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 520px;
+  margin: var(--space-4) 0;
+}
+
+.alv-workspace__search-input {
+  width: 100%;
+}
+
+.alv-workspace__checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+/* Saved confirmation: text colour on the tinted status background, status conveyed by the words and the border (as the status badges do). */
+.alv-workspace__saved {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+/* The status region exists before anything is saved so assistive technology announces the text when it appears; empty, it takes no space. */
+.alv-workspace__saved-slot {
+  margin: 0;
+}
+
+/*
+  The shared ConcurrencyConflictBanner (ALV-002-C01) colours its TITLE with --color-warning, which is 3.46:1 on its own tinted background in the
+  light theme (WCAG AA needs 4.5:1; found by the real-browser axe scan the first time a real edit flow rendered it). The shared component belongs to
+  a completed, reviewed story, so this story does not edit it: inside the patient workspace the title uses the body text colour instead (the
+  warning meaning is still carried by the words and the banner's warning border). Pinned by src/styles/patientWorkspaceContrast.test.ts.
+  Recorded as a finding against ALV-002-C01 in this attempt's handoff.
+*/
+.alv-workspace__form .alv-concurrency-conflict__title,
+.alv-workspace__panel .alv-concurrency-conflict__title {
+  color: var(--color-text);
+}

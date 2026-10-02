@@ -62,7 +62,12 @@ builder.Services.AddSingleton<IBlobStorage>(_ => new LocalDiskBlobStorage(storag
 builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
 builder.Services.AddScoped<SchedulingConfiguration>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientDuplicateDetector>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientEditService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRelationshipService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientDirectory>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
 
 // Measurement events.
 builder.Services.AddScoped<IMeasurementEventSink, MeasurementEventSink>();

@@ -17,6 +17,9 @@ import { AuditLogPage } from "./pages/AuditLogPage";
 import { ConfigurationHubPage } from "./pages/ConfigurationHubPage";
 import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
+import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
+import { PatientSearchPage } from "./pages/PatientSearchPage";
+import { PatientDetailsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -112,6 +115,14 @@ function createAppRouter() {
             }
           />
           <Route
+            path="/admin/patient-registration"
+            element={
+              <RequirePermission permission="ManagePracticeConfiguration">
+                <PatientRegistrationSettingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
             path="/admin/backup"
             element={
               <RequirePermission permission="ViewBackupStatus">
@@ -127,6 +138,26 @@ function createAppRouter() {
               </RequirePermission>
             }
           />
+          <Route
+            path="/patients"
+            element={
+              <RequirePermission permission="ViewPatientRecords">
+                <PatientSearchPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/patients/:patientId"
+            element={
+              <RequirePermission permission="ViewPatientRecords">
+                <PatientWorkspacePage />
+              </RequirePermission>
+            }
+          >
+            <Route index element={<PatientDetailsTab />} />
+            <Route path="household" element={<PatientHouseholdTab />} />
+            <Route path="history" element={<PatientHistoryTab />} />
+          </Route>
           <Route path="/settings/mfa" element={<MfaSettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
