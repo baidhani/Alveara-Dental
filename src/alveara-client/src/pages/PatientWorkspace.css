@@ -167,14 +167,3 @@
   margin: 0;
 }
 
-/*
-  The shared ConcurrencyConflictBanner (ALV-002-C01) colours its TITLE with --color-warning, which is 3.46:1 on its own tinted background in the
-  light theme (WCAG AA needs 4.5:1; found by the real-browser axe scan the first time a real edit flow rendered it). The shared component belongs to
-  a completed, reviewed story, so this story does not edit it: inside the patient workspace the title uses the body text colour instead (the
-  warning meaning is still carried by the words and the banner's warning border). Pinned by src/styles/patientWorkspaceContrast.test.ts.
-  Recorded as a finding against ALV-002-C01 in this attempt's handoff.
-*/
-.alv-workspace__form .alv-concurrency-conflict__title,
-.alv-workspace__panel .alv-concurrency-conflict__title {
-  color: var(--color-text);
-}

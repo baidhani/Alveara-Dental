@@ -203,14 +203,6 @@
   background: var(--color-surface-raised);
 }
 
-/*
-  The shared conflict banner's title colour is 3.46:1 (finding F2 on ALV-002-C01, still open). The calendar drawer and the patient workspace already work
-  around it the same way; remove this override when the shared component is corrected.
-*/
-.flow-board .alv-concurrency-conflict__title {
-  color: var(--color-text);
-}
-
 @media (max-width: 700px) {
   .flow-columns {
     flex-direction: column;

@@ -93,8 +93,7 @@ ALV-004-C01 extends STORY-004 without changing its contract: STORY-004's own tes
   enforced and explained when a booking hits it, but not drawn - the read model the grid uses lists weekly hours only); no printing or export.
 - A past start cannot be booked or rescheduled to (so a no-show on a long-past appointment is demonstrated by moving its times in the database in the real-browser
   walkthrough; the service-level tests use a controllable clock).
-- The shared conflict banner's title colour (finding F2 on ALV-002-C01, 3.46:1) is worked around inside the calendar drawer exactly as ALV-003-C01 did inside the patient
-  workspace; the shared component itself is not edited here.
+- The shared conflict banner's title colour was corrected once, in the shared component (finding F2, `ALV-002-C01` R05: it now uses `--color-warning-text`); the calendar drawer, the patient workspace and the visit board no longer carry page-level overrides, and `conflictBannerContrast.test.ts` fails if one comes back.
 - At most 500 appointments are returned for a range; the week view's side-by-side lanes get narrow when many providers overlap (the full details are in each block's
   label and in the drawer).
 
@@ -218,4 +217,4 @@ out of date. **Elapsed times use the server's clock**, never the browser's. The 
 - The permission split (front office vs chairside) and "the current version is the one that counts" for forms are policy choices, documented here, not statements about any practice's rules.
 - At desktop width the eight columns scroll sideways (empty columns shrink to a narrow strip so busy ones get the room); on a phone they stack.
 - The board builds each card with a few queries (fine for a day's schedule, capped at 500 appointments and 100 carried-over visits).
-- **F2 (shared conflict-banner title contrast, `ALV-002-C01`) is still open**; the board applies the same scoped workaround the calendar drawer and patient workspace use (`.flow-board .alv-concurrency-conflict__title`) until the shared component is corrected.
+- **F2 (shared conflict-banner title contrast, `ALV-002-C01`) is corrected** by `ALV-002-C01` R05 (awaiting review); the board's page-level workaround was removed.

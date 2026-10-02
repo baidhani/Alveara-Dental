@@ -20,3 +20,10 @@
   - What changed: new text-only tokens `--color-success-text` / `--color-warning-text`, dark `--color-info` lightened, and the success/warning notifications and the shell session-warning banner repointed; 4.45:1 / 3.47:1 / 4.42:1 / 4.05:1 / 4.39:1 pairings now >= 4.5:1
   - Verification: 498/498 frontend (`vitest`, 14 new in `statusContrast.test.ts`, 9 of them fail against the old values), `tsc -b`, build and lint pass, mocked Playwright 78/78 (4 new real-browser notification axe tests, which fail against the old CSS at 4.45:1 and 3.46:1), real-backend: Gate A route scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10
   - Notes: colour-only; the ALV-002-C01 banner (F2) and the removal of its three page workarounds are the next separate attempt; the system-status stale banner (ALV-N002) has the same warning-pair defect and is reported, not changed
+
+- [x] ALV-002-C01 R05: conflict-banner title meets WCAG AA and the three page-level workarounds are removed (finding F2; set to AWAITING_REVIEW, not COMPLETE)
+  - Date: 2026-10-02
+  - Session: CC-20261002-f7c1
+  - What changed: the shared ConcurrencyConflictBanner title uses `--color-warning-text` (3.46:1 -> 5.39:1 light); the `.cal-drawer`, `.alv-workspace__form/__panel` and `.flow-board` title overrides are deleted; `patientWorkspaceContrast.test.ts` no longer asserts the title fails; `docs/SCHEDULING.md` updated
+  - Verification: 502/502 frontend (`vitest`, 5 new in `conflictBannerContrast.test.ts`: 2 fail against the old CSS incl. a guard that no page re-colours the title), `tsc -b`, build and lint pass, mocked Playwright 78/78, real-backend with the overrides gone: Gate A scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10, auth 12/12; mutation check: reverting only the banner colour fails the board, calendar and workspace walkthroughs on axe color-contrast
+  - Notes: colour-only; ALV-N002's `.status-stale-banner` (same warning-pair defect) is the next separate attempt

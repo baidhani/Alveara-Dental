@@ -259,16 +259,6 @@
   background: var(--color-warning-bg);
 }
 
-/*
-  The shared ConcurrencyConflictBanner (ALV-002-C01) colours its TITLE with --color-warning, which is 3.46:1 on its own tint in the light theme (below WCAG AA's
-  4.5:1) - the defect ALV-003-C01 recorded as finding F2 and handled the same way. That component belongs to a completed, reviewed story, so this story does not
-  edit it: inside the calendar drawer the title uses the body text colour (the warning meaning is still carried by the words and the banner's warning border).
-  Found again by the real-browser axe scan the first time the drawer showed the banner. Still open as a finding against ALV-002-C01; remove this override when
-  the shared component is corrected.
-*/
-.cal-drawer .alv-concurrency-conflict__title {
-  color: var(--color-text);
-}
 
 /* STORY-011: the patient's flow through the visit. The words carry the meaning; the outline only reinforces it. */
 .cal-badge--flow-checkedin,

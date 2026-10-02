@@ -11,7 +11,7 @@
 
 .alv-concurrency-conflict__title {
   font-weight: 600;
-  color: var(--color-warning);
+  color: var(--color-warning-text);
   margin: 0;
 }
 

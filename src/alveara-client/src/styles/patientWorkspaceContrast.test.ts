@@ -80,7 +80,7 @@ const text: [string, keyof typeof css, string, string | null][] = [
   ["workspace checkbox label", "workspace", ".alv-workspace__checkbox", null],
   ["workspace error banner", "workspace", ".alv-workspace__banner", "color-danger-bg"],
   ["workspace saved message", "workspace", ".alv-workspace__saved", "color-success-bg"],
-  ["conflict banner title (workspace override of the shared title colour)", "workspace", ".alv-workspace__form .alv-concurrency-conflict__title", "color-warning-bg"],
+  ["conflict banner title (shared; the workspace override was removed by ALV-002-C01 R05)", "banner", ".alv-concurrency-conflict__title", "color-warning-bg"],
   ["conflict banner description (shared)", "banner", ".alv-concurrency-conflict__description", "color-warning-bg"],
   ["registration error banner", "registration", ".alv-patient-reg__banner", "color-danger-bg"],
   ["registration success panel", "registration", ".alv-patient-reg__done", "color-success-bg"],
@@ -119,13 +119,5 @@ describe.each(["light", "dark"] as const)("patient pages - WCAG AA text contrast
     const fg = token(theme, usedToken(css.workspace, ".alv-workspace__tab", "color"));
     const bg = token(theme, usedToken(css.workspace, ".alv-workspace__tab--active", "background"));
     expect(ratio(fg, bg), `${theme} active tab`).toBeGreaterThanOrEqual(4.5);
-  });
-});
-
-describe("the shared conflict banner's own title colour", () => {
-  it("is documented as failing AA in the light theme, which is why the workspace overrides it (so the override cannot be dropped unnoticed)", () => {
-    const own = token("light", usedToken(css.banner, ".alv-concurrency-conflict__title", "color"));
-    const bg = token("light", usedToken(css.banner, ".alv-concurrency-conflict", "background"));
-    expect(ratio(own, bg)).toBeLessThan(4.5); // if the shared component is fixed, delete the override in PatientWorkspace.css and this test
   });
 });
