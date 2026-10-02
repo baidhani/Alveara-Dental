@@ -75,6 +75,16 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
         return await action(Flow(db));
     }
 
+    /// <summary>ALV-011-C01: the visit-time provider/operatory assignment service.</summary>
+    public VisitAssignmentService Assignment(AlveraDbContext db, IMeasurementEventSink? measurements = null) =>
+        new(db, Clock, measurements);
+
+    public async Task<AppointmentView> AssignAsync(Func<VisitAssignmentService, Task<AppointmentView>> action)
+    {
+        await using var db = fixture.CreateContext();
+        return await action(Assignment(db));
+    }
+
     public async Task<AppointmentView> ReloadAsync(Guid id)
     {
         await using var db = fixture.CreateContext();
@@ -116,6 +126,22 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
     /// <summary>A context whose saves fail whenever an audit entry is part of them, to simulate audit storage being down.</summary>
     public AlveraDbContext FailingAuditContext() =>
         new(new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(fixture.ConnectionString).AddInterceptors(new FailAuditWrites()).Options);
+
+    /// <summary>
+    /// A context that pauses just BEFORE every save. A rule that checks first and writes after is only safe under a race if it holds a lock across both, so
+    /// this widens the gap between the check and the write: without the lock every contender passes the check before any of them writes.
+    /// </summary>
+    public AlveraDbContext SlowSaveContext(TimeSpan pause) =>
+        new(new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(fixture.ConnectionString).AddInterceptors(new PauseBeforeSave(pause)).Options);
+
+    private sealed class PauseBeforeSave(TimeSpan pause) : SaveChangesInterceptor
+    {
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(pause, cancellationToken);
+            return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+    }
 
     private sealed class FailAuditWrites : SaveChangesInterceptor
     {

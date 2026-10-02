@@ -32,6 +32,12 @@ export interface Appointment {
   /** STORY-011: where the patient is in the visit (see PatientFlowState). Absent on appointments from before patient flow existed. */
   flowState?: PatientFlowState;
   flowChangedAtUtc?: string | null;
+  /** ALV-011-C01: where the patient is ACTUALLY being seen (the visit-time assignment, otherwise as booked), and the moves the server allows next. */
+  visitProviderId?: string;
+  visitProviderName?: string;
+  visitOperatoryId?: string;
+  visitOperatoryName?: string;
+  nextFlowStates?: PatientFlowState[];
 }
 
 export interface ScheduleInput {
@@ -86,8 +92,11 @@ export const dateOf = (local: string) => local.slice(0, 10);
 
 export type AppointmentStatus = "Scheduled" | "Cancelled" | "NoShow";
 
-/** STORY-011: Scheduled -> CheckedIn -> InTreatment (optional) -> Completed. Only a Scheduled appointment has a flow. */
-export type PatientFlowState = "Scheduled" | "CheckedIn" | "InTreatment" | "Completed";
+/**
+ * The visit chain: Scheduled, Confirmed, CheckedIn, Ready, Seated, InTreatment, CheckedOut, Completed. STORY-011 shipped Scheduled, CheckedIn, InTreatment and
+ * Completed; ALV-011-C01 added the rest. Only a Scheduled appointment has a flow (cancelled and no-show are booking statuses, not visit states).
+ */
+export type PatientFlowState = "Scheduled" | "Confirmed" | "CheckedIn" | "Ready" | "Seated" | "InTreatment" | "CheckedOut" | "Completed";
 
 export interface AppointmentEvent {
   eventType: string;

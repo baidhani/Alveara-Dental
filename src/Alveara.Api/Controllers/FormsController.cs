@@ -16,6 +16,7 @@ public record SaveTemplateRequest(string? Key, string? Category, string? Title, 
     public TemplateContent Content => new(Title, Body, Fields?.Select(f => f.ToDefinition()).ToList(), ChangeNote);
 }
 public record SetTemplateActiveRequest(bool IsActive, string? RowVersion);
+public record SetTemplateRequiredRequest(bool Required, string? RowVersion);
 public record StartFormRequest(Guid TemplateId);
 public record SaveResponsesRequest(Dictionary<string, string?>? Responses, string? RowVersion);
 public record RowVersionRequest(string? RowVersion);
@@ -34,7 +35,7 @@ public record VoidFormRequest(string? Reason, string? RowVersion);
 /// </summary>
 [ApiController]
 [Authorize]
-public class FormsController(FormTemplateService templates, PatientFormService forms, PatientFormReader reader) : ControllerBase
+public class FormsController(FormTemplateService templates, PatientFormService forms, PatientFormReader reader, CheckInReadinessService readiness) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -96,7 +97,19 @@ public class FormsController(FormTemplateService templates, PatientFormService f
     public Task<IActionResult> SetTemplateActive(Guid id, [FromBody] SetTemplateActiveRequest request, CancellationToken ct) =>
         Run(async () => Ok(await templates.SetActiveAsync(id, request.IsActive, request.RowVersion, Actor, ct)));
 
+    /// <summary>ALV-011-C01: marks the template as required (or not) at check-in. Drives only the readiness cue; publishes no version and changes no form.</summary>
+    [HttpPut("api/forms/templates/{id:guid}/required-at-check-in")]
+    [RequirePermission(Permission.ManageFormTemplates)]
+    [RequireCsrfToken]
+    public Task<IActionResult> SetTemplateRequired(Guid id, [FromBody] SetTemplateRequiredRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await templates.SetRequiredAtCheckInAsync(id, request.Required, request.RowVersion, Actor, ct)));
+
     // ---------- A patient's forms ----------
+
+    /// <summary>ALV-011-C01: which required forms the patient has completed, for the check-in cue. Read-only; reports status, never form contents.</summary>
+    [HttpGet("api/patients/{patientId:guid}/forms/check-in-readiness")]
+    [RequirePermission(Permission.ViewSignedForms)]
+    public Task<IActionResult> CheckInReadiness(Guid patientId, CancellationToken ct) => Run(async () => Ok(await readiness.ForPatientAsync(patientId, ct)));
 
     [HttpGet("api/patients/{patientId:guid}/forms")]
     [RequirePermission(Permission.ViewSignedForms)]

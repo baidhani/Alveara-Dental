@@ -182,3 +182,25 @@ out-of-order, repeated, stale and unknown moves, and cancel / no-show / reschedu
 different move is reported and not applied); six simultaneous check-ins producing one; a dentist who can see the flow but not move it (403); a keyboard-only check-in and
 completion; the audit log holding every move with user and time and no patient details - with axe scans in light and dark. It needs no `sqlcmd`. Like the other real-backend specs it
 is excluded from the default mocked `npm run test:e2e`.
+
+
+## ALV-011-C01: visit board walkthrough
+
+`e2e/visit-board-real-backend.spec.ts` is the un-mocked run for the visit board. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above
+(including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "AlveraE2E"                       # the database the API is using: one step makes a seated appointment look left open from days ago with a SQL UPDATE
+$env:BOARD_E2E_OUT = "C:\tmp\board-e2e"             # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.board.config.ts
+```
+
+It needs `sqlcmd` on the path (the API refuses to book a start in the past, so the "visit left open from an earlier day" is arranged directly in the database, and says so). It configures the practice
+through the real configuration API, creates six staff (front desk x2, assistant, dentist, office manager, billing), five patients and two required form templates with real signed, started and missing
+forms, then shows: the board with the form cue reporting the real signing state; one visit travelling all eight states across four different people (completion asked first) with a complete, attributed history;
+a second patient refused in an occupied room with the refusal in words, then seated once the room is free; reassignment that never moves the booking, and the occupied-room refusal for a seated patient; a
+second desk's change making the first desk's press a reported conflict; the open board updating by itself within its 15-second refresh (this step waits for it, so the run takes ~40 seconds); cancelled and
+no-show apart from completed; a visit left open from an earlier day carried onto today's board with its room still blocked; a dentist who can only do chairside moves and billing with no way in, with STORY-011's own
+endpoints unchanged; a keyboard-only move; the audit log holding every move once with user and time and no patient details - with axe scans of four board states in light and dark. Like the other real-backend specs
+it is excluded from the default mocked `npm run test:e2e`.

@@ -584,6 +584,11 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<bool>("RequiredAtCheckIn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -1468,6 +1473,12 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid?>("StatusChangedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("VisitOperatoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("VisitProviderProfileId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AppointmentTypeId");
@@ -1475,6 +1486,12 @@ namespace Alveara.Api.Migrations
                     b.HasIndex("ScheduleKey")
                         .IsUnique()
                         .HasFilter("[ScheduleKey] IS NOT NULL");
+
+                    b.HasIndex("VisitOperatoryId");
+
+                    b.HasIndex("VisitProviderProfileId");
+
+                    b.HasIndex("FlowState", "StartUtc");
 
                     b.HasIndex("OperatoryId", "StartUtc");
 
@@ -1488,7 +1505,7 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasCheckConstraint("CK_Appointments_FlowNeedsScheduled", "[FlowState] = 'Scheduled' OR [Status] = 'Scheduled'");
 
-                            t.HasCheckConstraint("CK_Appointments_FlowState", "[FlowState] IN ('Scheduled','CheckedIn','InTreatment','Completed')");
+                            t.HasCheckConstraint("CK_Appointments_FlowState", "[FlowState] COLLATE Latin1_General_CS_AS IN ('Scheduled','Confirmed','CheckedIn','Ready','Seated','InTreatment','CheckedOut','Completed')");
 
                             t.HasCheckConstraint("CK_Appointments_Period", "[EndUtc] > [StartUtc]");
                         });
@@ -1701,6 +1718,16 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("ProviderProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Configuration.Operatory", null)
+                        .WithMany()
+                        .HasForeignKey("VisitOperatoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.ProviderProfile", null)
+                        .WithMany()
+                        .HasForeignKey("VisitProviderProfileId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Scheduling.AppointmentEvent", b =>

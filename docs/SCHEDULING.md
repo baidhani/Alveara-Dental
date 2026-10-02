@@ -142,3 +142,80 @@ unchanged and pass.
 - **Only roles with `ManageAppointments`** (front desk, office manager, admin) can move a patient. Dentists, hygienists and assistants can see the flow but cannot mark treatment complete from their own login; that needs a clinical-completion permission, which no story has defined yet.
 - **No undo**: a mistaken check-in cannot be reversed in this story.
 - **"Completed" means the visit's treatment is marked complete**; it does not create a clinical encounter or charge (those are later stories).
+
+
+---
+
+# The visit workflow and the live visit board (ALV-011-C01)
+
+ALV-011-C01 grows STORY-011's four-state patient flow into the whole visit, adds who and where the patient actually is, one patient per room, the check-in
+form cue, and a live board. STORY-011's own tests (`PatientFlowRulesTests`, `PatientFlowLifecycleTests`, `PatientFlowApiTests`, `PatientFlow.test.tsx`,
+`patient-flow-real-backend.spec.ts`) are unchanged and pass; STORY-011's endpoints on `api/appointments` keep their `ManageAppointments` rule.
+
+## The chain
+`Scheduled -> Confirmed -> CheckedIn -> Ready -> Seated -> InTreatment -> CheckedOut -> Completed`, stored in the same `Appointment.FlowState` column
+STORY-011 added (its four values keep their exact spelling). **Cancelled and no-show are not visit states**: they are the booking `Status`, so they can never be
+mistaken for completed, and a cancelled or no-show appointment has no flow.
+- `VisitStateMachine.Decide` is one pure function, tested on all 64 pairs. It is a **superset of `PatientFlowRules`**: for any two of the original four states it
+  gives STORY-011's answer (a test compares every pair). STORY-011's three shortcuts stay legal (checked in -> in treatment, checked in -> completed, in treatment
+  -> completed) so the receptionist-only flow it shipped still works.
+- Forward only; check-in cannot be skipped; the chairside steps cannot be skipped once a patient is in them; nothing goes back (a mistaken move is a correction for a
+  later story, never a silent undo); **Completed is final**; asking for the state the visit is already in is a no-op.
+- **Confirmed has not arrived.** `VisitStates.HasArrived` is false for Scheduled and Confirmed, so a confirmed appointment can still be rescheduled, cancelled or marked
+  no-show (cancelling resets the flow to Scheduled - the Confirmed event stays in the history). From check-in on those three are refused (`appointment_in_progress`).
+- The database backs the service: `CK_Appointments_FlowState` (case-sensitive) accepts only the eight states, and `CK_Appointments_FlowNeedsScheduled` refuses any
+  flow past Scheduled on a Cancelled or NoShow appointment. Migration `AddVisitWorkflow`.
+
+## Who and where: the visit's own provider and operatory
+`Appointment.VisitProviderProfileId` / `VisitOperatoryId` (null = as booked) say who the patient is actually with and where, separately from the booking. **Changing them
+never moves the booking**: the calendar and every conflict rule keep using the booked provider and operatory. Assigning the booked values back clears the override.
+`VisitAssignmentService` (`PUT api/visits/{id}/assignment`): both ids are required; the provider and operatory must exist and be active; a completed, cancelled or no-show
+visit cannot be reassigned (`visit_completed`, `appointment_not_scheduled`); repeating the current assignment changes nothing; a real change needs the row version.
+The view always carries the effective provider/operatory (`visitProviderName`, `visitOperatoryName`) next to the booked ones.
+
+## One patient per room
+A visit that is **Seated or InTreatment occupies the operatory it is actually in** (the visit-time one if assigned, otherwise the booked one). Entering either state - including
+STORY-011's check-in straight to treatment - or moving an occupying visit into another room is refused with **409 `operatory_occupied`** naming the visit that holds the room.
+The check runs under a database application lock on the operatory (`VisitOccupancy`), so two people seating two patients into one room at once produce one winner. This is about
+who is in the room *now*, not booked time, so it looks only at visit state. **The race tests are proven sensitive**: they pause each contender between its check and its write,
+and with the lock removed six patients end up seated in one room.
+
+## Every change is logged
+Each move writes, in the same save as the change, an `AppointmentEvent` (`Confirmed`, `CheckedIn`, `Ready`, `Seated`, `TreatmentStarted`, `CheckedOut`, `Completed`; detail
+`"<from> -> <to>"`; `AssignmentChanged` records where the patient WAS) and a PHI-free audit entry (`PatientConfirmed`, `PatientCheckedIn`, `PatientReady`, `PatientSeated`,
+`PatientTreatmentStarted`, `PatientCheckedOut`, `PatientTreatmentCompleted`, `VisitAssignmentChanged`) with the user and time. If the log cannot be written the change is not
+stored. Every real change needs the row version (stale = the shared 409 `concurrency_conflict`); repeats are quiet no-ops. Measurement: `appointment.flow`, `appointment.assignment`.
+
+## Permissions (new)
+- `UpdateVisitFlow` - **front office**: confirm, check in, check out. Front desk, office manager, admin.
+- `UpdateChairsideFlow` - **chairside**: ready, seat, start treatment, complete. Dentist, hygienist, assistant, office manager, admin.
+- Reassigning where the patient is seen: either permission. Reading the board: `ViewSchedule`; the form cue only for callers who may see form status (`ViewSignedForms`).
+- Front desk cannot do chairside moves and clinicians cannot do front-office ones (403 `permission_denied`, `required` names the permission). These are policy choices a practice may want
+  to change; the table is `PermissionMatrix`. STORY-011's endpoints (`api/appointments/{id}/check-in|start-treatment|complete`) keep `ManageAppointments`.
+
+## API (`api/visits`)
+`GET board?date=yyyy-MM-dd` (default today; every appointment starting that practice day, cancelled and no-show included, plus - on today's board - any visit still open from an earlier day,
+marked `carriedOver`; `serverNowUtc`, `states`, and per card the appointment view, the `readiness` cue and `carriedOver`), `POST {id}/state` `{target, rowVersion}`, `PUT {id}/assignment`
+`{providerId, operatoryId, rowVersion}`. New stable codes: 409 `operatory_occupied`, 409 `visit_completed`, 409 `provider_inactive`; 400 `validation_failed` for an unknown target.
+**A visit left open from an earlier day is shown on today's board** because it still holds its room: without that a room could be blocked with nothing on screen to say why.
+
+## Check-in form readiness
+`FormTemplate.RequiredAtCheckIn` (default false; `PUT api/forms/templates/{id}/required-at-check-in`, `ManageFormTemplates`, audited as `FormTemplateRequirementChanged`, publishes no version). For each
+**active** required template the cue reports, per patient: **Complete** (Signed, with its immutable signed copy, on the template's *current* version), **InProgress** (a draft exists), **SignedEarlierVersion**
+(signed only on older wording - never reported as complete) or **Missing**. No required forms reads as "none required", not as something completed. **It is informational and never blocks a check-in**, and it
+only reads: viewing or listing a form never changes it. `GET api/patients/{id}/forms/check-in-readiness` gives one patient's cue (404 for an unknown patient, never "ready").
+
+## The board (`/flow`, nav "Visit board", `ViewSchedule`)
+A column per state with a count (cancelled and no-show apart), each card showing the patient, time, where the patient is (and the booking when different), elapsed time, the form cue and the moves the server says come
+next **filtered to what the person's role may do**. One press moves a patient; **Complete visit asks first** because it is final. "Change room or provider" opens a small form. Refusals are explained in words, naming the
+occupied room and saying nothing changed. The board re-reads every 15 seconds, when the tab becomes visible and after every action; a read that fails or takes over 10 seconds keeps the last good board and says it is
+out of date. **Elapsed times use the server's clock**, never the browser's. The calendar drawer keeps STORY-011's three buttons (a confirmed appointment can still be checked in) and points to the board for the rest.
+
+## Known limits (this story)
+- **Polling, not push**: the board is as live as its 15-second refresh (and every action). Push updates would add infrastructure and were not asked for.
+- **No undo** and no "back" moves: a mistaken move needs a later story's correction flow. **No "too early to check in" rule** (inherited from STORY-011).
+- **No queue optimisation or patient-facing arrival status** (the prompt's out-of-scope). **No clinical safety flags**: ALV-N011 adds a permission-appropriate indicator once a safety model exists.
+- The permission split (front office vs chairside) and "the current version is the one that counts" for forms are policy choices, documented here, not statements about any practice's rules.
+- At desktop width the eight columns scroll sideways (empty columns shrink to a narrow strip so busy ones get the room); on a phone they stack.
+- The board builds each card with a few queries (fine for a day's schedule, capped at 500 appointments and 100 carried-over visits).
+- **F2 (shared conflict-banner title contrast, `ALV-002-C01`) is still open**; the board applies the same scoped workaround the calendar drawer and patient workspace use (`.flow-board .alv-concurrency-conflict__title`) until the shared component is corrected.

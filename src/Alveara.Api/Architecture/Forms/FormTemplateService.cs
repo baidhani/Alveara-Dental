@@ -10,7 +10,7 @@ namespace Alveara.Api.Architecture.Forms;
 public record TemplateVersionView(Guid Id, int VersionNumber, string Title, string Body, IReadOnlyList<FormFieldDefinition> Fields, string ContentHash,
     string? ChangeNote, DateTimeOffset CreatedAtUtc, bool IntegrityVerified);
 
-public record TemplateView(Guid Id, string Key, string Category, bool IsActive, string RowVersion, TemplateVersionView? Current, int VersionCount, DateTimeOffset CreatedAtUtc, DateTimeOffset? UpdatedAtUtc);
+public record TemplateView(Guid Id, string Key, string Category, bool IsActive, string RowVersion, TemplateVersionView? Current, int VersionCount, DateTimeOffset CreatedAtUtc, DateTimeOffset? UpdatedAtUtc, bool RequiredAtCheckIn = false);
 
 public record TemplateDetail(TemplateView Template, IReadOnlyList<TemplateVersionView> Versions);
 
@@ -95,6 +95,23 @@ public class FormTemplateService(AlveraDbContext db, IPracticeClock clock)
         return await GetAsync(id, ct);
     }
 
+    /// <summary>
+    /// ALV-011-C01: marks a template as required (or not) at check-in. Only drives the check-in readiness cue (<see cref="CheckInReadinessService"/>); it publishes no
+    /// new version and changes no form. Guarded by the template's row version like every other template change; repeating the same setting changes nothing.
+    /// </summary>
+    public async Task<TemplateDetail> SetRequiredAtCheckInAsync(Guid id, bool required, string? rowVersion, Guid actor, CancellationToken ct)
+    {
+        var template = await db.FormTemplates.SingleOrDefaultAsync(t => t.Id == id, ct) ?? throw NotFound();
+        if (template.RequiredAtCheckIn == required) { db.ChangeTracker.Clear(); return await GetAsync(id, ct); }
+        FormWrite.ApplyExpectedVersion(db, template, rowVersion);
+        template.RequiredAtCheckIn = required;
+        template.UpdatedAtUtc = clock.UtcNow; template.UpdatedByUserId = actor;
+        AuditService.Record(db, FormAuditEvents.TemplateRequirementChanged, nameof(FormTemplate), id, actor,
+            $"Form template '{template.Key}' {(required ? "is now required" : "is no longer required")} at check-in.");
+        await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(FormTemplate), id, ct);
+        return await GetAsync(id, ct);
+    }
+
     public async Task<IReadOnlyList<TemplateView>> ListAsync(bool includeInactive, CancellationToken ct)
     {
         var templates = await db.FormTemplates.AsNoTracking().Where(t => includeInactive || t.IsActive).OrderBy(t => t.Category).ThenBy(t => t.Key).ToListAsync(ct);
@@ -117,7 +134,7 @@ public class FormTemplateService(AlveraDbContext db, IPracticeClock clock)
     {
         var current = t.CurrentVersionId is null ? null : await db.FormTemplateVersions.AsNoTracking().SingleOrDefaultAsync(v => v.Id == t.CurrentVersionId, ct);
         var count = await db.FormTemplateVersions.CountAsync(v => v.TemplateId == t.Id, ct);
-        return new TemplateView(t.Id, t.Key, t.Category, t.IsActive, Convert.ToBase64String(t.RowVersion), current is null ? null : ToView(current), count, t.CreatedAtUtc, t.UpdatedAtUtc);
+        return new TemplateView(t.Id, t.Key, t.Category, t.IsActive, Convert.ToBase64String(t.RowVersion), current is null ? null : ToView(current), count, t.CreatedAtUtc, t.UpdatedAtUtc, t.RequiredAtCheckIn);
     }
 
     private static (string Title, string Body, IReadOnlyList<FormFieldDefinition> Fields) Validate(TemplateContent c, IDictionary<string, string> errors) =>

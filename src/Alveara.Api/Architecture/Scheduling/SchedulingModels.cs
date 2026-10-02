@@ -13,7 +13,9 @@ public record AppointmentView(
     Guid AppointmentTypeId, string AppointmentTypeName, DateTimeOffset StartUtc, DateTimeOffset EndUtc, string StartLocal, string EndLocal,
     int DurationMinutes, string Status, DateTimeOffset CreatedAtUtc,
     string? RowVersion = null, string? Notes = null, string? CancelReason = null, DateTimeOffset? StatusChangedAtUtc = null,
-    string FlowState = PatientFlowStates.Scheduled, DateTimeOffset? FlowChangedAtUtc = null);
+    string FlowState = PatientFlowStates.Scheduled, DateTimeOffset? FlowChangedAtUtc = null,
+    Guid? VisitProviderId = null, string? VisitProviderName = null, Guid? VisitOperatoryId = null, string? VisitOperatoryName = null,
+    IReadOnlyList<string>? NextFlowStates = null);
 
 public static class SchedulingAuditEvents
 {
@@ -29,6 +31,12 @@ public static class SchedulingAuditEvents
     public const string PatientCheckedIn = "PatientCheckedIn";
     public const string TreatmentStarted = "PatientTreatmentStarted";
     public const string TreatmentCompleted = "PatientTreatmentCompleted";
+    // ALV-011-C01: the rest of the visit chain and the visit-time assignment
+    public const string PatientConfirmed = "PatientConfirmed";
+    public const string PatientReady = "PatientReady";
+    public const string PatientSeated = "PatientSeated";
+    public const string PatientCheckedOut = "PatientCheckedOut";
+    public const string VisitAssignmentChanged = "VisitAssignmentChanged";
 }
 
 /// <summary>A scheduling request was refused. <see cref="Code"/> is stable for the UI.</summary>

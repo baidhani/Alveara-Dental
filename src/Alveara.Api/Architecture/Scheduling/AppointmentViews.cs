@@ -25,11 +25,20 @@ internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock 
                          where a.Id == id
                          select new { a, p.FirstName, p.LastName, Provider = s.DisplayName, Operatory = o.Name, Type = t.Name }).SingleAsync(ct);
         var a1 = row.a;
+        // ALV-011-C01: where the patient is actually being seen (the visit-time assignment if there is one, otherwise as booked)
+        var visitProviderId = VisitOccupancy.EffectiveProvider(a1);
+        var visitOperatoryId = VisitOccupancy.EffectiveOperatory(a1);
+        var visitProviderName = visitProviderId == a1.ProviderProfileId ? row.Provider
+            : await (from pr in db.ProviderProfiles.AsNoTracking() join s in db.StaffProfiles.AsNoTracking() on pr.StaffProfileId equals s.Id where pr.Id == visitProviderId select s.DisplayName).SingleAsync(ct);
+        var visitOperatoryName = visitOperatoryId == a1.OperatoryId ? row.Operatory
+            : await db.Operatories.AsNoTracking().Where(o => o.Id == visitOperatoryId).Select(o => o.Name).SingleAsync(ct);
         return new AppointmentView(
             a1.Id, a1.PatientId, $"{row.FirstName} {row.LastName}", a1.ProviderProfileId, row.Provider, a1.OperatoryId, row.Operatory, a1.AppointmentTypeId, row.Type,
             a1.StartUtc, a1.EndUtc, Local(a1.StartUtc), Local(a1.EndUtc), a1.DurationMinutes, a1.Status, a1.CreatedAtUtc,
             Convert.ToBase64String(a1.RowVersion), a1.Notes, a1.CancelReason, a1.StatusChangedAtUtc,
-            a1.FlowState, a1.FlowChangedAtUtc);
+            a1.FlowState, a1.FlowChangedAtUtc,
+            visitProviderId, visitProviderName, visitOperatoryId, visitOperatoryName,
+            a1.Status == AppointmentStatuses.Scheduled ? VisitStateMachine.NextStates(a1.FlowState) : []);
     }
 
     public async Task<IReadOnlyList<AppointmentEventView>> HistoryAsync(Guid appointmentId, CancellationToken ct)

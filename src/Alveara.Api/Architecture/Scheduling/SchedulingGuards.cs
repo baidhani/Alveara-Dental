@@ -24,15 +24,18 @@ internal static class SchedulingGuards
     public static async Task AcquireLocksAsync(AlveraDbContext db, Guid providerId, Guid operatoryId, Guid patientId, CancellationToken ct)
     {
         var resources = new[] { $"appointment:provider:{providerId:N}", $"appointment:operatory:{operatoryId:N}", $"appointment:patient:{patientId:N}" }.Order(StringComparer.Ordinal);
-        foreach (var resource in resources)
-        {
-            var result = new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output };
-            await db.Database.ExecuteSqlRawAsync(
-                "EXEC @result = sp_getapplock @Resource = {0}, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = {1}",
-                [resource, LockTimeoutMilliseconds, result], ct);
-            if (result.Value is not int code || code < 0)
-                throw new SchedulingException("schedule_busy", "The schedule is busy right now. Please try again in a moment.", 503);
-        }
+        foreach (var resource in resources) await AcquireLockAsync(db, resource, ct);
+    }
+
+    /// <summary>One exclusive, transaction-scoped application lock (waits up to 10 seconds, then 503 schedule_busy). Also used by ALV-011-C01's visit-occupancy rule.</summary>
+    public static async Task AcquireLockAsync(AlveraDbContext db, string resource, CancellationToken ct)
+    {
+        var result = new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output };
+        await db.Database.ExecuteSqlRawAsync(
+            "EXEC @result = sp_getapplock @Resource = {0}, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = {1}",
+            [resource, LockTimeoutMilliseconds, result], ct);
+        if (result.Value is not int code || code < 0)
+            throw new SchedulingException("schedule_busy", "The schedule is busy right now. Please try again in a moment.", 503);
     }
 
     /// <summary>Throws the first conflict found for the period. <paramref name="excludeAppointmentId"/> is the appointment being rescheduled (it must not conflict with itself).</summary>

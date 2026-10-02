@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import type { SchedulingSnapshot } from "../../services/configApi";
@@ -28,6 +29,7 @@ type Mode = "details" | "reschedule" | "cancel";
 
 const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Rescheduled: "Rescheduled", Cancelled: "Cancelled", NoShow: "Marked as a no-show", NotesChanged: "Note changed",
   CheckedIn: "Patient checked in", TreatmentStarted: "Treatment started", Completed: "Treatment completed",
+  Confirmed: "Confirmed", Ready: "Marked ready", Seated: "Seated", CheckedOut: "Checked out", AssignmentChanged: "Room or provider changed",
 };
 
 /**
@@ -38,6 +40,8 @@ const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Reschedul
  *
  * STORY-011 adds the patient's flow through the visit: Check in, Start treatment and Complete treatment (each also carrying the version). Once the patient
  * has checked in the appointment can no longer be rescheduled, cancelled or marked as a no-show, so those buttons are not offered (the server refuses too).
+ * ALV-011-C01 extended the visit with Confirmed (not yet arrived, so it can still be moved or cancelled), Ready, Seated and Checked out. This drawer keeps
+ * STORY-011's three moves; the fuller chain (and reassigning the room or provider) is done on the Visit board, which the drawer points to.
  */
 export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, onChanged }: Props) {
   const [current, setCurrent] = useState(appointment);
@@ -124,7 +128,8 @@ export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, o
 
   const scheduled = current.status === "Scheduled";
   const flow = current.flowState ?? "Scheduled";
-  const arrived = flow !== "Scheduled";
+  const arrived = flow !== "Scheduled" && flow !== "Confirmed"; // Confirmed has not arrived yet
+  const onBoard = flow === "Ready" || flow === "Seated" || flow === "CheckedOut";
   const flowLabel = flowWord(current);
   const started = nowLocal >= current.startLocal;
   const noteDirty = note.trim() !== (current.notes ?? "").trim();
@@ -140,6 +145,9 @@ export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, o
         <div className="alv-form-answers__row"><dt>When</dt><dd>{dateOf(current.startLocal)} {timeOf(current.startLocal)}–{timeOf(current.endLocal)} ({current.durationMinutes} min)</dd></div>
         <div className="alv-form-answers__row"><dt>Provider</dt><dd>{current.providerName}</dd></div>
         <div className="alv-form-answers__row"><dt>Operatory</dt><dd>{current.operatoryName}</dd></div>
+        {(current.visitProviderId !== undefined && current.visitProviderId !== current.providerId) || (current.visitOperatoryId !== undefined && current.visitOperatoryId !== current.operatoryId) ? (
+          <div className="alv-form-answers__row"><dt>Seen by, in</dt><dd>{current.visitProviderName}, {current.visitOperatoryName}</dd></div>
+        ) : null}
         <div className="alv-form-answers__row"><dt>Type</dt><dd>{current.appointmentTypeName}</dd></div>
         {flowLabel && current.flowChangedAtUtc && <div className="alv-form-answers__row"><dt>{flowLabel} recorded</dt><dd>{new Date(current.flowChangedAtUtc).toLocaleString()}</dd></div>}
         {current.status === "Cancelled" && <div className="alv-form-answers__row"><dt>Reason cancelled</dt><dd>{current.cancelReason}</dd></div>}
@@ -152,10 +160,14 @@ export function AppointmentPanel({ appointment, snapshot, canManage, nowLocal, o
 
       {mode === "details" && canManage && scheduled && flow !== "Completed" && (
         <div className="cal-panel__actions" role="group" aria-label="Patient flow">
-          {flow === "Scheduled" && <Button variant="primary" onClick={() => void run(() => checkInPatient(current.id, version), "Patient checked in.")} disabled={busy}>Check in</Button>}
+          {(flow === "Scheduled" || flow === "Confirmed") && <Button variant="primary" onClick={() => void run(() => checkInPatient(current.id, version), "Patient checked in.")} disabled={busy}>Check in</Button>}
           {flow === "CheckedIn" && <Button variant="primary" onClick={() => void run(() => startTreatment(current.id, version), "Treatment started.")} disabled={busy}>Start treatment</Button>}
           {(flow === "CheckedIn" || flow === "InTreatment") && <Button variant={flow === "InTreatment" ? "primary" : undefined} onClick={() => void run(() => completeTreatment(current.id, version), "Treatment completed.")} disabled={busy}>Complete treatment</Button>}
         </div>
+      )}
+
+      {mode === "details" && scheduled && onBoard && (
+        <p className="alv-workspace__note">This visit is under way. Continue it on the <Link to="/flow">Visit board</Link>.</p>
       )}
 
       {mode === "details" && canManage && scheduled && !arrived && (

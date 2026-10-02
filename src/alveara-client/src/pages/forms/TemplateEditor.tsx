@@ -7,7 +7,7 @@ import { useUnsavedChangesWarning } from "../../hooks/useUnsavedChangesWarning";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
 import {
-  CATEGORY_LABELS, FIELD_KINDS, FORM_CATEGORIES, KIND_LABELS, createTemplate, emptyField, formFieldErrorsOf, publishTemplateVersion, setTemplateActive,
+  CATEGORY_LABELS, FIELD_KINDS, FORM_CATEGORIES, KIND_LABELS, createTemplate, emptyField, formFieldErrorsOf, publishTemplateVersion, setTemplateActive, setTemplateRequired,
 } from "../../services/formsApi";
 import type { FormField as FieldDef, TemplateDetail, TemplateInput } from "../../services/formsApi";
 import "./Forms.css";
@@ -72,6 +72,23 @@ export function TemplateEditor({ detail, onSaved }: { detail: TemplateDetail | n
         setErrors(formFieldErrorsOf(err));
         setError("Some details need attention.");
       } else setError(err instanceof ApiError ? err.message : "Could not save. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleRequired() {
+    if (!detail || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const saved = await setTemplateRequired(detail.template.id, !detail.template.requiredAtCheckIn, detail.template.rowVersion);
+      onSaved(saved, saved.template.requiredAtCheckIn
+        ? "This form is now required at check-in. It only shows on the visit board; nobody is blocked from checking in."
+        : "This form is no longer required at check-in.");
+    } catch (err) {
+      if (isConcurrencyConflict(err)) setConflict(err.body);
+      else setError(err instanceof ApiError ? err.message : "Could not save. Try again.");
     } finally {
       setBusy(false);
     }
@@ -165,6 +182,11 @@ export function TemplateEditor({ detail, onSaved }: { detail: TemplateDetail | n
       <div className="alv-forms__actions">
         <Button type="submit" variant="primary" disabled={busy || (!creating && !dirty)}>{busy ? "Saving…" : creating ? "Create template" : "Publish new version"}</Button>
         {!creating && <Button type="button" onClick={() => void toggleActive()} disabled={busy}>{detail.template.isActive ? "Inactivate template" : "Reactivate template"}</Button>}
+        {!creating && (
+          <Button type="button" onClick={() => void toggleRequired()} disabled={busy} aria-pressed={!!detail.template.requiredAtCheckIn}>
+            {detail.template.requiredAtCheckIn ? "Stop requiring at check-in" : "Require at check-in"}
+          </Button>
+        )}
         {dirty && <span className="alv-workspace__dirty">Unsaved changes</span>}
       </div>
     </form>

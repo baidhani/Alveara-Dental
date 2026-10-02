@@ -135,6 +135,7 @@ public class AppointmentManager(
 
         var now = clock.UtcNow;
         appointment.Status = AppointmentStatuses.Cancelled;
+        appointment.FlowState = VisitStates.Scheduled; // flow only exists while Scheduled (a Confirmed appointment that is cancelled keeps its Confirmed event in the history)
         appointment.CancelReason = why;
         appointment.StatusChangedAtUtc = now;
         appointment.StatusChangedByUserId = actor;
@@ -163,6 +164,7 @@ public class AppointmentManager(
             throw new SchedulingException("no_show_too_early", "An appointment can only be marked as a no-show once its start time has passed.", 409);
 
         appointment.Status = AppointmentStatuses.NoShow;
+        appointment.FlowState = VisitStates.Scheduled; // see CancelAsync
         appointment.StatusChangedAtUtc = now;
         appointment.StatusChangedByUserId = actor;
         db.AppointmentEvents.Add(new AppointmentEvent
@@ -209,7 +211,7 @@ public class AppointmentManager(
     /// <summary>STORY-011: once the patient has checked in the visit is under way, so it can no longer be moved, cancelled or called a no-show.</summary>
     private static void EnsureNotArrived(Appointment appointment, string action)
     {
-        if (appointment.FlowState != PatientFlowStates.Scheduled)
+        if (VisitStates.HasArrived(appointment.FlowState)) // Scheduled and Confirmed have not arrived yet; check-in and everything after it has
             throw new SchedulingException("appointment_in_progress", $"This appointment cannot be {action}: the patient has already checked in.", 409);
     }
 

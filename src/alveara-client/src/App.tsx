@@ -23,6 +23,7 @@ import { PatientDetailsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, 
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
+import { FlowBoardPage } from "./pages/flow/FlowBoardPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -146,6 +147,14 @@ function createAppRouter() {
             element={
               <RequirePermission permission="ViewSchedule">
                 <CalendarPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/flow"
+            element={
+              <RequirePermission permission="ViewSchedule">
+                <FlowBoardPage />
               </RequirePermission>
             }
           />

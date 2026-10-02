@@ -123,7 +123,12 @@ export const statusWord = (status: string) => (status === "Cancelled" ? "Cancell
  * STORY-011: the flow of a scheduled appointment in words, or null while the patient has simply not arrived yet (nothing to say). Never colour alone.
  */
 export const flowWord = (a: { status: string; flowState?: string }): string | null =>
-  a.status !== "Scheduled" ? null : a.flowState === "CheckedIn" ? "Checked in" : a.flowState === "InTreatment" ? "In treatment" : a.flowState === "Completed" ? "Completed" : null;
+  a.status !== "Scheduled" ? null : (FLOW_WORDS[a.flowState ?? "Scheduled"] ?? null);
+
+// "Scheduled" has nothing to say (the patient has simply not arrived); every later state is named. ALV-011-C01 added Confirmed, Ready, Seated and Checked out.
+const FLOW_WORDS: Record<string, string> = {
+  Confirmed: "Confirmed", CheckedIn: "Checked in", Ready: "Ready", Seated: "Seated", InTreatment: "In treatment", CheckedOut: "Checked out", Completed: "Completed",
+};
 
 /** Which appointments belong in a day column. An appointment is in the column of every day it touches. */
 export const appointmentsOnDay = (appointments: Appointment[], day: string) =>

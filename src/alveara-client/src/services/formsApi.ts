@@ -49,6 +49,8 @@ export interface TemplateSummary {
   versionCount: number;
   createdAtUtc: string;
   updatedAtUtc: string | null;
+  /** ALV-011-C01: whether the practice requires this form at check-in (drives only the readiness cue on the visit board). */
+  requiredAtCheckIn?: boolean;
 }
 
 export interface TemplateDetail {
@@ -148,6 +150,10 @@ export const publishTemplateVersion = (id: string, input: TemplateInput, rowVers
   requestWithCsrf<TemplateDetail>(`/api/forms/templates/${id}`, "PUT", { ...input, rowVersion });
 export const setTemplateActive = (id: string, isActive: boolean, rowVersion: string) =>
   requestWithCsrf<TemplateDetail>(`/api/forms/templates/${id}/active`, "PUT", { isActive, rowVersion });
+
+/** ALV-011-C01: marks the template as required (or not) at check-in. Publishes no new version and changes no form. */
+export const setTemplateRequired = (id: string, required: boolean, rowVersion: string) =>
+  requestWithCsrf<TemplateDetail>(`/api/forms/templates/${id}/required-at-check-in`, "PUT", { required, rowVersion });
 
 // ---------- a patient's forms ----------
 export const listPatientForms = (patientId: string, signal?: AbortSignal) => request<PatientFormSummary[]>(`/api/patients/${patientId}/forms`, { signal });

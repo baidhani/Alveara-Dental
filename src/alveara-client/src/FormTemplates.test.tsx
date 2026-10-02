@@ -138,6 +138,29 @@ describe("form template administration", () => {
     await waitFor(() => expect(server.templates.get("t1")!.isActive).toBe(true));
   });
 
+  it("a template can be required at check-in and no longer required; it publishes no new version and says nobody is blocked from checking in", async () => {
+    const form = await openTemplate(/Privacy notice/);
+    expect(within(form).getByRole("button", { name: "Require at check-in", pressed: false })).toBeInTheDocument();
+
+    await userEvent.click(within(form).getByRole("button", { name: "Require at check-in" }));
+
+    expect(await screen.findByText(/This form is now required at check-in. It only shows on the visit board; nobody is blocked from checking in./)).toBeInTheDocument();
+    expect(server.templates.get("t1")!.required).toBe(true);
+    expect(server.templates.get("t1")!.versions).toHaveLength(1); // no new version
+    expect(screen.getByText(/Required at check-in/, { selector: "span" })).toBeInTheDocument(); // the list says so too
+    await userEvent.click(await screen.findByRole("button", { name: "Stop requiring at check-in", pressed: true }));
+    await waitFor(() => expect(server.templates.get("t1")!.required).toBe(false));
+    expect(await screen.findByText("This form is no longer required at check-in.")).toBeInTheDocument();
+  });
+
+  it("a stale requirement change is the shared conflict and nothing is applied", async () => {
+    const form = await openTemplate(/Privacy notice/);
+    server.templates.get("t1")!.v++; // someone else changed the template first
+    await userEvent.click(within(form).getByRole("button", { name: "Require at check-in" }));
+    expect(await screen.findByText("Someone else changed this while you were editing")).toBeInTheDocument();
+    expect(server.templates.get("t1")!.required).toBeFalsy();
+  });
+
   it("says the wording is the practice's own and that legal sufficiency is not claimed", async () => {
     const form = await openTemplate(/Privacy notice/);
     expect(within(form).getByText(/does not make any wording legally sufficient/)).toBeInTheDocument();

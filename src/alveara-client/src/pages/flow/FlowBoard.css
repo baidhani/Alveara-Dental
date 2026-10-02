@@ -1,0 +1,224 @@
+/*
+  ALV-011-C01: the live visit board. One column per state of the visit; cancelled and no-show sit apart. Meaning is always carried by words (the state is the
+  column heading, a cancelled or no-show card says so in its first line); borders and tints only reinforce it. Uses the shared design tokens, so light and
+  dark both work, and falls back to one column on a phone.
+*/
+.flow-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.flow-toolbar__group {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.flow-toolbar__field {
+  min-width: 150px;
+}
+
+.flow-stale {
+  color: var(--color-text);
+}
+
+/* Busy columns share the width; an empty column shrinks to a narrow strip so the states that have patients get the room (all eight still fit by scrolling). */
+.flow-columns {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-3);
+}
+
+.flow-columns > .flow-column {
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.flow-columns > .flow-column--empty {
+  flex: 0 0 112px;
+  min-width: 112px;
+}
+
+.flow-column--empty .flow-column__title {
+  font-size: var(--font-size-sm);
+}
+
+.flow-column,
+.flow-closed {
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.flow-closed {
+  margin-top: var(--space-4);
+}
+
+.flow-column__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.flow-column__count {
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+}
+
+.flow-column__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.flow-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flow-list--closed {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.flow-card {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.flow-card[data-flow="Seated"],
+.flow-card[data-flow="InTreatment"] {
+  border-width: 2px;
+  border-color: var(--color-primary);
+}
+
+.flow-card[data-flow="Completed"] {
+  border-color: var(--color-success);
+}
+
+.flow-card--cancelled {
+  border-style: dashed;
+  border-color: var(--color-danger);
+}
+
+.flow-card--cancelled .flow-card__patient {
+  text-decoration: line-through;
+}
+
+.flow-card--noshow {
+  border-style: dotted;
+  border-width: 2px;
+  border-color: var(--color-warning);
+}
+
+.flow-card p {
+  margin: 0 0 var(--space-1);
+}
+
+.flow-card__time {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.flow-card__patient {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.flow-card__meta,
+.flow-card__booked,
+.flow-card__carried {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.flow-card__where {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.flow-card__elapsed {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.flow-card__error {
+  padding: var(--space-2);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+  color: var(--color-text);
+}
+
+.flow-cue {
+  margin: var(--space-2) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.flow-cue--open {
+  padding: var(--space-2);
+  border-left: 3px solid var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.flow-cue--open p {
+  margin: 0;
+}
+
+.flow-cue__list {
+  margin: var(--space-1) 0 0;
+  padding-left: var(--space-4);
+}
+
+.flow-cue--ready {
+  border-left: 3px solid var(--color-success);
+  padding-left: var(--space-2);
+}
+
+.flow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.flow-confirm,
+.flow-assign {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+/*
+  The shared conflict banner's title colour is 3.46:1 (finding F2 on ALV-002-C01, still open). The calendar drawer and the patient workspace already work
+  around it the same way; remove this override when the shared component is corrected.
+*/
+.flow-board .alv-concurrency-conflict__title {
+  color: var(--color-text);
+}
+
+@media (max-width: 700px) {
+  .flow-columns {
+    flex-direction: column;
+  }
+
+  .flow-columns > .flow-column,
+  .flow-columns > .flow-column--empty {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+}

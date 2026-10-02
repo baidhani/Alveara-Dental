@@ -67,6 +67,6 @@ signed form uses `GET /api/forms/{id}`.
 
 ## Known limits (first release)
 - Typed-name signature only; no drawn signature, no PDF rendering, no print/export, no notifications, no patient-facing (kiosk) completion - staff-assisted completion.
-- No template categories beyond the four; no conditional fields; no per-practice "required forms" checklist (check-in readiness is a later story).
+- No template categories beyond the four; no conditional fields. A practice can mark a template **required at check-in** (`ALV-011-C01`): that drives only the readiness cue on the visit board (complete / started / signed an earlier version / not done), never blocks a check-in and never changes a form. See `docs/SCHEDULING.md`.
 - Viewing a signed form is not itself audited (only changes are).
 - Template wording is plain text.

@@ -42,6 +42,11 @@ public class Appointment
     public DateTimeOffset? FlowChangedAtUtc { get; set; }
     public Guid? FlowChangedByUserId { get; set; }
 
+    // ALV-011-C01: who and where the patient is ACTUALLY with during the visit, as opposed to the booked provider and operatory above. Null means "as booked".
+    // Changing them never moves the booking: the calendar and every conflict rule keep using ProviderProfileId and OperatoryId.
+    public Guid? VisitProviderProfileId { get; set; }
+    public Guid? VisitOperatoryId { get; set; }
+
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid? CreatedByUserId { get; set; }
     public byte[] RowVersion { get; set; } = [];
@@ -82,4 +87,10 @@ public static class AppointmentEventTypes
     public const string CheckedIn = "CheckedIn";
     public const string TreatmentStarted = "TreatmentStarted";
     public const string Completed = "Completed";
+    // ALV-011-C01: the rest of the visit. A move's Detail holds "<from> -> <to>"; an assignment change records the previous provider/operatory.
+    public const string Confirmed = "Confirmed";
+    public const string Ready = "Ready";
+    public const string Seated = "Seated";
+    public const string CheckedOut = "CheckedOut";
+    public const string AssignmentChanged = "AssignmentChanged";
 }

@@ -14,6 +14,11 @@ public class FormTemplate
     public required string Category { get; set; }
     /// <summary>An inactive template cannot be started for a patient; forms already started or signed are unaffected.</summary>
     public bool IsActive { get; set; } = true;
+    /// <summary>
+    /// ALV-011-C01: whether the practice requires this form from a patient at check-in. It only drives the check-in readiness cue (complete / incomplete); it
+    /// never blocks a check-in and never changes any form. Lives on the template row, not on a version, so changing it does not publish a new version.
+    /// </summary>
+    public bool RequiredAtCheckIn { get; set; }
     public Guid? CurrentVersionId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid? CreatedByUserId { get; set; }
@@ -161,6 +166,7 @@ public static class FormAuditEvents
     public const string TemplateCreated = "FormTemplateCreated";
     public const string TemplateVersionPublished = "FormTemplateVersionPublished";
     public const string TemplateStatusChanged = "FormTemplateStatusChanged";
+    public const string TemplateRequirementChanged = "FormTemplateRequirementChanged"; // ALV-011-C01
     public const string FormStarted = "PatientFormStarted";
     public const string FormSigned = "PatientFormSigned";
     public const string FormVoided = "PatientFormVoided";

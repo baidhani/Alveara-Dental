@@ -14,7 +14,7 @@ interface StoredForm {
   responses: Record<string, string>; v: number; startedAtUtc: string; voidReason: string | null; voidedAtUtc: string | null;
   snapshot: FormSnapshot | null; events: PatientFormDetail["events"];
 }
-interface StoredTemplate { id: string; key: string; category: string; isActive: boolean; v: number; versions: TemplateVersion[] }
+interface StoredTemplate { id: string; key: string; category: string; isActive: boolean; v: number; versions: TemplateVersion[]; required?: boolean }
 
 export class FakeFormsServer extends FakePatientServer {
   templates = new Map<string, StoredTemplate>();
@@ -62,7 +62,7 @@ export class FakeFormsServer extends FakePatientServer {
 
   private current(t: StoredTemplate) { return t.versions[0]; }
   private summaryOfTemplate(t: StoredTemplate): TemplateSummary {
-    return { id: t.id, key: t.key, category: t.category, isActive: t.isActive, rowVersion: `t${t.v}`, current: this.current(t), versionCount: t.versions.length, createdAtUtc: "2026-10-01T09:00:00Z", updatedAtUtc: null };
+    return { id: t.id, key: t.key, category: t.category, isActive: t.isActive, rowVersion: `t${t.v}`, current: this.current(t), versionCount: t.versions.length, createdAtUtc: "2026-10-01T09:00:00Z", updatedAtUtc: null, requiredAtCheckIn: !!t.required };
   }
   private detailOfTemplate(t: StoredTemplate): TemplateDetail { return { template: this.summaryOfTemplate(t), versions: t.versions }; }
 
@@ -129,7 +129,9 @@ export class FakeFormsServer extends FakePatientServer {
       const t = this.templates.get(parts[4]);
       if (!t) return json(404, { error: "template_not_found", message: "That form template was not found." });
       if (method === "GET") return json(200, this.detailOfTemplate(t));
+      if (parts[5] === "required-at-check-in" && body!.required === !!t.required) return json(200, this.detailOfTemplate(t)); // a repeat changes nothing
       if (this.stale(t, body, "t")) return this.conflict("FormTemplate", t.id);
+      if (parts[5] === "required-at-check-in") { t.required = body!.required as boolean; t.v++; return json(200, this.detailOfTemplate(t)); }
       if (parts[5] === "active") { t.isActive = body!.isActive as boolean; t.v++; return json(200, this.detailOfTemplate(t)); }
       const fields = body?.fields as FormField[];
       const cur = this.current(t);

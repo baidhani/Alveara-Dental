@@ -71,9 +71,12 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistration
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormReader>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Forms.CheckInReadinessService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentScheduler>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentManager>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentFlowService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.VisitAssignmentService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.VisitBoardService>();
 
 // Measurement events.
 builder.Services.AddScoped<IMeasurementEventSink, MeasurementEventSink>();

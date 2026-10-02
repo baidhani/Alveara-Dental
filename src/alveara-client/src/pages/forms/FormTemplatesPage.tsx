@@ -78,7 +78,7 @@ export function FormTemplatesPage() {
                       onClick={() => void select(t.id)} disabled={loadingId === t.id}>
                       {t.current?.title ?? t.key}
                       <br />
-                      <span className="alv-workspace__note">{CATEGORY_LABELS[t.category] ?? t.category} · v{t.current?.versionNumber ?? 0} · {t.isActive ? "Active" : "Inactive"}</span>
+                      <span className="alv-workspace__note">{CATEGORY_LABELS[t.category] ?? t.category} · v{t.current?.versionNumber ?? 0} · {t.isActive ? "Active" : "Inactive"}{t.requiredAtCheckIn ? " · Required at check-in" : ""}</span>
                     </button>
                   </li>
                 ))}

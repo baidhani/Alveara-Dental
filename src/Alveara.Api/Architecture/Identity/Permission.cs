@@ -56,4 +56,10 @@ public enum Permission
     CompleteForms,
     ViewSignedForms,
     VoidForms,
+
+    // ALV-011-C01: moving a patient through the visit. Front-office moves (confirm, check in, check out) and chairside moves (ready, seat, start treatment,
+    // complete) are separate so each team does its own work; either may reassign the visit's provider/operatory. Appended last so ordinals are undisturbed.
+    // STORY-011's own endpoints keep ManageAppointments.
+    UpdateVisitFlow,
+    UpdateChairsideFlow,
 }

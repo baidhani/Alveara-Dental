@@ -284,9 +284,16 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(a => a.FlowState).HasMaxLength(20).HasDefaultValue(PatientFlowStates.Scheduled);
             e.ToTable(t =>
             {
-                t.HasCheckConstraint("CK_Appointments_FlowState", "[FlowState] IN ('Scheduled','CheckedIn','InTreatment','Completed')");
+                // ALV-011-C01 widened this from STORY-011's four states to the full visit chain (the original four keep their values)
+                // Case-sensitive on purpose: the database's default collation ignores case, which would let 'completed' in - a value the application treats as unknown.
+                t.HasCheckConstraint("CK_Appointments_FlowState",
+                    "[FlowState] COLLATE Latin1_General_CS_AS IN ('Scheduled','Confirmed','CheckedIn','Ready','Seated','InTreatment','CheckedOut','Completed')");
                 t.HasCheckConstraint("CK_Appointments_FlowNeedsScheduled", "[FlowState] = 'Scheduled' OR [Status] = 'Scheduled'");
             });
+            // ALV-011-C01: the visit-time provider and operatory (Restrict like every relationship), and the index the live board and the occupancy check read.
+            e.HasOne<ProviderProfile>().WithMany().HasForeignKey(a => a.VisitProviderProfileId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Operatory>().WithMany().HasForeignKey(a => a.VisitOperatoryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(a => new { a.FlowState, a.StartUtc });
         });
 
         // ALV-004-C01: an appointment's history. Append-only; Restrict like every other relationship.
@@ -308,6 +315,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(t => t.Category).HasMaxLength(30);
             e.Property(t => t.RowVersion).IsRowVersion();
             e.HasIndex(t => t.Key).IsUnique();
+            e.Property(t => t.RequiredAtCheckIn).HasDefaultValue(false); // ALV-011-C01
         });
         modelBuilder.Entity<FormTemplateVersion>(e =>
         {

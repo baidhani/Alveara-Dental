@@ -16,20 +16,24 @@ public static class PermissionMatrix
         [Role.Dentist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes, Permission.ManageTreatmentPlans,
             Permission.ViewSchedule, Permission.ViewBilling,
-            Permission.CompleteForms, Permission.ViewSignedForms), // ALV-N010
+            Permission.CompleteForms, Permission.ViewSignedForms, // ALV-N010
+            Permission.UpdateChairsideFlow), // ALV-011-C01
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
-            Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms),
+            Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms,
+            Permission.UpdateChairsideFlow), // ALV-011-C01
 
         [Role.Assistant] = Set(
-            Permission.ViewPatientRecords, Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms),
+            Permission.ViewPatientRecords, Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms,
+            Permission.UpdateChairsideFlow), // ALV-011-C01
 
         [Role.FrontDesk] = Set(
             Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
             Permission.RegisterPatients, Permission.EditPatients,
             Permission.ViewPatientRecords, // ALV-003-C01: front desk must find and open the patients it registers
-            Permission.CompleteForms, Permission.ViewSignedForms), // ALV-N010: forms are completed at the front desk
+            Permission.CompleteForms, Permission.ViewSignedForms, // ALV-N010: forms are completed at the front desk
+            Permission.UpdateVisitFlow), // ALV-011-C01: confirm, check in and check out
 
         [Role.Billing] = Set(
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords,
@@ -40,7 +44,8 @@ public static class PermissionMatrix
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewAuditLog, Permission.ViewPermissionMatrix,
             Permission.ManagePracticeConfiguration, // the "practice manager" of ALV-N003
             Permission.ViewBackupStatus, Permission.RegisterPatients, Permission.EditPatients,
-            Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms), // ALV-N010
+            Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms, // ALV-N010
+            Permission.UpdateVisitFlow, Permission.UpdateChairsideFlow), // ALV-011-C01: the practice manager covers both teams
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

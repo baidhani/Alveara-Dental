@@ -29,7 +29,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
     return a;
   }
 
-  private touch(a: Appointment) {
+  protected touch(a: Appointment) {
     const v = (this.versions.get(a.id) ?? 0) + 1;
     this.versions.set(a.id, v);
     a.rowVersion = `a${v}`;
@@ -42,7 +42,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
     this.touch(a);
   }
 
-  private log(a: Appointment, eventType: string, detail: string | null, previous?: { start: string; provider: string; operatory: string }) {
+  protected log(a: Appointment, eventType: string, detail: string | null, previous?: { start: string; provider: string; operatory: string }) {
     const list = this.events.get(a.id) ?? [];
     list.push({
       eventType, actorUserId: "u1", occurredAtUtc: "2026-10-02T10:00:00Z", detail,
@@ -51,7 +51,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
     this.events.set(a.id, list);
   }
 
-  private conflict = (id: string) => json(409, { error: "concurrency_conflict", entityType: "Appointment", entityId: id, message: "Changed by someone else." });
+  protected conflict = (id: string) => json(409, { error: "concurrency_conflict", entityType: "Appointment", entityId: id, message: "Changed by someone else." });
   private overlaps = (a: { startLocal: string; endLocal: string }, start: string, end: string) => a.startLocal < end && start < a.endLocal;
 
   protected override async handleExtra(path: string, method: string, headers: Record<string, string>, body: Record<string, unknown> | null, u: URL): Promise<Response | null> {
