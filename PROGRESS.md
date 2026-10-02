@@ -27,3 +27,10 @@
   - What changed: the shared ConcurrencyConflictBanner title uses `--color-warning-text` (3.46:1 -> 5.39:1 light); the `.cal-drawer`, `.alv-workspace__form/__panel` and `.flow-board` title overrides are deleted; `patientWorkspaceContrast.test.ts` no longer asserts the title fails; `docs/SCHEDULING.md` updated
   - Verification: 502/502 frontend (`vitest`, 5 new in `conflictBannerContrast.test.ts`: 2 fail against the old CSS incl. a guard that no page re-colours the title), `tsc -b`, build and lint pass, mocked Playwright 78/78, real-backend with the overrides gone: Gate A scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10, auth 12/12; mutation check: reverting only the banner colour fails the board, calendar and workspace walkthroughs on axe color-contrast
   - Notes: colour-only; ALV-N002's `.status-stale-banner` (same warning-pair defect) is the next separate attempt
+
+- [x] ALV-N002 R09: System Status stale-data banner meets WCAG AA (set to AWAITING_REVIEW, not COMPLETE)
+  - Date: 2026-10-02
+  - Session: CC-20261002-f7c1
+  - What changed: `.status-stale-banner` text uses `--color-warning-text` (3.46:1 -> 5.39:1 light); new shared test helper `styles/contrastSupport.ts` (resolves tokens and CSS fallbacks, composites translucent tints)
+  - Verification: 516/516 frontend (`vitest`, 14 new in `systemStatusContrast.test.ts`, 1 fails against the old CSS), `tsc -b`, build and lint pass, mocked Playwright 82/82 (4 new real-browser stale-banner axe tests driving the page clock; they fail against the old CSS at 3.46:1), real-backend: Gate A scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10, auth 12/12
+  - Notes: colour-only; ALV-001-C01 (login banner) and ALV-N004 (backup warning text) are the next separate attempts
