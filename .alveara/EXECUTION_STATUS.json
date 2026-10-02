@@ -818,26 +818,26 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 767 of 767 (46 new against real SQL Server: PatientFlowRulesTests 20, PatientFlowLifecycleTests 13, PatientFlowApiTests 13); frontend 446 of 446 (12 new: PatientFlow 10, flowWord 2); mocked browser 74 (two browser projects); real-backend browser walkthrough 10 of 10 with 0 critical/serious axe violations in light and dark; ALV-004-C01 calendar walkthrough 12 of 12 and STORY-004 scheduling walkthrough 10 of 10 re-run unchanged."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "207791d483180e7eda8454968bbd677fb86709ce",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "207791d483180e7eda8454968bbd677fb86709ce",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -845,8 +845,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-02T18:01:02.154Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 207791d483180e7eda8454968bbd677fb86709ce - see .colaberry/progress.json (STORY-011.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-02T18:01:02.154Z; portal sync commit df8f635)."
     },
     {
       "schemaVersion": "2",

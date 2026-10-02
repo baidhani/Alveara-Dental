@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-004-C01` approved at attempt R01 and recorded **`COMPLETE`** by review closure. `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
+Last updated: `STORY-011` (patient flow from scheduled to completed) is `COMPLETE`, portal-verified at `207791d` (3/3 criteria). `ALV-004-C01` (approved R01), `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json`. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
 
 ## Production implementation status
 
