@@ -15,6 +15,7 @@
   --color-grey-dot: #9aa2ad;
 
   --surface-warning-soft: #fdf3e7;
+  --surface-expanded: #e0e9f1; /* an expanded portal story and its contents: a step darker than the page */
   --surface-accent-soft: linear-gradient(135deg, #eaf1f5, #f4f8fa);
 
   --sidebar-bg: #14202b;
@@ -49,6 +50,7 @@
   --color-grey-dot: #5d6b7a;
 
   --surface-warning-soft: rgba(181, 117, 27, 0.16);
+  --surface-expanded: #1e3141; /* an expanded portal story and its contents: a step lighter than the page */
   --surface-accent-soft: linear-gradient(135deg, #1c2b38, #17222c);
 
   --sidebar-bg: #0a1117;
@@ -509,13 +511,22 @@ tr.story-row:hover td {
   background: var(--color-bg);
 }
 
-tr.story-row.open td {
+/* An expanded story and everything inside it form one tinted block with an accent bar, so it reads as a single unit apart from the other rows. */
+tr.story-row.open td,
+tr.story-row.open:hover td {
+  background: var(--surface-expanded);
+  border-top: 1px solid var(--color-border); /* separates two expanded stories that are next to each other */
   border-bottom-color: transparent;
 }
 
+tr.story-row.open td:first-child,
 tr.story-expansion > td {
-  background: var(--color-bg);
-  padding: 14px 18px 18px;
+  border-left: 4px solid var(--color-primary);
+}
+
+tr.story-expansion > td {
+  background: var(--surface-expanded);
+  padding: 6px 18px 20px;
 }
 
 tr.story-expansion p {
@@ -530,6 +541,12 @@ tr.story-expansion p {
 table.attached-table caption {
   text-align: left;
   padding-bottom: 6px;
+}
+
+/* The attached engineering stories sit on the surface colour, so they stand out from the tinted block they live in. */
+table.attached-table {
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
 }
 
 .story-expansion .sub,
