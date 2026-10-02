@@ -620,7 +620,7 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -633,16 +633,18 @@
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "fdafb00b37b717bb768265453b0309eee8ff5717",
-      "evidenceCommit": null,
+      "evidenceCommit": "2dde1db3744b07b3626605a7d159faeb73242f3d",
       "handoffPath": ".alveara/handoffs/ALV-003-C01/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-003-C01/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "fdafb00b37b717bb768265453b0309eee8ff5717",
+        "reviewedEvidenceCommit": "2dde1db3744b07b3626605a7d159faeb73242f3d"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-003-C01-R01-01 (P1): R01's durable EXECUTION_STATUS.json record carried evidenceCommit null; the evidence commit must be captured in the control record (R02 must record its own actual evidence SHA, non-null, in a separately committed status record)."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
