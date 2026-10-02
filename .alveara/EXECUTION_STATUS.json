@@ -239,7 +239,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "COMPLETE",
+      "status": "REOPENED",
       "attempt": "R07",
       "acceptance": {
         "total": 7,
@@ -269,13 +269,11 @@
       },
       "completedAt": "2026-10-01T21:27:31.000Z",
       "reopened": {
-        "reason": "Gate A review (.alveara/gates/A/reviews/4b69d32.md) GATE-A-01: on /admin/users the enabled status badge (4.09:1, light) and the user-detail links (1.77:1, dark) fail the 4.5:1 axe contrast requirement. Narrow correction of the styling only; no authentication/backend change. Next attempt: R07.",
-        "gateReviewArtifact": ".alveara/gates/A/reviews/4b69d32.md",
-        "nextAttempt": "R07",
-        "priorApprovedAttempt": "R06",
-        "downstreamAssessment": "Page-local presentation corrections; no shared design token, shared component or backend contract is to change, so no completed descendant is marked REVALIDATION_REQUIRED unless the correction attempt changes shared styles (then the attempt must say which). ALV-N001 is not reopened: its danger-button observation is not confirmed under stable measurement and is revalidated by the corrected gate scan.",
-        "resolvedByAttempt": "R07",
-        "resolvedAt": "2026-10-01T21:27:31.000Z"
+        "reason": "ALV-002-C01 R05 review (.alveara/reviews/ALV-002-C01/R05.md) requires the login expired-session banner to be corrected at its owner before Gate B: .alv-login__banner--warning in LoginPage.css paints --color-warning text on a translucent tint that is not a design token (--color-warning-surface is undefined, so the browser paints the hard-coded fallback rgba(217,119,6,0.1)), 3.16:1 over the page background in the light theme (WCAG AA needs 4.5:1; dark passes). A computed check of the same banner family found the MFA-settings success message (inline styles in MfaSettingsPage.tsx) at 4.10:1 light and 4.40:1 over the dark raised surface. Correction: the text-only --color-warning-text / --color-success-text tokens added by ALV-N001 R04, a .alv-login__banner--success class replacing the inline style, a contrast test that resolves fallbacks, and a real-browser axe test of the warning and danger banners in both themes.",
+        "reviewArtifact": ".alveara/reviews/ALV-002-C01/R05.md",
+        "nextAttempt": "R08",
+        "priorApprovedAttempt": "R07",
+        "downstreamAssessment": "Colour-only change to the login banner family plus replacing one inline style with a CSS class (same element, same text). No component API, behaviour, backend contract or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite, the auth walkthrough (which signs in and confirms MFA on the real backend) and the Gate A route scans to demonstrate that."
       }
     },
     {
