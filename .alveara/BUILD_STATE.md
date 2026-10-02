@@ -51,6 +51,13 @@ Last updated: `ALV-011-C01` approved at attempt R01 and recorded **`COMPLETE`** 
 
 ## Visit workflow and live board (ALV-011-C01, COMPLETE - approved attempt R01)
 
+- **Commit SHA mapping (read this before verifying the handoff):** the attempt was reviewed and approved under the SHAs below. A rejected push was resolved with `git pull --rebase`, which re-created the four commits on `origin/main` with new SHAs (identical content; verified by an empty diff outside `.colaberry/` and `artifacts/`). `EXECUTION_STATUS.json`, the R01 ZIP manifest and `.alveara/reviews/ALV-011-C01/R01.md` still name the reviewed SHAs and are intentionally unchanged.
+  - implementation: reviewed `7923986a34d091da0172e0c8c84efd397175083c` = on-main `64d47bc`
+  - evidence: reviewed `34d3ddf968d779d471eb96463c3ff28a038ef539` = on-main `4313490`
+  - status record: reviewed `a6b29050ed82cfa12f740607691d9227b161c23d` = on-main `61c42e7`
+  - closure: original `17f6258` = on-main `1c246cb`
+  - To check (needs the original SHAs, e.g. from the local clone that made them): `git diff <reviewed-sha> <on-main-sha> -- . ':!.colaberry' ':!artifacts'` is empty for each pair; the only difference is the portal sync commit's files.
+
 - **The whole visit chain**: `Scheduled -> Confirmed -> CheckedIn -> Ready -> Seated -> InTreatment -> CheckedOut -> Completed` in the `Appointment.FlowState` column STORY-011 added (its four values unchanged). `VisitStateMachine` is one pure function tested on all 64 pairs and is a **superset of STORY-011's `PatientFlowRules`** (a test compares every original pair); STORY-011's shortcuts stay legal. Cancelled and no-show remain the booking `Status`, never visit states. Confirmed has not arrived (still movable/cancellable); from check-in on `appointment_in_progress`. Migration `AddVisitWorkflow` (case-sensitive state check; `VisitProviderProfileId`/`VisitOperatoryId`; `FormTemplates.RequiredAtCheckIn`).
 - **Who and where**: `VisitAssignmentService` keeps the provider/operatory the patient is actually with apart from the booking (the calendar and conflict rules never move). Both ids required, active, repeats are no-ops, real changes need the row version; completed/cancelled/no-show cannot be reassigned.
 - **One patient per room**: Seated/InTreatment occupy the operatory they are in; entering either (or moving into an occupied room) is `operatory_occupied` naming the occupier, checked under an application lock (`VisitOccupancy`). The race tests pause each contender between check and write, and with the lock removed six patients are seated in one room.
