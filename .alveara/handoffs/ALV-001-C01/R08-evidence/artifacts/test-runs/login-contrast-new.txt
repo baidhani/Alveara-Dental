@@ -1,0 +1,13 @@
+
+Running 8 tests using 8 workers
+
+  ok 2 [desktop] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in light mode (510ms)
+  ok 5 [tablet] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in dark mode (1.0s)
+  ok 1 [tablet] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in light mode (817ms)
+  ok 6 [desktop] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in light mode (781ms)
+  ok 7 [desktop] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in dark mode (782ms)
+  ok 4 [tablet] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in dark mode (894ms)
+  ok 3 [desktop] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in dark mode (844ms)
+  ok 8 [tablet] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in light mode (866ms)
+
+  8 passed (4.1s)
