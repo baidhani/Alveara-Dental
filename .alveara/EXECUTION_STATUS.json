@@ -130,7 +130,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R09",
       "acceptance": {
         "total": 9,
@@ -146,24 +146,26 @@
       "evidenceCommit": "6c578f255af54bab23766f025b8346b21d795b21",
       "handoffPath": ".alveara/handoffs/ALV-N002/R09.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N002/R09.md",
+        "approvedAttempt": "R09",
+        "reviewedImplementationCommit": "4ba0085393df501923da0602b75c2143387a8a2b",
+        "reviewedEvidenceCommit": "6c578f255af54bab23766f025b8346b21d795b21"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
+      "completedAt": "2026-10-02T23:01:20.000Z",
       "reopened": {
         "reason": "ALV-N001 R04 and ALV-002-C01 R05 reviews (.alveara/reviews/ALV-N001/R04.md, .alveara/reviews/ALV-002-C01/R05.md) require the System Status page's stale-data banner to be corrected at its owner before Gate B: .status-stale-banner in SystemStatusPage.css paints --color-warning text on --color-warning-bg, 3.47:1 in the light theme (WCAG AA needs 4.5:1; the dark theme already passes). Correction: use the text-only --color-warning-text token added by ALV-N001 R04, with a contrast test over the page's text and status dots and a real-browser axe test that triggers the stale state.",
         "reviewArtifact": ".alveara/reviews/ALV-002-C01/R05.md",
         "nextAttempt": "R09",
         "priorApprovedAttempt": "R08",
-        "downstreamAssessment": "Colour-only change to one banner's text on one page. No component API, markup, behaviour, backend contract or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs (Gate A route scans include /system-status) to demonstrate that."
+        "downstreamAssessment": "Colour-only change to one banner's text on one page. No component API, markup, behaviour, backend contract or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs (Gate A route scans include /system-status) to demonstrate that.",
+        "resolvedByAttempt": "R09",
+        "resolvedAt": "2026-10-02T23:01:20.000Z"
       }
     },
     {
