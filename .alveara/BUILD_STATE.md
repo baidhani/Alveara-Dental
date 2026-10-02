@@ -2,11 +2,22 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **`STORY-003` (patient registration workflow) is `COMPLETE`, portal-verified** (3/3 criteria, verified 2026-10-01T23:58:41Z at commit `014ef9d`; see `.colaberry/progress.json`). It captures demographics and contact details only; REQ-004's family/household clause is owned by `ALV-003-C01`. Gate A is PASS (rerun 2026-10-01). The next scheduled item is `ALV-003-C01` (item 12); it has not started.
+Last updated: `ALV-003-C01` attempt R01 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`). `STORY-003` is `COMPLETE` (portal-verified, unchanged); Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation commit SHA and `.alveara/handoffs/ALV-003-C01/R01.md` for the handoff. Gate B is not evaluated.
 
 ## Production implementation status
 
 **`ALV-N001` (application shell) is `COMPLETE`. `ALV-N002` (core architecture) is `COMPLETE`, approved as attempt R08 on 2026-09-29. `STORY-001` (secure authentication and RBAC) is `COMPLETE`, portal-verified. `ALV-001-C01` (complete authentication security, MFA, recovery, session controls, and authorization administration) is `COMPLETE`, approved as attempt R06 on 2026-09-30. `ALV-N009` (authorization-aware navigation, session UX, and identity context) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `ALV-N003` (practice, staff, provider, operatory, appointment-type, and scheduling configuration) is `COMPLETE`, approved as attempt R03 on 2026-10-01. `STORY-002` (audit logging for critical actions) is `COMPLETE`, portal-verified on 2026-09-30.** `ALV-002-C01` (shared audit, concurrency, and record-lifecycle primitives) is `COMPLETE`, approved as attempt R03 on 2026-09-30. `ALV-N004` (encrypted full-state backup, verification, restore, and recovery operations) is `COMPLETE`, approved as attempt R05 on 2026-10-01. No other `ALV-*` story has started. `tests/` at the repo root holds the STORY-000 coexistence check plus the no-direct-db-access topology check added by ALV-N002.
+
+## Patient identity, household, guarantor, and registration workspace (ALV-003-C01, AWAITING_REVIEW - attempt R01)
+
+- **Patients** (`STORY-003` base, extended): demographics and contact details, `IsActive` (inactivated, never deleted), a row version, and two independent links - **household** (`Households`, `Patient.HouseholdId` + relationship label; one household per patient) and **guarantor** (`Patient.GuarantorPatientId`; must be an active, self-responsible patient, so no chains or cycles). All foreign keys `Restrict`. Migrations `AddPatients` (STORY-003) and `AddPatientIdentityWorkspace`.
+- **Duplicates, never merged**: an exact match (same normalized name + birth date) is refused (STORY-003's rule, backed by a unique index); likely matches (same birth date and same last name / similar last name with same first / same phone / same email) are shown side by side and registered only when each flagged patient is acknowledged. Outcomes recorded as privacy-safe `patient.duplicate-check` measurement events.
+- **Safe edits**: row version on every change (stale = shared 409), one `PatientHistory` row per changed field, PHI-free audit entries (`PatientUpdated`, `PatientStatusChanged`, `PatientHouseholdChanged`, `PatientGuarantorChanged`, `PatientRegistrationSettingsChanged`) in the same save.
+- **API** `api/patients`: register, duplicate-check, search, detail, history, update, active, guarantor, household, `registration-settings`. Permissions: `RegisterPatients`, **`EditPatients`** (new), `ViewPatientRecords` (front desk now holds it; clinical roles and billing can read but not change patients), `ManagePracticeConfiguration` (practice requirements).
+- **Practice requirements**: a practice may require email and/or sex in addition to the always-required fields (`PatientRegistrationSettings`, `/admin/patient-registration`); enforced by the server, reflected in the forms.
+- **UI**: the shell's patient-context placeholder is replaced by the shared **patient header**; persistent **patient workspace** `/patients/:patientId` (Details, Household & guarantor, History) whose tabs come from `src/app/patientWorkspaceTabs.ts` (the extension point for later stories); patient search `/patients`; registration with the duplicate comparison panel. Switching patients drops the previous patient immediately and discards late responses. See `docs/PATIENT_WORKSPACE.md`.
+- **Findings recorded, not fixed here** (shared components of completed stories): success-toast contrast 4.45:1 (`ALV-N001`) and conflict-banner title contrast 3.46:1 (`ALV-002-C01`); this story avoids the toast and overrides the banner title inside the patient workspace only. See `R01.md` F1/F2.
+- 492 backend / 319 frontend / 40 mocked-browser / 14 real-backend walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. STORY-003's own tests are unchanged and pass. Gate B (rows B1, B3) is not evaluated. See `.alveara/handoffs/ALV-003-C01/R01-evidence/`.
 
 ## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, COMPLETE - approved attempt R05)
 
@@ -205,7 +216,7 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 
 ## What does not exist yet
 
-- Any patient, scheduling, clinical, billing, document, or reporting functionality. (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
+- Any scheduling, clinical, billing, document, or reporting functionality (patient registration and the patient identity workspace now exist - `STORY-003`, `ALV-003-C01` in review). (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
 - Any encrypted backup/restore capability (`ALV-N004` builds this on top of `IBackupSnapshotProvider`).
 - Windows-service install/deployment automation — `ALV-N002` runs via `dotnet run`/LocalDB in dev; actual SQL Server Express + Windows Service packaging is `ALV-N013`'s job.
 - Any of the remaining 32 first-release `ALV-*` stories' implementation.

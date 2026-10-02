@@ -1,0 +1,152 @@
+{
+  "axe": {
+    "duplicate-comparison-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "duplicate-comparison-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "search-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "search-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "history-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "history-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "conflict-banner-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "conflict-banner-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "household-guarantor-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "household-guarantor-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "registration-settings-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "registration-settings-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "register-form-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "register-form-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "workspace-details-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "workspace-details-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "workspace-not-found-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 18
+    },
+    "workspace-not-found-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 18
+    }
+  },
+  "users": {
+    "frontDesk": "desk-1790904816453",
+    "secondFrontDesk": "desk2-1790904816453",
+    "dentist": "dentist-1790904816453"
+  },
+  "stamp": 1790904816453,
+  "relativesSharingAPhoneWereNotWarned": true,
+  "duplicateHandling": {
+    "likelyWarnedThenOverridden": true,
+    "existingRecordUntouched": true,
+    "exactBlocked": true
+  },
+  "search": "name, birth date and differently formatted phone all found the right patient",
+  "edit": "city Austin -> Dallas saved, recorded in history",
+  "concurrency": {
+    "staleSaveRefused": true,
+    "otherUsersChangeKept": true,
+    "reloadShowsCurrent": true
+  },
+  "independence": {
+    "calHousehold": [
+      "Cal Lee",
+      "Mia Lee"
+    ],
+    "calGuarantor": "Gus Hale",
+    "gusHousehold": null,
+    "miaGuarantor": null
+  },
+  "invalidRelationships": [
+    "guarantor_with_own_guarantor_refused",
+    "guarantor_in_use_inactivation_refused"
+  ],
+  "activeState": "inactivated, preserved through an edit, hidden then shown by the filter, reactivated",
+  "patientSwitch": {
+    "duringLoadMiaVisible": false,
+    "afterLoadCalShown": true
+  },
+  "configurableRequirements": {
+    "formMarkedRequired": true,
+    "serverRefusedDirectCall": true,
+    "existingPatientPromptedOnEdit": true,
+    "relaxedRestoresOptional": true
+  },
+  "keyboardFirst": "registered, searched and opened a patient using only the keyboard",
+  "audit": {
+    "PatientRegistered": 6,
+    "PatientUpdated": 3,
+    "PatientStatusChanged": 2,
+    "PatientHouseholdChanged": 2,
+    "PatientGuarantorChanged": 1,
+    "PatientRegistrationSettingsChanged": 2
+  },
+  "dentist": {
+    "canSearchAndRead": true,
+    "registerControls": false,
+    "editControls": false,
+    "apiWriteStatus": 403
+  }
+}

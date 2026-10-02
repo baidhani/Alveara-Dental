@@ -1,0 +1,26 @@
+# ALV-003-C01 R01 — Demo evidence
+
+The visible workflow was run end to end by a real Chromium against the real API and a real LocalDB database (`AlveraE2E`, dropped and re-migrated for each run), as a front-desk user, a second front-desk user, a practice administrator and a dentist. The scripted walkthrough is `src/alveara-client/e2e/patient-workspace-real-backend.spec.ts` (14 tests, all passing); how to run it is in `docs/testing/REAL_BACKEND_E2E.md`. Results and screenshots are in `artifacts/playwright-real-backend/`. Synthetic names, `example.test` emails and `555-` numbers only; no real patient data.
+
+## The story told in the order it was run
+1. **Register a family** through the form — Mia (adult), Cal (child, same phone as Mia — a family, *not* flagged), Gus (grandparent, elsewhere), Ann Park. Each lands on "Patient registered" with links to the patient workspace and to "Add household or guarantor".
+2. **Duplicate warning** — registering "Anna Park", same birth date and surname as Ann Park, opens the side-by-side comparison with the reason ("Same last name and date of birth") and a link to open Ann; nothing is registered yet. *Register anyway — this is a different person* creates Anna; Ann's record is unchanged. Registering "ann PARK" with Ann's birth date is blocked ("This patient is already registered") with the existing patient's id and no register-anyway button. Screenshot `10-duplicate-comparison.png`.
+3. **Search** — "lee" finds Mia and Cal; "1950-01-01" finds Gus; "(555) 010 0003" finds Gus (phone matched on digits). Screenshot `11-search.png`.
+4. **Workspace** — opening Mia shows the shared header (name, birth date and age, phone) which stays while moving between Details / Household & guarantor / History; an edit (city Austin → Dallas) saves, and History lists it (`12-history.png`).
+5. **Concurrent edit** — a second user saves Cal's city; the first user's stale save is refused with "Someone else changed this while you were editing", the other user's value is kept, *Reload current version* shows it (`13-conflict.png`).
+6. **Household and guarantor are independent** — Cal is added to Mia's household as *Child*; Gus, who is not in that household, becomes Cal's guarantor; the header then shows "Guarantor: Gus Hale". Read back from the API: Cal's household is {Cal, Mia}, Gus has no household and guarantees Cal, Mia is self-responsible (`14-household-guarantor.png`).
+7. **Invalid relationships** — choosing Cal (who has a guarantor) as Mia's guarantor is refused with the server's reason shown next to the control; inactivating Gus (guarantor of an active patient) is refused with "guarantor for 1 active patient".
+8. **Active/inactive** — Ann is inactivated (header shows *Inactive*), an edit does not reactivate her, she disappears from the default search, appears with *Include inactive patients*, and is reactivated (`15-inactive-search.png`).
+9. **Patient switch on a slow connection** — from Mia's household page, clicking Cal while Cal's record is delayed 1.5 s: the header says "Loading patient…" and neither it nor the page contains Mia's name or phone; then only Cal (`16-switch-loading.png`). *Close patient* returns to "No patient selected".
+10. **Configurable requirements** — the administrator requires email (`17-registration-settings.png`); the front-desk form marks **Email \*** and prompts "Email is required." with focus on the field (`18-email-required-prompt.png`); a direct API call without email is refused with the same message; editing Gus (no email) prompts for it until supplied; relaxing the requirement restores optional email.
+11. **Keyboard only** — a patient registered with typing + Tab/Enter, then found (search focused on arrival) and opened with Tab/Enter.
+12. **Audit** — one `PatientRegistered` per registration (6), plus `PatientUpdated`, `PatientStatusChanged`, `PatientHouseholdChanged`, `PatientGuarantorChanged`, `PatientRegistrationSettingsChanged`, each with user and timestamp and **no patient names, phones, emails or cities**.
+13. **Dentist** — can search and read (header, details, household, history) but there is no Register link, no Save/Set-guarantor controls, the form is disabled, `/patients/register` is denied and a direct `PUT` is a 403.
+
+## Accessibility (axe, WCAG 2.0 A/AA, both themes)
+18 scans — register form, duplicate comparison, search, history, conflict banner, household & guarantor, details, not-found, registration settings — in light and dark: **0 critical/serious** (`patient-workspace-e2e.json`). Gate A's own route scans (10 routes × 2 themes, with hover/focus) still pass with the new shell header and navigation (`run-output-gate-a-route-scans.txt`). Contrast of every colour pairing the new pages use is pinned by `src/styles/patientWorkspaceContrast.test.ts` (55 checks).
+
+## Files in `artifacts/playwright-real-backend/`
+- `patient-workspace-e2e.json` — structured results (axe per screen/theme/state, API read-backs, audit counts, concurrency/switch/dentist outcomes)
+- `run-output-alv-003-c01-walkthrough.txt` (14/14), `run-output-story003-original-walkthrough.txt` (7/7) + `story003-original-walkthrough-results.json`, `run-output-auth-real-backend.txt` (12/12), `run-output-gate-a-route-scans.txt` (3/3)
+- `10-duplicate-comparison.png` … `18-email-required-prompt.png` — screenshots of the states above
