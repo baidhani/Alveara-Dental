@@ -1,0 +1,40 @@
+  -   7 [chromium] › e2e\calendar-real-backend.spec.ts:307:1 › CANCEL: a cancellation needs a reason, the appointment stays on the calendar marked cancelled (and holds no time), and its history is kept
+  -   8 [chromium] › e2e\calendar-real-backend.spec.ts:334:1 › NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record
+  -   9 [chromium] › e2e\calendar-real-backend.spec.ts:363:1 › PATIENT OVERLAP + WEEK VIEW: a patient cannot be in two places at once; the week view puts overlapping providers side by side
+  -  10 [chromium] › e2e\calendar-real-backend.spec.ts:380:1 › PERMISSIONS: a dentist sees the calendar and appointment details but cannot change anything (the API returns 403); billing has no Calendar
+  -  11 [chromium] › e2e\calendar-real-backend.spec.ts:405:1 › KEYBOARD: an appointment can be rescheduled without a mouse
+  -  12 [chromium] › e2e\calendar-real-backend.spec.ts:421:1 › ACCEPTANCE: the audit trail holds every create, reschedule, cancel, no-show and refusal with user and time, and no patient details or reasons
+
+
+  1) [chromium] › e2e\calendar-real-backend.spec.ts:262:1 › STALE EDIT: a second user moves the appointment first; the first user's change is reported and NOT applied, and Reload shows the real state 
+
+    Error: stale-edit (light): critical/serious axe violations
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast:.alv-concurrency-conflict__title Element has insufficient color contrast of 3.46 (foreground color: #b5751b, background color: #fdf3e7, font size: 11.3pt (15px), font weight: normal). Expected ",
+    + ]
+
+      72 |     const blocking = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
+      73 |     (evidence.axe as Record<string, unknown>)[`${label}-${theme}`] = { blocking: blocking.length, violations: results.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })), passes: results.passes.length };
+    > 74 |     expect(blocking.map((v) => `${v.id}:${v.nodes.map((n) => `${n.target.join(" ")} ${(n.any[0]?.message ?? n.failureSummary ?? "").slice(0, 160)}`).join(" | ")}`), `${label} (${theme}): critical/serious axe violations`).toEqual([]);
+         |                                                                                                                                                                                                                              ^
+      75 |   }
+      76 |   await setTheme(page, "light");
+      77 | }
+        at scanBothThemes (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\calendar-real-backend.spec.ts:74:222)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\calendar-real-backend.spec.ts:277:3
+
+    Error Context: test-results\calendar-real-backend-STAL-5991c-Reload-shows-the-real-state-chromium\error-context.md
+
+    Error Context: test-results\calendar-real-backend-STAL-5991c-Reload-shows-the-real-state-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\calendar-real-backend.spec.ts:262:1 › STALE EDIT: a second user moves the appointment first; the first user's change is reported and NOT applied, and Reload shows the real state 
+  7 did not run
+  4 passed (15.4s)

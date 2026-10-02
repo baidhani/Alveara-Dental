@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-002-C01` is **`REOPENED`** (next attempt R05) for finding F2 (conflict-banner title contrast) and removal of the three page-level workarounds, as required by the `ALV-011-C01` R01 and `ALV-N001` R04 reviews; `ALV-N002` (`.status-stale-banner`) follows as its own attempt. `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
+Last updated: `ALV-002-C01` attempt R05 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`): the shared conflict-banner title meets WCAG AA (finding F2) and the three page-level workarounds are removed. `ALV-N002` (`.status-stale-banner`) follows as its own attempt before Gate B. `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-002-C01/R05.md` for the handoff. Gate B is not evaluated (`NOT YET EVALUABLE`).
 
 ## Production implementation status
 
@@ -136,8 +136,9 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 - **UI** `/admin/configuration` (Practice Configuration hub: Practice + location, Staff, Providers, Operatories, Appointment types, Availability + blocked time, Scheduling preview) on the reusable `ConfigEntityPanel` (states, search, show-inactive, inline validation, unsaved-change protection, conflict banner). First real adopter of ALV-002-C01's `ConcurrencyConflictBanner`.
 - 252 backend / 101 frontend / 10 real-backend Playwright tests pass. Gate A (row A8) is not evaluated. See `.alveara/handoffs/ALV-N003/R01-evidence/`.
 
-## Shared audit, concurrency, and record-lifecycle primitives (ALV-002-C01, COMPLETE - approved attempt R03)
+## Shared audit, concurrency, and record-lifecycle primitives (ALV-002-C01, AWAITING_REVIEW - reopened attempt R05; last approved attempt R04)
 
+- **R05 (finding F2):** `ConcurrencyConflictBanner`'s title uses the text-only `--color-warning-text` (3.46:1 -> 5.39:1 light); the page-level title overrides in `Calendar.css`, `PatientWorkspace.css` and `FlowBoard.css` are deleted; `conflictBannerContrast.test.ts` fails if any stylesheet re-colours the title. See `.alveara/handoffs/ALV-002-C01/R05-evidence/`.
 R03 corrections (responding to R02's independent review, `.alveara/reviews/ALV-002-C01/R02.md`, decision `CHANGES_REQUIRED`):
 
 - **The real audit API now returns the shared metadata.** `AuthController.GetAuditLog` also projects `EntityType`, `Reason`, `CorrelationId` (null for legacy/metadata-less rows); gate, ordering, and 500 bound unchanged. Proven by an API round-trip test through the real `AuditService.Record` path and a real-browser assertion that the real `SessionTimeoutChanged` row visibly shows `UserAccount`. (R02's handoff claim that the endpoint already returned this was inaccurate; corrected here.)
