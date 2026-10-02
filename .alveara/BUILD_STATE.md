@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N010` attempt R01 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`). `ALV-003-C01` is `COMPLETE` (approved R02); `STORY-003` is `COMPLETE` (portal-verified, unchanged); Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-N010/R01.md` for the handoff. Gate B is not evaluated.
+Last updated: `ALV-N010` approved at attempt R01 and recorded **`COMPLETE`** by review closure. `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs. Gate B is not evaluated (`NOT YET EVALUABLE`); the `ALV-N001` / `ALV-002-C01` contrast findings must be corrected before it is.
 
 ## Production implementation status
 
@@ -19,7 +19,7 @@ Last updated: `ALV-N010` attempt R01 - implementation committed, set to **`AWAIT
 - **Findings recorded, not fixed here** (shared components of completed stories): success-toast contrast 4.45:1 (`ALV-N001`) and conflict-banner title contrast 3.46:1 (`ALV-002-C01`); this story avoids the toast and overrides the banner title inside the patient workspace only. See `R01.md` F1/F2. Per the R01 review these are open findings against `ALV-N001` and `ALV-002-C01` and must be corrected through reopened-story attempts before Gate B is evaluated.
 - 492 backend / 319 frontend / 40 mocked-browser / 14 real-backend walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. STORY-003's own tests are unchanged and pass. Gate B (rows B1, B3) is not evaluated. See `.alveara/handoffs/ALV-003-C01/R01-evidence/`.
 
-## Versioned forms, consents, and e-signature foundation (ALV-N010, AWAITING_REVIEW - attempt R01)
+## Versioned forms, consents, and e-signature foundation (ALV-N010, COMPLETE - approved attempt R01)
 
 - **Templates are versioned**: `FormTemplate` (stable key, category Privacy/Financial/General consent/Treatment, active flag) + immutable `FormTemplateVersion` rows (title, wording, field definitions, SHA-256 content hash). Editing publishes a NEW version (template row version guards two administrators); no version is ever updated or deleted.
 - **Patient forms**: `PatientForm` is `Draft` -> `Signed` -> (`Void`) or `Draft` -> `Void`, pinned to the template version it started on (a newer version is offered, never forced); one open draft per patient per template (unique filtered index). Append-only `PatientFormEvent` history (Started, Signed, Voided, Superseded).
@@ -227,7 +227,7 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 
 ## What does not exist yet
 
-- Any scheduling, clinical, billing, or reporting functionality, and any document/image library (versioned forms and consents now exist - `ALV-N010` in review) (patient registration and the patient identity workspace now exist - `STORY-003`, `ALV-003-C01` complete). (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
+- Any scheduling, clinical, billing, or reporting functionality, and any document/image library (versioned forms and consents now exist - `ALV-N010` complete) (patient registration and the patient identity workspace now exist - `STORY-003`, `ALV-003-C01` complete). (`ALV-N002`'s `IBlobStorage`/`IBackupSnapshotProvider` are seams, not the document/backup modules themselves. `ALV-001-C01`'s `PermissionMatrix` names permissions for these future modules but nothing enforces them yet since the modules don't exist.)
 - Any encrypted backup/restore capability (`ALV-N004` builds this on top of `IBackupSnapshotProvider`).
 - Windows-service install/deployment automation — `ALV-N002` runs via `dotnet run`/LocalDB in dev; actual SQL Server Express + Windows Service packaging is `ALV-N013`'s job.
 - Any of the remaining 32 first-release `ALV-*` stories' implementation.
