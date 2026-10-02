@@ -140,3 +140,26 @@ a back-to-back appointment accepted; a response lost after the server booked (th
 requests for one slot producing exactly one appointment; the audit trail holding every booking and every refusal with a user and time and no patient details; a dentist who
 can see the schedule but not book (the API returns 403) and billing with no Schedule page; and a keyboard-only booking - then axe scans of each state in light and dark.
 Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
+
+## ALV-004-C01: calendar walkthrough
+
+`e2e/calendar-real-backend.spec.ts` is the un-mocked run for the calendar. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough
+above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "AlveraE2E"                      # the database the API is using: one step moves a booked appointment ten years back with a SQL UPDATE
+$env:CALENDAR_E2E_OUT = "C:\tmp\calendar-e2e"       # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.calendar.config.ts
+```
+
+It needs `sqlcmd` on the path (the API refuses to book a start in the past, so the no-show demonstration arranges a long-past appointment directly in the database, and
+says so). It configures the practice through the real configuration API, then signs in as front-desk users, a dentist and a billing user and shows: the day view placing
+real appointments in the right provider column at the right time and size with working hours drawn and filters working; booking through the drawer with provider, operatory,
+patient, working-hours and blocked-time conflicts each explained in words and nothing booked; a reschedule, a refused reschedule and the history that remembers where it
+was; a second user's change making the first user's edit a reported conflict instead of an overwrite; six appointments racing into one slot producing one winner and two
+users moving the same appointment producing one change; a cancellation with a reason staying on the calendar marked cancelled and freeing the slot; a no-show refused
+before the start and recorded after it; patient overlap refused and the week view putting overlapping appointments side by side; a dentist who can look but not change (403)
+and billing with no Calendar; a keyboard-only reschedule; the audit trail holding every action with user and time and no patient details or reasons - then axe scans of each
+screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.

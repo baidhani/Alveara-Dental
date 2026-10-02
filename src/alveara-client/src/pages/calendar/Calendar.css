@@ -1,0 +1,271 @@
+.cal-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.cal-toolbar__group {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.cal-toolbar__field {
+  min-width: 150px;
+}
+
+.cal-legend {
+  max-width: 80ch;
+}
+
+/* ---------- the grid ---------- */
+.cal {
+  display: flex;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.cal__axis {
+  flex: none;
+  width: 56px;
+  border-right: 1px solid var(--color-border);
+}
+
+.cal__columns {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+}
+
+.cal__head {
+  height: 48px;
+  box-sizing: border-box;
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.cal__sub {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+
+.cal__axis-body,
+.cal__body {
+  position: relative;
+}
+
+.cal__hour-label {
+  position: absolute;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.cal__column {
+  border-left: 1px solid var(--color-border);
+  min-width: 0;
+}
+
+.cal__column:first-child {
+  border-left: none;
+}
+
+.cal__hour-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px solid var(--color-border);
+  pointer-events: none;
+}
+
+/* Day view: time outside the provider's weekly hours is hatched; the working windows sit on the plain surface. */
+.cal__body--off {
+  background: repeating-linear-gradient(135deg, var(--color-bg) 0 6px, var(--color-surface) 6px 12px);
+}
+
+.cal__working {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  pointer-events: none;
+}
+
+.cal__hour-line {
+  z-index: 1;
+}
+
+/* ---------- appointment blocks ---------- */
+.cal__block {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  margin: 0 2px;
+  padding: 2px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  text-align: left;
+  font: inherit;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  background: var(--color-info-bg);
+  border: 1px solid var(--color-primary);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.cal__block:hover {
+  background: var(--color-surface);
+}
+
+.cal__block--selected {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.cal__block-time {
+  font-weight: var(--font-weight-medium);
+}
+
+.cal__block-patient {
+  font-weight: var(--font-weight-medium);
+}
+
+.cal__block-meta {
+  color: var(--color-text);
+}
+
+/* Cancelled: dashed outline, hatched, patient name struck through, and the word "Cancelled". */
+.cal__block--cancelled {
+  border-style: dashed;
+  border-color: var(--color-danger);
+  background: repeating-linear-gradient(135deg, var(--color-danger-bg) 0 5px, var(--color-surface) 5px 10px);
+}
+
+.cal__block--cancelled .cal__block-patient {
+  text-decoration: line-through;
+}
+
+/* No-show: dotted outline, warning tint, and the words "No-show". */
+.cal__block--noshow {
+  border-style: dotted;
+  border-width: 2px;
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.cal__block--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.cal__block--compact .cal__block-patient {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal__block--compact .cal__block-meta {
+  display: none;
+}
+
+/* ---------- the drawer ---------- */
+.cal-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  width: min(460px, 100%);
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-left: 1px solid var(--color-border-strong);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.18);
+}
+
+.cal-drawer__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.cal-drawer__kicker {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cal-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cal-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cal-panel__status {
+  margin: 0;
+}
+
+.cal-badge {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.cal-badge--scheduled {
+  border-color: var(--color-primary);
+  background: var(--color-info-bg);
+}
+
+.cal-badge--cancelled {
+  border-style: dashed;
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.cal-badge--noshow {
+  border-style: dotted;
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+/*
+  The shared ConcurrencyConflictBanner (ALV-002-C01) colours its TITLE with --color-warning, which is 3.46:1 on its own tint in the light theme (below WCAG AA's
+  4.5:1) - the defect ALV-003-C01 recorded as finding F2 and handled the same way. That component belongs to a completed, reviewed story, so this story does not
+  edit it: inside the calendar drawer the title uses the body text colour (the warning meaning is still carried by the words and the banner's warning border).
+  Found again by the real-browser axe scan the first time the drawer showed the banner. Still open as a finding against ALV-002-C01; remove this override when
+  the shared component is corrected.
+*/
+.cal-drawer .alv-concurrency-conflict__title {
+  color: var(--color-text);
+}

@@ -72,6 +72,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>()
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormReader>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentScheduler>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentManager>();
 
 // Measurement events.
 builder.Services.AddScoped<IMeasurementEventSink, MeasurementEventSink>();

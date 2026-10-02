@@ -31,7 +31,8 @@ public class AppointmentScheduler(
     AlveraDbContext db, IPracticeClock clock, SchedulingConfiguration configuration,
     IMeasurementEventSink? measurements = null, ILogger<AppointmentScheduler>? logger = null)
 {
-    private const int LockTimeoutMilliseconds = 10_000;
+    private readonly AppointmentViewBuilder _views = new(db, clock);
+    private readonly SchedulingRecorder _recorder = new(db, measurements, logger);
 
     public async Task<ScheduleResult> ScheduleAsync(ScheduleAppointmentRequest request, string? idempotencyKey, Guid actor, CancellationToken ct)
     {
@@ -45,7 +46,7 @@ public class AppointmentScheduler(
         }
         catch (SchedulingException ex) when (ex.IsSchedulingDecision)
         {
-            await RecordRejectionAsync(request, ex, actor, ct);
+            await _recorder.RecordRejectionAsync(ex, actor, ct);
             throw;
         }
     }
@@ -75,6 +76,7 @@ public class AppointmentScheduler(
             throw new SchedulingException("invalid_duration", ex.Message, 400);
         }
         var endUtc = startUtc.AddMinutes(duration);
+        var notes = NormalizeNotes(request.Notes);
 
         // ---- a retry of a request that already succeeded returns that appointment ----
         var earlier = await db.Appointments.AsNoTracking().SingleOrDefaultAsync(a => a.ScheduleKey == key, ct);
@@ -82,7 +84,7 @@ public class AppointmentScheduler(
         {
             if (!SameRequest(earlier, request, startUtc, duration))
                 throw new SchedulingException("idempotency_key_reused", "That Idempotency-Key was already used for a different appointment.", 409);
-            return new ScheduleResult(await ViewAsync(earlier.Id, ct), false);
+            return new ScheduleResult(await _views.ViewAsync(earlier.Id, ct), false);
         }
 
         // ---- the people and places ----
@@ -105,30 +107,23 @@ public class AppointmentScheduler(
         if (!availability.Available)
             throw new SchedulingException("provider_unavailable", "The provider is not available at that time.", 409, reason: availability.Reason);
 
-        // ---- the checks and the insert: one transaction, serialized per provider and per operatory ----
+        // ---- the checks and the insert: one transaction, serialized per provider, per operatory and per patient ----
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
-        foreach (var resource in new[] { $"appointment:operatory:{operatory.Id:N}", $"appointment:provider:{provider.Id:N}" }.Order(StringComparer.Ordinal))
-            await AcquireLockAsync(resource, ct);
-
-        var providerClash = await db.Appointments.AsNoTracking()
-            .Where(a => a.ProviderProfileId == provider.Id && a.Status == AppointmentStatuses.Scheduled && a.StartUtc < endUtc && startUtc < a.EndUtc)
-            .Select(a => (Guid?)a.Id).FirstOrDefaultAsync(ct);
-        if (providerClash is not null)
-            throw new SchedulingException("provider_double_booked", "The provider already has an appointment during that time.", 409, providerClash);
-
-        var operatoryClash = await db.Appointments.AsNoTracking()
-            .Where(a => a.OperatoryId == operatory.Id && a.Status == AppointmentStatuses.Scheduled && a.StartUtc < endUtc && startUtc < a.EndUtc)
-            .Select(a => (Guid?)a.Id).FirstOrDefaultAsync(ct);
-        if (operatoryClash is not null)
-            throw new SchedulingException("operatory_conflict", "The operatory is already in use during that time.", 409, operatoryClash);
+        await SchedulingGuards.AcquireLocksAsync(db, provider.Id, operatory.Id, request.PatientId, ct);
+        await SchedulingGuards.ThrowIfConflictAsync(db, provider.Id, operatory.Id, request.PatientId, startUtc, endUtc, null, ct);
 
         var appointment = new Appointment
         {
             Id = Guid.NewGuid(), PatientId = request.PatientId, ProviderProfileId = provider.Id, OperatoryId = operatory.Id, AppointmentTypeId = type.Id,
             StartUtc = startUtc, EndUtc = endUtc, DurationMinutes = duration, Status = AppointmentStatuses.Scheduled, ScheduleKey = key,
-            CreatedAtUtc = clock.UtcNow, CreatedByUserId = actor,
+            Notes = notes, CreatedAtUtc = clock.UtcNow, CreatedByUserId = actor,
         };
         db.Appointments.Add(appointment);
+        db.AppointmentEvents.Add(new AppointmentEvent
+        {
+            Id = Guid.NewGuid(), AppointmentId = appointment.Id, EventType = AppointmentEventTypes.Scheduled, ActorUserId = actor, OccurredAtUtc = appointment.CreatedAtUtc,
+            Detail = $"Scheduled for {duration} minutes.",
+        });
         AuditService.Record(db, SchedulingAuditEvents.Scheduled, nameof(Appointment), appointment.Id, actor, $"Appointment scheduled ({duration} minutes).");
         try
         {
@@ -141,30 +136,41 @@ public class AppointmentScheduler(
             db.ChangeTracker.Clear();
             var winner = await db.Appointments.AsNoTracking().SingleAsync(a => a.ScheduleKey == key, ct);
             return SameRequest(winner, request, startUtc, duration)
-                ? new ScheduleResult(await ViewAsync(winner.Id, ct), false)
+                ? new ScheduleResult(await _views.ViewAsync(winner.Id, ct), false)
                 : throw new SchedulingException("idempotency_key_reused", "That Idempotency-Key was already used for a different appointment.", 409);
         }
 
-        await RecordMeasurementAsync("appointment.scheduled", new { outcome = "success" }, ct);
-        return new ScheduleResult(await ViewAsync(appointment.Id, ct), true);
+        await _recorder.MeasureAsync("appointment.scheduled", new { outcome = "success" }, ct);
+        return new ScheduleResult(await _views.ViewAsync(appointment.Id, ct), true);
     }
 
     // ---------- reading ----------
 
     public async Task<AppointmentView?> GetAsync(Guid id, CancellationToken ct) =>
-        await db.Appointments.AsNoTracking().AnyAsync(a => a.Id == id, ct) ? await ViewAsync(id, ct) : null;
+        await db.Appointments.AsNoTracking().AnyAsync(a => a.Id == id, ct) ? await _views.ViewAsync(id, ct) : null;
 
-    /// <summary>Appointments whose period overlaps [from, to), earliest first; optionally for one provider or operatory.</summary>
-    public async Task<IReadOnlyList<AppointmentView>> ListAsync(DateTimeOffset fromUtc, DateTimeOffset toUtc, Guid? providerId, Guid? operatoryId, CancellationToken ct)
+    /// <summary>Scheduled appointments whose period overlaps [from, to), earliest first; optionally for one provider or operatory (cancelled and no-show appointments are not listed here - see <see cref="CalendarAsync"/>).</summary>
+    public Task<IReadOnlyList<AppointmentView>> ListAsync(DateTimeOffset fromUtc, DateTimeOffset toUtc, Guid? providerId, Guid? operatoryId, CancellationToken ct) =>
+        QueryAsync(fromUtc, toUtc, providerId, operatoryId, scheduledOnly: true, ct);
+
+    /// <summary>ALV-004-C01: every appointment in the range whatever its status (cancelled and no-show ones stay visible, so the calendar can show them distinctly).</summary>
+    public Task<IReadOnlyList<AppointmentView>> CalendarAsync(DateTimeOffset fromUtc, DateTimeOffset toUtc, Guid? providerId, Guid? operatoryId, CancellationToken ct) =>
+        QueryAsync(fromUtc, toUtc, providerId, operatoryId, scheduledOnly: false, ct);
+
+    private async Task<IReadOnlyList<AppointmentView>> QueryAsync(DateTimeOffset fromUtc, DateTimeOffset toUtc, Guid? providerId, Guid? operatoryId, bool scheduledOnly, CancellationToken ct)
     {
         var query = db.Appointments.AsNoTracking().Where(a => a.StartUtc < toUtc && fromUtc < a.EndUtc);
+        if (scheduledOnly) query = query.Where(a => a.Status == AppointmentStatuses.Scheduled);
         if (providerId is not null) query = query.Where(a => a.ProviderProfileId == providerId);
         if (operatoryId is not null) query = query.Where(a => a.OperatoryId == operatoryId);
         var ids = await query.OrderBy(a => a.StartUtc).Select(a => a.Id).Take(500).ToListAsync(ct);
         var views = new List<AppointmentView>();
-        foreach (var id in ids) views.Add(await ViewAsync(id, ct));
+        foreach (var id in ids) views.Add(await _views.ViewAsync(id, ct));
         return views;
     }
+
+    public async Task<IReadOnlyList<AppointmentEventView>?> HistoryAsync(Guid id, CancellationToken ct) =>
+        await db.Appointments.AsNoTracking().AnyAsync(a => a.Id == id, ct) ? await _views.HistoryAsync(id, ct) : null;
 
     // ---------- helpers ----------
 
@@ -172,61 +178,12 @@ public class AppointmentScheduler(
         a.PatientId == r.PatientId && a.ProviderProfileId == r.ProviderId && a.OperatoryId == r.OperatoryId
         && a.AppointmentTypeId == r.AppointmentTypeId && a.StartUtc == startUtc && a.DurationMinutes == duration;
 
-    private async Task AcquireLockAsync(string resource, CancellationToken ct)
+    /// <summary>Trims the note; blank means none. Notes are limited to 1000 characters.</summary>
+    internal static string? NormalizeNotes(string? notes)
     {
-        var result = new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output };
-        await db.Database.ExecuteSqlRawAsync(
-            "EXEC @result = sp_getapplock @Resource = {0}, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = {1}",
-            [resource, LockTimeoutMilliseconds, result], ct);
-        if (result.Value is not int code || code < 0)
-            throw new SchedulingException("schedule_busy", "The schedule is busy right now. Please try again in a moment.", 503);
-    }
-
-    private async Task<AppointmentView> ViewAsync(Guid id, CancellationToken ct)
-    {
-        var row = await (from a in db.Appointments.AsNoTracking()
-                         join p in db.Patients.AsNoTracking() on a.PatientId equals p.Id
-                         join pr in db.ProviderProfiles.AsNoTracking() on a.ProviderProfileId equals pr.Id
-                         join s in db.StaffProfiles.AsNoTracking() on pr.StaffProfileId equals s.Id
-                         join o in db.Operatories.AsNoTracking() on a.OperatoryId equals o.Id
-                         join t in db.AppointmentTypes.AsNoTracking() on a.AppointmentTypeId equals t.Id
-                         where a.Id == id
-                         select new { a, p.FirstName, p.LastName, Provider = s.DisplayName, Operatory = o.Name, Type = t.Name }).SingleAsync(ct);
-        var a1 = row.a;
-        return new AppointmentView(
-            a1.Id, a1.PatientId, $"{row.FirstName} {row.LastName}", a1.ProviderProfileId, row.Provider, a1.OperatoryId, row.Operatory, a1.AppointmentTypeId, row.Type,
-            a1.StartUtc, a1.EndUtc, Local(a1.StartUtc), Local(a1.EndUtc), a1.DurationMinutes, a1.Status, a1.CreatedAtUtc);
-    }
-
-    private string Local(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-ddTHH:mm");
-
-    /// <summary>Audits and measures a refused attempt. This never changes the refusal: if the audit write fails the caller still gets the refusal (nothing was booked).</summary>
-    private async Task RecordRejectionAsync(ScheduleAppointmentRequest request, SchedulingException refusal, Guid actor, CancellationToken ct)
-    {
-        try
-        {
-            db.ChangeTracker.Clear();
-            AuditService.Record(db, SchedulingAuditEvents.Rejected, nameof(Appointment), refusal.ConflictingAppointmentId ?? Guid.Empty, actor,
-                $"Appointment refused: {refusal.Code}{(refusal.Reason is null ? "" : $" ({refusal.Reason})")}.");
-            await db.SaveChangesAsync(ct);
-        }
-        catch (DbUpdateException ex)
-        {
-            logger?.LogWarning(ex, "The refusal of a scheduling request ({Code}) could not be audited; the refusal stands.", refusal.Code);
-        }
-        await RecordMeasurementAsync("appointment.rejected", new { category = refusal.Code, outcome = "failure" }, ct);
-    }
-
-    private async Task RecordMeasurementAsync(string name, object properties, CancellationToken ct)
-    {
-        if (measurements is null) return;
-        try
-        {
-            await measurements.RecordAsync(name, 1, properties, ct);
-        }
-        catch (Exception ex) when (ex is DbUpdateException or MeasurementEventValidationException or InvalidOperationException)
-        {
-            logger?.LogWarning(ex, "{Event} measurement event was not recorded; the scheduling decision stands.", name);
-        }
+        var n = notes?.Replace("\r\n", "\n").Trim();
+        if (string.IsNullOrEmpty(n)) return null;
+        if (n.Length > 1000) throw new SchedulingException("invalid_notes", "A note can be at most 1000 characters.", 400);
+        return n;
     }
 }

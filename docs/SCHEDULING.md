@@ -35,3 +35,65 @@ Each distinct request gets one idempotency key, kept while the request is unchan
 - A start in the past is refused (entering historical appointments is not supported).
 - Availability is read before the lock is taken: blocked time added in the same instant as a booking may not be seen by that booking.
 - The day list shows at most 500 appointments for a range.
+
+
+---
+
+# The calendar and the life of a booked appointment (ALV-004-C01)
+
+ALV-004-C01 extends STORY-004 without changing its contract: STORY-004's own tests (`AppointmentSchedulerTests`, `AppointmentsApiTests`, `Schedule.test.tsx`,
+`schedule-real-backend.spec.ts`) are unchanged and pass, and `/schedule` (the booking form and day list) is untouched. The new work is at `/calendar`.
+
+## What changed in the model
+- **Statuses**: `Scheduled` (the only one STORY-004 created), `Cancelled`, `NoShow`. **Only a `Scheduled` appointment holds time** - for the provider, the operatory
+  and the patient - so a cancelled or no-show appointment stays on the record and in the calendar without blocking anything.
+- **Appointment** gained `Notes` (<= 1000 characters, never copied into the audit log), `CancelReason`, `StatusChangedAtUtc/By`.
+- **`AppointmentEvent`** (append-only history): `Scheduled`, `Rescheduled` (with where it WAS: previous start, provider and operatory), `Cancelled` (with the reason),
+  `NoShow`, `NotesChanged`. Migration `AddAppointmentLifecycle`.
+
+## The rules
+- **Patient overlap** (new, also applied to booking): one patient cannot hold two overlapping scheduled appointments, with any provider or operatory.
+  Conflicts are reported in the order provider, operatory, patient (`provider_double_booked`, `operatory_conflict`, `patient_double_booked`), each naming the
+  appointment in the way. There is **no override**: the plan says patient overlap is refused "unless an explicitly authorized future policy says otherwise", and no
+  such policy exists, so there are no manual overrides to audit.
+- **Reschedule** (`PUT /api/appointments/{id}/reschedule`) applies exactly STORY-004's rules to the new place and time (real future time, valid duration, available
+  provider - hours and blocked time - and no overlap with any OTHER scheduled appointment; an appointment never conflicts with itself). It keeps the appointment's id and
+  records where it was. Only a `Scheduled` appointment can be rescheduled. A request that changes nothing changes nothing.
+- **Cancel** (`POST .../cancel`) needs a reason (<= 400 characters; kept in the appointment's own record and history, never in the audit log). Cancelling twice is a no-op.
+- **No-show** (`POST .../no-show`) is only possible once the start time has passed (`no_show_too_early` otherwise). Marking twice is a no-op.
+- **Notes** (`PUT .../notes`) work in any status; blank clears. `GET .../history` lists the events; `GET /api/appointments?...&includeAll=true` includes cancelled and no-show
+  appointments (the plain list is still "what is booked", exactly as STORY-004 defined it).
+- Only `ManageAppointments` holders can change anything; `ViewSchedule` holders can read. Every change needs CSRF.
+
+## Concurrency
+- **Every change carries the `rowVersion` the caller read.** A stale one is the shared 409 `concurrency_conflict` - checked first, so the user hears "someone changed this",
+  not a confusing consequence of it - and is also pinned for the save, so a change landing between the check and the write is caught as well.
+- **Conflict checks run under locks.** Booking and rescheduling take an exclusive SQL Server application lock on the provider, the operatory AND the patient (always in the
+  same sorted order, so two requests cannot deadlock) inside their transaction, then check, then write. Six appointments moved into one slot at once give one winner; so do
+  a booking racing a reschedule, and six bookings for one patient at one time with different providers. Removing the locks makes those tests fail.
+- A reschedule, its history entry and its PHI-free audit entry commit in ONE save: if the audit write fails the appointment does not move. A refused reschedule is audited
+  and measured like a refused booking (`AppointmentRejected`).
+
+## The calendar (`/calendar`, `ViewSchedule`)
+- **Day view**: one column per provider (the practice's real assignments), time on the left (one pixel per minute from 07:00; widened for anything outside 07:00-19:00),
+  each provider's weekly working hours drawn on the plain surface with the rest hatched. **Week view**: Monday to Sunday, overlapping appointments (different providers at
+  the same time) placed side by side in lanes. Filters by provider and operatory; previous/next/today and a date picker.
+- Cancelled appointments have a dashed outline and a struck-through name, no-shows a dotted outline, and **both write the status in the block's first line**
+  ("10:00-11:00 - Cancelled"): never colour alone. Short appointments render on one line so nothing is cropped.
+- **The drawer** (a non-modal dialog; focus moves into it, Escape closes it, and focus returns to its heading after each action so keyboard users are never stranded)
+  books a new appointment (fast patient lookup; the type's default duration shown and used when the duration is blank; the same retry-safe idempotency key as
+  STORY-004), or shows an appointment with its details, note and history and - for staff who may manage appointments - Reschedule, Cancel appointment (with a reason),
+  Mark no-show (offered once the start time has passed; the server decides too) and Save note. Every refusal is explained in words, naming what is in the way and when.
+- **Reschedule is done from the drawer, not by dragging.** Drag-and-drop was left out on purpose ("only if safely validated"): a drag would need the same server
+  validation and explanation before it could be trusted, and the drawer already provides both, with a keyboard path.
+- All times are practice-local strings from the server; the browser's own time zone never enters the calendar.
+
+## Known limits (this story)
+- No drag-and-drop; no recurring or multi-resource appointments; no manual overrides (none is authorized); no blocked-time display on the grid (blocked time is
+  enforced and explained when a booking hits it, but not drawn - the read model the grid uses lists weekly hours only); no printing or export.
+- A past start cannot be booked or rescheduled to (so a no-show on a long-past appointment is demonstrated by moving its times in the database in the real-browser
+  walkthrough; the service-level tests use a controllable clock).
+- The shared conflict banner's title colour (finding F2 on ALV-002-C01, 3.46:1) is worked around inside the calendar drawer exactly as ALV-003-C01 did inside the patient
+  workspace; the shared component itself is not edited here.
+- At most 500 appointments are returned for a range; the week view's side-by-side lanes get narrow when many providers overlap (the full details are in each block's
+  label and in the drawer).

@@ -53,6 +53,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<PatientHistoryEntry> PatientHistory => Set<PatientHistoryEntry>();
     public DbSet<PatientRegistrationSettings> PatientRegistrationSettings => Set<PatientRegistrationSettings>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<AppointmentEvent> AppointmentEvents => Set<AppointmentEvent>();
     public DbSet<FormTemplate> FormTemplates => Set<FormTemplate>();
     public DbSet<FormTemplateVersion> FormTemplateVersions => Set<FormTemplateVersion>();
     public DbSet<PatientForm> PatientForms => Set<PatientForm>();
@@ -274,6 +275,19 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(a => new { a.PatientId, a.StartUtc });
             e.HasIndex(a => a.ScheduleKey).IsUnique().HasFilter("[ScheduleKey] IS NOT NULL");
             e.ToTable(t => t.HasCheckConstraint("CK_Appointments_Period", "[EndUtc] > [StartUtc]"));
+            // ALV-004-C01
+            e.Property(a => a.Notes).HasMaxLength(1000);
+            e.Property(a => a.CancelReason).HasMaxLength(400);
+            e.HasIndex(a => new { a.Status, a.StartUtc });
+        });
+
+        // ALV-004-C01: an appointment's history. Append-only; Restrict like every other relationship.
+        modelBuilder.Entity<AppointmentEvent>(e =>
+        {
+            e.Property(v => v.EventType).HasMaxLength(20);
+            e.Property(v => v.Detail).HasMaxLength(400);
+            e.HasOne<Appointment>().WithMany().HasForeignKey(v => v.AppointmentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(v => new { v.AppointmentId, v.OccurredAtUtc });
         });
 
         // ALV-N010: versioned forms. Versions and signed snapshots are never updated or deleted (see the SaveChanges guard and the

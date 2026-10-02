@@ -4,7 +4,7 @@
  * retry after a dropped connection returns the same appointment instead of booking twice. Start times are practice-local wall-clock
  * ("yyyy-MM-ddTHH:mm"); the server owns the time zone.
  */
-import { ApiError, fetchCsrfToken, request } from "./authApi";
+import { ApiError, fetchCsrfToken, request, requestWithCsrf } from "./authApi";
 
 export interface Appointment {
   id: string;
@@ -24,6 +24,11 @@ export interface Appointment {
   durationMinutes: number;
   status: string;
   createdAtUtc: string;
+  /** ALV-004-C01: the version to send back with a reschedule, cancel, no-show or note change. */
+  rowVersion?: string | null;
+  notes?: string | null;
+  cancelReason?: string | null;
+  statusChangedAtUtc?: string | null;
 }
 
 export interface ScheduleInput {
@@ -34,6 +39,7 @@ export interface ScheduleInput {
   startLocal: string;
   /** Blank = the appointment type's default. */
   durationMinutes: number | null;
+  notes?: string | null;
 }
 
 /** One key per booking attempt (renewed whenever the request changes, reused on every retry of the same request). */
@@ -72,3 +78,43 @@ export const UNAVAILABLE_REASONS: Record<string, string> = {
 /** "09:00" from a practice-local "yyyy-MM-ddTHH:mm". */
 export const timeOf = (local: string) => local.slice(11, 16);
 export const dateOf = (local: string) => local.slice(0, 10);
+
+// ---------- ALV-004-C01: the calendar and what can happen to a booked appointment ----------
+
+export type AppointmentStatus = "Scheduled" | "Cancelled" | "NoShow";
+
+export interface AppointmentEvent {
+  eventType: string;
+  actorUserId: string | null;
+  occurredAtUtc: string;
+  detail: string | null;
+  previousStartLocal: string | null;
+  previousProviderName: string | null;
+  previousOperatoryName: string | null;
+}
+
+/** Every appointment in the range whatever its status (cancelled and no-show ones are shown distinctly by the calendar). */
+export function listCalendar(fromDay: string, toDay: string, providerId?: string, operatoryId?: string, signal?: AbortSignal): Promise<Appointment[]> {
+  const params = new URLSearchParams({ from: fromDay, to: toDay, includeAll: "true" });
+  if (providerId) params.set("providerId", providerId);
+  if (operatoryId) params.set("operatoryId", operatoryId);
+  return request<Appointment[]>(`/api/appointments?${params}`, { signal });
+}
+
+export const getAppointmentHistory = (id: string, signal?: AbortSignal) => request<AppointmentEvent[]>(`/api/appointments/${id}/history`, { signal });
+
+export interface RescheduleInput {
+  providerId: string;
+  operatoryId: string;
+  startLocal: string;
+  /** Blank = keep the appointment's current duration. */
+  durationMinutes: number | null;
+}
+
+export const rescheduleAppointment = (id: string, input: RescheduleInput, rowVersion: string) =>
+  requestWithCsrf<Appointment>(`/api/appointments/${id}/reschedule`, "PUT", { ...input, rowVersion }); 
+export const cancelAppointment = (id: string, reason: string, rowVersion: string) =>
+  requestWithCsrf<Appointment>(`/api/appointments/${id}/cancel`, "POST", { reason, rowVersion });
+export const markNoShow = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/no-show`, "POST", { rowVersion });
+export const updateAppointmentNotes = (id: string, notes: string, rowVersion: string) =>
+  requestWithCsrf<Appointment>(`/api/appointments/${id}/notes`, "PUT", { notes, rowVersion });

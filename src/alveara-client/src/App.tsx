@@ -22,6 +22,7 @@ import { PatientSearchPage } from "./pages/PatientSearchPage";
 import { PatientDetailsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
+import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -137,6 +138,14 @@ function createAppRouter() {
             element={
               <RequirePermission permission="ViewBackupStatus">
                 <BackupRecoveryPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <RequirePermission permission="ViewSchedule">
+                <CalendarPage />
               </RequirePermission>
             }
           />

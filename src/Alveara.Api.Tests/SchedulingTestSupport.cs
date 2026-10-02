@@ -55,6 +55,28 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
     public AppointmentScheduler Scheduler(AlveraDbContext db, IMeasurementEventSink? measurements = null) =>
         new(db, Clock, new SchedulingConfiguration(db, Clock), measurements);
 
+    /// <summary>ALV-004-C01: the lifecycle actions (reschedule, cancel, no-show, notes). A clock can be given so "the start time has passed" can be tested.</summary>
+    public AppointmentManager Manager(AlveraDbContext db, IPracticeClock? clock = null, IMeasurementEventSink? measurements = null) =>
+        new(db, clock ?? Clock, new SchedulingConfiguration(db, clock ?? Clock), measurements);
+
+    public async Task<AppointmentView> ManageAsync(Func<AppointmentManager, Task<AppointmentView>> action, IPracticeClock? clock = null)
+    {
+        await using var db = fixture.CreateContext();
+        return await action(Manager(db, clock));
+    }
+
+    public async Task<AppointmentView> ReloadAsync(Guid id)
+    {
+        await using var db = fixture.CreateContext();
+        return (await Scheduler(db).GetAsync(id, default))!;
+    }
+
+    public async Task<IReadOnlyList<AppointmentEventView>> HistoryAsync(Guid id)
+    {
+        await using var db = fixture.CreateContext();
+        return (await Scheduler(db).HistoryAsync(id, default))!;
+    }
+
     public Task<Guid> PatientAsync(string first = "Ann", string last = "Lee") =>
         _patients.RegisterAsync(first, last, $"19{80 + _n++ % 19}-0{1 + _n % 9}-1{_n % 9}").ContinueWith(t => t.Result.Id);
 
@@ -94,4 +116,14 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
             return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
     }
+}
+
+/// <summary>The real practice clock, except that "now" can be set - so a test can ask what happens after an appointment's start time has passed.</summary>
+public sealed class TestClock(DateTimeOffset now) : IPracticeClock
+{
+    private readonly IPracticeClock _real = SchedulingTestSupport.Clock;
+    public TimeZoneInfo PracticeTimeZone => _real.PracticeTimeZone;
+    public DateTimeOffset UtcNow => now;
+    public DateTimeOffset ToPracticeLocal(DateTimeOffset utcInstant) => _real.ToPracticeLocal(utcInstant);
+    public DateTimeOffset FromPracticeLocal(DateTime localTime, LocalTimeAmbiguityPolicy ambiguityPolicy = LocalTimeAmbiguityPolicy.Reject) => _real.FromPracticeLocal(localTime, ambiguityPolicy);
 }

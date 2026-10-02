@@ -8,8 +8,10 @@ namespace Alveara.Api.Architecture.Scheduling;
 /// booked (the type's default or an explicit override) is never inferred later. Overlap rules and the practice's local-time
 /// rules live in <see cref="AppointmentScheduler"/>; this class is only the record.
 ///
-/// Only <see cref="AppointmentStatuses.Scheduled"/> exists in this story. Reschedule, cancel and no-show belong to
-/// ALV-004-C01, which will add statuses; only a Scheduled appointment ever blocks a provider or operatory.
+/// STORY-004 only ever created <see cref="AppointmentStatuses.Scheduled"/> appointments. ALV-004-C01 adds Cancelled and NoShow
+/// (reschedule edits a Scheduled appointment in place, with a history entry); only a Scheduled appointment ever blocks a
+/// provider, operatory or patient, so a cancelled or no-show appointment stays on the record and in the calendar without
+/// holding time.
 /// </summary>
 public class Appointment
 {
@@ -26,6 +28,14 @@ public class Appointment
     /// <summary>The caller's Idempotency-Key for the request that created this appointment (unique), so a retry returns it instead of booking twice.</summary>
     public string? ScheduleKey { get; set; }
 
+    /// <summary>Free-text note about the appointment (front-desk working note; never copied into the audit log).</summary>
+    public string? Notes { get; set; }
+    /// <summary>Why a Cancelled appointment was cancelled (required when cancelling).</summary>
+    public string? CancelReason { get; set; }
+    /// <summary>When and by whom the appointment became Cancelled or NoShow.</summary>
+    public DateTimeOffset? StatusChangedAtUtc { get; set; }
+    public Guid? StatusChangedByUserId { get; set; }
+
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid? CreatedByUserId { get; set; }
     public byte[] RowVersion { get; set; } = [];
@@ -34,4 +44,32 @@ public class Appointment
 public static class AppointmentStatuses
 {
     public const string Scheduled = "Scheduled";
+    public const string Cancelled = "Cancelled";
+    public const string NoShow = "NoShow";
+}
+
+/// <summary>
+/// ALV-004-C01: one entry of an appointment's history - what happened, who did it and when. Append-only. A reschedule records where the
+/// appointment WAS (previous start, provider and operatory), so a rescheduled, cancelled or no-show appointment stays historically visible.
+/// </summary>
+public class AppointmentEvent
+{
+    public Guid Id { get; set; }
+    public Guid AppointmentId { get; set; }
+    public required string EventType { get; set; }
+    public Guid? ActorUserId { get; set; }
+    public DateTimeOffset OccurredAtUtc { get; set; }
+    public DateTimeOffset? PreviousStartUtc { get; set; }
+    public Guid? PreviousProviderProfileId { get; set; }
+    public Guid? PreviousOperatoryId { get; set; }
+    public string? Detail { get; set; }
+}
+
+public static class AppointmentEventTypes
+{
+    public const string Scheduled = "Scheduled";
+    public const string Rescheduled = "Rescheduled";
+    public const string Cancelled = "Cancelled";
+    public const string NoShow = "NoShow";
+    public const string NotesChanged = "NotesChanged";
 }

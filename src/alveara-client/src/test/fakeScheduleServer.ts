@@ -33,6 +33,15 @@ export class FakeScheduleServer extends FakePatientServer {
     this.injectedSchedule.set(methodAndPath, [...(this.injectedSchedule.get(methodAndPath) ?? []), response]);
   }
 
+  /** The next canned response for this request, if a test queued one (used by this fake and by fakes built on it). */
+  protected takeInjected(method: string, path: string): Response | null {
+    for (const [key, queue] of this.injectedSchedule) {
+      const [m, prefix] = key.split(" ");
+      if (m === method && path.startsWith(prefix) && queue.length > 0) return queue.shift()!;
+    }
+    return null;
+  }
+
   callsToSchedule(method: string, pathPrefix: string) {
     return this.scheduleCalls.filter((c) => c.method === method && new URL(c.url, "http://x").pathname.startsWith(pathPrefix));
   }
@@ -57,10 +66,8 @@ export class FakeScheduleServer extends FakePatientServer {
     }
     if (!path.startsWith("/api/appointments")) return null;
     this.scheduleCalls.push({ method, url: u.pathname + u.search, headers, body });
-    for (const [key, queue] of this.injectedSchedule) {
-      const [m, prefix] = key.split(" ");
-      if (m === method && path.startsWith(prefix) && queue.length > 0) return queue.shift()!;
-    }
+    const injected = this.takeInjected(method, path);
+    if (injected) return injected;
 
     if (method === "GET" && path === "/api/appointments") {
       const from = u.searchParams.get("from")!;
