@@ -620,31 +620,29 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "492 of 492 backend (dotnet test, up from 420; 72 new against real SQL Server: PatientDuplicateWarningTests 12, PatientEditTests 14, PatientRelationshipTests 12, PatientDirectoryTests 7, PatientIdentityApiTests 15, PatientRequirementsTests 12), 319 of 319 frontend (up from 199; 120 new), 40 of 40 mocked browser, 14 of 14 real-backend/real-browser ALV-003-C01 walkthrough (18 axe scans, 0 critical/serious), STORY-003's original real-backend walkthrough 7 of 7, auth real-backend 12 of 12, Gate A route scans 3 of 3, repository checks 7 of 7. STORY-003's six test files are unchanged and pass. See .alveara/handoffs/ALV-003-C01/R01-evidence/TEST_RESULTS.md."
+        "summary": "R02 re-run on the unchanged tree: 492 of 492 backend (dotnet test, real SQL Server LocalDB), 319 of 319 frontend, 7 of 7 repository checks. Real-browser suites (mocked Playwright 40, ALV-003-C01 walkthrough 14, STORY-003 walkthrough 7, auth 12, Gate A route scans 3) are R01 results on the byte-identical tree, carried forward. STORY-003's six test files unchanged and pass. See .alveara/handoffs/ALV-003-C01/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "fdafb00b37b717bb768265453b0309eee8ff5717",
-      "evidenceCommit": "2dde1db3744b07b3626605a7d159faeb73242f3d",
-      "handoffPath": ".alveara/handoffs/ALV-003-C01/R01.md",
+      "evidenceCommit": "8e9fc31e0989b314f73438152768fc3b8b2eaad2",
+      "handoffPath": ".alveara/handoffs/ALV-003-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-003-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "fdafb00b37b717bb768265453b0309eee8ff5717",
-        "reviewedEvidenceCommit": "2dde1db3744b07b3626605a7d159faeb73242f3d"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-003-C01-R01-01 (P1): R01's durable EXECUTION_STATUS.json record carried evidenceCommit null; the evidence commit must be captured in the control record (R02 must record its own actual evidence SHA, non-null, in a separately committed status record)."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
