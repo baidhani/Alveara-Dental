@@ -392,7 +392,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R05",
       "acceptance": {
         "total": 6,
@@ -408,11 +408,11 @@
       "evidenceCommit": "f569e1e40b9941871598842e1bf1e272ef07c8ae",
       "handoffPath": ".alveara/handoffs/ALV-002-C01/R05.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-002-C01/R05.md",
+        "approvedAttempt": "R05",
+        "reviewedImplementationCommit": "0416b6dd8e1a04fa25ae16cc2dba0f17681cb619",
+        "reviewedEvidenceCommit": "f569e1e40b9941871598842e1bf1e272ef07c8ae"
       },
       "blockingIssues": [],
       "blockingIssuesResolvedInAttempt": "R04 - see .alveara/handoffs/ALV-002-C01/R04.md: GATE-A-02 corrected (audit viewer scroll region is a named, keyboard-reachable region with a visible focus outline), with unit tests and real-API browser evidence using overflowing data in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md.",
@@ -420,13 +420,15 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
+      "completedAt": "2026-10-02T22:31:05.000Z",
       "reopened": {
         "reason": "ALV-011-C01 R01 review (.alveara/reviews/ALV-011-C01/R01.md) and ALV-N001 R04 review (.alveara/reviews/ALV-N001/R04.md) require finding F2 to be corrected at this story before Gate B: ConcurrencyConflictBanner's title uses --color-warning on --color-warning-bg, 3.46:1 in the light theme (AA needs 4.5:1). Three completed stories carry page-level overrides that paint the title in the body text colour (.cal-drawer in Calendar.css, .alv-workspace__form/__panel in PatientWorkspace.css, .flow-board in FlowBoard.css) and one test (patientWorkspaceContrast.test.ts) asserts that the shared title FAILS. Correction: the banner title uses the text-only --color-warning-text token added by ALV-N001 R04; the three overrides are removed and the stale test is replaced by a guard; both themes are revalidated on every page that shows the banner.",
         "reviewArtifact": ".alveara/reviews/ALV-N001/R04.md",
         "nextAttempt": "R05",
         "priorApprovedAttempt": "R04",
-        "downstreamAssessment": "Colour-only change to one shared component's title text plus removal of three page-local overrides. Completed descendants that show the banner (ALV-003-C01 patient workspace, ALV-004-C01 calendar drawer, ALV-011-C01 visit board, the configuration and backup forms) change title colour from body text back to the warning text colour, which must pass AA in both themes; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs that render the banner. No descendant is marked REVALIDATION_REQUIRED if those pass."
+        "downstreamAssessment": "Colour-only change to one shared component's title text plus removal of three page-local overrides. Completed descendants that show the banner (ALV-003-C01 patient workspace, ALV-004-C01 calendar drawer, ALV-011-C01 visit board, the configuration and backup forms) change title colour from body text back to the warning text colour, which must pass AA in both themes; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs that render the banner. No descendant is marked REVALIDATION_REQUIRED if those pass.",
+        "resolvedByAttempt": "R05",
+        "resolvedAt": "2026-10-02T22:31:05.000Z"
       }
     },
     {
