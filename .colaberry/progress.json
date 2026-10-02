@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 5,
+    "stories_verified": 6,
     "stories_submitted": 0,
-    "stories_in_progress": 14,
+    "stories_in_progress": 13,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 17,
-    "points_awarded": 1789
+    "criteria_passed": 20,
+    "points_awarded": 1831
   },
   "stories": [
     {
@@ -554,19 +554,15 @@
       "notes": "Patient flow (Scheduled, CheckedIn, InTreatment, Completed) is a separate state from the booking status, so a visit under way still holds its time and no STORY-004 / ALV-004-C01 contract changed. Forward only; InTreatment optional; repeats are no-ops; every move is logged (history + PHI-free audit) in the same save as the change, so a failed log stores nothing. Once checked in, reschedule/cancel/no-show are refused. Known limits: no too-early-to-check-in rule; only ManageAppointments roles can move a patient; no undo. Verified: 767/767 backend, 446/446 frontend, 10/10 real-backend walkthrough, 74 mocked browser.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a patient is scheduled, when they check in, then the system updates their status to 'checked-in'.",
-          "Given a patient is checked-in, when treatment is completed, then the system updates their status to 'completed'.",
-          "Trust: All status changes are logged with timestamps and user IDs."
-        ]
+        "verified_at": "2026-10-02T18:01:02.154Z",
+        "commit_sha": "207791d483180e7eda8454968bbd677fb86709ce",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/207791d483180e7eda8454968bbd677fb86709ce",
+        "commit_at": "2026-10-02T17:59:34Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
