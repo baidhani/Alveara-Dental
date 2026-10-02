@@ -1,0 +1,3 @@
+# ALV-N001 R04 — Parent and dependency regression
+
+`ALV-N001` has no course parent (`N/A`, new-production story). It is a dependency of nearly every later story, so downstream regression was run on the real backend: Gate A route scans 3/3 (A2 axe: 0 critical/serious on every shell route in both themes; A6 seven-role navigation), visit board 15/15, calendar 12/12, forms 10/10, patient workspace 14/14, STORY-003 registration 7/7, scheduling 10/10, STORY-011 flow 10/10, plus the 498 frontend tests (including the unchanged `buttonContrast`, `contrast`, `adminUsersContrast`, `formsContrast` and `patientWorkspaceContrast` tests) and the 7 repository checks. None of their tests was modified.

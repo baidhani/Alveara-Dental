@@ -1,0 +1,3 @@
+npx tsc -b  (run from src/alveara-client)
+exit code: 0
+(tsc prints nothing on success)

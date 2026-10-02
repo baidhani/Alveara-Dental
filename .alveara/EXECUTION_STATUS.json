@@ -72,34 +72,34 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "REOPENED",
-      "attempt": "R03",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R04",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "176 of 176 frontend (vitest; 18 new buttonContrast tests pin every Button variant/state in both themes at 4.5:1 and fail against the old CSS/tokens), tsc clean, build clean, lint exit 0 (pre-existing warnings only); authenticated real-API axe scan, default + hover + keyboard-focus states, 8 shell routes x 2 themes (48 scans): 0 critical/serious. No backend source changed (375/375 backend from the approved baseline). Independently re-verified by the R03 reviewer: integrated frontend 188/188, build, lint, 12/12 real-backend browser workflow (extended timeouts), 48 integrated shell axe scans (0 critical/serious), seven-role navigation matrix, root Command Center and repository checks."
+        "summary": "498 of 498 frontend (vitest; 14 new statusContrast tests, 9 of which fail against the old values), tsc clean, build clean, lint exit 0 (pre-existing warnings only); 78 of 78 mocked browser (4 new real-browser notification axe tests that fail against the old CSS at 4.45:1 and 3.46:1); real backend + real Chromium: Gate A route scans 3 of 3 (0 critical/serious across 20 route/theme scans), visit board 15 of 15, calendar 12 of 12, forms 10 of 10, patient workspace 14 of 14, STORY-003 7 of 7, scheduling 10 of 10, STORY-011 10 of 10, repository checks 7 of 7. No backend source changed. See .alveara/handoffs/ALV-N001/R04-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n_a_no_course_parent",
-      "implementationCommit": "70bb64a53edcf0c82a8c2cc60f038ebd37c29c77",
-      "evidenceCommit": "51037334a70e3de4ce56b864ff41340317954750",
-      "handoffPath": ".alveara/handoffs/ALV-N001/R03.md",
+      "implementationCommit": "7dbcc1640e08a5ed7490139d27b11079bd2c02f5",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N001/R04.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-N001/R03.md",
-        "approvedAttempt": "R03",
-        "reviewedImplementationCommit": "70bb64a53edcf0c82a8c2cc60f038ebd37c29c77",
-        "reviewedEvidenceCommit": "51037334a70e3de4ce56b864ff41340317954750"
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-01T21:27:31.000Z",
+      "completedAt": null,
       "reopened": {
         "reason": "ALV-011-C01 R01 review (.alveara/reviews/ALV-011-C01/R01.md) required the open contrast findings F1/F2 to be corrected at the responsible stories before Gate B. F1: .alv-notification--success is --color-success on --color-success-bg = 4.45:1 in the light theme (AA needs 4.5:1). A computed sweep of every Notification variant over every surface in both themes found the same class of defect in this story's files: the light-theme warning variant is 3.47:1, the dark success variant is 4.42:1 / 4.05:1 over surface / raised surface, the dark info variant is 4.39:1 over raised surface; the session-warning banner in AppShell.css uses the failing warning pair. Correction: text-only colour tokens and a contrast test that fails against the old values.",
         "reviewArtifact": ".alveara/reviews/ALV-011-C01/R01.md",
