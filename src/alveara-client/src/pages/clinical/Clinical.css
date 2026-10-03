@@ -1,0 +1,307 @@
+/* STORY-005: clinical documentation. Status is carried by the WORD in the badge/chip and its border; text always uses the body text colour on a surface or a tint
+   (never a status colour as text), so contrast does not depend on the tint behind it in either theme. Muted text is used only on plain surfaces. */
+
+.alv-clinical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.alv-clinical__back {
+  align-self: flex-start;
+}
+
+.alv-clinical__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.alv-clinical__meta {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.alv-clinical__note {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-info);
+  border-radius: var(--radius-sm);
+  background: var(--color-info-bg);
+  color: var(--color-text);
+}
+
+/* the sticky-style save indicator: always present, announced politely, readable */
+.alv-clinical__status {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.alv-clinical__badge {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.alv-clinical__badge--draft {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.alv-clinical__badge--finalized {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.alv-clinical__start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.alv-clinical__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.alv-clinical__list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.alv-clinical__list-link {
+  font-weight: var(--font-weight-medium);
+}
+
+/* sections */
+.alv-clinical__section {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alv-clinical__section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.alv-clinical__section-title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.alv-clinical__section-status {
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.alv-clinical__section-status--recorded {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.alv-clinical__section-status--nonereported {
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
+}
+
+.alv-clinical__section-status--empty {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.alv-clinical__entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.alv-clinical__entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.alv-clinical__entry-main {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.alv-clinical__entry-name {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+}
+
+.alv-clinical__entry-details {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.alv-clinical__row-actions,
+.alv-clinical__section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alv-clinical__entry-form {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 36rem;
+}
+
+.alv-clinical__details {
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* finalize review and addenda */
+.alv-clinical__review {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alv-clinical__review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.alv-clinical__review-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.alv-clinical__review-item--open {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.alv-clinical__review-name {
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-clinical__finalize {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alv-clinical__addenda {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alv-clinical__addendum-list {
+  margin: 0;
+  padding-left: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alv-clinical__addendum-text {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.alv-clinical__addendum-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 40rem;
+}
+
+.alv-clinical__addendum-form > .alv-button {
+  align-self: flex-start;
+}
+
+.alv-clinical__history summary {
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-clinical__history-list {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+}
+
+.alv-clinical__history-what {
+  font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 700px) {
+  .alv-clinical__section {
+    padding: var(--space-3);
+  }
+}

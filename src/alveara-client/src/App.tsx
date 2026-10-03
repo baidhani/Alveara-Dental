@@ -19,7 +19,7 @@ import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientDetailsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientClinicalTab, PatientDetailsTab, PatientEncounterTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
@@ -195,6 +195,8 @@ function createAppRouter() {
             <Route path="history" element={<PatientHistoryTab />} />
             <Route path="forms" element={<RequirePermission permission="ViewSignedForms"><PatientFormsTab /></RequirePermission>} />
             <Route path="forms/:formId" element={<RequirePermission permission="ViewSignedForms"><PatientFormTab /></RequirePermission>} />
+            <Route path="clinical" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTab /></RequirePermission>} />
+            <Route path="clinical/:encounterId" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientEncounterTab /></RequirePermission>} />
           </Route>
           <Route path="/settings/mfa" element={<MfaSettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />

@@ -10,6 +10,8 @@ import { usePatientContext } from "../contexts/patientContextStore";
 import type { PatientDetail } from "../services/patientsApi";
 import { HouseholdGuarantorPanel } from "./HouseholdGuarantorPanel";
 import { PatientDetailsPanel } from "./PatientDetailsPanel";
+import { EncounterView } from "./clinical/EncounterView";
+import { PatientClinicalPanel } from "./clinical/PatientClinicalPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
 import { PatientHistoryPanel } from "./PatientHistoryPanel";
@@ -101,6 +103,17 @@ export function PatientFormTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { formId = "" } = useParams();
   return <PatientFormView key={formId} patient={patient} formId={formId} />;
+}
+
+export function PatientClinicalTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  return <PatientClinicalPanel patient={patient} />;
+}
+
+export function PatientEncounterTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  const { encounterId = "" } = useParams();
+  return <EncounterView key={encounterId} patient={patient} encounterId={encounterId} />;
 }
 
 export function PatientHistoryTab() {

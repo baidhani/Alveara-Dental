@@ -21,4 +21,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "history", label: "History", path: "history" },
   // ALV-N010: forms and consents (shown only to roles that may view them).
   { id: "forms", label: "Forms", path: "forms", requiredPermission: "ViewSignedForms" },
+  // STORY-005: clinical documentation (medical and dental history, allergies, medications); shown only to roles that may read it - not to front desk or billing.
+  { id: "clinical", label: "Clinical", path: "clinical", requiredPermission: "ViewClinicalDocumentation" },
 ];

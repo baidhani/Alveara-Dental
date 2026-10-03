@@ -122,6 +122,27 @@ says the outcome is unknown and "Sign again" (same key) leaves exactly one signa
 while the signed copy stays visible; a dentist who can complete forms and billing who can only read them; and another patient's forms never appearing - then axe
 scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
 
+## STORY-005: clinical documentation walkthrough
+
+`e2e/clinical-real-backend.spec.ts` is the un-mocked run for clinical documentation. Prepare a fresh database and start the API exactly as for the STORY-003
+walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:CLINICAL_E2E_OUT = "C:\tmp\clinical-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.clinical.config.ts
+```
+
+It signs in as a dentist, a hygienist, an assistant, a front-desk user, a billing user and a practice manager and shows: only the clinical team sees the Clinical tab
+(front desk, billing and the practice manager are denied the page and the API; an assistant reads but cannot write); a dentist documenting an encounter - medical
+history, dental history, an allergy with reaction and severity, a medication with dose and frequency - each saved as it is made and stored with who and when; a note
+with sections still unaddressed refused at finalize by both the screen and the API, and "reviewed - none reported" completing it without inventing an entry; a
+finalized note refusing every change while an addendum is added beside the untouched original (entries, reviews and the encounter's version unchanged); a response lost
+after the server stored an addendum - the typed text stays and sending again leaves exactly one; a second clinician's stale screen refused with the conflict banner,
+what they typed surviving the reload and then saving; a keyboard-only entry; another patient's encounters never appearing; and the audit log holding every change with
+user and time and no clinical text - then axe scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked
+`npm run test:e2e`.
+
 ## STORY-004: appointment scheduling walkthrough
 
 `e2e/schedule-real-backend.spec.ts` is the un-mocked run for scheduling. Prepare a fresh database and start the API exactly as for the STORY-003
