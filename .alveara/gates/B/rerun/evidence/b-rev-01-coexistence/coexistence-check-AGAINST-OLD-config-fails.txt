@@ -1,0 +1,43 @@
+(node:66028) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✖ generated Gate B evidence specs exist and are not collected by the declared frontend test command (1006.516ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1064.0076
+
+✖ failing tests:
+
+test at tests\gate-tooling-coexistence.test.mjs:16:1
+✖ generated Gate B evidence specs exist and are not collected by the declared frontend test command (1006.516ms)
+  AssertionError [ERR_ASSERTION]: vitest would run files outside src/ (Playwright evidence specs fail under vitest): gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts, gate-b/tablet-generated/forms-real-backend.tablet.spec.ts, gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts, gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts, gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts, gate-b/tablet-generated/probe-control.tablet.spec.ts, gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts
+  + actual - expected
+  
+  + [
+  +   'gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts',
+  +   'gate-b/tablet-generated/forms-real-backend.tablet.spec.ts',
+  +   'gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts',
+  +   'gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts',
+  +   'gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts',
+  +   'gate-b/tablet-generated/probe-control.tablet.spec.ts',
+  +   'gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/firas/Documents/AI-Project-%5BAlveara-Dental%5D/tests/gate-tooling-coexistence.test.mjs:33:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts', 'gate-b/tablet-generated/forms-real-backend.tablet.spec.ts', 'gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts', 'gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts', 'gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts', 'gate-b/tablet-generated/probe-control.tablet.spec.ts', 'gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+exit 1

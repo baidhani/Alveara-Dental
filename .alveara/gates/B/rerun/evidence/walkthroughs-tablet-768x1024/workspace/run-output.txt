@@ -1,0 +1,20 @@
+
+Running 15 tests using 1 worker
+
+  ok  1 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:157:1 › registers a family and a guarantor through the form (STORY-003's flow, now with the workspace links) (1.3s)
+  ok  2 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:167:1 › DUPLICATE WARNING: a likely duplicate is shown side by side and nothing is merged; an exact one is blocked (2.5s)
+  ok  3 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:202:1 › SEARCH: by name words, birth date and phone (any formatting); inactive hidden unless asked (2.5s)
+  ok  4 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:220:1 › WORKSPACE: the header shows the identity and every screen keeps it; edits are saved with history (2.2s)
+  ok  5 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:247:1 › CONCURRENCY: a stale edit cannot silently overwrite another user's change (2.7s)
+  ok  6 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:276:1 › HOUSEHOLD AND GUARANTOR are independent: Cal is in Mia's household, but Gus (outside it) is Cal's guarantor (3.1s)
+  ok  7 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:312:1 › INVALID RELATIONSHIPS are refused with the server's reason shown next to the control (898ms)
+  ok  8 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:330:1 › ACTIVE/INACTIVE: an inactivated patient is kept, hidden from default search, flagged in the header, and can be reactivated (1.2s)
+  ok  9 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:356:1 › PATIENT SWITCH: moving from Mia to Cal on a slow connection never shows Mia's identity or data under Cal (2.2s)
+  ok 10 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:386:1 › CONFIGURABLE REQUIREMENTS: a practice manager can require email; the form marks it, the server enforces it, and relaxing it restores the old behavior (3.6s)
+  ok 11 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:433:1 › KEYBOARD-FIRST: a patient can be registered and found without a mouse (921ms)
+  ok 12 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:457:1 › AUDIT: registrations, edits, status, household and guarantor changes are all in the audit trail with user and time, no patient details (33ms)
+  ok 13 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:470:1 › PERMISSIONS: a dentist can find and read patients but has no register or edit controls, and the API refuses their writes (904ms)
+  ok 14 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:499:1 › ACCESSIBILITY: the registration form, details and not-found states have no critical/serious axe violations in both themes (5.8s)
+  ok 15 [chromium] › gate-b\tablet-generated\patient-workspace-real-backend.tablet.spec.ts:514:1 › TABLET (768x1024): no page this walkthrough visited scrolled sideways (5ms)
+
+  15 passed (34.2s)

@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **Gate B first evaluation (`e0a8629`): FAIL / CHANGES_REQUIRED** by independent review (`.alveara/gates/B/reviews/e0a8629.md`): finding B-REV-01, the declared frontend command `npx vitest run` fails after the Gate B tooling has generated its tablet specs because `vitest.config.ts` does not exclude `gate-b/**`. The criteria evidence was judged credible and the blocked-time B7 classification was accepted; the correction is tooling/configuration only (no product behaviour or course state), followed by a full Gate B rerun on the corrected head. Items 10-17 remain `COMPLETE`; item 18 (`STORY-005`) is not authorized until the rerun is independently approved.
+Last updated: **Gate B rerun 2026-10-03: PASS** on the corrected integrated head `1350438`, awaiting independent review - report `.alveara/gates/B/rerun/GATE_B_RERUN_REPORT.md`, evidence `.alveara/gates/B/rerun/evidence/`. The first evaluation (`e0a8629`) was FAIL / CHANGES_REQUIRED (finding B-REV-01) and is preserved with its review. Corrections: `vitest.config.ts` excludes `gate-*/**` with a coexistence repository check (`tests/gate-tooling-coexistence.test.mjs`), and the auth walkthrough's recovery-key wait is bounded at 30 s on measured evidence. Items 10-17 remain `COMPLETE`. One residual is disclosed: a load-only failure in the practice-configuration auth step (1 of 12 heavily loaded runs; cause unproven; belongs to `ALV-N003`). If the rerun is approved, the next execution item is 18 (`STORY-005`), an original course story to be executed in the course portal. Gate C is not evaluated.
 
 ## Production implementation status
 

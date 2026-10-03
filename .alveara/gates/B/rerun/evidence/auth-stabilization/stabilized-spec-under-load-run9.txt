@@ -1,0 +1,40 @@
+  1) [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Target page, context or browser has been closed
+    Call log:
+      - waiting for getByRole('button', { name: 'Save practice information' })
+        - locator resolved to <button type="submit" class="alv-button alv-button--primary">Save practice information</button>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not enabled
+        - retrying click action
+          - waiting 100ms
+        57 × waiting for element to be visible, enabled and stable
+           - element is not enabled
+         - retrying click action
+           - waiting 500ms
+
+
+      170 |     await expect(page.getByLabel("Currency")).toHaveValue("USD");
+      171 |     await page.getByLabel("Practice name").fill("E2E Dental");
+    > 172 |     await page.getByRole("button", { name: "Save practice information" }).click();
+          |                                                                           ^
+      173 |     await expect(page.getByText("Practice information saved.")).toBeVisible();
+      174 |
+      175 |     // The one active location, then what hangs off it.
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\auth-real-backend.spec.ts:172:75
+
+    Error Context: test-results\auth-real-backend-Real-bac-cf780-nd-find-it-in-the-audit-log-chromium\error-context.md
+
+    Error Context: test-results\auth-real-backend-Real-bac-cf780-nd-find-it-in-the-audit-log-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log 
+  4 did not run
+  7 passed (37.7s)

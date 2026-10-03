@@ -1,0 +1,18 @@
+
+Running 13 tests using 1 worker
+
+  ok  1 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:176:1 › SETUP: the practice (two providers, two operatories, two types, a blocked lunch) and six patients (786ms)
+  ok  2 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:194:1 › CALENDAR: the day view shows the practice's real provider and operatory assignments at the right time and size, with working hours and filters (2.4s)
+  ok  3 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:226:1 › BOOK + CONFLICTS: the drawer books an appointment; provider, operatory, patient, hours and blocked-time conflicts are each explained and nothing is booked (6.0s)
+  ok  4 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:276:1 › RESCHEDULE: moving an appointment through the drawer, a refused move, and the history that remembers where it was (627ms)
+  ok  5 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:302:1 › STALE EDIT: a second user moves the appointment first; the first user's change is reported and NOT applied, and Reload shows the real state (2.5s)
+  ok  6 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:327:1 › CONCURRENT EDITS: six appointments racing into one slot produce one winner; two users rescheduling the same appointment produce one change; no double booking (219ms)
+  ok  7 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:347:1 › CANCEL: a cancellation needs a reason, the appointment stays on the calendar marked cancelled (and holds no time), and its history is kept (2.5s)
+  ok  8 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:374:1 › NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record (2.7s)
+  ok  9 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:403:1 › PATIENT OVERLAP + WEEK VIEW: a patient cannot be in two places at once; the week view puts overlapping providers side by side (2.3s)
+  ok 10 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:420:1 › PERMISSIONS: a dentist sees the calendar and appointment details but cannot change anything (the API returns 403); billing has no Calendar (1.5s)
+  ok 11 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:445:1 › KEYBOARD: an appointment can be rescheduled without a mouse (307ms)
+  ok 12 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:461:1 › ACCEPTANCE: the audit trail holds every create, reschedule, cancel, no-show and refusal with user and time, and no patient details or reasons (41ms)
+  ok 13 [chromium] › gate-b\tablet-generated\calendar-real-backend.tablet.spec.ts:480:1 › TABLET (768x1024): no page this walkthrough visited scrolled sideways (7ms)
+
+  13 passed (25.9s)

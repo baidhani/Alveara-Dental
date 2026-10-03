@@ -1,0 +1,171 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ gate-b/tablet-generated/probe-control.tablet.spec.ts (0 test)
+ ❯ gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts (0 test)
+ ❯ gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts (0 test)
+ ❯ gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts (0 test)
+ ❯ gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts (0 test)
+ ❯ gate-b/tablet-generated/forms-real-backend.tablet.spec.ts (0 test)
+ ❯ gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts [ gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts ]
+Error: Playwright Test did not expect test.describe.configure() to be called here.
+Most common reasons include:
+- You are calling test.describe.configure() in a configuration file.
+- You are calling test.describe.configure() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test.describe.configure() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._configure node_modules/playwright/lib/common/index.js:2323:24
+ ❯ Function.configure node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/calendar-real-backend.tablet.spec.ts:58:15
+     56| // appointment ten years back with a single SQL UPDATE of its times, e…
+     57|
+     58| test.describe.configure({ mode: "serial" });
+       |               ^
+     59|
+     60| const OUT = process.env.CALENDAR_E2E_OUT ?? path.join(process.cwd(), "…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  gate-b/tablet-generated/forms-real-backend.tablet.spec.ts [ gate-b/tablet-generated/forms-real-backend.tablet.spec.ts ]
+Error: Playwright Test did not expect test.describe.configure() to be called here.
+Most common reasons include:
+- You are calling test.describe.configure() in a configuration file.
+- You are calling test.describe.configure() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test.describe.configure() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._configure node_modules/playwright/lib/common/index.js:2323:24
+ ❯ Function.configure node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/forms-real-backend.tablet.spec.ts:54:15
+     52| // a second signature, a signed form is voided with a reason and stays…
+     53|
+     54| test.describe.configure({ mode: "serial" });
+       |               ^
+     55|
+     56| const OUT = process.env.FORMS_E2E_OUT ?? path.join(process.cwd(), "for…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts [ gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts ]
+Error: Playwright Test did not expect test.describe.configure() to be called here.
+Most common reasons include:
+- You are calling test.describe.configure() in a configuration file.
+- You are calling test.describe.configure() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test.describe.configure() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._configure node_modules/playwright/lib/common/index.js:2323:24
+ ❯ Function.configure node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/patient-flow-real-backend.tablet.spec.ts:54:15
+     52| // appointment first, six people pressing Check in at once, a cancelle…
+     53|
+     54| test.describe.configure({ mode: "serial" });
+       |               ^
+     55|
+     56| const OUT = process.env.FLOW_E2E_OUT ?? path.join(process.cwd(), "flow…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts [ gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts ]
+Error: Playwright Test did not expect test.describe.configure() to be called here.
+Most common reasons include:
+- You are calling test.describe.configure() in a configuration file.
+- You are calling test.describe.configure() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test.describe.configure() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._configure node_modules/playwright/lib/common/index.js:2323:24
+ ❯ Function.configure node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/patient-registration-real-backend.tablet.spec.ts:53:15
+     51| // scans the form (default, error and success states) in both themes w…
+     52|
+     53| test.describe.configure({ mode: "serial" });
+       |               ^
+     54|
+     55| const OUT = process.env.PATIENT_E2E_OUT ?? path.join(process.cwd(), "p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts [ gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts ]
+Error: Playwright Test did not expect test.describe.configure() to be called here.
+Most common reasons include:
+- You are calling test.describe.configure() in a configuration file.
+- You are calling test.describe.configure() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test.describe.configure() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._configure node_modules/playwright/lib/common/index.js:2323:24
+ ❯ Function.configure node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/patient-workspace-real-backend.tablet.spec.ts:54:15
+     52| // registration, and switching between two patients with no stale iden…
+     53|
+     54| test.describe.configure({ mode: "serial" });
+       |               ^
+     55|
+     56| const OUT = process.env.WORKSPACE_E2E_OUT ?? path.join(process.cwd(), …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  gate-b/tablet-generated/probe-control.tablet.spec.ts [ gate-b/tablet-generated/probe-control.tablet.spec.ts ]
+Error: Playwright Test did not expect test() to be called here.
+Most common reasons include:
+- You are calling test() in a configuration file.
+- You are calling test() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._createTest node_modules/playwright/lib/common/index.js:2238:24
+ ❯ node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/probe-control.tablet.spec.ts:43:1
+     41| // ---- end generated helper ----
+     42|
+     43| test("probe control: a page wider than the tablet viewport IS recorded…
+       | ^
+     44|   const ctx = await tabletContext(browser);
+     45|   const page = await ctx.newPage();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts [ gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts ]
+Error: Playwright Test did not expect test.describe.configure() to be called here.
+Most common reasons include:
+- You are calling test.describe.configure() in a configuration file.
+- You are calling test.describe.configure() in a file that is imported by the configuration file.
+- You have two different versions of @playwright/test. This usually happens
+  when one of the dependencies in your package.json depends on @playwright/test.
+- You are calling test.describe.configure() from an async test.describe() block. Only sync ones are supported.
+ ❯ _TestTypeImpl._currentSuite node_modules/playwright/lib/common/index.js:2224:13
+ ❯ _TestTypeImpl._configure node_modules/playwright/lib/common/index.js:2323:24
+ ❯ Function.configure node_modules/playwright/lib/common/index.js:1154:12
+ ❯ gate-b/tablet-generated/schedule-real-backend.tablet.spec.ts:55:15
+     53| // audit trail with user and time - then it scans the screens with axe…
+     54|
+     55| test.describe.configure({ mode: "serial" });
+       |               ^
+     56|
+     57| const OUT = process.env.SCHEDULE_E2E_OUT ?? path.join(process.cwd(), "…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  7 failed | 51 passed (58)
+      Tests  547 passed (547)
+   Start at  21:43:40
+   Duration  17.82s (tests 58%, environment 26%, setup 7%, transform 5%, import 4%)
+
+Environment  jsdom was created 58 times · 51.56s total, 26% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+exit 1

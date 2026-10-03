@@ -1,0 +1,7 @@
+calendar-real-backend.tablet.spec.ts
+forms-real-backend.tablet.spec.ts
+patient-flow-real-backend.tablet.spec.ts
+patient-registration-real-backend.tablet.spec.ts
+patient-workspace-real-backend.tablet.spec.ts
+probe-control.tablet.spec.ts
+schedule-real-backend.tablet.spec.ts

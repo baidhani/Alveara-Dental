@@ -1,0 +1,17 @@
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] › e2e\auth-real-backend.spec.ts:42:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (319ms)
+  ok  2 [chromium] › e2e\auth-real-backend.spec.ts:51:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (653ms)
+  ok  3 [chromium] › e2e\auth-real-backend.spec.ts:65:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (1.6s)
+  ok  4 [chromium] › e2e\auth-real-backend.spec.ts:96:3 › Real backend — first-admin bootstrap, login, MFA, security administration › replaying the exact same successful MFA challenge submission is rejected, not accepted twice (72ms)
+  ok  5 [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout (445ms)
+  ok  6 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (240ms)
+  ok  7 [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin (285ms)
+  ok  8 [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log (2.9s)
+  ok  9 [chromium] › e2e\auth-real-backend.spec.ts:242:3 › Real backend — first-admin bootstrap, login, MFA, security administration › unsaved configuration edits survive an attempt to leave through the main navigation (432ms)
+  ok 10 [chromium] › e2e\auth-real-backend.spec.ts:266:3 › Real backend — first-admin bootstrap, login, MFA, security administration › backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target (11.6s)
+  ok 11 [chromium] › e2e\auth-real-backend.spec.ts:351:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API (902ms)
+  ok 12 [chromium] › e2e\auth-real-backend.spec.ts:405:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again (350ms)
+
+  12 passed (22.4s)

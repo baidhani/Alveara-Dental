@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Alveara.Api -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\bin\Debug\net10.0\Alveara.Api.dll
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\AppointmentLifecycleTests.cs(90,9): warning xUnit2013: Do not use Assert.Equal() to check for collection size. Use Assert.Single instead. (https://xunit.net/xunit.analyzers/rules/xUnit2013) [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj]
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\AppointmentLifecycleTests.cs(186,9): warning xUnit2013: Do not use Assert.Equal() to check for collection size. Use Assert.Single instead. (https://xunit.net/xunit.analyzers/rules/xUnit2013) [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj]
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\PatientFlowLifecycleTests.cs(116,9): warning xUnit2013: Do not use Assert.Equal() to check for collection size. Use Assert.Single instead. (https://xunit.net/xunit.analyzers/rules/xUnit2013) [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj]
+  Alveara.Api.Tests -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\tmp\gateb2\trx\gateb.trx
+
+Passed!  - Failed:     0, Passed:   957, Skipped:     0, Total:   957, Duration: 47 m 10 s - Alveara.Api.Tests.dll (net10.0)

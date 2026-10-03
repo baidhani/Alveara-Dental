@@ -83,3 +83,10 @@
   - What changed: `src/alveara-client/e2e/auth-real-backend.spec.ts` - the recovery-key box assertion waits up to 30 s (was the 5 s default) and that one test has a 90 s budget; no product code changed
   - Verification: key generation measured 0.7-4.6 s idle (18 samples, three above 4.3 s) and 2.0-6.6 s under CPU load (18 samples, two above 5 s); the unchanged spec failed this exact step in 5 of 6 loaded runs; with the change 0 of 12 loaded runs failed at it (11 of 12 runs passed 12/12; run 9 failed in a different test - practice configuration - which exceeded its 30 s test budget while its Save button stayed disabled, disclosed in the Gate B rerun report)
   - Notes: the second load-only sensitivity is consistent with a second early request resetting the practice form under StrictMode in the dev server (unverified); it belongs to ALV-N003 and is not changed here
+
+- [x] Gate B rerun evaluation - PASS on the corrected head, awaiting independent review
+  - Date: 2026-10-03
+  - Session: CC-20261002-f7c1
+  - What changed: `.alveara/gates/B/rerun/` (report and evidence), `.alveara/QUALITY_GATES.md` Gate B rows, `.alveara/BUILD_STATE.md`; no product code changed
+  - Verification: final head 1350438: `npx vitest run` with the generated gate specs present 51 files / 547 tests, tsc/build/lint exit 0, mocked Playwright 94/94, repository checks 8/8, Gate A route scans 3/3, desktop real-backend walkthroughs (7 suites) and 768x1024 variants (69 tests, 0 px overflow, probe control 2/2), auth walkthrough 12/12 on four consecutive idle default-timing runs; backend 957/957 at b0620bf (identical backend and client source)
+  - Notes: B-REV-01 reproduced then corrected with a coexistence check; recovery-key timing stabilized on measured evidence (5/6 failures before under load, 0/12 after); one load-only failure in the practice-configuration step disclosed (cause unproven, ALV-N003)
