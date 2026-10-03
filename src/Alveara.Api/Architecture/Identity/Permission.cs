@@ -62,4 +62,9 @@ public enum Permission
     // STORY-011's own endpoints keep ManageAppointments.
     UpdateVisitFlow,
     UpdateChairsideFlow,
+
+    // STORY-005: reading a patient's clinical documentation (medical and dental history, allergies, medications, encounter notes and their addenda). Separate from
+    // ViewPatientRecords on purpose: that permission is held by front desk and billing for demographics, and must not open a patient's medical history to them.
+    // Writing stays with ManageClinicalNotes. Appended last so existing ordinals are undisturbed.
+    ViewClinicalDocumentation,
 }

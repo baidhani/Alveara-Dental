@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
 using Alveara.Api.Architecture.Backup;
 using Alveara.Api.Architecture.Configuration;
+using Alveara.Api.Architecture.Clinical;
 using Alveara.Api.Architecture.Forms;
 using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
@@ -59,6 +60,12 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<PatientForm> PatientForms => Set<PatientForm>();
     public DbSet<SignedFormSnapshot> SignedFormSnapshots => Set<SignedFormSnapshot>();
     public DbSet<PatientFormEvent> PatientFormEvents => Set<PatientFormEvent>();
+    // STORY-005: clinical documentation (encounters with structured history, allergies and medications; addenda; history).
+    public DbSet<Encounter> Encounters => Set<Encounter>();
+    public DbSet<EncounterEntry> EncounterEntries => Set<EncounterEntry>();
+    public DbSet<EncounterSectionMark> EncounterSectionMarks => Set<EncounterSectionMark>();
+    public DbSet<EncounterAddendum> EncounterAddenda => Set<EncounterAddendum>();
+    public DbSet<EncounterEvent> EncounterEvents => Set<EncounterEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -359,6 +366,85 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(v => v.Detail).HasMaxLength(400);
             e.HasOne<PatientForm>().WithMany().HasForeignKey(v => v.PatientFormId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(v => new { v.PatientFormId, v.OccurredAtUtc });
+        });
+
+        // STORY-005: clinical documentation. Check constraints are case-sensitive on purpose (the default collation would accept 'finalized', which the
+        // application treats as unknown), and the triggers (created in the migration) make a finalized encounter, an addendum and the history immutable at the
+        // database as well as in the application. EF is told about the triggers so it reads generated values back without an OUTPUT clause on those tables.
+        modelBuilder.Entity<Encounter>(e =>
+        {
+            e.Property(x => x.Status).HasMaxLength(10);
+            e.Property(x => x.StartKey).HasMaxLength(100);
+            e.Property(x => x.RowVersion).IsRowVersion();
+            e.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Appointment>().WithMany().HasForeignKey(x => x.AppointmentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.StartKey).IsUnique().HasFilter("[StartKey] IS NOT NULL");
+            e.HasIndex(x => new { x.PatientId, x.EncounterAtUtc });
+            e.HasIndex(x => x.AppointmentId).IsUnique().HasFilter("[AppointmentId] IS NOT NULL");
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_Encounters_FinalizedImmutable");
+                t.HasTrigger("TR_Encounters_NoDelete");
+                t.HasCheckConstraint("CK_Encounters_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Draft','Finalized')");
+                t.HasCheckConstraint("CK_Encounters_FinalizedStamp",
+                    "([Status] = 'Finalized' AND [FinalizedAtUtc] IS NOT NULL AND [FinalizedByUserId] IS NOT NULL) OR ([Status] = 'Draft' AND [FinalizedAtUtc] IS NULL AND [FinalizedByUserId] IS NULL)");
+            });
+        });
+        modelBuilder.Entity<EncounterEntry>(e =>
+        {
+            e.Property(x => x.Kind).HasMaxLength(20);
+            e.Property(x => x.Name).HasMaxLength(200);
+            e.Property(x => x.Detail).HasMaxLength(1000);
+            e.Property(x => x.Reaction).HasMaxLength(200);
+            e.Property(x => x.Severity).HasMaxLength(10);
+            e.Property(x => x.Dose).HasMaxLength(100);
+            e.Property(x => x.Frequency).HasMaxLength(100);
+            e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.EncounterId, x.Kind });
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_EncounterEntries_FinalizedImmutable");
+                t.HasTrigger("TR_EncounterEntries_NoDelete");
+                t.HasCheckConstraint("CK_EncounterEntries_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('MedicalHistory','DentalHistory','Allergy','Medication')");
+                t.HasCheckConstraint("CK_EncounterEntries_Severity", "[Severity] IS NULL OR [Severity] COLLATE Latin1_General_CS_AS IN ('Mild','Moderate','Severe')");
+                t.HasCheckConstraint("CK_EncounterEntries_NameNotBlank", "LEN(LTRIM(RTRIM([Name]))) > 0");
+            });
+        });
+        modelBuilder.Entity<EncounterSectionMark>(e =>
+        {
+            e.Property(x => x.Section).HasMaxLength(20);
+            e.Property(x => x.State).HasMaxLength(20);
+            e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.EncounterId, x.Section }).IsUnique();
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_EncounterSectionMarks_FinalizedImmutable");
+                t.HasCheckConstraint("CK_EncounterSectionMarks_Section", "[Section] COLLATE Latin1_General_CS_AS IN ('MedicalHistory','DentalHistory','Allergy','Medication')");
+                t.HasCheckConstraint("CK_EncounterSectionMarks_State", "[State] COLLATE Latin1_General_CS_AS IN ('NoneReported')");
+            });
+        });
+        modelBuilder.Entity<EncounterAddendum>(e =>
+        {
+            e.Property(x => x.Text).HasMaxLength(4000);
+            e.Property(x => x.ClientKey).HasMaxLength(100);
+            e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.EncounterId, x.ClientKey }).IsUnique();
+            e.HasIndex(x => new { x.EncounterId, x.CreatedAtUtc });
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_EncounterAddenda_OnlyAfterFinalize");
+                t.HasTrigger("TR_EncounterAddenda_Immutable");
+                t.HasCheckConstraint("CK_EncounterAddenda_TextNotBlank", "LEN(LTRIM(RTRIM([Text]))) > 0");
+            });
+        });
+        modelBuilder.Entity<EncounterEvent>(e =>
+        {
+            e.Property(x => x.EventType).HasMaxLength(20);
+            e.Property(x => x.Detail).HasMaxLength(400);
+            e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.EncounterId, x.OccurredAtUtc });
+            e.ToTable(t => t.HasTrigger("TR_EncounterEvents_Immutable"));
         });
 
         modelBuilder.Entity<BackgroundJob>(e =>

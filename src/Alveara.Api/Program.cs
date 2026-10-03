@@ -72,6 +72,8 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>()
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormReader>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.CheckInReadinessService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Clinical.EncounterService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Clinical.EncounterReader>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentScheduler>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentManager>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentFlowService>();
