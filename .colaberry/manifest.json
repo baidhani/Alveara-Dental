@@ -24,7 +24,7 @@
     },
     {
       "path": "artifacts/INDEX.md",
-      "sha256": "6c3ed715fe3769cacf27d27b73e8f8749baa6f7f5fedec7e103bf019ab5a6d54"
+      "sha256": "f27df61729a4e82ea3923fc4ff71b02ebe910d884039871eec68d038d1450f0a"
     },
     {
       "path": "artifacts/week-01/claude.md",
@@ -57,6 +57,10 @@
     {
       "path": "artifacts/week-08/readme.md",
       "sha256": "b9dc684a4290cf50687d2c8b13907b056b6e0960842df3e9c73b2c5f1b45e847"
+    },
+    {
+      "path": "artifacts/week-09/reliability.md",
+      "sha256": "02f8ee2bb90ecc316dc2889de0e17cb48b35585d6fd43d746d9f24b0a1162e7e"
     },
     {
       "path": "docs/DATA_CONTRACT.md",
