@@ -48,3 +48,10 @@
   - What changed: `.alv-backup-check--warn` text uses `--color-warning-text` (3.51:1 -> 5.2:1+ light); `BackupRecoveryPage.tsx` no longer re-runs its blocking load (which unmounts the page and the settings form, discarding an edit in progress) when the permission set arrives after the first load - it refreshes in place
   - Verification: 547/547 frontend (`vitest`; 20 new in `backupContrast.test.ts`, 1 fails against the old CSS; 1 new deterministic test in `BackupRecoveryPage.test.tsx` that fails 3/3 against the old page), `tsc -b`, build and lint pass, mocked Playwright 94/94 (4 new real-browser backup axe runs; they fail against the old CSS at 3.51:1), under load the backup test file passes 16/16 loaded runs (before: 1/16 failed; a timeout-only change: 2/16 failed), real-backend: Gate A scans 3/3, board 15/15, calendar 12/12, forms 10/10, workspace 14/14, STORY-003 7/7, scheduling 10/10, STORY-011 10/10, auth 12/12 on the third run (the recovery-key step timed out at 5 s on the first two, disclosed)
   - Notes: a wider timeout alone did NOT fix the flake (failures then took 10 s); the cause was a real reload-on-permission-change defect. FormTemplates.test.tsx 'creates a template...' also timed out at 5 s once under heavy load (ALV-N010's test; reported, not changed)
+
+- [x] Gate B tooling: tablet-width variants of six real-backend walkthroughs with a sideways-scroll probe and its control
+  - Date: 2026-10-03
+  - Session: CC-20261002-f7c1
+  - What changed: `src/alveara-client/gate-b/` (generator, config, README); `.gitignore` entry for the generated specs. No product code and no existing test changed.
+  - Verification: the six generated walkthroughs pass at 768x1024 (8, 15, 11, 11, 13, 11 tests) with 0 px steady sideways overflow; `probe-control` 2/2 (a 1000 px element in a 768 px viewport is recorded, the login page records 0)
+  - Notes: the first probe version reported false overflows (301/215/406 px) from transient values while pages were created; the probe now requires a real viewport width and the same overflow at two consecutive samples
