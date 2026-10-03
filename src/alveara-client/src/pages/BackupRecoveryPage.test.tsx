@@ -365,6 +365,50 @@ describe("Backup settings form", () => {
     expect(await screen.findByText("Someone else changed this while you were editing")).toBeInTheDocument();
   });
 
+  // ALV-N004 R06: the page used to start its load before the permission set arrived and to reload (showing the loading state, which unmounts
+  // everything) once ManageBackups appeared. The settings form could therefore be on screen for an instant from the first load's data and then be
+  // torn down, discarding what the user had typed. That made the neighbouring tests intermittent under load: the typed value vanished, "Save
+  // settings" stayed disabled and no request was ever sent. This test makes the ordering deterministic: the permissions answer only after the first
+  // status load has been served, and the follow-up status request is held until the test releases it.
+  it("keeps an edit in progress when the permission set arrives after the first load", async () => {
+    let statusCalls = 0;
+    let firstServed!: () => void;
+    const firstServedPromise = new Promise<void>((resolve) => (firstServed = resolve));
+    let releaseSecond!: () => void;
+    const secondGate = new Promise<void>((resolve) => (releaseSecond = resolve));
+    stubApi({
+      handlers: {
+        "/api/backup/status": async () => {
+          statusCalls += 1;
+          if (statusCalls === 1) {
+            setTimeout(firstServed, 0);
+            return jsonResponse(status());
+          }
+          await secondGate; // every later status request is held until released
+          return jsonResponse(status());
+        },
+        "/api/auth/permissions": async () => {
+          await firstServedPromise;
+          await new Promise((resolve) => setTimeout(resolve, 25)); // let the first load finish rendering without the management panels
+          return jsonResponse({ username: "admin", role: "Admin", permissions: ["ViewBackupStatus", "ManageBackups"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() });
+        },
+      },
+    });
+    renderPage();
+    const retention = await screen.findByLabelText("Backups to keep");
+    await userEvent.clear(retention);
+    await userEvent.type(retention, "9");
+    await waitFor(() => expect(statusCalls).toBeGreaterThanOrEqual(2)); // the permission change has triggered its follow-up load, still held
+    // the follow-up load is in flight; the form must still be the same element with the edit intact
+    expect(screen.getByLabelText("Backups to keep")).toBe(retention);
+    expect(retention).toHaveValue(9);
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+    releaseSecond();
+    await waitFor(() => expect(statusCalls).toBeGreaterThanOrEqual(2));
+    expect(screen.getByLabelText("Backups to keep")).toBe(retention);
+    expect(retention).toHaveValue(9);
+  });
+
   it("shows the server's mapped reason when a setting is refused", async () => {
     stubApi({ handlers: { "/api/backup/settings": () => jsonResponse({ error: "invalid_destination", message: "x" }, 400) } });
     renderPage();

@@ -75,7 +75,7 @@
 }
 
 .alv-backup-check--warn {
-  color: var(--color-warning, #b45309);
+  color: var(--color-warning-text);
 }
 
 .alv-backup-result--ok {

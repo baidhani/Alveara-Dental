@@ -45,6 +45,12 @@ export function BackupRecoveryPage() {
   const [running, setRunning] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const generation = useRef(0);
+  // The permission set can arrive (or change) after the page has loaded. `load` reads it through a ref so its identity - and therefore the
+  // blocking initial load, which shows the loading state and unmounts everything - does not depend on it (ALV-N004 R06).
+  const canManageRef = useRef(canManage);
+  useEffect(() => {
+    canManageRef.current = canManage;
+  }, [canManage]);
 
   const load = useCallback(async (initial: boolean) => {
     const mine = ++generation.current;
@@ -52,8 +58,8 @@ export function BackupRecoveryPage() {
     try {
       const [status, history] = await Promise.all([getBackupStatus(), getBackupHistory()]);
       const [drills, archives, notifications] = await Promise.all([
-        canManage ? getRestoreDrills() : Promise.resolve<RestoreDrill[]>([]),
-        canManage ? getArchives().catch(() => [] as ArchiveInfo[]) : Promise.resolve<ArchiveInfo[]>([]),
+        canManageRef.current ? getRestoreDrills() : Promise.resolve<RestoreDrill[]>([]),
+        canManageRef.current ? getArchives().catch(() => [] as ArchiveInfo[]) : Promise.resolve<ArchiveInfo[]>([]),
         getBackupNotifications().catch(() => [] as BackupNotification[]),
       ]);
       if (mine !== generation.current) return; // a newer refresh superseded this one
@@ -63,11 +69,19 @@ export function BackupRecoveryPage() {
       if (err instanceof ApiError && err.status === 403) setState({ kind: "denied" });
       else setState((prev) => (prev.kind === "loaded" ? prev : { kind: "error" })); // a failed REFRESH keeps what is already on screen
     }
-  }, [canManage]);
+  }, []);
 
   useEffect(() => {
     load(true);
   }, [load]);
+
+  // When the permission set changes after the first load, fetch what the new permissions allow IN PLACE: the form being edited stays mounted and keeps its edit.
+  const permissionsSeen = useRef(canManage);
+  useEffect(() => {
+    if (permissionsSeen.current === canManage) return;
+    permissionsSeen.current = canManage;
+    load(false);
+  }, [canManage, load]);
 
   const refresh = useCallback(() => load(false), [load]);
 
