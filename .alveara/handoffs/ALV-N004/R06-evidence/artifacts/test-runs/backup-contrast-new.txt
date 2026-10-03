@@ -1,0 +1,9 @@
+
+Running 4 tests using 4 workers
+
+  ok 3 [tablet] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in dark mode (946ms)
+  ok 2 [tablet] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode (949ms)
+  ok 4 [desktop] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in dark mode (955ms)
+  ok 1 [desktop] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode (970ms)
+
+  4 passed (2.8s)

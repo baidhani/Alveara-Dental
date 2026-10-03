@@ -1,0 +1,819 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/FormTemplates.test.tsx (15 tests | 1 failed) 11152ms
+   ❯ form template administration (15)
+     × creates a template with questions and sends the category, text and fields 5007ms
+ ❯ src/pages/BackupRecoveryPage.test.tsx (34 tests | 1 failed) 20545ms
+   ❯ Backup settings form (4)
+     × shows the server's mapped reason when a setting is refused 1284ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/FormTemplates.test.tsx > form template administration > creates a template with questions and sends the category, text and fields
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/FormTemplates.test.tsx:58:3
+     56|   });
+     57|
+     58|   it("creates a template with questions and sends the category, text a…
+       |   ^
+     59|     open("/admin/form-templates");
+     60|     await userEvent.click(await screen.findByRole("button", { name: "N…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/BackupRecoveryPage.test.tsx > Backup settings form > shows the server's mapped reason when a setting is refused
+TestingLibraryElementError: Unable to find an element with the text: /must be an absolute folder path outside the staging and restore areas/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<header[39m
+      [33mclass[39m=[32m"alv-page-header"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"alv-page-header__title"[39m
+        [36m>[39m
+          [0mBackup & recovery[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-page-header__description"[39m
+        [36m>[39m
+          [0mEncrypted full-state backups of the database, documents and encryption keys - with proof they can be restored. Restoring always goes to an isolated copy first.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</header>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup status"[39m
+      [33mclass[39m=[32m"alv-backup-status"[39m
+    [36m>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"alv-backup-facts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mLast successful backup[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m9/30/2026, 3:01:00 AM (5.0 MB)[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mLast failed backup[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mnone[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mSchedule[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mEvery 24 hour(s), keeping the latest 7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mStorage target[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mD:\Backups[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mVerification[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m2[0m
+            [0m of [0m
+            [0m2[0m
+            [0m required restore drill(s) passed. Last: [0m
+            [0m9/29/2026, 3:00:00 AM[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33maria-label[39m=[32m"Asset coverage"[39m
+        [33mclass[39m=[32m"alv-backup-coverage"[39m
+      [36m>[39m
+        [0mThe last backup includes every managed asset class: Database, Documents, Encryption keys.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup actions"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-config-panel__form-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+        [36m>[39m
+          [0mRun backup now[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+        [36m>[39m
+          [0mSend test notification[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Recovery key"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mRecovery key[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0mA recovery key is set up (fingerprint [0m
+        [36m<code>[39m
+          [0mabcdef0123456789[0m
+        [36m</code>[39m
+        [0m, 9/1/2026[0m
+        [0m). The server holds only its public half, so it can create backups but can never read them back - restoring needs the key file and passphrase you stored offline.[0m
+      [36m</p>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-config-panel__form-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+        [36m>[39m
+          [0mReplace recovery key[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup settings"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mSchedule, retention and verification policy[0m
+      [36m</h2>[39m
+      [36m<form[39m
+        [33maria-label[39m=[32m"Backup settings form"[39m
+        [33mclass[39m=[32m"alv-config-panel__form"[39m
+        [33mnovalidate[39m=[32m""[39m
+      [36m>[39m
+        [36m<fieldset[39m
+          [33mclass[39m=[32m"alv-config-panel__fields"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-config-panel__toggle"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mchecked[39m=[32m""[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mRun scheduled backups automatically[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_4t_"[39m
+            [36m>[39m
+              [0mHours between scheduled backups[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_4t_"[39m
+              [33mmax[39m=[32m"168"[39m
+              [33mmin[39m=[32m"1"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"24"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_4u_"[39m
+            [36m>[39m
+              [0mBackups to keep[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maria-describedby[39m=[32m"_r_4u_-hint"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_4u_"[39m
+              [33mmax[39m=[32m"365"[39m
+              [33mmin[39m=[32m"1"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"7"[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-form-field__hint"[39m
+              [33mid[39m=[32m"_r_4u_-hint"[39m
+            [36m>[39m
+              [0mThe newest restore-proven backup is always kept.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_4v_"[39m
+            [36m>[39m
+              [0mBackup folder[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maria-describedby[39m=[32m"_r_4v_-hint"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_4v_"[39m
+              [33mvalue[39m=[32m"D:\\Backups"[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-form-field__hint"[39m
+              [33mid[39m=[32m"_r_4v_-hint"[39m
+            [36m>[39m
+              [0mLeave blank to use the default (server default).[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_50_"[39m
+            [36m>[39m
+              [0mVerifications required before scheduled backups are trusted[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maria-describedby[39m=[32m"_r_50_-hint"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_50_"[39m
+              [33mmax[39m=[32m"10"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-form-field__hint"[39m
+              [33mid[39m=[32m"_r_50_-hint"[39m
+            [36m>[39m
+              [0mFull verifications or restore drills with the recovery key.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_51_"[39m
+            [36m>[39m
+              [0mRe-verify at least every (days)[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_51_"[39m
+              [33mmax[39m=[32m"365"[39m
+              [33mmin[39m=[32m"1"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"30"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</fieldset>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-config-panel__form-actions"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mSave settings[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</form>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Recover from a retained backup file"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mRecover from a retained backup file[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0mUse this on a replacement server, or when the backup history is unavailable. Copy the retained [0m
+        [36m<code>[39m
+          [0m.abk[0m
+        [36m</code>[39m
+        [0m file into this server's import folder; it is listed below with no history needed. You will need the recovery key file and passphrase you stored offline.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mNo backup files were found in the backup or import folders.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup history"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mBackup history[0m
+      [36m</h2>[39m
+      [36m<table[39m
+        [33mclass[39m=[32m"alv-config-panel__table"[39m
+      [36m>[39m
+        [36m<thead>[39m
+          [36m<tr>[39m
+            [36m<th>[39m
+              [0mStarted[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mType[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mResult[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mSize[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mContains[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mVerification[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mActions[0m
+            [36m</th>[39m
+          [36m</tr>[39m
+        [36m</thead>[39m
+        [36m<tbody>[39m
+          [36m<tr>[39m
+            [36m<td>[39m
+              [0m9/30/2026, 3:00:00 AM[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mManual[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-status-badge alv-status-badge--enabled"[39m
+              [36m>[39m
+                [0mSucceeded[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0m5.0 MB[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mDatabase, Documents, Encryption keys[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-status-badge alv-status-badge--neutral"[39m
+              [36m>[39m
+                [0mFile hash verified only[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-config-panel__actions"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Check file hash for backup of 9/30/2026, 3:00:00 AM"[39m
+                [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+              [36m>[39m
+                [0mCheck file hash[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Verify or restore backup of 9/30/2026, 3:00:00 AM"[39m
+                [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+              [36m>[39m
+                [0mVerify / restore…[0m
+              [36m</button>[39m
+            [36m</td>[39m
+          [36m</tr>[39m
+        [36m</tbody>[39m
+      [36m</table>[39m
+    [36m</section>[39m
+    [36m<div[39m
+      [33maria-live[39m=[32m"polite"[39m
+      [33mclass[39m=[32m"alv-notification-region"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m/>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<header[39m
+      [33mclass[39m=[32m"alv-page-header"[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<h1[39m
+          [33mclass[39m=[32m"alv-page-header__title"[39m
+        [36m>[39m
+          [0mBackup & recovery[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-page-header__description"[39m
+        [36m>[39m
+          [0mEncrypted full-state backups of the database, documents and encryption keys - with proof they can be restored. Restoring always goes to an isolated copy first.[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</header>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup status"[39m
+      [33mclass[39m=[32m"alv-backup-status"[39m
+    [36m>[39m
+      [36m<dl[39m
+        [33mclass[39m=[32m"alv-backup-facts"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mLast successful backup[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m9/30/2026, 3:01:00 AM (5.0 MB)[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mLast failed backup[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mnone[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mSchedule[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mEvery 24 hour(s), keeping the latest 7[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mStorage target[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0mD:\Backups[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+        [36m<div>[39m
+          [36m<dt>[39m
+            [0mVerification[0m
+          [36m</dt>[39m
+          [36m<dd>[39m
+            [0m2[0m
+            [0m of [0m
+            [0m2[0m
+            [0m required restore drill(s) passed. Last: [0m
+            [0m9/29/2026, 3:00:00 AM[0m
+          [36m</dd>[39m
+        [36m</div>[39m
+      [36m</dl>[39m
+      [36m<p[39m
+        [33maria-label[39m=[32m"Asset coverage"[39m
+        [33mclass[39m=[32m"alv-backup-coverage"[39m
+      [36m>[39m
+        [0mThe last backup includes every managed asset class: Database, Documents, Encryption keys.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup actions"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-config-panel__form-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+        [36m>[39m
+          [0mRun backup now[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+        [36m>[39m
+          [0mSend test notification[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Recovery key"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mRecovery key[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0mA recovery key is set up (fingerprint [0m
+        [36m<code>[39m
+          [0mabcdef0123456789[0m
+        [36m</code>[39m
+        [0m, 9/1/2026[0m
+        [0m). The server holds only its public half, so it can create backups but can never read them back - restoring needs the key file and passphrase you stored offline.[0m
+      [36m</p>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-config-panel__form-actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+        [36m>[39m
+          [0mReplace recovery key[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup settings"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mSchedule, retention and verification policy[0m
+      [36m</h2>[39m
+      [36m<form[39m
+        [33maria-label[39m=[32m"Backup settings form"[39m
+        [33mclass[39m=[32m"alv-config-panel__form"[39m
+        [33mnovalidate[39m=[32m""[39m
+      [36m>[39m
+        [36m<fieldset[39m
+          [33mclass[39m=[32m"alv-config-panel__fields"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-config-panel__toggle"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mchecked[39m=[32m""[39m
+              [33mtype[39m=[32m"checkbox"[39m
+            [36m/>[39m
+            [0mRun scheduled backups automatically[0m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_4t_"[39m
+            [36m>[39m
+              [0mHours between scheduled backups[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_4t_"[39m
+              [33mmax[39m=[32m"168"[39m
+              [33mmin[39m=[32m"1"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"24"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_4u_"[39m
+            [36m>[39m
+              [0mBackups to keep[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maria-describedby[39m=[32m"_r_4u_-hint"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_4u_"[39m
+              [33mmax[39m=[32m"365"[39m
+              [33mmin[39m=[32m"1"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"7"[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-form-field__hint"[39m
+              [33mid[39m=[32m"_r_4u_-hint"[39m
+            [36m>[39m
+              [0mThe newest restore-proven backup is always kept.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_4v_"[39m
+            [36m>[39m
+              [0mBackup folder[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maria-describedby[39m=[32m"_r_4v_-hint"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_4v_"[39m
+              [33mvalue[39m=[32m"D:\\Backups"[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-form-field__hint"[39m
+              [33mid[39m=[32m"_r_4v_-hint"[39m
+            [36m>[39m
+              [0mLeave blank to use the default (server default).[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_50_"[39m
+            [36m>[39m
+              [0mVerifications required before scheduled backups are trusted[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33maria-describedby[39m=[32m"_r_50_-hint"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_50_"[39m
+              [33mmax[39m=[32m"10"[39m
+              [33mmin[39m=[32m"0"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"2"[39m
+            [36m/>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-form-field__hint"[39m
+              [33mid[39m=[32m"_r_50_-hint"[39m
+            [36m>[39m
+              [0mFull verifications or restore drills with the recovery key.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_51_"[39m
+            [36m>[39m
+              [0mRe-verify at least every (days)[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_51_"[39m
+              [33mmax[39m=[32m"365"[39m
+              [33mmin[39m=[32m"1"[39m
+              [33mtype[39m=[32m"number"[39m
+              [33mvalue[39m=[32m"30"[39m
+            [36m/>[39m
+          [36m</div>[39m
+        [36m</fieldset>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-config-panel__form-actions"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mSave settings[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</form>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Recover from a retained backup file"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mRecover from a retained backup file[0m
+      [36m</h2>[39m
+      [36m<p>[39m
+        [0mUse this on a replacement server, or when the backup history is unavailable. Copy the retained [0m
+        [36m<code>[39m
+          [0m.abk[0m
+        [36m</code>[39m
+        [0m file into this server's import folder; it is listed below with no history needed. You will need the recovery key file and passphrase you stored offline.[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mNo backup files were found in the backup or import folders.[0m
+      [36m</p>[39m
+    [36m</section>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Backup history"[39m
+      [33mclass[39m=[32m"alv-config-panel"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-config-panel__form-title"[39m
+      [36m>[39m
+        [0mBackup history[0m
+      [36m</h2>[39m
+      [36m<table[39m
+        [33mclass[39m=[32m"alv-config-panel__table"[39m
+      [36m>[39m
+        [36m<thead>[39m
+          [36m<tr>[39m
+            [36m<th>[39m
+              [0mStarted[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mType[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mResult[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mSize[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mContains[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mVerification[0m
+            [36m</th>[39m
+            [36m<th>[39m
+              [0mActions[0m
+            [36m</th>[39m
+          [36m</tr>[39m
+        [36m</thead>[39m
+        [36m<tbody>[39m
+          [36m<tr>[39m
+            [36m<td>[39m
+              [0m9/30/2026, 3:00:00 AM[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mManual[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-status-badge alv-status-badge--enabled"[39m
+              [36m>[39m
+                [0mSucceeded[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0m5.0 MB[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mDatabase, Documents, Encryption keys[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-status-badge alv-status-badge--neutral"[39m
+              [36m>[39m
+                [0mFile hash verified only[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-config-panel__actions"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Check file hash for backup of 9/30/2026, 3:00:00 AM"[39m
+                [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+              [36m>[39m
+                [0mCheck file hash[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Verify or restore backup of 9/30/2026, 3:00:00 AM"[39m
+                [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+              [36m>[39m
+                [0mVerify / restore…[0m
+              [36m</button>[39m
+            [36m</td>[39m
+          [36m</tr>[39m
+        [36m</tbody>[39m
+      [36m</table>[39m
+    [36m</section>[39m
+    [36m<div[39m
+      [33maria-live[39m=[32m"polite"[39m
+      [33mclass[39m=[32m"alv-notification-region"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m/>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/pages/BackupRecoveryPage.test.tsx:375:25
+    373|     await userEvent.type(retention, "9");
+    374|     await userEvent.click(screen.getByRole("button", { name: "Save set…
+    375|     expect(await screen.findByText(/must be an absolute folder path ou…
+       |                         ^
+    376|   });
+    377| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 48 passed (50)
+      Tests  2 failed | 524 passed (526)
+   Start at  19:13:33
+   Duration  29.17s (tests 47%, environment 32%, transform 11%, setup 6%, import 3%, worker 1%)
+
+Environment  jsdom was created 50 times · 143.11s total, 32% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

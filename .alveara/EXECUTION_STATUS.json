@@ -520,27 +520,27 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "REOPENED",
-      "attempt": "R05",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R06",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "375 of 375 backend (full dotnet test; 4 new defect-persistence tests), 158 of 158 frontend and 12 of 12 real-backend/real-browser Playwright tests. See .alveara/handoffs/ALV-N004/R05-evidence/TEST_RESULTS.md. Independently re-verified by the R05 reviewer: 113 targeted backup tests, 4 reviewer probes (original sequences with/without hash check, delayed startup verification, migration backfill), frontend 158/158, build, lint, and real-backend browser 12/12 (with reviewer-only extended timeouts; two default-timing runs hit a 5 s assertion while backend verification was active - recorded as a non-blocking automation timing limitation)."
+        "summary": "547 of 547 frontend (vitest; 20 new backupContrast tests, 1 of which fails against the old CSS; 1 new deterministic edit-preservation test that fails 3 of 3 against the old page), tsc clean, build clean, lint exit 0 (pre-existing warnings only); 94 of 94 mocked browser (4 new real-browser backup axe runs that fail against the old CSS at 3.51:1); the backup test file passes 16 of 16 loaded runs (before the fix 1 of 16 failed); real backend + real Chromium: Gate A route scans 3 of 3 (0 critical/serious across 20 route/theme scans), visit board 15 of 15, calendar 12 of 12, forms 10 of 10, patient workspace 14 of 14, STORY-003 7 of 7, scheduling 10 of 10, STORY-011 10 of 10, auth 12 of 12 on its third run (recovery-key step timed out on the first two; disclosed), repository checks 7 of 7. No backend source changed. See .alveara/handoffs/ALV-N004/R06-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "2d9819320f02944fc4ab8055a919abf06cd8a8c5",
-      "evidenceCommit": "279f97e7a9c3509a5faeed378385f5542fa49a32",
-      "handoffPath": ".alveara/handoffs/ALV-N004/R05.md",
+      "implementationCommit": "3c6ac1dccb271966d7bca4ee0cbd9e78316ee01a",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N004/R06.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-N004/R05.md",
-        "approvedAttempt": "R05",
-        "reviewedImplementationCommit": "2d9819320f02944fc4ab8055a919abf06cd8a8c5",
-        "reviewedEvidenceCommit": "279f97e7a9c3509a5faeed378385f5542fa49a32"
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
       "revalidation": {
@@ -556,7 +556,7 @@
         ],
         "note": "Reviewer revalidation PASS: backup history/drills/notifications badges, 0 critical/serious axe violations (default/hover/focus, both themes), real backup/restore workflow 12/12; original R05 approval identities unchanged."
       },
-      "completedAt": "2026-10-01T18:16:25.000Z",
+      "completedAt": null,
       "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-N004/R05.md and R05-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 4, R02: 2, R03: 1, R04: 1) were corrected in their respective attempts; independently APPROVED at R05 per .alveara/reviews/ALV-N004/R05.md.",
       "reopened": {
         "reason": "ALV-002-C01 R05, ALV-N002 R09 and ALV-001-C01 R08 reviews (.alveara/reviews/ALV-002-C01/R05.md, .alveara/reviews/ALV-N002/R09.md, .alveara/reviews/ALV-001-C01/R08.md) require two corrections at this story before Gate B: (1) .alv-backup-check--warn in BackupRecoveryPage.css paints --color-warning text straight on the page surface, 3.51:1 over the light page background and 3.08:1 on a warning tint (WCAG AA needs 4.5:1; dark passes); (2) the ALV-N002 R09 reviewer observed BackupRecoveryPage.test.tsx 'presents a stale settings save with the shared conflict banner' fail intermittently in a full-suite run (passes in isolation), and it must be made deterministic. Correction: (1) the text-only --color-warning-text token added by ALV-N001 R04 with a contrast test over every text/alert pairing on the page and a real-browser axe test of the warning alerts and the restore wizard's check lines; (2) root-cause the flake and fix it at its cause.",

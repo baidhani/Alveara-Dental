@@ -1,0 +1,235 @@
+
+Running 4 tests using 4 workers
+
+  ok 4 [tablet] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in dark mode (978ms)
+  ok 3 [desktop] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in dark mode (1.0s)
+  x  2 [tablet] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode (1.0s)
+  x  1 [desktop] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode (962ms)
+
+
+  1) [desktop] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode 
+
+    Error: [
+      [
+        [
+          "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        ],
+        [
+          "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+        ]
+      ]
+    ]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 79
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f4f6f9",
+    +               "contrastRatio": 3.51,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<li class=\"alv-backup-check--warn\"><strong>Warning:</strong> Free space is below the recommended margin.</li>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-backup-check--warn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f4f6f9",
+    +               "contrastRatio": 3.51,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<strong>Warning:</strong>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-backup-check--warn > strong",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      35 | async function scan(page: Page, selector: string) {
+      36 |   const results = await new AxeBuilder({ page }).include(selector).withRules(["color-contrast"]).analyze();
+    > 37 |   expect(results.violations, JSON.stringify(results.violations.map((v) => v.nodes.map((n) => n.any.map((a) => a.message))), null, 2)).toEqual([]);
+         |                                                                                                                                       ^
+      38 | }
+      39 |
+      40 | for (const theme of ["light", "dark"] as const) {
+        at scan (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\backup-warning-contrast.spec.ts:37:135)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\backup-warning-contrast.spec.ts:56:5
+
+    Error Context: test-results\backup-warning-contrast-th-4b872-contrast-rule-in-light-mode-desktop\error-context.md
+
+  2) [tablet] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode 
+
+    Error: [
+      [
+        [
+          "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+        ],
+        [
+          "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+        ]
+      ]
+    ]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 79
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f4f6f9",
+    +               "contrastRatio": 3.51,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<li class=\"alv-backup-check--warn\"><strong>Warning:</strong> Free space is below the recommended margin.</li>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-backup-check--warn",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#f4f6f9",
+    +               "contrastRatio": 3.51,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#b5751b",
+    +               "fontSize": "11.3pt (15px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.51 (foreground color: #b5751b, background color: #f4f6f9, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<strong>Warning:</strong>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-backup-check--warn > strong",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      35 | async function scan(page: Page, selector: string) {
+      36 |   const results = await new AxeBuilder({ page }).include(selector).withRules(["color-contrast"]).analyze();
+    > 37 |   expect(results.violations, JSON.stringify(results.violations.map((v) => v.nodes.map((n) => n.any.map((a) => a.message))), null, 2)).toEqual([]);
+         |                                                                                                                                       ^
+      38 | }
+      39 |
+      40 | for (const theme of ["light", "dark"] as const) {
+        at scan (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\backup-warning-contrast.spec.ts:37:135)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\backup-warning-contrast.spec.ts:56:5
+
+    Error Context: test-results\backup-warning-contrast-th-4b872-contrast-rule-in-light-mode-tablet\error-context.md
+
+  2 failed
+    [desktop] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode 
+    [tablet] › e2e\backup-warning-contrast.spec.ts:41:3 › the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode 
+  2 passed (2.8s)

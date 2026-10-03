@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N004` is **`REOPENED`** (next attempt R06) for the backup warning-text contrast (3.51:1 / 3.08:1) and the intermittent backup stale-settings test, as required by the `ALV-002-C01` R05, `ALV-N002` R09 and `ALV-001-C01` R08 reviews; it is the last named correction before Gate B. `ALV-001-C01` (login banner closed), `ALV-N002` (stale-banner closed), `ALV-002-C01` (F2 closed), `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
+Last updated: `ALV-N004` attempt R06 - implementation committed, set to **`AWAITING_REVIEW`** (not `COMPLETE`): the backup warning text meets WCAG AA and the intermittent stale-settings test is fixed at its cause (a reload on late permissions discarded an edit in progress). It is the last correction named before Gate B, which stays a mandatory stop. `ALV-001-C01`, `ALV-N002`, `ALV-002-C01`, `ALV-N001`, `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. See `.alveara/EXECUTION_STATUS.json` for the implementation and evidence commit SHAs and `.alveara/handoffs/ALV-N004/R06.md` for the handoff. Gate B is not evaluated (`NOT YET EVALUABLE`).
 
 ## Production implementation status
 
@@ -67,8 +67,9 @@ Last updated: `ALV-N004` is **`REOPENED`** (next attempt R06) for the backup war
 - **Findings carried forward, not fixed here**: `ALV-N001` toast contrast (F1) and `ALV-002-C01` conflict-banner title contrast (F2) remain open; the board applies the same scoped workaround as the calendar drawer. They must be corrected through reopened-story attempts before Gate B is evaluated.
 - 957 backend / 484 frontend / 74 mocked-browser / 15 board walkthrough / STORY-011 10 / calendar 12 / scheduling 10 / forms 10 / workspace 14 / STORY-003 7 / auth 12 (3rd and 4th runs; see the disclosure) / Gate A route scans 3 / repository checks 7 tests pass. STORY-011's own tests are unchanged and pass. Gate B (rows B2, B5, B6) is not evaluated. See `.alveara/handoffs/ALV-011-C01/R01-evidence/`.
 
-## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, COMPLETE - approved attempt R05)
+## Encrypted full-state backup, verification, restore, and recovery (ALV-N004, AWAITING_REVIEW - reopened attempt R06; last approved attempt R05)
 
+- **R06 (warning colour and late permissions):** `.alv-backup-check--warn` text uses `--color-warning-text` (3.51:1 -> 5.2:1+ light). `BackupRecoveryPage` reads `canManage` through a ref and refreshes in place when the permission set arrives after the first load, instead of re-running the blocking load that unmounted the settings form and discarded an edit in progress (the real cause of the intermittent stale-settings test). `backupContrast.test.ts`, `e2e/backup-warning-contrast.spec.ts` and a deterministic test in `BackupRecoveryPage.test.tsx` pin it. See `.alveara/handoffs/ALV-N004/R06-evidence/`.
 R05 correction (responding to R04's independent review, `.alveara/reviews/ALV-N004/R04.md`, decision `CHANGES_REQUIRED`) - adds to the R04 bullets below:
 
 - **A proven archive defect is stored durably and independently** (`BackupRecord.ArchiveDefectCode/AtUtc`, migration `AddArchiveDefect`), not inferred from the mutable latest-check fields. Every failure write goes through `MarkVerificationFailed`, which never replaces a recorded defect with a weaker or environmental failure; the file-hash check, verify-only and later drills cannot clear it or credit the backup; the history API exposes `archiveDefectCode`. Wrong key and recovering-server mismatch remain non-defects.

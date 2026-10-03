@@ -1,0 +1,30 @@
+ALV-N004 R06 - load protocol: 8 concurrent runs of src/pages/BackupRecoveryPage.test.tsx x 2 rounds, with 2 concurrent full vitest suites running as background load each round (16 loaded runs + 4 loaded full suites per label).
+
+== before ==
+      1       Tests  1 failed | 33 passed (34)
+     15       Tests  34 passed (34)
+      1 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+background full suites:
+      4       Tests  546 passed (546)
+failing tests:
+      1      × shows the server's mapped reason when a setting is refused 1194ms
+
+== after ==
+      2       Tests  1 failed | 33 passed (34)
+     14       Tests  34 passed (34)
+      2 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+background full suites:
+      4       Tests  546 passed (546)
+failing tests:
+      1      × presents a stale settings save with the shared conflict banner 10262ms
+      1      × validates inline, protects unsaved edits, and sends the version it read 10124ms
+
+== fixed ==
+     16       Tests  35 passed (35)
+background full suites:
+      4       Tests  547 passed (547)
+failing tests:
+
+before = the code as approved in R05 (34 tests; the new regression test did not exist).
+after  = R05 code + a raised timeout (asyncUtilTimeout 10 s, testTimeout 30 s): NOT a fix, failures persisted and then took 10 s, proving the element never appeared (an edit lost), not a slow render.
+fixed  = the page no longer reloads (and unmounts the form) when the permission set arrives after the first load; plus the deterministic regression test (35 tests).
