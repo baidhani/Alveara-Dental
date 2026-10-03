@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **Gate B evaluated 2026-10-02: PASS** (all seven criteria; thresholds unchanged), awaiting independent review - report `.alveara/gates/B/GATE_B_REPORT.md`, evidence `.alveara/gates/B/evidence/`, product code under test `17130f7`. Items 10-17 are `COMPLETE`; every correction named before the gate (F1, F2, the System Status banner, the login banner, the backup warning text and its intermittent test) is independently reviewed and closed. One reviewer judgement is requested (B7: the blocked-time read-before-lock limitation inherited from `STORY-004`). If the gate is approved, the next execution item is 18 (`STORY-005`), an original course story to be executed in the course portal. Gate C is not evaluated.
+Last updated: **Gate B first evaluation (`e0a8629`): FAIL / CHANGES_REQUIRED** by independent review (`.alveara/gates/B/reviews/e0a8629.md`): finding B-REV-01, the declared frontend command `npx vitest run` fails after the Gate B tooling has generated its tablet specs because `vitest.config.ts` does not exclude `gate-b/**`. The criteria evidence was judged credible and the blocked-time B7 classification was accepted; the correction is tooling/configuration only (no product behaviour or course state), followed by a full Gate B rerun on the corrected head. Items 10-17 remain `COMPLETE`; item 18 (`STORY-005`) is not authorized until the rerun is independently approved.
 
 ## Production implementation status
 

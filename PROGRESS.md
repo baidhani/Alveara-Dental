@@ -62,3 +62,10 @@
   - What changed: `.alveara/gates/B/` (report and evidence), `.alveara/QUALITY_GATES.md` rows B1-B7, `.alveara/BUILD_STATE.md`; no product code changed
   - Verification: backend 957/957 (47 m 22 s), frontend 547/547, mocked Playwright 94/94, repository checks 7/7, desktop real-backend walkthroughs 7 suites (registration 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15), tablet-width (768x1024) variants of six of them 69/69 with 0 px sideways overflow and a passing probe control, Gate A route scans 3/3, auth walkthrough 12/12 on four consecutive default-timing runs
   - Notes: one judgement flagged for the reviewer (B7 blocked-time read-before-lock limitation, classed not high-severity); the four ALV-011-C01 reviewed SHAs are not ancestors (rebase before first push; mapping in BUILD_STATE)
+
+- [x] Gate B first evaluation recorded as FAIL / CHANGES_REQUIRED (independent review finding B-REV-01)
+  - Date: 2026-10-02
+  - Session: CC-20261002-f7c1
+  - What changed: review stored at `.alveara/gates/B/reviews/e0a8629.md`; `.alveara/QUALITY_GATES.md` Gate B rows set BLOCKED with the finding; `.alveara/BUILD_STATE.md`. No product code changed.
+  - Verification: reproduced the finding on the reviewed head - `npx vitest run` with `gate-b/tablet-generated/` present fails 7 suites (Playwright specs collected by vitest) while the 547 product tests pass
+  - Notes: my own frontend run for the evidence happened before the tablet specs were generated, so the coexistence was never exercised; the correction and a coexistence regression check follow
