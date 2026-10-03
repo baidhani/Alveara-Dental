@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-001-C01` approved at attempt R08 and recorded **`COMPLETE`** by review closure; the login expired-session banner finding is closed. Still required before Gate B: `ALV-N004` (backup warning text, `BackupRecoveryPage.css`, 3.08:1, plus making the intermittent `BackupRecoveryPage.test.tsx` stale-settings-save test deterministic) as its own reopened attempt. `ALV-N002` (stale-banner finding closed), `ALV-002-C01` (F2 closed), `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
+Last updated: `ALV-N004` is **`REOPENED`** (next attempt R06) for the backup warning-text contrast (3.51:1 / 3.08:1) and the intermittent backup stale-settings test, as required by the `ALV-002-C01` R05, `ALV-N002` R09 and `ALV-001-C01` R08 reviews; it is the last named correction before Gate B. `ALV-001-C01` (login banner closed), `ALV-N002` (stale-banner closed), `ALV-002-C01` (F2 closed), `ALV-N001` (F1 closed), `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
 
 ## Production implementation status
 
