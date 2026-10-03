@@ -936,26 +936,26 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 1071 of 1072 in the full run, the one failure (a STORY-011 test hard-coding the last permission) made relative and its classes re-run 47 of 47; new: ClinicalEncounterSchemaTests 34, EncounterServiceTests 37, EncountersApiTests + ClinicalPermissionTests 30. Frontend 599 of 599 (Clinical 32, clinicalContrast 20); mocked browser 94 of 94; real-backend clinical walkthrough 9 of 9 with 0 critical/serious axe violations in light and dark; workspace 14, forms 10 and Gate A route scans 3 re-run unchanged."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -963,8 +963,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-03T23:29:50.462Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f - see .colaberry/progress.json (STORY-005.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-03T23:29:50.462Z; portal sync commit cba1e2f)."
     },
     {
       "schemaVersion": "2",
