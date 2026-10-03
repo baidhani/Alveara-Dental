@@ -1,83 +1,11 @@
 {
-  "generated_at": "2026-10-02T18:01:46.387Z",
+  "generated_at": "2026-10-03T23:30:29.179Z",
   "plan_version": 1,
   "plan_sha256": "6f87e846da2da669f44192c1688b0d821ddf5ed59c5ba36b544463846a7aa5e8",
-  "correlation_id": "7e784182-628c-4974-9603-5940aa3baefe",
+  "correlation_id": "8e1c0290-c62a-4477-ab36-ea707576d6dc",
   "project_id": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
   "truth_revision": 1,
   "files": [
-    {
-      "path": ".colaberry/plan.json",
-      "sha256": "7c711a3e27b9a4251f1a0b62c13f34b63770cf5704953bce81be95c4f19bfdc4"
-    },
-    {
-      "path": ".colaberry/profile.json",
-      "sha256": "43a7d5d3a86fb8558b4e787b6577e46fe70390c2aa2e57ec6c94167144fd0440"
-    },
-    {
-      "path": ".colaberry/progress.json",
-      "sha256": "738934acc19ab24bc777429b2a519f54ae83242dd4d03c429ce4a4138e929398"
-    },
-    {
-      "path": "CLAUDE.md",
-      "sha256": "8e307c3aafce901db80ff39f374dc96ef67e6ee498838f8e9d82604276e2fc3d"
-    },
-    {
-      "path": "artifacts/INDEX.md",
-      "sha256": "006e8ac7b4ecbf297168403627ae025c5c25753b8fd144316703860c2c79cab8"
-    },
-    {
-      "path": "artifacts/week-01/claude.md",
-      "sha256": "01acba9fcf733cddd2ddb45960d7432c9e20626b018f06ed6c5b09cc1db12adc"
-    },
-    {
-      "path": "artifacts/week-02/readme.md",
-      "sha256": "4093d4980972038f6d13387e96237645443de410f12b618535bd6771864449d7"
-    },
-    {
-      "path": "artifacts/week-03/workflow-plan.md",
-      "sha256": "7f12af90dec1a4891a09d5a5c25f37f3b159e642bbeefbaf3ea93207b56a065f"
-    },
-    {
-      "path": "artifacts/week-04/library-report.md",
-      "sha256": "7b9246b3b81f8d815f70827a0df875f44f09c617de163e5a115b8c222875c457"
-    },
-    {
-      "path": "artifacts/week-05/readme.md",
-      "sha256": "503d5488c9df857286b708633cf17c9d95ee517af6c5c68bf869695837a15772"
-    },
-    {
-      "path": "artifacts/week-06/enterprise-prompt-library.md",
-      "sha256": "b0732a6b6e725ef86ea37852e54d87aefa29d6bb82ce9ee27f2bda8dc84eea7f"
-    },
-    {
-      "path": "artifacts/week-07/exploration-editing-workflow.pptx",
-      "sha256": "1ccb8d324ed07792ddafae4a4a937cf7e49dbbddd95fe82e5bfa4801cc50d68f"
-    },
-    {
-      "path": "artifacts/week-08/readme.md",
-      "sha256": "b9dc684a4290cf50687d2c8b13907b056b6e0960842df3e9c73b2c5f1b45e847"
-    },
-    {
-      "path": "artifacts/week-09/reliability.md",
-      "sha256": "02f8ee2bb90ecc316dc2889de0e17cb48b35585d6fd43d746d9f24b0a1162e7e"
-    },
-    {
-      "path": "artifacts/week-10/fail-closed-policy.md",
-      "sha256": "3dc0135a89ce4206142deefd45c29d5c4b4aea72c5a2ed0ed280b7ee4edaffe5"
-    },
-    {
-      "path": "artifacts/week-11/trust-band-scorecard.docx",
-      "sha256": "77d6fb5e95e42d380429f8e04a238252a3d2a26f69f0339a4c53539cb580abce"
-    },
-    {
-      "path": "artifacts/week-12/readme.md",
-      "sha256": "759d3da1629f80eff03340a7db58150541e7fc3691d45bf7c81b387ee9dac463"
-    },
-    {
-      "path": "docs/DATA_CONTRACT.md",
-      "sha256": "d56e89edcfe36725945d961cf3479b646507d1fa855bba0dcdfff3f8f8a658b0"
-    },
     {
       "path": "docs/REQUIREMENTS.md",
       "sha256": "4a9b8e927d75afbcfbfe76ad884a03ebe54b94b22bae75980686ad24af44454b"
@@ -91,8 +19,12 @@
       "sha256": "68d5ec2d5b55bb01909d93623ff15d9bac6f7bad6089c6288d1d1bd022eb6127"
     },
     {
-      "path": "docs/stories/STORY-000.md",
-      "sha256": "f14248165fc3805927f2aef5c1fceb6380009096d6a4f1fb7dc9f963ab77463e"
+      "path": "docs/DATA_CONTRACT.md",
+      "sha256": "d56e89edcfe36725945d961cf3479b646507d1fa855bba0dcdfff3f8f8a658b0"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "8e307c3aafce901db80ff39f374dc96ef67e6ee498838f8e9d82604276e2fc3d"
     },
     {
       "path": "docs/stories/STORY-001.md",
@@ -165,6 +97,22 @@
     {
       "path": "docs/stories/STORY-018.md",
       "sha256": "169420edc7658f17cc0d3daf18909854b0ac571856fb6a9d7de1ce9056bec48d"
+    },
+    {
+      "path": "docs/stories/STORY-000.md",
+      "sha256": "f14248165fc3805927f2aef5c1fceb6380009096d6a4f1fb7dc9f963ab77463e"
+    },
+    {
+      "path": ".colaberry/plan.json",
+      "sha256": "7c711a3e27b9a4251f1a0b62c13f34b63770cf5704953bce81be95c4f19bfdc4"
+    },
+    {
+      "path": ".colaberry/progress.json",
+      "sha256": "668f6aeab07a3f5d0544b115234bcb1ccd329418fef4698ee709381db9d13742"
+    },
+    {
+      "path": ".colaberry/profile.json",
+      "sha256": "43a7d5d3a86fb8558b4e787b6577e46fe70390c2aa2e57ec6c94167144fd0440"
     }
   ]
 }

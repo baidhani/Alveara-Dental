@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 6,
+    "stories_verified": 7,
     "stories_submitted": 0,
-    "stories_in_progress": 13,
+    "stories_in_progress": 12,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 20,
-    "points_awarded": 1831
+    "criteria_passed": 23,
+    "points_awarded": 1873
   },
   "stories": [
     {
@@ -332,19 +332,15 @@
       "notes": "Clinical documentation per encounter: structured medical history, dental history, allergies (reaction, severity) and medications (dose, frequency); a section with nothing to report is marked 'reviewed - none reported' so no fact is invented, and finalizing is refused (409, naming the sections) until every section is addressed. A finalized encounter is immutable - refused by the service and by database triggers - and is amended only by an addendum appended beside the untouched original with who and when. Every change, its history row and its PHI-free audit entry are one save, so a failed audit write stores nothing. Reading needs a new ViewClinicalDocumentation permission (dentist, hygienist, assistant, admin) kept separate from ViewPatientRecords so front desk and billing cannot read a medical history; writing needs ManageClinicalNotes. Stale edits are the shared 409; start and addendum are idempotent. Known limits: per-encounter only (no running history, vitals, SOAP notes or templates - ALV-005-C01), addenda are plain text, a finalized encounter cannot be reopened, reads are not audited. See docs/CLINICAL_DOCUMENTATION.md.",
       "updated_at": "2026-10-03T18:00:00.000Z",
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a patient encounter, when documented, then the system records medical and dental history.",
-          "Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.",
-          "Trust: All documentation changes are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-03T23:29:50.462Z",
+        "commit_sha": "d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f",
+        "commit_at": "2026-10-03T22:00:57Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
