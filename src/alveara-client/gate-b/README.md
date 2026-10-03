@@ -14,6 +14,10 @@ The walkthroughs' own assertions and axe scans therefore run at tablet width too
 
 `probe-control` (no backend) proves the probe can fail: a page with a 1000 px element in a 768 px viewport must be recorded, and the login page must record 0.
 
+### Coexistence with `npm test` (Gate B review finding B-REV-01)
+
+The generated specs are Playwright specs and live under the client project, so `vitest.config.ts` excludes every `gate-*/` directory (and `e2e/`); otherwise `npx vitest run` collects them and fails once the tooling has run. `tests/gate-tooling-coexistence.test.mjs` (part of `node --test tests/*.test.mjs`) generates the output exactly as the gate does and asks `vitest list --filesOnly` what it would run: only product tests under `src/` may appear, with no command-line exclusions.
+
 ### Run
 
 From `src/alveara-client`, with a real API on a fresh migrated database as for the other real-backend specs (`docs/testing/REAL_BACKEND_E2E.md`):

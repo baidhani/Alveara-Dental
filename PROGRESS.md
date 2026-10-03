@@ -69,3 +69,10 @@
   - What changed: review stored at `.alveara/gates/B/reviews/e0a8629.md`; `.alveara/QUALITY_GATES.md` Gate B rows set BLOCKED with the finding; `.alveara/BUILD_STATE.md`. No product code changed.
   - Verification: reproduced the finding on the reviewed head - `npx vitest run` with `gate-b/tablet-generated/` present fails 7 suites (Playwright specs collected by vitest) while the 547 product tests pass
   - Notes: my own frontend run for the evidence happened before the tablet specs were generated, so the coexistence was never exercised; the correction and a coexistence regression check follow
+
+- [x] Gate B tooling correction (review finding B-REV-01): vitest no longer collects the generated gate evidence specs, with a coexistence regression check
+  - Date: 2026-10-03
+  - Session: CC-20261002-f7c1
+  - What changed: `src/alveara-client/vitest.config.ts` excludes `gate-*/**` (all present and future gate tooling directories) instead of only `gate-a/**`; new repository check `tests/gate-tooling-coexistence.test.mjs` generates the Gate B output and asserts `vitest list --filesOnly` returns only product tests under `src/`; `gate-b/README.md`. No product code changed.
+  - Verification: against the old config the check fails and `npx vitest run` reports 7 failed suites + 547 passing tests; with the fix `npx vitest run` (generated specs present, no command-line exclusions) passes 51 files / 547 tests, `tsc -b`, lint and build pass, and `node --test tests/*.test.mjs` passes 8/8
+  - Notes: the first Gate B evaluation ran vitest before generating the tablet specs, so the coexistence was never exercised; a full Gate B rerun on the corrected head follows
