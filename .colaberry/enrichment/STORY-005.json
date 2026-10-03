@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-005",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-03T18:00:00Z",
+  "sourceCommitSha": "8184edc",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A patient's clinical documentation is held in encounters. An encounter belongs to one patient, may be linked to one appointment (at most one encounter per appointment), is a Draft or Finalized, and holds structured entries in four sections: medical history, dental history, allergies (with reaction and severity) and medications (with dose and frequency). A section can instead be marked 'reviewed - none reported'. A finalized encounter can only be added to by addenda; a removed entry is kept with who removed it and when.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/Encounter.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Dentists and hygienists (the existing ManageClinicalNotes permission) can start, document, finalize and amend an encounter. Dentists, hygienists, assistants and administrators can read clinical documentation through a new ViewClinicalDocumentation permission; an assistant reads but cannot write. Front desk, billing and the practice manager have no clinical read.",
+      "evidence": "src/Alveara.Api.Tests/ClinicalPermissionTests.cs"
+    },
+    {
+      "dimension": "approval_points",
+      "value": "Finalizing an encounter is the clinician's sign-off: it needs every section addressed, records who finalized it and when, and cannot be undone. The only later change is an addendum that records its author and time.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/EncounterService.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Finalizing is refused (409 documentation_incomplete, naming each section) while a medical history, dental history, allergy or medication section has neither an entry nor a 'reviewed - none reported' mark. A change to a finalized encounter, an addendum on a draft, a stale version, a repeated key with different content and a section marked none-reported that also holds entries are each refused with a stable error code.",
+      "evidence": "src/Alveara.Api.Tests/EncounterServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every documentation change is written to the audit log with the signed-in user and a timestamp, and to the encounter's own append-only history, in the same save as the change: if the audit entry cannot be written the change is not made. Audit and history text carry section names and ids only, never names, reactions, doses or notes. Reading clinical documentation is a separate permission from finding a patient (ViewPatientRecords, held by front desk and billing).",
+      "evidence": "src/Alveara.Api.Tests/EncounterServiceTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "The database itself refuses to change a finalized encounter or its entries and section reviews, to add an addendum to anything but a finalized encounter, to change an addendum or the history, and to delete an encounter or an entry; statuses, sections and severities are checked case-sensitively; an appointment has at most one encounter.",
+      "evidence": "src/Alveara.Api/Migrations/20261003163008_AddClinicalEncounters.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "The patient workspace has a Clinical tab (shown only to roles that may read it) listing a patient's encounters, and an encounter view with the four sections, a status line saying whether the last change was saved, an inline review before finalizing, and a read-only finalized note with its addenda beside it.",
+      "evidence": "src/alveara-client/src/Clinical.test.tsx"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Reading clinical documentation is a new permission (ViewClinicalDocumentation) instead of the existing ViewPatientRecords.",
+      "rationale": "ViewPatientRecords is held by front desk and billing so they can find and open patients; using it for clinical reads would have opened every patient's medical history, allergies and medications to them.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "statement": "A section with nothing to report is completed by an explicit 'reviewed - none reported' mark, not by an empty or invented entry, and finalizing requires every section to have an entry or that mark.",
+      "rationale": "The first failure path is incomplete documentation, but forcing an entry would make a clinician invent a fact; an explicit mark keeps 'not addressed' and 'nothing to report' distinguishable.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/EncounterService.cs"
+    },
+    {
+      "statement": "A finalized encounter is never reopened; amendments are addenda appended beside the original, and the database enforces it with triggers as well as the service.",
+      "rationale": "The second acceptance criterion requires the original to be preserved; enforcing it in the database means no application bug or hand-written update can rewrite a finalized note.",
+      "evidence": "src/Alveara.Api/Migrations/20261003163008_AddClinicalEncounters.cs"
+    },
+    {
+      "statement": "Entries are saved as they are made and a removed entry is kept (who and when) rather than deleted; typed values stay on screen when a save fails.",
+      "rationale": "The data-loss failure path: a clinician must never lose typed documentation to a failed or dropped request, and nothing clinical is deleted.",
+      "evidence": "src/alveara-client/src/pages/clinical/EncounterView.tsx"
+    },
+    {
+      "statement": "Starting an encounter and adding an addendum each carry one idempotency key that is reused on every retry of that action.",
+      "rationale": "A dropped connection after the server stored the change must not create a second encounter or a second addendum when the user sends it again.",
+      "evidence": "src/alveara-client/src/services/clinicalApi.ts"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "Documentation is per encounter: there is no running medical history, allergy list or medication list across encounters, no reviewed-by attribution over time, and no active, inactive or resolved lifecycle for allergies and medications.",
+      "evidence": "docs/CLINICAL_DOCUMENTATION.md"
+    },
+    {
+      "statement": "There are no vitals, SOAP or progress notes, templates or free-form note body; 'reviewed - none reported' is the only 'unknown' state.",
+      "evidence": "docs/CLINICAL_DOCUMENTATION.md"
+    },
+    {
+      "statement": "An addendum is plain text; it cannot be edited, retracted or attached to a particular entry, and a finalized encounter cannot be reopened.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/EncounterService.cs"
+    },
+    {
+      "statement": "Reading an encounter is not itself audited; only changes are.",
+      "evidence": "src/Alveara.Api/Controllers/ClinicalController.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/ClinicalEncounterSchemaTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/EncounterServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/EncountersApiTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/ClinicalPermissionTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/Clinical.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/clinical-real-backend.spec.ts" }
+  ],
+  "measurementEvents": []
+}

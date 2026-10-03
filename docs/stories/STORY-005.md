@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a patient encounter, when documented, then the system records medical and dental history.
-- [ ] Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.
-- [ ] Trust: All documentation changes are logged with user and timestamp.
+- [x] Given a patient encounter, when documented, then the system records medical and dental history.
+- [x] Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.
+- [x] Trust: All documentation changes are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.

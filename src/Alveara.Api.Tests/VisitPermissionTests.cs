@@ -43,10 +43,10 @@ public class VisitPermissionTests
     [Fact]
     public void The_new_permissions_were_appended_so_no_existing_permission_changed_its_value()
     {
-        var all = Enum.GetValues<Permission>();
-        Assert.Equal(Permission.UpdateChairsideFlow, all[^1]);
-        Assert.Equal(Permission.UpdateVisitFlow, all[^2]);
-        Assert.Equal(Permission.VoidForms, all[^3]); // the previous last permission is untouched
+        // Appended means: the two sit directly after the previous last permission, in this order, and nothing before them moved. (Later stories append after them,
+        // so this does not insist they are the LAST members: STORY-005 added ViewClinicalDocumentation after them.)
+        Assert.Equal((int)Permission.VoidForms + 1, (int)Permission.UpdateVisitFlow);
+        Assert.Equal((int)Permission.UpdateVisitFlow + 1, (int)Permission.UpdateChairsideFlow);
     }
 
     [Fact]

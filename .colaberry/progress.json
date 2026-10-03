@@ -278,21 +278,59 @@
       "criteria": [
         {
           "text": "Given a patient encounter, when documented, then the system records medical and dental history.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an encounter note is finalized, when an amendment is needed, then the original is preserved with an addendum.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All documentation changes are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
-      "updated_at": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Clinical/Encounter.cs",
+        "src/Alveara.Api/Architecture/Clinical/EncounterService.cs",
+        "src/Alveara.Api/Architecture/Clinical/EncounterReader.cs",
+        "src/Alveara.Api/Architecture/Clinical/EncounterViews.cs",
+        "src/Alveara.Api/Controllers/ClinicalController.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Architecture/Identity/Permission.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261003163008_AddClinicalEncounters.cs",
+        "src/alveara-client/src/services/clinicalApi.ts",
+        "src/alveara-client/src/pages/clinical/PatientClinicalPanel.tsx",
+        "src/alveara-client/src/pages/clinical/EncounterView.tsx",
+        "src/alveara-client/src/pages/clinical/SectionPanel.tsx",
+        "src/alveara-client/src/pages/clinical/EntryForm.tsx",
+        "src/alveara-client/src/pages/clinical/FinalizeReview.tsx",
+        "src/alveara-client/src/pages/clinical/AddendumPanel.tsx",
+        "src/alveara-client/src/pages/clinical/Clinical.css",
+        "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/playwright.clinical.config.ts",
+        "src/alveara-client/playwright.config.ts",
+        "docs/CLINICAL_DOCUMENTATION.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        ".colaberry/enrichment/STORY-005.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/ClinicalEncounterSchemaTests.cs",
+        "src/Alveara.Api.Tests/EncounterServiceTests.cs",
+        "src/Alveara.Api.Tests/EncountersApiTests.cs",
+        "src/Alveara.Api.Tests/ClinicalPermissionTests.cs",
+        "src/Alveara.Api.Tests/VisitPermissionTests.cs",
+        "src/alveara-client/src/Clinical.test.tsx",
+        "src/alveara-client/src/styles/clinicalContrast.test.ts",
+        "src/alveara-client/src/test/fakeClinicalServer.ts",
+        "src/alveara-client/src/App.patientWorkspaceRoutes.test.tsx",
+        "src/alveara-client/e2e/clinical-real-backend.spec.ts"
+      ],
+      "notes": "Clinical documentation per encounter: structured medical history, dental history, allergies (reaction, severity) and medications (dose, frequency); a section with nothing to report is marked 'reviewed - none reported' so no fact is invented, and finalizing is refused (409, naming the sections) until every section is addressed. A finalized encounter is immutable - refused by the service and by database triggers - and is amended only by an addendum appended beside the untouched original with who and when. Every change, its history row and its PHI-free audit entry are one save, so a failed audit write stores nothing. Reading needs a new ViewClinicalDocumentation permission (dentist, hygienist, assistant, admin) kept separate from ViewPatientRecords so front desk and billing cannot read a medical history; writing needs ManageClinicalNotes. Stale edits are the shared 409; start and addendum are idempotent. Known limits: per-encounter only (no running history, vitals, SOAP notes or templates - ALV-005-C01), addenda are plain text, a finalized encounter cannot be reopened, reads are not audited. See docs/CLINICAL_DOCUMENTATION.md.",
+      "updated_at": "2026-10-03T18:00:00.000Z",
       "verification": {
         "state": "in_progress",
         "criteria_passed": 0,

@@ -53,8 +53,7 @@ public class ClinicalPermissionTests
     [Fact]
     public void The_new_permission_was_appended_so_no_existing_permission_changed_its_ordinal()
     {
-        var all = Enum.GetValues<Permission>();
-        Assert.Equal(Permission.ViewClinicalDocumentation, all[^1]);
-        Assert.Equal(Permission.UpdateChairsideFlow, all[^2]);
+        // Appended means: it sits directly after the previous last permission and nothing before it moved (a later story may append after it).
+        Assert.Equal((int)Permission.UpdateChairsideFlow + 1, (int)Permission.ViewClinicalDocumentation);
     }
 }
