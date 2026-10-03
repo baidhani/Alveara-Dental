@@ -24,7 +24,7 @@
     },
     {
       "path": "artifacts/INDEX.md",
-      "sha256": "08a29f58a4015d67995aeed9deb0d36f3d106d775a556f699955dd010f358ff5"
+      "sha256": "6c3ed715fe3769cacf27d27b73e8f8749baa6f7f5fedec7e103bf019ab5a6d54"
     },
     {
       "path": "artifacts/week-01/claude.md",
@@ -53,6 +53,10 @@
     {
       "path": "artifacts/week-07/exploration-editing-workflow.pptx",
       "sha256": "1ccb8d324ed07792ddafae4a4a937cf7e49dbbddd95fe82e5bfa4801cc50d68f"
+    },
+    {
+      "path": "artifacts/week-08/readme.md",
+      "sha256": "b9dc684a4290cf50687d2c8b13907b056b6e0960842df3e9c73b2c5f1b45e847"
     },
     {
       "path": "docs/DATA_CONTRACT.md",

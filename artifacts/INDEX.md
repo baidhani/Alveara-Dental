@@ -12,7 +12,8 @@ week by week. Each row links to the artifact in this repo.
 | Week 5 | MCP Server Implementation Task — README.md | [`readme.md`](./week-05/readme.md) | Sample project | 4 KB |
 | Week 6 | Build Your Production MCP Server — enterprise-prompt-library.md | [`enterprise-prompt-library.md`](./week-06/enterprise-prompt-library.md) | Sample project | 19 KB |
 | Week 7 | Build Your Subagent Integration — exploration-editing-workflow.pptx | [`exploration-editing-workflow.pptx`](./week-07/exploration-editing-workflow.pptx) *(held on platform)* | Sample project | 38 KB |
+| Week 8 | Build Your Automation Platform — README.md | [`readme.md`](./week-08/readme.md) | Sample project | 7 KB |
 
-7 artifacts.
+8 artifacts.
 
-5 of these were built against a sample project rather than this one, and are marked as such.
+6 of these were built against a sample project rather than this one, and are marked as such.
