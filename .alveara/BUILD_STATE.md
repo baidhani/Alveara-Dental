@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: `ALV-N004` approved at attempt R06 and recorded **`COMPLETE`** by review closure; the backup warning-text contrast and the intermittent stale-settings test are closed. With this, every correction named before Gate B (F1, F2, the System Status banner, the login banner, the backup warning text) is independently reviewed and closed. The next control step is the mandatory Gate B review; it needs fresh, reproducible authentication/recovery verification (the `auth-real-backend` recovery-key step is timing-sensitive and must not be counted as clean evidence after an unexplained retry). `ALV-001-C01`, `ALV-N002`, `ALV-002-C01`, `ALV-N001`, `ALV-011-C01`, `STORY-011`, `ALV-004-C01`, `STORY-004`, `ALV-N010`, `ALV-003-C01` and `STORY-003` are `COMPLETE`; Gate A is PASS. Gate B is not evaluated (`NOT YET EVALUABLE`).
+Last updated: **Gate B evaluated 2026-10-02: PASS** (all seven criteria; thresholds unchanged), awaiting independent review - report `.alveara/gates/B/GATE_B_REPORT.md`, evidence `.alveara/gates/B/evidence/`, product code under test `17130f7`. Items 10-17 are `COMPLETE`; every correction named before the gate (F1, F2, the System Status banner, the login banner, the backup warning text and its intermittent test) is independently reviewed and closed. One reviewer judgement is requested (B7: the blocked-time read-before-lock limitation inherited from `STORY-004`). If the gate is approved, the next execution item is 18 (`STORY-005`), an original course story to be executed in the course portal. Gate C is not evaluated.
 
 ## Production implementation status
 

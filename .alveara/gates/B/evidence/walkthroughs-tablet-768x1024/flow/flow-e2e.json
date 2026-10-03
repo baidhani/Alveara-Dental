@@ -1,0 +1,96 @@
+{
+  "axe": {
+    "checked-in-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 28
+    },
+    "checked-in-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 28
+    },
+    "completed-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 28
+    },
+    "completed-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 28
+    },
+    "stale-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 28
+    },
+    "stale-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 28
+    }
+  },
+  "stamp": 1790992829089,
+  "checkIn": {
+    "status": "CheckedIn",
+    "changeButtonsGone": true
+  },
+  "complete": {
+    "status": "Completed",
+    "historyRows": [
+      "Scheduled",
+      "Patient checked in",
+      "Treatment started",
+      "Treatment completed"
+    ],
+    "stillHoldsTime": true
+  },
+  "skip": {
+    "inTreatmentOptional": true
+  },
+  "refusals": {
+    "outOfOrder": 409,
+    "repeat": "no-op",
+    "missingVersion": 400,
+    "stale": 409,
+    "cancelAfterCheckIn": 409,
+    "cancelledCannotCheckIn": 409,
+    "unknown": 404
+  },
+  "staleEdit": {
+    "repeatWasQuietNoOp": true,
+    "differentMoveReported": true,
+    "notAppliedOnTop": true
+  },
+  "race": {
+    "statuses": [
+      409,
+      409,
+      200,
+      409,
+      200,
+      200
+    ],
+    "checkIns": 1
+  },
+  "permissions": {
+    "dentistApiStatus": 403,
+    "billingApiStatus": 403,
+    "dentistSeesFlow": true
+  },
+  "keyboard": {
+    "checkedInAndCompleted": true
+  },
+  "audit": {
+    "PatientCheckedIn": 6,
+    "PatientTreatmentStarted": 2,
+    "PatientTreatmentCompleted": 3
+  },
+  "tabletViewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "tabletMaxSidewaysOverflowPx": 0,
+  "tabletMaxSidewaysOverflowDetail": null
+}

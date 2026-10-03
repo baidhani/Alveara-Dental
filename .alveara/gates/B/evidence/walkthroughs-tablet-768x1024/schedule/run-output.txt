@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:162:1 › SETUP: the practice is configured (two providers, two operatories, two appointment types, blocked time) and patients are registered (1.0s)
+  ok  2 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:183:1 › ACCEPTANCE 1: with an available provider the appointment is confirmed, shown in words and listed in the day's schedule (5.0s)
+  ok  3 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:207:1 › ACCEPTANCE 2: a double-booked provider rejects the new appointment, says who and when, and nothing is booked (2.2s)
+  ok  4 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:225:1 › FAILURE PATHS: an operatory in use, an unavailable provider (hours and blocked time) and an incorrect duration are each refused in plain words (633ms)
+  ok  5 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:248:1 › BACK TO BACK: a corrected request that starts exactly when the first ends is accepted (127ms)
+  ok  6 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:257:1 › DROPPED CONNECTION: the booking is stored but the answer is lost; the page says so and Book again books exactly once (2.2s)
+  ok  7 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:289:1 › RACE: six requests for the same slot at the same moment produce exactly one appointment, the others are refused (109ms)
+  ok  8 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:304:1 › ACCEPTANCE 3 (TRUST): every scheduling action is in the audit trail with the user and a timestamp, and no patient details (35ms)
+  ok  9 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:321:1 › PERMISSIONS: a dentist can see the schedule but has no booking form and the API refuses a booking; billing has no Schedule page at all (1.1s)
+  ok 10 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:345:1 › KEYBOARD: an appointment can be booked without a mouse (551ms)
+  ok 11 [chromium] › gate-b\tablet-generated\schedule-real-backend.tablet.spec.ts:366:1 › TABLET (768x1024): no page this walkthrough visited scrolled sideways (4ms)
+
+  11 passed (17.5s)

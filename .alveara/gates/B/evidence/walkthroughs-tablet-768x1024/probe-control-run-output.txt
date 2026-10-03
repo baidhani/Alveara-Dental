@@ -1,0 +1,8 @@
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:01:18 PM [vite] http proxy error: /api/auth/permissions
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 2 [chromium] › gate-b\tablet-generated\probe-control.tablet.spec.ts:53:1 › probe control: a page that fits is recorded as 0 (1.1s)
+
+  2 passed (4.7s)

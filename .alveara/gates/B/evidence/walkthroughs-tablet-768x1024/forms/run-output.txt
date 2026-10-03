@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:148:1 › TEMPLATES: an office manager builds a versioned privacy template through the UI; the front desk cannot reach the administration page (2.7s)
+  ok  2 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:178:1 › COMPLETE: the front desk starts the form for a patient, answers, saves a draft that survives a reload, and the status is shown in words (2.9s)
+  ok  3 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:210:1 › TEMPLATE CHANGE DURING COMPLETION: a newer template version is offered but the draft stays on the version it started on (817ms)
+  ok  4 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:226:1 › SIGN: review shows exactly what will be signed; missing signer details are refused; a keyboard-only signature records the signer, relationship and version (3.9s)
+  ok  5 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:270:1 › TEMPLATE EDIT AFTER SIGNING: the office manager publishes version 3 with completely different wording (435ms)
+  ok  6 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:278:1 › IMMUTABLE: the signed copy still shows version 1 wording and the same fingerprint after two further template versions; the same submit again and another key create nothing new (406ms)
+  ok  7 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:302:1 › INTERRUPTED SIGNATURE: the response is lost after the server stored it; the screen says the outcome is unknown and Sign again records exactly one signature (2.6s)
+  ok  8 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:341:1 › VOID: the front desk cannot void a signed form; the office manager can, with a reason, and the signed copy stays visible; a corrected form can follow (4.5s)
+  ok  9 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:370:1 › ROLES: a dentist can start a form; billing can read forms but has no way to start, save or sign; both are refused by the API (1.5s)
+  ok 10 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:391:1 › PATIENT SWITCH: another patient's forms never appear under this patient, and a form id under the wrong patient is not shown (555ms)
+  ok 11 [chromium] › gate-b\tablet-generated\forms-real-backend.tablet.spec.ts:407:1 › TABLET (768x1024): no page this walkthrough visited scrolled sideways (6ms)
+
+  11 passed (24.9s)

@@ -55,3 +55,10 @@
   - What changed: `src/alveara-client/gate-b/` (generator, config, README); `.gitignore` entry for the generated specs. No product code and no existing test changed.
   - Verification: the six generated walkthroughs pass at 768x1024 (8, 15, 11, 11, 13, 11 tests) with 0 px steady sideways overflow; `probe-control` 2/2 (a 1000 px element in a 768 px viewport is recorded, the login page records 0)
   - Notes: the first probe version reported false overflows (301/215/406 px) from transient values while pages were created; the probe now requires a real viewport width and the same overflow at two consecutive samples
+
+- [x] Gate B evaluation: Patient, Scheduling, and Visit Entry Ready - PASS, awaiting independent review
+  - Date: 2026-10-02
+  - Session: CC-20261002-f7c1
+  - What changed: `.alveara/gates/B/` (report and evidence), `.alveara/QUALITY_GATES.md` rows B1-B7, `.alveara/BUILD_STATE.md`; no product code changed
+  - Verification: backend 957/957 (47 m 22 s), frontend 547/547, mocked Playwright 94/94, repository checks 7/7, desktop real-backend walkthroughs 7 suites (registration 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15), tablet-width (768x1024) variants of six of them 69/69 with 0 px sideways overflow and a passing probe control, Gate A route scans 3/3, auth walkthrough 12/12 on four consecutive default-timing runs
+  - Notes: one judgement flagged for the reviewer (B7 blocked-time read-before-lock limitation, classed not high-severity); the four ALV-011-C01 reviewed SHAs are not ancestors (rebase before first push; mapping in BUILD_STATE)

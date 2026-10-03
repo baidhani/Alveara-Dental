@@ -1,0 +1,87 @@
+{
+  "axe": {
+    "form-default-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "form-default-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "form-errors-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "form-errors-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "registered-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 19
+    },
+    "registered-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 19
+    }
+  },
+  "incompleteRegistrationPrompts": "all seven missing required fields named; focus on the first",
+  "storedPatient": {
+    "id": "4229969d-65b1-4293-a94a-807284239f0c",
+    "fieldsCaptured": [
+      "id",
+      "firstName",
+      "middleName",
+      "lastName",
+      "dateOfBirth",
+      "age",
+      "sex",
+      "phone",
+      "email",
+      "addressLine1",
+      "addressLine2",
+      "city",
+      "state",
+      "postalCode",
+      "createdAtUtc",
+      "updatedAtUtc",
+      "isActive",
+      "rowVersion",
+      "guarantor",
+      "guaranteeFor",
+      "household"
+    ]
+  },
+  "keyboardOnlyRegistration": "passed",
+  "auditEntries": [
+    {
+      "eventType": "PatientRegistered",
+      "performedBy": "6e5b6424-6076-4a45-8274-d7ac3e500221",
+      "timestampUtc": "2026-10-03T01:57:54.0504798+00:00",
+      "details": "Patient registered."
+    },
+    {
+      "eventType": "PatientRegistered",
+      "performedBy": "6e5b6424-6076-4a45-8274-d7ac3e500221",
+      "timestampUtc": "2026-10-03T01:57:51.5404741+00:00",
+      "details": "Patient registered."
+    }
+  ],
+  "dentistDenied": {
+    "navLink": false,
+    "page": "denied",
+    "apiStatus": 403
+  },
+  "tabletViewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "tabletMaxSidewaysOverflowPx": 0,
+  "tabletMaxSidewaysOverflowDetail": null
+}

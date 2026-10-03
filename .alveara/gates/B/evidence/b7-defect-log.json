@@ -1,0 +1,86 @@
+{
+  "source": ".alveara/EXECUTION_STATUS.json",
+  "items": [
+    {
+      "num": 11,
+      "storyId": "STORY-003",
+      "status": "COMPLETE",
+      "attempt": null,
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "n/a_course_verified_by_portal",
+      "reopened": false
+    },
+    {
+      "num": 12,
+      "storyId": "ALV-003-C01",
+      "status": "COMPLETE",
+      "attempt": "R02",
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "APPROVED",
+      "reopened": false
+    },
+    {
+      "num": 13,
+      "storyId": "ALV-N010",
+      "status": "COMPLETE",
+      "attempt": "R01",
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "APPROVED",
+      "reopened": false
+    },
+    {
+      "num": 14,
+      "storyId": "STORY-004",
+      "status": "COMPLETE",
+      "attempt": null,
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "n/a_course_verified_by_portal",
+      "reopened": false
+    },
+    {
+      "num": 15,
+      "storyId": "ALV-004-C01",
+      "status": "COMPLETE",
+      "attempt": "R01",
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "APPROVED",
+      "reopened": false
+    },
+    {
+      "num": 16,
+      "storyId": "STORY-011",
+      "status": "COMPLETE",
+      "attempt": null,
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "n/a_course_verified_by_portal",
+      "reopened": false
+    },
+    {
+      "num": 17,
+      "storyId": "ALV-011-C01",
+      "status": "COMPLETE",
+      "attempt": "R01",
+      "blockingIssues": [],
+      "revalidationRequired": false,
+      "review": "APPROVED",
+      "reopened": false
+    }
+  ],
+  "openBlockingIssues": [],
+  "notComplete": [],
+  "revalidationRequired": [],
+  "allNonComplete": [],
+  "allBlockingIssuesAnywhere": [],
+  "verdictInputs": {
+    "items11to17AllComplete": true,
+    "zeroOpenBlockingIssues": true,
+    "noRevalidationRequired": true,
+    "noStoryInAnInterimState": true
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "axe": {
+    "board-scheduled-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "board-scheduled-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "room-occupied-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "room-occupied-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "conflict-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "conflict-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "carried-over-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "carried-over-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "board-phone-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "board-phone-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    }
+  },
+  "stamp": 1790988970046,
+  "board": {
+    "columns": 9,
+    "readiness": {
+      "ann": "2 of 2",
+      "bo": "1 of 2 (one started)",
+      "cy": "0 of 2"
+    }
+  },
+  "frontOffice": {
+    "confirmed": true,
+    "checkedIn": true,
+    "checkInNotBlockedByOpenForm": true,
+    "chairsideButtonsHidden": true
+  },
+  "chairside": {
+    "ready": true,
+    "seated": true,
+    "frontOfficeButtonsHidden": true
+  },
+  "room": {
+    "refused": true,
+    "namesOccupier": true
+  },
+  "chain": {
+    "states": [
+      "Scheduled",
+      "Confirmed",
+      "CheckedIn",
+      "Ready",
+      "Seated",
+      "TreatmentStarted",
+      "CheckedOut",
+      "Completed"
+    ],
+    "distinctPeople": 4,
+    "completionAskedFirst": true,
+    "roomFreedForNextPatient": true
+  },
+  "assignment": {
+    "visibleWithBooked": true,
+    "bookingUnmoved": true,
+    "occupiedRoomRefusedAtSeating": true,
+    "occupiedRoomRefusedWhenSeated": true
+  },
+  "conflict": {
+    "reported": true,
+    "otherUsersChangeStood": true
+  },
+  "live": {
+    "updatedWithoutReload": true,
+    "refreshSeconds": 15
+  },
+  "closedApart": {
+    "cancelledDistinctFromCompleted": true
+  },
+  "leftOpen": {
+    "carriedOver": true,
+    "roomStillBlocked": true
+  },
+  "permissions": {
+    "dentistChairsideOnly": true,
+    "billingApiStatus": 403,
+    "frontDeskCannotDoChairside": 403,
+    "story011EndpointsUnchanged": true
+  },
+  "keyboard": {
+    "confirmedWithKeyboard": true,
+    "focusKept": true
+  },
+  "responsive": {
+    "tabletNoSidewaysPageScroll": true,
+    "phoneStacked": true,
+    "phoneActionsReachable": true,
+    "phoneAxe": true
+  },
+  "audit": {
+    "PatientConfirmed": 3,
+    "PatientCheckedIn": 7,
+    "PatientReady": 5,
+    "PatientSeated": 3,
+    "PatientTreatmentStarted": 1,
+    "PatientCheckedOut": 1,
+    "PatientTreatmentCompleted": 1,
+    "VisitAssignmentChanged": 1,
+    "FormTemplateRequirementChanged": 2
+  }
+}

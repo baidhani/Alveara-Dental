@@ -1,0 +1,121 @@
+{
+  "axe": {
+    "schedule-form-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "schedule-form-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "confirmed-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "confirmed-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "double-booked-refusal-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "double-booked-refusal-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "unknown-outcome-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "unknown-outcome-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    }
+  },
+  "stamp": 1790992762539,
+  "acceptance1": {
+    "confirmed": true,
+    "appointment": {
+      "id": "8c4c8d23-2f6b-4ac7-856c-45e241e78ae0",
+      "patientId": "e569c75a-40ba-4d02-91a6-f2edf71c5640",
+      "patientName": "Ann Schedule",
+      "providerId": "d2500c53-ab3a-43ce-a38e-0c5b226f551b",
+      "providerName": "Dr. Rivera",
+      "operatoryId": "638c0563-a16a-4cc4-a8fa-9d2c6b10558b",
+      "operatoryName": "Op 1",
+      "appointmentTypeId": "07aef9c1-9c91-4fe0-b175-9eae0325f98f",
+      "appointmentTypeName": "Exam",
+      "startUtc": "2030-01-14T15:00:00+00:00",
+      "endUtc": "2030-01-14T16:00:00+00:00",
+      "startLocal": "2030-01-14T09:00",
+      "endLocal": "2030-01-14T10:00",
+      "durationMinutes": 60,
+      "status": "Scheduled",
+      "createdAtUtc": "2026-10-03T01:59:28.4704844+00:00",
+      "rowVersion": "AAAAAAAAB+A=",
+      "notes": null,
+      "cancelReason": null,
+      "statusChangedAtUtc": null,
+      "flowState": "Scheduled",
+      "flowChangedAtUtc": null,
+      "visitProviderId": "d2500c53-ab3a-43ce-a38e-0c5b226f551b",
+      "visitProviderName": "Dr. Rivera",
+      "visitOperatoryId": "638c0563-a16a-4cc4-a8fa-9d2c6b10558b",
+      "visitOperatoryName": "Op 1",
+      "nextFlowStates": [
+        "Confirmed",
+        "CheckedIn"
+      ]
+    }
+  },
+  "acceptance2": {
+    "refusedInWords": true,
+    "bookedAfter": 1
+  },
+  "failurePaths": {
+    "operatoryConflict": true,
+    "outsideHours": true,
+    "blockedTime": true,
+    "invalidDuration": true,
+    "bookedAfter": 1
+  },
+  "backToBack": [
+    "09:00-10:00",
+    "10:00-11:00"
+  ],
+  "droppedConnection": {
+    "sameKeyOnRetry": true,
+    "appointmentsAfter": 1
+  },
+  "race": {
+    "requests": 6,
+    "created": 1,
+    "refused": 5
+  },
+  "audit": {
+    "scheduled": 4,
+    "rejected": 9
+  },
+  "permissions": {
+    "dentistApiStatus": 403,
+    "billingScheduleLink": false
+  },
+  "keyboard": {
+    "booked": true
+  },
+  "tabletViewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "tabletMaxSidewaysOverflowPx": 0,
+  "tabletMaxSidewaysOverflowDetail": null
+}
