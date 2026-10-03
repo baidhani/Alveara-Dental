@@ -520,7 +520,7 @@
       "qualityGateContribution": [
         "Gate A"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R06",
       "acceptance": {
         "total": 7,
@@ -536,11 +536,11 @@
       "evidenceCommit": "0d6c0e6701009311591738e78c6298a86f1e455c",
       "handoffPath": ".alveara/handoffs/ALV-N004/R06.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N004/R06.md",
+        "approvedAttempt": "R06",
+        "reviewedImplementationCommit": "3c6ac1dccb271966d7bca4ee0cbd9e78316ee01a",
+        "reviewedEvidenceCommit": "0d6c0e6701009311591738e78c6298a86f1e455c"
       },
       "blockingIssues": [],
       "revalidation": {
@@ -556,14 +556,16 @@
         ],
         "note": "Reviewer revalidation PASS: backup history/drills/notifications badges, 0 critical/serious axe violations (default/hover/focus, both themes), real backup/restore workflow 12/12; original R05 approval identities unchanged."
       },
-      "completedAt": null,
+      "completedAt": "2026-10-03T00:47:13.000Z",
       "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-N004/R05.md and R05-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 4, R02: 2, R03: 1, R04: 1) were corrected in their respective attempts; independently APPROVED at R05 per .alveara/reviews/ALV-N004/R05.md.",
       "reopened": {
         "reason": "ALV-002-C01 R05, ALV-N002 R09 and ALV-001-C01 R08 reviews (.alveara/reviews/ALV-002-C01/R05.md, .alveara/reviews/ALV-N002/R09.md, .alveara/reviews/ALV-001-C01/R08.md) require two corrections at this story before Gate B: (1) .alv-backup-check--warn in BackupRecoveryPage.css paints --color-warning text straight on the page surface, 3.51:1 over the light page background and 3.08:1 on a warning tint (WCAG AA needs 4.5:1; dark passes); (2) the ALV-N002 R09 reviewer observed BackupRecoveryPage.test.tsx 'presents a stale settings save with the shared conflict banner' fail intermittently in a full-suite run (passes in isolation), and it must be made deterministic. Correction: (1) the text-only --color-warning-text token added by ALV-N001 R04 with a contrast test over every text/alert pairing on the page and a real-browser axe test of the warning alerts and the restore wizard's check lines; (2) root-cause the flake and fix it at its cause.",
         "reviewArtifact": ".alveara/reviews/ALV-N002/R09.md",
         "nextAttempt": "R06",
         "priorApprovedAttempt": "R05",
-        "downstreamAssessment": "Colour-only change to one status line on the backup page, plus a behavioural fix inside the backup page's own loading logic (permission changes after the first load refresh in place instead of re-running the blocking load). No backend contract, shared component or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs (the auth walkthrough exercises backup and recovery-key flows) to demonstrate that."
+        "downstreamAssessment": "Colour-only change to one status line on the backup page, plus a behavioural fix inside the backup page's own loading logic (permission changes after the first load refresh in place instead of re-running the blocking load). No backend contract, shared component or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs (the auth walkthrough exercises backup and recovery-key flows) to demonstrate that.",
+        "resolvedByAttempt": "R06",
+        "resolvedAt": "2026-10-03T00:47:13.000Z"
       }
     },
     {
