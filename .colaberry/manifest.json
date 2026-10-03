@@ -24,7 +24,7 @@
     },
     {
       "path": "artifacts/INDEX.md",
-      "sha256": "f27df61729a4e82ea3923fc4ff71b02ebe910d884039871eec68d038d1450f0a"
+      "sha256": "a31e80cef9ca4a928ec4f438f0ed26d35066642b5716eb46710f908c72139c06"
     },
     {
       "path": "artifacts/week-01/claude.md",
@@ -61,6 +61,10 @@
     {
       "path": "artifacts/week-09/reliability.md",
       "sha256": "02f8ee2bb90ecc316dc2889de0e17cb48b35585d6fd43d746d9f24b0a1162e7e"
+    },
+    {
+      "path": "artifacts/week-10/fail-closed-policy.md",
+      "sha256": "3dc0135a89ce4206142deefd45c29d5c4b4aea72c5a2ed0ed280b7ee4edaffe5"
     },
     {
       "path": "docs/DATA_CONTRACT.md",

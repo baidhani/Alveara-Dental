@@ -14,7 +14,8 @@ week by week. Each row links to the artifact in this repo.
 | Week 7 | Build Your Subagent Integration — exploration-editing-workflow.pptx | [`exploration-editing-workflow.pptx`](./week-07/exploration-editing-workflow.pptx) *(held on platform)* | Sample project | 38 KB |
 | Week 8 | Build Your Automation Platform — README.md | [`readme.md`](./week-08/readme.md) | Sample project | 7 KB |
 | Week 9 | Build — The Order Desk That Survives a Bad Vendor — RELIABILITY.md | [`reliability.md`](./week-09/reliability.md) | Sample project | 5 KB |
+| Week 10 | Implementation Task: Governance Engine — fail-closed-policy.md | [`fail-closed-policy.md`](./week-10/fail-closed-policy.md) | Sample project | 16 KB |
 
-9 artifacts.
+10 artifacts.
 
-7 of these were built against a sample project rather than this one, and are marked as such.
+8 of these were built against a sample project rather than this one, and are marked as such.
