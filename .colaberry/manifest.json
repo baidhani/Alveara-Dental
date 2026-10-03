@@ -24,7 +24,7 @@
     },
     {
       "path": "artifacts/INDEX.md",
-      "sha256": "09efed6090afc654db24e10a5688b4067b5873efa67e0558c22ced284113e0fe"
+      "sha256": "006e8ac7b4ecbf297168403627ae025c5c25753b8fd144316703860c2c79cab8"
     },
     {
       "path": "artifacts/week-01/claude.md",
@@ -69,6 +69,10 @@
     {
       "path": "artifacts/week-11/trust-band-scorecard.docx",
       "sha256": "77d6fb5e95e42d380429f8e04a238252a3d2a26f69f0339a4c53539cb580abce"
+    },
+    {
+      "path": "artifacts/week-12/readme.md",
+      "sha256": "759d3da1629f80eff03340a7db58150541e7fc3691d45bf7c81b387ee9dac463"
     },
     {
       "path": "docs/DATA_CONTRACT.md",

@@ -16,7 +16,8 @@ week by week. Each row links to the artifact in this repo.
 | Week 9 | Build — The Order Desk That Survives a Bad Vendor — RELIABILITY.md | [`reliability.md`](./week-09/reliability.md) | Sample project | 5 KB |
 | Week 10 | Implementation Task: Governance Engine — fail-closed-policy.md | [`fail-closed-policy.md`](./week-10/fail-closed-policy.md) | Sample project | 16 KB |
 | Week 11 | Build Your Architecture Package — trust-band-scorecard.docx | [`trust-band-scorecard.docx`](./week-11/trust-band-scorecard.docx) *(held on platform)* | Ledgerly Smart Accounting | 42 KB |
+| Week 12 | Build — Your Expo Presentation — README.md | [`readme.md`](./week-12/readme.md) | Ledgerly Smart Accounting | 2 KB |
 
-11 artifacts.
+12 artifacts.
 
 8 of these were built against a sample project rather than this one, and are marked as such.
