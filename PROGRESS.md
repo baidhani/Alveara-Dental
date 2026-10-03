@@ -76,3 +76,10 @@
   - What changed: `src/alveara-client/vitest.config.ts` excludes `gate-*/**` (all present and future gate tooling directories) instead of only `gate-a/**`; new repository check `tests/gate-tooling-coexistence.test.mjs` generates the Gate B output and asserts `vitest list --filesOnly` returns only product tests under `src/`; `gate-b/README.md`. No product code changed.
   - Verification: against the old config the check fails and `npx vitest run` reports 7 failed suites + 547 passing tests; with the fix `npx vitest run` (generated specs present, no command-line exclusions) passes 51 files / 547 tests, `tsc -b`, lint and build pass, and `node --test tests/*.test.mjs` passes 8/8
   - Notes: the first Gate B evaluation ran vitest before generating the tablet specs, so the coexistence was never exercised; a full Gate B rerun on the corrected head follows
+
+- [x] Gate B test stabilization: bounded wait on the server-side recovery-key generation in the auth walkthrough (ALV-N004 R06 / Gate B review condition)
+  - Date: 2026-10-03
+  - Session: CC-20261002-f7c1
+  - What changed: `src/alveara-client/e2e/auth-real-backend.spec.ts` - the recovery-key box assertion waits up to 30 s (was the 5 s default) and that one test has a 90 s budget; no product code changed
+  - Verification: key generation measured 0.7-4.6 s idle (18 samples, three above 4.3 s) and 2.0-6.6 s under CPU load (18 samples, two above 5 s); the unchanged spec failed this exact step in 5 of 6 loaded runs; with the change 0 of 12 loaded runs failed at it (11 of 12 runs passed 12/12; run 9 failed in a different test - practice configuration - which exceeded its 30 s test budget while its Save button stayed disabled, disclosed in the Gate B rerun report)
+  - Notes: the second load-only sensitivity is consistent with a second early request resetting the practice form under StrictMode in the dev server (unverified); it belongs to ALV-N003 and is not changed here

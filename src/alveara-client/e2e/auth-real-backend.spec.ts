@@ -264,6 +264,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
   // ---------- ALV-N004: encrypted backup, verification, and restore into an isolated target ----------
 
   test("backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target", async () => {
+    test.setTimeout(90_000); // the default 30 s test budget must also cover a slow server-side key generation (see the bounded wait below)
     await page.goto("/admin/backup");
     await expect(page.getByRole("heading", { name: "Backup & recovery" })).toBeVisible();
     await expect(page.getByText("No recovery key is set up")).toBeVisible();
@@ -275,7 +276,11 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await page.getByLabel("Your current password").fill("admin-password-1!");
     await page.getByRole("button", { name: "Create recovery key" }).click();
     const keyBox = page.getByLabel("Recovery key file contents");
-    await expect(keyBox).toBeVisible();
+    // Gate B stabilization (review condition on the ALV-N004 R06 / Gate B reviews): the key box appears only after the SERVER has generated an RSA-3072
+    // OpenPGP key, whose time varies. Measured on this machine against the real API (18 samples idle: 0.7-4.6 s, three above 4.3 s; 18 samples under CPU load:
+    // 2.0-6.6 s, two above 5 s) and the 5 s default assertion timeout failed this exact step in 5 of 6 loaded runs. 30 s is 4.5x the worst measured latency and
+    // still bounds a genuinely stuck request; the expectation passes the moment the box appears.
+    await expect(keyBox).toBeVisible({ timeout: 30_000 });
     const recoveryKey = await keyBox.inputValue();
     expect(recoveryKey).toContain("BEGIN PGP PRIVATE KEY BLOCK"); // a standard OpenPGP key block, restorable with stock tooling
     const passphrase = await page.getByLabel("Recovery passphrase (generated)").inputValue();
