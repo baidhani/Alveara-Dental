@@ -70,6 +70,20 @@ function mapPhaseOrder(rows) {
   return [...first.entries()].sort((a, b) => a[1] - b[1]).map((e) => e[0]);
 }
 
+/** Legend keys that double as filters: one per delivery state and story type that exists in the data. Clicking one applies that filter; clicking it again clears it. */
+function mapLegend(rows) {
+  const states = new Map();
+  rows.forEach((r) => { if (!states.has(r.stateLabel)) states.set(r.stateLabel, r.stateClass); });
+  const types = new Map();
+  rows.forEach((r) => { if (!types.has(r.typeLabel)) types.set(r.typeLabel, r.storyType); });
+  const button = (filter, value, inner) =>
+    `<button type="button" class="map-legend-button" data-map-legend="${filter}" data-map-value="${escapeHtml(value)}" aria-pressed="${mapUi.filters[filter] === value}">${inner}</button>`;
+  const stateButtons = [...states.entries()].map(([label, cls]) => button("state", label, `<i class="map-dot ${escapeHtml(cls)}" aria-hidden="true"></i>${escapeHtml(label)}`));
+  const typeButtons = [...types.entries()].map(([label, type]) =>
+    button("type", label, `<span class="map-marker ${escapeHtml(type)}">${escapeHtml(MAP_TYPE_MARKERS[type] || "STORY")}</span> ${escapeHtml(label.toLowerCase())}`));
+  return `<div class="map-legend" role="group" aria-label="Legend: select a key to filter the map">${[...stateButtons, ...typeButtons].join("")}</div>`;
+}
+
 function mapCard(r) {
   const marker = MAP_TYPE_MARKERS[r.storyType] || "STORY";
   const title = r.title ? escapeHtml(r.title) : `<em>No title. Add ${escapeHtml(r.storyId)} to .alveara/story_catalog.json.</em>`;
@@ -128,6 +142,7 @@ function renderMap() {
     <div class="detail-panel">
       <div class="map-filters">${selects}</div>
       <div class="map-stats" role="status" aria-live="polite">${stats}</div>
+      ${mapLegend(rows)}
     </div>
     <div class="detail-panel">
       <div class="map-section-head"><h2>Application architecture</h2><button type="button" class="map-toggle" data-map-architecture aria-expanded="${open}" aria-controls="map-architecture">${open ? "Hide architecture" : "Show architecture"}</button></div>
@@ -176,6 +191,14 @@ function wireMap(root) {
     select.addEventListener("change", () => {
       mapUi.filters[select.dataset.mapFilter] = select.value;
       redraw(`#map-filter-${select.dataset.mapFilter}`);
+    });
+  });
+  root.querySelectorAll("[data-map-legend]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const filter = button.dataset.mapLegend;
+      const value = button.dataset.mapValue;
+      mapUi.filters[filter] = mapUi.filters[filter] === value ? "" : value;
+      redraw(`[data-map-legend="${filter}"][data-map-value="${CSS.escape(value)}"]`);
     });
   });
   root.querySelector("[data-map-reset]")?.addEventListener("click", () => {

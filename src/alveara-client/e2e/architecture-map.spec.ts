@@ -115,6 +115,42 @@ test.describe("Architecture Map tab", () => {
     await expect(page.locator("[data-map-story]")).toHaveCount(records.length);
   });
 
+  test("the legend lists exactly the states and story types in the data, and each key filters the map and clears on a second press", async ({ page }) => {
+    await openMap(page);
+    const stateLabels: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+    const typeLabels: Record<string, string> = { course: "Portal story", companion: "Engineering companion", new_production: "Engineering story" };
+    const expected = new Set([...records.map((r) => stateLabels[r.status]), ...records.map((r) => typeLabels[r.storyType])]);
+    const legend = page.getByRole("group", { name: /Legend/ });
+    const buttons = legend.getByRole("button");
+    await expect(buttons).toHaveCount(expected.size);
+
+    const complete = legend.locator('[data-map-legend="state"][data-map-value="Complete"]');
+    await expect(complete).toHaveAttribute("aria-pressed", "false");
+    await complete.click();
+    await expect(page.locator("[data-map-story]")).toHaveCount(records.filter((r) => r.status === "COMPLETE").length);
+    await expect(complete).toHaveAttribute("aria-pressed", "true");
+    await expect(complete).toBeFocused();
+    await expect(page.locator("#map-filter-state")).toHaveValue("Complete");
+
+    const companion = legend.locator('[data-map-legend="type"][data-map-value="Engineering companion"]');
+    await companion.click();
+    await expect(page.locator("[data-map-story]")).toHaveCount(records.filter((r) => r.status === "COMPLETE" && r.storyType === "companion").length);
+
+    await complete.click();                                          // pressing it again clears that filter only
+    await expect(complete).toHaveAttribute("aria-pressed", "false");
+    await expect(page.locator("[data-map-story]")).toHaveCount(records.filter((r) => r.storyType === "companion").length);
+    await expect(companion).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("a legend key can be used from the keyboard", async ({ page }) => {
+    await openMap(page);
+    const planned = page.locator('[data-map-legend="state"][data-map-value="Planned"]');
+    await planned.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("[data-map-story]")).toHaveCount(records.filter((r) => r.status === "PLANNED").length);
+    await expect(planned).toBeFocused();
+  });
+
   test("a story opens a dialog with its details from the ledger, closes with Escape and returns focus to the card", async ({ page }) => {
     await openMap(page);
     const r = records.find((x) => x.status === "COMPLETE" && x.storyType === "course")!;
