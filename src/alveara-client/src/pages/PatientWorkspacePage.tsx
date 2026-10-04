@@ -13,6 +13,7 @@ import { PatientDetailsPanel } from "./PatientDetailsPanel";
 import { EncounterView } from "./clinical/EncounterView";
 import { TemplatesPage } from "./clinical/notes/TemplatesPage";
 import { SafetyPanel } from "./safety/SafetyPanel";
+import { OdontogramPanel } from "./odontogram/OdontogramPanel";
 import { PatientClinicalPanel } from "./clinical/PatientClinicalPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
@@ -115,6 +116,11 @@ export function PatientClinicalTab() {
 export function PatientSafetyTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   return <SafetyPanel patient={patient} />;
+}
+
+export function PatientOdontogramTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  return <OdontogramPanel patient={patient} />;
 }
 
 export function PatientClinicalTemplatesTab() {

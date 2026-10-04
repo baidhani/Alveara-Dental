@@ -1,0 +1,127 @@
+/* STORY-006: the odontogram. A tooth's state is carried by the WORD under its number and repeated by the border STYLE (solid, dashed, dotted, double); the border colour only reinforces it.
+   Every piece of text uses the body text colour on a plain surface (never a status colour as text), so contrast does not depend on the state. Borders meet 3:1 against the surface. */
+
+.alv-odonto__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.alv-odonto__swatch {
+  display: inline-block;
+  width: 22px;
+  height: 14px;
+  vertical-align: middle;
+  background: var(--color-surface);
+}
+
+.alv-odonto__state--none { border: 1px solid var(--color-text-muted); }
+.alv-odonto__state--existing { border: 3px solid var(--color-accent); }
+.alv-odonto__state--diagnosed { border: 3px dashed var(--color-danger); }
+.alv-odonto__state--planned { border: 3px dotted var(--color-warning); }
+.alv-odonto__state--completed { border: 3px double var(--color-success); }
+
+.alv-odonto__side {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.alv-odonto__arch {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  gap: var(--space-1);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.alv-odonto__tooth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-1) 2px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.alv-odonto__tooth:hover { background: var(--color-surface-raised); }
+
+.alv-odonto__tooth:focus-visible,
+.alv-odonto__surface:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.alv-odonto__tooth-number { font-weight: 700; font-size: var(--font-size-md); }
+.alv-odonto__tooth-state { font-size: 0.6875rem; line-height: 1.1; text-align: center; overflow-wrap: normal; word-break: normal; hyphens: none; }
+
+/* the selected tooth is underlined and raised; it is also announced as pressed */
+.alv-odonto__tooth--selected { background: var(--color-surface-raised); box-shadow: 0 0 0 2px var(--color-text); }
+.alv-odonto__tooth--selected .alv-odonto__tooth-number { text-decoration: underline; }
+
+.alv-odonto__detail {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.alv-odonto__surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.alv-odonto__surface {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.alv-odonto__surface--has { border-width: 2px; }
+.alv-odonto__surface--selected { background: var(--color-surface-raised); box-shadow: 0 0 0 2px var(--color-text); font-weight: 700; }
+.alv-odonto__surface-count { font-size: var(--font-size-xs); font-weight: 400; }
+
+.alv-odonto__finding { padding: var(--space-2) 0; }
+.alv-odonto__finding-title { margin: 0; }
+.alv-odonto__finding-meta { margin: var(--space-1) 0 0; font-size: var(--font-size-sm); }
+
+.alv-odonto__chip {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+/* a tablet or a narrow window: each arch wraps into two rows of eight (patient's right quadrant, then left) instead of scrolling sideways */
+@media (max-width: 900px) {
+  .alv-odonto__arch { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}

@@ -25,4 +25,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "clinical", label: "Clinical", path: "clinical", requiredPermission: "ViewClinicalDocumentation" },
   // ALV-N011: patient safety - alerts, allergies and medications as a safety view, and clearances; the same roles that read clinical documentation.
   { id: "safety", label: "Safety", path: "safety", requiredPermission: "ViewClinicalDocumentation" },
+  // STORY-006: the odontogram (tooth chart); the same roles that read clinical documentation.
+  { id: "odontogram", label: "Odontogram", path: "odontogram", requiredPermission: "ViewClinicalDocumentation" },
 ];

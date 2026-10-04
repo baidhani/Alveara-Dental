@@ -5,6 +5,7 @@ import { SECTION_ORDER } from "../services/clinicalApi";
 import { NOTE_SECTIONS } from "../services/clinicalNotesApi";
 import { FakeClinicalRecordStore } from "./fakeClinicalRecordStore";
 import { FakeSafetyStore } from "./fakeSafetyStore";
+import { FakeOdontogramStore } from "./fakeOdontogramStore";
 
 /**
  * STORY-005: an in-memory stand-in for the clinical documentation API, on top of the fake patient server. It models the response SHAPES (same as
@@ -37,6 +38,8 @@ export class FakeClinicalServer extends FakePatientServer {
   record = new FakeClinicalRecordStore();
   /** The patient-safety endpoints (ALV-N011): the header strip and the Safety tab read them. */
   safety = new FakeSafetyStore();
+  /** The odontogram endpoints (STORY-006): the Odontogram tab reads them. */
+  odontogram = new FakeOdontogramStore();
   /** A stand-in for another user changing an encounter behind the screen's back: bumps the version without touching the content. */
   touch(id: string) { this.encounters.get(id)!.v++; }
 
@@ -131,7 +134,8 @@ export class FakeClinicalServer extends FakePatientServer {
   protected override async handleExtra(path: string, method: string, headers: Record<string, string>, body: Record<string, unknown> | null, u: URL): Promise<Response | null> {
     const isRecord = /^\/api\/(clinical-record|clinical\/templates)/.test(path) || /^\/api\/patients\/[^/]+\/clinical-record/.test(path);
     const isSafety = /^\/api\/safety\//.test(path) || /^\/api\/patients\/[^/]+\/safety/.test(path);
-    const isClinical = isRecord || isSafety || path.startsWith("/api/encounters") || /^\/api\/patients\/[^/]+\/encounters/.test(path);
+    const isOdontogram = /^\/api\/odontogram\//.test(path) || /^\/api\/patients\/[^/]+\/odontogram/.test(path);
+    const isClinical = isRecord || isSafety || isOdontogram || path.startsWith("/api/encounters") || /^\/api\/patients\/[^/]+\/encounters/.test(path);
     if (!isClinical) return null;
     this.clinicalCalls.push({ method, url: u.pathname + u.search, headers, body });
     for (const [key, queue] of this.injectedClinical) {
@@ -142,7 +146,8 @@ export class FakeClinicalServer extends FakePatientServer {
       const [m, prefix] = key.split(" ");
       if (m === method && path.startsWith(prefix)) { this.gates.delete(key); await gate; break; }
     }
-    const response = isSafety ? (this.safety.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
+    const response = isOdontogram ? (this.odontogram.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
+      : isSafety ? (this.safety.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
       : isRecord ? (this.record.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." })) : this.route(path, method, headers, body);
     for (const key of this.dropNext) {
       const [m, suffix] = key.split(" ");
