@@ -161,3 +161,9 @@
   - Session: CC-20261002-f7c1
   - What changed: the detail dialog's header now shows the same "ITEM nn" badge as the card, beside the story-type marker
   - Verification: `e2e/architecture-map.spec.ts` 16 tests at desktop and tablet pass (32 of 32), the dialog test asserts the badge text equals the card's item number; axe light and dark clean
+
+- [x] Command Center: Architecture Map card status on its own last row
+  - Date: 2026-10-04
+  - Session: CC-20261002-f7c1
+  - What changed: each card's delivery state (Complete, Planned, ...) is now its own final row below the subsystem, gate and criteria badges instead of wrapping in with them
+  - Verification: `e2e/architecture-map.spec.ts` 17 tests at desktop and tablet pass with `command-center.spec.ts` (68 of 68); the new test measures every card (53) and asserts the state is the last element and sits below the badges

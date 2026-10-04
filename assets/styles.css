@@ -582,7 +582,7 @@ table.attached-table {
 .map-title { display: block; margin: 3px 0 6px; font-size: 0.82rem; }
 .map-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .map-badge { padding: 1px 6px; border: 1px solid var(--color-border); border-radius: 99px; font-size: 0.68rem; color: var(--color-text-muted); }
-.map-state { font-size: 0.72rem; font-weight: 800; }
+.map-state { display: block; margin-top: 6px; font-size: 0.72rem; font-weight: 800; }
 .map-dialog { width: min(720px, calc(100% - 32px)); max-height: 86vh; padding: 22px; border: 1px solid var(--color-border); border-top: 6px solid var(--color-grey-dot); border-radius: var(--radius); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-lg); }
 .map-dialog::backdrop { background: rgba(10, 17, 23, 0.6); }
 .map-dialog.complete { border-top-color: var(--color-success); }

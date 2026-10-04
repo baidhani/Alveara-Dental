@@ -100,6 +100,21 @@ test.describe("Architecture Map tab", () => {
     await expect(page.locator(".map-stats")).toContainText(`${completeCount} complete`);
   });
 
+  test("every card ends with its delivery state on a row of its own, below the subsystem, gate and criteria badges", async ({ page }) => {
+    await openMap(page);
+    const cards = page.locator("[data-map-story]");
+    const count = await cards.count();
+    expect(count).toBe(records.length);
+    for (let i = 0; i < count; i++) {
+      const card = cards.nth(i);
+      const badges = await card.locator(".map-badges").boundingBox();
+      const state = await card.locator(".map-state").boundingBox();
+      expect(state!.y, `${await card.getAttribute("data-map-story")} state sits below the badges`).toBeGreaterThanOrEqual(badges!.y + badges!.height - 1);
+      await expect(card.locator(".map-badges .map-state")).toHaveCount(0);
+      expect(await card.evaluate((el) => (el.lastElementChild as HTMLElement).className)).toBe("map-state");
+    }
+  });
+
   test("filters change what is shown and reset restores it, keeping keyboard focus on the filter", async ({ page }) => {
     await openMap(page);
     const type = page.locator("#map-filter-type");

@@ -99,7 +99,8 @@ function mapCard(r) {
       <span class="map-node-head"><span class="map-order">ITEM ${String(r.num).padStart(2, "0")}</span>${mapMarker(r.storyType)}</span>
       <span class="map-id">${escapeHtml(r.storyId)}</span>
       <span class="map-title">${title}</span>
-      <span class="map-badges"><span class="map-badge">${escapeHtml(r.subsystem)}</span><span class="map-badge">${escapeHtml(r.gate)}</span>${progress}<span class="map-state">${escapeHtml(r.stateLabel)}</span></span>
+      <span class="map-badges"><span class="map-badge">${escapeHtml(r.subsystem)}</span><span class="map-badge">${escapeHtml(r.gate)}</span>${progress}</span>
+      <span class="map-state">${escapeHtml(r.stateLabel)}</span>
     </button>`;
 }
 
