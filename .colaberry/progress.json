@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 7,
+    "stories_verified": 8,
     "stories_submitted": 0,
-    "stories_in_progress": 12,
+    "stories_in_progress": 11,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 23,
-    "points_awarded": 1873
+    "criteria_passed": 26,
+    "points_awarded": 2580
   },
   "stories": [
     {
@@ -50,7 +50,7 @@
         "commit_sha": "5d67b100eb4d363e714d362cc07414ea7fc4ba7a",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/5d67b100eb4d363e714d362cc07414ea7fc4ba7a",
         "commit_at": "2026-09-27T19:54:56Z",
-        "points_awarded": 187,
+        "points_awarded": 320,
         "outstanding": []
       }
     },
@@ -100,8 +100,8 @@
         "verified_at": "2026-09-29T15:52:11.639Z",
         "commit_sha": "3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
-        "commit_at": "2026-09-29T15:52:00Z",
-        "points_awarded": 130,
+        "commit_at": "2026-09-29T16:35:49Z",
+        "points_awarded": 263,
         "outstanding": []
       }
     },
@@ -207,7 +207,7 @@
         "commit_sha": "014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
         "commit_at": "2026-10-01T23:56:19Z",
-        "points_awarded": 130,
+        "points_awarded": 263,
         "outstanding": []
       }
     },
@@ -267,7 +267,7 @@
         "commit_sha": "d0024f39d4edcbd26fba9353ed5a88b8179fcb70",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/d0024f39d4edcbd26fba9353ed5a88b8179fcb70",
         "commit_at": "2026-10-02T12:27:35Z",
-        "points_awarded": 130,
+        "points_awarded": 263,
         "outstanding": []
       }
     },
@@ -339,7 +339,7 @@
         "commit_sha": "d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/d87ceae52e5530a2066fba8ac86d3d4a9ac94a3f",
         "commit_at": "2026-10-03T22:00:57Z",
-        "points_awarded": 130,
+        "points_awarded": 263,
         "outstanding": []
       }
     },
@@ -421,19 +421,15 @@
       "notes": "Interactive odontogram: the Odontogram tab draws the 32 permanent teeth with the state of what is recorded on each as a word (and a border style); selecting a tooth and a surface shows what is recorded by surface; a finding is recorded in the state the clinician chooses (condition and state are chosen, never pre-filled), moved forward Diagnosed, Planned, Completed (or Diagnosed straight to Completed), or withdrawn with a required reason and kept in its history. The stored tooth identity is its FDI/ISO 3950 two-digit string (52 keys, checked by the database); Universal (default), FDI and Palmer are display-only through one mapper that the chart takes as a parameter. Every change, its history version and its PHI-free audit entry are one save, so a failed audit write stores nothing; a stale change is the shared 409; repeats are quiet. Reading needs ViewClinicalDocumentation, writing ManageClinicalNotes. Known limits: no practice-level numbering preference (no story in the master plan owns it; item 22 only specifies a Universal default with an abstraction for FDI/ISO and does not mention Palmer), permanent teeth only on the chart (primary-tooth findings are listed, not drawn), supernumerary teeth and area findings not covered by the key, the six conditions fixed until ALV-006-C01 moves them to a table, no link to diagnosis or treatment plan, reads not audited. See docs/ODONTOGRAM.md.",
       "updated_at": "2026-10-04T20:12:59.000Z",
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a tooth is selected, when a condition is recorded, then it is saved with the correct lifecycle state.",
-          "Given a completed treatment, when recorded, then the odontogram updates to reflect the change.",
-          "Trust: All odontogram updates are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-04T22:14:59.043Z",
+        "commit_sha": "b8eef585f459bc1f36bb56f7eaec2ad29520f539",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/b8eef585f459bc1f36bb56f7eaec2ad29520f539",
+        "commit_at": "2026-10-04T18:07:44Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
