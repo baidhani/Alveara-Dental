@@ -5,7 +5,7 @@
  * - The chart holds ACTIVE findings only. An empty list means nothing is recorded, never that the mouth is healthy. A withdrawn finding is kept in the finding's history.
  * - A change echoes the `rowVersion` it read (a stale one is the shared 409 concurrency conflict).
  */
-import { request } from "./authApi";
+import { request, requestWithCsrf } from "./authApi";
 
 export const FINDING_STATES = ["Existing", "Diagnosed", "Planned", "Completed"] as const;
 export type FindingState = (typeof FINDING_STATES)[number];
@@ -52,3 +52,17 @@ export interface FindingVersion {
 export const getChart = (patientId: string, signal?: AbortSignal) => request<Chart>(`/api/patients/${patientId}/odontogram`, { signal });
 export const getFindingHistory = (findingId: string, signal?: AbortSignal) =>
   request<{ findingId: string; versions: FindingVersion[] }>(`/api/odontogram/findings/${findingId}/history`, { signal });
+
+export interface RecordFindingInput {
+  toothKey: string;
+  surface: string | null;
+  condition: string;
+  state: string;
+}
+
+/** Each write returns the patient's whole chart as the server now holds it, so the screen replaces what it shows instead of patching it. */
+export const recordFinding = (patientId: string, input: RecordFindingInput) => requestWithCsrf<Chart>(`/api/patients/${patientId}/odontogram/findings`, "POST", input);
+export const changeFindingState = (findingId: string, state: string, rowVersion: string) => requestWithCsrf<Chart>(`/api/odontogram/findings/${findingId}/state`, "POST", { state, rowVersion });
+export const withdrawFinding = (findingId: string, reason: string, rowVersion: string) => requestWithCsrf<Chart>(`/api/odontogram/findings/${findingId}/withdraw`, "POST", { reason, rowVersion });
+
+export const CHANGE_LABELS: Record<string, string> = { Recorded: "Recorded", StateChanged: "State changed", Withdrawn: "Withdrawn" };

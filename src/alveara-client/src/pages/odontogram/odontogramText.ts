@@ -1,4 +1,4 @@
-import { FINDING_STATES } from "../../services/odontogramApi";
+import { CONDITION_LABELS, FINDING_STATES } from "../../services/odontogramApi";
 import type { Finding, FindingState } from "../../services/odontogramApi";
 
 export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -27,3 +27,6 @@ export const findingsByTooth = (findings: Finding[]) => {
 
 export const stateClass = (state: FindingState) => `alv-odonto__state--${state.toLowerCase()}`;
 export const ALL_STATES = FINDING_STATES;
+
+/** What a finding is, in a few words: "Caries (Occlusal surface)" or "Crown (whole tooth)". */
+export const describeFinding = (condition: string, surfaceName: string | null) => `${CONDITION_LABELS[condition] ?? condition} (${surfaceName ? `${surfaceName} surface` : "whole tooth"})`;

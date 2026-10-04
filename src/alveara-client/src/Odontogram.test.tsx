@@ -27,6 +27,7 @@ async function openChart() {
   return view;
 }
 const tooth = (label: string) => screen.getByRole("button", { name: new RegExp(`^Tooth ${label},`) });
+const surfaceButton = (name: RegExp) => within(screen.getByRole("group", { name: "Surfaces" })).getByRole("button", { name });
 const patient = () => makePatient({ id: A, firstName: "Ann", lastName: "Lee" }) as unknown as PatientDetail;
 
 beforeEach(() => {
@@ -128,8 +129,8 @@ describe("selecting a tooth and a surface", () => {
     const rows = within(detail).getAllByRole("listitem").map((li) => li.textContent!.replace(/\s+/g, " "));
     expect(rows.some((r) => r.startsWith("Caries · Occlusal surface") && r.includes("Diagnosed") && r.includes("Recorded by Dr. Okafor"))).toBe(true);
     expect(rows.some((r) => r.startsWith("Root canal · Whole tooth") && r.includes("Completed") && r.includes("last changed by Hana Hygienist"))).toBe(true);
-    expect(within(detail).getByRole("button", { name: /Occlusal/ })).toHaveTextContent("1 finding");
-    expect(within(detail).getByRole("button", { name: /Distal/ })).toHaveTextContent("none recorded");
+    expect(surfaceButton(/Occlusal/)).toHaveTextContent("1 finding");
+    expect(surfaceButton(/Distal/)).toHaveTextContent("none recorded");
 
     await user.click(tooth("3"));
     expect(tooth("3")).toHaveAttribute("aria-pressed", "false");
@@ -156,17 +157,17 @@ describe("selecting a tooth and a surface", () => {
     const list = () => within(screen.getByRole("region", { name: /^Tooth 3:/ })).getAllByRole("listitem").filter((li) => li.className.includes("alv-odonto__finding"));
     expect(list()).toHaveLength(3);
 
-    await user.click(screen.getByRole("button", { name: /Occlusal/ }));
-    expect(screen.getByRole("button", { name: /Occlusal/ })).toHaveAttribute("aria-pressed", "true");
+    await user.click(surfaceButton(/Occlusal/));
+    expect(surfaceButton(/Occlusal/)).toHaveAttribute("aria-pressed", "true");
     const texts = list().map((li) => li.textContent!);
     expect(texts).toHaveLength(2);
     expect(texts.some((t) => t.includes("Caries"))).toBe(true);
     expect(texts.some((t) => t.includes("Crown"))).toBe(true);                // the whole-tooth finding stays
     expect(texts.some((t) => t.includes("Restoration"))).toBe(false);         // the mesial one is filtered out
 
-    await user.click(screen.getByRole("button", { name: /Distal/ }));
+    await user.click(surfaceButton(/Distal/));
     expect(list().map((li) => li.textContent)).toEqual([expect.stringContaining("Crown")]);     // nothing on the distal surface; the whole-tooth finding still applies
-    await user.click(screen.getByRole("button", { name: /Distal/ }));
+    await user.click(surfaceButton(/Distal/));
     expect(list()).toHaveLength(3);
   });
 
@@ -175,9 +176,9 @@ describe("selecting a tooth and a surface", () => {
     server.odontogram.addFinding(A, { toothKey: "16", surface: "O", condition: "Caries" });
     await openChart();
     await user.click(tooth("3"));
-    await user.click(screen.getByRole("button", { name: /Distal/ }));
+    await user.click(surfaceButton(/Distal/));
     expect(screen.getByText("Nothing is recorded for the distal surface. Select it again to see everything on this tooth.")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /Distal/ }));
+    await user.click(surfaceButton(/Distal/));
     expect(screen.getByText("Caries", { selector: "strong" })).toBeInTheDocument();
   });
 
@@ -192,7 +193,7 @@ describe("selecting a tooth and a surface", () => {
     const user = userEvent.setup();
     await openChart();
     await user.click(tooth("3"));
-    await user.click(screen.getByRole("button", { name: /Occlusal/ }));
+    await user.click(surfaceButton(/Occlusal/));
     await user.click(tooth("4"));
     expect(within(screen.getByRole("group", { name: "Surfaces" })).getAllByRole("button").every((b) => b.getAttribute("aria-pressed") === "false")).toBe(true);
   });
@@ -251,7 +252,7 @@ describe("accessibility", () => {
     server.odontogram.addFinding(A, { toothKey: "54", surface: "O", condition: "Caries", state: "Planned" });
     const { container } = await openChart();
     await user.click(tooth("3"));
-    await user.click(screen.getByRole("button", { name: /Occlusal/ }));
+    await user.click(surfaceButton(/Occlusal/));
     expect(await axe(container)).toHaveNoViolations();
   });
 });
