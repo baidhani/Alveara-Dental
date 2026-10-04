@@ -574,8 +574,10 @@ table.attached-table {
 .map-node.changes-required, .map-node.blocked, .map-node.reopened { border-left-color: var(--color-danger); }
 .map-node-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .map-order, .map-marker { padding: 2px 6px; border: 1px solid var(--color-border); border-radius: 99px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; color: var(--color-text-muted); }
-.map-marker.course { border-color: var(--color-primary); color: var(--color-primary); }
-.map-marker.companion { border-color: var(--color-accent); color: var(--color-accent); }
+/* each story type has its own colour and icon; the colours are chosen for text contrast against their own tint in both themes */
+.map-marker.course { background: var(--map-course-bg); border-color: var(--map-course-fg); color: var(--map-course-fg); }
+.map-marker.new_production { background: var(--map-engineering-bg); border-color: var(--map-engineering-fg); color: var(--map-engineering-fg); }
+.map-marker.companion { background: var(--map-companion-bg); border-color: var(--map-companion-fg); color: var(--map-companion-fg); }
 .map-id { display: block; margin-top: 4px; font-weight: 800; font-size: 0.8rem; }
 .map-title { display: block; margin: 3px 0 6px; font-size: 0.82rem; }
 .map-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
@@ -608,3 +610,14 @@ table.attached-table {
 .map-dot.complete { background: var(--color-success); }
 .map-dot.progress, .map-dot.awaiting-review { background: var(--color-primary); }
 .map-dot.changes-required, .map-dot.blocked, .map-dot.reopened { background: var(--color-danger); }
+
+:root {
+  --map-course-bg: #dceef9; --map-course-fg: #155b7c;
+  --map-engineering-bg: #ece3ff; --map-engineering-fg: #5d3b9c;
+  --map-companion-bg: #d8f3ee; --map-companion-fg: #08786f;
+}
+:root[data-theme="dark"] {
+  --map-course-bg: #1d3445; --map-course-fg: #9fd0ee;
+  --map-engineering-bg: #2c2447; --map-engineering-fg: #cdb8f5;
+  --map-companion-bg: #17383a; --map-companion-fg: #86dccf;
+}

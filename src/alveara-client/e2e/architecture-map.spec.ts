@@ -142,6 +142,24 @@ test.describe("Architecture Map tab", () => {
     await expect(companion).toHaveAttribute("aria-pressed", "true");
   });
 
+  for (const theme of ["light", "dark"] as const) {
+    test(`each story type has its own icon and colour, with the type also written as a word, in ${theme} mode`, async ({ page }) => {
+      await page.addInitScript((t) => localStorage.setItem("alveara-theme", t), theme);
+      await openMap(page);
+      const expected = { course: ["⚑", "PORTAL"], new_production: ["⚙", "ENGINEERING"], companion: ["⛓", "COMPANION"] } as const;
+      const backgrounds = new Set<string>();
+      for (const [type, [icon, word]] of Object.entries(expected)) {
+        const story = records.find((r) => r.storyType === type)!;
+        const marker = page.locator(`[data-map-story="${story.storyId}"] .map-marker`);
+        await expect(marker).toContainText(icon);
+        await expect(marker).toContainText(word);
+        backgrounds.add(await marker.evaluate((el) => getComputedStyle(el).backgroundColor));
+        await expect(page.locator(`[data-map-legend="type"] .map-marker.${type}`)).toContainText(icon);
+      }
+      expect(backgrounds.size).toBe(3);                              // three types, three different colours
+    });
+  }
+
   test("a legend key can be used from the keyboard", async ({ page }) => {
     await openMap(page);
     const planned = page.locator('[data-map-legend="state"][data-map-value="Planned"]');

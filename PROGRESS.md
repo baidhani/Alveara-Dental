@@ -149,3 +149,9 @@
   - What changed: the legend of clickable keys (one per delivery state and story type present in the data) that the original static page had and the first port left out. Each key applies its filter, shows pressed state, clears on a second press, and keeps keyboard focus; built from the live data so it never lists a state that does not exist
   - Verification: `e2e/architecture-map.spec.ts` 14 tests at desktop and tablet pass with `command-center.spec.ts` (62 of 62), including the new legend tests (exact key set from the data, filter, clear, keyboard) and axe in light and dark (0 serious/critical)
   - Notes: omission in the first port was mine and was not flagged at the time
+
+- [x] Command Center: Architecture Map story-type icons and colours restored (fix to the first port)
+  - Date: 2026-10-04
+  - Session: CC-20261002-f7c1
+  - What changed: each story type has its own icon and colour again (portal: flag, blue; engineering: gear, purple; companion: chain, teal) on cards, legend and the detail dialog, through new `--map-*` tokens with light and dark values; the type is still written as a word beside the icon
+  - Verification: `e2e/architecture-map.spec.ts` 16 tests at desktop and tablet pass with `command-center.spec.ts` (66 of 66): icon, word and three distinct colours per theme, plus axe in light and dark (0 serious/critical)

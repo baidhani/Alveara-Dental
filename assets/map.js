@@ -9,6 +9,13 @@
 
 const MAP_TYPE_LABELS = { course: "Portal story", companion: "Engineering companion", new_production: "Engineering story" };
 const MAP_TYPE_MARKERS = { course: "PORTAL", companion: "COMPANION", new_production: "ENGINEERING" };
+const MAP_TYPE_ICONS = { course: "\u2691", companion: "\u26D3", new_production: "\u2699" }; // flag, chain, gear
+
+/** A story type's marker: its own icon and colour, with the type written as a word so the type never depends on colour or on the icon being drawn. */
+function mapMarker(storyType) {
+  const icon = MAP_TYPE_ICONS[storyType];
+  return `<span class="map-marker ${escapeHtml(storyType)}">${icon ? `<span aria-hidden="true">${icon}</span> ` : ""}${escapeHtml(MAP_TYPE_MARKERS[storyType] || "STORY")}</span>`;
+}
 const MAP_STATUS_LABELS = {
   PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", BLOCKED: "Blocked", REOPENED: "Reopened", COMPLETE: "Complete",
 };
@@ -80,17 +87,16 @@ function mapLegend(rows) {
     `<button type="button" class="map-legend-button" data-map-legend="${filter}" data-map-value="${escapeHtml(value)}" aria-pressed="${mapUi.filters[filter] === value}">${inner}</button>`;
   const stateButtons = [...states.entries()].map(([label, cls]) => button("state", label, `<i class="map-dot ${escapeHtml(cls)}" aria-hidden="true"></i>${escapeHtml(label)}`));
   const typeButtons = [...types.entries()].map(([label, type]) =>
-    button("type", label, `<span class="map-marker ${escapeHtml(type)}">${escapeHtml(MAP_TYPE_MARKERS[type] || "STORY")}</span> ${escapeHtml(label.toLowerCase())}`));
+    button("type", label, `${mapMarker(type)} ${escapeHtml(label.toLowerCase())}`));
   return `<div class="map-legend" role="group" aria-label="Legend: select a key to filter the map">${[...stateButtons, ...typeButtons].join("")}</div>`;
 }
 
 function mapCard(r) {
-  const marker = MAP_TYPE_MARKERS[r.storyType] || "STORY";
   const title = r.title ? escapeHtml(r.title) : `<em>No title. Add ${escapeHtml(r.storyId)} to .alveara/story_catalog.json.</em>`;
   const progress = r.criteriaTotal ? ` <span class="map-badge">${r.criteriaPassed} of ${r.criteriaTotal} criteria</span>` : "";
   return `
     <button type="button" class="map-node ${escapeHtml(r.stateClass)}" data-map-story="${escapeHtml(r.storyId)}" aria-haspopup="dialog">
-      <span class="map-node-head"><span class="map-order">ITEM ${String(r.num).padStart(2, "0")}</span><span class="map-marker ${escapeHtml(r.storyType)}">${escapeHtml(marker)}</span></span>
+      <span class="map-node-head"><span class="map-order">ITEM ${String(r.num).padStart(2, "0")}</span>${mapMarker(r.storyType)}</span>
       <span class="map-id">${escapeHtml(r.storyId)}</span>
       <span class="map-title">${title}</span>
       <span class="map-badges"><span class="map-badge">${escapeHtml(r.subsystem)}</span><span class="map-badge">${escapeHtml(r.gate)}</span>${progress}<span class="map-state">${escapeHtml(r.stateLabel)}</span></span>
@@ -162,7 +168,7 @@ function mapDetailHtml(r) {
   const blocking = (r.blockingIssues || []).length ? `<dt>Blocking issues</dt><dd>${r.blockingIssues.map((b) => escapeHtml(typeof b === "string" ? b : b.summary || JSON.stringify(b))).join("; ")}</dd>` : "";
   return `
     <button type="button" class="map-close" data-map-close aria-label="Close story details">&times;</button>
-    <div class="map-type-row"><span class="map-marker ${escapeHtml(r.storyType)}">${escapeHtml(MAP_TYPE_MARKERS[r.storyType] || "STORY")}</span></div>
+    <div class="map-type-row">${mapMarker(r.storyType)}</div>
     <h2 id="map-dialog-title">${escapeHtml(r.storyId)} — ${r.title ? escapeHtml(r.title) : "No title in the catalog"}</h2>
     <dl class="map-detail-grid">
       <dt>Execution order</dt><dd>#${escapeHtml(r.num)}</dd>
