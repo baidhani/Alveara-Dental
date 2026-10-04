@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-006",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-04T20:14:07Z",
+  "sourceCommitSha": "31b6d3d",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A patient's odontogram is a set of findings. A finding sits on one tooth, optionally on one surface, has one of six conditions (caries, restoration, crown, missing tooth, implant, root canal) and one of four lifecycle states (existing, diagnosed, planned, completed), and is active or withdrawn. The tooth is identified by its FDI / ISO 3950 two-digit string: 52 keys (permanent 11-18, 21-28, 31-38, 41-48; primary 51-55, 61-65, 71-75, 81-85). Caries and restoration are recorded on a surface; the other four conditions apply to the whole tooth and carry no surface. Occlusal and buccal surfaces exist only on posterior teeth, incisal and facial only on anterior teeth.",
+      "evidence": "src/Alveara.Api/Architecture/Odontogram/OdontogramEntities.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Dentists, hygienists and administrators (the existing ManageClinicalNotes permission) can record a finding, move it forward and withdraw it. Dentists, hygienists, assistants and administrators (ViewClinicalDocumentation) can read the chart and a finding's history; an assistant reads but cannot write. Front desk, billing and the practice manager have no access.",
+      "evidence": "src/Alveara.Api.Tests/OdontogramApiTests.cs"
+    },
+    {
+      "dimension": "approval_points",
+      "value": "There is no second-person approval. Withdrawing a finding needs a reason, recorded with who withdrew it and when; moving a finding to Planned or Completed is a single action by one authorised person. Existing and Completed findings are final: a correction is made by withdrawing and recording again.",
+      "evidence": "src/Alveara.Api/Architecture/Odontogram/OdontogramService.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Each of these is refused with a stable error code and nothing is stored: a tooth that is not one of the 52 keys (including a Universal number), a surface that does not exist on that kind of tooth, a surface on a whole-tooth condition, no surface on a surface condition, an unknown condition or state, a state move that is not forward (409 invalid_transition), recording an existing finding in a different state (409 finding_exists), a change to a withdrawn finding (409 finding_withdrawn), a withdrawal without a reason (400 reason_required) and a stale or missing row version (409 concurrency_conflict, 400).",
+      "evidence": "src/Alveara.Api.Tests/OdontogramServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every change is written to the audit log with the signed-in user and a timestamp, and to the finding's own append-only history, in the same save as the change: if the audit entry cannot be written, nothing is stored (tested with a trigger that refuses the audit insert). Audit text names neither the tooth nor the condition nor the reason. Reading the chart is a separate permission from finding a patient, so front desk and billing cannot read it. Reading is not itself audited; only changes are.",
+      "evidence": "src/Alveara.Api.Tests/OdontogramServiceTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "The database itself refuses a tooth that is not one of the 52 keys, a surface that does not exist on that kind of tooth, a surface on a whole-tooth condition (or none on a surface condition), a condition, state or status outside the model (case-sensitively), a withdrawn finding without who, when and why, a second active finding for the same tooth, surface and condition, deleting a finding, and any change to a finding's history.",
+      "evidence": "src/Alveara.Api/Migrations/20261004175626_AddOdontogram.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "The patient workspace has an Odontogram tab (shown only to roles that may read clinical documentation): the 32 permanent teeth with each tooth's state written as a word under its number and repeated by a border style, a legend, tooth and surface selection, the findings on the selected tooth with who recorded and last changed them, forms to record a finding, move it forward or withdraw it with a reason, and a per-finding history. Findings on primary teeth are listed below the chart because it does not draw them.",
+      "evidence": "src/alveara-client/src/Odontogram.test.tsx"
+    },
+    {
+      "dimension": "unknowns",
+      "value": "Nothing in the master execution plan owns a practice-level or per-user preference for which tooth-numbering system (Universal, FDI, Palmer) the chart shows, where it is stored, or who may change it. Item 22 (ALV-006-C01) specifies a Universal default with an abstraction that can later render FDI/ISO and does not mention Palmer.",
+      "evidence": "docs/ODONTOGRAM.md"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "A tooth is stored as its FDI / ISO 3950 two-digit string; Universal and Palmer numbering are display-only.",
+      "rationale": "One stored identity that never changes with how a practice reads the chart, so a numbering change can never move a finding to another tooth; a string rather than a number leaves room to add identities (supernumerary teeth, areas) without migrating existing findings.",
+      "evidence": "src/Alveara.Api/Architecture/Odontogram/ToothKeys.cs"
+    },
+    {
+      "statement": "One mapper renders and reads Universal (the default), FDI and Palmer now, and the numbering preference setting is deferred; the chart takes the numbering system as a parameter that defaults to Universal.",
+      "rationale": "The abstraction item 22 asks for is needed to build the chart honestly, and building it for all three systems costs little; where the preference is stored and who changes it belongs to practice configuration, which is outside this story. The two implementations are held to the same published reference teeth.",
+      "evidence": "src/alveara-client/src/pages/odontogram/toothNumbering.test.ts"
+    },
+    {
+      "statement": "A finding moves forward only (diagnosed to planned to completed, or diagnosed straight to completed); existing and completed findings are final and a wrong entry is withdrawn with a reason and kept in the history, never deleted.",
+      "rationale": "The history must show what was actually recorded and by whom; allowing state moves in both directions or deletion would let a clinical record be rewritten.",
+      "evidence": "src/Alveara.Api/Architecture/Odontogram/OdontogramRules.cs"
+    },
+    {
+      "statement": "The chart is always read from the findings; completing a treatment changes the finding, not a separate copy.",
+      "rationale": "The second acceptance criterion requires the odontogram to reflect a completed treatment; with one source there is nothing to fall out of step.",
+      "evidence": "src/Alveara.Api.Tests/OdontogramServiceTests.cs"
+    },
+    {
+      "statement": "The condition list is fixed at six in code and in a database check until a later story moves it to a table.",
+      "rationale": "The master plan gives the extensible list to ALV-006-C01; hard-coding six now keeps this story small while the database still refuses anything outside the list.",
+      "evidence": "src/Alveara.Api/Data/OdontogramModel.cs"
+    },
+    {
+      "statement": "A tooth shown on the chart displays the state that most needs attention first (diagnosed, then planned, then completed, then existing) with a count of the rest, and every state is written as a word as well as a border style.",
+      "rationale": "A glance at the chart should show what still needs work, and status must not depend on colour alone.",
+      "evidence": "src/alveara-client/src/styles/odontogramContrast.test.ts"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "There is no numbering-preference setting: nothing chooses between Universal, FDI and Palmer, and nothing is stored. The chart shows Universal unless a caller passes another system.",
+      "evidence": "docs/ODONTOGRAM.md"
+    },
+    {
+      "statement": "The chart draws permanent teeth only. Findings on primary teeth can be recorded through the API and are listed under the chart, but there is no primary or mixed-dentition screen.",
+      "evidence": "src/alveara-client/src/pages/odontogram/OdontogramPanel.tsx"
+    },
+    {
+      "statement": "Supernumerary teeth and findings about an area rather than one tooth (a quadrant, an arch, the whole mouth) are not covered by the FDI key and cannot be recorded.",
+      "evidence": "src/Alveara.Api/Architecture/Odontogram/ToothKeys.cs"
+    },
+    {
+      "statement": "The six conditions are fixed in code and in the database check.",
+      "evidence": "src/Alveara.Api/Architecture/Odontogram/OdontogramEntities.cs"
+    },
+    {
+      "statement": "A finding is not linked to a diagnosis, a treatment plan or a procedure, and completing one does not create a charge.",
+      "evidence": "docs/ODONTOGRAM.md"
+    },
+    {
+      "statement": "Complete is a single action with no confirmation step; it is undone only by withdrawing and recording again.",
+      "evidence": "src/alveara-client/src/pages/odontogram/FindingRow.tsx"
+    },
+    {
+      "statement": "Reading the chart is not audited; only changes are.",
+      "evidence": "src/Alveara.Api/Controllers/OdontogramController.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/ToothNumberingTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/OdontogramSchemaTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/OdontogramServiceTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/OdontogramApiTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/Odontogram.test.tsx"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/OdontogramWrite.test.tsx"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/odontogram-real-backend.spec.ts"
+    }
+  ],
+  "measurementEvents": []
+}
