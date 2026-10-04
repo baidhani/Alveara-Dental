@@ -163,7 +163,10 @@ function renderMap() {
 function mapDetailHtml(r) {
   const deps = (r.dependencies || []).length ? r.dependencies.map((d) => `<span class="map-dep">${escapeHtml(d)}</span>`).join("") : "No predecessor";
   const sha = (v) => (v ? `<code>${escapeHtml(String(v).slice(0, 7))}</code>` : "—");
-  const review = r.review?.decision && r.review.decision !== "pending" ? r.review.decision.replace(/_/g, " ") : "—";
+  const review = r.review?.decision && r.review.decision !== "pending"
+    ? r.review.decision.replace(/_/g, " ") + (r.review.decisionArtifact ? ` (${r.review.decisionArtifact})` : "")
+    : "—";
+  const tests = r.tests?.summary ? `<dt>Tests</dt><dd>${escapeHtml(r.tests.summary)}</dd>` : "";
   const completed = r.completedAt ? new Date(r.completedAt).toLocaleString() : "—";
   const criteria = r.criteriaTotal ? `${r.criteriaPassed} of ${r.criteriaTotal} criteria passing (portal progress file)` : `${r.acceptance?.passed ?? 0} of ${r.acceptance?.total ?? 0} (ledger)`;
   const blocking = (r.blockingIssues || []).length ? `<dt>Blocking issues</dt><dd>${r.blockingIssues.map((b) => escapeHtml(typeof b === "string" ? b : b.summary || JSON.stringify(b))).join("; ")}</dd>` : "";
@@ -181,11 +184,34 @@ function mapDetailHtml(r) {
       <dt>Dependencies</dt><dd class="map-deps">${deps}</dd>
       <dt>Acceptance</dt><dd>${escapeHtml(criteria)}</dd>
       <dt>Review</dt><dd>${escapeHtml(review)}</dd>
+      ${tests}
       <dt>Implementation</dt><dd>${sha(r.implementationCommit)}</dd>
       <dt>Evidence</dt><dd>${sha(r.evidenceCommit)}</dd>
       <dt>Completed</dt><dd>${escapeHtml(completed)}</dd>
       ${blocking}
     </dl>`;
+}
+
+/** Fills a <dialog> with one story's details and shows it modally; Escape, the close button or a click outside close it, and focus returns to what opened it. */
+function showStoryDialog(dialog, r, opener) {
+  dialog.innerHTML = mapDetailHtml(r);
+  dialog.className = `map-dialog ${r.stateClass}`;
+  dialog.querySelector("[data-map-close]").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); }, { once: true });
+  dialog.addEventListener("close", () => { if (opener?.isConnected) opener.focus(); }, { once: true });
+  dialog.showModal();
+}
+
+/** Opens the story dialog from outside the map (Project Management). The dialog is made for the moment and removed when it closes. */
+function openStoryDialog(storyId, opener) {
+  const r = mapRecords().find((x) => x.storyId === storyId);
+  if (!r) return;
+  const dialog = document.createElement("dialog");
+  dialog.id = "map-dialog";
+  dialog.setAttribute("aria-labelledby", "map-dialog-title");
+  document.body.appendChild(dialog);
+  dialog.addEventListener("close", () => dialog.remove());
+  showStoryDialog(dialog, r, opener);
 }
 
 /** Binds the controls drawn by renderMap(); called by app.js after the tab's HTML is in the page. */
@@ -221,12 +247,7 @@ function wireMap(root) {
     card.addEventListener("click", () => {
       const r = mapUi.rows.find((x) => x.storyId === card.dataset.mapStory);
       if (!r || !dialog) return;
-      dialog.innerHTML = mapDetailHtml(r);
-      dialog.className = `map-dialog ${r.stateClass}`;
-      dialog.querySelector("[data-map-close]").addEventListener("click", () => dialog.close());
-      dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); }, { once: true });
-      dialog.addEventListener("close", () => card.isConnected && card.focus(), { once: true });
-      dialog.showModal();
+      showStoryDialog(dialog, r, card);
     });
   });
 }

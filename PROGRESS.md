@@ -167,3 +167,9 @@
   - Session: CC-20261002-f7c1
   - What changed: each card's delivery state (Complete, Planned, ...) is now its own final row below the subsystem, gate and criteria badges instead of wrapping in with them
   - Verification: `e2e/architecture-map.spec.ts` 17 tests at desktop and tablet pass with `command-center.spec.ts` (68 of 68); the new test measures every card (53) and asserts the state is the last element and sits below the badges
+
+- [x] Command Center: engineering stories open in the Architecture Map pop-up
+  - Date: 2026-10-04
+  - Session: CC-20261002-f7c1
+  - What changed: clicking an engineering story in Project Management (the Engineering stories table, or the attached story link inside an expanded portal story) now opens the same pop-up as the Architecture Map instead of the panel at the bottom of the page. The story id in the table is now a real button, so it opens and closes from the keyboard and focus returns to it. The pop-up also shows the tests summary and the review artifact the old panel showed; the old engineering branch of the bottom panel was removed
+  - Verification: `command-center.spec.ts` and `architecture-map.spec.ts` 74 of 74 at desktop and tablet; two existing tests updated from the panel to the pop-up, new tests for keyboard open, Escape, focus return, review and tests shown, and axe in light and dark with the pop-up open (0 serious/critical)

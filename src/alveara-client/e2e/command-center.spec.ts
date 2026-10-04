@@ -195,10 +195,12 @@ test.describe("expanding a portal story shows its attached engineering stories",
     await page.locator('#pm-panel tr[data-expand="STORY-003"]').click();
     await page.locator('[data-expanded-panel="STORY-003"]').getByRole("button", { name: "ALV-003-C01" }).click();
     await expect(page.getByRole("tab", { name: /Engineering stories/ })).toHaveAttribute("aria-selected", "true");
-    const detail = page.locator("#detail-panel");
+    const detail = page.locator("#map-dialog");
+    await expect(detail).toBeVisible();
     await expect(detail).toContainText("ALV-003-C01");
-    await expect(detail).toContainText("Extends portal story STORY-003");
-    await expect(detail).toContainText("Review decision: APPROVED");
+    await expect(detail).toContainText("extends STORY-003");
+    await expect(detail).toContainText("APPROVED");
+    await expect(page.locator("#detail-panel .detail-panel")).toHaveCount(0);       // not the panel at the bottom of the page
   });
 });
 
@@ -242,16 +244,48 @@ test.describe("Project Management: portal stories and engineering stories", () =
     await expect(summary).toContainText(`${engineering.filter((r) => r.storyType === "companion").length} companion`);
   });
 
+  test("an engineering story opens in a pop-up from the keyboard, shows its review and tests, closes with Escape and returns focus to its id", async ({ page }) => {
+    await openPm(page);
+    await page.getByRole("tab", { name: /Engineering stories/ }).click();
+    const done = engineering.find((r) => r.status === "COMPLETE" && (r as { review?: { decision?: string } }).review?.decision === "APPROVED")!;
+    const button = page.locator(`[data-eng-btn="${done.storyId}"]`);
+    await button.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.locator("#map-dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator(".map-order")).toHaveText(`ITEM ${String(done.num).padStart(2, "0")}`);
+    await expect(dialog).toContainText("APPROVED");
+    await expect(dialog).toContainText("Tests");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(button).toBeFocused();
+    await expect(page.locator("#detail-panel .detail-panel")).toHaveCount(0);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`the engineering story pop-up has no critical or serious accessibility violations (${theme})`, async ({ page }) => {
+      await page.addInitScript((t) => localStorage.setItem("alveara-theme", t), theme);
+      await openPm(page);
+      await page.getByRole("tab", { name: /Engineering stories/ }).click();
+      await page.locator("[data-eng-btn]").first().click();
+      await expect(page.locator("#map-dialog")).toBeVisible();
+      const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
+      expect(results.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => v.id)).toEqual([]);
+    });
+  }
+
   test("an engineering story drills down to its details, and the views switch back and forth", async ({ page }) => {
     await openPm(page);
     await page.getByRole("tab", { name: /Engineering stories/ }).click();
     const first = engineering.slice().sort((a, b) => a.num - b.num).find((r) => r.status === "COMPLETE")!;
     await page.locator("#pm-panel table tbody tr", { hasText: first.storyId }).first().click();
-    const detail = page.locator("#detail-panel");
+    const detail = page.locator("#map-dialog");
+    await expect(detail).toBeVisible();
     await expect(detail).toContainText(first.storyId);
-    await expect(detail).toContainText("Depends on");
-    await page.locator("#close-detail").click();
-    await expect(page.locator("#close-detail")).toHaveCount(0);
+    await expect(detail).toContainText("Dependencies");
+    await expect(page.locator("#close-detail")).toHaveCount(0);                     // the old bottom panel is not used for engineering stories
+    await detail.getByRole("button", { name: "Close story details" }).click();
+    await expect(detail).toHaveCount(0);
 
     await page.getByRole("tab", { name: "Portal stories" }).click();
     await expect(page.locator("#pm-panel tr[data-expand]")).toHaveCount(plan.stories.length);

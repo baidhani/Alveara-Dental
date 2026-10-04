@@ -315,18 +315,6 @@ function renderDetail(rawId) {
          <p>Release: ${escapeHtml(story.release)} · Due: ${escapeHtml(story.due_on)} (first given: ${escapeHtml(story.due_baseline_on)})</p>
          <p>State: ${verifiedBadge(story.id)}${prog?.verification?.commit_sha ? ` · commit ${escapeHtml(prog.verification.commit_sha.slice(0, 7))}` : ""}</p>`
       : `<p>No detail available.</p>`;
-  } else if (tab === "eng") {
-    const r = (state.ledger?.records || []).find((x) => x.storyId === key);
-    html = r
-      ? `<h3>${escapeHtml(r.storyId)} — ${escapeHtml(ENGINEERING_TYPES[r.storyType] || r.storyType)} story ${escapeHtml(r.num)}</h3>
-         <p>Phase: ${escapeHtml(r.phase)}${r.parentCourseStory ? ` · Extends portal story ${escapeHtml(r.parentCourseStory)}` : ""}</p>
-         <p>Depends on: ${(r.dependencies || []).length ? (r.dependencies || []).map(escapeHtml).join(", ") : "nothing"}</p>
-         <p>Status: ${engineeringStatusTag(r.status)}${r.attempt ? ` · attempt ${escapeHtml(r.attempt)}` : ""}${r.acceptance?.total != null ? ` · acceptance ${escapeHtml(r.acceptance.passed)} of ${escapeHtml(r.acceptance.total)}` : ""}</p>
-         ${r.review?.decision && r.review.decision !== "pending" ? `<p>Review decision: ${escapeHtml(r.review.decision.replace(/_/g, " "))}${r.review.decisionArtifact ? ` (${escapeHtml(r.review.decisionArtifact)})` : ""}</p>` : ""}
-         ${r.implementationCommit ? `<p>Implementation commit ${escapeHtml(r.implementationCommit.slice(0, 7))}${r.completedAt ? ` · completed ${escapeHtml(r.completedAt)}` : ""}</p>` : ""}
-         ${r.tests?.summary ? `<p>Tests: ${escapeHtml(r.tests.summary)}</p>` : ""}
-         ${(r.blockingIssues || []).length ? `<p>Blocking issues: ${(r.blockingIssues || []).map(escapeHtml).join(" · ")}</p>` : ""}`
-      : `<p>No detail available.</p>`;
   } else if (tab === "agents") {
     const owner = STORY_OWNERS.find((o) => o.name === decodeURIComponent(key));
     html = owner
@@ -367,7 +355,11 @@ function renderTabContent() {
   el.innerHTML = renderer ? renderer() : renderNotBuilt(state.activeTab);
 
   el.querySelectorAll("[data-detail]").forEach((card) => {
-    card.addEventListener("click", () => renderDetail(card.dataset.detail));
+    card.addEventListener("click", () => {
+      // an engineering story opens in the same dialog the Architecture Map uses; everything else keeps the panel at the bottom
+      if (card.dataset.detail.startsWith("eng:")) openStoryDialog(card.dataset.detail.slice(4), card.querySelector("[data-eng-btn]") || card);
+      else renderDetail(card.dataset.detail);
+    });
   });
 
   if (state.activeTab === "kb") wireKbChat();
@@ -387,8 +379,7 @@ function renderTabContent() {
         event.stopPropagation();
         state.pmView = "engineering";
         renderTabContent();
-        renderDetail(`eng:${btn.dataset.engOpen}`);
-        document.getElementById("detail-panel")?.scrollIntoView({ block: "nearest" });
+        openStoryDialog(btn.dataset.engOpen, el.querySelector(`[data-eng-btn="${CSS.escape(btn.dataset.engOpen)}"]`));
       });
     });
     el.querySelectorAll("[data-pm-view]").forEach((btn) => {
@@ -683,7 +674,7 @@ function renderEngineeringStories() {
       return `
         <tr data-detail="eng:${escapeHtml(r.storyId)}" style="cursor:pointer">
           <td>${escapeHtml(r.num)}</td>
-          <td>${escapeHtml(r.storyId)}</td>
+          <td><button type="button" class="link-btn" data-eng-btn="${escapeHtml(r.storyId)}" aria-haspopup="dialog">${escapeHtml(r.storyId)}</button></td>
           <td>${escapeHtml(ENGINEERING_TYPES[r.storyType] || r.storyType)}</td>
           <td>${escapeHtml(r.parentCourseStory || "—")}</td>
           <td>${engineeringStatusTag(r.status)}</td>
