@@ -1,0 +1,3 @@
+Results File: C:/tmp/c01/backend_full.trx
+
+Passed!  - Failed:     0, Passed:  1232, Skipped:     0, Total:  1232, Duration: 1 h 4 m - Alveara.Api.Tests.dll (net10.0)

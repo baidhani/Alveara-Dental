@@ -1,0 +1,223 @@
+{
+  "axe": {
+    "clinical-record-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "clinical-record-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "clinical-record-remove-form-open-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "clinical-record-remove-form-open-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "record-conflict-banner-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "record-conflict-banner-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "template-form-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "template-form-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "templates-list-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "templates-list-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "encounter-notes-and-vitals-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "encounter-notes-and-vitals-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "signing-review-ready-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "signing-review-ready-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "signed-locked-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "signed-locked-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "finalized-amendment-timeline-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "finalized-amendment-timeline-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    }
+  },
+  "stamp": 1791073959939,
+  "record": {
+    "allergyHistory": [
+      [
+        "Added",
+        "Active",
+        "Dr. Dana Dentist 1791073959939"
+      ],
+      [
+        "StatusChanged",
+        "Resolved",
+        "Hana Hygienist 1791073959939"
+      ]
+    ],
+    "medicationDoses": [
+      "10 mg",
+      "20 mg"
+    ],
+    "attributedByName": true
+  },
+  "semantics": {
+    "noneKnown": "NoneKnown with 0 items",
+    "unknown": "Unknown with 0 items",
+    "notReviewed": "NotReviewed (no statement)",
+    "addingAnItemWithdrawsTheStatement": true,
+    "confirmedListGoesStale": true
+  },
+  "recordConcurrency": {
+    "staleEditRefused": true,
+    "otherChangeStood": true,
+    "typedValuesSurvivedReload": true
+  },
+  "template": {
+    "created": true,
+    "duplicateNameRefused": 409,
+    "hygienistCannotConfigure": 403,
+    "ownedByClinicalDomain": "api/clinical/templates, ManageClinicalTemplates"
+  },
+  "encounter": {
+    "templateApplied": true,
+    "signBlockedUntilRequiredNotesWritten": [
+      "note:Plan",
+      "note:Subjective"
+    ],
+    "notes": [
+      "Subjective",
+      "Objective",
+      "Assessment",
+      "Plan",
+      "Progress",
+      "Treatment"
+    ],
+    "vitals": [
+      {
+        "bp": "190/110",
+        "voided": true,
+        "by": "Dr. Dana Dentist 1791073959939"
+      },
+      {
+        "bp": "122/78",
+        "voided": false,
+        "by": "Dr. Dana Dentist 1791073959939"
+      }
+    ]
+  },
+  "signing": {
+    "lockedWhileSigned": [
+      "encounter_signed",
+      "encounter_signed",
+      "encounter_signed"
+    ],
+    "unsignedByAnotherClinician": true,
+    "signedBy": "Hana Hygienist 1791073959939",
+    "finalizedBy": "Dr. Dana Dentist 1791073959939",
+    "keyboardOnlyFinalize": true
+  },
+  "amendment": {
+    "finalizedRefused": [
+      "encounter_finalized",
+      "encounter_finalized",
+      "encounter_finalized",
+      "encounter_finalized",
+      "encounter_finalized"
+    ],
+    "originalUnchanged": true,
+    "rowVersionUnchanged": true,
+    "addendum": {
+      "section": "Plan",
+      "by": "Dr. Dana Dentist 1791073959939"
+    }
+  },
+  "amendmentFailurePath": {
+    "responseLostAfterStore": true,
+    "typedTextAndSectionKept": true,
+    "addedExactlyOnce": true
+  },
+  "noteConcurrency": {
+    "staleSaveRefused": true,
+    "typedTextSurvived": true,
+    "savedAfterReload": true
+  },
+  "access": {
+    "frontDesk": [
+      403,
+      403,
+      403,
+      403
+    ],
+    "assistant": {
+      "read": 200,
+      "write": 403,
+      "controls": 0
+    }
+  },
+  "audit": {
+    "ClinicalRecordItemAdded": 4,
+    "ClinicalRecordItemChanged": 2,
+    "ClinicalRecordItemStatusChanged": 3,
+    "ClinicalSectionReviewed": 3,
+    "ClinicalTemplateCreated": 1,
+    "EncounterNoteSaved": 6,
+    "EncounterTemplateApplied": 1,
+    "EncounterVitalsRecorded": 2,
+    "EncounterVitalsVoided": 1,
+    "EncounterSigned": 2,
+    "EncounterUnsigned": 1,
+    "EncounterFinalized": 1,
+    "EncounterAddendumAdded": 2
+  }
+}

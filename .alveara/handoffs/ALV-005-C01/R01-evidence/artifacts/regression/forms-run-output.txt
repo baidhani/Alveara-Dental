@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\forms-real-backend.spec.ts:108:1 › TEMPLATES: an office manager builds a versioned privacy template through the UI; the front desk cannot reach the administration page (2.7s)
+  ok  2 [chromium] › e2e\forms-real-backend.spec.ts:138:1 › COMPLETE: the front desk starts the form for a patient, answers, saves a draft that survives a reload, and the status is shown in words (3.0s)
+  ok  3 [chromium] › e2e\forms-real-backend.spec.ts:170:1 › TEMPLATE CHANGE DURING COMPLETION: a newer template version is offered but the draft stays on the version it started on (694ms)
+  ok  4 [chromium] › e2e\forms-real-backend.spec.ts:186:1 › SIGN: review shows exactly what will be signed; missing signer details are refused; a keyboard-only signature records the signer, relationship and version (4.2s)
+  ok  5 [chromium] › e2e\forms-real-backend.spec.ts:230:1 › TEMPLATE EDIT AFTER SIGNING: the office manager publishes version 3 with completely different wording (396ms)
+  ok  6 [chromium] › e2e\forms-real-backend.spec.ts:238:1 › IMMUTABLE: the signed copy still shows version 1 wording and the same fingerprint after two further template versions; the same submit again and another key create nothing new (324ms)
+  ok  7 [chromium] › e2e\forms-real-backend.spec.ts:262:1 › INTERRUPTED SIGNATURE: the response is lost after the server stored it; the screen says the outcome is unknown and Sign again records exactly one signature (2.7s)
+  ok  8 [chromium] › e2e\forms-real-backend.spec.ts:301:1 › VOID: the front desk cannot void a signed form; the office manager can, with a reason, and the signed copy stays visible; a corrected form can follow (4.7s)
+  ok  9 [chromium] › e2e\forms-real-backend.spec.ts:330:1 › ROLES: a dentist can start a form; billing can read forms but has no way to start, save or sign; both are refused by the API (1.4s)
+  ok 10 [chromium] › e2e\forms-real-backend.spec.ts:351:1 › PATIENT SWITCH: another patient's forms never appear under this patient, and a form id under the wrong patient is not shown (471ms)
+
+  10 passed (24.9s)

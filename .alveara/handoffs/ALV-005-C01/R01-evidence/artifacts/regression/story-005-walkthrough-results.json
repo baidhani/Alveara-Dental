@@ -1,0 +1,155 @@
+{
+  "axe": {
+    "draft-editor-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "draft-editor-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "draft-entry-form-open-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "draft-entry-form-open-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "finalize-review-incomplete-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "finalize-review-incomplete-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "finalized-with-addendum-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "finalized-with-addendum-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "conflict-banner-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "conflict-banner-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "encounter-list-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    },
+    "encounter-list-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 21
+    }
+  },
+  "stamp": 1791073748451,
+  "access": {
+    "clinicalTeamSeesTab": true,
+    "FrontDesk": {
+      "tab": false,
+      "page": "denied",
+      "read": 403,
+      "write": 403
+    },
+    "Billing": {
+      "tab": false,
+      "page": "denied",
+      "read": 403,
+      "write": 403
+    },
+    "OfficeManager": {
+      "tab": false,
+      "page": "denied",
+      "read": 403,
+      "write": 403
+    },
+    "assistant": {
+      "read": 200,
+      "write": 403,
+      "startButton": false
+    }
+  },
+  "documented": {
+    "sections": {
+      "MedicalHistory": [
+        "Hypertension"
+      ],
+      "DentalHistory": [
+        "Root canal, lower left, 2019"
+      ],
+      "Allergy": [
+        "Penicillin"
+      ],
+      "Medication": [
+        "Lisinopril"
+      ]
+    },
+    "complete": true,
+    "attributed": true
+  },
+  "incomplete": {
+    "refused": 409,
+    "code": "documentation_incomplete",
+    "sections": [
+      "DentalHistory",
+      "Allergy",
+      "Medication"
+    ],
+    "noneReportedCompletesIt": true
+  },
+  "amendment": {
+    "finalizedRefusesChanges": [
+      "encounter_finalized",
+      "encounter_finalized"
+    ],
+    "originalUnchanged": true,
+    "rowVersionUnchanged": true,
+    "addenda": 1
+  },
+  "droppedResponse": {
+    "storedBeforeTheAnswerWasLost": true,
+    "retryAddedItAgain": false,
+    "addendaWithThatText": 1
+  },
+  "concurrency": {
+    "staleEditRefused": true,
+    "otherChangeStood": true,
+    "typedValuesSurvivedReload": true,
+    "savedAfterReload": true
+  },
+  "keyboard": {
+    "entryRecordedWithKeyboardOnly": true
+  },
+  "scope": {
+    "otherPatientList": 0,
+    "wrongPatientEncounter": "not found",
+    "annEncounters": 3
+  },
+  "audit": {
+    "EncounterStarted": 3,
+    "EncounterEntryAdded": 8,
+    "EncounterEntryChanged": 0,
+    "EncounterSectionReviewed": 3,
+    "EncounterFinalized": 1,
+    "EncounterAddendumAdded": 2
+  }
+}

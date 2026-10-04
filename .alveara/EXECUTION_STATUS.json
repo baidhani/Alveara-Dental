@@ -988,21 +988,21 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 1232 of 1232 (dotnet test, up from 1072; 160 new against real SQL Server: ClinicalRecordSchemaTests 24, ClinicalRecordServiceTests 35, EncounterNotesServiceTests 62, ClinicalRecordApiTests 30, ClinicalPermissionTests +10); frontend 684 of 684 (up from 599; 85 new: ClinicalRecord 31, ClinicalNotes 23, clinicalNotesContrast 31), tsc/build clean, lint 0 errors; mocked browser 94 of 94; real-backend/real-browser ALV-005-C01 walkthrough 9 of 9 on two consecutive runs of the final code (18 axe scans in light and dark, 0 serious or critical violations); regression on the real backend: STORY-005 walkthrough 9 of 9 (spec unchanged), patient workspace 14 of 14, forms 10 of 10; repository checks 8 of 8. STORY-005's test files are byte-identical to the verified commit and pass. See .alveara/handoffs/ALV-005-C01/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "cd56749b5b48f86225995197969d9ee93171055a",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-005-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
