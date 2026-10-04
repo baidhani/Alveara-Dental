@@ -13,6 +13,7 @@ const TABS = [
   { id: "agents", label: "AI Agents", built: true },
   { id: "kb", label: "Knowledge Base", built: true },
   { id: "datamodel", label: "Data Model", built: true },
+  { id: "map", label: "Architecture Map", built: true },
 ];
 
 // Story ownership is a fact about our own backlog (from the Execution Plan), not something
@@ -65,6 +66,7 @@ const state = {
   progress: null,
   manifest: null,
   ledger: null, // .alveara/EXECUTION_STATUS.json (engineering stories); null when it could not be read
+  catalog: null, // .alveara/story_catalog.json (subsystem and non-plan titles for the Architecture Map); null when it could not be read
   dataMissing: false, // true when the .colaberry data files could not be read
   theme: "light", // "light" | "dark"
 };
@@ -140,6 +142,13 @@ async function loadData() {
     state.ledger = await fetchJson(".alveara/EXECUTION_STATUS.json");
   } catch (err) {
     state.ledger = null;
+  }
+
+  // The story catalog only feeds the Architecture Map; if it cannot be read the map says so and still draws what the ledger knows.
+  try {
+    state.catalog = await fetchJson(".alveara/story_catalog.json");
+  } catch (err) {
+    state.catalog = null;
   }
 }
 
@@ -349,6 +358,7 @@ const TAB_RENDERERS = {
   agents: renderAgents,
   kb: renderKB,
   datamodel: renderDataModel,
+  map: renderMap,
 };
 
 function renderTabContent() {
@@ -361,6 +371,7 @@ function renderTabContent() {
   });
 
   if (state.activeTab === "kb") wireKbChat();
+  if (state.activeTab === "map") wireMap(el);
   if (state.activeTab === "pm") {
     el.querySelectorAll("tr[data-expand]").forEach((row) => {
       row.addEventListener("click", () => {

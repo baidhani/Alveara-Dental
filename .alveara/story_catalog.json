@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "description": "Display facts about each story that no live data file carries: the product subsystem it belongs to, and the title of any story that is not in .colaberry/plan.json (the portal's own titles are read from the plan, so a story in the plan has no title here). The Architecture Map joins this to .alveara/EXECUTION_STATUS.json (status, gate, type, phase, dependencies) and .colaberry/plan.json at runtime. Add one entry here when a story is added to the ledger; the Architecture Map e2e test fails if a ledger story has no entry, an entry has no story, or a story ends up with no title.",
+  "stories": [
+    {
+      "storyId": "STORY-000",
+      "title": "Build your Command Center",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "ALV-N001",
+      "title": "Application Shell and Design Foundation",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "ALV-N002",
+      "title": "Core Architecture, Local Deployment, Data Invariants, and Durable Background Work",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "STORY-001",
+      "subsystem": "Security & Governance"
+    },
+    {
+      "storyId": "ALV-001-C01",
+      "title": "Authentication Security, MFA, Recovery, Session Controls, and Authorization Administration",
+      "subsystem": "Security & Governance"
+    },
+    {
+      "storyId": "ALV-N009",
+      "title": "Authorization-Aware Navigation, Session UX, and Identity Context",
+      "subsystem": "Security & Governance"
+    },
+    {
+      "storyId": "STORY-002",
+      "subsystem": "Security & Governance"
+    },
+    {
+      "storyId": "ALV-002-C01",
+      "title": "Shared Audit, Concurrency, and Record-Lifecycle Primitives",
+      "subsystem": "Security & Governance"
+    },
+    {
+      "storyId": "ALV-N003",
+      "title": "Practice, Staff, Provider, Operatory, and Scheduling Configuration",
+      "subsystem": "Front Office & Scheduling"
+    },
+    {
+      "storyId": "ALV-N004",
+      "title": "Encrypted Full-State Backup, Verification, Restore, and Recovery Operations",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "STORY-003",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-003-C01",
+      "title": "Patient Identity, Household, Guarantor, and Registration Workspace",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-N010",
+      "title": "Versioned Forms, Consents, and E-Signature Foundation",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "STORY-004",
+      "subsystem": "Front Office & Scheduling"
+    },
+    {
+      "storyId": "ALV-004-C01",
+      "title": "Production Scheduler and Conflict-Aware Calendar UX",
+      "subsystem": "Front Office & Scheduling"
+    },
+    {
+      "storyId": "STORY-011",
+      "subsystem": "Front Office & Scheduling"
+    },
+    {
+      "storyId": "ALV-011-C01",
+      "title": "Live Patient Flow Board and Complete Visit-State Workflow",
+      "subsystem": "Front Office & Scheduling"
+    },
+    {
+      "storyId": "STORY-005",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-005-C01",
+      "title": "Clinical Documentation, Templates, Signing, and Amendments",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-N011",
+      "title": "Patient Safety Alerts, Medical Risk Context, and Clearance Tracking",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-006",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-006-C01",
+      "title": "Full Odontogram, Mixed Dentition, Conditions, Surfaces, Lifecycle, and Longitudinal History",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-012",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-012-C01",
+      "title": "Six-Site Periodontal Charting and Longitudinal Comparison",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-013",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-013-C01",
+      "title": "Structured Diagnosis Lifecycle, Coding Provenance, Context Linkage, and Amendments",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-N005",
+      "title": "Production Procedure and Fee Catalog Foundation",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-015",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-015-C01",
+      "title": "Treatment Planning, Acceptance, Phasing, and Revision History",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-014",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-007",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "ALV-007-C01",
+      "title": "Financial Ledger, Charges, Payments, Adjustments, and Guarantor Foundation",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "STORY-008",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-008-C01",
+      "title": "Atomic Procedure Completion, Clinical History, Odontogram, and Charge Generation",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-007-C02",
+      "title": "Statements, Receipts, Refunds, Financial Corrections, and Account UX Hardening",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "STORY-016",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-016-C01",
+      "title": "Prescription Workflow Using the Shared Clinical Safety Framework",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "STORY-010",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-010-C01",
+      "title": "Document and Imaging Imports, Metadata, Storage Integrity, and Advanced Form Management",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "STORY-009",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "ALV-009-C01",
+      "title": "Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "ALV-009-C02",
+      "title": "Referral and Dental Laboratory Case Tracking",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "STORY-017",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-017-C01",
+      "title": "Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "STORY-018",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-018-C01",
+      "title": "Versioned Data Export and Portable Record Package",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-018-C02",
+      "title": "Validated Bulk Import and Migration Workbench",
+      "subsystem": "Patient Records & Data"
+    },
+    {
+      "storyId": "ALV-N006",
+      "title": "Operational, Clinical, Financial Reporting, and Outcome Measurement",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "ALV-N007",
+      "title": "AI-Assisted Clinical Documentation and Review",
+      "subsystem": "Clinical Care"
+    },
+    {
+      "storyId": "ALV-N012",
+      "title": "AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up",
+      "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "ALV-N013",
+      "title": "Windows Installation, Upgrade, Schema Migration, and Rollback",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "ALV-N014",
+      "title": "Security and Privacy Engineering Readiness",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "ALV-N008",
+      "title": "Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification",
+      "subsystem": "Platform & Release"
+    }
+  ]
+}

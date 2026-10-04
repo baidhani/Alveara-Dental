@@ -545,3 +545,56 @@ table.attached-table {
   color: var(--color-text-muted);
   font-size: 0.85rem;
 }
+
+/* ---- Architecture Map tab (assets/map.js). Colours come from the brand tokens above, so dark mode follows. Status is always also written as a word. ---- */
+.map-filters { display: grid; grid-template-columns: repeat(5, minmax(140px, 1fr)); gap: 10px; align-items: end; }
+.map-filters label { display: grid; gap: 4px; font-size: 0.78rem; font-weight: 700; color: var(--color-text-muted); }
+.map-filters select { width: 100%; padding: 8px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); font: inherit; }
+.map-stats { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.map-stat { padding: 5px 10px; border: 1px solid var(--color-border); border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+.map-reset, .map-toggle { padding: 6px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.map-reset:hover, .map-toggle:hover { border-color: var(--color-primary); }
+.map-section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.map-section-head h2 { margin: 0; font-size: 1.05rem; }
+.map-architecture { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.map-architecture[hidden] { display: none; }
+.map-layer { padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+.map-layer strong { display: block; margin-bottom: 4px; }
+.map-layer span { font-size: 0.82rem; color: var(--color-text-muted); }
+.map-warning { border-left: 4px solid var(--color-warning); margin-bottom: 12px; }
+.map-flow-title { margin: 20px 0 10px; font-size: 1.05rem; }
+.map-flow { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 10px; }
+.map-phase { border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-surface); }
+.map-phase h3 { margin: 0; padding: 11px; font-size: 0.9rem; border-bottom: 1px solid var(--color-border); border-radius: 10px 10px 0 0; background: var(--surface-expanded); }
+.map-node { display: block; width: calc(100% - 16px); margin: 8px; padding: 9px 10px; text-align: left; font: inherit; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-left: 5px solid var(--color-grey-dot); border-radius: 6px; cursor: pointer; }
+.map-node:hover { outline: 2px solid var(--color-primary); }
+.map-node:focus-visible, .map-reset:focus-visible, .map-toggle:focus-visible, .map-filters select:focus-visible, .map-close:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+.map-node.complete { border-left-color: var(--color-success); }
+.map-node.progress, .map-node.awaiting-review { border-left-color: var(--color-primary); }
+.map-node.changes-required, .map-node.blocked, .map-node.reopened { border-left-color: var(--color-danger); }
+.map-node-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.map-order, .map-marker { padding: 2px 6px; border: 1px solid var(--color-border); border-radius: 99px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; color: var(--color-text-muted); }
+.map-marker.course { border-color: var(--color-primary); color: var(--color-primary); }
+.map-marker.companion { border-color: var(--color-accent); color: var(--color-accent); }
+.map-id { display: block; margin-top: 4px; font-weight: 800; font-size: 0.8rem; }
+.map-title { display: block; margin: 3px 0 6px; font-size: 0.82rem; }
+.map-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.map-badge { padding: 1px 6px; border: 1px solid var(--color-border); border-radius: 99px; font-size: 0.68rem; color: var(--color-text-muted); }
+.map-state { font-size: 0.72rem; font-weight: 800; }
+.map-dialog { width: min(720px, calc(100% - 32px)); max-height: 86vh; padding: 22px; border: 1px solid var(--color-border); border-top: 6px solid var(--color-grey-dot); border-radius: var(--radius); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-lg); }
+.map-dialog::backdrop { background: rgba(10, 17, 23, 0.6); }
+.map-dialog.complete { border-top-color: var(--color-success); }
+.map-dialog.progress, .map-dialog.awaiting-review { border-top-color: var(--color-primary); }
+.map-dialog.changes-required, .map-dialog.blocked, .map-dialog.reopened { border-top-color: var(--color-danger); }
+.map-dialog h2 { margin: 6px 36px 12px 0; font-size: 1.1rem; }
+.map-close { position: absolute; right: 14px; top: 12px; width: 32px; height: 32px; padding: 0; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.map-detail-grid { display: grid; grid-template-columns: 160px 1fr; gap: 8px; margin: 0; }
+.map-detail-grid dt { color: var(--color-text-muted); font-weight: 700; }
+.map-detail-grid dd { margin: 0; }
+.map-deps { display: flex; flex-wrap: wrap; gap: 5px; }
+.map-dep { padding: 2px 7px; border: 1px solid var(--color-border); border-radius: 99px; font-size: 0.75rem; font-weight: 700; }
+@media (max-width: 900px) {
+  .map-filters { grid-template-columns: repeat(2, 1fr); }
+  .map-architecture { grid-template-columns: 1fr; }
+  .map-detail-grid { grid-template-columns: 1fr; }
+}
