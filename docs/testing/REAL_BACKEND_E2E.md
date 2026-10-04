@@ -143,6 +143,29 @@ what they typed surviving the reload and then saving; a keyboard-only entry; ano
 user and time and no clinical text - then axe scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked
 `npm run test:e2e`.
 
+## ALV-005-C01: clinical record, notes, templates, vitals and signing walkthrough
+
+`e2e/clinical-companion-real-backend.spec.ts` is the un-mocked run for the clinical documentation companion. Prepare a fresh database and start the API exactly as for the
+STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:COMPANION_E2E_OUT = "C:\tmp\companion-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.clinical-companion.config.ts
+```
+
+It signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an assistant, a front-desk user and the administrator, and shows: allergies,
+medications and history captured on the patient's record with who and when, and a status or correction keeping what it replaced in the item's history; "none known",
+"unknown" and "not reviewed" as three different statements that create no item, adding an item withdrawing a stale statement, and a confirmed list going back to "needs
+review" when an item changes; a stale record edit refused with the conflict banner and the typed values surviving the reload; a dentist configuring a note template (a
+hygienist can read but not configure, and the API says which permission is missing); a template shaping an encounter's SOAP, progress and treatment notes with notes that save
+themselves (on leaving the box and after a pause); signing refused by both the screen and the API until the required notes are written, naming each; vitals recorded with the
+encounter and a wrong reading voided with a reason (kept, marked); a signed note locked on the screen and in the API, unsigned by another clinician, signed again and finalized
+by keyboard with both signers named; a finalized note refusing every change while an amendment preserves the original and records who wrote it, when and what it amends; a
+response lost after the server stored an amendment (the typed text and section stay and the retry adds nothing more); a stale note save refused with the typed note
+surviving the reload; front desk denied everywhere and an assistant reading with no controls; and the audit log holding every change with user and time and no clinical text - then
+axe scans of each new screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
 ## STORY-004: appointment scheduling walkthrough
 
 `e2e/schedule-real-backend.spec.ts` is the un-mocked run for scheduling. Prepare a fresh database and start the API exactly as for the STORY-003

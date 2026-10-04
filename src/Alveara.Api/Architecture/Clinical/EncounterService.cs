@@ -212,6 +212,7 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
             var errors = detail.MissingSections.ToDictionary(k => k, k => $"Record at least one entry or mark {EncounterRules.Label(k).ToLowerInvariant()} reviewed, none reported.");
             throw new ClinicalException("documentation_incomplete", "The documentation is not complete: " + string.Join(", ", detail.MissingSections.Select(EncounterRules.Label)) + " still need attention.", 409, errors);
         }
+        EncounterReadiness.RequireReady(detail, "finalized"); // ALV-005-C01: the template's required notes count too (none required means nothing new)
         RecordLifecycleGuard.EnsureAllowed(RecordLifecycleAction.Finalize, AllowedFromDraft);
 
         var now = clock.UtcNow;
@@ -229,8 +230,13 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
     /// Adds an addendum to a FINALIZED encounter. The original is untouched; the addendum is appended with who and when. The client key makes a retry return the first
     /// result (the same key with different text is refused, never silently merged).
     /// </summary>
-    public async Task<(EncounterDetail Detail, bool Created)> AddAddendumAsync(Guid encounterId, string? text, string? clientKey, Guid actor, CancellationToken ct)
+    public Task<(EncounterDetail Detail, bool Created)> AddAddendumAsync(Guid encounterId, string? text, string? clientKey, Guid actor, CancellationToken ct) =>
+        AddAddendumAsync(encounterId, text, clientKey, null, actor, ct);
+
+    /// <summary>As above, naming what the addendum amends (ALV-005-C01): a documentation section, a note section, the vital signs, or null for a general addendum.</summary>
+    public async Task<(EncounterDetail Detail, bool Created)> AddAddendumAsync(Guid encounterId, string? text, string? clientKey, string? section, Guid actor, CancellationToken ct)
     {
+        section = EncounterNoteRules.CleanAmendedSection(section);
         text = EncounterRules.Clean(text);
         clientKey = EncounterRules.Clean(clientKey);
         var errors = new Dictionary<string, string>();
@@ -246,13 +252,13 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
         RecordLifecycleGuard.EnsureAllowed(RecordLifecycleAction.Addendum, AllowedFromFinalized);
 
         var replay = await db.EncounterAddenda.AsNoTracking().SingleOrDefaultAsync(a => a.EncounterId == encounterId && a.ClientKey == clientKey, ct);
-        if (replay is not null) return (await ReplayAsync(replay, text!, encounterId, ct), false);
+        if (replay is not null) return (await ReplayAsync(replay, text!, section, encounterId, ct), false);
 
         var now = clock.UtcNow;
-        var addendum = new EncounterAddendum { Id = Guid.NewGuid(), EncounterId = encounterId, Text = text!, ClientKey = clientKey!, CreatedAtUtc = now, CreatedByUserId = actor };
+        var addendum = new EncounterAddendum { Id = Guid.NewGuid(), EncounterId = encounterId, Text = text!, ClientKey = clientKey!, Section = section, CreatedAtUtc = now, CreatedByUserId = actor };
         db.EncounterAddenda.Add(addendum);
         db.EncounterEvents.Add(new EncounterEvent { Id = Guid.NewGuid(), EncounterId = encounterId, PatientId = encounter.PatientId, EventType = EncounterEventTypes.AddendumAdded, ActorUserId = actor, OccurredAtUtc = now, Detail = "Addendum added." });
-        AuditService.Record(db, "EncounterAddendumAdded", nameof(Encounter), encounterId, actor, $"Addendum {addendum.Id} added to a finalized encounter.");
+        AuditService.Record(db, "EncounterAddendumAdded", nameof(Encounter), encounterId, actor, $"Addendum {addendum.Id} added to a finalized encounter{(section is null ? "" : $", amending {section}")}.");
         try
         {
             await db.SaveChangesAsync(ct);
@@ -261,7 +267,7 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
         {
             db.ChangeTracker.Clear(); // the same key arrived twice at once: the first one won
             var winner = await db.EncounterAddenda.AsNoTracking().SingleAsync(a => a.EncounterId == encounterId && a.ClientKey == clientKey, ct);
-            return (await ReplayAsync(winner, text!, encounterId, ct), false);
+            return (await ReplayAsync(winner, text!, section, encounterId, ct), false);
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: >= 51030 and <= 51037 })
         {
@@ -270,36 +276,21 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
         return (await Reader.GetAsync(encounterId, ct), true);
     }
 
-    private async Task<EncounterDetail> ReplayAsync(EncounterAddendum existing, string text, Guid encounterId, CancellationToken ct)
+    private async Task<EncounterDetail> ReplayAsync(EncounterAddendum existing, string text, string? section, Guid encounterId, CancellationToken ct)
     {
-        if (existing.Text != text) throw new ClinicalException("idempotency_key_reused", "That request key was already used for a different addendum.", 409);
+        if (existing.Text != text || existing.Section != section) throw new ClinicalException("idempotency_key_reused", "That request key was already used for a different addendum.", 409);
         return await Reader.GetAsync(encounterId, ct);
     }
 
     // ---------- shared ----------
 
-    /// <summary>Loads the encounter for a change: the caller's version is applied (a stale one is a 409 at save), and only a draft can change.</summary>
-    private async Task<Encounter> LoadDraftAsync(Guid encounterId, string? rowVersion, CancellationToken ct)
-    {
-        var encounter = await db.Encounters.SingleOrDefaultAsync(x => x.Id == encounterId, ct) ?? throw new ClinicalException("encounter_not_found", "That encounter was not found.", 404);
-        ClinicalWrite.ApplyExpectedVersion(db, encounter, rowVersion);
-        if (encounter.Status != EncounterStatuses.Draft)
-            throw new ClinicalException("encounter_finalized", "This encounter is finalized and cannot be changed. Add an addendum to correct or extend it.", 409);
-        return encounter;
-    }
+    /// <summary>Loads the encounter for a change: the caller's version is applied (a stale one is a 409 at save), and only an unsigned draft can change.</summary>
+    private Task<Encounter> LoadDraftAsync(Guid encounterId, string? rowVersion, CancellationToken ct) => ClinicalWrite.LoadOpenDraftAsync(db, encounterId, rowVersion, ct);
 
-    private static void Touch(Encounter encounter, Guid actor, DateTimeOffset now)
-    {
-        encounter.UpdatedAtUtc = now;
-        encounter.UpdatedByUserId = actor;
-    }
+    private static void Touch(Encounter encounter, Guid actor, DateTimeOffset now) => ClinicalWrite.Touch(encounter, actor, now);
 
     /// <summary>Stages the history row and the audit entry beside the change; the caller saves once.</summary>
-    private void Stage(Encounter encounter, string eventType, string auditType, Guid actor, DateTimeOffset now, string detail)
-    {
-        db.EncounterEvents.Add(new EncounterEvent { Id = Guid.NewGuid(), EncounterId = encounter.Id, PatientId = encounter.PatientId, EventType = eventType, ActorUserId = actor, OccurredAtUtc = now, Detail = detail });
-        AuditService.Record(db, auditType, nameof(Encounter), encounter.Id, actor, detail);
-    }
+    private void Stage(Encounter encounter, string eventType, string auditType, Guid actor, DateTimeOffset now, string detail) => ClinicalWrite.Stage(db, encounter, eventType, auditType, actor, now, detail);
 
     private async Task SaveAsync(Guid encounterId, CancellationToken ct)
     {
@@ -318,22 +309,4 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
     /// <summary>Whether an entry already holds exactly these values. A retried add ignores the case of the name (the database matches names that way); a change does not, so fixing a capital letter is a real change.</summary>
     private static bool Same(EncounterEntry e, EntryFields f, bool ignoreNameCase = false) =>
         string.Equals(e.Name, f.Name, ignoreNameCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) && e.Detail == f.Detail && e.Reaction == f.Reaction && e.Severity == f.Severity && e.Dose == f.Dose && e.Frequency == f.Frequency;
-}
-
-/// <summary>The row-version rule shared by the clinical writes (the forms module has the same rule with its own exception type).</summary>
-internal static class ClinicalWrite
-{
-    public static void ApplyExpectedVersion(AlveraDbContext db, Encounter encounter, string? rowVersion)
-    {
-        if (string.IsNullOrWhiteSpace(rowVersion))
-            throw new ClinicalException("row_version_required", "The version you are working on is required so a concurrent change is never overwritten. Reload and try again.", 400);
-        try
-        {
-            db.Entry(encounter).Property(e => e.RowVersion).OriginalValue = Convert.FromBase64String(rowVersion);
-        }
-        catch (FormatException)
-        {
-            throw new ClinicalException("row_version_invalid", "The supplied version is not valid. Reload and try again.", 400);
-        }
-    }
 }

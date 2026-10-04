@@ -1,4 +1,4 @@
-using Alveara.Api.Architecture.Identity;
+﻿using Alveara.Api.Architecture.Identity;
 using Xunit;
 
 namespace Alveara.Api.Tests;
@@ -32,6 +32,26 @@ public class ClinicalPermissionTests
     [InlineData(Role.Unassigned, false)]
     public void Clinical_documentation_can_be_written_only_by_the_roles_that_hold_ManageClinicalNotes(Role role, bool expected) =>
         Assert.Equal(expected, PermissionMatrix.RoleHas(role, Permission.ManageClinicalNotes));
+
+    [Theory]
+    [InlineData(Role.Admin, true)]
+    [InlineData(Role.Dentist, true)]
+    [InlineData(Role.Hygienist, false)]
+    [InlineData(Role.Assistant, false)]
+    [InlineData(Role.FrontDesk, false)]
+    [InlineData(Role.Billing, false)]
+    [InlineData(Role.OfficeManager, false)]
+    [InlineData(Role.Unassigned, false)]
+    public void Note_templates_are_configured_only_by_the_dentist_and_the_administrator(Role role, bool expected) =>
+        Assert.Equal(expected, PermissionMatrix.RoleHas(role, Permission.ManageClinicalTemplates)); // ALV-005-C01
+
+    [Fact]
+    public void Configuring_templates_is_a_separate_permission_appended_after_the_clinical_read_permission()
+    {
+        Assert.Equal((int)Permission.ViewClinicalDocumentation + 1, (int)Permission.ManageClinicalTemplates);
+        foreach (var role in Enum.GetValues<Role>().Where(r => PermissionMatrix.RoleHas(r, Permission.ManageClinicalTemplates)))
+            Assert.True(PermissionMatrix.RoleHas(role, Permission.ViewClinicalDocumentation), $"{role} configures templates but cannot read clinical documentation");
+    }
 
     [Fact]
     public void Every_role_that_may_write_clinical_documentation_may_also_read_it()

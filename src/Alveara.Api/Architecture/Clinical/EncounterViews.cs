@@ -22,16 +22,31 @@ public sealed record EntryView(
 /// <summary>One of the four sections of an encounter: its active entries and whether the clinician has recorded something, reviewed it as none reported, or not yet addressed it.</summary>
 public sealed record SectionView(string Kind, string Status, IReadOnlyList<EntryView> Entries, DateTimeOffset? ReviewedAtUtc, Guid? ReviewedByUserId);
 
-public sealed record AddendumView(Guid Id, string Text, DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId);
+/// <summary><see cref="Section"/> (ALV-005-C01) says what the addendum amends: a documentation or note section, or null when it is general.</summary>
+public sealed record AddendumView(Guid Id, string Text, DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId, string? Section = null, string? CreatedByName = null);
 
 public sealed record EventView(string EventType, Guid? ActorUserId, DateTimeOffset OccurredAtUtc, string? Detail);
 
-/// <summary>An encounter exactly as stored, with its sections, addenda (oldest first) and history. <see cref="RowVersion"/> is what a writer echoes back.</summary>
+/// <summary>ALV-005-C01: one note section of an encounter (SOAP, progress or treatment). <see cref="Required"/> came from the template applied to the encounter.</summary>
+public sealed record NoteView(string Section, string Body, bool Required, DateTimeOffset? UpdatedAtUtc, string? UpdatedByName);
+
+/// <summary>ALV-005-C01: one set of vital signs (metric units). A voided reading stays listed, marked, with who voided it and why.</summary>
+public sealed record VitalsView(
+    Guid Id, DateTimeOffset MeasuredAtUtc, int? SystolicMmHg, int? DiastolicMmHg, int? PulseBpm, int? RespirationsPerMinute, decimal? TemperatureC, int? OxygenSaturationPercent,
+    decimal? WeightKg, decimal? HeightCm, string? Note, DateTimeOffset CreatedAtUtc, string? RecordedByName, bool IsVoided, DateTimeOffset? VoidedAtUtc, string? VoidedByName, string? VoidReason);
+
+/// <summary>
+/// An encounter exactly as stored, with its sections, addenda (oldest first) and history. <see cref="RowVersion"/> is what a writer echoes back.
+/// ALV-005-C01 added (all additive): notes, vitals, the applied template, which required notes are still empty, whether it is ready to sign, and who signed it.
+/// <see cref="IsComplete"/> keeps its STORY-005 meaning (the four documentation sections are addressed); <see cref="ReadyToSign"/> also needs the template's required notes.
+/// </summary>
 public sealed record EncounterDetail(
     Guid Id, Guid PatientId, Guid? AppointmentId, DateTimeOffset EncounterAtUtc, string Status,
     bool IsComplete, IReadOnlyList<string> MissingSections, IReadOnlyList<SectionView> Sections,
     IReadOnlyList<AddendumView> Addenda, IReadOnlyList<EventView> History,
-    DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId, DateTimeOffset? FinalizedAtUtc, Guid? FinalizedByUserId, string RowVersion);
+    DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId, DateTimeOffset? FinalizedAtUtc, Guid? FinalizedByUserId, string RowVersion,
+    IReadOnlyList<NoteView>? Notes = null, IReadOnlyList<VitalsView>? Vitals = null, Guid? TemplateId = null, string? TemplateName = null,
+    IReadOnlyList<string>? MissingNotes = null, bool ReadyToSign = false, bool IsSigned = false, DateTimeOffset? SignedAtUtc = null, string? SignedByName = null, string? FinalizedByName = null);
 
 public sealed record EncounterSummary(Guid Id, Guid? AppointmentId, DateTimeOffset EncounterAtUtc, string Status, bool IsComplete, int EntryCount, int AddendumCount);
 

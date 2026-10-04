@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../../components/Button";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import { SafeLink } from "../../components/SafeLink";
@@ -10,9 +10,12 @@ import {
   EVENT_LABELS, SECTION_LABELS, addEntry, clearSectionReview, clinicalFieldErrorsOf, finalizeEncounter, getEncounter, isNetworkFailure, markNoneReported, removeEntry, updateEntry,
 } from "../../services/clinicalApi";
 import type { EncounterDetail, EntryInput } from "../../services/clinicalApi";
+import { NOTE_LABELS, applyTemplate, saveNote, signEncounter, unsignEncounter } from "../../services/clinicalNotesApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { AddendumPanel } from "./AddendumPanel";
 import { FinalizeReview } from "./FinalizeReview";
+import { NotesPanel } from "./notes/NotesPanel";
+import { VitalsPanel } from "./notes/VitalsPanel";
 import { SectionPanel } from "./SectionPanel";
 import type { SaveResult } from "./SectionPanel";
 import "./Clinical.css";
@@ -29,6 +32,10 @@ const when = (iso: string) => new Date(iso).toLocaleString();
  * Every change is sent to the server as it is made and the encounter is replaced by what the server returns, so what is on screen is always what is stored; the status
  * line says in words whether the last change was saved, is saving, or failed. Typed values live in the entry forms and are kept when a save fails or conflicts.
  * A stale edit (someone else changed the note) shows the shared conflict banner and a reload that refreshes IN PLACE - the forms stay mounted, so nothing typed is lost.
+ *
+ * ALV-005-C01 adds the encounter's notes (SOAP, progress, treatment; they autosave), vital signs, note template, and signing: a signed note is locked until it is finalized
+ * or unsigned. Changes are sent ONE AT A TIME, each from the version the previous one returned, so an autosave and another change can never race each other into a conflict
+ * with the clinician's own work.
  * Permissions only decide which controls are drawn; they never decide when data is loaded (a permission arriving late must not reload and wipe the screen).
  */
 export function EncounterView({ patient, encounterId }: { patient: PatientDetail; encounterId: string }) {
@@ -38,8 +45,11 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
   const [reviewing, setReviewing] = useState(false);
   const [refusal, setRefusal] = useState<{ message: string; sections: string[] } | null>(null);
+  const latest = useRef<EncounterDetail | null>(null);
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
 
   const adopt = useCallback((encounter: EncounterDetail) => {
+    latest.current = encounter;
     setLoad({ kind: "loaded", encounter });
     setConflict(null);
   }, []);
@@ -57,16 +67,23 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
 
   const encounter = load.kind === "loaded" ? load.encounter : null;
   const canWrite = hasPermission("ManageClinicalNotes");
-  const editable = encounter?.status === "Draft" && canWrite;
+  const editable = encounter?.status === "Draft" && !encounter.isSigned && canWrite;
   const busy = saving.kind === "saving";
 
-  /** Runs one change against the version on screen; null means it was saved, an object means it was not (with the server's per-field messages, if it gave any). */
-  async function run(change: (rowVersion: string) => Promise<EncounterDetail>, savedText: string): Promise<SaveResult> {
-    if (!encounter) return {};
+  /** Runs one change against the version on screen, after any change already in flight; null means it was saved, an object means it was not (with the server's per-field messages, if it gave any). */
+  function run(change: (rowVersion: string) => Promise<EncounterDetail>, savedText: string): Promise<SaveResult> {
+    const result = queue.current.then(() => runNow(change, savedText));
+    queue.current = result.catch(() => undefined);
+    return result;
+  }
+
+  async function runNow(change: (rowVersion: string) => Promise<EncounterDetail>, savedText: string): Promise<SaveResult> {
+    const current = latest.current;
+    if (!current) return {};
     setSaving({ kind: "saving" });
     setRefusal(null);
     try {
-      adopt(await change(encounter.rowVersion));
+      adopt(await change(current.rowVersion));
       setSaving({ kind: "saved", text: savedText });
       return null;
     } catch (err) {
@@ -109,6 +126,7 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
 
   const e = load.encounter;
   const draft = e.status === "Draft";
+  const canAct = draft && canWrite; // may review, sign, unsign and finalize (a signed draft is locked for editing, not for finalizing)
 
   return (
     <article className="alv-clinical" aria-labelledby="alv-clinical-title">
@@ -118,11 +136,13 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
           <h2 id="alv-clinical-title" className="alv-workspace__section-title">Encounter on {when(e.encounterAtUtc)}</h2>
           <p className="alv-clinical__meta">{e.appointmentId ? "Linked to an appointment. " : ""}Started {when(e.createdAtUtc)}</p>
         </div>
-        <span className={`alv-clinical__badge alv-clinical__badge--${e.status.toLowerCase()}`}>{draft ? "Draft - not finalized" : "Finalized"}</span>
+        <span className={`alv-clinical__badge alv-clinical__badge--${draft && e.isSigned ? "signed" : e.status.toLowerCase()}`}>
+          {!draft ? "Finalized" : e.isSigned ? "Signed - awaiting finalize" : "Draft - not finalized"}
+        </span>
       </header>
 
       <p className="alv-clinical__status" role="status" aria-live="polite">
-        {saving.kind === "saving" ? "Saving…" : saving.kind === "saved" ? saving.text : saving.kind === "failed" ? saving.text : draft ? "Every change is saved as you make it." : "This note is finalized."}
+        {saving.kind === "saving" ? "Saving…" : saving.kind === "saved" ? saving.text : saving.kind === "failed" ? saving.text : draft ? (e.isSigned ? "This note is signed and locked." : "Every change is saved as you make it.") : "This note is finalized."}
       </p>
 
       {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={() => void reload()} />}
@@ -133,6 +153,12 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
         </p>
       )}
       {draft && !canWrite && <p className="alv-clinical__note">You can read this draft but your role cannot change it.</p>}
+      {draft && e.isSigned && (
+        <div className="alv-clinical__note">
+          <p>Signed by {e.signedByName ?? "a staff member"}{e.signedAtUtc ? ` on ${when(e.signedAtUtc)}` : ""}. The note is locked: finalize it, or unsign it to keep editing.</p>
+          {canWrite && <Button type="button" onClick={() => void run((v) => unsignEncounter(e.id, v), "Signature withdrawn.")} disabled={busy}>Unsign to keep editing</Button>}
+        </div>
+      )}
 
       {e.sections.map((section) => (
         <SectionPanel
@@ -148,18 +174,30 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
         />
       ))}
 
-      {editable && !reviewing && (
+      <VitalsPanel encounter={e} editable={!!editable} busy={busy} run={run} />
+
+      <NotesPanel
+        encounter={e}
+        editable={!!editable}
+        busy={busy}
+        onSave={(section, body) => run((v) => saveNote(e.id, section, body, v), `${NOTE_LABELS[section] ?? section} saved.`)}
+        onApplyTemplate={(templateId) => run((v) => applyTemplate(e.id, templateId, v), "Template applied.")}
+      />
+
+      {canAct && !reviewing && (
         <div className="alv-clinical__finalize">
           <Button type="button" variant="primary" onClick={() => { setRefusal(null); setReviewing(true); }} disabled={busy}>Review and finalize</Button>
           {!e.isComplete && <p className="alv-clinical__note">Some sections are not yet addressed; the review shows which.</p>}
+          {e.isComplete && e.missingNotes.length > 0 && <p className="alv-clinical__note">Some notes the template requires are not yet written; the review shows which.</p>}
         </div>
       )}
-      {editable && reviewing && (
+      {canAct && reviewing && (
         <FinalizeReview
           encounter={e}
           busy={busy}
           refusal={refusal}
           onCancel={() => { setReviewing(false); setRefusal(null); }}
+          onSign={async () => void (await run((v) => signEncounter(e.id, v), "Encounter signed."))}
           onConfirm={async () => {
             if ((await run((v) => finalizeEncounter(e.id, v), "Encounter finalized.")) === null) setReviewing(false);
           }}

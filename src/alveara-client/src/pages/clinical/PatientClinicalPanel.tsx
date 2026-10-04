@@ -8,6 +8,7 @@ import { ApiError } from "../../services/authApi";
 import { isNetworkFailure, listEncounters, newKey, startEncounter } from "../../services/clinicalApi";
 import type { EncounterSummary } from "../../services/clinicalApi";
 import type { PatientDetail } from "../../services/patientsApi";
+import { ClinicalRecordPanel } from "./record/ClinicalRecordPanel";
 import "./Clinical.css";
 
 const when = (iso: string) => new Date(iso).toLocaleString();
@@ -16,6 +17,8 @@ const when = (iso: string) => new Date(iso).toLocaleString();
  * STORY-005: the patient workspace's Clinical tab - the patient's encounters, newest first, each said in words to be a draft or finalized and whether all four sections
  * (medical history, dental history, allergies, medications) have been addressed; and, for a clinician, starting a new one. The start request carries one key that is kept
  * across retries, so a double click or a dropped connection can never create two encounters.
+ *
+ * ALV-005-C01: above the encounters sits the patient's clinical record - the history summary across encounters - and, for those who configure them, a link to the note templates.
  */
 export function PatientClinicalPanel({ patient }: { patient: PatientDetail }) {
   const { hasPermission } = useAuth();
@@ -65,6 +68,9 @@ export function PatientClinicalPanel({ patient }: { patient: PatientDetail }) {
   return (
     <section aria-labelledby="alv-clinical-list-title">
       <h2 id="alv-clinical-list-title" className="alv-workspace__section-title">Clinical documentation</h2>
+      <ClinicalRecordPanel patient={patient} />
+      <h3 className="alv-clinical__section-title alv-clinical__encounters-title">Encounters</h3>
+      <p className="alv-clinical__meta"><SafeLink to={`/patients/${patient.id}/clinical/templates`} className="alv-workspace__link">Note templates</SafeLink></p>
       {canWrite && (
         <div className="alv-clinical__start">
           <Button type="button" variant="primary" onClick={() => void start()} disabled={busy || !patient.isActive}>Start an encounter</Button>

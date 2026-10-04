@@ -66,6 +66,14 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<EncounterSectionMark> EncounterSectionMarks => Set<EncounterSectionMark>();
     public DbSet<EncounterAddendum> EncounterAddenda => Set<EncounterAddendum>();
     public DbSet<EncounterEvent> EncounterEvents => Set<EncounterEvent>();
+    public DbSet<ClinicalRecordItem> ClinicalRecordItems => Set<ClinicalRecordItem>();
+    public DbSet<ClinicalRecordItemVersion> ClinicalRecordItemVersions => Set<ClinicalRecordItemVersion>();
+    public DbSet<ClinicalSectionReview> ClinicalSectionReviews => Set<ClinicalSectionReview>();
+    public DbSet<ClinicalRecordEvent> ClinicalRecordEvents => Set<ClinicalRecordEvent>();
+    public DbSet<EncounterNote> EncounterNotes => Set<EncounterNote>();
+    public DbSet<EncounterVitals> EncounterVitals => Set<EncounterVitals>();
+    public DbSet<NoteTemplate> NoteTemplates => Set<NoteTemplate>();
+    public DbSet<NoteTemplateSection> NoteTemplateSections => Set<NoteTemplateSection>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -375,8 +383,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         {
             e.Property(x => x.Status).HasMaxLength(10);
             e.Property(x => x.StartKey).HasMaxLength(100);
+            e.Property(x => x.TemplateName).HasMaxLength(120);
             e.Property(x => x.RowVersion).IsRowVersion();
             e.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<NoteTemplate>().WithMany().HasForeignKey(x => x.TemplateId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<Appointment>().WithMany().HasForeignKey(x => x.AppointmentId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.StartKey).IsUnique().HasFilter("[StartKey] IS NOT NULL");
             e.HasIndex(x => new { x.PatientId, x.EncounterAtUtc });
@@ -386,6 +396,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
                 t.HasTrigger("TR_Encounters_FinalizedImmutable");
                 t.HasTrigger("TR_Encounters_NoDelete");
                 t.HasCheckConstraint("CK_Encounters_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Draft','Finalized')");
+                t.HasCheckConstraint("CK_Encounters_SignedStamp", "([SignedAtUtc] IS NULL AND [SignedByUserId] IS NULL) OR ([SignedAtUtc] IS NOT NULL AND [SignedByUserId] IS NOT NULL)");
                 t.HasCheckConstraint("CK_Encounters_FinalizedStamp",
                     "([Status] = 'Finalized' AND [FinalizedAtUtc] IS NOT NULL AND [FinalizedByUserId] IS NOT NULL) OR ([Status] = 'Draft' AND [FinalizedAtUtc] IS NULL AND [FinalizedByUserId] IS NULL)");
             });
@@ -427,6 +438,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         {
             e.Property(x => x.Text).HasMaxLength(4000);
             e.Property(x => x.ClientKey).HasMaxLength(100);
+            e.Property(x => x.Section).HasMaxLength(30);
             e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.EncounterId, x.ClientKey }).IsUnique();
             e.HasIndex(x => new { x.EncounterId, x.CreatedAtUtc });
@@ -446,6 +458,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(x => new { x.EncounterId, x.OccurredAtUtc });
             e.ToTable(t => t.HasTrigger("TR_EncounterEvents_Immutable"));
         });
+        ClinicalRecordModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

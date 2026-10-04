@@ -19,6 +19,7 @@ export const SECTION_STATUS_LABELS: Record<string, string> = { Recorded: "Record
 export const EVENT_LABELS: Record<string, string> = {
   Created: "Encounter started", EntryAdded: "Entry added", EntryChanged: "Entry changed", EntryRemoved: "Entry removed", SectionMarked: "Section reviewed, none reported",
   SectionUnmarked: "Section review cleared", Finalized: "Encounter finalized", AddendumAdded: "Addendum added",
+  NoteSaved: "Note saved", TemplateApplied: "Template applied", VitalsRecorded: "Vital signs recorded", VitalsVoided: "Vital signs voided", Signed: "Encounter signed", Unsigned: "Signature withdrawn",
 };
 
 export type EncounterStatus = "Draft" | "Finalized";
@@ -50,6 +51,40 @@ export interface EncounterAddendum {
   text: string;
   createdAtUtc: string;
   createdByUserId: string | null;
+  /** ALV-005-C01: what the addendum amends (a documentation section, a note section or "Vitals"), or null when it is general. */
+  section: string | null;
+  /** The author's display name (attribution). */
+  createdByName: string | null;
+}
+
+/** ALV-005-C01: one note section of an encounter (SOAP, progress or treatment); `required` came from the template applied to it. */
+export interface EncounterNote {
+  section: string;
+  body: string;
+  required: boolean;
+  updatedAtUtc: string | null;
+  updatedByName: string | null;
+}
+
+/** ALV-005-C01: one set of vital signs (metric units). A voided reading stays listed, marked, with who voided it and why. */
+export interface EncounterVitals {
+  id: string;
+  measuredAtUtc: string;
+  systolicMmHg: number | null;
+  diastolicMmHg: number | null;
+  pulseBpm: number | null;
+  respirationsPerMinute: number | null;
+  temperatureC: number | null;
+  oxygenSaturationPercent: number | null;
+  weightKg: number | null;
+  heightCm: number | null;
+  note: string | null;
+  createdAtUtc: string;
+  recordedByName: string | null;
+  isVoided: boolean;
+  voidedAtUtc: string | null;
+  voidedByName: string | null;
+  voidReason: string | null;
 }
 
 export interface EncounterEvent {
@@ -75,6 +110,19 @@ export interface EncounterDetail {
   finalizedAtUtc: string | null;
   finalizedByUserId: string | null;
   rowVersion: string;
+  // ALV-005-C01 (additive): notes, vitals, the applied template, what still blocks signing, and who signed.
+  notes: EncounterNote[];
+  vitals: EncounterVitals[];
+  templateId: string | null;
+  templateName: string | null;
+  /** Required notes (from the template) that are blank or still exactly the starter text. */
+  missingNotes: string[];
+  /** The four sections are addressed AND every required note is written: the note can be signed and finalized. */
+  readyToSign: boolean;
+  isSigned: boolean;
+  signedAtUtc: string | null;
+  signedByName: string | null;
+  finalizedByName: string | null;
 }
 
 export interface EncounterSummary {
@@ -129,13 +177,13 @@ export const clearSectionReview = (encounterId: string, kind: string, rowVersion
 export const finalizeEncounter = (encounterId: string, rowVersion: string) =>
   requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/finalize`, "POST", { rowVersion });
 
-/** Adds an addendum to a finalized encounter. The same key on a retry returns the first addendum instead of adding another. */
-export async function addAddendum(encounterId: string, text: string, idempotencyKey: string): Promise<EncounterDetail> {
+/** Adds an addendum to a finalized encounter, optionally naming what it amends. The same key on a retry returns the first addendum instead of adding another. */
+export async function addAddendum(encounterId: string, text: string, idempotencyKey: string, section?: string): Promise<EncounterDetail> {
   const csrfToken = await fetchCsrfToken();
   return request<EncounterDetail>(`/api/encounters/${encounterId}/addenda`, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken, "Idempotency-Key": idempotencyKey },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(section ? { text, section } : { text }),
   });
 }
 

@@ -17,7 +17,7 @@ public record UpdateEntryRequest(string? Name, string? Detail, string? Reaction,
     public EntryFields Fields => new(Name, Detail, Reaction, Severity, Dose, Frequency);
 }
 public record EncounterVersionRequest(string? RowVersion);
-public record AddendumRequest(string? Text);
+public record AddendumRequest(string? Text, string? Section = null);
 
 /// <summary>
 /// STORY-005: a patient's clinical documentation - encounters holding structured medical and dental history, allergies and medications, finalized and then amended
@@ -118,7 +118,7 @@ public class ClinicalController(EncounterService encounters, EncounterReader rea
     public Task<IActionResult> AddAddendum(Guid encounterId, [FromBody] AddendumRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken ct) =>
         Run(async () =>
         {
-            var (detail, created) = await encounters.AddAddendumAsync(encounterId, request.Text, idempotencyKey, Actor, ct);
+            var (detail, created) = await encounters.AddAddendumAsync(encounterId, request.Text, idempotencyKey, request.Section, Actor, ct);
             return created ? Created($"api/encounters/{encounterId}", detail) : Ok(detail);
         });
 }

@@ -34,8 +34,11 @@
   color: var(--color-text);
 }
 
-/* the sticky-style save indicator: always present, announced politely, readable */
+/* the sticky save indicator (ALV-005-C01): stays in view while a long note is written, so "saved" / "not saved" is never scrolled away */
 .alv-clinical__status {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   margin: 0;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-strong);
@@ -304,4 +307,130 @@
   .alv-clinical__section {
     padding: var(--space-3);
   }
+}
+
+/* ALV-005-C01: the longitudinal record, notes, vitals, templates and signing. Same rule as above: status is the WORD plus a border, text is the body colour. */
+.alv-clinical__record {
+  gap: var(--space-3);
+}
+
+.alv-clinical__encounters-title {
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.alv-clinical__badge--signed {
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
+}
+
+.alv-clinical__badge--item-active {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.alv-clinical__badge--item-inactive {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.alv-clinical__badge--item-discontinued {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.alv-clinical__badge--item-resolved {
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
+}
+
+.alv-clinical__badge--voided {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.alv-clinical__section-status--rec-reviewed {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.alv-clinical__section-status--rec-noneknown {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.alv-clinical__section-status--rec-needsreview {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.alv-clinical__section-status--rec-unknown {
+  border-color: var(--color-info);
+  background: var(--color-info-bg);
+}
+
+.alv-clinical__section-status--rec-notreviewed {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.alv-clinical__entry--voided .alv-clinical__entry-details {
+  text-decoration: line-through;
+}
+
+.alv-clinical__note-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.alv-clinical__note-title {
+  margin: 0;
+  font-size: var(--font-size-md);
+}
+
+.alv-clinical__note-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+}
+
+.alv-clinical__note-input {
+  width: 100%;
+  min-height: 7rem;
+}
+
+.alv-clinical__template-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.alv-clinical__fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.alv-clinical__template-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.alv-clinical__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+}
+
+.alv-clinical__template-form {
+  max-width: 44rem;
 }

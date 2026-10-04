@@ -29,6 +29,12 @@ public class Encounter
     /// <summary>Set exactly when Status is Finalized (a database check keeps the two in step).</summary>
     public DateTimeOffset? FinalizedAtUtc { get; set; }
     public Guid? FinalizedByUserId { get; set; }
+    /// <summary>ALV-005-C01: set when a clinician signs the draft (both or neither). A signed draft is locked until it is finalized or unsigned; it is still a Draft to the database.</summary>
+    public DateTimeOffset? SignedAtUtc { get; set; }
+    public Guid? SignedByUserId { get; set; }
+    /// <summary>ALV-005-C01: the note template applied to this encounter, and its name as it was then (a later rename does not rewrite this encounter).</summary>
+    public Guid? TemplateId { get; set; }
+    public string? TemplateName { get; set; }
     /// <summary>Optimistic concurrency: every change to the encounter or its entries moves this, so a stale editor is refused instead of overwriting.</summary>
     public byte[] RowVersion { get; set; } = [];
 }
@@ -90,6 +96,8 @@ public class EncounterAddendum
     public required string Text { get; set; }
     /// <summary>The caller's idempotency key for this addendum (unique per encounter).</summary>
     public required string ClientKey { get; set; }
+    /// <summary>ALV-005-C01: what the addendum amends - a documentation section or a note section; null when it is general.</summary>
+    public string? Section { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid? CreatedByUserId { get; set; }
 }
@@ -150,4 +158,10 @@ public static class EncounterEventTypes
     public const string SectionUnmarked = "SectionUnmarked";
     public const string Finalized = "Finalized";
     public const string AddendumAdded = "AddendumAdded";
+    public const string NoteSaved = "NoteSaved";
+    public const string TemplateApplied = "TemplateApplied";
+    public const string VitalsRecorded = "VitalsRecorded";
+    public const string VitalsVoided = "VitalsVoided";
+    public const string Signed = "Signed";
+    public const string Unsigned = "Unsigned";
 }

@@ -67,4 +67,8 @@ public enum Permission
     // ViewPatientRecords on purpose: that permission is held by front desk and billing for demographics, and must not open a patient's medical history to them.
     // Writing stays with ManageClinicalNotes. Appended last so existing ordinals are undisturbed.
     ViewClinicalDocumentation,
+
+    // ALV-005-C01: configuring the clinical note templates (which note sections a template has, which are required before signing). Owned by the clinical-documentation
+    // domain, not generic practice configuration; held by the dentist and the administrator. Using a template stays with ManageClinicalNotes. Appended last.
+    ManageClinicalTemplates,
 }

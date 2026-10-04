@@ -11,6 +11,7 @@ import type { PatientDetail } from "../services/patientsApi";
 import { HouseholdGuarantorPanel } from "./HouseholdGuarantorPanel";
 import { PatientDetailsPanel } from "./PatientDetailsPanel";
 import { EncounterView } from "./clinical/EncounterView";
+import { TemplatesPage } from "./clinical/notes/TemplatesPage";
 import { PatientClinicalPanel } from "./clinical/PatientClinicalPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
@@ -108,6 +109,11 @@ export function PatientFormTab() {
 export function PatientClinicalTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   return <PatientClinicalPanel patient={patient} />;
+}
+
+export function PatientClinicalTemplatesTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  return <TemplatesPage patient={patient} />;
 }
 
 export function PatientEncounterTab() {

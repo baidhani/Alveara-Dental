@@ -18,7 +18,8 @@ public static class PermissionMatrix
             Permission.ViewSchedule, Permission.ViewBilling,
             Permission.CompleteForms, Permission.ViewSignedForms, // ALV-N010
             Permission.UpdateChairsideFlow, // ALV-011-C01
-            Permission.ViewClinicalDocumentation), // STORY-005
+            Permission.ViewClinicalDocumentation, // STORY-005
+            Permission.ManageClinicalTemplates), // ALV-005-C01
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
