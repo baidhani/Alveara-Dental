@@ -1086,26 +1086,26 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 1577 of 1578 in the full run (1 h 22 m, real SQL Server); the one failure is an intermittent ALV-N004 backup-crypto test that passed 21 of 21 on rerun and is unrelated to this story's changes. New: ToothNumberingTests 74, OdontogramSchemaTests 48, OdontogramServiceTests 65, OdontogramApiTests 22. Frontend 873 of 873 (toothNumbering 74, Odontogram 21, OdontogramWrite 20, odontogramContrast 25); mocked browser 136 of 136; real-backend odontogram walkthrough 11 of 11 (axe light and dark, 768 px tablet with no horizontal scroll); regression walkthroughs on the same build: auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, clinical companion 9, safety 11. See docs/ODONTOGRAM.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "b8eef585f459bc1f36bb56f7eaec2ad29520f539",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "b8eef585f459bc1f36bb56f7eaec2ad29520f539",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1113,8 +1113,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-04T22:14:59.043Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit b8eef585f459bc1f36bb56f7eaec2ad29520f539 - see .colaberry/progress.json (STORY-006.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-04T22:14:59.043Z; portal sync commit 7bf0d70). The story's work spans b8eef58 to df62f1b."
     },
     {
       "schemaVersion": "2",
