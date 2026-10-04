@@ -80,6 +80,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<SafetyAlertAcknowledgement> SafetyAlertAcknowledgements => Set<SafetyAlertAcknowledgement>();
     public DbSet<Clearance> Clearances => Set<Clearance>();
     public DbSet<ClearanceVersion> ClearanceVersions => Set<ClearanceVersion>();
+    public DbSet<Architecture.Odontogram.ToothFinding> ToothFindings => Set<Architecture.Odontogram.ToothFinding>();
+    public DbSet<Architecture.Odontogram.ToothFindingVersion> ToothFindingVersions => Set<Architecture.Odontogram.ToothFindingVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -466,6 +468,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         });
         ClinicalRecordModel.Configure(modelBuilder);
         SafetyModel.Configure(modelBuilder);
+        OdontogramModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {
