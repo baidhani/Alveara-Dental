@@ -293,7 +293,7 @@ describe("a stale change", () => {
 
     await user.click(screen.getByRole("button", { name: "Plan: Caries (Occlusal surface)" }));
     await waitFor(() => expect(status()).toHaveTextContent("Not saved: someone else changed this."));
-    expect(screen.getByRole("alert")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("This tooth finding record was updated by someone else");
     expect(tooth("3").querySelector(".alv-odonto__tooth-state")!.textContent).toBe("Diagnosed");
     expect(screen.getByRole("region", { name: /^Tooth 3:/ })).toBeInTheDocument();                // still on the same tooth
 

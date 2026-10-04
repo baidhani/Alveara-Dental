@@ -66,7 +66,7 @@ export function OdontogramPanel({ patient, numbering = DEFAULT_NUMBERING, canWri
       return null;
     } catch (err) {
       if (isConcurrencyConflict(err)) {
-        setConflict(err.body);
+        setConflict({ ...err.body, entityType: "tooth finding" });             // the shared banner prints the entity name as given, so give it words, not "ToothFinding"
         setSaving({ kind: "failed", text: "Not saved: someone else changed this." });
       } else if (isNetworkFailure(err)) {
         setSaving({ kind: "failed", text: "Not saved: the connection dropped. What you typed is still here; try again." });

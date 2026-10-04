@@ -165,6 +165,27 @@ manager nothing at all; a stale alert edit refused with the conflict banner and 
 billing denied everywhere and an assistant reading and acknowledging but not changing; and the audit log holding every step with user and time and no safety content - then axe scans of
 each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
 
+## STORY-006: interactive odontogram walkthrough
+
+`e2e/odontogram-real-backend.spec.ts` is the un-mocked run for the odontogram. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:ODONTOGRAM_E2E_OUT = "C:\tmp\odontogram-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.odontogram.config.ts
+```
+
+It signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an assistant, a front-desk user, a billing user and the administrator, creates two patients, and
+shows: an empty chart with the 32 permanent teeth, "nothing recorded" (never healthy) and the patient-safety strip in view; a condition recorded on a selected tooth in each of the four
+states and saved exactly as chosen, with the tooth stored as its FDI key whatever number the chart shows; a treatment planned by one person and completed by another, the chart following and
+the history showing each step with who and when; a wrong entry withdrawn with a required reason and kept in the history; a wrong tooth, a Universal number, a surface that does not exist on
+the tooth, a surface on a whole-tooth condition, an unknown condition or state, and a finding recorded again in a different state each refused with the field named, and the same finding
+again a quiet repeat; a stale change refused with the conflict banner, the other person's change standing, and a reload letting the first person finish; a keyboard-only select and plan;
+front desk and billing denied everywhere and an assistant reading but not changing; and the audit log holding every record, state change and withdrawal with user and time and no clinical
+content - then axe scans of the chart, a tooth with its forms open, and the 768 px tablet layout (no horizontal scroll), in light and dark. Like the other real-backend specs it is excluded
+from the default mocked `npm run test:e2e`.
+
 ## ALV-005-C01: clinical record, notes, templates, vitals and signing walkthrough
 
 `e2e/clinical-companion-real-backend.spec.ts` is the un-mocked run for the clinical documentation companion. Prepare a fresh database and start the API exactly as for the

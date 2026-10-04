@@ -1,0 +1,125 @@
+{
+  "axe": {
+    "chart-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "chart-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "tooth-forms-open-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "tooth-forms-open-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "tablet-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "tablet-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    }
+  },
+  "stamp": 1791144635282,
+  "nothingInvented": {
+    "findings": 0,
+    "safetyStripInView": true
+  },
+  "acceptance1": {
+    "saved": {
+      "11/-/Crown": "Existing",
+      "16/B/Restoration": "Completed",
+      "16/D/Caries": "Planned",
+      "16/M/Restoration": "Existing",
+      "16/O/Caries": "Diagnosed"
+    },
+    "storedAsFdiKeys": true
+  },
+  "acceptance2": {
+    "path": [
+      "Recorded:Diagnosed",
+      "StateChanged:Planned",
+      "StateChanged:Completed"
+    ],
+    "actors": [
+      "Dr. Dana Dentist 1791144635282",
+      "Hana Hygienist 1791144635282",
+      "Dr. Dana Dentist 1791144635282"
+    ]
+  },
+  "withdraw": {
+    "leftChart": true,
+    "reasonRequired": true
+  },
+  "failurePaths": {
+    "refusals": {
+      "tooth not on the chart": "toothKey",
+      "a Universal number instead of the FDI key": "toothKey",
+      "occlusal surface on an incisor": "surface",
+      "incisal surface on a molar": "surface",
+      "a surface on a whole-tooth condition": "surface",
+      "no surface on a surface condition": "surface",
+      "an unknown condition": "condition",
+      "an unknown state": "state"
+    },
+    "duplicateDifferentState": "finding_exists",
+    "quietRepeat": true,
+    "chartUnchanged": true
+  },
+  "concurrency": {
+    "staleRefused": true,
+    "otherChangeStood": true,
+    "reloadedInPlace": true,
+    "savedAfterReload": true
+  },
+  "keyboard": {
+    "selectedAndPlannedWithKeyboardOnly": true
+  },
+  "access": {
+    "denied": {
+      "FrontDesk": [
+        403,
+        403,
+        403,
+        403,
+        403
+      ],
+      "Billing": [
+        403,
+        403,
+        403,
+        403,
+        403
+      ]
+    },
+    "assistant": {
+      "read": 200,
+      "write": 403,
+      "controls": 0
+    }
+  },
+  "audit": {
+    "ToothFindingRecorded": 7,
+    "ToothFindingStateChanged": 5,
+    "ToothFindingWithdrawn": 1
+  },
+  "accessibility": {
+    "scanned": [
+      "chart",
+      "tooth-forms-open",
+      "tablet"
+    ],
+    "tabletNoHorizontalScroll": true
+  }
+}

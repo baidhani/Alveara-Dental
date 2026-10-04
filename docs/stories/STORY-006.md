@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a tooth is selected, when a condition is recorded, then it is saved with the correct lifecycle state.
-- [ ] Given a completed treatment, when recorded, then the odontogram updates to reflect the change.
-- [ ] Trust: All odontogram updates are logged with user and timestamp.
+- [x] Given a tooth is selected, when a condition is recorded, then it is saved with the correct lifecycle state.
+- [x] Given a completed treatment, when recorded, then the odontogram updates to reflect the change.
+- [x] Trust: All odontogram updates are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.
