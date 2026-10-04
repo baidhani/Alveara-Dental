@@ -10,10 +10,10 @@ const TABS = [
   { id: "guardrails", label: "Guardrails", built: true },
   { id: "systems", label: "Systems", built: true },
   { id: "pm", label: "Project Management", built: true },
+  { id: "map", label: "Architecture Map", built: true },
   { id: "agents", label: "AI Agents", built: true },
   { id: "kb", label: "Knowledge Base", built: true },
   { id: "datamodel", label: "Data Model", built: true },
-  { id: "map", label: "Architecture Map", built: true },
 ];
 
 // Story ownership is a fact about our own backlog (from the Execution Plan), not something
@@ -377,9 +377,7 @@ function renderTabContent() {
     el.querySelectorAll("[data-eng-open]").forEach((btn) => {
       btn.addEventListener("click", (event) => {
         event.stopPropagation();
-        state.pmView = "engineering";
-        renderTabContent();
-        openStoryDialog(btn.dataset.engOpen, el.querySelector(`[data-eng-btn="${CSS.escape(btn.dataset.engOpen)}"]`));
+        openStoryDialog(btn.dataset.engOpen, btn);
       });
     });
     el.querySelectorAll("[data-pm-view]").forEach((btn) => {

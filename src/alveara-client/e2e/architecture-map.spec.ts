@@ -75,6 +75,12 @@ test.describe("the story catalog", () => {
 });
 
 test.describe("Architecture Map tab", () => {
+  test("sits directly below Project Management in the navigation", async ({ page }) => {
+    await page.goto(base + "/index.html");
+    const tabs = await page.locator("#tabs-nav button").evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.tab));
+    expect(tabs[tabs.indexOf("pm") + 1]).toBe("map");
+  });
+
   test("draws one card per ledger story, in the ledger's phases, with titles from the plan or the catalog", async ({ page }) => {
     await openMap(page);
     await expect(page.locator("[data-map-story]")).toHaveCount(records.length);

@@ -194,13 +194,18 @@ test.describe("expanding a portal story shows its attached engineering stories",
     await openPm(page);
     await page.locator('#pm-panel tr[data-expand="STORY-003"]').click();
     await page.locator('[data-expanded-panel="STORY-003"]').getByRole("button", { name: "ALV-003-C01" }).click();
-    await expect(page.getByRole("tab", { name: /Engineering stories/ })).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByRole("tab", { name: "Portal stories" })).toHaveAttribute("aria-selected", "true");   // the view does not switch
+    await expect(page.locator('[data-expanded-panel="STORY-003"]')).toBeVisible();
     const detail = page.locator("#map-dialog");
     await expect(detail).toBeVisible();
     await expect(detail).toContainText("ALV-003-C01");
     await expect(detail).toContainText("extends STORY-003");
     await expect(detail).toContainText("APPROVED");
     await expect(page.locator("#detail-panel .detail-panel")).toHaveCount(0);       // not the panel at the bottom of the page
+    await page.keyboard.press("Escape");
+    await expect(detail).toHaveCount(0);
+    await expect(page.locator('[data-expanded-panel="STORY-003"]').getByRole("button", { name: "ALV-003-C01" })).toBeFocused();
+    await expect(page.getByRole("tab", { name: "Portal stories" })).toHaveAttribute("aria-selected", "true");
   });
 });
 

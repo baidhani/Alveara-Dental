@@ -173,3 +173,9 @@
   - Session: CC-20261002-f7c1
   - What changed: clicking an engineering story in Project Management (the Engineering stories table, or the attached story link inside an expanded portal story) now opens the same pop-up as the Architecture Map instead of the panel at the bottom of the page. The story id in the table is now a real button, so it opens and closes from the keyboard and focus returns to it. The pop-up also shows the tests summary and the review artifact the old panel showed; the old engineering branch of the bottom panel was removed
   - Verification: `command-center.spec.ts` and `architecture-map.spec.ts` 74 of 74 at desktop and tablet; two existing tests updated from the panel to the pop-up, new tests for keyboard open, Escape, focus return, review and tests shown, and axe in light and dark with the pop-up open (0 serious/critical)
+
+- [x] Command Center: Architecture Map moved under Project Management; attached-story link opens the pop-up without switching view
+  - Date: 2026-10-04
+  - Session: CC-20261002-f7c1
+  - What changed: the Architecture Map tab now sits directly below Project Management in the navigation; clicking an attached engineering story inside an expanded portal story opens the pop-up over the Portal stories view instead of first switching to the Engineering stories view (the expansion stays open and focus returns to the link on close)
+  - Verification: `command-center.spec.ts` and `architecture-map.spec.ts` 76 of 76 at desktop and tablet; updated the expansion test to assert the Portal stories view stays selected and the expansion stays open, and added a navigation-order test
