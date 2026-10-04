@@ -178,6 +178,7 @@ test.describe("Architecture Map tab", () => {
     await expect(dialog).toBeVisible();
     await expect(dialog).toContainText(r.storyId);
     await expect(dialog).toContainText(`#${r.num}`);
+    await expect(dialog.locator(".map-type-row .map-order")).toHaveText(`ITEM ${String(r.num).padStart(2, "0")}`);   // the same item number the card shows
     await expect(dialog).toContainText(r.phase);
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();

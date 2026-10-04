@@ -155,3 +155,9 @@
   - Session: CC-20261002-f7c1
   - What changed: each story type has its own icon and colour again (portal: flag, blue; engineering: gear, purple; companion: chain, teal) on cards, legend and the detail dialog, through new `--map-*` tokens with light and dark values; the type is still written as a word beside the icon
   - Verification: `e2e/architecture-map.spec.ts` 16 tests at desktop and tablet pass with `command-center.spec.ts` (66 of 66): icon, word and three distinct colours per theme, plus axe in light and dark (0 serious/critical)
+
+- [x] Command Center: Architecture Map detail dialog shows the item number badge
+  - Date: 2026-10-04
+  - Session: CC-20261002-f7c1
+  - What changed: the detail dialog's header now shows the same "ITEM nn" badge as the card, beside the story-type marker
+  - Verification: `e2e/architecture-map.spec.ts` 16 tests at desktop and tablet pass (32 of 32), the dialog test asserts the badge text equals the card's item number; axe light and dark clean

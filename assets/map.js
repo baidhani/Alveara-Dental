@@ -168,7 +168,7 @@ function mapDetailHtml(r) {
   const blocking = (r.blockingIssues || []).length ? `<dt>Blocking issues</dt><dd>${r.blockingIssues.map((b) => escapeHtml(typeof b === "string" ? b : b.summary || JSON.stringify(b))).join("; ")}</dd>` : "";
   return `
     <button type="button" class="map-close" data-map-close aria-label="Close story details">&times;</button>
-    <div class="map-type-row">${mapMarker(r.storyType)}</div>
+    <div class="map-type-row"><span class="map-order">ITEM ${String(r.num).padStart(2, "0")}</span> ${mapMarker(r.storyType)}</div>
     <h2 id="map-dialog-title">${escapeHtml(r.storyId)} — ${r.title ? escapeHtml(r.title) : "No title in the catalog"}</h2>
     <dl class="map-detail-grid">
       <dt>Execution order</dt><dd>#${escapeHtml(r.num)}</dd>
