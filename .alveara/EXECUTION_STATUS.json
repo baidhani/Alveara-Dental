@@ -1038,21 +1038,21 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 1369 of 1369 (dotnet test, up from 1232; 137 new against real SQL Server: SafetySchemaTests 26, SafetyAlertServiceTests 35, ClearanceServiceTests 21, SafetyContextServiceTests 13, SafetyApiTests 33, ClinicalPermissionTests +9); frontend 733 of 733 (up from 684; 49 new: Safety 20, FlowBoardSafety 4, safetyContrast 25), tsc/build clean, lint 0 errors; mocked browser 94 of 94; real-backend/real-browser ALV-N011 walkthrough 11 of 11 (12 axe scans in light and dark, 0 serious or critical violations); regression on the real backend: visit board 15 of 15, STORY-005 9 of 9, ALV-005-C01 9 of 9, workspace 14 of 14, forms 10 of 10, patients 7 of 7, flow 10 of 10, calendar 12 of 12, schedule 10 of 10, auth 12 of 12; repository checks 8 of 8. No course parent (explicit N/A). See .alveara/handoffs/ALV-N011/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
+      "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "9a3ac31b5675c273e3a44d5815c012cc82e861e5",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N011/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

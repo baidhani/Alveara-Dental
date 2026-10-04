@@ -1,0 +1,20 @@
+
+Running 15 tests using 1 worker
+
+  ok  1 [chromium] › e2e\visit-board-real-backend.spec.ts:132:1 › SETUP: the practice, six staff, five patients, two required forms and their real signing state (2.1s)
+  ok  2 [chromium] › e2e\visit-board-real-backend.spec.ts:188:1 › BOARD: a column per state with each appointment where the server put it, the real form readiness at check-in, and no axe violations (2.9s)
+  ok  3 [chromium] › e2e\visit-board-real-backend.spec.ts:218:1 › FRONT OFFICE: the front desk confirms and checks in from the board; chairside buttons are not offered to them (618ms)
+  ok  4 [chromium] › e2e\visit-board-real-backend.spec.ts:239:1 › CHAIRSIDE: the assistant marks patients ready and seats one; they cannot do the front desk's moves (532ms)
+  ok  5 [chromium] › e2e\visit-board-real-backend.spec.ts:259:1 › ROOM: a second patient cannot be seated in an occupied room; the refusal says so in words and nothing changes (1.9s)
+  ok  6 [chromium] › e2e\visit-board-real-backend.spec.ts:274:1 › WHOLE CHAIN: treatment, check-out and completion by four different people free the room and leave a complete, attributed record (1.6s)
+  ok  7 [chromium] › e2e\visit-board-real-backend.spec.ts:310:1 › ASSIGNMENT: the provider and operatory a patient is actually with can change without moving the booking; occupied rooms are refused for a seated patient (1.3s)
+  ok  8 [chromium] › e2e\visit-board-real-backend.spec.ts:352:1 › CONFLICT: when someone else moves the patient first, the stale press is reported and not applied, and Reload shows the real state (2.0s)
+  ok  9 [chromium] › e2e\visit-board-real-backend.spec.ts:370:1 › LIVE: what another workstation does shows up on an open board by itself, without a reload or a click (15.5s)
+  ok 10 [chromium] › e2e\visit-board-real-backend.spec.ts:385:1 › CANCELLED AND NO-SHOW: they stay on the board, apart from the chain and distinct from completed (365ms)
+  ok 11 [chromium] › e2e\visit-board-real-backend.spec.ts:400:1 › LEFT OPEN: a visit still open from an earlier day appears on today's board marked as carried over, and the room it holds stays blocked (2.3s)
+  ok 12 [chromium] › e2e\visit-board-real-backend.spec.ts:421:1 › PERMISSIONS: the dentist moves patients chairside only; billing has no board and no way in; STORY-011's own endpoints are unchanged (494ms)
+  ok 13 [chromium] › e2e\visit-board-real-backend.spec.ts:446:1 › KEYBOARD: a move can be made without a mouse and focus stays on the visit (269ms)
+  ok 14 [chromium] › e2e\visit-board-real-backend.spec.ts:457:1 › RESPONSIVE: at tablet and phone width the page does not scroll sideways, a phone stacks the columns, and a card's actions stay reachable (2.8s)
+  ok 15 [chromium] › e2e\visit-board-real-backend.spec.ts:489:1 › ACCEPTANCE: every state and assignment change is in the audit log with user and time and no patient details, once per move (41ms)
+
+  15 passed (40.9s)

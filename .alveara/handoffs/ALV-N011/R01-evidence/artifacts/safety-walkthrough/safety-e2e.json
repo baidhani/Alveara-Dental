@@ -1,0 +1,180 @@
+{
+  "axe": {
+    "safety-details-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "safety-details-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "safety-details-forms-open-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "safety-details-forms-open-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "safety-clearances-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "safety-clearances-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 22
+    },
+    "encounter-with-safety-strip-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "encounter-with-safety-strip-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "board-with-indicator-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "board-with-indicator-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "safety-conflict-banner-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "safety-conflict-banner-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    }
+  },
+  "stamp": 1791085357984,
+  "nothingInvented": {
+    "entries": 0,
+    "alerts": 0,
+    "gaps": [
+      "Allergy",
+      "Medication",
+      "MedicalHistory"
+    ]
+  },
+  "recordEntries": {
+    "fromRecord": [
+      "Allergy:Penicillin",
+      "Medication:Lisinopril"
+    ],
+    "resolvedItemHidden": true
+  },
+  "alertLifecycle": {
+    "stated": "with source",
+    "acknowledgedStillActive": true,
+    "ackIsPerPerson": true,
+    "staleAckRefused": "alert_changed",
+    "resolveNeedsReason": "reason_required",
+    "history": [
+      "Created",
+      "Changed",
+      "Resolved",
+      "Reopened"
+    ]
+  },
+  "clearances": {
+    "workflow": [
+      "Requested",
+      "Received",
+      "DocumentAttached",
+      "Resolved"
+    ],
+    "waitingCannotBeResolved": "clearance_not_received",
+    "documentPendingShown": true,
+    "resolvedBy": "Dr. Dana Dentist 1791085357984"
+  },
+  "encounterStrip": {
+    "aboveDocumentation": true,
+    "alert": "1 active alert (highest: Critical)"
+  },
+  "board": {
+    "safetyKeys": [
+      "alert",
+      "clearance"
+    ],
+    "withIndicator": [
+      "Dentist",
+      "Hygienist",
+      "Assistant"
+    ],
+    "without": [
+      "FrontDesk",
+      "OfficeManager"
+    ],
+    "billing": 403,
+    "leaked": []
+  },
+  "concurrency": {
+    "staleEditRefused": true,
+    "otherChangeStood": true,
+    "typedValuesSurvivedReload": true,
+    "savedAfterReload": true
+  },
+  "keyboard": {
+    "acknowledgedWithKeyboardOnly": true
+  },
+  "access": {
+    "denied": {
+      "FrontDesk": [
+        403,
+        403,
+        403,
+        403,
+        403,
+        403
+      ],
+      "OfficeManager": [
+        403,
+        403,
+        403,
+        403,
+        403,
+        403
+      ],
+      "Billing": [
+        403,
+        403,
+        403,
+        403,
+        403,
+        403
+      ]
+    },
+    "assistant": {
+      "read": 200,
+      "write": 403,
+      "acknowledge": "allowed",
+      "controls": 0
+    }
+  },
+  "audit": {
+    "SafetyAlertCreated": 1,
+    "SafetyAlertChanged": 3,
+    "SafetyAlertAcknowledged": 2,
+    "SafetyAlertResolved": 1,
+    "SafetyAlertReopened": 1,
+    "ClearanceRequested": 2,
+    "ClearanceReceived": 1,
+    "ClearanceDocumentAttached": 1,
+    "ClearanceResolved": 1
+  }
+}
