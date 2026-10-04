@@ -2,12 +2,14 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { usePatientContext } from "../contexts/patientContextStore";
 import { displayName } from "../services/patientsApi";
+import { SafetyStrip } from "../pages/safety/SafetyStrip";
 
 /**
  * ALV-003-C01: the shared patient identity header, rendered in the shell's patient-context region on every screen.
  * It shows only what the system actually knows about the patient in context (name, birth date and age, sex, phone,
- * inactive status, and the guarantor if one is set). There are deliberately no balances, diagnoses, alerts or
- * unsigned-work counts here: those appear when the stories that produce them exist.
+ * inactive status, and the guarantor if one is set). There are deliberately no balances, diagnoses or unsigned-work
+ * counts here: those appear when the stories that produce them exist. ALV-N011 adds the persistent patient-safety strip
+ * (counts, highest severity and what is not established - never names) for the roles that may read clinical documentation.
  */
 export function PatientHeader() {
   const { state, clearPatient } = usePatientContext();
@@ -59,6 +61,7 @@ export function PatientHeader() {
               Close patient
             </button>
           </div>
+          <SafetyStrip patientId={state.patientId} linkClassName="alv-patient-header__link" />
         </div>
       )}
     </section>

@@ -23,4 +23,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "forms", label: "Forms", path: "forms", requiredPermission: "ViewSignedForms" },
   // STORY-005: clinical documentation (medical and dental history, allergies, medications); shown only to roles that may read it - not to front desk or billing.
   { id: "clinical", label: "Clinical", path: "clinical", requiredPermission: "ViewClinicalDocumentation" },
+  // ALV-N011: patient safety - alerts, allergies and medications as a safety view, and clearances; the same roles that read clinical documentation.
+  { id: "safety", label: "Safety", path: "safety", requiredPermission: "ViewClinicalDocumentation" },
 ];

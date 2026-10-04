@@ -143,6 +143,28 @@ what they typed surviving the reload and then saving; a keyboard-only entry; ano
 user and time and no clinical text - then axe scans of each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked
 `npm run test:e2e`.
 
+## ALV-N011: patient safety walkthrough
+
+`e2e/safety-real-backend.spec.ts` is the un-mocked run for patient-safety alerts, clearances and the live-board indicator. Prepare a fresh database and start the API exactly as for
+the STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:SAFETY_E2E_OUT = "C:\tmp\safety-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.safety.config.ts
+```
+
+It configures a practice with one provider and books a visit for each of three patients, signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an
+assistant, a front-desk user, a practice manager, a billing user and the administrator, and shows: an empty chart with no alerts invented and what is NOT established said in words;
+allergies and medications read from the clinical record (a milder or resolved item not shown as active, an unrecorded severity flagged and never guessed); an alert stated with its
+source (refused without one, on screen and in the API), acknowledged by a second clinician and shown to be still active, the old revision refused after a change, resolved only with a
+reason and kept with who, when and why, reopened, with the full history; the clearance workflow from requested to received without its document (said in words) to the document
+attached later to resolved, a clearance still waiting refused; the safety strip in the patient header and above the documentation sections of an open encounter; the live visit board
+giving authorized roles only "Safety alert on file" and "Clearance open" - two booleans, with no diagnosis, allergy or medication anywhere in the response - and front desk and the practice
+manager nothing at all; a stale alert edit refused with the conflict banner and the typed text surviving the reload; a keyboard-only acknowledgement; front desk, practice manager and
+billing denied everywhere and an assistant reading and acknowledging but not changing; and the audit log holding every step with user and time and no safety content - then axe scans of
+each screen and state in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
 ## ALV-005-C01: clinical record, notes, templates, vitals and signing walkthrough
 
 `e2e/clinical-companion-real-backend.spec.ts` is the un-mocked run for the clinical documentation companion. Prepare a fresh database and start the API exactly as for the

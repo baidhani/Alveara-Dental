@@ -26,6 +26,8 @@ export class FakeFlowServer extends FakeCalendarServer {
   serverNow = "2030-01-14T15:00:00.000Z";
   today = "2030-01-14";
   readiness: Record<string, CheckInReadiness> = {};
+  /** ALV-N011: the minimal safety indicator per patient; only carried for a caller who holds ViewSafetyIndicator, and only when there is something to show. */
+  safety: Record<string, { alert: boolean; clearance: boolean }> = {};
   boardReads = 0;
   /** The next N board reads fail with a 500 (the last good board must stay on screen). */
   failBoardReads = 0;
@@ -59,6 +61,8 @@ export class FakeFlowServer extends FakeCalendarServer {
     };
   }
 
+  private indicator(patientId: string) { return this.permissions.includes("ViewSafetyIndicator") ? this.safety[patientId] ?? null : null; }
+
   private board(date: string): VisitBoard {
     const dayOf = (a: Appointment) => a.startLocal.slice(0, 10);
     const carried = date === this.today ? this.appointments.filter((a) => dayOf(a) < date && a.status === "Scheduled" && OPEN.has(this.flowOf(a))) : [];
@@ -67,7 +71,8 @@ export class FakeFlowServer extends FakeCalendarServer {
     const cue = (a: Appointment) => (a.status === "Scheduled" && WAITING.has(this.flowOf(a)) ? this.readiness[a.patientId] ?? { ready: true, requiredCount: 0, completeCount: 0, items: [] } : null);
     return {
       date, serverNowUtc: this.serverNow, states: ORDER,
-      visits: [...sort(carried).map((a) => ({ appointment: this.view(a), readiness: cue(a), carriedOver: true })), ...sort(todays).map((a) => ({ appointment: this.view(a), readiness: cue(a), carriedOver: false }))],
+      visits: [...sort(carried).map((a) => ({ appointment: this.view(a), readiness: cue(a), carriedOver: true, safety: this.indicator(a.patientId) })),
+        ...sort(todays).map((a) => ({ appointment: this.view(a), readiness: cue(a), carriedOver: false, safety: this.indicator(a.patientId) }))],
     };
   }
 

@@ -53,6 +53,13 @@ export function VisitCardView({ card, nowMs, snapshot, can, busy, error, onMove,
       {card.carriedOver && <p className="flow-card__carried">Carried over from {dateOf(a.startLocal)} and still open.</p>}
       {cue && <p className="flow-card__elapsed">{cue}</p>}
       {card.readiness && <ReadinessCue readiness={card.readiness} />}
+      {card.safety && (
+        <p className="flow-card__safety" data-safety="true">
+          {card.safety.alert && <span className="flow-card__safety-flag">Safety alert on file</span>}
+          {card.safety.alert && card.safety.clearance && " · "}
+          {card.safety.clearance && <span className="flow-card__safety-flag">Clearance open</span>}
+        </p>
+      )}
       {error && <p className="flow-card__error" role="alert">{error}</p>}
 
       {confirming ? (

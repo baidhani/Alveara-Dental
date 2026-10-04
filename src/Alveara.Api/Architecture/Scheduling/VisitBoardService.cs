@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Forms;
+using Alveara.Api.Architecture.Safety;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
 
@@ -8,8 +9,10 @@ namespace Alveara.Api.Architecture.Scheduling;
 /// <summary>
 /// One visit on the board. <see cref="Readiness"/> is the check-in form cue, present only while the patient has not yet been seen (before treatment starts) and
 /// only for callers allowed to see form status. <see cref="CarriedOver"/> marks a visit from an EARLIER day that is still open (arrived but never completed).
+/// ALV-N011: <see cref="Safety"/> is the MINIMAL patient-safety indicator (alert yes/no, clearance open yes/no) and is present only for callers who hold
+/// <c>ViewSafetyIndicator</c> and only when there is something to show - never a diagnosis, allergy, medication, category, severity or count.
 /// </summary>
-public record VisitCard(AppointmentView Appointment, CheckInReadiness? Readiness, bool CarriedOver);
+public record VisitCard(AppointmentView Appointment, CheckInReadiness? Readiness, bool CarriedOver, SafetyIndicator? Safety = null);
 
 /// <summary><see cref="ServerNowUtc"/> is the server's clock, so the screen's elapsed-time figures never depend on the browser's clock.</summary>
 public record VisitBoard(string Date, DateTimeOffset ServerNowUtc, IReadOnlyList<string> States, IReadOnlyList<VisitCard> Visits);
@@ -20,7 +23,7 @@ public record VisitBoard(string Date, DateTimeOffset ServerNowUtc, IReadOnlyList
 /// an earlier day is included on today's board, because it still occupies its operatory (<see cref="VisitOccupancy"/> is about who is in the room now, not
 /// about booked time) and would otherwise block the room with nothing on screen to explain why.
 /// </summary>
-public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckInReadinessService readiness)
+public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckInReadinessService readiness, SafetyContextService? safety = null)
 {
     private const int MaxCards = 500;
     private const int MaxCarriedOver = 100;
@@ -30,7 +33,7 @@ public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckIn
     /// <summary>The current practice-local date, for the board's default.</summary>
     public DateOnly Today() => DateOnly.FromDateTime(clock.ToPracticeLocal(clock.UtcNow).DateTime);
 
-    public async Task<VisitBoard> BoardAsync(DateOnly day, bool includeReadiness, CancellationToken ct)
+    public async Task<VisitBoard> BoardAsync(DateOnly day, bool includeReadiness, CancellationToken ct, bool includeSafety = false)
     {
         var fromUtc = clock.FromPracticeLocal(day.ToDateTime(TimeOnly.MinValue));
         var toUtc = clock.FromPracticeLocal(day.AddDays(1).ToDateTime(TimeOnly.MinValue));
@@ -53,7 +56,11 @@ public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckIn
             cues = await readiness.ForPatientsAsync(waiting, ct);
         }
 
-        var cards = views.Select(v => new VisitCard(v.View, cues.TryGetValue(v.View.PatientId, out var r) && v.View.Status == AppointmentStatuses.Scheduled && ReadinessStates.Contains(v.View.FlowState) ? r : null, v.Carried)).ToList();
+        IReadOnlyDictionary<Guid, SafetyIndicator> indicators = new Dictionary<Guid, SafetyIndicator>();
+        if (includeSafety && safety is not null) indicators = await safety.IndicatorsAsync(views.Select(v => v.View.PatientId).ToList(), ct);
+
+        var cards = views.Select(v => new VisitCard(v.View, cues.TryGetValue(v.View.PatientId, out var r) && v.View.Status == AppointmentStatuses.Scheduled && ReadinessStates.Contains(v.View.FlowState) ? r : null, v.Carried,
+            indicators.TryGetValue(v.View.PatientId, out var indicator) ? indicator : null)).ToList();
         return new VisitBoard(day.ToString("yyyy-MM-dd"), clock.UtcNow, VisitStates.InOrder, cards);
     }
 }

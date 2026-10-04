@@ -53,6 +53,26 @@ public class ClinicalPermissionTests
             Assert.True(PermissionMatrix.RoleHas(role, Permission.ViewClinicalDocumentation), $"{role} configures templates but cannot read clinical documentation");
     }
 
+    [Theory]
+    [InlineData(Role.Admin, true)]
+    [InlineData(Role.Dentist, true)]
+    [InlineData(Role.Hygienist, true)]
+    [InlineData(Role.Assistant, true)]
+    [InlineData(Role.FrontDesk, false)]
+    [InlineData(Role.Billing, false)]
+    [InlineData(Role.OfficeManager, false)]
+    [InlineData(Role.Unassigned, false)]
+    public void The_minimal_board_safety_indicator_is_for_the_clinical_team_and_the_administrator_only(Role role, bool expected) =>
+        Assert.Equal(expected, PermissionMatrix.RoleHas(role, Permission.ViewSafetyIndicator)); // ALV-N011
+
+    [Fact]
+    public void The_safety_indicator_permission_was_appended_last_and_never_widens_clinical_reading()
+    {
+        Assert.Equal((int)Permission.ManageClinicalTemplates + 1, (int)Permission.ViewSafetyIndicator);
+        foreach (var role in Enum.GetValues<Role>().Where(r => PermissionMatrix.RoleHas(r, Permission.ViewSafetyIndicator)))
+            Assert.True(PermissionMatrix.RoleHas(role, Permission.ViewClinicalDocumentation), $"{role} sees the board indicator but cannot read clinical documentation");
+    }
+
     [Fact]
     public void Every_role_that_may_write_clinical_documentation_may_also_read_it()
     {

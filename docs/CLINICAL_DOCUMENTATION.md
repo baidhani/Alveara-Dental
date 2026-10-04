@@ -213,7 +213,7 @@ races), `ClinicalRecordApiTests` and `ClinicalPermissionTests` (roles, CSRF, ver
 
 ## Known limits (still not built)
 
-- AI-assisted draft generation (`ALV-N007`); patient-safety alerts and clearance tracking (`ALV-N011`); the odontogram and treatment plans (`STORY-006` onward).
+- AI-assisted draft generation (`ALV-N007`); the odontogram and treatment plans (`STORY-006` onward). Patient-safety alerts and clearance tracking are built in `ALV-N011` - see `docs/PATIENT_SAFETY.md`; they read this record's active allergies and medications and never copy them.
 - A note's *draft* text is not versioned (autosave overwrites the draft); the finalized note is immutable and amended by addendum, and the events list when a note was saved.
 - The longitudinal record is not copied into an encounter automatically: an encounter's four sections (STORY-005) and the patient's record are separate, and a record change is
   linked to an encounter only through the API (`encounterId`), not yet from the encounter screen.

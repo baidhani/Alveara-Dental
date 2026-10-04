@@ -62,7 +62,7 @@ public class VisitsController(VisitBoardService board, AppointmentFlowService fl
             return BadRequest(new { error = "invalid_range", message = "The date must look like 2030-01-14." });
         try
         {
-            return Ok(await board.BoardAsync(day, includeReadiness: Can(Permission.ViewSignedForms), ct));
+            return Ok(await board.BoardAsync(day, includeReadiness: Can(Permission.ViewSignedForms), ct, includeSafety: Can(Permission.ViewSafetyIndicator)));
         }
         catch (LocalTimeConversionException ex)
         {

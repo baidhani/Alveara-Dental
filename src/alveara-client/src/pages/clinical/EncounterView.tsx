@@ -16,6 +16,7 @@ import { AddendumPanel } from "./AddendumPanel";
 import { FinalizeReview } from "./FinalizeReview";
 import { NotesPanel } from "./notes/NotesPanel";
 import { VitalsPanel } from "./notes/VitalsPanel";
+import { SafetyStrip } from "../safety/SafetyStrip";
 import { SectionPanel } from "./SectionPanel";
 import type { SaveResult } from "./SectionPanel";
 import "./Clinical.css";
@@ -140,6 +141,8 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
           {!draft ? "Finalized" : e.isSigned ? "Signed - awaiting finalize" : "Draft - not finalized"}
         </span>
       </header>
+
+      <SafetyStrip patientId={patient.id} label="Patient safety for this encounter" />
 
       <p className="alv-clinical__status" role="status" aria-live="polite">
         {saving.kind === "saving" ? "Saving…" : saving.kind === "saved" ? saving.text : saving.kind === "failed" ? saving.text : draft ? (e.isSigned ? "This note is signed and locked." : "Every change is saved as you make it.") : "This note is finalized."}

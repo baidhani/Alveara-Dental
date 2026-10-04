@@ -71,4 +71,9 @@ public enum Permission
     // ALV-005-C01: configuring the clinical note templates (which note sections a template has, which are required before signing). Owned by the clinical-documentation
     // domain, not generic practice configuration; held by the dentist and the administrator. Using a template stays with ManageClinicalNotes. Appended last.
     ManageClinicalTemplates,
+
+    // ALV-N011: the MINIMAL patient-safety indicator on the live visit board - whether a patient has an active safety alert or an open clearance, and nothing else (no diagnosis,
+    // allergy or medication). Held by the clinical team (dentist, hygienist, assistant) and the administrator; front desk, billing and the practice manager do not hold it - they still see the board, just not this. Reading the full safety context uses
+    // ViewClinicalDocumentation and changing it ManageClinicalNotes. Appended last so existing ordinals are undisturbed.
+    ViewSafetyIndicator,
 }

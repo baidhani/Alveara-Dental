@@ -8,6 +8,7 @@ using Alveara.Api.Architecture.Idempotency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Measurement;
 using Alveara.Api.Architecture.Patients;
+using Alveara.Api.Architecture.Safety;
 using Alveara.Api.Architecture.Scheduling;
 
 namespace Alveara.Api.Data;
@@ -74,6 +75,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<EncounterVitals> EncounterVitals => Set<EncounterVitals>();
     public DbSet<NoteTemplate> NoteTemplates => Set<NoteTemplate>();
     public DbSet<NoteTemplateSection> NoteTemplateSections => Set<NoteTemplateSection>();
+    public DbSet<SafetyAlert> SafetyAlerts => Set<SafetyAlert>();
+    public DbSet<SafetyAlertVersion> SafetyAlertVersions => Set<SafetyAlertVersion>();
+    public DbSet<SafetyAlertAcknowledgement> SafetyAlertAcknowledgements => Set<SafetyAlertAcknowledgement>();
+    public DbSet<Clearance> Clearances => Set<Clearance>();
+    public DbSet<ClearanceVersion> ClearanceVersions => Set<ClearanceVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -459,6 +465,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.ToTable(t => t.HasTrigger("TR_EncounterEvents_Immutable"));
         });
         ClinicalRecordModel.Configure(modelBuilder);
+        SafetyModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

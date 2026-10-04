@@ -2,6 +2,7 @@
  * ALV-011-C01: typed client for the live visit board and the visit's state chain (Controllers/VisitsController). An appointment's id is its visit's id.
  * Every change carries the row version the caller last read; a stale one is the shared 409 concurrency conflict.
  */
+import type { SafetyIndicator } from "./safetyApi";
 import { request, requestWithCsrf } from "./authApi";
 import type { Appointment, PatientFlowState } from "./schedulingApi";
 
@@ -31,6 +32,11 @@ export interface VisitCard {
   readiness: CheckInReadiness | null;
   /** A visit from an earlier day that is still open (it still holds its room). */
   carriedOver: boolean;
+  /**
+   * ALV-N011: the MINIMAL patient-safety indicator - whether the patient has something active and whether a clearance is open, nothing else. Present only for callers who hold
+   * the board-indicator permission and only when there is something to show; absent means nothing is on file (never "unknown").
+   */
+  safety?: SafetyIndicator | null;
 }
 
 export interface VisitBoard {
