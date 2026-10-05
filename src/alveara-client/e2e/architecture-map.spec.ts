@@ -20,7 +20,13 @@ interface LedgerRecord { storyId: string; storyType: string; status: string; num
 const ledger = readJson<{ records: LedgerRecord[] }>(".alveara/EXECUTION_STATUS.json");
 const catalog = readJson<{ stories: { storyId: string; title?: string; subsystem: string }[] }>(".alveara/story_catalog.json");
 const plan = readJson<{ stories: { id: string; title: string }[] }>(".colaberry/plan.json");
+const progress = readJson<{ stories: { id: string; criteria: { passed: boolean }[] }[] }>(".colaberry/progress.json");
 const records = ledger.records.slice().sort((a, b) => a.num - b.num);
+// The page shows a planned portal story as "In progress" once any of its criteria pass in the progress file (assets/map.js); the expectations below follow the same data rule instead of assuming no story is mid-build.
+const passingCriteria = new Map(progress.stories.map((s) => [s.id, s.criteria.filter((c) => c.passed).length]));
+const startedPassing = (r: LedgerRecord) => r.status === "PLANNED" && r.storyType === "course" && (passingCriteria.get(r.storyId) ?? 0) > 0;
+const STATE_LABELS: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+const stateLabelOf = (r: LedgerRecord) => (startedPassing(r) ? "In progress" : STATE_LABELS[r.status]);
 const planTitles = new Map(plan.stories.map((s) => [s.id, s.title]));
 const catalogById = new Map(catalog.stories.map((s) => [s.storyId, s]));
 
@@ -138,9 +144,8 @@ test.describe("Architecture Map tab", () => {
 
   test("the legend lists exactly the states and story types in the data, and each key filters the map and clears on a second press", async ({ page }) => {
     await openMap(page);
-    const stateLabels: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
     const typeLabels: Record<string, string> = { course: "Portal story", companion: "Engineering companion", new_production: "Engineering story" };
-    const expected = new Set([...records.map((r) => stateLabels[r.status]), ...records.map((r) => typeLabels[r.storyType])]);
+    const expected = new Set([...records.map(stateLabelOf), ...records.map((r) => typeLabels[r.storyType])]);
     const legend = page.getByRole("group", { name: /Legend/ });
     const buttons = legend.getByRole("button");
     await expect(buttons).toHaveCount(expected.size);
@@ -186,7 +191,7 @@ test.describe("Architecture Map tab", () => {
     const planned = page.locator('[data-map-legend="state"][data-map-value="Planned"]');
     await planned.focus();
     await page.keyboard.press("Enter");
-    await expect(page.locator("[data-map-story]")).toHaveCount(records.filter((r) => r.status === "PLANNED").length);
+    await expect(page.locator("[data-map-story]")).toHaveCount(records.filter((r) => stateLabelOf(r) === "Planned").length);   // a story shown as In progress is not in the Planned filter
     await expect(planned).toBeFocused();
   });
 
@@ -217,7 +222,9 @@ test.describe("Architecture Map tab", () => {
   });
 
   test("a portal story whose criteria have started to pass shows as in progress with the count from the progress file", async ({ page }) => {
-    const story = records.find((r) => r.storyType === "course" && r.status === "PLANNED")!;
+    const story = records.find((r) => r.storyType === "course" && r.status === "PLANNED" && !startedPassing(r));
+    test.skip(!story, "every planned portal story already shows progress in the data, so there is none left to start");
+    if (!story) return;
     overrides[".colaberry/progress.json"] = (p) => {
       const entry = p.stories.find((x: { id: string }) => x.id === story.storyId);
       entry.criteria[0].passed = true;

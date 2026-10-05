@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-012",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-05T07:00:00Z",
+  "sourceCommitSha": "fced643",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A periodontal chart is one examination of one patient at one moment, holding up to 192 site readings: six sites per permanent tooth (distal, middle and mesial on the cheek side and on the tongue side), each with a probing depth and a recession in whole millimetres from 0 to 15 and a yes/no bleeding-on-probing answer. The tooth is stored as its FDI key; attachment loss is probing depth plus recession and is computed on read, never stored.",
+      "evidence": "src/Alveara.Api/Architecture/Periodontal/PerioEntities.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Anyone who may read clinical documentation (dentist, hygienist, assistant, admin) can see a patient's periodontal charts; only roles that manage clinical notes (dentist, hygienist, admin) can save one. The assistant reads but is refused (403) on save and is shown no save button; front desk and billing cannot see the tab and are refused (403) by the API; anonymous callers get 401.",
+      "evidence": "src/Alveara.Api.Tests/PerioApiTests.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "The Periodontal tab of the patient workspace lists a patient's charts newest first (who took each, when, the number of sites and teeth, the share of sites that bled, the number of sites 4 mm or deeper, the deepest site) with a table of every reading including derived attachment loss. No chart on record is stated as 'none has been taken, not that the gums are healthy', and a failed load is stated as a failed load.",
+      "evidence": "src/alveara-client/src/Perio.test.tsx"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Incorrect charting data is refused with every problem listed together (tooth, site, field, a stable code and a message naming the allowed range), and nothing partial is saved: a depth or recession outside 0 to 15 mm or not a whole number, an unknown tooth, a primary tooth, an unknown site, a site entered twice, a value left out (never defaulted to 0 or 'no'), an empty chart. The screen checks the same rules first, marks each box and links the problem list to the boxes; the database refuses the same data again.",
+      "evidence": "src/Alveara.Api.Tests/PerioServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every saved chart is written to the audit log with the signed-in user and a timestamp in the same save as the chart and its readings, so a chart cannot exist without its log entry and a failed log write stores nothing; the audit text carries no tooth or measurement. A failed save is reported as 'nothing was recorded' without database detail.",
+      "evidence": "src/Alveara.Api.Tests/PerioServiceTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "A saved periodontal chart and its readings can never be edited or deleted (database triggers 51064 and 51065); a correction is a new chart. The database also holds the tooth, site and millimetre ranges as case-sensitive check constraints and one reading per tooth and site per chart.",
+      "evidence": "src/Alveara.Api.Tests/PerioSchemaTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "A saved chart is immutable, and a correction is recorded as a new chart (the screen offers 'start a new chart from these values').",
+      "rationale": "A periodontal chart is a clinical record of what was found at a moment; editing it would erase that, and the trust criterion requires every charting entry to be logged. A new chart keeps every earlier finding in the history.",
+      "evidence": "src/Alveara.Api/Data/PerioModel.cs"
+    },
+    {
+      "statement": "A save carries a client-chosen idempotency key, unique per patient: the same key with the same readings returns the chart already saved, and the same key with different readings is refused with 409 rather than ignored.",
+      "rationale": "A dropped connection or double click must not create a second chart or a second audit entry, but silently dropping a different set of readings would lose clinical data without anyone knowing.",
+      "evidence": "src/Alveara.Api/Architecture/Periodontal/PerioService.cs"
+    },
+    {
+      "statement": "Charting covers permanent teeth only, and recession cannot be negative.",
+      "rationale": "The story names probing depth, recession and bleeding without dentition detail; primary teeth are not routinely probed and gingival overgrowth needs a different measure. Both are narrow to widen later (the key list and one database check).",
+      "evidence": "src/Alveara.Api/Architecture/Periodontal/PerioRules.cs"
+    },
+    {
+      "statement": "A reading needs both a probing depth and a recession (0 if there is none), and bleeding is a yes/no checkbox where unchecked means no.",
+      "rationale": "A blank must never be read as 0 mm, so the person has to type 0; bleeding alone is not a measurement, so a site with only the box ticked is reported as incomplete.",
+      "evidence": "src/alveara-client/src/pages/perio/perioChartRules.ts"
+    },
+    {
+      "statement": "Reading charts needs ViewClinicalDocumentation and saving one needs ManageClinicalNotes, the same permissions as the odontogram and clinical notes.",
+      "rationale": "Periodontal charting is clinical documentation, and reusing the existing permissions keeps the role matrix unchanged (no new permission was introduced).",
+      "evidence": "src/Alveara.Api/Controllers/PerioController.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "A chart is not linked to an encounter, diagnosis or treatment plan; it belongs to the patient and the moment. Linking is left for the structured diagnosis story.",
+      "evidence": "docs/PERIODONTAL.md"
+    },
+    {
+      "statement": "Charting does not read the odontogram, so a tooth recorded there as missing can still be charted; a clinician leaves it empty.",
+      "evidence": "docs/PERIODONTAL.md"
+    },
+    {
+      "statement": "No mobility, furcation, plaque or suppuration measures, no automatic periodontal staging or grading, and no printed or exported chart.",
+      "evidence": "docs/PERIODONTAL.md"
+    },
+    {
+      "statement": "There is no draft saved on the server: entries not yet saved are lost if the page is closed, and the screen lists only the latest 20 charts.",
+      "evidence": "src/alveara-client/src/pages/perio/PerioPanel.tsx"
+    },
+    {
+      "statement": "Messages from the server name teeth by FDI number whatever numbering system the grid shows (the screen says so when it shows them).",
+      "evidence": "src/alveara-client/src/pages/perio/PerioPanel.tsx"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PerioRulesTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PerioSchemaTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PerioServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PerioApiTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/Perio.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/perio-real-backend.spec.ts" }
+  ],
+  "measurementEvents": []
+}

@@ -1,0 +1,20 @@
+/* STORY-012: the periodontal chart grid. Colours come from the shared tokens; state is never colour alone (an invalid box has a thick border AND is announced; bleeding is a checked box). */
+.alv-perio__arch { overflow-x: auto; margin: 1rem 0; }
+.alv-perio__table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
+.alv-perio__table caption { text-align: left; font-weight: 600; padding: 0.25rem 0; }
+.alv-perio__table th, .alv-perio__table td { border: 1px solid var(--alv-border, #c8ced6); padding: 0.25rem 0.375rem; text-align: center; }
+.alv-perio__table tbody th { white-space: nowrap; }
+.alv-perio__site { white-space: nowrap; }
+.alv-perio__site--bleeding { border-bottom: 4px double currentColor; }
+.alv-perio__mm { width: 2.25rem; text-align: center; margin-right: 0.125rem; }
+.alv-perio__mm--invalid { border: 3px solid var(--alv-danger, #b42318); }
+.alv-perio__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.alv-perio__problems { border: 2px solid var(--alv-danger, #b42318); border-radius: 0.375rem; padding: 0.5rem 0.75rem; margin: 0.75rem 0; }
+.alv-perio__problems h3 { font-size: 1rem; margin: 0 0 0.25rem; }
+.alv-perio__jump { background: none; border: 0; padding: 0; text-decoration: underline; color: inherit; cursor: pointer; font: inherit; }
+.alv-perio__history { margin-top: 1.5rem; }
+.alv-perio__history h3 { font-size: 1.125rem; }
+.alv-perio__chart { border: 1px solid var(--alv-border, #c8ced6); border-radius: 0.375rem; padding: 0.5rem 0.75rem; margin: 0.5rem 0; }
+.alv-perio__chart > summary { cursor: pointer; }
+.alv-perio__figures { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; padding: 0; margin: 0.5rem 0; }
+@media (max-width: 800px) { .alv-perio__mm { width: 2rem; } .alv-perio__table { font-size: 0.8125rem; } }

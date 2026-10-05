@@ -657,20 +657,57 @@
       "criteria": [
         {
           "text": "Given a patient record, when periodontal charting is performed, then the system records probing depth, recession, and bleeding.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given incorrect charting data, when saved, then the system rejects the input and prompts for correction.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All charting entries are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Periodontal/PerioRules.cs",
+        "src/Alveara.Api/Architecture/Periodontal/PerioEntities.cs",
+        "src/Alveara.Api/Architecture/Periodontal/PerioService.cs",
+        "src/Alveara.Api/Architecture/Periodontal/PerioViews.cs",
+        "src/Alveara.Api/Controllers/PerioController.cs",
+        "src/Alveara.Api/Data/PerioModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261005051102_AddPeriodontalCharting.cs",
+        "src/Alveara.Api/Migrations/20261005051102_AddPeriodontalCharting.Designer.cs",
+        "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+        "src/alveara-client/src/services/perioApi.ts",
+        "src/alveara-client/src/pages/perio/PerioPanel.tsx",
+        "src/alveara-client/src/pages/perio/PerioGrid.tsx",
+        "src/alveara-client/src/pages/perio/PerioHistory.tsx",
+        "src/alveara-client/src/pages/perio/perioChartRules.ts",
+        "src/alveara-client/src/pages/perio/perioSummary.ts",
+        "src/alveara-client/src/pages/perio/Perio.css",
+        "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/playwright.perio.config.ts",
+        "src/alveara-client/playwright.config.ts",
+        "docs/PERIODONTAL.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        ".colaberry/enrichment/STORY-012.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/PerioRulesTests.cs",
+        "src/Alveara.Api.Tests/PerioSchemaTests.cs",
+        "src/Alveara.Api.Tests/PerioServiceTests.cs",
+        "src/Alveara.Api.Tests/PerioApiTests.cs",
+        "src/alveara-client/src/Perio.test.tsx",
+        "src/alveara-client/src/test/fakePerioStore.ts",
+        "src/alveara-client/src/App.patientWorkspaceRoutes.test.tsx",
+        "src/alveara-client/e2e/perio-real-backend.spec.ts",
+        "src/alveara-client/e2e/architecture-map.spec.ts"
+      ],
+      "notes": "Periodontal charting: six sites per permanent tooth, probing depth and recession in whole mm (0 to 15), bleeding yes/no; attachment loss derived, never stored. A chart is judged whole: every problem is listed with tooth, site and field and nothing partial is saved (service, API and database checks all refuse bad data). Each chart, its readings and its PHI-free audit entry are one save, so a failed log stores nothing; a failed save says nothing was recorded. Idempotent by a per-patient key (same key + chart returns the saved one; a different chart under a used key is a 409). Charts are immutable (triggers 51064/51065); a correction is a new chart. Known limits: permanent teeth only, no negative recession, no encounter/diagnosis link yet (STORY-013), no draft saved on the server. Verified: see PROGRESS.md (CC-20261002-f7c1) and docs/PERIODONTAL.md.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

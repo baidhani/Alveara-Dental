@@ -14,6 +14,7 @@ import { EncounterView } from "./clinical/EncounterView";
 import { TemplatesPage } from "./clinical/notes/TemplatesPage";
 import { SafetyPanel } from "./safety/SafetyPanel";
 import { OdontogramPanel } from "./odontogram/OdontogramPanel";
+import { PerioPanel } from "./perio/PerioPanel";
 import { PatientClinicalPanel } from "./clinical/PatientClinicalPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
@@ -122,6 +123,12 @@ export function PatientOdontogramTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
   return <OdontogramPanel patient={patient} canWrite={hasPermission("ManageClinicalNotes")} canManageConditions={hasPermission("ManageClinicalTemplates")} />;
+}
+
+export function PatientPerioTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  const { hasPermission } = useAuth();
+  return <PerioPanel patient={patient} canWrite={hasPermission("ManageClinicalNotes")} />;
 }
 
 export function PatientClinicalTemplatesTab() {

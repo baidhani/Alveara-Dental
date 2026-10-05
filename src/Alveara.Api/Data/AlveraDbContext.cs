@@ -85,6 +85,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Odontogram.ConditionType> ConditionTypes => Set<Architecture.Odontogram.ConditionType>();
     public DbSet<Architecture.Odontogram.ConditionTypeEvent> ConditionTypeEvents => Set<Architecture.Odontogram.ConditionTypeEvent>();
     public DbSet<Architecture.Odontogram.ToothFindingLink> ToothFindingLinks => Set<Architecture.Odontogram.ToothFindingLink>();
+    public DbSet<Architecture.Periodontal.PerioExam> PerioExams => Set<Architecture.Periodontal.PerioExam>();
+    public DbSet<Architecture.Periodontal.PerioReading> PerioReadings => Set<Architecture.Periodontal.PerioReading>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -472,6 +474,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         ClinicalRecordModel.Configure(modelBuilder);
         SafetyModel.Configure(modelBuilder);
         OdontogramModel.Configure(modelBuilder);
+        PerioModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

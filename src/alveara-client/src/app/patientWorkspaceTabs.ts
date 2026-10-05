@@ -27,4 +27,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "safety", label: "Safety", path: "safety", requiredPermission: "ViewClinicalDocumentation" },
   // STORY-006: the odontogram (tooth chart); the same roles that read clinical documentation.
   { id: "odontogram", label: "Odontogram", path: "odontogram", requiredPermission: "ViewClinicalDocumentation" },
+  // STORY-012: periodontal charting (probing depth, recession, bleeding); the same roles that read clinical documentation.
+  { id: "perio", label: "Periodontal", path: "periodontal", requiredPermission: "ViewClinicalDocumentation" },
 ];

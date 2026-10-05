@@ -315,3 +315,24 @@ second desk's change making the first desk's press a reported conflict; the open
 no-show apart from completed; a visit left open from an earlier day carried onto today's board with its room still blocked; a dentist who can only do chairside moves and billing with no way in, with STORY-011's own
 endpoints unchanged; a keyboard-only move; the audit log holding every move once with user and time and no patient details - with axe scans of four board states in light and dark. Like the other real-backend specs
 it is excluded from the default mocked `npm run test:e2e`.
+
+## STORY-012: periodontal charting walkthrough
+
+`e2e/perio-real-backend.spec.ts` is the un-mocked run for periodontal charting. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:PERIO_E2E_OUT = "C:\tmp\perio-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.perio.config.ts
+```
+
+It signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an assistant, a front-desk user, a billing user and the administrator, creates two patients, and shows:
+an empty chart (192 empty boxes, "none taken, not that the gums are healthy", the patient-safety strip in view); depth, recession and bleeding charted on three sites and saved, with the tooth stored
+as its FDI key whatever number is shown and attachment loss derived; incorrect data (99 mm, a missing recession) refused on screen with every problem named, the boxes marked, focus on the list and
+a link to the box to correct, nothing saved, then corrected and saved as a new chart, and the same mistakes refused by the API for any caller with every problem listed and a missing value reported
+rather than defaulted; the same key and chart returning the chart already saved, a different chart under a used key refused (409) and six simultaneous saves making one chart; a dropped connection
+(the server stores the chart, the answer is lost) keeping what was typed and the retry making exactly one chart, and a save that cannot be made saying nothing was recorded; starting a new chart from
+an earlier one leaving the earlier chart unchanged; the audit log holding one entry per chart with user and time and no clinical content; the hygienist charting, the assistant reading but refused
+(403) on save, front desk and billing denied (403) with no tab, anonymous callers 401 and a save without a CSRF token refused - then axe scans of the grid with charts listed, with problems shown,
+and the 768 px tablet layout (the page does not scroll sideways), in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
