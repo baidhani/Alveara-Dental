@@ -3,7 +3,11 @@ using Alveara.Api.Architecture.Odontogram;
 namespace Alveara.Api.Architecture.Periodontal;
 
 /// <summary>One probed site: a tooth (FDI key, as the odontogram stores it), one of its six sites, and what was measured there.</summary>
-public sealed record PerioReadingInput(string ToothKey, string Site, int ProbingDepthMm, int RecessionMm, bool Bleeding);
+/// <summary>
+/// <paramref name="Suppuration"/> and <paramref name="Plaque"/> (ALV-012-C01) are optional: null means "not assessed at this site", which is different from false ("assessed, none"). A chart saved
+/// without them (every STORY-012 chart) is unchanged.
+/// </summary>
+public sealed record PerioReadingInput(string ToothKey, string Site, int ProbingDepthMm, int RecessionMm, bool Bleeding, bool? Suppuration = null, bool? Plaque = null);
 
 /// <summary>One thing wrong with a submitted chart, specific enough for the screen to point at the entry: which tooth and site, which field, and what is allowed.</summary>
 public sealed record PerioProblem(string? ToothKey, string? Site, string Field, string Code, string Message);
@@ -25,6 +29,10 @@ public static class PerioRules
     /// <summary>32 permanent teeth, six sites each: the most one chart can hold.</summary>
     public static readonly int MaxReadings = ToothKeys.Permanent.Count * Sites.Count;
 
+    /// <summary>
+    /// The one rule for clinical attachment loss (CAL): probing depth plus recession, in millimetres, at the same site. It is DERIVED, never stored, so it can never disagree with its parts. Because
+    /// recession is never negative (gingival overgrowth is not modelled), CAL is never less than the probing depth.
+    /// </summary>
     public static int AttachmentLossMm(PerioReadingInput r) => r.ProbingDepthMm + r.RecessionMm;
 
     public static IReadOnlyList<PerioProblem> Validate(IReadOnlyList<PerioReadingInput>? readings)

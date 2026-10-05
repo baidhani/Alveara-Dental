@@ -336,3 +336,26 @@ rather than defaulted; the same key and chart returning the chart already saved,
 an earlier one leaving the earlier chart unchanged; the audit log holding one entry per chart with user and time and no clinical content; the hygienist charting, the assistant reading but refused
 (403) on save, front desk and billing denied (403) with no tab, anonymous callers 401 and a save without a CSRF token refused - then axe scans of the grid with charts listed, with problems shown,
 and the 768 px tablet layout (the page does not scroll sideways), in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
+## ALV-012-C01: step-by-step periodontal charting walkthrough
+
+`e2e/perio-sessions-real-backend.spec.ts` is the un-mocked run for the complete periodontal charting. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:PERIO_SESSIONS_E2E_OUT = "C:\tmp\perio-sessions-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.perio-sessions.config.ts
+```
+
+It signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an assistant, a front-desk user, a billing user and the administrator, creates five patients, and shows: no chart in
+progress until one is started, then the first site of the entry order with the depth box focused and the safety strip in view; depth, Enter, recession, Enter saving a site and landing on the next in the
+documented order, a tooth's sites saved only when the cursor leaves it, and the six sites reading differently; pus and plaque recorded only when asked for, B toggling bleeding, mobility and furcation set
+per tooth (furcation only on a molar) and X marking a tooth not charted; a tooth recorded missing in the odontogram skipped and listed, refused by the server with `tooth_absent` and cleared by marking it not
+charted; a wrong entry refused by the real server (a tooth that became missing while the sites were being typed) with every typed entry kept, the cursor on the entry to correct and X as the way out; a draft
+changed by someone else shown as the conflict banner with the typed entry kept and the first writer's entry standing, then saved after a reload; **all 192 sites typed from the keyboard with the cursor never
+losing its place**, finishing as one immutable chart; a chart compared with the one before it in words (improved, worse, about the same, sites in only one chart counted separately), a diagnosis link added by
+reference and repeated quietly, and the chart in progress compared live; the audit log holding every start, save, finalize and link with user and time, one chart entry per chart and no clinical content; the
+hygienist charting, the assistant reading but refused (403) on every write, front desk and billing denied with no tab, anonymous callers 401 and a write without a CSRF token refused - then axe scans of the
+entry screen, with a problem shown, the comparison with every site listed and the 768 px tablet entry layout (the page does not scroll sideways), in light and dark. Like the other real-backend specs it is
+excluded from the default mocked `npm run test:e2e`. `perio-real-backend.spec.ts` (STORY-012) is run alongside it as the parent regression.

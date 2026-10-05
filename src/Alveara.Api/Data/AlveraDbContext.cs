@@ -87,6 +87,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Odontogram.ToothFindingLink> ToothFindingLinks => Set<Architecture.Odontogram.ToothFindingLink>();
     public DbSet<Architecture.Periodontal.PerioExam> PerioExams => Set<Architecture.Periodontal.PerioExam>();
     public DbSet<Architecture.Periodontal.PerioReading> PerioReadings => Set<Architecture.Periodontal.PerioReading>();
+    public DbSet<Architecture.Periodontal.PerioToothRecord> PerioToothRecords => Set<Architecture.Periodontal.PerioToothRecord>();
+    public DbSet<Architecture.Periodontal.PerioSession> PerioSessions => Set<Architecture.Periodontal.PerioSession>();
+    public DbSet<Architecture.Periodontal.PerioSessionReading> PerioSessionReadings => Set<Architecture.Periodontal.PerioSessionReading>();
+    public DbSet<Architecture.Periodontal.PerioSessionTooth> PerioSessionTeeth => Set<Architecture.Periodontal.PerioSessionTooth>();
+    public DbSet<Architecture.Periodontal.PerioExamLink> PerioExamLinks => Set<Architecture.Periodontal.PerioExamLink>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -475,6 +480,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         SafetyModel.Configure(modelBuilder);
         OdontogramModel.Configure(modelBuilder);
         PerioModel.Configure(modelBuilder);
+        PerioSessionModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

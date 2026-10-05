@@ -138,7 +138,7 @@ export class FakeClinicalServer extends FakePatientServer {
     const isRecord = /^\/api\/(clinical-record|clinical\/templates)/.test(path) || /^\/api\/patients\/[^/]+\/clinical-record/.test(path);
     const isSafety = /^\/api\/safety\//.test(path) || /^\/api\/patients\/[^/]+\/safety/.test(path);
     const isOdontogram = /^\/api\/odontogram\//.test(path) || /^\/api\/patients\/[^/]+\/odontogram/.test(path);
-    const isPerio = /^\/api\/patients\/[^/]+\/periodontal/.test(path);
+    const isPerio = /^\/api\/patients\/[^/]+\/periodontal/.test(path) || /^\/api\/periodontal\//.test(path);
     const isClinical = isRecord || isSafety || isOdontogram || isPerio || path.startsWith("/api/encounters") || /^\/api\/patients\/[^/]+\/encounters/.test(path);
     if (!isClinical) return null;
     this.clinicalCalls.push({ method, url: u.pathname + u.search, headers, body });
@@ -150,7 +150,7 @@ export class FakeClinicalServer extends FakePatientServer {
       const [m, prefix] = key.split(" ");
       if (m === method && path.startsWith(prefix)) { this.gates.delete(key); await gate; break; }
     }
-    const response = isPerio ? (this.perio.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
+    const response = isPerio ? (this.perio.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." }))
       : isOdontogram ? (this.odontogram.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
       : isSafety ? (this.safety.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
       : isRecord ? (this.record.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." })) : this.route(path, method, headers, body);

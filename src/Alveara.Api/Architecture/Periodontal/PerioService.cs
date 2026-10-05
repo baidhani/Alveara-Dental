@@ -47,7 +47,7 @@ public class PerioService(AlveraDbContext db, IPracticeClock clock, ILogger<Peri
         db.PerioExams.Add(exam);
         db.PerioReadings.AddRange(readings.Select(r => new PerioReading
         {
-            Id = Guid.NewGuid(), ExamId = exam.Id, ToothKey = r.ToothKey, Site = r.Site, ProbingDepthMm = (byte)r.ProbingDepthMm, RecessionMm = (byte)r.RecessionMm, Bleeding = r.Bleeding,
+            Id = Guid.NewGuid(), ExamId = exam.Id, ToothKey = r.ToothKey, Site = r.Site, ProbingDepthMm = (byte)r.ProbingDepthMm, RecessionMm = (byte)r.RecessionMm, Bleeding = r.Bleeding, Suppuration = r.Suppuration, Plaque = r.Plaque,
         }));
         AuditService.Record(db, "PerioExamRecorded", nameof(PerioExam), exam.Id, actor, "Periodontal chart recorded.");
         try
@@ -75,10 +75,7 @@ public class PerioService(AlveraDbContext db, IPracticeClock clock, ILogger<Peri
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new PerioException("patient_not_found", "That patient was not found.", 404);
         var n = Math.Clamp(take ?? DefaultHistory, 1, MaxHistory);
         var exams = await db.PerioExams.AsNoTracking().Where(e => e.PatientId == patientId).OrderByDescending(e => e.RecordedAtUtc).ThenByDescending(e => e.Id).Take(n).ToListAsync(ct);
-        var names = await ClinicalNames.ResolveAsync(db, exams.Select(e => (Guid?)e.RecordedByUserId), ct);
-        var ids = exams.Select(e => e.Id).ToList();
-        var rows = (await db.PerioReadings.AsNoTracking().Where(r => ids.Contains(r.ExamId)).ToListAsync(ct)).ToLookup(r => r.ExamId);
-        return new PerioHistoryView(patientId, exams.Select(e => ToView(e, rows[e.Id], names)).ToList());
+        return new PerioHistoryView(patientId, await PerioReads.ViewsAsync(db, exams, ct));
     }
 
     private Task<PerioExam?> FindAsync(Guid patientId, string key, CancellationToken ct) =>
@@ -88,24 +85,14 @@ public class PerioService(AlveraDbContext db, IPracticeClock clock, ILogger<Peri
     private async Task<PerioExamView> ReplayAsync(PerioExam existing, IReadOnlyList<PerioReadingInput> readings, CancellationToken ct)
     {
         var view = await ViewAsync(existing, ct);
-        var saved = view.Readings.Select(r => (r.ToothKey, r.Site, r.ProbingDepthMm, r.RecessionMm, r.Bleeding)).OrderBy(x => x.ToothKey, StringComparer.Ordinal).ThenBy(x => x.Site, StringComparer.Ordinal);
-        var sent = readings.Select(r => (r.ToothKey, r.Site, r.ProbingDepthMm, r.RecessionMm, r.Bleeding)).OrderBy(x => x.ToothKey, StringComparer.Ordinal).ThenBy(x => x.Site, StringComparer.Ordinal);
+        var saved = view.Readings.Select(r => (r.ToothKey, r.Site, r.ProbingDepthMm, r.RecessionMm, r.Bleeding, r.Suppuration, r.Plaque)).OrderBy(x => x.ToothKey, StringComparer.Ordinal).ThenBy(x => x.Site, StringComparer.Ordinal);
+        var sent = readings.Select(r => (r.ToothKey, r.Site, r.ProbingDepthMm, r.RecessionMm, r.Bleeding, r.Suppuration, r.Plaque)).OrderBy(x => x.ToothKey, StringComparer.Ordinal).ThenBy(x => x.Site, StringComparer.Ordinal);
         if (!saved.SequenceEqual(sent))
             throw new PerioException("idempotency_key_reused", "That save key was already used for a different chart. Nothing was changed; save again to record this chart as a new one.", 409);
         return view;
     }
 
-    private async Task<PerioExamView> ViewAsync(PerioExam exam, CancellationToken ct)
-    {
-        var rows = await db.PerioReadings.AsNoTracking().Where(r => r.ExamId == exam.Id).ToListAsync(ct);
-        var names = await ClinicalNames.ResolveAsync(db, [exam.RecordedByUserId], ct);
-        return ToView(exam, rows, names);
-    }
-
-    private static PerioExamView ToView(PerioExam e, IEnumerable<PerioReading> rows, IReadOnlyDictionary<Guid, string> names) => new(
-        e.Id, e.PatientId, e.RecordedAtUtc, ClinicalNames.Name(names, e.RecordedByUserId) ?? ClinicalNames.Fallback, e.ReadingCount,
-        rows.OrderBy(r => r.ToothKey, StringComparer.Ordinal).ThenBy(r => PerioRules.Sites.ToList().IndexOf(r.Site))
-            .Select(r => new PerioReadingView(r.ToothKey, r.Site, r.ProbingDepthMm, r.RecessionMm, r.ProbingDepthMm + r.RecessionMm, r.Bleeding)).ToList());
+    private async Task<PerioExamView> ViewAsync(PerioExam exam, CancellationToken ct) => (await PerioReads.ViewsAsync(db, [exam], ct)).Single();
 
     private PerioException SaveFailed(DbUpdateException ex)
     {

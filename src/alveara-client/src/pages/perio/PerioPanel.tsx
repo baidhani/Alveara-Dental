@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError } from "../../services/authApi";
 import { isNetworkFailure, newKey } from "../../services/clinicalApi";
-import { getPerioCharts, perioProblemsOf, savePerioChart } from "../../services/perioApi";
+import { getCurrentPerioSession, getPerioCharts, perioProblemsOf, savePerioChart } from "../../services/perioApi";
 import type { PerioChart, PerioProblem } from "../../services/perioApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { DEFAULT_NUMBERING, LOWER_PERMANENT, UPPER_PERMANENT, displayTooth } from "../odontogram/toothNumbering";
 import type { NumberingSystem } from "../odontogram/toothNumbering";
 import { PerioGrid } from "./PerioGrid";
 import { PerioHistory } from "./PerioHistory";
+import { PerioSessionPanel } from "./PerioSessionPanel";
 import { EMPTY_CELL, SITE_NAMES, cellId, isTouched, readingsFromDraft, signatureOf } from "./perioChartRules";
 import type { CellDraft, CellProblem, Draft, Site } from "./perioChartRules";
 import { draftFromChart } from "./perioSummary";
@@ -49,6 +50,8 @@ export function PerioPanel({ patient, numbering = DEFAULT_NUMBERING, canWrite = 
   const [historyFailed, setHistoryFailed] = useState(false);
   const [pendingStart, setPendingStart] = useState<PerioChart | null>(null);
   const [serverNote, setServerNote] = useState(false);
+  const [mode, setMode] = useState<"grid" | "steps">("grid");
+  const [openDraftSites, setOpenDraftSites] = useState<number | null>(null);
   const loadHistory = useCallback((signal?: AbortSignal) => {
     getPerioCharts(patient.id, signal).then((h) => setCharts(h.exams)).catch(() => { if (!signal?.aborted) setHistoryFailed(true); });
   }, [patient.id]);
@@ -57,6 +60,12 @@ export function PerioPanel({ patient, numbering = DEFAULT_NUMBERING, canWrite = 
     loadHistory(controller.signal);
     return () => controller.abort();
   }, [loadHistory]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    getCurrentPerioSession(patient.id, controller.signal).then((r) => setOpenDraftSites(r.session ? r.session.readings.length : null)).catch(() => { /* the step-by-step panel says so itself if it cannot load */ });
+    return () => controller.abort();
+  }, [patient.id]);
 
   const attempt = useRef<{ key: string; signature: string } | null>(null);
   const summary = useRef<HTMLDivElement>(null);
@@ -129,6 +138,21 @@ export function PerioPanel({ patient, numbering = DEFAULT_NUMBERING, canWrite = 
         Teeth numbered with the {numbering === "Fdi" ? "FDI" : numbering} system. For each site enter the probing depth and the recession in whole millimetres (0 to 15) and tick
         the box if it bled on probing. Leave a site completely empty to leave it out. Press Enter to move to the next box.
       </p>
+      <div className="alv-perio__modes" role="group" aria-label="Entry method">
+        <button type="button" className={`btn ${mode === "grid" ? "btn-primary" : "btn-outline-secondary"}`} aria-pressed={mode === "grid"} onClick={() => setMode("grid")}>Grid (all sites at once)</button>
+        <button type="button" className={`btn ${mode === "steps" ? "btn-primary" : "btn-outline-secondary"}`} aria-pressed={mode === "steps"} onClick={() => setMode("steps")}>Step by step (keyboard)</button>
+      </div>
+      {mode === "grid" && openDraftSites !== null && (
+        <p className="alv-clinical__meta" role="note">
+          A step-by-step chart is in progress ({openDraftSites} {openDraftSites === 1 ? "site" : "sites"} saved so far). <button type="button" className="alv-perio__jump" onClick={() => setMode("steps")}>Continue it</button>
+        </p>
+      )}
+      {mode === "steps" && (
+        <PerioSessionPanel patient={patient} numbering={numbering} canWrite={canWrite} latestChart={charts?.[0] ?? null}
+          onFinalized={(chart) => { setCharts((all) => [chart, ...(all ?? []).filter((c) => c.id !== chart.id)]); setOpenDraftSites(null); }} />
+      )}
+      {mode === "grid" && (
+        <>
       <p className="alv-clinical__status" role="status" aria-live="polite">
         {saving.kind === "saving" ? "Saving…" : saving.kind === "idle" ? (canWrite ? `${entered} ${entered === 1 ? "site" : "sites"} entered. Nothing is saved until you save the chart.` : "You can read this but your role cannot chart.") : saving.text}
       </p>
@@ -168,7 +192,10 @@ export function PerioPanel({ patient, numbering = DEFAULT_NUMBERING, canWrite = 
           </div>
         </div>
       )}
-      <PerioHistory charts={charts} failed={historyFailed} numbering={numbering} canWrite={canWrite} onRetry={() => { setHistoryFailed(false); loadHistory(); }} onUseAsStart={(c) => (entered > 0 ? setPendingStart(c) : startFrom(c))} />
+        </>
+      )}
+      <PerioHistory patientId={patient.id} charts={charts} failed={historyFailed} numbering={numbering} canWrite={canWrite} onRetry={() => { setHistoryFailed(false); loadHistory(); }} onUseAsStart={(c) => (entered > 0 ? setPendingStart(c) : startFrom(c))}
+        onChartChanged={(chart) => setCharts((all) => (all ?? []).map((c) => (c.id === chart.id ? chart : c)))} />
     </section>
   );
 }

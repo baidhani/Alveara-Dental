@@ -29,4 +29,8 @@ public class PerioReading
     public byte ProbingDepthMm { get; set; }
     public byte RecessionMm { get; set; }
     public bool Bleeding { get; set; }
+    /// <summary>Pus at the site (ALV-012-C01). Null means not assessed, which is different from false (assessed, none); every STORY-012 chart is null.</summary>
+    public bool? Suppuration { get; set; }
+    /// <summary>Plaque at the site (ALV-012-C01). Null means not assessed.</summary>
+    public bool? Plaque { get; set; }
 }
