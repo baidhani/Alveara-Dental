@@ -1138,31 +1138,29 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Backend, full: 1,711 of 1,711 passed, 0 failed, 0 skipped (1 h 34 m). New: 133.; Frontend, full: 899 of 899 passed (64 files). Up from 873; 26 new: `OdontogramLongitudinal.test.tsx` 22 and 4 more contrast checks.; Type check / build / lint: tsc exit 0, build ok, no lint finding in the new or changed odontogram files; Mocked browser: 136 passed (17.0s); Repository checks: 8 of 8 passed; Real-backend walkthrough (new): 11 of 11 passed; axe scans of the mixed chart, a tooth's history with its links, the catalogue with its add form and the 768 px tablet layout, each in light and dark, 0 critical/serious; Parent regression: original STORY-006 walkthrough, **unchanged**: 11 of 11 passed; Regression walkthroughs on the same build: all passed. See .alveara/handoffs/ALV-006-C01/R01-evidence/TEST_RESULTS.md."
+        "summary": "Backend, full: 1,736 of 1,736 passed, 0 failed, 0 skipped (1 h 36 m). New in R01: 133; new in R02: 25.; Frontend, full: 902 of 902 passed (64 files).; Type check / build / lint: tsc exit 0, build ok, no lint finding in the new or changed odontogram files; Mocked browser: 136 of 136 passed; Repository checks: 8 of 8 passed; Real-backend walkthrough (the new one, updated in R02): 11 of 11 passed; axe scans of the mixed chart, a tooth's history with its links, the catalogue with its add form and the 768 px tablet layout, each in light and dark, 0 critical/serious; Parent regression: original STORY-006 walkthrough, **unchanged**: 11 of 11 passed; Regression walkthroughs on the same build: all passed. See .alveara/handoffs/ALV-006-C01/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "90f6ebd6cefc2bbb99149c452a9d13ae4f3cb9a0",
-      "evidenceCommit": "e684b117209bdc4db5cf663b9d704be19f5fcd86",
-      "handoffPath": ".alveara/handoffs/ALV-006-C01/R01.md",
+      "implementationCommit": "0b2aceb080c5432ec5a1a5e48cab76f4f9522400",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-006-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-006-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "90f6ebd6cefc2bbb99149c452a9d13ae4f3cb9a0",
-        "reviewedEvidenceCommit": "e684b117209bdc4db5cf663b9d704be19f5fcd86"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-006-C01-R01-01 (P1): the absent-tooth rule is checked only when a finding is recorded, so Planned Missing -> Caries -> Missing Completed leaves an active completed absence beside an active finding, and two concurrent writers can both pass the pre-read; R02 must serialize and validate every operation that can create or activate an Absent finding or record a non-presence finding against the same patient/tooth state, define a stable refusal (or documented non-destructive transition) when a transition would make a tooth absent while other active findings exist, add real-SQL tests for the sequential and concurrent cases and the permitted implant, and update the handoff acceptance and limitations to the final proved invariant."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

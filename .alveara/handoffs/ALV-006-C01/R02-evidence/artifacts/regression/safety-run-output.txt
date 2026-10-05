@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\safety-real-backend.spec.ts:122:1 › SETUP: the practice, three patients and a booked visit each (1.1s)
+  ok  2 [chromium] › e2e\safety-real-backend.spec.ts:142:1 › NOTHING INVENTED: an empty chart shows no alerts, says what is NOT established, and never says 'none' (782ms)
+  ok  3 [chromium] › e2e\safety-real-backend.spec.ts:161:1 › ALLERGIES AND MEDICATIONS are read from the clinical record, in the safety picture with their source and without being copied; a milder or resolved item is not shown as active (951ms)
+  ok  4 [chromium] › e2e\safety-real-backend.spec.ts:196:1 › ALERT LIFECYCLE: a clinician states an alert with its source; acknowledging is shown to be different from resolving; resolving needs a reason and keeps who, when and why (6.4s)
+  ok  5 [chromium] › e2e\safety-real-backend.spec.ts:283:1 › CLEARANCES: requested -> received (without its document, said in words) -> document attached later -> resolved with a reason; a clearance still waiting cannot be resolved (3.2s)
+  ok  6 [chromium] › e2e\safety-real-backend.spec.ts:333:1 › HEADER AND ENCOUNTER: safety information is in view before documenting - on every patient screen and at the top of an encounter (2.6s)
+  ok  7 [chromium] › e2e\safety-real-backend.spec.ts:352:1 › LIVE BOARD: authorized roles see only 'Safety alert on file' and 'Clearance open'; others see nothing; no diagnosis, allergy or medication ever reaches the shared board (3.0s)
+  ok  8 [chromium] › e2e\safety-real-backend.spec.ts:395:1 › CONCURRENCY: a stale alert edit is refused with the conflict banner and what was typed survives the reload (2.9s)
+  ok  9 [chromium] › e2e\safety-real-backend.spec.ts:423:1 › KEYBOARD: an alert can be acknowledged without a mouse (273ms)
+  ok 10 [chromium] › e2e\safety-real-backend.spec.ts:432:1 › ACCESS: front desk, office manager and billing cannot read any of it; an assistant reads and acknowledges but cannot change anything (881ms)
+  ok 11 [chromium] › e2e\safety-real-backend.spec.ts:461:1 › TRUST: every alert, acknowledgement, resolution and clearance step is in the audit log with the user and a time, and no safety content is in it (24ms)
+
+  11 passed (28.3s)

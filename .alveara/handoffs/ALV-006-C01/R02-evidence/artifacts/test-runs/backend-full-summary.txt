@@ -1,0 +1,2 @@
+dotnet test (src/Alveara.Api.Tests), full run on 0b2aceb080c5432ec5a1a5e48cab76f4f9522400
+Passed!  - Failed:     0, Passed:  1736, Skipped:     0, Total:  1736, Duration: 1 h 36 m - Alveara.Api.Tests.dll (net10.0)
