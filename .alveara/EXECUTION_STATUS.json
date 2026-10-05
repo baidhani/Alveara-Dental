@@ -1138,7 +1138,7 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 6,
@@ -1154,13 +1154,15 @@
       "evidenceCommit": "e684b117209bdc4db5cf663b9d704be19f5fcd86",
       "handoffPath": ".alveara/handoffs/ALV-006-C01/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-006-C01/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "90f6ebd6cefc2bbb99149c452a9d13ae4f3cb9a0",
+        "reviewedEvidenceCommit": "e684b117209bdc4db5cf663b9d704be19f5fcd86"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-006-C01-R01-01 (P1): the absent-tooth rule is checked only when a finding is recorded, so Planned Missing -> Caries -> Missing Completed leaves an active completed absence beside an active finding, and two concurrent writers can both pass the pre-read; R02 must serialize and validate every operation that can create or activate an Absent finding or record a non-presence finding against the same patient/tooth state, define a stable refusal (or documented non-destructive transition) when a transition would make a tooth absent while other active findings exist, add real-SQL tests for the sequential and concurrent cases and the permitted implant, and update the handoff acceptance and limitations to the final proved invariant."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
