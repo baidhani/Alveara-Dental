@@ -51,6 +51,7 @@ public partial class OdontogramService(AlveraDbContext db, IPracticeClock clock)
         var twin = await FindActiveAsync(patientId, f, ct);
         if (twin is not null) return await RepeatOrRefuseAsync(patientId, twin, f.State, ct);
         await EnsureToothPresentAsync(patientId, f, ct);
+        if (f.Type.ToothEffect == ToothEffects.Absent && MakesToothAbsent(f.State)) await EnsureToothHasNoOtherFindingsAsync(patientId, f.ToothKey, Guid.Empty, ct);
 
         var now = clock.UtcNow;
         var finding = new ToothFinding
@@ -85,6 +86,9 @@ public partial class OdontogramService(AlveraDbContext db, IPracticeClock clock)
         if (finding.State == to) return await ChartAsync(finding.PatientId, ct);
         if (!OdontogramRules.CanMove(finding.State, to))
             throw new OdontogramException("invalid_transition", $"A finding that is {finding.State} cannot become {to}. If it was entered wrongly, withdraw it and record it again.", 409);
+
+        if (MakesToothAbsent(to) && await db.ConditionTypes.AsNoTracking().AnyAsync(c => c.Code == finding.Condition && c.ToothEffect == ToothEffects.Absent, ct))
+            await EnsureToothHasNoOtherFindingsAsync(finding.PatientId, finding.ToothKey, finding.Id, ct);
 
         var now = clock.UtcNow;
         finding.State = to;
@@ -166,6 +170,16 @@ public partial class OdontogramService(AlveraDbContext db, IPracticeClock clock)
             // two writers claimed the same next version, or the same new finding: the stale one reloads and looks again
             throw new ConcurrencyConflictException(nameof(ToothFinding), findingId);
         }
+        catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException { Number: ToothPresenceErrors.Absent or ToothPresenceErrors.HasFindings or ToothPresenceErrors.Busy } sql)
+        {
+            // the database refused a change that would leave the tooth inconsistent (a concurrent writer got there first); say it as the service says it
+            throw sql.Number switch
+            {
+                ToothPresenceErrors.Absent => AbsentRefusal(),
+                ToothPresenceErrors.HasFindings => HasFindingsRefusal(),
+                _ => new OdontogramException("tooth_busy", "Another change to this tooth was in progress at the same moment. Reload and try again.", 409),
+            };
+        }
     }
 
     /// <summary>
@@ -181,7 +195,30 @@ public partial class OdontogramService(AlveraDbContext db, IPracticeClock clock)
                                   && (x.State == FindingStates.Existing || x.State == FindingStates.Completed)
                             select x.Id).AnyAsync(ct);
         if (absent)
-            throw new OdontogramException("tooth_absent", "This tooth is recorded as missing, so no other finding can be recorded on it. Record an implant, or withdraw the missing-tooth finding if it was a mistake.", 409);
+            throw AbsentRefusal();
+    }
+
+    /// <summary>A finding in these states puts the tooth out of the mouth (an extraction planned or merely diagnosed does not).</summary>
+    private static bool MakesToothAbsent(string state) => state is FindingStates.Existing or FindingStates.Completed;
+
+    private static OdontogramException AbsentRefusal() =>
+        new("tooth_absent", "This tooth is recorded as missing, so no other finding can be recorded on it. Record an implant, or withdraw the missing-tooth finding if it was a mistake.", 409);
+
+    private static OdontogramException HasFindingsRefusal() =>
+        new("tooth_has_findings", "This tooth has other active findings, so it cannot be recorded as missing yet. Withdraw them (with a reason such as the extraction) if they no longer apply, or keep the missing tooth as Planned until they are dealt with. Nothing was changed.", 409);
+
+    /// <summary>
+    /// The other half of the missing-tooth rule: a tooth cannot become absent (a missing-tooth finding recorded as Existing or Completed, or moved there) while other active findings that say
+    /// nothing about its presence stand on it. The refusal is non-destructive - nothing is withdrawn or rewritten for the person - and names the way out. This read gives the clear message
+    /// for the ordinary case; the database enforces the same rule atomically for concurrent writers (see <see cref="ToothPresenceErrors"/>).
+    /// </summary>
+    private async Task EnsureToothHasNoOtherFindingsAsync(Guid patientId, string toothKey, Guid exceptFindingId, CancellationToken ct)
+    {
+        var others = await (from x in db.ToothFindings.AsNoTracking()
+                            join t in db.ConditionTypes.AsNoTracking() on x.Condition equals t.Code
+                            where x.PatientId == patientId && x.ToothKey == toothKey && x.Status == FindingStatuses.Active && x.Id != exceptFindingId && t.ToothEffect == ToothEffects.None
+                            select x.Id).AnyAsync(ct);
+        if (others) throw HasFindingsRefusal();
     }
 
     /// <summary>Every condition's label by code, including retired ones, so a finding recorded under a condition that was later retired still reads as it did.</summary>

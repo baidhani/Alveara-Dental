@@ -80,7 +80,7 @@ export function RecordFindingForm({ toothKey, conditionTypes, defaultSurface, bu
         </div>
       )}
       {type && !needsSurface && <p className="alv-form-field__hint">{type.label} applies to the whole tooth, so no surface is chosen.</p>}
-      {type?.toothEffect === "Absent" && <p className="alv-form-field__hint">Recording this marks the tooth as not there, so no other finding (except an implant) can be recorded on it while it stands.</p>}
+      {type?.toothEffect === "Absent" && <p className="alv-form-field__hint">Recording this as Existing or Completed marks the tooth as not there: no other finding (except an implant) can then be recorded on it, and it cannot be recorded while other findings stand on the tooth - withdraw those first, or keep it Planned.</p>}
       <div className="alv-form-field">
         <label htmlFor={stateId} className="alv-form-field__label">State</label>
         <select id={stateId} className="alv-form-field__input" value={state} aria-invalid={errors.state ? true : undefined} onChange={(e) => setState(e.target.value)}>

@@ -34,6 +34,7 @@ internal static class OdontogramModel
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_ToothFindings_NoDelete");
+                t.HasTrigger("TR_ToothFindings_ToothPresence");
                 t.HasCheckConstraint("CK_ToothFindings_ToothKey", $"[ToothKey] COLLATE Latin1_General_CS_AS IN ({In(ToothKeys.All)})");
                 t.HasCheckConstraint("CK_ToothFindings_ConditionScope", $"[ConditionScope] COLLATE Latin1_General_CS_AS IN ({In(ConditionScopes.All)})");
                 t.HasCheckConstraint("CK_ToothFindings_State", $"[State] COLLATE Latin1_General_CS_AS IN ({In(FindingStates.All)})");

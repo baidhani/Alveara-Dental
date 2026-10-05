@@ -152,6 +152,67 @@ describe("permanent, primary and mixed dentition", () => {
   });
 });
 
+describe("a tooth cannot become missing beside other findings (ALV-006-C01 R02)", () => {
+  const STATE_WORDS = (label: string) => tooth(label).querySelector(".alv-odonto__tooth-state")!.textContent;
+
+  it("refuses to complete a planned missing tooth while another finding stands on it, names the way out, changes nothing, and works once the other finding is withdrawn", async () => {
+    const user = userEvent.setup();
+    server.odontogram.addFinding(A, { toothKey: "16", condition: "Missing", state: "Planned" });
+    server.odontogram.addFinding(A, { toothKey: "16", surface: "O", condition: "Caries", state: "Diagnosed" });
+    await openChart();
+    await user.click(tooth("3"));
+
+    await user.click(screen.getByRole("button", { name: "Complete: Missing tooth (whole tooth)" }));
+    await waitFor(() => expect(status()).toHaveTextContent("Not saved: This tooth has other active findings, so it cannot be recorded as missing yet."));
+    expect(status()).toHaveTextContent("Withdraw them (with a reason such as the extraction) if they no longer apply, or keep the missing tooth as Planned");
+    expect(status()).toHaveTextContent("Nothing was changed.");
+    expect(within(findingList()).getByText("Missing tooth", { selector: "strong" }).closest("li")).toHaveTextContent("Planned");      // the finding is as it was
+    expect(STATE_WORDS("3")).toBe("Diagnosed +1");
+
+    await user.click(screen.getByRole("button", { name: "Withdraw: Caries (Occlusal surface)" }));                                   // the way out
+    await user.type(screen.getByLabelText(/Why is/), "Tooth extracted");
+    await user.click(screen.getByRole("button", { name: "Withdraw finding" }));
+    await waitFor(() => expect(status()).toHaveTextContent("withdrawn."));
+    await user.click(screen.getByRole("button", { name: "Complete: Missing tooth (whole tooth)" }));
+    await waitFor(() => expect(status()).toHaveTextContent("Missing tooth (whole tooth) on tooth 3 is now Completed."));
+
+    await user.click(screen.getByRole("button", { name: "Record a finding on this tooth" }));                                       // and now the tooth is absent
+    const form = screen.getByRole("form", { name: "Record a finding" });
+    await user.selectOptions(within(form).getByLabelText("Condition"), "Crown");
+    await user.selectOptions(within(form).getByLabelText("State"), "Planned");
+    await user.click(within(form).getByRole("button", { name: "Record finding" }));
+    await waitFor(() => expect(status()).toHaveTextContent("Not saved: This tooth is recorded as missing, so no other finding can be recorded on it."));
+  });
+
+  it("refuses to record a missing tooth as Existing or Completed straight over another finding, and stores nothing", async () => {
+    const user = userEvent.setup();
+    server.odontogram.addFinding(A, { toothKey: "16", surface: "O", condition: "Caries", state: "Existing" });
+    await openChart();
+    await user.click(tooth("3"));
+    await user.click(screen.getByRole("button", { name: "Record a finding on this tooth" }));
+    const form = screen.getByRole("form", { name: "Record a finding" });
+    await user.selectOptions(within(form).getByLabelText("Condition"), "Missing");
+    await user.selectOptions(within(form).getByLabelText("State"), "Existing");
+    await user.click(within(form).getByRole("button", { name: "Record finding" }));
+    await waitFor(() => expect(status()).toHaveTextContent("Not saved: This tooth has other active findings, so it cannot be recorded as missing yet."));
+    expect(server.odontogram.findings.size).toBe(1);
+    expect(within(form).getByLabelText("State")).toHaveValue("Existing");                                                           // what was typed is still there
+
+    await user.selectOptions(within(form).getByLabelText("State"), "Planned");                                                      // a planned extraction is allowed beside it
+    await user.click(within(form).getByRole("button", { name: "Record finding" }));
+    await waitFor(() => expect(status()).toHaveTextContent("Missing tooth (whole tooth) recorded on tooth 3 as Planned."));
+  });
+
+  it("tells the person, before they choose, what recording a missing tooth will require", async () => {
+    const user = userEvent.setup();
+    await openChart();
+    await user.click(tooth("3"));
+    await user.click(screen.getByRole("button", { name: "Record a finding on this tooth" }));
+    await user.selectOptions(within(screen.getByRole("form", { name: "Record a finding" })).getByLabelText("Condition"), "Missing");
+    expect(screen.getByText(/cannot be recorded while other findings stand on the tooth - withdraw those first, or keep it Planned/)).toBeInTheDocument();
+  });
+});
+
 describe("the condition catalogue", () => {
   it("lists the conditions with what each means and who added it, to anyone who can read the chart, and offers a reader no way to change it", async () => {
     await openChart();

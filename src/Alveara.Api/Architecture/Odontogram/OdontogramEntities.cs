@@ -88,3 +88,18 @@ public static class FindingChangeTypes
     public const string Withdrawn = "Withdrawn";
     public const string Linked = "Linked";
 }
+
+/// <summary>
+/// The database's refusals of an inconsistent tooth (trigger <c>TR_ToothFindings_ToothPresence</c>). The invariant, for every patient and tooth at every moment: there is never an active
+/// finding whose condition says the tooth is ABSENT in state Existing or Completed alongside an active finding whose condition says nothing about presence. The trigger takes a per-patient,
+/// per-tooth application lock for the transaction before it checks, so two writers on the same tooth queue and the second sees the first's committed row - the rule holds for every writer.
+/// </summary>
+public static class ToothPresenceErrors
+{
+    /// <summary>A finding that says nothing about presence was written on a tooth that is absent.</summary>
+    public const int Absent = 51061;
+    /// <summary>A finding was made absent while other active findings that say nothing about presence stand on the tooth.</summary>
+    public const int HasFindings = 51062;
+    /// <summary>The tooth's lock could not be taken in time (another change to the same tooth is still in progress).</summary>
+    public const int Busy = 51063;
+}

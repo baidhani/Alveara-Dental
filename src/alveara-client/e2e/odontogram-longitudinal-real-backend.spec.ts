@@ -167,8 +167,9 @@ test("MIXED DENTITION: one patient has findings on permanent and primary teeth, 
   evidence.mixedDentition = { teethDrawn: 52, findings: before, switchingChangedNothing: true };
 });
 
-test("TOOTH-STATE VALIDATION: an implant is not placed in a primary tooth, and a missing tooth takes no other finding until the entry is withdrawn", async () => {
+test("TOOTH-STATE VALIDATION: an implant is not placed in a primary tooth; a missing tooth takes no other finding; a tooth cannot become missing beside other findings (in sequence and under concurrency)", async () => {
   const page = sessions.Dentist.page;
+  const hygienist = sessions.Hygienist.page;
   await gotoChart(page, "cy");
   await tooth(page, "A").click();
   await page.getByRole("button", { name: "Record a finding on this tooth" }).click();
@@ -178,9 +179,10 @@ test("TOOTH-STATE VALIDATION: an implant is not placed in a primary tooth, and a
   const refused = await api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: "55", condition: "Implant", state: "Existing" });
   expect([refused.status, refused.body.error, "condition" in refused.body.fieldErrors]).toEqual([400, "validation_failed", true]);
 
-  await tooth(page, "3").click();                                                        // a permanent tooth that is missing
+  // an absent tooth takes nothing else (Universal 19 is FDI 36, a lower left first molar with nothing else on it)
+  await tooth(page, "19").click();
   await recordUi(page, "Missing", "Existing");
-  await expect(statusLine(page)).toContainText("Missing tooth (whole tooth) recorded on tooth 3 as Existing.");
+  await expect(statusLine(page)).toContainText("Missing tooth (whole tooth) recorded on tooth 19 as Existing.");
   await page.getByRole("button", { name: "Record a finding on this tooth" }).click();
   await recordForm(page).getByLabel("Condition").selectOption("Crown");
   await recordForm(page).getByLabel("State").selectOption("Planned");
@@ -188,19 +190,59 @@ test("TOOTH-STATE VALIDATION: an implant is not placed in a primary tooth, and a
   await expect(statusLine(page)).toContainText("Not saved: This tooth is recorded as missing, so no other finding can be recorded on it.");
   await shot(page, "02-tooth-absent.png");
   await recordForm(page).getByRole("button", { name: "Cancel" }).click();
-  const direct = await api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: "16", surface: "O", condition: "Caries", state: "Diagnosed" });
+  const direct = await api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: "36", surface: "O", condition: "Caries", state: "Diagnosed" });
   expect([direct.status, direct.body.error]).toEqual([409, "tooth_absent"]);
-
   await recordUi(page, "Implant", "Planned");                                            // an implant may stand in for it
-  await expect(statusLine(page)).toContainText("Implant (whole tooth) recorded on tooth 3 as Planned.");
-  const missing = (await chartOf(page, "cy")).findings.find((f: any) => f.condition === "Missing");
+  await expect(statusLine(page)).toContainText("Implant (whole tooth) recorded on tooth 19 as Planned.");
   await page.getByRole("button", { name: "Withdraw: Missing tooth (whole tooth)" }).click();
   await page.getByRole("form", { name: "Withdraw finding: Missing tooth (whole tooth)" }).getByLabel(/Why is/).fill("Entered on the wrong tooth");
   await page.getByRole("form", { name: "Withdraw finding: Missing tooth (whole tooth)" }).getByRole("button", { name: "Withdraw finding" }).click();
   await expect(statusLine(page)).toContainText("withdrawn.");
-  expect((await api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: "16", surface: "M", condition: "Caries", state: "Diagnosed" })).status).toBe(200);        // present again
-  expect(missing.id).toBeTruthy();
-  evidence.toothState = { implantOnPrimary: "validation_failed", findingOnMissingTooth: "tooth_absent", implantAllowed: true, presentAgainAfterWithdrawal: true };
+  expect((await api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: "36", surface: "M", condition: "Caries", state: "Diagnosed" })).status).toBe(200);   // present again
+
+  // the other half of the rule (review finding R01-01): a tooth cannot BECOME missing while other findings stand on it (Universal 20 is FDI 35)
+  await tooth(page, "20").click();
+  await recordUi(page, "Missing", "Planned");                                            // a planned extraction is fine
+  await expect(statusLine(page)).toContainText("Missing tooth (whole tooth) recorded on tooth 20 as Planned.");
+  await recordUi(page, "Caries", "Diagnosed", "O");                                      // and so is a finding beside it, while the tooth is still present
+  await expect(statusLine(page)).toContainText("Caries (Occlusal surface) recorded on tooth 20 as Diagnosed.");
+  const before = (await chartOf(page, "cy")).findings.find((f: any) => f.toothKey === "35" && f.condition === "Missing");
+  await page.getByRole("button", { name: "Complete: Missing tooth (whole tooth)" }).click();
+  await expect(statusLine(page)).toContainText("Not saved: This tooth has other active findings, so it cannot be recorded as missing yet.");
+  await expect(statusLine(page)).toContainText("Nothing was changed.");
+  await shot(page, "02b-tooth-has-findings.png");
+  const unchanged = (await chartOf(page, "cy")).findings.find((f: any) => f.toothKey === "35" && f.condition === "Missing");
+  expect([unchanged.state, unchanged.rowVersion]).toEqual([before.state, before.rowVersion]);       // not even the version moved
+  const viaApi = await api(page, "post", `/api/odontogram/findings/${before.id}/state`, { state: "Completed", rowVersion: before.rowVersion });
+  expect([viaApi.status, viaApi.body.error]).toEqual([409, "tooth_has_findings"]);
+  await page.getByRole("button", { name: "Withdraw: Caries (Occlusal surface)" }).click();      // the way out: withdraw what stands on the tooth, with a reason
+  await page.getByRole("form", { name: "Withdraw finding: Caries (Occlusal surface)" }).getByLabel(/Why is/).fill("Tooth extracted");
+  await page.getByRole("form", { name: "Withdraw finding: Caries (Occlusal surface)" }).getByRole("button", { name: "Withdraw finding" }).click();
+  await expect(statusLine(page)).toContainText("withdrawn.");
+  await page.getByRole("button", { name: "Complete: Missing tooth (whole tooth)" }).click();
+  await expect(statusLine(page)).toContainText("Missing tooth (whole tooth) on tooth 20 is now Completed.");
+  const nowAbsent = await api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: "35", surface: "O", condition: "Caries", state: "Diagnosed" });
+  expect([nowAbsent.status, nowAbsent.body.error]).toEqual([409, "tooth_absent"]);
+
+  // two writers at the same moment on the same tooth can never both succeed (four teeth, a dentist and a hygienist racing over HTTP)
+  const races: string[] = [];
+  for (const key of ["21", "22", "23", "24"]) {
+    const surface = key[1] <= "3" ? "I" : "O";
+    const [missing, caries] = await Promise.all([
+      api(page, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: key, condition: "Missing", state: "Existing" }),
+      api(hygienist, "post", `/api/patients/${ids.cy}/odontogram/findings`, { toothKey: key, surface, condition: "Caries", state: "Existing" }),
+    ]);
+    expect([missing.status, caries.status].filter((x) => x === 200).length, `tooth ${key}: exactly one of the two simultaneous writes wins`).toBe(1);
+    expect([missing.body.error, caries.body.error].filter(Boolean).every((e) => ["tooth_absent", "tooth_has_findings", "tooth_busy"].includes(e))).toBe(true);
+    races.push(`${key}:${missing.status === 200 ? "missing" : "caries"}`);
+  }
+  const findings = (await chartOf(page, "cy")).findings as any[];
+  for (const t of new Set(findings.map((f) => f.toothKey))) {
+    const on = findings.filter((f) => f.toothKey === t);
+    const absent = on.some((f) => f.condition === "Missing" && (f.state === "Existing" || f.state === "Completed"));
+    expect(absent && on.some((f) => f.condition === "Caries"), `tooth ${t} holds an absence and an ordinary finding`).toBe(false);
+  }
+  evidence.toothState = { implantOnPrimary: "validation_failed", findingOnMissingTooth: "tooth_absent", implantAllowed: true, presentAgainAfterWithdrawal: true, missingOverFindings: "tooth_has_findings", wayOut: "withdraw then complete", concurrentRaces: races };
 });
 
 test("EXTENSIBLE CONDITIONS: a dentist adds a condition, a hygienist records it but cannot change the catalogue, and retiring it stops new findings while old ones read as they did", async () => {

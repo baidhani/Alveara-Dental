@@ -13,6 +13,7 @@ import { json } from "./fakePatientServer";
 const ACTOR = "Dr. Okafor";
 const FORWARD: Record<string, string[]> = { Diagnosed: ["Planned", "Completed"], Planned: ["Completed"] };
 const CODE_SHAPE = /^[A-Z][A-Za-z0-9]{1,31}$/;
+const HAS_FINDINGS = "This tooth has other active findings, so it cannot be recorded as missing yet. Withdraw them (with a reason such as the extraction) if they no longer apply, or keep the missing tooth as Planned until they are dealt with. Nothing was changed.";
 
 const SEED: Omit<ConditionType, "id" | "isActive" | "createdByName" | "createdAtUtc" | "rowVersion">[] = [
   { code: "Caries", label: "Caries", scope: "Surface", appliesTo: "Both", toothEffect: "None" },
@@ -120,6 +121,11 @@ export class FakeOdontogramStore {
     return null;
   }
 
+  /** Active findings on the tooth whose condition says nothing about its presence (other than the one named). */
+  private otherFindings(patientId: string, tooth: string, exceptId: string) {
+    return [...this.findings.values()].some((f) => f.patientId === patientId && f.toothKey === tooth && f.status === "Active" && f.id !== exceptId && this.types.get(f.condition)?.toothEffect === "None");
+  }
+
   private stale(entity: string, id: string, current: number, prefix: string, body: Record<string, unknown> | null): Response | null {
     const rv = typeof body?.rowVersion === "string" ? body.rowVersion : "";
     if (!rv) return this.refuse(400, "row_version_required", "The version you are working on is required.");
@@ -151,6 +157,7 @@ export class FakeOdontogramStore {
           const absent = [...this.findings.values()].some((f) => f.patientId === patientId && f.toothKey === tooth && f.status === "Active" && this.types.get(f.condition)?.toothEffect === "Absent" && (f.state === "Existing" || f.state === "Completed"));
           if (absent) return this.refuse(409, "tooth_absent", "This tooth is recorded as missing, so no other finding can be recorded on it. Record an implant, or withdraw the missing-tooth finding if it was a mistake.");
         }
+        if (type.toothEffect === "Absent" && (body.state === "Existing" || body.state === "Completed") && this.otherFindings(patientId, tooth, "")) return this.refuse(409, "tooth_has_findings", HAS_FINDINGS);
         const at = this.now();
         const f = this.addFinding(patientId, { toothKey: tooth, surface, condition: type.code, conditionScope: type.scope, state: body.state as Finding["state"], recordedAtUtc: at });
         this.findings.get(f.id)!.versions[0].occurredAtUtc = at;
@@ -171,6 +178,7 @@ export class FakeOdontogramStore {
         if (f.status === "Withdrawn") return this.refuse(409, "finding_withdrawn", "This finding was withdrawn, so its state cannot change.");
         if (f.state === to) return json(200, this.chart(f.patientId));
         if (!(FORWARD[f.state] ?? []).includes(to)) return this.refuse(409, "invalid_transition", `A finding that is ${f.state} cannot become ${to}. If it was entered wrongly, withdraw it and record it again.`);
+        if (to === "Completed" && this.types.get(f.condition)?.toothEffect === "Absent" && this.otherFindings(f.patientId, f.toothKey, f.id)) return this.refuse(409, "tooth_has_findings", HAS_FINDINGS);
         f.state = to as Finding["state"]; f.v++; f.updatedByName = ACTOR; f.updatedAtUtc = this.now();
         f.versions.push({ versionNumber: f.versions.length + 1, changeType: "StateChanged", state: to, status: "Active", reason: null, actorName: ACTOR, occurredAtUtc: f.updatedAtUtc });
         return json(200, this.chart(f.patientId));
