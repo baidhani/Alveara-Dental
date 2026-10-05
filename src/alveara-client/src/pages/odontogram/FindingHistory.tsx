@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CHANGE_LABELS, CONDITION_LABELS, getFindingHistory } from "../../services/odontogramApi";
+import { CHANGE_LABELS, getFindingHistory } from "../../services/odontogramApi";
 import type { FindingVersion } from "../../services/odontogramApi";
 import { when } from "./odontogramText";
 import { SURFACE_NAMES } from "./toothNumbering";
@@ -8,7 +8,7 @@ import { SURFACE_NAMES } from "./toothNumbering";
  * STORY-006: the history of one finding - every version, oldest first, with who made it, when and why. Loaded only when opened and again when the finding's version changes. A change
  * adds a version and never rewrites an earlier one, so this is also the record of a withdrawal and the reason given.
  */
-export function FindingHistory({ id, name, version }: { id: string; name: string; version: string }) {
+export function FindingHistory({ id, name, label, version }: { id: string; name: string; label: string; version: string }) {
   const [open, setOpen] = useState(false);
   const [versions, setVersions] = useState<FindingVersion[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -30,8 +30,8 @@ export function FindingHistory({ id, name, version }: { id: string; name: string
           {versions.map((v) => (
             <li key={v.versionNumber}>
               <span className="alv-clinical__history-what">{CHANGE_LABELS[v.changeType] ?? v.changeType}</span>
-              <span> - {CONDITION_LABELS[v.condition] ?? v.condition}{v.surface ? `, ${SURFACE_NAMES[v.surface]} surface` : ", whole tooth"} · {v.state}{v.status === "Withdrawn" ? " · withdrawn" : ""}</span>
-              {v.reason && <span> · Reason: {v.reason}</span>}
+              <span> - {label}{v.surface ? `, ${SURFACE_NAMES[v.surface]} surface` : ", whole tooth"} · {v.state}{v.status === "Withdrawn" ? " · withdrawn" : ""}</span>
+              {v.reason && <span> · {v.changeType === "Linked" ? "Link" : "Reason"}: {v.reason}</span>}
               <span className="alv-clinical__meta"> {when(v.occurredAtUtc)} by {v.actorName ?? "Staff member"}</span>
             </li>
           ))}

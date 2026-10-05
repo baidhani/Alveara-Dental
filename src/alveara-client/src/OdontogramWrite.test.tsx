@@ -25,6 +25,7 @@ async function openChart() {
 }
 const tooth = (label: string) => screen.getByRole("button", { name: new RegExp(`^Tooth ${label},`) });
 const status = () => screen.getAllByRole("status").find((el) => el.className.includes("alv-clinical__status"))!;
+const findingList = () => within(screen.getByRole("region", { name: /^Tooth \S+:/ })).getByRole("list", { name: /^Findings on/ });
 const surfaceButton = (name: RegExp) => within(screen.getByRole("group", { name: "Surfaces" })).getByRole("button", { name });
 const form = () => screen.getByRole("form", { name: "Record a finding" });
 const writes = () => server.callsToClinical("POST", "/odontogram");
@@ -56,7 +57,7 @@ describe("recording a finding", () => {
     expect(call.body).toEqual({ toothKey: "16", surface: "O", condition: "Caries", state: "Diagnosed" });   // the stored identity, never the display number
     expect(tooth("3").querySelector(".alv-odonto__tooth-state")!.textContent).toBe("Diagnosed");
     expect(screen.queryByRole("form", { name: "Record a finding" })).not.toBeInTheDocument();
-    const row = screen.getByText("Caries", { selector: "strong" }).closest("li")!;
+    const row = within(findingList()).getByText("Caries", { selector: "strong" }).closest("li")!;
     expect(row).toHaveTextContent("Occlusal surface");
     expect(row).toHaveTextContent("Recorded by Dr. Okafor");
   });
@@ -256,7 +257,7 @@ describe("the history", () => {
     await user.click(tooth("3"));
     await user.click(screen.getByRole("button", { name: "Plan: Caries (Occlusal surface)" }));
     await waitFor(() => expect(status()).toHaveTextContent("is now Planned."));
-    await user.click(screen.getByText("History", { selector: "summary" }));
+    await user.click(within(findingList()).getByText("History", { selector: "summary" }));
     const items = (await screen.findAllByRole("listitem")).filter((li) => li.className === "");
     const lines = items.map((li) => li.textContent!.replace(/\s+/g, " ")).filter((t) => /Recorded|State changed|Withdrawn/.test(t));
     expect(lines).toHaveLength(2);
@@ -275,10 +276,10 @@ describe("the history", () => {
     await openChart();
     await user.click(tooth("3"));
     server.failClinical(`GET /api/odontogram/findings/${f.id}/history`, json(500, { error: "server_error", message: "boom" }));
-    await user.click(screen.getByText("History", { selector: "summary" }));
+    await user.click(within(findingList()).getByText("History", { selector: "summary" }));
     expect(await screen.findByText("Could not load the history. Close it and open it again.")).toBeInTheDocument();
-    await user.click(screen.getByText("History", { selector: "summary" }));
-    await user.click(screen.getByText("History", { selector: "summary" }));
+    await user.click(within(findingList()).getByText("History", { selector: "summary" }));
+    await user.click(within(findingList()).getByText("History", { selector: "summary" }));
     expect(await screen.findByText(/^Recorded/, { selector: ".alv-clinical__history-what" })).toBeInTheDocument();
   });
 });
@@ -313,8 +314,8 @@ describe("a role that may only read", () => {
     await openChart();
     expect(status()).toHaveTextContent("You can read this but your role cannot change it.");
     await user.click(tooth("3"));
-    expect(screen.getByText("Caries", { selector: "strong" })).toBeInTheDocument();
-    expect(screen.getByText("History", { selector: "summary" })).toBeInTheDocument();
+    expect(within(findingList()).getByText("Caries", { selector: "strong" })).toBeInTheDocument();
+    expect(within(findingList()).getByText("History", { selector: "summary" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /^(Plan|Complete|Withdraw):/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Record a finding on this tooth" })).not.toBeInTheDocument();
     expect(writes()).toHaveLength(0);

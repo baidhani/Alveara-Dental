@@ -82,6 +82,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<ClearanceVersion> ClearanceVersions => Set<ClearanceVersion>();
     public DbSet<Architecture.Odontogram.ToothFinding> ToothFindings => Set<Architecture.Odontogram.ToothFinding>();
     public DbSet<Architecture.Odontogram.ToothFindingVersion> ToothFindingVersions => Set<Architecture.Odontogram.ToothFindingVersion>();
+    public DbSet<Architecture.Odontogram.ConditionType> ConditionTypes => Set<Architecture.Odontogram.ConditionType>();
+    public DbSet<Architecture.Odontogram.ConditionTypeEvent> ConditionTypeEvents => Set<Architecture.Odontogram.ConditionTypeEvent>();
+    public DbSet<Architecture.Odontogram.ToothFindingLink> ToothFindingLinks => Set<Architecture.Odontogram.ToothFindingLink>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

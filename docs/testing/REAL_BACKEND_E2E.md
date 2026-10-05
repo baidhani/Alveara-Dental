@@ -186,6 +186,30 @@ front desk and billing denied everywhere and an assistant reading but not changi
 content - then axe scans of the chart, a tooth with its forms open, and the 768 px tablet layout (no horizontal scroll), in light and dark. Like the other real-backend specs it is excluded
 from the default mocked `npm run test:e2e`.
 
+## ALV-006-C01: full odontogram walkthrough
+
+`e2e/odontogram-longitudinal-real-backend.spec.ts` is the un-mocked run for the extended odontogram. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above
+(including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:ODONTOGRAM_LONGITUDINAL_E2E_OUT = "C:\tmp\odontogram-longitudinal-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.odontogram-longitudinal.config.ts
+```
+
+It signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an assistant, a front-desk user, a practice manager and the administrator, creates a child and an
+adult, and shows: one patient with findings on permanent and primary teeth, drawn as permanent, primary or mixed (52 teeth in four arches), surface-specific findings on primary teeth, and
+switching the view changing nothing (the same findings before and after, and the primary finding listed rather than hidden when it is not drawn); an implant not offered for, and refused on, a
+primary tooth, and a missing tooth taking no other finding (refused with a message) until its entry is withdrawn, with an implant allowed; a dentist adding a condition from the screen, a hygienist
+recording with it but unable to change the catalogue (no controls, 403), retiring it needing a reason, the retired condition refused for new findings (409) and absent from the form while the
+old finding still reads as it did, and reactivating it, with the condition's history; a tooth's history listing every finding and change, withdrawn ones included, in order, and still complete after
+a finding was withdrawn and entered again; links to a diagnosis, a treatment plan and a procedure shown beside the finding and in the history, repeated links quiet, the finding's version unchanged;
+a stale catalogue change refused with the conflict banner naming a condition type, the other screen's change standing, and a reload letting the first person finish; arrow keys moving around the
+mixed chart without selecting; front desk and the practice manager denied everywhere and an assistant and hygienist reading but not changing the catalogue; the audit log holding every catalogue
+change and link with user and time and no clinical or catalogue content; and no numbering anywhere in what the server holds - then axe scans of the mixed chart, a tooth's history with its links, the
+catalogue with its add form, and the 768 px tablet layout (no horizontal scroll), in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+The original `odontogram-real-backend.spec.ts` (STORY-006) is run alongside it as the parent regression.
+
 ## ALV-005-C01: clinical record, notes, templates, vitals and signing walkthrough
 
 `e2e/clinical-companion-real-backend.spec.ts` is the un-mocked run for the clinical documentation companion. Prepare a fresh database and start the API exactly as for the

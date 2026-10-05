@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "../../components/Button";
 import { recordFinding } from "../../services/odontogramApi";
-import type { Finding } from "../../services/odontogramApi";
+import type { ConditionType, Finding } from "../../services/odontogramApi";
 import { FindingRow } from "./FindingRow";
 import type { RunChange } from "./FindingRow";
 import { RecordFindingForm } from "./RecordFindingForm";
+import { ToothTimeline } from "./ToothTimeline";
 import { STATE_MEANING, describeFinding, plural } from "./odontogramText";
-import { SURFACE_NAMES, displayTooth, surfacesFor, toothName } from "./toothNumbering";
+import { SURFACE_NAMES, displayTooth, isPrimary, surfacesFor, toothName } from "./toothNumbering";
 import type { NumberingSystem } from "./toothNumbering";
 
 interface Props {
@@ -14,6 +15,8 @@ interface Props {
   toothKey: string;
   numbering: NumberingSystem;
   findings: Finding[];
+  /** The practice's condition catalogue (all of it, retired included); `null` while it could not be loaded. */
+  conditionTypes: ConditionType[] | null;
   selectedSurface: string | null;
   onSurface: (surface: string | null) => void;
   canWrite: boolean;
@@ -22,16 +25,19 @@ interface Props {
 }
 
 /**
- * STORY-006: one tooth - what is recorded on it, by surface, and (for people who may change the chart) the controls to record a finding, move it forward or withdraw it. The tooth is
- * named in every numbering system (the one on the chart first) so a chart read in another system can be matched. Selecting a surface narrows the list to that surface plus the
- * whole-tooth findings and starts the record form on that surface; selecting it again shows everything. Changes are made here, never on the chart itself.
+ * STORY-006 / ALV-006-C01: one tooth - what is recorded on it, by surface, its whole history, and (for people who may change the chart) the controls to record a finding, move it forward or
+ * withdraw it. The tooth is named in every numbering system (the one on the chart first) so a chart read in another system can be matched. Selecting a surface narrows the list to that
+ * surface plus the whole-tooth findings and starts the record form on that surface; selecting it again shows everything. Changes are made here, never on the chart itself.
  */
-export function ToothDetail({ patientId, toothKey, numbering, findings, selectedSurface, onSurface, canWrite, busy, run }: Props) {
+export function ToothDetail({ patientId, toothKey, numbering, findings, conditionTypes, selectedSurface, onSurface, canWrite, busy, run }: Props) {
   const [adding, setAdding] = useState(false);
   const surfaces = surfacesFor(toothKey);
   const shown = selectedSurface ? findings.filter((f) => f.surface === selectedSurface || f.surface === null) : findings;
   const others = (["Universal", "Fdi", "Palmer"] as NumberingSystem[]).filter((s) => s !== numbering);
   const label = displayTooth(toothKey, numbering);
+  const primary = isPrimary(toothKey);
+  const available = (conditionTypes ?? []).filter((t) => t.isActive && (t.appliesTo === "Both" || t.appliesTo === (primary ? "Primary" : "Permanent")));
+  const version = findings.map((f) => `${f.id}:${f.rowVersion}:${f.links.length}`).join("|");
   return (
     <section className="alv-odonto__detail" aria-labelledby="alv-odonto-tooth-title">
       <h3 id="alv-odonto-tooth-title" className="alv-clinical__section-title">Tooth {label}: {toothName(toothKey)}</h3>
@@ -72,19 +78,24 @@ export function ToothDetail({ patientId, toothKey, numbering, findings, selected
         adding ? (
           <RecordFindingForm
             toothKey={toothKey}
+            conditionTypes={available}
             defaultSurface={selectedSurface}
             busy={busy}
             onCancel={() => setAdding(false)}
             onSubmit={async (input) => {
-              const refused = await run(() => recordFinding(patientId, input), `${describeFinding(input.condition, input.surface ? SURFACE_NAMES[input.surface] : null)} recorded on tooth ${label} as ${input.state}.`);
+              const type = (conditionTypes ?? []).find((t) => t.code === input.condition);
+              const refused = await run(() => recordFinding(patientId, input), `${describeFinding(type?.label ?? input.condition, input.surface ? SURFACE_NAMES[input.surface] : null)} recorded on tooth ${label} as ${input.state}.`);
               if (!refused) setAdding(false);
               return refused;
             }}
           />
+        ) : conditionTypes === null ? (
+          <p className="alv-clinical__meta">The condition catalogue could not be loaded, so a finding cannot be recorded now. Reload the page to try again.</p>
         ) : (
           <div className="alv-clinical__section-actions"><Button type="button" onClick={() => setAdding(true)} disabled={busy}>Record a finding on this tooth</Button></div>
         )
       )}
+      <ToothTimeline patientId={patientId} toothKey={toothKey} version={version} toothLabel={label} />
       <p className="alv-clinical__meta">{Object.entries(STATE_MEANING).map(([s, m]) => `${s}: ${m}`).join(" · ")}.</p>
     </section>
   );

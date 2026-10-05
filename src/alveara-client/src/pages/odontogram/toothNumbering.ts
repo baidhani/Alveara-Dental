@@ -12,6 +12,10 @@ const range = (from: number, to: number) => Array.from({ length: Math.abs(to - f
 export const UPPER_PERMANENT = [...range(8, 1).map((p) => `1${p}`), ...range(1, 8).map((p) => `2${p}`)];
 export const LOWER_PERMANENT = [...range(8, 1).map((p) => `4${p}`), ...range(1, 8).map((p) => `3${p}`)];
 const PRIMARY_QUADRANTS = [5, 6, 7, 8];
+/** The primary teeth as a dentist looks at the patient: the upper arch is 55..51 then 61..65, the lower 85..81 then 71..75. */
+export const UPPER_PRIMARY = [...range(5, 1).map((p) => `5${p}`), ...range(1, 5).map((p) => `6${p}`)];
+export const LOWER_PRIMARY = [...range(5, 1).map((p) => `8${p}`), ...range(1, 5).map((p) => `7${p}`)];
+
 export const PRIMARY_KEYS = PRIMARY_QUADRANTS.flatMap((q) => range(1, 5).map((p) => `${q}${p}`));
 export const ALL_KEYS = [...UPPER_PERMANENT, ...LOWER_PERMANENT, ...PRIMARY_KEYS];
 const VALID = new Set(ALL_KEYS);

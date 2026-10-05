@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../../components/Button";
-import { CONDITION_LABELS, changeFindingState, withdrawFinding } from "../../services/odontogramApi";
+import { LINK_LABELS, changeFindingState, withdrawFinding } from "../../services/odontogramApi";
 import type { Chart, Finding } from "../../services/odontogramApi";
 import { ReasonForm } from "../safety/SafetyForms";
 import type { SaveResult } from "../safety/SafetyForms";
@@ -27,7 +27,7 @@ interface Props {
 export function FindingRow({ finding, toothLabel, canWrite, busy, run }: Props) {
   const [withdrawing, setWithdrawing] = useState(false);
   const surfaceName = finding.surface ? SURFACE_NAMES[finding.surface] : null;
-  const name = describeFinding(finding.condition, surfaceName);
+  const name = describeFinding(finding.conditionLabel, surfaceName);
   const canPlan = finding.state === "Diagnosed";
   const canComplete = finding.state === "Diagnosed" || finding.state === "Planned";
   const move = (state: "Planned" | "Completed") => void run(() => changeFindingState(finding.id, state, finding.rowVersion), `${name} on tooth ${toothLabel} is now ${state}.`);
@@ -35,7 +35,7 @@ export function FindingRow({ finding, toothLabel, canWrite, busy, run }: Props) 
   return (
     <li className="alv-odonto__finding">
       <p className="alv-odonto__finding-title">
-        <strong>{CONDITION_LABELS[finding.condition] ?? finding.condition}</strong>
+        <strong>{finding.conditionLabel}</strong>
         <span> · {surfaceName ? `${surfaceName} surface` : "Whole tooth"}</span>
         <span className={`alv-odonto__chip ${stateClass(finding.state)}`}>{finding.state}</span>
       </p>
@@ -43,6 +43,13 @@ export function FindingRow({ finding, toothLabel, canWrite, busy, run }: Props) 
         Recorded by {finding.recordedByName ?? "Staff member"} on {when(finding.recordedAtUtc)}
         {finding.updatedAtUtc ? `; last changed by ${finding.updatedByName ?? "Staff member"} on ${when(finding.updatedAtUtc)}` : ""}.
       </p>
+      {finding.links.length > 0 && (
+        <ul className="alv-odonto__links" aria-label={`Records linked to ${name}`}>
+          {finding.links.map((l) => (
+            <li key={`${l.linkType}-${l.reference}`}>Linked {LINK_LABELS[l.linkType] ?? l.linkType}: <strong>{l.reference}</strong> <span className="alv-clinical__meta">by {l.linkedByName ?? "Staff member"} on {when(l.linkedAtUtc)}</span></li>
+          ))}
+        </ul>
+      )}
       {canWrite && !withdrawing && (
         <div className="alv-clinical__row-actions">
           {canPlan && <Button type="button" onClick={() => move("Planned")} disabled={busy} aria-label={`Plan: ${name}`}>Plan</Button>}
@@ -66,7 +73,7 @@ export function FindingRow({ finding, toothLabel, canWrite, busy, run }: Props) 
           }}
         />
       )}
-      <FindingHistory id={finding.id} name={name} version={finding.rowVersion} />
+      <FindingHistory id={finding.id} name={name} label={finding.conditionLabel} version={`${finding.rowVersion}:${finding.links.length}`} />
     </li>
   );
 }

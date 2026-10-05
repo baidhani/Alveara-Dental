@@ -16,7 +16,7 @@ function borderToken(state: string): string {
 }
 
 describe.each(["light", "dark"] as const)("odontogram - WCAG AA contrast (%s theme)", (theme) => {
-  it.each([[".alv-odonto__tooth"], [".alv-odonto__detail"], [".alv-odonto__surface"], [".alv-odonto__chip"]])("text in %s uses the body text colour on its surface at 4.5:1 over every page surface", (selector) => {
+  it.each([[".alv-odonto__tooth"], [".alv-odonto__detail"], [".alv-odonto__surface"], [".alv-odonto__chip"], [".alv-odonto__view"], [".alv-odonto__catalogue"]])("text in %s uses the body text colour on its surface at 4.5:1 over every page surface", (selector) => {
     const text = ruleColour(css, selector, "color", theme);
     const fill = ruleColour(css, selector, "background", theme);
     for (const { surface, ratio: r } of ratiosOverSurfaces(theme, text, fill)) expect(r, `${theme} ${selector} over ${surface}`).toBeGreaterThanOrEqual(4.5);
@@ -52,6 +52,7 @@ describe("the odontogram never depends on colour alone", () => {
     }
     expect(css).toMatch(/\.alv-odonto__state--none \{ border: 1px solid var\(--color-text-muted\)/);
     expect(css).toMatch(/\.alv-odonto__surface \{[^}]*border: 1px solid var\(--color-text-muted\)/);
+    expect(css).toMatch(/\.alv-odonto__view \{[^}]*border: 1px solid var\(--color-text-muted\)/);                 // ALV-006-C01: the view buttons
   });
 
   it("never sets `color` to a success, warning, info or danger token", () => {

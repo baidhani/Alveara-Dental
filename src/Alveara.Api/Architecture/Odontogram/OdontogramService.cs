@@ -23,29 +23,39 @@ namespace Alveara.Api.Architecture.Odontogram;
 ///   same moment end with one finding (a unique index).
 /// - <b>Repeats are quiet.</b> Recording the same active finding again, moving to the state it already has, and withdrawing a withdrawn finding change nothing.
 /// </summary>
-public class OdontogramService(AlveraDbContext db, IPracticeClock clock)
+public partial class OdontogramService(AlveraDbContext db, IPracticeClock clock)
 {
     public async Task<ChartView> ChartAsync(Guid patientId, CancellationToken ct)
     {
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new OdontogramException("patient_not_found", "That patient was not found.", 404);
         var rows = await db.ToothFindings.AsNoTracking().Where(f => f.PatientId == patientId && f.Status == FindingStatuses.Active).OrderBy(f => f.ToothKey).ThenBy(f => f.Surface).ThenBy(f => f.Condition).ToListAsync(ct);
         var names = await ClinicalNames.ResolveAsync(db, rows.SelectMany(f => new[] { f.CreatedByUserId, f.UpdatedByUserId }), ct);
-        return new ChartView(patientId, rows.Select(f => ToView(f, names)).ToList());
+        var labels = await LabelsAsync(ct);
+        var ids = rows.Select(f => f.Id).ToList();
+        var links = await db.ToothFindingLinks.AsNoTracking().Where(l => ids.Contains(l.FindingId)).OrderBy(l => l.CreatedAtUtc).ToListAsync(ct);
+        var linkNames = await ClinicalNames.ResolveAsync(db, links.Select(l => l.CreatedByUserId), ct);
+        var byFinding = links.ToLookup(l => l.FindingId);
+        return new ChartView(patientId, rows.Select(f => ToView(f, names, labels, byFinding[f.Id].Select(l => new LinkView(l.LinkType, l.Reference, ClinicalNames.Name(linkNames, l.CreatedByUserId), l.CreatedAtUtc)).ToList())).ToList());
     }
 
     /// <summary>Records a finding in the state the clinician chose (Completed is allowed directly, for work done at the visit). The same active finding again is a quiet repeat.</summary>
     public async Task<ChartView> RecordAsync(Guid patientId, string? toothKey, string? surface, string? condition, string? state, Guid actor, CancellationToken ct)
     {
-        var f = OdontogramRules.ValidateFinding(toothKey, surface, condition, state);
+        var code = OdontogramRules.Clean(condition);
+        var type = code is null ? null : await db.ConditionTypes.AsNoTracking().SingleOrDefaultAsync(c => c.Code == code, ct);
+        if (type is not null && !string.Equals(type.Code, code, StringComparison.Ordinal)) type = null;                 // the database compares case-insensitively; the catalogue's spelling is the only one accepted
+        var f = OdontogramRules.ValidateFinding(toothKey, surface, code, state, type);
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new OdontogramException("patient_not_found", "That patient was not found.", 404);
+        if (!f.Type.IsActive) throw new OdontogramException("condition_inactive", $"{f.Type.Label} is no longer in use, so it cannot be recorded on a new finding. Choose another condition.", 409, new Dictionary<string, string> { ["condition"] = "This condition has been retired." });
 
         var twin = await FindActiveAsync(patientId, f, ct);
         if (twin is not null) return await RepeatOrRefuseAsync(patientId, twin, f.State, ct);
+        await EnsureToothPresentAsync(patientId, f, ct);
 
         var now = clock.UtcNow;
         var finding = new ToothFinding
         {
-            Id = Guid.NewGuid(), PatientId = patientId, ToothKey = f.ToothKey, Surface = f.Surface, Condition = f.Condition, State = f.State, Status = FindingStatuses.Active,
+            Id = Guid.NewGuid(), PatientId = patientId, ToothKey = f.ToothKey, Surface = f.Surface, Condition = f.Condition, ConditionScope = f.Type.Scope, State = f.State, Status = FindingStatuses.Active,
             CreatedAtUtc = now, CreatedByUserId = actor,
         };
         db.ToothFindings.Add(finding);
@@ -158,7 +168,27 @@ public class OdontogramService(AlveraDbContext db, IPracticeClock clock)
         }
     }
 
-    private static FindingView ToView(ToothFinding f, IReadOnlyDictionary<Guid, string> names) =>
-        new(f.Id, f.ToothKey, f.Surface, f.Condition, f.State, f.Status, ClinicalNames.Name(names, f.CreatedByUserId), f.CreatedAtUtc, ClinicalNames.Name(names, f.UpdatedByUserId), f.UpdatedAtUtc,
-            Convert.ToBase64String(f.RowVersion));
+    /// <summary>
+    /// A tooth recorded as absent (an Existing or Completed finding whose condition has the Absent effect, such as Missing tooth) takes no further finding except one that is itself about its
+    /// presence: another Absent condition, or a Replacement such as an implant. A Planned or Diagnosed extraction does not make the tooth absent yet.
+    /// </summary>
+    private async Task EnsureToothPresentAsync(Guid patientId, OdontogramRules.FindingFields f, CancellationToken ct)
+    {
+        if (f.Type.ToothEffect != ToothEffects.None) return;
+        var absent = await (from x in db.ToothFindings.AsNoTracking()
+                            join t in db.ConditionTypes.AsNoTracking() on x.Condition equals t.Code
+                            where x.PatientId == patientId && x.ToothKey == f.ToothKey && x.Status == FindingStatuses.Active && t.ToothEffect == ToothEffects.Absent
+                                  && (x.State == FindingStates.Existing || x.State == FindingStates.Completed)
+                            select x.Id).AnyAsync(ct);
+        if (absent)
+            throw new OdontogramException("tooth_absent", "This tooth is recorded as missing, so no other finding can be recorded on it. Record an implant, or withdraw the missing-tooth finding if it was a mistake.", 409);
+    }
+
+    /// <summary>Every condition's label by code, including retired ones, so a finding recorded under a condition that was later retired still reads as it did.</summary>
+    private async Task<Dictionary<string, string>> LabelsAsync(CancellationToken ct) =>
+        await db.ConditionTypes.AsNoTracking().ToDictionaryAsync(c => c.Code, c => c.Label, ct);
+
+    private static FindingView ToView(ToothFinding f, IReadOnlyDictionary<Guid, string> names, IReadOnlyDictionary<string, string> labels, IReadOnlyList<LinkView> links) =>
+        new(f.Id, f.ToothKey, f.Surface, f.Condition, labels.GetValueOrDefault(f.Condition, f.Condition), f.ConditionScope, f.State, f.Status, ClinicalNames.Name(names, f.CreatedByUserId), f.CreatedAtUtc,
+            ClinicalNames.Name(names, f.UpdatedByUserId), f.UpdatedAtUtc, Convert.ToBase64String(f.RowVersion), links);
 }

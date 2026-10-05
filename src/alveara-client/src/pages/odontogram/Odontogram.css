@@ -121,7 +121,43 @@
   font-weight: 700;
 }
 
+/* ALV-006-C01: the permanent / primary / mixed view control, primary arches, links, the tooth timeline and the condition catalogue. Text stays on plain surfaces in the body text colour. */
+.alv-odonto__views { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0 var(--space-1); }
+
+.alv-odonto__view {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.alv-odonto__view:hover { background: var(--color-surface-raised); }
+.alv-odonto__view:focus-visible { outline: 3px solid var(--color-focus-ring); outline-offset: 2px; }
+.alv-odonto__view--selected { background: var(--color-surface-raised); box-shadow: 0 0 0 2px var(--color-text); font-weight: 700; }
+
+/* the ten primary teeth of an arch sit centred under the sixteen permanent ones */
+.alv-odonto__arch--primary { grid-template-columns: repeat(10, minmax(0, 1fr)); width: 62.5%; margin-left: auto; margin-right: auto; }
+
+.alv-odonto__links { margin: var(--space-1) 0 0; padding-left: var(--space-4); font-size: var(--font-size-sm); }
+.alv-odonto__timeline { margin-top: var(--space-3); }
+
+.alv-odonto__catalogue {
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.alv-odonto__catalogue > summary { cursor: pointer; font-weight: 700; }
+.alv-odonto__condition { padding: var(--space-2) 0; }
+
 /* a tablet or a narrow window: each arch wraps into two rows of eight (patient's right quadrant, then left) instead of scrolling sideways */
 @media (max-width: 900px) {
   .alv-odonto__arch { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .alv-odonto__arch--primary { grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; }
 }

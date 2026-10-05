@@ -34,9 +34,12 @@ public class OdontogramSchemaTests : IAsyncLifetime
         return Assert.IsType<SqlException>(ex.InnerException);
     }
 
+    /// <summary>The scope the seeded catalogue gives a condition (a finding stores it so the database can check a surface against it).</summary>
+    private static string ScopeOf(string condition) => FindingConditions.Seeds.SingleOrDefault(c => c.Code == condition)?.Scope ?? ConditionScopes.Surface;
+
     private ToothFinding New(string tooth = "16", string? surface = "O", string condition = "Caries", string state = "Diagnosed", string status = "Active") => new()
     {
-        Id = Guid.NewGuid(), PatientId = _ann, ToothKey = tooth, Surface = surface, Condition = condition, State = state, Status = status, CreatedAtUtc = At,
+        Id = Guid.NewGuid(), PatientId = _ann, ToothKey = tooth, Surface = surface, Condition = condition, ConditionScope = ScopeOf(condition), State = state, Status = status, CreatedAtUtc = At,
     };
 
     private async Task<Guid> AddAsync(Action<ToothFinding>? tweak = null, Guid? patient = null)
@@ -44,7 +47,9 @@ public class OdontogramSchemaTests : IAsyncLifetime
         await using var db = _fixture.CreateContext();
         var f = New();
         if (patient is not null) f.PatientId = patient.Value;
+        var (conditionBefore, scopeBefore) = (f.Condition, f.ConditionScope);
         tweak?.Invoke(f);
+        if (f.Condition != conditionBefore && f.ConditionScope == scopeBefore) f.ConditionScope = ScopeOf(f.Condition);   // a test that changes the condition means its scope too, unless it sets the scope itself
         db.ToothFindings.Add(f);
         await db.SaveChangesAsync();
         return f.Id;
@@ -60,7 +65,7 @@ public class OdontogramSchemaTests : IAsyncLifetime
         for (var i = 0; i < FindingStates.All.Count; i++)
             await AddAsync(f => { f.ToothKey = "26"; f.Surface = surfaces[i]; f.State = FindingStates.All[i]; });
         var other = await _s.PatientAsync();
-        foreach (var condition in FindingConditions.All.Where(c => !FindingConditions.NeedsSurface(c)))
+        foreach (var condition in FindingConditions.Seeds.Where(c => c.Scope == ConditionScopes.WholeTooth).Select(c => c.Code))
             await AddAsync(f => { f.ToothKey = "36"; f.Surface = null; f.Condition = condition; }, other);
     }
 

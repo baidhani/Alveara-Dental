@@ -121,7 +121,7 @@ export function PatientSafetyTab() {
 export function PatientOdontogramTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
-  return <OdontogramPanel patient={patient} canWrite={hasPermission("ManageClinicalNotes")} />;
+  return <OdontogramPanel patient={patient} canWrite={hasPermission("ManageClinicalNotes")} canManageConditions={hasPermission("ManageClinicalTemplates")} />;
 }
 
 export function PatientClinicalTemplatesTab() {

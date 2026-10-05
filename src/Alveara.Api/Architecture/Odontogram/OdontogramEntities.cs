@@ -17,24 +17,6 @@ public static class FindingStatuses
     public const string Withdrawn = "Withdrawn";
 }
 
-/// <summary>The fixed starting list of conditions (a later story, ALV-006-C01, moves it to a table). Some apply to one surface, some to the whole tooth.</summary>
-public static class FindingConditions
-{
-    public const string Caries = "Caries";
-    public const string Restoration = "Restoration";
-    public const string Crown = "Crown";
-    public const string Missing = "Missing";
-    public const string Implant = "Implant";
-    public const string RootCanal = "RootCanal";
-
-    public static readonly IReadOnlyList<string> All = [Caries, Restoration, Crown, Missing, Implant, RootCanal];
-
-    /// <summary>Conditions recorded on one surface; every other condition is about the whole tooth and carries no surface.</summary>
-    public static readonly IReadOnlySet<string> SurfaceConditions = new HashSet<string> { Caries, Restoration };
-
-    public static bool NeedsSurface(string condition) => SurfaceConditions.Contains(condition);
-}
-
 /// <summary>Surfaces: Mesial, Distal, Lingual on every tooth; Buccal and Occlusal on posterior teeth; Facial and Incisal on anterior ones.</summary>
 public static class ToothSurfaces
 {
@@ -61,8 +43,10 @@ public class ToothFinding
     public required string ToothKey { get; set; }
     /// <summary>A surface letter (<see cref="ToothSurfaces"/>) when the condition is about one surface; null for a whole-tooth condition.</summary>
     public string? Surface { get; set; }
-    /// <summary>One of <see cref="FindingConditions.All"/>.</summary>
+    /// <summary>The <see cref="ConditionType.Code"/> of the condition (a foreign key, so a finding can only name a condition that exists).</summary>
     public required string Condition { get; set; }
+    /// <summary>The condition's <see cref="ConditionScopes"/> when this finding was recorded. Kept on the finding so the database can check that a surface is present exactly when the condition is about a surface.</summary>
+    public required string ConditionScope { get; set; }
     /// <summary>One of <see cref="FindingStates.All"/>.</summary>
     public required string State { get; set; }
     /// <summary><see cref="FindingStatuses.Active"/> or <see cref="FindingStatuses.Withdrawn"/>.</summary>
@@ -102,4 +86,5 @@ public static class FindingChangeTypes
     public const string Recorded = "Recorded";
     public const string StateChanged = "StateChanged";
     public const string Withdrawn = "Withdrawn";
+    public const string Linked = "Linked";
 }

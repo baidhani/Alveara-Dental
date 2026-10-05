@@ -9,13 +9,14 @@ public static class OdontogramRules
 
     private static OdontogramException Invalid(Dictionary<string, string> errors) => new("validation_failed", "Some fields need attention.", 400, errors);
 
-    public sealed record FindingFields(string ToothKey, string? Surface, string Condition, string State);
+    public sealed record FindingFields(string ToothKey, string? Surface, string Condition, string State, ConditionType Type);
 
     /// <summary>
-    /// Validates a new finding. A tooth that is not one of the 52 keys is refused (<c>tooth_invalid</c>) rather than guessed at, a surface must exist on that kind of tooth, a surface
-    /// condition needs a surface and a whole-tooth condition must not carry one. A surface letter is accepted in either case.
+    /// Validates a new finding against the condition the catalogue resolved for its code (null when the code is unknown). A tooth that is not one of the 52 keys is refused rather than
+    /// guessed at, a surface must exist on that kind of tooth, a surface condition needs a surface and a whole-tooth condition must not carry one, and a condition must apply to the tooth's
+    /// dentition (an implant is not recorded on a primary tooth). A surface letter is accepted in either case. Every refusal names its field.
     /// </summary>
-    public static FindingFields ValidateFinding(string? toothKey, string? surface, string? condition, string? state)
+    public static FindingFields ValidateFinding(string? toothKey, string? surface, string? condition, string? state, ConditionType? type)
     {
         var errors = new Dictionary<string, string>();
         var tooth = toothKey?.Trim();
@@ -25,22 +26,24 @@ public static class OdontogramRules
 
         var toothOk = ToothKeys.IsValid(tooth);
         if (!toothOk) errors["toothKey"] = "Choose one of the teeth on the chart.";
-        var conditionOk = c is not null && FindingConditions.All.Contains(c);
-        if (!conditionOk) errors["condition"] = "Choose " + string.Join(", ", FindingConditions.All) + ".";
+        if (c is null) errors["condition"] = "Choose the condition.";
+        else if (type is null) errors["condition"] = "That condition does not exist. Choose one from the list.";
         if (s is null || !FindingStates.All.Contains(s)) errors["state"] = "Choose " + string.Join(", ", FindingStates.All) + ".";
 
-        if (conditionOk)
+        if (type is not null)
         {
-            if (FindingConditions.NeedsSurface(c!))
+            if (toothOk && !ConditionDentitions.Allows(type.AppliesTo, ToothKeys.IsPrimary(tooth!)))
+                errors["condition"] = $"{type.Label} cannot be recorded on {(ToothKeys.IsPrimary(tooth!) ? "primary" : "permanent")} teeth.";
+            if (type.Scope == ConditionScopes.Surface)
             {
                 if (surf is null) errors["surface"] = "Choose the surface this applies to.";
                 else if (toothOk && !ToothSurfaces.IsValid(tooth!, surf)) errors["surface"] = "That surface does not exist on this tooth.";
                 else if (!toothOk && !ToothSurfaces.Any.Contains(surf)) errors["surface"] = "That is not a tooth surface.";
             }
-            else if (surf is not null) errors["surface"] = $"{c} applies to the whole tooth, so no surface can be chosen.";
+            else if (surf is not null) errors["surface"] = $"{type.Label} applies to the whole tooth, so no surface can be chosen.";
         }
         if (errors.Count > 0) throw Invalid(errors);
-        return new FindingFields(tooth!, surf, c!, s!);
+        return new FindingFields(tooth!, surf, type!.Code, s!, type);   // the catalogue's own spelling of the code, never what was typed
     }
 
     /// <summary>Forward only: Diagnosed to Planned, Planned to Completed, or Diagnosed straight to Completed (work done the same day). Existing and Completed are final; to correct them, withdraw and record again.</summary>

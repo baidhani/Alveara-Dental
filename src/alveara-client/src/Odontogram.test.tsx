@@ -27,6 +27,7 @@ async function openChart() {
   return view;
 }
 const tooth = (label: string) => screen.getByRole("button", { name: new RegExp(`^Tooth ${label},`) });
+const findingList = () => within(screen.getByRole("region", { name: /^Tooth \S+:/ })).getByRole("list", { name: /^Findings on/ });
 const surfaceButton = (name: RegExp) => within(screen.getByRole("group", { name: "Surfaces" })).getByRole("button", { name });
 const patient = () => makePatient({ id: A, firstName: "Ann", lastName: "Lee" }) as unknown as PatientDetail;
 
@@ -103,11 +104,13 @@ describe("the chart", () => {
     expect(screen.getByText("No findings are recorded on any tooth.")).toBeInTheDocument();
   });
 
-  it("lists findings on teeth the chart does not draw, so none is hidden", async () => {
+  it("lists findings on teeth the chosen view does not draw, so none is hidden", async () => {
+    const user = userEvent.setup();
     server.odontogram.addFinding(A, { toothKey: "54", surface: "O", condition: "Caries", state: "Diagnosed" });
     await openChart();
-    const region = screen.getByRole("heading", { name: "Recorded on teeth not drawn on this chart" }).closest("section")!;
-    expect(region).toHaveTextContent("1 finding is recorded on primary teeth");
+    await user.click(screen.getByRole("button", { name: "Permanent teeth" }));                  // a patient with a primary-tooth finding opens as Mixed; the permanent view does not draw it
+    const region = screen.getByRole("heading", { name: "Recorded on teeth not drawn in this view" }).closest("section")!;
+    expect(region).toHaveTextContent("1 finding is recorded on them");
     expect(region).toHaveTextContent("Tooth B (upper right primary first molar): Caries, Occlusal surface: Diagnosed");
     expect(screen.queryByText("No findings are recorded on any tooth.")).not.toBeInTheDocument();
   });
@@ -179,7 +182,7 @@ describe("selecting a tooth and a surface", () => {
     await user.click(surfaceButton(/Distal/));
     expect(screen.getByText("Nothing is recorded for the distal surface. Select it again to see everything on this tooth.")).toBeInTheDocument();
     await user.click(surfaceButton(/Distal/));
-    expect(screen.getByText("Caries", { selector: "strong" })).toBeInTheDocument();
+    expect(within(findingList()).getByText("Caries", { selector: "strong" })).toBeInTheDocument();
   });
 
   it("says nothing is recorded for a tooth with no findings, without calling it healthy", async () => {
