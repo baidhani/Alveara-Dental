@@ -1,0 +1,12 @@
+✔ root STORY-000 Command Center entry point still exists (1.4316ms)
+✔ root Command Center still reads .colaberry/* at runtime rather than hard-coding plan content (1.2811ms)
+✔ the production Alveara app lives in its own separate project paths (0.2906ms)
+✔ the production app did not replace or rename the root Command Center (0.4188ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1122.0003

@@ -1,0 +1,5 @@
+npx tsc --noEmit -p tsconfig.app.json  (run from src/alveara-client)
+exit code: 0
+(tsc prints nothing on success)
+npm run build: ok
+npm run lint: no findings in src/pages/odontogram, src/services/odontogramApi.ts or the new tests

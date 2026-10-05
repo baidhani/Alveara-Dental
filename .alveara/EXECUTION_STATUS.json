@@ -1138,21 +1138,21 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full: 1,711 of 1,711 passed, 0 failed, 0 skipped (1 h 34 m). New: 133.; Frontend, full: 899 of 899 passed (64 files). Up from 873; 26 new: `OdontogramLongitudinal.test.tsx` 22 and 4 more contrast checks.; Type check / build / lint: tsc exit 0, build ok, no lint finding in the new or changed odontogram files; Mocked browser: 136 passed (17.0s); Repository checks: 8 of 8 passed; Real-backend walkthrough (new): 11 of 11 passed; axe scans of the mixed chart, a tooth's history with its links, the catalogue with its add form and the 768 px tablet layout, each in light and dark, 0 critical/serious; Parent regression: original STORY-006 walkthrough, **unchanged**: 11 of 11 passed; Regression walkthroughs on the same build: all passed. See .alveara/handoffs/ALV-006-C01/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "90f6ebd6cefc2bbb99149c452a9d13ae4f3cb9a0",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-006-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

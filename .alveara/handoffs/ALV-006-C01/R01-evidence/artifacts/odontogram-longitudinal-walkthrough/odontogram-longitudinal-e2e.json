@@ -1,0 +1,125 @@
+{
+  "axe": {
+    "mixed-chart-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "mixed-chart-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "tooth-history-and-catalogue-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "tooth-history-and-catalogue-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "tablet-mixed-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    },
+    "tablet-mixed-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 23
+    }
+  },
+  "stamp": 1791155893103,
+  "mixedDentition": {
+    "teethDrawn": 52,
+    "findings": [
+      "16/D/Caries/Planned",
+      "55/O/Caries/Diagnosed"
+    ],
+    "switchingChangedNothing": true
+  },
+  "toothState": {
+    "implantOnPrimary": "validation_failed",
+    "findingOnMissingTooth": "tooth_absent",
+    "implantAllowed": true,
+    "presentAgainAfterWithdrawal": true
+  },
+  "catalogue": {
+    "added": "ToothFracture",
+    "hygienistRecordedIt": true,
+    "hygienistCannotChange": 403,
+    "retireNeedsReason": true,
+    "retiredBlocksNew": "condition_inactive",
+    "oldFindingStillReads": true,
+    "reactivated": true
+  },
+  "longitudinal": {
+    "events": [
+      "Recorded",
+      "State changed",
+      "State changed",
+      "Recorded",
+      "Withdrawn",
+      "Recorded"
+    ],
+    "findingsOnTimeline": 3,
+    "withdrawnKept": true,
+    "inOrder": true
+  },
+  "links": {
+    "linked": [
+      "Diagnosis",
+      "TreatmentPlan",
+      "Procedure"
+    ],
+    "repeatQuiet": true,
+    "findingUnchanged": true
+  },
+  "catalogueConflict": {
+    "staleRefused": true,
+    "otherChangeStood": true,
+    "reloadedInPlace": true
+  },
+  "keyboard": {
+    "arrowsAcrossFourArches": true,
+    "enterSelects": true
+  },
+  "access": {
+    "FrontDesk": [
+      403,
+      403,
+      403
+    ],
+    "OfficeManager": [
+      403,
+      403,
+      403
+    ],
+    "Assistant": [
+      200,
+      200,
+      403
+    ],
+    "Hygienist": [
+      200,
+      200,
+      403
+    ]
+  },
+  "trust": {
+    "ConditionTypeCreated": 2,
+    "ConditionTypeRetired": 2,
+    "ConditionTypeReactivated": 2,
+    "ToothFindingLinked": 3
+  },
+  "accessibility": {
+    "scanned": [
+      "mixed-chart",
+      "tooth-history-and-catalogue",
+      "tablet-mixed"
+    ],
+    "tabletNoHorizontalScroll": true
+  }
+}
