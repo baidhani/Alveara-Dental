@@ -1186,26 +1186,26 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 1826 of 1826 in the full run (1 h 45 m, real SQL Server). New: PerioRulesTests 27, PerioSchemaTests 26, PerioServiceTests 19, PerioApiTests 24. Frontend 935 of 935 (Perio.test.tsx 33 new); tsc and build clean; mocked browser 136 of 136 (six architecture-map tests made data-driven); repository checks 8 of 8; real-backend periodontal walkthrough 10 of 10 (axe light and dark, 768 px tablet with no horizontal page scroll); regression walkthroughs on the same build: auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, clinical companion 9, safety 11, odontogram 11, odontogram longitudinal 11. Five mutation checks all caught. See docs/PERIODONTAL.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "26354bdbf89a7575cc293aebc65e5ff0eab1f2eb",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "26354bdbf89a7575cc293aebc65e5ff0eab1f2eb",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1213,8 +1213,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-05T14:22:15.350Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 26354bdbf89a7575cc293aebc65e5ff0eab1f2eb - see .colaberry/progress.json (STORY-012.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-05T14:22:15.350Z; portal sync commit 08190c9)."
     },
     {
       "schemaVersion": "2",
