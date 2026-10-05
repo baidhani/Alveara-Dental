@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 8,
+    "stories_verified": 9,
     "stories_submitted": 0,
-    "stories_in_progress": 11,
+    "stories_in_progress": 10,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 26,
-    "points_awarded": 2713
+    "criteria_passed": 29,
+    "points_awarded": 2755
   },
   "stories": [
     {
@@ -100,7 +100,7 @@
         "verified_at": "2026-09-29T15:52:11.639Z",
         "commit_sha": "3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/3e0a7b75cdc88af5e51978772a9f8b02e2a227b2",
-        "commit_at": "2026-09-29T16:35:49Z",
+        "commit_at": "2026-09-29T16:37:51Z",
         "points_awarded": 263,
         "outstanding": []
       }
@@ -710,19 +710,15 @@
       "notes": "Periodontal charting: six sites per permanent tooth, probing depth and recession in whole mm (0 to 15), bleeding yes/no; attachment loss derived, never stored. A chart is judged whole: every problem is listed with tooth, site and field and nothing partial is saved (service, API and database checks all refuse bad data). Each chart, its readings and its PHI-free audit entry are one save, so a failed log stores nothing; a failed save says nothing was recorded. Idempotent by a per-patient key (same key + chart returns the saved one; a different chart under a used key is a 409). Charts are immutable (triggers 51064/51065); a correction is a new chart. Known limits: permanent teeth only, no negative recession, no encounter/diagnosis link yet (STORY-013), no draft saved on the server. Verified: see PROGRESS.md (CC-20261002-f7c1) and docs/PERIODONTAL.md.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a patient record, when periodontal charting is performed, then the system records probing depth, recession, and bleeding.",
-          "Given incorrect charting data, when saved, then the system rejects the input and prompts for correction.",
-          "Trust: All charting entries are logged with user ID and timestamp."
-        ]
+        "verified_at": "2026-10-05T14:22:15.350Z",
+        "commit_sha": "26354bdbf89a7575cc293aebc65e5ff0eab1f2eb",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/26354bdbf89a7575cc293aebc65e5ff0eab1f2eb",
+        "commit_at": "2026-10-05T14:17:25Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
