@@ -1,0 +1,5 @@
+npx tsc -b  (run from src/alveara-client)
+exit code: 0
+(tsc prints nothing on success)
+npm run build: ok
+npm run lint: no findings in the new or changed periodontal files

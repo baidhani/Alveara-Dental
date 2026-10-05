@@ -1,0 +1,14 @@
+BackupCryptoTests (ALV-N004), rerun in isolation after the full run reported one failure in it.
+
+Full run (2,020 tests, 1 h 49 m): Failed - BackupCryptoTests.A_file_that_is_not_a_backup_is_rejected_with_its_own_reason
+  Expected "not_a_backup", actual "corrupt_or_tampered" (the test feeds random bytes; some begin like a backup header).
+
+Six isolated reruns of the whole class (dotnet test --filter BackupCryptoTests):
+  run 1: Passed 22 of 22
+  run 2: Passed 22 of 22
+  run 3: Passed 22 of 22
+  run 4: Passed 22 of 22
+  run 5: Passed 22 of 22
+  run 6: Passed 22 of 22
+
+This is the same intermittent test recorded as a recommended follow-up in earlier handoffs (ALV-N004, STORY-006). It is in code this story did not touch.

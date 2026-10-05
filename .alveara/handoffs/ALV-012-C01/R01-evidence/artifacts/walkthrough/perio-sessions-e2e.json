@@ -1,0 +1,118 @@
+{
+  "axe": {
+    "entry-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "entry-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "entry-with-problem-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "entry-with-problem-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "comparison-and-history-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "comparison-and-history-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "tablet-entry-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "tablet-entry-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    }
+  },
+  "stamp": 1791220581900,
+  "start": {
+    "first": "18 DB",
+    "chartable": 192
+  },
+  "keyboard": {
+    "savedWhenLeavingTooth": true,
+    "sixSitesDistinct": [
+      "Tooth 3, distal buccal",
+      "Tooth 3, mid buccal",
+      "Tooth 3, mesial buccal",
+      "Tooth 4, distal buccal",
+      "Tooth 4, mid buccal",
+      "Tooth 4, mesial buccal"
+    ]
+  },
+  "measures": {
+    "pusAndPlaqueOnlyWhenAsked": true,
+    "mobilityFurcationPerTooth": true,
+    "notChartedSkipped": true
+  },
+  "missing": {
+    "skipped": true,
+    "refused": "tooth_absent",
+    "wayOut": "not charted"
+  },
+  "refused": {
+    "entriesKept": true,
+    "wayOut": "X",
+    "serverCode": "tooth_absent"
+  },
+  "stale": {
+    "conflictBanner": true,
+    "typedKept": true,
+    "firstWritersEntryStands": true
+  },
+  "wholeMouth": {
+    "sites": 192,
+    "typedWithoutMouse": true
+  },
+  "comparison": {
+    "matched": 3,
+    "improved": 1,
+    "worsened": 1,
+    "unchanged": 1,
+    "onlyCurrent": 1,
+    "linkAdded": true,
+    "liveDraftCompared": true
+  },
+  "audit": {
+    "PerioSessionStarted": 7,
+    "PerioSessionUpdated": 56,
+    "PerioSessionFinalized": 3,
+    "PerioExamRecorded": 3,
+    "PerioExamLinked": 1
+  },
+  "roles": {
+    "dentist": "chart",
+    "hygienist": "chart",
+    "assistant": "read only (403 on write)",
+    "frontDesk": "403, no tab",
+    "billing": "403, no tab",
+    "anonymous": 401,
+    "noCsrfToken": "refused"
+  },
+  "accessibility": {
+    "scanned": [
+      "entry",
+      "entry-with-problem",
+      "comparison-and-history",
+      "tablet-entry"
+    ],
+    "tabletNoHorizontalPageScroll": true
+  }
+}

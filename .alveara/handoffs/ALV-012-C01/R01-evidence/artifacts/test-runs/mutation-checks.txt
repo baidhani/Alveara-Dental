@@ -1,0 +1,13 @@
+Each mutation was made in the source, built (the build was checked), run against the periodontal rule, site-model, comparison and session-service tests, and reverted.
+
+M1 readings on an excluded tooth are accepted: 4 tests failed
+M2 readings on an odontogram-missing tooth are accepted: 4 tests failed
+M3 a furcation grade is accepted on a single-rooted tooth: 3 tests failed
+M4 the sweep visits the right-hand teeth in the left-hand direction: 6 tests failed
+M5 a stale edit is accepted (the row version is not checked): 2 tests failed
+M6 finalize does not re-check teeth the odontogram records as missing: 1 tests failed
+M7 a 1 mm change counts as better or worse: 3 tests failed
+M8 sites in only one chart are not counted: 3 tests failed
+M9 the chart's audit entry is not written when a session is finalized: 4 tests failed
+M10 a save ignores the sites it was asked to clear: 2 tests failed
+M11 the comparison takes the previous chart from any patient: 1 tests failed

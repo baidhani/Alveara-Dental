@@ -1,0 +1,14 @@
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\clinical-real-backend.spec.ts:120:1 › ACCESS: the clinical team sees the Clinical tab; front desk, billing and the practice manager do not and cannot read it; an assistant reads but cannot write (2.1s)
+  ok 2 [chromium] › e2e\clinical-real-backend.spec.ts:148:1 › ACCEPTANCE 1: a dentist documents an encounter - medical and dental history, an allergy and a medication - each saved as it is made (6.3s)
+  ok 3 [chromium] › e2e\clinical-real-backend.spec.ts:177:1 › INCOMPLETE DOCUMENTATION: a note with sections still not addressed cannot be finalized; 'reviewed - none reported' completes it without inventing an entry (3.4s)
+  ok 4 [chromium] › e2e\clinical-real-backend.spec.ts:204:1 › ACCEPTANCE 2: a finalized encounter cannot be changed, and an addendum is added beside the untouched original (2.8s)
+  ok 5 [chromium] › e2e\clinical-real-backend.spec.ts:241:1 › DATA LOSS: a response lost after the server stored an addendum keeps the typed text and a retry cannot add it twice (572ms)
+  ok 6 [chromium] › e2e\clinical-real-backend.spec.ts:267:1 › CONCURRENCY: a second clinician's stale screen is refused with the conflict banner; what they typed survives the reload and then saves (3.6s)
+  ok 7 [chromium] › e2e\clinical-real-backend.spec.ts:297:1 › KEYBOARD: an allergy can be recorded without a mouse (430ms)
+  ok 8 [chromium] › e2e\clinical-real-backend.spec.ts:309:1 › SCOPE: another patient's list never shows this patient's encounters, and an encounter opened under the wrong patient is not found (2.9s)
+  ok 9 [chromium] › e2e\clinical-real-backend.spec.ts:326:1 › TRUST: every change is in the audit log with the user and a time, and no clinical content is in it (42ms)
+
+  9 passed (29.3s)

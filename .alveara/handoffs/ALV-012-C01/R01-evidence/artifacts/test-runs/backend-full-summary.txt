@@ -1,0 +1,3 @@
+dotnet test (src/Alveara.Api.Tests), full run on c4797b255570194ef4812ca3bded77f6d8a4d6c4
+  Failed Alveara.Api.Tests.BackupCryptoTests.A_file_that_is_not_a_backup_is_rejected_with_its_own_reason [4 ms]
+Failed!  - Failed:     1, Passed:  2019, Skipped:     0, Total:  2020, Duration: 1 h 49 m - Alveara.Api.Tests.dll (net10.0)
