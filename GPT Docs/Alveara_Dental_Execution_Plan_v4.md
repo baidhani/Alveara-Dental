@@ -1856,7 +1856,9 @@ Parent course story: STORY-013 — its completion contract is immutable and must
 - Patient and encounter linkage
 - Tooth and oral-region linkage when applicable
 - Finding/odontogram/perio linkage
-- Treatment-plan linkage
+- Treatment-plan forward-reference linkage: before real treatment plans exist, retain an optional typed `TreatmentPlan` reference using the established clinical-link pattern. It is an opaque, bounded and normalized reference value when supplied, not a foreign key, lookup, placeholder plan, or claim that a treatment-plan record exists.
+- Preserve the forward reference, its actor/time/audit provenance, and its unresolved state through edits, amendments, status changes and history views. Display it as a treatment-plan reference without suggesting that its target has been resolved.
+- Do not build treatment-plan tables, records, APIs, workflow, or placeholder data in this story; those remain owned by STORY-015 and ALV-015-C01.
 - Active/resolved/amended status model appropriate to the implementation
 - Amendment preserving prior authoritative value, actor, time and reason
 - Do not bundle or invent licensed terminology content merely to populate the model
@@ -1878,7 +1880,8 @@ Parent course story: STORY-013 — its completion contract is immutable and must
 
 - Invalid context link
 - Unknown/unsupported coding-system value
-- Diagnosis referenced by plan cannot be destructively deleted
+- Diagnosis referenced by a current or unresolved treatment-plan reference cannot be destructively deleted
+- Attempt to resolve or validate a treatment-plan reference before the treatment-plan domain exists
 - Stale edit
 - Attempt to silently replace an authoritative diagnosis used downstream
 
@@ -1888,8 +1891,9 @@ Parent course story: STORY-013 — its completion contract is immutable and must
 - A diagnosis can be stored structurally even when no external code system is configured
 - Optional code/system/display/provenance survive round trip when present
 - Tooth/region/finding linkage works where applicable
-- Diagnosis is traceable to encounter and treatment plan
-- Amendment preserves prior value and attribution
+- Diagnosis is traceable to encounter and treatment plan through a persisted typed forward reference when a real plan does not yet exist
+- A treatment-plan forward reference never fabricates a plan, uses an existence lookup, or prevents the diagnosis from being truthfully shown as unresolved
+- Amendment preserves prior value and attribution, including forward-reference provenance
 
 **Required tests**
 
@@ -1898,6 +1902,7 @@ Parent course story: STORY-013 — its completion contract is immutable and must
 - Context-link validation
 - Amendment/history tests
 - Coding/provenance round-trip tests
+- Treatment-plan forward-reference persistence, display, audit/history, and no-premature-resolution tests
 
 **Out of scope / future extension** Terminology/code-set integrations can be added later without changing internal diagnosis identity or history semantics.
 
@@ -2022,6 +2027,7 @@ Parent course story: STORY-015 — its completion contract is immutable and must
 **Implementation scope**
 
 - Finding/diagnosis linkage
+- Establish authoritative treatment-plan identity and reconcile eligible diagnosis `TreatmentPlan` forward references created before the treatment-plan domain existed. Reconciliation must preserve the original reference and history, be idempotent, and enforce that the diagnosis and resolved plan belong to the same patient. References with no valid target remain visibly unresolved; never silently delete, rewrite, or cross-patient-resolve them.
 - Catalog procedure
 - Tooth/surface
 - Phase/planned visit
@@ -2048,6 +2054,7 @@ Parent course story: STORY-015 — its completion contract is immutable and must
 **Failure paths to handle**
 
 - Missing diagnosis/procedure
+- Missing, malformed, duplicate, or cross-patient diagnosis forward reference during treatment-plan reconciliation
 - Referenced procedure inactive
 - Stale plan edit
 - Partial acceptance conflict
@@ -2055,6 +2062,7 @@ Parent course story: STORY-015 — its completion contract is immutable and must
 **Acceptance / stop condition**
 
 - Original STORY-015 tests still pass
+- Eligible diagnosis treatment-plan forward references can be resolved safely to the authoritative plan identity; unresolved or invalid references remain visible and unchanged
 - Tooth/surface and phases are supported
 - Fee/estimate is visible and truthfully labeled as a practice estimate when no insurance-benefit engine exists
 - Accept/decline is recorded with attribution
@@ -2064,6 +2072,7 @@ Parent course story: STORY-015 — its completion contract is immutable and must
 **Required tests**
 
 - Original regression
+- Diagnosis forward-reference reconciliation tests: same-patient success, idempotency, history preservation, invalid/missing target retention, and cross-patient denial
 - Phase/tooth tests
 - Estimate-label/source truthfulness test
 - Acceptance tests
