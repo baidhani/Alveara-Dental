@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\perio-real-backend.spec.ts:123:1 › SETUP: two patients (208ms)
+  ok  2 [chromium] › e2e\perio-real-backend.spec.ts:131:1 › NOTHING INVENTED: an empty chart has 192 empty boxes, says no chart is on record (never healthy), and the patient-safety strip stays in view (557ms)
+  ok  3 [chromium] › e2e\perio-real-backend.spec.ts:144:1 › ACCEPTANCE 1: charting records probing depth, recession and bleeding, the tooth is stored as its FDI key whatever number is shown, and attachment loss is derived (1.0s)
+  ok  4 [chromium] › e2e\perio-real-backend.spec.ts:170:1 › ACCEPTANCE 2: incorrect data is refused with every problem named, the boxes are marked, and nothing is saved (1.0s)
+  ok  5 [chromium] › e2e\perio-real-backend.spec.ts:205:1 › RETRIES: the same key and chart returns the chart already saved; a different chart under a used key is refused; the history lists each chart once (168ms)
+  ok  6 [chromium] › e2e\perio-real-backend.spec.ts:221:1 › FAILURE: a dropped connection says so and keeps what was typed; the retry makes exactly one chart; a save the server cannot make says nothing was recorded (943ms)
+  ok  7 [chromium] › e2e\perio-real-backend.spec.ts:252:1 › CORRECTIONS: a saved chart is never edited; starting from it makes a new chart and the old one stays as it was (749ms)
+  ok  8 [chromium] › e2e\perio-real-backend.spec.ts:272:1 › TRUST: every chart is in the audit log with the user and a time, and nothing clinical is in it (44ms)
+  ok  9 [chromium] › e2e\perio-real-backend.spec.ts:283:1 › ROLES: the dentist and hygienist can chart; the assistant can only read; front desk and billing cannot see it; nothing is saved without sign-in or a token (660ms)
+  ok 10 [chromium] › e2e\perio-real-backend.spec.ts:314:1 › ACCESSIBILITY AND TABLET: axe finds no critical or serious issue on the grid, with problems shown and with charts listed, in both themes; at 768 px the page does not scroll sideways (17.3s)
+
+  10 passed (28.4s)

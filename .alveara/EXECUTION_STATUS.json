@@ -1339,21 +1339,21 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
-        "total": 6,
-        "passed": 0
+        "total": 7,
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full: 2,265 of 2,265 passed, 0 failed, 0 skipped (2 h 02 m). New: 100.; Frontend, full: 1194 of 1194 passed (75 files). New: 78.; Type check / build / lint: tsc exit 0, build ok, no oxlint finding in the diagnosis files; Mocked browser: 136 of 136 passed; Repository checks: 8 of 8 passed; Real-backend walkthrough (new): 12 of 12 passed; axe scans with chips and links shown, the amend, resolve and link forms open, the history and the 768 px tablet layout, each in light and dark, 0 critical/serious; Parent regression: original STORY-013 walkthrough, **unchanged**: 12 of 12 passed; Regression walkthroughs on the same tree: auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, companion 9, safety 11, odontogram 11, odontogram longitudinal 11, perio 10, perio sessions 12, all passed; Mutation checks: 10 of 10 deliberate breakages of the new rules killed (the mutation filter did not include DiagnosisRulesTests or DiagnosisSchemaTests; see disclosures). See .alveara/handoffs/ALV-013-C01/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "b94eb699193b7e25a0bb236684eeb0a2c5ebda10",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-013-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

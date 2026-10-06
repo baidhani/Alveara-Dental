@@ -1,0 +1,131 @@
+{
+  "axe": {
+    "list-with-chips-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-with-chips-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "amend-form-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "amend-form-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "resolve-form-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "resolve-form-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "link-form-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "link-form-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "history-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "history-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "tablet-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "tablet-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1791293894055,
+  "noCoding": {
+    "stored": true,
+    "source": "Manual"
+  },
+  "roundTrip": {
+    "coding": "ICD-10-CM K05.311",
+    "source": "Imported",
+    "region": "UpperArch"
+  },
+  "incorrectStructure": {
+    "sentWhileWrong": 0,
+    "listedProblems": [
+      "treatmentPlanReferenceState:not_supported",
+      "codingSystem:unsupported_system",
+      "code:coding_incomplete",
+      "source:unsupported_source",
+      "regionKey:unknown_region"
+    ]
+  },
+  "amendment": {
+    "versions": [
+      "Recorded",
+      "Amended"
+    ],
+    "referenceThroughout": "plan-2026-07 Unresolved"
+  },
+  "lifecycle": [
+    "Recorded",
+    "Resolved",
+    "Reactivated"
+  ],
+  "links": {
+    "offered": 2,
+    "linked": 2,
+    "otherPatientRefusedAs": "link_target_not_found"
+  },
+  "planReference": {
+    "refusedOn": [
+      "record",
+      "correct",
+      "amend"
+    ],
+    "state": "Unresolved"
+  },
+  "staleAndWithdrawn": {
+    "staleChangedNothing": true,
+    "withdrawnRefused": [
+      "amend",
+      "resolve",
+      "reactivate",
+      "links"
+    ]
+  },
+  "audit": {
+    "DiagnosisAmended": 2,
+    "DiagnosisResolved": 1,
+    "DiagnosisReactivated": 1,
+    "DiagnosisLinked": 2
+  },
+  "roles": {
+    "hygienistAmended": true,
+    "assistantRefused": true,
+    "frontDeskDenied": true,
+    "billingDenied": true,
+    "anonymous": 401,
+    "noCsrfRefused": true
+  },
+  "accessibility": {
+    "scanned": [
+      "list-with-chips",
+      "amend-form",
+      "resolve-form",
+      "link-form",
+      "history",
+      "tablet"
+    ],
+    "tabletNoHorizontalPageScroll": true
+  }
+}

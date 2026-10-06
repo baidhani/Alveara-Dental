@@ -1,0 +1,17 @@
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:119:1 › SETUP: two patients, real encounters, a real odontogram finding and a real periodontal chart for each (967ms)
+  ok  2 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:139:1 › NO CODING NEEDED: a diagnosis with no coding system, code, source or region is stored structurally and reads as manual and uncoded (910ms)
+  ok  3 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:153:1 › CODING AND PROVENANCE ROUND TRIP: coding, source and region typed on screen are stored, read back, listed and in the history, shown as chips and never as checked (680ms)
+  ok  4 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:181:1 › INCORRECT STRUCTURE: the screen lists every problem linked to its box and sends nothing; the server refuses the same mistakes for any caller, naming each one (473ms)
+  ok  5 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:211:1 › AMENDMENT: it asks why, keeps what it replaced with who, when and why, carries the treatment plan reference through unresolved, and an amendment that changes nothing is quiet (1.0s)
+  ok  6 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:256:1 › LIFECYCLE: a diagnosis is marked resolved with a reason, stays on the list as Resolved, is made active again with a reason, and every step is in the history (797ms)
+  ok  7 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:280:1 › LINKS: only this patient's own findings and charts are offered; a link records who and when; the same link twice adds nothing; another patient's record and a missing one are refused in the same words (991ms)
+  ok  8 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:317:1 › TREATMENT PLAN REFERENCE: it can never be marked resolved or validated, on record, correct or amend, and stays unresolved throughout (72ms)
+  ok  9 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:335:1 › STALE AMENDMENT AND WITHDRAWN: an amendment made from a stale screen shows the conflict and keeps what was typed; a withdrawn diagnosis refuses every structural change (673ms)
+  ok 10 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:365:1 › TRUST: every amendment, resolve, reactivate and link is in the audit log with the user and a time, and nothing diagnosed or coded is (32ms)
+  ok 11 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:376:1 › ROLES: dentist and hygienist can amend, resolve and link; the assistant reads the chips, links and history but is refused and shown no way to change anything; front desk and billing are denied; anonymous callers get 401; a write without a CSRF token is refused (971ms)
+  ok 12 [chromium] › e2e\diagnoses-structure-real-backend.spec.ts:408:1 › ACCESSIBILITY AND TABLET: axe finds no critical or serious issue with chips and links shown and with the amend, resolve and link forms open, in both themes; at 768 px the page does not scroll sideways (12.2s)
+
+  12 passed (25.5s)

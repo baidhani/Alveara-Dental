@@ -1,0 +1,14 @@
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\clinical-companion-real-backend.spec.ts:132:1 › RECORD: allergies, medications and history are captured across encounters with who and when, and a change keeps what it replaced (6.0s)
+  ok 2 [chromium] › e2e\clinical-companion-real-backend.spec.ts:179:1 › UNKNOWN / NOT REVIEWED / NONE KNOWN: three different statements, none of them an invented item; a confirmed list goes stale when an item changes (4.0s)
+  ok 3 [chromium] › e2e\clinical-companion-real-backend.spec.ts:244:1 › TEMPLATE: a dentist configures a clinical note template; a hygienist can read the list but cannot configure (5.0s)
+  ok 4 [chromium] › e2e\clinical-companion-real-backend.spec.ts:278:1 › ENCOUNTER: a template shapes the SOAP and treatment notes; required notes block signing and are named; vitals are recorded with the encounter and a mistake is voided (8.0s)
+  ok 5 [chromium] › e2e\clinical-companion-real-backend.spec.ts:352:1 › SIGNING: a signed note is locked (screen and API) until it is unsigned or finalized, and the signature is attributed (3.0s)
+  ok 6 [chromium] › e2e\clinical-companion-real-backend.spec.ts:400:1 › FINALIZED + AMENDMENT: a finalized note cannot be overwritten; an amendment preserves the original, who wrote it, when and what it amends (2.8s)
+  ok 7 [chromium] › e2e\clinical-companion-real-backend.spec.ts:455:1 › CONCURRENCY: a stale note save is refused with the conflict banner and the typed note survives the reload (1.2s)
+  ok 8 [chromium] › e2e\clinical-companion-real-backend.spec.ts:485:1 › ACCESS: front desk cannot read or write any of it; an assistant reads but gets no controls (573ms)
+  ok 9 [chromium] › e2e\clinical-companion-real-backend.spec.ts:509:1 › TRUST: every save, sign, finalize and amend is in the audit log with the user and a time, and no clinical content is in it (29ms)
+
+  9 passed (36.1s)

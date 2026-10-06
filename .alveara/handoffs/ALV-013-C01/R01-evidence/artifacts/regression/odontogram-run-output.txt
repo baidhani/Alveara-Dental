@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\odontogram-real-backend.spec.ts:122:1 › SETUP: two patients (211ms)
+  ok  2 [chromium] › e2e\odontogram-real-backend.spec.ts:130:1 › NOTHING INVENTED: an empty chart draws the 32 permanent teeth, says nothing is recorded (never healthy), and the patient-safety strip stays in view (491ms)
+  ok  3 [chromium] › e2e\odontogram-real-backend.spec.ts:145:1 › ACCEPTANCE 1: a condition recorded on a selected tooth is saved with exactly the lifecycle state chosen, and the tooth is stored as its FDI key whatever number is shown (1.5s)
+  ok  4 [chromium] › e2e\odontogram-real-backend.spec.ts:180:1 › ACCEPTANCE 2: a completed treatment updates the odontogram, and the history shows each step with who and when (1.2s)
+  ok  5 [chromium] › e2e\odontogram-real-backend.spec.ts:214:1 › A WRONG ENTRY is withdrawn with a reason: it leaves the chart, the reason is required, and the history keeps it (684ms)
+  ok  6 [chromium] › e2e\odontogram-real-backend.spec.ts:237:1 › FAILURE PATHS: a wrong tooth, a surface that does not exist, a surface on a whole-tooth condition and an unknown state are each refused with the field named, and nothing is stored (691ms)
+  ok  7 [chromium] › e2e\odontogram-real-backend.spec.ts:277:1 › CONCURRENCY: a stale change is refused with the conflict banner, the other person's change stands, and a reload lets the first person finish (1.1s)
+  ok  8 [chromium] › e2e\odontogram-real-backend.spec.ts:306:1 › KEYBOARD: a tooth is selected and a finding planned with the keyboard alone (336ms)
+  ok  9 [chromium] › e2e\odontogram-real-backend.spec.ts:320:1 › ACCESS: front desk and billing cannot read or change the chart; an assistant reads it but cannot change anything (695ms)
+  ok 10 [chromium] › e2e\odontogram-real-backend.spec.ts:353:1 › TRUST: every record, state change and withdrawal is in the audit log with the user and a time, and nothing clinical is in it (31ms)
+  ok 11 [chromium] › e2e\odontogram-real-backend.spec.ts:366:1 › ACCESSIBILITY: the chart, a tooth with its record and withdraw forms open, and the tablet layout have no critical or serious axe violations in light and dark (7.1s)
+
+  11 passed (19.8s)

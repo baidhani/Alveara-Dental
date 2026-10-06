@@ -1,0 +1,17 @@
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] › e2e\diagnoses-real-backend.spec.ts:121:1 › SETUP: three patients (230ms)
+  ok  2 [chromium] › e2e\diagnoses-real-backend.spec.ts:129:1 › NOTHING INVENTED: with no encounter there is no form and it says why; once an encounter is started the form appears and the list says none has been recorded; the safety strip stays in view (1.0s)
+  ok  3 [chromium] › e2e\diagnoses-real-backend.spec.ts:146:1 › ACCEPTANCE 1: a diagnosis recorded for an encounter is linked to the patient and the encounter, the tooth is stored as its FDI key, and the treatment plan reference is shown as unresolved (817ms)
+  ok  4 [chromium] › e2e\diagnoses-real-backend.spec.ts:172:1 › ACCEPTANCE 2: incorrect data is refused on screen with every problem listed and linked, nothing is sent, and the server refuses the same mistakes for any caller (557ms)
+  ok  5 [chromium] › e2e\diagnoses-real-backend.spec.ts:198:1 › THE LINKS ARE AUTHORITATIVE: an encounter of another patient and one that does not exist are refused identically and nothing is saved (66ms)
+  ok  6 [chromium] › e2e\diagnoses-real-backend.spec.ts:210:1 › THE REFERENCE IS KEPT: a correction keeps it unless it is explicitly replaced or removed, withdrawing keeps it, and every value is in the history (1.2s)
+  ok  7 [chromium] › e2e\diagnoses-real-backend.spec.ts:246:1 › WITHDRAWING: it asks why, keeps the diagnosis and its reference, hides it from the working list and shows it on request (667ms)
+  ok  8 [chromium] › e2e\diagnoses-real-backend.spec.ts:270:1 › RETRIES: the same key and entry returns one diagnosis, a different entry under it is refused, eight simultaneous saves make one, and a dropped connection makes exactly one (754ms)
+  ok  9 [chromium] › e2e\diagnoses-real-backend.spec.ts:300:1 › STALE CORRECTION: a diagnosis changed by someone else shows the conflict banner and keeps what was typed; after reloading the correction goes through (744ms)
+  ok 10 [chromium] › e2e\diagnoses-real-backend.spec.ts:323:1 › TRUST: every record, correction and withdrawal is in the audit log with the user and a time, and nothing diagnosed is in it (60ms)
+  ok 11 [chromium] › e2e\diagnoses-real-backend.spec.ts:337:1 › ROLES: the dentist and hygienist can record; the assistant can only read; front desk and billing cannot see it; anonymous callers are refused; nothing is saved without a token (631ms)
+  ok 12 [chromium] › e2e\diagnoses-real-backend.spec.ts:370:1 › ACCESSIBILITY AND TABLET: axe finds no critical or serious issue on the list, with problems shown, with a correction and the history open, in both themes; at 768 px the page does not scroll sideways (8.0s)
+
+  12 passed (20.1s)

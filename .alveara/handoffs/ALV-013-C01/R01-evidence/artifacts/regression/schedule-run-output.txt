@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\schedule-real-backend.spec.ts:122:1 › SETUP: the practice is configured (two providers, two operatories, two appointment types, blocked time) and patients are registered (987ms)
+  ok  2 [chromium] › e2e\schedule-real-backend.spec.ts:143:1 › ACCEPTANCE 1: with an available provider the appointment is confirmed, shown in words and listed in the day's schedule (5.2s)
+  ok  3 [chromium] › e2e\schedule-real-backend.spec.ts:167:1 › ACCEPTANCE 2: a double-booked provider rejects the new appointment, says who and when, and nothing is booked (2.2s)
+  ok  4 [chromium] › e2e\schedule-real-backend.spec.ts:185:1 › FAILURE PATHS: an operatory in use, an unavailable provider (hours and blocked time) and an incorrect duration are each refused in plain words (614ms)
+  ok  5 [chromium] › e2e\schedule-real-backend.spec.ts:208:1 › BACK TO BACK: a corrected request that starts exactly when the first ends is accepted (127ms)
+  ok  6 [chromium] › e2e\schedule-real-backend.spec.ts:217:1 › DROPPED CONNECTION: the booking is stored but the answer is lost; the page says so and Book again books exactly once (2.3s)
+  ok  7 [chromium] › e2e\schedule-real-backend.spec.ts:249:1 › RACE: six requests for the same slot at the same moment produce exactly one appointment, the others are refused (50ms)
+  ok  8 [chromium] › e2e\schedule-real-backend.spec.ts:264:1 › ACCEPTANCE 3 (TRUST): every scheduling action is in the audit trail with the user and a timestamp, and no patient details (32ms)
+  ok  9 [chromium] › e2e\schedule-real-backend.spec.ts:281:1 › PERMISSIONS: a dentist can see the schedule but has no booking form and the API refuses a booking; billing has no Schedule page at all (1.4s)
+  ok 10 [chromium] › e2e\schedule-real-backend.spec.ts:305:1 › KEYBOARD: an appointment can be booked without a mouse (681ms)
+
+  10 passed (17.1s)
