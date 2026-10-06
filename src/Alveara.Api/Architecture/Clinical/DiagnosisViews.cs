@@ -23,11 +23,16 @@ public static class TreatmentPlanReferenceStates
 /// </summary>
 public sealed record DiagnosisView(
     Guid Id, Guid PatientId, Guid EncounterId, DateTimeOffset EncounterAtUtc, string Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, string? TreatmentPlanReferenceState,
-    string Status, string? RecordedByName, DateTimeOffset RecordedAtUtc, string? UpdatedByName, DateTimeOffset? UpdatedAtUtc, string? WithdrawnByName, DateTimeOffset? WithdrawnAtUtc, string? WithdrawnReason, string RowVersion);
+    string Status, string? RecordedByName, DateTimeOffset RecordedAtUtc, string? UpdatedByName, DateTimeOffset? UpdatedAtUtc, string? WithdrawnByName, DateTimeOffset? WithdrawnAtUtc, string? WithdrawnReason, string RowVersion,
+    string? CodingSystem = null, string? Code = null, string Source = DiagnosisSources.Manual, string? SourceNote = null, string? RegionKey = null, IReadOnlyList<DiagnosisLinkView>? Links = null);
+
+/// <summary>A link from a diagnosis to a finding or periodontal chart of the same patient: what it points at, in words, and who linked it and when.</summary>
+public sealed record DiagnosisLinkView(string LinkType, Guid TargetId, string Summary, string? LinkedByName, DateTimeOffset LinkedAtUtc);
 
 /// <summary>One step in a diagnosis's history: the whole diagnosis as it stood after the change, who changed it, when and why.</summary>
 public sealed record DiagnosisVersionView(
-    int VersionNumber, string ChangeType, string Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, string? TreatmentPlanReferenceState, string Status, string? Reason, string? ActorName, DateTimeOffset OccurredAtUtc);
+    int VersionNumber, string ChangeType, string Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, string? TreatmentPlanReferenceState, string Status, string? Reason, string? ActorName, DateTimeOffset OccurredAtUtc,
+    string? CodingSystem = null, string? Code = null, string Source = DiagnosisSources.Manual, string? SourceNote = null, string? RegionKey = null);
 
 public sealed record DiagnosisHistoryView(Guid DiagnosisId, IReadOnlyList<DiagnosisVersionView> Versions);
 
@@ -36,4 +41,10 @@ public sealed record DiagnosisHistoryView(Guid DiagnosisId, IReadOnlyList<Diagno
 /// accident: leaving <see cref="TreatmentPlanReference"/> null keeps it, a value replaces it (an explicit act, recorded in the history with the reason), and only
 /// <see cref="ClearTreatmentPlanReference"/> removes it.
 /// </summary>
-public sealed record DiagnosisCorrection(string? Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, bool ClearTreatmentPlanReference);
+public sealed record DiagnosisCorrection(string? Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, bool ClearTreatmentPlanReference, string? TreatmentPlanReferenceState = null);
+
+/// <summary>
+/// ALV-013-C01: an amendment to the STRUCTURE of a diagnosis: the whole location (tooth or region), coding and source as they should now stand (null means none). The label, notes and treatment-plan
+/// reference are not touched, so the reference and its provenance are carried through unchanged. The previous values stay in the history with who, when and why.
+/// </summary>
+public sealed record DiagnosisAmendment(string? ToothKey, string? RegionKey, string? CodingSystem, string? Code, string? Source, string? SourceNote, string? TreatmentPlanReferenceState = null);

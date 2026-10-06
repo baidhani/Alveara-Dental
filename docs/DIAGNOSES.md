@@ -1,4 +1,4 @@
-# Structured diagnoses (STORY-013)
+# Structured diagnoses (STORY-013, ALV-013-C01)
 
 **Requirement:** REQ-010 - the system must allow structured diagnosis linked to patient, encounter, and treatment plan.
 **Where it lives:** the patient workspace's **Diagnoses** tab (`/patients/:id/diagnoses`), in the clinical documentation module beside the encounter notes, the odontogram and periodontal charting.
@@ -49,17 +49,41 @@ A diagnosis is a structured clinical statement made in one encounter of one pati
 6. **Reading and writing use the existing clinical-documentation permissions**, so no role matrix changed (hygienists can record, as they can write clinical notes).
 7. **An encounter of another patient and a missing encounter look the same** to the caller.
 
+## Structure, lifecycle, links and amendment (ALV-013-C01)
+
+The companion makes a diagnosis a structured, attributable clinical statement without changing any of STORY-013's behaviour (its tests are unchanged and pass).
+
+- **Optional coding.** A diagnosis needs no coding: with none it is stored structurally and reads as `Manual` and uncoded. A coding is a system and a code **together**. The system is one of `ICD-10-CM`, `SNODENT` or `Local` (only the system's **name**: no terminology content is bundled and a code is **never checked against a code set**). A code is 1 to 30 letters, digits, dots, hyphens or underscores. An unknown system is refused by name.
+- **Provenance.** `Source` is `Manual` (the default), `Imported` or `Mapped`, with an optional source note (up to 200 characters) that is allowed only on an imported or mapped diagnosis, so data brought in later still says where it came from.
+- **Place.** A diagnosis is about one tooth **or** one oral region (`FullMouth`, `UpperArch`, `LowerArch`, the four quadrants, `SoftTissue`, `Tmj`), never both.
+- **Amendment.** `POST /api/diagnoses/{id}/amend` replaces the whole structure (tooth or region, coding, source) as one recorded `Amended` act with a required reason and the row version. The previous values stay in the history with who, when and why. The label, notes and the treatment-plan reference (with its provenance) are carried through untouched. An amendment that changes nothing is quiet.
+- **Status.** `Active`, `Resolved` or `Withdrawn`. Resolve and reactivate (`/resolve`, `/reactivate`) each need a reason, are history entries and are reversible; a repeat is quiet. `Withdrawn` stays final: a withdrawn diagnosis cannot be amended, resolved, reactivated or linked (`diagnosis_withdrawn`, 409). The default list shows Active and Resolved.
+- **Links.** `POST /api/diagnoses/{id}/links` links a diagnosis to an odontogram **finding** or a periodontal **chart** (`Finding`, `PerioExam`) of the **same patient**. Links are append-only (trigger 51075), unique per diagnosis, type and target, carry who and when, and a target that is missing or belongs to someone else is refused identically (`link_target_not_found`, 404; trigger 51076 repeats it in the database). Linking is idempotent.
+- **The treatment-plan reference stays a forward reference.** Nothing here looks it up or builds a plan. A request that tries to mark it as anything but `Unresolved` is refused (`treatmentPlanReferenceState:not_supported`, 400) on record, correct and amend, and it is carried unresolved, with its own actor and time, through every amendment, status change and history step.
+- **Nothing is destroyed.** No diagnosis, history version or link can be deleted (51071, 51072, 51075); a diagnosis that carries a treatment-plan reference or links is amended, never overwritten.
+
+Schema: migration `AddDiagnosisStructure` (columns on `Diagnoses` and `DiagnosisVersions`, the `DiagnosisLinks` table, check constraints for system/code pairing, characters, source, note and region, and triggers 51075 and 51076). The next free trigger number is **51077**. On screen: coding, source and region on the record form, context chips and linked records on each diagnosis, Amend, Mark resolved / Make active again and Link actions (each but Link asks why), and amendment, resolve and reactivate steps in the history.
+
+### Decisions
+
+1. **Amendment is a separate act from correction.** Correction (label, tooth, notes) is unchanged from STORY-013 and keeps its history type; amendment is for structure, so the history says which kind of change was made.
+2. **Coding systems are names only and the list is closed.** No licensed content is bundled; adding a system is a model and rule change, not data.
+3. **Resolved is not Withdrawn.** Resolved means no longer present and is reversible; withdrawn means entered in error and is final.
+4. **Links go to records that really exist, with the same-patient rule in the service and the database.** A treatment plan is not a link type: its reference lives on the diagnosis.
+5. **A refused plan-state change instead of a new endpoint.** The "resolve the reference" failure path is covered by refusing the attempt, so no treatment-plan API is built.
+
 ## Limits (recorded, not hidden)
 
-- **No coding system.** A diagnosis is a free-text label (with an optional tooth and notes); codes, code systems, provenance and a structured lifecycle belong to the later companion story.
-- **Status is Active or Withdrawn only**; there is no resolved, chronic or amended state, and no amendment workflow beyond correction.
-- **The treatment-plan reference is never resolved or checked.** Nothing verifies that a plan with that reference exists, and it is not matched to a plan when plans are built; that reconciliation is a later story's work.
-- **A diagnosis cannot be moved to another encounter** (the links never change); the way to do that is to withdraw it and record a new one.
+- **The code is never validated against a code set**, and the list of coding systems is closed to three names; importing or mapping a terminology is future work and must not change a diagnosis's identity or history.
+- **The treatment-plan reference is never resolved or checked.** Nothing verifies that a plan with that reference exists, and it is not matched to a plan when plans are built; reconciling references with real plans, with same-patient validation, idempotency and visible handling of unresolved or invalid references, is the later treatment-plan story's work.
+- **Status is Active, Resolved or Withdrawn only**; there are no chronic or staged states, and no automatic diagnosis from findings or charts (a link records that a clinician tied them together, it does not claim one proves the other).
+- **A diagnosis cannot be moved to another encounter** (the links never change); withdraw it and record a new one.
 - **A diagnosis needs an encounter**; a patient with none must have one started in the Clinical tab first.
-- **A diagnosis is not linked to a tooth finding or a periodontal chart** (it carries an optional tooth only); links between them are for later.
-- **Only one tooth per diagnosis** and no surface or region.
-- **Hygienists can record diagnoses** because they hold the clinical-notes permission; narrowing that is a permission-model decision.
+- **Links are one-way and permanent**: there is no unlink (a wrong link is recorded as a wrong link; withdraw the diagnosis if it was wrong), and a diagnosis cannot yet link to an encounter note, procedure or image.
+- **One tooth or one region per diagnosis**, no surface.
+- **Correcting the tooth of a diagnosis that has a region is refused** (a diagnosis is about a tooth or a region): amend it instead.
+- **Hygienists can record and amend diagnoses** because they hold the clinical-notes permission; narrowing that is a permission-model decision.
 
 ## Verification
 
-Backend, against real SQL Server: `DiagnosisRulesTests` (the rules and boundaries), `DiagnosisSchemaTests` and `DiagnosisMigrationTests` (the database's own refusals, triggers and the migration up and down), `DiagnosisServiceTests` (behaviour, audit and save failure, idempotency and simultaneous saves, corrections and the reference), `DiagnosisApiTests` (roles, CSRF, refusal shape, workflow). Frontend: `diagnosisRules.test.ts` (held to the server's cases), `DiagnosisApi.test.ts` (client against the fake) and `Diagnoses.test.tsx` (the screen, every failure path, axe). Real browser, un-mocked: `e2e/diagnoses-real-backend.spec.ts` (see `docs/testing/REAL_BACKEND_E2E.md`).
+Backend, against real SQL Server: `DiagnosisRulesTests` (the rules and boundaries), `DiagnosisSchemaTests` and `DiagnosisMigrationTests` (the database's own refusals, triggers and the migration up and down), `DiagnosisServiceTests` (behaviour, audit and save failure, idempotency and simultaneous saves, corrections and the reference), `DiagnosisApiTests` (roles, CSRF, refusal shape, workflow). Frontend: `diagnosisRules.test.ts` (held to the server's cases), `DiagnosisApi.test.ts` (client against the fake) and `Diagnoses.test.tsx` (the screen, every failure path, axe). Real browser, un-mocked: `e2e/diagnoses-real-backend.spec.ts` and, for the companion, `e2e/diagnoses-structure-real-backend.spec.ts` (see `docs/testing/REAL_BACKEND_E2E.md`). ALV-013-C01's tests: `DiagnosisStructureRulesTests`, `DiagnosisStructureSchemaTests` (with the migration up, down and up again), `DiagnosisStructureServiceTests`, `DiagnosisStructureApiTests`, `diagnosisStructureRules.test.ts`, `DiagnosisStructureApi.test.ts` and `DiagnosisStructure.test.tsx`.

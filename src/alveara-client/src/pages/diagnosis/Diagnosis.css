@@ -19,3 +19,7 @@
 .alv-dx__history { overflow-x: auto; margin-top: 0.5rem; }
 .alv-dx__table { border-collapse: collapse; width: 100%; font-size: 0.875rem; }
 .alv-dx__table th, .alv-dx__table td { border: 1px solid var(--color-border, #dde2e8); padding: 0.25rem 0.5rem; text-align: left; }
+/* ALV-013-C01: context chips and linked records. Chips are text, so nothing is carried by colour alone. */
+.alv-dx__chips { list-style: none; padding: 0; margin: 0.25rem 0; display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.alv-dx__chip { border: 1px solid var(--color-border, #dde2e8); border-radius: 1rem; padding: 0.0625rem 0.625rem; font-size: 0.875rem; }
+.alv-dx__links { margin: 0.25rem 0; padding-left: 1.25rem; font-size: 0.9375rem; }

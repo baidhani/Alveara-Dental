@@ -22,9 +22,10 @@ namespace Alveara.Api.Architecture.Clinical;
 /// - <b>Repeats are quiet.</b> Recording under the same idempotency key and the same entry returns the diagnosis already saved; the same key with a different entry is refused
 ///   (<c>idempotency_key_reused</c>, 409); a correction that changes nothing and withdrawing a withdrawn diagnosis change nothing. Two simultaneous saves under one key end with one diagnosis.
 /// - <b>A stale edit is refused</b> through the row version (the shared 409 conflict). A diagnosis is never deleted: a wrong one is corrected or withdrawn with a reason.
-/// Not handled (by design): coding systems, amendment workflow and status lifecycle beyond Active and Withdrawn (a later story), and resolving the treatment-plan reference (a later story).
+/// ALV-013-C01 adds (in DiagnosisService.Structure.cs): optional coding and source provenance, tooth or region, amendment of that structure, the Active/Resolved/Withdrawn lifecycle and links to findings and
+/// periodontal charts. Not handled (by design): resolving or validating the treatment-plan reference (a later story: it stays Unresolved) and code sets (no terminology content is bundled).
 /// </summary>
-public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<DiagnosisService>? logger = null)
+public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<DiagnosisService>? logger = null)
 {
     public const int ReasonMax = 500;
     public const int KeyMax = 64;
@@ -51,6 +52,7 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
         var d = new Diagnosis
         {
             Id = Guid.NewGuid(), PatientId = patientId, EncounterId = v.EncounterId, IdempotencyKey = key!, Label = v.Label, ToothKey = v.ToothKey, Notes = v.Notes, TreatmentPlanReference = v.TreatmentPlanReference,
+            CodingSystem = v.CodingSystem, Code = v.Code, Source = v.Source, SourceNote = v.SourceNote, RegionKey = v.RegionKey,
             Status = DiagnosisStatuses.Active, CreatedAtUtc = now, CreatedByUserId = actor,
         };
         db.Diagnoses.Add(d);
@@ -87,7 +89,7 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
 
         // the corrected whole entry as the rules judge it: the reference is the current one unless the caller explicitly replaces or clears it
         var proposedReference = correction.ClearTreatmentPlanReference ? null : correction.TreatmentPlanReference ?? d.TreatmentPlanReference;
-        var check = DiagnosisRules.Check(new DiagnosisInput(d.EncounterId, correction.Label, correction.ToothKey, correction.Notes, proposedReference));
+        var check = DiagnosisRules.Check(new DiagnosisInput(d.EncounterId, correction.Label, correction.ToothKey, correction.Notes, proposedReference, d.CodingSystem, d.Code, d.Source, d.SourceNote, d.RegionKey, correction.TreatmentPlanReferenceState));
         problems.AddRange(check.Problems);
         if (problems.Count > 0) throw new DiagnosisException("validation_failed", "The correction has entries that need correcting. Nothing was saved.", 400, problems);
         var v = check.Value!;
@@ -124,11 +126,11 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
 
     // ---------- reads ----------
 
-    /// <summary>A patient's diagnoses, newest first; withdrawn ones only when asked for. <paramref name="encounterId"/> narrows to one encounter.</summary>
+    /// <summary>A patient's diagnoses (active and resolved), newest first; withdrawn ones only when asked for. <paramref name="encounterId"/> narrows to one encounter.</summary>
     public async Task<IReadOnlyList<DiagnosisView>> ListAsync(Guid patientId, Guid? encounterId, bool includeWithdrawn, CancellationToken ct)
     {
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new DiagnosisException("patient_not_found", "That patient was not found.", 404);
-        var rows = await db.Diagnoses.AsNoTracking().Where(d => d.PatientId == patientId && (encounterId == null || d.EncounterId == encounterId) && (includeWithdrawn || d.Status == DiagnosisStatuses.Active))
+        var rows = await db.Diagnoses.AsNoTracking().Where(d => d.PatientId == patientId && (encounterId == null || d.EncounterId == encounterId) && (includeWithdrawn || d.Status != DiagnosisStatuses.Withdrawn))
             .OrderByDescending(d => d.CreatedAtUtc).ThenByDescending(d => d.Id).ToListAsync(ct);
         return await ViewsAsync(rows, ct);
     }
@@ -141,14 +143,14 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
         var versions = await db.DiagnosisVersions.AsNoTracking().Where(v => v.DiagnosisId == diagnosisId).OrderBy(v => v.VersionNumber).ToListAsync(ct);
         var names = await ClinicalNames.ResolveAsync(db, versions.Select(v => v.ActorUserId), ct);
         return new(diagnosisId, versions.Select(v => new DiagnosisVersionView(v.VersionNumber, v.ChangeType, v.Label, v.ToothKey, v.Notes, v.TreatmentPlanReference, State(v.TreatmentPlanReference), v.Status, v.Reason,
-            ClinicalNames.Name(names, v.ActorUserId), v.OccurredAtUtc)).ToList());
+            ClinicalNames.Name(names, v.ActorUserId), v.OccurredAtUtc, v.CodingSystem, v.Code, v.Source, v.SourceNote, v.RegionKey)).ToList());
     }
 
     // ---------- plumbing ----------
 
     private static string? State(string? reference) => reference is null ? null : TreatmentPlanReferenceStates.Unresolved;
     private static DiagnosisException NotFound() => new("diagnosis_not_found", "That diagnosis was not found.", 404);
-    private static DiagnosisException Withdrawn() => new("diagnosis_withdrawn", "This diagnosis was withdrawn, so it cannot be corrected. Record a new diagnosis if one is needed.", 409);
+    private static DiagnosisException Withdrawn(string what = "corrected") => new("diagnosis_withdrawn", $"This diagnosis was withdrawn, so it cannot be {what}. Record a new diagnosis if one is needed.", 409);
 
     private static string? Reason(string? reason, List<DiagnosisProblem> problems)
     {
@@ -164,7 +166,8 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
     private async Task<DiagnosisView> ReplayAsync(Diagnosis existing, NormalizedDiagnosis sent, CancellationToken ct)
     {
         var first = await db.DiagnosisVersions.AsNoTracking().SingleAsync(v => v.DiagnosisId == existing.Id && v.VersionNumber == 1, ct);   // what was originally recorded, whatever has been corrected since
-        if (existing.EncounterId != sent.EncounterId || first.Label != sent.Label || first.ToothKey != sent.ToothKey || first.Notes != sent.Notes || first.TreatmentPlanReference != sent.TreatmentPlanReference)
+        if (existing.EncounterId != sent.EncounterId || first.Label != sent.Label || first.ToothKey != sent.ToothKey || first.Notes != sent.Notes || first.TreatmentPlanReference != sent.TreatmentPlanReference
+            || first.CodingSystem != sent.CodingSystem || first.Code != sent.Code || first.Source != sent.Source || first.SourceNote != sent.SourceNote || first.RegionKey != sent.RegionKey)
             throw new DiagnosisException("idempotency_key_reused", "That save key was already used for a different diagnosis. Nothing was changed; save again to record this one as a new diagnosis.", 409);
         return await ViewAsync(existing.Id, ct);
     }
@@ -190,7 +193,8 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
         db.DiagnosisVersions.Add(new DiagnosisVersion
         {
             Id = Guid.NewGuid(), DiagnosisId = d.Id, PatientId = d.PatientId, VersionNumber = number, ChangeType = changeType, Label = d.Label, ToothKey = d.ToothKey, Notes = d.Notes,
-            TreatmentPlanReference = d.TreatmentPlanReference, Status = d.Status, Reason = reason, ActorUserId = actor, OccurredAtUtc = now,
+            TreatmentPlanReference = d.TreatmentPlanReference, CodingSystem = d.CodingSystem, Code = d.Code, Source = d.Source, SourceNote = d.SourceNote, RegionKey = d.RegionKey,
+            Status = d.Status, Reason = reason, ActorUserId = actor, OccurredAtUtc = now,
         });
 
     private async Task<int> NextVersionAsync(Guid diagnosisId, CancellationToken ct) => (await db.DiagnosisVersions.Where(v => v.DiagnosisId == diagnosisId).MaxAsync(v => (int?)v.VersionNumber, ct) ?? 0) + 1;
@@ -232,9 +236,11 @@ public class DiagnosisService(AlveraDbContext db, IPracticeClock clock, ILogger<
         var encounterIds = rows.Select(r => r.EncounterId).Distinct().ToList();
         var at = await db.Encounters.AsNoTracking().Where(e => encounterIds.Contains(e.Id)).ToDictionaryAsync(e => e.Id, e => e.EncounterAtUtc, ct);
         var names = await ClinicalNames.ResolveAsync(db, rows.SelectMany(r => new[] { r.CreatedByUserId, r.UpdatedByUserId, r.WithdrawnByUserId }), ct);
+        var ids = rows.Select(r => r.Id).ToList();
+        var links = await LinkViewsAsync(ids, ct);
         return rows.Select(d => new DiagnosisView(
             d.Id, d.PatientId, d.EncounterId, at[d.EncounterId], d.Label, d.ToothKey, d.Notes, d.TreatmentPlanReference, State(d.TreatmentPlanReference), d.Status,
             ClinicalNames.Name(names, d.CreatedByUserId), d.CreatedAtUtc, ClinicalNames.Name(names, d.UpdatedByUserId), d.UpdatedAtUtc, ClinicalNames.Name(names, d.WithdrawnByUserId), d.WithdrawnAtUtc, d.WithdrawnReason,
-            Convert.ToBase64String(d.RowVersion))).ToList();
+            Convert.ToBase64String(d.RowVersion), d.CodingSystem, d.Code, d.Source, d.SourceNote, d.RegionKey, links.GetValueOrDefault(d.Id) ?? [])).ToList();
     }
 }

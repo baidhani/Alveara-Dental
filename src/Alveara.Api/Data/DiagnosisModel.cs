@@ -26,6 +26,11 @@ internal static class DiagnosisModel
             e.Property(x => x.ToothKey).HasMaxLength(2).IsFixedLength();
             e.Property(x => x.Notes).HasMaxLength(DiagnosisRules.NotesMax);
             e.Property(x => x.TreatmentPlanReference).HasMaxLength(DiagnosisRules.ReferenceMax);
+            e.Property(x => x.CodingSystem).HasMaxLength(10);
+            e.Property(x => x.Code).HasMaxLength(DiagnosisRules.CodeMax);
+            e.Property(x => x.Source).HasMaxLength(10).HasDefaultValue(DiagnosisSources.Manual);
+            e.Property(x => x.SourceNote).HasMaxLength(DiagnosisRules.SourceNoteMax);
+            e.Property(x => x.RegionKey).HasMaxLength(12);
             e.Property(x => x.Status).HasMaxLength(10);
             e.Property(x => x.WithdrawnReason).HasMaxLength(500);
             e.Property(x => x.RowVersion).IsRowVersion();
@@ -48,17 +53,29 @@ internal static class DiagnosisModel
                 t.HasCheckConstraint("CK_Diagnoses_Status", $"[Status] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisStatuses.All)})");
                 t.HasCheckConstraint("CK_Diagnoses_WithdrawnStamp",
                     "([Status] = 'Withdrawn' AND [WithdrawnAtUtc] IS NOT NULL AND [WithdrawnByUserId] IS NOT NULL AND [WithdrawnReason] IS NOT NULL AND LEN(LTRIM(RTRIM([WithdrawnReason]))) > 0) " +
-                    "OR ([Status] = 'Active' AND [WithdrawnAtUtc] IS NULL AND [WithdrawnByUserId] IS NULL AND [WithdrawnReason] IS NULL)");
+                    "OR ([Status] IN ('Active','Resolved') AND [WithdrawnAtUtc] IS NULL AND [WithdrawnByUserId] IS NULL AND [WithdrawnReason] IS NULL)");
+                // ALV-013-C01: coding, source and region
+                t.HasCheckConstraint("CK_Diagnoses_CodingSystem", $"[CodingSystem] IS NULL OR [CodingSystem] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisCodingSystems.All)})");
+                t.HasCheckConstraint("CK_Diagnoses_CodingPair", "([CodingSystem] IS NULL AND [Code] IS NULL) OR ([CodingSystem] IS NOT NULL AND [Code] IS NOT NULL AND LEN(LTRIM(RTRIM([Code]))) > 0)");
+                t.HasCheckConstraint("CK_Diagnoses_CodeChars", "[Code] IS NULL OR REPLACE([Code], N'-', N'') COLLATE Latin1_General_BIN2 NOT LIKE N'%[^A-Za-z0-9._]%'");
+                t.HasCheckConstraint("CK_Diagnoses_Source", $"[Source] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisSources.All)})");
+                t.HasCheckConstraint("CK_Diagnoses_SourceNote", $"[SourceNote] IS NULL OR ([Source] <> 'Manual' AND LEN(LTRIM(RTRIM([SourceNote]))) > 0 AND {NoControl("SourceNote")})");
+                t.HasCheckConstraint("CK_Diagnoses_Region", $"[RegionKey] IS NULL OR ([RegionKey] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisRegions.All)}) AND [ToothKey] IS NULL)");
             });
         });
 
         modelBuilder.Entity<DiagnosisVersion>(e =>
         {
-            e.Property(x => x.ChangeType).HasMaxLength(10);
+            e.Property(x => x.ChangeType).HasMaxLength(12);
             e.Property(x => x.Label).HasMaxLength(DiagnosisRules.LabelMax);
             e.Property(x => x.ToothKey).HasMaxLength(2).IsFixedLength();
             e.Property(x => x.Notes).HasMaxLength(DiagnosisRules.NotesMax);
             e.Property(x => x.TreatmentPlanReference).HasMaxLength(DiagnosisRules.ReferenceMax);
+            e.Property(x => x.CodingSystem).HasMaxLength(10);
+            e.Property(x => x.Code).HasMaxLength(DiagnosisRules.CodeMax);
+            e.Property(x => x.Source).HasMaxLength(10).HasDefaultValue(DiagnosisSources.Manual);
+            e.Property(x => x.SourceNote).HasMaxLength(DiagnosisRules.SourceNoteMax);
+            e.Property(x => x.RegionKey).HasMaxLength(12);
             e.Property(x => x.Status).HasMaxLength(10);
             e.Property(x => x.Reason).HasMaxLength(500);
             e.HasOne<Diagnosis>().WithMany().HasForeignKey(x => x.DiagnosisId).OnDelete(DeleteBehavior.Restrict);
@@ -69,6 +86,20 @@ internal static class DiagnosisModel
                 t.HasTrigger("TR_DiagnosisVersions_Immutable");
                 t.HasCheckConstraint("CK_DiagnosisVersions_ChangeType", $"[ChangeType] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisChangeTypes.All)})");
                 t.HasCheckConstraint("CK_DiagnosisVersions_Status", $"[Status] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisStatuses.All)})");
+            });
+        });
+
+        modelBuilder.Entity<DiagnosisLink>(e =>
+        {
+            e.Property(x => x.LinkType).HasMaxLength(10);
+            e.HasOne<Diagnosis>().WithMany().HasForeignKey(x => x.DiagnosisId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.DiagnosisId, x.LinkType, x.TargetId }).IsUnique();
+            e.HasIndex(x => x.PatientId);
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_DiagnosisLinks_Immutable");
+                t.HasTrigger("TR_DiagnosisLinks_SamePatient");
+                t.HasCheckConstraint("CK_DiagnosisLinks_LinkType", $"[LinkType] COLLATE Latin1_General_CS_AS IN ({In(DiagnosisLinkTypes.All)})");
             });
         });
     }

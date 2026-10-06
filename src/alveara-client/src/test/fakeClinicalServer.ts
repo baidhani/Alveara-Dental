@@ -53,6 +53,11 @@ export class FakeClinicalServer extends FakePatientServer {
     super();
     this.permissions = ["ViewPatientRecords", "RegisterPatients", "EditPatients", "ViewClinicalDocumentation", "ManageClinicalNotes"];
     this.record.canConfigure = () => this.permissions.includes("ManageClinicalTemplates");
+    this.diagnoses.linkTargetOf = (type, id, patientId) => {
+      if (type === "Finding") { const f = this.odontogram.findings.get(id); return f && f.patientId === patientId ? `${this.odontogram.label(f.condition)} on tooth ${f.toothKey}${f.surface ? `, surface ${f.surface}` : ""}` : undefined; }
+      const c = this.perio.charts.find((x) => x.id === id && x.patientId === patientId);
+      return c ? `Periodontal chart of ${c.recordedAtUtc.slice(0, 10)}` : undefined;
+    };
     this.diagnoses.encounterOf = (id) => { const e = this.encounters.get(id); return e ? { patientId: e.patientId, at: e.at } : undefined; };
   }
 

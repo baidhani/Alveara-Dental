@@ -83,7 +83,7 @@ export class FakeOdontogramStore {
   bumpType(code: string) { this.types.get(code)!.v++; }
 
   // ---------- views ----------
-  private label(code: string) { return this.types.get(code)?.label ?? code; }
+  label(code: string) { return this.types.get(code)?.label ?? code; }
   private typeView(t: StoredType): ConditionType { const { v, events: _e, ...rest } = t; return { ...rest, rowVersion: `ctv${v}` }; }
   private view(f: StoredFinding): Finding {
     const { patientId: _p, v, withdrawnReason: _w, versions: _v, links, ...rest } = f;

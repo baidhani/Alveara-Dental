@@ -5,13 +5,14 @@ import { isNetworkFailure, newKey } from "../../services/clinicalApi";
 import type { EncounterSummary } from "../../services/clinicalApi";
 import { correctDiagnosis, diagnosisProblemsOf, recordDiagnosis } from "../../services/diagnosisApi";
 import type { Diagnosis, DiagnosisProblem } from "../../services/diagnosisApi";
-import { ALL_KEYS, LOWER_PERMANENT, UPPER_PERMANENT, displayTooth, toothName } from "../odontogram/toothNumbering";
 import type { NumberingSystem } from "../odontogram/toothNumbering";
+import { StructureFields, ToothSelect } from "./DiagnosisStructureFields";
+import { EMPTY_STRUCTURE, checkStructure, structureInputFromDraft } from "./diagnosisStructureRules";
+import type { StructureDraft } from "./diagnosisStructureRules";
 import { LABEL_MAX, NOTES_MAX, REFERENCE_MAX, checkDiagnosis, entryFromDraft } from "./diagnosisRules";
 import type { DiagnosisDraft } from "./diagnosisRules";
 
-const TEETH = [...UPPER_PERMANENT, ...LOWER_PERMANENT, ...ALL_KEYS.filter((k) => !UPPER_PERMANENT.includes(k) && !LOWER_PERMANENT.includes(k))];
-const FIELDS = ["encounterId", "label", "toothKey", "notes", "treatmentPlanReference", "reason"] as const;
+const FIELDS = ["encounterId", "label", "toothKey", "regionKey", "codingSystem", "code", "source", "sourceNote", "notes", "treatmentPlanReference", "reason"] as const;
 
 type PlanAction = "keep" | "replace" | "clear";
 
@@ -33,6 +34,8 @@ interface Props {
  * place with a link to its box and nothing is sent until they are put right; if the server refuses, it says what to correct the same way. Everything typed is kept through a refusal, a stale change and a
  * dropped connection. Each recording attempt carries a key that is kept while the entry is unchanged (a retry or double click cannot make two diagnoses) and renewed when anything changes.
  *
+ * ALV-013-C01: when recording, the form also takes the oral region (instead of a tooth), optional coding and the source; all optional, and checked with the same rules as the server.
+ *
  * The treatment-plan reference is a FORWARD reference: the form says it is a note of a plan to link later, not proof that a plan exists. When correcting, it is kept as it is unless the person chooses to
  * replace or remove it, and both choices ask for the reason that every correction needs.
  */
@@ -43,6 +46,7 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
   const uid = useId();
   const ids: Record<string, string> = Object.fromEntries(FIELDS.map((f) => [f, `${uid}-${f}`]));
   const [draft, setDraft] = useState<DiagnosisDraft>(initial);
+  const [structure, setStructure] = useState<StructureDraft>(EMPTY_STRUCTURE);
   const [planAction, setPlanAction] = useState<PlanAction>("keep");
   const [reason, setReason] = useState("");
   const [problems, setProblems] = useState<DiagnosisProblem[]>([]);
@@ -51,10 +55,20 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
   const attempt = useRef<{ key: string; signature: string } | null>(null);
   const summary = useRef<HTMLDivElement>(null);
 
-  const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(initial) || reason !== "" || planAction !== "keep", [draft, reason, planAction, initial]);
+  const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(initial) || JSON.stringify(structure) !== JSON.stringify(EMPTY_STRUCTURE) || reason !== "" || planAction !== "keep", [draft, structure, reason, planAction, initial]);
   useUnsavedChangesWarning(dirty && !correcting);
 
-  const set = (patch: Partial<DiagnosisDraft>) => { setDraft((d) => ({ ...d, ...patch })); setMessage(null); };
+  // a diagnosis is about one tooth or one region: choosing one clears the other
+  const set = (patch: Partial<DiagnosisDraft>) => {
+    setDraft((d) => ({ ...d, ...patch }));
+    if (patch.toothKey) setStructure((x) => ({ ...x, regionKey: "" }));
+    setMessage(null);
+  };
+  const setStruct = (patch: Partial<StructureDraft>) => {
+    setStructure((x) => ({ ...x, ...patch, ...(patch.source === "" ? { sourceNote: "" } : {}) }));
+    if (patch.regionKey) setDraft((d) => ({ ...d, toothKey: "" }));
+    setMessage(null);
+  };
 
   function refuse(found: DiagnosisProblem[], text: string) {
     setProblems(found);
@@ -69,9 +83,12 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
     const entry = entryFromDraft(correcting && planAction !== "replace" ? { ...draft, treatmentPlanReference: "" } : draft);
     const check = checkDiagnosis(entry);
     const found = [...check.problems];
+    const struct = correcting ? null : checkStructure(structureInputFromDraft(draft.toothKey, structure));
+    if (struct) found.push(...struct.problems);
     if (correcting && reason.trim() === "") found.push({ field: "reason", code: "required", message: "Say why this diagnosis is being corrected." });
     if (found.length > 0) return refuse(found, "Not saved: some entries need correcting. Nothing was sent.");
     const value = check.value!;
+    const parts = struct?.value;
 
     setBusy(true);
     try {
@@ -82,11 +99,12 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
         });
         onSaved(saved, "Diagnosis corrected.");
       } else {
-        const signature = JSON.stringify(value);
+        const signature = JSON.stringify([value, parts]);
         if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
-        const saved = await recordDiagnosis(patientId, attempt.current.key, value);
+        const saved = await recordDiagnosis(patientId, attempt.current.key, { ...value, codingSystem: parts!.codingSystem, code: parts!.code, source: parts!.source === "Manual" ? null : parts!.source, sourceNote: parts!.sourceNote, regionKey: parts!.regionKey });
         attempt.current = null;
         setDraft({ ...initial, encounterId: draft.encounterId });
+        setStructure(EMPTY_STRUCTURE);
         onSaved(saved, "Diagnosis recorded.");
       }
     } catch (err) {
@@ -101,6 +119,7 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
   }
 
   const bad = (field: string) => problems.filter((p) => p.field === field);
+  const helpers = { ids, invalid: (field: string) => (bad(field).length > 0 || undefined), describe: (field: string) => (bad(field).length > 0 ? `${ids[field]}-problem` : undefined) };
   const describe = (field: string) => (bad(field).length > 0 ? `${ids[field]}-problem` : undefined);
   const jump = (field: string) => document.getElementById(ids[field])?.focus();
 
@@ -127,12 +146,8 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
       <label htmlFor={ids.label}>Diagnosis
         <input id={ids.label} type="text" maxLength={LABEL_MAX + 50} value={draft.label} onChange={(e) => set({ label: e.target.value })} aria-invalid={bad("label").length > 0 || undefined} aria-describedby={describe("label")} />
       </label>
-      <label htmlFor={ids.toothKey}>Tooth (optional)
-        <select id={ids.toothKey} value={draft.toothKey} onChange={(e) => set({ toothKey: e.target.value })} aria-invalid={bad("toothKey").length > 0 || undefined} aria-describedby={describe("toothKey")}>
-          <option value="">Not about one tooth</option>
-          {TEETH.map((k) => <option key={k} value={k}>{displayTooth(k, numbering)} - {toothName(k)}</option>)}
-        </select>
-      </label>
+      <ToothSelect value={draft.toothKey} numbering={numbering} onChange={(k) => set({ toothKey: k })} {...helpers} />
+      {!correcting && <StructureFields value={structure} onChange={setStruct} {...helpers} />}
       <label htmlFor={ids.notes}>Notes (optional)
         <textarea id={ids.notes} rows={3} value={draft.notes} onChange={(e) => set({ notes: e.target.value })} aria-invalid={bad("notes").length > 0 || undefined} aria-describedby={describe("notes")} />
         <span className="alv-clinical__meta">{draft.notes.length} of {NOTES_MAX} characters</span>
@@ -171,4 +186,7 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
   );
 }
 
-const FIELD_LABELS: Record<string, string> = { encounterId: "Encounter", label: "Diagnosis", toothKey: "Tooth", notes: "Notes", treatmentPlanReference: "Treatment plan reference", reason: "Reason" };
+const FIELD_LABELS: Record<string, string> = {
+  encounterId: "Encounter", label: "Diagnosis", toothKey: "Tooth", regionKey: "Oral region", codingSystem: "Coding system", code: "Code", source: "Source", sourceNote: "Source note",
+  notes: "Notes", treatmentPlanReference: "Treatment plan reference", reason: "Reason",
+};

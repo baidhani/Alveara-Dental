@@ -381,3 +381,23 @@ refused, eight simultaneous saves making one and a dropped connection keeping wh
 kept; the audit log holding every record, correction and withdrawal with user and time and none of what was diagnosed; the hygienist recording, the assistant reading but refused (403), front desk and
 billing denied with no tab, anonymous callers 401 and a write without a CSRF token refused - then axe scans of the list, with problems shown, with a correction and the history open and the 768 px
 tablet layout (the page does not scroll sideways), in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+
+## ALV-013-C01: diagnosis structure walkthrough
+
+`e2e/diagnoses-structure-real-backend.spec.ts` is the un-mocked run for the companion. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:DIAGNOSES_STRUCTURE_E2E_OUT = "C:\tmp\diagnoses-structure-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.diagnoses-structure.config.ts
+```
+
+It creates two patients with real encounters, a real odontogram finding and a real periodontal chart each, and shows: a diagnosis with no coding stored as manual and uncoded; coding, source and region typed on
+screen stored, read back, listed, in the history and shown as chips (never as checked); incorrect structure refused on screen with every problem linked and nothing sent, and by the API naming each problem
+(including a request to mark the treatment-plan reference resolved); an amendment that asks why, keeps what it replaced with who, when and why and carries the plan reference through unresolved, and one that
+changes nothing being quiet; resolve and reactivate with a reason, the diagnosis staying on the list; links offered only from the patient's own findings and charts, a repeat adding nothing, another patient's
+record and a missing one refused in identical words; a stale amendment showing the conflict with what was typed kept, and a withdrawn diagnosis refusing every structural change; the audit log holding every new
+event with user and time and none of what was diagnosed or coded; the hygienist amending, the assistant reading but refused and shown no controls, front desk and billing denied, anonymous callers 401 and a write
+without a CSRF token refused; then axe scans with the forms open and the 768 px tablet layout, in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
+STORY-013's own walkthrough (`playwright.diagnoses.config.ts`) is the parent regression and is run separately.
