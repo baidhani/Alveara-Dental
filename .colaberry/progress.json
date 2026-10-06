@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 9,
+    "stories_verified": 10,
     "stories_submitted": 0,
-    "stories_in_progress": 10,
+    "stories_in_progress": 9,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 29,
-    "points_awarded": 2755
+    "criteria_passed": 32,
+    "points_awarded": 2797
   },
   "stories": [
     {
@@ -782,19 +782,15 @@
       "notes": "Structured diagnoses: a label, optional tooth and notes, recorded in one encounter of one patient (the encounter must be that patient's; the database refuses otherwise and the links never change). The treatment-plan link is an optional typed FORWARD REFERENCE only (opaque text, bounded, normalized, no foreign key, never looked up, always shown as unresolved): no treatment-plan domain, table, API or placeholder was built (owned by ALV-015-C01); it is kept through corrections and changed only by an explicit recorded act. Entry errors are refused with every problem listed and nothing saved (service, API, database checks; the screen prompts and keeps what was typed). Each record, correction and withdrawal is saved with its history version and a PHI-free audit entry (user and time) in one save. Diagnoses are never deleted; history is append-only (triggers 51071-51074). Idempotent by a per-patient key. Criteria flags were set before the final full sweep; see PROGRESS.md (CC-20261002-f7c1) for the verified numbers and docs/DIAGNOSES.md for limits.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a patient encounter, when a diagnosis is recorded, then it is linked to the patient and treatment plan.",
-          "Given a diagnosis entry error, when saved, then the system prompts for correction.",
-          "Trust: All diagnosis entries are logged with user ID and timestamp."
-        ]
+        "verified_at": "2026-10-06T04:46:10.339Z",
+        "commit_sha": "fd7e152e0833d36ea2ec8e3eeb7a6a236397b60e",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/fd7e152e0833d36ea2ec8e3eeb7a6a236397b60e",
+        "commit_at": "2026-10-06T04:09:19Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
