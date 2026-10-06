@@ -92,6 +92,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Periodontal.PerioSessionReading> PerioSessionReadings => Set<Architecture.Periodontal.PerioSessionReading>();
     public DbSet<Architecture.Periodontal.PerioSessionTooth> PerioSessionTeeth => Set<Architecture.Periodontal.PerioSessionTooth>();
     public DbSet<Architecture.Periodontal.PerioExamLink> PerioExamLinks => Set<Architecture.Periodontal.PerioExamLink>();
+    public DbSet<Architecture.Clinical.Diagnosis> Diagnoses => Set<Architecture.Clinical.Diagnosis>();
+    public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -481,6 +483,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         OdontogramModel.Configure(modelBuilder);
         PerioModel.Configure(modelBuilder);
         PerioSessionModel.Configure(modelBuilder);
+        DiagnosisModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

@@ -7,6 +7,7 @@ import { FakeClinicalRecordStore } from "./fakeClinicalRecordStore";
 import { FakeSafetyStore } from "./fakeSafetyStore";
 import { FakeOdontogramStore } from "./fakeOdontogramStore";
 import { FakePerioStore } from "./fakePerioStore";
+import { FakeDiagnosisStore } from "./fakeDiagnosisStore";
 
 /**
  * STORY-005: an in-memory stand-in for the clinical documentation API, on top of the fake patient server. It models the response SHAPES (same as
@@ -43,6 +44,8 @@ export class FakeClinicalServer extends FakePatientServer {
   odontogram = new FakeOdontogramStore();
   /** The periodontal charting endpoints (STORY-012): the Periodontal tab reads and saves through them. */
   perio = new FakePerioStore();
+  /** The diagnosis endpoints (STORY-013): the Diagnoses tab reads and saves through them. */
+  diagnoses = new FakeDiagnosisStore();
   /** A stand-in for another user changing an encounter behind the screen's back: bumps the version without touching the content. */
   touch(id: string) { this.encounters.get(id)!.v++; }
 
@@ -50,6 +53,7 @@ export class FakeClinicalServer extends FakePatientServer {
     super();
     this.permissions = ["ViewPatientRecords", "RegisterPatients", "EditPatients", "ViewClinicalDocumentation", "ManageClinicalNotes"];
     this.record.canConfigure = () => this.permissions.includes("ManageClinicalTemplates");
+    this.diagnoses.encounterOf = (id) => { const e = this.encounters.get(id); return e ? { patientId: e.patientId, at: e.at } : undefined; };
   }
 
   /** Puts a note on an encounter as if it had been saved (or, with `starter`, applied from a template). */
@@ -139,7 +143,8 @@ export class FakeClinicalServer extends FakePatientServer {
     const isSafety = /^\/api\/safety\//.test(path) || /^\/api\/patients\/[^/]+\/safety/.test(path);
     const isOdontogram = /^\/api\/odontogram\//.test(path) || /^\/api\/patients\/[^/]+\/odontogram/.test(path);
     const isPerio = /^\/api\/patients\/[^/]+\/periodontal/.test(path) || /^\/api\/periodontal\//.test(path);
-    const isClinical = isRecord || isSafety || isOdontogram || isPerio || path.startsWith("/api/encounters") || /^\/api\/patients\/[^/]+\/encounters/.test(path);
+    const isDiagnosis = /^\/api\/patients\/[^/]+\/diagnoses/.test(path) || /^\/api\/diagnoses\//.test(path);
+    const isClinical = isRecord || isSafety || isOdontogram || isPerio || isDiagnosis || path.startsWith("/api/encounters") || /^\/api\/patients\/[^/]+\/encounters/.test(path);
     if (!isClinical) return null;
     this.clinicalCalls.push({ method, url: u.pathname + u.search, headers, body });
     for (const [key, queue] of this.injectedClinical) {
@@ -150,7 +155,8 @@ export class FakeClinicalServer extends FakePatientServer {
       const [m, prefix] = key.split(" ");
       if (m === method && path.startsWith(prefix)) { this.gates.delete(key); await gate; break; }
     }
-    const response = isPerio ? (this.perio.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." }))
+    const response = isDiagnosis ? (this.diagnoses.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." }))
+      : isPerio ? (this.perio.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." }))
       : isOdontogram ? (this.odontogram.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
       : isSafety ? (this.safety.route(path, method, body) ?? json(404, { error: "not_found", message: "Not found." }))
       : isRecord ? (this.record.route(path, method, body, u) ?? json(404, { error: "not_found", message: "Not found." })) : this.route(path, method, headers, body);

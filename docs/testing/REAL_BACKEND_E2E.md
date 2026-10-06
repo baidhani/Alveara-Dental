@@ -359,3 +359,25 @@ reference and repeated quietly, and the chart in progress compared live; the aud
 hygienist charting, the assistant reading but refused (403) on every write, front desk and billing denied with no tab, anonymous callers 401 and a write without a CSRF token refused - then axe scans of the
 entry screen, with a problem shown, the comparison with every site listed and the 768 px tablet entry layout (the page does not scroll sideways), in light and dark. Like the other real-backend specs it is
 excluded from the default mocked `npm run test:e2e`. `perio-real-backend.spec.ts` (STORY-012) is run alongside it as the parent regression.
+
+## STORY-013: structured diagnoses walkthrough
+
+`e2e/diagnoses-real-backend.spec.ts` is the un-mocked run for structured diagnoses. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:DIAGNOSES_E2E_OUT = "C:\tmp\diagnoses-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.diagnoses.config.ts
+```
+
+It signs in as a dentist and a hygienist (with staff profiles, so attribution shows names), an assistant, a front-desk user, a billing user and the administrator, creates three patients, starts a real
+encounter for each through the clinical documentation API, and shows: no form and a reason when a patient has no encounter, then the form and an honest empty list (never "nothing is wrong") with the
+patient-safety strip in view; a diagnosis recorded for an encounter, linked to the patient and the encounter, the tooth stored as its FDI key whatever number is shown, and the treatment-plan reference
+normalized and shown as unresolved with the statement that it proves nothing; incorrect data refused on screen with every problem listed and linked, focus on the list and nothing sent, and the same
+mistakes refused by the API for any caller; an encounter of another patient and one that does not exist refused identically; a correction that keeps the reference unless it is explicitly replaced or removed,
+each with its reason and every value in the history; withdrawing with a reason, the diagnosis and its reference kept and shown on request; the same key returning one diagnosis, a different entry under it
+refused, eight simultaneous saves making one and a dropped connection keeping what was typed and making exactly one; a diagnosis changed by someone else shown as the conflict banner with the typed entry
+kept; the audit log holding every record, correction and withdrawal with user and time and none of what was diagnosed; the hygienist recording, the assistant reading but refused (403), front desk and
+billing denied with no tab, anonymous callers 401 and a write without a CSRF token refused - then axe scans of the list, with problems shown, with a correction and the history open and the 768 px
+tablet layout (the page does not scroll sideways), in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.

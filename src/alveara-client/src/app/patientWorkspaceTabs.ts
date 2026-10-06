@@ -29,4 +29,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "odontogram", label: "Odontogram", path: "odontogram", requiredPermission: "ViewClinicalDocumentation" },
   // STORY-012: periodontal charting (probing depth, recession, bleeding); the same roles that read clinical documentation.
   { id: "perio", label: "Periodontal", path: "periodontal", requiredPermission: "ViewClinicalDocumentation" },
+  // STORY-013: structured diagnoses linked to the patient and an encounter, with an optional unresolved treatment-plan reference; the same roles that read clinical documentation.
+  { id: "diagnoses", label: "Diagnoses", path: "diagnoses", requiredPermission: "ViewClinicalDocumentation" },
 ];

@@ -19,7 +19,7 @@ import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientEncounterTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientEncounterTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
@@ -199,6 +199,7 @@ function createAppRouter() {
             <Route path="safety" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientSafetyTab /></RequirePermission>} />
             <Route path="odontogram" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientOdontogramTab /></RequirePermission>} />
             <Route path="periodontal" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientPerioTab /></RequirePermission>} />
+            <Route path="diagnoses" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientDiagnosesTab /></RequirePermission>} />
             <Route path="clinical/templates" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTemplatesTab /></RequirePermission>} />
             <Route path="clinical/:encounterId" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientEncounterTab /></RequirePermission>} />
           </Route>

@@ -87,6 +87,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Odontogram.OdontogramService
 builder.Services.AddScoped<Alveara.Api.Architecture.Periodontal.PerioService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Periodontal.PerioSessionService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Periodontal.PerioComparisonService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Clinical.DiagnosisService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Odontogram.ConditionTypeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Safety.ClearanceService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentScheduler>();

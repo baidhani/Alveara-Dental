@@ -728,20 +728,58 @@
       "criteria": [
         {
           "text": "Given a patient encounter, when a diagnosis is recorded, then it is linked to the patient and treatment plan.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a diagnosis entry error, when saved, then the system prompts for correction.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All diagnosis entries are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Clinical/Diagnosis.cs",
+        "src/Alveara.Api/Architecture/Clinical/DiagnosisRules.cs",
+        "src/Alveara.Api/Architecture/Clinical/DiagnosisService.cs",
+        "src/Alveara.Api/Architecture/Clinical/DiagnosisViews.cs",
+        "src/Alveara.Api/Controllers/DiagnosesController.cs",
+        "src/Alveara.Api/Data/DiagnosisModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261006001202_AddDiagnoses.cs",
+        "src/Alveara.Api/Migrations/20261006001202_AddDiagnoses.Designer.cs",
+        "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+        "src/alveara-client/src/services/diagnosisApi.ts",
+        "src/alveara-client/src/pages/diagnosis/DiagnosesPanel.tsx",
+        "src/alveara-client/src/pages/diagnosis/DiagnosisForm.tsx",
+        "src/alveara-client/src/pages/diagnosis/DiagnosisItem.tsx",
+        "src/alveara-client/src/pages/diagnosis/diagnosisRules.ts",
+        "src/alveara-client/src/pages/diagnosis/Diagnosis.css",
+        "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/playwright.diagnoses.config.ts",
+        "src/alveara-client/playwright.config.ts",
+        "docs/DIAGNOSES.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        ".colaberry/enrichment/STORY-013.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/DiagnosisRulesTests.cs",
+        "src/Alveara.Api.Tests/DiagnosisSchemaTests.cs",
+        "src/Alveara.Api.Tests/DiagnosisServiceTests.cs",
+        "src/Alveara.Api.Tests/DiagnosisApiTests.cs",
+        "src/alveara-client/src/Diagnoses.test.tsx",
+        "src/alveara-client/src/DiagnosisApi.test.ts",
+        "src/alveara-client/src/pages/diagnosis/diagnosisRules.test.ts",
+        "src/alveara-client/src/test/fakeDiagnosisStore.ts",
+        "src/alveara-client/src/test/fakeClinicalServer.ts",
+        "src/alveara-client/src/App.patientWorkspaceRoutes.test.tsx",
+        "src/alveara-client/e2e/diagnoses-real-backend.spec.ts"
+      ],
+      "notes": "Structured diagnoses: a label, optional tooth and notes, recorded in one encounter of one patient (the encounter must be that patient's; the database refuses otherwise and the links never change). The treatment-plan link is an optional typed FORWARD REFERENCE only (opaque text, bounded, normalized, no foreign key, never looked up, always shown as unresolved): no treatment-plan domain, table, API or placeholder was built (owned by ALV-015-C01); it is kept through corrections and changed only by an explicit recorded act. Entry errors are refused with every problem listed and nothing saved (service, API, database checks; the screen prompts and keeps what was typed). Each record, correction and withdrawal is saved with its history version and a PHI-free audit entry (user and time) in one save. Diagnoses are never deleted; history is append-only (triggers 51071-51074). Idempotent by a per-patient key. Criteria flags were set before the final full sweep; see PROGRESS.md (CC-20261002-f7c1) for the verified numbers and docs/DIAGNOSES.md for limits.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-013",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-05T16:00:00Z",
+  "sourceCommitSha": "0b4e6bf",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A diagnosis is a required label (1 to 200 characters, one line) with an optional tooth (stored as its FDI key), optional notes (up to 1,000 characters) and an optional treatment-plan reference, recorded for one patient in one of that patient's encounters. Status is Active or Withdrawn; every record, correction and withdrawal appends a full snapshot to an append-only history.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/Diagnosis.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "The treatment-plan link is an optional opaque forward reference (trimmed, whitespace collapsed, up to 100 characters, never blank). It is not a foreign key, is never looked up, and is reported as 'Unresolved' whenever present. No treatment-plan table, API or record exists.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/DiagnosisRules.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Anyone who may read clinical documentation (dentist, hygienist, assistant, admin) can see diagnoses and their history; roles that manage clinical notes (dentist, hygienist, admin) can record, correct and withdraw. The assistant reads but is refused (403) on writes; front desk and billing cannot see the tab and are refused (403); anonymous callers get 401 and writes without a CSRF token are refused.",
+      "evidence": "src/Alveara.Api.Tests/DiagnosisApiTests.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "The Diagnoses tab of the patient workspace lists a patient's diagnoses newest first with the encounter, tooth, notes, who recorded each and when, and the treatment-plan reference labelled unresolved with a statement that it does not mean a plan exists. Each diagnosis opens to its history. An empty list says none has been recorded, and a failed load says so.",
+      "evidence": "src/alveara-client/src/Diagnoses.test.tsx"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Incorrect diagnosis data is refused with every problem listed (field, stable code, message) and nothing saved: missing or other-patient encounter, blank or control-character or over-long label, unknown tooth, over-long notes, blank or over-long reference, a missing correction reason, replacing and clearing the reference together. The screen checks the same rules first, links each problem to its box and keeps what was typed; the database repeats the checks.",
+      "evidence": "src/Alveara.Api.Tests/DiagnosisServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every record, correction and withdrawal is written to the audit log with the signed-in user and a timestamp in the same save as the diagnosis and its history version, so a failed log write stores nothing and the person is told. Audit text carries no label, tooth, notes or reference.",
+      "evidence": "src/Alveara.Api.Tests/DiagnosisServiceTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "A diagnosis can never be deleted (trigger 51071), its history is append-only (51072), its patient, encounter and origin never change (51073) and its encounter must belong to its patient (51074). Recording is idempotent per patient by key; the same key with a different entry is refused with 409.",
+      "evidence": "src/Alveara.Api.Tests/DiagnosisSchemaTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "The treatment-plan link is stored as an optional typed forward reference and not as a plan record or foreign key.",
+      "rationale": "Treatment plans do not exist yet and their domain belongs to ALV-015-C01; the reference satisfies the linkage requirement without claiming a plan exists, and can be reconciled later.",
+      "evidence": "docs/DIAGNOSES.md"
+    },
+    {
+      "statement": "The reference changes only by an explicit, recorded act: a correction that omits it keeps it, a value replaces it, and a separate clear flag removes it; every value stays in the history with the reason.",
+      "rationale": "A correction that merely left the field out must never silently drop or replace a link.",
+      "evidence": "src/Alveara.Api/Architecture/Clinical/DiagnosisService.cs"
+    },
+    {
+      "statement": "A diagnosis is never deleted; a wrong one is corrected or withdrawn with a reason and stays in the record.",
+      "rationale": "The trust criterion requires every entry to be logged with user and time; deleting would erase clinical history.",
+      "evidence": "src/Alveara.Api/Data/DiagnosisModel.cs"
+    },
+    {
+      "statement": "Diagnoses may be recorded against finalized encounters, and an encounter of another patient is refused identically to a missing one.",
+      "rationale": "A diagnosis is its own record with its own history and does not alter the encounter notes; identical refusals avoid revealing other patients' encounters.",
+      "evidence": "src/Alveara.Api.Tests/DiagnosisApiTests.cs"
+    },
+    {
+      "statement": "Reading and writing reuse the existing clinical-documentation permissions; no role matrix changed.",
+      "rationale": "Diagnoses are clinical documentation and the existing boundary already matches the story's actors.",
+      "evidence": "src/Alveara.Api/Controllers/DiagnosesController.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "No coding system: a diagnosis is a free-text label; codes, provenance and a structured lifecycle are left to ALV-013-C01.",
+      "evidence": "docs/DIAGNOSES.md"
+    },
+    {
+      "statement": "The treatment-plan reference is never resolved or validated against a plan; reconciliation is left to ALV-015-C01.",
+      "evidence": "docs/DIAGNOSES.md"
+    },
+    {
+      "statement": "Status is Active or Withdrawn only, one tooth per diagnosis, and a diagnosis cannot be moved to another encounter.",
+      "evidence": "docs/DIAGNOSES.md"
+    },
+    {
+      "statement": "A diagnosis needs an existing encounter; none can be started from the Diagnoses screen.",
+      "evidence": "src/alveara-client/src/pages/diagnosis/DiagnosesPanel.tsx"
+    },
+    {
+      "statement": "Hygienists can record diagnoses because they hold the clinical-notes permission.",
+      "evidence": "docs/DIAGNOSES.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/DiagnosisRulesTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/DiagnosisSchemaTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/DiagnosisServiceTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/DiagnosisApiTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/Diagnoses.test.tsx"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/DiagnosisApi.test.ts"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/pages/diagnosis/diagnosisRules.test.ts"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/diagnoses-real-backend.spec.ts"
+    }
+  ],
+  "measurementEvents": []
+}
