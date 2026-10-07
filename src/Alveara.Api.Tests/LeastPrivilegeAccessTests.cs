@@ -55,20 +55,70 @@ public class LeastPrivilegeAccessTests : IClassFixture<TestDatabaseFixture>, IAs
         _restrictedConnectionString = builder.ConnectionString;
     }
 
+    /// <summary>The exact server login this instance created (used by LeastPrivilegeLoginCleanupTests to prove it is gone after cleanup).</summary>
+    internal string LoginName => _loginName;
+
+    /// <summary>The connection string of the restricted login (used by LeastPrivilegeLoginCleanupTests to leave pooled sessions behind).</summary>
+    internal string RestrictedConnectionString => _restrictedConnectionString;
+
+    /// <summary>Test-only: replaces the wait between drop attempts so a test can release a held session at exactly that moment.</summary>
+    internal Func<TimeSpan, Task> DelayForTest { get; set; } = Task.Delay;
+
+    /// <summary>TESTSPEED-P2: at most this many attempts to drop the login while a session of it is still closing.</summary>
+    internal const int MaxLoginDropAttempts = 5;
+
+    /// <summary>SQL Server 15434: "Could not drop login ... as the user is currently logged in".</summary>
+    private const int LoginStillLoggedInError = 15434;
+
+    /// <summary>
+    /// Releases the pooled sessions that belong to the restricted login. They are what kept the login "currently logged in" and made DROP LOGIN fail (a failure the old cleanup swallowed, leaking
+    /// two server logins per run). Both forms of connection used by the tests are cleared: the one EF builds and the one built directly from the string, which do not share a pool.
+    /// </summary>
+    private void ReleaseRestrictedPools()
+    {
+        if (_restrictedConnectionString.Length == 0) return;
+
+        using (var direct = new SqlConnection(_restrictedConnectionString)) SqlConnection.ClearPool(direct);
+
+        var options = new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(_restrictedConnectionString).Options;
+        using var viaEf = new AlveraDbContext(options);
+        SqlConnection.ClearPool((SqlConnection)viaEf.Database.GetDbConnection());
+    }
+
+    /// <summary>
+    /// Removes the user and the server login and PROVES it: a drop that fails is retried a bounded number of times only for the "still logged in" error (the pooled session is closed
+    /// asynchronously), any other failure, or the same failure after the last attempt, is thrown (never swallowed), and the login must be absent from sys.server_principals afterwards.
+    /// </summary>
     public async Task DisposeAsync()
     {
-        try
+        ReleaseRestrictedPools();
+
+        await using var admin = new SqlConnection(_fixture.ConnectionString);
+        await admin.OpenAsync();
+
+        for (var attempt = 1; ; attempt++)
         {
-            await using var admin = new SqlConnection(_fixture.ConnectionString);
-            await admin.OpenAsync();
-            await using var cmd = admin.CreateCommand();
-            cmd.CommandText = $"DROP USER IF EXISTS [{_loginName}]; DROP LOGIN IF EXISTS [{_loginName}];";
-            await cmd.ExecuteNonQueryAsync();
+            try
+            {
+                await using var drop = admin.CreateCommand();
+                // DROP LOGIN has no IF EXISTS form (T-SQL rejects it with "Incorrect syntax near the keyword 'IF'"); the old cleanup used it, so the whole batch failed every time and the swallowed
+                // error hid that the login was never dropped.
+                drop.CommandText = $"DROP USER IF EXISTS [{_loginName}]; IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'{_loginName}') DROP LOGIN [{_loginName}];";
+                await drop.ExecuteNonQueryAsync();
+                break;
+            }
+            catch (SqlException ex) when (ex.Number == LoginStillLoggedInError && attempt < MaxLoginDropAttempts)
+            {
+                ReleaseRestrictedPools();
+                await DelayForTest(TimeSpan.FromMilliseconds(100));
+            }
         }
-        catch
-        {
-            // Best-effort cleanup.
-        }
+
+        await using var check = admin.CreateCommand();
+        check.CommandText = "SELECT COUNT(*) FROM sys.server_principals WHERE name = @name";
+        check.Parameters.AddWithValue("@name", _loginName);
+        var remaining = (int)(await check.ExecuteScalarAsync())!;
+        if (remaining != 0) throw new InvalidOperationException($"The server login {_loginName} is still present after cleanup.");
     }
 
     [Fact]
