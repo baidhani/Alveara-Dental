@@ -23,8 +23,17 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
     /// <summary>TESTSPEED-P2: at most this many attempts in total (the first try plus three retries) for the drop.</summary>
     internal const int MaxDropAttempts = 4;
 
-    /// <summary>Waits before retry 1, 2 and 3.</summary>
+    /// <summary>TESTSPEED-P2: at most this many attempts in total (the first try plus two retries) for the creation and migration of the database.</summary>
+    internal const int MaxInitializationAttempts = 3;
+
+    /// <summary>Waits before drop retry 1, 2 and 3.</summary>
     internal static readonly TimeSpan[] DropRetryDelays = [TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(750)];
+
+    /// <summary>Waits before initialisation retry 1 and 2: none, because the cleanup that runs first takes longer than the race it recovers from.</summary>
+    internal static readonly TimeSpan[] InitializationRetryDelays = [TimeSpan.Zero, TimeSpan.Zero];
+
+    /// <summary>The start of the message SqlClient uses for its pool-acquisition timeout (whitespace normalised before comparing).</summary>
+    private const string PoolAcquisitionTimeoutPrefix = "Timeout expired. The timeout period elapsed prior to obtaining a connection from the pool.";
 
     private readonly string _databaseName = $"AlveraTest_{Guid.NewGuid():N}";
 
@@ -32,21 +41,30 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
     private readonly Func<Task>? _beforeCreateForTest;
     private readonly Func<Task>? _afterMigrateForTest;
     private readonly Func<string, Task>? _cleanupDropForTest;
+    private readonly Func<Task>? _beforeMasterOpenForTest;
+    private readonly Func<TimeSpan, Task> _delay;
     private readonly TextWriter _log;
 
     public string ConnectionString { get; private set; } = string.Empty;
 
     public TestDatabaseFixture()
     {
+        _delay = Task.Delay;
         _log = Console.Error;
     }
 
-    /// <summary>Test-only: lets TestDatabaseInitFailureCleanupTests force a failure before the database is created or after it is migrated, replace the cleanup drop, and capture the log.</summary>
-    internal TestDatabaseFixture(Func<Task>? beforeCreateForTest = null, Func<Task>? afterMigrateForTest = null, Func<string, Task>? cleanupDropForTest = null, TextWriter? logForTest = null)
+    /// <summary>
+    /// Test-only: lets the remediation tests force a failure before the database is created or after it is migrated (both hooks run on EVERY attempt), fail the opening of the master connection
+    /// that every drop starts with, replace the cleanup drop, record the waits instead of sleeping, and capture the log.
+    /// </summary>
+    internal TestDatabaseFixture(Func<Task>? beforeCreateForTest = null, Func<Task>? afterMigrateForTest = null, Func<string, Task>? cleanupDropForTest = null, TextWriter? logForTest = null,
+        Func<Task>? beforeMasterOpenForTest = null, Func<TimeSpan, Task>? delayForTest = null)
     {
         _beforeCreateForTest = beforeCreateForTest;
         _afterMigrateForTest = afterMigrateForTest;
         _cleanupDropForTest = cleanupDropForTest;
+        _beforeMasterOpenForTest = beforeMasterOpenForTest;
+        _delay = delayForTest ?? Task.Delay;
         _log = logForTest ?? Console.Error;
     }
 
@@ -54,18 +72,24 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
     {
         ConnectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={_databaseName};Trusted_Connection=True;TrustServerCertificate=True";
 
+        var options = new DbContextOptionsBuilder<AlveraDbContext>()
+            .UseSqlServer(ConnectionString)
+            .Options;
+
         try
         {
-            if (_beforeCreateForTest is not null) await _beforeCreateForTest();
+            // SqlClient prunes empty connection pools from a timer; if a tick lands while EF polls for the database it has just created (the pool of this connection string is still empty), the open
+            // fails with the pool-acquisition timeout message (see IsPoolAcquisitionTimeout). Nothing durable is lost by that, so creation is retried a bounded number of times, each retry after
+            // removing the half-created database; when the attempts run out the FIRST failure is rethrown unchanged.
+            await RunWithTransientRetryAsync(async () =>
+            {
+                if (_beforeCreateForTest is not null) await _beforeCreateForTest();
 
-            var options = new DbContextOptionsBuilder<AlveraDbContext>()
-                .UseSqlServer(ConnectionString)
-                .Options;
+                await using var db = new AlveraDbContext(options);
+                await db.Database.MigrateAsync();
 
-            await using var db = new AlveraDbContext(options);
-            await db.Database.MigrateAsync();
-
-            if (_afterMigrateForTest is not null) await _afterMigrateForTest();
+                if (_afterMigrateForTest is not null) await _afterMigrateForTest();
+            }, IsPoolAcquisitionTimeout, "initialisation", _databaseName, MaxInitializationAttempts, InitializationRetryDelays, _delay, _log, CleanUpFailedInitializationAsync);
         }
         catch
         {
@@ -117,30 +141,46 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
     internal static bool IsDeadlock(Exception exception) => exception is SqlException { Number: DeadlockErrorNumber };
 
     /// <summary>
-    /// TESTSPEED-P2: the drop (<c>ALTER DATABASE ... SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE ...</c>) can be chosen as the victim of a deadlock with an EF Core session of a
-    /// still-running in-process host that is inside the same database (deadlock graphs in the Gate 2 root-cause evidence). Only that error is retried.
+    /// TESTSPEED-P2: true for the <see cref="InvalidOperationException"/> SqlClient throws when a connection cannot be obtained from a pool ("Timeout expired. The timeout period elapsed prior to
+    /// obtaining a connection from the pool ..."). Investigated cause: SqlClient 7.0.0's pool-pruning timer shuts down an empty pool while a caller is acquiring a connection from it, and the
+    /// caller gets this same message at once ("Pool is shutting down; abandoning wait"). LIMIT: the message is shared with genuine pool exhaustion, so this classifier can also match that; a
+    /// bounded retry of a real exhaustion fails again and the first exception is then rethrown, so nothing is hidden.
+    /// </summary>
+    internal static bool IsPoolAcquisitionTimeout(Exception exception) =>
+        exception is InvalidOperationException && string.Join(' ', exception.Message.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).StartsWith(PoolAcquisitionTimeoutPrefix, StringComparison.Ordinal);
+
+    /// <summary>What the drop retries: the deadlock of the Gate 2 root-cause evidence and the pool-acquisition timeout (the drop opens a connection to master first, which can hit the same pool race).</summary>
+    internal static bool IsTransientDropFailure(Exception exception) => IsDeadlock(exception) || IsPoolAcquisitionTimeout(exception);
+
+    /// <summary>
+    /// The drop (<c>ALTER DATABASE ... SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE ...</c>), retried as a WHOLE (opening the master connection included) on the failures of
+    /// <see cref="IsTransientDropFailure"/>. The batch itself is unchanged.
     /// </summary>
     private async Task DropDatabaseAsync(bool onlyIfExists)
     {
         var statement = $"ALTER DATABASE [{_databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{_databaseName}];";
         if (onlyIfExists) statement = $"IF DB_ID(N'{_databaseName}') IS NOT NULL BEGIN {statement} END";
 
-        await RunWithDeadlockRetryAsync(async () =>
+        await RunWithTransientRetryAsync(async () =>
         {
+            if (_beforeMasterOpenForTest is not null) await _beforeMasterOpenForTest();
+
             await using var connection = new SqlConnection(MasterConnectionString);
             await connection.OpenAsync();
             await using var command = connection.CreateCommand();
             command.CommandText = statement;
             await command.ExecuteNonQueryAsync();
-        }, IsDeadlock, _databaseName, Task.Delay, _log);
+        }, IsTransientDropFailure, "drop", _databaseName, MaxDropAttempts, DropRetryDelays, _delay, _log, beforeRetry: null);
     }
 
     /// <summary>
-    /// The retry loop: at most <see cref="MaxDropAttempts"/> attempts in total, waiting <see cref="DropRetryDelays"/> between them, every retry logged (database name and error code only, never a
-    /// connection string). When the last attempt also fails with a retryable error, the FIRST (original) exception is rethrown unchanged, so the failure looks exactly as it did before the retry
-    /// existed. Anything the predicate does not accept propagates at once.
+    /// The bounded retry loop: at most <paramref name="maxAttempts"/> attempts in total, waiting <paramref name="delays"/> between them (a zero wait is not slept), <paramref name="beforeRetry"/> (if any)
+    /// run after each failed attempt and before the next one, every retry logged (operation, database name, attempt numbers and a safe failure classification only; never a connection string).
+    /// When the last attempt also fails with a retryable error, the FIRST (original) exception is rethrown unchanged (same object), so the failure looks exactly as it did before the retry
+    /// existed. A failure <paramref name="isRetryable"/> does not accept propagates at once.
     /// </summary>
-    internal static async Task RunWithDeadlockRetryAsync(Func<Task> operation, Func<Exception, bool> isRetryable, string database, Func<TimeSpan, Task> delay, TextWriter log)
+    internal static async Task RunWithTransientRetryAsync(Func<Task> operation, Func<Exception, bool> isRetryable, string operationName, string database, int maxAttempts, TimeSpan[] delays,
+        Func<TimeSpan, Task> delay, TextWriter log, Func<Task>? beforeRetry)
     {
         ExceptionDispatchInfo? original = null;
         for (var attempt = 1; ; attempt++)
@@ -153,16 +193,17 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
             catch (Exception ex) when (isRetryable(ex))
             {
                 original ??= ExceptionDispatchInfo.Capture(ex);
-                var code = ex is SqlException sql ? $"SQL {sql.Number}" : ex.GetType().Name;
-                if (attempt >= MaxDropAttempts)
+                var code = ex is SqlException sql ? $"SQL {sql.Number}" : IsPoolAcquisitionTimeout(ex) ? "pool acquisition timeout" : ex.GetType().Name;
+                if (attempt >= maxAttempts)
                 {
-                    log.WriteLine($"[TestDatabaseFixture] drop of {database} hit {code} (attempt {attempt} of {MaxDropAttempts}); giving up after {MaxDropAttempts} attempts.");
+                    log.WriteLine($"[TestDatabaseFixture] {operationName} of {database} hit {code} (attempt {attempt} of {maxAttempts}); giving up after {maxAttempts} attempts.");
                     original.Throw();
                 }
 
-                var wait = DropRetryDelays[attempt - 1];
-                log.WriteLine($"[TestDatabaseFixture] drop of {database} hit {code} (attempt {attempt} of {MaxDropAttempts}); retrying in {wait.TotalMilliseconds:0} ms.");
-                await delay(wait);
+                var wait = delays[attempt - 1];
+                log.WriteLine($"[TestDatabaseFixture] {operationName} of {database} hit {code} (attempt {attempt} of {maxAttempts}); retrying in {wait.TotalMilliseconds:0} ms.");
+                if (beforeRetry is not null) await beforeRetry();
+                if (wait > TimeSpan.Zero) await delay(wait);
             }
         }
     }

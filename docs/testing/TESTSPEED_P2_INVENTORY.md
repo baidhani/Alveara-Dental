@@ -46,4 +46,4 @@ Totals from the CSV: 126 test classes = **20 SERIAL** (148 tests, 7.0 min of bas
 
 
 ## 6. Addendum (remediation, after Gate 1 approval)
-Two test classes were added by the approved remediation (`TestDatabaseDeadlockRetryTests`, 7 tests, and `TestDatabaseInitFailureCleanupTests`, 4 tests) and are **SERIAL** (collection `serial-server`): one engineers a real LocalDB deadlock, the other forces initialisation failures and counts databases on the shared server. Totals now: 128 test classes (22 SERIAL, 106 PARALLEL_SAFE), 2,265 discovered cases. The Gate 1 rows above are unchanged.
+Two test classes were added by the approved remediation (`TestDatabaseTransientRetryTests`, 9 tests, and `TestDatabaseInitFailureCleanupTests`, 12 tests) and are **SERIAL** (collection `serial-server`): one engineers a real LocalDB deadlock, the other forces initialisation failures and counts databases on the shared server. Totals now: 128 test classes (22 SERIAL, 106 PARALLEL_SAFE), 2,275 discovered cases. The Gate 1 rows above are unchanged.

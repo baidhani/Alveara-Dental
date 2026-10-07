@@ -5,12 +5,12 @@ using Xunit;
 namespace Alveara.Api.Tests;
 
 /// <summary>
-/// TESTSPEED-P2 remediation: the bounded retry around the fixture's database drop (SQL error 1205 only). The loop is tested with ordinary controlled exceptions and a predicate (no SqlException
+/// TESTSPEED-P2 remediation: the bounded retry helper behind the fixture's drop (SQL error 1205 and the pool-acquisition timeout) and initialisation. The loop is tested with ordinary controlled exceptions and a predicate (no SqlException
 /// construction, no reflection) plus one real, engineered LocalDB deadlock that proves an actual error 1205 is classified correctly. No test asserts on elapsed time: the delay function is a
 /// recorder. In the serial collection: the real-deadlock test works on a database of its own through master-level cleanup.
 /// </summary>
 [Collection(ParallelismCollections.SerialServer)]
-public class TestDatabaseDeadlockRetryTests
+public class TestDatabaseTransientRetryTests
 {
     private sealed class FakeTransientException(string message) : Exception(message);
 
@@ -34,7 +34,7 @@ public class TestDatabaseDeadlockRetryTests
         };
 
         public Task RunAsync(Func<Task> operation, Func<Exception, bool> isRetryable) =>
-            TestDatabaseFixture.RunWithDeadlockRetryAsync(operation, isRetryable, "AlveraTest_demo", DelayAsync, Log);
+            TestDatabaseFixture.RunWithTransientRetryAsync(operation, isRetryable, "drop", "AlveraTest_demo", TestDatabaseFixture.MaxDropAttempts, TestDatabaseFixture.DropRetryDelays, DelayAsync, Log, beforeRetry: null);
 
         public string[] Lines => Log.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
     }
@@ -128,6 +128,27 @@ public class TestDatabaseDeadlockRetryTests
         {
             await fixture.DisposeAsync();
         }
+    }
+
+    private const string RealPoolTimeoutMessage = "Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.  This may have occurred because all pooled connections were in use and max pool size was reached.";
+
+    [Fact]
+    public void The_pool_acquisition_classifier_matches_only_the_SqlClient_pool_timeout_message()
+    {
+        Assert.True(TestDatabaseFixture.IsPoolAcquisitionTimeout(new InvalidOperationException(RealPoolTimeoutMessage)));
+        Assert.True(TestDatabaseFixture.IsPoolAcquisitionTimeout(new InvalidOperationException(RealPoolTimeoutMessage.Replace("  ", " "))));      // whitespace-insensitive
+        Assert.False(TestDatabaseFixture.IsPoolAcquisitionTimeout(new InvalidOperationException("Timeout expired.")));                           // another timeout
+        Assert.False(TestDatabaseFixture.IsPoolAcquisitionTimeout(new InvalidOperationException("The connection pool has been exhausted.")));
+        Assert.False(TestDatabaseFixture.IsPoolAcquisitionTimeout(new TimeoutException(RealPoolTimeoutMessage)));                                // same text, wrong type
+        Assert.False(TestDatabaseFixture.IsPoolAcquisitionTimeout(new IOException(RealPoolTimeoutMessage)));
+    }
+
+    [Fact]
+    public void The_drop_retries_the_deadlock_and_the_pool_timeout_and_nothing_else()
+    {
+        Assert.True(TestDatabaseFixture.IsTransientDropFailure(new InvalidOperationException(RealPoolTimeoutMessage)));
+        Assert.False(TestDatabaseFixture.IsTransientDropFailure(new InvalidOperationException("not it")));
+        Assert.False(TestDatabaseFixture.IsTransientDropFailure(new IOException("disk")));
     }
 
     [Fact]

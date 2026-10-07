@@ -107,4 +107,173 @@ public class TestDatabaseInitFailureCleanupTests
         }
         Assert.False(await ExistsAsync(DatabaseOf(fixture)));
     }
+
+    // ---------- TESTSPEED-P2 Mode B: bounded retry of the initialisation and of the drop on the pool-acquisition timeout ----------
+
+    private const string PoolTimeoutMessage = "Timeout expired.  The timeout period elapsed prior to obtaining a connection from the pool.  This may have occurred because all pooled connections were in use and max pool size was reached.";
+
+    private static InvalidOperationException PoolTimeout(string tag) => new($"{PoolTimeoutMessage} [{tag}]");
+
+    [Fact]
+    public async Task A_pool_timeout_on_the_first_attempt_is_retried_after_a_cleanup_and_the_second_attempt_succeeds()
+    {
+        var events = new List<string>();
+        var attempts = 0;
+        var waits = new List<TimeSpan>();
+        var log = new StringWriter();
+        var fixture = new TestDatabaseFixture(
+            beforeCreateForTest: () => { events.Add($"attempt{++attempts}"); return attempts == 1 ? Task.FromException(PoolTimeout("first")) : Task.CompletedTask; },
+            cleanupDropForTest: _ => { events.Add("cleanup"); return Task.CompletedTask; },
+            logForTest: log, delayForTest: w => { waits.Add(w); return Task.CompletedTask; });
+
+        await fixture.InitializeAsync();                                                             // no exception: the retry recovered
+        try
+        {
+            Assert.Equal(["attempt1", "cleanup", "attempt2"], events);                               // cleanup runs between the attempts
+            Assert.True(await ExistsAsync(DatabaseOf(fixture)));
+            Assert.Empty(waits);                                                                     // zero waits are not slept
+            Assert.Contains("initialisation of", log.ToString());
+            Assert.Contains("pool acquisition timeout (attempt 1 of 3)", log.ToString());
+            Assert.DoesNotContain("Server=", log.ToString());
+        }
+        finally
+        {
+            await fixture.DisposeAsync();
+        }
+        Assert.False(await ExistsAsync(DatabaseOf(fixture)));
+    }
+
+    [Fact]
+    public async Task A_database_created_by_a_failed_attempt_is_really_removed_before_the_retry_creates_it_again()
+    {
+        var before = await FixtureDatabasesAsync();
+        var attempts = 0;
+        var log = new StringWriter();
+        var fixture = new TestDatabaseFixture(afterMigrateForTest: () => ++attempts == 1 ? Task.FromException(PoolTimeout("after migrate")) : Task.CompletedTask, logForTest: log);
+
+        await fixture.InitializeAsync();                                                             // real cleanup (real drop), then a real second creation under the same name
+        try
+        {
+            Assert.Equal(2, attempts);
+            Assert.True(await ExistsAsync(DatabaseOf(fixture)));
+            Assert.Equal(before + 1, await FixtureDatabasesAsync());                                 // exactly one database exists for this fixture: the first attempt's was removed
+            Assert.Single(log.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries), l => l.Contains("was removed"));
+        }
+        finally
+        {
+            await fixture.DisposeAsync();
+        }
+        Assert.Equal(before, await FixtureDatabasesAsync());
+    }
+
+    [Fact]
+    public async Task When_every_attempt_hits_the_pool_timeout_the_first_exception_is_rethrown_after_exactly_three_attempts_and_nothing_is_left_behind()
+    {
+        var before = await FixtureDatabasesAsync();
+        var attempts = 0;
+        InvalidOperationException? first = null;
+        var fixture = new TestDatabaseFixture(
+            afterMigrateForTest: () => { var ex = PoolTimeout($"attempt {++attempts}"); first ??= ex; return Task.FromException(ex); },
+            logForTest: new StringWriter());
+        // the real cleanup drop is used here, so a leak would show in the database count below
+
+        var thrown = await Assert.ThrowsAsync<InvalidOperationException>(() => fixture.InitializeAsync());
+
+        Assert.Same(first, thrown);                                                                  // the FIRST failure, unchanged
+        Assert.Contains("[attempt 1]", thrown.Message);
+        Assert.Equal(3, attempts);                                                                   // exactly three, never a fourth
+        Assert.False(await ExistsAsync(DatabaseOf(fixture)));
+        Assert.Equal(before, await FixtureDatabasesAsync());
+    }
+
+    [Fact]
+    public async Task Cleanup_runs_before_every_retry_and_once_more_for_the_final_failure()
+    {
+        var events = new List<string>();
+        var attempts = 0;
+        var fixture = new TestDatabaseFixture(
+            beforeCreateForTest: () => { events.Add($"attempt{++attempts}"); return Task.FromException(PoolTimeout("always")); },
+            cleanupDropForTest: _ => { events.Add("cleanup"); return Task.CompletedTask; },
+            logForTest: new StringWriter());
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => fixture.InitializeAsync());
+
+        Assert.Equal(["attempt1", "cleanup", "attempt2", "cleanup", "attempt3", "cleanup"], events);
+    }
+
+    [Fact]
+    public async Task A_failure_that_is_not_a_pool_timeout_is_not_retried_by_the_initialisation()
+    {
+        var attempts = 0;
+        var marker = new MarkerException("not transient");
+        var fixture = new TestDatabaseFixture(afterMigrateForTest: () => { attempts++; return Task.FromException(marker); }, logForTest: new StringWriter());
+
+        var thrown = await Assert.ThrowsAsync<MarkerException>(() => fixture.InitializeAsync());
+
+        Assert.Same(marker, thrown);
+        Assert.Equal(1, attempts);
+        Assert.False(await ExistsAsync(DatabaseOf(fixture)));
+    }
+
+    [Fact]
+    public async Task A_pool_timeout_while_opening_the_master_connection_for_the_drop_is_retried_as_a_whole()
+    {
+        var opens = 0;
+        var waits = new List<TimeSpan>();
+        var log = new StringWriter();
+        var fixture = new TestDatabaseFixture(beforeMasterOpenForTest: () => ++opens == 1 ? Task.FromException(PoolTimeout("master open")) : Task.CompletedTask, logForTest: log,
+            delayForTest: w => { waits.Add(w); return Task.CompletedTask; });
+        await fixture.InitializeAsync();
+
+        await fixture.DisposeAsync();                                                                // the first open fails before any batch runs; the retry opens again and drops
+
+        Assert.Equal(2, opens);
+        Assert.Equal([TimeSpan.FromMilliseconds(250)], waits);
+        Assert.False(await ExistsAsync(DatabaseOf(fixture)));
+        Assert.Contains("drop of", log.ToString());
+        Assert.Contains("pool acquisition timeout (attempt 1 of 4)", log.ToString());
+    }
+
+    [Fact]
+    public async Task When_the_master_open_keeps_failing_the_drop_gives_up_after_four_attempts_with_the_first_exception()
+    {
+        var opens = 0;
+        var failing = true;
+        var waits = new List<TimeSpan>();
+        var fixture = new TestDatabaseFixture(beforeMasterOpenForTest: () => { opens++; return failing ? Task.FromException(PoolTimeout($"open {opens}")) : Task.CompletedTask; }, logForTest: new StringWriter(),
+            delayForTest: w => { waits.Add(w); return Task.CompletedTask; });
+        await fixture.InitializeAsync();
+        try
+        {
+            var thrown = await Assert.ThrowsAsync<InvalidOperationException>(() => fixture.DisposeAsync());
+
+            Assert.Contains("[open 1]", thrown.Message);                                             // the first failure
+            Assert.Equal(4, opens);
+            Assert.Equal([TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(500), TimeSpan.FromMilliseconds(750)], waits);
+            Assert.True(await ExistsAsync(DatabaseOf(fixture)));                                     // the drop never ran
+        }
+        finally
+        {
+            failing = false;
+            await fixture.DisposeAsync();                                                            // this test removes its own database
+        }
+        Assert.False(await ExistsAsync(DatabaseOf(fixture)));
+    }
+
+    [Fact]
+    public async Task A_pool_timeout_while_opening_master_for_the_cleanup_drop_is_retried_and_the_original_initialisation_exception_still_wins()
+    {
+        var opens = 0;
+        var marker = new MarkerException("failure after migrate");
+        var log = new StringWriter();
+        var fixture = new TestDatabaseFixture(afterMigrateForTest: () => Task.FromException(marker),
+            beforeMasterOpenForTest: () => ++opens == 1 ? Task.FromException(PoolTimeout("cleanup open")) : Task.CompletedTask, logForTest: log, delayForTest: _ => Task.CompletedTask);
+
+        var thrown = await Assert.ThrowsAsync<MarkerException>(() => fixture.InitializeAsync());
+
+        Assert.Same(marker, thrown);
+        Assert.Equal(2, opens);                                                                      // the cleanup drop was retried
+        Assert.False(await ExistsAsync(DatabaseOf(fixture)));
+        Assert.Contains("was removed", log.ToString());
+    }
 }
