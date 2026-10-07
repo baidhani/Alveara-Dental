@@ -43,3 +43,7 @@ Totals from the CSV: 126 test classes = **20 SERIAL** (148 tests, 7.0 min of bas
 - No class is labelled parallel-safe on the strength of a GUID alone. Parallel-safe means: no shared resource found in A-G, plus the H7 condition.
 - The 20 serial classes may later be promoted to parallel only by a separately reviewed demonstration (concurrent administration probe), never by default.
 - Classes were inspected through category-wide searches and by reading the shared helpers (`TestDatabaseFixture`, `SchedulingApiHarness`, `SchedulingTestSupport`, `SafetyTestBase`, `PatientTestSupport`, `IdentityTestHelpers`, `BackupTestEnvironment`, `Program.cs`). Per-class reading was done for every class in H1-H6, `PracticeClockTests`, `AccountServiceRegistrationTests`, `ToothPresenceInvariantTests`, `AvailabilityConcurrencyTests`, `AuthRateLimitTests`, `FrameworkLoggingPhiSafetyTests`. The other classes were verified by the global searches only; the reviewer may sample them.
+
+
+## 6. Addendum (remediation, after Gate 1 approval)
+Two test classes were added by the approved remediation (`TestDatabaseDeadlockRetryTests`, 7 tests, and `TestDatabaseInitFailureCleanupTests`, 4 tests) and are **SERIAL** (collection `serial-server`): one engineers a real LocalDB deadlock, the other forces initialisation failures and counts databases on the shared server. Totals now: 128 test classes (22 SERIAL, 106 PARALLEL_SAFE), 2,265 discovered cases. The Gate 1 rows above are unchanged.
