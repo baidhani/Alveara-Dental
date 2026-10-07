@@ -76,7 +76,8 @@ public class LeastPrivilegeLoginCleanupTests
             {
                 var error = await Assert.ThrowsAsync<SqlException>(() => subject.DisposeAsync());
                 Assert.Equal(15434, error.Number);                                                   // the real failure surfaces
-                Assert.Equal(LeastPrivilegeAccessTests.MaxLoginDropAttempts - 1, waits);             // bounded: exactly the allowed number of waits, then it gives up
+                Assert.Equal(5, LeastPrivilegeAccessTests.MaxLoginDropAttempts);                  // the approved cap, as a literal
+                Assert.Equal(4, waits);                                                              // bounded: four waits between five attempts, then it gives up
                 Assert.True(await LoginExistsAsync(subject.LoginName));                              // and the login is still there, which the failure honestly reports
             }
             finally
