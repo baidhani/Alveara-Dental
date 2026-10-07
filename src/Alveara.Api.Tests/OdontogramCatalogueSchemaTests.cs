@@ -238,6 +238,7 @@ public class OdontogramCatalogueSchemaTests : IAsyncLifetime
 }
 
 /// <summary>ALV-006-C01 upgrade: a database that already holds findings (recorded before the catalogue existed) is migrated forward without losing any of them.</summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class OdontogramCatalogueMigrationTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;

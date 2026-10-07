@@ -13,6 +13,7 @@ namespace Alveara.Api.Tests;
 /// properties the story requires AND that the format is genuinely the documented one: a real GnuPG
 /// decrypts what we write, and we decrypt what GnuPG writes.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupCryptoTests
 {
     private const string Passphrase = "correct horse battery staple 42";

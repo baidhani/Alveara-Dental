@@ -11,6 +11,7 @@ namespace Alveara.Api.Tests;
 /// ALV-012-C01 persistence, against real SQL Server: a database that already holds STORY-012 charts upgrades with every chart and reading kept (the new suppuration and plaque measures read as not
 /// assessed, there are no whole-tooth records or links yet, and the session tables exist and are empty), and rolling back removes only what this migration added, then forward again loses nothing.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class PerioMigrationTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;

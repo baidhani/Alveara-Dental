@@ -26,8 +26,8 @@ public static class Pbkdf2PasswordHasher
     // and wrong-password login paths perform the same number of PBKDF2 verifications, rather than
     // relying solely on a flaky wall-clock timing assertion. A process-wide counter only gives a
     // reliable answer if nothing else in the process calls Verify concurrently while it's being
-    // measured - the test assembly disables collection parallelization for exactly this reason
-    // (see CollectionBehaviorSetup.cs).
+    // measured - AccountServiceLoginTests is in the "serial-server" xUnit collection (DisableParallelization, see
+    // ParallelismCollections.cs in Alveara.Api.Tests), so it never overlaps another test class.
     private static long _verifyCallCount;
     public static long VerifyCallCount => Interlocked.Read(ref _verifyCallCount);
     public static void ResetVerifyCallCountForTests() => Interlocked.Exchange(ref _verifyCallCount, 0);

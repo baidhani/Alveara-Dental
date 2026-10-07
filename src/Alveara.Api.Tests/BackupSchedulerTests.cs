@@ -11,6 +11,7 @@ namespace Alveara.Api.Tests;
 /// ALV-N004 scheduled-backup tests through the REAL durable background-job mechanism: slot
 /// idempotency, restart recovery, retry after failure, and exactly-one-backup guarantees.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupSchedulerTests : IClassFixture<TestDatabaseFixture>, IDisposable
 {
     private readonly BackupTestEnvironment _env;

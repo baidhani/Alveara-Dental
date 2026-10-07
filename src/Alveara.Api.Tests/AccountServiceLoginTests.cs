@@ -6,6 +6,7 @@ namespace Alveara.Api.Tests;
 
 /// <summary>Each [Fact] gets its own fresh LocalDB database (rather than sharing one via
 /// IClassFixture) since several tests here bootstrap the one-time first-admin themselves.</summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class AccountServiceLoginTests : IAsyncLifetime
 {
     private readonly TestDatabaseFixture _fixture = new();

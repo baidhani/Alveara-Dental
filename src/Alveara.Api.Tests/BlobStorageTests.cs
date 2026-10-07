@@ -4,6 +4,7 @@ using Xunit;
 
 namespace Alveara.Api.Tests;
 
+[Collection(ParallelismCollections.SerialServer)]
 public class BlobStorageTests : IDisposable
 {
     private readonly string _storageRoot = Path.Combine(Path.GetTempPath(), $"alveara-blob-test-{Guid.NewGuid():N}");

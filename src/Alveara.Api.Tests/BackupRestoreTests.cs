@@ -18,6 +18,7 @@ namespace Alveara.Api.Tests;
 /// wrong-key rejection, safety (restore never touches live data), and a full-state drill that starts
 /// the recovered application against the restored database, documents and keys.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupRestoreTests : IClassFixture<TestDatabaseFixture>, IDisposable
 {
     private readonly BackupTestEnvironment _env;

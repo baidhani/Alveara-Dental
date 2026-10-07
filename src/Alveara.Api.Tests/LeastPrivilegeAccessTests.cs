@@ -14,6 +14,7 @@ namespace Alveara.Api.Tests;
 /// and proves a schema-changing/administrative operation is genuinely rejected — i.e. the
 /// application does not actually need, and cannot exercise, elevated rights.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class LeastPrivilegeAccessTests : IClassFixture<TestDatabaseFixture>, IAsyncLifetime
 {
     private readonly TestDatabaseFixture _fixture;

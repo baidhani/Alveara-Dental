@@ -11,6 +11,7 @@ namespace Alveara.Api.Tests;
 /// ALV-N004 backup creation, history, retention, verification-state, failure-path and notification
 /// tests, against a real SQL Server database (BACKUP DATABASE), real files and real encryption.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposable
 {
     private readonly BackupTestEnvironment _env;

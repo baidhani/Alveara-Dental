@@ -14,6 +14,7 @@ namespace Alveara.Api.Tests;
 /// audit of every sensitive action, that recovery material is shown once and never echoed, that
 /// failures surface only stable safe codes, and that there is no endpoint that restores over live data.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupApiTests : IAsyncLifetime
 {
     private readonly TestDatabaseFixture _fixture = new();

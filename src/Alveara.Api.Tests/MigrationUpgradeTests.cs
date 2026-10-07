@@ -11,6 +11,7 @@ namespace Alveara.Api.Tests;
 /// and a re-run no-op — neither is an actual "upgrade an existing, populated database" scenario,
 /// which the story's acceptance item explicitly requires.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class MigrationUpgradeTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;
@@ -76,6 +77,7 @@ public class MigrationUpgradeTests : IClassFixture<TestDatabaseFixture>
 /// behavior: a migration whose Up() fails must not leave the schema half-upgraded, and must not
 /// destroy pre-existing data. This does not touch the real Alveara schema/migrations at all.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class MigrationFailureTests : IAsyncLifetime
 {
     private readonly string _databaseName = $"AlveraMigrationFailureTest_{Guid.NewGuid():N}";

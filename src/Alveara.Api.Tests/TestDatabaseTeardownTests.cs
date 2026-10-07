@@ -12,6 +12,7 @@ namespace Alveara.Api.Tests;
 /// not touch another fixture's (T3), and that the drop still succeeds when connections are still in use (T4, T5) or belong to a different pool (T6).
 /// Each test disposes everything it creates in a finally block, so a failure cannot leak a database.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class TestDatabaseTeardownTests
 {
     private const string MasterCs = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";

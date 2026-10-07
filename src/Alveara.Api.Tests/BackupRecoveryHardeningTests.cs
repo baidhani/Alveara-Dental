@@ -20,6 +20,7 @@ namespace Alveara.Api.Tests;
 /// on a fresh installation), Data Protection compatibility across the upgrade and onto a different server
 /// identity, and the practice time zone / application name as enforced deployment invariants.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, IDisposable
 {
     private readonly BackupTestEnvironment _env;

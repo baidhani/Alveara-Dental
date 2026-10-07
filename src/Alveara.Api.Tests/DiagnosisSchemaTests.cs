@@ -222,6 +222,7 @@ public class DiagnosisSchemaTests : IAsyncLifetime
 }
 
 /// <summary>ALV-N… style migration check for STORY-013: rolling back removes only what the migration added, and rolling forward again loses nothing.</summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class DiagnosisMigrationTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;

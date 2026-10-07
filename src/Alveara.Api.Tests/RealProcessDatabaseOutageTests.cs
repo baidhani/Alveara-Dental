@@ -12,6 +12,7 @@ namespace Alveara.Api.Tests;
 /// WebApplicationFactory-based test runs in-process and does not reproduce this — it needs a real,
 /// separate OS process, exactly like the reviewer's reproduction.
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class RealProcessDatabaseOutageTests : IAsyncLifetime
 {
     private const int Port = 5193;

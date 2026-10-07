@@ -12,6 +12,7 @@ namespace Alveara.Api.Tests;
 /// (which does not yet expose a blob-download endpoint at all, since the document module doesn't
 /// exist yet).
 /// </summary>
+[Collection(ParallelismCollections.SerialServer)]
 public class StorageIsolationTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;

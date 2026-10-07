@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Alveara.Api.Tests;
 
+[Collection(ParallelismCollections.SerialServer)]
 public class BackupSnapshotTests : IClassFixture<TestDatabaseFixture>, IDisposable
 {
     private readonly TestDatabaseFixture _fixture;
