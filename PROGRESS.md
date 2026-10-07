@@ -289,3 +289,10 @@
   - What changed: no repository code. Package `Alveara_TestSpeed_Parallelism_Gate2_Amendment_v1.zip` with the amended measurement plan (bracketed serial-parallel-serial session in one sitting, speedup = same-session baseline / parallel run, pass when the median >= 1.8x and every run >= 1.5x, mechanical machine-load validity rule from a sampler), the serial-tail analysis of the six existing runs, and the restore-drill findings.
   - Verification: not applicable until the plan is approved. The analysis is reproducible from the TRX files (`serial_tail_analysis.py`).
   - Notes: the runner configuration is serial again (`e3a05ad`). Under the currently approved per-run criterion the existing evidence fails (set B: 1.87x, 1.79x, 1.63x). Not pushed.
+
+- [ ] TESTSPEED-P2-FINAL-SESSION: controlled final measurement session prepared; NOT started; one validity rule needs a reviewer decision (documentation only; no repository code)
+  - Date: 2026-10-07
+  - Session: CC-20261002-f7c1
+  - What changed: no repository file other than this note. Session tooling outside the repository (load probe, sampler, gate, session driver) built and smoke-tested on a one-second filter; package `Alveara_TestSpeed_Parallelism_Gate2_Protocol_Clarification_v1.zip`.
+  - Verification: the tooling classified a foreign build correctly (a `VBCSCompiler` and a `dotnet` build of another application seen during an idle test). **The approved CPU part of the invalidity rule cannot be applied as written on this machine:** on an idle machine 10 of 29 samples (34.5%) exceed 15% foreign CPU (median 13.5%), caused by Defender, an input service, WMI and sync services, so nearly every run would be invalid.
+  - Notes: three options (process rule only; plus CPU rule with a declared allow-list; relative to an idle baseline) submitted; recommendation: the allow-list. The runner stays serial (`e3a05ad`); nothing pushed; no acceptance run made.
