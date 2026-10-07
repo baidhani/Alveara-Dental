@@ -340,6 +340,12 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     await expect(archiveWizard).toContainText("deployment settings the data was created under");
     await archiveWizard.getByRole("button", { name: "Close" }).click();
 
+    // This walkthrough owns the second isolated copy too: it removes it the same way as the first, so a run leaves no AlveraRestore_ database behind (TESTSPEED-P2 Gate 2 review).
+    await page.getByRole("button", { name: "Remove target…" }).click();
+    await page.getByLabel("Your current password").fill("admin-password-1!");
+    await page.getByRole("button", { name: "Remove the restored copy" }).click();
+    await expect(page.getByRole("cell", { name: "removed", exact: true })).toHaveCount(2);   // BOTH drills now show their target as removed (the toast text alone is still on the page from the first removal)
+
     // Audited through the shared audit path.
     await page.goto("/admin/audit-log");
     for (const eventType of ["RecoveryKeyConfigured", "BackupCreated", "RestoreDrillCompleted", "RestoreTargetRemoved"])
