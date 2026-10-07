@@ -46,7 +46,10 @@ public class LeastPrivilegeLoginCleanupTests
             await using (var direct = new SqlConnection(subject.RestrictedConnectionString)) await direct.OpenAsync();
             Assert.True(await SessionsOfAsync(subject.LoginName) > 0);                              // the leak scenario really exists: sessions of the login are alive
 
+            var waits = 0;
+            subject.DelayForTest = _ => { waits++; return Task.CompletedTask; };
             await subject.DisposeAsync();
+            Assert.Equal(0, waits);                                                                  // releasing the pools up front made the FIRST drop succeed: nothing had to be waited for
 
             Assert.False(await LoginExistsAsync(subject.LoginName));                                 // the exact login is absent from the server
             Assert.Equal(0, await SessionsOfAsync(subject.LoginName));
@@ -111,6 +114,33 @@ public class LeastPrivilegeLoginCleanupTests
             await subject.DisposeAsync();                                                            // first attempt fails with 15434, the wait releases the session, the retry succeeds
 
             Assert.Equal(1, waits);
+            Assert.False(await LoginExistsAsync(subject.LoginName));
+        }
+        finally
+        {
+            await fixture.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task A_failure_that_is_not_still_logged_in_is_thrown_at_once_without_any_retry()
+    {
+        var fixture = new TestDatabaseFixture();
+        await fixture.InitializeAsync();
+        try
+        {
+            var subject = new LeastPrivilegeAccessTests(fixture);
+            await subject.InitializeAsync();
+            var waits = 0;
+            subject.DelayForTest = _ => { waits++; return Task.CompletedTask; };
+            subject.DropStatementForTest = _ => "SELECT 1/0;";                                       // a different failure: divide by zero, error 8134
+
+            var error = await Assert.ThrowsAsync<SqlException>(() => subject.DisposeAsync());
+
+            Assert.Equal(8134, error.Number);
+            Assert.Equal(0, waits);                                                                  // not retried
+            subject.DropStatementForTest = statement => statement;
+            await subject.DisposeAsync();                                                            // this test removes its own login
             Assert.False(await LoginExistsAsync(subject.LoginName));
         }
         finally

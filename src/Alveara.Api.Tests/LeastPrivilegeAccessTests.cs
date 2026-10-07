@@ -64,6 +64,9 @@ public class LeastPrivilegeAccessTests : IClassFixture<TestDatabaseFixture>, IAs
     /// <summary>Test-only: replaces the wait between drop attempts so a test can release a held session at exactly that moment.</summary>
     internal Func<TimeSpan, Task> DelayForTest { get; set; } = Task.Delay;
 
+    /// <summary>Test-only: lets a test replace the statement that removes the login (to force a failure that is not "still logged in").</summary>
+    internal Func<string, string> DropStatementForTest { get; set; } = statement => statement;
+
     /// <summary>TESTSPEED-P2: at most this many attempts to drop the login while a session of it is still closing.</summary>
     internal const int MaxLoginDropAttempts = 5;
 
@@ -103,14 +106,13 @@ public class LeastPrivilegeAccessTests : IClassFixture<TestDatabaseFixture>, IAs
                 await using var drop = admin.CreateCommand();
                 // DROP LOGIN has no IF EXISTS form (T-SQL rejects it with "Incorrect syntax near the keyword 'IF'"); the old cleanup used it, so the whole batch failed every time and the swallowed
                 // error hid that the login was never dropped.
-                drop.CommandText = $"DROP USER IF EXISTS [{_loginName}]; IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'{_loginName}') DROP LOGIN [{_loginName}];";
+                drop.CommandText = DropStatementForTest($"DROP USER IF EXISTS [{_loginName}]; IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'{_loginName}') DROP LOGIN [{_loginName}];");
                 await drop.ExecuteNonQueryAsync();
                 break;
             }
             catch (SqlException ex) when (ex.Number == LoginStillLoggedInError && attempt < MaxLoginDropAttempts)
             {
-                ReleaseRestrictedPools();
-                await DelayForTest(TimeSpan.FromMilliseconds(100));
+                await DelayForTest(TimeSpan.FromMilliseconds(100));      // a session that pool clearing cannot close (held open) is waited for; the pools were already released above
             }
         }
 
