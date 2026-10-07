@@ -148,4 +148,29 @@ public class LeastPrivilegeLoginCleanupTests
             await fixture.DisposeAsync();
         }
     }
+
+    [Fact]
+    public async Task A_cleanup_that_succeeds_without_removing_the_login_is_reported_not_trusted()
+    {
+        var fixture = new TestDatabaseFixture();
+        await fixture.InitializeAsync();
+        try
+        {
+            var subject = new LeastPrivilegeAccessTests(fixture);
+            await subject.InitializeAsync();
+            subject.DropStatementForTest = _ => "SELECT 1;";                                         // runs without error and removes nothing
+
+            var error = await Assert.ThrowsAsync<InvalidOperationException>(() => subject.DisposeAsync());
+
+            Assert.Contains(subject.LoginName, error.Message);                                       // the leak is named, not hidden
+            Assert.True(await LoginExistsAsync(subject.LoginName));
+            subject.DropStatementForTest = statement => statement;
+            await subject.DisposeAsync();                                                            // this test removes its own login
+            Assert.False(await LoginExistsAsync(subject.LoginName));
+        }
+        finally
+        {
+            await fixture.DisposeAsync();
+        }
+    }
 }
