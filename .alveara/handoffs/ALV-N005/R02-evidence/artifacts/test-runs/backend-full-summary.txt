@@ -1,0 +1,6 @@
+Backend, full serial run (dotnet test --no-build, serial runner, parallelizeTestCollections=false)
+Started  2026-10-08T14:50:38Z on tree at commit 7635ce44127c0044a5f9c883dcbbd274dc8222df plus the uncommitted R02 correction later committed as 0ef1ab4
+Finished 2026-10-08T15:39:39Z
+Passed!  - Failed:     0, Passed:  2405, Skipped:     0, Total:  2405, Duration: 48 m 58 s - Alveara.Api.Tests.dll (net10.0)
+trx counted: 2405 Passed, 0 Failed, 0 NotExecuted
+ALV-N005 classes in the trx: ProcedureCatalogRulesTests 30, ProcedureCatalogLifecycleTests 17, ProcedureCatalogSchemaTests 33, ProcedureCatalogApiTests 23 (103; R01 had 84)

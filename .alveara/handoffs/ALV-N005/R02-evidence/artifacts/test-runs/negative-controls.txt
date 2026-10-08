@@ -1,0 +1,15 @@
+Negative controls for review finding ALV-N005-R01-01 (run 2026-10-08 on the R02 tree before the implementation commit; each production file was backed up, mutated, tested, then restored and compared byte for byte with the backup; no MUTANT marker remains)
+
+Mutant 1: the new CDT line in ProcedureRules.Validate removed (the service no longer requires a CDT source).
+  dotnet test --filter FullyQualifiedName~ProcedureCatalog  ->  Failed 3, Passed 100 of 103
+  killed by: ProcedureCatalogRulesTests.Every_non_local_code_system_must_name_its_source...(CDT, D1234)
+             ProcedureCatalogRulesTests.A_new_version_of_a_CDT_code_cannot_drop_its_source
+             ProcedureCatalogApiTests.A_CDT_or_external_procedure_without_a_source_is_refused...(CDT, D1234)
+
+Mutant 2: the TR_ProcedureVersions_Provenance trigger removed from migration AddProcedureProvenanceRule (the database no longer checks provenance).
+  dotnet test --filter FullyQualifiedName~ProcedureCatalog  ->  Failed 5, Passed 98 of 103
+  killed by: the five ProcedureCatalogSchemaTests.The_database_refuses_a_version_whose_source_does_not_fit_its_code_system cases
+             (CDT no source; CDT edition only; External no source; Local with a source name; Local with an edition only)
+
+Unmutated tree: Passed 103 of 103.
+Migration Down / re-Up on a scratch database: after Down to AddProcedureCatalog the trigger and the SourceText constraint are gone (0, 0); after Up the trigger is back (1). The scratch database was dropped.

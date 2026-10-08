@@ -1,0 +1,12 @@
+
+Running 7 tests using 1 worker
+
+  ok 1 [chromium] › e2e\procedures-real-backend.spec.ts:107:1 › billing finds the catalog in the navigation and adds a procedure with its fee (2.9s)
+  ok 2 [chromium] › e2e\procedures-real-backend.spec.ts:138:1 › a fee change is a new version: the old fee stays readable, and the history says who and why (2.8s)
+  ok 3 [chromium] › e2e\procedures-real-backend.spec.ts:161:1 › inactivating needs a reason, removes it from planning, and reactivating restores it (893ms)
+  ok 4 [chromium] › e2e\procedures-real-backend.spec.ts:182:1 › a dentist can read the catalog but is offered no way to change it (2.2s)
+  ok 5 [chromium] › e2e\procedures-real-backend.spec.ts:193:1 › a hygienist has no catalog link and is told permission is needed at the address (250ms)
+  ok 6 [chromium] › e2e\procedures-real-backend.spec.ts:201:1 › the API refuses what the screen does not offer (149ms)
+  ok 7 [chromium] › e2e\procedures-real-backend.spec.ts:222:1 › a CDT code must name the licensed source it came from: refused without one on screen and at the API, accepted with one (2.3s)
+
+  7 passed (17.0s)

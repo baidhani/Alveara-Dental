@@ -1,0 +1,17 @@
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] › e2e\perio-sessions-real-backend.spec.ts:128:1 › SETUP: five patients (308ms)
+  ok  2 [chromium] › e2e\perio-sessions-real-backend.spec.ts:136:1 › NOTHING INVENTED AND THE FIRST SITE: no chart is in progress until one is started; starting shows the first site of the order with the depth box focused and the safety strip in view (771ms)
+  ok  3 [chromium] › e2e\perio-sessions-real-backend.spec.ts:151:1 › KEYBOARD FLOW: depth, Enter, recession, Enter saves a site and lands on the next in the documented order; a tooth's sites are saved when the cursor leaves it; the six sites read differently (484ms)
+  ok  4 [chromium] › e2e\perio-sessions-real-backend.spec.ts:175:1 › MEASURES AND TEETH: pus and plaque are recorded only when asked for; B toggles bleeding; mobility and furcation are set per tooth (furcation only on a molar); X marks a tooth not charted and the order goes on (1.3s)
+  ok  5 [chromium] › e2e\perio-sessions-real-backend.spec.ts:208:1 › MISSING IN THE ODONTOGRAM: a tooth recorded missing there is skipped and listed; the server refuses a reading on it; marking it not charted is the way out (1.0s)
+  ok  6 [chromium] › e2e\perio-sessions-real-backend.spec.ts:226:1 › A WRONG ENTRY IS REFUSED WITHOUT LOSING WHAT WAS TYPED: the server refuses a tooth that became missing; the entries stay, the cursor goes to the entry to correct, and X is the way out (1.2s)
+  ok  7 [chromium] › e2e\perio-sessions-real-backend.spec.ts:250:1 › STALE DRAFT: a draft changed by someone else shows the conflict banner and keeps what was typed; after reloading the save goes through (1.3s)
+  ok  8 [chromium] › e2e\perio-sessions-real-backend.spec.ts:272:1 › A WHOLE MOUTH WITHOUT THE MOUSE: all 192 sites typed from the keyboard, the cursor never losing its place, and finishing makes one immutable chart (8.4s)
+  ok  9 [chromium] › e2e\perio-sessions-real-backend.spec.ts:293:1 › COMPARISON AND LINKS: a chart is compared with the one before it in words, the draft is compared live, and a link to a diagnosis is added by reference (2.1s)
+  ok 10 [chromium] › e2e\perio-sessions-real-backend.spec.ts:340:1 › TRUST: every start, save, finalize and link is in the audit log with the user and a time, and nothing clinical is in it; each chart has exactly one chart entry (93ms)
+  ok 11 [chromium] › e2e\perio-sessions-real-backend.spec.ts:356:1 › ROLES: the hygienist charts; the assistant only reads; front desk and billing cannot see it; anonymous callers are refused; nothing is saved without a token (1.3s)
+  ok 12 [chromium] › e2e\perio-sessions-real-backend.spec.ts:391:1 › ACCESSIBILITY AND TABLET: axe finds no critical or serious issue on the entry screen, with problems shown, with the comparison open and with charts on record, in both themes; at 768 px the page does not scroll sideways (17.1s)
+
+  12 passed (43.0s)

@@ -1,0 +1,7 @@
+Frontend and repository gates, ALV-N005 R02 (2026-10-08, tree = commit 0ef1ab4 plus PROGRESS.md; no source differs)
+npx tsc --noEmit -p tsconfig.app.json                -> exit 0, no output
+npx vitest run                                      -> Test Files 76 passed (76); Tests 1215 passed (1215)   [R01: 1214; +1 CDT test]
+npm run build                                       -> built in 300ms (the existing large-chunk notice only)
+npm run lint (oxlint)                               -> exit 0; 0 errors; 17 warnings; 1 warning in the new files (set-state-in-effect on the page's load effect, as in 13 existing places)
+npx playwright test (mocked suite, desktop+tablet)  -> 136 passed
+node --test tests/*.test.mjs                        -> tests 8, pass 8, fail 0

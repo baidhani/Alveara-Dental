@@ -1388,31 +1388,29 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 5,
         "passed": 5
       },
       "tests": {
         "status": "passed",
-        "summary": "Backend, full serial: 2,386 of 2,386 passed, 0 failed, 0 skipped (44 m 4 s). New: 84 (rules 25, lifecycle 17, schema 21, API 21).; Frontend, full: 1214 of 1214 passed (76 files). New: 20.; Type check / build / lint: tsc exit 0, build ok, oxlint exit 0 with 0 errors (one set-state-in-effect warning in the new page, as in 13 existing places); Mocked browser: 136 of 136 passed; Repository checks: 8 of 8 passed; Real-backend walkthrough (new): 6 of 6 passed; axe, light and dark, 0 critical/serious; Existing real-backend walkthroughs on fresh databases: 187 of 187 passed (auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, companion 9, safety 11, odontogram 11, odontogram longitudinal 11, perio 10, perio sessions 12, diagnoses 12, diagnoses structure 12); Leak check: databases and logins unchanged. Disclosures: acceptance item 3 (fee changes do not rewrite existing plan/charge history) is proven at the catalog only because no plan or charge exists yet; no mutation checks were run; one earlier full vitest run had a timing failure in an untouched Backup test (passed on rerun). See .alveara/handoffs/ALV-N005/R01-evidence/TEST_RESULTS.md."
+        "summary": "Backend, full serial: 2,405 of 2,405 passed, 0 failed, 0 skipped (48 m 58 s). New in R02: 19 (service 5, schema 12, API 2); catalog total 103 (rules 30, lifecycle 17, schema 33, API 23).; Frontend, full: 1215 of 1215 passed (76 files). New in R02: 1.; Type check / build / lint: tsc exit 0, build ok, oxlint exit 0 with 0 errors (one set-state-in-effect warning in the new page, as in 13 existing places); Mocked browser: 136 of 136 passed; Repository checks: 8 of 8 passed; Real-backend walkthrough (catalog): 7 of 7 passed (a CDT step added); axe, light and dark, 0 critical/serious; Existing real-backend walkthroughs on fresh databases: 187 of 187 passed (auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, companion 9, safety 11, odontogram 11, odontogram longitudinal 11, perio 10, perio sessions 12, diagnoses 12, diagnoses structure 12); Leak check: databases and logins unchanged; Negative controls: removing the new CDT service rule is killed by 3 tests, removing the provenance trigger by 5 tests (both restored); migration Down and re-Up verified on a scratch database. Corrects review finding ALV-N005-R01-01 (R01 returned CHANGES_REQUIRED). Disclosures: acceptance item 3 is proven at the catalog only because no plan or charge exists yet (accepted by the R01 review); mutation checks cover only the new rule; the Code field hint wording on the add form was not changed. See .alveara/handoffs/ALV-N005/R02-evidence/TEST_RESULTS.md."
       },
       "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": "4d4cb0ee1dc05c28b15f5a36f3bd15a5ac690826",
-      "evidenceCommit": "cf7c6a7a7bffea519f96d2c7214a615a5c86a4e0",
-      "handoffPath": ".alveara/handoffs/ALV-N005/R01.md",
+      "implementationCommit": "0ef1ab491ea56aa935a52a4d55fc5c6535860b6e",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N005/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N005/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "4d4cb0ee1dc05c28b15f5a36f3bd15a5ac690826",
-        "reviewedEvidenceCommit": "cf7c6a7a7bffea519f96d2c7214a615a5c86a4e0"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-N005-R01-01: CDT provenance is not enforced for every non-local code (service and database); correction required in attempt R02"
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
