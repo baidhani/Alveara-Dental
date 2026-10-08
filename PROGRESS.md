@@ -338,3 +338,10 @@
   - What changed: `.alveara/handoffs/ALV-N005/R01.md` and `R01-evidence/` (test results, acceptance, parent-regression N/A with the full sweep, demo, changed files, next-story impact, artifacts), `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json` (ALV-N005 to AWAITING_REVIEW, attempt R01, implementation `4d4cb0ee1dc05c28b15f5a36f3bd15a5ac690826`), a C6 note in `.alveara/QUALITY_GATES.md`, a status log in `docs/MILESTONES_2026-10-07.md`.
   - Verification: the numbers in the handoff are the ones recorded in the implementation entry above (backend 2386 of 2386, frontend 1214 of 1214, mocked e2e 136 of 136, repository checks 8 of 8, 6 new and 187 existing walkthrough tests passed); the ZIP is validated by listing it after the evidence commit.
   - Notes: the story is not complete until a review-closure commit records it COMPLETE; the coding agent never declares that. Acceptance item 3 is proven at the catalog only (no plan or charge exists yet), and the handoff says so. Not pushed.
+
+- [x] ALV-N005: attempt R01 reviewed and returned CHANGES_REQUIRED; decision stored unchanged, status set (records only; not pushed)
+  - Date: 2026-10-08
+  - Session: CC-20261002-f7c1
+  - What changed: `.alveara/reviews/ALV-N005/R01.md` (the independent review, stored unchanged), `EXECUTION_STATUS.json` (ALV-N005 to CHANGES_REQUIRED with the blocking issue), `BUILD_STATE.md`.
+  - Verification: the finding was reproduced in the code before acting: `ProcedureRules.Validate` required a source only for `External` (line 86), so a `CDT` procedure with no source was accepted, and the database had no constraint either. The R01 handoff, ZIP and evidence are preserved unchanged.
+  - Notes: attempt R02 corrects only this finding (service and database enforcement for every non-local code system, tests, regenerated evidence). The R01 handoff text "SourceName required for any non-local system" described the intended rule, which the code did not yet enforce.

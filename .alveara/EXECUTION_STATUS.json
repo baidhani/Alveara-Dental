@@ -1388,7 +1388,7 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 5,
@@ -1404,13 +1404,15 @@
       "evidenceCommit": "cf7c6a7a7bffea519f96d2c7214a615a5c86a4e0",
       "handoffPath": ".alveara/handoffs/ALV-N005/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N005/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "4d4cb0ee1dc05c28b15f5a36f3bd15a5ac690826",
+        "reviewedEvidenceCommit": "cf7c6a7a7bffea519f96d2c7214a615a5c86a4e0"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N005-R01-01: CDT provenance is not enforced for every non-local code (service and database); correction required in attempt R02"
+      ],
       "revalidation": {
         "required": false,
         "reason": null
