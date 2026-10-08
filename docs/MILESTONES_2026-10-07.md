@@ -33,3 +33,7 @@ Written 2026-10-07 after TESTSPEED-P2 (parallel test execution) was closed as no
 - Remove the scratch worktrees under `C:\tmp\par` once nobody needs the evidence checkouts.
 - Rename the theory `Whatever_FIXED_bytes_follow_the_retired_container_magic...` (editorial, noted by the reviewer).
 - Design the ownership-based cleanup for leftover test databases and logins.
+
+## Status log
+
+- **2026-10-08 - M1 (ALV-N005):** backend, frontend, documentation (`docs/PROCEDURE_CATALOG.md`) and tests are written (84 backend tests, 20 frontend tests, 6 real-backend browser tests, all passing when run on their own). The complete evidence sweep (serial backend suite about 42 minutes, frontend gates, mocked e2e, repo checks, the walkthroughs on fresh database names) is next, then the implementation commit, the handoff commit and the ZIP. The story will stop at `AWAITING_REVIEW`. On track for the 2026-10-11 estimate; review rounds remain the main uncertainty.

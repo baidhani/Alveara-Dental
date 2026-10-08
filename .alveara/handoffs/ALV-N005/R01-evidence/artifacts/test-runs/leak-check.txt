@@ -1,0 +1,11 @@
+Leak check (before the full run / after the full, frontend and walkthrough runs)
+--- before
+AlveraTest 54
+AlveraRestore 59
+logins 273
+alveara_walk 211
+--- after full backend run
+AlveraTest 54
+AlveraRestore 59
+logins 273
+alveara_walk 211

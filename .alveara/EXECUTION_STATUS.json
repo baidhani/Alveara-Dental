@@ -1388,21 +1388,21 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 5,
-        "passed": 0
+        "passed": 5
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 2,386 of 2,386 passed, 0 failed, 0 skipped (44 m 4 s). New: 84 (rules 25, lifecycle 17, schema 21, API 21).; Frontend, full: 1214 of 1214 passed (76 files). New: 20.; Type check / build / lint: tsc exit 0, build ok, oxlint exit 0 with 0 errors (one set-state-in-effect warning in the new page, as in 13 existing places); Mocked browser: 136 of 136 passed; Repository checks: 8 of 8 passed; Real-backend walkthrough (new): 6 of 6 passed; axe, light and dark, 0 critical/serious; Existing real-backend walkthroughs on fresh databases: 187 of 187 passed (auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, companion 9, safety 11, odontogram 11, odontogram longitudinal 11, perio 10, perio sessions 12, diagnoses 12, diagnoses structure 12); Leak check: databases and logins unchanged. Disclosures: acceptance item 3 (fee changes do not rewrite existing plan/charge history) is proven at the catalog only because no plan or charge exists yet; no mutation checks were run; one earlier full vitest run had a timing failure in an untouched Backup test (passed on rerun). See .alveara/handoffs/ALV-N005/R01-evidence/TEST_RESULTS.md."
       },
-      "demo": "not_started",
+      "demo": "verified",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "4d4cb0ee1dc05c28b15f5a36f3bd15a5ac690826",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N005/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
