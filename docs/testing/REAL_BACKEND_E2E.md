@@ -401,3 +401,20 @@ record and a missing one refused in identical words; a stale amendment showing t
 event with user and time and none of what was diagnosed or coded; the hygienist amending, the assistant reading but refused and shown no controls, front desk and billing denied, anonymous callers 401 and a write
 without a CSRF token refused; then axe scans with the forms open and the 768 px tablet layout, in light and dark. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
 STORY-013's own walkthrough (`playwright.diagnoses.config.ts`) is the parent regression and is run separately.
+
+## ALV-N005: procedure and fee catalog walkthrough
+
+`e2e/procedures-real-backend.spec.ts` is the un-mocked run for the procedure catalog. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:PROCEDURES_E2E_OUT = "C:\tmp\procedures-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.procedures.config.ts
+```
+
+It signs in a billing user, a dentist and a hygienist and shows: the catalog reached from the navigation; an incomplete entry refused on screen beside each field; a code that looks like CDT refused by
+the server with what was typed kept; a procedure added with its fee; a fee change saved as a new version with a required reason, both fees and who changed it readable in the history; inactivate (reason
+required) removing it from the planning list and reactivate restoring it; the dentist reading but offered no controls; the hygienist given no link and told permission is needed; the API refusing a
+dentist's change, a hygienist's read, a missing CSRF token, a stale version and a duplicate code; and axe scans in light and dark. Like the other real-backend specs it is excluded from the default
+mocked `npm run test:e2e` run.

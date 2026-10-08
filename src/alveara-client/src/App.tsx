@@ -16,6 +16,7 @@ import { PermissionMatrixPage } from "./pages/PermissionMatrixPage";
 import { AuditLogPage } from "./pages/AuditLogPage";
 import { ConfigurationHubPage } from "./pages/ConfigurationHubPage";
 import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
+import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
@@ -139,6 +140,14 @@ function createAppRouter() {
             element={
               <RequirePermission permission="ViewBackupStatus">
                 <BackupRecoveryPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/procedures"
+            element={
+              <RequirePermission permission="ViewBilling">
+                <ProcedureCatalogPage />
               </RequirePermission>
             }
           />

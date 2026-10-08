@@ -85,6 +85,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Odontogram.ConditionType> ConditionTypes => Set<Architecture.Odontogram.ConditionType>();
     public DbSet<Architecture.Odontogram.ConditionTypeEvent> ConditionTypeEvents => Set<Architecture.Odontogram.ConditionTypeEvent>();
     public DbSet<Architecture.Odontogram.ToothFindingLink> ToothFindingLinks => Set<Architecture.Odontogram.ToothFindingLink>();
+    public DbSet<Architecture.Procedures.ProcedureDefinition> ProcedureDefinitions => Set<Architecture.Procedures.ProcedureDefinition>();
+    public DbSet<Architecture.Procedures.ProcedureVersion> ProcedureVersions => Set<Architecture.Procedures.ProcedureVersion>();
+    public DbSet<Architecture.Procedures.ProcedureEvent> ProcedureEvents => Set<Architecture.Procedures.ProcedureEvent>();
     public DbSet<Architecture.Clinical.DiagnosisLink> DiagnosisLinks => Set<Architecture.Clinical.DiagnosisLink>();
     public DbSet<Architecture.Periodontal.PerioExam> PerioExams => Set<Architecture.Periodontal.PerioExam>();
     public DbSet<Architecture.Periodontal.PerioReading> PerioReadings => Set<Architecture.Periodontal.PerioReading>();
@@ -485,6 +488,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         PerioModel.Configure(modelBuilder);
         PerioSessionModel.Configure(modelBuilder);
         DiagnosisModel.Configure(modelBuilder);
+        ProcedureModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

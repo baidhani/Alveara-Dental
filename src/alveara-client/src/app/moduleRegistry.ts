@@ -24,6 +24,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "calendar", label: "Calendar", path: "/calendar", requiredPermission: "ViewSchedule" },
   { id: "visit-board", label: "Visit board", path: "/flow", requiredPermission: "ViewSchedule" },
   { id: "schedule", label: "Schedule", path: "/schedule", requiredPermission: "ViewSchedule" },
+  { id: "procedures", label: "Procedures & fees", path: "/procedures", requiredPermission: "ViewBilling" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users", requiredPermission: "ManageUsers" },

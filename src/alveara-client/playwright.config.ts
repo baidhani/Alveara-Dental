@@ -9,7 +9,7 @@ export const TABLET_VIEWPORT = { width: 768, height: 1024 };
 export default defineConfig({
   testDir: "./e2e",
   // auth-real-backend.spec.ts needs a real API + database and runs via playwright.auth.config.ts (docs/testing/REAL_BACKEND_E2E.md); the rest run against the static build with mocked, authenticated API responses.
-  testIgnore: ["auth-real-backend.spec.ts", "patient-registration-real-backend.spec.ts", "patient-workspace-real-backend.spec.ts", "forms-real-backend.spec.ts", "schedule-real-backend.spec.ts", "calendar-real-backend.spec.ts", "patient-flow-real-backend.spec.ts", "visit-board-real-backend.spec.ts", "clinical-real-backend.spec.ts", "clinical-companion-real-backend.spec.ts", "safety-real-backend.spec.ts", "odontogram-real-backend.spec.ts", "odontogram-longitudinal-real-backend.spec.ts", "perio-real-backend.spec.ts", "perio-sessions-real-backend.spec.ts", "diagnoses-real-backend.spec.ts", "diagnoses-structure-real-backend.spec.ts"],
+  testIgnore: ["auth-real-backend.spec.ts", "patient-registration-real-backend.spec.ts", "patient-workspace-real-backend.spec.ts", "forms-real-backend.spec.ts", "schedule-real-backend.spec.ts", "calendar-real-backend.spec.ts", "patient-flow-real-backend.spec.ts", "visit-board-real-backend.spec.ts", "clinical-real-backend.spec.ts", "clinical-companion-real-backend.spec.ts", "safety-real-backend.spec.ts", "odontogram-real-backend.spec.ts", "odontogram-longitudinal-real-backend.spec.ts", "perio-real-backend.spec.ts", "perio-sessions-real-backend.spec.ts", "diagnoses-real-backend.spec.ts", "diagnoses-structure-real-backend.spec.ts", "procedures-real-backend.spec.ts"],
   fullyParallel: true,
   reporter: [["list"]],
   use: {
