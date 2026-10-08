@@ -1,3 +1,5 @@
+> **Superseded status:** TESTSPEED-P2 parallel execution was reviewed and is **not qualified**; the runner stays serial. See `docs/testing/TESTSPEED_P2_STATUS.md`. The text below is the evidence summary as it stood when submitted.
+
 # TESTSPEED-P2 Gate 2 corrected evidence (v2): AWAITING_REVIEW
 
 Replaces `superseded/EVIDENCE_SUMMARY_v1_SUPERSEDED.md` (kept for the record) after the review `CHANGES_REQUIRED` of package SHA-256 `3AE3992E…9EA1`.
