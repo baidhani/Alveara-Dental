@@ -331,7 +331,30 @@ public class BackupCryptoTests
     {
         Assert.Equal("not_a_backup", await DecryptCodeAsync(Encoding.ASCII.GetBytes("This is just a text file, not an Alveara backup at all.")));
         Assert.Equal("not_a_backup", await DecryptCodeAsync([]));
-        Assert.Equal("not_a_backup", await DecryptCodeAsync(Encoding.ASCII.GetBytes("ALVBK").Concat(RandomBytes(500)).ToArray())); // the retired R01 container is not readable
+        Assert.Equal("not_a_backup", await DecryptCodeAsync(RetiredContainerLookalike())); // the retired R01 container is not readable
+    }
+
+    /// <summary>
+    /// "ALVBK" followed by 500 FIXED bytes (every byte value occurs). This used to be "ALVBK" plus random bytes, which is flaky by construction: about 1.5% of random bodies (305 of 20,000 measured) are read by the
+    /// PGP parser as a damaged backup and get "corrupt_or_tampered" instead of "not_a_backup". Fixed input makes the test say the same thing every time.
+    /// </summary>
+    private static byte[] RetiredContainerLookalike() => Encoding.ASCII.GetBytes("ALVBK").Concat(Enumerable.Range(0, 500).Select(i => (byte)((i * 31 + 7) % 256))).ToArray();
+
+    public static TheoryData<string> FixedBodiesAfterTheRetiredMagic => new() { "zeros", "ones", "ascending", "stride", "text" };
+
+    [Theory]
+    [MemberData(nameof(FixedBodiesAfterTheRetiredMagic))]
+    public async Task Whatever_FIXED_bytes_follow_the_retired_container_magic_the_reason_is_not_a_backup(string body)
+    {
+        var bytes = body switch
+        {
+            "zeros" => new byte[500],
+            "ones" => Enumerable.Repeat((byte)0xFF, 500).ToArray(),
+            "ascending" => Enumerable.Range(0, 500).Select(i => (byte)(i % 251)).ToArray(),
+            "stride" => Enumerable.Range(0, 500).Select(i => (byte)((i * 31 + 7) % 256)).ToArray(),
+            _ => Encoding.ASCII.GetBytes(string.Concat(Enumerable.Repeat("not a backup, just some text. ", 20))),
+        };
+        Assert.Equal("not_a_backup", await DecryptCodeAsync(Encoding.ASCII.GetBytes("ALVBK").Concat(bytes).ToArray()));
     }
 
     [Fact]
