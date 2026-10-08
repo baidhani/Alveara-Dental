@@ -6,7 +6,7 @@ namespace Alveara.Api.Data;
 /// <summary>
 /// ALV-N005: the model for the procedure catalog. The database itself refuses what <see cref="ProcedureRules"/> refuses (a code that does not fit its code system, a local code that looks like a
 /// CDT code, a fee that is negative, over the limit or has more than two decimals' worth of cents, a value outside the allowed lists, a blank or control-character description, a last valid date
-/// before the start date, a dentition other than Both on a procedure that is not tooth-level), and what no rule can see from one row: triggers (created in the migration) refuse deleting a
+/// before the start date, a dentition other than Both on a procedure that is not tooth-level), and what no rule can see from one row: triggers (created in the migrations) refuse deleting a
 /// procedure, changing its code or code system, any edit or delete of a version or an event, and a version that starts before the one it follows or skips a number. The only way history changes
 /// is a new version appended after the last.
 /// </summary>
@@ -57,6 +57,7 @@ internal static class ProcedureModel
             {
                 t.HasTrigger("TR_ProcedureVersions_Immutable");
                 t.HasTrigger("TR_ProcedureVersions_Order");
+                t.HasTrigger("TR_ProcedureVersions_Provenance");
                 t.HasCheckConstraint("CK_ProcedureVersions_VersionNumber", "[VersionNumber] >= 1");
                 t.HasCheckConstraint("CK_ProcedureVersions_Category", $"[Category] COLLATE Latin1_General_CS_AS IN ({In(ProcedureCategories.All)})");
                 t.HasCheckConstraint("CK_ProcedureVersions_Scope", $"[Scope] COLLATE Latin1_General_CS_AS IN ({In(ProcedureScopes.All)})");
@@ -64,6 +65,9 @@ internal static class ProcedureModel
                 t.HasCheckConstraint("CK_ProcedureVersions_DentitionMatchesScope", "[Scope] COLLATE Latin1_General_CS_AS IN ('Tooth','ToothSurface') OR [Dentition] COLLATE Latin1_General_CS_AS = 'Both'");
                 t.HasCheckConstraint("CK_ProcedureVersions_Fee", $"[Fee] >= 0 AND [Fee] <= {ProcedureRules.FeeMax:F2} AND [Fee] = ROUND([Fee], 2)");
                 t.HasCheckConstraint("CK_ProcedureVersions_Description", $"LEN(LTRIM(RTRIM([Description]))) > 0 AND {NoControl("Description")}");
+                // a source name or edition, when given, is not blank (which code systems need or refuse a source is the TR_ProcedureVersions_Provenance trigger: a check cannot see the definition's code system)
+                t.HasCheckConstraint("CK_ProcedureVersions_SourceText",
+                    "([SourceName] IS NULL OR LEN(LTRIM(RTRIM([SourceName]))) > 0) AND ([SourceVersion] IS NULL OR LEN(LTRIM(RTRIM([SourceVersion]))) > 0)");
                 t.HasCheckConstraint("CK_ProcedureVersions_Dates", "[EffectiveFrom] >= '2000-01-01' AND ([ValidThrough] IS NULL OR [ValidThrough] >= [EffectiveFrom])");
             });
         });

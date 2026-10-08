@@ -97,7 +97,7 @@ public class ProcedureCatalogSchemaTests : ProcedureTestBase
         var e = await Sql(() => InsertAsync());
         Assert.Contains(e.Number, new[] { 2601, 2627 });
 
-        await InsertAsync(d => d.CodeSystem = "External", v => { });          // same code, other system: fine
+        await InsertAsync(d => d.CodeSystem = "External", v => v.SourceName = "State schedule");          // same code, other system: fine
     }
 
     // ---------- triggers ----------
@@ -129,6 +129,42 @@ public class ProcedureCatalogSchemaTests : ProcedureTestBase
         Assert.Equal(51079, (await Sql(() => db.Database.ExecuteSqlRawAsync("UPDATE ProcedureVersions SET Fee = 1 WHERE ProcedureId = {0}", def.Id))).Number);
         Assert.Equal(51079, (await Sql(() => db.Database.ExecuteSqlRawAsync("DELETE FROM ProcedureVersions WHERE ProcedureId = {0}", def.Id))).Number);
         Assert.Equal(10m, await db.ProcedureVersions.Where(v => v.ProcedureId == def.Id).Select(v => v.Fee).SingleAsync());
+    }
+
+    [Theory]
+    [InlineData("CDT", "D1234", null, null, 51083)]
+    [InlineData("CDT", "D1234", null, "2026", 51083)]            // an edition alone is not a source
+    [InlineData("External", "EXT-1", null, null, 51083)]
+    [InlineData("Local", "SCHEMA-1", "Somewhere", null, 51084)]
+    [InlineData("Local", "SCHEMA-1", null, "2026", 51084)]
+    public async Task The_database_refuses_a_version_whose_source_does_not_fit_its_code_system(string system, string code, string? sourceName, string? sourceVersion, int error)
+    {
+        var e = await Sql(() => InsertAsync(d => { d.CodeSystem = system; d.Code = code; }, v => { v.SourceName = sourceName; v.SourceVersion = sourceVersion; }));
+        Assert.Equal(error, e.Number);
+        await using var db = Fixture.CreateContext();
+        Assert.Equal(0, await db.ProcedureVersions.CountAsync());                       // the whole insert was rolled back, no orphan version
+    }
+
+    [Theory]
+    [InlineData("CDT", "D1234", "Licensed set", null)]            // the edition is optional
+    [InlineData("CDT", "D1234", "Licensed set", "2026")]
+    [InlineData("External", "EXT-1", "State schedule", "FY2030")]
+    [InlineData("Local", "SCHEMA-1", null, null)]
+    public async Task The_database_accepts_a_version_whose_source_fits_its_code_system(string system, string code, string? sourceName, string? sourceVersion)
+    {
+        await InsertAsync(d => { d.CodeSystem = system; d.Code = code; }, v => { v.SourceName = sourceName; v.SourceVersion = sourceVersion; });
+        await using var db = Fixture.CreateContext();
+        Assert.Equal(1, await db.ProcedureVersions.CountAsync());
+    }
+
+    [Theory]
+    [InlineData("   ", null)]
+    [InlineData("", null)]
+    [InlineData("Licensed set", "  ")]
+    public async Task The_database_refuses_a_blank_source_name_or_edition(string? sourceName, string? sourceVersion)
+    {
+        var e = await Sql(() => InsertAsync(d => { d.CodeSystem = "CDT"; d.Code = "D1234"; }, v => { v.SourceName = sourceName; v.SourceVersion = sourceVersion; }));
+        Assert.Contains("CK_ProcedureVersions_SourceText", e.Message);
     }
 
     [Fact]

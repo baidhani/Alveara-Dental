@@ -83,7 +83,9 @@ public static class ProcedureRules
 
         if (sourceName is { Length: > SourceNameMax }) errors["sourceName"] = $"Keep the source name to {SourceNameMax} characters or fewer.";
         if (sourceVersion is { Length: > SourceVersionMax }) errors["sourceVersion"] = $"Keep the source edition to {SourceVersionMax} characters or fewer.";
+        // every non-local code is tied to the code set it came from; the edition (sourceVersion) stays optional
         if (system == ProcedureCodeSystems.External && sourceName is null) errors["sourceName"] = "Name the source of an external code set.";
+        if (system == ProcedureCodeSystems.Cdt && sourceName is null) errors["sourceName"] = "Name the source of this CDT code set (the licensed edition the practice holds).";
         if (system == ProcedureCodeSystems.Local && (sourceName is not null || sourceVersion is not null)) errors["sourceName"] = "A local code has no external source; leave the source empty or choose another code system.";
 
         var effective = input.EffectiveFrom ?? (earliestEffective is { } e && e > today ? e : today);

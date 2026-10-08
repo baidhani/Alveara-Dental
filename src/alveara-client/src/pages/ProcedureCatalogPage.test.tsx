@@ -146,6 +146,25 @@ describe("Procedure catalog page", () => {
     expect(screen.getByText("Name the source of this code set.")).toBeInTheDocument();
   });
 
+  it("asks a CDT code to name its source too, and sends the source with the code", async () => {
+    const api = stubApi();
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Add a procedure" }));
+    await userEvent.selectOptions(addForm().getByLabelText("Code system"), "CDT");
+    await userEvent.type(addForm().getByLabelText("Code"), "d1234");
+    await userEvent.type(addForm().getByLabelText("Description"), "Practice wording");
+    await userEvent.selectOptions(addForm().getByLabelText("Category"), "Preventive");
+    await userEvent.selectOptions(addForm().getByLabelText("Applies to"), "WholeMouth");
+    await userEvent.type(addForm().getByLabelText("Fee (US dollars)"), "40");
+    await userEvent.click(addForm().getByRole("button", { name: "Add procedure" }));
+    expect(addForm().getByText("Name the source of this code set.")).toBeInTheDocument();
+    expect(posts(api)).toHaveLength(0);
+
+    await userEvent.type(addForm().getByLabelText("Source of the code set"), "Licensed set held by the practice");
+    await userEvent.click(addForm().getByRole("button", { name: "Add procedure" }));
+    await waitFor(() => expect(posts(api)[0]?.body).toMatchObject({ codeSystem: "CDT", code: "D1234", sourceName: "Licensed set held by the practice", sourceVersion: null }));
+  });
+
   it("adds a procedure with the fields typed and says it was saved", async () => {
     const api = stubApi();
     renderPage();

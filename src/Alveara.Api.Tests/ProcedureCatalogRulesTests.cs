@@ -124,6 +124,43 @@ public class ProcedureCatalogRulesTests : ProcedureTestBase
         Assert.Equal("External", ok.Summary.CodeSystem);
     }
 
+    [Theory]
+    [InlineData("CDT", "D1234")]
+    [InlineData("External", "EXT-9")]
+    public async Task Every_non_local_code_system_must_name_its_source_missing_or_blank_is_refused_and_nothing_is_stored(string system, string code)
+    {
+        var missing = await Refused(() => CreateAsync(Input(code, system)));
+        Assert.Equal(("validation_failed", 400), (missing.Code, missing.StatusCode));
+        Assert.Contains("Name the source", missing.FieldErrors["sourceName"]);
+        Assert.Contains("Name the source", (await Refused(() => CreateAsync(Input(code, system, sourceName: "   ", sourceVersion: "2026")))).FieldErrors["sourceName"]);   // an edition alone is not a source
+        Assert.Empty(await With(s => s.ListAsync(null, null, null, null, null, default)));
+    }
+
+    [Fact]
+    public async Task A_local_code_accepts_neither_a_source_name_nor_an_edition()
+    {
+        Assert.Contains("no external source", (await Refused(() => CreateAsync(Input("LOCAL-300", sourceVersion: "2026")))).FieldErrors["sourceName"]);
+        Assert.Contains("no external source", (await Refused(() => CreateAsync(Input("LOCAL-301", sourceName: "Somewhere", sourceVersion: "2026")))).FieldErrors["sourceName"]);
+    }
+
+    [Fact]
+    public async Task The_source_edition_is_optional_for_a_CDT_or_external_code_but_the_source_name_is_not()
+    {
+        var cdt = await CreateAsync(Input("D3000", "CDT", sourceName: "Licensed set"));                 // no edition given
+        Assert.Equal(("Licensed set", null), (cdt.Versions[0].SourceName, cdt.Versions[0].SourceVersion));
+        var ext = await CreateAsync(Input("EXT-10", "External", sourceName: "State schedule"));
+        Assert.Null(ext.Versions[0].SourceVersion);
+    }
+
+    [Fact]
+    public async Task A_new_version_of_a_CDT_code_cannot_drop_its_source()
+    {
+        var v1 = await CreateAsync(Input("D4000", "CDT", sourceName: "Licensed set", sourceVersion: "2025"));
+        var e = await Refused(() => ReviseAsync(v1, Like(v1, fee: 70m) with { SourceName = null, SourceVersion = null }));
+        Assert.Contains("Name the source", e.FieldErrors["sourceName"]);
+        Assert.Single((await With(s => s.GetAsync(v1.Summary.Id, null, default))).Versions);
+    }
+
     [Fact]
     public async Task The_same_code_in_two_code_systems_is_two_procedures()
     {

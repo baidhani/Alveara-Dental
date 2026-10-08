@@ -123,6 +123,22 @@ public class ProcedureCatalogApiTests : IAsyncLifetime
         Assert.Empty((await admin.SendAsync(HttpMethod.Get, Url)).Body.EnumerateArray());
     }
 
+    [Theory]
+    [InlineData("CDT", "D1234")]
+    [InlineData("External", "EXT-1")]
+    public async Task A_CDT_or_external_procedure_without_a_source_is_refused_with_the_field_named_and_one_with_a_source_is_accepted(string system, string code)
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var refused = await admin.SendAsync(HttpMethod.Post, Url, new { codeSystem = system, code, description = "Practice wording", category = "Diagnostic", scope = "WholeMouth", fee = 10m });
+        Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (refused.Status, Error(refused.Body)));
+        Assert.True(refused.Body.GetProperty("fieldErrors").TryGetProperty("sourceName", out _));
+        Assert.Empty((await admin.SendAsync(HttpMethod.Get, Url)).Body.EnumerateArray());
+
+        var ok = await admin.SendAsync(HttpMethod.Post, Url, new { codeSystem = system, code, description = "Practice wording", category = "Diagnostic", scope = "WholeMouth", fee = 10m, sourceName = "Licensed set held by the practice" });
+        Assert.Equal(HttpStatusCode.OK, ok.Status);
+        Assert.Equal("Licensed set held by the practice", ok.Body.GetProperty("versions")[0].GetProperty("sourceName").GetString());
+    }
+
     [Fact]
     public async Task A_duplicate_code_is_a_409_and_an_identical_repeat_is_quiet()
     {

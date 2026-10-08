@@ -218,3 +218,32 @@ test("the API refuses what the screen does not offer", async () => {
   const audit = (await api(admin, "get", "/api/auth/audit-log")).body as any;
   expect(JSON.stringify(audit)).toContain("ProcedureDefinition");
 });
+
+test("a CDT code must name the licensed source it came from: refused without one on screen and at the API, accepted with one", async () => {
+  const page = sessions.Billing.page;
+  const body = { codeSystem: "CDT", code: "D1110", description: "Practice wording for a cleaning", category: "Preventive", scope: "WholeMouth", fee: 95 };
+  const refused = await api(page, "post", "/api/procedures", body);
+  expect([refused.status, refused.body.error]).toEqual([400, "validation_failed"]);
+  expect(refused.body.fieldErrors.sourceName).toContain("Name the source");
+
+  await gotoCatalog(page);
+  await page.getByRole("button", { name: "Add a procedure" }).click();
+  await addForm(page).getByLabel("Code system").selectOption("CDT");
+  await addForm(page).getByLabel("Code", { exact: true }).fill("D1110");
+  await addForm(page).getByLabel("Description").fill("Practice wording for a cleaning");
+  await addForm(page).getByLabel("Category").selectOption("Preventive");
+  await addForm(page).getByLabel("Applies to").selectOption("WholeMouth");
+  await addForm(page).getByLabel("Fee (US dollars)").fill("95");
+  await addForm(page).getByRole("button", { name: "Add procedure" }).click();
+  await expect(addForm(page).getByText("Name the source of this code set.")).toBeVisible();
+  await shot(page, "07-cdt-needs-source.png");
+
+  await addForm(page).getByLabel("Source of the code set").fill("Licensed code set held by the practice");
+  await addForm(page).getByLabel("Edition or version (optional)").fill("2026");
+  await addForm(page).getByRole("button", { name: "Add procedure" }).click();
+  await expect(statusLine(page)).toContainText("D1110 added to the catalog.");
+  await expect(row(page, "D1110")).toContainText("CDT code (Licensed code set held by the practice, 2026)");
+  await shot(page, "08-cdt-added.png");
+  await scanBothThemes(page, "cdt-added");
+});
+

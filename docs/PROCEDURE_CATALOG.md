@@ -11,10 +11,10 @@ A **procedure** has a fixed identity (code system + code). Everything else lives
 | Table | Purpose | Rules the database itself enforces |
 |---|---|---|
 | `ProcedureDefinitions` | identity + current state | unique `(CodeSystem, Code)`; code shape per system; a `Local` code never looks like CDT (`D####`); no delete (trigger 51077); code and code system never change (51078) |
-| `ProcedureVersions` | immutable fee/description history | fee 0 to 1,000,000.00 with at most two decimals; category, scope, dentition from fixed lists; dentition must be `Both` unless the scope is tooth-level; description present, no control characters; `ValidThrough` not before `EffectiveFrom`; no update/delete (51079); numbers contiguous (51081); a version never starts before the one it follows (51082) |
+| `ProcedureVersions` | immutable fee/description history | fee 0 to 1,000,000.00 with at most two decimals; category, scope, dentition from fixed lists; dentition must be `Both` unless the scope is tooth-level; description present, no control characters; `ValidThrough` not before `EffectiveFrom`; no update/delete (51079); numbers contiguous (51081); a version never starts before the one it follows (51082); source name required for CDT/external and refused for local (51083, 51084); a source name or edition is never blank |
 | `ProcedureEvents` | append-only history | change type from a fixed list; revise and inactivate carry a reason; no update/delete (51080) |
 
-Code systems: `Local` (the practice's own codes), `CDT` (`D` + four digits; **no licensed CDT text is bundled** - the practice enters its own wording and names the licensed source and edition it holds), `External` (any other code set; the source must be named).
+Code systems: `Local` (the practice's own codes; **no source name and no edition**), `CDT` (`D` + four digits; **no licensed CDT text is bundled** - the practice enters its own wording and **must name the licensed source it holds**; the edition is optional), `External` (any other code set; the source must be named; the edition is optional). **Every non-local version needs a non-blank source name; a local version has neither source name nor edition.** The service refuses a missing source with a message on the `sourceName` field, and the database refuses it too (trigger 51083 for a CDT or external version without a source, 51084 for a local version with one, check constraint `CK_ProcedureVersions_SourceText` for a blank name or edition), so a direct write cannot store invalid provenance. (Added in attempt R02 after review finding ALV-N005-R01-01.)
 
 ## Behaviour
 
@@ -51,6 +51,7 @@ Every create, revise, inactivate and reactivate writes an audit entry (event typ
 4. New versions cannot start in the past (no backdating); creation may use any date from 2000-01-01 to three years ahead.
 5. Fees are US dollars (the repository's money convention) with two decimals.
 6. The usage warning counts odontogram procedure links only, because that is the only referencing record that exists today.
+7. (R02) The source **edition** stays optional for CDT and external codes (the plan allows optional source/version metadata); the source **name** is required for both.
 
 ## Verification
 
