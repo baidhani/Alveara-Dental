@@ -418,3 +418,22 @@ the server with what was typed kept; a procedure added with its fee; a fee chang
 required) removing it from the planning list and reactivate restoring it; the dentist reading but offered no controls; the hygienist given no link and told permission is needed; the API refusing a
 dentist's change, a hygienist's read, a missing CSRF token, a stale version and a duplicate code; and axe scans in light and dark. Like the other real-backend specs it is excluded from the default
 mocked `npm run test:e2e` run.
+
+
+## STORY-015: treatment plan walkthrough
+
+`e2e/treatment-plans-real-backend.spec.ts` is the un-mocked run for treatment plans. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:TREATMENT_PLANS_E2E_OUT = "C:	mp	reatment-plans-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.treatment-plans.config.ts
+```
+
+It signs in a dentist, a hygienist, a billing user and a front-desk user, with an administrator creating the catalog procedures, and shows: a plan created from the patient's diagnosis that links to a
+catalog procedure and carries its fee (acceptance 1); gaps named beside their fields and a server refusal ("That surface does not exist on that tooth.") shown beside its field with what was typed kept and
+nothing saved (acceptance 2); the history and the audit log naming who and when for every change (acceptance 3); the fee staying at its proposal-time value after the catalog fee changes; a procedure
+withdrawn with a required reason and leaving the estimate total; a rename; the whole plan withdrawn with a required reason, hidden by default and shown on request, and refused any later change; a
+hygienist reading the plan with no controls and making no catalog request; billing given no tab and refused at the address and the API; the API refusing a missing CSRF token, a stale version, an empty
+plan and an unknown plan; and axe scans in light and dark for the author and read-only views. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e` run.

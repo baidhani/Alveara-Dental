@@ -27,8 +27,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.
-- [ ] Given an error in treatment plan entry, when saved, then the system prompts for correction.
-- [ ] Trust: All treatment plan entries are logged with user ID and timestamp.
+- [x] Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.
+- [x] Given an error in treatment plan entry, when saved, then the system prompts for correction.
+- [x] Trust: All treatment plan entries are logged with user ID and timestamp.
 
 When every box above is ticked, stop and show the demo.

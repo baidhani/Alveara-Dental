@@ -1,0 +1,7 @@
+/* STORY-015: the treatment plan screen. It reuses the diagnosis screen's form, list and badge classes; colours come from the shared theme tokens and state is never colour alone (a withdrawn item says Withdrawn, an error is text beside its field). */
+.alv-tp__items { list-style: none; padding: 0; margin: 0.5rem 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.alv-tp__item { border-left: 3px solid var(--color-border, #dde2e8); padding: 0.25rem 0.75rem; }
+.alv-tp__item--withdrawn { border-left-style: dashed; }
+.alv-tp__item-title { margin: 0; }
+.alv-tp__total { margin: 0.5rem 0 0.125rem; }
+.alv-tp__error { color: var(--color-danger, #b3372c); font-size: 0.9375rem; }

@@ -1,0 +1,13 @@
+Negative controls for STORY-015 (run 2026-10-08, session CC-20261008-k4q9; each production file backed up, mutated, tested, restored and compared byte for byte by SHA-256; no MUTANT marker remains)
+
+Mutant 1: TreatmentPlanService.Items.cs, the check that a diagnosis belongs to the plan's patient removed (only "diagnosis is null" kept).
+  dotnet test --filter FullyQualifiedName~TreatmentPlan  ->  Failed 3, Passed 126 of 129
+  killed by: TreatmentPlanServiceTests.Another_patients_diagnosis_is_refused_in_the_same_words_as_one_that_does_not_exist...
+             TreatmentPlanLifecycleTests.A_wrong_added_procedure_is_refused_on_the_named_field_and_a_duplicate_is_refused...
+             TreatmentPlanApiTests.A_plan_with_no_procedures_or_another_patients_diagnosis_is_refused
+
+Mutant 2: migration AddTreatmentPlans, the THROW 51085 of trigger TR_TreatmentPlans_NoDelete replaced by a no-op (the database no longer refuses deleting a plan).
+  dotnet test --filter FullyQualifiedName~TreatmentPlan  ->  Failed 1, Passed 128 of 129
+  killed by: TreatmentPlanSchemaTests.A_plan_cannot_be_deleted
+
+Unmutated tree: Passed 129 of 129.

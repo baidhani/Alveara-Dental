@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-015",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-08T22:00:00Z",
+  "sourceCommitSha": "a981c49",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A treatment plan belongs to one patient and is Proposed or Withdrawn (final); it has a title, a creator and an idempotency key unique per patient. Each item names one current diagnosis of that patient and one active catalog procedure, with an optional tooth and surface that must fit the procedure's scope and dentition, and stores the procedure id, the catalog version id and the fee copied from that version. Items are immutable and are only withdrawn once, with a reason. Every change appends a numbered history event.",
+      "evidence": "src/Alveara.Api/Architecture/Treatment/TreatmentPlan.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "The Treatment plan tab of the patient workspace lists a patient's plans with each procedure (code, description, diagnosis, tooth and surface, fee and catalog version), the estimate total of the non-withdrawn items, and a label stating the figure is the practice's catalog fee and not an insurance estimate. Withdrawn items and plans stay visible with who, when and why. An empty list says none has been created, and a failed load says so.",
+      "evidence": "src/alveara-client/src/pages/treatmentplan/TreatmentPlansPanel.test.tsx"
+    },
+    {
+      "dimension": "actors",
+      "value": "Dentists and administrators create, add to, rename and withdraw plans (ManageTreatmentPlans, plus a CSRF token). Dentists, hygienists, assistants and administrators can read plans and their history (ViewClinicalDocumentation). Billing, front desk and office manager are refused (403) on reads; anonymous callers get 401.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanApiTests.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Incorrect plan data is refused with a message for every field to correct and nothing saved: a missing title, no procedure, a missing or other-patient or withdrawn diagnosis (the first two refused in identical words), a missing, inactive or unknown procedure, a tooth or surface that does not fit, a duplicate procedure for the same diagnosis and place, a withdrawal without a reason, a missing or malformed row version. The screen names obvious gaps beside their fields before sending, shows the server's message beside the field it is about, and keeps what was typed.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every create, add, withdraw, rename and plan withdrawal is written to the audit log with the signed-in user and a timestamp in the same save as the row and its history event, so a failed audit write stores nothing and the caller is told (503 save_failed, no internals). Audit text carries no diagnosis or procedure wording.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanLifecycleTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "The database itself refuses deleting a plan or item (51085, 51088), editing an item (51089), changing a plan's patient or key (51086), changing a withdrawn plan (51087) or item (51090), changing the history (51091), an item on another patient's plan (51092), an item on a withdrawn plan (51093), a withdrawn or other-patient diagnosis (51094, 51095), an item whose stored fee or procedure differs from the catalog version it names (51096), an inactive procedure (51097), and a tooth or surface that does not fit the procedure (51098).",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanSchemaTests.cs"
+    },
+    {
+      "dimension": "integrations",
+      "value": "Treatment plans read the diagnoses of the same patient and the procedure catalog (active procedures and the exact version in effect when an item is proposed) from inside the system; no external service is called.",
+      "evidence": "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.Items.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "A plan stores the catalog version id and the fee at the time each item is proposed, and a later catalog fee change does not change an existing plan.",
+      "rationale": "A plan shown to a patient must keep the figure it was shown; this uses the snapshot contract the procedure catalog (ALV-N005) provides, and is proven in the browser walkthrough (catalog fee raised, plan fee unchanged).",
+      "evidence": "src/alveara-client/e2e/treatment-plans-real-backend.spec.ts"
+    },
+    {
+      "statement": "Items are immutable: a wrong procedure is withdrawn with a reason and the right one added, and a plan is withdrawn rather than deleted.",
+      "rationale": "History never has to explain an edit, and nothing a patient may have seen disappears; the database enforces it with triggers.",
+      "evidence": "docs/TREATMENT_PLANS.md"
+    },
+    {
+      "statement": "Existing permissions are reused (ViewClinicalDocumentation to read, ManageTreatmentPlans to change) and no new permission was added.",
+      "rationale": "A new permission is a governance change; the existing ones already name the right roles.",
+      "evidence": "src/Alveara.Api/Controllers/TreatmentPlansController.cs"
+    },
+    {
+      "statement": "The read-only plan view is drawn from the plan response alone and never calls the procedure catalog, because the catalog needs billing access that hygienists and assistants do not hold.",
+      "rationale": "Reading a plan must not depend on a permission the reader lacks; proven by a walkthrough step that records no catalog request for a hygienist.",
+      "evidence": "src/alveara-client/e2e/treatment-plans-real-backend.spec.ts"
+    },
+    {
+      "statement": "Three forward-reference guard tests from STORY-013 and ALV-013-C01 that asserted no treatment-plan table exists were updated to assert that the diagnosis's treatment-plan reference stays plain text with no foreign key to the plan tables.",
+      "rationale": "The plan tables now legitimately exist, so the old assertion was stale; the part that matters (no link from a diagnosis to a plan) is kept and strengthened. Reconciling the old reference text stays the job of ALV-015-C01.",
+      "evidence": "src/Alveara.Api.Tests/DiagnosisStructureSchemaTests.cs"
+    },
+    {
+      "statement": "A plan is created with one procedure; more are added afterwards through the screen, while the API accepts up to 50 at creation.",
+      "rationale": "A thin first slice with a small form; the plan identity is unchanged when the companion story extends it.",
+      "evidence": "src/alveara-client/src/pages/treatmentplan/TreatmentPlanForm.tsx"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "Billing, front desk and office manager cannot read treatment plans, so they cannot see the fee estimates; the companion story may revisit fee visibility.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanApiTests.cs"
+    },
+    {
+      "statement": "The estimate is the catalog fee only: no insurance estimate, discount or fee schedule.",
+      "evidence": "docs/TREATMENT_PLANS.md"
+    },
+    {
+      "statement": "No phases, patient acceptance or decline, revision comparison, patient-friendly print, scheduling or completion; the diagnosis's old treatment-plan reference text is not reconciled with a plan. These are left to ALV-015-C01.",
+      "evidence": "docs/TREATMENT_PLANS.md"
+    },
+    {
+      "statement": "A plan's procedures cannot be edited, only withdrawn and re-added, and a withdrawn plan cannot be reopened.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanSchemaTests.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/TreatmentPlanServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/TreatmentPlanLifecycleTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/TreatmentPlanSchemaTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/TreatmentPlanApiTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/pages/treatmentplan/TreatmentPlansPanel.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/src/pages/treatmentplan/treatmentPlanRules.test.ts" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/treatment-plans-real-backend.spec.ts" },
+    { "kind": "doc", "ref": ".alveara/handoffs/STORY-015/negative-controls.txt" }
+  ],
+  "measurementEvents": []
+}

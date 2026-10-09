@@ -311,8 +311,7 @@ public class DiagnosisStructureServiceTests : SafetyTestBase
         await LinkAsync(d, "Finding", await FindingAsync(Ann));
         await using var db = Fixture.CreateContext();
         var e = await Assert.ThrowsAsync<Microsoft.Data.SqlClient.SqlException>(() => db.Database.ExecuteSqlRawAsync("DELETE FROM [Diagnoses]"));
-        Assert.Equal(51071, e.Number);
-        Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name LIKE '%TreatmentPlan%'").SingleAsync());
+        Assert.Equal(51071, e.Number);     // STORY-015 added the plan tables, so "no plan table exists" no longer holds; the reference stays plain text (see the schema guard tests)
     }
 
     // ---------- a failed log saves nothing ----------

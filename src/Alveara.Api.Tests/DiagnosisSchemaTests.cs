@@ -82,10 +82,9 @@ public class DiagnosisSchemaTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task The_treatment_plan_reference_is_plain_text_with_no_foreign_key_and_no_treatment_plan_table_exists()
+    public async Task The_treatment_plan_reference_is_plain_text_with_no_link_to_the_treatment_plan_tables()
     {
-        await using var db = _fixture.CreateContext();
-        Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name LIKE '%TreatmentPlan%'").SingleAsync());
+        await using var db = _fixture.CreateContext();     // STORY-015 added the plan tables; the old reference text stays plain text (reconciling it is ALV-015-C01's job)
         Assert.Equal(0, await db.Database.SqlQuery<int>($@"SELECT COUNT(*) AS [Value] FROM sys.foreign_key_columns fkc JOIN sys.columns c ON c.object_id = fkc.parent_object_id AND c.column_id = fkc.parent_column_id
             WHERE c.name = 'TreatmentPlanReference'").SingleAsync());
         Assert.Equal(["EncounterId", "PatientId"], (await db.Database.SqlQuery<string>($@"SELECT c.name AS [Value] FROM sys.foreign_key_columns fkc JOIN sys.columns c ON c.object_id = fkc.parent_object_id AND c.column_id = fkc.parent_column_id

@@ -31,4 +31,6 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "perio", label: "Periodontal", path: "periodontal", requiredPermission: "ViewClinicalDocumentation" },
   // STORY-013: structured diagnoses linked to the patient and an encounter, with an optional unresolved treatment-plan reference; the same roles that read clinical documentation.
   { id: "diagnoses", label: "Diagnoses", path: "diagnoses", requiredPermission: "ViewClinicalDocumentation" },
+  // STORY-015: treatment plans (diagnosis-linked procedures with catalog fee estimates); the same roles that read clinical documentation may read them, only dentists and administrators change them.
+  { id: "treatment-plan", label: "Treatment plan", path: "treatment-plan", requiredPermission: "ViewClinicalDocumentation" },
 ];

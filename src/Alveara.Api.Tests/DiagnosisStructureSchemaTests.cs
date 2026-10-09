@@ -209,10 +209,11 @@ public class DiagnosisStructureSchemaTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task The_treatment_plan_reference_still_has_no_foreign_key_and_no_treatment_plan_table_exists()
+    public async Task The_treatment_plan_reference_still_has_no_link_to_the_treatment_plan_tables()
     {
-        await using var db = _fixture.CreateContext();
-        Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name LIKE '%TreatmentPlan%'").SingleAsync());
+        await using var db = _fixture.CreateContext();     // STORY-015 added the plan tables; Diagnoses must still have no foreign key to any of them
+        Assert.Equal(0, await db.Database.SqlQuery<int>($@"SELECT COUNT(*) AS [Value] FROM sys.foreign_keys fk JOIN sys.tables t ON t.object_id = fk.referenced_object_id
+            WHERE fk.parent_object_id = OBJECT_ID('Diagnoses') AND t.name LIKE '%TreatmentPlan%'").SingleAsync());
         Assert.Equal(0, await db.Database.SqlQuery<int>($@"SELECT COUNT(*) AS [Value] FROM sys.foreign_key_columns fkc JOIN sys.columns c ON c.object_id = fkc.parent_object_id AND c.column_id = fkc.parent_column_id
             WHERE c.name = 'TreatmentPlanReference'").SingleAsync());
     }

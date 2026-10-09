@@ -838,20 +838,56 @@
       "criteria": [
         {
           "text": "Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an error in treatment plan entry, when saved, then the system prompts for correction.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All treatment plan entries are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlan.cs",
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanRules.cs",
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.cs",
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.Items.cs",
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.Queries.cs",
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanViews.cs",
+        "src/Alveara.Api/Controllers/TreatmentPlansController.cs",
+        "src/Alveara.Api/Data/TreatmentPlanModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/Alveara.Api/Migrations/20261008164128_AddTreatmentPlans.cs",
+        "src/alveara-client/src/services/treatmentPlansApi.ts",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlansPanel.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanCard.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanForm.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanItemFields.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanAddItemForm.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanActions.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanReasonForm.tsx",
+        "src/alveara-client/src/pages/treatmentplan/treatmentPlanRules.ts",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlan.css",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+        "docs/TREATMENT_PLANS.md",
+        "docs/testing/REAL_BACKEND_E2E.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/TreatmentPlanTestBase.cs",
+        "src/Alveara.Api.Tests/TreatmentPlanServiceTests.cs",
+        "src/Alveara.Api.Tests/TreatmentPlanLifecycleTests.cs",
+        "src/Alveara.Api.Tests/TreatmentPlanSchemaTests.cs",
+        "src/Alveara.Api.Tests/TreatmentPlanApiTests.cs",
+        "src/alveara-client/src/pages/treatmentplan/treatmentPlanRules.test.ts",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlansPanel.test.tsx",
+        "src/alveara-client/e2e/treatment-plans-real-backend.spec.ts"
+      ],
+      "notes": "Treatment plans (thin slice): a plan per patient with immutable items, each naming a current diagnosis and an active catalog procedure and copying the catalog fee at proposal time. Withdraw-only (never deleted); every change appends a history event and a PHI-free audit entry (user and time) in one save. Read needs ViewClinicalDocumentation, change needs ManageTreatmentPlans. Limits: billing roles cannot read plans; estimate is the catalog fee only; phases, acceptance, revision, print and reconciliation are ALV-015-C01.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",
