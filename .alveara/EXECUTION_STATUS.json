@@ -1436,26 +1436,26 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 2534 of 2534 passed, 0 failed, 0 skipped (54 m 48 s). New: TreatmentPlanServiceTests 32, TreatmentPlanLifecycleTests 16, TreatmentPlanSchemaTests 57, TreatmentPlanApiTests 24 (129). Frontend 1240 of 1240 (25 new: treatmentPlanRules 8, TreatmentPlansPanel 17); tsc clean, build ok, lint exit 0; mocked browser 136 of 136; repository checks 8 of 8. Real-backend treatment-plan walkthrough 11 of 11 (axe light and dark, 0 critical/serious, author and read-only views); the 17 existing walkthroughs plus procedures also pass on fresh databases (205 tests in 19 runs). Two negative controls both caught (other-patient diagnosis check removed: 3 tests fail; no-delete trigger removed: 1 test fails; restored byte-identical). Leaked databases and logins unchanged. See docs/TREATMENT_PLANS.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "9d5d82e8e9b896f9fc4b7cb099143c38a1eb6530",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "9d5d82e8e9b896f9fc4b7cb099143c38a1eb6530",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1463,8 +1463,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-09T01:26:06.826Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 9d5d82e8e9b896f9fc4b7cb099143c38a1eb6530 - see .colaberry/progress.json (STORY-015.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-09T01:26:06.826Z; portal sync commit 198f993)."
     },
     {
       "schemaVersion": "2",
