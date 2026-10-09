@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 10,
+    "stories_verified": 11,
     "stories_submitted": 0,
-    "stories_in_progress": 9,
+    "stories_in_progress": 8,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 32,
-    "points_awarded": 2797
+    "criteria_passed": 35,
+    "points_awarded": 2839
   },
   "stories": [
     {
@@ -890,19 +890,15 @@
       "notes": "Treatment plans (thin slice): a plan per patient with immutable items, each naming a current diagnosis and an active catalog procedure and copying the catalog fee at proposal time. Withdraw-only (never deleted); every change appends a history event and a PHI-free audit entry (user and time) in one save. Read needs ViewClinicalDocumentation, change needs ManageTreatmentPlans. Limits: billing roles cannot read plans; estimate is the catalog fee only; phases, acceptance, revision, print and reconciliation are ALV-015-C01.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a patient diagnosis, when creating a treatment plan, then it links to proposed procedures and fee estimates.",
-          "Given an error in treatment plan entry, when saved, then the system prompts for correction.",
-          "Trust: All treatment plan entries are logged with user ID and timestamp."
-        ]
+        "verified_at": "2026-10-09T01:26:06.826Z",
+        "commit_sha": "9d5d82e8e9b896f9fc4b7cb099143c38a1eb6530",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/9d5d82e8e9b896f9fc4b7cb099143c38a1eb6530",
+        "commit_at": "2026-10-09T01:25:36Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
