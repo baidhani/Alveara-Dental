@@ -1501,7 +1501,7 @@
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "3ec1215044916ed728ac643f98c876a3466fb3d3",
-      "evidenceCommit": null,
+      "evidenceCommit": "4d906e191ae3fcc26f77e6c57af83ac7884bcb9f",
       "handoffPath": ".alveara/handoffs/ALV-015-C01/R01.md",
       "review": {
         "decision": "pending",
