@@ -95,6 +95,9 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
         var v = check.Value!;
 
         if (v.Label == d.Label && v.ToothKey == d.ToothKey && v.Notes == d.Notes && v.TreatmentPlanReference == d.TreatmentPlanReference) return await ViewAsync(d.Id, ct);
+        // once the reference has been tied to a real plan it is kept as it was (ALV-015-C01): the original text and its resolution must stay in step
+        if (v.TreatmentPlanReference != d.TreatmentPlanReference && await db.DiagnosisPlanResolutions.AsNoTracking().AnyAsync(r => r.DiagnosisId == d.Id, ct))
+            throw new DiagnosisException("treatment_plan_reference_resolved", "This diagnosis's treatment-plan reference has been tied to a treatment plan, so it cannot be replaced or removed. Nothing was saved.", 409);
         var now = clock.UtcNow;
         (d.Label, d.ToothKey, d.Notes, d.TreatmentPlanReference) = (v.Label, v.ToothKey, v.Notes, v.TreatmentPlanReference);
         Touch(d, actor, now);
@@ -238,9 +241,14 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
         var names = await ClinicalNames.ResolveAsync(db, rows.SelectMany(r => new[] { r.CreatedByUserId, r.UpdatedByUserId, r.WithdrawnByUserId }), ct);
         var ids = rows.Select(r => r.Id).ToList();
         var links = await LinkViewsAsync(ids, ct);
+        var resolutions = (await db.DiagnosisPlanResolutions.AsNoTracking().Where(r => ids.Contains(r.DiagnosisId)).ToListAsync(ct)).ToDictionary(r => r.DiagnosisId);
+        var planTitles = await db.TreatmentPlans.AsNoTracking().Where(p => resolutions.Values.Select(r => r.PlanId).Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => p.Title, ct);
+        var resolvers = await ClinicalNames.ResolveAsync(db, resolutions.Values.Select(r => (Guid?)r.ResolvedByUserId), ct);
         return rows.Select(d => new DiagnosisView(
-            d.Id, d.PatientId, d.EncounterId, at[d.EncounterId], d.Label, d.ToothKey, d.Notes, d.TreatmentPlanReference, State(d.TreatmentPlanReference), d.Status,
+            d.Id, d.PatientId, d.EncounterId, at[d.EncounterId], d.Label, d.ToothKey, d.Notes, d.TreatmentPlanReference, resolutions.ContainsKey(d.Id) ? TreatmentPlanReferenceStates.Resolved : State(d.TreatmentPlanReference), d.Status,
             ClinicalNames.Name(names, d.CreatedByUserId), d.CreatedAtUtc, ClinicalNames.Name(names, d.UpdatedByUserId), d.UpdatedAtUtc, ClinicalNames.Name(names, d.WithdrawnByUserId), d.WithdrawnAtUtc, d.WithdrawnReason,
-            Convert.ToBase64String(d.RowVersion), d.CodingSystem, d.Code, d.Source, d.SourceNote, d.RegionKey, links.GetValueOrDefault(d.Id) ?? [])).ToList();
+            Convert.ToBase64String(d.RowVersion), d.CodingSystem, d.Code, d.Source, d.SourceNote, d.RegionKey, links.GetValueOrDefault(d.Id) ?? [],
+            resolutions.GetValueOrDefault(d.Id)?.PlanId, resolutions.ContainsKey(d.Id) ? planTitles.GetValueOrDefault(resolutions[d.Id].PlanId) : null, resolutions.GetValueOrDefault(d.Id)?.Method,
+            resolutions.GetValueOrDefault(d.Id)?.ResolvedAtUtc, resolutions.ContainsKey(d.Id) ? ClinicalNames.Name(resolvers, resolutions[d.Id].ResolvedByUserId) : null)).ToList();
     }
 }

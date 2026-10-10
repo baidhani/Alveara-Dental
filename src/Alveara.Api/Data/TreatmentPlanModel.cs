@@ -14,10 +14,10 @@ namespace Alveara.Api.Data;
 /// </summary>
 internal static class TreatmentPlanModel
 {
-    private static string In(IEnumerable<string> values) => string.Join(",", values.Select(v => $"'{v}'"));
+    internal static string In(IEnumerable<string> values) => string.Join(",", values.Select(v => $"'{v}'"));
 
     /// <summary>True when the column holds no control character (1 to 31); written so the check is the same whatever the column's collation.</summary>
-    private static string NoControl(string column) => $"PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [{column}] COLLATE Latin1_General_BIN2) = 0";
+    internal static string NoControl(string column) => $"PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [{column}] COLLATE Latin1_General_BIN2) = 0";
 
     public static void Configure(ModelBuilder modelBuilder)
     {
@@ -27,15 +27,22 @@ internal static class TreatmentPlanModel
             e.Property(x => x.Title).HasMaxLength(TreatmentPlanRules.TitleMax);
             e.Property(x => x.Status).HasMaxLength(10);
             e.Property(x => x.WithdrawnReason).HasMaxLength(TreatmentPlanRules.ReasonMax);
+            e.Property(x => x.ReferenceCode).HasMaxLength(TreatmentPlanRules.ReferenceCodeMax);
+            e.Property(x => x.CurrentRevision).HasDefaultValue(1);
             e.Property(x => x.RowVersion).IsRowVersion();
             e.HasOne<Architecture.Patients.Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.PatientId, x.Status });
             // a retried or double-clicked save with the same key can only ever create one plan
             e.HasIndex(x => new { x.PatientId, x.IdempotencyKey }).IsUnique();
+            // ALV-015-C01: a reference code names at most one of a patient's plans
+            e.HasIndex(x => new { x.PatientId, x.ReferenceCode }).IsUnique().HasFilter("[ReferenceCode] IS NOT NULL");
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_TreatmentPlans_NoDelete");
                 t.HasTrigger("TR_TreatmentPlans_Identity");
+                t.HasTrigger("TR_TreatmentPlans_Revision");
+                t.HasCheckConstraint("CK_TreatmentPlans_CurrentRevision", "[CurrentRevision] >= 1");
+                t.HasCheckConstraint("CK_TreatmentPlans_ReferenceCode", $"[ReferenceCode] IS NULL OR (LEN(LTRIM(RTRIM([ReferenceCode]))) > 0 AND {NoControl("ReferenceCode")})");
                 t.HasCheckConstraint("CK_TreatmentPlans_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0");
                 t.HasCheckConstraint("CK_TreatmentPlans_Title", "LEN(LTRIM(RTRIM([Title]))) > 0");
                 t.HasCheckConstraint("CK_TreatmentPlans_TitleLine", NoControl("Title"));
@@ -67,6 +74,7 @@ internal static class TreatmentPlanModel
                 t.HasTrigger("TR_TreatmentPlanItems_NoDelete");
                 t.HasTrigger("TR_TreatmentPlanItems_Immutable");
                 t.HasTrigger("TR_TreatmentPlanItems_Links");
+                t.HasTrigger("TR_TreatmentPlanItems_CompletedFinal");     // ALV-015-C01
                 t.HasCheckConstraint("CK_TreatmentPlanItems_Number", "[ItemNumber] >= 1");
                 t.HasCheckConstraint("CK_TreatmentPlanItems_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0");
                 t.HasCheckConstraint("CK_TreatmentPlanItems_Fee", $"[Fee] >= 0 AND [Fee] <= {ProcedureRules.FeeMax:F2} AND [Fee] = ROUND([Fee], 2)");
@@ -80,7 +88,7 @@ internal static class TreatmentPlanModel
 
         modelBuilder.Entity<TreatmentPlanEvent>(e =>
         {
-            e.Property(x => x.ChangeType).HasMaxLength(13);
+            e.Property(x => x.ChangeType).HasMaxLength(TreatmentPlanRules.ChangeTypeMax);
             e.Property(x => x.Title).HasMaxLength(TreatmentPlanRules.TitleMax);
             e.Property(x => x.Reason).HasMaxLength(TreatmentPlanRules.ReasonMax);
             e.HasOne<TreatmentPlan>().WithMany().HasForeignKey(x => x.PlanId).OnDelete(DeleteBehavior.Restrict);
@@ -92,12 +100,15 @@ internal static class TreatmentPlanModel
                 t.HasCheckConstraint("CK_TreatmentPlanEvents_ChangeType", $"[ChangeType] COLLATE Latin1_General_CS_AS IN ({In(TreatmentPlanChanges.All)})");
                 // an item event names its item; the title is on Created and Renamed only; withdrawing (an item or the plan) always carries the reason
                 t.HasCheckConstraint("CK_TreatmentPlanEvents_Item",
-                    "([ChangeType] IN ('ItemAdded','ItemWithdrawn') AND [ItemId] IS NOT NULL) OR ([ChangeType] IN ('Created','Renamed','Withdrawn') AND [ItemId] IS NULL)");
+                    $"([ChangeType] IN ({In(TreatmentPlanChanges.AboutAnItem)}) AND [ItemId] IS NOT NULL) OR ([ChangeType] NOT IN ({In(TreatmentPlanChanges.AboutAnItem)}) AND [ItemId] IS NULL)");
                 t.HasCheckConstraint("CK_TreatmentPlanEvents_Title",
                     "([ChangeType] IN ('Created','Renamed') AND [Title] IS NOT NULL AND LEN(LTRIM(RTRIM([Title]))) > 0) OR ([ChangeType] NOT IN ('Created','Renamed') AND [Title] IS NULL)");
                 t.HasCheckConstraint("CK_TreatmentPlanEvents_Reason",
-                    "[ChangeType] NOT IN ('ItemWithdrawn','Withdrawn') OR ([Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0)");
+                    $"[ChangeType] NOT IN ({In(TreatmentPlanChanges.NeedAReason)}) OR ([Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0)");
+                t.HasCheckConstraint("CK_TreatmentPlanEvents_RevisionNumber", "[RevisionNumber] IS NULL OR [RevisionNumber] >= 1");
             });
         });
+
+        TreatmentPlanRevisionModel.Configure(modelBuilder);
     }
 }

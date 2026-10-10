@@ -22,6 +22,12 @@ export interface Diagnosis {
   treatmentPlanReference: string | null;
   /** "Unresolved" when a reference is present, null when there is none. */
   treatmentPlanReferenceState: string | null;
+  /** ALV-015-C01: when the reference has been tied to a real plan of the same patient (state "Resolved"). The reference text above is the original and is never changed by that. */
+  resolvedPlanId?: string | null;
+  resolvedPlanTitle?: string | null;
+  resolvedMethod?: string | null;
+  resolvedAtUtc?: string | null;
+  resolvedByName?: string | null;
   status: "Active" | "Resolved" | "Withdrawn";
   recordedByName: string | null;
   recordedAtUtc: string;

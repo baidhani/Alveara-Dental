@@ -5,6 +5,47 @@
 import { isPrimary, isToothKey } from "../odontogram/toothNumbering";
 import type { PlanItemInput, PlanningProcedure } from "../../services/treatmentPlansApi";
 
+/** A moment in the reader's own date and time format. */
+export const when = (iso: string) => new Date(iso).toLocaleString();
+
+/** A calendar day (no time of day) in the reader's own date format. */
+export const dayOf = (isoDate: string) => new Date(`${isoDate}T00:00:00`).toLocaleDateString();
+
+/** What the plan's derived acceptance status says, in words a person reads. */
+export const answerWords = (status: string) => (status === "Accepted" ? "Accepted" : status === "Declined" ? "Declined" : status === "Partial" ? "Partly accepted" : "Not yet answered");
+
+/** What a revision's change type means, in words a person reads. */
+export function changeWords(changeType: string): string {
+  switch (changeType) {
+    case "Created": return "Plan created";
+    case "ItemAdded": return "Procedure added";
+    case "ItemWithdrawn": return "Procedure withdrawn";
+    case "Renamed": return "Plan renamed";
+    case "Revised": return "Plan revised";
+    default: return changeType;
+  }
+}
+
+/** A change in money with its sign spelled out, so it is never read as a total: "+$30.00", "-$30.00" or "no change". */
+export function formatDelta(amount: number): string {
+  if (amount === 0) return "no change";
+  return `${amount > 0 ? "+" : "-"}${formatFee(Math.abs(amount))}`;
+}
+
+const quoted = (t: string | null) => `\u201C${t ?? "a plan of this patient"}\u201D`;
+
+/** What happened to one old diagnosis reference, in words; a reference that stays unresolved says why. */
+export function outcomeWords(i: { outcome: string; planTitle: string | null; reason: string | null }): string {
+  switch (i.outcome) {
+    case "Eligible": return `Can be tied to ${quoted(i.planTitle)}.`;
+    case "Resolved": return `Tied to ${quoted(i.planTitle)}.`;
+    case "AlreadyResolved": return `Already tied to ${quoted(i.planTitle)}.`;
+    case "NoMatch": return `No matching plan. It stays unresolved. ${i.reason ?? ""}`.trim();
+    case "Ambiguous": return `More than one plan matches. It stays unresolved. ${i.reason ?? ""}`.trim();
+    default: return `Left as it is. ${i.reason ?? ""}`.trim();
+  }
+}
+
 export const TITLE_MAX = 200;
 
 export type SiteNeed = "none" | "tooth" | "toothAndSurface";

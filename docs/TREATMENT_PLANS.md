@@ -1,6 +1,6 @@
 # Treatment plans (STORY-015, course item 28)
 
-A dentist proposes catalog procedures for a patient's current diagnoses and sees the practice's fee estimate. This is the thin first slice: the plan's identity and its procedures. Phases, patient acceptance or decline, revision comparison, a patient-friendly print, reconciling the old diagnosis "treatment plan reference" text, completion and scheduling belong to the companion story `ALV-015-C01` and are **not** built here.
+A dentist proposes catalog procedures for a patient's current diagnoses and sees the practice's fee estimate. This document is the STORY-015 contract: the plan's identity and its procedures, which is unchanged and still passes. Phases, the patient's acceptance or decline, scheduling and completion, saved revisions and their comparison, a patient-friendly print and tying the old diagnosis "treatment plan reference" text to plans were added by the companion story `ALV-015-C01`: see `docs/TREATMENT_PLAN_COMPLETION.md`.
 
 ## What it is, in one paragraph
 
@@ -60,7 +60,7 @@ The patient workspace has a **Treatment plan** tab next to Diagnoses (`src/alvea
 | Retries? | The screen keeps what was typed and the person retries; the server operations are idempotent (same create key returns the same plan; same add key returns the same item). No automatic retry loops. |
 | Recovery when it cannot proceed? | Nothing is queued: the call is synchronous and the refusal says why. A wrong item is withdrawn with a reason and the right one added; a wrong plan is withdrawn. |
 | Handled | validation, other-patient and withdrawn diagnoses, inactive procedures, tooth/surface fit, duplicates, races, stale versions, withdrawn plans, permission, CSRF, a failed audit write. |
-| Not handled | Insurance estimates, discounts and fee schedules (the estimate is the catalog fee only). Billing roles reading plans. Everything listed under the companion story above. |
+| Not handled | Insurance estimates, discounts and fee schedules (the estimate is the catalog fee only). Billing roles reading plans. Everything the companion story added is described in `docs/TREATMENT_PLAN_COMPLETION.md`. |
 
 ## Assumptions made (STORY-015)
 
@@ -68,7 +68,7 @@ The patient workspace has a **Treatment plan** tab next to Diagnoses (`src/alvea
 2. The plan stores the catalog version id and fee at proposal time (the snapshot contract ALV-N005 built); no recalculation later.
 3. Items are immutable; correction is withdraw-and-add, so history never needs to explain an edit.
 4. The create form proposes one procedure; more are added afterwards (the API accepts up to 50 at creation).
-5. The old diagnosis "treatment plan reference" text stays plain text with no link to these tables (the three diagnosis guard tests were updated to say so); reconciling it is the companion's job.
+5. The old diagnosis "treatment plan reference" text stays plain text with no link to these tables (the three diagnosis guard tests were updated to say so). ALV-015-C01 later ties such references to plans in a row beside the diagnosis, which still leaves the diagnosis's own text and history untouched.
 6. A database trigger must never require row N-1 to exist at insert time, because EF does not insert the rows of one save in a fixed order (a defect of exactly this kind was found and fixed while building this).
 
 ## Verification

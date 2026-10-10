@@ -437,3 +437,23 @@ nothing saved (acceptance 2); the history and the audit log naming who and when 
 withdrawn with a required reason and leaving the estimate total; a rename; the whole plan withdrawn with a required reason, hidden by default and shown on request, and refused any later change; a
 hygienist reading the plan with no controls and making no catalog request; billing given no tab and refused at the address and the API; the API refusing a missing CSRF token, a stale version, an empty
 plan and an unknown plan; and axe scans in light and dark for the author and read-only views. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e` run.
+
+
+## ALV-015-C01: complete treatment planning walkthrough
+
+`e2e/treatment-plans-complete-real-backend.spec.ts` is the un-mocked run for phases, the patient's answers, revisions, the patient copy and the reconciliation of old diagnosis references. Prepare a fresh database and start the
+API exactly as for the STORY-003 walkthrough above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:TREATMENT_PLANS_COMPLETE_E2E_OUT = "C:\tmp\treatment-plans-complete-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.treatment-plans-complete.config.ts
+```
+
+It signs in a dentist, a hygienist and a front-desk user (an administrator creates the catalog) and shows: a plan revised into two phases with a clinical rationale and a patient explanation, refused without a reason and then
+grouped by phase with the unplaced procedure last; a decline refused without a reason, an answer recorded with who gave it and who entered it, and the whole-plan answer refused when it would overwrite an opposite one; an
+accepted procedure scheduled and completed, after which re-answering, rescheduling and withdrawing it are all refused (409 `item_completed`); the revision history with a saved revision opened as it was and two revisions compared
+with every difference named; the patient copy without any staff-only text, checked under print media (the rest of the page hidden, black on white) and screenshotted; an old diagnosis reference tied to the right plan by its
+reference code and another by choice, a reference that equals another patient's plan code left unresolved, the choice offering only this patient's plans, and the Diagnoses tab showing the tie with the original text kept and the diagnosis history untouched; a
+hygienist reading everything and offered no control; and the API refusing a stale answer, another patient's plan (the same 404 as an unknown plan), a missing CSRF token and a change to a resolved reference. Axe scans in light and dark cover seven views. Like the other real-backend specs it is excluded from the default mocked
+`npm run test:e2e` run.

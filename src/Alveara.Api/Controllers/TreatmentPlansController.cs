@@ -14,9 +14,30 @@ public record PlanItemRequest(Guid? DiagnosisId, Guid? ProcedureId, string? Toot
 public record CreatePlanRequest(string? IdempotencyKey, string? Title, List<PlanItemRequest>? Items);
 
 /// <summary>One more procedure for an existing plan, with the plan's row version as the caller last read it.</summary>
-public record AddPlanItemRequest(string? IdempotencyKey, Guid? DiagnosisId, Guid? ProcedureId, string? ToothKey, string? Surface, string? RowVersion);
+public record AddPlanItemRequest(string? IdempotencyKey, Guid? DiagnosisId, Guid? ProcedureId, string? ToothKey, string? Surface, string? RowVersion, int? PhaseNumber = null);
+
+/// <summary>ALV-015-C01: a phase of the plan as laid out in a revision; <c>number</c> is its identity across revisions.</summary>
+public record PlanPhaseRequest(int? Number, string? Name, string? PlannedVisit, DateOnly? TargetDate);
+
+public record PlanPlacementRequest(Guid? ItemId, int? PhaseNumber);
+
+/// <summary>ALV-015-C01: a patient's answer. <c>decision</c> is Accepted or Declined; a decline needs a reason; <c>decidedByName</c> is who gave the answer (the signed-in account is recorded as who entered it).</summary>
+public record DecisionRequest(string? Decision, string? Reason, string? DecidedByName, string? RowVersion);
+
+public record ScheduleRequest(bool Scheduled, DateOnly? PlannedDate);
+
+/// <summary>ALV-015-C01: an explicit revision (reason required). Null parts are kept as they are; a blank rationale or explanation clears it.</summary>
+public record ReviseRequest(string? Reason, string? ClinicalRationale, string? PatientExplanation, List<PlanPhaseRequest>? Phases, List<PlanPlacementRequest>? Placements, string? RowVersion);
 
 public record RenamePlanRequest(string? Title, string? RowVersion);
+
+/// <summary>ALV-015-C01: a plan's reference code, set once, which an old diagnosis's free-text reference can be matched to.</summary>
+public record ReferenceCodeRequest(string? Code, string? RowVersion);
+
+/// <summary>ALV-015-C01: <c>apply</c> false only previews which references would be resolved; true resolves them.</summary>
+public record ReconcileRequest(bool Apply);
+
+public record ResolveReferenceRequest(Guid? PlanId);
 
 public record WithdrawPlanRequest(string? Reason, string? RowVersion);
 
@@ -29,7 +50,7 @@ public record WithdrawPlanRequest(string? Reason, string? RowVersion);
 /// </summary>
 [ApiController]
 [Authorize]
-public class TreatmentPlansController(TreatmentPlanService plans) : ControllerBase
+public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisReconciliationService reconciliation) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -64,6 +85,20 @@ public class TreatmentPlansController(TreatmentPlanService plans) : ControllerBa
     [RequirePermission(Permission.ViewClinicalDocumentation)]
     public Task<IActionResult> History(Guid planId, CancellationToken ct) => Run(async () => Ok(await plans.HistoryAsync(planId, ct)));
 
+    /// <summary>ALV-015-C01: every saved revision of a plan, oldest first, with what each produced and came to.</summary>
+    [HttpGet("api/treatment-plans/{planId:guid}/revisions")]
+    [RequirePermission(Permission.ViewClinicalDocumentation)]
+    public Task<IActionResult> Revisions(Guid planId, CancellationToken ct) => Run(async () => Ok(await plans.RevisionsAsync(planId, ct)));
+
+    [HttpGet("api/treatment-plans/{planId:guid}/revisions/{number:int}")]
+    [RequirePermission(Permission.ViewClinicalDocumentation)]
+    public Task<IActionResult> Revision(Guid planId, int number, CancellationToken ct) => Run(async () => Ok(await plans.RevisionAsync(planId, number, ct)));
+
+    /// <summary>What changed from revision <c>from</c> to revision <c>to</c>: title, words, phases, procedures added, withdrawn or moved, and the practice fee estimate of each.</summary>
+    [HttpGet("api/treatment-plans/{planId:guid}/revisions/compare")]
+    [RequirePermission(Permission.ViewClinicalDocumentation)]
+    public Task<IActionResult> Compare(Guid planId, [FromQuery] int from, [FromQuery] int to, CancellationToken ct) => Run(async () => Ok(await plans.CompareAsync(planId, from, to, ct)));
+
     // ---------- changes ----------
 
     [HttpPost("api/patients/{patientId:guid}/treatment-plans")]
@@ -77,7 +112,59 @@ public class TreatmentPlansController(TreatmentPlanService plans) : ControllerBa
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> AddItem(Guid planId, [FromBody] AddPlanItemRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await plans.AddItemAsync(planId, new PlanItemInput(request.DiagnosisId, request.ProcedureId, request.ToothKey, request.Surface, request.IdempotencyKey), request.RowVersion, Actor, ct)));
+        Run(async () => Ok(await plans.AddItemAsync(planId, new PlanItemInput(request.DiagnosisId, request.ProcedureId, request.ToothKey, request.Surface, request.IdempotencyKey, request.PhaseNumber), request.RowVersion, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/decision")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> DecidePlan(Guid planId, [FromBody] DecisionRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.DecidePlanAsync(planId, request.Decision, request.Reason, request.DecidedByName, request.RowVersion, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/decision")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> DecideItem(Guid planId, Guid itemId, [FromBody] DecisionRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.DecideItemAsync(planId, itemId, request.Decision, request.Reason, request.DecidedByName, request.RowVersion, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/schedule")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> ScheduleItem(Guid planId, Guid itemId, [FromBody] ScheduleRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.ScheduleItemAsync(planId, itemId, request.Scheduled, request.PlannedDate, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/complete")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> CompleteItem(Guid planId, Guid itemId, CancellationToken ct) =>
+        Run(async () => Ok(await plans.CompleteItemAsync(planId, itemId, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/reference-code")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> SetReferenceCode(Guid planId, [FromBody] ReferenceCodeRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.SetReferenceCodeAsync(planId, request.Code, request.RowVersion, Actor, ct)));
+
+    /// <summary>Ties the old free-text treatment-plan references of a patient's diagnoses to that patient's plans (by reference code or id). A preview saves nothing; nothing is guessed.</summary>
+    [HttpPost("api/patients/{patientId:guid}/treatment-plans/reconcile-references")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Reconcile(Guid patientId, [FromBody] ReconcileRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await reconciliation.ReconcileAsync(patientId, request.Apply, Actor, ct)));
+
+    /// <summary>Ties one diagnosis's reference to a plan the person chose (the same patient's plan only).</summary>
+    [HttpPost("api/diagnoses/{diagnosisId:guid}/resolve-plan-reference")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> ResolveReference(Guid diagnosisId, [FromBody] ResolveReferenceRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await reconciliation.ResolveAsync(diagnosisId, request.PlanId, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/revise")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Revise(Guid planId, [FromBody] ReviseRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.ReviseAsync(planId, new ReviseInput(request.Reason, request.ClinicalRationale, request.PatientExplanation,
+            request.Phases?.Select(p => new PlanPhaseInput(p.Number, p.Name, p.PlannedVisit, p.TargetDate)).ToList(),
+            request.Placements?.Select(p => new PlanPlacementInput(p.ItemId, p.PhaseNumber)).ToList()), request.RowVersion, Actor, ct)));
 
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/withdraw")]
     [RequirePermission(Permission.ManageTreatmentPlans)]

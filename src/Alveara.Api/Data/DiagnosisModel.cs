@@ -44,6 +44,7 @@ internal static class DiagnosisModel
             {
                 t.HasTrigger("TR_Diagnoses_NoDelete");
                 t.HasTrigger("TR_Diagnoses_Links");
+                t.HasTrigger("TR_Diagnoses_ReferenceResolved");     // ALV-015-C01 (created in the AddTreatmentPlanCompletion migration)
                 t.HasCheckConstraint("CK_Diagnoses_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0");
                 t.HasCheckConstraint("CK_Diagnoses_Label", "LEN(LTRIM(RTRIM([Label]))) > 0");
                 t.HasCheckConstraint("CK_Diagnoses_LabelLine", NoControl("Label"));

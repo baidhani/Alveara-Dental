@@ -2,9 +2,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import type { Diagnosis } from "../../services/diagnosisApi";
-import type { PatientDetail } from "../../services/patientsApi";
-import type { PlanItem, PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
+import { P, diagnosis, item, json, patient, plan, stubApi } from "../../test/treatmentPlanFixtures";
+import type { Api } from "../../test/treatmentPlanFixtures";
 import { TreatmentPlansPanel } from "./TreatmentPlansPanel";
 
 /**
@@ -12,54 +11,6 @@ import { TreatmentPlansPanel } from "./TreatmentPlansPanel";
  * a plan created with the item the person chose, gaps named beside their fields before anything is sent, the server's refusal shown beside the field with what was typed kept, withdrawals that need a
  * reason, a stale change shown as a conflict, honest empty and failed states, and a reader who sees everything but gets no controls and never calls the catalog.
  */
-const P = "aaaaaaaa-0000-0000-0000-000000000001";
-const patient = { id: P } as PatientDetail;
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
-
-const diagnosis = (over: Partial<Diagnosis> = {}): Diagnosis => ({
-  id: "dx1", patientId: P, encounterId: "e1", encounterAtUtc: "2030-01-01T10:00:00Z", label: "Chronic periodontitis", toothKey: null, notes: null, treatmentPlanReference: null, treatmentPlanReferenceState: null,
-  status: "Active", recordedByName: "Dr. Okafor", recordedAtUtc: "2030-01-01T10:00:00Z", updatedByName: null, updatedAtUtc: null, withdrawnByName: null, withdrawnAtUtc: null, withdrawnReason: null, rowVersion: "D1", ...over,
-});
-const procedure = (over: Partial<PlanningProcedure> = {}): PlanningProcedure => ({
-  procedureId: "pr1", versionId: "v1", versionNumber: 1, codeSystem: "Local", code: "PERIO-1", description: "Periodontal maintenance", category: "Periodontic", scope: "WholeMouth", dentition: "Both", fee: 120, currency: "USD", ...over,
-});
-const item = (over: Partial<PlanItem> = {}): PlanItem => ({
-  id: "it1", itemNumber: 1, diagnosisId: "dx1", diagnosisLabel: "Chronic periodontitis", procedureId: "pr1", procedureVersionId: "v1", procedureVersionNumber: 1, procedureCodeSystem: "Local", procedureCode: "PERIO-1",
-  procedureDescription: "Periodontal maintenance", toothKey: null, surface: null, fee: 120, currency: "USD", isWithdrawn: false, withdrawnReason: null, withdrawnAtUtc: null, withdrawnByName: null,
-  createdAtUtc: "2030-01-02T10:00:00Z", createdByName: "Dr. Okafor", ...over,
-});
-const plan = (over: Partial<TreatmentPlan> = {}): TreatmentPlan => ({
-  id: "pl1", patientId: P, title: "Gum health plan", status: "Proposed", activeItemCount: 1, estimateTotal: 120, currency: "USD",
-  estimateLabel: "Practice fee estimate: the practice's catalog fee when each item was proposed. It is not an insurance estimate and not a guaranteed patient cost.", items: [item()],
-  createdAtUtc: "2030-01-02T10:00:00Z", createdByName: "Dr. Okafor", updatedAtUtc: null, updatedByName: null, withdrawnReason: null, withdrawnAtUtc: null, withdrawnByName: null, rowVersion: "R1", ...over,
-});
-
-interface Api {
-  plans: TreatmentPlan[];
-  diagnoses: Diagnosis[];
-  procedures: PlanningProcedure[];
-  calls: { url: string; method: string; body: Record<string, unknown> | null }[];
-  respond: Record<string, (body: Record<string, unknown> | null) => Response>;
-}
-
-function stubApi(over: Partial<Api> = {}): Api {
-  const api: Api = { plans: [plan()], diagnoses: [diagnosis()], procedures: [procedure(), procedure({ procedureId: "pr2", code: "FILL-1", description: "Filling", scope: "ToothSurface", fee: 80 })], calls: [], respond: {}, ...over };
-  vi.stubGlobal("fetch", vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
-    const u = String(url);
-    const method = init?.method ?? "GET";
-    const body = init?.body ? (JSON.parse(init.body as string) as Record<string, unknown>) : null;
-    api.calls.push({ url: u, method, body });
-    for (const [fragment, handler] of Object.entries(api.respond)) if (u.includes(fragment)) return Promise.resolve(handler(body));
-    if (u.includes("/api/auth/csrf-token")) return Promise.resolve(json({ token: "csrf" }));
-    if (u.includes("/api/procedures/active")) return Promise.resolve(json(api.procedures));
-    if (u.includes("/diagnoses")) return Promise.resolve(json({ patientId: P, diagnoses: api.diagnoses }));
-    if (u.includes("/treatment-plans") && method === "GET") return Promise.resolve(json({ patientId: P, plans: api.plans }));
-    if (method === "POST") return Promise.resolve(json(api.plans[0] ?? plan()));
-    return Promise.resolve(json({}));
-  }));
-  return api;
-}
-
 const posts = (api: Api) => api.calls.filter((c) => c.method === "POST");
 const openPanel = async (canWrite: boolean) => {
   render(<TreatmentPlansPanel patient={patient} canWrite={canWrite} />);

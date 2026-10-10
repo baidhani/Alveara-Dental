@@ -733,6 +733,7 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_Diagnoses_Links");
 
                             t.HasTrigger("TR_Diagnoses_NoDelete");
+                            t.HasTrigger("TR_Diagnoses_ReferenceResolved");
 
                             t.HasCheckConstraint("CK_Diagnoses_CodeChars", "[Code] IS NULL OR REPLACE([Code], N'-', N'') COLLATE Latin1_General_BIN2 NOT LIKE N'%[^A-Za-z0-9._]%'");
 
@@ -3996,6 +3997,58 @@ namespace Alveara.Api.Migrations
                     b.ToTable("AppointmentEvents");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.DiagnosisPlanResolution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DiagnosisId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferenceText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("ResolvedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ResolvedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiagnosisId")
+                        .IsUnique();
+
+                    b.HasIndex("PlanId");
+
+                    b.ToTable("DiagnosisPlanResolutions", t =>
+                        {
+                            t.HasTrigger("TR_DiagnosisPlanResolutions_Immutable");
+
+                            t.HasTrigger("TR_DiagnosisPlanResolutions_Links");
+
+                            t.HasCheckConstraint("CK_DiagnosisPlanResolutions_Method", "[Method] COLLATE Latin1_General_CS_AS IN ('ReferenceCode','PlanId','Chosen')");
+
+                            t.HasCheckConstraint("CK_DiagnosisPlanResolutions_Text", "LEN(LTRIM(RTRIM([ReferenceText]))) > 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlan", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4008,6 +4061,11 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("CurrentRevision")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
                     b.Property<string>("IdempotencyKey")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -4015,6 +4073,10 @@ namespace Alveara.Api.Migrations
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferenceCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -4053,6 +4115,10 @@ namespace Alveara.Api.Migrations
                     b.HasIndex("PatientId", "IdempotencyKey")
                         .IsUnique();
 
+                    b.HasIndex("PatientId", "ReferenceCode")
+                        .IsUnique()
+                        .HasFilter("[ReferenceCode] IS NOT NULL");
+
                     b.HasIndex("PatientId", "Status");
 
                     b.ToTable("TreatmentPlans", t =>
@@ -4061,7 +4127,13 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlans_NoDelete");
 
+                            t.HasTrigger("TR_TreatmentPlans_Revision");
+
+                            t.HasCheckConstraint("CK_TreatmentPlans_CurrentRevision", "[CurrentRevision] >= 1");
+
                             t.HasCheckConstraint("CK_TreatmentPlans_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0");
+
+                            t.HasCheckConstraint("CK_TreatmentPlans_ReferenceCode", "[ReferenceCode] IS NULL OR (LEN(LTRIM(RTRIM([ReferenceCode]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [ReferenceCode] COLLATE Latin1_General_BIN2) = 0)");
 
                             t.HasCheckConstraint("CK_TreatmentPlans_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Proposed','Withdrawn')");
 
@@ -4086,8 +4158,8 @@ namespace Alveara.Api.Migrations
 
                     b.Property<string>("ChangeType")
                         .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("EventNumber")
                         .HasColumnType("int");
@@ -4108,6 +4180,9 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("RevisionNumber")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
@@ -4121,13 +4196,15 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_TreatmentPlanEvents_Immutable");
 
-                            t.HasCheckConstraint("CK_TreatmentPlanEvents_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Withdrawn')");
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Withdrawn','Revised','ReferenceCodeSet','ItemAccepted','ItemDeclined','PlanAccepted','PlanDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted')");
 
-                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Item", "([ChangeType] IN ('ItemAdded','ItemWithdrawn') AND [ItemId] IS NOT NULL) OR ([ChangeType] IN ('Created','Renamed','Withdrawn') AND [ItemId] IS NULL)");
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Item", "([ChangeType] IN ('ItemAdded','ItemWithdrawn','ItemAccepted','ItemDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted') AND [ItemId] IS NOT NULL) OR ([ChangeType] NOT IN ('ItemAdded','ItemWithdrawn','ItemAccepted','ItemDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted') AND [ItemId] IS NULL)");
 
                             t.HasCheckConstraint("CK_TreatmentPlanEvents_Number", "[EventNumber] >= 1");
 
-                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Reason", "[ChangeType] NOT IN ('ItemWithdrawn','Withdrawn') OR ([Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0)");
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Reason", "[ChangeType] NOT IN ('ItemWithdrawn','Withdrawn','ItemDeclined','PlanDeclined','Revised') OR ([Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0)");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_RevisionNumber", "[RevisionNumber] IS NULL OR [RevisionNumber] >= 1");
 
                             t.HasCheckConstraint("CK_TreatmentPlanEvents_Title", "([ChangeType] IN ('Created','Renamed') AND [Title] IS NOT NULL AND LEN(LTRIM(RTRIM([Title]))) > 0) OR ([ChangeType] NOT IN ('Created','Renamed') AND [Title] IS NULL)");
                         });
@@ -4220,6 +4297,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlanItems_Links");
 
+                            t.HasTrigger("TR_TreatmentPlanItems_CompletedFinal");
+
                             t.HasTrigger("TR_TreatmentPlanItems_NoDelete");
 
                             t.HasCheckConstraint("CK_TreatmentPlanItems_Fee", "[Fee] >= 0 AND [Fee] <= 1000000.00 AND [Fee] = ROUND([Fee], 2)");
@@ -4233,6 +4312,260 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_TreatmentPlanItems_ToothKey", "[ToothKey] IS NULL OR [ToothKey] COLLATE Latin1_General_CS_AS IN ('11','12','13','14','15','16','17','18','21','22','23','24','25','26','27','28','31','32','33','34','35','36','37','38','41','42','43','44','45','46','47','48','51','52','53','54','55','61','62','63','64','65','71','72','73','74','75','81','82','83','84','85')");
 
                             t.HasCheckConstraint("CK_TreatmentPlanItems_WithdrawnStamp", "([WithdrawnAtUtc] IS NULL AND [WithdrawnByUserId] IS NULL AND [WithdrawnReason] IS NULL) OR ([WithdrawnAtUtc] IS NOT NULL AND [WithdrawnByUserId] IS NOT NULL AND [WithdrawnReason] IS NOT NULL AND LEN(LTRIM(RTRIM([WithdrawnReason]))) > 0)");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanItemState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Acceptance")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("Completion")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("DecidedByName")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("PlannedDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("RecordedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RecordedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Scheduling")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("ItemId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("TreatmentPlanItemStates", t =>
+                        {
+                            t.HasTrigger("TR_TreatmentPlanItemStates_Immutable");
+
+                            t.HasTrigger("TR_TreatmentPlanItemStates_Links");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Acceptance", "[Acceptance] COLLATE Latin1_General_CS_AS IN ('Pending','Accepted','Declined')");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Accepted", "([Scheduling] = 'Unscheduled' AND [Completion] = 'NotStarted') OR [Acceptance] = 'Accepted'");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Completion", "[Completion] COLLATE Latin1_General_CS_AS IN ('NotStarted','Completed')");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Declined", "[Acceptance] <> 'Declined' OR [Reason] IS NOT NULL");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Number", "[Sequence] >= 1 AND [RevisionNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_PlannedDate", "[PlannedDate] IS NULL OR [Scheduling] = 'Scheduled'");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Scheduling", "[Scheduling] COLLATE Latin1_General_CS_AS IN ('Unscheduled','Scheduled')");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanItemStates_Text", "([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0) AND ([DecidedByName] IS NULL OR LEN(LTRIM(RTRIM([DecidedByName]))) > 0)");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanRevision", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ClinicalRationale")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("EventNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PatientExplanation")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId", "EventNumber")
+                        .IsUnique();
+
+                    b.HasIndex("PlanId", "RevisionNumber")
+                        .IsUnique();
+
+                    b.ToTable("TreatmentPlanRevisions", t =>
+                        {
+                            t.HasTrigger("TR_TreatmentPlanRevisions_Immutable");
+
+                            t.HasTrigger("TR_TreatmentPlanRevisions_Links");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Revised')");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisions_Number", "[RevisionNumber] >= 1 AND [EventNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisions_Text", "([ClinicalRationale] IS NULL OR LEN(LTRIM(RTRIM([ClinicalRationale]))) > 0) AND ([PatientExplanation] IS NULL OR LEN(LTRIM(RTRIM([PatientExplanation]))) > 0) AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisions_Title", "LEN(LTRIM(RTRIM([Title]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Title] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanRevisionItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsWithdrawn")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("PhaseNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RevisionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("RevisionId", "ItemId")
+                        .IsUnique();
+
+                    b.HasIndex("RevisionId", "PhaseNumber");
+
+                    b.ToTable("TreatmentPlanRevisionItems", t =>
+                        {
+                            t.HasTrigger("TR_TreatmentPlanRevisionItems_Immutable");
+
+                            t.HasTrigger("TR_TreatmentPlanRevisionItems_Links");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisionItems_Phase", "[PhaseNumber] IS NULL OR [PhaseNumber] >= 1");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanRevisionPhase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PhaseNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PlannedVisit")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid>("RevisionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("TargetDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RevisionId", "PhaseNumber")
+                        .IsUnique();
+
+                    b.ToTable("TreatmentPlanRevisionPhases", t =>
+                        {
+                            t.HasTrigger("TR_TreatmentPlanRevisionPhases_Immutable");
+
+                            t.HasTrigger("TR_TreatmentPlanRevisionPhases_Links");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisionPhases_Name", "LEN(LTRIM(RTRIM([Name]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Name] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisionPhases_Number", "[PhaseNumber] >= 1 AND [PhaseNumber] <= 12");
+
+                            t.HasCheckConstraint("CK_TreatmentPlanRevisionPhases_Visit", "[PlannedVisit] IS NULL OR (LEN(LTRIM(RTRIM([PlannedVisit]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [PlannedVisit] COLLATE Latin1_General_BIN2) = 0)");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -4778,6 +5111,21 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.DiagnosisPlanResolution", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Clinical.Diagnosis", null)
+                        .WithMany()
+                        .HasForeignKey("DiagnosisId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlan", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
@@ -4819,6 +5167,54 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Procedures.ProcedureVersion", null)
                         .WithMany()
                         .HasForeignKey("ProcedureVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanItemState", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanRevision", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanRevisionItem", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanRevision", null)
+                        .WithMany()
+                        .HasForeignKey("RevisionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanRevisionPhase", null)
+                        .WithMany()
+                        .HasForeignKey("RevisionId", "PhaseNumber")
+                        .HasPrincipalKey("RevisionId", "PhaseNumber")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanRevisionPhase", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanRevision", null)
+                        .WithMany()
+                        .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

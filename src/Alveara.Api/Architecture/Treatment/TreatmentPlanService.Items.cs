@@ -25,6 +25,8 @@ public partial class TreatmentPlanService
         RequireProposed(plan);
 
         var item = await BuildItemAsync(plan.PatientId, input, "", errors, ct);
+        var basis = await LayoutAsync(planId, plan.CurrentRevision, ct);
+        if (input.PhaseNumber is { } wanted && basis.Phases.All(p => p.Number != wanted)) errors["phaseNumber"] = $"This plan has no phase {wanted}.";
         if (item is not null)
         {
             var active = await db.TreatmentPlanItems.AsNoTracking().Where(i => i.PlanId == planId && i.WithdrawnAtUtc == null).ToListAsync(ct);
@@ -39,8 +41,12 @@ public partial class TreatmentPlanService
         var number = (await db.TreatmentPlanItems.AsNoTracking().Where(i => i.PlanId == planId).Select(i => (int?)i.ItemNumber).MaxAsync(ct) ?? 0) + 1;
         var staged = StageItem(plan, number, key!, item!, actor, now);
         Touch(plan, actor, now);
-        StageEvent(plan, await NextEventAsync(planId, ct), TreatmentPlanChanges.ItemAdded, staged.Id, null, null, actor, now);
+        var eventNumber = await NextEventAsync(planId, ct);
+        var revision = plan.CurrentRevision + 1;
+        StageEvent(plan, eventNumber, TreatmentPlanChanges.ItemAdded, staged.Id, null, null, actor, now, revision);
         AuditService.Record(db, "TreatmentPlanItemAdded", nameof(TreatmentPlan), planId, actor, $"Procedure {item!.ProcedureCode} proposed in a treatment plan (practice fee estimate {item.Fee:F2} USD).");
+        var placement = new Dictionary<Guid, int?>(basis.Placement) { [staged.Id] = input.PhaseNumber };
+        await StageRevisionAsync(plan, revision, TreatmentPlanChanges.ItemAdded, eventNumber, null, actor, now, basis with { Placement = placement }, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }
@@ -53,6 +59,7 @@ public partial class TreatmentPlanService
             ?? throw new TreatmentPlanException("item_not_found", "That item was not found in this treatment plan.", 404);
         if (item.WithdrawnAtUtc is not null) return await GetAsync(planId, ct);
         RequireProposed(plan);
+        if (CompletionOf((await CurrentStatesAsync(planId, ct)).GetValueOrDefault(itemId)) == ItemCompletion.Completed) throw ItemCompleted();     // care that has been done stays on the plan
         var why = TreatmentPlanRules.RequireReason(reason, "Say why this procedure is being withdrawn from the plan.");
         db.Entry(plan).Property(p => p.RowVersion).OriginalValue = TreatmentPlanRules.ParseVersion(rowVersion);
 
@@ -61,8 +68,11 @@ public partial class TreatmentPlanService
         item.WithdrawnByUserId = actor;
         item.WithdrawnReason = why;
         Touch(plan, actor, now);
-        StageEvent(plan, await NextEventAsync(planId, ct), TreatmentPlanChanges.ItemWithdrawn, itemId, null, why, actor, now);
+        var eventNumber = await NextEventAsync(planId, ct);
+        var revision = plan.CurrentRevision + 1;
+        StageEvent(plan, eventNumber, TreatmentPlanChanges.ItemWithdrawn, itemId, null, why, actor, now, revision);
         AuditService.Record(db, "TreatmentPlanItemWithdrawn", nameof(TreatmentPlan), planId, actor, $"Item {item.ItemNumber} withdrawn from a treatment plan.", why);
+        await StageRevisionAsync(plan, revision, TreatmentPlanChanges.ItemWithdrawn, eventNumber, why, actor, now, null, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }

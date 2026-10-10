@@ -57,16 +57,17 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
         var now = clock.UtcNow;
         var plan = new TreatmentPlan { Id = Guid.NewGuid(), PatientId = patientId, IdempotencyKey = key!, Title = title!, Status = TreatmentPlanStatuses.Proposed, CreatedAtUtc = now, CreatedByUserId = actor };
         db.TreatmentPlans.Add(plan);
-        StageEvent(plan, 1, TreatmentPlanChanges.Created, null, title, null, actor, now);
+        StageEvent(plan, 1, TreatmentPlanChanges.Created, null, title, null, actor, now, 1);
         AuditService.Record(db, "TreatmentPlanCreated", nameof(TreatmentPlan), plan.Id, actor, $"Treatment plan created with {built.Count} proposed procedure{(built.Count == 1 ? "" : "s")} (practice fee estimate {built.Sum(b => b.Fee):F2} USD).");
         var number = 0;
         foreach (var b in built)
         {
             number++;
             var item = StageItem(plan, number, $"{key}:{number}", b, actor, now);
-            StageEvent(plan, number + 1, TreatmentPlanChanges.ItemAdded, item.Id, null, null, actor, now);
+            StageEvent(plan, number + 1, TreatmentPlanChanges.ItemAdded, item.Id, null, null, actor, now, 1);
             AuditService.Record(db, "TreatmentPlanItemAdded", nameof(TreatmentPlan), plan.Id, actor, $"Procedure {b.ProcedureCode} proposed in a treatment plan (practice fee estimate {b.Fee:F2} USD).");
         }
+        await StageRevisionAsync(plan, 1, TreatmentPlanChanges.Created, built.Count + 1, null, actor, now, null, ct);       // revision 1 holds the plan as created
         try
         {
             await SaveAsync(plan.Id, ct);
@@ -97,8 +98,11 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
         var now = clock.UtcNow;
         plan.Title = t!;
         Touch(plan, actor, now);
-        StageEvent(plan, await NextEventAsync(planId, ct), TreatmentPlanChanges.Renamed, null, t, null, actor, now);
+        var eventNumber = await NextEventAsync(planId, ct);
+        var revision = plan.CurrentRevision + 1;
+        StageEvent(plan, eventNumber, TreatmentPlanChanges.Renamed, null, t, null, actor, now, revision);
         AuditService.Record(db, "TreatmentPlanRenamed", nameof(TreatmentPlan), planId, actor, "Treatment plan title changed.");
+        await StageRevisionAsync(plan, revision, TreatmentPlanChanges.Renamed, eventNumber, null, actor, now, null, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }
@@ -142,8 +146,8 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
     private async Task<int> NextEventAsync(Guid planId, CancellationToken ct) =>
         (await db.TreatmentPlanEvents.AsNoTracking().Where(e => e.PlanId == planId).Select(e => (int?)e.EventNumber).MaxAsync(ct) ?? 0) + 1;
 
-    private void StageEvent(TreatmentPlan plan, int number, string changeType, Guid? itemId, string? title, string? reason, Guid actor, DateTimeOffset now) =>
-        db.TreatmentPlanEvents.Add(new TreatmentPlanEvent { Id = Guid.NewGuid(), PlanId = plan.Id, PatientId = plan.PatientId, EventNumber = number, ChangeType = changeType, ItemId = itemId, Title = title, Reason = reason, ActorUserId = actor, OccurredAtUtc = now });
+    private void StageEvent(TreatmentPlan plan, int number, string changeType, Guid? itemId, string? title, string? reason, Guid actor, DateTimeOffset now, int? revision = null) =>
+        db.TreatmentPlanEvents.Add(new TreatmentPlanEvent { Id = Guid.NewGuid(), PlanId = plan.Id, PatientId = plan.PatientId, EventNumber = number, ChangeType = changeType, ItemId = itemId, Title = title, Reason = reason, RevisionNumber = revision, ActorUserId = actor, OccurredAtUtc = now });
 
     private async Task SaveAsync(Guid planId, CancellationToken ct)
     {

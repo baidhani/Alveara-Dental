@@ -1,34 +1,14 @@
-import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";
+import { useState } from "react";
 import type { Diagnosis } from "../../services/diagnosisApi";
-import type { PlanItem, PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
+import type { PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { TreatmentPlanActions, WithdrawItemControl } from "./TreatmentPlanActions";
 import type { ChangeProps } from "./TreatmentPlanActions";
-import { formatFee } from "./treatmentPlanRules";
-
-const when = (iso: string) => new Date(iso).toLocaleString();
-
-function siteOf(item: PlanItem) {
-  if (!item.toothKey) return null;
-  return `Tooth ${displayTooth(item.toothKey, DEFAULT_NUMBERING)}${item.surface ? `, surface ${item.surface}` : ""}`;
-}
-
-/** One proposed procedure, drawn from the plan response alone (so a role that may read plans but not the catalog sees it in full). A withdrawn item stays visible, says Withdrawn and why, and is left out of the total. */
-function ItemRow({ item, control }: { item: PlanItem; control?: React.ReactNode }) {
-  const site = siteOf(item);
-  return (
-    <li className={`alv-tp__item${item.isWithdrawn ? " alv-tp__item--withdrawn" : ""}`}>
-      <p className="alv-tp__item-title">
-        <strong>{item.procedureCode}</strong> {item.procedureDescription}
-        {item.isWithdrawn && <> <span className="alv-dx__badge">Withdrawn</span></>}
-      </p>
-      <p className="alv-clinical__meta">
-        For: {item.diagnosisLabel}{site ? ` · ${site}` : ""} · Fee {formatFee(item.fee)} (catalog version {item.procedureVersionNumber})
-      </p>
-      {item.isWithdrawn && <p className="alv-clinical__meta">Withdrawn{item.withdrawnByName ? ` by ${item.withdrawnByName}` : ""}{item.withdrawnAtUtc ? ` on ${when(item.withdrawnAtUtc)}` : ""}: {item.withdrawnReason}</p>}
-      {control}
-    </li>
-  );
-}
+import { TreatmentPlanEstimate } from "./TreatmentPlanEstimate";
+import { TreatmentPlanPatientCopy } from "./TreatmentPlanPatientCopy";
+import { TreatmentPlanPhaseGroups } from "./TreatmentPlanPhaseGroups";
+import { TreatmentPlanRevisions } from "./TreatmentPlanRevisions";
+import { TreatmentPlanStateControls } from "./TreatmentPlanStateControls";
+import { answerWords, when } from "./treatmentPlanRules";
 
 interface Props extends Partial<ChangeProps> {
   plan: TreatmentPlan;
@@ -36,13 +16,16 @@ interface Props extends Partial<ChangeProps> {
   canWrite?: boolean;
   diagnoses?: Diagnosis[];
   procedures?: PlanningProcedure[];
+  /** The patient's name for the patient copy, when the record has one. */
+  patientName?: string;
 }
 
 /**
- * STORY-015: one treatment plan with its proposed procedures, the estimate total and what that total is (the label from the server: the practice's catalog fees, not an insurance estimate). A withdrawn plan
- * is shown as Withdrawn with who withdrew it and why; nothing is ever deleted.
+ * One treatment plan: its procedures grouped by phase, the rationale and the explanation for the patient, the estimate total and what that total is (the label from the server: the practice's catalog fees,
+ * not an insurance estimate), which revision this is and the reference code old diagnosis notes can be tied to. A withdrawn plan is shown as Withdrawn with who withdrew it and why; nothing is ever deleted.
  */
-export function TreatmentPlanCard({ plan, canWrite = false, diagnoses = [], procedures = [], onChanged, onConflict }: Props) {
+export function TreatmentPlanCard({ plan, canWrite = false, diagnoses = [], procedures = [], patientName, onChanged, onConflict }: Props) {
+  const [copy, setCopy] = useState(false);
   const withdrawn = plan.status === "Withdrawn";
   const change = canWrite && !withdrawn && onChanged && onConflict ? { onChanged, onConflict } : null;
   return (
@@ -52,12 +35,17 @@ export function TreatmentPlanCard({ plan, canWrite = false, diagnoses = [], proc
         Created{plan.createdByName ? ` by ${plan.createdByName}` : ""} on {when(plan.createdAtUtc)}
         {plan.updatedAtUtc ? ` · last changed${plan.updatedByName ? ` by ${plan.updatedByName}` : ""} on ${when(plan.updatedAtUtc)}` : ""}
       </p>
+      <p className="alv-clinical__meta">Revision {plan.currentRevision}{plan.referenceCode ? ` · Reference code ${plan.referenceCode}` : ""}</p>
+      {!withdrawn && <p className="alv-clinical__meta">Patient&apos;s answer: {answerWords(plan.acceptanceStatus)}</p>}
       {withdrawn && <p className="alv-clinical__meta">Withdrawn{plan.withdrawnByName ? ` by ${plan.withdrawnByName}` : ""}{plan.withdrawnAtUtc ? ` on ${when(plan.withdrawnAtUtc)}` : ""}: {plan.withdrawnReason}</p>}
-      <ul className="alv-tp__items" aria-label={`Procedures in ${plan.title}`}>{plan.items.map((i) => <ItemRow key={i.id} item={i} control={change && !i.isWithdrawn ? <WithdrawItemControl plan={plan} item={i} {...change} /> : undefined} />)}</ul>
-      <p className="alv-tp__total">
-        <strong>Estimate total: {formatFee(plan.estimateTotal)}</strong> for {plan.activeItemCount} {plan.activeItemCount === 1 ? "procedure" : "procedures"}
-      </p>
-      <p className="alv-clinical__meta">{plan.estimateLabel}</p>
+      {plan.clinicalRationale && <p className="alv-tp__words"><strong>Clinical rationale:</strong> {plan.clinicalRationale}</p>}
+      {plan.patientExplanation && <p className="alv-tp__words"><strong>For the patient:</strong> {plan.patientExplanation}</p>}
+      <TreatmentPlanPhaseGroups plan={plan} control={change ? (i) => (i.isWithdrawn ? null : <><TreatmentPlanStateControls plan={plan} item={i} {...change} />{i.completion === "Completed" ? null : <WithdrawItemControl plan={plan} item={i} {...change} />}</>) : undefined} />
+      <TreatmentPlanEstimate plan={plan} />
+      <TreatmentPlanRevisions plan={plan} />
+      {!withdrawn && (copy
+        ? <TreatmentPlanPatientCopy plan={plan} patientName={patientName} onClose={() => setCopy(false)} />
+        : <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setCopy(true)}>Show patient copy</button>)}
       {change && <TreatmentPlanActions plan={plan} diagnoses={diagnoses} procedures={procedures} {...change} />}
     </li>
   );

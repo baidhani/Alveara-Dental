@@ -13,7 +13,19 @@ public class TreatmentPlanException(string code, string message, int statusCode,
 }
 
 /// <summary>One proposed procedure as the caller supplies it. Everything is optional here so the rules can name every missing or wrong field in one answer.</summary>
-public sealed record PlanItemInput(Guid? DiagnosisId, Guid? ProcedureId, string? ToothKey, string? Surface, string? IdempotencyKey);
+public sealed record PlanItemInput(Guid? DiagnosisId, Guid? ProcedureId, string? ToothKey, string? Surface, string? IdempotencyKey, int? PhaseNumber = null);
+
+/// <summary>One phase as a caller lays it out when revising a plan. The number is the phase's stable identity across revisions; procedures are placed by it.</summary>
+public sealed record PlanPhaseInput(int? Number, string? Name, string? PlannedVisit, DateOnly? TargetDate);
+
+/// <summary>Where one procedure should sit in the revision being saved: a phase number, or none for not yet placed.</summary>
+public sealed record PlanPlacementInput(Guid? ItemId, int? PhaseNumber);
+
+/// <summary>
+/// An explicit revision. <c>Reason</c> is required. For the rationale, the explanation, the phases and the placements, null means keep what the plan has now; a blank rationale or explanation clears it;
+/// an empty list of phases removes them all. Procedures not named in <c>Placements</c> keep their phase.
+/// </summary>
+public sealed record ReviseInput(string? Reason, string? ClinicalRationale, string? PatientExplanation, IReadOnlyList<PlanPhaseInput>? Phases, IReadOnlyList<PlanPlacementInput>? Placements);
 
 /// <summary>What a caller supplies to create a plan: a title and at least one proposed procedure.</summary>
 public sealed record PlanInput(string? Title, string? IdempotencyKey, IReadOnlyList<PlanItemInput>? Items);
@@ -28,6 +40,13 @@ public static class TreatmentPlanRules
     public const int ReasonMax = 500;
     public const int KeyMax = 64;
     public const int ItemsMax = 50;
+    public const int ReferenceCodeMax = 100;
+    public const int ChangeTypeMax = 20;
+    public const int TextMax = 2000;
+    public const int PhaseNameMax = 80;
+    public const int PlannedVisitMax = 120;
+    public const int PhasesMax = 12;
+    public const int DecidedByMax = 120;
 
     private static readonly Regex ControlCharacter = new("[\\x00-\\x1F\\x7F]", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 

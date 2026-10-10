@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { PlanningProcedure } from "../../services/treatmentPlansApi";
-import { fieldMessage, formatFee, itemGap, otherMessages, siteNeedOf, titleGap, toItemInput } from "./treatmentPlanRules";
+import { answerWords, changeWords, dayOf, fieldMessage, formatDelta, formatFee, itemGap, otherMessages, siteNeedOf, titleGap, toItemInput } from "./treatmentPlanRules";
 
 const proc = (scope: string, dentition = "Both"): PlanningProcedure => ({ procedureId: "p1", versionId: "v1", versionNumber: 1, codeSystem: "Local", code: "L1", description: "d", category: "Diagnostic", scope, dentition, fee: 10, currency: "USD" });
 const draft = (procedure: PlanningProcedure | null, over: Partial<{ diagnosisId: string; toothKey: string; surface: string }> = {}) => ({ diagnosisId: "d1", procedure, toothKey: "", surface: "", ...over });
@@ -49,5 +49,21 @@ describe("titleGap, formatFee and the message lookups", () => {
     expect(fieldMessage(errors, "diagnosisId", "items[0].")).toBe("D");
     expect(fieldMessage(errors, "procedureId", "items[0].")).toBeUndefined();
     expect(otherMessages(errors, ["title", "items[0].diagnosisId"])).toEqual(["same procedure"]);
+  });
+});
+
+describe("words for revisions, changes in money and answers", () => {
+  it("says what each kind of revision was, and passes an unknown kind through rather than hiding it", () => {
+    expect(["Created", "ItemAdded", "ItemWithdrawn", "Renamed", "Revised", "SomethingNew"].map(changeWords)).toEqual(["Plan created", "Procedure added", "Procedure withdrawn", "Plan renamed", "Plan revised", "SomethingNew"]);
+  });
+  it("spells out the sign of a change in money so it is never read as a total", () => {
+    expect([formatDelta(30), formatDelta(-1234.5), formatDelta(0)]).toEqual(["+$30.00", "-$1,234.50", "no change"]);
+  });
+  it("says where a plan stands as a whole in plain words", () => {
+    expect(["Pending", "Accepted", "Declined", "Partial"].map(answerWords)).toEqual(["Not yet answered", "Accepted", "Declined", "Partly accepted"]);
+  });
+  it("shows a calendar day without shifting it by a time zone", () => {
+    expect(dayOf("2030-06-01")).toContain("2030");
+    expect(new Date("2030-06-01T00:00:00").getDate()).toBe(1);
   });
 });

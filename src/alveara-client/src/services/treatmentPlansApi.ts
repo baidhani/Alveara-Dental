@@ -6,10 +6,15 @@
  * - Items are never edited: a wrong one is withdrawn with a reason and the right one added.
  * - Every change echoes the plan's `rowVersion` (a stale one is the shared 409 concurrency conflict). A refusal carries `fieldErrors`, keyed by the field to correct (`title`, `reason`,
  *   `items[0].diagnosisId`, or `diagnosisId` when one item is added).
+ * - ALV-015-C01: a plan's content is saved as numbered revisions (every change saves the next one and no earlier one is ever touched); phases group the procedures; each procedure carries the answer a patient gave
+ *   (Pending, Accepted or Declined, with who entered it and who answered), whether it is scheduled and whether it is completed; the plan's `acceptanceStatus` is derived from them. A decision echoes the plan's
+ *   `rowVersion` so what is recorded is what was on screen. The estimate is the practice's catalog fee, labelled as such by `estimateLabel`; nothing here is an insurance figure.
  * - A create carries an idempotency key; the same key returns the plan already saved.
  * - Reading plans needs clinical-documentation access; changing them needs the manage-treatment-plans permission; the catalog call needs billing access, so a read-only screen must not call it.
  */
 import { ApiError, request, requestWithCsrf } from "./authApi";
+
+export type Acceptance = "Pending" | "Accepted" | "Declined";
 
 export interface PlanItem {
   id: string;
@@ -32,6 +37,23 @@ export interface PlanItem {
   withdrawnByName: string | null;
   createdAtUtc: string;
   createdByName: string | null;
+  phaseNumber: number | null;
+  acceptance: Acceptance;
+  scheduling: "Unscheduled" | "Scheduled";
+  completion: "NotStarted" | "Completed";
+  plannedDate: string | null;
+  decisionReason: string | null;
+  decidedByName: string | null;
+  recordedByName: string | null;
+  recordedAtUtc: string | null;
+  decisionRevision: number | null;
+}
+
+export interface PlanPhase {
+  phaseNumber: number;
+  name: string;
+  plannedVisit: string | null;
+  targetDate: string | null;
 }
 
 export interface TreatmentPlan {
@@ -52,6 +74,13 @@ export interface TreatmentPlan {
   withdrawnAtUtc: string | null;
   withdrawnByName: string | null;
   rowVersion: string;
+  currentRevision: number;
+  referenceCode: string | null;
+  clinicalRationale: string | null;
+  patientExplanation: string | null;
+  phases: PlanPhase[];
+  acceptanceStatus: Acceptance | "Partial";
+  acceptedEstimateTotal: number;
 }
 
 export interface PlanEvent {
@@ -62,6 +91,7 @@ export interface PlanEvent {
   reason: string | null;
   actorName: string | null;
   occurredAtUtc: string;
+  revisionNumber: number | null;
 }
 
 /** One procedure the catalog offers today, as planning sees it (the fields the picker shows). */
@@ -84,6 +114,101 @@ export interface PlanItemInput {
   procedureId: string;
   toothKey: string | null;
   surface: string | null;
+  /** Only when adding a procedure to an existing plan: the phase it sits in. */
+  phaseNumber?: number | null;
+}
+
+export interface PhaseInput { number: number | null; name: string; plannedVisit: string | null; targetDate: string | null }
+export interface PlacementInput { itemId: string; phaseNumber: number | null }
+
+/** An explicit revision. `reason` is required. Leaving a part out (undefined) keeps it; a blank rationale or explanation clears it; an empty `phases` list removes them all. */
+export interface ReviseInput {
+  reason: string;
+  clinicalRationale?: string | null;
+  patientExplanation?: string | null;
+  phases?: PhaseInput[];
+  placements?: PlacementInput[];
+}
+
+export interface DecisionInput { decision: "Accepted" | "Declined"; reason?: string | null; decidedByName?: string | null }
+
+export interface RevisionSummary {
+  revisionNumber: number;
+  changeType: string;
+  title: string;
+  reason: string | null;
+  actorName: string | null;
+  createdAtUtc: string;
+  procedureCount: number;
+  estimateTotal: number;
+  phaseCount: number;
+}
+
+export interface RevisionItem {
+  itemId: string;
+  itemNumber: number;
+  procedureCode: string;
+  procedureDescription: string;
+  diagnosisLabel: string;
+  toothKey: string | null;
+  surface: string | null;
+  fee: number;
+  isWithdrawn: boolean;
+  phaseNumber: number | null;
+}
+
+export interface RevisionDetail {
+  summary: RevisionSummary;
+  clinicalRationale: string | null;
+  patientExplanation: string | null;
+  phases: PlanPhase[];
+  items: RevisionItem[];
+  estimateLabel: string;
+}
+
+export interface FieldChange { from: string | null; to: string | null }
+export interface PhaseChange { phaseNumber: number; from: PlanPhase; to: PlanPhase }
+export interface ItemMove { item: RevisionItem; fromPhase: number | null; toPhase: number | null }
+
+export interface RevisionComparison {
+  from: RevisionSummary;
+  to: RevisionSummary;
+  title: FieldChange | null;
+  clinicalRationale: FieldChange | null;
+  patientExplanation: FieldChange | null;
+  phasesAdded: PlanPhase[];
+  phasesRemoved: PlanPhase[];
+  phasesChanged: PhaseChange[];
+  itemsAdded: RevisionItem[];
+  itemsWithdrawn: RevisionItem[];
+  itemsMoved: ItemMove[];
+  estimateFrom: number;
+  estimateTo: number;
+  estimateDelta: number;
+  estimateLabel: string;
+}
+
+/** What happened to one diagnosis's old free-text treatment-plan reference. `Eligible` is a preview's word for one that would be resolved. */
+export type ReconciliationOutcome = "Resolved" | "Eligible" | "AlreadyResolved" | "NoMatch" | "Ambiguous" | "Skipped";
+
+export interface ReconciliationItem {
+  diagnosisId: string;
+  diagnosisLabel: string;
+  reference: string | null;
+  outcome: ReconciliationOutcome;
+  planId: string | null;
+  planTitle: string | null;
+  method: string | null;
+  reason: string | null;
+}
+
+export interface ReconciliationResult {
+  patientId: string;
+  applied: boolean;
+  matched: number;
+  alreadyResolved: number;
+  unresolved: number;
+  items: ReconciliationItem[];
 }
 
 export const listTreatmentPlans = (patientId: string, options: { includeWithdrawn?: boolean } = {}, signal?: AbortSignal) =>
@@ -98,6 +223,40 @@ type Versioned = Pick<TreatmentPlan, "id" | "rowVersion">;
 
 export const addPlanItem = (plan: Versioned, idempotencyKey: string, item: PlanItemInput) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/items`, "POST", { idempotencyKey, rowVersion: plan.rowVersion, ...item });
+
+export const revisePlan = (plan: Versioned, input: ReviseInput) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/revise`, "POST", { rowVersion: plan.rowVersion, ...input });
+
+/** Accepts or declines one procedure. A decline needs a reason; `decidedByName` is who gave the answer (the signed-in account is recorded as who entered it). */
+export const decideItem = (plan: Versioned, itemId: string, input: DecisionInput) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/items/${itemId}/decision`, "POST", { rowVersion: plan.rowVersion, ...input });
+
+/** Accepts or declines every procedure still pending. Refused (409 partial_acceptance_conflict) when any holds the opposite answer. */
+export const decidePlan = (plan: Versioned, input: DecisionInput) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/decision`, "POST", { rowVersion: plan.rowVersion, ...input });
+
+export const scheduleItem = (planId: string, itemId: string, scheduled: boolean, plannedDate: string | null) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/schedule`, "POST", { scheduled, plannedDate });
+
+export const completeItem = (planId: string, itemId: string) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/complete`, "POST", {});
+
+/** Gives the plan its reference code, set once, which an old diagnosis's free-text reference can be matched to. */
+export const setReferenceCode = (plan: Versioned, code: string) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/reference-code`, "POST", { rowVersion: plan.rowVersion, code });
+
+export const getRevisions = (planId: string, signal?: AbortSignal) => request<RevisionSummary[]>(`/api/treatment-plans/${planId}/revisions`, { signal });
+export const getRevision = (planId: string, revision: number, signal?: AbortSignal) => request<RevisionDetail>(`/api/treatment-plans/${planId}/revisions/${revision}`, { signal });
+export const compareRevisions = (planId: string, from: number, to: number, signal?: AbortSignal) =>
+  request<RevisionComparison>(`/api/treatment-plans/${planId}/revisions/compare?from=${from}&to=${to}`, { signal });
+
+/** Previews (apply false) or applies the matching of a patient's old diagnosis references to that patient's plans by reference code or id. */
+export const reconcileReferences = (patientId: string, apply: boolean) =>
+  requestWithCsrf<ReconciliationResult>(`/api/patients/${patientId}/treatment-plans/reconcile-references`, "POST", { apply });
+
+/** Ties one diagnosis's reference to a plan the person chose (the same patient's plan only). */
+export const resolvePlanReference = (diagnosisId: string, planId: string) =>
+  requestWithCsrf<ReconciliationItem>(`/api/diagnoses/${diagnosisId}/resolve-plan-reference`, "POST", { planId });
 
 export const withdrawPlanItem = (plan: Versioned, itemId: string, reason: string) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/items/${itemId}/withdraw`, "POST", { rowVersion: plan.rowVersion, reason });

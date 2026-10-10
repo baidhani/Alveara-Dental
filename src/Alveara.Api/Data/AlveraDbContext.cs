@@ -91,6 +91,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Treatment.TreatmentPlan> TreatmentPlans => Set<Architecture.Treatment.TreatmentPlan>();
     public DbSet<Architecture.Treatment.TreatmentPlanItem> TreatmentPlanItems => Set<Architecture.Treatment.TreatmentPlanItem>();
     public DbSet<Architecture.Treatment.TreatmentPlanEvent> TreatmentPlanEvents => Set<Architecture.Treatment.TreatmentPlanEvent>();
+    public DbSet<Architecture.Treatment.TreatmentPlanRevision> TreatmentPlanRevisions => Set<Architecture.Treatment.TreatmentPlanRevision>();
+    public DbSet<Architecture.Treatment.TreatmentPlanRevisionPhase> TreatmentPlanRevisionPhases => Set<Architecture.Treatment.TreatmentPlanRevisionPhase>();
+    public DbSet<Architecture.Treatment.TreatmentPlanRevisionItem> TreatmentPlanRevisionItems => Set<Architecture.Treatment.TreatmentPlanRevisionItem>();
+    public DbSet<Architecture.Treatment.TreatmentPlanItemState> TreatmentPlanItemStates => Set<Architecture.Treatment.TreatmentPlanItemState>();
+    public DbSet<Architecture.Treatment.DiagnosisPlanResolution> DiagnosisPlanResolutions => Set<Architecture.Treatment.DiagnosisPlanResolution>();
     public DbSet<Architecture.Clinical.DiagnosisLink> DiagnosisLinks => Set<Architecture.Clinical.DiagnosisLink>();
     public DbSet<Architecture.Periodontal.PerioExam> PerioExams => Set<Architecture.Periodontal.PerioExam>();
     public DbSet<Architecture.Periodontal.PerioReading> PerioReadings => Set<Architecture.Periodontal.PerioReading>();

@@ -16,7 +16,23 @@ public static class TreatmentPlanChanges
     public const string ItemWithdrawn = "ItemWithdrawn";
     public const string Renamed = "Renamed";
     public const string Withdrawn = "Withdrawn";
-    public static readonly IReadOnlyList<string> All = [Created, ItemAdded, ItemWithdrawn, Renamed, Withdrawn];
+    // ALV-015-C01
+    public const string Revised = "Revised";
+    public const string ReferenceCodeSet = "ReferenceCodeSet";
+    public const string ItemAccepted = "ItemAccepted";
+    public const string ItemDeclined = "ItemDeclined";
+    public const string PlanAccepted = "PlanAccepted";
+    public const string PlanDeclined = "PlanDeclined";
+    public const string ItemScheduled = "ItemScheduled";
+    public const string ItemUnscheduled = "ItemUnscheduled";
+    public const string ItemCompleted = "ItemCompleted";
+    public static readonly IReadOnlyList<string> All = [Created, ItemAdded, ItemWithdrawn, Renamed, Withdrawn, Revised, ReferenceCodeSet, ItemAccepted, ItemDeclined, PlanAccepted, PlanDeclined, ItemScheduled, ItemUnscheduled, ItemCompleted];
+    /// <summary>The changes that are about one procedure and so name it.</summary>
+    public static readonly IReadOnlyList<string> AboutAnItem = [ItemAdded, ItemWithdrawn, ItemAccepted, ItemDeclined, ItemScheduled, ItemUnscheduled, ItemCompleted];
+    /// <summary>The changes that cannot be made without saying why.</summary>
+    public static readonly IReadOnlyList<string> NeedAReason = [ItemWithdrawn, Withdrawn, ItemDeclined, PlanDeclined, Revised];
+    /// <summary>The changes that save a new revision of the plan's content.</summary>
+    public static readonly IReadOnlyList<string> MakeARevision = [Created, ItemAdded, ItemWithdrawn, Renamed, Revised];
 }
 
 /// <summary>The words that must accompany every fee shown for a plan. The fee is the practice's catalog fee on the day the item was proposed; it is not insurer-adjudicated coverage and not a guaranteed patient cost.</summary>
@@ -37,6 +53,10 @@ public class TreatmentPlan
     /// <summary>The caller's key for the save that created this plan; unique per patient, so a retry returns the plan instead of creating a second one.</summary>
     public required string IdempotencyKey { get; set; }
     public required string Title { get; set; }
+    /// <summary>ALV-015-C01: the number of the latest <see cref="TreatmentPlanRevision"/>; it only ever goes up.</summary>
+    public int CurrentRevision { get; set; }
+    /// <summary>ALV-015-C01: an optional short code, unique among the patient's plans and set once, that an old diagnosis's free-text treatment-plan reference can be matched to.</summary>
+    public string? ReferenceCode { get; set; }
     /// <summary>One of <see cref="TreatmentPlanStatuses.All"/>.</summary>
     public required string Status { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
@@ -97,6 +117,8 @@ public class TreatmentPlanEvent
     /// <summary>The title a Created or Renamed event set; null for the others.</summary>
     public string? Title { get; set; }
     public string? Reason { get; set; }
+    /// <summary>ALV-015-C01: the plan revision a revising change produced, or the one on screen when a decision was recorded; null for the older entries.</summary>
+    public int? RevisionNumber { get; set; }
     public Guid ActorUserId { get; set; }
     public DateTimeOffset OccurredAtUtc { get; set; }
 }

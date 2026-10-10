@@ -11,10 +11,14 @@ public class DiagnosisException(string code, string message, int statusCode, IRe
     public IReadOnlyList<DiagnosisProblem> Problems { get; } = problems ?? [];
 }
 
-/// <summary>The only state a treatment-plan forward reference can be in until treatment plans exist and a later story reconciles them.</summary>
+/// <summary>
+/// The states a treatment-plan reference can be in. It starts Unresolved (opaque text that proves nothing) and becomes Resolved only when it has been tied to a real plan of the same patient
+/// (ALV-015-C01); the text itself is never changed by that, and a client can only ever claim Unresolved.
+/// </summary>
 public static class TreatmentPlanReferenceStates
 {
     public const string Unresolved = "Unresolved";
+    public const string Resolved = "Resolved";
 }
 
 /// <summary>
@@ -24,7 +28,8 @@ public static class TreatmentPlanReferenceStates
 public sealed record DiagnosisView(
     Guid Id, Guid PatientId, Guid EncounterId, DateTimeOffset EncounterAtUtc, string Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, string? TreatmentPlanReferenceState,
     string Status, string? RecordedByName, DateTimeOffset RecordedAtUtc, string? UpdatedByName, DateTimeOffset? UpdatedAtUtc, string? WithdrawnByName, DateTimeOffset? WithdrawnAtUtc, string? WithdrawnReason, string RowVersion,
-    string? CodingSystem = null, string? Code = null, string Source = DiagnosisSources.Manual, string? SourceNote = null, string? RegionKey = null, IReadOnlyList<DiagnosisLinkView>? Links = null);
+    string? CodingSystem = null, string? Code = null, string Source = DiagnosisSources.Manual, string? SourceNote = null, string? RegionKey = null, IReadOnlyList<DiagnosisLinkView>? Links = null,
+    Guid? ResolvedPlanId = null, string? ResolvedPlanTitle = null, string? ResolvedMethod = null, DateTimeOffset? ResolvedAtUtc = null, string? ResolvedByName = null);
 
 /// <summary>A link from a diagnosis to a finding or periodontal chart of the same patient: what it points at, in words, and who linked it and when.</summary>
 public sealed record DiagnosisLinkView(string LinkType, Guid TargetId, string Summary, string? LinkedByName, DateTimeOffset LinkedAtUtc);

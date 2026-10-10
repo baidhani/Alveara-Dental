@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { EncounterSummary } from "../../services/clinicalApi";
 import { reactivateDiagnosis, resolveDiagnosis, withdrawDiagnosis } from "../../services/diagnosisApi";
 import type { Diagnosis } from "../../services/diagnosisApi";
@@ -12,9 +13,24 @@ import { DiagnosisReasonForm } from "./DiagnosisReasonForm";
 
 const when = (iso: string) => new Date(iso).toLocaleString();
 
-/** The treatment-plan forward reference as it is shown anywhere: always labelled unresolved, with the plain statement that it proves nothing. */
-export function PlanReference({ value }: { value: string | null }) {
+/** How a reference was tied to its plan, in words. */
+const methodWords = (method: string | null | undefined) =>
+  method === "ReferenceCode" ? "matched to the plan's reference code" : method === "PlanId" ? "matched to the plan's id" : method === "Chosen" ? "chosen by a person" : "tied to the plan";
+
+/**
+ * The treatment-plan reference as it is shown anywhere. Until it is tied to a real plan it is labelled unresolved, with the plain statement that it proves nothing. Once a person or a reconciliation has tied it
+ * to a plan of the same patient (ALV-015-C01) it says which plan, how and by whom; the original text is shown unchanged because it is never replaced.
+ */
+export function PlanReference({ value, resolved }: { value: string | null; resolved?: { patientId: string; title: string | null; method: string | null; byName: string | null; atUtc: string | null } }) {
   if (value === null) return <span className="alv-clinical__meta">No treatment plan reference.</span>;
+  if (resolved) {
+    return (
+      <span className="alv-dx__reference">
+        Treatment plan reference (tied to a plan): <strong>{value}</strong> is the treatment plan <Link to={`/patients/${resolved.patientId}/treatment-plan`} className="alv-workspace__link">{resolved.title ?? "this patient's plan"}</Link>.
+        <span className="alv-clinical__meta"> {methodWords(resolved.method)[0].toUpperCase() + methodWords(resolved.method).slice(1)}{resolved.byName ? ` by ${resolved.byName}` : ""}{resolved.atUtc ? `, ${new Date(resolved.atUtc).toLocaleString()}` : ""}. The original text is kept as it was written.</span>
+      </span>
+    );
+  }
   return (
     <span className="alv-dx__reference">
       Treatment plan reference (unresolved): <strong>{value}</strong>
@@ -61,7 +77,7 @@ export function DiagnosisItem({ diagnosis: d, encounters, numbering, canWrite, o
         {d.updatedAtUtc ? ` · last changed by ${d.updatedByName ?? "a staff member"}, ${when(d.updatedAtUtc)}` : ""}
       </p>
       {d.notes && <p className="alv-dx__notes">{d.notes}</p>}
-      <p><PlanReference value={d.treatmentPlanReference} /></p>
+      <p><PlanReference value={d.treatmentPlanReference} resolved={d.treatmentPlanReferenceState === "Resolved" ? { patientId: d.patientId, title: d.resolvedPlanTitle ?? null, method: d.resolvedMethod ?? null, byName: d.resolvedByName ?? null, atUtc: d.resolvedAtUtc ?? null } : undefined} /></p>
       {d.status === "Withdrawn" && <p className="alv-clinical__meta">Withdrawn by {d.withdrawnByName ?? "a staff member"}{d.withdrawnAtUtc ? `, ${when(d.withdrawnAtUtc)}` : ""}: {d.withdrawnReason}</p>}
 
       <div className="alv-clinical__row-actions">

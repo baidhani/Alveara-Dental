@@ -8,6 +8,7 @@ import { listActiveProcedures, listTreatmentPlans } from "../../services/treatme
 import type { PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { TreatmentPlanCard } from "./TreatmentPlanCard";
 import { TreatmentPlanForm } from "./TreatmentPlanForm";
+import { TreatmentPlanReferences } from "./TreatmentPlanReferences";
 import "../diagnosis/Diagnosis.css";
 import "./TreatmentPlan.css";
 
@@ -81,7 +82,8 @@ export function TreatmentPlansPanel({ patient, canWrite = false }: Props) {
       <label className="alv-dx__showall"><input type="checkbox" checked={showWithdrawn} onChange={(e) => toggleWithdrawn(e.target.checked)} /> Show withdrawn plans</label>
       {plans.length === 0
         ? <p className="alv-clinical__meta">No treatment plan has been created for this patient. That means none has been created, not that no treatment is needed.</p>
-        : <ul className="alv-dx__list" aria-label="Treatment plans">{plans.map((p) => <TreatmentPlanCard key={p.id} plan={p} canWrite={canWrite} diagnoses={diagnoses} procedures={procedures} onChanged={changed} onConflict={() => setConflict(true)} />)}</ul>}
+        : <ul className="alv-dx__list" aria-label="Treatment plans">{plans.map((p) => <TreatmentPlanCard key={p.id} plan={p} canWrite={canWrite} diagnoses={diagnoses} procedures={procedures} patientName={[patient.firstName, patient.lastName].filter(Boolean).join(" ")} onChanged={changed} onConflict={() => setConflict(true)} />)}</ul>}
+      {canWrite && <TreatmentPlanReferences patientId={patient.id} plans={plans} />}
     </section>
   );
 }
