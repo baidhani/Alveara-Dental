@@ -1488,21 +1488,21 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
-        "total": 6,
-        "passed": 0
+        "total": 7,
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 2,640 of 2,640 passed, 0 failed, 0 skipped (1 h 17 m). New: 106 in six classes (TreatmentPlanRevisionSchemaTests 53, TreatmentPlanRevisionMigrationTests 1, TreatmentPlanRevisionServiceTests 9, TreatmentPlanStateServiceTests 12, DiagnosisReconciliationTests 10, TreatmentPlanCompletionApiTests 21); the 129 STORY-015 tests pass unchanged inside it.; Frontend, full: 1,308 of 1,308 passed on the final run (85 files; 68 new). The first two full runs had 5 and 1 timeouts in the existing periodontal grid tests (Test timed out in 5000ms); investigated: alone they take 1 to 3 s, a clean copy of the previous commit passed the whole suite twice and gives the same timings, so a thin margin under load, not a defect of this attempt (see TEST_RESULTS.md).; Type check / build / lint: tsc exit 0, build ok, oxlint exit 0 with 0 errors and 16 warnings, none in the new files.; Mocked browser: 136 of 136 passed.; Repository checks: 8 of 8 passed.; Real-backend walkthrough (new): 10 of 10 passed; axe, light and dark, 0 critical/serious on 7 views.; Real-backend sweep on fresh databases: 20 runs, 215 of 215 passed (the 17 existing 187, procedures 7, STORY-015 11, new 10).; Leak check: databases and logins unchanged (AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248).; Negative controls: five rules, each caught (2, 3, 1, 1 and 2 tests fail), each restored byte-identical.; Migration reversibility: Down removes the five tables, thirteen triggers and two plan columns and restores the 13-character history column; Up restores them."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "3ec1215044916ed728ac643f98c876a3466fb3d3",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-015-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

@@ -1,0 +1,29 @@
+Negative controls for ALV-015-C01 (run 2026-10-09 14:25 UTC; each production file was backed up, mutated, built, tested, then restored and compared byte for byte by SHA-256; no MUTANT marker remains)
+
+Mutant 1: DiagnosisReconciliationService.ResolveAsync: the same-patient filter on the chosen plan removed (a person could choose another patient's plan; the service no longer answers plan_not_found).
+  dotnet test --filter "FullyQualifiedName~DiagnosisReconciliationTests|FullyQualifiedName~TreatmentPlanCompletionApiTests"  ->  Failed 2, Passed 29 of 31
+  killed by: DiagnosisReconciliationTests.Choosing_another_patients_plan_or_an_unknown_one_is_refused_in_the_same_words_and_a_missing_reference_or_withdrawn_diagnosis_is_refused
+  killed by: TreatmentPlanCompletionApiTests.An_old_diagnosis_reference_is_previewed_resolved_to_the_same_patients_plan_and_kept_and_another_patients_plan_is_refused
+
+Mutant 2: TreatmentPlanService.States.cs DecidePlanAsync: the partial-acceptance conflict check disabled (a plan-wide answer is no longer refused when procedures hold the opposite answer).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanStateServiceTests|FullyQualifiedName~TreatmentPlanCompletionApiTests"  ->  Failed 3, Passed 29 of 32
+  killed by: TreatmentPlanCompletionApiTests.A_plan_is_revised_into_phases_answered_scheduled_completed_and_compared_with_every_step_logged_and_the_estimate_labelled
+  killed by: TreatmentPlanStateServiceTests.A_plan_decision_never_overwrites_an_opposite_one_and_fills_in_only_what_is_still_pending
+  killed by: TreatmentPlanStateServiceTests.Declining_a_scheduled_procedure_unschedules_it_and_completing_is_final
+
+Mutant 3: Migration AddTreatmentPlanCompletion: the THROW 51109 of trigger TR_TreatmentPlanItemStates_Links replaced by a no-op (the database no longer keeps Completed final).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanRevisionSchemaTests|FullyQualifiedName~TreatmentPlanStateServiceTests"  ->  Failed 1, Passed 62 of 63
+  killed by: TreatmentPlanRevisionSchemaTests.Nothing_is_recorded_after_Completed_for_a_withdrawn_procedure_or_on_a_withdrawn_plan
+
+Mutant 4: Migration AddTreatmentPlanCompletion: the THROW 51114 of trigger TR_DiagnosisPlanResolutions_Links replaced by a no-op (the database no longer refuses resolving a diagnosis to another patient's plan).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanRevisionSchemaTests|FullyQualifiedName~DiagnosisReconciliationTests"  ->  Failed 1, Passed 61 of 62
+  killed by: TreatmentPlanRevisionSchemaTests.A_diagnosis_resolves_to_a_plan_of_its_own_patient_with_the_text_it_holds_and_only_once
+
+Mutant 5: TreatmentPlanService.Revisions.cs StageRevisionAsync: the withdrawn flag of each procedure no longer saved in a revision (an earlier revision would not remember what had been withdrawn).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanRevisionServiceTests|FullyQualifiedName~TreatmentPlanRevisionMigrationTests|FullyQualifiedName~TreatmentPlanCompletionApiTests"  ->  Failed 2, Passed 29 of 31
+  killed by: TreatmentPlanRevisionServiceTests.Creating_a_plan_saves_revision_one_and_every_change_after_it_saves_the_next_without_touching_the_earlier_ones
+  killed by: TreatmentPlanRevisionServiceTests.Two_revisions_are_compared_from_what_was_saved_naming_every_difference_and_the_estimate_each_came_to
+
+Restored: every mutated file is byte-identical to its backup (SHA-256 compared); rebuild: 0 Error(s)
+SUMMARY [('1', 2), ('2', 3), ('3', 1), ('4', 1), ('5', 2)]
+DONE

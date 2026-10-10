@@ -1,0 +1,91 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/PerioCompare.test.tsx (19 tests | 1 failed) 22651ms
+   ❯ comparing a saved chart with the one before it (11)
+     × has no axe violations with the comparison open 7232ms
+ ❯ src/Perio.test.tsx (33 tests | 4 failed) 55733ms
+   ❯ charting (3)
+     × saves depth, recession and bleeding as numbers on the FDI key whatever numbering is shown, with a key, and says it was saved 5909ms
+   ❯ incorrect data (acceptance 2) (3)
+     × sends nothing while an entry is wrong, lists every problem, marks each box and moves focus to the list 6167ms
+     × when the server refuses it says what to correct, marks the exact boxes, and keeps everything typed 5009ms
+   ❯ accessibility (1)
+     × has no axe violations on the grid, and none while problems are shown 6555ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/Perio.test.tsx > charting > saves depth, recession and bleeding as numbers on the FDI key whatever numbering is shown, with a key, and says it was saved
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/Perio.test.tsx:91:3
+     89|   });
+     90|
+     91|   it("saves depth, recession and bleeding as numbers on the FDI key wh…
+       |   ^
+     92|     const user = userEvent.setup();
+     93|     await openChart();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/Perio.test.tsx > incorrect data (acceptance 2) > sends nothing while an entry is wrong, lists every problem, marks each box and moves focus to the list
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/Perio.test.tsx:123:3
+    121|
+    122| describe("incorrect data (acceptance 2)", () => {
+    123|   it("sends nothing while an entry is wrong, lists every problem, mark…
+       |   ^
+    124|     const user = userEvent.setup();
+    125|     await openChart();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/Perio.test.tsx > incorrect data (acceptance 2) > when the server refuses it says what to correct, marks the exact boxes, and keeps everything typed
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/Perio.test.tsx:153:3
+    151|   });
+    152|
+    153|   it("when the server refuses it says what to correct, marks the exact…
+       |   ^
+    154|     const user = userEvent.setup();
+    155|     await openChart();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/Perio.test.tsx > accessibility > has no axe violations on the grid, and none while problems are shown
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/Perio.test.tsx:228:3
+    226|
+    227| describe("accessibility", () => {
+    228|   it("has no axe violations on the grid, and none while problems are s…
+       |   ^
+    229|     const user = userEvent.setup();
+    230|     const { container } = await openChart();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/PerioCompare.test.tsx > comparing a saved chart with the one before it > has no axe violations with the comparison open
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ src/PerioCompare.test.tsx:181:3
+    179|   });
+    180|
+    181|   it("has no axe violations with the comparison open", async () => {
+       |   ^
+    182|     seed();
+    183|     const user = userEvent.setup();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed | 83 passed (85)
+      Tests  5 failed | 1303 passed (1308)
+   Start at  14:51:37
+   Duration  64.14s (tests 57%, environment 24%, transform 7%, setup 7%, import 6%)
+
+    Isolate  85 workers spawned · ~2.58s startup each (spawn + environment, per file)
+             at least ~6.96s faster with isolate: false — reuses workers across files instead of one per file
+

@@ -1,0 +1,7 @@
+Leak check (SQL Server LocalDB), 2026-10-10. Counts of AlveraTest_* databases, AlveraRestore_* databases, alveara* server logins and alveara_* databases.
+
+Before the full backend run (18:32Z, after deleting the 3 scratch databases made by my own earlier walkthrough runs): AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248.
+After the full backend run (19:50Z): AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248  -> unchanged, nothing leaked by 2640 tests.
+After the walkthrough sweep (20 runs on their own fresh databases, alveara_c01_*): AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 268 (20 of them the sweep's own databases; 248 + 20 = 268).
+The 20 sweep databases are not needed once their output is saved under artifacts/regression and artifacts/walkthrough, so they were deleted by the coding agent after this record (the owner's rule is "keep what is needed, delete what is not"). Final: see the line below.
+Final, after deleting the 20 sweep databases: AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248 (the same as before the run: nothing is left over from this attempt).

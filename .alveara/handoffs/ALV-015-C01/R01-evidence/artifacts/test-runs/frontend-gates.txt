@@ -1,0 +1,19 @@
+Frontend and repository gates, 2026-10-10, src/alveara-client (outputs kept in C:/tmp/c01-results during the run).
+
+npx tsc --noEmit -p tsconfig.app.json          exit 0, no output
+npm run build                                   exit 0 (built)
+npm run lint (oxlint)                           exit 0, 0 errors, 16 warnings, none in the files of this attempt (all react(set-state-in-effect) in existing pages)
+node --test tests/*.test.mjs (repository root)  8 of 8 passed
+npx playwright test (mocked browser suite)      136 of 136 passed (31.7 s)
+npx vitest run                                  three full runs on the working tree, see below
+
+vitest, three full runs on the working tree (the suite is 85 files and 1308 tests; it was 78 files and 1240 tests before this attempt, so this attempt adds 68 tests: 7 new test files and 1 existing file, treatmentPlanRules.test.ts, extended):
+  run 1: 1303 of 1308 passed, 5 failed: all "Test timed out in 5000ms" in src/Perio.test.tsx (4) and src/PerioCompare.test.tsx (1), the periodontal grid accessibility and charting tests (artifacts/test-runs/vitest-run1-transient-timeouts.txt)
+  run 2: 1307 of 1308 passed, 1 failed: the same kind of timeout in src/PerioCompare.test.tsx ("has no axe violations with the comparison open")
+  run 3: 1308 of 1308 passed (vitest_mine.json: 0 failed; slowest test 3.2 s, the Perio grid accessibility test)
+Cause investigated, not assumed:
+  - the failing tests are untouched by this attempt (git status shows no change to them or to src/pages/perio);
+  - alone, both files pass (52 of 52) with the grid accessibility test at 1.2 to 2.6 s; run on a clean copy of the previous commit (git worktree at b44689b) and on this tree three times each, the timings are the same (1.2 to 2.6 s each);
+  - a clean copy of the previous commit passed the whole suite twice (1240 of 1240);
+  - in the full parallel run the same tests took 5 to 7 s when the machine was busy (it had just finished a 77-minute backend run and a build, and other applications were using about 35% of the CPU).
+  Conclusion: a thin margin (default 5 s limit, normally 1 to 3 s, 5 to 7 s under load) in existing periodontal tests, made visible by the larger suite. No defect in this attempt's code. Not fixed here because the remedy (a larger timeout for those tests or for the suite) changes files outside this story; recommended to the owner.

@@ -1,0 +1,42 @@
+== auth
+  12 passed (31.4s)
+== patients
+  7 passed (11.6s)
+== workspace
+  14 passed (34.3s)
+== forms
+  10 passed (24.5s)
+== schedule
+  10 passed (17.0s)
+== calendar
+  ok  8 [chromium] › e2e\calendar-real-backend.spec.ts:334:1 › NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record (2.7s)
+  12 passed (26.5s)
+== flow
+  10 passed (16.3s)
+== board
+  15 passed (42.8s)
+== clinical
+  9 passed (25.1s)
+== companion
+  9 passed (37.1s)
+== safety
+  11 passed (27.2s)
+== odontogram
+  11 passed (20.5s)
+== odontogram_longitudinal
+  11 passed (24.7s)
+== perio
+  10 passed (27.7s)
+== perio_sessions
+  12 passed (36.9s)
+== diagnoses
+  12 passed (21.8s)
+== diagnoses_structure
+  12 passed (26.7s)
+== procedures
+  7 passed (16.4s)
+== treatment_plans
+  11 passed (15.5s)
+== treatment_plans_complete
+  10 passed (27.8s)
+DONE

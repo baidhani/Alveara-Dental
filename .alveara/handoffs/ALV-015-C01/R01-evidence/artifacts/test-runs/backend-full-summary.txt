@@ -1,0 +1,15 @@
+Backend, full serial run (dotnet test --no-build --logger trx, runner parallelizeTestCollections:false, unchanged), src/Alveara.Api.Tests.
+Started 2026-10-10T18:32:53Z, finished 19:50Z. Result: Passed! Failed: 0, Passed: 2640, Skipped: 0, Total: 2640, Duration: 1 h 17 m.
+The previous full run (STORY-015, 2026-10-09) was 2534 of 2534 in 54 m 48 s; this attempt adds 106 tests (2640 - 2534) and the run was 22 minutes longer.
+
+New in this attempt (counted from the trx file, 106 in six classes):
+  TreatmentPlanRevisionSchemaTests      53   every new trigger and check constraint, uniqueness, foreign-key phase placement, append-only, Completed-final withdrawal (51117)
+  TreatmentPlanRevisionMigrationTests    1   rolling back keeps the plan; rolling forward backfills one revision
+  TreatmentPlanRevisionServiceTests      9   revisions, phases, explicit revise, refusals, comparison
+  TreatmentPlanStateServiceTests        12   answers, whole-plan answers and the partial-acceptance conflict, scheduling, completion, the failed-audit path, completed procedures cannot be withdrawn
+  DiagnosisReconciliationTests          10   reference codes, preview and apply, idempotency, history preservation, no-match and ambiguous retention, cross-patient denial, the reference lock, the failed-audit path
+  TreatmentPlanCompletionApiTests       21   roles, CSRF, refusals, the whole workflow, the estimate label, reconciliation through the API
+
+Unchanged STORY-015 classes, all passing inside the same run (the parent regression): TreatmentPlanServiceTests 32, TreatmentPlanLifecycleTests 16, TreatmentPlanSchemaTests 57, TreatmentPlanApiTests 24 (129).
+Changed existing tests (three STORY-013 and ALV-013-C01 guard tests, made in STORY-015) pass: DiagnosisSchemaTests, DiagnosisStructureSchemaTests, DiagnosisStructureServiceTests.
+Disclosure: the run started from the working tree that is committed as the implementation commit; the only differences between the run's tree and that commit are PROGRESS.md (the entry written after the run) and files under .alveara/ (this evidence).
