@@ -1,0 +1,3 @@
+Leak check (SQL Server LocalDB), 2026-10-11. Counts of AlveraTest_* databases, AlveraRestore_* databases, alveara* server logins and alveara_* databases.
+Baseline recorded before the R02 backend runs: AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248.
+After both full backend runs and the sweep, once the 22 sweep databases (alveara_r02_*, including the two board reruns) were dropped: AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248 -> unchanged, nothing leaked by 2649 tests (twice) or by the sweep.

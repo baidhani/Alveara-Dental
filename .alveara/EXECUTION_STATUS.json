@@ -1488,31 +1488,29 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "Backend, full serial: 2,640 of 2,640 passed, 0 failed, 0 skipped (1 h 17 m). New: 106 in six classes (TreatmentPlanRevisionSchemaTests 53, TreatmentPlanRevisionMigrationTests 1, TreatmentPlanRevisionServiceTests 9, TreatmentPlanStateServiceTests 12, DiagnosisReconciliationTests 10, TreatmentPlanCompletionApiTests 21); the 129 STORY-015 tests pass unchanged inside it.; Frontend, full: 1,308 of 1,308 passed on the final run (85 files; 68 new). The first two full runs had 5 and 1 timeouts in the existing periodontal grid tests (Test timed out in 5000ms); investigated: alone they take 1 to 3 s, a clean copy of the previous commit passed the whole suite twice and gives the same timings, so a thin margin under load, not a defect of this attempt (see TEST_RESULTS.md).; Type check / build / lint: tsc exit 0, build ok, oxlint exit 0 with 0 errors and 16 warnings, none in the new files.; Mocked browser: 136 of 136 passed.; Repository checks: 8 of 8 passed.; Real-backend walkthrough (new): 10 of 10 passed; axe, light and dark, 0 critical/serious on 7 views.; Real-backend sweep on fresh databases: 20 runs, 215 of 215 passed (the 17 existing 187, procedures 7, STORY-015 11, new 10).; Leak check: databases and logins unchanged (AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248).; Negative controls: five rules, each caught (2, 3, 1, 1 and 2 tests fail), each restored byte-identical.; Migration reversibility: Down removes the five tables, thirteen triggers and two plan columns and restores the 13-character history column; Up restores them."
+        "summary": "Attempt R02 corrects review finding ALV-015-C01-R01-01 (catalog usage guard now counts treatment-plan procedures). Backend, full serial: 2,649 of 2,649 passed, 0 failed (43 m 20 s); 9 new tests (TreatmentPlanProcedureUsageTests 5, TreatmentPlanProcedureUsageApiTests 4). A first full run had 2 failures: the STORY-015 retry test (expected consequence of the fix, test updated) and the unrelated intermittent BackupCryptoTests tamper test (disclosed, not changed).; Frontend, full: 1,309 of 1,309 passed (85 files); tsc exit 0, build ok, lint 0 errors.; Mocked browser: 136 of 136; repository checks: 8 of 8.; Real-backend sweep on fresh databases: 20 runs, 216 of 216 passed (the visit-board walkthrough failed once on a 5 s page-load wait and passed 15 of 15 on two fresh reruns, disclosed); procedures 7, STORY-015 11, complete-planning 11.; Leak check: unchanged (AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248).; Negative controls: three rules, each caught (3, 2 and 2 tests fail), each restored byte-identical."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "3ec1215044916ed728ac643f98c876a3466fb3d3",
-      "evidenceCommit": "4d906e191ae3fcc26f77e6c57af83ac7884bcb9f",
-      "handoffPath": ".alveara/handoffs/ALV-015-C01/R01.md",
+      "implementationCommit": "3fbb79852c39a0712ecdcfed1917c687ecf3526a",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-015-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-015-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "3ec1215044916ed728ac643f98c876a3466fb3d3",
-        "reviewedEvidenceCommit": "4d906e191ae3fcc26f77e6c57af83ac7884bcb9f"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-015-C01-R01-01: the procedure catalog's inactivation warning (IProcedureUsageSource) does not count treatment-plan procedures; correction required in attempt R02"
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

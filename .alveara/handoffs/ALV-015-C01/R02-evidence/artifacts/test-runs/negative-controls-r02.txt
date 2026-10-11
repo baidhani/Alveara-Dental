@@ -1,0 +1,22 @@
+Negative controls for ALV-015-C01 R02, review finding ALV-015-C01-R01-01 (run 2026-10-10 23:11 UTC; each production file was backed up, mutated, built, tested, then restored and compared byte for byte by SHA-256; no MUTANT marker remains)
+
+Mutant 1: Program.cs: the registration of TreatmentPlanProcedureUsageSource removed (the production catalog no longer counts treatment plans: the finding itself).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanProcedureUsage"  ->  Failed 3, Passed 6 of 9
+  killed by: TreatmentPlanProcedureUsageApiTests.A_procedure_in_a_treatment_plan_is_counted_by_the_catalogs_usage_answer_and_one_no_plan_uses_is_counted_as_zero
+  killed by: TreatmentPlanProcedureUsageApiTests.Every_persisted_plan_procedure_counts_including_withdrawn_and_completed_ones_and_those_of_other_patients_plans
+  killed by: TreatmentPlanProcedureUsageApiTests.Inactivating_a_procedure_a_plan_uses_needs_the_use_acknowledged_then_the_plan_still_shows_it_and_it_cannot_be_added_to_new_work
+
+Mutant 2: TreatmentPlanProcedureUsageSource: withdrawn plan procedures no longer counted (a historical reference would not be visible before inactivation).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanProcedureUsage"  ->  Failed 2, Passed 7 of 9
+  killed by: TreatmentPlanProcedureUsageApiTests.Every_persisted_plan_procedure_counts_including_withdrawn_and_completed_ones_and_those_of_other_patients_plans
+  killed by: TreatmentPlanProcedureUsageTests.Every_persisted_plan_procedure_counts_withdrawn_ones_and_other_patients_plans_included
+
+Mutant 3: TreatmentPlanProcedureUsageSource: the count no longer depends on which procedure is asked about (every procedure would look used).
+  dotnet test --filter "FullyQualifiedName~TreatmentPlanProcedureUsage"  ->  Failed 2, Passed 7 of 9
+  killed by: TreatmentPlanProcedureUsageApiTests.A_procedure_in_a_treatment_plan_is_counted_by_the_catalogs_usage_answer_and_one_no_plan_uses_is_counted_as_zero
+  killed by: TreatmentPlanProcedureUsageTests.The_usage_answer_lists_the_treatment_plan_source_with_the_number_of_plan_procedures_and_zero_when_none_refer_to_it
+
+Unmutated tree: Passed 9 of 9.
+Restored: every mutated file is byte-identical to its backup (SHA-256 compared); rebuild: 0 Error(s)
+SUMMARY [('1', 3), ('2', 2), ('3', 2)]
+DONE

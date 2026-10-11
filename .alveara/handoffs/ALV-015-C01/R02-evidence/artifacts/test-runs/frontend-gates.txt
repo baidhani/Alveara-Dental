@@ -1,0 +1,7 @@
+Frontend gates, 2026-10-11, on the R02 tree.
+npx tsc --noEmit                 exit 0
+npm run lint                     0 errors (warnings only, e.g. react set-state-in-effect in files this attempt does not touch)
+npm run build                    built (chunk-size warning only)
+npx vitest run                   85 files, 1309 of 1309 passed (R01 final run: 1308; +1 test); no timeouts this run
+npx playwright test (mocked)     136 of 136 passed
+node --test tests/*.test.mjs     8 of 8 passed

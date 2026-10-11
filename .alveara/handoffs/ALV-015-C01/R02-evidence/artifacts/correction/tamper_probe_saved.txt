@@ -1,0 +1,2 @@
+1500 tamper checks in 150 iterations; misses by offset: 400=1
+iteration 47: offset 400 (400 of 2102677), original byte 0x01: NO EXCEPTION, decrypted 2102152 bytes, equal to the original plaintext: True

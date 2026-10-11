@@ -1,0 +1,8 @@
+  Failed Alveara.Api.Tests.TreatmentPlanServiceTests.A_retry_still_returns_the_plan_after_the_procedure_has_been_inactivated [335 ms]
+  Error Message:
+  Failed Alveara.Api.Tests.BackupCryptoTests.Altering_any_part_of_the_file_is_detected_and_never_yields_plaintext [141 ms]
+  Error Message:
+   Assert.IsType() Failure: Value is null
+Expected: typeof(Alveara.Api.Architecture.Backup.BackupCryptoException)
+Actual:   null
+Failed!  - Failed:     2, Passed:  2647, Skipped:     0, Total:  2649, Duration: 49 m 45 s - Alveara.Api.Tests.dll (net10.0)

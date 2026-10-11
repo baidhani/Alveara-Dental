@@ -1,0 +1,31 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:07.04]     Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.A_procedure_in_a_treatment_plan_is_counted_by_the_catalogs_usage_answer_and_one_no_plan_uses_is_counted_as_zero [FAIL]
+  Failed Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.A_procedure_in_a_treatment_plan_is_counted_by_the_catalogs_usage_answer_and_one_no_plan_uses_is_counted_as_zero [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (0, 0)
+Actual:   Tuple (0, -1)
+  Stack Trace:
+     at Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.A_procedure_in_a_treatment_plan_is_counted_by_the_catalogs_usage_answer_and_one_no_plan_uses_is_counted_as_zero() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TreatmentPlanProcedureUsageApiTests.cs:line 84
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:12.21]     Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Inactivating_a_procedure_a_plan_uses_needs_the_use_acknowledged_then_the_plan_still_shows_it_and_it_cannot_be_added_to_new_work [FAIL]
+  Failed Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Inactivating_a_procedure_a_plan_uses_needs_the_use_acknowledged_then_the_plan_still_shows_it_and_it_cannot_be_added_to_new_work [683 ms]
+  Error Message:
+   System.Collections.Generic.KeyNotFoundException : The given key was not present in the dictionary.
+  Stack Trace:
+     at System.Text.Json.JsonElement.GetProperty(String propertyName)
+   at Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Error(JsonElement e) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TreatmentPlanProcedureUsageApiTests.cs:line 46
+   at Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Inactivating_a_procedure_a_plan_uses_needs_the_use_acknowledged_then_the_plan_still_shows_it_and_it_cannot_be_added_to_new_work() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TreatmentPlanProcedureUsageApiTests.cs:line 120
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:14.36]     Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Every_persisted_plan_procedure_counts_including_withdrawn_and_completed_ones_and_those_of_other_patients_plans [FAIL]
+  Failed Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Every_persisted_plan_procedure_counts_including_withdrawn_and_completed_ones_and_those_of_other_patients_plans [749 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (1, 1)
+Actual:   Tuple (0, -1)
+  Stack Trace:
+     at Alveara.Api.Tests.TreatmentPlanProcedureUsageApiTests.Every_persisted_plan_procedure_counts_including_withdrawn_and_completed_ones_and_those_of_other_patients_plans() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TreatmentPlanProcedureUsageApiTests.cs:line 102
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:     1, Skipped:     0, Total:     4, Duration: 13 s - Alveara.Api.Tests.dll (net10.0)

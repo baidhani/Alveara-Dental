@@ -1,0 +1,25 @@
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Visit board', exact: true }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Visit board', exact: true })
+
+
+       96 | async function gotoBoard(page: Page, day: string | null = DAY) {
+       97 |   await page.goto("/flow");
+    >  98 |   await expect(page.getByRole("heading", { name: "Visit board", exact: true })).toBeVisible();
+          |                                                                                 ^
+       99 |   if (day) await page.getByLabel("Date", { exact: true }).fill(day);
+      100 |   await expect(page.getByRole("region", { name: /^Scheduled \(/ })).toBeVisible();
+      101 |   await expect(page.getByText(/^Updated /)).toBeVisible();
+        at gotoBoard (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\visit-board-real-backend.spec.ts:98:81)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\visit-board-real-backend.spec.ts:286:3
+
+    Error Context: test-results\visit-board-real-backend-W-b1ca9--complete-attributed-record-chromium\error-context.md
+
+    Error Context: test-results\visit-board-real-backend-W-b1ca9--complete-attributed-record-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\visit-board-real-backend.spec.ts:274:1 › WHOLE CHAIN: treatment, check-out and completion by four different people free the room and leave a complete, attributed record 
+  9 did not run
+  5 passed (18.1s)
