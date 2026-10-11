@@ -404,6 +404,69 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AllocatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("AllocatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AllocationNumber")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ChargeEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PaymentEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChargeEntryId");
+
+                    b.HasIndex("PaymentEntryId");
+
+                    b.HasIndex("AccountId", "AllocationNumber")
+                        .IsUnique();
+
+                    b.HasIndex("AccountId", "IdempotencyKey");
+
+                    b.ToTable("BillingAllocations", t =>
+                        {
+                            t.HasTrigger("TR_BillingAllocations_Immutable");
+
+                            t.HasTrigger("TR_BillingAllocations_Links");
+
+                            t.HasCheckConstraint("CK_BillingAllocations_Amount", "[Amount] > 0 AND [Amount] <= 1000000.00");
+
+                            t.HasCheckConstraint("CK_BillingAllocations_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_BillingAllocations_Number", "[AllocationNumber] >= 1");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -416,6 +479,9 @@ namespace Alveara.Api.Migrations
                     b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("EntryNumber")
                         .HasColumnType("int");
@@ -430,12 +496,18 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<Guid?>("PaidByPatientId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PaymentMethod")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid?>("PaymentMethodId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("PlanItemId")
                         .HasColumnType("uniqueidentifier");
@@ -458,11 +530,25 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("RecordedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ReversesEntryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId")
+                        .HasFilter("[CorrelationId] IS NOT NULL");
+
+                    b.HasIndex("PaidByPatientId");
+
+                    b.HasIndex("PaymentMethodId");
 
                     b.HasIndex("PlanItemId")
                         .IsUnique()
                         .HasFilter("[PlanItemId] IS NOT NULL");
+
+                    b.HasIndex("ReversesEntryId")
+                        .IsUnique()
+                        .HasFilter("[ReversesEntryId] IS NOT NULL");
 
                     b.HasIndex("AccountId", "EntryNumber")
                         .IsUnique();
@@ -476,11 +562,13 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_BillingEntries_Links");
 
+                            t.HasTrigger("TR_BillingEntries_Reversals");
+
                             t.HasCheckConstraint("CK_BillingEntries_ChargeSource", "([Kind] = 'Charge' AND [PlanItemId] IS NOT NULL AND [ProcedureCode] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureCode]))) > 0 AND [ProcedureDescription] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureDescription]))) > 0) OR ([Kind] <> 'Charge' AND [PlanItemId] IS NULL AND [ProcedureCode] IS NULL AND [ProcedureDescription] IS NULL)");
 
                             t.HasCheckConstraint("CK_BillingEntries_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Charge','Payment','Adjustment')");
+                            t.HasCheckConstraint("CK_BillingEntries_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Charge','Payment','Adjustment','Reversal')");
 
                             t.HasCheckConstraint("CK_BillingEntries_Max", "ABS([Amount]) <= 1000000.00");
 
@@ -488,9 +576,172 @@ namespace Alveara.Api.Migrations
 
                             t.HasCheckConstraint("CK_BillingEntries_Number", "[EntryNumber] >= 1");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Reason", "([Kind] = 'Adjustment' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Kind] = 'Payment' AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)) OR ([Kind] = 'Charge' AND [Reason] IS NULL)");
+                            t.HasCheckConstraint("CK_BillingEntries_PaymentOnly", "[Kind] = 'Payment' OR ([PaidByPatientId] IS NULL AND [PaymentMethodId] IS NULL)");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Sign", "([Kind] = 'Charge' AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] = 'Adjustment' AND [Amount] <> 0)");
+                            t.HasCheckConstraint("CK_BillingEntries_Reason", "([Kind] IN ('Adjustment', 'Reversal') AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Kind] = 'Payment' AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)) OR ([Kind] = 'Charge' AND [Reason] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Reverses", "([Kind] = 'Reversal' AND [ReversesEntryId] IS NOT NULL) OR ([Kind] <> 'Reversal' AND [ReversesEntryId] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Sign", "([Kind] = 'Charge' AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] IN ('Adjustment', 'Reversal') AND [Amount] <> 0)");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingPaymentMethod", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("BillingPaymentMethods", t =>
+                        {
+                            t.HasTrigger("TR_BillingPaymentMethods_Identity");
+
+                            t.HasTrigger("TR_BillingPaymentMethods_NoDelete");
+
+                            t.HasCheckConstraint("CK_BillingPaymentMethods_BuiltInActive", "[IsBuiltIn] = 0 OR [IsActive] = 1");
+
+                            t.HasCheckConstraint("CK_BillingPaymentMethods_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Cash','Check','Card','Other')");
+
+                            t.HasCheckConstraint("CK_BillingPaymentMethods_Name", "LEN(LTRIM(RTRIM([Name]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Name] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("b1100000-0000-0000-0000-000000000001"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsActive = true,
+                            IsBuiltIn = true,
+                            Kind = "Cash",
+                            Name = "Cash",
+                            RowVersion = new byte[0]
+                        },
+                        new
+                        {
+                            Id = new Guid("b1100000-0000-0000-0000-000000000002"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsActive = true,
+                            IsBuiltIn = true,
+                            Kind = "Check",
+                            Name = "Check",
+                            RowVersion = new byte[0]
+                        },
+                        new
+                        {
+                            Id = new Guid("b1100000-0000-0000-0000-000000000003"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsActive = true,
+                            IsBuiltIn = true,
+                            Kind = "Card",
+                            Name = "Card",
+                            RowVersion = new byte[0]
+                        },
+                        new
+                        {
+                            Id = new Guid("b1100000-0000-0000-0000-000000000004"),
+                            CreatedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedByUserId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            IsActive = true,
+                            IsBuiltIn = true,
+                            Kind = "Other",
+                            Name = "Other",
+                            RowVersion = new byte[0]
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingResponsibility", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("EffectiveFrom")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("ResponsiblePatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("SetAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("SetByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResponsiblePatientId");
+
+                    b.HasIndex("AccountId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("BillingResponsibilities", t =>
+                        {
+                            t.HasTrigger("TR_BillingResponsibilities_Immutable");
+
+                            t.HasTrigger("TR_BillingResponsibilities_Links");
+
+                            t.HasCheckConstraint("CK_BillingResponsibilities_Reason", "[Reason] IS NULL OR (LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_BillingResponsibilities_Sequence", "[Sequence] >= 1");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -4720,6 +4971,27 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingAllocation", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
+                        .HasForeignKey("ChargeEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingEntry", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
@@ -4728,10 +5000,40 @@ namespace Alveara.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PaidByPatientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingPaymentMethod", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
                         .WithMany()
                         .HasForeignKey("PlanItemId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
+                        .HasForeignKey("ReversesEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingResponsibility", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("ResponsiblePatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Clinical.ClinicalRecordEvent", b =>

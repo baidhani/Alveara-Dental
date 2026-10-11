@@ -1,5 +1,7 @@
 # Billing: charges, payments, adjustments and financial history (STORY-007)
 
+**The full ledger (allocating payments to charges, reversals, guarantor responsibility, configurable payment methods, the contract for `ALV-008-C01`) is described in `docs/BILLING_LEDGER.md`; this file describes the STORY-007 slice, whose contract still holds.**
+
 STORY-007 is the thin slice of REQ-014 ("charges, payments, and adjustments, preserving financial history"). The full ledger (guarantors, allocating a payment to specific charges, reversals and voids, configurable payment methods, one charge per completed procedure with correlation keys) is the companion `ALV-007-C01`, and creating the charge automatically when a procedure is completed is `ALV-008-C01`. This story builds only what its three acceptance criteria need and leaves room for those.
 
 ## What it is, in one paragraph

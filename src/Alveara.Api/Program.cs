@@ -93,6 +93,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSo
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Treatment.TreatmentPlanProcedureUsageSource>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.ProcedureCatalogService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Billing.BillingService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Billing.IProcedureCharging>(sp => sp.GetRequiredService<Alveara.Api.Architecture.Billing.BillingService>());   // the contract ALV-008-C01 calls
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.TreatmentPlanService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.DiagnosisReconciliationService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Safety.ClearanceService>();

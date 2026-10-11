@@ -2,48 +2,71 @@ import { useId, useRef, useState } from "react";
 import { newKey } from "../../services/clinicalApi";
 import { PAYMENT_METHODS, formatMoney, recordPayment } from "../../services/billingApi";
 import type { BillingAccount } from "../../services/billingApi";
+import { AllocationChooser } from "./AllocationChooser";
+import { allocationErrorsByCharge, namedAllocations, openChargesOf } from "./billingLedgerView";
 import { describeBillingFailure } from "./billingFailure";
+
+export interface PayerOption { id: string; name: string }
 
 interface Props {
   account: BillingAccount;
+  /** The names of the payment methods that can be chosen. Without them (the list could not be read) the four built-in ones are offered. */
+  methods?: string[];
+  /** People who can be recorded as having paid, besides the patient (the party responsible for the account, when it is someone else). */
+  payers?: PayerOption[];
   onDone: (account: BillingAccount, text: string) => void;
   onConflict: () => void;
 }
 
 /**
- * STORY-007: take a payment. It goes to this patient's account, which the screen shows above it; the amount must be more than zero and no more than the balance owed (the server checks, and says what is
- * owed). A save carries a key that is kept while the entry is unchanged, so a double click or a retry cannot record the payment twice. A refusal is shown beside its field with what was typed kept.
+ * STORY-007 and ALV-007-C01: take a payment. It goes to this patient's account, which the screen shows above it; the amount must be more than zero and no more than the balance owed (the server checks, and says what
+ * is owed). It is applied to the oldest open charges first unless the person chooses the charges it pays; whatever is not applied stays visible and can be applied later. It is recorded under one of the practice's
+ * payment methods and, optionally, as paid by the person responsible for the account. A save carries a key that is kept while the entry is unchanged, so a double click or a retry cannot record the payment twice.
+ * A refusal is shown beside its field with what was typed kept.
  */
-export function BillingPaymentForm({ account, onDone, onConflict }: Props) {
+export function BillingPaymentForm({ account, methods, payers = [], onDone, onConflict }: Props) {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
   const [note, setNote] = useState("");
+  const [payer, setPayer] = useState("");
+  const [choose, setChoose] = useState(false);
+  const [typed, setTyped] = useState<Record<number, string>>({});
+  const [chargeErrors, setChargeErrors] = useState<Record<number, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [fields, setFields] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const attempt = useRef<{ key: string; signature: string } | null>(null);
   const id = useId();
+  const charges = openChargesOf(account);
+  const names = methods && methods.length > 0 ? methods : [...PAYMENT_METHODS];
 
   async function submit() {
     const gaps: Record<string, string> = {};
     const value = amount.trim() === "" ? null : Number(amount);
     if (value === null || Number.isNaN(value)) gaps.amount = "Enter the payment amount.";
     if (method === "") gaps.method = "Choose how the payment was received.";
+    const named = choose ? namedAllocations(charges, typed) : { allocations: [], order: [] as number[] };
+    if (choose && named.allocations.length === 0) gaps.allocations = "Name at least one charge, or choose to apply the payment to the oldest charges first.";
     if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage("Not recorded: some entries need correcting. Nothing was sent."); return; }
 
-    const signature = JSON.stringify([account.rowVersion, value, method, note.trim()]);
+    const signature = JSON.stringify([account.rowVersion, value, method, note.trim(), payer, choose ? named.allocations : null]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
     setBusy(true);
     setMessage(null);
     setFields({});
+    setChargeErrors({});
     try {
-      const updated = await recordPayment(account, attempt.current.key, { amount: value, method, note: note.trim() === "" ? null : note.trim() });
-      setAmount(""); setMethod(""); setNote(""); attempt.current = null;
+      const updated = await recordPayment(account, attempt.current.key, {
+        amount: value, method, note: note.trim() === "" ? null : note.trim(),
+        ...(choose ? { allocations: named.allocations } : {}), ...(payer !== "" ? { paidByPatientId: payer } : {}),
+      });
+      setAmount(""); setMethod(""); setNote(""); setPayer(""); setChoose(false); setTyped({}); attempt.current = null;
       onDone(updated, `Payment of ${formatMoney(value!)} recorded. Balance owed is now ${formatMoney(updated.balanceOwed)}.`);
     } catch (err) {
       const failure = describeBillingFailure(err);
       setMessage(failure.message);
       setFields(failure.fields);
+      setChargeErrors(allocationErrorsByCharge(failure.fields, named.order));
       if (failure.conflict) onConflict();
     } finally {
       setBusy(false);
@@ -62,14 +85,27 @@ export function BillingPaymentForm({ account, onDone, onConflict }: Props) {
       <label htmlFor={`${id}-method`}>How it was received
         <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} aria-describedby={fields.method ? `${id}-method-e` : undefined} onChange={(e) => setMethod(e.target.value)}>
           <option value="">Choose a method</option>
-          {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
+          {names.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
       </label>
       {fields.method && <p id={`${id}-method-e`} className="alv-bill__error">{fields.method}</p>}
+      {payers.length > 0 && (
+        <label htmlFor={`${id}-payer`}>Who paid
+          <select id={`${id}-payer`} value={payer} aria-invalid={fields.paidBy ? true : undefined} aria-describedby={fields.paidBy ? `${id}-payer-e` : undefined} onChange={(e) => setPayer(e.target.value)}>
+            <option value="">The patient</option>
+            {payers.map((p) => <option key={p.id} value={p.id}>{p.name} (responsible for this account)</option>)}
+          </select>
+        </label>
+      )}
+      {fields.paidBy && <p id={`${id}-payer-e`} className="alv-bill__error">{fields.paidBy}</p>}
       <label htmlFor={`${id}-note`}>Note (optional)
         <input id={`${id}-note`} type="text" maxLength={500} value={note} aria-invalid={fields.note ? true : undefined} aria-describedby={fields.note ? `${id}-note-e` : undefined} onChange={(e) => setNote(e.target.value)} />
       </label>
       {fields.note && <p id={`${id}-note-e`} className="alv-bill__error">{fields.note}</p>}
+      {charges.length > 0 && (
+        <label className="alv-bill__choose"><input type="checkbox" checked={choose} onChange={(e) => setChoose(e.target.checked)} /> Choose which charges this pays (otherwise the oldest are paid first)</label>
+      )}
+      {choose && <AllocationChooser charges={charges} typed={typed} onTyped={(n, v) => setTyped((t) => ({ ...t, [n]: v }))} errors={chargeErrors} summaryError={fields.allocations} />}
       <div className="alv-clinical__row-actions">
         <button type="submit" className="btn btn-primary" disabled={busy}>Record payment</button>
       </div>

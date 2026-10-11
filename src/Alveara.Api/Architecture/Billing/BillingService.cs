@@ -45,37 +45,60 @@ public partial class BillingService(AlveraDbContext db, IPracticeClock clock, IL
             if (same is not null) return same.Kind == BillingKinds.Charge && same.PlanItemId == planItemId ? await GetAccountAsync(patientId, ct) : throw KeyReused();
         }
 
+        var billable = await LoadBillableAsync(patientId, planItemId, ct);
+        if (await db.BillingEntries.AsNoTracking().AnyAsync(e => e.PlanItemId == billable.Item.Id, ct)) throw new BillingException("already_billed", "That procedure has already been billed.", 409);
+
+        var charge = await StageChargeAsync(account, patientId, billable, key!, null, actor, ct);
+        await SaveAsync(charge.AccountId, ct);
+        return await GetAccountAsync(patientId, ct);
+    }
+
+    /// <summary>A plan procedure that can be billed: the procedure as the plan holds it and the code and description it carries.</summary>
+    private sealed record Billable(TreatmentPlanItem Item, string Code, string Description);
+
+    /// <summary>
+    /// The plan procedure to bill, or the reason it cannot be: it must belong to the patient (another patient's looks exactly like an unknown one), not be withdrawn (nor sit in a withdrawn plan) and be completed.
+    /// </summary>
+    private async Task<Billable> LoadBillableAsync(Guid patientId, Guid planItemId, CancellationToken ct)
+    {
         var item = await db.TreatmentPlanItems.AsNoTracking().FirstOrDefaultAsync(i => i.Id == planItemId && i.PatientId == patientId, ct)
-            ?? throw new BillingException("plan_item_not_found", "That procedure was not found for this patient.", 404);   // another patient's looks exactly like an unknown one
+            ?? throw new BillingException("plan_item_not_found", "That procedure was not found for this patient.", 404);
         var planWithdrawn = await db.TreatmentPlans.AsNoTracking().AnyAsync(p => p.Id == item.PlanId && p.Status == TreatmentPlanStatuses.Withdrawn, ct);
         if (item.WithdrawnAtUtc is not null || planWithdrawn) throw new BillingException("item_withdrawn", "That procedure has been withdrawn, so it cannot be billed.", 409);
         if (!await db.TreatmentPlanItemStates.AsNoTracking().AnyAsync(s => s.ItemId == item.Id && s.Completion == ItemCompletion.Completed, ct))
             throw new BillingException("not_completed", "Only a completed procedure can be billed. Mark it completed in the treatment plan first.", 409);
-        if (await db.BillingEntries.AsNoTracking().AnyAsync(e => e.PlanItemId == item.Id, ct)) throw new BillingException("already_billed", "That procedure has already been billed.", 409);
-
         var procedure = await (from v in db.ProcedureVersions.AsNoTracking() join d in db.ProcedureDefinitions.AsNoTracking() on v.ProcedureId equals d.Id
                                where v.Id == item.ProcedureVersionId select new { d.Code, v.Description }).FirstAsync(ct);
-        var now = clock.UtcNow;
-        account = Open(account, patientId, actor, now);
-        var amount = AppMoney.FromDecimal(item.Fee).Amount;
-        db.BillingEntries.Add(new BillingEntry
-        {
-            Id = Guid.NewGuid(), AccountId = account.Id, PatientId = patientId, EntryNumber = await NextNumberAsync(account.Id, ct), Kind = BillingKinds.Charge, Amount = amount, PlanItemId = item.Id,
-            ProcedureCode = procedure.Code, ProcedureDescription = procedure.Description, IdempotencyKey = key!, RecordedAtUtc = now, RecordedByUserId = actor,
-        });
-        AuditService.Record(db, "BillingChargeRecorded", nameof(BillingAccount), account.Id, actor, $"Charge of {amount:F2} {AppMoney.Currency} recorded for completed procedure {procedure.Code}.");
-        await SaveAsync(account.Id, ct);
-        return await GetAccountAsync(patientId, ct);
+        return new Billable(item, procedure.Code, procedure.Description);
     }
 
-    /// <summary>Records money received against the balance owed. It cannot be more than the balance (no credit balances in this story) and must carry the account version the person saw.</summary>
+    /// <summary>Stages a charge at the plan procedure's stored fee, with its audit entry, for the caller to save (opening the account when it does not exist yet).</summary>
+    private async Task<BillingEntry> StageChargeAsync(BillingAccount? account, Guid patientId, Billable billable, string key, Guid? correlationId, Guid actor, CancellationToken ct)
+    {
+        var now = clock.UtcNow;
+        account = Open(account, patientId, actor, now);
+        var amount = AppMoney.FromDecimal(billable.Item.Fee).Amount;
+        var entry = new BillingEntry
+        {
+            Id = Guid.NewGuid(), AccountId = account.Id, PatientId = patientId, EntryNumber = await NextNumberAsync(account.Id, ct), Kind = BillingKinds.Charge, Amount = amount, PlanItemId = billable.Item.Id,
+            ProcedureCode = billable.Code, ProcedureDescription = billable.Description, CorrelationId = correlationId, IdempotencyKey = key, RecordedAtUtc = now, RecordedByUserId = actor,
+        };
+        db.BillingEntries.Add(entry);
+        AuditService.Record(db, "BillingChargeRecorded", nameof(BillingAccount), account.Id, actor, $"Charge of {amount:F2} {AppMoney.Currency} recorded for completed procedure {billable.Code}.", correlationId: correlationId);
+        return entry;
+    }
+
+    /// <summary>
+    /// Records money received against the balance owed, under one of the practice's configured payment methods. It cannot be more than the balance (no credit balances in this story), must carry the account version
+    /// the person saw, and is applied to the charges it names or, when it names none, to the oldest open charges first (see <c>BillingService.Ledger.cs</c> for the allocation rules).
+    /// </summary>
     public async Task<BillingAccountView> RecordPaymentAsync(Guid patientId, PaymentInput input, Guid actor, CancellationToken ct)
     {
         await RequirePatientAsync(patientId, ct);
         var errors = new Dictionary<string, string>();
         var key = BillingRules.CleanKey(errors, input.IdempotencyKey);
         var amount = BillingRules.CleanPositiveAmount(errors, input.Amount, "payment");
-        var method = BillingRules.CleanMethod(errors, input.Method);
+        var method = BillingRules.CleanMethod(errors, input.Method, await ActiveMethodsAsync(ct));
         var note = BillingRules.CleanText(errors, "note", input.Note, required: false, missing: "");
         if (errors.Count > 0) throw BillingRules.Invalid(errors);
         var version = BillingRules.ParseVersion(input.RowVersion);
@@ -83,20 +106,32 @@ public partial class BillingService(AlveraDbContext db, IPracticeClock clock, IL
         var account = await AccountForChangeAsync(patientId, ct);
         var same = await db.BillingEntries.AsNoTracking().FirstOrDefaultAsync(e => e.AccountId == account.Id && e.IdempotencyKey == key, ct);
         if (same is not null)
-            return same.Kind == BillingKinds.Payment && same.Amount == -amount && same.PaymentMethod == method && same.Reason == note ? await GetAccountAsync(patientId, ct) : throw KeyReused();
+            return same.Kind == BillingKinds.Payment && same.Amount == -amount && same.PaymentMethodId == method!.Id && same.Reason == note ? await GetAccountAsync(patientId, ct) : throw KeyReused();
+
+        var paidBy = input.PaidByPatientId is Guid payer && payer != patientId ? payer : (Guid?)null;
+        if (paidBy is Guid other && !await db.BillingResponsibilities.AsNoTracking().AnyAsync(r => r.AccountId == account.Id && r.ResponsiblePatientId == other, ct))
+            throw BillingRules.Invalid(new Dictionary<string, string> { ["paidBy"] = "Only the patient, or someone recorded as responsible for this account, can be recorded as having paid it." });
 
         var balance = await BalanceAsync(account.Id, ct);
         if (amount > balance)
             throw BillingRules.Invalid(new Dictionary<string, string> { ["amount"] = $"A payment cannot be more than the balance owed ({balance:F2} {AppMoney.Currency}). Check the amount and the patient." });
 
+        var ledger = await LoadLedgerAsync(account.Id, ct);
+        var chosen = BuildAllocations(ledger, amount!.Value, input.Allocations, errors);
+        if (errors.Count > 0) throw BillingRules.Invalid(errors);
+
         var now = clock.UtcNow;
         Touch(account, version, now);
-        db.BillingEntries.Add(new BillingEntry
+        var payment = new BillingEntry
         {
-            Id = Guid.NewGuid(), AccountId = account.Id, PatientId = patientId, EntryNumber = await NextNumberAsync(account.Id, ct), Kind = BillingKinds.Payment, Amount = -amount!.Value, PaymentMethod = method,
-            Reason = note, IdempotencyKey = key!, RecordedAtUtc = now, RecordedByUserId = actor,
-        });
-        AuditService.Record(db, "BillingPaymentRecorded", nameof(BillingAccount), account.Id, actor, $"Payment of {amount:F2} {AppMoney.Currency} recorded ({method}).");
+            Id = Guid.NewGuid(), AccountId = account.Id, PatientId = patientId, EntryNumber = await NextNumberAsync(account.Id, ct), Kind = BillingKinds.Payment, Amount = -amount.Value, PaymentMethod = method!.Kind,
+            PaymentMethodId = method.Id, PaidByPatientId = paidBy, CorrelationId = input.CorrelationId, Reason = note, IdempotencyKey = key!, RecordedAtUtc = now, RecordedByUserId = actor,
+        };
+        db.BillingEntries.Add(payment);
+        AddAllocations(account, ledger, payment, chosen, key!, actor, now);
+        var applied = chosen.Aggregate(AppMoney.Zero, (sum, c) => sum + AppMoney.FromDecimal(c.Amount)).Amount;
+        AuditService.Record(db, "BillingPaymentRecorded", nameof(BillingAccount), account.Id, actor, $"Payment of {amount:F2} {AppMoney.Currency} recorded ({method.Name}); {applied:F2} applied to {chosen.Count} charge{(chosen.Count == 1 ? "" : "s")}.",
+            correlationId: input.CorrelationId);
         await SaveAsync(account.Id, ct);
         return await GetAccountAsync(patientId, ct);
     }
@@ -179,15 +214,16 @@ public partial class BillingService(AlveraDbContext db, IPracticeClock clock, IL
     private async Task<decimal> BalanceAsync(Guid accountId, CancellationToken ct) =>
         AppMoney.FromDecimal(await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == accountId).SumAsync(e => (decimal?)e.Amount, ct) ?? 0m).Amount;
 
-    private async Task SaveAsync(Guid accountId, CancellationToken ct)
+    private async Task SaveAsync(Guid id, CancellationToken ct, string entityType = nameof(BillingAccount))
     {
+        var accountId = id;
         try
         {
-            await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(BillingAccount), accountId, ct);
+            await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, entityType, accountId, ct);
         }
         catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
         {
-            throw new ConcurrencyConflictException(nameof(BillingAccount), accountId); // two writers opened the account, claimed the same entry number, key or procedure
+            throw new ConcurrencyConflictException(entityType, accountId); // two writers opened the account, claimed the same entry number, key, procedure or name
         }
         catch (DbUpdateException ex)
         {

@@ -8,24 +8,50 @@ namespace Alveara.Api.Architecture.Billing;
 
 public partial class BillingService
 {
-    /// <summary>The patient's account: the entries in the order they were made, each with the balance owed after it, and the balance now. A patient with nothing billed yet has a zero balance and no row version.</summary>
+    /// <summary>
+    /// The patient's account: the entries in the order they were made, each with the balance owed after it, whether it has been reversed (and by what), what a charge has been paid and has left, what a payment
+    /// has been applied to and has not yet, and every allocation; plus the balance now. A patient with nothing billed yet has a zero balance and no row version. Every number is the ledger's, rebuilt from the
+    /// preserved history by <see cref="BillingLedgerMath"/>.
+    /// </summary>
     public async Task<BillingAccountView> GetAccountAsync(Guid patientId, CancellationToken ct)
     {
         await RequirePatientAsync(patientId, ct);
         var account = await db.BillingAccounts.AsNoTracking().FirstOrDefaultAsync(a => a.PatientId == patientId, ct);
-        if (account is null) return new BillingAccountView(patientId, false, 0m, AppMoney.Currency, null, []);
+        if (account is null) return new BillingAccountView(patientId, false, 0m, AppMoney.Currency, null, [], [], 0m, 0m, []);
 
-        var entries = await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == account.Id).OrderBy(e => e.EntryNumber).ToListAsync(ct);
-        var names = await ClinicalNames.ResolveAsync(db, entries.Select(e => (Guid?)e.RecordedByUserId), ct);
-        var running = AppMoney.Zero;
+        var ledger = await LoadLedgerAsync(account.Id, ct);
+        var math = ledger.Math;
+        var maths = ledger.MathAllocations;
+        var running = BillingLedgerMath.RunningBalances(math);
+        var reversed = ledger.Entries.Where(e => e.ReversesEntryId is not null).ToDictionary(e => e.ReversesEntryId!.Value, e => e.EntryNumber);
+        var names = await ClinicalNames.ResolveAsync(db, ledger.Entries.Select(e => (Guid?)e.RecordedByUserId).Concat(ledger.Allocations.Select(a => (Guid?)a.AllocatedByUserId)), ct);
+        var methods = await db.BillingPaymentMethods.AsNoTracking().ToDictionaryAsync(m => m.Id, m => m.Name, ct);
+        var payerIds = ledger.Entries.Where(e => e.PaidByPatientId is not null).Select(e => e.PaidByPatientId!.Value).Distinct().ToList();
+        var payers = await db.Patients.AsNoTracking().Where(p => payerIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => $"{p.FirstName} {p.LastName}", ct);
+        var open = BillingLedgerMath.OpenCharges(math, maths).ToDictionary(o => o.Charge, o => o.Open);
+
         var views = new List<BillingEntryView>();
-        foreach (var e in entries)
+        var standing = new List<BillingEntryStanding>();
+        for (var i = 0; i < ledger.Entries.Count; i++)
         {
-            running += AppMoney.FromDecimal(e.Amount);
-            views.Add(new BillingEntryView(e.EntryNumber, e.Kind, e.Amount, running.Amount, e.PlanItemId, e.ProcedureCode, e.ProcedureDescription, e.PaymentMethod, e.Reason, e.RecordedAtUtc,
-                ClinicalNames.Name(names, e.RecordedByUserId)));
+            var e = ledger.Entries[i];
+            var isCharge = e.Kind == BillingKinds.Charge;
+            var isPayment = e.Kind == BillingKinds.Payment;
+            views.Add(new BillingEntryView(e.EntryNumber, e.Kind, e.Amount, running[i], e.PlanItemId, e.ProcedureCode, e.ProcedureDescription, e.PaymentMethod, e.Reason, e.RecordedAtUtc,
+                ClinicalNames.Name(names, e.RecordedByUserId), ReversesEntryNumber: e.ReversesEntryId is Guid id ? ledger.NumberOf(id) : null,
+                PaymentMethodName: e.PaymentMethodId is Guid m && methods.TryGetValue(m, out var mn) ? mn : e.PaymentMethod,
+                PaidByName: e.PaidByPatientId is Guid p && payers.TryGetValue(p, out var pn) ? pn : null));
+            standing.Add(new BillingEntryStanding(e.EntryNumber, reversed.ContainsKey(e.Id), reversed.TryGetValue(e.Id, out var by) ? by : null,
+                isCharge ? BillingLedgerMath.Paid(math, maths, e.EntryNumber) : null, isCharge ? open.GetValueOrDefault(e.EntryNumber) : null,
+                isPayment ? BillingLedgerMath.Applied(maths, e.EntryNumber) : null, isPayment ? BillingLedgerMath.Unapplied(math, maths, e.EntryNumber) : null));
         }
-        return new BillingAccountView(patientId, true, running.Amount, AppMoney.Currency, Convert.ToBase64String(account.RowVersion), views);
+        var releasedPayments = BillingLedgerMath.Reversed(math);
+        var allocationViews = ledger.Allocations.OrderBy(a => a.AllocationNumber)
+            .Select(a => new BillingAllocationView(a.AllocationNumber, ledger.NumberOf(a.PaymentEntryId), ledger.NumberOf(a.ChargeEntryId), a.Amount, releasedPayments.Contains(ledger.NumberOf(a.PaymentEntryId)), a.AllocatedAtUtc,
+                ClinicalNames.Name(names, a.AllocatedByUserId))).ToList();
+        var unapplied = ledger.Entries.Where(e => e.Kind == BillingKinds.Payment).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(BillingLedgerMath.Unapplied(math, maths, e.EntryNumber))).Amount;
+        var openTotal = open.Values.Aggregate(AppMoney.Zero, (sum, v) => sum + AppMoney.FromDecimal(v)).Amount;
+        return new BillingAccountView(patientId, true, running.Count == 0 ? 0m : running[^1], AppMoney.Currency, Convert.ToBase64String(account.RowVersion), views, allocationViews, unapplied, openTotal, standing);
     }
 
     /// <summary>
