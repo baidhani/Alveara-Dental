@@ -463,3 +463,43 @@ test("the API refuses what the screen does not offer: a stale answer, another pa
   for (const event of ["TreatmentPlanRevised", "TreatmentPlanItemAccepted", "TreatmentPlanItemDeclined", "TreatmentPlanItemScheduled", "TreatmentPlanItemCompleted", "DiagnosisPlanReferenceResolved", "TreatmentPlanReferenceCodeSet"]) expect(audit, event).toContain(event);
   evidence.refusals = { stale: stale.body.error, crossPatient: cross.body.error, noCsrf: noCsrf.status, resolvedReferenceLocked: change.body.error, auditEvents: 7 };
 });
+
+test("CATALOG USAGE (review finding R01-01): inactivating a procedure that treatment plans use shows the plans in the warning, needs confirmation, leaves the plans readable and takes the procedure out of new work", async () => {
+  const dentist = sessions.Dentist.page;
+  await admin.goto("/procedures");
+  await expect(admin.getByRole("heading", { name: "Procedures and fees" })).toBeVisible();
+  const usage = (await api(admin, "get", `/api/procedures/${procedures["PERIO-1"]}/usage`)).body;
+  expect([usage.count, usage.bySource.find((b: any) => b.source === "Treatment plans").count]).toEqual([2, 2]);        // Ann's plan and Bo's plan
+
+  await admin.getByRole("button", { name: "Inactivate procedure PERIO-1" }).click();
+  const form = admin.getByRole("form", { name: "Inactivate procedure PERIO-1" });
+  await expect(form.getByText(/PERIO-1 is referred to by 2 records/)).toBeVisible();
+  await expect(form).toContainText("(Treatment plans: 2)");
+  await expect(form).toContainText("does not change or remove those records");
+  await form.getByLabel("Why is PERIO-1 being inactivated?").fill("No longer offered");
+  await form.getByRole("button", { name: "Inactivate procedure" }).click();
+  await expect(form.getByText("Confirm that you understand before inactivating.")).toBeVisible();                 // nothing is sent until it is confirmed
+  expect((await api(admin, "get", `/api/procedures/${procedures["PERIO-1"]}`)).body.summary.status).toBe("Active");
+  await shot(admin, "13-catalog-usage-warning.png");
+  await scanBothThemes(admin, "catalog-usage-warning");
+
+  await form.getByRole("checkbox").check();
+  await form.getByRole("button", { name: "Inactivate procedure" }).click();
+  await expect.poll(async () => (await api(admin, "get", `/api/procedures/${procedures["PERIO-1"]}`)).body.summary.status).toBe("Inactive");
+
+  // the plans keep the procedure and the fee they copied
+  await gotoTab(dentist);
+  await expect(card(dentist, "Gum health plan")).toContainText("PERIO-1");
+  await expect(card(dentist, "Gum health plan")).toContainText("Fee $120.00");
+  await expect(card(dentist, "Gum health plan")).toContainText("Estimate total: $220.00");
+  // and it is no longer offered for new work, on screen or through the API
+  const create = dentist.getByRole("form", { name: "Create a treatment plan" });
+  await expect(create.getByRole("option", { name: /PERIO-1/ })).toHaveCount(0);
+  await expect(create.getByRole("option", { name: /POL-1/ })).toHaveCount(1);
+  const plan = (await plansOf(dentist, "ann"))[0];
+  const refused = await api(dentist, "post", `/api/treatment-plans/${plan.id}/items`, { idempotencyKey: `c01-r02-${stamp}`, diagnosisId: ids.dxMain, procedureId: procedures["PERIO-1"], rowVersion: plan.rowVersion });
+  expect([refused.status, refused.body.error]).toEqual([400, "validation_failed"]);
+  expect(refused.body.fieldErrors.procedureId).toContain("inactive");
+  await shot(dentist, "14-plan-after-inactivation.png");
+  evidence.catalogUsage = { treatmentPlanUses: 2, warned: true, confirmedBeforeInactivating: true, planStillShowsFee: 120, refusedForNewWork: true };
+});

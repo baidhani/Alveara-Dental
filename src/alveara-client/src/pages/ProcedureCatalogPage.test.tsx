@@ -264,6 +264,21 @@ describe("Procedure catalog page", () => {
     await waitFor(() => expect(posts(api).at(-1)?.body).toMatchObject({ acknowledgeUsage: true }));
   });
 
+  it("names each source that refers to the procedure, treatment plans included, leaves out a source with none, and still needs confirmation (ALV-015-C01 R02)", async () => {
+    const api = stubApi({ respond: { "/usage": () => json({ procedureId: "p1", count: 3, bySource: [{ source: "Odontogram links", count: 0 }, { source: "Treatment plans", count: 3 }] }) } });
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Inactivate procedure CLEAN-1" }));
+    const form = screen.getByRole("form", { name: "Inactivate procedure CLEAN-1" });
+    const warning = await within(form).findByText(/is referred to by 3 records/);
+    expect(warning.closest("p")).toHaveTextContent("(Treatment plans: 3)");
+    expect(warning.closest("p")).not.toHaveTextContent("Odontogram links");                                  // a source with none is not listed
+
+    await userEvent.type(within(form).getByLabelText("Why is CLEAN-1 being inactivated?"), "Retiring");
+    await userEvent.click(within(form).getByRole("button", { name: "Inactivate procedure" }));
+    expect(within(form).getByText("Confirm that you understand before inactivating.")).toBeInTheDocument();
+    expect(posts(api).filter((c) => c.url.includes("/inactivate"))).toHaveLength(0);
+  });
+
   it("does not offer to inactivate when it could not check where the procedure is used", async () => {
     const api = stubApi({ respond: { "/usage": () => json({ error: "boom" }, 500) } });
     renderPage();

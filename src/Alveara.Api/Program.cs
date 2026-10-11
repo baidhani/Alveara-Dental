@@ -90,6 +90,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Periodontal.PerioComparisonS
 builder.Services.AddScoped<Alveara.Api.Architecture.Clinical.DiagnosisService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Odontogram.ConditionTypeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Procedures.FindingLinkProcedureUsageSource>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Treatment.TreatmentPlanProcedureUsageSource>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.ProcedureCatalogService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.TreatmentPlanService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.DiagnosisReconciliationService>();

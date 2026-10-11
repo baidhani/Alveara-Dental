@@ -32,9 +32,12 @@ public abstract class TreatmentPlanTestBase : SafetyTestBase
         return e.Id;
     }
 
-    protected TreatmentPlanService Plans(AlveraDbContext db) => new(db, Clock, new ProcedureCatalogService(db, Clock, [new FindingLinkProcedureUsageSource(db)]));
+    /// <summary>The catalog as production wires it: the odontogram links and (ALV-015-C01 R02) the treatment plans both count as uses of a procedure.</summary>
+    protected static ProcedureCatalogService CatalogFor(AlveraDbContext db) => new(db, Clock, [new FindingLinkProcedureUsageSource(db), new TreatmentPlanProcedureUsageSource(db)]);
+
+    protected TreatmentPlanService Plans(AlveraDbContext db) => new(db, Clock, CatalogFor(db));
     protected Task<T> Svc<T>(Func<TreatmentPlanService, Task<T>> action) => WithDb(db => action(Plans(db)));
-    protected Task<T> Catalog<T>(Func<ProcedureCatalogService, Task<T>> action) => WithDb(db => action(new ProcedureCatalogService(db, Clock, [new FindingLinkProcedureUsageSource(db)])));
+    protected Task<T> Catalog<T>(Func<ProcedureCatalogService, Task<T>> action) => WithDb(db => action(CatalogFor(db)));
 
     /// <summary>A current diagnosis for a patient, recorded through the real diagnosis service.</summary>
     protected async Task<Guid> DiagnosisAsync(Guid? patient = null, string label = "Chronic periodontitis")

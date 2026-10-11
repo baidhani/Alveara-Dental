@@ -232,7 +232,8 @@ public class TreatmentPlanServiceTests : TreatmentPlanTestBase
         var diagnosis = await DiagnosisAsync();
         var procedure = await ProcedureAsync();
         var first = await CreateAsync([Item(diagnosis, procedure.Summary.Id)], key: "visit-2");
-        await Catalog(s => s.InactivateAsync(procedure.Summary.Id, "Retired", false, procedure.Summary.RowVersion, S.Actor, default));
+        // the plan uses the procedure, so since ALV-015-C01 R02 the catalog asks for the use to be acknowledged before inactivating it
+        await Catalog(s => s.InactivateAsync(procedure.Summary.Id, "Retired", true, procedure.Summary.RowVersion, S.Actor, default));
         var retry = await CreateAsync([Item(diagnosis, procedure.Summary.Id)], key: "visit-2");
         Assert.Equal(first.Id, retry.Id);                                                      // the retry of a save that worked is not judged again
     }

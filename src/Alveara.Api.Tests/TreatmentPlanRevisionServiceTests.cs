@@ -59,7 +59,7 @@ public class TreatmentPlanRevisionServiceTests : TreatmentPlanTestBase
 
         // each revision still says what it said: revision 1 has one live procedure, 2 has two, 4 has the first marked withdrawn
         var added2 = added.Items[1].Id;
-        Assert.Equal(1, (await HeldAsync(plan.Id, 1)).Count);
+        Assert.Single(await HeldAsync(plan.Id, 1));
         Assert.Equal((2, false), ((await HeldAsync(plan.Id, 2)).Count, (await HeldAsync(plan.Id, 2))[plan.Items[0].Id].Withdrawn));
         var last = await HeldAsync(plan.Id, 4);
         Assert.Equal((true, false), (last[plan.Items[0].Id].Withdrawn, last[added2].Withdrawn));

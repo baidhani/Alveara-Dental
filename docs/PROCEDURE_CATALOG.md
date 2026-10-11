@@ -23,7 +23,7 @@ Code systems: `Local` (the practice's own codes; **no source name and no edition
 - **Inactivate**: needs a reason. If other records refer to the procedure the service refuses with `usage_confirmation_required` (409) and the counts until the caller confirms with `acknowledgeUsage`. Inactivating changes none of the records that refer to it; it only stops the procedure being offered for new work. **Reactivate** restores it (reason optional).
 - **Planning query** `GET /api/procedures/active?toothKey&surface&scope&category&search&asOf`: procedures usable on a date, narrowed to those that fit the tooth's dentition and surface.
 - **Snapshots**: `GET /api/procedures/{id}/snapshot?asOf=` and `GET /api/procedures/versions/{versionId}`.
-- **Usage** is read through `IProcedureUsageSource`. The first source counts odontogram links of type `Procedure` whose reference is the procedure id. Treatment planning and billing register their own sources when they exist; the catalog does not change.
+- **Usage** is read through `IProcedureUsageSource`. The first source counts odontogram links of type `Procedure` whose reference is the procedure id. Treatment plans register theirs (ALV-015-C01 R02, `TreatmentPlanProcedureUsageSource`, shown as "Treatment plans"): it counts every persisted plan procedure that refers to the procedure, withdrawn and completed ones included, because the reference is historical. Billing registers its own when it exists; the catalog does not change. The usage answer and the inactivation warning list each source with its number and nothing else (no patient, plan or procedure detail).
 
 ## Permissions
 
