@@ -4,7 +4,7 @@
   "storyId": "STORY-007",
   "projectTruthBaseRevision": 1,
   "observedAt": "2026-10-11T00:00:00Z",
-  "sourceCommitSha": "a57ce80",
+  "sourceCommitSha": "3471727",
   "factProposals": [
     {
       "dimension": "data",

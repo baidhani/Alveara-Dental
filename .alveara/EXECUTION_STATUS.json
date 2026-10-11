@@ -1586,26 +1586,26 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 2727 of 2727 passed, 0 failed, 0 skipped (57 m 24 s). New: BillingSchemaTests 23, BillingServiceTests 29, BillingApiTests 23 (75). Frontend 1325 of 1325 on the rerun (15 new in BillingPanel.test.tsx; the first full run had one failure in the unrelated BackupRecoveryPage.test.tsx, which passed alone twice and in the rerun); tsc clean, build ok, lint exit 0; mocked browser 136 of 136; repository checks 8 of 8. Real-backend billing walkthrough 10 of 10 (axe light and dark, 0 critical/serious; failed-log path, stale second screen, read-only roles); the whole sweep 227 of 227 in 21 runs on fresh databases. Six negative controls all caught (charge amount, over-payment rule, account version, payment audit, wrong-account payment, trigger 51125), restored byte-identical. Migration Down and Up verified on a scratch database. Leaked databases and logins unchanged. See docs/BILLING.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "34717271b88c9b3390c893388834026874641041",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "34717271b88c9b3390c893388834026874641041",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1613,8 +1613,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-11T13:30:07.951Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 34717271b88c9b3390c893388834026874641041 - see .colaberry/progress.json (STORY-007.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-11T13:30:07.951Z; portal sync commit 9b34d41)."
     },
     {
       "schemaVersion": "2",
