@@ -144,7 +144,7 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
 
         var declined = await DecidePlan(mixed, "Declined", reason: "Not this year");                                          // the same direction: only the two pending ones change
         Assert.Equal(("Declined", 3), (declined.AcceptanceStatus, await StateRowsAsync()));
-        Assert.Equal(["Not now", "Not this year", "Not this year"], declined.Items.Select(i => i.DecisionReason).ToArray());
+        Assert.Equal<IEnumerable<string?>>(["Not now", "Not this year", "Not this year"], declined.Items.Select(i => i.DecisionReason));
         Assert.Equal("Say why it was declined.", (await Refused(() => DecidePlan(plan, "Declined"))).FieldErrors["reason"]);
     }
 

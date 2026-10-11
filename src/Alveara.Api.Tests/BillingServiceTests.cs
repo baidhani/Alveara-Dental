@@ -79,7 +79,7 @@ public class BillingServiceTests : BillingTestBase
         var e = await RefusedBilling(() => Bill(s => s.RecordChargeAsync(Ann, new ChargeInput(null, null), S.Actor, default)));
         Assert.Equal(("validation_failed", 400), (e.Code, e.StatusCode));
         Assert.Equal(new[] { "idempotencyKey", "planItemId" }, e.FieldErrors.Keys.Order().ToArray());
-        Assert.Equal((await RefusedBilling(() => Bill(s => s.RecordChargeAsync(Guid.NewGuid(), ChargeOf(Guid.NewGuid()), S.Actor, default)))).Code, "patient_not_found");
+        Assert.Equal("patient_not_found", (await RefusedBilling(() => Bill(s => s.RecordChargeAsync(Guid.NewGuid(), ChargeOf(Guid.NewGuid()), S.Actor, default)))).Code);
         Assert.Equal((0, 0, 0), await BillingCountsAsync());
     }
 

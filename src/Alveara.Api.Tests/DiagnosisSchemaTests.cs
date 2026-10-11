@@ -172,7 +172,7 @@ public class DiagnosisSchemaTests : IAsyncLifetime
             Assert.Equal(51073, (await SqlRefusedAsync($"UPDATE Diagnoses SET {set} WHERE Id = '{id}'")).Number);
         Assert.Equal(51073, (await SqlRefusedAsync($"UPDATE Diagnoses SET PatientId = '{_bo}', EncounterId = '{_boEncounter}' WHERE Id = '{id}'")).Number);   // moving both to a consistent pair is still a change of link
         await using var db = _fixture.CreateContext();
-        await db.Database.ExecuteSqlRawAsync($"UPDATE Diagnoses SET Label = 'Corrected', Notes = 'n', TreatmentPlanReference = 'plan-8' WHERE Id = '{id}'");
+        await db.Database.ExecuteSqlAsync($"UPDATE Diagnoses SET Label = 'Corrected', Notes = 'n', TreatmentPlanReference = 'plan-8' WHERE Id = {id}");
         Assert.Equal(("Corrected", "plan-8"), (await db.Diagnoses.AsNoTracking().SingleAsync(x => x.Id == id)).Let(x => (x.Label, x.TreatmentPlanReference!)));
     }
 

@@ -194,7 +194,7 @@ public class ClinicalRecordApiTests : IAsyncLifetime
         var template = await dentist.SendAsync(HttpMethod.Post, "/api/clinical/templates", new
         {
             name = "SOAP note", description = "Standard visit",
-            sections = new[] { new { section = "Subjective", required = true, starterText = "Chief complaint:" }, new { section = "Plan", required = true, starterText = (string?)null } },
+            sections = new[] { new { section = "Subjective", required = true, starterText = (string?)"Chief complaint:" }, new { section = "Plan", required = true, starterText = (string?)null } },
         });
         Assert.Equal(HttpStatusCode.Created, template.Status);
         var enc = await StartEncounterAsync(dentist);

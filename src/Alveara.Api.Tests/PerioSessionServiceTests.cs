@@ -383,7 +383,7 @@ END");
         await Svc(x => x.AbandonAsync(s.Id, s.RowVersion, S.Actor, default));
         await Svc(x => x.AbandonAsync(s.Id, "stale", S.Actor, default));
         Assert.Single(await AuditAsync(nameof(PerioSession)), a => a.Type == "PerioSessionAbandoned");
-        Assert.Equal(1, (await GetAsync(s.Id)).Readings.Count);                                               // the entries stay in the record
+        Assert.Single((await GetAsync(s.Id)).Readings);                                               // the entries stay in the record
 
         var other = await SaveAsync(await StartAsync(), Batch([R()]));
         await FinalizeAsync(other);

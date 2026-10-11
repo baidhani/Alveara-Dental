@@ -267,7 +267,7 @@ public class ConditionTypeServiceTests : SafetyTestBase
     {
         await RecordAsync("46", null, "Missing", state);
         if (blocks) Assert.Equal("tooth_absent", (await Refused(() => RecordAsync("46", "O", "Caries"))).Code);
-        else Assert.Single((await RecordAsync("46", "O", "Caries")).Findings.Where(f => f.Condition == "Caries"));
+        else Assert.Single((await RecordAsync("46", "O", "Caries")).Findings, f => f.Condition == "Caries");
     }
 
     [Fact]

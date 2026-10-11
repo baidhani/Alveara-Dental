@@ -54,7 +54,7 @@ public class TreatmentPlanRevisionServiceTests : TreatmentPlanTestBase
         var revisions = await RevisionsAsync(plan.Id);
         Assert.Equal(["Created", "ItemAdded", "Renamed", "ItemWithdrawn"], revisions.Select(r => r.ChangeType).ToArray());
         Assert.Equal(["Periodontal plan", "Periodontal plan", "Gum health plan", "Gum health plan"], revisions.Select(r => r.Title).ToArray());
-        Assert.Equal([null, null, null, "Patient declined"], revisions.Select(r => r.Reason).ToArray());
+        Assert.Equal<IEnumerable<string?>>([null, null, null, "Patient declined"], revisions.Select(r => r.Reason));
         Assert.Equal(revisions.Select(r => r.EventNumber).Distinct().Count(), revisions.Count);
 
         // each revision still says what it said: revision 1 has one live procedure, 2 has two, 4 has the first marked withdrawn

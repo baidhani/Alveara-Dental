@@ -111,7 +111,7 @@ public class EncounterNotesServiceTests : IAsyncLifetime
         Assert.Equal(again.RowVersion, blank.RowVersion);
         Assert.DoesNotContain(blank.Notes!, n => n.Section == NoteSections.Plan);
         Assert.Equal(1, blank.History.Count(h => h.EventType == EncounterEventTypes.NoteSaved));
-        Assert.Single((await AuditAsync(nameof(Encounter))).Where(a => a.Type == "EncounterNoteSaved"));
+        Assert.Single(await AuditAsync(nameof(Encounter)), a => a.Type == "EncounterNoteSaved");
     }
 
     [Fact]

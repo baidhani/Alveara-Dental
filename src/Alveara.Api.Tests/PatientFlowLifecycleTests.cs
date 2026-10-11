@@ -113,7 +113,7 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
 
         var unchanged = await _s.ReloadAsync(a.Id);
         Assert.Equal((PatientFlowStates.Scheduled, a.RowVersion), (unchanged.FlowState, unchanged.RowVersion));
-        Assert.Equal(1, (await _s.HistoryAsync(a.Id)).Count); // only "Scheduled"
+        Assert.Single(await _s.HistoryAsync(a.Id)); // only "Scheduled"
 
         // and the same request can simply be retried once logging is back
         Assert.Equal(PatientFlowStates.CheckedIn, (await CheckInAsync(a)).FlowState);

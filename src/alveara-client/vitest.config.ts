@@ -7,6 +7,9 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
+    // The default 5 s per test left too thin a margin for the slowest suites (the periodontal grid, backup recovery) when the whole suite runs in parallel straight after a long backend run: each
+    // passed alone in 1 to 3 s and failed only on the wall-clock limit, in a different file each time. 15 s only widens that margin; it changes no assertion and a test that hangs still fails.
+    testTimeout: 15_000,
     // e2e/ holds Playwright specs (real-browser tests), run via `npm run
     // test:e2e`, not vitest — they import `test`/`expect` from
     // @playwright/test, which vitest's runner cannot execute.

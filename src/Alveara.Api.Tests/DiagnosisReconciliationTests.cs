@@ -171,7 +171,7 @@ public class DiagnosisReconciliationTests : TreatmentPlanTestBase
         var forBo = await Reconcile(Bo);
         Assert.Equal((1, bosPlan.Id), (forBo.Matched, forBo.Items.Single().PlanId));
         Assert.Equal("Resolved", (await Diagnosis(bos)).TreatmentPlanReferenceState);
-        Assert.Equal(["Unresolved", "Unresolved"], new[] { (await Diagnosis(anns)).TreatmentPlanReferenceState, (await Diagnosis(annsById)).TreatmentPlanReferenceState });
+        Assert.Equal<IEnumerable<string?>>(["Unresolved", "Unresolved"], new[] { (await Diagnosis(anns)).TreatmentPlanReferenceState, (await Diagnosis(annsById)).TreatmentPlanReferenceState });
         Assert.Equal("patient_not_found", (await Refused(() => Reconcile(Guid.NewGuid()))).Code);
     }
 

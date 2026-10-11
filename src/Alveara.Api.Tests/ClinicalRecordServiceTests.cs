@@ -202,7 +202,7 @@ public class ClinicalRecordServiceTests : IAsyncLifetime
 
         Assert.Equal(item.RowVersion, Item(after, EncounterEntryKinds.Allergy, "Penicillin").RowVersion); // no new version
         Assert.Single((await HistoryAsync(item.Id)).Versions);
-        Assert.Equal(1, (await AuditAsync(nameof(ClinicalRecordItem))).Count);
+        Assert.Single(await AuditAsync(nameof(ClinicalRecordItem)));
     }
 
     [Fact]

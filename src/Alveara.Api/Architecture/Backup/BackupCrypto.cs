@@ -244,7 +244,8 @@ public static class BackupCrypto
             }
             catch (BackupCryptoException) { throw; }
             catch (Exception) when (writes.Fault is not null) { throw writes.Fault; } // a failing DESTINATION (e.g. disk full) is not a damaged backup
-            catch (Exception ex) when (ex is PgpException or IOException or EndOfStreamException or InvalidCastException or ArgumentException or InvalidOperationException or FormatException)
+            catch (Exception ex) when (ex is PgpException or IOException or EndOfStreamException or InvalidCastException or ArgumentException or InvalidOperationException or FormatException
+                                           or UnsupportedPacketVersionException) // the library's own refusal of a packet whose version byte was damaged: a damaged file, not a fault of ours
             {
                 throw new BackupCryptoException("corrupt_or_tampered", "The backup failed authentication: it is corrupt or has been altered.");
             }

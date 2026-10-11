@@ -178,7 +178,7 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
         Assert.Equal(("Pending", 1), (plan.GetProperty("acceptanceStatus").GetString(), plan.GetProperty("currentRevision").GetInt32()));
 
         var revised = await dentist.SendAsync(HttpMethod.Post, P(plan, "/revise"), Revise(plan,
-            phases: new[] { new { number = 1, name = "First visit", plannedVisit = "Today", targetDate = (string?)null }, new { number = 2, name = "After healing", plannedVisit = "Two weeks later", targetDate = "2030-06-01" } },
+            phases: new[] { new { number = 1, name = "First visit", plannedVisit = "Today", targetDate = (string?)null }, new { number = 2, name = "After healing", plannedVisit = "Two weeks later", targetDate = (string?)"2030-06-01" } },
             placements: new[] { new { itemId = Item(plan, 0), phaseNumber = (int?)1 }, new { itemId = Item(plan, 1), phaseNumber = (int?)2 } }));
         Assert.Equal(HttpStatusCode.OK, revised.Status);
         Assert.Equal((2, "Deep pockets", 2), (revised.Body.GetProperty("currentRevision").GetInt32(), revised.Body.GetProperty("clinicalRationale").GetString(), revised.Body.GetProperty("phases").GetArrayLength()));

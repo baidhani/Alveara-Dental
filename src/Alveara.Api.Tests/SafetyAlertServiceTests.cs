@@ -201,7 +201,7 @@ public class SafetyAlertServiceTests : SafetyTestBase
         Assert.Equal((1, 0), (c.Summary.ActiveAlertCount, c.Summary.UnacknowledgedAlertCount));
         Assert.Single(c.Entries);
         Assert.Empty(c.Resolved);
-        Assert.Equal(1, (await WithDb(db => new SafetyAlertService(db, Clock).HistoryAsync(a.Id, default))).Versions.Count);   // acknowledging added no version
+        Assert.Single((await WithDb(db => new SafetyAlertService(db, Clock).HistoryAsync(a.Id, default))).Versions);   // acknowledging added no version
         Assert.Equal(0, await S.CountAsync(db => db.SafetyAlerts.Where(x => x.Status == SafetyAlertStatuses.Resolved)));
         var audit = await AuditAsync(nameof(SafetyAlert));
         Assert.Contains(audit, e => e.Type == "SafetyAlertAcknowledged" && e.Details.Contains("still active"));

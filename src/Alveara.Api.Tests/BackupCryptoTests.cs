@@ -283,20 +283,105 @@ public class BackupCryptoTests
 
     // ---------- tamper / truncation / extension / splice ----------
 
+    /// <summary>The number of bytes in an OpenPGP packet's header and in its body (RFC 4880 4.2), for the packet starting at <paramref name="offset"/>. A partial-length body reports the length of its first chunk only.</summary>
+    private static (int Header, int Body) PacketLayout(byte[] data, int offset)
+    {
+        var tag = data[offset];
+        if ((tag & 0x40) == 0)   // old format: the two low bits say how many octets the length takes
+            return (tag & 3) switch
+            {
+                0 => (2, data[offset + 1]),
+                1 => (3, (data[offset + 1] << 8) | data[offset + 2]),
+                2 => (5, (data[offset + 1] << 24) | (data[offset + 2] << 16) | (data[offset + 3] << 8) | data[offset + 4]),
+                _ => (1, data.Length - offset - 1),
+            };
+        var first = data[offset + 1];
+        if (first < 192) return (2, first);
+        if (first < 224) return (3, ((first - 192) << 8) + data[offset + 2] + 192);
+        if (first == 255) return (6, (data[offset + 2] << 24) | (data[offset + 3] << 16) | (data[offset + 4] << 8) | data[offset + 5]);
+        return (2, 1 << (first & 0x1F));
+    }
+
+    /// <summary>
+    /// Where the parts of a backup file sit: the public-key packet that wraps the session key (its size varies by a byte, because the RSA ciphertext's leading zero bytes are dropped) and then
+    /// the integrity-protected encrypted-data packet, whose first body byte is a version number that neither the library nor the integrity check covers.
+    /// </summary>
+    private static (int EncryptedDataPacket, int VersionByte) Layout(byte[] cipher)
+    {
+        var (header, body) = PacketLayout(cipher, 0);
+        var encryptedData = header + body;
+        var (dataHeader, _) = PacketLayout(cipher, encryptedData);
+        return (encryptedData, encryptedData + dataHeader);
+    }
+
+    private static async Task<(BackupCryptoException? Refused, byte[] Plain)> TryDecryptAsync(byte[] cipher)
+    {
+        using var output = new MemoryStream();
+        var ex = await Record.ExceptionAsync(() => BackupCrypto.DecryptAsync(new MemoryStream(cipher), output, Key.EncryptedPrivateKeyPem, Passphrase));
+        return (ex is null ? null : Assert.IsType<BackupCryptoException>(ex), output.ToArray());   // a flipped bit may only ever end in the library's own refusal
+    }
+
     [Fact]
     public async Task Altering_any_part_of_the_file_is_detected_and_never_yields_plaintext()
     {
         var plain = RandomBytes(2 * 1024 * 1024 + 5000);
         var cipher = await EncryptAsync(plain);
+        var (encryptedData, version) = Layout(cipher);
 
-        foreach (var offset in new[] { 5, 20, 400, 700, 4_000, cipher.Length / 4, cipher.Length / 2, cipher.Length - 100, cipher.Length - 30, cipher.Length - 1 })
+        // every position is chosen from the file's own structure (the key packet's size varies, so a fixed offset would sometimes land on the one byte nothing authenticates):
+        // the key packet's header, key id and ciphertext, the encrypted-data packet's tag and length, the bytes after its version, and the body
+        foreach (var offset in new[] { 0, 5, 20, encryptedData - 100, encryptedData - 1, encryptedData, encryptedData + 1, version + 1, version + 100, 4_000, cipher.Length / 4, cipher.Length / 2, cipher.Length - 100, cipher.Length - 30, cipher.Length - 1 })
         {
             var tampered = (byte[])cipher.Clone();
             tampered[offset] ^= 0x01;
-            using var output = new MemoryStream();
-            var ex = await Record.ExceptionAsync(() => BackupCrypto.DecryptAsync(new MemoryStream(tampered), output, Key.EncryptedPrivateKeyPem, Passphrase));
-            var crypto = Assert.IsType<BackupCryptoException>(ex); // a flipped bit may never decrypt "successfully"
-            Assert.Contains(crypto.Code, new[] { "corrupt_or_tampered", "wrong_recovery_key", "not_a_backup" });
+            var (refused, _) = await TryDecryptAsync(tampered);
+            Assert.NotNull(refused);
+            Assert.Contains(refused.Code, new[] { "corrupt_or_tampered", "wrong_recovery_key", "not_a_backup" });
+        }
+    }
+
+    [Fact]
+    public async Task The_encrypted_data_packets_version_byte_is_the_one_byte_whose_change_cannot_alter_the_plaintext()
+    {
+        // OpenPGP's integrity check does not cover that byte and the library does not validate it, so flipping it is harmless: what comes out, if anything, is exactly the original. This test finds a
+        // file whose key packet is one byte shorter (about 1 in 70 are), the case that made a fixed offset of 400 land on this byte in a large backup and the old test fail now and then, and proves the
+        // byte is where the layout says, that changing it never produces different plaintext, and that its neighbours are refused.
+        var plain = RandomBytes(5000);
+        byte[]? cipher = null;
+        for (var attempt = 0; attempt < 5000 && cipher is null; attempt++)
+        {
+            var candidate = await EncryptAsync(plain);
+            if (Layout(candidate).EncryptedDataPacket < 399) cipher = candidate;      // a normal key packet ends at 399; a shorter one moves everything after it up by a byte
+        }
+        Assert.NotNull(cipher);                                                     // found by construction: the shorter key packet is a normal outcome, not a rarity to hope for
+        var (encryptedData, version) = Layout(cipher);
+        Assert.Equal(1, cipher[version]);                                           // the encrypted-data packet's version number
+
+        var flipped = (byte[])cipher.Clone();
+        flipped[version] ^= 0x01;
+        var (refused, output) = await TryDecryptAsync(flipped);
+        Assert.True(refused is not null || output.AsSpan().SequenceEqual(plain), "changing the version byte must never produce different plaintext");
+
+        foreach (var neighbour in new[] { encryptedData, encryptedData + 1, version + 1, version + 2 })
+        {
+            var tampered = (byte[])cipher.Clone();
+            tampered[neighbour] ^= 0x01;
+            Assert.NotNull((await TryDecryptAsync(tampered)).Refused);
+        }
+    }
+
+    [Fact]
+    public async Task A_damaged_first_byte_of_the_encrypted_data_is_always_reported_as_a_corrupt_backup_never_as_a_raw_library_exception()
+    {
+        // Changing the first encrypted byte makes the library read garbage as the start of the message; about 1 file in 9 used to make it throw its own UnsupportedPacketVersionException, which
+        // escaped as an unclassified error instead of the stable "corrupt_or_tampered". Sixty fresh files make a miss astronomically unlikely if the translation ever regresses.
+        for (var i = 0; i < 60; i++)
+        {
+            var cipher = await EncryptAsync(RandomBytes(300));
+            var tampered = (byte[])cipher.Clone();
+            tampered[Layout(cipher).VersionByte + 1] ^= 0x01;
+            var (refused, _) = await TryDecryptAsync(tampered);       // TryDecryptAsync fails the test if anything but BackupCryptoException comes out
+            Assert.Equal("corrupt_or_tampered", refused?.Code);
         }
     }
 

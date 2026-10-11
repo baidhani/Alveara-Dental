@@ -40,7 +40,7 @@ public class OdontogramHistoryAndLinksTests : SafetyTestBase
         {
             ("Caries", "Recorded", "Diagnosed", "Active", "Dr. Okafor"), ("Caries", "StateChanged", "Planned", "Active", "Hana Hygienist"), ("Caries", "StateChanged", "Completed", "Active", "Dr. Okafor"),
             ("Crown", "Recorded", "Planned", "Active", "Dr. Okafor"), ("Crown", "Withdrawn", "Planned", "Withdrawn", "Hana Hygienist"),
-        }, h.Events.Select(e => (e.ConditionLabel, e.ChangeType, e.State, e.Status, e.ActorName)));
+        }, h.Events.Select(e => (e.ConditionLabel, e.ChangeType, e.State, e.Status, e.ActorName!)));
         Assert.Equal("Patient declined the crown", h.Events[^1].Reason);
         Assert.Equal("O", h.Events[0].Surface);
         Assert.All(h.Events, e => Assert.NotEqual(default, e.OccurredAtUtc));
@@ -152,7 +152,7 @@ public class OdontogramHistoryAndLinksTests : SafetyTestBase
         var chart = await Chart(s => s.LinkAsync(finding.Id, "Procedure", "PROC-3003", S.Actor, default));
 
         var links = Of(chart, "16", "Caries").Links;
-        Assert.Equal(new[] { ("Diagnosis", "DX-1001", "Dr. Okafor"), ("TreatmentPlan", "TP-2002", "Hana Hygienist"), ("Procedure", "PROC-3003", "Dr. Okafor") }, links.Select(l => (l.LinkType, l.Reference, l.LinkedByName)));
+        Assert.Equal(new[] { ("Diagnosis", "DX-1001", "Dr. Okafor"), ("TreatmentPlan", "TP-2002", "Hana Hygienist"), ("Procedure", "PROC-3003", "Dr. Okafor") }, links.Select(l => (l.LinkType, l.Reference, l.LinkedByName!)));
         Assert.All(links, l => Assert.NotEqual(default, l.LinkedAtUtc));
 
         var events = (await HistoryAsync("16")).Events;

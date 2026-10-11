@@ -87,7 +87,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
         var same = await MoveAsync(a, At(9));
 
         Assert.Equal(a.RowVersion, same.RowVersion);
-        Assert.Equal(1, (await _s.HistoryAsync(a.Id)).Count);
+        Assert.Single(await _s.HistoryAsync(a.Id));
         Assert.Equal(0, await _s.CountAsync(db => db.AuditLogEntries.Where(e => e.EventType == SchedulingAuditEvents.Rescheduled)));
     }
 
@@ -183,7 +183,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
 
         var unmoved = await _s.ReloadAsync(a.Id);
         Assert.Equal(("2030-01-14T09:00", a.RowVersion), (unmoved.StartLocal, unmoved.RowVersion));
-        Assert.Equal(1, (await _s.HistoryAsync(a.Id)).Count);
+        Assert.Single(await _s.HistoryAsync(a.Id));
 
         var moved = await MoveAsync(a, At(14));
         Assert.Equal("2030-01-14T14:00", moved.StartLocal);
