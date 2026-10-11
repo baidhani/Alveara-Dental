@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:113:1 › SETUP: two patients, diagnoses (two with old plan references), a catalog and a plan for the other patient (964ms)
+  ok  2 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:146:1 › a plan is created and a second procedure added on screen, a third through the API (858ms)
+  ok  3 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:171:1 › REVISION: phases, a clinical rationale and a patient explanation are laid out in one revision that needs a reason, and the plan shows them grouped by phase (4.2s)
+  ok  4 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:212:1 › ANSWERS: a decline needs a reason, an answer carries who gave it, and the whole-plan answer is refused when it would overwrite an opposite one (1.0s)
+  ok  5 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:253:1 › PROGRESS: only an accepted procedure is scheduled, completing is final, and a completed procedure cannot be re-answered or withdrawn (750ms)
+  ok  6 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:283:1 › HISTORY: every revision is listed, any one opens as it was saved, and two are compared with every difference named (2.5s)
+  ok  7 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:317:1 › PATIENT COPY: a plain-language page without staff detail, with the estimate labelled, that prints as one clean page (2.2s)
+  ok  8 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:351:1 › OLD REFERENCES: a reference is tied to the right plan and never to another patient's, the original text is kept, and the choice offers only this patient's plans (4.7s)
+  ok  9 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:410:1 › a hygienist reads the plan, its answers, its history and the patient copy but is offered no way to change anything (2.3s)
+  ok 10 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:443:1 › the API refuses what the screen does not offer: a stale answer, another patient's plan, a missing CSRF token and a resolved reference being changed (148ms)
+  ok 11 [chromium] › e2e\treatment-plans-complete-real-backend.spec.ts:467:1 › CATALOG USAGE (review finding R01-01): inactivating a procedure that treatment plans use shows the plans in the warning, needs confirmation, leaves the plans readable and takes the procedure out of new work (2.5s)
+
+  11 passed (26.3s)

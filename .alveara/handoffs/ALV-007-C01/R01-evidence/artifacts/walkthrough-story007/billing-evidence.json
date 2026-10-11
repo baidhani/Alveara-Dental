@@ -1,0 +1,106 @@
+{
+  "axe": {
+    "charged-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "charged-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "payment-refused-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "payment-refused-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "adjusted-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "adjusted-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "save-failed-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "save-failed-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1791748048965,
+  "acceptance1": {
+    "entry": {
+      "entryNumber": 1,
+      "kind": "Charge",
+      "amount": 120,
+      "balanceAfter": 120,
+      "planItemId": "b7c42d37-f921-4564-8976-ea25f7200266",
+      "procedureCode": "PERIO-1",
+      "procedureDescription": "Periodontal maintenance",
+      "paymentMethod": null,
+      "reason": null,
+      "recordedAtUtc": "2026-10-11T19:47:32.9254277+00:00",
+      "recordedByName": "Beth Billing 1791748048965",
+      "reversesEntryNumber": null,
+      "paymentMethodName": null,
+      "paidByName": null
+    }
+  },
+  "acceptance2": {
+    "entries": [
+      {
+        "n": 1,
+        "kind": "Charge",
+        "amount": 120,
+        "balanceAfter": 120
+      },
+      {
+        "n": 2,
+        "kind": "Payment",
+        "amount": -50,
+        "balanceAfter": 70
+      }
+    ]
+  },
+  "acceptance3": {
+    "entries": [
+      {
+        "n": 1,
+        "kind": "Charge",
+        "by": "Beth Billing 1791748048965",
+        "at": "2026-10-11T19:47:32.9254277+00:00"
+      },
+      {
+        "n": 2,
+        "kind": "Payment",
+        "by": "Beth Billing 1791748048965",
+        "at": "2026-10-11T19:47:35.1916457+00:00"
+      },
+      {
+        "n": 3,
+        "kind": "Adjustment",
+        "by": "Beth Billing 1791748048965",
+        "at": "2026-10-11T19:47:37.4166468+00:00"
+      },
+      {
+        "n": 4,
+        "kind": "Payment",
+        "by": "Beth Billing 1791748048965",
+        "at": "2026-10-11T19:47:39.3607895+00:00"
+      },
+      {
+        "n": 5,
+        "kind": "Payment",
+        "by": "Staff member",
+        "at": "2026-10-11T19:47:39.6921743+00:00"
+      }
+    ],
+    "auditHasBillingEvents": true
+  }
+}

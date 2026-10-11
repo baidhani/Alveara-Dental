@@ -1,0 +1,4 @@
+Leak check (SQL Server LocalDB), 2026-10-11. Counts of AlveraTest_* databases, AlveraRestore_* databases, alveara* server logins and alveara_* databases.
+Before the full backend run (2026-10-11T18:24Z): AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248.
+After the full backend run (2856 tests, 19:34Z): AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248 -> unchanged, nothing leaked by 2856 tests.
+After the walkthrough sweep (23 runs plus the two reruns on their own fresh databases, alveara_c007_*) and after deleting those databases once their output was saved: AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248 -> unchanged; nothing is left over from this attempt. The migration scratch database (alveara_c007_scratch) was dropped after its check.

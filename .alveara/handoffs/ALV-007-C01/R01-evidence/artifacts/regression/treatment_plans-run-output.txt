@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\treatment-plans-real-backend.spec.ts:115:1 › SETUP: a patient with an encounter and a current diagnosis, and two catalog procedures (551ms)
+  ok  2 [chromium] › e2e\treatment-plans-real-backend.spec.ts:134:1 › ACCEPTANCE 1: from the patient's diagnosis a plan is created that links to a catalog procedure and carries its fee estimate (2.3s)
+  ok  3 [chromium] › e2e\treatment-plans-real-backend.spec.ts:161:1 › ACCEPTANCE 2: a wrong entry prompts for correction beside its field, keeps what was typed, and saves nothing (822ms)
+  ok  4 [chromium] › e2e\treatment-plans-real-backend.spec.ts:196:1 › the fee is copied: a later catalog fee change does not rewrite the plan (254ms)
+  ok  5 [chromium] › e2e\treatment-plans-real-backend.spec.ts:207:1 › a procedure is withdrawn only with a reason and leaves the estimate total (429ms)
+  ok  6 [chromium] › e2e\treatment-plans-real-backend.spec.ts:222:1 › a plan can be renamed (305ms)
+  ok  7 [chromium] › e2e\treatment-plans-real-backend.spec.ts:233:1 › ACCEPTANCE 3: every plan change is in the history and the audit log with who and when (36ms)
+  ok  8 [chromium] › e2e\treatment-plans-real-backend.spec.ts:246:1 › a hygienist can read the plan but is offered no way to change it, and never touches the catalog (1.8s)
+  ok  9 [chromium] › e2e\treatment-plans-real-backend.spec.ts:263:1 › billing has no treatment plan tab and is refused at the address and the API (282ms)
+  ok 10 [chromium] › e2e\treatment-plans-real-backend.spec.ts:273:1 › the API refuses what the screen does not offer (83ms)
+  ok 11 [chromium] › e2e\treatment-plans-real-backend.spec.ts:285:1 › a plan is withdrawn only with a reason, stays on record, and can no longer be changed (428ms)
+
+  11 passed (12.0s)

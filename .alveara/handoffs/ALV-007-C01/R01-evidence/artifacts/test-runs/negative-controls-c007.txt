@@ -1,0 +1,76 @@
+Negative controls for ALV-007-C01 (run 2026-10-11 17:28 UTC; each production file was backed up, mutated, built, tested, then restored and compared byte for byte by SHA-256; no mutant remains)
+
+Mutant 1: A charge that payments are applied to can be reversed (the service rule removed).
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 2, Passed 125 of 127
+  killed by: BillingLedgerApiTests.A_wrong_allocation_or_reversal_is_refused_with_a_message_per_field_and_a_stable_code_and_changes_nothing
+  killed by: BillingLedgerServiceTests.A_charge_with_payments_applied_to_it_cannot_be_reversed_until_they_are_and_the_procedure_stays_billed
+
+Mutant 2: A reversal is one cent more than the opposite of the entry it undoes.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 13, Passed 114 of 127
+  killed by: BillingLedgerApiTests.A_payment_is_applied_to_the_charges_it_names_applied_later_reversed_and_the_history_always_verifies
+  killed by: BillingLedgerApiTests.A_wrong_allocation_or_reversal_is_refused_with_a_message_per_field_and_a_stable_code_and_changes_nothing
+  killed by: BillingLedgerApiTests.When_the_log_cannot_be_written_a_reversal_and_a_responsibility_answer_503_save_failed_without_internals_and_store_nothing
+  killed by: BillingLedgerServiceTests.A_charge_with_payments_applied_to_it_cannot_be_reversed_until_they_are_and_the_procedure_stays_billed
+  killed by: BillingLedgerServiceTests.A_reversal_cannot_be_reversed_an_entry_is_reversed_once_and_a_missing_entry_or_reason_is_refused
+  killed by: BillingLedgerServiceTests.A_stale_account_makes_applying_or_reversing_a_conflict_and_two_people_reversing_at_once_end_with_one_reversal
+  ... and 7 more
+
+Mutant 3: A payment can be allocated to a charge for more than the charge has left (the service rule removed).
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 2, Passed 125 of 127
+  killed by: BillingLedgerApiTests.A_wrong_allocation_or_reversal_is_refused_with_a_message_per_field_and_a_stable_code_and_changes_nothing
+  killed by: BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which:
+
+Mutant 4: The default allocation pays the newest open charge first instead of the oldest.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 3, Passed 124 of 127
+  killed by: BillingLedgerApiTests.A_payment_is_applied_to_the_charges_it_names_applied_later_reversed_and_the_history_always_verifies
+  killed by: BillingLedgerServiceTests.A_payment_can_name_the_charge_it_pays_and_what_it_does_not_apply_stays_visible_until_applied_later
+  killed by: BillingLedgerServiceTests.A_payment_that_names_no_charge_is_applied_to_the_oldest_open_charges_first
+
+Mutant 5: An entry can be reversed again (the service rule removed).
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 2, Passed 125 of 127
+  killed by: BillingLedgerApiTests.A_wrong_allocation_or_reversal_is_refused_with_a_message_per_field_and_a_stable_code_and_changes_nothing
+  killed by: BillingLedgerServiceTests.A_reversal_cannot_be_reversed_an_entry_is_reversed_once_and_a_missing_entry_or_reason_is_refused
+
+Mutant 6: The ALV-008-C01 contract no longer returns the existing charge for a procedure already charged.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 3, Passed 124 of 127
+  killed by: BillingProcedureChargeContractTests.A_reversed_charge_is_still_the_procedures_one_charge_and_is_not_made_again
+  killed by: BillingProcedureChargeContractTests.Replaying_a_completion_never_makes_a_second_charge
+  killed by: BillingProcedureChargeContractTests.Two_completions_racing_for_the_same_procedure_end_with_exactly_one_charge
+
+Mutant 7: The ALV-008-C01 contract runs outside a transaction.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 1, Passed 126 of 127
+  killed by: BillingProcedureChargeContractTests.It_refuses_to_run_outside_a_transaction_because_the_charge_and_the_completion_must_stand_or_fall_together
+
+Mutant 8: The ledger verification no longer notices a payment applied for more than it holds.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 2, Passed 125 of 127
+  killed by: BillingLedgerMathTests.Verification_names_every_rule_a_history_can_break
+  killed by: BillingLedgerServiceTests.Verification_finds_a_history_that_was_tampered_with_behind_the_database_rules
+
+Mutant 9: The allocations of a reversed payment keep counting against a charge (they are not released).
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 12, Passed 115 of 127
+  killed by: BillingLedgerMathTests.A_charge_is_open_for_what_live_payments_left_and_a_reversed_payment_releases_its_share
+  killed by: BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed:
+  killed by: BillingLedgerServiceTests.A_charge_with_payments_applied_to_it_cannot_be_reversed_until_they_are_and_the_procedure_stays_billed
+  killed by: BillingLedgerServiceTests.Applying_and_reversing_are_audited_with_the_user_and_the_reason_and_a_failed_audit_stores_nothing
+  killed by: BillingLedgerServiceTests.Applying_refuses_a_reversed_payment_an_unknown_one_a_charge_with_nothing_left_and_a_reused_key
+  killed by: BillingLedgerServiceTests.Reversing_a_payment_adds_the_opposite_entry_releases_its_allocations_and_changes_nothing_that_was_recorded
+  ... and 1 more
+
+Mutant 10: Responsibility can be recorded from a date in the future.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 1, Passed 126 of 127
+  killed by: BillingResponsibilityServiceTests.A_wrong_responsibility_is_refused_beside_its_field_and_nothing_is_recorded(which:
+
+Mutant 11: A payment can be recorded as paid by someone who is not responsible (the service rule removed).
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 3, Passed 124 of 127
+  killed by: BillingLedgerApiTests.Who_is_responsible_for_the_account_is_recorded_a_guarantor_sees_the_account_and_can_be_recorded_as_the_payer
+  killed by: BillingLedgerServiceTests.A_payment_can_be_recorded_as_made_by_someone_responsible_for_the_account_and_nobody_else
+  killed by: BillingResponsibilityServiceTests.A_payment_can_be_recorded_as_made_by_the_responsible_party_once_billing_has_recorded_them
+
+Mutant 12: Migration trigger 51141: the database no longer refuses reversing a charge that payments are applied to.
+  dotnet test (the ledger, responsibility and contract classes)  ->  Failed 1, Passed 126 of 127
+  killed by: BillingLedgerSchemaTests.A_charge_that_payments_are_applied_to_cannot_be_reversed_until_those_payments_are
+
+Unmutated tree: Passed 127 of 127.
+Restored: every mutated file is byte-identical to its backup (SHA-256 compared); rebuild: 0 Error(s)
+SUMMARY [('1', 2), ('2', 13), ('3', 2), ('4', 3), ('5', 2), ('6', 3), ('7', 1), ('8', 2), ('9', 7), ('10', 1), ('11', 3), ('12', 1)]
+DONE

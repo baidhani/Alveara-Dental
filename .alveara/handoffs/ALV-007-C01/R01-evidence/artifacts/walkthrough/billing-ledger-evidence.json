@@ -1,0 +1,45 @@
+{
+  "axe": {
+    "allocation-refused-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "allocation-refused-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "reversed-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "reversed-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "responsibility-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "responsibility-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "save-failed-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "save-failed-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1791748073016,
+  "verification": {
+    "patientId": "a0ed3361-4cca-40ed-8bc0-88469d016ce8",
+    "consistent": true,
+    "findings": [],
+    "balanceOwed": 70,
+    "entryCount": 7,
+    "allocationCount": 3
+  }
+}

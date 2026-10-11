@@ -1,0 +1,25 @@
+
+    Call log:
+      - Expect "toHaveCount" getByRole('form') with timeout 5000ms
+      - waiting for getByRole('form')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      164 |   await expect(ready).toContainText("$120.00");
+      165 |   await expect(ready).not.toContainText("SCALE-1");                  // accepted but not completed: not offered
+    > 166 |   await expect(page.getByRole("form")).toHaveCount(0);               // nothing to pay yet, so no payment or adjustment form
+          |                                        ^
+      167 |   await shot(page, "01-ready-to-bill.png");
+      168 |
+      169 |   await page.getByRole("button", { name: "Bill PERIO-1" }).click();
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\billing-real-backend.spec.ts:166:40
+
+    Error Context: test-results\billing-real-backend-ACCEP-5bf55--fee-with-no-amount-to-type-chromium\error-context.md
+
+    Error Context: test-results\billing-real-backend-ACCEP-5bf55--fee-with-no-amount-to-type-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\billing-real-backend.spec.ts:157:1 › ACCEPTANCE 1: a completed procedure is billed and the charge is recorded at the plan's fee, with no amount to type 
+  8 did not run
+  1 passed (11.0s)

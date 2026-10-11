@@ -1,0 +1,9 @@
+Frontend gates, 2026-10-11, on the final tree (implementation commit 9dd15c1712a1010eafc8c457c4a207b5cb2b625b).
+npx tsc --noEmit                 exit 0
+npm run lint                     exit 0 (0 errors; warnings only, none in the billing files)
+npm run build                    built
+npx vitest run                   87 files, 1346 of 1346 passed (R: STORY-007 final 1325; +21 in BillingLedgerPanel.test.tsx); no timeouts, no failures in the final run
+npx playwright test (mocked)     136 of 136 passed
+node --test tests/*.test.mjs     8 of 8 passed
+
+Earlier runs of the same gates during the attempt, all consistent: vitest 1343 of 1344 once (one failure in PatientWorkspace.test.tsx, a file that does not render billing; it passed alone, 19 of 19, and in the next full run, 1344 of 1344; the output of that one run was not captured, so its cause is not known), then 1344, 1345 and 1346 of the same count as tests were added. The STORY-007 panel tests (15) passed unchanged in every run.

@@ -1,0 +1,7 @@
+Done.
+after Up  : tables 3 triggers 7 new-entry-columns 4 built-in-methods 4
+Done.
+after Down: tables 0 triggers 0 new-entry-columns 0 built-in-methods Msg 208, Level 16, State 1, Server Feercy-Legion7i\LOCALDB#A7118E02, Line 1
+Invalid object name 'BillingPaymentMethods'.
+Done.
+after Up again: tables 3 triggers 7 new-entry-columns 4 built-in-methods 4
