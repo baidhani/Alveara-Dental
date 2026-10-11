@@ -1536,26 +1536,26 @@
       "qualityGateContribution": [
         "Gate C"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 2652 of 2652 passed, 0 failed, 0 skipped (52 m 55 s). New: ProcedureCatalogFailurePathTests 2, one API test in ProcedureCatalogApiTests (all three red before the fix). Frontend 1310 of 1310 (1 new in ProcedureCatalogPage.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8. Real-backend procedures walkthrough 8 of 8 on a fresh database (the new failure-path test with axe light and dark, 0 critical/serious). Leak counts unchanged (AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248). The catalog itself is ALV-N005; this story proved the three criteria against it and closed the failed-save and failed-log paths (save_failed, 503). See docs/PROCEDURE_CATALOG.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "977a3dbcc12dcca22216bd7363dcdda97b7dea98",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "977a3dbcc12dcca22216bd7363dcdda97b7dea98",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1563,8 +1563,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-11T04:33:37.289Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 977a3dbcc12dcca22216bd7363dcdda97b7dea98 - see .colaberry/progress.json (STORY-014.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-11T04:33:37.289Z; portal sync commit 7499187)."
     },
     {
       "schemaVersion": "2",

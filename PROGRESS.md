@@ -422,3 +422,10 @@
   - What changed: a save failure that is not a duplicate or a conflict, including a failed audit write, now stores nothing and answers `save_failed` (503) with a plain message and no internals (`ProcedureCatalogService.SaveAsync`; `ProcedureCatalogException` gained an optional inner exception); the log carries the error class and SQL number only. Tests: `ProcedureCatalogFailurePathTests` (2, service), one API test, one frontend test, one real-browser walkthrough test. Docs, `progress.json` (3 of 3 criteria), `docs/stories/STORY-014.md`, `.colaberry/enrichment/STORY-014.json`.
   - Verification: full serial backend 2652 of 2652 (52 m 55 s; the 3 new tests were red before the fix); vitest 1310 of 1310; mocked Playwright 136 of 136; repository checks 8 of 8; tsc, build and lint exit 0; procedures real-backend walkthrough 8 of 8 on a fresh database; leak counts unchanged (54 / 59 / 273 / 248).
   - Notes: criteria 1 to 3 were already met by the ALV-N005 catalog (named tests in the commit body); the gap was the failure path. Only the audit-failure cause is exercised. Not pushed.
+
+- [x] STORY-014: course completion recorded (records only)
+  - Date: 2026-10-11
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/EXECUTION_STATUS.json` item 30 to COMPLETE (3 of 3, implementation `977a3db`), `.alveara/BUILD_STATE.md`, `.colaberry/enrichment/STORY-014.json` (`sourceCommitSha` set to the verified commit).
+  - Verification: portal sync `7499187`: `.colaberry/progress.json` STORY-014 `verification.state` "verified", 3 of 3 criteria, 130 points, verified_at 2026-10-11T04:33:37Z at `977a3db`.
+  - Notes: no code changed. STORY-007 (item 31) not started.
