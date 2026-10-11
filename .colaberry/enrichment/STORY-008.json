@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-008",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-11T00:00:00Z",
+  "sourceCommitSha": "PENDING",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "Completed care is not stored a second time: the clinical history is derived on every read from the completion rows that completing a plan procedure already writes (append-only state rows, one history event and one audit entry per procedure). A procedure appears once, with the plan revision in force when it was completed, and stays listed when its plan is later revised or withdrawn.",
+      "evidence": "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.ClinicalHistory.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Dentists and administrators complete a plan's accepted procedures; the administrator, dentist, hygienist and assistant read the clinical history; front desk, billing and the office manager cannot, and anonymous callers get 401. Completing needs a CSRF token and the plan's current version.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanCompleteAcceptedApiTests.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Completing an accepted plan is all-or-nothing: a stale or missing version, a withdrawn plan, a plan with nothing accepted, and a failed audit write each complete nothing and say so ('Nothing was completed'); a replay or double click changes nothing; two simultaneous completions leave each procedure completed once.",
+      "evidence": "src/Alveara.Api.Tests/TreatmentPlanCompleteAcceptedTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every completed procedure writes a history event and a PHI-free audit entry with the signed-in user and a timestamp in the same save as the completion, so a completion cannot exist without its log entry; a failed save shows no audit or SQL wording and logs only the error class and SQL error number.",
+      "evidence": "src/alveara-client/e2e/treatment-plans-complete-accepted-real-backend.spec.ts"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "The clinical history is a read-only view of existing completion records, not a new table.",
+      "rationale": "A second record of completed care could drift from the plan that holds the authoritative completion; deriving it keeps one source of truth, and the later completion story (ALV-008-C01) can introduce its own completed-procedure record deliberately.",
+      "evidence": "docs/CLINICAL_HISTORY.md"
+    },
+    {
+      "statement": "Plan-level completion completes every accepted open procedure at once; choosing a subset, charging and the odontogram update were left to ALV-008-C01.",
+      "rationale": "The story's stop conditions are the three criteria; the master execution plan places the atomic completion with charges and odontogram in the next item, which builds on the ledger contract.",
+      "evidence": "docs/CLINICAL_HISTORY.md"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "A procedure completed by mistake cannot be undone (completed is final by design) and the history shows only planned care that was completed, not care that was never planned.",
+      "evidence": "docs/CLINICAL_HISTORY.md"
+    },
+    {
+      "statement": "The completion records who and when from the signed-in account; there is no separate performing provider or procedure date until ALV-008-C01.",
+      "evidence": "docs/CLINICAL_HISTORY.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/TreatmentPlanCompleteAcceptedTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/TreatmentPlanCompleteAcceptedApiTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/treatment-plans-complete-accepted-real-backend.spec.ts"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/pages/treatmentplan/TreatmentPlanCompleteAccepted.test.tsx"
+    }
+  ],
+  "measurementEvents": []
+}

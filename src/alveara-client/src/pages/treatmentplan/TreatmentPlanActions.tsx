@@ -5,11 +5,12 @@ import type { Diagnosis } from "../../services/diagnosisApi";
 import { planFieldErrorsOf, renameTreatmentPlan, withdrawPlanItem, withdrawTreatmentPlan } from "../../services/treatmentPlansApi";
 import type { PlanItem, PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { TreatmentPlanAddItemForm } from "./TreatmentPlanAddItemForm";
+import { TreatmentPlanCompleteAccepted } from "./TreatmentPlanCompleteAccepted";
 import { TreatmentPlanDecisionForm } from "./TreatmentPlanDecisionForm";
 import { TreatmentPlanReasonForm } from "./TreatmentPlanReasonForm";
 import { TreatmentPlanReferenceCodeForm } from "./TreatmentPlanReferenceCodeForm";
 import { TreatmentPlanReviseForm } from "./TreatmentPlanReviseForm";
-import { titleGap } from "./treatmentPlanRules";
+import { acceptedOpenItems, titleGap } from "./treatmentPlanRules";
 
 export interface ChangeProps {
   /** Called with the plan as the server now holds it, after a change. */
@@ -66,7 +67,7 @@ function RenameForm({ plan, onChanged, onConflict, onCancel }: ChangeProps & { p
   );
 }
 
-type Mode = "add" | "rename" | "revise" | "code" | "accept" | "decline" | "withdraw" | null;
+type Mode = "add" | "rename" | "revise" | "code" | "accept" | "decline" | "complete" | "withdraw" | null;
 
 interface Props extends ChangeProps { plan: TreatmentPlan; diagnoses: Diagnosis[]; procedures: PlanningProcedure[] }
 
@@ -84,6 +85,7 @@ export function TreatmentPlanActions({ plan, diagnoses, procedures, onChanged, o
           <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("revise")}>Revise plan</button>
           {plan.acceptanceStatus !== "Accepted" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("accept")}>Accept all pending</button>}
           {plan.acceptanceStatus !== "Declined" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("decline")}>Decline all pending</button>}
+          {acceptedOpenItems(plan).length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => setMode("complete")}>Complete accepted procedures</button>}
           <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("rename")}>Rename plan</button>
           {plan.referenceCode === null && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("code")}>Set reference code</button>}
           <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("withdraw")}>Withdraw plan</button>
@@ -92,6 +94,7 @@ export function TreatmentPlanActions({ plan, diagnoses, procedures, onChanged, o
       {mode === "add" && <TreatmentPlanAddItemForm plan={plan} diagnoses={diagnoses} procedures={procedures} onDone={(p) => done(p, "Procedure added to the plan.")} onConflict={onConflict} onCancel={cancel} />}
       {mode === "accept" && <TreatmentPlanDecisionForm plan={plan} decision="Accepted" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "decline" && <TreatmentPlanDecisionForm plan={plan} decision="Declined" onDone={done} onConflict={onConflict} onCancel={cancel} />}
+      {mode === "complete" && <TreatmentPlanCompleteAccepted plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "revise" && <TreatmentPlanReviseForm plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "code" && <TreatmentPlanReferenceCodeForm plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "rename" && <RenameForm plan={plan} onChanged={done} onConflict={onConflict} onCancel={cancel} />}

@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import type { Diagnosis } from "../services/diagnosisApi";
 import type { PatientDetail } from "../services/patientsApi";
-import type { PlanItem, PlanningProcedure, TreatmentPlan } from "../services/treatmentPlansApi";
+import type { ClinicalHistoryEntry, PlanItem, PlanningProcedure, TreatmentPlan } from "../services/treatmentPlansApi";
 
 /**
  * Shared by the treatment plan screen tests: a patient, plans, procedures and diagnoses as the API returns them, and a scripted `fetch` that answers the plan, diagnosis and catalog calls from them and records
@@ -35,12 +35,13 @@ export interface Api {
   plans: TreatmentPlan[];
   diagnoses: Diagnosis[];
   procedures: PlanningProcedure[];
+  history: ClinicalHistoryEntry[];
   calls: { url: string; method: string; body: Record<string, unknown> | null }[];
   respond: Record<string, (body: Record<string, unknown> | null) => Response>;
 }
 
 export function stubApi(over: Partial<Api> = {}): Api {
-  const api: Api = { plans: [plan()], diagnoses: [diagnosis()], procedures: [procedure(), procedure({ procedureId: "pr2", code: "FILL-1", description: "Filling", scope: "ToothSurface", fee: 80 })], calls: [], respond: {}, ...over };
+  const api: Api = { plans: [plan()], diagnoses: [diagnosis()], procedures: [procedure(), procedure({ procedureId: "pr2", code: "FILL-1", description: "Filling", scope: "ToothSurface", fee: 80 })], history: [], calls: [], respond: {}, ...over };
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
     const u = String(url);
     const method = init?.method ?? "GET";
@@ -49,6 +50,7 @@ export function stubApi(over: Partial<Api> = {}): Api {
     for (const [fragment, handler] of Object.entries(api.respond)) if (u.includes(fragment)) return Promise.resolve(handler(body));
     if (u.includes("/api/auth/csrf-token")) return Promise.resolve(json({ token: "csrf" }));
     if (u.includes("/api/procedures/active")) return Promise.resolve(json(api.procedures));
+    if (u.includes("/clinical-history")) return Promise.resolve(json({ patientId: P, entries: api.history }));
     if (u.includes("/diagnoses")) return Promise.resolve(json({ patientId: P, diagnoses: api.diagnoses }));
     if (u.includes("/treatment-plans") && method === "GET") return Promise.resolve(json({ patientId: P, plans: api.plans }));
     if (method === "POST") return Promise.resolve(json(api.plans[0] ?? plan()));

@@ -484,3 +484,17 @@ npx playwright test --config=playwright.billing-ledger.config.ts
 ```
 
 It signs in a dentist, a hygienist, a billing user and a front-desk user, with an administrator creating the catalog procedures and a second screen, and shows: two completed procedures billed; a payment applied to the chosen charge with the rest left unapplied and an over-allocation refused beside its charge with what was typed kept; the rest applied to the oldest open charge with every recorded entry exactly as it was; a payment reversed by a new entry with its allocations released and the original kept and marked; a charge that payments are applied to refused until they are reversed, then reversed; the history verified from the preserved entries; a registered guarantor followed until billing records a responsible party, the two staying independent when the registration changes, the guarantor seeing the account and being recorded as the payer; a configured payment method added, used and stopped with the old payment still naming it; a reversal from an out-of-date second screen refused as a conflict that records nothing; the failure path (with the audit write made to fail in the database, billing is told "nothing was recorded", keeps the reason typed and sees no change, and the same click then records exactly once); a dentist reading the ledger and what each entry stands for with no control; a hygienist with no tab; and the API refusing a missing CSRF token, reversing a reversal or an entry twice, applying a reversed payment and over-allocating. Axe scans in light and dark cover the refused allocation, the reversed ledger, the responsibility panel and the failed save. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e` run.
+
+## STORY-008: completing the accepted procedures and the clinical history
+
+`e2e/treatment-plans-complete-accepted-real-backend.spec.ts` is the un-mocked run for completing a plan's accepted procedures and the clinical history. Prepare a fresh database and start the API as for the other walkthroughs
+(including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "<the database the API is using>"
+$env:TREATMENT_PLANS_COMPLETE_ACCEPTED_E2E_OUT = "C:\tmp\treatment-plans-complete-accepted-e2e"   # optional: where the JSON results and screenshots go
+npx playwright test --config=playwright.treatment-plans-complete-accepted.config.ts
+```
+
+It shows: an empty clinical history that says what that means; the failure path (the audit write made to fail: "Nothing was completed", no audit or SQL words, nothing completed, and the same click working once the cause is gone); both accepted procedures completed in one step and listed with who and when while the declined one is not; a replay that changes nothing; a revision after completion that keeps revision 1 and the history; the plan log read back with who and when on every entry; an out-of-date second screen told nothing was completed; and the API refusing a hygienist (403), a missing CSRF token (400), a missing version (400) and a front-desk read of the history (403). Axe runs in light and dark on the failure message and on the history.

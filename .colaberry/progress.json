@@ -504,21 +504,40 @@
       "criteria": [
         {
           "text": "Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a treatment plan is revised, when updated, then the original plan is preserved.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All treatment plan changes are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
-      "updated_at": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.States.cs",
+        "src/Alveara.Api/Architecture/Treatment/TreatmentPlanService.ClinicalHistory.cs",
+        "src/Alveara.Api/Controllers/TreatmentPlansController.cs",
+        "src/alveara-client/src/services/treatmentPlansApi.ts",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanCompleteAccepted.tsx",
+        "src/alveara-client/src/pages/treatmentplan/ClinicalHistorySection.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanActions.tsx",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlansPanel.tsx",
+        "src/alveara-client/src/pages/treatmentplan/treatmentPlanRules.ts",
+        "docs/CLINICAL_HISTORY.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        "docs/stories/STORY-008.md",
+        ".colaberry/enrichment/STORY-008.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/TreatmentPlanCompleteAcceptedTests.cs",
+        "src/Alveara.Api.Tests/TreatmentPlanCompleteAcceptedApiTests.cs",
+        "src/alveara-client/src/pages/treatmentplan/TreatmentPlanCompleteAccepted.test.tsx",
+        "src/alveara-client/e2e/treatment-plans-complete-accepted-real-backend.spec.ts"
+      ],
+      "notes": "Completing an accepted plan is one all-or-nothing, idempotent save (every accepted, open, non-withdrawn procedure gets the same completion row, history event and audit entry as completing it alone); the clinical history is derived from those completion rows (no second record) and keeps completed care when the plan is revised or withdrawn. Criterion 2 rests on ALV-015-C01's immutable revisions, re-proven after a completion; criterion 3 on the same-save history and audit entries. Proven by service, API, frontend and real-browser tests including a failed audit write that completes nothing. Limits: completed is final (no undo); no charge, odontogram update, subset selection or separate provider/date until ALV-008-C01.",
+      "updated_at": "2026-10-11T22:45:55Z",
       "verification": {
         "state": "in_progress",
         "criteria_passed": 0,

@@ -22,6 +22,7 @@ public record PlanPhaseRequest(int? Number, string? Name, string? PlannedVisit, 
 public record PlanPlacementRequest(Guid? ItemId, int? PhaseNumber);
 
 /// <summary>ALV-015-C01: a patient's answer. <c>decision</c> is Accepted or Declined; a decline needs a reason; <c>decidedByName</c> is who gave the answer (the signed-in account is recorded as who entered it).</summary>
+public record CompleteAcceptedRequest(string? RowVersion);
 public record DecisionRequest(string? Decision, string? Reason, string? DecidedByName, string? RowVersion);
 
 public record ScheduleRequest(bool Scheduled, DateOnly? PlannedDate);
@@ -77,6 +78,12 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     public Task<IActionResult> List(Guid patientId, [FromQuery] bool includeWithdrawn, CancellationToken ct) =>
         Run(async () => Ok(new { patientId, plans = await plans.ListAsync(patientId, includeWithdrawn, ct) }));
 
+    /// <summary>STORY-008: the completed procedures of a patient, newest first, derived from the plans' completion records.</summary>
+    [HttpGet("api/patients/{patientId:guid}/clinical-history")]
+    [RequirePermission(Permission.ViewClinicalDocumentation)]
+    public Task<IActionResult> ClinicalHistory(Guid patientId, CancellationToken ct) =>
+        Run(async () => Ok(new { patientId, entries = await plans.ClinicalHistoryAsync(patientId, ct) }));
+
     [HttpGet("api/treatment-plans/{planId:guid}")]
     [RequirePermission(Permission.ViewClinicalDocumentation)]
     public Task<IActionResult> Get(Guid planId, CancellationToken ct) => Run(async () => Ok(await plans.GetAsync(planId, ct)));
@@ -131,6 +138,12 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     [RequireCsrfToken]
     public Task<IActionResult> ScheduleItem(Guid planId, Guid itemId, [FromBody] ScheduleRequest request, CancellationToken ct) =>
         Run(async () => Ok(await plans.ScheduleItemAsync(planId, itemId, request.Scheduled, request.PlannedDate, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/complete-accepted")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> CompleteAccepted(Guid planId, [FromBody] CompleteAcceptedRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.CompleteAcceptedAsync(planId, request.RowVersion, Actor, ct)));
 
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/complete")]
     [RequirePermission(Permission.ManageTreatmentPlans)]

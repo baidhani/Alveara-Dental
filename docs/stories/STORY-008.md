@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.
-- [ ] Given a treatment plan is revised, when updated, then the original plan is preserved.
-- [ ] Trust: All treatment plan changes are logged with user and timestamp.
+- [x] Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.
+- [x] Given a treatment plan is revised, when updated, then the original plan is preserved.
+- [x] Trust: All treatment plan changes are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.

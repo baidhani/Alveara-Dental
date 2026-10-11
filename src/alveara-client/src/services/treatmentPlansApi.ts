@@ -241,6 +241,29 @@ export const scheduleItem = (planId: string, itemId: string, scheduled: boolean,
 export const completeItem = (planId: string, itemId: string) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/complete`, "POST", {});
 
+/** STORY-008: completes every accepted, not yet completed procedure of the plan in one all-or-nothing save. Refused (409 nothing_to_complete) when none is accepted; 409 on a stale plan. */
+export const completeAcceptedProcedures = (plan: Versioned) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/complete-accepted`, "POST", { rowVersion: plan.rowVersion });
+
+/** One completed procedure in a patient's clinical history, read from the completion record of the plan it was planned in. */
+export interface ClinicalHistoryEntry {
+  planId: string;
+  planTitle: string;
+  itemId: string;
+  itemNumber: number;
+  procedureCodeSystem: string;
+  procedureCode: string;
+  procedureDescription: string;
+  toothKey: string | null;
+  surface: string | null;
+  completedByName: string;
+  completedAtUtc: string;
+  planRevisionAtCompletion: number;
+}
+
+export const getClinicalHistory = (patientId: string, signal?: AbortSignal) =>
+  request<{ patientId: string; entries: ClinicalHistoryEntry[] }>(`/api/patients/${patientId}/clinical-history`, { signal });
+
 /** Gives the plan its reference code, set once, which an old diagnosis's free-text reference can be matched to. */
 export const setReferenceCode = (plan: Versioned, code: string) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/reference-code`, "POST", { rowVersion: plan.rowVersion, code });

@@ -6,6 +6,7 @@ import type { Diagnosis } from "../../services/diagnosisApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { listActiveProcedures, listTreatmentPlans } from "../../services/treatmentPlansApi";
 import type { PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
+import { ClinicalHistorySection } from "./ClinicalHistorySection";
 import { TreatmentPlanCard } from "./TreatmentPlanCard";
 import { TreatmentPlanForm } from "./TreatmentPlanForm";
 import { TreatmentPlanReferences } from "./TreatmentPlanReferences";
@@ -32,6 +33,7 @@ export function TreatmentPlansPanel({ patient, canWrite = false }: Props) {
   const [showWithdrawn, setShowWithdrawn] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [conflict, setConflict] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
 
   const load = useCallback((withdrawn: boolean, signal?: AbortSignal) => {
     listTreatmentPlans(patient.id, { includeWithdrawn: withdrawn }, signal).then((r) => { setPlans(r.plans); setFailed(false); }).catch(() => { if (!signal?.aborted) setFailed(true); });
@@ -59,6 +61,7 @@ export function TreatmentPlansPanel({ patient, canWrite = false }: Props) {
   function changed(_plan: TreatmentPlan, text: string) {
     setConflict(false);
     setStatus(text);
+    setHistoryKey((k) => k + 1);
     load(showWithdrawn);
   }
 
@@ -84,6 +87,7 @@ export function TreatmentPlansPanel({ patient, canWrite = false }: Props) {
         ? <p className="alv-clinical__meta">No treatment plan has been created for this patient. That means none has been created, not that no treatment is needed.</p>
         : <ul className="alv-dx__list" aria-label="Treatment plans">{plans.map((p) => <TreatmentPlanCard key={p.id} plan={p} canWrite={canWrite} diagnoses={diagnoses} procedures={procedures} patientName={[patient.firstName, patient.lastName].filter(Boolean).join(" ")} onChanged={changed} onConflict={() => setConflict(true)} />)}</ul>}
       {canWrite && <TreatmentPlanReferences patientId={patient.id} plans={plans} />}
+      <ClinicalHistorySection patientId={patient.id} refreshKey={historyKey} />
     </section>
   );
 }
