@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 12,
+    "stories_verified": 13,
     "stories_submitted": 0,
-    "stories_in_progress": 7,
+    "stories_in_progress": 6,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 38,
-    "points_awarded": 2881
+    "criteria_passed": 41,
+    "points_awarded": 2923
   },
   "stories": [
     {
@@ -206,7 +206,7 @@
         "verified_at": "2026-10-01T23:58:41.458Z",
         "commit_sha": "014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/014ef9d31ee788da7ca9ca0b959792de6fb0ecc0",
-        "commit_at": "2026-10-01T23:56:19Z",
+        "commit_at": "2026-10-02T00:00:56Z",
         "points_awarded": 263,
         "outstanding": []
       }
@@ -486,19 +486,15 @@
       "notes": "Billing slice (REQ-014): one account per patient with an append-only history of Charge, Payment and Adjustment entries; the balance is computed from the entries, never stored. A charge names a completed plan procedure and takes the plan's stored fee (the request carries no amount; a trigger repeats the rule); a payment lowers the balance and cannot exceed it; an adjustment needs a reason; every entry is audited with user and time in the same save (a failed audit write stores nothing and answers save_failed 503); a payment or adjustment must echo the account version, so two people at once end with one entry and one conflict. Billing tab in the patient workspace. Limits: no allocation to specific charges, guarantors, reversals, credit balances, insurance or configurable methods (ALV-007-C01).",
       "updated_at": "2026-10-11T06:50:20Z",
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a procedure is completed, when billed, then the charge is recorded with the correct amount.",
-          "Given a payment is made, when recorded, then the balance updates and history is preserved.",
-          "Trust: All billing actions are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-11T13:30:07.951Z",
+        "commit_sha": "34717271b88c9b3390c893388834026874641041",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/34717271b88c9b3390c893388834026874641041",
+        "commit_at": "2026-10-11T06:50:27Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
