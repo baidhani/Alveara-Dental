@@ -439,21 +439,52 @@
       "criteria": [
         {
           "text": "Given a procedure is completed, when billed, then the charge is recorded with the correct amount.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a payment is made, when recorded, then the balance updates and history is preserved.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All billing actions are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
-      "updated_at": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Billing/BillingAccount.cs",
+        "src/Alveara.Api/Architecture/Billing/BillingRules.cs",
+        "src/Alveara.Api/Architecture/Billing/BillingService.cs",
+        "src/Alveara.Api/Architecture/Billing/BillingService.Queries.cs",
+        "src/Alveara.Api/Controllers/BillingController.cs",
+        "src/Alveara.Api/Data/BillingModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Migrations/20261011044941_AddBilling.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/alveara-client/src/services/billingApi.ts",
+        "src/alveara-client/src/pages/billing/BillingPanel.tsx",
+        "src/alveara-client/src/pages/billing/BillableProcedures.tsx",
+        "src/alveara-client/src/pages/billing/BillingLedger.tsx",
+        "src/alveara-client/src/pages/billing/BillingPaymentForm.tsx",
+        "src/alveara-client/src/pages/billing/BillingAdjustmentForm.tsx",
+        "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/App.tsx",
+        "docs/BILLING.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        "docs/stories/STORY-007.md",
+        ".colaberry/enrichment/STORY-007.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/BillingSchemaTests.cs",
+        "src/Alveara.Api.Tests/BillingServiceTests.cs",
+        "src/Alveara.Api.Tests/BillingApiTests.cs",
+        "src/Alveara.Api.Tests/BillingTestBase.cs",
+        "src/alveara-client/src/pages/billing/BillingPanel.test.tsx",
+        "src/alveara-client/src/App.patientWorkspaceRoutes.test.tsx",
+        "src/alveara-client/e2e/billing-real-backend.spec.ts"
+      ],
+      "notes": "Billing slice (REQ-014): one account per patient with an append-only history of Charge, Payment and Adjustment entries; the balance is computed from the entries, never stored. A charge names a completed plan procedure and takes the plan's stored fee (the request carries no amount; a trigger repeats the rule); a payment lowers the balance and cannot exceed it; an adjustment needs a reason; every entry is audited with user and time in the same save (a failed audit write stores nothing and answers save_failed 503); a payment or adjustment must echo the account version, so two people at once end with one entry and one conflict. Billing tab in the patient workspace. Limits: no allocation to specific charges, guarantors, reversals, credit balances, insurance or configurable methods (ALV-007-C01).",
+      "updated_at": "2026-10-11T06:50:20Z",
       "verification": {
         "state": "in_progress",
         "criteria_passed": 0,

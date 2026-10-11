@@ -457,3 +457,17 @@ with every difference named; the patient copy without any staff-only text, check
 reference code and another by choice, a reference that equals another patient's plan code left unresolved, the choice offering only this patient's plans, and the Diagnoses tab showing the tie with the original text kept and the diagnosis history untouched; a
 hygienist reading everything and offered no control; and the API refusing a stale answer, another patient's plan (the same 404 as an unknown plan), a missing CSRF token and a change to a resolved reference; and (review finding R01-01) the catalog page warning that PERIO-1 is referred to by 2 records ("Treatment plans: 2"), refusing to inactivate it until that is confirmed, after which both plans still show the procedure and its fee while the plan form no longer offers it. Axe scans in light and dark cover eight views. Like the other real-backend specs it is excluded from the default mocked
 `npm run test:e2e` run.
+
+## STORY-007: billing walkthrough
+
+`e2e/billing-real-backend.spec.ts` is the un-mocked run for billing. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above (including
+`AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "<the database the API is using>"   # needed by the failed-log step, which briefly installs a trigger that refuses audit writes
+$env:BILLING_E2E_OUT = "C:\tmp\billing-e2e"             # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.billing.config.ts
+```
+
+It signs in a dentist, a hygienist, a billing user and a front-desk user, with an administrator creating the catalog procedures and a second screen, and shows: a dentist completing one procedure of a plan and only accepting another; billing's Billing tab offering only the completed one, at the plan's fee with no amount to type, and recording the charge with the billing user's name; the API refusing the not-completed procedure, billing the same procedure twice and an amount smuggled into the request; a partial payment lowering the balance with every earlier entry exactly as it was and the balance after each entry shown; an over-payment refused beside its field with what was typed kept; an adjustment whose missing reason is named before anything is sent; a payment from an out-of-date second screen refused as a conflict that records nothing, then working after a reload; the audit log holding the charge, payment and adjustment events with who and when and no patient name; the failure path (with the audit write made to fail in the database, billing is told "nothing was recorded", keeps what was typed and sees no change, and the same save then records exactly once); a dentist reading the account and offered no control; a hygienist given no Billing tab and refused by the API; and the API refusing a missing CSRF token, an unknown patient and a bad amount and method. Axe scans in light and dark cover the charged, refused and failed states. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e` run.

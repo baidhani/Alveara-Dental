@@ -95,6 +95,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Treatment.TreatmentPlanRevisionPhase> TreatmentPlanRevisionPhases => Set<Architecture.Treatment.TreatmentPlanRevisionPhase>();
     public DbSet<Architecture.Treatment.TreatmentPlanRevisionItem> TreatmentPlanRevisionItems => Set<Architecture.Treatment.TreatmentPlanRevisionItem>();
     public DbSet<Architecture.Treatment.TreatmentPlanItemState> TreatmentPlanItemStates => Set<Architecture.Treatment.TreatmentPlanItemState>();
+    public DbSet<Architecture.Billing.BillingAccount> BillingAccounts => Set<Architecture.Billing.BillingAccount>();
+    public DbSet<Architecture.Billing.BillingEntry> BillingEntries => Set<Architecture.Billing.BillingEntry>();
     public DbSet<Architecture.Treatment.DiagnosisPlanResolution> DiagnosisPlanResolutions => Set<Architecture.Treatment.DiagnosisPlanResolution>();
     public DbSet<Architecture.Clinical.DiagnosisLink> DiagnosisLinks => Set<Architecture.Clinical.DiagnosisLink>();
     public DbSet<Architecture.Periodontal.PerioExam> PerioExams => Set<Architecture.Periodontal.PerioExam>();
@@ -498,6 +500,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         DiagnosisModel.Configure(modelBuilder);
         ProcedureModel.Configure(modelBuilder);
         TreatmentPlanModel.Configure(modelBuilder);
+        BillingModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-007",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-11T00:00:00Z",
+  "sourceCommitSha": "a57ce80",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "A patient has one billing account whose history is a list of numbered entries, each a Charge, a Payment or an Adjustment with a signed amount, who recorded it and when. Entries are only ever added: the database refuses editing or deleting one. The balance owed is never stored; it is the sum of the entries, read each time. A charge names the completed treatment-plan procedure it bills, with a copy of its code and description, and at most one charge exists per plan procedure.",
+      "evidence": "src/Alveara.Api/Architecture/Billing/BillingAccount.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "The Billing tab of the patient workspace shows the balance owed, the completed procedures ready to bill with the fee each carries, and the account history oldest first with the balance owed after each entry. People who may change it get a payment form and an adjustment form; everyone who can see billing reads the same account.",
+      "evidence": "src/alveara-client/src/pages/billing/BillingPanel.test.tsx"
+    },
+    {
+      "dimension": "actors",
+      "value": "Billing, the office manager and the administrator bill, take payments and adjust (ManageBilling plus a CSRF token); dentist, front desk, billing, office manager and administrator read the account (ViewBilling); hygienists and assistants are refused. Billing cannot read treatment plans, so it is given a billing-only list of completed, unbilled procedures that carries no clinical wording.",
+      "evidence": "src/Alveara.Api.Tests/BillingApiTests.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "Refused with the reason and nothing stored: billing a procedure that is not completed, is withdrawn, belongs to another patient (answered exactly like an unknown one) or is already billed; a payment of zero, a negative amount, more than two decimals, more than the balance owed or by an unknown method; an adjustment of zero, without a reason, or one that would leave the balance below zero; a payment or adjustment with nothing billed yet; a save key reused for a different entry. A payment or adjustment made from an out-of-date copy of the account is a conflict that changes nothing.",
+      "evidence": "src/Alveara.Api.Tests/BillingServiceTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every charge, payment and adjustment is written to the audit log with the signed-in user, a timestamp and the amount in the same save as the entry, with no patient name or clinical wording, so an entry cannot exist without its log entry. If the audit write fails nothing is stored and the person is told 'nothing was recorded' (503 save_failed) without internals.",
+      "evidence": "src/Alveara.Api.Tests/BillingApiTests.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "The database itself refuses deleting an account (51118), changing its patient (51119), editing or deleting an entry (51120), an entry carrying another patient than its account (51121), a charge for another patient's (51122), withdrawn (51123) or not-completed (51124) procedure, a charge that is not exactly the procedure's stored fee (51125), and any entry that would leave the account owing less than nothing (51126), besides the shape checks and unique indexes on entries.",
+      "evidence": "src/Alveara.Api.Tests/BillingSchemaTests.cs"
+    },
+    {
+      "dimension": "integrations",
+      "value": "Billing reads the treatment plan's procedure states and the fee each plan procedure copied from the catalog from inside the system; no external service, payment processor or insurer is called, and a payment is a record of money received, not a card transaction.",
+      "evidence": "src/Alveara.Api/Architecture/Billing/BillingService.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "The charge amount is always the plan procedure's stored fee; the charge request carries no amount at all.",
+      "rationale": "It removes 'incorrect billing amount' as a possible mistake: there is no field for a person or a client to get wrong, and a later catalog fee change cannot alter what was billed. A database trigger repeats the rule.",
+      "evidence": "src/Alveara.Api/Architecture/Billing/BillingService.cs"
+    },
+    {
+      "statement": "A payment is applied to the patient's account balance and cannot exceed it; applying a payment to specific charges, credit balances, reversals and guarantor accounts were left to the companion story ALV-007-C01.",
+      "rationale": "The master execution plan assigns payment allocation and the full ledger to the companion; this story builds only what its three acceptance criteria need, and the over-payment refusal covers 'payment misallocation' for this slice.",
+      "evidence": "docs/BILLING.md"
+    },
+    {
+      "statement": "The balance is computed from the entries on every read and the account row's version changes on every entry, so a payment must echo the version the person saw.",
+      "rationale": "A stored balance could drift from the history; the version makes two people recording at once end with one entry and one conflict, which the concurrent test proves.",
+      "evidence": "src/Alveara.Api.Tests/BillingServiceTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "There is no insurance, statement, refund, credit balance or per-charge allocation; a charge is made one completed procedure at a time and the four payment methods are a fixed list.",
+      "evidence": "docs/BILLING.md"
+    },
+    {
+      "statement": "The negative-balance trigger reads committed rows, so two simultaneous payments are stopped by the account version in the service, not by the trigger alone.",
+      "evidence": "src/Alveara.Api.Tests/BillingServiceTests.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/billing-real-backend.spec.ts"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/BillingServiceTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/BillingSchemaTests.cs"
+    }
+  ],
+  "measurementEvents": []
+}

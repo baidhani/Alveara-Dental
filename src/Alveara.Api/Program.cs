@@ -92,6 +92,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Odontogram.ConditionTypeServ
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Procedures.FindingLinkProcedureUsageSource>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Treatment.TreatmentPlanProcedureUsageSource>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.ProcedureCatalogService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Billing.BillingService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.TreatmentPlanService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.DiagnosisReconciliationService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Safety.ClearanceService>();

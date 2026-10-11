@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a procedure is completed, when billed, then the charge is recorded with the correct amount.
-- [ ] Given a payment is made, when recorded, then the balance updates and history is preserved.
-- [ ] Trust: All billing actions are logged with user and timestamp.
+- [x] Given a procedure is completed, when billed, then the charge is recorded with the correct amount.
+- [x] Given a payment is made, when recorded, then the balance updates and history is preserved.
+- [x] Trust: All billing actions are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.

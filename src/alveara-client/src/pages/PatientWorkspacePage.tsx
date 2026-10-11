@@ -17,6 +17,7 @@ import { OdontogramPanel } from "./odontogram/OdontogramPanel";
 import { PerioPanel } from "./perio/PerioPanel";
 import { DiagnosesPanel } from "./diagnosis/DiagnosesPanel";
 import { TreatmentPlansPanel } from "./treatmentplan/TreatmentPlansPanel";
+import { BillingPanel } from "./billing/BillingPanel";
 import { PatientClinicalPanel } from "./clinical/PatientClinicalPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
@@ -143,6 +144,12 @@ export function PatientTreatmentPlanTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
   return <TreatmentPlansPanel patient={patient} canWrite={hasPermission("ManageTreatmentPlans")} />;
+}
+
+export function PatientBillingTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  const { hasPermission } = useAuth();
+  return <BillingPanel patient={patient} canWrite={hasPermission("ManageBilling")} />;
 }
 
 export function PatientClinicalTemplatesTab() {

@@ -365,6 +365,137 @@ namespace Alveara.Api.Migrations
                     b.ToTable("RestoreDrills");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingAccount", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId")
+                        .IsUnique();
+
+                    b.ToTable("BillingAccounts", t =>
+                        {
+                            t.HasTrigger("TR_BillingAccounts_Identity");
+
+                            t.HasTrigger("TR_BillingAccounts_NoDelete");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("EntryNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid?>("PlanItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ProcedureCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ProcedureDescription")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("RecordedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RecordedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanItemId")
+                        .IsUnique()
+                        .HasFilter("[PlanItemId] IS NOT NULL");
+
+                    b.HasIndex("AccountId", "EntryNumber")
+                        .IsUnique();
+
+                    b.HasIndex("AccountId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("BillingEntries", t =>
+                        {
+                            t.HasTrigger("TR_BillingEntries_Immutable");
+
+                            t.HasTrigger("TR_BillingEntries_Links");
+
+                            t.HasCheckConstraint("CK_BillingEntries_ChargeSource", "([Kind] = 'Charge' AND [PlanItemId] IS NOT NULL AND [ProcedureCode] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureCode]))) > 0 AND [ProcedureDescription] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureDescription]))) > 0) OR ([Kind] <> 'Charge' AND [PlanItemId] IS NULL AND [ProcedureCode] IS NULL AND [ProcedureDescription] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Charge','Payment','Adjustment')");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Max", "ABS([Amount]) <= 1000000.00");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Method", "([Kind] = 'Payment' AND [PaymentMethod] IS NOT NULL AND [PaymentMethod] COLLATE Latin1_General_CS_AS IN ('Cash','Check','Card','Other')) OR ([Kind] <> 'Payment' AND [PaymentMethod] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Number", "[EntryNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Reason", "([Kind] = 'Adjustment' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Kind] = 'Payment' AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)) OR ([Kind] = 'Charge' AND [Reason] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Sign", "([Kind] = 'Charge' AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] = 'Adjustment' AND [Amount] <> 0)");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Clinical.ClinicalRecordEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -733,6 +864,7 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_Diagnoses_Links");
 
                             t.HasTrigger("TR_Diagnoses_NoDelete");
+
                             t.HasTrigger("TR_Diagnoses_ReferenceResolved");
 
                             t.HasCheckConstraint("CK_Diagnoses_CodeChars", "[Code] IS NULL OR REPLACE([Code], N'-', N'') COLLATE Latin1_General_BIN2 NOT LIKE N'%[^A-Za-z0-9._]%'");
@@ -4293,11 +4425,11 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("TreatmentPlanItems", t =>
                         {
+                            t.HasTrigger("TR_TreatmentPlanItems_CompletedFinal");
+
                             t.HasTrigger("TR_TreatmentPlanItems_Immutable");
 
                             t.HasTrigger("TR_TreatmentPlanItems_Links");
-
-                            t.HasTrigger("TR_TreatmentPlanItems_CompletedFinal");
 
                             t.HasTrigger("TR_TreatmentPlanItems_NoDelete");
 
@@ -4576,6 +4708,29 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Backup.BackupRecord", null)
                         .WithMany()
                         .HasForeignKey("BackupRecordId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingAccount", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingEntry", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
+                        .WithMany()
+                        .HasForeignKey("PlanItemId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
