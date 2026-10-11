@@ -4,7 +4,7 @@ namespace Alveara.Api.Architecture.Procedures;
 
 /// <summary>A refusal the caller can show: a stable <see cref="Code"/>, a message safe to display and, where several fields need attention, a message per field. <see cref="Usage"/> is set when an
 /// inactivation needs the person to confirm that the procedure is still in use.</summary>
-public class ProcedureCatalogException(string code, string message, int statusCode, IReadOnlyDictionary<string, string>? fieldErrors = null, ProcedureUsageView? usage = null) : Exception(message)
+public class ProcedureCatalogException(string code, string message, int statusCode, IReadOnlyDictionary<string, string>? fieldErrors = null, ProcedureUsageView? usage = null, Exception? inner = null) : Exception(message, inner)
 {
     public string Code { get; } = code;
     public int StatusCode { get; } = statusCode;

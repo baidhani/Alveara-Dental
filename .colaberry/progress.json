@@ -800,21 +800,33 @@
       "criteria": [
         {
           "text": "Given a new procedure, when added to the catalog, then it includes a code, description, and fee.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an incorrect procedure entry, when saved, then the system prompts for correction.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All catalog changes are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
-      "updated_at": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Procedures/ProcedureCatalogService.cs",
+        "src/Alveara.Api/Architecture/Procedures/ProcedureRules.cs",
+        "docs/PROCEDURE_CATALOG.md",
+        "docs/testing/REAL_BACKEND_E2E.md",
+        "docs/stories/STORY-014.md",
+        ".colaberry/enrichment/STORY-014.json"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/ProcedureCatalogFailurePathTests.cs",
+        "src/Alveara.Api.Tests/ProcedureCatalogApiTests.cs",
+        "src/alveara-client/src/pages/ProcedureCatalogPage.test.tsx",
+        "src/alveara-client/e2e/procedures-real-backend.spec.ts"
+      ],
+      "notes": "The catalog already existed (ALV-N005, approved) and meets criteria 1 to 3 (code, description and fee on every procedure; every wrong field named at once with nothing stored; every change audited with user and time in the same save). This story proved that and closed the unproven failure paths: a failed save or failed audit write now stores nothing and answers save_failed (503) with no internals, and the same save works once the log is back (service, API, frontend and real-browser tests). Limits: only the audit-failure cause is exercised; no insurance schedules or discounts.",
+      "updated_at": "2026-10-11T04:06:26Z",
       "verification": {
         "state": "in_progress",
         "criteria_passed": 0,

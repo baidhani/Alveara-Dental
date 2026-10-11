@@ -1,4 +1,6 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Time;
@@ -18,7 +20,7 @@ namespace Alveara.Api.Architecture.Procedures;
 /// - <b>Every change is logged in the same save</b> - the row, its event (who, when, why) and a PHI-free audit entry - so a change cannot exist without its log entry.
 /// - <b>Stale changes are refused</b> through the row version. <b>Repeats are quiet</b>: creating the identical procedure, revising to the same values, inactivating an inactive one change nothing.
 /// </summary>
-public partial class ProcedureCatalogService(AlveraDbContext db, IPracticeClock clock, IEnumerable<IProcedureUsageSource> usageSources)
+public partial class ProcedureCatalogService(AlveraDbContext db, IPracticeClock clock, IEnumerable<IProcedureUsageSource> usageSources, ILogger<ProcedureCatalogService>? logger = null)
 {
     private DateOnly Today() => DateOnly.FromDateTime(clock.ToPracticeLocal(clock.UtcNow).DateTime);
 
@@ -189,9 +191,17 @@ public partial class ProcedureCatalogService(AlveraDbContext db, IPracticeClock 
         {
             await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(ProcedureDefinition), id, ct);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException { Number: 2601 or 2627 })
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 })
         {
             throw new ConcurrencyConflictException(nameof(ProcedureDefinition), id); // two writers claimed the same next event or version, or the same new code
+        }
+        catch (DbUpdateException ex)
+        {
+            // STORY-014 failure path ("fails to save" / "fails to log"): the row, its history event and its audit entry are one save, so nothing was stored. Say so without leaking internals; the log
+            // carries the error class and SQL error number only, never the procedure, the fee or the SQL text. The caller may retry: nothing was recorded, so a retry cannot duplicate.
+            db.ChangeTracker.Clear();
+            logger?.LogError("procedure_catalog_save_failed error_class={ErrorClass} sql_error={SqlError}", ex.InnerException?.GetType().Name ?? ex.GetType().Name, (ex.InnerException as SqlException)?.Number);
+            throw new ProcedureCatalogException("save_failed", "The procedure could not be saved, so nothing was recorded. Try again; if it keeps failing, contact support.", 503, inner: ex);
         }
     }
 }

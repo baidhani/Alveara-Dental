@@ -416,7 +416,7 @@ npx playwright test --config=playwright.procedures.config.ts
 It signs in a billing user, a dentist and a hygienist and shows: the catalog reached from the navigation; an incomplete entry refused on screen beside each field; a code that looks like CDT refused by
 the server with what was typed kept; a procedure added with its fee; a fee change saved as a new version with a required reason, both fees and who changed it readable in the history; inactivate (reason
 required) removing it from the planning list and reactivate restoring it; the dentist reading but offered no controls; the hygienist given no link and told permission is needed; the API refusing a
-dentist's change, a hygienist's read, a missing CSRF token, a stale version and a duplicate code; and axe scans in light and dark. Like the other real-backend specs it is excluded from the default
+dentist's change, a hygienist's read, a missing CSRF token, a stale version and a duplicate code; and (STORY-014) the failure path: with the audit write made to fail in the database, billing is told "nothing was recorded", keeps what was typed and sees nothing added, and the same save works once the log is back (this test needs `E2E_DB_NAME` set to the database the API uses, as the calendar walkthrough does); and axe scans in light and dark. Like the other real-backend specs it is excluded from the default
 mocked `npm run test:e2e` run.
 
 

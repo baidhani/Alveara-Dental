@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 using Session = Alveara.Api.Tests.SchedulingApiHarness.Session;
 
@@ -194,5 +195,37 @@ public class ProcedureCatalogApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.NotFound, (await admin.SendAsync(HttpMethod.Get, $"{Url}/versions/{Guid.NewGuid()}")).Status);
         Assert.Equal(HttpStatusCode.BadRequest, (await admin.SendAsync(HttpMethod.Get, $"{Url}?status=bogus")).Status);
         Assert.Equal(HttpStatusCode.BadRequest, (await admin.SendAsync(HttpMethod.Get, $"{Url}/active?toothKey=99")).Status);
+    }
+
+    // ---------- failure path (STORY-014): the log or the save fails ----------
+
+    [Fact]
+    public async Task When_the_log_cannot_be_written_adding_and_revising_answer_503_save_failed_without_internals_and_store_nothing_and_work_again_once_it_is_back()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var existing = await CreateAsync(admin, "EXISTING-1");
+        async Task Sql(string sql) { await using var db = _fixture.CreateContext(); await db.Database.ExecuteSqlRawAsync(sql); }
+        await Sql(@"CREATE TRIGGER [TR_Test_RefuseCatalogAudit] ON [AuditLogEntries] INSTEAD OF INSERT AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM inserted WHERE EntityType = 'ProcedureDefinition') THROW 59020, 'audit unavailable', 1;
+    INSERT INTO [AuditLogEntries] SELECT * FROM inserted;
+END");
+
+        var add = await admin.SendAsync(HttpMethod.Post, Url, Body("NEW-1"));
+        var revise = await admin.SendAsync(HttpMethod.Post, $"{Url}/{Id(existing)}/revise", new { codeSystem = "Local", code = "EXISTING-1", description = "Office visit", category = "Diagnostic", scope = "WholeMouth", fee = 55m, reason = "Review", rowVersion = Version(existing) });
+        foreach (var r in new[] { add, revise })
+        {
+            Assert.Equal((HttpStatusCode)503, r.Status);
+            Assert.Equal("save_failed", Error(r.Body));
+            Assert.DoesNotContain("audit", r.Body.GetProperty("message").GetString()!, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("SqlException", r.Body.GetRawText());
+        }
+        var listed = (await admin.SendAsync(HttpMethod.Get, Url)).Body.EnumerateArray().ToList();
+        Assert.Equal(new[] { "EXISTING-1" }, listed.Select(p => p.GetProperty("code").GetString()));      // the add stored nothing
+        Assert.Equal(1, (await admin.SendAsync(HttpMethod.Get, $"{Url}/{Id(existing)}")).Body.GetProperty("summary").GetProperty("currentVersionNumber").GetInt32()); // the revise stored nothing
+
+        await Sql("DROP TRIGGER [TR_Test_RefuseCatalogAudit]");
+        Assert.Equal(HttpStatusCode.OK, (await admin.SendAsync(HttpMethod.Post, Url, Body("NEW-1"))).Status);
+        Assert.Equal(HttpStatusCode.OK, (await admin.SendAsync(HttpMethod.Post, $"{Url}/{Id(existing)}/revise", new { codeSystem = "Local", code = "EXISTING-1", description = "Office visit", category = "Diagnostic", scope = "WholeMouth", fee = 55m, reason = "Review", rowVersion = Version(existing) })).Status);
     }
 }

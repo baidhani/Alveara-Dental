@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -8,7 +9,7 @@ import path from "node:path";
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.procedures.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the acceptance items as a billing person would: add a procedure with a code, description, category, applicability and fee; see a wrong entry refused beside its field with what was typed kept;
 // change a fee (a new version - the old fee stays readable); inactivate with a reason and reactivate; see who did what in the history. A dentist can read but not change, a hygienist cannot see the catalog,
-// and the API refuses what the screen does not offer (role matrix, CSRF, a stale version).
+// and the API refuses what the screen does not offer (role matrix, CSRF, a stale version). STORY-014 adds the failure path: when the log cannot be written nothing is saved and billing is told so.
 
 test.describe.configure({ mode: "serial" });
 
@@ -247,3 +248,40 @@ test("a CDT code must name the licensed source it came from: refused without one
   await scanBothThemes(page, "cdt-added");
 });
 
+function sql(statement: string) {
+  const db = process.env.E2E_DB_NAME;
+  if (!db) throw new Error("E2E_DB_NAME must name the database the API is using (the failed-log demonstration needs it)");
+  execFileSync("sqlcmd", ["-S", "(localdb)\\MSSQLLocalDB", "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
+}
+
+test("STORY-014 failure path: when the change cannot be logged nothing is saved and billing is told so, what was typed is kept, and the same save works once the log is back", async () => {
+  const page = sessions.Billing.page;
+  await gotoCatalog(page);
+  sql(`CREATE TRIGGER [TR_E2E_RefuseCatalogAudit] ON [AuditLogEntries] INSTEAD OF INSERT AS BEGIN IF EXISTS (SELECT 1 FROM inserted WHERE EntityType = 'ProcedureDefinition') THROW 59020, 'audit unavailable', 1; INSERT INTO [AuditLogEntries] SELECT * FROM inserted; END`);
+  let dropped = false;
+  try {
+    await page.getByRole("button", { name: "Add a procedure" }).click();
+    await addForm(page).getByLabel("Code", { exact: true }).fill("FAIL-1");
+    await addForm(page).getByLabel("Description").fill("Saved only when the log works");
+    await addForm(page).getByLabel("Category").selectOption("Diagnostic");
+    await addForm(page).getByLabel("Applies to").selectOption("WholeMouth");
+    await addForm(page).getByLabel("Fee (US dollars)").fill("40");
+    await addForm(page).getByRole("button", { name: "Add procedure" }).click();
+    await expect(statusLine(page)).toContainText("Not saved: The procedure could not be saved, so nothing was recorded.");
+    await expect(statusLine(page)).not.toContainText(/audit|sql/i);                                   // no internals reach the person
+    await expect(addForm(page).getByLabel("Description")).toHaveValue("Saved only when the log works"); // what was typed is kept
+    await expect(row(page, "FAIL-1")).toHaveCount(0);
+    expect((await api(page, "get", "/api/procedures")).body.map((p: { code: string }) => p.code)).not.toContain("FAIL-1"); // nothing was stored
+    await shot(page, "09-save-failed-nothing-recorded.png");
+    await scanBothThemes(page, "save-failed");
+
+    sql("DROP TRIGGER [TR_E2E_RefuseCatalogAudit]");
+    dropped = true;
+    await addForm(page).getByRole("button", { name: "Add procedure" }).click();
+    await expect(statusLine(page)).toContainText("FAIL-1 added to the catalog.");
+    await expect(row(page, "FAIL-1")).toContainText("$40.00");
+    await shot(page, "10-saved-once-the-log-is-back.png");
+  } finally {
+    if (!dropped) sql("DROP TRIGGER [TR_E2E_RefuseCatalogAudit]");
+  }
+});

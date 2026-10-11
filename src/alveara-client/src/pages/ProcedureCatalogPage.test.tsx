@@ -197,6 +197,22 @@ describe("Procedure catalog page", () => {
     expect(statusLine()).toHaveTextContent("Not saved");
   });
 
+  it("tells the person nothing was recorded when the save fails on the server (STORY-014), keeps what was typed, and does not show the procedure as added", async () => {
+    stubApi({ respond: { "/api/procedures": (b) => (b ? json({ error: "save_failed", message: "The procedure could not be saved, so nothing was recorded. Try again; if it keeps failing, contact support.", fieldErrors: {} }, 503) : json([])) } });
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Add a procedure" }));
+    await userEvent.type(addForm().getByLabelText("Code"), "EXAM-9");
+    await userEvent.type(addForm().getByLabelText("Description"), "Periodic exam");
+    await userEvent.selectOptions(addForm().getByLabelText("Category"), "Diagnostic");
+    await userEvent.selectOptions(addForm().getByLabelText("Applies to"), "WholeMouth");
+    await userEvent.type(addForm().getByLabelText("Fee (US dollars)"), "60");
+    await userEvent.click(addForm().getByRole("button", { name: "Add procedure" }));
+
+    await waitFor(() => expect(statusLine()).toHaveTextContent("Not saved: The procedure could not be saved, so nothing was recorded."));
+    expect(addForm().getByLabelText("Description")).toHaveValue("Periodic exam");
+    expect(screen.queryByText(/added to the catalog/)).not.toBeInTheDocument();
+  });
+
   it("changes a fee as a new version: the code is fixed, a reason is required, and the row version travels", async () => {
     const api = stubApi();
     renderPage();

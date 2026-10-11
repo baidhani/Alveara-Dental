@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-014",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-11T00:00:00Z",
+  "sourceCommitSha": "7a2916e",
+  "factProposals": [
+    {
+      "dimension": "data",
+      "value": "The procedure/fee catalog already existed from ALV-N005: a procedure is identified by its code system and code (neither can change), and every change to its description, category, applicability, fee or code source appends an immutable version, so earlier fees stay readable. This story adds no data; it proves the three acceptance criteria against that catalog and closes its failure paths.",
+      "evidence": "src/Alveara.Api/Architecture/Procedures/ProcedureCatalogService.cs"
+    },
+    {
+      "dimension": "actors",
+      "value": "Billing, the office manager and the administrator change the catalog; those who can see billing (dentist, front desk, billing, office manager, administrator) read it; hygienists and assistants cannot, and anonymous callers get 401. Every change needs a CSRF token.",
+      "evidence": "src/Alveara.Api.Tests/ProcedureCatalogApiTests.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "An incorrect procedure entry is refused with a message for every wrong field in one answer and nothing is stored; the screen shows each message beside its field and keeps what was typed. When the save or the audit write fails on the server, nothing is stored and billing is told 'the procedure could not be saved, so nothing was recorded' (503 save_failed) with no audit or SQL wording; the same save works once the cause is fixed.",
+      "evidence": "src/Alveara.Api.Tests/ProcedureCatalogFailurePathTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every create, revise, inactivate and reactivate writes a history event and an audit entry with the signed-in user and a timestamp in the same save as the change, so a change cannot exist without its log entry. A failed save logs only the error class and the SQL error number (procedure_catalog_save_failed), never the procedure, fee or SQL text.",
+      "evidence": "src/Alveara.Api/Architecture/Procedures/ProcedureCatalogService.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "STORY-014 was met by the catalog ALV-N005 built, not by building a second one; only the unproven failure paths (a failed save or a failed audit write) were added.",
+      "rationale": "The master execution plan places STORY-014 after ALV-N005 and ALV-015-C01, and the catalog already satisfied the code, description and fee, correction-prompt and audit criteria; a second catalog would split the one source of fees that treatment plans copy from.",
+      "evidence": "src/Alveara.Api.Tests/ProcedureCatalogRulesTests.cs"
+    },
+    {
+      "statement": "A failed save answers the same stable code and status as treatment plans (save_failed, 503) rather than a generic server error.",
+      "rationale": "The screen can show the server's own plain message and the caller can retry safely, because the row, event and audit entry are one transaction and nothing was recorded.",
+      "evidence": "src/Alveara.Api.Tests/ProcedureCatalogApiTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "The failed-save path was proven by making the audit write fail in the database; other causes of a failed save (a dropped connection mid-save, disk full) go through the same handler but have no test of their own.",
+      "evidence": "src/Alveara.Api.Tests/ProcedureCatalogFailurePathTests.cs"
+    },
+    {
+      "statement": "The procedure catalog has no insurance fee schedules, discounts or per-provider pricing; the fee is one practice fee per procedure version.",
+      "evidence": "docs/PROCEDURE_CATALOG.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/ProcedureCatalogFailurePathTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/procedures-real-backend.spec.ts"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/pages/ProcedureCatalogPage.test.tsx"
+    }
+  ],
+  "measurementEvents": []
+}

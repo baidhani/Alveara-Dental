@@ -31,16 +31,16 @@ No new permission was invented. Reading (list, detail, history, usage, snapshots
 
 ## Audit
 
-Every create, revise, inactivate and reactivate writes an audit entry (event type, entity `ProcedureDefinition`, actor, the changed field names and old/new fee amounts) and a `ProcedureEvent`. Audit text contains no patient data.
+Every create, revise, inactivate and reactivate writes an audit entry (event type, entity `ProcedureDefinition`, actor, the changed field names and old/new fee amounts) and a `ProcedureEvent`. Audit text contains no patient data. The row, its event and its audit entry are one save: if the audit entry cannot be written, the change is not stored and the person is told so (STORY-014).
 
 ## Failure-first notes
 
 | Question | Answer |
 |---|---|
-| What if a save fails? | One transaction per change; nothing partial is stored. A unique-key race (SQL 2601/2627) is reported as a concurrency conflict, not a 500. |
+| What if a save fails? | One transaction per change; nothing partial is stored. A unique-key race (SQL 2601/2627) is reported as a concurrency conflict, not a 500. Any other failed save, including a failed audit write (STORY-014), stores nothing and answers `save_failed` (503) with a plain message that names no audit log or SQL; the log carries the error class and SQL error number only (`procedure_catalog_save_failed`). The same change works once the cause is fixed, and a retry cannot duplicate because nothing was recorded. |
 | Retries? | The screen keeps what was typed and the user retries; the server operations are idempotent (identical create returns the same procedure; unchanged revise adds nothing). No automatic retry loops. |
 | Recovery when it cannot proceed? | Nothing is queued: the call is synchronous and the refusal says why. A wrong entry is corrected by revising (history kept) or, for a wrong code, inactivating it and adding the right one. |
-| Handled | validation, duplicates, races, stale versions, permission, CSRF, inactivation of referenced procedures, a failed usage check on the screen (it will not offer inactivation). |
+| Handled | validation, duplicates, races, a failed save or a failed audit write (`save_failed`, 503), stale versions, permission, CSRF, inactivation of referenced procedures, a failed usage check on the screen (it will not offer inactivation). |
 | Not handled | A usage source that is down: `UsageAsync` fails loudly rather than reporting zero. Cross-module pricing rules (discounts, insurance fee schedules) are out of scope. |
 
 ## Assumptions made (ALV-N005)
@@ -55,4 +55,4 @@ Every create, revise, inactivate and reactivate writes an audit entry (event typ
 
 ## Verification
 
-Backend: `ProcedureCatalogRulesTests`, `ProcedureCatalogLifecycleTests`, `ProcedureCatalogSchemaTests`, `ProcedureCatalogApiTests` (real SQL Server). Frontend: `ProcedureCatalogPage.test.tsx` (vitest + axe). Browser: `e2e/procedures-real-backend.spec.ts` via `playwright.procedures.config.ts` (see `docs/testing/REAL_BACKEND_E2E.md`).
+Backend: `ProcedureCatalogRulesTests`, `ProcedureCatalogLifecycleTests`, `ProcedureCatalogSchemaTests`, `ProcedureCatalogApiTests`, `ProcedureCatalogFailurePathTests` (a failed audit write saves nothing, says so, and works again once the log is back), all against real SQL Server. Frontend: `ProcedureCatalogPage.test.tsx` (vitest + axe). Browser: `e2e/procedures-real-backend.spec.ts` via `playwright.procedures.config.ts` (see `docs/testing/REAL_BACKEND_E2E.md`).
