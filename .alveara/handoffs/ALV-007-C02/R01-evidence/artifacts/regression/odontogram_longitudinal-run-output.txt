@@ -1,0 +1,25 @@
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Odontogram' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Odontogram' })
+
+
+      82 | async function gotoChart(page: Page, patient: string) {
+      83 |   await page.goto(`/patients/${ids[patient]}/odontogram`);
+    > 84 |   await expect(page.getByRole("heading", { name: "Odontogram" })).toBeVisible();
+         |                                                                   ^
+      85 |   await expect(page.getByRole("group", { name: "Teeth shown" })).toBeVisible();
+      86 | }
+      87 |
+        at gotoChart (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\odontogram-longitudinal-real-backend.spec.ts:84:67)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\odontogram-longitudinal-real-backend.spec.ts:372:3
+
+    Error Context: test-results\odontogram-longitudinal-re-d69a7-ets-the-first-person-finish-chromium\error-context.md
+
+    Error Context: test-results\odontogram-longitudinal-re-d69a7-ets-the-first-person-finish-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\odontogram-longitudinal-real-backend.spec.ts:369:1 › A STALE CATALOGUE CHANGE: the conflict banner names a condition type, the other person's change stands, and a reload lets the first person finish 
+  4 did not run
+  6 passed (30.8s)

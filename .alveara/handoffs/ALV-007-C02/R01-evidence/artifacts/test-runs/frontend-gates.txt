@@ -1,0 +1,13 @@
+ALV-007-C02 R01 - frontend and repository gates (final tree, 2026-10-12)
+
+tsc --noEmit (src/alveara-client):            exit 0, no output
+oxlint:                                       exit 0 (the existing set-state-in-effect warnings in untouched files remain; none in the billing files)
+vitest run:                                   Test Files 90 passed (90); Tests 1387 passed (1387)   (1373 before; 14 new in BillingStatementsPanel.test.tsx)
+vite build:                                   built (the existing chunk-size notice only)
+playwright test (mocked, default config):     136 passed
+node --test tests/*.test.mjs:                 tests 8, pass 8, fail 0
+
+Two things the gates caught in this attempt's own work and that are fixed:
+- The new real-backend spec was picked up by the default mocked run until it was added to testIgnore in playwright.config.ts (134-136 failing to 136 passing).
+- The parent walkthroughs locate the billing status line by the class p.alv-clinical__status; the new documents panel first reused that class and made the locator ambiguous
+  (2 parent walkthroughs failed in the first sweep). The panel now uses its own element and the parent walkthroughs pass unchanged.

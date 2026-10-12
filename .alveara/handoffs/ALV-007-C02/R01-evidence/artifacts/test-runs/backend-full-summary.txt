@@ -1,0 +1,24 @@
+ALV-007-C02 R01 - backend test results
+
+Final full serial run on the final tree (dotnet test, parallel execution off, one machine, 2026-10-12):
+  Passed!  - Failed:     0, Passed:  3195, Skipped:     0, Total:  3195, Duration: 1 h 1 m - Alveara.Api.Tests.dll (net10.0)
+
+The runs before it, for the record (each was on an earlier tree of this attempt):
+  3193 of 3193 (1 h 18 m) before reprint and CSV export were audited and before the timeline carried the completed-procedure link;
+  3194 of 3194 (1 h 1 m) after those two changes;
+  3194 of 3195 (1 h 33 m) after the practice identity was added to the document envelope: one failure, Live_aging_follows_a_later_amendment_while_an_issued_statement_keeps_the_date_it_was_issued_with.
+  That failure was a defect in the test itself: it amended "the first" of two completed procedures that one completion set finalizes at the same instant, so it picked the wrong one about half the time
+  (it passed in the two earlier runs by luck). It now amends the procedure behind charge 1 explicitly; run alone ten times it passed ten times, and the seven new service, document, timeline,
+  API, concurrency, reconciliation and math classes were run three times in a row (99 of 99 each time) before the final run above.
+The previous attempt's final run (ALV-008-C01 R01) was 3035 of 3035, so this story adds 160 tests.
+
+New tests in the final run (160): BillingRefundSchemaTests 60, BillingRefundMigrationTests 1, BillingRefundMathTests 10, BillingRefundServiceTests 25,
+BillingDocumentBuilderTests 15, BillingDocumentServiceTests 18, BillingTimelineAgingTests 3, BillingStatementsApiTests 22, BillingRefundConcurrencyTests 5,
+BillingReconciliationTests 1 (70 real transactions). The parent suites pass unchanged inside the run, with one disclosed edit: BillingSchemaTests line 102
+used the literal "Refund" as an example of an invalid kind; "Refund" is now valid, so the literal is "Bogus".
+
+Earlier focused runs during development: the parent billing, completed-procedure and completion filter 452 of 452 (13 m 27 s) right after the schema step;
+each new class run on its own as it was written.
+
+The negative controls rebuilt the test project 25 times in each of their runs; the tree was restored byte-identical after every mutant (checked: no
+"if (false" is left in any source file) and the full run above is on the restored tree.

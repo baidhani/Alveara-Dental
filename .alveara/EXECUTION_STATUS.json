@@ -1790,21 +1790,21 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 3195 of 3195 passed, 0 failed, 0 skipped (1 h 1 m). New (160): BillingRefundSchemaTests 60, BillingRefundMigrationTests 1, BillingRefundMathTests 10, BillingRefundServiceTests 25, BillingDocumentBuilderTests 15, BillingDocumentServiceTests 18, BillingTimelineAgingTests 3, BillingStatementsApiTests 22, BillingRefundConcurrencyTests 5, BillingReconciliationTests 1 (70 real transactions); the parent suites pass unchanged inside it (one example literal in BillingSchemaTests was edited because Refund is now a valid kind).; Frontend: 1387 of 1387 passed (90 files; 14 new in BillingStatementsPanel.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8.; Real-backend walkthrough (new, billing-statements): 9 of 9 passed (refund, move, receipt and correction, timeline and aging, statement preview, issue, stale preview, CSV and print, failed-log path, read-only role, stale second screen; axe light and dark, 0 critical/serious).; Real-backend sweep on fresh databases: 25 runs, 267 of 267 passed (the existing 24 runs 258, plus the new walkthrough 9; one odontogram run timed out once under load and passed 11 of 11 on two reruns).; Leak check: databases and logins unchanged (54 / 59 / 273 / 248).; Negative controls: 25 rules, all killed on the final tree (two survived the first pass and are closed by new tests).; Migration reversibility: Down removes the 2 tables, the new columns and the new triggers and restores the two replaced triggers; Up restores them."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "bc25a94ae50639a5a46509c443ebf65b8f0992ab",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-007-C02/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

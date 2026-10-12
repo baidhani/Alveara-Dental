@@ -1,0 +1,10 @@
+ALV-007-C02 R01 - leak check (databases and logins that the test and walkthrough runs create and must not leave behind)
+
+Counts: AlveraTest_* databases / AlveraRestore_* databases / alveara_* logins / alveara_* databases
+
+Last measurement before this attempt's runs (ALV-008-C01 R01, 2026-10-12):    54 / 59 / 273 / 248
+After the final full backend run and the final real-backend sweep (the 25 sweep databases alveara_c02r_* dropped,
+the generated *-e2e-out folders and TestResults deleted), 2026-10-12:          54 / 59 / 273 / 248
+
+Flat. (A first measurement in the session read 276 logins because it counted every non-system login; the like-for-like count of alveara_* logins is 273.)
+The sweep databases were dropped with a loop that gives sqlcmd empty input, as learned in the previous attempt.

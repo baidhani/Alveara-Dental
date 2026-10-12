@@ -1,0 +1,63 @@
+{
+  "axe": {
+    "refund-recorded-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "refund-recorded-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "timeline-and-aging-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "timeline-and-aging-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "statement-issued-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "statement-issued-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1791840823531,
+  "refund": {
+    "entries": 4,
+    "balance": 90,
+    "releases": [
+      20,
+      30
+    ]
+  },
+  "timelineTypes": [
+    "Charge",
+    "Charge",
+    "Payment",
+    "Application",
+    "Application",
+    "Refund",
+    "Release",
+    "Release",
+    "Payment",
+    "Application",
+    "Release",
+    "Application",
+    "Receipt",
+    "Reversal",
+    "Payment"
+  ],
+  "statementCsvRows": 9,
+  "finalVerification": {
+    "patientId": "23caea88-9cc2-49c5-940b-df6e8527ad5c",
+    "consistent": true,
+    "findings": [],
+    "balanceOwed": 70,
+    "entryCount": 8,
+    "allocationCount": 4
+  }
+}

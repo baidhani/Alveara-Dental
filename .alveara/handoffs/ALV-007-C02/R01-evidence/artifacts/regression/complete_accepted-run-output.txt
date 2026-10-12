@@ -1,0 +1,14 @@
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:121:1 › SETUP: two patients, a catalog, a plan for Ann with two accepted procedures and one declined, a plan for Bo (1.1s)
+  ok 2 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:154:1 › the clinical history starts empty and says what that means; a hygienist reads it and has no button (654ms)
+  ok 3 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:167:1 › FAILURE PATH: when the log is unavailable nothing is completed, no internals are shown, and the same click works once it is back (2.3s)
+  ok 4 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:196:1 › CRITERION 1: the completed procedures appear in the clinical history with who and when, newest first, and the button goes away (1.9s)
+  ok 5 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:218:1 › a replay is quiet: completing again from the API changes nothing (44ms)
+  ok 6 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:228:1 › CRITERION 2: revising the plan afterwards keeps the original revision and the completed care (408ms)
+  ok 7 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:247:1 › CRITERION 3: every change is in the plan's log with who and when (6ms)
+  ok 8 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:256:1 › an out-of-date second screen completes nothing, is told, and works after a reload (685ms)
+  ok 9 [chromium] › e2e\treatment-plans-complete-accepted-real-backend.spec.ts:274:1 › the API refuses what the screen does not offer (40ms)
+
+  9 passed (11.6s)
