@@ -1,0 +1,10 @@
+ALV-008-C01 R01 - leak check (databases and logins that the test and walkthrough runs create and must not leave behind)
+
+Counts: AlveraTest_* databases / AlveraRestore_* databases / alveara_* logins / alveara_* databases
+
+Last measurement before this attempt's full runs (after the STORY-008 cleanup, 2026-10-11): 54 / 59 / 273 / 248
+After the first full backend run (3034 tests):                          54 / 59 / 273 / 248
+After the real-backend sweep (24 runs, fresh databases dropped):        54 / 59 / 273 / 248
+After the final full backend run (3035 tests, 2026-10-12):              54 / 59 / 273 / 248
+
+Flat in every measurement. The sweep databases (alveara_c08_*) were dropped after the sweep (24 databases; the first attempt to drop them with a shell loop hung because sqlcmd read the loop's input, and they were dropped with a loop that gives it empty input); the generated *-e2e-out folders and the TestResults folder were deleted.

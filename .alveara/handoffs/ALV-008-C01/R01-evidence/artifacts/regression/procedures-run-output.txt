@@ -1,0 +1,13 @@
+
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] › e2e\procedures-real-backend.spec.ts:108:1 › billing finds the catalog in the navigation and adds a procedure with its fee (3.0s)
+  ok 2 [chromium] › e2e\procedures-real-backend.spec.ts:139:1 › a fee change is a new version: the old fee stays readable, and the history says who and why (2.3s)
+  ok 3 [chromium] › e2e\procedures-real-backend.spec.ts:162:1 › inactivating needs a reason, removes it from planning, and reactivating restores it (796ms)
+  ok 4 [chromium] › e2e\procedures-real-backend.spec.ts:183:1 › a dentist can read the catalog but is offered no way to change it (2.1s)
+  ok 5 [chromium] › e2e\procedures-real-backend.spec.ts:194:1 › a hygienist has no catalog link and is told permission is needed at the address (247ms)
+  ok 6 [chromium] › e2e\procedures-real-backend.spec.ts:202:1 › the API refuses what the screen does not offer (121ms)
+  ok 7 [chromium] › e2e\procedures-real-backend.spec.ts:223:1 › a CDT code must name the licensed source it came from: refused without one on screen and at the API, accepted with one (2.3s)
+  ok 8 [chromium] › e2e\procedures-real-backend.spec.ts:257:1 › STORY-014 failure path: when the change cannot be logged nothing is saved and billing is told so, what was typed is kept, and the same save works once the log is back (2.5s)
+
+  8 passed (18.5s)

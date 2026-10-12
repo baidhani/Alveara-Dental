@@ -1,0 +1,9 @@
+ALV-008-C01 R01 - migration reversibility
+
+Test: CompletedProcedureMigrationTests.Rolling_back_removes_the_completion_tables_and_triggers_keeps_the_plan_and_rolling_forward_restores_them (passed in the final full run).
+
+It builds a plan with a completed procedure, then migrates the database back to 20261011155619_AddBillingLedger: the three tables (CompletionSets, CompletedProcedures, CompletedProcedureAmendments) and the six triggers (TR_CompletionSets_Immutable, TR_CompletionSets_Links, TR_CompletedProcedures_Immutable, TR_CompletedProcedures_Links, TR_CompletedProcedureAmendments_Immutable, TR_CompletedProcedureAmendments_Links) are gone and the plan, its items, events and completed state are unchanged; it then migrates forward again: the tables and triggers return, a completed-procedure record is accepted and the database again refuses to delete it (error 51145).
+
+The EF model snapshot was regenerated with the migration (dotnet ef migrations has-pending-model-changes: no changes).
+
+Limit: the rollback is possible only while no completion has been recorded; afterwards the tables hold authoritative, append-only history and are deliberately not dropped by a script (the same stance as the billing ledger).

@@ -1,0 +1,27 @@
+== tsc --noEmit
+exit 0
+
+== npm run lint (warnings in the changed files: 1; exit code below)
+exit 0
+
+== vitest run
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/pages/BackupRecoveryPage.test.tsx > Backup settings form > keeps an edit in progress when the permission set arrives after the first load
+ Test Files  1 failed | 88 passed (89)
+      Tests  1 failed | 1372 passed (1373)
+
+== npm run build
+[32m✓ built in 273ms[39m
+
+== playwright (mocked)
+  136 passed (20.1s)
+
+== node --test tests/*.test.mjs
+ℹ tests 8
+ℹ pass 8
+ℹ fail 0
+
+== disclosure: the first full vitest run above had one failure, in src/pages/BackupRecoveryPage.test.tsx
+   ("Backup settings form > keeps an edit in progress when the permission set arrives after the first load"), a file this attempt did not touch.
+   Rerun alone three times: 35 passed (35) each time. Full vitest rerun: Test Files 89 passed (89), Tests 1373 passed (1373).
+   Lint warnings in the files this attempt changed or added: 0 (the 1 reported in the header line is a case-insensitive match of "Review" in an unrelated file name; the warnings are in pre-existing files).

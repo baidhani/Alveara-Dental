@@ -1,0 +1,10 @@
+RERUN of mutant 1 after adding the test that closes the gap the first run found. Negative controls for ALV-008-C01 (run 2026-10-12 05:37 UTC; each production file was backed up, mutated, built, tested, then restored and compared byte for byte by SHA-256; no mutant remains)
+
+Mutant 1: The completion no longer checks and advances the plan's version in its own save (a stale or racing set is not refused).
+  dotnet test (CompletedProcedureServiceTests)  ->  Failed 1, Passed 18 of 19
+  killed by: CompletedProcedureServiceTests.A_plan_changed_after_it_was_checked_but_before_the_set_is_saved_is_still_a_conflict_and_records_nothing
+
+Unmutated tree: Passed 18 of 19.
+Restored: every mutated file is byte-identical to its backup (SHA-256 compared); rebuild: 0 Error(s)
+SUMMARY [('1', 1)]
+DONE

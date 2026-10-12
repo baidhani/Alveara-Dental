@@ -1,0 +1,76 @@
+Negative controls for ALV-008-C01 (run 2026-10-12 05:14 UTC; each production file was backed up, mutated, built, tested, then restored and compared byte for byte by SHA-256; no mutant remains)
+
+Mutant 1: The completion no longer checks and advances the plan's version in its own save (a stale or racing set is not refused).
+  dotnet test (CompletedProcedureServiceTests)  ->  Failed 0, Passed 18 of 18
+
+Mutant 2: The same key with a different request is no longer a conflict.
+  dotnet test (CompletedProcedureServiceTests)  ->  Failed 1, Passed 17 of 18
+  killed by: CompletedProcedureServiceTests.The_same_key_with_a_different_request_is_a_conflict_and_records_nothing
+
+Mutant 3: A no-fee procedure is treated as billable (the ledger would be asked for a zero charge).
+  dotnet test (CompletedProcedureEffectsTests)  ->  Failed 3, Passed 15 of 18
+  killed by: CompletedProcedureEffectsTests.A_set_of_billable_and_no_charge_procedures_charges_the_billable_ones_once_and_the_no_charge_one_not_at_all
+  killed by: CompletedProcedureEffectsTests.A_set_of_only_no_charge_procedures_opens_no_account_and_a_replay_reports_the_same_charges
+  killed by: CompletedProcedureEffectsTests.Readiness_says_what_a_completion_will_do_and_the_completion_then_does_exactly_that
+
+Mutant 4: A failed charge no longer ends the set (it is skipped and the rest commits).
+  dotnet test (CompletedProcedureEffectsTests)  ->  Failed 1, Passed 17 of 18
+  killed by: CompletedProcedureEffectsTests.A_failed_charge_for_the_second_of_three_procedures_undoes_the_first_charge_the_account_and_every_completion
+
+Mutant 5: Two matching chart findings are no longer ambiguous.
+  dotnet test (CompletedProcedureEffectsTests)  ->  Failed 2, Passed 16 of 18
+  killed by: CompletedProcedureEffectsTests.More_than_one_linked_finding_that_could_be_the_procedures_refuses_the_whole_set_and_names_the_procedure
+  killed by: CompletedProcedureEffectsTests.Readiness_names_the_procedures_that_cannot_be_completed_and_an_ambiguous_chart_match_with_how_many_matched
+
+Mutant 6: A finding on another tooth can be matched to the procedure.
+  dotnet test (CompletedProcedureEffectsTests)  ->  Failed 3, Passed 15 of 18
+  killed by: CompletedProcedureEffectsTests.More_than_one_linked_finding_that_could_be_the_procedures_refuses_the_whole_set_and_names_the_procedure
+  killed by: CompletedProcedureEffectsTests.Readiness_says_what_a_completion_will_do_and_the_completion_then_does_exactly_that
+  killed by: CompletedProcedureEffectsTests.Without_a_linked_finding_on_the_same_tooth_and_surface_the_chart_is_left_alone(which:
+
+Mutant 7: A matched finding is no longer moved to Completed.
+  dotnet test (CompletedProcedureEffectsTests)  ->  Failed 5, Passed 13 of 18
+  killed by: CompletedProcedureEffectsTests.A_failed_chart_write_undoes_the_whole_set_including_the_completion_states_already_saved
+  killed by: CompletedProcedureEffectsTests.A_linked_planned_or_diagnosed_finding_on_the_procedures_tooth_and_surface_moves_to_completed_with_its_history(state:
+  killed by: CompletedProcedureEffectsTests.The_charts_own_rules_still_apply_completing_an_extraction_is_refused_while_other_findings_stand_on_the_tooth
+  killed by: CompletedProcedureEffectsTests.Two_procedures_of_one_set_that_share_a_finding_move_it_once_and_the_second_reports_it_as_already_completed
+
+Mutant 8: A procedure can be performed before its acceptance was recorded.
+  dotnet test (CompletedProcedureServiceTests)  ->  Failed 1, Passed 17 of 18
+  killed by: CompletedProcedureServiceTests.A_performed_time_before_the_plan_existed_or_before_the_procedure_was_accepted_is_refused_and_says_what_it_is_compared_with
+
+Mutant 9: A withdrawn procedure is no longer refused.
+  dotnet test (CompletedProcedureServiceTests)  ->  Failed 1, Passed 17 of 18
+  killed by: CompletedProcedureServiceTests.Every_procedure_that_cannot_be_completed_is_listed_with_its_reason_and_none_of_the_others_is_completed_either
+
+Mutant 10: The clock tolerance boundary is exclusive instead of inclusive (exactly five minutes is refused).
+  dotnet test (CompletionRulesTests)  ->  Failed 2, Passed 21 of 23
+  killed by: CompletionRulesTests.A_time_written_with_another_offset_is_the_same_instant
+  killed by: CompletionRulesTests.The_performed_time_may_be_exactly_five_minutes_ahead_of_the_clock_and_not_one_millisecond_more
+
+Mutant 11: A correction made against an older amendment is no longer a conflict.
+  dotnet test (CompletedProcedureAmendmentTests)  ->  Failed 1, Passed 12 of 13
+  killed by: CompletedProcedureAmendmentTests.A_correction_made_against_an_older_amendment_is_a_conflict_until_the_caller_looks_again
+
+Mutant 12: The clinical history is no longer enriched with the completion detail.
+  dotnet test (CompletedProcedureHistoryTests)  ->  Failed 3, Passed 2 of 5
+  killed by: CompletedProcedureHistoryTests.A_correction_changes_what_the_history_shows_and_a_zero_fee_procedure_shows_no_charge
+  killed by: CompletedProcedureHistoryTests.A_procedure_completed_the_old_way_is_listed_as_before_with_the_detail_empty_and_the_plan_services_history_is_unchanged
+  killed by: CompletedProcedureHistoryTests.A_procedure_completed_through_the_workflow_shows_its_provider_performed_time_encounter_charge_and_chart_outcome
+
+Mutant 13: The two legacy routes no longer log that they were used.
+  dotnet test (CompletionApiTests)  ->  Failed 1, Passed 41 of 42
+  killed by: CompletionApiTests.The_legacy_completion_routes_are_unchanged_and_only_log_that_they_were_used
+
+Mutant 14: Migration trigger 51145: the database no longer refuses changing a completed procedure.
+  dotnet test (CompletedProcedureSchemaTests)  ->  Failed 3, Passed 49 of 52
+  killed by: CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement:
+
+Mutant 15: Migration trigger 51150: the database no longer refuses a completed-procedure record for a procedure that is not completed.
+  dotnet test (CompletedProcedureSchemaTests)  ->  Failed 1, Passed 51 of 52
+  killed by: CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which:
+
+Unmutated tree: Passed 172 of 172.
+Restored: every mutated file is byte-identical to its backup (SHA-256 compared); rebuild: 0 Error(s)
+SUMMARY [('1', 0), ('2', 1), ('3', 3), ('4', 1), ('5', 2), ('6', 3), ('7', 4), ('8', 1), ('9', 1), ('10', 2), ('11', 1), ('12', 3), ('13', 1), ('14', 1), ('15', 1)]
+DONE

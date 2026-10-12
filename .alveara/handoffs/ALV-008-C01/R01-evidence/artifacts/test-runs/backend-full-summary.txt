@@ -1,0 +1,13 @@
+ALV-008-C01 R01 - backend test results
+
+Final full serial run on the committed tree (dotnet test, parallel execution off, one machine, 2026-10-12):
+  Passed!  - Failed:     0, Passed:  3035, Skipped:     0, Total:  3035, Duration: 1 h 15 m - Alveara.Api.Tests.dll (net10.0)
+  The trx has 3035 results, 3035 Passed, 0 Failed, 0 NotExecuted.
+
+New tests in that run (152): CompletionRulesTests 23, CompletedProcedureSchemaTests 52, CompletedProcedureMigrationTests 1, CompletedProcedureServiceTests 19, CompletedProcedureEffectsTests 18, CompletedProcedureAmendmentTests 13, CompletedProcedureHistoryTests 5, CompletionApiTests 21.
+The previous full serial run (2026-10-11, before the plan-version gap test was added to CompletedProcedureServiceTests) was:
+  Passed!  - Failed:     0, Passed:  3034, Skipped:     0, Total:  3034, Duration: 1 h 22 m - Alveara.Api.Tests.dll (net10.0)
+
+Earlier focused runs during development: treatment plans, billing, odontogram, diagnoses, condition types and the new classes 1131 of 1131 (29 m 22 s); the 25 amendment and API tests of step 4; the completion set on the restored tree after the negative controls 173 of 173.
+
+The negative controls rebuilt the test project fifteen times; the closing run of each tree was a clean build with 0 errors.
