@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 13,
+    "stories_verified": 14,
     "stories_submitted": 0,
-    "stories_in_progress": 6,
+    "stories_in_progress": 5,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 41,
-    "points_awarded": 2923
+    "criteria_passed": 44,
+    "points_awarded": 2965
   },
   "stories": [
     {
@@ -539,19 +539,15 @@
       "notes": "Completing an accepted plan is one all-or-nothing, idempotent save (every accepted, open, non-withdrawn procedure gets the same completion row, history event and audit entry as completing it alone); the clinical history is derived from those completion rows (no second record) and keeps completed care when the plan is revised or withdrawn. Criterion 2 rests on ALV-015-C01's immutable revisions, re-proven after a completion; criterion 3 on the same-save history and audit entries. Proven by service, API, frontend and real-browser tests including a failed audit write that completes nothing. Limits: completed is final (no undo); no charge, odontogram update, subset selection or separate provider/date until ALV-008-C01.",
       "updated_at": "2026-10-11T22:45:55Z",
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a treatment plan is accepted, when completed, then the clinical history updates accordingly.",
-          "Given a treatment plan is revised, when updated, then the original plan is preserved.",
-          "Trust: All treatment plan changes are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-11T22:47:43.194Z",
+        "commit_sha": "8da11191ee49cfca5139700e0b0abc5d4bd8a531",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/8da11191ee49cfca5139700e0b0abc5d4bd8a531",
+        "commit_at": "2026-10-11T22:46:13Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
