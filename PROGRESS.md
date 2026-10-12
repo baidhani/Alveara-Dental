@@ -472,3 +472,10 @@
   - Verification: full serial backend 2883 of 2883 (53 m 3 s; 27 new: service 9, API 18); vitest 1359 of 1359 (13 new); tsc, build and lint clean for the new files; mocked Playwright 136 of 136; repository checks 8 of 8; real-backend sweep 247 of 247 in 22 runs on fresh databases (the new STORY-008 walkthrough 9 of 9, including a failed audit write that completes nothing, a stale second screen, and the three criteria end to end); leak counts unchanged (54 / 59 / 273 / 248).
   - Notes: disclosed: (1) two extra `AlveraTest_*` databases appeared during development at 15:32 (one half-created, one with two test patients), source not identified; dropped, count back to 54; (2) first runs of the new tests had three test-setup mistakes, fixed in the tests (a reused procedure code, a no-op revision, a wrong expectation about declining an accepted procedure) and one expectation of the plan log that omitted the three ItemAdded events; none was a product defect; (3) out of scope by design and left to ALV-008-C01: charges, the odontogram update, completing a chosen subset, a separate provider and date. Not pushed.
 
+- [x] STORY-008: course completion recorded (records only)
+  - Date: 2026-10-11
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/EXECUTION_STATUS.json` item 33 to COMPLETE (3 of 3, implementation `8da1119`), `.alveara/BUILD_STATE.md` (last-updated line), `.colaberry/enrichment/STORY-008.json` (`sourceCommitSha` set to `8da1119`).
+  - Verification: the portal verified STORY-008 on 2026-10-11T22:47:43Z at `8da1119` (3 of 3 criteria, 130 points; portal sync `29411bb` shows `verification.state` verified).
+  - Notes: no code changed. ALV-008-C01 (item 34) not started.
+

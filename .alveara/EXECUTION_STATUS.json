@@ -1687,26 +1687,26 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 2883 of 2883 passed, 0 failed, 0 skipped (53 m 3 s). New: TreatmentPlanCompleteAcceptedTests 9, TreatmentPlanCompleteAcceptedApiTests 18 (27). Frontend 1359 of 1359 (13 new in TreatmentPlanCompleteAccepted.test.tsx); tsc clean, build ok, lint clean for the new files; mocked browser 136 of 136; repository checks 8 of 8. Real-backend walkthrough 9 of 9 (failed audit write completes nothing and the same click works once the log is back; the three criteria end to end; stale second screen; read-only roles; axe light and dark, 0 critical/serious); the whole sweep 247 of 247 in 22 runs on fresh databases. Leaked databases and logins unchanged (54 / 59 / 273 / 248). See docs/CLINICAL_HISTORY.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "8da11191ee49cfca5139700e0b0abc5d4bd8a531",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "8da11191ee49cfca5139700e0b0abc5d4bd8a531",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1714,7 +1714,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
+      "completedAt": "2026-10-11T22:47:43.194Z",
       "externalVerification": "course_portal"
     },
     {
