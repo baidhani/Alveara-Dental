@@ -467,6 +467,81 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingAllocationRelease", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AllocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Cause")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("RefundEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ReleaseNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("ReleasedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ReleasedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AllocationId");
+
+                    b.HasIndex("RefundEntryId")
+                        .HasFilter("[RefundEntryId] IS NOT NULL");
+
+                    b.HasIndex("AccountId", "IdempotencyKey");
+
+                    b.HasIndex("AccountId", "ReleaseNumber")
+                        .IsUnique();
+
+                    b.ToTable("BillingAllocationReleases", t =>
+                        {
+                            t.HasTrigger("TR_BillingAllocationReleases_Immutable");
+
+                            t.HasTrigger("TR_BillingAllocationReleases_Links");
+
+                            t.HasCheckConstraint("CK_BillingAllocationReleases_Amount", "[Amount] > 0 AND [Amount] <= 1000000.00");
+
+                            t.HasCheckConstraint("CK_BillingAllocationReleases_Cause", "[Cause] COLLATE Latin1_General_CS_AS IN ('Refund','Correction') AND (([Cause] = 'Refund' AND [RefundEntryId] IS NOT NULL AND ([Reason] IS NULL OR (LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0))) OR ([Cause] = 'Correction' AND [RefundEntryId] IS NULL AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0))");
+
+                            t.HasCheckConstraint("CK_BillingAllocationReleases_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_BillingAllocationReleases_Number", "[ReleaseNumber] >= 1");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -530,6 +605,12 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("RecordedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("RefundsEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ReplacesEntryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ReversesEntryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -545,6 +626,13 @@ namespace Alveara.Api.Migrations
                     b.HasIndex("PlanItemId")
                         .IsUnique()
                         .HasFilter("[PlanItemId] IS NOT NULL");
+
+                    b.HasIndex("RefundsEntryId")
+                        .HasFilter("[RefundsEntryId] IS NOT NULL");
+
+                    b.HasIndex("ReplacesEntryId")
+                        .IsUnique()
+                        .HasFilter("[ReplacesEntryId] IS NOT NULL");
 
                     b.HasIndex("ReversesEntryId")
                         .IsUnique()
@@ -562,27 +650,33 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_BillingEntries_Links");
 
+                            t.HasTrigger("TR_BillingEntries_Refunds");
+
                             t.HasTrigger("TR_BillingEntries_Reversals");
 
                             t.HasCheckConstraint("CK_BillingEntries_ChargeSource", "([Kind] = 'Charge' AND [PlanItemId] IS NOT NULL AND [ProcedureCode] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureCode]))) > 0 AND [ProcedureDescription] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureDescription]))) > 0) OR ([Kind] <> 'Charge' AND [PlanItemId] IS NULL AND [ProcedureCode] IS NULL AND [ProcedureDescription] IS NULL)");
 
                             t.HasCheckConstraint("CK_BillingEntries_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Charge','Payment','Adjustment','Reversal')");
+                            t.HasCheckConstraint("CK_BillingEntries_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Charge','Payment','Adjustment','Reversal','Refund')");
 
                             t.HasCheckConstraint("CK_BillingEntries_Max", "ABS([Amount]) <= 1000000.00");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Method", "([Kind] = 'Payment' AND [PaymentMethod] IS NOT NULL AND [PaymentMethod] COLLATE Latin1_General_CS_AS IN ('Cash','Check','Card','Other')) OR ([Kind] <> 'Payment' AND [PaymentMethod] IS NULL)");
+                            t.HasCheckConstraint("CK_BillingEntries_Method", "([Kind] IN ('Payment', 'Refund') AND [PaymentMethod] IS NOT NULL AND [PaymentMethod] COLLATE Latin1_General_CS_AS IN ('Cash','Check','Card','Other')) OR ([Kind] NOT IN ('Payment', 'Refund') AND [PaymentMethod] IS NULL)");
 
                             t.HasCheckConstraint("CK_BillingEntries_Number", "[EntryNumber] >= 1");
 
-                            t.HasCheckConstraint("CK_BillingEntries_PaymentOnly", "[Kind] = 'Payment' OR ([PaidByPatientId] IS NULL AND [PaymentMethodId] IS NULL)");
+                            t.HasCheckConstraint("CK_BillingEntries_PaymentOnly", "([Kind] = 'Payment' OR [PaidByPatientId] IS NULL) AND ([Kind] IN ('Payment', 'Refund') OR [PaymentMethodId] IS NULL) AND ([Kind] <> 'Refund' OR [PaymentMethodId] IS NOT NULL)");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Reason", "([Kind] IN ('Adjustment', 'Reversal') AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Kind] = 'Payment' AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)) OR ([Kind] = 'Charge' AND [Reason] IS NULL)");
+                            t.HasCheckConstraint("CK_BillingEntries_Reason", "([Kind] IN ('Adjustment', 'Reversal', 'Refund') AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Kind] = 'Payment' AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)) OR ([Kind] = 'Charge' AND [Reason] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Refunds", "([Kind] = 'Refund' AND [RefundsEntryId] IS NOT NULL) OR ([Kind] <> 'Refund' AND [RefundsEntryId] IS NULL)");
+
+                            t.HasCheckConstraint("CK_BillingEntries_Replaces", "[ReplacesEntryId] IS NULL OR [Kind] IN ('Payment', 'Adjustment')");
 
                             t.HasCheckConstraint("CK_BillingEntries_Reverses", "([Kind] = 'Reversal' AND [ReversesEntryId] IS NOT NULL) OR ([Kind] <> 'Reversal' AND [ReversesEntryId] IS NULL)");
 
-                            t.HasCheckConstraint("CK_BillingEntries_Sign", "([Kind] = 'Charge' AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] IN ('Adjustment', 'Reversal') AND [Amount] <> 0)");
+                            t.HasCheckConstraint("CK_BillingEntries_Sign", "([Kind] IN ('Charge', 'Refund') AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] IN ('Adjustment', 'Reversal') AND [Amount] <> 0)");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -742,6 +836,112 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_BillingResponsibilities_Reason", "[Reason] IS NULL OR (LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0)");
 
                             t.HasCheckConstraint("CK_BillingResponsibilities_Sequence", "[Sequence] >= 1");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.FinancialDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AsOfAllocationNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AsOfEntryNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AsOfReleaseNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AsOfResponsibilitySequence")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("AsOfUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DocumentNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("EnvelopeJson")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset>("IssuedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("IssuedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PaymentEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TemplateVersion")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PaymentEntryId")
+                        .HasFilter("[PaymentEntryId] IS NOT NULL");
+
+                    b.HasIndex("AccountId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("AccountId", "DocumentType", "DocumentNumber")
+                        .IsUnique();
+
+                    b.ToTable("FinancialDocuments", t =>
+                        {
+                            t.HasTrigger("TR_FinancialDocuments_Immutable");
+
+                            t.HasTrigger("TR_FinancialDocuments_Links");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_AsOf", "[AsOfUtc] <= [IssuedAtUtc]");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_CutOffs", "[AsOfEntryNumber] >= 1 AND [AsOfAllocationNumber] >= 0 AND [AsOfReleaseNumber] >= 0 AND [AsOfResponsibilitySequence] >= 0 AND [TemplateVersion] >= 1");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Envelope", "ISJSON([EnvelopeJson]) = 1");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Hash", "LEN([ContentHash]) = 64 AND [ContentHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%'");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Number", "[DocumentNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Payment", "([DocumentType] = 'Receipt' AND [PaymentEntryId] IS NOT NULL) OR ([DocumentType] = 'Statement' AND [PaymentEntryId] IS NULL)");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Type", "[DocumentType] COLLATE Latin1_General_CS_AS IN ('Statement','Receipt')");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -5233,6 +5433,26 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingAllocationRelease", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingAllocation", null)
+                        .WithMany()
+                        .HasForeignKey("AllocationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
+                        .HasForeignKey("RefundEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Billing.BillingEntry", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
@@ -5258,6 +5478,16 @@ namespace Alveara.Api.Migrations
 
                     b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
                         .WithMany()
+                        .HasForeignKey("RefundsEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
+                        .HasForeignKey("ReplacesEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
                         .HasForeignKey("ReversesEntryId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
@@ -5275,6 +5505,26 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("ResponsiblePatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Billing.FinancialDocument", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Clinical.ClinicalRecordEvent", b =>

@@ -15,7 +15,7 @@ export const PAYMENT_METHODS = ["Cash", "Check", "Card", "Other"] as const;
 
 export interface BillingEntry {
   entryNumber: number;
-  kind: "Charge" | "Payment" | "Adjustment" | "Reversal";
+  kind: "Charge" | "Payment" | "Adjustment" | "Reversal" | "Refund";
   amount: number;
   balanceAfter: number;
   planItemId: string | null;
@@ -31,6 +31,10 @@ export interface BillingEntry {
   paymentMethodName?: string | null;
   /** Payment only: who paid, when that is not the patient. */
   paidByName?: string | null;
+  /** Refund only: the number of the payment it hands back (ALV-007-C02). */
+  refundsEntryNumber?: number | null;
+  /** A payment or adjustment made as the replacement of a corrected entry: the number of the entry it replaces. */
+  replacesEntryNumber?: number | null;
 }
 
 /** What an entry stands for now. Parallel to the entries. */
@@ -42,6 +46,9 @@ export interface BillingEntryStanding {
   openAmount: number | null;
   appliedAmount: number | null;
   unappliedAmount: number | null;
+  /** Payment only: what has been refunded of it, and what can still be (zero once it is reversed). */
+  refundedAmount?: number | null;
+  refundableAmount?: number | null;
 }
 
 export interface BillingAllocation {
@@ -53,6 +60,8 @@ export interface BillingAllocation {
   released: boolean;
   allocatedAtUtc: string;
   allocatedByName: string | null;
+  /** How much of this allocation has been given back by a refund or a move; the allocation itself is never changed. */
+  releasedAmount?: number | null;
 }
 
 export interface BillingAccount {

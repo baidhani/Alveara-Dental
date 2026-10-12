@@ -31,16 +31,16 @@ public sealed record AdjustmentInput(decimal? Amount, string? Reason, string? Ro
 /// <summary>One entry as shown: <see cref="Amount"/> is signed as stored (a payment is negative) and <see cref="BalanceAfter"/> is the balance owed once it was recorded, so the ledger reads top to bottom.</summary>
 public sealed record BillingEntryView(
     int EntryNumber, string Kind, decimal Amount, decimal BalanceAfter, Guid? PlanItemId, string? ProcedureCode, string? ProcedureDescription, string? PaymentMethod, string? Reason,
-    DateTimeOffset RecordedAtUtc, string? RecordedByName, int? ReversesEntryNumber = null, string? PaymentMethodName = null, string? PaidByName = null);
+    DateTimeOffset RecordedAtUtc, string? RecordedByName, int? ReversesEntryNumber = null, string? PaymentMethodName = null, string? PaidByName = null, int? RefundsEntryNumber = null, int? ReplacesEntryNumber = null);
 
 /// <summary>
 /// What an entry stands for now, derived from the preserved history (so it can change as later entries are made, unlike the entry itself): whether a reversal has undone it, what a charge has been paid and has left,
 /// and what a payment has been applied to and has not yet. Parallel to the entries, in the same order.
 /// </summary>
-public sealed record BillingEntryStanding(int EntryNumber, bool IsReversed, int? ReversedByEntryNumber, decimal? PaidAmount, decimal? OpenAmount, decimal? AppliedAmount, decimal? UnappliedAmount);
+public sealed record BillingEntryStanding(int EntryNumber, bool IsReversed, int? ReversedByEntryNumber, decimal? PaidAmount, decimal? OpenAmount, decimal? AppliedAmount, decimal? UnappliedAmount, decimal? RefundedAmount = null, decimal? RefundableAmount = null);
 
 /// <summary>One allocation as shown: which payment paid which charge, for how much, and whether it has been released by reversing the payment.</summary>
-public sealed record BillingAllocationView(int AllocationNumber, int PaymentEntryNumber, int ChargeEntryNumber, decimal Amount, bool Released, DateTimeOffset AllocatedAtUtc, string? AllocatedByName);
+public sealed record BillingAllocationView(int AllocationNumber, int PaymentEntryNumber, int ChargeEntryNumber, decimal Amount, bool Released, DateTimeOffset AllocatedAtUtc, string? AllocatedByName, decimal? ReleasedAmount = null);
 
 /// <summary>Record who is financially responsible for a patient's account: the patient themselves or another active patient (a guarantor), from a date (not in the future), with an optional reason. The account version is needed once the account exists.</summary>
 public sealed record ResponsibilityInput(Guid? ResponsiblePatientId, DateOnly? EffectiveFrom, string? Reason, string? RowVersion);

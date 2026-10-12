@@ -78,7 +78,7 @@ The Billing tab gains: what each entry stands for beside it (paid and open on a 
 - **A reversed charge keeps its procedure "billed"** (one charge per procedure, enforced by a unique index that cannot ignore reversed rows). Re-billing a procedure whose charge was reversed needs a later story.
 - The responsibility form offers the patient and the registered guarantor (and the current party); naming any other patient means setting the guarantor in registration first (there is no patient picker in billing).
 - A reversal needs the account version, so a person working from an out-of-date screen reloads first.
-- No refunds, credit balances, statements or receipts (`ALV-007-C02`); no processors or insurance.
+- No credit balances; no processors or insurance. Refunds, moving what a payment pays, corrections, statements, receipts, the timeline and aging were added by `ALV-007-C02` (`docs/BILLING_STATEMENTS.md`), which also made the reversal trigger 51141 and the allocation caps count net of releases.
 - `Down` of the migration cannot succeed once a reversal exists.
 
 ## Verification

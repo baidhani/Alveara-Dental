@@ -22,11 +22,16 @@ export function openChargesOf(account: BillingAccount): OpenCharge[] {
 /** A short plain-words statement of what an entry stands for now, or null when there is nothing to add. */
 export function standingText(entry: BillingEntry, standing: BillingEntryStanding | undefined): string | null {
   if (entry.kind === "Reversal") return entry.reversesEntryNumber ? `Reverses entry ${entry.reversesEntryNumber}` : null;
+  if (entry.kind === "Refund") return entry.refundsEntryNumber ? `Refunds payment ${entry.refundsEntryNumber}` : null;
   if (!standing) return null;
   if (standing.isReversed) return `Reversed by entry ${standing.reversedByEntryNumber}`;
   if (entry.kind === "Charge") return `Paid ${formatMoney(standing.paidAmount ?? 0)}, open ${formatMoney(standing.openAmount ?? 0)}`;
-  if (entry.kind === "Payment") return `Applied ${formatMoney(standing.appliedAmount ?? 0)}, unapplied ${formatMoney(standing.unappliedAmount ?? 0)}`;
-  return null;
+  const replaces = entry.replacesEntryNumber ? `Replaces entry ${entry.replacesEntryNumber}. ` : "";
+  if (entry.kind === "Payment") {
+    const refunded = (standing.refundedAmount ?? 0) > 0 ? `, refunded ${formatMoney(standing.refundedAmount ?? 0)}` : "";
+    return `${replaces}Applied ${formatMoney(standing.appliedAmount ?? 0)}, unapplied ${formatMoney(standing.unappliedAmount ?? 0)}${refunded}`;
+  }
+  return replaces === "" ? null : replaces.trim();
 }
 
 /** The allocations a person typed, as the server takes them (a charge with no amount is left out), and which charge each one is, so a refusal can be shown beside the right box. */

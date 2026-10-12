@@ -14,3 +14,17 @@
 .alv-bill__choose { display: flex; gap: 0.5rem; align-items: center; margin: 0.5rem 0; }
 .alv-bill__responsibility, .alv-bill__methods { margin: 1rem 0; }
 .alv-bill__table td .btn { margin-right: 0.25rem; margin-bottom: 0.25rem; }
+
+/* ALV-007-C02: statements, receipts, the timeline and printing */
+.alv-bill__preview { margin: 1rem 0; padding: 1rem; border: 1px solid var(--color-border, #dde2e8); border-radius: 6px; background: var(--color-surface-raised, #fff); }
+.alv-bill__document h4 { margin-top: 0; }
+.alv-bill__notice { margin: 0.75rem 0; padding: 0.75rem 1rem; border-left: 4px solid var(--color-warning, #b5751b); background: var(--color-warning-bg, #fdf3e7); }
+.alv-bill__timeline { list-style: none; padding-left: 0; }
+.alv-bill__timeline li { padding: 0.35rem 0; border-bottom: 1px solid var(--color-border, #dde2e8); }
+.alv-bill__when { color: var(--color-text-muted, #5c6a78); font-variant-numeric: tabular-nums; }
+
+@media print {
+  body * { visibility: hidden; }
+  .alv-bill__print, .alv-bill__print * { visibility: visible; }
+  .alv-bill__print { position: absolute; left: 0; top: 0; width: 100%; padding: 0; color: #000; background: #fff; }
+}

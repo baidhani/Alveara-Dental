@@ -485,6 +485,19 @@ npx playwright test --config=playwright.billing-ledger.config.ts
 
 It signs in a dentist, a hygienist, a billing user and a front-desk user, with an administrator creating the catalog procedures and a second screen, and shows: two completed procedures billed; a payment applied to the chosen charge with the rest left unapplied and an over-allocation refused beside its charge with what was typed kept; the rest applied to the oldest open charge with every recorded entry exactly as it was; a payment reversed by a new entry with its allocations released and the original kept and marked; a charge that payments are applied to refused until they are reversed, then reversed; the history verified from the preserved entries; a registered guarantor followed until billing records a responsible party, the two staying independent when the registration changes, the guarantor seeing the account and being recorded as the payer; a configured payment method added, used and stopped with the old payment still naming it; a reversal from an out-of-date second screen refused as a conflict that records nothing; the failure path (with the audit write made to fail in the database, billing is told "nothing was recorded", keeps the reason typed and sees no change, and the same click then records exactly once); a dentist reading the ledger and what each entry stands for with no control; a hygienist with no tab; and the API refusing a missing CSRF token, reversing a reversal or an entry twice, applying a reversed payment and over-allocating. Axe scans in light and dark cover the refused allocation, the reversed ledger, the responsibility panel and the failed save. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e` run.
 
+## ALV-007-C02: refunds, statements and receipts walkthrough
+
+`e2e/billing-statements-real-backend.spec.ts` is the un-mocked run for refunds, moving what a payment pays, corrections, the timeline and aging, and statements and receipts. Prepare a fresh database and start the API exactly as for the ALV-007-C01 walkthrough above.
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "<the database the API is using>"   # needed by the failed-log step and by the stale-preview step (it renames the patient on a second screen)
+$env:BILLING_STATEMENTS_E2E_OUT = "C:	mpilling-statements-e2e"   # optional: where the JSON results and screenshots go (use a Windows path)
+npx playwright test --config=playwright.billing-statements.config.ts
+```
+
+It shows: a refund (gaps named before sending, an over-refund refused beside the amount with what was typed kept, the unapplied money taken first and the newest application released); a move refused and then recorded with the balance unchanged; a receipt issued and the payment then corrected (reversed and replaced), the receipt still reprinting as issued with the change written apart; the timeline and aging; a statement previewed, a name changed on another screen so the issue is refused as stale and the new preview shown, then issued, exported as CSV and shown as it prints; the failure path (nothing recorded when the log cannot be written, then the same save works); a read-only role; and an out-of-date second screen refused as a conflict. Axe runs in both themes on the main states.
+
 ## STORY-008: completing the accepted procedures and the clinical history
 
 `e2e/treatment-plans-complete-accepted-real-backend.spec.ts` is the un-mocked run for completing a plan's accepted procedures and the clinical history. Prepare a fresh database and start the API as for the other walkthroughs

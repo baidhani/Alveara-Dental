@@ -17,14 +17,27 @@ namespace Alveara.Api.Architecture.Billing;
 public partial class BillingService
 {
     /// <summary>An account's entries and allocations as saved, with the lookups the rules need.</summary>
-    private sealed class Ledger(List<BillingEntry> entries, List<BillingAllocation> allocations)
+    private sealed class Ledger(List<BillingEntry> entries, List<BillingAllocation> allocations, List<BillingAllocationRelease> releases)
     {
         public List<BillingEntry> Entries { get; } = entries.OrderBy(e => e.EntryNumber).ToList();
         public List<BillingAllocation> Allocations { get; } = allocations;
+        public List<BillingAllocationRelease> Releases { get; } = releases;
         private readonly Dictionary<Guid, int> _numberOf = entries.ToDictionary(e => e.Id, e => e.EntryNumber);
 
-        public IReadOnlyList<LedgerEntry> Math => Entries.Select(e => new LedgerEntry(e.EntryNumber, e.Kind, e.Amount, e.ReversesEntryId is Guid id ? _numberOf[id] : null)).ToList();
+        public IReadOnlyList<LedgerEntry> Math => Entries.Select(e => new LedgerEntry(e.EntryNumber, e.Kind, e.Amount, e.ReversesEntryId is Guid id ? _numberOf[id] : null, e.RefundsEntryId is Guid refunded ? _numberOf[refunded] : null)).ToList();
         public IReadOnlyList<LedgerAllocation> MathAllocations => Allocations.Select(a => new LedgerAllocation(_numberOf[a.PaymentEntryId], _numberOf[a.ChargeEntryId], a.Amount)).ToList();
+        public IReadOnlyList<LedgerRelease> MathReleases
+        {
+            get
+            {
+                var byId = Allocations.ToDictionary(a => a.Id);
+                return Releases.Select(r => new LedgerRelease(_numberOf[byId[r.AllocationId].PaymentEntryId], _numberOf[byId[r.AllocationId].ChargeEntryId], r.Amount, r.RefundEntryId is Guid f ? _numberOf[f] : null)).ToList();
+            }
+        }
+        /// <summary>What an allocation still holds after the releases made of it.</summary>
+        public decimal Remaining(BillingAllocation allocation) =>
+            (AppMoney.FromDecimal(allocation.Amount) - Releases.Where(r => r.AllocationId == allocation.Id).Aggregate(AppMoney.Zero, (sum, r) => sum + AppMoney.FromDecimal(r.Amount))).Amount;
+        public int NextReleaseNumber => (Releases.Select(r => (int?)r.ReleaseNumber).Max() ?? 0) + 1;
         public BillingEntry? ByNumber(int number) => Entries.FirstOrDefault(e => e.EntryNumber == number);
         public int NumberOf(Guid entryId) => _numberOf[entryId];
         public int NextAllocationNumber => (Allocations.Select(a => (int?)a.AllocationNumber).Max() ?? 0) + 1;
@@ -32,7 +45,8 @@ public partial class BillingService
 
     private async Task<Ledger> LoadLedgerAsync(Guid accountId, CancellationToken ct) =>
         new(await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == accountId).ToListAsync(ct),
-            await db.BillingAllocations.AsNoTracking().Where(a => a.AccountId == accountId).ToListAsync(ct));
+            await db.BillingAllocations.AsNoTracking().Where(a => a.AccountId == accountId).ToListAsync(ct),
+            await db.BillingAllocationReleases.AsNoTracking().Where(r => r.AccountId == accountId).ToListAsync(ct));
 
     private Task<List<BillingPaymentMethod>> ActiveMethodsAsync(CancellationToken ct) =>
         db.BillingPaymentMethods.AsNoTracking().Where(m => m.IsActive).OrderBy(m => m.Kind == m.Name ? 0 : 1).ThenBy(m => m.Name).ToListAsync(ct);
@@ -44,7 +58,7 @@ public partial class BillingService
     private static List<(BillingEntry Charge, decimal Amount)> BuildAllocations(Ledger ledger, decimal available, IReadOnlyList<AllocationInput>? requested, IDictionary<string, string> errors)
     {
         var math = ledger.Math;
-        var open = BillingLedgerMath.OpenCharges(math, ledger.MathAllocations).ToDictionary(o => o.Charge, o => o.Open);
+        var open = BillingLedgerMath.OpenCharges(math, ledger.MathAllocations, ledger.MathReleases).ToDictionary(o => o.Charge, o => o.Open);
         if (requested is null || requested.Count == 0)
             return BillingLedgerMath.OldestFirst(open.Select(o => (o.Key, o.Value)).OrderBy(o => o.Key).ToList(), available).Select(a => (ledger.ByNumber(a.Charge)!, a.Amount)).ToList();
 
@@ -100,7 +114,7 @@ public partial class BillingService
 
         var math = ledger.Math;
         if (BillingLedgerMath.Reversed(math).Contains(number)) throw new BillingException("payment_reversed", $"Payment {number} has been reversed, so it cannot be applied.", 409);
-        var left = BillingLedgerMath.Unapplied(math, ledger.MathAllocations, number);
+        var left = BillingLedgerMath.Unapplied(math, ledger.MathAllocations, number, ledger.MathReleases);
         if (left <= 0) throw new BillingException("nothing_to_apply", $"Payment {number} is already applied in full.", 409);
 
         var chosen = BuildAllocations(ledger, left, input.Allocations, errors);
@@ -137,9 +151,12 @@ public partial class BillingService
         if (same is not null) return same.Kind == BillingKinds.Reversal && same.ReversesEntryId == target.Id && same.Reason == reason ? await GetAccountAsync(patientId, ct) : throw KeyReused();
 
         var math = ledger.Math;
+        if (target.Kind == BillingKinds.Refund) throw new BillingException("cannot_reverse_a_refund", "A refund cannot be reversed; the money has been handed back. Record a new payment if it was returned.", 409);
+        if (target.Kind == BillingKinds.Payment && BillingLedgerMath.Refunded(math, target.EntryNumber) > 0)
+            throw new BillingException("payment_refunded", $"Payment {target.EntryNumber} has been refunded, so it cannot be reversed.", 409);
         if (target.Kind == BillingKinds.Reversal) throw new BillingException("cannot_reverse_a_reversal", "A reversal cannot itself be reversed; record a new charge, payment or adjustment instead.", 409);
         if (BillingLedgerMath.Reversed(math).Contains(target.EntryNumber)) throw new BillingException("already_reversed", $"Entry {target.EntryNumber} has already been reversed.", 409);
-        if (target.Kind == BillingKinds.Charge && BillingLedgerMath.Paid(math, ledger.MathAllocations, target.EntryNumber) > 0)
+        if (target.Kind == BillingKinds.Charge && BillingLedgerMath.Paid(math, ledger.MathAllocations, target.EntryNumber, ledger.MathReleases) > 0)
             throw new BillingException("charge_has_payments", $"Charge {target.EntryNumber} has payments applied to it. Reverse those payments first, then reverse the charge.", 409);
 
         var after = (AppMoney.FromDecimal(BillingLedgerMath.Balance(math)) - AppMoney.FromDecimal(target.Amount)).Amount;
@@ -168,7 +185,7 @@ public partial class BillingService
         var account = await db.BillingAccounts.AsNoTracking().FirstOrDefaultAsync(a => a.PatientId == patientId, ct);
         if (account is null) return new LedgerVerification(patientId, true, [], 0m, 0, 0);
         var ledger = await LoadLedgerAsync(account.Id, ct);
-        var findings = BillingLedgerMath.Verify(ledger.Math, ledger.MathAllocations).ToList();
+        var findings = BillingLedgerMath.Verify(ledger.Math, ledger.MathAllocations, ledger.MathReleases).ToList();
         var rebuilt = BillingLedgerMath.Balance(ledger.Math);
         var stored = AppMoney.FromDecimal(await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == account.Id).SumAsync(e => (decimal?)e.Amount, ct) ?? 0m).Amount;
         if (stored != rebuilt) findings.Add($"The rebuilt balance {rebuilt:F2} differs from the sum of the entries {stored:F2}.");

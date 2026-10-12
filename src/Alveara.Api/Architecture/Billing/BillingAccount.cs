@@ -8,7 +8,9 @@ public static class BillingKinds
     public const string Adjustment = "Adjustment";
     /// <summary>ALV-007-C01: undoes one earlier entry (its amount is the opposite) without rewriting it; needs a reason.</summary>
     public const string Reversal = "Reversal";
-    public static readonly IReadOnlyList<string> All = [Charge, Payment, Adjustment, Reversal];
+    /// <summary>ALV-007-C02: money returned to a payer. Positive (it raises the balance owed, as undoing part of a payment does); it names the one payment it returns part of.</summary>
+    public const string Refund = "Refund";
+    public static readonly IReadOnlyList<string> All = [Charge, Payment, Adjustment, Reversal, Refund];
 }
 
 /// <summary>How a payment was received. A fixed list in this story; making it configurable is ALV-007-C01's.</summary>
@@ -82,6 +84,10 @@ public class BillingEntry
     public Guid? CorrelationId { get; set; }
     /// <summary>ALV-007-C01, Payment only: who paid, when that is not the patient; it must be the account's own patient or someone who has been recorded as responsible for it.</summary>
     public Guid? PaidByPatientId { get; set; }
+    /// <summary>ALV-007-C02, Refund only: the payment this refund returns part of (the same account's; the recipient is that payment's recorded payer, else the account's patient). A payment may be refunded in parts, never for more than it was.</summary>
+    public Guid? RefundsEntryId { get; set; }
+    /// <summary>ALV-007-C02, Payment or Adjustment only: the reversed entry of the same kind this one replaces (a correction records the exact reversal and this replacement together). An entry is replaced at most once.</summary>
+    public Guid? ReplacesEntryId { get; set; }
     /// <summary>ALV-007-C01, Payment only: the configured method used. <see cref="PaymentMethod"/> keeps its kind (Cash, Check, Card, Other). Null on payments recorded before methods were configurable.</summary>
     public Guid? PaymentMethodId { get; set; }
 }

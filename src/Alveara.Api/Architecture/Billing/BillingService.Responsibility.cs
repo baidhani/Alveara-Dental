@@ -117,8 +117,8 @@ public partial class BillingService
         {
             var ledger = await LoadLedgerAsync(account.Id, ct);
             var math = ledger.Math;
-            var unapplied = ledger.Entries.Where(e => e.Kind == BillingKinds.Payment).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(BillingLedgerMath.Unapplied(math, ledger.MathAllocations, e.EntryNumber))).Amount;
-            var open = BillingLedgerMath.OpenCharges(math, ledger.MathAllocations).Aggregate(AppMoney.Zero, (sum, o) => sum + AppMoney.FromDecimal(o.Open)).Amount;
+            var unapplied = ledger.Entries.Where(e => e.Kind == BillingKinds.Payment).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(BillingLedgerMath.Unapplied(math, ledger.MathAllocations, e.EntryNumber, ledger.MathReleases))).Amount;
+            var open = BillingLedgerMath.OpenCharges(math, ledger.MathAllocations, ledger.MathReleases).Aggregate(AppMoney.Zero, (sum, o) => sum + AppMoney.FromDecimal(o.Open)).Amount;
             rows.Add(new GuarantorAccountView(account.PatientId, NameOf(patients[account.PatientId]), account.PatientId == guarantorPatientId, BillingLedgerMath.Balance(math), open, unapplied));
         }
         var total = rows.Aggregate(AppMoney.Zero, (sum, r) => sum + AppMoney.FromDecimal(r.BalanceOwed)).Amount;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import { ErrorState, LoadingState } from "../../components/StatePatterns";
 import {
@@ -9,6 +9,12 @@ import type { PatientDetail } from "../../services/patientsApi";
 import { BillableProcedures } from "./BillableProcedures";
 import { BillingAdjustmentForm } from "./BillingAdjustmentForm";
 import { BillingApplyForm } from "./BillingApplyForm";
+import { BillingCorrectForm } from "./BillingCorrectForm";
+import { BillingDocuments } from "./BillingDocuments";
+import type { BillingDocumentsControl } from "./BillingDocuments";
+import { BillingMoveForm } from "./BillingMoveForm";
+import { BillingRefundForm } from "./BillingRefundForm";
+import { BillingAging, BillingTimeline } from "./BillingTimelineAging";
 import { BillingLedger } from "./BillingLedger";
 import { BillingPaymentForm } from "./BillingPaymentForm";
 import { BillingResponsibilityPanel } from "./BillingResponsibilityPanel";
@@ -43,6 +49,8 @@ export function BillingPanel({ patient, canWrite = false }: Props) {
   const [conflict, setConflict] = useState(false);
   const [reversing, setReversing] = useState<number | null>(null);
   const [applying, setApplying] = useState<number | null>(null);
+  const [correcting, setCorrecting] = useState<{ kind: "refund" | "move" | "correct"; entry: number } | null>(null);
+  const documents = useRef<BillingDocumentsControl>(null);
 
   const loadSecondary = useCallback((signal?: AbortSignal) => {
     getResponsibility(patient.id, signal).then((r) => setResponsibility(isResponsibility(r) ? r : null)).catch(() => undefined);
@@ -68,6 +76,7 @@ export function BillingPanel({ patient, canWrite = false }: Props) {
     setStatus(text);
     setReversing(null);
     setApplying(null);
+    setCorrecting(null);
     listBillableProcedures(patient.id).then((r) => { setReady(r); setReadyFailed(false); }).catch(() => setReadyFailed(true));
     loadSecondary();
   }
@@ -84,6 +93,8 @@ export function BillingPanel({ patient, canWrite = false }: Props) {
   if (account === null || ready === null) return <LoadingState label="Loading the billing account…" />;
 
   const reversingEntry: BillingEntry | undefined = account.entries.find((e) => e.entryNumber === reversing);
+  const correctingEntry: BillingEntry | undefined = correcting ? account.entries.find((e) => e.entryNumber === correcting.entry) : undefined;
+  const recipient = correctingEntry?.paidByName ?? `${patient.firstName} ${patient.lastName}`;
   const activeMethods = methods?.filter((m) => m.isActive).map((m) => m.name);
   const payers = responsibility && !responsibility.isSelf ? [{ id: responsibility.responsiblePatientId, name: responsibility.responsibleName }] : [];
 
@@ -108,15 +119,26 @@ export function BillingPanel({ patient, canWrite = false }: Props) {
 
       <BillableProcedures patientId={patient.id} procedures={ready} canWrite={canWrite} onBilled={changed} />
 
+      <BillingAging patientId={patient.id} version={account.rowVersion} />
+
       <h3>Account history</h3>
       {account.entries.length === 0
         ? <p className="alv-clinical__meta">Nothing has been billed to this patient yet. That means nothing is recorded here, not that nothing is owed elsewhere.</p>
-        : <BillingLedger account={account} onReverse={canWrite ? (e) => { setApplying(null); setReversing(e.entryNumber); } : undefined} onApply={canWrite ? (e) => { setReversing(null); setApplying(e.entryNumber); } : undefined} />}
+        : <BillingLedger account={account} onReverse={canWrite ? (e) => { setApplying(null); setCorrecting(null); setReversing(e.entryNumber); } : undefined} onApply={canWrite ? (e) => { setReversing(null); setCorrecting(null); setApplying(e.entryNumber); } : undefined}
+          onRefund={canWrite ? (e) => { setReversing(null); setApplying(null); setCorrecting({ kind: "refund", entry: e.entryNumber }); } : undefined}
+          onMove={canWrite ? (e) => { setReversing(null); setApplying(null); setCorrecting({ kind: "move", entry: e.entryNumber }); } : undefined}
+          onCorrect={canWrite ? (e) => { setReversing(null); setApplying(null); setCorrecting({ kind: "correct", entry: e.entryNumber }); } : undefined}
+          onReceipt={(e) => documents.current?.previewReceipt(e.entryNumber)} />}
 
       {canWrite && reversingEntry && <BillingReverseForm account={account} entry={reversingEntry} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setReversing(null)} />}
+      {canWrite && correctingEntry && correcting?.kind === "refund" && <BillingRefundForm account={account} entry={correctingEntry} recipient={recipient} methods={activeMethods} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setCorrecting(null)} />}
+      {canWrite && correctingEntry && correcting?.kind === "move" && <BillingMoveForm account={account} entry={correctingEntry} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setCorrecting(null)} />}
+      {canWrite && correctingEntry && correcting?.kind === "correct" && <BillingCorrectForm account={account} entry={correctingEntry} methods={activeMethods} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setCorrecting(null)} />}
       {canWrite && applying !== null && <BillingApplyForm account={account} paymentEntryNumber={applying} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setApplying(null)} />}
       {canWrite && account.hasAccount && account.balanceOwed > 0 && <BillingPaymentForm account={account} methods={activeMethods} payers={payers} onDone={changed} onConflict={() => setConflict(true)} />}
       {canWrite && account.hasAccount && <BillingAdjustmentForm account={account} onDone={changed} onConflict={() => setConflict(true)} />}
+      <BillingDocuments patientId={patient.id} canWrite={canWrite} controlRef={documents} version={account.rowVersion} />
+      <BillingTimeline patientId={patient.id} version={account.rowVersion} />
       {canWrite && methods && <PaymentMethodsSettings methods={methods} onChanged={(m, text) => { setMethods(m); setStatus(text); }} />}
     </section>
   );

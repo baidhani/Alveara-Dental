@@ -100,6 +100,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Billing.BillingAllocation> BillingAllocations => Set<Architecture.Billing.BillingAllocation>();
     public DbSet<Architecture.Billing.BillingResponsibility> BillingResponsibilities => Set<Architecture.Billing.BillingResponsibility>();
     public DbSet<Architecture.Billing.BillingPaymentMethod> BillingPaymentMethods => Set<Architecture.Billing.BillingPaymentMethod>();
+    public DbSet<Architecture.Billing.BillingAllocationRelease> BillingAllocationReleases => Set<Architecture.Billing.BillingAllocationRelease>();
+    public DbSet<Architecture.Billing.FinancialDocument> FinancialDocuments => Set<Architecture.Billing.FinancialDocument>();
     public DbSet<Architecture.Completion.CompletionSet> CompletionSets => Set<Architecture.Completion.CompletionSet>();
     public DbSet<Architecture.Completion.CompletedProcedure> CompletedProcedures => Set<Architecture.Completion.CompletedProcedure>();
     public DbSet<Architecture.Completion.CompletedProcedureAmendment> CompletedProcedureAmendments => Set<Architecture.Completion.CompletedProcedureAmendment>();
@@ -507,6 +509,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         ProcedureModel.Configure(modelBuilder);
         TreatmentPlanModel.Configure(modelBuilder);
         BillingModel.Configure(modelBuilder);
+        FinancialDocumentModel.Configure(modelBuilder);
         CompletionModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>

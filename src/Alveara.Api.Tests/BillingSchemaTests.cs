@@ -99,7 +99,7 @@ public class BillingSchemaTests : BillingTestBase
         var account = await InsertAccountAsync();
         var entry = which switch
         {
-            "badKind" => Entry(account, "Refund", 10m),
+            "badKind" => Entry(account, "Bogus", 10m),
             "numberZero" => Payment(account, -10m, number: 0),
             "blankKey" => Payment(account, -10m, key: "   "),
             "overTheCeiling" => Adjustment(account, 1_000_000.01m),

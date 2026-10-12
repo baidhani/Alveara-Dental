@@ -28,7 +28,8 @@ public partial class BillingService
         var methods = await db.BillingPaymentMethods.AsNoTracking().ToDictionaryAsync(m => m.Id, m => m.Name, ct);
         var payerIds = ledger.Entries.Where(e => e.PaidByPatientId is not null).Select(e => e.PaidByPatientId!.Value).Distinct().ToList();
         var payers = await db.Patients.AsNoTracking().Where(p => payerIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => $"{p.FirstName} {p.LastName}", ct);
-        var open = BillingLedgerMath.OpenCharges(math, maths).ToDictionary(o => o.Charge, o => o.Open);
+        var releases = ledger.MathReleases;
+        var open = BillingLedgerMath.OpenCharges(math, maths, releases).ToDictionary(o => o.Charge, o => o.Open);
 
         var views = new List<BillingEntryView>();
         var standing = new List<BillingEntryStanding>();
@@ -38,18 +39,19 @@ public partial class BillingService
             var isCharge = e.Kind == BillingKinds.Charge;
             var isPayment = e.Kind == BillingKinds.Payment;
             views.Add(new BillingEntryView(e.EntryNumber, e.Kind, e.Amount, running[i], e.PlanItemId, e.ProcedureCode, e.ProcedureDescription, e.PaymentMethod, e.Reason, e.RecordedAtUtc,
-                ClinicalNames.Name(names, e.RecordedByUserId), ReversesEntryNumber: e.ReversesEntryId is Guid id ? ledger.NumberOf(id) : null,
+                ClinicalNames.Name(names, e.RecordedByUserId), ReversesEntryNumber: e.ReversesEntryId is Guid id ? ledger.NumberOf(id) : null, RefundsEntryNumber: e.RefundsEntryId is Guid rf ? ledger.NumberOf(rf) : null, ReplacesEntryNumber: e.ReplacesEntryId is Guid rp ? ledger.NumberOf(rp) : null,
                 PaymentMethodName: e.PaymentMethodId is Guid m && methods.TryGetValue(m, out var mn) ? mn : e.PaymentMethod,
                 PaidByName: e.PaidByPatientId is Guid p && payers.TryGetValue(p, out var pn) ? pn : null));
             standing.Add(new BillingEntryStanding(e.EntryNumber, reversed.ContainsKey(e.Id), reversed.TryGetValue(e.Id, out var by) ? by : null,
-                isCharge ? BillingLedgerMath.Paid(math, maths, e.EntryNumber) : null, isCharge ? open.GetValueOrDefault(e.EntryNumber) : null,
-                isPayment ? BillingLedgerMath.Applied(maths, e.EntryNumber) : null, isPayment ? BillingLedgerMath.Unapplied(math, maths, e.EntryNumber) : null));
+                isCharge ? BillingLedgerMath.Paid(math, maths, e.EntryNumber, releases) : null, isCharge ? open.GetValueOrDefault(e.EntryNumber) : null,
+                isPayment ? BillingLedgerMath.Applied(maths, e.EntryNumber, releases) : null, isPayment ? BillingLedgerMath.Unapplied(math, maths, e.EntryNumber, releases) : null,
+                isPayment ? BillingLedgerMath.Refunded(math, e.EntryNumber) : null, isPayment ? BillingLedgerMath.Refundable(math, e.EntryNumber) : null));
         }
         var releasedPayments = BillingLedgerMath.Reversed(math);
         var allocationViews = ledger.Allocations.OrderBy(a => a.AllocationNumber)
             .Select(a => new BillingAllocationView(a.AllocationNumber, ledger.NumberOf(a.PaymentEntryId), ledger.NumberOf(a.ChargeEntryId), a.Amount, releasedPayments.Contains(ledger.NumberOf(a.PaymentEntryId)), a.AllocatedAtUtc,
-                ClinicalNames.Name(names, a.AllocatedByUserId))).ToList();
-        var unapplied = ledger.Entries.Where(e => e.Kind == BillingKinds.Payment).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(BillingLedgerMath.Unapplied(math, maths, e.EntryNumber))).Amount;
+                ClinicalNames.Name(names, a.AllocatedByUserId), ReleasedAmount: (a.Amount - ledger.Remaining(a)))).ToList();
+        var unapplied = ledger.Entries.Where(e => e.Kind == BillingKinds.Payment).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(BillingLedgerMath.Unapplied(math, maths, e.EntryNumber, releases))).Amount;
         var openTotal = open.Values.Aggregate(AppMoney.Zero, (sum, v) => sum + AppMoney.FromDecimal(v)).Amount;
         return new BillingAccountView(patientId, true, running.Count == 0 ? 0m : running[^1], AppMoney.Currency, Convert.ToBase64String(account.RowVersion), views, allocationViews, unapplied, openTotal, standing);
     }

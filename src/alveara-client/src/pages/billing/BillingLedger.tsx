@@ -6,6 +6,7 @@ import { standingOf, standingText } from "./billingLedgerView";
 function describe(e: BillingEntry): string {
   if (e.kind === "Charge") return `${e.procedureCode ?? ""} ${e.procedureDescription ?? ""}`.trim();
   if (e.kind === "Payment") return [e.paymentMethodName ?? e.paymentMethod, e.paidByName ? `paid by ${e.paidByName}` : null, e.reason].filter(Boolean).join(" - ");
+  if (e.kind === "Refund") return [e.paymentMethodName ?? e.paymentMethod, e.reason].filter(Boolean).join(" - ");
   return e.reason ?? "";
 }
 
@@ -14,6 +15,12 @@ interface Props {
   /** Set when the signed-in person may change the account: each entry then offers what can be done to it. */
   onReverse?: (entry: BillingEntry) => void;
   onApply?: (entry: BillingEntry) => void;
+  /** ALV-007-C02: hand money back, move what a payment pays, correct a payment or adjustment. Offered only to people who may change the account. */
+  onRefund?: (entry: BillingEntry) => void;
+  onMove?: (entry: BillingEntry) => void;
+  onCorrect?: (entry: BillingEntry) => void;
+  /** Preview a receipt for a payment (reading is enough). */
+  onReceipt?: (entry: BillingEntry) => void;
 }
 
 /**
@@ -21,8 +28,8 @@ interface Props {
  * reversed, paid, open, applied, unapplied); nothing is added up here. Entries are only ever added: there is no edit or delete, so a correction shows as a new adjustment or reversal that says why, and a reversed
  * entry stays visible with the entry that undid it.
  */
-export function BillingLedger({ account, onReverse, onApply }: Props) {
-  const actions = onReverse !== undefined || onApply !== undefined;
+export function BillingLedger({ account, onReverse, onApply, onRefund, onMove, onCorrect, onReceipt }: Props) {
+  const actions = onReverse !== undefined || onApply !== undefined || onRefund !== undefined || onMove !== undefined || onCorrect !== undefined || onReceipt !== undefined;
   return (
     <table className="alv-bill__table" aria-label="Account history">
       <thead>
@@ -35,7 +42,12 @@ export function BillingLedger({ account, onReverse, onApply }: Props) {
         {account.entries.map((e) => {
           const standing = standingOf(account, e.entryNumber);
           const text = standingText(e, standing);
-          const canReverse = onReverse && e.kind !== "Reversal" && !standing?.isReversed;
+          const refunded = (standing?.refundedAmount ?? 0) > 0;
+          const live = e.kind === "Payment" && !standing?.isReversed;
+          const canReverse = onReverse && e.kind !== "Reversal" && e.kind !== "Refund" && !standing?.isReversed && !refunded;
+          const canRefund = onRefund && live && (standing?.refundableAmount ?? 0) > 0;
+          const canMove = onMove && live && (standing?.appliedAmount ?? 0) > 0;
+          const canCorrect = onCorrect && !standing?.isReversed && !refunded && (e.kind === "Payment" || e.kind === "Adjustment");
           const canApply = onApply && e.kind === "Payment" && !standing?.isReversed && (standing?.unappliedAmount ?? 0) > 0;
           return (
             <tr key={e.entryNumber} className={standing?.isReversed ? "alv-bill__reversed" : undefined}>
@@ -49,6 +61,10 @@ export function BillingLedger({ account, onReverse, onApply }: Props) {
               {actions && (
                 <td>
                   {canApply && <button type="button" className="btn btn-outline-secondary" onClick={() => onApply(e)}>Apply payment {e.entryNumber}</button>}
+                  {canRefund && <button type="button" className="btn btn-outline-secondary" onClick={() => onRefund(e)}>Refund payment {e.entryNumber}</button>}
+                  {canMove && <button type="button" className="btn btn-outline-secondary" onClick={() => onMove(e)}>Move payment {e.entryNumber}</button>}
+                  {canCorrect && <button type="button" className="btn btn-outline-secondary" onClick={() => onCorrect(e)}>Correct entry {e.entryNumber}</button>}
+                  {onReceipt && live && <button type="button" className="btn btn-outline-secondary" onClick={() => onReceipt(e)}>Receipt for payment {e.entryNumber}</button>}
                   {canReverse && <button type="button" className="btn btn-outline-secondary" onClick={() => onReverse(e)}>Reverse entry {e.entryNumber}</button>}
                 </td>
               )}

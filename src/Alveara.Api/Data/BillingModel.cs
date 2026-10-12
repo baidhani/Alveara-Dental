@@ -46,36 +46,45 @@ internal static class BillingModel
             e.HasOne<BillingEntry>().WithMany().HasForeignKey(x => x.ReversesEntryId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<Architecture.Patients.Patient>().WithMany().HasForeignKey(x => x.PaidByPatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<BillingPaymentMethod>().WithMany().HasForeignKey(x => x.PaymentMethodId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<BillingEntry>().WithMany().HasForeignKey(x => x.RefundsEntryId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<BillingEntry>().WithMany().HasForeignKey(x => x.ReplacesEntryId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.AccountId, x.EntryNumber }).IsUnique();
             e.HasIndex(x => new { x.AccountId, x.IdempotencyKey }).IsUnique();
             // at most one charge per plan procedure (only charges carry a plan procedure), and an entry is reversed at most once (only reversals carry the entry they undo)
             e.HasIndex(x => x.PlanItemId).IsUnique().HasFilter("[PlanItemId] IS NOT NULL");
             e.HasIndex(x => x.ReversesEntryId).IsUnique().HasFilter("[ReversesEntryId] IS NOT NULL");
             e.HasIndex(x => x.CorrelationId).HasFilter("[CorrelationId] IS NOT NULL");
+            // ALV-007-C02: a payment is refunded in parts, so many refunds may name it; an entry is replaced at most once
+            e.HasIndex(x => x.RefundsEntryId).HasFilter("[RefundsEntryId] IS NOT NULL");
+            e.HasIndex(x => x.ReplacesEntryId).IsUnique().HasFilter("[ReplacesEntryId] IS NOT NULL");
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_BillingEntries_Immutable");
                 t.HasTrigger("TR_BillingEntries_Links");
                 t.HasTrigger("TR_BillingEntries_Reversals");
+                t.HasTrigger("TR_BillingEntries_Refunds");
                 t.HasCheckConstraint("CK_BillingEntries_Number", "[EntryNumber] >= 1");
                 t.HasCheckConstraint("CK_BillingEntries_Key", $"LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND {NoControl("IdempotencyKey")}");
                 t.HasCheckConstraint("CK_BillingEntries_Kind", $"[Kind] COLLATE Latin1_General_CS_AS IN ({In(BillingKinds.All)})");
                 t.HasCheckConstraint("CK_BillingEntries_Max", $"ABS([Amount]) <= {BillingLimits.AmountMax:F2}");
                 t.HasCheckConstraint("CK_BillingEntries_Sign",
-                    "([Kind] = 'Charge' AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] IN ('Adjustment', 'Reversal') AND [Amount] <> 0)");
+                    "([Kind] IN ('Charge', 'Refund') AND [Amount] > 0) OR ([Kind] = 'Payment' AND [Amount] < 0) OR ([Kind] IN ('Adjustment', 'Reversal') AND [Amount] <> 0)");
                 // only a charge names a plan procedure and carries its code and description
                 t.HasCheckConstraint("CK_BillingEntries_ChargeSource",
                     "([Kind] = 'Charge' AND [PlanItemId] IS NOT NULL AND [ProcedureCode] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureCode]))) > 0 AND [ProcedureDescription] IS NOT NULL AND LEN(LTRIM(RTRIM([ProcedureDescription]))) > 0) " +
                     "OR ([Kind] <> 'Charge' AND [PlanItemId] IS NULL AND [ProcedureCode] IS NULL AND [ProcedureDescription] IS NULL)");
                 t.HasCheckConstraint("CK_BillingEntries_Method",
-                    $"([Kind] = 'Payment' AND [PaymentMethod] IS NOT NULL AND [PaymentMethod] COLLATE Latin1_General_CS_AS IN ({In(BillingPaymentMethods.All)})) OR ([Kind] <> 'Payment' AND [PaymentMethod] IS NULL)");
+                    $"([Kind] IN ('Payment', 'Refund') AND [PaymentMethod] IS NOT NULL AND [PaymentMethod] COLLATE Latin1_General_CS_AS IN ({In(BillingPaymentMethods.All)})) OR ([Kind] NOT IN ('Payment', 'Refund') AND [PaymentMethod] IS NULL)");
                 // an adjustment and a reversal always say why; a charge carries no note; a payment's note is optional but never blank
                 t.HasCheckConstraint("CK_BillingEntries_Reason",
-                    "([Kind] IN ('Adjustment', 'Reversal') AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) " +
+                    "([Kind] IN ('Adjustment', 'Reversal', 'Refund') AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) " +
                     "OR ([Kind] = 'Payment' AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)) OR ([Kind] = 'Charge' AND [Reason] IS NULL)");
                 // ALV-007-C01: a reversal names the entry it undoes and nothing else does; who paid and which configured method are about payments only
                 t.HasCheckConstraint("CK_BillingEntries_Reverses", "([Kind] = 'Reversal' AND [ReversesEntryId] IS NOT NULL) OR ([Kind] <> 'Reversal' AND [ReversesEntryId] IS NULL)");
-                t.HasCheckConstraint("CK_BillingEntries_PaymentOnly", "[Kind] = 'Payment' OR ([PaidByPatientId] IS NULL AND [PaymentMethodId] IS NULL)");
+                // ALV-007-C02: who paid is about payments only (a refund goes back to the recorded payer, derived from the payment, never chosen); the configured method is about a payment or a refund (a refund always names one)
+                t.HasCheckConstraint("CK_BillingEntries_PaymentOnly", "([Kind] = 'Payment' OR [PaidByPatientId] IS NULL) AND ([Kind] IN ('Payment', 'Refund') OR [PaymentMethodId] IS NULL) AND ([Kind] <> 'Refund' OR [PaymentMethodId] IS NOT NULL)");
+                t.HasCheckConstraint("CK_BillingEntries_Refunds", "([Kind] = 'Refund' AND [RefundsEntryId] IS NOT NULL) OR ([Kind] <> 'Refund' AND [RefundsEntryId] IS NULL)");
+                t.HasCheckConstraint("CK_BillingEntries_Replaces", "[ReplacesEntryId] IS NULL OR [Kind] IN ('Payment', 'Adjustment')");
             });
         });
 
