@@ -479,3 +479,9 @@
   - Verification: the portal verified STORY-008 on 2026-10-11T22:47:43Z at `8da1119` (3 of 3 criteria, 130 points; portal sync `29411bb` shows `verification.state` verified).
   - Notes: no code changed. ALV-008-C01 (item 34) not started.
 
+
+- [x] ALV-008-C01 design approvals and execution-control update
+  - Date: 2026-10-11
+  - What changed: Item 34 now records the approved completion-set, concurrency, amendment, billing, chart-linkage, encounter and evidence decisions. Item 36, ALV-008-C02, is scheduled after ALV-007-C02 to retire state-only legacy completion paths and explicitly adopt historical completions before Gate D. Later execution items and control records were renumbered.
+  - Verification: execution-plan headings and EXECUTION_STATUS records are sequential 1–54; Gate D reference updated to ALV-016-C01 at item 38.
+  - Notes: no product implementation changed; ALV-008-C01 remains the next active engineering item.

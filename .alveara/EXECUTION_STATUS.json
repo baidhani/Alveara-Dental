@@ -3,9 +3,9 @@
   "generatedBy": "ALV-CONTROL bootstrap R02",
   "generatedAt": "2026-09-27T22:17:54.318Z",
   "counts": {
-    "totalActiveFirstReleaseRecords": 53,
+    "totalActiveFirstReleaseRecords": 54,
     "courseRecords": 19,
-    "alvRecords": 34
+    "alvRecords": 35
   },
   "records": [
     {
@@ -99,7 +99,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T22:06:40.000Z",
+      "completedAt": "2026-10-02T22:06:40Z",
       "reopened": {
         "reason": "ALV-011-C01 R01 review (.alveara/reviews/ALV-011-C01/R01.md) required the open contrast findings F1/F2 to be corrected at the responsible stories before Gate B. F1: .alv-notification--success is --color-success on --color-success-bg = 4.45:1 in the light theme (AA needs 4.5:1). A computed sweep of every Notification variant over every surface in both themes found the same class of defect in this story's files: the light-theme warning variant is 3.47:1, the dark success variant is 4.42:1 / 4.05:1 over surface / raised surface, the dark info variant is 4.39:1 over raised surface; the session-warning banner in AppShell.css uses the failing warning pair. Correction: text-only colour tokens and a contrast test that fails against the old values.",
         "reviewArtifact": ".alveara/reviews/ALV-011-C01/R01.md",
@@ -107,7 +107,7 @@
         "priorApprovedAttempt": "R03",
         "downstreamAssessment": "Colour-only: new text tokens (--color-success-text, --color-warning-text) are added, one dark-theme value (--color-info) is lightened, and four selectors are repointed. No component API, markup or behaviour changes. Completed descendants that use --color-info as text (Button secondary, shell links, patient workspace, duplicate panel, admin users) get a lighter colour in the dark theme only, which can only raise their contrast; the attempt must prove it with the full frontend suite, the existing contrast tests and the authenticated axe state scan. Page-local workarounds for F2 are removed by the ALV-002-C01 attempt, not here.",
         "resolvedByAttempt": "R04",
-        "resolvedAt": "2026-10-02T22:06:40.000Z"
+        "resolvedAt": "2026-10-02T22:06:40Z"
       },
       "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N001/R03.md: secondary-button hover/focus text no longer uses a dark-theme button-background colour; dark danger text raised to AA; contrast regression test pins every Button variant/state in both themes. Independent review pending per .alveara/gates/A/reviews/4b69d32.md."
     },
@@ -157,7 +157,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T23:01:20.000Z",
+      "completedAt": "2026-10-02T23:01:20Z",
       "reopened": {
         "reason": "ALV-N001 R04 and ALV-002-C01 R05 reviews (.alveara/reviews/ALV-N001/R04.md, .alveara/reviews/ALV-002-C01/R05.md) require the System Status page's stale-data banner to be corrected at its owner before Gate B: .status-stale-banner in SystemStatusPage.css paints --color-warning text on --color-warning-bg, 3.47:1 in the light theme (WCAG AA needs 4.5:1; the dark theme already passes). Correction: use the text-only --color-warning-text token added by ALV-N001 R04, with a contrast test over the page's text and status dots and a real-browser axe test that triggers the stale state.",
         "reviewArtifact": ".alveara/reviews/ALV-002-C01/R05.md",
@@ -165,7 +165,7 @@
         "priorApprovedAttempt": "R08",
         "downstreamAssessment": "Colour-only change to one banner's text on one page. No component API, markup, behaviour, backend contract or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs (Gate A route scans include /system-status) to demonstrate that.",
         "resolvedByAttempt": "R09",
-        "resolvedAt": "2026-10-02T23:01:20.000Z"
+        "resolvedAt": "2026-10-02T23:01:20Z"
       }
     },
     {
@@ -267,7 +267,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-03T00:12:38.000Z",
+      "completedAt": "2026-10-03T00:12:38Z",
       "reopened": {
         "reason": "ALV-002-C01 R05 review (.alveara/reviews/ALV-002-C01/R05.md) requires the login expired-session banner to be corrected at its owner before Gate B: .alv-login__banner--warning in LoginPage.css paints --color-warning text on a translucent tint that is not a design token (--color-warning-surface is undefined, so the browser paints the hard-coded fallback rgba(217,119,6,0.1)), 3.16:1 over the page background in the light theme (WCAG AA needs 4.5:1; dark passes). A computed check of the same banner family found the MFA-settings success message (inline styles in MfaSettingsPage.tsx) at 4.10:1 light and 4.40:1 over the dark raised surface. Correction: the text-only --color-warning-text / --color-success-text tokens added by ALV-N001 R04, a .alv-login__banner--success class replacing the inline style, a contrast test that resolves fallbacks, and a real-browser axe test of the warning and danger banners in both themes.",
         "reviewArtifact": ".alveara/reviews/ALV-002-C01/R05.md",
@@ -275,7 +275,7 @@
         "priorApprovedAttempt": "R07",
         "downstreamAssessment": "Colour-only change to the login banner family plus replacing one inline style with a CSS class (same element, same text). No component API, behaviour, backend contract or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite, the auth walkthrough (which signs in and confirms MFA on the real backend) and the Gate A route scans to demonstrate that.",
         "resolvedByAttempt": "R08",
-        "resolvedAt": "2026-10-03T00:12:38.000Z"
+        "resolvedAt": "2026-10-03T00:12:38Z"
       }
     },
     {
@@ -328,7 +328,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-09-30T21:15:00.000Z"
+      "completedAt": "2026-09-30T21:15:00Z"
     },
     {
       "schemaVersion": "2",
@@ -429,7 +429,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T22:31:05.000Z",
+      "completedAt": "2026-10-02T22:31:05Z",
       "reopened": {
         "reason": "ALV-011-C01 R01 review (.alveara/reviews/ALV-011-C01/R01.md) and ALV-N001 R04 review (.alveara/reviews/ALV-N001/R04.md) require finding F2 to be corrected at this story before Gate B: ConcurrencyConflictBanner's title uses --color-warning on --color-warning-bg, 3.46:1 in the light theme (AA needs 4.5:1). Three completed stories carry page-level overrides that paint the title in the body text colour (.cal-drawer in Calendar.css, .alv-workspace__form/__panel in PatientWorkspace.css, .flow-board in FlowBoard.css) and one test (patientWorkspaceContrast.test.ts) asserts that the shared title FAILS. Correction: the banner title uses the text-only --color-warning-text token added by ALV-N001 R04; the three overrides are removed and the stale test is replaced by a guard; both themes are revalidated on every page that shows the banner.",
         "reviewArtifact": ".alveara/reviews/ALV-N001/R04.md",
@@ -437,7 +437,7 @@
         "priorApprovedAttempt": "R04",
         "downstreamAssessment": "Colour-only change to one shared component's title text plus removal of three page-local overrides. Completed descendants that show the banner (ALV-003-C01 patient workspace, ALV-004-C01 calendar drawer, ALV-011-C01 visit board, the configuration and backup forms) change title colour from body text back to the warning text colour, which must pass AA in both themes; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs that render the banner. No descendant is marked REVALIDATION_REQUIRED if those pass.",
         "resolvedByAttempt": "R05",
-        "resolvedAt": "2026-10-02T22:31:05.000Z"
+        "resolvedAt": "2026-10-02T22:31:05Z"
       }
     },
     {
@@ -497,7 +497,7 @@
         ],
         "note": "Reviewer revalidation PASS: configuration pages with visible active and inactive rows, 0 critical/serious axe violations (default/hover/focus, both themes); original R03 approval identities unchanged."
       },
-      "completedAt": "2026-10-01T12:54:00.000Z",
+      "completedAt": "2026-10-01T12:54:00Z",
       "blockingIssuesResolvedInAttempt": "R03 - see .alveara/handoffs/ALV-N003/R03.md and R03-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 5, R02: 1) were corrected in their respective attempts; independently APPROVED at R03 per .alveara/reviews/ALV-N003/R03.md."
     },
     {
@@ -556,7 +556,7 @@
         ],
         "note": "Reviewer revalidation PASS: backup history/drills/notifications badges, 0 critical/serious axe violations (default/hover/focus, both themes), real backup/restore workflow 12/12; original R05 approval identities unchanged."
       },
-      "completedAt": "2026-10-03T00:47:13.000Z",
+      "completedAt": "2026-10-03T00:47:13Z",
       "blockingIssuesResolvedInAttempt": "R05 - see .alveara/handoffs/ALV-N004/R05.md and R05-evidence/ACCEPTANCE_EVIDENCE.md. All prior findings (R01: 4, R02: 2, R03: 1, R04: 1) were corrected in their respective attempts; independently APPROVED at R05 per .alveara/reviews/ALV-N004/R05.md.",
       "reopened": {
         "reason": "ALV-002-C01 R05, ALV-N002 R09 and ALV-001-C01 R08 reviews (.alveara/reviews/ALV-002-C01/R05.md, .alveara/reviews/ALV-N002/R09.md, .alveara/reviews/ALV-001-C01/R08.md) require two corrections at this story before Gate B: (1) .alv-backup-check--warn in BackupRecoveryPage.css paints --color-warning text straight on the page surface, 3.51:1 over the light page background and 3.08:1 on a warning tint (WCAG AA needs 4.5:1; dark passes); (2) the ALV-N002 R09 reviewer observed BackupRecoveryPage.test.tsx 'presents a stale settings save with the shared conflict banner' fail intermittently in a full-suite run (passes in isolation), and it must be made deterministic. Correction: (1) the text-only --color-warning-text token added by ALV-N001 R04 with a contrast test over every text/alert pairing on the page and a real-browser axe test of the warning alerts and the restore wizard's check lines; (2) root-cause the flake and fix it at its cause.",
@@ -565,7 +565,7 @@
         "priorApprovedAttempt": "R05",
         "downstreamAssessment": "Colour-only change to one status line on the backup page, plus a behavioural fix inside the backup page's own loading logic (permission changes after the first load refresh in place instead of re-running the blocking load). No backend contract, shared component or shared token changes, so no completed descendant is marked REVALIDATION_REQUIRED; the attempt must run the full frontend suite, the mocked browser suite and the real-backend walkthroughs (the auth walkthrough exercises backup and recovery-key flows) to demonstrate that.",
         "resolvedByAttempt": "R06",
-        "resolvedAt": "2026-10-03T00:47:13.000Z"
+        "resolvedAt": "2026-10-03T00:47:13Z"
       }
     },
     {
@@ -665,7 +665,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T02:53:28.000Z"
+      "completedAt": "2026-10-02T02:53:28Z"
     },
     {
       "schemaVersion": "2",
@@ -715,7 +715,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T04:37:50.000Z"
+      "completedAt": "2026-10-02T04:37:50Z"
     },
     {
       "schemaVersion": "2",
@@ -815,7 +815,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T16:06:10.000Z"
+      "completedAt": "2026-10-02T16:06:10Z"
     },
     {
       "schemaVersion": "2",
@@ -915,7 +915,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-02T21:34:06.000Z"
+      "completedAt": "2026-10-02T21:34:06Z"
     },
     {
       "schemaVersion": "2",
@@ -1015,7 +1015,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-04T02:12:30.000Z"
+      "completedAt": "2026-10-04T02:12:30Z"
     },
     {
       "schemaVersion": "2",
@@ -1065,7 +1065,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-04T14:42:36.000Z"
+      "completedAt": "2026-10-04T14:42:36Z"
     },
     {
       "schemaVersion": "2",
@@ -1165,7 +1165,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-05T04:35:48.000Z"
+      "completedAt": "2026-10-05T04:35:48Z"
     },
     {
       "schemaVersion": "2",
@@ -1213,7 +1213,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-05T14:22:15.350Z",
+      "completedAt": "2026-10-05T14:22:15.35Z",
       "externalVerification": "course_portal",
       "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 26354bdbf89a7575cc293aebc65e5ff0eab1f2eb - see .colaberry/progress.json (STORY-012.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-05T14:22:15.350Z; portal sync commit 08190c9)."
     },
@@ -1265,7 +1265,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-05T20:38:15.000Z"
+      "completedAt": "2026-10-05T20:38:15Z"
     },
     {
       "schemaVersion": "2",
@@ -1366,7 +1366,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-06T17:43:04.000Z"
+      "completedAt": "2026-10-06T17:43:04Z"
     },
     {
       "schemaVersion": "2",
@@ -1415,7 +1415,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": "2026-10-08T16:18:16.000Z"
+      "completedAt": "2026-10-08T16:18:16Z"
     },
     {
       "schemaVersion": "2",
@@ -1823,15 +1823,66 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 36,
+      "phase": "Treatment & Finance",
+      "storyId": "ALV-008-C02",
+      "storyType": "companion",
+      "parentCourseStory": "STORY-008",
+      "dependencies": [
+        "STORY-008",
+        "ALV-008-C01",
+        "ALV-007-C02"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate D"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 6,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "not_started",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.2",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 37,
       "phase": "Treatment & Finance",
       "storyId": "STORY-016",
       "storyType": "course",
       "parentCourseStory": null,
       "dependencies": [
+        "ALV-008-C02",
         "ALV-007-C02"
       ],
       "optional": false,
@@ -1875,7 +1926,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 37,
+      "num": 38,
       "phase": "Treatment & Finance",
       "storyId": "ALV-016-C01",
       "storyType": "companion",
@@ -1926,7 +1977,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 38,
+      "num": 39,
       "phase": "Operations & Data",
       "storyId": "STORY-010",
       "storyType": "course",
@@ -1975,7 +2026,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 39,
+      "num": 40,
       "phase": "Operations & Data",
       "storyId": "ALV-010-C01",
       "storyType": "companion",
@@ -2027,7 +2078,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 40,
+      "num": 41,
       "phase": "Operations & Data",
       "storyId": "STORY-009",
       "storyType": "course",
@@ -2076,7 +2127,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 41,
+      "num": 42,
       "phase": "Operations & Data",
       "storyId": "ALV-009-C01",
       "storyType": "companion",
@@ -2127,7 +2178,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 42,
+      "num": 43,
       "phase": "Operations & Data",
       "storyId": "ALV-009-C02",
       "storyType": "companion",
@@ -2177,7 +2228,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 43,
+      "num": 44,
       "phase": "Operations & Data",
       "storyId": "STORY-017",
       "storyType": "course",
@@ -2226,7 +2277,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 44,
+      "num": 45,
       "phase": "Operations & Data",
       "storyId": "ALV-017-C01",
       "storyType": "companion",
@@ -2277,7 +2328,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 45,
+      "num": 46,
       "phase": "Operations & Data",
       "storyId": "STORY-018",
       "storyType": "course",
@@ -2326,7 +2377,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 46,
+      "num": 47,
       "phase": "Operations & Data",
       "storyId": "ALV-018-C01",
       "storyType": "companion",
@@ -2377,7 +2428,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 47,
+      "num": 48,
       "phase": "Operations & Data",
       "storyId": "ALV-018-C02",
       "storyType": "companion",
@@ -2429,7 +2480,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 48,
+      "num": 49,
       "phase": "Operations & Data",
       "storyId": "ALV-N006",
       "storyType": "new_production",
@@ -2480,7 +2531,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 49,
+      "num": 50,
       "phase": "Optional AI",
       "storyId": "ALV-N007",
       "storyType": "new_production",
@@ -2531,7 +2582,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 50,
+      "num": 51,
       "phase": "Optional AI",
       "storyId": "ALV-N012",
       "storyType": "new_production",
@@ -2582,7 +2633,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 51,
+      "num": 52,
       "phase": "Release Engineering",
       "storyId": "ALV-N013",
       "storyType": "new_production",
@@ -2632,7 +2683,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 52,
+      "num": 53,
       "phase": "Release Engineering",
       "storyId": "ALV-N014",
       "storyType": "new_production",
@@ -2686,7 +2737,7 @@
         "executionIndexVersion": "1.2",
         "handoffSchemaVersion": "2"
       },
-      "num": 53,
+      "num": 54,
       "phase": "Release Engineering",
       "storyId": "ALV-N008",
       "storyType": "new_production",

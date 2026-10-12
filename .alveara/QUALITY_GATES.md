@@ -63,7 +63,7 @@ Format per criterion: **Method** (test/measurement) · **Environment/Dataset** �
 
 ## Gate D — Treatment Completion and Financial Core Ready
 
-*Stop point after item 37 (`ALV-016-C01`). Do not begin Operations & Data (item 38, `STORY-010`) until this gate passes.*
+*Stop point after item 38 (`ALV-016-C01`). Do not begin Operations & Data (item 39, `STORY-010`) until this gate passes. Item 36 (`ALV-008-C02`) retires legacy completion paths before STORY-016 and Gate D evaluation.*
 
 | # | Criterion | Method | Environment/Dataset | Threshold/Rubric | Current State | Evidence | Date | Notes |
 |---|---|---|---|---|---|---|---|---|
