@@ -500,3 +500,10 @@
   - Verification: the numbers in the handoff are the ones recorded in the implementation entry above (backend 3035 of 3035, vitest 1373 of 1373, mocked e2e 136 of 136, repository checks 8 of 8, 258 real-backend walkthrough tests in 24 runs, fifteen negative controls caught); the ZIP is validated by listing it after the status commit.
   - Notes: the story is not complete until a review-closure commit records it COMPLETE; the coding agent never declares that. Disclosed in the handoff: the surviving mutant 1 and the test that closed it, the unreproducible closing line of its rerun, the intermittent vitest failure in an untouched file, the catalog entry added outside the story's code, the second legacy control found late, and the limitations (legacy completions stay until ALV-008-C02, the acceptance rule compares with the recorded time, an ambiguous chart match refuses the whole set, completed is final). Not pushed.
 
+- [x] ALV-008-C01: review approval recorded, story set to COMPLETE (records only; not pushed)
+  - Date: 2026-10-12
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/reviews/ALV-008-C01/R01.md` (stored unchanged), `.alveara/EXECUTION_STATUS.json` item 34 to COMPLETE (review APPROVED, approved attempt R01, reviewed implementation `9bc1df8` and evidence `90ee5b8`), `.alveara/BUILD_STATE.md` (two lines and the section heading).
+  - Verification: the independent review of attempt R01 is APPROVED and names the same story, attempt, ZIP hash, implementation, evidence and status commits as the package; the package hash was re-checked before recording.
+  - Notes: no code changed. The next execution item is 35 (ALV-007-C02), then 36 (ALV-008-C02) before STORY-016; none is started.
+

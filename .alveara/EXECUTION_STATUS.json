@@ -1740,7 +1740,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -1756,18 +1756,18 @@
       "evidenceCommit": "90ee5b863fbd883953bfab4de6974935d105332b",
       "handoffPath": ".alveara/handoffs/ALV-008-C01/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
-        "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-008-C01/R01.md",
+        "approvedAttempt": "R01",
+        "reviewedImplementationCommit": "9bc1df833915289d30eac6c4c62d683f2fd1d405",
+        "reviewedEvidenceCommit": "90ee5b863fbd883953bfab4de6974935d105332b"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": "2026-10-12T13:09:43Z"
     },
     {
       "schemaVersion": "2",
