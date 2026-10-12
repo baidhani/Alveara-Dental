@@ -1753,7 +1753,7 @@
       "demo": "verified",
       "parentRegression": "verified",
       "implementationCommit": "9bc1df833915289d30eac6c4c62d683f2fd1d405",
-      "evidenceCommit": null,
+      "evidenceCommit": "90ee5b863fbd883953bfab4de6974935d105332b",
       "handoffPath": ".alveara/handoffs/ALV-008-C01/R01.md",
       "review": {
         "decision": "pending",
