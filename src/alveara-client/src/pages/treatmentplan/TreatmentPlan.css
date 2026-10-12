@@ -36,3 +36,9 @@
   .alv-tp__no-print { display: none !important; }
 }
 .alv-tp__references { margin-top: 1.5rem; }
+
+/* ALV-008-C01: the completion review table and the legacy completion note. The legacy control is deliberately quiet and says in words what it does not record. */
+.alv-tp__review { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+.alv-tp__review th, .alv-tp__review td { text-align: left; vertical-align: top; padding: 0.375rem 0.5rem; border-bottom: 1px solid var(--color-border, #dde2e8); font-weight: normal; }
+.alv-tp__review thead th { font-weight: 600; }
+.alv-tp__legacy { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border, #dde2e8); }

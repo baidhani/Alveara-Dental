@@ -6,6 +6,7 @@ import { planFieldErrorsOf, renameTreatmentPlan, withdrawPlanItem, withdrawTreat
 import type { PlanItem, PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { TreatmentPlanAddItemForm } from "./TreatmentPlanAddItemForm";
 import { TreatmentPlanCompleteAccepted } from "./TreatmentPlanCompleteAccepted";
+import { TreatmentPlanReviewComplete } from "./TreatmentPlanReviewComplete";
 import { TreatmentPlanDecisionForm } from "./TreatmentPlanDecisionForm";
 import { TreatmentPlanReasonForm } from "./TreatmentPlanReasonForm";
 import { TreatmentPlanReferenceCodeForm } from "./TreatmentPlanReferenceCodeForm";
@@ -67,13 +68,14 @@ function RenameForm({ plan, onChanged, onConflict, onCancel }: ChangeProps & { p
   );
 }
 
-type Mode = "add" | "rename" | "revise" | "code" | "accept" | "decline" | "complete" | "withdraw" | null;
+type Mode = "add" | "rename" | "revise" | "code" | "accept" | "decline" | "complete" | "review" | "withdraw" | null;
 
 interface Props extends ChangeProps { plan: TreatmentPlan; diagnoses: Diagnosis[]; procedures: PlanningProcedure[] }
 
 /** What a person who may change plans can do with one that is still Proposed: add a procedure, revise its content (phases, rationale, explanation), rename it, give it a reference code, or withdraw it with a reason. One form is open at a time. */
 export function TreatmentPlanActions({ plan, diagnoses, procedures, onChanged, onConflict }: Props) {
   const [mode, setMode] = useState<Mode>(null);
+  const uid = useId();
   const done = (p: TreatmentPlan, text: string) => { setMode(null); onChanged(p, text); };
   const cancel = () => setMode(null);
 
@@ -85,16 +87,23 @@ export function TreatmentPlanActions({ plan, diagnoses, procedures, onChanged, o
           <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("revise")}>Revise plan</button>
           {plan.acceptanceStatus !== "Accepted" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("accept")}>Accept all pending</button>}
           {plan.acceptanceStatus !== "Declined" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("decline")}>Decline all pending</button>}
-          {acceptedOpenItems(plan).length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => setMode("complete")}>Complete accepted procedures</button>}
+          {acceptedOpenItems(plan).length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => setMode("review")}>Review and complete…</button>}
           <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("rename")}>Rename plan</button>
           {plan.referenceCode === null && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("code")}>Set reference code</button>}
           <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("withdraw")}>Withdraw plan</button>
+        </div>
+      )}
+      {mode === null && acceptedOpenItems(plan).length > 0 && (
+        <div className="alv-tp__legacy" role="group" aria-label="Legacy completion">
+          <span className="alv-clinical__meta"><strong>Legacy completion.</strong> <span id={`${uid}-legacy`}>Marks the accepted procedures completed only: it records no provider, encounter, chart change or charge. Use Review and complete instead.</span></span>
+          <button type="button" className="btn btn-outline-secondary btn-sm" aria-describedby={`${uid}-legacy`} onClick={() => setMode("complete")}>Complete accepted procedures</button>
         </div>
       )}
       {mode === "add" && <TreatmentPlanAddItemForm plan={plan} diagnoses={diagnoses} procedures={procedures} onDone={(p) => done(p, "Procedure added to the plan.")} onConflict={onConflict} onCancel={cancel} />}
       {mode === "accept" && <TreatmentPlanDecisionForm plan={plan} decision="Accepted" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "decline" && <TreatmentPlanDecisionForm plan={plan} decision="Declined" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "complete" && <TreatmentPlanCompleteAccepted plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
+      {mode === "review" && <TreatmentPlanReviewComplete plan={plan} onChanged={onChanged} onConflict={onConflict} onClose={cancel} />}
       {mode === "revise" && <TreatmentPlanReviseForm plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "code" && <TreatmentPlanReferenceCodeForm plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "rename" && <RenameForm plan={plan} onChanged={done} onConflict={onConflict} onCancel={cancel} />}

@@ -259,6 +259,14 @@ export interface ClinicalHistoryEntry {
   completedByName: string;
   completedAtUtc: string;
   planRevisionAtCompletion: number;
+  /** ALV-008-C01: filled only for a procedure completed through the authoritative workflow; null for one completed the old way. */
+  completedProcedureId?: string | null;
+  providerName?: string | null;
+  performedAtUtc?: string | null;
+  encounterId?: string | null;
+  chargeEntryNumber?: number | null;
+  chargeAmount?: number | null;
+  chartOutcome?: string | null;
 }
 
 export const getClinicalHistory = (patientId: string, signal?: AbortSignal) =>

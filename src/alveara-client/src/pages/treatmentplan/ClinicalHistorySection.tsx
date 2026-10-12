@@ -33,6 +33,13 @@ export function ClinicalHistorySection({ patientId, refreshKey }: { patientId: s
               <li key={e.itemId} className="alv-dx__item">
                 <strong>{e.procedureCode}</strong> {e.procedureDescription}{e.toothKey ? ` · tooth ${e.toothKey}` : ""}{e.surface ? ` · surface ${e.surface}` : ""}
                 <p className="alv-clinical__meta">Completed by {e.completedByName} on {when(e.completedAtUtc)} · from {e.planTitle}, revision {e.planRevisionAtCompletion}</p>
+                {e.completedProcedureId && (
+                  <p className="alv-clinical__meta">
+                    Performed by {e.providerName} on {when(e.performedAtUtc!)}
+                    {e.chargeEntryNumber ? ` · charged $${(e.chargeAmount ?? 0).toFixed(2)} (account entry ${e.chargeEntryNumber})` : " · no charge"}
+                    {e.chartOutcome === "Updated" ? " · chart finding completed" : ""}
+                  </p>
+                )}
               </li>
             ))}
           </ul>

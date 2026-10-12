@@ -121,15 +121,7 @@ public partial class TreatmentPlanService
         }
         RequireCurrent(plan, version);
 
-        var now = clock.UtcNow;
-        var number = await NextEventAsync(planId, ct);
-        foreach (var item in open)
-        {
-            var previous = states[item.Id];
-            StageState(plan, item.Id, previous, ItemAcceptance.Accepted, SchedulingOf(previous), ItemCompletion.Completed, previous.PlannedDate, null, previous.DecidedByName, actor, now);
-            StageEvent(plan, number++, TreatmentPlanChanges.ItemCompleted, item.Id, null, null, actor, now, plan.CurrentRevision);
-            AuditService.Record(db, "TreatmentPlanItemCompleted", nameof(TreatmentPlan), planId, actor, $"Item {item.ItemNumber} completed in a treatment plan.");
-        }
+        await StageCompletionsAsync(plan, open, states, actor, clock.UtcNow, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }

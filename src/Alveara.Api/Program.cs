@@ -95,6 +95,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.ProcedureCatalogS
 builder.Services.AddScoped<Alveara.Api.Architecture.Billing.BillingService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Billing.IProcedureCharging>(sp => sp.GetRequiredService<Alveara.Api.Architecture.Billing.BillingService>());   // the contract ALV-008-C01 calls
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.TreatmentPlanService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Completion.CompletedProcedureService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Treatment.DiagnosisReconciliationService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Safety.ClearanceService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentScheduler>();

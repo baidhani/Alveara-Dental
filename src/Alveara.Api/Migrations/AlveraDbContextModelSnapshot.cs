@@ -1820,6 +1820,247 @@ namespace Alveara.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Completion.CompletedProcedure", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ChartOutcome")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<Guid>("EncounterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("FinalizedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("FinalizedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("PerformedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlanItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PlanRevisionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProcedureVersionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProviderProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Surface")
+                        .HasMaxLength(1)
+                        .HasColumnType("nchar(1)")
+                        .IsFixedLength();
+
+                    b.Property<Guid?>("ToothFindingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ToothKey")
+                        .HasMaxLength(2)
+                        .HasColumnType("nchar(2)")
+                        .IsFixedLength();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EncounterId");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("PlanItemId")
+                        .IsUnique();
+
+                    b.HasIndex("ProcedureVersionId");
+
+                    b.HasIndex("ProviderProfileId");
+
+                    b.HasIndex("SetId");
+
+                    b.HasIndex("ToothFindingId");
+
+                    b.HasIndex("PatientId", "PerformedAtUtc");
+
+                    b.ToTable("CompletedProcedures", t =>
+                        {
+                            t.HasTrigger("TR_CompletedProcedures_Immutable");
+
+                            t.HasTrigger("TR_CompletedProcedures_Links");
+
+                            t.HasCheckConstraint("CK_CompletedProcedures_Chart", "[ChartOutcome] COLLATE Latin1_General_CS_AS IN ('Updated','AlreadyCompleted','NotApplicable') AND (([ChartOutcome] = 'NotApplicable' AND [ToothFindingId] IS NULL) OR ([ChartOutcome] <> 'NotApplicable' AND [ToothFindingId] IS NOT NULL))");
+
+                            t.HasCheckConstraint("CK_CompletedProcedures_Performed", "[PerformedAtUtc] >= '2000-01-01' AND [PerformedAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_CompletedProcedures_Revision", "[PlanRevisionNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_CompletedProcedures_Surface", "[Surface] IS NULL OR [ToothKey] IS NOT NULL");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Completion.CompletedProcedureAmendment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AmendedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("AmendedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AmendmentNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CompletedProcedureId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("EncounterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("PerformedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ProviderProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EncounterId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("ProviderProfileId");
+
+                    b.HasIndex("CompletedProcedureId", "AmendmentNumber")
+                        .IsUnique();
+
+                    b.HasIndex("CompletedProcedureId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("CompletedProcedureAmendments", t =>
+                        {
+                            t.HasTrigger("TR_CompletedProcedureAmendments_Immutable");
+
+                            t.HasTrigger("TR_CompletedProcedureAmendments_Links");
+
+                            t.HasCheckConstraint("CK_CompletedProcedureAmendments_Changes", "[ProviderProfileId] IS NOT NULL OR [PerformedAtUtc] IS NOT NULL OR [EncounterId] IS NOT NULL");
+
+                            t.HasCheckConstraint("CK_CompletedProcedureAmendments_Hash", "LEN([RequestHash]) = 64 AND [RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%'");
+
+                            t.HasCheckConstraint("CK_CompletedProcedureAmendments_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_CompletedProcedureAmendments_Number", "[AmendmentNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_CompletedProcedureAmendments_Performed", "[PerformedAtUtc] IS NULL OR ([PerformedAtUtc] >= '2000-01-01' AND [PerformedAtUtc] < '2200-01-01')");
+
+                            t.HasCheckConstraint("CK_CompletedProcedureAmendments_Reason", "LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Completion.CompletionSet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("ItemCount")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PlanRevisionNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("PlanId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("CompletionSets", t =>
+                        {
+                            t.HasTrigger("TR_CompletionSets_Immutable");
+
+                            t.HasTrigger("TR_CompletionSets_Links");
+
+                            t.HasCheckConstraint("CK_CompletionSets_Counts", "[ItemCount] >= 1 AND [PlanRevisionNumber] >= 1");
+
+                            t.HasCheckConstraint("CK_CompletionSets_Hash", "LEN([RequestHash]) = 64 AND [RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%'");
+
+                            t.HasCheckConstraint("CK_CompletionSets_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Configuration.AppointmentType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5205,6 +5446,96 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Clinical.NoteTemplate", null)
                         .WithMany()
                         .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Completion.CompletedProcedure", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Clinical.Encounter", null)
+                        .WithMany()
+                        .HasForeignKey("EncounterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
+                        .WithMany()
+                        .HasForeignKey("PlanItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Procedures.ProcedureVersion", null)
+                        .WithMany()
+                        .HasForeignKey("ProcedureVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.ProviderProfile", null)
+                        .WithMany()
+                        .HasForeignKey("ProviderProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Completion.CompletionSet", null)
+                        .WithMany()
+                        .HasForeignKey("SetId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Odontogram.ToothFinding", null)
+                        .WithMany()
+                        .HasForeignKey("ToothFindingId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Completion.CompletedProcedureAmendment", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Completion.CompletedProcedure", null)
+                        .WithMany()
+                        .HasForeignKey("CompletedProcedureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Clinical.Encounter", null)
+                        .WithMany()
+                        .HasForeignKey("EncounterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.ProviderProfile", null)
+                        .WithMany()
+                        .HasForeignKey("ProviderProfileId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Completion.CompletionSet", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

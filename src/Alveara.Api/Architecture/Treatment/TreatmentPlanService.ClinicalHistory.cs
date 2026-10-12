@@ -3,10 +3,14 @@ using Alveara.Api.Architecture.Clinical;
 
 namespace Alveara.Api.Architecture.Treatment;
 
-/// <summary>One completed procedure in a patient's clinical history, read from the completion record of the plan it was planned in.</summary>
+/// <summary>
+/// One completed procedure in a patient's clinical history, read from the completion record of the plan it was planned in. The last seven fields are filled only when the procedure was completed through the
+/// authoritative workflow (ALV-008-C01): its current provider, performed time and encounter, its charge and what happened to the chart. They are null for one completed the old way.
+/// </summary>
 public sealed record ClinicalHistoryEntryView(
     Guid PlanId, string PlanTitle, Guid ItemId, int ItemNumber, string ProcedureCodeSystem, string ProcedureCode, string ProcedureDescription,
-    string? ToothKey, string? Surface, string CompletedByName, DateTimeOffset CompletedAtUtc, int PlanRevisionAtCompletion);
+    string? ToothKey, string? Surface, string CompletedByName, DateTimeOffset CompletedAtUtc, int PlanRevisionAtCompletion,
+    Guid? CompletedProcedureId = null, string? ProviderName = null, DateTimeOffset? PerformedAtUtc = null, Guid? EncounterId = null, int? ChargeEntryNumber = null, decimal? ChargeAmount = null, string? ChartOutcome = null);
 
 public partial class TreatmentPlanService
 {

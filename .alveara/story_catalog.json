@@ -160,6 +160,11 @@
       "subsystem": "Clinical Care"
     },
     {
+      "storyId": "ALV-008-C02",
+      "title": "Retire Legacy Completion Paths and Adopt Historical Completions",
+      "subsystem": "Clinical Care"
+    },
+    {
       "storyId": "ALV-007-C02",
       "title": "Statements, Receipts, Refunds, Financial Corrections, and Account UX Hardening",
       "subsystem": "Operations & Finance"

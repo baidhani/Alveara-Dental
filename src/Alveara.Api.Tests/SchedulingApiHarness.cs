@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Alveara.Api.Controllers;
 
@@ -29,8 +30,12 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         }
     }
 
+    /// <summary>Set before the first request to see what the API logs (a test that asserts a structured log event); left null, logging is as the host configures it.</summary>
+    public Action<Microsoft.Extensions.Logging.ILoggingBuilder>? ConfigureLogging { get; set; }
+
     public WebApplicationFactory<Program> Factory => _factory ??= new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
     {
+        if (ConfigureLogging is not null) builder.ConfigureLogging(ConfigureLogging);
         builder.UseSetting("ConnectionStrings:Alveara", fixture.ConnectionString);
         builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");

@@ -31,6 +31,7 @@ function CompleteConfirm({ plan, item, onDone, onCancel }: { plan: TreatmentPlan
   return (
     <form className="alv-dx__form" aria-label={`Mark ${item.procedureCode} completed`} onSubmit={(e) => { e.preventDefault(); void confirm(); }}>
       <p className="alv-clinical__meta">Completed is final: the answer and the schedule can no longer be changed, and the procedure stays on the plan.</p>
+      <p className="alv-clinical__meta"><strong>Legacy completion.</strong> This records only that the procedure is completed: no provider, encounter, chart change or charge. Use Review and complete on the plan instead.</p>
       {note && <p className="alv-dx__message" role="alert">{note}</p>}
       <div className="alv-clinical__row-actions">
         <button type="submit" className="btn btn-primary" disabled={busy}>Confirm completed</button>

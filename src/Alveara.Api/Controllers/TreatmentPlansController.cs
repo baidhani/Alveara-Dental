@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Alveara.Api.Architecture.Completion;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Treatment;
@@ -51,9 +52,22 @@ public record WithdrawPlanRequest(string? Reason, string? RowVersion);
 /// </summary>
 [ApiController]
 [Authorize]
-public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisReconciliationService reconciliation) : ControllerBase
+public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisReconciliationService reconciliation, CompletedProcedureService completion, ILogger<TreatmentPlansController> logger) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    /// <summary>
+    /// ALV-008-C01 (R1a): the two STORY-008 completion routes are legacy compatibility paths (state-only completion: no provider, encounter, chart effect or charge). This only records that one was used, as a
+    /// PHI-free structured event with the route, the outcome and the request's trace id, so their use can be measured before they are retired. It changes nothing about what the route returns or stores.
+    /// </summary>
+    private async Task<IActionResult> LegacyCompletion(string route, Func<Task<IActionResult>> action)
+    {
+        var result = await action();
+        var status = (result as Microsoft.AspNetCore.Mvc.Infrastructure.IStatusCodeActionResult)?.StatusCode ?? 200;
+        logger.LogInformation("legacy_completion_used route={Route} outcome={Outcome} status={Status} trace_id={TraceId}", route, status < 300 ? "success" : "failure", status,
+            System.Diagnostics.Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier);
+        return result;
+    }
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {
@@ -82,7 +96,7 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     [HttpGet("api/patients/{patientId:guid}/clinical-history")]
     [RequirePermission(Permission.ViewClinicalDocumentation)]
     public Task<IActionResult> ClinicalHistory(Guid patientId, CancellationToken ct) =>
-        Run(async () => Ok(new { patientId, entries = await plans.ClinicalHistoryAsync(patientId, ct) }));
+        Run(async () => Ok(new { patientId, entries = await completion.ClinicalHistoryAsync(patientId, ct) }));
 
     [HttpGet("api/treatment-plans/{planId:guid}")]
     [RequirePermission(Permission.ViewClinicalDocumentation)]
@@ -143,13 +157,13 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> CompleteAccepted(Guid planId, [FromBody] CompleteAcceptedRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await plans.CompleteAcceptedAsync(planId, request.RowVersion, Actor, ct)));
+        LegacyCompletion("complete-accepted", () => Run(async () => Ok(await plans.CompleteAcceptedAsync(planId, request.RowVersion, Actor, ct))));
 
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/complete")]
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> CompleteItem(Guid planId, Guid itemId, CancellationToken ct) =>
-        Run(async () => Ok(await plans.CompleteItemAsync(planId, itemId, Actor, ct)));
+        LegacyCompletion("items/complete", () => Run(async () => Ok(await plans.CompleteItemAsync(planId, itemId, Actor, ct))));
 
     [HttpPost("api/treatment-plans/{planId:guid}/reference-code")]
     [RequirePermission(Permission.ManageTreatmentPlans)]

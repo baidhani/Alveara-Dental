@@ -498,3 +498,16 @@ npx playwright test --config=playwright.treatment-plans-complete-accepted.config
 ```
 
 It shows: an empty clinical history that says what that means; the failure path (the audit write made to fail: "Nothing was completed", no audit or SQL words, nothing completed, and the same click working once the cause is gone); both accepted procedures completed in one step and listed with who and when while the declined one is not; a replay that changes nothing; a revision after completion that keeps revision 1 and the history; the plan log read back with who and when on every entry; an out-of-date second screen told nothing was completed; and the API refusing a hygienist (403), a missing CSRF token (400), a missing version (400) and a front-desk read of the history (403). Axe runs in light and dark on the failure message and on the history.
+
+## ALV-008-C01: completing procedures as one operation
+
+`e2e/completion-real-backend.spec.ts` is the un-mocked run for the review-and-complete screen, the clinical history with the completion detail, the corrections and the legacy button. Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "<the database the API is using>"
+$env:COMPLETION_E2E_OUT = "C:\tmp\completion-e2e"   # optional: where the JSON results and screenshots go
+npx playwright test --config=playwright.completion.config.ts
+```
+
+It signs in a dentist, a hygienist and a front-desk user (an administrator creates the catalog, the providers and acts as the second screen) and shows: the review listing what each procedure will do to the chart and the ledger (a no-fee procedure, a procedure whose chart match is ambiguous) and the legacy button labelled as legacy; the failure path (the audit write made to fail: "Nothing was completed", no audit or SQL words, nothing completed, and the same click working once it is back); the result with the charges, the chart finding Completed, the history and the ledger link; a replay and a second submission completing nothing twice; an out-of-date second screen told and completing nothing; a correction that keeps the original; the charge always the plan's fee whatever the request says; the legacy button recording only a state; and the API refusing a hygienist (403), front desk (403) and a missing CSRF token (400). Axe runs in light and dark on the review, the failure, the history and the ambiguity.

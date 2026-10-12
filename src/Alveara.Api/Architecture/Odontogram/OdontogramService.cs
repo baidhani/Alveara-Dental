@@ -87,14 +87,7 @@ public partial class OdontogramService(AlveraDbContext db, IPracticeClock clock)
         if (!OdontogramRules.CanMove(finding.State, to))
             throw new OdontogramException("invalid_transition", $"A finding that is {finding.State} cannot become {to}. If it was entered wrongly, withdraw it and record it again.", 409);
 
-        if (MakesToothAbsent(to) && await db.ConditionTypes.AsNoTracking().AnyAsync(c => c.Code == finding.Condition && c.ToothEffect == ToothEffects.Absent, ct))
-            await EnsureToothHasNoOtherFindingsAsync(finding.PatientId, finding.ToothKey, finding.Id, ct);
-
-        var now = clock.UtcNow;
-        finding.State = to;
-        Touch(finding, actor, now);
-        StageVersion(finding, await NextVersionAsync(findingId, ct), FindingChangeTypes.StateChanged, null, actor, now);
-        AuditService.Record(db, "ToothFindingStateChanged", nameof(ToothFinding), finding.Id, actor, "Tooth finding state changed.");
+        await StageMoveAsync(finding, to, actor, clock.UtcNow, ct);
         await SaveAsync(findingId, ct);
         return await ChartAsync(finding.PatientId, ct);
     }

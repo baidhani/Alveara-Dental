@@ -100,6 +100,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Billing.BillingAllocation> BillingAllocations => Set<Architecture.Billing.BillingAllocation>();
     public DbSet<Architecture.Billing.BillingResponsibility> BillingResponsibilities => Set<Architecture.Billing.BillingResponsibility>();
     public DbSet<Architecture.Billing.BillingPaymentMethod> BillingPaymentMethods => Set<Architecture.Billing.BillingPaymentMethod>();
+    public DbSet<Architecture.Completion.CompletionSet> CompletionSets => Set<Architecture.Completion.CompletionSet>();
+    public DbSet<Architecture.Completion.CompletedProcedure> CompletedProcedures => Set<Architecture.Completion.CompletedProcedure>();
+    public DbSet<Architecture.Completion.CompletedProcedureAmendment> CompletedProcedureAmendments => Set<Architecture.Completion.CompletedProcedureAmendment>();
     public DbSet<Architecture.Treatment.DiagnosisPlanResolution> DiagnosisPlanResolutions => Set<Architecture.Treatment.DiagnosisPlanResolution>();
     public DbSet<Architecture.Clinical.DiagnosisLink> DiagnosisLinks => Set<Architecture.Clinical.DiagnosisLink>();
     public DbSet<Architecture.Periodontal.PerioExam> PerioExams => Set<Architecture.Periodontal.PerioExam>();
@@ -504,6 +507,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         ProcedureModel.Configure(modelBuilder);
         TreatmentPlanModel.Configure(modelBuilder);
         BillingModel.Configure(modelBuilder);
+        CompletionModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {
