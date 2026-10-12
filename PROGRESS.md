@@ -507,3 +507,10 @@
   - Verification: the independent review of attempt R01 is APPROVED and names the same story, attempt, ZIP hash, implementation, evidence and status commits as the package; the package hash was re-checked before recording.
   - Notes: no code changed. The next execution item is 35 (ALV-007-C02), then 36 (ALV-008-C02) before STORY-016; none is started.
 
+- [x] ALV-007-C02 design approvals recorded (records only)
+  - Date: 2026-10-12
+  - Session: CC-20261008-k4q9
+  - What changed: `docs/design/ALV-007-C02_DESIGN_PROPOSAL.md` and `docs/design/ALV-007-C02_DESIGN_REVIEW_RESPONSE.md` (APPROVED WITH CHANGES) and the ten binding decisions the reviewer added to Item 35 of `GPT Docs/Alveara_Dental_Execution_Plan_v4.md` (append-only Refund kind and allocation-release rows; refund to the original payer only; allocation moves and payment/adjustment corrections atomic; documents derived at cut-offs with AsOfUtc, template version, a non-financial display envelope and a preview token that must match at issue; reprint fails safely on a hash mismatch; responsibility and aging resolved as of the document's AsOfUtc; one statement per account, cut-off only).
+  - Verification: the response names the proposal and the decisions D1-D10; the plan edit is the reviewer's (13 added lines in Item 35).
+  - Notes: no product code changed. ALV-007-C02 (item 35) is the active engineering item; implementation has not started.
+
