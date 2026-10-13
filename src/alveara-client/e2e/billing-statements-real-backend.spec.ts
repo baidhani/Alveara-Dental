@@ -280,6 +280,21 @@ test("TIMELINE AND AGING: the history reads in order with the completed procedur
   await expect(list.getByRole("listitem").filter({ hasText: "Receipt 1 issued" })).toBeVisible();
   await shot(page, "09-timeline-and-aging.png");
   await scanBothThemes(page, "timeline-and-aging");
+
+  // R02 (review finding ALV-007-C02-R01-01): the billing user follows a charge back to its source without any clinical permission
+  await expect(page.getByRole("link", { name: "Clinical history" })).toHaveCount(0);                  // billing alone offers no link into the clinical record
+  await page.getByRole("button", { name: "View source of charge 1" }).click();
+  const source = page.getByRole("group", { name: "Source of charge 1" });
+  await expect(source).toContainText("PERIO-1 Periodontal maintenance");
+  await expect(source).toContainText("Charge $120.00.");
+  await expect(source).toContainText("completed the old way");                                       // these procedures were completed with the old state-only button
+  await shot(page, "16-charge-source-for-a-billing-reader.png");
+  await scanBothThemes(page, "charge-source");
+  const sourceApi = await api(page, "get", `/api/patients/${annId}/billing/entries/1/source`);
+  expect(sourceApi.status).toBe(200);
+  expect(Object.keys(sourceApi.body).filter((k) => /provider|encounter|chart|diagnos|note|finding/i.test(k))).toEqual([]);
+  expect((await api(page, "get", `/api/patients/${annId}/completed-procedures`)).status).toBe(403);   // and the same role is still refused the clinical record
+  evidence.chargeSource = { status: sourceApi.status, keys: Object.keys(sourceApi.body), clinicalRecordStatus: 403 };
   const tl = (await api(page, "get", `/api/patients/${annId}/billing/timeline`)).body as any[];
   evidence.timelineTypes = tl.map((e) => e.type);
 });

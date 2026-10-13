@@ -34,7 +34,8 @@ Trigger numbers 51157 to 51171 belong to this story; **51172 and up are free**. 
 
 | Route | Permission | Notes |
 |---|---|---|
-| `GET api/patients/{id}/billing/timeline` | `ViewBilling` | every entry, application, release, change of responsible party and issued document in order; a charge names its completed procedure and carries `planItemId` and `completedProcedureId` (the screen links it to the patient's clinical history) |
+| `GET api/patients/{id}/billing/timeline` | `ViewBilling` | every entry, application, release, change of responsible party and issued document in order; a charge names its completed procedure and carries `planItemId` and `completedProcedureId`; the screen opens the charge's billing source (next row) and offers the direct link to the clinical history only to a person who may read the clinical record |
+| `GET api/patients/{id}/billing/entries/{n}/source` | `ViewBilling` | where charge `n` came from, in billing terms only: the procedure, tooth and surface, the charge, whether a completion record exists and when it was recorded, the performed time and whether it was amended; **no provider, encounter, chart effect, diagnosis or clinical wording**; 404 `source_not_found` for another patient's entry, a payment or an unknown number (added in attempt R02) |
 | `GET api/patients/{id}/billing/aging` | `ViewBilling` | live aging with the open charges |
 | `GET api/patients/{id}/billing/documents/preview?type=Statement\|Receipt[&paymentEntryNumber=n]` | `ViewBilling` | content, cut-offs, hash and `previewToken`; stores nothing |
 | `GET api/patients/{id}/billing/documents` | `ViewBilling` | issued documents |

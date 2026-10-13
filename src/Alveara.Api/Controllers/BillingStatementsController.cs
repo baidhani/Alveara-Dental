@@ -55,6 +55,11 @@ public class BillingStatementsController(BillingService billing) : ControllerBas
     [RequirePermission(Permission.ViewBilling)]
     public Task<IActionResult> Timeline(Guid patientId, CancellationToken ct) => Run(async () => Ok(await billing.GetTimelineAsync(patientId, ct)));
 
+    /// <summary>Where a charge came from, for a billing reader (the timeline links to it): the procedure and its completion in billing terms, with nothing clinical. 404 <c>source_not_found</c> for anything that is not a charge of this patient.</summary>
+    [HttpGet("api/patients/{patientId:guid}/billing/entries/{entryNumber:int}/source")]
+    [RequirePermission(Permission.ViewBilling)]
+    public Task<IActionResult> ChargeSource(Guid patientId, int entryNumber, CancellationToken ct) => Run(async () => Ok(await billing.GetChargeSourceAsync(patientId, entryNumber, ct)));
+
     [HttpGet("api/patients/{patientId:guid}/billing/aging")]
     [RequirePermission(Permission.ViewBilling)]
     public Task<IActionResult> Aging(Guid patientId, CancellationToken ct) => Run(async () => Ok(await billing.GetAgingAsync(patientId, ct)));

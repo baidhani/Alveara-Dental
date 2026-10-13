@@ -48,6 +48,12 @@ export interface IssuedDocument {
 }
 export interface IssuedDocumentDetail { document: IssuedDocument; statement: StatementContent | null; receipt: ReceiptContent | null; currentStatus: string[] }
 
+/** Where a charge came from, in billing terms only (no provider, encounter, chart effect or diagnosis): readable with billing permission, which is what the timeline needs. */
+export interface ChargeSource {
+  entryNumber: number; procedureCode: string; procedureDescription: string; toothKey: string | null; surface: string | null; chargeAmount: number; currency: string; chargeReversed: boolean;
+  completionRecorded: boolean; completedProcedureId: string | null; completedAtUtc: string | null; performedAtUtc: string | null; performedTimeAmended: boolean; correlationId: string | null;
+}
+
 export interface RefundInput { paymentEntryNumber: number; amount: number | null; method: string; reason: string }
 export interface MoveInput { paymentEntryNumber: number; releases: AllocationInput[]; allocations: AllocationInput[]; reason: string }
 export interface CorrectionInput { entryNumber: number; reason: string; amount: number | null; method?: string; note?: string | null }
@@ -64,6 +70,7 @@ export const correctEntry = (account: BillingAccount, idempotencyKey: string, in
   requestWithCsrf<BillingAccount>(`${base(account.patientId)}/corrections`, "POST", { idempotencyKey, rowVersion: account.rowVersion, ...input });
 
 export const getTimeline = (patientId: string, signal?: AbortSignal) => request<TimelineEvent[]>(`${base(patientId)}/timeline`, { signal });
+export const getChargeSource = (patientId: string, entryNumber: number, signal?: AbortSignal) => request<ChargeSource>(`${base(patientId)}/entries/${entryNumber}/source`, { signal });
 export const getAging = (patientId: string, signal?: AbortSignal) => request<AgingView>(`${base(patientId)}/aging`, { signal });
 
 export const previewDocument = (patientId: string, type: "Statement" | "Receipt", paymentEntryNumber?: number, signal?: AbortSignal) =>
@@ -78,6 +85,7 @@ export const documentCsvUrl = (patientId: string, documentId: string) => `${base
 
 /** Whether a response really is the shape asked for, so a screen never draws from a body that is something else. */
 export const isTimeline = (x: unknown): x is TimelineEvent[] => Array.isArray(x) && x.every((e) => typeof e === "object" && e !== null && typeof (e as TimelineEvent).type === "string");
+export const isChargeSource = (x: unknown): x is ChargeSource => typeof x === "object" && x !== null && typeof (x as ChargeSource).procedureCode === "string" && typeof (x as ChargeSource).completionRecorded === "boolean";
 export const isAgingView = (x: unknown): x is AgingView => typeof x === "object" && x !== null && typeof (x as AgingView).buckets === "object" && Array.isArray((x as AgingView).openCharges);
 export const isDocumentPreview = (x: unknown): x is DocumentPreview => typeof x === "object" && x !== null && typeof (x as DocumentPreview).previewToken === "string";
 export const isDocumentList = (x: unknown): x is IssuedDocument[] => Array.isArray(x) && x.every((d) => typeof d === "object" && d !== null && typeof (d as IssuedDocument).documentNumber === "number");

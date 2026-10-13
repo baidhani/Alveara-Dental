@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import type { PatientDetail } from "../../services/patientsApi";
 import type { BillingAccount, BillingEntry, BillingEntryStanding, PaymentMethod } from "../../services/billingApi";
-import type { AgingView, DocumentPreview, IssuedDocument, IssuedDocumentDetail, StatementContent, TimelineEvent } from "../../services/billingStatementsApi";
+import type { AgingView, ChargeSource, DocumentPreview, IssuedDocument, IssuedDocumentDetail, StatementContent, TimelineEvent } from "../../services/billingStatementsApi";
 import { BillingPanel } from "./BillingPanel";
 
 /**
@@ -74,7 +74,12 @@ interface Api {
   detail: () => Response;
   timeline: () => Response;
   aging: () => Response;
+  source: () => Response;
 }
+const chargeSource = (over: Partial<ChargeSource> = {}): ChargeSource => ({
+  entryNumber: 1, procedureCode: "PERIO-1", procedureDescription: "Periodontal maintenance", toothKey: null, surface: null, chargeAmount: 100, currency: "USD", chargeReversed: false,
+  completionRecorded: true, completedProcedureId: "cp1", completedAtUtc: "2030-01-01T09:00:00Z", performedAtUtc: "2030-01-01T08:30:00Z", performedTimeAmended: false, correlationId: "co1", ...over,
+});
 const agingView = (): AgingView => ({ asOfUtc: "2030-02-01T10:00:00Z", currency: "USD", buckets: aging, openCharges: statement().openCharges });
 const timelineOf = (): TimelineEvent[] => [
   { atUtc: "2030-01-01T10:00:00Z", type: "Charge", number: 1, summary: "Charge for PERIO-1 Periodontal maintenance", amount: 100, source: "Completed procedure performed 2030-01-01", actorName: "Beth Billing", planItemId: "i1", completedProcedureId: "cp1" },
@@ -82,7 +87,7 @@ const timelineOf = (): TimelineEvent[] => [
 ];
 
 function stubApi(over: Partial<Api> = {}): Api {
-  const api: Api = { account: paid(), calls: [], post: {}, preview: () => json(preview()), documents: [], detail: () => json(detailOf()), timeline: () => json(timelineOf()), aging: () => json(agingView()), ...over };
+  const api: Api = { account: paid(), calls: [], post: {}, preview: () => json(preview()), documents: [], detail: () => json(detailOf()), timeline: () => json(timelineOf()), aging: () => json(agingView()), source: () => json(chargeSource()), ...over };
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
     const u = String(url);
     const method = init?.method ?? "GET";
@@ -97,6 +102,7 @@ function stubApi(over: Partial<Api> = {}): Api {
     if (u.includes("/billing/responsibility")) return Promise.resolve(json({ patientId: P, responsiblePatientId: P, responsibleName: "Ann Alder", isSelf: true, source: "Self", effectiveFrom: null, rowVersion: "v1", history: [] }));
     if (u.includes("/billing/guarantor-summary")) return Promise.resolve(json({ error: "server_error", message: "boom" }, 500));
     if (u.includes("/api/billing/payment-methods")) return Promise.resolve(json(builtIns()));
+    if (/\/billing\/entries\/\d+\/source/.test(u)) return Promise.resolve(api.source());
     if (u.includes("/documents/preview")) return Promise.resolve(api.preview());
     if (/\/documents\/[^/]+$/.test(u)) return Promise.resolve(api.detail());
     if (u.includes("/billing/documents")) return Promise.resolve(json(api.documents));
@@ -108,8 +114,8 @@ function stubApi(over: Partial<Api> = {}): Api {
 }
 
 const posts = (api: Api, fragment: string) => api.calls.filter((c) => c.method === "POST" && c.url.includes(fragment));
-const openPanel = async (canWrite: boolean) => {
-  render(<BillingPanel patient={patient} canWrite={canWrite} />);
+const openPanel = async (canWrite: boolean, canViewClinical = false) => {
+  render(<BillingPanel patient={patient} canWrite={canWrite} canViewClinical={canViewClinical} />);
   await screen.findByRole("heading", { name: "Account history" });
 };
 const typeInto = async (label: string | RegExp, text: string) => userEvent.type(screen.getByLabelText(label), text);
@@ -313,9 +319,7 @@ describe("the timeline and aging", () => {
     expect(within(list).getByText(/Charge for PERIO-1 Periodontal maintenance/)).toBeInTheDocument();
     expect(within(list).getByText(/Completed procedure performed 2030-01-01/)).toBeInTheDocument();
     expect(within(list).getAllByRole("listitem")).toHaveLength(2);
-    const links = within(list).getAllByRole("link", { name: "Clinical history" });
-    expect(links).toHaveLength(1);                                                                    // only the charge that bills a completed procedure links back to its source
-    expect(links[0]).toHaveAttribute("href", `/patients/${P}/history`);
+    expect(within(list).queryByRole("link", { name: "Clinical history" })).not.toBeInTheDocument();      // billing permission alone offers no link to the clinical record
   });
 
   it("says the timeline could not be loaded rather than showing an empty history, and leaves aging out when it cannot be read", async () => {
@@ -325,6 +329,50 @@ describe("the timeline and aging", () => {
     await userEvent.click(screen.getByRole("button", { name: "Show the timeline" }));
     expect(await screen.findByText("Could not load the timeline.")).toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Account timeline" })).not.toBeInTheDocument();
+  });
+});
+
+describe("the source of a charge, for someone who can read billing but not the clinical record", () => {
+  it("opens the billing source of a charge from the timeline with no clinical permission, and shows nothing clinical", async () => {
+    const api = stubApi();
+    await openPanel(false);
+    await userEvent.click(screen.getByRole("button", { name: "Show the timeline" }));
+    await userEvent.click(await screen.findByRole("button", { name: "View source of charge 1" }));
+    const source = await screen.findByRole("group", { name: "Source of charge 1" });
+    expect(within(source).getByText(/PERIO-1 Periodontal maintenance/)).toBeInTheDocument();
+    expect(within(source).getByText(/Charge \$100\.00\./)).toBeInTheDocument();
+    expect(within(source).getByText(/Completion recorded .*performed /)).toBeInTheDocument();
+    expect(source).not.toHaveTextContent(/provider|encounter|diagnos/i);
+    expect(api.calls.some((c) => /\/billing\/entries\/1\/source/.test(c.url))).toBe(true);
+    expect(screen.queryByRole("link", { name: "Clinical history" })).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Hide source of charge 1" }));
+    expect(screen.queryByRole("group", { name: "Source of charge 1" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /source of charge 2/ })).not.toBeInTheDocument();         // a payment has no source to open
+  });
+
+  it("offers the direct link to the clinical history only to a person who may read the clinical record", async () => {
+    stubApi();
+    await openPanel(false, true);
+    await userEvent.click(screen.getByRole("button", { name: "Show the timeline" }));
+    const link = await screen.findByRole("link", { name: "Clinical history" });
+    expect(link).toHaveAttribute("href", `/patients/${P}/history`);
+    expect(screen.getByRole("button", { name: "View source of charge 1" })).toBeInTheDocument();         // and they still get the billing source too
+  });
+
+  it("says a charge completed the old way has no completion record, and says so plainly when the source cannot be loaded", async () => {
+    stubApi({ source: () => json(chargeSource({ completionRecorded: false, completedProcedureId: null, completedAtUtc: null, performedAtUtc: null })) });
+    await openPanel(false);
+    await userEvent.click(screen.getByRole("button", { name: "Show the timeline" }));
+    await userEvent.click(await screen.findByRole("button", { name: "View source of charge 1" }));
+    expect(await screen.findByText(/completed the old way.*no completion record to show/)).toBeInTheDocument();
+  });
+
+  it("says the source could not be loaded instead of showing an empty one", async () => {
+    stubApi({ source: () => json({ error: "source_not_found", message: "x", fieldErrors: {} }, 404) });
+    await openPanel(false);
+    await userEvent.click(screen.getByRole("button", { name: "Show the timeline" }));
+    await userEvent.click(await screen.findByRole("button", { name: "View source of charge 1" }));
+    expect(await screen.findByText("Could not load the source of charge 1.")).toBeInTheDocument();
   });
 });
 

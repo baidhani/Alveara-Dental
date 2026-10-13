@@ -47,3 +47,11 @@ public sealed record TimelineEvent(DateTimeOffset AtUtc, string Type, int? Numbe
 
 /// <summary>What is open on the account now, by age. Live aging uses the latest amendment of a completed procedure's performed time; an issued document ages as it did on its own day.</summary>
 public sealed record AgingView(DateTimeOffset AsOfUtc, string Currency, DocumentAging Buckets, IReadOnlyList<DocumentOpenCharge> OpenCharges);
+
+/// <summary>
+/// ALV-007-C02 R02: where a charge came from, for a person who may read billing and need not be allowed to read the clinical record. It names the procedure, the tooth and surface, the charge and what the completion
+/// recorded in billing terms (that a completion record exists, when it was recorded, when the procedure was performed and whether that time was amended); it never carries the provider, the encounter, the chart
+/// effect, the diagnosis or any clinical wording. <c>CompletionRecorded</c> is false for a procedure completed the old, state-only way (it has a charge but no completion record).
+/// </summary>
+public sealed record ChargeSourceView(int EntryNumber, string ProcedureCode, string ProcedureDescription, string? ToothKey, string? Surface, decimal ChargeAmount, string Currency, bool ChargeReversed,
+    bool CompletionRecorded, Guid? CompletedProcedureId, DateTimeOffset? CompletedAtUtc, DateTimeOffset? PerformedAtUtc, bool PerformedTimeAmended, Guid? CorrelationId);

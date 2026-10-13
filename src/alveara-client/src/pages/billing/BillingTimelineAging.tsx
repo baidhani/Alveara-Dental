@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getAging, getTimeline, isAgingView, isTimeline } from "../../services/billingStatementsApi";
 import type { AgingView, TimelineEvent } from "../../services/billingStatementsApi";
 import { formatMoney } from "../../services/billingApi";
+import { BillingChargeSource } from "./BillingChargeSource";
 
 const money = (text: string) => `$${text}`;
 
@@ -30,8 +31,9 @@ export function BillingAging({ patientId, version }: { patientId: string; versio
  * ALV-007-C02: the account's timeline: every entry, application, release, change of responsible party and issued document in the order it happened, with the completed procedure behind each charge. It is
  * loaded when asked for (it is the long view) and says plainly when it could not be loaded rather than showing an empty history.
  */
-export function BillingTimeline({ patientId, version }: { patientId: string; version: string | null }) {
+export function BillingTimeline({ patientId, version, canViewClinical = false }: { patientId: string; version: string | null; canViewClinical?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [sourceOf, setSourceOf] = useState<number | null>(null);
   const [events, setEvents] = useState<TimelineEvent[] | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -50,7 +52,12 @@ export function BillingTimeline({ patientId, version }: { patientId: string; ver
           {events.map((e, i) => (
             <li key={`${e.type}-${e.number}-${i}`}>
               <span className="alv-bill__when">{new Date(e.atUtc).toLocaleString()}</span> <strong>{e.type}</strong>{e.number !== null ? ` ${e.number}` : ""}: {e.summary}
-              {e.amount !== null && ` (${formatMoney(e.amount)})`}{e.source && <span className="alv-bill__standing"> - {e.source}</span>}{e.completedProcedureId && <> - <a className="alv-workspace__link" href={`/patients/${patientId}/history`}>Clinical history</a></>}{e.actorName && <span className="alv-bill__standing"> - {e.actorName}</span>}
+              {e.amount !== null && ` (${formatMoney(e.amount)})`}{e.source && <span className="alv-bill__standing"> - {e.source}</span>}{e.actorName && <span className="alv-bill__standing"> - {e.actorName}</span>}
+              {e.type === "Charge" && e.planItemId && e.number !== null && (
+                <>{" "}<button type="button" className="btn btn-outline-secondary" aria-expanded={sourceOf === e.number} onClick={() => setSourceOf((cur) => (cur === e.number ? null : e.number))}>{sourceOf === e.number ? `Hide source of charge ${e.number}` : `View source of charge ${e.number}`}</button></>
+              )}
+              {canViewClinical && e.completedProcedureId && <> <a className="alv-workspace__link" href={`/patients/${patientId}/history`}>Clinical history</a></>}
+              {e.type === "Charge" && e.number !== null && sourceOf === e.number && <BillingChargeSource patientId={patientId} entryNumber={e.number} />}
             </li>
           ))}
         </ol>

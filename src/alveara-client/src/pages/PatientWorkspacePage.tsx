@@ -149,7 +149,7 @@ export function PatientTreatmentPlanTab() {
 export function PatientBillingTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
-  return <BillingPanel patient={patient} canWrite={hasPermission("ManageBilling")} />;
+  return <BillingPanel patient={patient} canWrite={hasPermission("ManageBilling")} canViewClinical={hasPermission("ViewClinicalDocumentation")} />;
 }
 
 export function PatientClinicalTemplatesTab() {

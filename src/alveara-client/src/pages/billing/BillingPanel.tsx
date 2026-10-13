@@ -28,6 +28,8 @@ interface Props {
   patient: PatientDetail;
   /** Whether the signed-in person may bill, take payments, adjust, reverse and configure. It only decides which controls are drawn (the server checks every call). */
   canWrite?: boolean;
+  /** Whether the signed-in person may also read the clinical record: only then does the timeline offer the direct link to the clinical history (the billing source of a charge is shown to everyone who can read billing). */
+  canViewClinical?: boolean;
 }
 
 /**
@@ -37,7 +39,7 @@ interface Props {
  * reversal that says why; everyone who can see billing reads the account exactly as recorded. Nothing recorded is ever edited or deleted. A failed load says it could not load rather than showing a zero balance; the
  * secondary panels (responsibility, guarantor summary, payment methods) are left out when they cannot be read, never drawn from a wrong answer.
  */
-export function BillingPanel({ patient, canWrite = false }: Props) {
+export function BillingPanel({ patient, canWrite = false, canViewClinical = false }: Props) {
   const [account, setAccount] = useState<BillingAccount | null>(null);
   const [ready, setReady] = useState<BillableProcedure[] | null>(null);
   const [responsibility, setResponsibility] = useState<Responsibility | null>(null);
@@ -138,7 +140,7 @@ export function BillingPanel({ patient, canWrite = false }: Props) {
       {canWrite && account.hasAccount && account.balanceOwed > 0 && <BillingPaymentForm account={account} methods={activeMethods} payers={payers} onDone={changed} onConflict={() => setConflict(true)} />}
       {canWrite && account.hasAccount && <BillingAdjustmentForm account={account} onDone={changed} onConflict={() => setConflict(true)} />}
       <BillingDocuments patientId={patient.id} canWrite={canWrite} controlRef={documents} version={account.rowVersion} />
-      <BillingTimeline patientId={patient.id} version={account.rowVersion} />
+      <BillingTimeline patientId={patient.id} version={account.rowVersion} canViewClinical={canViewClinical} />
       {canWrite && methods && <PaymentMethodsSettings methods={methods} onChanged={(m, text) => { setMethods(m); setStatus(text); }} />}
     </section>
   );
