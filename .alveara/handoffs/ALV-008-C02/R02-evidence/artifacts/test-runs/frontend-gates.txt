@@ -1,0 +1,56 @@
+ALV-008-C02 R02 frontend and repository gates on the final tree, 2026-10-13 (one after another on a quiet machine, after the last code change; no frontend file changed in R02).
+Commands (from src/alveara-client unless noted): npx tsc --noEmit ; npx vitest run ; npm run build ; npm run lint ; npx playwright test (mocked default config) ; and from the repository root: node --test tests/*.test.mjs
+
+== gate tsc exit=0
+== gate vitest exit=0
+   Duration  44.80s (environment 43%, tests 36%, setup 10%, transform 5%, import 5%)
+
+Environment  jsdom was created 91 times · 360.62s total, 43% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+== gate build exit=0
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 835ms[39m
+== gate lint exit=0
+src/contexts/AuthContext.tsx:87:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with externa
+src/contexts/AuthContext.tsx:144:7: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with extern
+src/pages/configuration/PracticeTab.tsx:56:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React w
+e2e/treatment-plans-real-backend.spec.ts:30:5: warning eslint(no-unused-vars): Variable 'filling' is assigned a value but never used. Unused variables should start with a '_'. help: Did you mean to us
+src/pages/AdminUsersPage.tsx:55:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with externa
+src/pages/configuration/AvailabilityTab.tsx:85:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize Rea
+== gate playwright_mocked exit=0
+  ok 132 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (620ms)
+  ok 122 [tablet] › e2e\architecture-map.spec.ts:258:5 › Architecture Map tab › has no serious or critical accessibility violations in dark mode, with the dialog open (2.5s)
+  ok 119 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (light) (2.6s)
+  ok 136 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (dark) (2.2s)
+
+  136 passed (20.0s)
+== gate repo_checks exit=0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1230.8019
+
+--- vitest totals ---
+Test Files  91 passed (91)
+Tests  1392 passed (1392)
+
+--- mocked Playwright totals ---
+136 passed (20.0s)
+
+--- repository checks totals ---
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1230.8019

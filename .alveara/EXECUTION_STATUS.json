@@ -1840,31 +1840,29 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Backend, full serial: 3302 of 3302 passed, 0 failed, 0 skipped (1 h 21 m). 96 new tests in 7 new classes (CompletionAdoptionRulesTests 19, CompletionAdoptionSchemaTests 11, CompletedProcedureAdoptionServiceTests 23, CompletedProcedureAdoptionHardeningTests 8, CompletionAdoptionApiTests 21, CompletionReconciliationTests 11, RetiredCompletionCallerSearchTests 3), one more in BillingTimelineAgingTests for the defect found, and 4 retirement tests in CompletionApiTests that replace the one test of the old routes; every parent test that exercised the removed code is mapped in docs/testing/ALV-008-C02_PARENT_REGRESSION.md.; Frontend: 1392 of 1392 passed (91 files; 11 new in TreatmentPlanAdoptCompletion.test.tsx, 5 clinical-history tests moved to TreatmentPlanClinicalHistory.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8.; Real-backend walkthrough (new, completion-adoption): 8 of 8 passed (axe light and dark on the adopt form, 0 critical/serious).; Real-backend sweep on fresh databases: 25 runs, 266 of 266 passed (one run, clinical-companion, failed once on a pre-existing clock-dependent assertion in an untouched spec and passed 9 of 9 on a rerun with only the spec's clock shifted).; Leak check: databases and logins unchanged (54 / 59 / 273 / 248).; Negative controls: 24 rules, 23 killed, 1 equivalent and disclosed (the up-front plan-version check).; A real defect found by own verification and fixed: a statement issued before an adoption could no longer be reprinted (reproduced first, fixed in BillingService.LoadSnapshotAsync, killed by A24).; Migration reversibility: AddCompletionAdoption rolls back and forward, and its rollback is refused while an adopted set exists (CompletionAdoptionSchemaTests)."
+        "summary": "Attempt R02 corrects review finding ALV-008-C02-R01-01 (the reconciliation's historical chart evidence was timestamp-only; a completion now records the exact finding version it wrote or observed and reconciliation judges that version alone). High risk under the testing cadence record, so the full regression ran on the final tree. Backend, full serial: 3324 of 3324 passed, 0 failed, 0 skipped (1 h 31 m); 22 new tests in CompletionChartEvidenceTests (the four cases the review required, the database rules, the read, the authoritative completion, the backfill) and the reproducing same-instant test in CompletionReconciliationTests.; Frontend: 1392 of 1392 passed (91 files, unchanged); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8.; Real-backend walkthroughs on fresh databases: 8 runs, 82 of 82 passed (adoption, completion, treatment-plans-complete, billing, billing-ledger, billing-statements, odontogram, odontogram-longitudinal); the full 25-run sweep was not repeated.; Leak check: databases and logins unchanged (54 / 59 / 273 / 248).; Negative controls: 12 rules of the new evidence invariant, all killed (two survivors of the first pass were missing tests, added).; Review finding ALV-008-C02-R01-01 corrected: reproduced first (a same-instant withdrawal after an adoption gave chartMismatch 1), then fixed with a recorded version number (migration AddCompletionChartVersion, trigger 51173, one-time backfill).; Migration reversibility: AddCompletionChartVersion rolls back and forward and its backfill is proved (CompletionChartEvidenceTests)."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "5ef44f0ebcf63f5a531b73b7b8c357e339380aa3",
-      "evidenceCommit": "728d5a8f677554374969693a32582c757a973564",
-      "handoffPath": ".alveara/handoffs/ALV-008-C02/R01.md",
+      "implementationCommit": "d03b9e7751c9b3221f22fbfc8656725b92e18782",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-008-C02/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-008-C02/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "5ef44f0ebcf63f5a531b73b7b8c357e339380aa3",
-        "reviewedEvidenceCommit": "728d5a8f677554374969693a32582c757a973564"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-008-C02-R01-01: reconciliation's historical chart evidence is timestamp-only (the finding version with the greatest VersionNumber at or before the completion's finalized instant), so a later legitimate chart change at the same practice-clock instant can win and produce a false chartMismatch; correction required in attempt R02: record an unambiguous completion-time chart-history boundary (the qualifying finding-version number) on the immutable completed-procedure record for Updated and AlreadyCompleted outcomes, for authoritative completion and adoption, reconcile against that exact version, and prove the four cases (adoption writes a completed version, adoption observes an already-completed version, a later change at the same instant, missing/altered/non-completed evidence) with migration, backend, frontend if applicable and real-browser regression evidence"
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

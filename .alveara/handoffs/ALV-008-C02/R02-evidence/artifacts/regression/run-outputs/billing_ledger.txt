@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\billing-ledger-real-backend.spec.ts:149:1 › SETUP: Ann has two completed procedures (PERIO-1 at 120 and SCALE-1 at 70) and Bo is a second patient (1.6s)
+  ok  2 [chromium] › e2e\billing-ledger-real-backend.spec.ts:179:1 › PAYMENT ALLOCATION: a payment is applied to the charge chosen and the rest stays unapplied; an over-allocation is refused beside its charge (3.5s)
+  ok  3 [chromium] › e2e\billing-ledger-real-backend.spec.ts:202:1 › APPLYING THE REST: what a payment still holds goes to the oldest open charge, and nothing already recorded changes (635ms)
+  ok  4 [chromium] › e2e\billing-ledger-real-backend.spec.ts:218:1 › REVERSAL: a payment is reversed by a new entry, its allocations are released, and the original stays in the history marked as reversed (2.4s)
+  ok  5 [chromium] › e2e\billing-ledger-real-backend.spec.ts:236:1 › A charge that payments are applied to cannot be reversed until they are; then the history is verified from the preserved entries (1.1s)
+  ok  6 [chromium] › e2e\billing-ledger-real-backend.spec.ts:263:1 › RESPONSIBILITY: a registered guarantor is followed until billing records one; the two stay independent; the guarantor sees the account and can be recorded as the payer (3.5s)
+  ok  7 [chromium] › e2e\billing-ledger-real-backend.spec.ts:299:1 › PAYMENT METHODS: billing adds a named method, uses it, then stops using it; the old payment keeps showing it (877ms)
+  ok  8 [chromium] › e2e\billing-ledger-real-backend.spec.ts:321:1 › a payment made from an out-of-date second screen is a conflict that records nothing (836ms)
+  ok  9 [chromium] › e2e\billing-ledger-real-backend.spec.ts:339:1 › FAILURE PATH: when the log cannot be written nothing is recorded and billing is told so, then the same reversal works (3.1s)
+  ok 10 [chromium] › e2e\billing-ledger-real-backend.spec.ts:369:1 › a dentist reads the ledger with what each entry stands for but is offered no way to change it; a hygienist has no billing tab (675ms)
+  ok 11 [chromium] › e2e\billing-ledger-real-backend.spec.ts:387:1 › the API refuses what the screen does not offer: a missing CSRF token, reversing a reversal or twice, and a payment applied for more than it holds (68ms)
+
+  11 passed (23.7s)

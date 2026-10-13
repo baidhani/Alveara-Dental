@@ -1,0 +1,13 @@
+ALV-008-C02 R02 - backend full serial run on the final tree (dotnet test, no parallelism, built tree, no rebuild during the run)
+started 14:53 local (2026-10-13), finished about 16:24
+result: Passed!  - Failed:     0, Passed:  3324, Skipped:     0, Total:  3324, Duration: 1 h 31 m - Alveara.Api.Tests.dll (net10.0)
+trx counters: <Counters total="3324" executed="3324" passed="3324" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+trx outcomes: {'Passed': 3324}
+R01's final full run: 3302 of 3302. The difference is 3302 + 22 (the new CompletionChartEvidenceTests) - 1 (the old seeded-mismatch test, moved into the new class) + 1 (the reproducing same-instant test in CompletionReconciliationTests) = 3324.
+history of this attempt's full runs: a first full run (12:34) was paused at the user's request about 75 minutes in; the paused processes did not survive the end of the session, so it produced no result and was restarted from the beginning on the same tree (its one leftover scratch database was dropped); this is the restarted run.
+classes touched or added by R02:
+  CompletionChartEvidenceTests: 22 passed
+  CompletionReconciliationTests: 11 passed
+  CompletedProcedureSchemaTests: 52 passed
+  CompletedProcedureMigrationTests: 1 passed
+  CompletionAdoptionSchemaTests: 11 passed

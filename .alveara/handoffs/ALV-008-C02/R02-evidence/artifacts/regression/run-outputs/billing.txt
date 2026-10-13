@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\billing-real-backend.spec.ts:131:1 › SETUP: a patient whose dentist has completed one procedure of a plan and accepted another (1.6s)
+  ok  2 [chromium] › e2e\billing-real-backend.spec.ts:158:1 › ACCEPTANCE 1: a completed procedure is billed and the charge is recorded at the plan's fee, with no amount to type (3.4s)
+  ok  3 [chromium] › e2e\billing-real-backend.spec.ts:186:1 › the API refuses billing what the plan has not completed and billing it twice (98ms)
+  ok  4 [chromium] › e2e\billing-real-backend.spec.ts:197:1 › ACCEPTANCE 2: a payment lowers the balance and the history keeps every entry as it was; an over-payment is refused beside its field (2.7s)
+  ok  5 [chromium] › e2e\billing-real-backend.spec.ts:221:1 › an adjustment corrects the balance with a reason and is added to the history (2.3s)
+  ok  6 [chromium] › e2e\billing-real-backend.spec.ts:236:1 › a payment made from an out-of-date second screen is a conflict that changes nothing (818ms)
+  ok  7 [chromium] › e2e\billing-real-backend.spec.ts:256:1 › ACCEPTANCE 3: every billing action is in the audit log with who and when (37ms)
+  ok  8 [chromium] › e2e\billing-real-backend.spec.ts:270:1 › FAILURE PATH: when the log cannot be written nothing is recorded and billing is told so, then the same save works (2.7s)
+  ok  9 [chromium] › e2e\billing-real-backend.spec.ts:296:1 › a dentist can read the account but is offered no way to change it, and a hygienist has no billing tab (632ms)
+  ok 10 [chromium] › e2e\billing-real-backend.spec.ts:314:1 › the API refuses a missing CSRF token, an unknown patient and a bad amount (23ms)
+
+  10 passed (19.8s)
