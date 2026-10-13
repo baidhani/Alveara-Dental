@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **2026-10-12: item 35 (`ALV-007-C02`), statements, receipts, refunds, financial corrections and account UX, is `CHANGES_REQUIRED`: the independent review of attempt R01 (implementation `bc25a94`, evidence `80a9cdd`; review `.alveara/reviews/ALV-007-C02/R01.md`) found one blocking issue, ALV-007-C02-R01-01: the timeline's source link goes to the clinical history, which a billing-only role cannot read; attempt R02 corrects that finding only. Item 34 (`ALV-008-C01`) is `COMPLETE` (closure `593ff2c`); items 36 and 37 are not started.** Description of the work: `docs/BILLING_STATEMENTS.md`.
+Last updated: **2026-10-12: item 35 (`ALV-007-C02`), statements, receipts, refunds, financial corrections and account UX, is `AWAITING_REVIEW` as attempt R02 (implementation `19c8f1c`; handoff `.alveara/handoffs/ALV-007-C02/R02.md`; full description `docs/BILLING_STATEMENTS.md`).** R02 corrects the one blocking finding of the independent review of R01 (ALV-007-C02-R01-01): the timeline's source link now opens the charge's billing source (`GET api/patients/{id}/billing/entries/{n}/source`, `ViewBilling`, nothing clinical) for anyone who can read billing, and the direct clinical-history link is offered only with clinical-documentation permission. R01 (implementation `bc25a94`, evidence `80a9cdd`) was returned `CHANGES_REQUIRED` (review `.alveara/reviews/ALV-007-C02/R01.md`) and is preserved. Item 34 (`ALV-008-C01`) is `COMPLETE` (closure `593ff2c`); items 36 and 37 are not started.**
 
 ## Production implementation status
 
@@ -82,14 +82,14 @@ Course story `STORY-007` (portal-verified 2026-10-11T13:30:07Z at `3471727`) bui
 - **UI:** the Billing tab shows what each entry stands for, reverse and apply actions, an allocation chooser, who is responsible, a guarantor table and payment-method settings.
 - **Not built / open:** a reversed charge keeps its procedure billed (re-billing is a later story); no patient picker for the responsible party; no credit balances; processors and insurance are future (refunds, corrections, statements and receipts: see "Billing statements" below).
 
-## Billing statements (ALV-007-C02 CHANGES_REQUIRED - attempt R01 returned; R02 in progress)
+## Billing statements (ALV-007-C02 AWAITING_REVIEW - attempt R02; R01 was returned CHANGES_REQUIRED)
 
 Companion of `STORY-007` and `ALV-007-C01`; implementation `bc25a94`, evidence `.alveara/handoffs/ALV-007-C02/R01-evidence/`. Full description `docs/BILLING_STATEMENTS.md`:
 - **Data:** migration `AddRefundsReleasesAndDocuments`: the `Refund` entry kind (`RefundsEntryId`, `ReplacesEntryId`), append-only `BillingAllocationReleases` and immutable `FinancialDocuments`; triggers 51157-51171 (51172 and up are free); the allocation trigger and the reversal trigger 51141 now count net of releases.
 - **Operations:** `POST .../billing/refunds`, `.../allocations/move`, `.../corrections`, `.../documents` (`ManageBilling` plus CSRF); `GET .../billing/timeline`, `aging`, `documents/preview`, `documents`, `documents/{id}`, `documents/{id}/csv` (`ViewBilling`). Each change is keyed, versioned, audited in the same save and stores nothing on failure (503 `save_failed`).
 - **Documents:** derived from the ledger at four cut-offs and one instant by a pure builder; an issued document stores cut-offs, a SHA-256 of its canonical content, a per-account number, the template version and a non-financial envelope (patient, addressee and practice as displayed, currency), never an amount; reprint and CSV audited.
 - **Known limits:** the database cannot enforce the order a refund takes money in (unapplied first, newest first) or the net-applications identity across a refund and its releases, so the service and `BillingLedgerMath.Verify` do; one statement per account, no period, no PDF, no consolidated guarantor statement; re-billing a corrected charge is out of scope.
-- **Not built / open:** a billing-only role cannot read the clinical history the timeline links to; a deep link to one completed procedure; refunds to anyone but the original payer; credit balances.
+- **Not built / open:** the direct clinical-history link opens the history tab, not one completed procedure (no deep link yet); refunds to anyone but the original payer; credit balances.
 
 ## Completion (ALV-008-C01 COMPLETE - approved attempt R01)
 

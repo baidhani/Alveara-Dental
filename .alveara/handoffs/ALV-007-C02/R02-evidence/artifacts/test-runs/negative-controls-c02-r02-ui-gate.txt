@@ -1,0 +1,12 @@
+ALV-007-C02 R02 - negative control N29 (UI): the timeline offers the direct clinical-history link only to a person who may read the clinical record
+
+Mutation: in src/alveara-client/src/pages/billing/BillingTimelineAging.tsx, `{canViewClinical && e.completedProcedureId && ...}` became `{e.completedProcedureId && ...}`
+(the link shown to anyone, as in R01).
+Run: npx vitest run src/pages/billing/BillingStatementsPanel.test.tsx
+Result: KILLED - 2 failed, 16 passed:
+  - "shows what is open by age and the timeline when asked for, naming the procedure behind a charge" (no Clinical history link without the permission)
+  - "opens the billing source of a charge from the timeline with no clinical permission, and shows nothing clinical"
+Restored byte-identical from a backup copy; the billing folder then ran 54 of 54.
+
+The backend negative controls of this attempt (N26 the source route's permission, N27 its patient scoping, N28 its charge-only rule) are in
+negative-controls-c02-r02.txt together with R01's twenty-five, all killed: 28 of 28 there, 29 of 29 with this one.

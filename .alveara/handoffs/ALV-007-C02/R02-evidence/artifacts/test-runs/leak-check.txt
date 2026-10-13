@@ -1,0 +1,10 @@
+ALV-007-C02 R02 - leak check (databases and logins that the test and walkthrough runs create and must not leave behind)
+
+Counts: AlveraTest_* databases / AlveraRestore_* databases / alveara_* logins / alveara_* databases
+
+Before this attempt's runs (R01's final measurement, 2026-10-12):                        54 / 59 / 273 / 248
+After the final full backend run, the final real-backend sweep and the negative controls
+(the 25 sweep databases alveara_c02r_* dropped, the generated *-e2e-out folders,
+test-results and TestResults deleted), 2026-10-12:                                       54 / 59 / 273 / 248
+
+Flat.

@@ -1,0 +1,14 @@
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\billing-statements-real-backend.spec.ts:133:1 › SETUP: Ann has two completed procedures (PERIO-1 at 120 and SCALE-1 at 70) (1.3s)
+  ok 2 [chromium] › e2e\billing-statements-real-backend.spec.ts:159:1 › REFUND: the money goes back to the original payer, the unapplied money first and then the newest application; an over-refund is refused beside the amount (3.9s)
+  ok 3 [chromium] › e2e\billing-statements-real-backend.spec.ts:205:1 › MOVE: part of what a payment pays is moved to another charge in one step; the balance does not change (1.2s)
+  ok 4 [chromium] › e2e\billing-statements-real-backend.spec.ts:235:1 › RECEIPT, THEN CORRECTION: a receipt is issued for payment 5; the payment is then corrected (reversed and replaced) and the receipt still reprints as issued with the change written apart (1.7s)
+  ok 5 [chromium] › e2e\billing-statements-real-backend.spec.ts:268:1 › TIMELINE AND AGING: the history reads in order with the completed procedure behind each charge, and what is open is shown by age (4.9s)
+  ok 6 [chromium] › e2e\billing-statements-real-backend.spec.ts:302:1 › STATEMENT: previewed, issued, reprinted as issued, exported as CSV and printed; a stale preview issues nothing and shows the new preview (3.5s)
+  ok 7 [chromium] › e2e\billing-statements-real-backend.spec.ts:341:1 › FAILURE PATH: when the log cannot be written a refund records nothing and says so; the same request then works (909ms)
+  ok 8 [chromium] › e2e\billing-statements-real-backend.spec.ts:368:1 › READ-ONLY: a dentist reads receipts and statements but is offered no way to change anything, and the API agrees (647ms)
+  ok 9 [chromium] › e2e\billing-statements-real-backend.spec.ts:386:1 › STALE SECOND SCREEN: a refund from an out-of-date copy of the account is refused as a conflict and records nothing (1.3s)
+
+  9 passed (25.4s)

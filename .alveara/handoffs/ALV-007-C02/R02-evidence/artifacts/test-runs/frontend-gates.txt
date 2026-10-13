@@ -1,0 +1,13 @@
+ALV-007-C02 R02 - frontend and repository gates (final tree, 2026-10-12)
+
+tsc --noEmit (src/alveara-client):            exit 0, no output
+oxlint:                                       exit 0 (the existing set-state-in-effect warnings in untouched files remain; none in the billing files)
+vitest run:                                   Test Files 90 passed (90); Tests 1391 passed (1391)   (1387 in R01; 4 new in BillingStatementsPanel.test.tsx for the charge source)
+vite build:                                   built (the existing chunk-size notice only)
+playwright test (mocked, default config):     136 passed
+node --test tests/*.test.mjs:                 tests 8, pass 8, fail 0
+
+The four new UI tests: the billing source of a charge opens from the timeline with no clinical permission and shows nothing clinical (and a payment has no
+source button); the direct clinical-history link appears only for a person who may read the clinical record (and they still get the billing source);
+a charge completed the old way says there is no completion record; a failed load says so instead of showing an empty source. One existing test that
+asserted the old, always-on clinical link now asserts that billing permission alone offers none (it tested the behaviour under review).

@@ -1,0 +1,14 @@
+ALV-007-C02 R01 - migration reversibility
+
+Migration 20261012133723_AddRefundsReleasesAndDocuments.
+
+BillingRefundMigrationTests (1 test, passes in the full run): with a ledger in the database (two entries and an allocation) the migration is rolled back to
+20261012020128_AddCompletedProcedures. It then checks that the two new tables, the five new triggers and the new columns (RefundsEntryId, ReplacesEntryId) are gone,
+that the ALV-007-C01 allocation trigger and the ALV-007-C01 reversal trigger are restored (their definitions no longer mention BillingAllocationReleases), that every entry
+and allocation is still there and that the ledger still takes a new allocation. It then rolls forward and checks the tables, triggers, columns and both replaced triggers
+are back and that the database refuses a refund for more than its payment (51158).
+
+CompletedProcedureMigrationTests (1 test, passes in the full run) still rolls back through this migration's Down.
+
+A rollback is only possible while no refund, release or issued document exists: afterwards the ledger holds money returned and is deliberately not rewritten by a script
+(the same stance as the earlier ledger migrations). `dotnet ef migrations has-pending-model-changes` reports none.

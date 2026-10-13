@@ -1,0 +1,3 @@
+N06 | KILLED | refund: reason no longer required (service check) | filter=BillingRefundServiceTests | Failed!  - Failed:     1, Passed:    24, Skipped:     0, Total:    25, Duration: 55 s - Alveara.Api.Tests.dll (net10.0) | failing: Alveara.Api.Tests.BillingRefundServiceTests.A_refund_without_a_reason_is_refused_naming_the_reason_and_records_nothing | 66s
+N12 | KILLED | correction: drop the no-credit check after the reversal (service check) | filter=BillingRefundServiceTests | Failed!  - Failed:     1, Passed:    24, Skipped:     0, Total:    25, Duration: 54 s - Alveara.Api.Tests.dll (net10.0) | failing: Alveara.Api.Tests.BillingRefundServiceTests.Correcting_an_adjustment_that_the_account_could_not_afford_to_reverse_is_refused_before_anything_is_saved | 62s
+DONE

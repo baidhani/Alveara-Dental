@@ -1,0 +1,16 @@
+ALV-007-C02 R02 - backend test results
+
+Final full serial run on the final tree (dotnet test, parallel execution off, one machine, 2026-10-12):
+  Passed!  - Failed:     0, Passed:  3206, Skipped:     0, Total:  3206, Duration: 1 h 6 m - Alveara.Api.Tests.dll (net10.0)
+
+R01's final run was 3195 of 3195, so attempt R02 adds 11 tests (BillingChargeSourceApiTests) and the story now has 171 new tests in all
+(R01's 160 plus these 11). The parent suites pass unchanged inside the run (the one example literal edited in R01, "Refund" to "Bogus" in
+BillingSchemaTests, is the only parent edit of the story).
+
+The finding was reproduced before it was fixed: the 11 BillingChargeSourceApiTests were written first against the existing code and all 11 failed
+(the route did not exist: the API answered the unknown path with the single-page app's HTML, which the test harness could not parse as JSON), then
+all 11 passed once the billing source route existed. Two first-run mistakes in those tests were my own (a manual charge for a procedure the product's
+own completion had already charged, which is a 409, and a status assertion that hid the response body); neither was a product defect.
+
+The negative controls (29, see negative-controls-c02-r02.txt and negative-controls-c02-r02-ui-gate.txt) rebuilt the test project 28 times; the tree
+was restored byte-identical after every mutant (checked: no "if (false" is left in any source file) and the full run above is on the restored tree.

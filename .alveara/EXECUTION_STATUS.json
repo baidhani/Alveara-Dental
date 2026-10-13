@@ -1790,31 +1790,29 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Backend, full serial: 3195 of 3195 passed, 0 failed, 0 skipped (1 h 1 m). New (160): BillingRefundSchemaTests 60, BillingRefundMigrationTests 1, BillingRefundMathTests 10, BillingRefundServiceTests 25, BillingDocumentBuilderTests 15, BillingDocumentServiceTests 18, BillingTimelineAgingTests 3, BillingStatementsApiTests 22, BillingRefundConcurrencyTests 5, BillingReconciliationTests 1 (70 real transactions); the parent suites pass unchanged inside it (one example literal in BillingSchemaTests was edited because Refund is now a valid kind).; Frontend: 1387 of 1387 passed (90 files; 14 new in BillingStatementsPanel.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8.; Real-backend walkthrough (new, billing-statements): 9 of 9 passed (refund, move, receipt and correction, timeline and aging, statement preview, issue, stale preview, CSV and print, failed-log path, read-only role, stale second screen; axe light and dark, 0 critical/serious).; Real-backend sweep on fresh databases: 25 runs, 267 of 267 passed (the existing 24 runs 258, plus the new walkthrough 9; one odontogram run timed out once under load and passed 11 of 11 on two reruns).; Leak check: databases and logins unchanged (54 / 59 / 273 / 248).; Negative controls: 25 rules, all killed on the final tree (two survived the first pass and are closed by new tests).; Migration reversibility: Down removes the 2 tables, the new columns and the new triggers and restores the two replaced triggers; Up restores them."
+        "summary": "Attempt R02 corrects review finding ALV-007-C02-R01-01 (the timeline's source link now has an authorized billing-source destination for billing-only readers). Backend, full serial: 3206 of 3206 passed, 0 failed, 0 skipped (1 h 6 m). 171 new in the story: R01's 160 (BillingRefundSchemaTests 60, BillingRefundMigrationTests 1, BillingRefundMathTests 10, BillingRefundServiceTests 25, BillingDocumentBuilderTests 15, BillingDocumentServiceTests 18, BillingTimelineAgingTests 3, BillingStatementsApiTests 22, BillingRefundConcurrencyTests 5, BillingReconciliationTests 1) plus R02's 11 BillingChargeSourceApiTests; the parent suites pass unchanged inside it (one example literal in BillingSchemaTests was edited in R01 because Refund is now a valid kind).; Frontend: 1391 of 1391 passed (90 files; 18 new in BillingStatementsPanel.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8.; Real-backend walkthrough (new, billing-statements): 9 of 9 passed (now including a billing user opening a charge's source with no clinical link while the API still refuses that user the clinical record; axe light and dark, 0 critical/serious).; Real-backend sweep on fresh databases: 25 runs, 267 of 267 passed, every run first time.; Leak check: databases and logins unchanged (54 / 59 / 273 / 248).; Negative controls: 29 rules, all killed (R01's 25, the source route's permission, patient scoping and charge-only rule, and the UI gate on the clinical link).; Review finding ALV-007-C02-R01-01 corrected: reproduced first (11 API tests failed), then fixed with a billing-source route readable with ViewBilling and a clinical link offered only with clinical-documentation permission.; Migration reversibility: unchanged by R02 (no migration change)."
       },
       "demo": "verified",
       "parentRegression": "verified",
-      "implementationCommit": "bc25a94ae50639a5a46509c443ebf65b8f0992ab",
-      "evidenceCommit": "80a9cdd5f1a556ce52de48ce7977fd74718e360b",
-      "handoffPath": ".alveara/handoffs/ALV-007-C02/R01.md",
+      "implementationCommit": "19c8f1ca7cb5b3323cd93abbb7bd5a863da4d1d9",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-007-C02/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-007-C02/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "bc25a94ae50639a5a46509c443ebf65b8f0992ab",
-        "reviewedEvidenceCommit": "80a9cdd5f1a556ce52de48ce7977fd74718e360b"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-007-C02-R01-01: the timeline's source link goes to the clinical history, which a billing-only role (ViewBilling without clinical-documentation access) cannot read; correction required in attempt R02 with an authorized billing-source destination and API and UI tests"
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
