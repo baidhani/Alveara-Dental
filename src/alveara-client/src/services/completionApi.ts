@@ -31,6 +31,8 @@ export interface ItemReadiness {
   billable: boolean;
   fee: number;
   chargeExists: boolean;
+  /** ALV-008-C02: completed the old, state-only way and not yet adopted: it has no provider, encounter, performed time, chart effect or charge of its own. */
+  legacyCompleted: boolean;
 }
 
 export interface ProviderChoice {
@@ -74,6 +76,9 @@ export interface CompletedProcedureResult {
   chartOutcome: string;
   toothFindingId: string | null;
   charge: ChargeEffectView | null;
+  /** ALV-008-C02: true when this record is the adoption of a procedure completed the old way. */
+  adopted?: boolean;
+  adoptionReason?: string | null;
 }
 
 export interface CompletionResult {
@@ -82,6 +87,8 @@ export interface CompletionResult {
   correlationId: string;
   replayed: boolean;
   procedures: CompletedProcedureResult[];
+  /** ALV-008-C02: the reason given when this result is an adoption. */
+  adoptionReason?: string | null;
 }
 
 export interface CompleteProceduresInput {
@@ -91,6 +98,16 @@ export interface CompleteProceduresInput {
   providerId: string;
   performedAtUtc: string;
   itemIds: string[];
+}
+
+/** ALV-008-C02: adopt ONE procedure completed the old way. The reason is required; the procedure is named by the route. */
+export interface AdoptCompletionInput {
+  idempotencyKey: string;
+  rowVersion: string;
+  encounterId: string;
+  providerId: string;
+  performedAtUtc: string;
+  reason: string;
 }
 
 export interface AmendmentView {
@@ -148,6 +165,10 @@ export const getCompletionReadiness = (planId: string, itemIds?: string[], signa
 
 export const completeProcedures = (planId: string, input: CompleteProceduresInput) =>
   requestWithCsrf<CompletionResult>(`/api/treatment-plans/${planId}/complete-procedures`, "POST", input);
+
+/** ALV-008-C02: records the missing provider, encounter, performed time and reason of a procedure completed the old way, with its chart effect and its one charge, in one all-or-nothing save. 409 `not_a_legacy_completion` when there is nothing to adopt. */
+export const adoptCompletion = (planId: string, itemId: string, input: AdoptCompletionInput) =>
+  requestWithCsrf<CompletionResult>(`/api/treatment-plans/${planId}/items/${itemId}/adopt-completion`, "POST", input);
 
 export const listCompletedProcedures = (patientId: string, signal?: AbortSignal) =>
   request<{ patientId: string; procedures: CompletedProcedureDetail[] }>(`/api/patients/${patientId}/completed-procedures`, { signal });

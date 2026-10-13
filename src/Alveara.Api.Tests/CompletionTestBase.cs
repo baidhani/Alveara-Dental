@@ -108,7 +108,7 @@ public abstract class CompletionTestBase : BillingTestBase
         var filling = await ProcedureAsync(code, ProcedureScopes.ToothSurface, ProcedureDentitions.Both, 140m, "Resin filling");
         var plan = await CreateAsync([Item(diagnosis, filling.Summary.Id, "16", "O")], patient: patient);
         plan = await Svc(s => s.DecideItemAsync(plan.Id, plan.Items[0].Id, "Accepted", null, null, plan.RowVersion, S.Actor, default));
-        plan = await Svc(s => s.CompleteItemAsync(plan.Id, plan.Items[0].Id, S.Actor, default));
+        plan = await LegacyComplete(plan.Id, plan.Items[0].Id);
         return (plan, plan.Items[0]);
     }
 

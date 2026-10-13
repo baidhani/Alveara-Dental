@@ -3,6 +3,7 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { seedLegacyCompletion } from "./support/legacyCompletion";
 
 // ALV-015-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.treatment-plans-complete.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
@@ -262,11 +263,10 @@ test("PROGRESS: only an accepted procedure is scheduled, completing is final, an
   await expect(statusLine(page)).toContainText("PERIO-1 scheduled.");
   await expect(row(page, "PERIO-1")).toContainText("Scheduled for");
 
-  await row(page, "PERIO-1").getByRole("button", { name: "Mark PERIO-1 completed" }).click();
-  const done = page.getByRole("form", { name: "Mark PERIO-1 completed" });
-  await expect(done.getByText(/Completed is final/)).toBeVisible();
-  await done.getByRole("button", { name: "Confirm completed" }).click();
-  await expect(statusLine(page)).toContainText("PERIO-1 marked completed.");
+  await expect(row(page, "PERIO-1").getByRole("button", { name: /Mark .* completed/ })).toHaveCount(0);       // ALV-008-C02: the per-procedure completion is retired; completing is Review and complete
+  const open = (await plansOf(page, "ann"))[0];
+  seedLegacyCompletion(open.id, open.items[0].id);                                                        // a procedure completed the old way (retired), seeded: see support/legacyCompletion.ts
+  await gotoTab(page);
   await expect(row(page, "PERIO-1")).toContainText("Completed");
   await expect(row(page, "PERIO-1").getByRole("button")).toHaveCount(0);                                  // nothing more can be done with it, not even withdrawing
   await shot(page, "05-completed.png");

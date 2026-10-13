@@ -4,7 +4,7 @@ Course story `STORY-008` (REQ-013 in part): a clinician completes the procedures
 
 ## What it is, in one paragraph
 
-`POST api/treatment-plans/{id}/complete-accepted` completes **every accepted, not yet completed, not withdrawn procedure** of a plan in one all-or-nothing save. Each procedure gets exactly what completing it alone gets today: a new state row (Completion = Completed), an `ItemCompleted` history event and a PHI-free audit entry, all in the same save. `GET api/patients/{id}/clinical-history` lists the completed care, read back from those same state rows. There is no new table and nothing to keep in step.
+A procedure is completed through `POST api/treatment-plans/{id}/complete-procedures` (`docs/COMPLETION.md`); the original STORY-008 route `POST api/treatment-plans/{id}/complete-accepted`, which completed **every accepted, not yet completed, not withdrawn procedure** of a plan as a state-only change, was **retired by ALV-008-C02 and now answers 410**. Completions made that way before the retirement still show here, as "Completed by" with no provider, performed time, encounter or charge, until they are adopted (`POST api/treatment-plans/{planId}/items/{itemId}/adopt-completion`). `GET api/patients/{id}/clinical-history` lists the completed care, read back from the plan's state rows and, where a completion record exists, its provider, encounter, performed time, chart outcome and charge.
 
 ## Behaviour
 
@@ -12,7 +12,7 @@ Course story `STORY-008` (REQ-013 in part): a clinician completes the procedures
 - **Failure.** If any part of the save fails (including the audit write) nothing is stored and the caller gets `save_failed` (503) with no internals. Two simultaneous completions end with each procedure completed exactly once: the loser is a conflict.
 - **Clinical history.** One entry per completed procedure: plan, procedure code and the description as it stood when the plan was made, tooth, surface, who completed it, when, and the plan revision in force then. Newest first. It is derived on every read, so completed care stays listed when its plan is later revised or withdrawn.
 - **Permissions.** Completing needs `ManageTreatmentPlans` (dentist, administrator) and a CSRF token. Reading the history needs `ViewClinicalDocumentation` (administrator, dentist, hygienist, assistant).
-- **Screen.** On the patient's Treatment plan tab, "Complete accepted procedures" appears for people who can change plans when something accepted is still open. A confirmation lists exactly what will be completed and says completing is final; nothing is sent until it is confirmed. A "Clinical history" section under the plans lists the completed care and refreshes after every change. An empty list says none has been recorded, never that no care was given; a failed load says it could not load.
+- **Screen.** On the patient's Treatment plan tab, "Review and complete…" completes procedures and "Adopt earlier completions…" adopts those completed the old way (see `docs/COMPLETION.md`). A "Clinical history" section under the plans lists the completed care and refreshes after every change. An empty list says none has been recorded, never that no care was given; a failed load says it could not load.
 
 ## How the three acceptance criteria are met
 

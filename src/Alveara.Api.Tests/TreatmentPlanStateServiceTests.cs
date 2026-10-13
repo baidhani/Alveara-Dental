@@ -20,7 +20,7 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
         Svc(s => s.DecidePlanAsync(plan.Id, decision, reason, by, version ?? plan.RowVersion, S.Actor, default));
 
     private Task<PlanView> Schedule(PlanView plan, int item, bool scheduled, DateOnly? date = null) => Svc(s => s.ScheduleItemAsync(plan.Id, plan.Items[item].Id, scheduled, date, S.Actor, default));
-    private Task<PlanView> Complete(PlanView plan, int item) => Svc(s => s.CompleteItemAsync(plan.Id, plan.Items[item].Id, S.Actor, default));
+    private Task<PlanView> Complete(PlanView plan, int item) => LegacyComplete(plan.Id, plan.Items[item].Id);
 
     private async Task<PlanView> ThreeProcedurePlanAsync()
     {
@@ -203,7 +203,7 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
         var declined = await Decide(plan, 0, "Declined", reason: "Changed their mind");
         Assert.Equal(("Declined", "Unscheduled", null), (declined.Items[0].Acceptance, declined.Items[0].Scheduling, declined.Items[0].PlannedDate));
 
-        Assert.Equal("item_not_accepted", (await Refused(() => Complete(plan, 0))).Code);
+        // (completing a declined procedure was refused by the retired state-only completion; the authoritative workflow refuses it as not_accepted, see the ALV-008-C02 parent-regression mapping)
         await Decide(plan, 0, "Accepted");
         var done = await Complete(plan, 0);
         Assert.Equal(("Accepted", "Completed"), (done.Items[0].Acceptance, done.Items[0].Completion));

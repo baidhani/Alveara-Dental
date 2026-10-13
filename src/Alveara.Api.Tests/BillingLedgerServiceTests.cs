@@ -26,7 +26,7 @@ public class BillingLedgerServiceTests : BillingTestBase
     private async Task<(BillablePlan Plan, BillingAccountView Account)> TwoChargesAsync()
     {
         var plan = await BillablePlanAsync();
-        await Svc(s => s.CompleteItemAsync(plan.Plan.Id, plan.Accepted, S.Actor, default));
+        await LegacyComplete(plan.Plan.Id, plan.Accepted);
         await Charge(plan.Completed, "c-1");
         return (plan, await Charge(plan.Accepted, "c-2"));
     }

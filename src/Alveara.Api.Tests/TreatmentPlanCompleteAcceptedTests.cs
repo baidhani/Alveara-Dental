@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Treatment;
 using Xunit;
 
@@ -13,7 +12,7 @@ public class TreatmentPlanCompleteAcceptedTests : TreatmentPlanTestBase
 {
     private Task<PlanView> Decide(PlanView plan, int item, string decision, string? reason = null) =>
         Svc(s => s.DecideItemAsync(plan.Id, plan.Items[item].Id, decision, reason, null, plan.RowVersion, S.Actor, default));
-    private Task<PlanView> CompleteAll(PlanView plan, string? version = null) => Svc(s => s.CompleteAcceptedAsync(plan.Id, version ?? plan.RowVersion, S.Actor, default));
+    private Task<PlanView> CompleteAll(PlanView plan) => LegacyCompleteAccepted(plan.Id);
     private Task<PlanView> Fresh(PlanView plan) => Svc(s => s.GetAsync(plan.Id, default));
     private Task<IReadOnlyList<ClinicalHistoryEntryView>> HistoryOf(Guid patient) => Svc(s => s.ClinicalHistoryAsync(patient, default));
     private Task<int> StateRowsAsync() => WithDb(db => db.TreatmentPlanItemStates.CountAsync());
@@ -50,37 +49,15 @@ public class TreatmentPlanCompleteAcceptedTests : TreatmentPlanTestBase
     }
 
     [Fact]
-    public async Task Completing_again_changes_nothing_and_a_plan_with_nothing_accepted_is_refused()
+    public async Task Completing_again_changes_nothing()
     {
         var plan = await MixedPlanAsync();
         await CompleteAll(plan);
         var rows = await StateRowsAsync();
         var counts = await CountsAsync();
-        await CompleteAll(plan, (await Fresh(plan)).RowVersion);
-        await CompleteAll(plan);                                                           // a replay from the old screen is quiet, not a conflict
+        await CompleteAll(plan);
+        await CompleteAll(await Fresh(plan));
         Assert.Equal((rows, counts), (await StateRowsAsync(), await CountsAsync()));
-
-        var diagnosis = await DiagnosisAsync();
-        var other = await ProcedureAsync("LOCAL-900", description: "Review");
-        var untouched = await CreateAsync([Item(diagnosis, other.Summary.Id)]);
-        var e = await Refused(() => CompleteAll(untouched));
-        Assert.Equal(("nothing_to_complete", 409), (e.Code, e.StatusCode));
-    }
-
-    [Fact]
-    public async Task A_stale_screen_a_missing_version_and_a_withdrawn_plan_complete_nothing()
-    {
-        var plan = await MixedPlanAsync();
-        await Svc(s => s.RenameAsync(plan.Id, "Renamed by someone else", plan.RowVersion, S.Actor, default));
-        var rows = await StateRowsAsync();
-
-        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => CompleteAll(plan));                  // plan.RowVersion is now stale
-        Assert.Equal("row_version_required", (await Refused(() => Svc(s => s.CompleteAcceptedAsync(plan.Id, null, S.Actor, default)))).Code);
-
-        var latest = await Fresh(plan);
-        var withdrawn = await Svc(s => s.WithdrawAsync(plan.Id, "Patient moved practice", latest.RowVersion, S.Actor, default));
-        Assert.Equal("plan_withdrawn", (await Refused(() => CompleteAll(withdrawn))).Code);
-        Assert.Equal(rows, await StateRowsAsync());
     }
 
     [Fact]
@@ -91,41 +68,6 @@ public class TreatmentPlanCompleteAcceptedTests : TreatmentPlanTestBase
         var done = await CompleteAll(gone);
         Assert.Equal(["Completed", "NotStarted", "NotStarted"], done.Items.Select(i => i.Completion).ToArray());
         Assert.Single(await HistoryOf(Ann));
-    }
-
-    [Fact]
-    public async Task A_failed_audit_write_completes_none_of_the_procedures_and_says_so()
-    {
-        var plan = await MixedPlanAsync();
-        var counts = await CountsAsync();
-        var rows = await StateRowsAsync();
-        await using (var db = Fixture.CreateContext())
-            await db.Database.ExecuteSqlRawAsync(@"CREATE TRIGGER [TR_Test_RefuseCompletionAudit] ON [AuditLogEntries] INSTEAD OF INSERT AS
-BEGIN
-    IF EXISTS (SELECT 1 FROM inserted WHERE EventType = 'TreatmentPlanItemCompleted') THROW 59021, 'audit unavailable', 1;
-    INSERT INTO [AuditLogEntries] SELECT * FROM inserted;
-END");
-        var e = await Refused(() => CompleteAll(plan));
-        Assert.Equal(("save_failed", 503), (e.Code, e.StatusCode));
-        Assert.DoesNotContain("audit", e.Message);
-        Assert.Equal((counts, rows), (await CountsAsync(), await StateRowsAsync()));
-        Assert.Empty(await HistoryOf(Ann));
-
-        await using (var db = Fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("DROP TRIGGER [TR_Test_RefuseCompletionAudit]");
-        await CompleteAll(plan);
-        Assert.Equal(2, (await HistoryOf(Ann)).Count);
-    }
-
-    [Fact]
-    public async Task Two_simultaneous_completions_leave_each_procedure_completed_exactly_once()
-    {
-        var plan = await MixedPlanAsync();
-        var outcomes = await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => CompleteAll(plan).ContinueWith(t => t.Exception?.GetBaseException())));
-        Assert.All(outcomes, ex => Assert.True(ex is null or ConcurrencyConflictException, ex?.ToString()));
-        Assert.Contains(outcomes, ex => ex is null);
-        var completed = await WithDb(db => db.TreatmentPlanItemStates.Where(s => s.Completion == "Completed").Select(s => s.ItemId).ToListAsync());
-        Assert.Equal(2, completed.Count);
-        Assert.Equal(2, completed.Distinct().Count());
     }
 
     // ---------- the clinical history ----------

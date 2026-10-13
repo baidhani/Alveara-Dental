@@ -287,7 +287,7 @@ END");
         await LinkAsync(diagnosis, await FindingAsync("16", "O", FindingStates.Planned, condition: FindingConditions.Caries));
         await LinkAsync(diagnosis, await FindingAsync("16", "O", FindingStates.Planned, condition: FindingConditions.Restoration));
         var plan = await AcceptedToothPlanAsync(diagnosis, ("FILL-1", 140m, "16", "O"), ("FILL-2", 90m, "17", "O"), ("FILL-3", 50m, "18", "O"));
-        var done = await Svc(s => s.CompleteItemAsync(plan.Id, plan.Items[1].Id, S.Actor, default));                          // completed the old way
+        var done = await LegacyComplete(plan.Id, plan.Items[1].Id);                          // completed the old way
         var withdrawn = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[2].Id, "Entered in error", done.RowVersion, S.Actor, default));
 
         var readiness = await ReadinessAsync(withdrawn, withdrawn.Items.Select(i => i.Id).ToList());          // the default listing leaves withdrawn procedures out; asking for them says why

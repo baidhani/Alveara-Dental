@@ -18,7 +18,7 @@ public class BillingProcedureChargeContractTests : BillingTestBase
     {
         await using var db = Fixture.CreateContext();
         await using var tx = await db.Database.BeginTransactionAsync();
-        await Plans(db).CompleteItemAsync(plan.Id, itemId, S.Actor, default);
+        await LegacyCompletionFixture.CompleteItemAsync(db, plan.Id, itemId, S.Actor);
         IProcedureCharging charging = Billing(db);
         var result = await charging.ChargeCompletedProcedureAsync(new ProcedureChargeRequest(patient ?? Ann, itemId, correlation ?? Guid.NewGuid()), S.Actor, default);
         if (commit) await tx.CommitAsync();

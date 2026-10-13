@@ -212,7 +212,7 @@ public class CompletedProcedureServiceTests : CompletionTestBase
     public async Task Every_procedure_that_cannot_be_completed_is_listed_with_its_reason_and_none_of_the_others_is_completed_either()
     {
         var plan = await AcceptedPlanAsync(3);
-        var done = await Svc(s => s.CompleteItemAsync(plan.Id, plan.Items[0].Id, S.Actor, default));                          // completed the old way
+        var done = await LegacyComplete(plan.Id, plan.Items[0].Id);                          // completed the old way
         var withdrawn = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[1].Id, "Entered in error", done.RowVersion, S.Actor, default));
         var before = await SnapshotAsync(plan.Id);
 

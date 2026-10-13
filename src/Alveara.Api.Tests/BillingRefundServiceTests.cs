@@ -28,7 +28,7 @@ public class BillingRefundServiceTests : BillingTestBase
     private async Task<BillingAccountView> PaidAsync()
     {
         var plan = await BillablePlanAsync();
-        await Svc(s => s.CompleteItemAsync(plan.Plan.Id, plan.Accepted, S.Actor, default));
+        await LegacyComplete(plan.Plan.Id, plan.Accepted);
         await Charge(plan.Completed, "c-1");
         var two = await Charge(plan.Accepted, "c-2");
         return await Pay(two, 150m, "p-1", [To(1, 60m), To(2, 40m)]);

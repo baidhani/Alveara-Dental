@@ -86,45 +86,8 @@ public partial class TreatmentPlanService
         return await GetAsync(planId, ct);
     }
 
-    /// <summary>Marks an accepted procedure completed. Completed is final; completing a completed procedure changes nothing.</summary>
-    public async Task<PlanView> CompleteItemAsync(Guid planId, Guid itemId, Guid actor, CancellationToken ct)
-    {
-        var (plan, item, previous) = await LoadForProgressAsync(planId, itemId, ct);
-        if (CompletionOf(previous) == ItemCompletion.Completed) return await GetAsync(planId, ct);
-
-        var now = clock.UtcNow;
-        StageState(plan, item.Id, previous, ItemAcceptance.Accepted, SchedulingOf(previous), ItemCompletion.Completed, previous?.PlannedDate, null, previous?.DecidedByName, actor, now);
-        StageEvent(plan, await NextEventAsync(planId, ct), TreatmentPlanChanges.ItemCompleted, itemId, null, null, actor, now, plan.CurrentRevision);
-        AuditService.Record(db, "TreatmentPlanItemCompleted", nameof(TreatmentPlan), planId, actor, $"Item {item.ItemNumber} completed in a treatment plan.");
-        await SaveAsync(planId, ct);
-        return await GetAsync(planId, ct);
-    }
-
-    /// <summary>
-    /// Completes every accepted, not yet completed procedure of a plan in one all-or-nothing save: each gets the same state row,
-    /// history event and audit entry as a single completion. The plan must be as the person last read it (<paramref name="rowVersion"/>).
-    /// Replaying after everything is completed changes nothing; a plan with nothing accepted to complete is refused.
-    /// </summary>
-    public async Task<PlanView> CompleteAcceptedAsync(Guid planId, string? rowVersion, Guid actor, CancellationToken ct)
-    {
-        var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
-        RequireProposed(plan);
-        var version = TreatmentPlanRules.ParseVersion(rowVersion);
-        var live = await db.TreatmentPlanItems.AsNoTracking().Where(i => i.PlanId == planId && i.WithdrawnAtUtc == null).OrderBy(i => i.ItemNumber).ToListAsync(ct);
-        var states = await CurrentStatesAsync(planId, ct);
-        var accepted = live.Where(i => AcceptanceOf(states.GetValueOrDefault(i.Id)) == ItemAcceptance.Accepted).ToList();
-        var open = accepted.Where(i => CompletionOf(states.GetValueOrDefault(i.Id)) != ItemCompletion.Completed).ToList();
-        if (open.Count == 0)
-        {
-            if (accepted.Count > 0) return await GetAsync(planId, ct);
-            throw new TreatmentPlanException("nothing_to_complete", "No procedure in this plan has been accepted, so there is nothing to complete.", 409);
-        }
-        RequireCurrent(plan, version);
-
-        await StageCompletionsAsync(plan, open, states, actor, clock.UtcNow, ct);
-        await SaveAsync(planId, ct);
-        return await GetAsync(planId, ct);
-    }
+    // ALV-008-C02: the state-only completions of STORY-008 (CompleteItemAsync and CompleteAcceptedAsync) were removed with their routes. A completion is made only by CompletedProcedureService (which stages its state
+    // row through StageCompletionsAsync, see TreatmentPlanService.CompletionSupport.cs); a procedure completed the old way is resolved by CompletedProcedureService.AdoptAsync.
 
     // ---------- shared ----------
 

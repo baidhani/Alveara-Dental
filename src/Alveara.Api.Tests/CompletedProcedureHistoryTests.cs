@@ -63,7 +63,7 @@ public class CompletedProcedureHistoryTests : CompletionTestBase
     public async Task A_procedure_completed_the_old_way_is_listed_as_before_with_the_detail_empty_and_the_plan_services_history_is_unchanged()
     {
         var plan = await AcceptedPlanAsync(2);
-        await Svc(s => s.CompleteItemAsync(plan.Id, plan.Items[0].Id, S.Actor, default));                                              // the old way
+        await LegacyComplete(plan.Id, plan.Items[0].Id);                                              // the old way
         var current = await PlanNowAsync(plan.Id);
         await CompleteAsync(plan, [1], version: current.RowVersion);                                                                   // the new way
 

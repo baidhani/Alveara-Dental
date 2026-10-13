@@ -65,7 +65,7 @@ public class BillingStatementsApiTests : IAsyncLifetime
             var step = await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/items/{id}/decision", new { decision = "Accepted", rowVersion = version });
             Assert.Equal(HttpStatusCode.OK, step.Status);
             version = step.Body.GetProperty("rowVersion").GetString();
-            Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/items/{id}/complete")).Status);
+            await LegacyCompletionFixture.CompleteItemAsync(_fixture, planId, id, _s.Actor);   // completed the old, state-only way (the route is retired; see LegacyCompletionFixture)
         }
         var billing = await _api.SessionAsync("Billing");
         await billing.SendAsync(HttpMethod.Post, Url("/charges"), new { planItemId = ids[0], idempotencyKey = "c-1" });

@@ -61,31 +61,11 @@ public class TreatmentPlanCompleteAcceptedApiTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Anonymous_callers_get_401_from_the_new_endpoints()
+    public async Task Anonymous_callers_get_401_from_the_clinical_history()
     {
         var anon = _api.Factory.CreateClient();
         var id = Guid.NewGuid();
-        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"/api/treatment-plans/{id}/complete-accepted"))).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await anon.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"/api/patients/{id}/clinical-history"))).StatusCode);
-    }
-
-    [Theory]
-    [InlineData("Admin", true)] [InlineData("Dentist", true)]
-    [InlineData("Hygienist", false)] [InlineData("Assistant", false)] [InlineData("FrontDesk", false)] [InlineData("Billing", false)] [InlineData("OfficeManager", false)]
-    public async Task Only_dentists_and_administrators_can_complete_the_accepted_procedures(string role, bool allowed)
-    {
-        var dentist = await _api.SessionAsync("Dentist");
-        var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"));
-        var by = await _api.SessionAsync(role);
-
-        var r = await by.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { rowVersion = Version(plan) });
-
-        if (allowed) Assert.Equal(["Completed", "Completed"], Completion(r.Body));
-        else
-        {
-            Assert.Equal(HttpStatusCode.Forbidden, r.Status);
-            Assert.Equal(["NotStarted", "NotStarted"], Completion((await dentist.SendAsync(HttpMethod.Get, P(plan))).Body));
-        }
     }
 
     [Theory]
@@ -99,35 +79,10 @@ public class TreatmentPlanCompleteAcceptedApiTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task The_contract_a_csrf_token_a_current_version_and_an_existing_patient_and_plan_are_required()
+    public async Task An_unknown_patients_clinical_history_is_not_found_and_a_write_is_not_part_of_it()
     {
         var dentist = await _api.SessionAsync("Dentist");
-        var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"));
-
-        Assert.Equal(HttpStatusCode.BadRequest, (await dentist.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { rowVersion = Version(plan) }, csrf: false)).Status);
-        var missing = await dentist.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { });
-        Assert.Equal((HttpStatusCode.BadRequest, "row_version_required"), (missing.Status, Error(missing.Body)));
-        Assert.Equal(HttpStatusCode.NotFound, (await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Guid.NewGuid()}/complete-accepted", new { rowVersion = Version(plan) })).Status);
         Assert.Equal(HttpStatusCode.NotFound, (await dentist.SendAsync(HttpMethod.Get, $"/api/patients/{Guid.NewGuid()}/clinical-history")).Status);
-
-        await dentist.SendAsync(HttpMethod.Post, P(plan, "/rename"), new { title = "Renamed elsewhere", rowVersion = Version(plan) });
-        var stale = await dentist.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { rowVersion = Version(plan) });
-        Assert.Equal(HttpStatusCode.Conflict, stale.Status);
-        Assert.Equal(["NotStarted", "NotStarted"], Completion((await dentist.SendAsync(HttpMethod.Get, P(plan))).Body));
-        Assert.Equal(0, (await dentist.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/clinical-history")).Body.GetProperty("entries").GetArrayLength());
-    }
-
-    [Fact]
-    public async Task A_plan_with_nothing_accepted_is_a_409_with_a_stable_code()
-    {
-        var dentist = await _api.SessionAsync("Dentist");
-        var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"));
-        var declined = await dentist.SendAsync(HttpMethod.Post, P(plan, $"/items/{Item(plan, 0)}/decision"), new { decision = "Declined", reason = "No", rowVersion = Version(plan) });
-        Assert.Equal(HttpStatusCode.OK, declined.Status);                               // an accepted procedure can still be declined until it is completed
-        var second = await dentist.SendAsync(HttpMethod.Post, P(plan, $"/items/{Item(plan, 1)}/decision"), new { decision = "Declined", reason = "No", rowVersion = Version(declined.Body) });
-        Assert.Equal(HttpStatusCode.OK, second.Status);
-        var none = await dentist.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { rowVersion = Version(second.Body) });
-        Assert.Equal((HttpStatusCode.Conflict, "nothing_to_complete"), (none.Status, Error(none.Body)));
     }
 
     [Fact]
@@ -138,13 +93,12 @@ public class TreatmentPlanCompleteAcceptedApiTests : IAsyncLifetime
 
         // 1. an accepted plan is completed and the clinical history updates
         Assert.Equal(0, (await dentist.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/clinical-history")).Body.GetProperty("entries").GetArrayLength());
-        var done = await dentist.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { rowVersion = Version(plan) });
+        await LegacyCompletionFixture.CompleteAcceptedAsync(_fixture, Id(plan), _s.Actor);              // completed the old way (the route is retired; see LegacyCompletionFixture)
+        var done = await dentist.SendAsync(HttpMethod.Get, P(plan));
         Assert.Equal(["Completed", "Completed"], Completion(done.Body));
         var history = (await dentist.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/clinical-history")).Body.GetProperty("entries");
         Assert.Equal(2, history.GetArrayLength());
         Assert.All(history.EnumerateArray(), h => Assert.False(string.IsNullOrWhiteSpace(h.GetProperty("completedByName").GetString())));
-        var again = await dentist.SendAsync(HttpMethod.Post, P(plan, "/complete-accepted"), new { rowVersion = Version(done.Body) });         // a replay is quiet
-        Assert.Equal(HttpStatusCode.OK, again.Status);
         Assert.Equal(2, (await dentist.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/clinical-history")).Body.GetProperty("entries").GetArrayLength());
 
         // 2. a revision keeps the original

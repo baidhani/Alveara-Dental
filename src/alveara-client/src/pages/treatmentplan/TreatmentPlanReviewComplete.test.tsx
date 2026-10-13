@@ -18,7 +18,7 @@ const acceptedPlan = () => plan({ items: [accepted("it1", "PERIO-1"), accepted("
 
 const row = (over: Partial<ItemReadiness> = {}): ItemReadiness => ({
   itemId: "it1", itemNumber: 1, procedureCode: "PERIO-1", procedureDescription: "PERIO-1 wording", toothKey: null, surface: null, ready: true, notReadyReason: null, chartEffect: "NotApplicable", chartMatches: 0,
-  billable: true, fee: 120, chargeExists: false, ...over,
+  billable: true, fee: 120, chargeExists: false, legacyCompleted: false, ...over,
 });
 const readinessOf = (items: ItemReadiness[]): CompletionReadiness => ({
   planId: "pl1", rowVersion: "R1", items,
@@ -56,17 +56,14 @@ afterEach(() => {
 });
 
 describe("where completing is offered", () => {
-  it("makes Review and complete the primary action and labels the old button as legacy completion that records none of the new effects", async () => {
+  it("makes Review and complete the only way to complete: the legacy completion controls are gone", async () => {
     stubApi({ plans: [acceptedPlan()] });
     render(<MemoryRouter><TreatmentPlansPanel patient={patient} canWrite /></MemoryRouter>);
     await screen.findByRole("heading", { name: "Plans on record" });
-    const primary = screen.getByRole("button", { name: "Review and complete…" });
-    expect(primary).toHaveClass("btn-primary");
-    const legacy = screen.getByRole("group", { name: "Legacy completion" });
-    expect(legacy).toHaveTextContent("records no provider, encounter, chart change or charge");
-    const old = within(legacy).getByRole("button", { name: "Complete accepted procedures" });
-    expect(old).toHaveClass("btn-outline-secondary");
-    expect(old).toHaveAccessibleDescription(/records no provider, encounter, chart change or charge/);
+    expect(screen.getByRole("button", { name: "Review and complete…" })).toHaveClass("btn-primary");
+    expect(screen.queryByRole("group", { name: "Legacy completion" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Complete accepted procedures" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Mark .* completed$/ })).not.toBeInTheDocument();
   });
 
   it("offers neither to a reader or when nothing accepted is left to complete", async () => {
@@ -79,21 +76,6 @@ describe("where completing is offered", () => {
     render(<MemoryRouter><TreatmentPlansPanel patient={patient} canWrite /></MemoryRouter>);
     expect((await screen.findAllByRole("heading", { name: "Plans on record" })).length).toBeGreaterThan(0);
     expect(screen.queryByRole("button", { name: "Review and complete…" })).not.toBeInTheDocument();
-  });
-});
-
-describe("the other legacy control", () => {
-  it("says the per-procedure completion is a legacy completion that records none of the new effects, and sends nothing until confirmed", async () => {
-    const user = userEvent.setup();
-    const api = stubApi({ plans: [acceptedPlan()] });
-    render(<MemoryRouter><TreatmentPlansPanel patient={patient} canWrite /></MemoryRouter>);
-    await screen.findByRole("heading", { name: "Plans on record" });
-    await user.click(screen.getByRole("button", { name: "Mark PERIO-1 completed" }));
-    const f = within(screen.getByRole("form", { name: "Mark PERIO-1 completed" }));
-    expect(f.getByText(/Completed is final/)).toBeInTheDocument();
-    expect(f.getByText(/Legacy completion\./)).toBeInTheDocument();
-    expect(f.getByText(/no provider, encounter, chart change or charge/)).toBeInTheDocument();
-    expect(api.calls.filter((c) => c.method === "POST")).toHaveLength(0);
   });
 });
 

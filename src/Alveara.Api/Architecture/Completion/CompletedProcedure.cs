@@ -35,6 +35,11 @@ public class CompletionSet
     /// <summary>The plan revision in force when the set was submitted.</summary>
     public int PlanRevisionNumber { get; set; }
     public int ItemCount { get; set; }
+    /// <summary>
+    /// ALV-008-C02: set exactly when this set is the adoption of one procedure that was completed the old, state-only way (why the clinician is recording its missing attribution now). Null for an ordinary
+    /// completion. An adopted set always has an item count of one.
+    /// </summary>
+    public string? AdoptionReason { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid CreatedByUserId { get; set; }
 }

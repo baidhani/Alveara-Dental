@@ -104,7 +104,7 @@ public class TreatmentPlanProcedureUsageApiTests : IAsyncLifetime
         var second = await PlanWithAsync(dentist, procedure.Id, _bo);
         var secondItem = second.GetProperty("items")[0].GetProperty("id").GetString()!;
         Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(second)}/items/{secondItem}/decision", new { decision = "Accepted", rowVersion = Version(second) })).Status);
-        Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(second)}/items/{secondItem}/complete")).Status);
+        await LegacyCompletionFixture.CompleteItemAsync(_fixture, Id(second), secondItem, _s.Actor);   // completed the old, state-only way (the route is retired; see LegacyCompletionFixture)
         Assert.Equal((2, 2), await UsageAsync(admin, procedure.Id));                                             // a completed one, on another patient's plan, counts too
     }
 

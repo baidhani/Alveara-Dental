@@ -195,7 +195,8 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
 
         var scheduled = await dentist.SendAsync(HttpMethod.Post, P(plan2, $"/items/{Item(plan2, 0)}/schedule"), new { scheduled = true, plannedDate = "2030-05-20" });
         Assert.Equal(("Scheduled", "2030-05-20"), (scheduled.Body.GetProperty("items")[0].GetProperty("scheduling").GetString(), scheduled.Body.GetProperty("items")[0].GetProperty("plannedDate").GetString()));
-        var done = await dentist.SendAsync(HttpMethod.Post, P(plan2, $"/items/{Item(plan2, 0)}/complete"));
+        await LegacyCompletionFixture.CompleteItemAsync(_fixture, Id(plan2), Item(plan2, 0), _s.Actor);        // completed the old way (the route is retired; see LegacyCompletionFixture)
+        var done = await dentist.SendAsync(HttpMethod.Get, P(plan2));
         Assert.Equal("Completed", done.Body.GetProperty("items")[0].GetProperty("completion").GetString());
         var late = await dentist.SendAsync(HttpMethod.Post, P(plan2, $"/items/{Item(plan2, 0)}/decision"), new { decision = "Declined", reason = "x", rowVersion = Version(plan2) });
         Assert.Equal((HttpStatusCode.Conflict, "item_completed"), (late.Status, Error(late.Body)));
@@ -283,7 +284,7 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.NotFound, (await dentist.SendAsync(HttpMethod.Get, $"/api/treatment-plans/{unknown}/revisions")).Status);
         Assert.Equal("revision_not_found", Error((await dentist.SendAsync(HttpMethod.Get, P(plan, "/revisions/99"))).Body));
         Assert.Equal("revision_not_found", Error((await dentist.SendAsync(HttpMethod.Get, P(plan, "/revisions/compare?from=1&to=99"))).Body));
-        Assert.Equal("item_not_found", Error((await dentist.SendAsync(HttpMethod.Post, P(plan, $"/items/{unknown}/complete"))).Body));
+        Assert.Equal("legacy_completion_retired", Error((await dentist.SendAsync(HttpMethod.Post, P(plan, $"/items/{unknown}/complete"))).Body));      // the retired route does not look anything up
         Assert.Equal(HttpStatusCode.NotFound, (await dentist.SendAsync(HttpMethod.Post, $"/api/patients/{unknown}/treatment-plans/reconcile-references", new { apply = false })).Status);
     }
 

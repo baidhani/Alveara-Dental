@@ -2203,6 +2203,10 @@ namespace Alveara.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AdoptionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<Guid>("CorrelationId")
                         .HasColumnType("uniqueidentifier");
 
@@ -2247,9 +2251,13 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("CompletionSets", t =>
                         {
+                            t.HasTrigger("TR_CompletionSets_Adoption");
+
                             t.HasTrigger("TR_CompletionSets_Immutable");
 
                             t.HasTrigger("TR_CompletionSets_Links");
+
+                            t.HasCheckConstraint("CK_CompletionSets_AdoptionReason", "[AdoptionReason] IS NULL OR (LEN(LTRIM(RTRIM([AdoptionReason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [AdoptionReason] COLLATE Latin1_General_BIN2) = 0)");
 
                             t.HasCheckConstraint("CK_CompletionSets_Counts", "[ItemCount] >= 1 AND [PlanRevisionNumber] >= 1");
 

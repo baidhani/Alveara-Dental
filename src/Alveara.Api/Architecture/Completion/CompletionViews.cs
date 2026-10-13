@@ -15,10 +15,10 @@ public sealed record ChargeEffect(string Outcome, int? EntryNumber, decimal? Amo
 /// <summary>One procedure of a completion set as it was recorded: where it came from, who did it, when, where on the chart and what happened to the chart and the charge.</summary>
 public sealed record CompletedProcedureView(
     Guid Id, Guid PlanItemId, int ItemNumber, string ProcedureCode, string ProcedureDescription, string? ToothKey, string? Surface, Guid EncounterId, Guid ProviderProfileId,
-    DateTimeOffset PerformedAtUtc, int PlanRevisionNumber, string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge);
+    DateTimeOffset PerformedAtUtc, int PlanRevisionNumber, string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge, bool Adopted = false, string? AdoptionReason = null);
 
 /// <summary>The answer to completing a set: the plan as it now stands, the set, whether this was a replay of an earlier identical submission, and each procedure as recorded.</summary>
-public sealed record CompletionResult(PlanView Plan, Guid SetId, Guid CorrelationId, bool Replayed, IReadOnlyList<CompletedProcedureView> Procedures);
+public sealed record CompletionResult(PlanView Plan, Guid SetId, Guid CorrelationId, bool Replayed, IReadOnlyList<CompletedProcedureView> Procedures, string? AdoptionReason = null);
 
 /// <summary>Why one selected procedure cannot be completed now: <c>already_completed</c>, <c>withdrawn</c> or <c>not_accepted</c>.</summary>
 public sealed record ItemRefusal(Guid ItemId, int ItemNumber, string Reason);
@@ -55,7 +55,7 @@ public sealed class AmbiguousChartFindingException(IReadOnlyList<ChartAmbiguity>
 /// <summary>What completing one procedure would do now, as the server will do it: whether it can be completed (and why not), what happens to the chart, and whether it will be charged.</summary>
 public sealed record ItemReadiness(
     Guid ItemId, int ItemNumber, string ProcedureCode, string ProcedureDescription, string? ToothKey, string? Surface, bool Ready, string? NotReadyReason,
-    string ChartEffect, int ChartMatches, bool Billable, decimal Fee, bool ChargeExists);
+    string ChartEffect, int ChartMatches, bool Billable, decimal Fee, bool ChargeExists, bool LegacyCompleted = false);
 
 /// <summary>Readiness of a selection (or of every open procedure), read from the same rules the completion applies, with the plan's version the answer is about.</summary>
 public sealed record CompletionReadiness(Guid PlanId, string RowVersion, IReadOnlyList<ItemReadiness> Items, IReadOnlyList<ProviderChoice> Providers, IReadOnlyList<EncounterChoice> Encounters);
@@ -77,7 +77,8 @@ public sealed record CompletedProcedureDetail(
     Guid Id, Guid SetId, Guid PatientId, Guid PlanId, string PlanTitle, Guid PlanItemId, int ItemNumber, int PlanRevisionNumber, string ProcedureCode, string ProcedureDescription, string? ToothKey, string? Surface,
     Guid EncounterId, DateTimeOffset EncounterAtUtc, Guid ProviderProfileId, string ProviderName, DateTimeOffset PerformedAtUtc,
     Guid OriginalEncounterId, Guid OriginalProviderProfileId, DateTimeOffset OriginalPerformedAtUtc,
-    string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge, string FinalizedByName, DateTimeOffset FinalizedAtUtc, int LatestAmendmentNumber, IReadOnlyList<AmendmentView> Amendments);
+    string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge, string FinalizedByName, DateTimeOffset FinalizedAtUtc, int LatestAmendmentNumber, IReadOnlyList<AmendmentView> Amendments,
+    bool Adopted = false, string? AdoptionReason = null);
 
 /// <summary>The answer to correcting a completed procedure: the procedure as it now stands, the number of the amendment, and whether this was a replay of an earlier identical correction.</summary>
 public sealed record AmendmentResult(CompletedProcedureDetail Procedure, int AmendmentNumber, bool Replayed);

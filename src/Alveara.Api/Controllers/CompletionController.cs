@@ -11,6 +11,9 @@ namespace Alveara.Api.Controllers;
 /// <summary>A selected set of one plan's procedures to complete: the caller's key, the plan's version as last read, the encounter, the provider, when it was performed and which procedures.</summary>
 public record CompleteProceduresBody(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, List<Guid>? ItemIds);
 
+/// <summary>ALV-008-C02: adopt ONE procedure completed the old way: the caller's key, the plan's version as last read, who performed it, where, when and why it is being recorded now. The procedure is named by the route.</summary>
+public record AdoptCompletionBody(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, string? Reason);
+
 /// <summary>A correction to a completed procedure: the amendment last seen (0 if none), the caller's key, what to correct and why.</summary>
 public record AmendProcedureBody(string? IdempotencyKey, int? ExpectedAmendmentNumber, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, Guid? EncounterId, string? Reason);
 
@@ -56,11 +59,26 @@ public class CompletionController(CompletedProcedureService completion) : Contro
     public Task<IActionResult> Complete(Guid planId, [FromBody] CompleteProceduresBody body, CancellationToken ct) =>
         Run(async () => Ok(await completion.CompleteAsync(planId, new CompleteProceduresRequest(body.IdempotencyKey, body.RowVersion, body.EncounterId, body.ProviderId, body.PerformedAtUtc, body.ItemIds), Actor, ct)));
 
+    /// <summary>
+    /// ALV-008-C02: adopts one procedure that was completed the old, state-only way: records its provider, encounter, performed time and reason, the completed-procedure record, the chart effect and its one charge in
+    /// one transaction, without changing the old completion's history. <c>not_a_legacy_completion</c> when the procedure is not Completed or already has a record; the same refusals and conflicts as completing.
+    /// </summary>
+    [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/adopt-completion")]
+    [RequirePermission(Permission.ManageTreatmentPlans)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Adopt(Guid planId, Guid itemId, [FromBody] AdoptCompletionBody body, CancellationToken ct) =>
+        Run(async () => Ok(await completion.AdoptAsync(planId, itemId, new AdoptCompletionRequest(body.IdempotencyKey, body.RowVersion, body.EncounterId, body.ProviderId, body.PerformedAtUtc, body.Reason), Actor, ct)));
+
     /// <summary>What completing the given procedures (or every open one) would do: which can be completed, the chart effect and the charge effect of each. Reads only.</summary>
     [HttpGet("api/treatment-plans/{planId:guid}/completion-readiness")]
     [RequirePermission(Permission.ManageTreatmentPlans)]
     public Task<IActionResult> Readiness(Guid planId, [FromQuery] Guid[]? itemIds, CancellationToken ct) =>
         Run(async () => Ok(await completion.ReadinessAsync(planId, itemIds, ct)));
+
+    /// <summary>ALV-008-C02 Gate D: counts only (no patient, plan or amount) of every disagreement between completion records, the ledger and the chart, and of procedures still waiting for adoption. Reads only.</summary>
+    [HttpGet("api/completion/reconciliation")]
+    [RequirePermission(Permission.ViewAuditLog)]
+    public Task<IActionResult> Reconciliation(CancellationToken ct) => Run(async () => Ok(await completion.ReconcileAsync(ct)));
 
     [HttpGet("api/patients/{patientId:guid}/completed-procedures")]
     [RequirePermission(Permission.ViewClinicalDocumentation)]

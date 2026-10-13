@@ -42,7 +42,7 @@ public partial class CompletedProcedureService
         var people = await ClinicalNames.ResolveAsync(db, rows.Select(r => (Guid?)r.FinalizedByUserId).Concat(amendments.SelectMany(g => g).Select(a => (Guid?)a.AmendedByUserId)), ct);
 
         var setIds = rows.Select(r => r.SetId).Distinct().ToList();
-        var sets = await db.CompletionSets.AsNoTracking().Where(s => setIds.Contains(s.Id)).ToDictionaryAsync(s => s.Id, s => s.CorrelationId, ct);
+        var sets = await db.CompletionSets.AsNoTracking().Where(s => setIds.Contains(s.Id)).ToDictionaryAsync(s => s.Id, s => new { s.CorrelationId, s.AdoptionReason }, ct);
         var entries = await db.BillingEntries.AsNoTracking().Where(e => e.PlanItemId != null && itemIds.Contains(e.PlanItemId.Value)).ToDictionaryAsync(e => e.PlanItemId!.Value, ct);
 
         string Provider(Guid id) => providers.GetValueOrDefault(id) ?? ClinicalNames.Fallback;
@@ -55,12 +55,12 @@ public partial class CompletedProcedureService
             var encounterId = made.LastOrDefault(a => a.EncounterId is not null)?.EncounterId ?? r.EncounterId;
             ChargeEffect? charge = item.Fee <= 0m || !entries.TryGetValue(item.Id, out var entry)
                 ? new ChargeEffect(ChargeOutcomes.None, null, null)
-                : new ChargeEffect(entry.CorrelationId == sets.GetValueOrDefault(r.SetId) ? ChargeOutcomes.Created : ChargeOutcomes.Existing, entry.EntryNumber, entry.Amount);
+                : new ChargeEffect(entry.CorrelationId == sets[r.SetId].CorrelationId ? ChargeOutcomes.Created : ChargeOutcomes.Existing, entry.EntryNumber, entry.Amount);
             var views = made.Select(a => new AmendmentView(a.AmendmentNumber, a.Reason, a.ProviderProfileId, a.ProviderProfileId is { } p ? Provider(p) : null, a.PerformedAtUtc, a.EncounterId,
                 a.EncounterId is { } e ? encounters.GetValueOrDefault(e) : null, ClinicalNames.Name(people, a.AmendedByUserId) ?? ClinicalNames.Fallback, a.AmendedAtUtc)).ToList();
             return new CompletedProcedureDetail(r.Id, r.SetId, r.PatientId, r.PlanId, titles[r.PlanId], r.PlanItemId, item.ItemNumber, r.PlanRevisionNumber, codes[item.ProcedureId], versions[r.ProcedureVersionId],
                 r.ToothKey, r.Surface, encounterId, encounters.GetValueOrDefault(encounterId), providerId, Provider(providerId), performed, r.EncounterId, r.ProviderProfileId, r.PerformedAtUtc,
-                r.ChartOutcome, r.ToothFindingId, charge, ClinicalNames.Name(people, r.FinalizedByUserId) ?? ClinicalNames.Fallback, r.FinalizedAtUtc, made.Count == 0 ? 0 : made[^1].AmendmentNumber, views);
+                r.ChartOutcome, r.ToothFindingId, charge, ClinicalNames.Name(people, r.FinalizedByUserId) ?? ClinicalNames.Fallback, r.FinalizedAtUtc, made.Count == 0 ? 0 : made[^1].AmendmentNumber, views, sets[r.SetId].AdoptionReason is not null, sets[r.SetId].AdoptionReason);
         }).ToList();
     }
 }

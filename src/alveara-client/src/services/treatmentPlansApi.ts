@@ -238,13 +238,6 @@ export const decidePlan = (plan: Versioned, input: DecisionInput) =>
 export const scheduleItem = (planId: string, itemId: string, scheduled: boolean, plannedDate: string | null) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/schedule`, "POST", { scheduled, plannedDate });
 
-export const completeItem = (planId: string, itemId: string) =>
-  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/complete`, "POST", {});
-
-/** STORY-008: completes every accepted, not yet completed procedure of the plan in one all-or-nothing save. Refused (409 nothing_to_complete) when none is accepted; 409 on a stale plan. */
-export const completeAcceptedProcedures = (plan: Versioned) =>
-  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/complete-accepted`, "POST", { rowVersion: plan.rowVersion });
-
 /** One completed procedure in a patient's clinical history, read from the completion record of the plan it was planned in. */
 export interface ClinicalHistoryEntry {
   planId: string;

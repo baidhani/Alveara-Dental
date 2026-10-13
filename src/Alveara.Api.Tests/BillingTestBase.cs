@@ -27,7 +27,7 @@ public abstract class BillingTestBase : TreatmentPlanTestBase
         var plan = await CreateAsync([Item(diagnosis, a.Summary.Id), Item(diagnosis, b.Summary.Id), Item(diagnosis, c.Summary.Id)], patient: patient);
         plan = await Svc(s => s.DecideItemAsync(plan.Id, plan.Items[0].Id, "Accepted", null, null, plan.RowVersion, S.Actor, default));
         plan = await Svc(s => s.DecideItemAsync(plan.Id, plan.Items[1].Id, "Accepted", null, null, plan.RowVersion, S.Actor, default));
-        plan = await Svc(s => s.CompleteItemAsync(plan.Id, plan.Items[0].Id, S.Actor, default));
+        plan = await LegacyComplete(plan.Id, plan.Items[0].Id);
         plan = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[2].Id, "Not needed", plan.RowVersion, S.Actor, default));
         return new BillablePlan(plan, a, plan.Items[0].Id, plan.Items[1].Id, plan.Items[2].Id);
     }

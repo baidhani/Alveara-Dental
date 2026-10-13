@@ -45,13 +45,13 @@ public partial class BillingService
         }
     }
 
-    /// <summary>The ledger of an account as the document builder reads it. Amendments after <paramref name="amendmentCap"/> are ignored (null: use the latest), which is how an issued document ages as it did on the day.</summary>
+    /// <summary>The ledger of an account as the document builder reads it. Completion records finalized after <paramref name="amendmentCap"/>, and amendments made after it, are ignored (null: use the latest), which is how an issued document ages as it did on the day. A record can post-date its charge since ALV-008-C02 (adopting a procedure that billing charged by hand), so a record that did not exist when a document was issued must not change what it says.</summary>
     private async Task<LedgerSnapshot> LoadSnapshotAsync(Guid accountId, DateTimeOffset? amendmentCap, CancellationToken ct)
     {
         var ledger = await LoadLedgerAsync(accountId, ct);
         var methods = await db.BillingPaymentMethods.AsNoTracking().ToDictionaryAsync(m => m.Id, m => m.Name, ct);
         var planItemIds = ledger.Entries.Where(e => e.PlanItemId is not null).Select(e => e.PlanItemId!.Value).ToList();
-        var procedures = await db.CompletedProcedures.AsNoTracking().Where(p => planItemIds.Contains(p.PlanItemId)).ToListAsync(ct);
+        var procedures = await db.CompletedProcedures.AsNoTracking().Where(p => planItemIds.Contains(p.PlanItemId) && (amendmentCap == null || p.FinalizedAtUtc <= amendmentCap)).ToListAsync(ct);
         var procedureIds = procedures.Select(p => p.Id).ToList();
         var amendments = (await db.CompletedProcedureAmendments.AsNoTracking().Where(a => procedureIds.Contains(a.CompletedProcedureId) && a.PerformedAtUtc != null).ToListAsync(ct))
             .Where(a => amendmentCap is null || a.AmendedAtUtc <= amendmentCap).GroupBy(a => a.CompletedProcedureId).ToDictionary(g => g.Key, g => g.OrderBy(a => a.AmendmentNumber).Last().PerformedAtUtc!.Value);

@@ -39,6 +39,10 @@ public abstract class TreatmentPlanTestBase : SafetyTestBase
     protected Task<T> Svc<T>(Func<TreatmentPlanService, Task<T>> action) => WithDb(db => action(Plans(db)));
     protected Task<T> Catalog<T>(Func<ProcedureCatalogService, Task<T>> action) => WithDb(db => action(CatalogFor(db)));
 
+    /// <summary>ALV-008-C02: a procedure completed the old, state-only way (see <see cref="LegacyCompletionFixture"/>); the starting point of every test that needs "completed and not yet billed".</summary>
+    protected Task<PlanView> LegacyComplete(Guid planId, Guid itemId) => WithDb(db => LegacyCompletionFixture.CompleteItemAsync(db, planId, itemId, S.Actor));
+    protected Task<PlanView> LegacyCompleteAccepted(Guid planId) => WithDb(db => LegacyCompletionFixture.CompleteAcceptedAsync(db, planId, S.Actor));
+
     /// <summary>A current diagnosis for a patient, recorded through the real diagnosis service.</summary>
     protected async Task<Guid> DiagnosisAsync(Guid? patient = null, string label = "Chronic periodontitis")
     {

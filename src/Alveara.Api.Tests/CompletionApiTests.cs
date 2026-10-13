@@ -252,7 +252,8 @@ public class CompletionApiTests : IAsyncLifetime
     {
         var dentist = await _api.SessionAsync("Dentist");
         var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"), 2);
-        var old = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, $"/items/{plan.GetProperty("items")[0].GetProperty("id").GetString()}/complete"), new { });
+        await LegacyCompletionFixture.CompleteItemAsync(_fixture, Id(plan), plan.GetProperty("items")[0].GetProperty("id").GetString()!, _s.Actor);          // completed the old way (the route is retired; see LegacyCompletionFixture)
+        var old = await dentist.SendAsync(HttpMethod.Get, PlanUrl(plan));
         Assert.Equal(HttpStatusCode.OK, old.Status);
         var done = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/complete-procedures"), Body(old.Body, [1], version: Version(old.Body)));
         Assert.Equal(HttpStatusCode.OK, done.Status);
@@ -266,33 +267,108 @@ public class CompletionApiTests : IAsyncLifetime
         Assert.True(authoritative.TryGetProperty("completedByName", out _));                                                            // the STORY-008 fields are still there
     }
 
-    // ---------- the legacy routes ----------
+    // ---------- the retired legacy routes (ALV-008-C02) ----------
 
-    [Fact]
-    public async Task The_legacy_completion_routes_are_unchanged_and_only_log_that_they_were_used()
+    private static readonly string[] Bodies = ["none", "empty", "garbage", "valid-looking"];
+
+    private async Task<(HttpStatusCode Status, JsonElement Body)> RetiredAsync(Session by, string route, string planId, string itemId, string kind, string version) => route switch
+    {
+        "complete-accepted" => kind switch
+        {
+            "none" => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/complete-accepted"),
+            "empty" => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/complete-accepted", new { }),
+            "garbage" => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/complete-accepted", new { rowVersion = "not-a-version", extra = new[] { 1, 2, 3 } }),
+            _ => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/complete-accepted", new { rowVersion = version }),
+        },
+        _ => kind switch
+        {
+            "none" => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/items/{itemId}/complete"),
+            "empty" => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/items/{itemId}/complete", new { }),
+            "garbage" => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/items/{itemId}/complete", new { rowVersion = "not-a-version", extra = new[] { 1, 2, 3 } }),
+            _ => await by.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{planId}/items/{itemId}/complete", new { rowVersion = version }),
+        },
+    };
+
+    [Theory]
+    [InlineData("complete-accepted")]
+    [InlineData("items/complete")]
+    public async Task A_retired_completion_route_answers_410_with_the_replacement_and_changes_nothing_whatever_the_request_carries(string route)
     {
         var dentist = await _api.SessionAsync("Dentist");
         var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"), 3);
+        var item = plan.GetProperty("items")[0].GetProperty("id").GetString()!;
+        async Task<int[]> Counts() => [await _s.CountAsync(db => db.TreatmentPlanItemStates), await _s.CountAsync(db => db.TreatmentPlanEvents), await _s.CountAsync(db => db.AuditLogEntries),
+            await _s.CountAsync(db => db.CompletedProcedures), await _s.CountAsync(db => db.CompletionSets), await _s.CountAsync(db => db.BillingEntries)];
+        var before = await Counts();
 
-        var one = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, $"/items/{plan.GetProperty("items")[0].GetProperty("id").GetString()}/complete"), new { });
-        Assert.Equal(HttpStatusCode.OK, one.Status);
-        var all = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/complete-accepted"), new { rowVersion = Version(one.Body) });
-        Assert.Equal(HttpStatusCode.OK, all.Status);
-        var refused = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/complete-accepted"), new { });
-        Assert.Equal(HttpStatusCode.BadRequest, refused.Status);
+        foreach (var kind in Bodies)
+        {
+            var r = await RetiredAsync(dentist, route, Id(plan), item, kind, Version(plan));
+            Assert.Equal((HttpStatusCode)410, r.Status);
+            Assert.Equal("legacy_completion_retired", Error(r.Body));
+            Assert.Contains("complete-procedures", r.Body.GetProperty("replacement").GetProperty("completeProcedures").GetString());
+            Assert.Contains("adopt-completion", r.Body.GetProperty("replacement").GetProperty("adopt").GetString());
+            Assert.DoesNotContain(Id(plan), r.Body.GetRawText());
+        }
+        var unknown = await RetiredAsync(dentist, route, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), "valid-looking", "AAAA");          // it looks nothing up, so it says nothing about what exists
+        Assert.Equal((HttpStatusCode)410, unknown.Status);
 
-        Assert.Equal(["Completed", "Completed", "Completed"], all.Body.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("completion").GetString()!).ToArray());
-        Assert.Equal((0, 0, 0), (await _s.CountAsync(db => db.CompletedProcedures), await _s.CountAsync(db => db.CompletionSets), await _s.CountAsync(db => db.BillingEntries)));    // they record nothing new
+        Assert.Equal(before, await Counts());
+        Assert.Equal(["NotStarted", "NotStarted", "NotStarted"], (await dentist.SendAsync(HttpMethod.Get, PlanUrl(plan))).Body.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("completion").GetString()!).ToArray());
+    }
 
-        var events = _logs.Entries.Where(e => e.Message.StartsWith("legacy_completion_used")).Select(e => e.Message).ToList();
+    [Theory]
+    [InlineData("Admin", true)] [InlineData("Dentist", true)]
+    [InlineData("Hygienist", false)] [InlineData("Assistant", false)] [InlineData("FrontDesk", false)] [InlineData("Billing", false)] [InlineData("OfficeManager", false)]
+    public async Task The_sign_in_role_and_csrf_checks_still_come_before_the_410(string role, bool allowed)
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"), 2);
+        var item = plan.GetProperty("items")[0].GetProperty("id").GetString()!;
+        var by = await _api.SessionAsync(role);
+
+        foreach (var route in new[] { "complete-accepted", "items/complete" })
+        {
+            var r = await RetiredAsync(by, route, Id(plan), item, "empty", Version(plan));
+            Assert.Equal(allowed ? (HttpStatusCode)410 : HttpStatusCode.Forbidden, r.Status);
+        }
+        var anon = _api.Factory.CreateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"/api/treatment-plans/{Id(plan)}/complete-accepted"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.SendAsync(new HttpRequestMessage(HttpMethod.Post, $"/api/treatment-plans/{Id(plan)}/items/{item}/complete"))).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(plan)}/complete-accepted", new { }, csrf: false)).Status);
+        Assert.Equal(HttpStatusCode.BadRequest, (await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(plan)}/items/{item}/complete", csrf: false)).Status);
+    }
+
+    [Fact]
+    public async Task Each_attempt_on_a_retired_route_is_logged_as_a_phi_free_event_and_the_old_usage_event_is_gone()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"), 2);
+        var item = plan.GetProperty("items")[0].GetProperty("id").GetString()!;
+        await RetiredAsync(dentist, "items/complete", Id(plan), item, "empty", Version(plan));
+        await RetiredAsync(dentist, "complete-accepted", Id(plan), item, "garbage", Version(plan));
+        await RetiredAsync(dentist, "complete-accepted", Id(plan), item, "none", Version(plan));
+
+        var events = _logs.Entries.Where(e => e.Message.StartsWith("legacy_completion_retired_attempt")).Select(e => e.Message).ToList();
         Assert.Equal(3, events.Count);
-        Assert.Contains(events, m => m.Contains("route=items/complete") && m.Contains("outcome=success"));
-        Assert.Contains(events, m => m.Contains("route=complete-accepted") && m.Contains("outcome=success"));
-        Assert.Contains(events, m => m.Contains("route=complete-accepted") && m.Contains("outcome=failure") && m.Contains("status=400"));
-        Assert.All(events, m => { Assert.Contains("trace_id=", m); Assert.DoesNotContain(Id(plan), m); });                                   // no plan, patient or clinical detail
+        Assert.Contains(events, m => m.Contains("route=items/complete") && m.Contains("status=410"));
+        Assert.Equal(2, events.Count(m => m.Contains("route=complete-accepted") && m.Contains("status=410")));
+        Assert.All(events, m => { Assert.Contains("trace_id=", m); Assert.DoesNotContain(Id(plan), m); Assert.DoesNotContain(item, m); });          // no plan, patient or clinical detail
+        Assert.Empty(_logs.Entries.Where(e => e.Message.StartsWith("legacy_completion_used")));
+    }
 
-        var product = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/complete-procedures"), Body(all.Body, [0], "set-1", version: Version(all.Body)));
-        Assert.Equal(HttpStatusCode.Conflict, product.Status);                                                                                 // already completed the old way: the new workflow refuses it
-        Assert.Equal(3, _logs.Entries.Count(e => e.Message.StartsWith("legacy_completion_used")));                                          // and does not count as legacy use
+    [Fact]
+    public async Task A_procedure_completed_the_old_way_is_still_refused_by_the_workflow_as_already_completed_and_is_not_counted_as_a_retired_attempt()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        var plan = await AcceptedPlanAsync(dentist, await _api.SessionAsync("Admin"), 3);
+        await LegacyCompletionFixture.CompleteAcceptedAsync(_fixture, Id(plan), _s.Actor);                                                      // completed the old way, through the test-only fixture
+        var done = await dentist.SendAsync(HttpMethod.Get, PlanUrl(plan));
+        Assert.Equal(["Completed", "Completed", "Completed"], done.Body.GetProperty("items").EnumerateArray().Select(i => i.GetProperty("completion").GetString()!).ToArray());
+        Assert.Equal((0, 0, 0), (await _s.CountAsync(db => db.CompletedProcedures), await _s.CountAsync(db => db.CompletionSets), await _s.CountAsync(db => db.BillingEntries)));    // the old way records nothing else
+
+        var product = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/complete-procedures"), Body(done.Body, [0], "set-1", version: Version(done.Body)));
+        Assert.Equal(HttpStatusCode.Conflict, product.Status);                                                                                  // already completed: the new workflow refuses it
+        Assert.Empty(_logs.Entries.Where(e => e.Message.StartsWith("legacy_completion_retired_attempt")));
     }
 }

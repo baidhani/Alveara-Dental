@@ -165,27 +165,13 @@ describe("scheduling and completing", () => {
     expect(posts(api)[1].body).toEqual({ scheduled: false, plannedDate: null });
   });
 
-  it("completes an accepted procedure only after confirming that it is final", async () => {
-    const user = userEvent.setup();
+  it("offers no way to mark a procedure completed: completing is done on the plan with Review and complete", async () => {
     const api = stubApi({ plans: [mixed()] });
     await open(true);
-    await user.click(screen.getByRole("button", { name: "Mark PERIO-1 completed" }));
-    const f = within(screen.getByRole("form", { name: "Mark PERIO-1 completed" }));
-    expect(f.getByText(/Completed is final/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Mark .* completed/ })).not.toBeInTheDocument();
+    expect(within(row("PERIO-1")).getByRole("button", { name: "Schedule PERIO-1" })).toBeInTheDocument();     // the rest of the per-procedure controls are unchanged
+    expect(screen.getByRole("button", { name: "Review and complete…" })).toBeInTheDocument();
     expect(posts(api)).toHaveLength(0);
-    await user.click(f.getByRole("button", { name: "Confirm completed" }));
-    expect(posts(api)[0].url).toContain("/api/treatment-plans/pl1/items/it1/complete");
-    expect(await screen.findByText("PERIO-1 marked completed.")).toBeInTheDocument();
-  });
-
-  it("shows the server's refusal and keeps the form open", async () => {
-    const user = userEvent.setup();
-    stubApi({ plans: [mixed()], respond: { "/items/it1/complete": () => json({ error: "item_not_accepted", message: "Only an accepted procedure can be scheduled or completed. Accept it first." }, 409) } });
-    await open(true);
-    await user.click(screen.getByRole("button", { name: "Mark PERIO-1 completed" }));
-    const f = within(screen.getByRole("form", { name: "Mark PERIO-1 completed" }));
-    await user.click(f.getByRole("button", { name: "Confirm completed" }));
-    expect(await f.findByRole("alert")).toHaveTextContent("Not saved: Only an accepted procedure can be scheduled or completed. Accept it first.");
   });
 
   it("has no accessibility violations with an answer form open", async () => {

@@ -15,7 +15,7 @@ public class BillingLedgerSchemaTests : BillingTestBase
     private async Task<(Guid First, Guid Second)> TwoCompletedAsync()
     {
         var p = await BillablePlanAsync();
-        await Svc(s => s.CompleteItemAsync(p.Plan.Id, p.Accepted, S.Actor, default));
+        await LegacyComplete(p.Plan.Id, p.Accepted);
         return (p.Completed, p.Accepted);
     }
 

@@ -21,7 +21,7 @@ public class BillingRefundConcurrencyTests : BillingTestBase
     private async Task<BillingAccountView> PaidAsync()
     {
         var plan = await BillablePlanAsync();
-        await Svc(s => s.CompleteItemAsync(plan.Plan.Id, plan.Accepted, S.Actor, default));
+        await LegacyComplete(plan.Plan.Id, plan.Accepted);
         await Bill(s => s.RecordChargeAsync(Ann, new ChargeInput(plan.Completed, "c-1"), S.Actor, default));
         var two = await Bill(s => s.RecordChargeAsync(Ann, new ChargeInput(plan.Accepted, "c-2"), S.Actor, default));
         return await Bill(s => s.RecordPaymentAsync(Ann, new PaymentInput(150m, "Cash", null, two.RowVersion, "p-1", [To(1, 60m), To(2, 40m)]), S.Actor, default));

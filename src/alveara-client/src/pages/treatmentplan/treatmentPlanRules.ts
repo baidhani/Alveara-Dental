@@ -5,7 +5,7 @@
 import { isPrimary, isToothKey } from "../odontogram/toothNumbering";
 import type { PlanItem, PlanItemInput, PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 
-/** STORY-008: the procedures "Complete accepted procedures" would complete: accepted, not withdrawn and not yet completed. */
+/** STORY-008: the procedures "Review and complete" would offer: accepted, not withdrawn and not yet completed. */
 export const acceptedOpenItems = (plan: TreatmentPlan): PlanItem[] =>
   plan.items.filter((i) => !i.isWithdrawn && i.acceptance === "Accepted" && i.completion !== "Completed");
 

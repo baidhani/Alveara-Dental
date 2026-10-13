@@ -20,7 +20,7 @@ public class BillingRefundSchemaTests : BillingTestBase
     private async Task<Ledger> LedgerAsync()
     {
         var p = await BillablePlanAsync();
-        await Svc(s => s.CompleteItemAsync(p.Plan.Id, p.Accepted, S.Actor, default));
+        await LegacyComplete(p.Plan.Id, p.Accepted);
         var account = await NewAccountAsync();
         var one = ChargeRow(account, p.Completed, 100m, 1, "c-1");
         var two = ChargeRow(account, p.Accepted, 100m, 2, "c-2");

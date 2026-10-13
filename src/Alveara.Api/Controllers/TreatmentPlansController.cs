@@ -23,7 +23,7 @@ public record PlanPhaseRequest(int? Number, string? Name, string? PlannedVisit, 
 public record PlanPlacementRequest(Guid? ItemId, int? PhaseNumber);
 
 /// <summary>ALV-015-C01: a patient's answer. <c>decision</c> is Accepted or Declined; a decline needs a reason; <c>decidedByName</c> is who gave the answer (the signed-in account is recorded as who entered it).</summary>
-public record CompleteAcceptedRequest(string? RowVersion);
+
 public record DecisionRequest(string? Decision, string? Reason, string? DecidedByName, string? RowVersion);
 
 public record ScheduleRequest(bool Scheduled, DateOnly? PlannedDate);
@@ -57,16 +57,19 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     /// <summary>
-    /// ALV-008-C01 (R1a): the two STORY-008 completion routes are legacy compatibility paths (state-only completion: no provider, encounter, chart effect or charge). This only records that one was used, as a
-    /// PHI-free structured event with the route, the outcome and the request's trace id, so their use can be measured before they are retired. It changes nothing about what the route returns or stores.
+    /// ALV-008-C02: the two STORY-008 completion routes are retired. They created a state-only completion (no provider, encounter, chart effect or charge) and can no longer create anything: after the usual
+    /// sign-in, role and CSRF checks they answer <c>410 Gone</c> and name the authoritative workflow and the adoption command for a procedure that was completed the old way. Each attempt is logged as a PHI-free
+    /// structured event (route, status and the request's trace id); nothing is read from the request, written to the database or audited as a completion.
     /// </summary>
-    private async Task<IActionResult> LegacyCompletion(string route, Func<Task<IActionResult>> action)
+    private IActionResult RetiredCompletion(string route)
     {
-        var result = await action();
-        var status = (result as Microsoft.AspNetCore.Mvc.Infrastructure.IStatusCodeActionResult)?.StatusCode ?? 200;
-        logger.LogInformation("legacy_completion_used route={Route} outcome={Outcome} status={Status} trace_id={TraceId}", route, status < 300 ? "success" : "failure", status,
-            System.Diagnostics.Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier);
-        return result;
+        logger.LogWarning("legacy_completion_retired_attempt route={Route} status={Status} trace_id={TraceId}", route, 410, System.Diagnostics.Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier);
+        return StatusCode(410, new
+        {
+            error = "legacy_completion_retired",
+            message = "This way of completing a procedure has been retired because it recorded no provider, encounter, chart change or charge. Use Review and complete, or adopt a procedure that was completed this way.",
+            replacement = new { completeProcedures = "POST api/treatment-plans/{planId}/complete-procedures", adopt = "POST api/treatment-plans/{planId}/items/{itemId}/adopt-completion" },
+        });
     }
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
@@ -153,17 +156,17 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     public Task<IActionResult> ScheduleItem(Guid planId, Guid itemId, [FromBody] ScheduleRequest request, CancellationToken ct) =>
         Run(async () => Ok(await plans.ScheduleItemAsync(planId, itemId, request.Scheduled, request.PlannedDate, Actor, ct)));
 
+    /// <summary>RETIRED (ALV-008-C02): answers 410 Gone. See <see cref="RetiredCompletion"/>.</summary>
     [HttpPost("api/treatment-plans/{planId:guid}/complete-accepted")]
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
-    public Task<IActionResult> CompleteAccepted(Guid planId, [FromBody] CompleteAcceptedRequest request, CancellationToken ct) =>
-        LegacyCompletion("complete-accepted", () => Run(async () => Ok(await plans.CompleteAcceptedAsync(planId, request.RowVersion, Actor, ct))));
+    public IActionResult CompleteAccepted(Guid planId) => RetiredCompletion("complete-accepted");
 
+    /// <summary>RETIRED (ALV-008-C02): answers 410 Gone. See <see cref="RetiredCompletion"/>.</summary>
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/complete")]
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
-    public Task<IActionResult> CompleteItem(Guid planId, Guid itemId, CancellationToken ct) =>
-        LegacyCompletion("items/complete", () => Run(async () => Ok(await plans.CompleteItemAsync(planId, itemId, Actor, ct))));
+    public IActionResult CompleteItem(Guid planId, Guid itemId) => RetiredCompletion("items/complete");
 
     [HttpPost("api/treatment-plans/{planId:guid}/reference-code")]
     [RequirePermission(Permission.ManageTreatmentPlans)]

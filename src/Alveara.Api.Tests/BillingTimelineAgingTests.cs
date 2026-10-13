@@ -65,6 +65,33 @@ public class BillingTimelineAgingTests : CompletionTestBase
     }
 
     [Fact]
+    public async Task A_statement_issued_before_a_legacy_completion_was_adopted_still_reprints_exactly_as_issued_and_a_new_preview_sees_the_adoption()
+    {
+        // ALV-008-C02: adoption is the first operation that creates a completion record AFTER the charge it bills (a charge billing made by hand for a procedure completed the old way). An issued statement
+        // aged that charge from when it was recorded, so a reprint must keep doing so: a record that did not exist when the statement was issued cannot change what it says.
+        var plan = await AcceptedPlanAsync(1);
+        await LegacyComplete(plan.Id, plan.Items[0].Id);
+        await Bill(s => s.RecordChargeAsync(Ann, new ChargeInput(plan.Items[0].Id, "c-1"), S.Actor, default));
+        var before = await Preview();
+        var chargedDate = before.Statement!.OpenCharges.Single().ServiceDateUtc;                           // no completion record yet: it ages from when the charge was recorded
+        var issued = await Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(before.PreviewToken, "doc-1"), S.Actor, default));
+
+        var performed = DateTimeOffset.UtcNow.AddSeconds(2);
+        var current = await PlanNowAsync(plan.Id);
+        await Completion(s => s.AdoptAsync(plan.Id, plan.Items[0].Id, new AdoptCompletionRequest("adopt-1", current.RowVersion, AnnEncounter, _provider.Id, performed, "Completed before records existed"), S.Actor, default));
+
+        var reprint = await Bill(s => s.GetDocumentAsync(Ann, issued.Id, S.Actor, default));              // refused as document_content_changed before the fix
+        Assert.Equal(chargedDate, reprint.Statement!.OpenCharges.Single().ServiceDateUtc);
+        Assert.Equal(issued.ContentHash, FinancialDocumentBuilder.HashOf(reprint.Statement));
+
+        var after = await Preview();                                                                    // a new statement sees the adopted procedure's performed time
+        Assert.Equal(FinancialDocumentBuilder.Instant(performed.AddTicks(-(performed.Ticks % TimeSpan.TicksPerMillisecond))), after.Statement!.OpenCharges.Single().ServiceDateUtc);
+        Assert.NotEqual(before.ContentHash, after.ContentHash);
+        var live = await Bill(s => s.GetAgingAsync(Ann, default));
+        Assert.Equal(after.Statement.OpenCharges.Single().ServiceDateUtc, live.OpenCharges.Single().ServiceDateUtc);
+    }
+
+    [Fact]
     public async Task The_timeline_reads_the_history_in_order_and_names_the_procedure_behind_each_charge()
     {
         var (plan, _) = await CompletedAsync();

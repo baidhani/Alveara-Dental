@@ -14,6 +14,15 @@ public sealed record CleanCompletion(string Key, Guid EncounterId, Guid Provider
 /// <summary>What a caller supplies to correct a completed procedure: the number of the latest amendment they saw (0 when none), their own key, what to correct and why. Everything is optional here so every wrong field is named at once.</summary>
 public sealed record AmendCompletedProcedureRequest(string? IdempotencyKey, int? ExpectedAmendmentNumber, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, Guid? EncounterId, string? Reason);
 
+/// <summary>
+/// ALV-008-C02: what a caller supplies to adopt ONE procedure that was completed the old, state-only way: the plan's version as last read, a key, who did it, where and when, and why it is being recorded now. The
+/// procedure itself is named by the route. Everything is optional here so every wrong field is named at once.
+/// </summary>
+public sealed record AdoptCompletionRequest(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, string? Reason);
+
+/// <summary>The adoption after cleaning: a trimmed key, the one plan item, the performed time in UTC milliseconds and the trimmed reason.</summary>
+public sealed record CleanAdoption(string Key, Guid ItemId, Guid EncounterId, Guid ProviderId, DateTimeOffset PerformedAtUtc, string Reason);
+
 /// <summary>The amendment after cleaning: a trimmed key, the performed time in UTC milliseconds (when given) and the trimmed reason.</summary>
 public sealed record CleanAmendment(string Key, int ExpectedAmendmentNumber, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, Guid? EncounterId, string Reason);
 
@@ -71,6 +80,50 @@ public static class CompletionRules
     {
         var canonical = string.Join('|', "v1", string.Join(',', c.ItemIds.OrderBy(i => i).Select(i => i.ToString("N"))), c.EncounterId.ToString("N"), c.ProviderId.ToString("N"),
             c.PerformedAtUtc.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture));
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical))).ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// ALV-008-C02: checks an adoption request without touching the database and names every problem at once; returns the cleaned request or throws <c>validation_failed</c> (400). The same time, provider and
+    /// encounter rules as a completion, plus a required reason.
+    /// </summary>
+    public static CleanAdoption CleanForAdoption(AdoptCompletionRequest request, Guid itemId, DateTimeOffset now)
+    {
+        var errors = new Dictionary<string, string>();
+        var key = request.IdempotencyKey?.Trim();
+        if (string.IsNullOrEmpty(key)) errors["idempotencyKey"] = "A save key is required, so a retry never adopts the same procedure twice.";
+        else if (key.Length > CompletionLimits.KeyMax) errors["idempotencyKey"] = $"Keep the save key to {CompletionLimits.KeyMax} characters or fewer.";
+        else if (key.Any(char.IsControl)) errors["idempotencyKey"] = "The save key cannot contain control characters.";
+
+        if (request.EncounterId is null || request.EncounterId == Guid.Empty) errors["encounterId"] = "Choose the encounter this care belongs to.";
+        if (request.ProviderId is null || request.ProviderId == Guid.Empty) errors["providerId"] = "Choose the provider who performed the care.";
+
+        DateTimeOffset performed = default;
+        if (request.PerformedAtUtc is null) errors["performedAtUtc"] = "Say when the procedure was performed.";
+        else
+        {
+            performed = NormalizeTime(request.PerformedAtUtc.Value);
+            if (IsAheadOfClock(performed, now)) errors["performedAtUtc"] = $"The performed time cannot be more than {(int)ClockTolerance.TotalMinutes} minutes ahead of the practice clock.";
+        }
+
+        var reason = request.Reason?.Trim();
+        if (string.IsNullOrEmpty(reason)) errors["reason"] = "Say why this completed procedure is being recorded now.";
+        else if (reason.Length > CompletionLimits.ReasonMax) errors["reason"] = $"Keep the reason to {CompletionLimits.ReasonMax} characters or fewer.";
+        else if (reason.Any(char.IsControl)) errors["reason"] = "The reason cannot contain control characters or line breaks.";
+
+        if (errors.Count > 0) throw TreatmentPlanRules.Invalid(errors);
+        return new CleanAdoption(key!, itemId, request.EncounterId!.Value, request.ProviderId!.Value, performed, reason!);
+    }
+
+    /// <summary>
+    /// SHA-256, lower-case hexadecimal, of the canonical adoption: a version tag, the operation discriminator <c>adopt-completion</c>, the one plan item, the encounter, the provider, the performed time in UTC
+    /// milliseconds and the trimmed reason. It can never equal the hash of an ordinary completion (which has a different shape and no discriminator) or of an amendment, so the same key used for another kind of
+    /// request, or for this one with anything changed (the reason included), is a conflict and never a replay.
+    /// </summary>
+    public static string AdoptionHash(CleanAdoption c)
+    {
+        var canonical = string.Join('|', "v1", "adopt-completion", c.ItemId.ToString("N"), c.EncounterId.ToString("N"), c.ProviderId.ToString("N"),
+            c.PerformedAtUtc.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture), c.Reason);
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(canonical))).ToLowerInvariant();
     }
 

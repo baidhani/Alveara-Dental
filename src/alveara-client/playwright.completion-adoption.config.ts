@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * STORY-008: config for treatment-plans-complete-accepted-real-backend.spec.ts ONLY. Same shape as
+ * ALV-008-C02: config for completion-adoption-real-backend.spec.ts ONLY. Same shape as
  * playwright.auth.config.ts: the real Vite dev server proxying /api to a real dotnet API the caller
  * already started (migrated database, AdminBootstrapSecret = E2E_BOOTSTRAP_SECRET or the
  * "e2e-real-backend-secret" default, AuthAttemptRateLimit__PermitLimit raised because the spec signs
@@ -9,7 +9,7 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "treatment-plans-complete-accepted-real-backend.spec.ts",
+  testMatch: "completion-adoption-real-backend.spec.ts",
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],

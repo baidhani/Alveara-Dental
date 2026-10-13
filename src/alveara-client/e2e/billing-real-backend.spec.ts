@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { seedLegacyCompletion } from "./support/legacyCompletion";
 
 // STORY-007 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.billing.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
@@ -151,7 +152,7 @@ test("SETUP: a patient whose dentist has completed one procedure of a plan and a
   let step = await api(dentist, "post", `/api/treatment-plans/${planId}/items/${performed}/decision`, { decision: "Accepted", rowVersion: plan.body.rowVersion });
   step = await api(dentist, "post", `/api/treatment-plans/${planId}/items/${accepted}/decision`, { decision: "Accepted", rowVersion: step.body.rowVersion });
   expect(step.status).toBe(200);
-  expect((await api(dentist, "post", `/api/treatment-plans/${planId}/items/${performed}/complete`)).status).toBe(200);
+  seedLegacyCompletion(planId, performed);                // completed the old way: the route is retired (410), so it is seeded (see support/legacyCompletion.ts)
 });
 
 test("ACCEPTANCE 1: a completed procedure is billed and the charge is recorded at the plan's fee, with no amount to type", async () => {

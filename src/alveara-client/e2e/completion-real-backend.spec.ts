@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { seedLegacyCompletion } from "./support/legacyCompletion";
 
 // ALV-008-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.completion.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
@@ -196,11 +197,11 @@ test("SETUP: two providers, a patient with an encounter, a catalog, findings on 
   await plan("Amount plan", dxOther, [["PERIO-3", null, null]]);
 });
 
-test("REVIEW: the screen shows what completing will do for each procedure, labels the legacy button and offers the providers and the encounter", async () => {
+test("REVIEW: the screen shows what completing will do for each procedure, shows no legacy completion button and offers the providers and the encounter", async () => {
   const page = sessions.Dentist.page;
   await gotoTab(page);
-  const legacy = card(page, "Restorative visit").getByRole("group", { name: "Legacy completion" });
-  await expect(legacy).toContainText("records no provider, encounter, chart change or charge");
+  await expect(card(page, "Restorative visit").getByRole("group", { name: "Legacy completion" })).toHaveCount(0);          // ALV-008-C02: retired
+  await expect(page.getByRole("button", { name: /Complete accepted procedures|^Mark .* completed$/ })).toHaveCount(0);
   await expect(card(page, "Restorative visit").getByRole("button", { name: "Review and complete…" })).toHaveClass(/btn-primary/);
 
   await openReview(page, "Restorative visit");
@@ -373,14 +374,17 @@ test("the charge is always the plan's stored fee: an amount in the request means
   expect(done.body.procedures[0].charge).toMatchObject({ outcome: "created", amount: 55 });
 });
 
-test("LEGACY: the old button is still there and still records only a state: no provider, chart change or charge, and the history says so", async () => {
+test("LEGACY: the old routes answer 410 and change nothing; a completion made the old way (seeded) still shows with no detail until it is adopted", async () => {
   const page = sessions.Dentist.page;
+  const plan = await planNamed(page, "Legacy plan");
   const before = { completed: (await completedOf(page)).length, charges: (await ledgerOf(page)).length };
-  await gotoTab(page);
-  await card(page, "Legacy plan").getByRole("button", { name: "Complete accepted procedures" }).click();
-  await page.getByRole("form", { name: "Complete the accepted procedures" }).getByRole("button", { name: "Confirm: complete 1" }).click();
-  await expect(statusLine(page)).toContainText("1 accepted procedure completed and added to the clinical history.");
+  const all = await api(page, "post", `/api/treatment-plans/${plan.id}/complete-accepted`, { rowVersion: plan.rowVersion });
+  const one = await api(page, "post", `/api/treatment-plans/${plan.id}/items/${plan.items[0].id}/complete`, {});
+  expect([all.status, all.body.error, one.status, one.body.error]).toEqual([410, "legacy_completion_retired", 410, "legacy_completion_retired"]);
+  expect((await planNamed(page, "Legacy plan")).items[0].completion).toBe("NotStarted");                    // refused: nothing was completed
 
+  seedLegacyCompletion(plan.id, plan.items[0].id);                                                         // the only way left to make one: write what the retired code wrote (support/legacyCompletion.ts)
+  await gotoTab(page);
   expect((await planNamed(page, "Legacy plan")).items[0].completion).toBe("Completed");
   expect({ completed: (await completedOf(page)).length, charges: (await ledgerOf(page)).length }).toEqual(before);   // no record, no charge
   const entry = history(page).getByRole("listitem").filter({ hasText: "SCALE-2" });
@@ -388,6 +392,8 @@ test("LEGACY: the old button is still there and still records only a state: no p
   await expect(entry).not.toContainText("Performed by");
   const apiEntry = ((await api(page, "get", `/api/patients/${ids.ann}/clinical-history`)).body.entries as any[]).find((e) => e.procedureCode === "SCALE-2");
   expect([apiEntry.completedProcedureId, apiEntry.providerName, apiEntry.chargeEntryNumber]).toEqual([null, null, null]);
+  const readiness = (await api(page, "get", `/api/treatment-plans/${plan.id}/completion-readiness`)).body.items[0];
+  expect([readiness.legacyCompleted, readiness.notReadyReason]).toEqual([true, "already_completed"]);       // the server says it can be adopted
   await shot(page, "08-legacy-completion-leaves-the-detail-empty.png");
 });
 
@@ -395,7 +401,7 @@ test("a hygienist reads the history and the completed procedures and has no way 
   const hyg = sessions.Hygienist.page;
   await gotoTab(hyg);
   await expect(history(hyg)).toContainText("Performed by");
-  await expect(hyg.getByRole("button", { name: /Review and complete|Complete accepted procedures/ })).toHaveCount(0);
+  await expect(hyg.getByRole("button", { name: /Review and complete|Adopt earlier completions|Complete accepted procedures/ })).toHaveCount(0);
   const plan = await planNamed(hyg, "Stale plan, renamed");
   const forbidden = await api(hyg, "post", `/api/treatment-plans/${plan.id}/complete-procedures`, { idempotencyKey: "h", rowVersion: plan.rowVersion, encounterId: ids.encounter, providerId: ids.providerA, performedAtUtc: new Date().toISOString(), itemIds: [plan.items[0].id] });
   expect(forbidden.status).toBe(403);

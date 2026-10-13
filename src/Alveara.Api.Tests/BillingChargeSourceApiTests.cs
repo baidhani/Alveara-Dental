@@ -69,8 +69,7 @@ public class BillingChargeSourceApiTests : IAsyncLifetime
         var done = await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(accepted)}/complete-procedures",
             new { idempotencyKey = "set-1", rowVersion = accepted.GetProperty("rowVersion").GetString(), encounterId = _annEncounter, providerId = _s.ProviderA, performedAtUtc = DateTimeOffset.UtcNow.AddSeconds(2), itemIds = new[] { Id(first) } });
         Assert.Equal(HttpStatusCode.OK, done.Status);
-        var legacy = await dentist.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(accepted)}/items/{Id(second)}/complete");                 // the legacy, state-only way
-        Assert.True(legacy.Status == HttpStatusCode.OK, legacy.Body.GetRawText());
+        await LegacyCompletionFixture.CompleteItemAsync(_fixture, Id(accepted), Id(second), _s.Actor);                                      // the legacy, state-only way (the route is retired; see LegacyCompletionFixture)
 
         var billing = await _api.SessionAsync("Billing");
         Assert.Equal(HttpStatusCode.OK, (await billing.SendAsync(HttpMethod.Post, $"/api/patients/{_ann}/billing/charges", new { planItemId = Id(second), idempotencyKey = "c-2" })).Status);   // the first charge was made by the completion itself

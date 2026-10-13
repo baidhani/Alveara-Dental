@@ -121,8 +121,8 @@ public partial class CompletedProcedureService(AlveraDbContext db, IPracticeCloc
         {
             var item = plan.Items.Single(i => i.Id == r.PlanItemId);
             return new CompletedProcedureView(r.Id, r.PlanItemId, item.ItemNumber, item.ProcedureCode, item.ProcedureDescription, r.ToothKey, r.Surface, r.EncounterId, r.ProviderProfileId,
-                r.PerformedAtUtc, r.PlanRevisionNumber, r.ChartOutcome, r.ToothFindingId, charges[r.PlanItemId]);
+                r.PerformedAtUtc, r.PlanRevisionNumber, r.ChartOutcome, r.ToothFindingId, charges[r.PlanItemId], set.AdoptionReason is not null, set.AdoptionReason);
         }).OrderBy(v => v.ItemNumber).ToList();
-        return new CompletionResult(plan, set.Id, set.CorrelationId, replayed, views);
+        return new CompletionResult(plan, set.Id, set.CorrelationId, replayed, views, set.AdoptionReason);
     }
 }

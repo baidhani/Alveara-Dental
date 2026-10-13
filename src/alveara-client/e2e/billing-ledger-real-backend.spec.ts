@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { seedLegacyCompletion } from "./support/legacyCompletion";
 
 // ALV-007-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.billing-ledger.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
@@ -171,7 +172,7 @@ test("SETUP: Ann has two completed procedures (PERIO-1 at 120 and SCALE-1 at 70)
     const step = await api(dentist, "post", `/api/treatment-plans/${plan.body.id}/items/${item.id}/decision`, { decision: "Accepted", rowVersion: version });
     expect(step.status).toBe(200);
     version = step.body.rowVersion;
-    expect((await api(dentist, "post", `/api/treatment-plans/${plan.body.id}/items/${item.id}/complete`)).status).toBe(200);
+    seedLegacyCompletion(plan.body.id, item.id);          // completed the old way: the route is retired (410), so it is seeded (see support/legacyCompletion.ts)
   }
 });
 

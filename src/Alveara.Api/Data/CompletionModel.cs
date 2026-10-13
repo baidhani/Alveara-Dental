@@ -29,6 +29,7 @@ internal static class CompletionModel
         {
             e.Property(x => x.IdempotencyKey).HasMaxLength(CompletionLimits.KeyMax);
             e.Property(x => x.RequestHash).HasMaxLength(CompletionLimits.HashLength).IsFixedLength().IsUnicode(false);
+            e.Property(x => x.AdoptionReason).HasMaxLength(CompletionLimits.ReasonMax);
             e.HasOne<Architecture.Patients.Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<TreatmentPlan>().WithMany().HasForeignKey(x => x.PlanId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.PlanId, x.IdempotencyKey }).IsUnique();
@@ -37,6 +38,8 @@ internal static class CompletionModel
             {
                 t.HasTrigger("TR_CompletionSets_Immutable");
                 t.HasTrigger("TR_CompletionSets_Links");
+                t.HasTrigger("TR_CompletionSets_Adoption");
+                t.HasCheckConstraint("CK_CompletionSets_AdoptionReason", $"[AdoptionReason] IS NULL OR (LEN(LTRIM(RTRIM([AdoptionReason]))) > 0 AND {NoControl("AdoptionReason")})");
                 t.HasCheckConstraint("CK_CompletionSets_Key", $"LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND {NoControl("IdempotencyKey")}");
                 t.HasCheckConstraint("CK_CompletionSets_Hash", HexHash);
                 t.HasCheckConstraint("CK_CompletionSets_Counts", "[ItemCount] >= 1 AND [PlanRevisionNumber] >= 1");

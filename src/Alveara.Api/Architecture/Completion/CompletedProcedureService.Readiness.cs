@@ -23,7 +23,10 @@ public partial class CompletedProcedureService
         var latest = (await plans.StateHistoryAsync(planId, ct)).ToDictionary(g => g.Key, g => g.OrderByDescending(s => s.Sequence).First());
         var reasons = wanted.ToDictionary(i => i.Id, i => RefusalReason(i, latest.GetValueOrDefault(i.Id)));
         var ready = wanted.Where(i => reasons[i.Id] is null).ToList();
-        var choices = await ResolveChartAsync(plan, ready, ct);
+        // ALV-008-C02: a procedure that is Completed with no completion record is a legacy completion that can be adopted; the screen is told so (and what adopting it would do to the chart and the charge) rather than inferring it
+        var recorded = (await db.CompletedProcedures.AsNoTracking().Where(c => c.PlanId == planId).Select(c => c.PlanItemId).ToListAsync(ct)).ToHashSet();
+        var legacy = wanted.Where(i => i.WithdrawnAtUtc is null && !recorded.Contains(i.Id) && TreatmentPlanService.CompletionOfState(latest.GetValueOrDefault(i.Id)) == ItemCompletion.Completed).Select(i => i.Id).ToHashSet();
+        var choices = await ResolveChartAsync(plan, ready.Concat(wanted.Where(i => legacy.Contains(i.Id))).ToList(), ct);
 
         var ids = wanted.Select(i => i.Id).ToList();
         var charged = (await db.BillingEntries.AsNoTracking().Where(e => e.PlanItemId != null && ids.Contains(e.PlanItemId.Value)).Select(e => e.PlanItemId!.Value).ToListAsync(ct)).ToHashSet();
@@ -32,7 +35,7 @@ public partial class CompletedProcedureService
             var v = view.Items.Single(x => x.Id == i.Id);
             var choice = choices.GetValueOrDefault(i.Id);
             return new ItemReadiness(i.Id, i.ItemNumber, v.ProcedureCode, v.ProcedureDescription, i.ToothKey, i.Surface, reasons[i.Id] is null && choice?.Outcome != Ambiguous, reasons[i.Id] ?? (choice?.Outcome == Ambiguous ? "ambiguous_chart_finding" : null),
-                choice?.Outcome ?? ChartOutcomes.NotApplicable, choice?.Matches ?? 0, IsBillable(i), i.Fee, charged.Contains(i.Id));
+                choice?.Outcome ?? ChartOutcomes.NotApplicable, choice?.Matches ?? 0, IsBillable(i), i.Fee, charged.Contains(i.Id), legacy.Contains(i.Id));
         }).ToList();
         var providers = await (from p in db.ProviderProfiles.AsNoTracking() join s in db.StaffProfiles.AsNoTracking() on p.StaffProfileId equals s.Id where p.IsActive orderby s.DisplayName select new ProviderChoice(p.Id, s.DisplayName, p.Specialty)).ToListAsync(ct);
         var encounters = await db.Encounters.AsNoTracking().Where(e => e.PatientId == plan.PatientId).OrderByDescending(e => e.EncounterAtUtc).Take(50).Select(e => new EncounterChoice(e.Id, e.EncounterAtUtc, e.Status)).ToListAsync(ct);
