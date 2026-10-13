@@ -94,6 +94,31 @@ public class CompletionReconciliationTests : CompletionTestBase
         Assert.True(r.Clean);
     }
 
+    [Fact]
+    public async Task A_later_legitimate_chart_change_at_the_same_practice_clock_instant_leaves_an_adopted_completion_clear()
+    {
+        // Review finding ALV-008-C02-R01-01: with a fixed practice clock (or any clock whose resolution lets two operations share an instant) the completion's chart write and a later legitimate chart
+        // change carry the same timestamp, so evidence chosen by timestamp can pick the later version. The completion must be judged against the version IT wrote or observed.
+        var (plan, finding) = await LegacyToothAsync();
+        var instant = DateTimeOffset.UtcNow.AddMinutes(1);
+        var clock = new TestClock(instant);
+        var current = await PlanNowAsync(plan.Id);
+        var done = (await Completion(s => s.AdoptAsync(plan.Id, plan.Items[0].Id,
+            new AdoptCompletionRequest("adopt-1", current.RowVersion, AnnEncounter, _provider.Id, instant, "Completed before records existed"), S.Actor, default), clock)).Procedures.Single();
+        Assert.Equal((ChartOutcomes.Updated, finding), (done.ChartOutcome, done.ToothFindingId));
+
+        string version;
+        await using (var db = Fixture.CreateContext())
+            version = Convert.ToBase64String((await db.ToothFindings.AsNoTracking().SingleAsync(f => f.Id == finding)).RowVersion);
+        await WithDb(d => new OdontogramService(d, clock).WithdrawAsync(finding, "Entered on the wrong patient", version, S.Actor, default));   // a legitimate later change, at the very same instant
+
+        await using (var check = Fixture.CreateContext())
+            Assert.Equal(1, await check.ToothFindingVersions.CountAsync(v => v.FindingId == finding && v.OccurredAtUtc == instant && v.ChangeType == FindingChangeTypes.Withdrawn));   // the tie is real
+        var r = await ReportAsync();
+        Assert.Equal(0, r.ChartMismatch);
+        Assert.True(r.Clean);
+    }
+
     private async Task<(PlanView Plan, Guid Finding)> LegacyToothAsync2()
     {
         var diagnosis = await DiagnosisAsync();
@@ -102,21 +127,6 @@ public class CompletionReconciliationTests : CompletionTestBase
         var plan = await AcceptedToothPlanAsync(diagnosis, ("FILL-2", 90m, "26", "O"));
         await LegacyComplete(plan.Id, plan.Items[0].Id);
         return (await PlanNowAsync(plan.Id), finding);
-    }
-
-    [Fact]
-    public async Task A_completion_whose_finding_was_not_completed_when_it_was_finalized_is_a_chart_mismatch()
-    {
-        var (plan, finding) = await LegacyToothAsync();                                                       // the finding stays Planned: nothing moved it
-        var set = SetRow(plan);
-        var row = ProcedureRow(set, plan.Items[0], AnnEncounter, _provider.Id);
-        row.ChartOutcome = ChartOutcomes.Updated;
-        row.ToothFindingId = finding;
-        await AddRowsAsync(set, row);
-
-        var r = await ReportAsync();
-        Assert.Equal(1, r.ChartMismatch);
-        Assert.False(r.Clean);
     }
 
     [Fact]

@@ -93,10 +93,14 @@ public partial class CompletedProcedureService
             db.CompletionSets.Add(set);
             await plans.SaveStagedAsync(plan.Id, ct);
 
+            await StageChartAsync(items, choices, actor, now, ct);
+            await plans.SaveStagedAsync(plan.Id, ct);                                // the chart's move and its history exist before the record can name the version that shows its finding Completed
+            var versions = await ChartVersionsAsync(choices, ct);
+
             var row = CompletedRow(set, plan, item, new CleanCompletion(input.Key, input.EncounterId, input.ProviderId, input.PerformedAtUtc, [item.Id]), actor, now);
             (row.ChartOutcome, row.ToothFindingId) = (choices[item.Id].Outcome, choices[item.Id].FindingId);
+            row.ToothFindingVersionNumber = row.ToothFindingId is Guid finding ? versions[finding] : null;
             db.CompletedProcedures.Add(row);
-            await StageChartAsync(items, choices, actor, now, ct);
             await plans.SaveStagedAsync(plan.Id, ct);
 
             var charges = await ChargeAsync(set, items, actor, ct);

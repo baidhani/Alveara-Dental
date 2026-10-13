@@ -37,4 +37,27 @@ public partial class OdontogramService
             throw new OdontogramException("invalid_transition", $"A finding that is {finding.State} cannot become {FindingStates.Completed}.", 409);
         await StageMoveAsync(finding, FindingStates.Completed, actor, now, ct);
     }
+
+    /// <summary>
+    /// ALV-008-C02 R02: for each given finding, the number of its latest history version, which must show it as an active Completed state (the version this operation just wrote, or the one it observed). Read
+    /// inside the completion's transaction after the chart's moves are saved, so a finding this operation moved is held by its own row lock and cannot be changed under it; a finding it only observed that was
+    /// changed (for example withdrawn) between resolution and now is refused rather than recorded with wrong evidence.
+    /// </summary>
+    internal async Task<IReadOnlyDictionary<Guid, int>> CompletedVersionsAsync(IReadOnlyCollection<Guid> findingIds, CancellationToken ct)
+    {
+        if (findingIds.Count == 0) return new Dictionary<Guid, int>();
+        var latest = await db.ToothFindingVersions.AsNoTracking()
+            .Where(v => findingIds.Contains(v.FindingId) && v.VersionNumber == db.ToothFindingVersions.Where(w => w.FindingId == v.FindingId).Max(w => w.VersionNumber))
+            .ToListAsync(ct);
+        var result = new Dictionary<Guid, int>();
+        foreach (var id in findingIds)
+        {
+            var v = latest.SingleOrDefault(x => x.FindingId == id);
+            if (v is null) throw new OdontogramException("finding_not_found", "That finding was not found.", 404);
+            if (v.State != FindingStates.Completed || v.Status != FindingStatuses.Active)
+                throw new OdontogramException("finding_changed", "The chart finding changed while the completion was being recorded, so nothing was recorded. Review the chart and try again.", 409);
+            result[id] = v.VersionNumber;
+        }
+        return result;
+    }
 }

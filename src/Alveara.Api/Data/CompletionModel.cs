@@ -66,8 +66,10 @@ internal static class CompletionModel
             {
                 t.HasTrigger("TR_CompletedProcedures_Immutable");
                 t.HasTrigger("TR_CompletedProcedures_Links");
+                t.HasTrigger("TR_CompletedProcedures_ChartEvidence");
                 t.HasCheckConstraint("CK_CompletedProcedures_Chart",
                     $"[ChartOutcome] COLLATE Latin1_General_CS_AS IN ({In(ChartOutcomes.All)}) AND (([ChartOutcome] = '{ChartOutcomes.NotApplicable}' AND [ToothFindingId] IS NULL) OR ([ChartOutcome] <> '{ChartOutcomes.NotApplicable}' AND [ToothFindingId] IS NOT NULL))");
+                t.HasCheckConstraint("CK_CompletedProcedures_ChartVersion", "[ToothFindingVersionNumber] IS NULL OR ([ToothFindingId] IS NOT NULL AND [ToothFindingVersionNumber] >= 1)");
                 t.HasCheckConstraint("CK_CompletedProcedures_Revision", "[PlanRevisionNumber] >= 1");
                 t.HasCheckConstraint("CK_CompletedProcedures_Surface", "[Surface] IS NULL OR [ToothKey] IS NOT NULL");
                 t.HasCheckConstraint("CK_CompletedProcedures_Performed", $"[PerformedAtUtc] >= {SaneTime} AND [PerformedAtUtc] < '2200-01-01'");

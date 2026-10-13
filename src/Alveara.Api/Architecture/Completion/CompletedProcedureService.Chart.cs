@@ -63,6 +63,23 @@ public partial class CompletedProcedureService
         if (ambiguous.Count > 0) throw new AmbiguousChartFindingException(ambiguous);
     }
 
+    /// <summary>
+    /// ALV-008-C02 R02: the version of each matched finding that this operation wrote (Updated) or observed (AlreadyCompleted), read after the chart's moves are saved inside the transaction. The completed-procedure
+    /// record stores it, and reconciliation judges the completion against exactly that version, never against a timestamp.
+    /// </summary>
+    private async Task<IReadOnlyDictionary<Guid, int>> ChartVersionsAsync(IReadOnlyDictionary<Guid, ChartChoice> choices, CancellationToken ct)
+    {
+        var findings = choices.Values.Where(c => c.FindingId is not null).Select(c => c.FindingId!.Value).Distinct().ToList();
+        try
+        {
+            return await chart.CompletedVersionsAsync(findings, ct);
+        }
+        catch (OdontogramException ex)
+        {
+            throw new TreatmentPlanException("chart_changed", $"The chart changed while this was being recorded, so nothing was completed. {ex.Message}", 409, inner: ex);
+        }
+    }
+
     /// <summary>Stages the move of each matched finding to Completed. A refusal by the chart's own rules (for example completing an extraction while other findings stand on the tooth) refuses the whole set.</summary>
     private async Task StageChartAsync(IReadOnlyList<TreatmentPlanItem> items, IReadOnlyDictionary<Guid, ChartChoice> choices, Guid actor, DateTimeOffset now, CancellationToken ct)
     {

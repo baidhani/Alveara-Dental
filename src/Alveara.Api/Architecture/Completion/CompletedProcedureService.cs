@@ -70,13 +70,16 @@ public partial class CompletedProcedureService(AlveraDbContext db, IPracticeCloc
             db.CompletionSets.Add(set);
             await plans.SaveStagedAsync(plan.Id, ct);                          // the state rows exist before a completed procedure can refer to them
 
+            await StageChartAsync(loaded.Selected, choices, actor, now, ct);
+            await plans.SaveStagedAsync(plan.Id, ct);                          // the chart's moves and their history exist before a record can name the version that shows its finding Completed
+            var versions = await ChartVersionsAsync(choices, ct);
             foreach (var item in loaded.Selected)
             {
                 var row = CompletedRow(set, plan, item, input, actor, now);
                 (row.ChartOutcome, row.ToothFindingId) = (choices[item.Id].Outcome, choices[item.Id].FindingId);
+                row.ToothFindingVersionNumber = row.ToothFindingId is Guid finding ? versions[finding] : null;
                 db.CompletedProcedures.Add(row);
             }
-            await StageChartAsync(loaded.Selected, choices, actor, now, ct);
             await plans.SaveStagedAsync(plan.Id, ct);
 
             var charges = await ChargeAsync(set, loaded.Selected, actor, ct);

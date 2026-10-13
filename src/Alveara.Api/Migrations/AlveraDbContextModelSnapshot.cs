@@ -2072,6 +2072,9 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid?>("ToothFindingId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int?>("ToothFindingVersionNumber")
+                        .HasColumnType("int");
+
                     b.Property<string>("ToothKey")
                         .HasMaxLength(2)
                         .HasColumnType("nchar(2)")
@@ -2098,11 +2101,15 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("CompletedProcedures", t =>
                         {
+                            t.HasTrigger("TR_CompletedProcedures_ChartEvidence");
+
                             t.HasTrigger("TR_CompletedProcedures_Immutable");
 
                             t.HasTrigger("TR_CompletedProcedures_Links");
 
                             t.HasCheckConstraint("CK_CompletedProcedures_Chart", "[ChartOutcome] COLLATE Latin1_General_CS_AS IN ('Updated','AlreadyCompleted','NotApplicable') AND (([ChartOutcome] = 'NotApplicable' AND [ToothFindingId] IS NULL) OR ([ChartOutcome] <> 'NotApplicable' AND [ToothFindingId] IS NOT NULL))");
+
+                            t.HasCheckConstraint("CK_CompletedProcedures_ChartVersion", "[ToothFindingVersionNumber] IS NULL OR ([ToothFindingId] IS NOT NULL AND [ToothFindingVersionNumber] >= 1)");
 
                             t.HasCheckConstraint("CK_CompletedProcedures_Performed", "[PerformedAtUtc] >= '2000-01-01' AND [PerformedAtUtc] < '2200-01-01'");
 

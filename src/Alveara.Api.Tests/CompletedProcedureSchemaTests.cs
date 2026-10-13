@@ -49,12 +49,13 @@ public class CompletedProcedureSchemaTests : CompletionTestBase
     public async Task A_completion_that_moved_a_chart_finding_names_that_finding_on_the_procedures_tooth_and_surface()
     {
         var (plan, item) = await CompletedToothPlanAsync();
-        var finding = await FindingAsync("16", "O");
+        var finding = await FindingAsync("16", "O", FindingStates.Completed);                         // recorded as Completed, so its version 1 is the evidence (ALV-008-C02 R02: a finding is named with the version that shows it Completed)
         var provider = await ProviderAsync();
         var set = SetRow(plan, revision: plan.CurrentRevision);
         var procedure = ProcedureRow(set, item, AnnEncounter, provider.Id);
-        procedure.ChartOutcome = ChartOutcomes.Updated;
+        procedure.ChartOutcome = ChartOutcomes.AlreadyCompleted;
         procedure.ToothFindingId = finding;
+        procedure.ToothFindingVersionNumber = 1;
         await AddRowsAsync(set, procedure);
         Assert.Equal((1, 1, 0), await CompletionCountsAsync());
     }
@@ -254,16 +255,17 @@ public class CompletedProcedureSchemaTests : CompletionTestBase
     {
         var (plan, item) = await CompletedToothPlanAsync();
         var provider = await ProviderAsync();
-        var finding = which switch
+        var finding = which switch                                                                  // each recorded as Completed so its version 1 is valid evidence and only the belonging rule is in play
         {
-            "otherPatientsFinding" => await FindingAsync("16", "O", patient: Bo),
-            "otherToothFinding" => await FindingAsync("17", "O"),
-            _ => await FindingAsync("16", "M"),
+            "otherPatientsFinding" => await FindingAsync("16", "O", FindingStates.Completed, patient: Bo),
+            "otherToothFinding" => await FindingAsync("17", "O", FindingStates.Completed),
+            _ => await FindingAsync("16", "M", FindingStates.Completed),
         };
         var set = SetRow(plan, revision: plan.CurrentRevision);
         var procedure = ProcedureRow(set, item, AnnEncounter, provider.Id);
-        procedure.ChartOutcome = ChartOutcomes.Updated;
+        procedure.ChartOutcome = ChartOutcomes.AlreadyCompleted;
         procedure.ToothFindingId = finding;
+        procedure.ToothFindingVersionNumber = 1;
         var e = await SqlRefusal(() => AddRowsAsync(set, procedure));
         Assert.Equal(51149, e.Number);
         Assert.Equal((0, 0, 0), await CompletionCountsAsync());

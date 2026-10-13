@@ -66,6 +66,12 @@ public class CompletedProcedure
     public DateTimeOffset PerformedAtUtc { get; set; }
     /// <summary>The tooth finding this completion moved or found already completed; null exactly when <see cref="ChartOutcome"/> is NotApplicable.</summary>
     public Guid? ToothFindingId { get; set; }
+    /// <summary>
+    /// ALV-008-C02 R02: the exact chart-history boundary of this completion: the <see cref="Odontogram.ToothFindingVersion.VersionNumber"/> of <see cref="ToothFindingId"/> that this operation wrote (Updated) or observed
+    /// (AlreadyCompleted), which shows the finding as an active Completed state. Reconciliation judges the completion against that version alone, so a later legitimate chart change can never be mistaken for the
+    /// completion, even at the same clock instant. Null exactly when there is no finding, or for a completion recorded before this column existed whose version could not be derived (reported as a mismatch).
+    /// </summary>
+    public int? ToothFindingVersionNumber { get; set; }
     /// <summary>One of <see cref="ChartOutcomes.All"/>.</summary>
     public required string ChartOutcome { get; set; }
     public DateTimeOffset FinalizedAtUtc { get; set; }
