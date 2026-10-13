@@ -556,3 +556,10 @@
   - What changed: `.alveara/reviews/ALV-007-C02/R02.md` (stored unchanged), `.alveara/EXECUTION_STATUS.json` item 35 to COMPLETE (review APPROVED, approved attempt R02, reviewed implementation `19c8f1c` and evidence `b548815`, `completedAt` 2026-10-13T03:59:07Z), `.alveara/BUILD_STATE.md` (two lines).
   - Verification: the independent review of attempt R02 is APPROVED and names the same story, attempt, ZIP hash (879BA496...77A6), implementation, evidence and status commits as the package; the package hash was re-checked before recording.
   - Notes: no code changed. The next execution item is 36 (ALV-008-C02), then 37 (STORY-016); neither is started.
+
+- [x] ALV-008-C02 design approvals recorded (records only)
+  - Date: 2026-10-12
+  - Session: CC-20261008-k4q9
+  - What changed: `docs/design/ALV-008-C02_DESIGN_PROPOSAL.md` and `docs/design/ALV-008-C02_DESIGN_REVIEW_RESPONSE.md` (APPROVED WITH CHANGES): D1, D2, D3, D5, D6 and D8 approved as proposed; D4 (adoption as a completion set with a stored reason) and D7 (the counts-only reconciliation report) approved with two binding corrections: C1, the adoption request hash must bind a version tag, an `adopt-completion` operation discriminator, the plan item, the normalized encounter, provider and performed time and the trimmed reason (with a dedicated cleaning and hash path, not `CompletionRules.RequestHash` unchanged), and C2, `chartMismatch` must be defined from completion-time odontogram evidence (a later legitimate chart change must not count).
+  - Verification: the response names the proposal and decisions D1-D8; no plan edit accompanied it.
+  - Notes: no product code changed. ALV-008-C02 (item 36) is the active engineering item; implementation has not started.
