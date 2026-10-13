@@ -1840,7 +1840,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 6,
@@ -1856,13 +1856,15 @@
       "evidenceCommit": "728d5a8f677554374969693a32582c757a973564",
       "handoffPath": ".alveara/handoffs/ALV-008-C02/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-008-C02/R01.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "5ef44f0ebcf63f5a531b73b7b8c357e339380aa3",
+        "reviewedEvidenceCommit": "728d5a8f677554374969693a32582c757a973564"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-008-C02-R01-01: reconciliation's historical chart evidence is timestamp-only (the finding version with the greatest VersionNumber at or before the completion's finalized instant), so a later legitimate chart change at the same practice-clock instant can win and produce a false chartMismatch; correction required in attempt R02: record an unambiguous completion-time chart-history boundary (the qualifying finding-version number) on the immutable completed-procedure record for Updated and AlreadyCompleted outcomes, for authoritative completion and adoption, reconcile against that exact version, and prove the four cases (adoption writes a completed version, adoption observes an already-completed version, a later change at the same instant, missing/altered/non-completed evidence) with migration, backend, frontend if applicable and real-browser regression evidence"
+      ],
       "revalidation": {
         "required": false,
         "reason": null

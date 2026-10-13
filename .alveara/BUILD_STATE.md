@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **2026-10-13: item 36 (`ALV-008-C02`), retire the legacy completion paths and adopt historical completions, is `AWAITING_REVIEW` as attempt R01 (implementation `5ef44f0`; handoff `.alveara/handoffs/ALV-008-C02/R01.md`; full description `docs/COMPLETION.md`, parent-regression mapping `docs/testing/ALV-008-C02_PARENT_REGRESSION.md`).** Item 35 (`ALV-007-C02`) is `COMPLETE` (approved as attempt R02, closure `83f6da5`). The next execution item is 37 (`STORY-016`); it is not started and must not start until item 36's review is approved and closed.**
+Last updated: **2026-10-13: item 36 (`ALV-008-C02`), retire the legacy completion paths and adopt historical completions, is `CHANGES_REQUIRED`: the independent review of attempt R01 (implementation `5ef44f0`, evidence `728d5a8`; review `.alveara/reviews/ALV-008-C02/R01.md`) accepted the retirement, the adoption, C1 and the regression evidence and found one blocking issue, ALV-008-C02-R01-01: the reconciliation's historical chart evidence is timestamp-only, so a later legitimate chart change at the same practice-clock instant can cause a false `chartMismatch`; attempt R02 corrects that finding only by recording the qualifying finding-version number on the completed-procedure record.** Item 35 (`ALV-007-C02`) is `COMPLETE` (approved as attempt R02, closure `83f6da5`). The next execution item is 37 (`STORY-016`); it is not started and must not start until item 36 is approved and closed.**
 
 ## Production implementation status
 
@@ -102,7 +102,7 @@ Companion of `STORY-008` (portal-verified at `8da1119`); implementation `9bc1df8
 - **UI:** the Treatment plan tab's primary action is Review and complete...; the clinical history shows who performed each procedure, the charge and the chart effect.
 - **Not built / open:** no screen for correcting a completed procedure (API only); an explicit "agreed on" date for acceptance; choosing among several matching chart findings on the screen; adoption of procedures completed the old way.
 
-## Completion retirement and adoption (ALV-008-C02 AWAITING_REVIEW - attempt R01)
+## Completion retirement and adoption (ALV-008-C02 CHANGES_REQUIRED - attempt R01 returned; R02 in progress)
 
 Companion of `STORY-008`; implementation `5ef44f0`, evidence `.alveara/handoffs/ALV-008-C02/R01-evidence/`. Full description `docs/COMPLETION.md` (the retirement and adoption sections):
 - **Retired:** `POST .../items/{id}/complete` and `POST .../complete-accepted` answer 410 `legacy_completion_retired` after the sign-in, role and CSRF checks (PHI-free `legacy_completion_retired_attempt` log); `CompleteItemAsync` and `CompleteAcceptedAsync`, the "Complete accepted procedures" group, the per-procedure "Mark X completed" form and their client calls are deleted. The only ways left to make one are the test project's `LegacyCompletionFixture` and `e2e/support/legacyCompletion.ts`. `RetiredCompletionCallerSearchTests` fails if a production caller reappears.
