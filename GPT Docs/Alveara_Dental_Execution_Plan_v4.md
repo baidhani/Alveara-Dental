@@ -139,6 +139,9 @@ Create the durable ALV execution/review contract. It must include:
 - a committed file is never required to contain the SHA of the commit that contains that same file.
 
 Persist the Standard Production Prompt Rules from the Engineering & Product Reference into this control contract so later ALV prompts can rely on them without the user re-supplying those rules manually.
+### Binding Risk-Based Regression Cadence
+
+Every story must run its acceptance, parent-course, material failure/security/concurrency, and changed-subsystem integration tests before packaging. For up to three consecutive low/medium-risk stories, full backend, frontend, repository-check, and mocked-browser regression may be batched; it is mandatory with the third eligible story handoff. Run the full regression before each high-risk story handoff and whenever an individual prompt requires it. High-risk includes migrations/schema; authentication/authorization, audit, transaction, idempotency, or concurrency primitives; money/billing; backup/restore; encryption; shared middleware/runtime configuration; production build/deployment configuration; and test infrastructure. At every quality gate, release, or declared milestone, run the full regression plus required real-backend walkthroughs and gate-specific evidence. Story-level requirements are stricter and override this cadence. Every `TEST_RESULTS.md` must record classification, exact commands/results, and, when broad regression is deferred, batch position and the next due broad-regression story.
 
 3. BUILD_STATE.md
 - Record current implemented truth only.
