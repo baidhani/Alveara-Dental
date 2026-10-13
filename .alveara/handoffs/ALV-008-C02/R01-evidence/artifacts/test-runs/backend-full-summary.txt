@@ -1,0 +1,17 @@
+ALV-008-C02 R01 - backend full serial run on the final tree (dotnet test, no parallelism, built tree, no rebuild during the run)
+started 09:50 local (2026-10-13), finished 11:12
+result: Passed!  - Failed:     0, Passed:  3302, Skipped:     0, Total:  3302, Duration: 1 h 21 m - Alveara.Api.Tests.dll (net10.0)
+trx counters: <Counters total="3302" executed="3302" passed="3302" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+trx outcomes: {'Passed': 3302}
+previous story (ALV-007-C02 R02) full run: 3206 of 3206; the difference is the ALV-008-C02 tests less the retired STORY-008 tests that were replaced (see docs/testing/ALV-008-C02_PARENT_REGRESSION.md)
+history of this attempt's full runs: a first run on an earlier tree passed 3300 of 3300; verification then found a real defect (a statement issued before an adoption could not be reprinted) and a missing zero-fee adoption test, so both were fixed/added and the run was repeated from the start on the final tree; a second run begun on the way was stopped after a few minutes when the missing test was spotted (its one scratch database was dropped).
+new ALV-008-C02 test classes in this run:
+  CompletionAdoptionRulesTests: 19 passed
+  CompletionAdoptionSchemaTests: 11 passed
+  CompletedProcedureAdoptionServiceTests: 23 passed
+  CompletedProcedureAdoptionHardeningTests: 8 passed
+  CompletionAdoptionApiTests: 21 passed
+  CompletionReconciliationTests: 11 passed
+  RetiredCompletionCallerSearchTests: 3 passed
+  total in the new classes: 96
+  BillingTimelineAgingTests.A_statement_issued_before_a_legacy_completion_was_adopted_...: passed

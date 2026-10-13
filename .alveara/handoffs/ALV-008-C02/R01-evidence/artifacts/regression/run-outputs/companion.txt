@@ -1,0 +1,25 @@
+  1) [chromium] › e2e\clinical-companion-real-backend.spec.ts:509:1 › TRUST: every save, sign, finalize and amend is in the audit log with the user and a time, and no clinical content is in it 
+
+    Error: audit must not contain 190
+
+    expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "190"
+    Received string:        "Treatment note saved. Progress note saved. Encounter started. Addendum 7db81dd0-ffc3-4b2e-92e0-930a7c778ab3 added to a finalized encounter, amending Vitals. Addendum 75cab1bd-5917-4bff-b622-b55e7ee38f66 added to a finalized encounter, amending Plan. Encounter finalized. Encounter signed. Treatment note saved. Signature withdrawn; the draft is open for changes again. Encounter signed. Vital signs recorded. Vital signs voided as entered in error. Vital signs recorded. Progress note saved. Plan saved. Subjective saved. Template 'SOAP visit 1791908282938' applied. Medications reviewed, none reported. Allergies reviewed, none reported. Dental history reviewed, none reported. Medical history reviewed, none reported. Encounter started. Note template 'SOAP visit 1791908282938' created. Medical history: item changed. Medical history: status changed to Inactive. Medications: status changed to Inactive. Medications: reviewed and confirmed current. Dental history: item added. Dental history: marked unknown. Dental history: review withdrawn. Dental history: reviewed, none known. Medications: item changed. Allergies: status changed to Resolved. Medical history: item added. Medications: item added. Allergies: item added."
+
+      526 |   expect(clinical.every((e) => e.performedByUserAccountId && e.timestampUtc)).toBe(true);
+      527 |   const text = clinical.map((e) => e.details).join(" ");
+    > 528 |   for (const secret of ["Penicillin", "Lisinopril", "Hypertension", "Hives", "Chief complaint", "Endodontic", "tooth 36", "Tolerated a challenge", "wrong patient", "190", "110", "Plan changed", "Access cavity", "Stable on"]) expect(text, `audit must not contain ${secret}`).not.toContain(secret);
+          |                                                                                                                                                                                                                                                                                       ^
+      529 |   evidence.audit = Object.fromEntries(["ClinicalRecordItemAdded", "ClinicalRecordItemChanged", "ClinicalRecordItemStatusChanged", "ClinicalSectionReviewed", "ClinicalTemplateCreated", "EncounterNoteSaved", "EncounterTemplateApplied", "EncounterVitalsRecorded", "EncounterVitalsVoided", "EncounterSigned", "EncounterUnsigned", "EncounterFinalized", "EncounterAddendumAdded"].map((t) => [t, by(t).length]));
+      530 | });
+      531 |
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\clinical-companion-real-backend.spec.ts:528:279
+
+    Error Context: test-results\clinical-companion-real-ba-57719-o-clinical-content-is-in-it-chromium\error-context.md
+
+    Error Context: test-results\clinical-companion-real-ba-57719-o-clinical-content-is-in-it-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\clinical-companion-real-backend.spec.ts:509:1 › TRUST: every save, sign, finalize and amend is in the audit log with the user and a time, and no clinical content is in it 
+  8 passed (38.3s)

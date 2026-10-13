@@ -1,0 +1,58 @@
+ALV-008-C02 R01 frontend and repository gates on the final tree, 2026-10-13 (one after another on a quiet machine, after the last code change).
+Commands (from src/alveara-client unless noted): npx tsc --noEmit ; npx vitest run ; npm run build ; npm run lint ; npx playwright test (mocked default config) ; and from the repository root: node --test tests/*.test.mjs
+An earlier identical run on the tree before the last backend-only changes (the document-reprint fix and two tests) gave the same results (tsc, build, lint exit 0; vitest 1392 of 1392; mocked Playwright 136 of 136; repository checks 8 of 8); its first attempt at the repository checks used the wrong command (`node --test tests/`, a folder), which is why it is rerun here.
+
+== tsc exit=0
+== vitest exit=0
+   Start at  11:29:23
+   Duration  31.68s (tests 60%, environment 23%, transform 7%, setup 6%, import 4%)
+
+    Isolate  91 workers spawned · ~1.51s startup each (spawn + environment, per file)
+             at least ~4.47s faster with isolate: false — reuses workers across files instead of one per file
+
+== build exit=0
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 359ms[39m
+== lint exit=0
+e2e/completion-adoption-real-backend.spec.ts:85:7: warning eslint(no-unused-vars): Variable 'reviewRow' is declared but never used. Unused variables should start with a '_'. help: Consider removing th
+e2e/completion-adoption-real-backend.spec.ts:103:16: warning eslint(no-unused-vars): Function 'openReview' is declared but never used. help: Consider removing this declaration.
+e2e/completion-adoption-real-backend.spec.ts:110:16: warning eslint(no-unused-vars): Function 'choose' is declared but never used. help: Consider removing this declaration.
+e2e/completion-adoption-real-backend.spec.ts:139:7: warning eslint(no-unused-vars): Variable 'adoptButton' is declared but never used. Unused variables should start with a '_'. help: Consider removing
+e2e/backup-warning-contrast.spec.ts:9:114: warning eslint(no-useless-escape): Unnecessary escape character 'B' help: Replace `\B` with `B`.
+src/components/ConfigEntityPanel.tsx:104:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React wit
+== playwright_mocked exit=0
+  ok 131 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (640ms)
+  ok 106 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (light) (2.6s)
+  ok 121 [tablet] › e2e\architecture-map.spec.ts:258:5 › Architecture Map tab › has no serious or critical accessibility violations in dark mode, with the dialog open (2.4s)
+  ok 136 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (dark) (2.4s)
+
+  136 passed (20.0s)
+== repo_checks exit=0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1278.2684
+DONE
+
+--- vitest totals ---
+Test Files  91 passed (91)
+Tests  1392 passed (1392)
+
+--- mocked Playwright totals ---
+136 passed (20.0s)
+
+--- repository checks totals ---
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1278.2684

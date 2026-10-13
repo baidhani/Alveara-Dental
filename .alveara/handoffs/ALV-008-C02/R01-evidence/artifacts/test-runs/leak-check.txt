@@ -1,0 +1,8 @@
+ALV-008-C02 R01 leak check (AlveraTest databases / AlveraRestore databases / alveara_ logins / alveara_ databases)
+before the first full backend run:        54 59 273 249 (the 249th was the scratch database alveara_c08c02_adopt of my own earlier walkthrough run, dropped afterwards)
+after the first full backend run and cleanup:  54 59 273 248
+before the final full backend run:        54 59 273 248
+after the final full backend run (3302 tests): 54 59 273 248
+after the final sweep and dropping every alveara_c08* scratch database (26 in the first sweep, the final sweep's included): 54 59 273 248
+baseline recorded for the previous story: 54 59 273 248  -> flat
+note: one run of the backend suite was stopped by hand a few minutes in (a missing test was noticed); it left one AlveraTest_ scratch database (count 55), which was dropped.

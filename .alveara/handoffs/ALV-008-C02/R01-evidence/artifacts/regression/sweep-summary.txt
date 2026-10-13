@@ -1,0 +1,62 @@
+ALV-008-C02 R01 real-backend sweep, 2026-10-13: every walkthrough on its own fresh migrated database (run_regress_c08c02.sh, adapted from the previous story's script; the retired STORY-008 walkthrough is replaced by the adoption walkthrough).
+
+(final tree: run after the last code change, 11:25 to 11:40 on 2026-10-13; an earlier identical sweep on the tree before the document fix and the zero-fee test also passed with the same single clock-dependent exception)
+
+== auth
+  12 passed (31.4s)
+== patients
+  7 passed (12.2s)
+== workspace
+  14 passed (35.0s)
+== forms
+  10 passed (25.6s)
+== schedule
+  10 passed (18.8s)
+== calendar
+  ok  8 [chromium] › e2e\calendar-real-backend.spec.ts:334:1 › NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record (3.0s)
+  12 passed (26.1s)
+== flow
+  10 passed (15.4s)
+== board
+  15 passed (44.5s)
+== clinical
+  9 passed (27.4s)
+== companion
+  1 failed
+  8 passed (38.3s)
+== safety
+  11 passed (30.0s)
+== odontogram
+  11 passed (21.5s)
+== odontogram_longitudinal
+  11 passed (26.7s)
+== perio
+  10 passed (31.3s)
+== perio_sessions
+  12 passed (38.7s)
+== diagnoses
+  12 passed (21.8s)
+== diagnoses_structure
+  12 passed (27.4s)
+== procedures
+  8 passed (19.8s)
+== treatment_plans
+  11 passed (14.4s)
+== treatment_plans_complete
+  11 passed (31.6s)
+== billing
+  10 passed (19.2s)
+== billing_ledger
+  11 passed (23.0s)
+== adoption
+  8 passed (14.3s)
+== completion
+  11 passed (23.0s)
+DONE
+== statements
+  9 passed (24.6s)
+DONE2
+
+clinical-companion: 8 passed and 1 failed in the sweep: the TRUST step asserts the audit text does not contain the substring "190", and the spec's own timestamp-named template ("SOAP visit 1791901737808") contained it (the spec's Date.now() stamp is inside a window of about 2.8 hours today). Unrelated to this story (the spec and the code it drives are untouched). Rerun with only the spec's clock shifted past the window (NODE_OPTIONS=--require shift_clock.js, Date.now + 12,000,000 ms): 9 passed.
+
+Total: 25 runs, 266 of 266 (auth 12, patients 7, workspace 14, forms 10, schedule 10, calendar 12, flow 10, board 15, clinical 9, companion 9 on the rerun, safety 11, odontogram 11, odontogram_longitudinal 11, perio 10, perio_sessions 12, diagnoses 12, diagnoses_structure 12, procedures 8, treatment_plans 11, treatment_plans_complete 11, billing 10, billing_ledger 11, adoption 8, completion 11, statements 9).

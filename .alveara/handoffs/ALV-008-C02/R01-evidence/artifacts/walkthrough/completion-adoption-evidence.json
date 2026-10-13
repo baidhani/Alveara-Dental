@@ -1,0 +1,78 @@
+{
+  "axe": {
+    "adopt-form-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "adopt-form-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1791908759083,
+  "setup": {
+    "items": 3,
+    "completed": 0,
+    "charges": 0
+  },
+  "retired": {
+    "complete_accepted": "legacy_completion_retired",
+    "complete_item": "legacy_completion_retired",
+    "reconciliationBefore": {
+      "legacyCompletedNotAdopted": 3,
+      "completedMissingCharge": 0,
+      "completedWithUnexpectedCharge": 0,
+      "orphanedCharges": 0,
+      "chartMismatch": 0,
+      "duplicateCharges": 0,
+      "generatedAtUtc": "2026-10-13T16:26:03.5071852+00:00",
+      "clean": false
+    }
+  },
+  "adopt": {
+    "record": {
+      "adopted": true,
+      "chartOutcome": "Updated",
+      "charge": 140
+    },
+    "reconciliation": {
+      "legacyCompletedNotAdopted": 2,
+      "completedMissingCharge": 0,
+      "completedWithUnexpectedCharge": 0,
+      "orphanedCharges": 0,
+      "chartMismatch": 0,
+      "duplicateCharges": 0,
+      "generatedAtUtc": "2026-10-13T16:26:06.9983687+00:00",
+      "clean": false
+    }
+  },
+  "failure": {
+    "recordedAfterRetry": 1,
+    "chargesAfterRetry": 1
+  },
+  "stale": {
+    "renameStatus": 200
+  },
+  "planLogChangeTypes": [
+    "Created",
+    "ItemAdded",
+    "ItemAdded",
+    "ItemAdded",
+    "PlanAccepted",
+    "ItemCompleted",
+    "ItemCompleted",
+    "ItemCompleted",
+    "Renamed",
+    "Revised"
+  ],
+  "gateD": {
+    "legacyCompletedNotAdopted": 0,
+    "completedMissingCharge": 0,
+    "completedWithUnexpectedCharge": 0,
+    "orphanedCharges": 0,
+    "chartMismatch": 0,
+    "duplicateCharges": 0,
+    "generatedAtUtc": "2026-10-13T16:26:10.5754701+00:00",
+    "clean": true
+  }
+}

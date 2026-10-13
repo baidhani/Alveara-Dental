@@ -1840,21 +1840,21 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend, full serial: 3302 of 3302 passed, 0 failed, 0 skipped (1 h 21 m). 96 new tests in 7 new classes (CompletionAdoptionRulesTests 19, CompletionAdoptionSchemaTests 11, CompletedProcedureAdoptionServiceTests 23, CompletedProcedureAdoptionHardeningTests 8, CompletionAdoptionApiTests 21, CompletionReconciliationTests 11, RetiredCompletionCallerSearchTests 3), one more in BillingTimelineAgingTests for the defect found, and 4 retirement tests in CompletionApiTests that replace the one test of the old routes; every parent test that exercised the removed code is mapped in docs/testing/ALV-008-C02_PARENT_REGRESSION.md.; Frontend: 1392 of 1392 passed (91 files; 11 new in TreatmentPlanAdoptCompletion.test.tsx, 5 clinical-history tests moved to TreatmentPlanClinicalHistory.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8.; Real-backend walkthrough (new, completion-adoption): 8 of 8 passed (axe light and dark on the adopt form, 0 critical/serious).; Real-backend sweep on fresh databases: 25 runs, 266 of 266 passed (one run, clinical-companion, failed once on a pre-existing clock-dependent assertion in an untouched spec and passed 9 of 9 on a rerun with only the spec's clock shifted).; Leak check: databases and logins unchanged (54 / 59 / 273 / 248).; Negative controls: 24 rules, 23 killed, 1 equivalent and disclosed (the up-front plan-version check).; A real defect found by own verification and fixed: a statement issued before an adoption could no longer be reprinted (reproduced first, fixed in BillingService.LoadSnapshotAsync, killed by A24).; Migration reversibility: AddCompletionAdoption rolls back and forward, and its rollback is refused while an adopted set exists (CompletionAdoptionSchemaTests)."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "5ef44f0ebcf63f5a531b73b7b8c357e339380aa3",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-008-C02/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
