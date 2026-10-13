@@ -2,7 +2,7 @@
 
 **This file records only what repository inspection actually proves exists right now.** It is not a roadmap. Update it truthfully after every ALV attempt.
 
-Last updated: **2026-10-12: item 35 (`ALV-007-C02`), statements, receipts, refunds, financial corrections and account UX, is `AWAITING_REVIEW` as attempt R02 (implementation `19c8f1c`; handoff `.alveara/handoffs/ALV-007-C02/R02.md`; full description `docs/BILLING_STATEMENTS.md`).** R02 corrects the one blocking finding of the independent review of R01 (ALV-007-C02-R01-01): the timeline's source link now opens the charge's billing source (`GET api/patients/{id}/billing/entries/{n}/source`, `ViewBilling`, nothing clinical) for anyone who can read billing, and the direct clinical-history link is offered only with clinical-documentation permission. R01 (implementation `bc25a94`, evidence `80a9cdd`) was returned `CHANGES_REQUIRED` (review `.alveara/reviews/ALV-007-C02/R01.md`) and is preserved. Item 34 (`ALV-008-C01`) is `COMPLETE` (closure `593ff2c`); items 36 and 37 are not started.**
+Last updated: **2026-10-12: item 35 (`ALV-007-C02`), statements, receipts, refunds, financial corrections and account UX, is `COMPLETE`, approved as attempt R02 (implementation `19c8f1c`, evidence `b548815`; review `.alveara/reviews/ALV-007-C02/R02.md`; handoff `.alveara/handoffs/ALV-007-C02/R02.md`; full description `docs/BILLING_STATEMENTS.md`).** R01 (implementation `bc25a94`, evidence `80a9cdd`) was returned `CHANGES_REQUIRED` for one finding (ALV-007-C02-R01-01, the timeline's source link was unusable by billing-only readers); R02 corrected it with an authorized billing-source route and the direct clinical link only for people with clinical-documentation permission. Item 34 (`ALV-008-C01`) is `COMPLETE` (closure `593ff2c`). The next execution item is 36 (`ALV-008-C02`), then 37 (`STORY-016`); neither is started.**
 
 ## Production implementation status
 
@@ -82,7 +82,7 @@ Course story `STORY-007` (portal-verified 2026-10-11T13:30:07Z at `3471727`) bui
 - **UI:** the Billing tab shows what each entry stands for, reverse and apply actions, an allocation chooser, who is responsible, a guarantor table and payment-method settings.
 - **Not built / open:** a reversed charge keeps its procedure billed (re-billing is a later story); no patient picker for the responsible party; no credit balances; processors and insurance are future (refunds, corrections, statements and receipts: see "Billing statements" below).
 
-## Billing statements (ALV-007-C02 AWAITING_REVIEW - attempt R02; R01 was returned CHANGES_REQUIRED)
+## Billing statements (ALV-007-C02 COMPLETE - approved attempt R02; R01 was returned CHANGES_REQUIRED)
 
 Companion of `STORY-007` and `ALV-007-C01`; implementation `bc25a94`, evidence `.alveara/handoffs/ALV-007-C02/R01-evidence/`. Full description `docs/BILLING_STATEMENTS.md`:
 - **Data:** migration `AddRefundsReleasesAndDocuments`: the `Refund` entry kind (`RefundsEntryId`, `ReplacesEntryId`), append-only `BillingAllocationReleases` and immutable `FinancialDocuments`; triggers 51157-51171 (51172 and up are free); the allocation trigger and the reversal trigger 51141 now count net of releases.
