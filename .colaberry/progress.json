@@ -958,20 +958,48 @@
       "criteria": [
         {
           "text": "Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an incorrect prescription entry, when saved, then the system prompts for correction.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All prescription entries are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Prescribing/PrescriptionRules.cs",
+        "src/Alveara.Api/Architecture/Prescribing/AllergyCheck.cs",
+        "src/Alveara.Api/Architecture/Prescribing/Prescription.cs",
+        "src/Alveara.Api/Architecture/Prescribing/PrescriptionViews.cs",
+        "src/Alveara.Api/Architecture/Prescribing/PrescriptionService.cs",
+        "src/Alveara.Api/Controllers/PrescriptionsController.cs",
+        "src/Alveara.Api/Data/PrescriptionModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Migrations/20261013231207_AddPrescriptions.cs",
+        "src/Alveara.Api/Architecture/Identity/Permission.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/alveara-client/src/services/prescriptionApi.ts",
+        "src/alveara-client/src/pages/prescription/PrescriptionsPanel.tsx",
+        "src/alveara-client/src/pages/prescription/PrescriptionForm.tsx",
+        "src/alveara-client/src/pages/prescription/PrescriptionSafetyPanel.tsx",
+        "src/alveara-client/src/pages/prescription/PrescriptionList.tsx",
+        "docs/PRESCRIPTIONS.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/PrescriptionRulesTests.cs",
+        "src/Alveara.Api.Tests/AllergyCheckTests.cs",
+        "src/Alveara.Api.Tests/PrescriptionSchemaTests.cs",
+        "src/Alveara.Api.Tests/PrescriptionServiceTests.cs",
+        "src/Alveara.Api.Tests/PrescriptionApiTests.cs",
+        "src/Alveara.Api.Tests/PrescriptionPermissionTests.cs",
+        "src/alveara-client/src/pages/prescription/PrescriptionsPanel.test.tsx",
+        "src/alveara-client/e2e/prescriptions-real-backend.spec.ts"
+      ],
+      "notes": "Prescriptions with an allergy check and a STRUCTURAL dose check. 'Dosage accuracy' means the entry is well formed (positive number, known unit, known frequency, not above a typing-error ceiling); there is no drug-knowledge source, so it makes no claim that a dose is clinically right, and says so on screen. The allergy check compares the medication NAME with the patient's active recorded allergies (it does not know drug families or brand names, so no match is never a clearance); an allergy list that was never reviewed, or a match, needs the prescriber's own words; an unreadable safety context refuses the save (fails closed). Incorrect entries are refused with every problem named and nothing saved. Each prescription and its PHI-free audit entry (prescriber user id, time) are saved in one save; prescriptions are append-only (trigger 51174) and idempotent per patient key. Dentist and admin prescribe; hygienist and assistant read. Not built: drug interactions, clinical dose limits, encounter linkage, correction or finalization (ALV-016-C01). Verified: 3509 backend, 1423 frontend, 136 mocked browser, 8 repo checks, 10 real-backend walkthrough tests, 12 of 12 negative controls killed.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

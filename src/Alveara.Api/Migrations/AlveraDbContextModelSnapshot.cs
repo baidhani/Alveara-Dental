@@ -4089,6 +4089,110 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.Prescription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AllergyListState")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<string>("AllergyMatches")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("AllergyOutcome")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DoseUnit")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("DoseValue")
+                        .HasPrecision(9, 3)
+                        .HasColumnType("decimal(9,3)");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Medication")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PrescriberUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<string>("ReviewNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrescriberUserId");
+
+                    b.HasIndex("PatientId", "CreatedAtUtc");
+
+                    b.HasIndex("PatientId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("Prescriptions", t =>
+                        {
+                            t.HasTrigger("TR_Prescriptions_Immutable");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Allergy", "[AllergyOutcome] COLLATE Latin1_General_CS_AS IN ('RecordedAllergyMatch','NoRecordedMatch','NotEstablished') AND [AllergyListState] COLLATE Latin1_General_CS_AS IN ('Established','Unconfirmed','NotEstablished') AND (([AllergyOutcome] = 'RecordedAllergyMatch' AND [AllergyMatches] IS NOT NULL AND LEN(LTRIM(RTRIM([AllergyMatches]))) > 0) OR ([AllergyOutcome] = 'NoRecordedMatch' AND [AllergyListState] = 'Established' AND [AllergyMatches] IS NULL) OR ([AllergyOutcome] = 'NotEstablished' AND [AllergyListState] <> 'Established' AND [AllergyMatches] IS NULL))");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Created", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Dose", "[DoseValue] > 0 AND (([DoseUnit] COLLATE Latin1_General_CS_AS = 'mg' AND [DoseValue] <= 5000) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'mcg' AND [DoseValue] <= 5000) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'g' AND [DoseValue] <= 10) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'mL' AND [DoseValue] <= 100) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'tablet' AND [DoseValue] <= 10) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'capsule' AND [DoseValue] <= 10) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'drop' AND [DoseValue] <= 20) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'puff' AND [DoseValue] <= 20) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'unit' AND [DoseValue] <= 1000))");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Frequency", "[Frequency] COLLATE Latin1_General_CS_AS IN ('Once','Once daily','Twice daily','Three times daily','Four times daily','Every 4 hours','Every 6 hours','Every 8 hours','Every 12 hours','At bedtime','As needed')");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Hash", "[RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([RequestHash]) = 64");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Medication", "LEN(LTRIM(RTRIM([Medication]))) >= 2 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Medication] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Review", "[ReviewNote] IS NULL OR LEN(LTRIM(RTRIM([ReviewNote]))) > 0");
+
+                            t.HasCheckConstraint("CK_Prescriptions_ReviewRequired", "[AllergyOutcome] = 'NoRecordedMatch' OR [ReviewNote] IS NOT NULL");
+
+                            t.HasCheckConstraint("CK_Prescriptions_Unit", "[DoseUnit] COLLATE Latin1_General_CS_AS IN ('mg','mcg','g','mL','tablet','capsule','drop','puff','unit')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Procedures.ProcedureDefinition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6046,6 +6150,21 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Periodontal.PerioExam", null)
                         .WithMany()
                         .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.Prescription", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriberUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

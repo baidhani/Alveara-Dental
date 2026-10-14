@@ -1,0 +1,24 @@
+/* STORY-016: the prescriptions screen. Colours come from the shared theme tokens; nothing is carried by colour alone (a problem is listed in words, the allergy result is a sentence). */
+.alv-rx__layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1rem; align-items: start; }
+@media (max-width: 52rem) { .alv-rx__layout { grid-template-columns: minmax(0, 1fr); } }
+.alv-rx__form { border: 1px solid var(--color-border, #dde2e8); border-radius: 0.375rem; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.375rem; }
+.alv-rx__form label { font-weight: 600; margin-top: 0.25rem; }
+.alv-rx__form h3 { font-size: 1.125rem; margin: 0 0 0.25rem; }
+.alv-rx__dose { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.alv-rx__dose > div { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.alv-rx__problems { border: 2px solid var(--color-danger, #b3372c); border-radius: 0.375rem; padding: 0.5rem 0.75rem; }
+.alv-rx__problems ul { margin: 0.25rem 0 0; padding-left: 1.25rem; }
+.alv-rx__message { margin: 0; }
+.alv-rx__message:empty, .alv-rx__problems:empty { display: none; }
+.alv-rx__error { color: var(--color-danger); font-size: 0.9375rem; }
+.alv-rx__jump { background: none; border: 0; padding: 0; text-decoration: underline; color: inherit; cursor: pointer; font: inherit; text-align: left; }
+.alv-rx__safety { border: 1px solid var(--color-border, #dde2e8); border-radius: 0.375rem; padding: 0.75rem 1rem; }
+.alv-rx__safety h3 { font-size: 1.125rem; margin: 0 0 0.25rem; }
+.alv-rx__safety h4 { font-size: 1rem; margin: 0.75rem 0 0.25rem; }
+.alv-rx__safety ul { margin: 0.25rem 0; padding-left: 1.25rem; }
+.alv-rx__assessment { border-left: 4px solid currentColor; padding: 0.25rem 0.625rem; margin: 0.25rem 0; }
+.alv-rx__list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+.alv-rx__item { border: 1px solid var(--color-border, #dde2e8); border-radius: 0.375rem; padding: 0.75rem 1rem; }
+.alv-rx__item p { margin: 0.125rem 0; }
+.alv-rx__medication { font-size: 1.125rem; margin: 0 0 0.25rem; }
+.alv-rx__note { white-space: pre-wrap; }

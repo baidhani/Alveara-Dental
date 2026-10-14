@@ -27,8 +27,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.
-- [ ] Given an incorrect prescription entry, when saved, then the system prompts for correction.
-- [ ] Trust: All prescription entries are logged with user ID and timestamp.
+- [x] Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.
+- [x] Given an incorrect prescription entry, when saved, then the system prompts for correction.
+- [x] Trust: All prescription entries are logged with user ID and timestamp.
 
 When every box above is ticked, stop and show the demo.

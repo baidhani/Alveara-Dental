@@ -76,4 +76,9 @@ public enum Permission
     // allergy or medication). Held by the clinical team (dentist, hygienist, assistant) and the administrator; front desk, billing and the practice manager do not hold it - they still see the board, just not this. Reading the full safety context uses
     // ViewClinicalDocumentation and changing it ManageClinicalNotes. Appended last so existing ordinals are undisturbed.
     ViewSafetyIndicator,
+
+    // STORY-016: prescribing. Writing a prescription is a prescriber's act: held by the dentist and the administrator only. Reading a patient's prescriptions follows clinical documentation (dentist,
+    // hygienist, assistant, administrator). Front desk, billing and the practice manager hold neither. Appended last so existing ordinals are undisturbed.
+    ManagePrescriptions,
+    ViewPrescriptions,
 }

@@ -525,3 +525,16 @@ npx playwright test --config=playwright.completion.config.ts
 ```
 
 It signs in a dentist, a hygienist and a front-desk user (an administrator creates the catalog, the providers and acts as the second screen) and shows: the review listing what each procedure will do to the chart and the ledger (a no-fee procedure, a procedure whose chart match is ambiguous) and no legacy completion button; the failure path (the audit write made to fail: "Nothing was completed", no audit or SQL words, nothing completed, and the same click working once it is back); the result with the charges, the chart finding Completed, the history and the ledger link; a replay and a second submission completing nothing twice; an out-of-date second screen told and completing nothing; a correction that keeps the original; the charge always the plan's fee whatever the request says; a completion made the old way (seeded) shown with no detail and reported by readiness as adoptable; and the API refusing a hygienist (403), front desk (403) and a missing CSRF token (400). Axe runs in light and dark on the review, the failure, the history and the ambiguity.
+
+## STORY-016: prescriptions
+
+`e2e/prescriptions-real-backend.spec.ts` is the un-mocked run for the Prescriptions tab. Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "<the database the API is using>"
+$env:PRESCRIPTIONS_E2E_OUT = "C:\tmp\prescriptions-e2e"   # optional: where the JSON results and screenshots go
+npx playwright test --config=playwright.prescriptions.config.ts
+```
+
+It signs in a dentist, a hygienist and a front-desk user and shows: the form beside the patient-safety panel with what is NOT checked; a correct entry saved, listed with its prescriber and logged with user id and time (and nothing clinical in the log); an incorrect dose refused beside its box with what was typed kept and the ceiling said not to be a clinical limit; a medication matching a recorded allergy refused until the dentist gives their own words; a patient whose allergies were never reviewed treated the same way; the failure path (the audit write made to fail: "Nothing was saved", then the same click working); a replay and a conflicting replay; no route and no database path to change or delete a prescription; a hygienist who reads but cannot prescribe (403), front desk refused (403) and a missing CSRF token refused. Axe runs in light and dark on the main states. Saved evidence: `docs/testing/prescriptions-walkthrough/`.

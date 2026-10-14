@@ -33,6 +33,8 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "diagnoses", label: "Diagnoses", path: "diagnoses", requiredPermission: "ViewClinicalDocumentation" },
   // STORY-015: treatment plans (diagnosis-linked procedures with catalog fee estimates); the same roles that read clinical documentation may read them, only dentists and administrators change them.
   { id: "treatment-plan", label: "Treatment plan", path: "treatment-plan", requiredPermission: "ViewClinicalDocumentation" },
+  // STORY-016: prescriptions (allergy check and structural dose check, logged with who and when); the same roles that read clinical documentation read them, only dentists and administrators prescribe.
+  { id: "prescriptions", label: "Prescriptions", path: "prescriptions", requiredPermission: "ViewPrescriptions" },
   // STORY-007: the billing account (charges, payments, adjustments and the balance owed); everyone who can see billing may read it, only billing, the practice manager and admins change it.
   { id: "billing", label: "Billing", path: "billing", requiredPermission: "ViewBilling" },
 ];

@@ -20,20 +20,23 @@ public static class PermissionMatrix
             Permission.UpdateChairsideFlow, // ALV-011-C01
             Permission.ViewClinicalDocumentation, // STORY-005
             Permission.ManageClinicalTemplates, // ALV-005-C01
-            Permission.ViewSafetyIndicator), // ALV-N011
+            Permission.ViewSafetyIndicator, // ALV-N011
+            Permission.ManagePrescriptions, Permission.ViewPrescriptions), // STORY-016: prescribes
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
             Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms,
             Permission.UpdateChairsideFlow, // ALV-011-C01
             Permission.ViewClinicalDocumentation, // STORY-005
-            Permission.ViewSafetyIndicator), // ALV-N011
+            Permission.ViewSafetyIndicator, // ALV-N011
+            Permission.ViewPrescriptions), // STORY-016: reads, cannot prescribe
 
         [Role.Assistant] = Set(
             Permission.ViewPatientRecords, Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms,
             Permission.UpdateChairsideFlow, // ALV-011-C01
             Permission.ViewClinicalDocumentation, // STORY-005: reads the chart, cannot write it
-            Permission.ViewSafetyIndicator), // ALV-N011
+            Permission.ViewSafetyIndicator, // ALV-N011
+            Permission.ViewPrescriptions), // STORY-016: reads, cannot prescribe
 
         [Role.FrontDesk] = Set(
             Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
