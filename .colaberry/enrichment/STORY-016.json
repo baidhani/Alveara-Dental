@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-016",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-13T23:30:00Z",
+  "sourceCommitSha": "65545e4fe53163b24866911097ed880442f165fe",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Dentists and administrators may prescribe (ManagePrescriptions); dentists, hygienists, assistants and administrators may read prescriptions (ViewPrescriptions). Front desk, billing and office manager have no access and are refused by the API.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "A prescription entry is one medication name (2 to 200 characters), a positive dose of at most 3 decimals in a known unit (mg, mcg, g, mL, tablet, capsule, drop, puff, unit), a frequency from a fixed list, an optional prescriber review note (up to 500 characters) and a client idempotency key.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/PrescriptionRules.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "The dose check is structural: a positive number, a known unit, a known frequency and not above a per-unit typing-error ceiling (for example 5000 mg). The ceilings catch typing mistakes and are not clinical dose limits; the application has no drug-knowledge source.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/PrescriptionRules.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "The allergy check compares the medication name, word by word, with the patient's active recorded allergies. It does not know drug families, brand names or cross-reactions, so a result of no recorded match is never a clearance; it does not check drug interactions.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/AllergyCheck.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "When the allergy list was never reviewed or a recorded allergy matches by name, the save is refused (409) until the prescriber gives their own words; when the safety context cannot be read the save is refused (503) and nothing is stored.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/PrescriptionService.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "Each prescription is stored with the patient, medication, dose, unit, frequency, the allergy outcome and list state at the time, any matching allergy names, the review note, the prescriber's user id and a UTC timestamp. Rows are append-only: a database trigger refuses any update or delete.",
+      "evidence": "src/Alveara.Api/Data/PrescriptionModel.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every saved prescription writes an audit entry with the acting user id, a timestamp and a correlation id in the same save as the prescription; the audit text never contains the medication, dose or allergy. If the audit write fails nothing is saved.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/PrescriptionService.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Defined dosage accuracy as structural validation by documented local rules rather than clinical appropriateness.",
+      "rationale": "No drug-knowledge source exists in the project, so a claim that a dose is clinically right could not be supported; the screen and docs state this limit.",
+      "evidence": "docs/PRESCRIPTIONS.md"
+    },
+    {
+      "statement": "Made the allergy check fail closed: an unreadable safety context, an unreviewed allergy list or a name match each stop the save until handled.",
+      "rationale": "An allergy check that did not happen, or an empty list that was never reviewed, must not read as no allergies.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/PrescriptionService.cs"
+    },
+    {
+      "statement": "Made prescriptions append-only and saved each with its audit entry in a single save, with a per-patient idempotency key.",
+      "rationale": "The trust criterion needs every entry logged with user and time, and a retry must not create a second prescription or a second log entry.",
+      "evidence": "src/Alveara.Api.Tests/PrescriptionServiceTests.cs"
+    },
+    {
+      "statement": "Gave prescribing to dentists and administrators only; hygienists and assistants read.",
+      "rationale": "Prescribing is a clinician decision; the requirement lists the roles but does not say which may prescribe, so the narrowest reasonable set was chosen and recorded.",
+      "evidence": "src/Alveara.Api.Tests/PrescriptionPermissionTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "Drug interactions and the clinical appropriateness of a dose are not checked.",
+      "evidence": "docs/PRESCRIPTIONS.md"
+    },
+    {
+      "statement": "The allergy check matches names only; it does not recognise drug families or brand names (for example it does not know amoxicillin is a penicillin).",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/AllergyCheck.cs"
+    },
+    {
+      "statement": "A prescription is not linked to an encounter, and there is no correction, cancellation or finalization yet; those belong to ALV-016-C01.",
+      "evidence": "src/Alveara.Api/Architecture/Prescribing/Prescription.cs"
+    },
+    {
+      "statement": "The portal course verification of this story had not yet happened when this was written.",
+      "evidence": "docs/testing/STORY-016_TEST_RESULTS.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PrescriptionRulesTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/AllergyCheckTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PrescriptionSchemaTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PrescriptionServiceTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PrescriptionApiTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PrescriptionPermissionTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/pages/prescription/PrescriptionsPanel.test.tsx"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/prescriptions-real-backend.spec.ts"
+    }
+  ],
+  "measurementEvents": []
+}
