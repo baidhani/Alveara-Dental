@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 14,
+    "stories_verified": 15,
     "stories_submitted": 0,
-    "stories_in_progress": 5,
+    "stories_in_progress": 4,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 44,
-    "points_awarded": 2965
+    "criteria_passed": 47,
+    "points_awarded": 3007
   },
   "stories": [
     {
@@ -687,7 +687,7 @@
         "verified_at": "2026-10-02T18:01:02.154Z",
         "commit_sha": "207791d483180e7eda8454968bbd677fb86709ce",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/207791d483180e7eda8454968bbd677fb86709ce",
-        "commit_at": "2026-10-02T17:59:34Z",
+        "commit_at": "2026-10-02T18:02:30Z",
         "points_awarded": 130,
         "outstanding": []
       }
@@ -1002,19 +1002,15 @@
       "notes": "Prescriptions with an allergy check and a STRUCTURAL dose check. 'Dosage accuracy' means the entry is well formed (positive number, known unit, known frequency, not above a typing-error ceiling); there is no drug-knowledge source, so it makes no claim that a dose is clinically right, and says so on screen. The allergy check compares the medication NAME with the patient's active recorded allergies (it does not know drug families or brand names, so no match is never a clearance); an allergy list that was never reviewed, or a match, needs the prescriber's own words; an unreadable safety context refuses the save (fails closed). Incorrect entries are refused with every problem named and nothing saved. Each prescription and its PHI-free audit entry (prescriber user id, time) are saved in one save; prescriptions are append-only (trigger 51174) and idempotent per patient key. Dentist and admin prescribe; hygienist and assistant read. Not built: drug interactions, clinical dose limits, encounter linkage, correction or finalization (ALV-016-C01). Verified: 3509 backend, 1423 frontend, 136 mocked browser, 8 repo checks, 10 real-backend walkthrough tests, 12 of 12 negative controls killed.",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 38,
-        "outstanding": [
-          "Given a patient record, when prescribing medication, then the system checks for allergies and dosage accuracy.",
-          "Given an incorrect prescription entry, when saved, then the system prompts for correction.",
-          "Trust: All prescription entries are logged with user ID and timestamp."
-        ]
+        "verified_at": "2026-10-14T02:12:35.095Z",
+        "commit_sha": "65545e4fe53163b24866911097ed880442f165fe",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/65545e4fe53163b24866911097ed880442f165fe",
+        "commit_at": "2026-10-14T02:00:25Z",
+        "points_awarded": 80,
+        "outstanding": []
       }
     },
     {
