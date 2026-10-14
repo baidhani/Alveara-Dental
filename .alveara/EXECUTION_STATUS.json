@@ -1889,26 +1889,26 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 3509 of 3509 in the full serial run (1 h 37 m, real SQL Server). New: PrescriptionRulesTests and AllergyCheckTests 84, PrescriptionSchemaTests 43, PrescriptionServiceTests 25, PrescriptionApiTests 24, PrescriptionPermissionTests 9. Frontend 1423 of 1423 (31 new in PrescriptionsPanel.test.tsx); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8; real-backend prescriptions walkthrough 10 of 10 (axe light and dark). 12 of 12 negative controls killed (one survivor, a replay re-check, closed with a test). See docs/PRESCRIPTIONS.md and docs/testing/STORY-016_TEST_RESULTS.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "65545e4fe53163b24866911097ed880442f165fe",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "65545e4fe53163b24866911097ed880442f165fe",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -1916,8 +1916,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-14T02:12:35.095Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 65545e4fe53163b24866911097ed880442f165fe - see .colaberry/progress.json (STORY-016.verification.state == \"verified\", 3/3 criteria, 80 points awarded, verified_at 2026-10-14T02:12:35.095Z; portal sync commit 73fde1d)."
     },
     {
       "schemaVersion": "2",

@@ -612,3 +612,10 @@
   - What changed: a Prescriptions tab and API (`PrescriptionRules`, `AllergyCheck`, `PrescriptionService`, `PrescriptionsController`, `Prescription` table with append-only trigger 51174, `ManagePrescriptions` and `ViewPrescriptions` permissions, the entry form, safety panel and list), docs/PRESCRIPTIONS.md, the real-backend walkthrough and its evidence, the negative-control record and the test-results record. The dose check is structural only (no drug-knowledge source) and the allergy check compares names only; both limits are stated on screen and in the docs.
   - Verification: backend full serial 3509 of 3509 passed (1 h 37 m); vitest 1423 of 1423; tsc, build and lint exit 0; mocked Playwright 136 of 136; repository checks 8 of 8; real-backend walkthrough 10 of 10 (docs/testing/prescriptions-walkthrough/); 12 of 12 negative controls killed (docs/testing/PRESCRIPTIONS_NEGATIVE_CONTROLS.md); leak counts unchanged (54 / 59 / 273 / 248).
   - Notes: the real browser found a dark-mode contrast failure and a duplicated sentence, both fixed; negative control B10 found a replay gap, closed with a test. Not built, by design: drug interactions, clinical dose limits, encounter linkage, correction lifecycle (ALV-016-C01). The portal has not yet verified the story, so it is not recorded COMPLETE; the course-completion commit waits for that. Not pushed.
+
+- [x] STORY-016: course completion recorded (portal-verified)
+  - Date: 2026-10-14
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/EXECUTION_STATUS.json` item 37 to COMPLETE (`externalVerification = "course_portal"`, verified at 2026-10-14T02:12:35Z at commit `65545e4`), and `.alveara/BUILD_STATE.md` (header and the `Last successful broad regression` baseline, now item 37 with 0 eligible stories since).
+  - Verification: `.colaberry/progress.json` after portal sync `73fde1d` shows STORY-016 `verification.state` verified, 3 of 3 criteria, 80 points.
+  - Notes: no product code changed. Item 38 (ALV-016-C01) is not started.
