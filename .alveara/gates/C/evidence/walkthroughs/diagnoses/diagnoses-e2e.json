@@ -1,0 +1,112 @@
+{
+  "axe": {
+    "list-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "list-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "problems-shown-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "problems-shown-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "correction-and-history-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "correction-and-history-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "tablet-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    },
+    "tablet-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 24
+    }
+  },
+  "stamp": 1792167755538,
+  "nothingInvented": {
+    "noEncounterNoForm": true,
+    "emptyListHonest": true
+  },
+  "acceptance1": {
+    "linkedToPatient": true,
+    "linkedToEncounter": true,
+    "toothStoredAs": "16",
+    "referenceState": "Unresolved"
+  },
+  "acceptance2": {
+    "screenProblems": 2,
+    "serverProblems": [
+      "required",
+      "unknown_tooth",
+      "invalid_characters",
+      "blank"
+    ]
+  },
+  "links": {
+    "anotherPatientsEncounter": "encounter_not_found",
+    "missingEncounter": "encounter_not_found"
+  },
+  "reference": {
+    "keptWhenLeftAlone": true,
+    "replacedOnlyWhenAsked": true,
+    "removedOnlyWhenAsked": true,
+    "historyHasEveryValue": true
+  },
+  "withdrawn": {
+    "keptWithReference": true,
+    "correctionRefused": true
+  },
+  "retries": {
+    "sameKey": "one diagnosis",
+    "differentEntry": 409,
+    "eightSimultaneous": "one diagnosis",
+    "droppedConnection": "kept entries, one diagnosis on retry"
+  },
+  "stale": {
+    "conflictBanner": true,
+    "typedKept": true,
+    "firstChangeStands": true
+  },
+  "audit": {
+    "DiagnosisRecorded": 5,
+    "DiagnosisCorrected": 5,
+    "DiagnosisWithdrawn": 1
+  },
+  "roles": {
+    "dentist": "record, correct, withdraw",
+    "hygienist": "record",
+    "assistant": "read only (403 on write)",
+    "frontDesk": "403, no tab",
+    "billing": "403, no tab",
+    "anonymous": 401,
+    "noCsrfToken": "refused"
+  },
+  "accessibility": {
+    "scanned": [
+      "list",
+      "problems-shown",
+      "correction-and-history",
+      "tablet"
+    ],
+    "tabletNoHorizontalPageScroll": true
+  }
+}

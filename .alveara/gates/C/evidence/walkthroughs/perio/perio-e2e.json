@@ -1,0 +1,112 @@
+{
+  "axe": {
+    "grid-and-history-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "grid-and-history-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "problems-shown-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "problems-shown-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "tablet-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "tablet-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    }
+  },
+  "stamp": 1792167674981,
+  "nothingInvented": {
+    "charts": 0,
+    "emptyBoxes": 192,
+    "safetyStripInView": true
+  },
+  "acceptance1": {
+    "saved": {
+      "16B": [
+        5,
+        2,
+        7,
+        true
+      ],
+      "16MB": [
+        3,
+        0,
+        3,
+        false
+      ],
+      "26DL": [
+        7,
+        1,
+        8,
+        true
+      ]
+    },
+    "recordedBy": "Dr. Dana Dentist 1792167674981"
+  },
+  "acceptance2": {
+    "screenProblems": 2,
+    "serverProblems": [
+      "out_of_range",
+      "out_of_range",
+      "unknown_tooth",
+      "unknown_site",
+      "primary_tooth"
+    ],
+    "missingFields": [
+      "probingDepthMm",
+      "recessionMm",
+      "bleeding"
+    ]
+  },
+  "retries": {
+    "sameKeySameChart": "one chart",
+    "sameKeyDifferentChart": 409,
+    "sixSimultaneous": "one chart"
+  },
+  "failure": {
+    "droppedConnection": "kept entries, one chart on retry",
+    "saveFailed": "nothing recorded message, entries kept"
+  },
+  "corrections": {
+    "newChartsAfterCopy": 1,
+    "earlierChartUnchanged": true
+  },
+  "audit": {
+    "PerioExamRecorded": 6,
+    "charts": 6
+  },
+  "roles": {
+    "dentist": "chart",
+    "hygienist": "chart",
+    "assistant": "read only (403 on save)",
+    "frontDesk": "403, no tab",
+    "billing": "403, no tab",
+    "anonymous": 401,
+    "noCsrfToken": "refused"
+  },
+  "accessibility": {
+    "scanned": [
+      "grid-and-history",
+      "problems-shown",
+      "tablet"
+    ],
+    "tabletNoHorizontalPageScroll": true
+  }
+}

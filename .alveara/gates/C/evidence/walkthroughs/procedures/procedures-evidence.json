@@ -1,0 +1,45 @@
+{
+  "axe": {
+    "catalog-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "catalog-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "history-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "history-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "read-only-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "read-only-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "cdt-added-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "cdt-added-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "save-failed-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "save-failed-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792167820608
+}

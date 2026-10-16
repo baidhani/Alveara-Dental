@@ -1,0 +1,140 @@
+{
+  "attempts": [
+    {
+      "RecordClass": "diagnosis",
+      "Table": "Diagnoses",
+      "Statement": "DELETE FROM [Diagnoses]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51071,
+      "Mechanism": "TR_Diagnoses_NoDelete",
+      "Message": "A diagnosis is never deleted; a wrong entry is corrected or withdrawn with a reason.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "diagnosis",
+      "Table": "Diagnoses",
+      "Statement": "UPDATE [Diagnoses] SET [PatientId] = \u002773850331-d05e-4a86-80c9-f3f4c0bd84cc\u0027",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51073,
+      "Mechanism": "TR_Diagnoses_Links",
+      "Message": "The patient, the encounter and the origin of a diagnosis never change.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "diagnosis history",
+      "Table": "DiagnosisVersions",
+      "Statement": "UPDATE [DiagnosisVersions] SET [Label] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 33) WHERE [Label] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51072,
+      "Mechanism": "TR_DiagnosisVersions_Immutable",
+      "Message": "The history of a diagnosis is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "diagnosis history",
+      "Table": "DiagnosisVersions",
+      "Statement": "DELETE FROM [DiagnosisVersions]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51072,
+      "Mechanism": "TR_DiagnosisVersions_Immutable",
+      "Message": "The history of a diagnosis is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "diagnosis link",
+      "Table": "DiagnosisLinks",
+      "Statement": "UPDATE [DiagnosisLinks] SET [LinkType] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 10) WHERE [LinkType] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51075,
+      "Mechanism": "TR_DiagnosisLinks_Immutable",
+      "Message": "A link from a diagnosis is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "diagnosis link",
+      "Table": "DiagnosisLinks",
+      "Statement": "DELETE FROM [DiagnosisLinks]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51075,
+      "Mechanism": "TR_DiagnosisLinks_Immutable",
+      "Message": "A link from a diagnosis is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "odontogram finding",
+      "Table": "ToothFindings",
+      "Statement": "DELETE FROM [ToothFindings]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51055,
+      "Mechanism": "TR_ToothFindings_NoDelete",
+      "Message": "Tooth findings are never deleted; they are withdrawn with a reason.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "odontogram history",
+      "Table": "ToothFindingVersions",
+      "Statement": "UPDATE [ToothFindingVersions] SET [State] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 10) WHERE [State] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51056,
+      "Mechanism": "TR_ToothFindingVersions_Immutable",
+      "Message": "The history of a tooth finding is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "odontogram history",
+      "Table": "ToothFindingVersions",
+      "Statement": "DELETE FROM [ToothFindingVersions]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51056,
+      "Mechanism": "TR_ToothFindingVersions_Immutable",
+      "Message": "The history of a tooth finding is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "odontogram link",
+      "Table": "ToothFindingLinks",
+      "Statement": "UPDATE [ToothFindingLinks] SET [Reference] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 33) WHERE [Reference] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51059,
+      "Mechanism": "TR_ToothFindingLinks_Immutable",
+      "Message": "Links from a finding are append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "odontogram link",
+      "Table": "ToothFindingLinks",
+      "Statement": "DELETE FROM [ToothFindingLinks]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51059,
+      "Mechanism": "TR_ToothFindingLinks_Immutable",
+      "Message": "Links from a finding are append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    }
+  ],
+  "sanctionedPaths": [
+    "diagnosis: a correction with a reason is the sanctioned path (history now holds 2 versions)",
+    "odontogram: a wrong finding is withdrawn with a reason, which adds a history version; the finding and its earlier versions stay"
+  ]
+}

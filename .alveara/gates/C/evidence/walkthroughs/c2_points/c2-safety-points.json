@@ -1,0 +1,40 @@
+{
+  "points": {
+    "planning": {
+      "route": "treatment-plan",
+      "stripTop": 50.5,
+      "mainTop": 198.5,
+      "visible": true
+    },
+    "completion (the treatment-plan screen is where the completion review is opened)": {
+      "route": "treatment-plan",
+      "stripTop": 50.5,
+      "mainTop": 198.5,
+      "visible": true
+    },
+    "prescribing, composer": {
+      "route": "prescription-composer",
+      "stripTop": 50.5,
+      "mainTop": 198.5,
+      "visible": true
+    },
+    "prescribing, prescriptions list": {
+      "route": "prescriptions",
+      "stripTop": 50.5,
+      "mainTop": 198.5,
+      "visible": true
+    },
+    "charting: odontogram": {
+      "route": "odontogram",
+      "stripTop": 50.5,
+      "mainTop": 198.5,
+      "visible": true
+    },
+    "diagnoses": {
+      "route": "diagnoses",
+      "stripTop": 50.5,
+      "mainTop": 198.5,
+      "visible": true
+    }
+  }
+}

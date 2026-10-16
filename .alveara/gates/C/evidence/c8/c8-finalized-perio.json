@@ -1,0 +1,127 @@
+{
+  "attempts": [
+    {
+      "RecordClass": "finalized perio chart",
+      "Table": "PerioExams",
+      "Statement": "UPDATE [PerioExams] SET [RecordedAtUtc] = DATEADD(day, 1, [RecordedAtUtc]) WHERE [RecordedAtUtc] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51064,
+      "Mechanism": "TR_PerioExams_Immutable",
+      "Message": "A periodontal chart is never edited or deleted; a correction is recorded as a new chart.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio chart",
+      "Table": "PerioExams",
+      "Statement": "DELETE FROM [PerioExams]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51064,
+      "Mechanism": "TR_PerioExams_Immutable",
+      "Message": "A periodontal chart is never edited or deleted; a correction is recorded as a new chart.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio readings",
+      "Table": "PerioReadings",
+      "Statement": "UPDATE [PerioReadings] SET [ProbingDepthMm] = [ProbingDepthMm] \u002B 1 WHERE [ProbingDepthMm] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51065,
+      "Mechanism": "TR_PerioReadings_Immutable",
+      "Message": "The readings of a periodontal chart are never edited or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio readings",
+      "Table": "PerioReadings",
+      "Statement": "DELETE FROM [PerioReadings]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51065,
+      "Mechanism": "TR_PerioReadings_Immutable",
+      "Message": "The readings of a periodontal chart are never edited or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio tooth records",
+      "Table": "PerioToothRecords",
+      "Statement": "UPDATE [PerioToothRecords] SET [Mobility] = [Mobility] \u002B 1 WHERE [Mobility] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51066,
+      "Mechanism": "TR_PerioToothRecords_Immutable",
+      "Message": "The whole-tooth records of a periodontal chart are never edited or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio tooth records",
+      "Table": "PerioToothRecords",
+      "Statement": "DELETE FROM [PerioToothRecords]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51066,
+      "Mechanism": "TR_PerioToothRecords_Immutable",
+      "Message": "The whole-tooth records of a periodontal chart are never edited or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio session",
+      "Table": "PerioSessions",
+      "Statement": "UPDATE [PerioSessions] SET [UpdatedAtUtc] = DATEADD(day, 1, [UpdatedAtUtc]) WHERE [UpdatedAtUtc] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51068,
+      "Mechanism": "TR_PerioSessions_ClosedIsFinal",
+      "Message": "A finalized or abandoned chart session can no longer be changed.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio session",
+      "Table": "PerioSessions",
+      "Statement": "DELETE FROM [PerioSessions]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51067,
+      "Mechanism": "TR_PerioSessions_NoDelete",
+      "Message": "A periodontal chart session is never deleted; an unwanted draft is abandoned.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio session readings",
+      "Table": "PerioSessionReadings",
+      "Statement": "UPDATE [PerioSessionReadings] SET [ProbingDepthMm] = [ProbingDepthMm] \u002B 1 WHERE [ProbingDepthMm] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51069,
+      "Mechanism": "TR_PerioSessionReadings_DraftOnly",
+      "Message": "The entries of a finalized or abandoned chart session can no longer be changed.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized perio session teeth",
+      "Table": "PerioSessionTeeth",
+      "Statement": "UPDATE [PerioSessionTeeth] SET [Mobility] = [Mobility] \u002B 1 WHERE [Mobility] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51069,
+      "Mechanism": "TR_PerioSessionTeeth_DraftOnly",
+      "Message": "The entries of a finalized or abandoned chart session can no longer be changed.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    }
+  ],
+  "sanctionedPaths": [
+    "perio: a finalized chart is never edited; the sanctioned path is a new chart: a second session was finalized as a second exam (2 exams held)"
+  ]
+}

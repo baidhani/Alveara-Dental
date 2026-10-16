@@ -1,0 +1,71 @@
+{
+  "axe": {
+    "author-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "author-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "read-only-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "read-only-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792167848669,
+  "acceptance1": {
+    "diagnosisId": "0df318ff-4ff0-4213-9762-0332c92f6b1d",
+    "procedureId": "6860f049-9cb9-4f76-90e9-affc8b8a518c",
+    "fee": 120,
+    "total": 120
+  },
+  "acceptance2": {
+    "refusedBesideField": "That surface does not exist on that tooth.",
+    "plansAfter": 1,
+    "itemsAfter": 1
+  },
+  "feeCopied": {
+    "catalogFeeNow": 150,
+    "planFeeStill": 120
+  },
+  "acceptance3": {
+    "events": [
+      {
+        "n": 1,
+        "type": "Created",
+        "actor": "Dr. Dana Dentist 1792167848669",
+        "at": "2026-10-16T16:24:12.4962527+00:00"
+      },
+      {
+        "n": 2,
+        "type": "ItemAdded",
+        "actor": "Dr. Dana Dentist 1792167848669",
+        "at": "2026-10-16T16:24:12.4962527+00:00"
+      },
+      {
+        "n": 3,
+        "type": "ItemAdded",
+        "actor": "Dr. Dana Dentist 1792167848669",
+        "at": "2026-10-16T16:24:16.2080588+00:00"
+      },
+      {
+        "n": 4,
+        "type": "ItemWithdrawn",
+        "actor": "Dr. Dana Dentist 1792167848669",
+        "at": "2026-10-16T16:24:17.3311456+00:00"
+      },
+      {
+        "n": 5,
+        "type": "Renamed",
+        "actor": "Dr. Dana Dentist 1792167848669",
+        "at": "2026-10-16T16:24:17.94793+00:00"
+      }
+    ],
+    "auditContainsTreatmentPlan": true
+  }
+}

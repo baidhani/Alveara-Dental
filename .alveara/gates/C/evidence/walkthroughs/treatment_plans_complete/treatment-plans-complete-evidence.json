@@ -1,0 +1,144 @@
+{
+  "axe": {
+    "revise-form-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "revise-form-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "grouped-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "grouped-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "history-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "history-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patient-copy-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patient-copy-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "references-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "references-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "diagnoses-resolved-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "diagnoses-resolved-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "read-only-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "read-only-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "catalog-usage-warning-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "catalog-usage-warning-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792167873440,
+  "revision": {
+    "currentRevision": 4,
+    "phases": 2,
+    "unplaced": [
+      "POL-1"
+    ]
+  },
+  "answers": {
+    "states": [
+      [
+        "PERIO-1",
+        "Accepted"
+      ],
+      [
+        "SCALE-1",
+        "Declined"
+      ],
+      [
+        "POL-1",
+        "Accepted"
+      ]
+    ],
+    "acceptedEstimateTotal": 150
+  },
+  "completedIsFinal": {
+    "redecide": "item_completed",
+    "withdraw": "item_completed",
+    "reschedule": "item_completed"
+  },
+  "compare": {
+    "from": 1,
+    "to": 4,
+    "phasesAdded": 2,
+    "itemsAdded": [
+      "SCALE-1",
+      "POL-1"
+    ],
+    "estimateDelta": 100
+  },
+  "patientCopy": {
+    "staffOnlyAbsent": true,
+    "printHidesRest": true,
+    "printColours": [
+      "rgb(0, 0, 0)",
+      "rgb(255, 255, 255)"
+    ]
+  },
+  "references": {
+    "resolved": [
+      "Gingivitis",
+      "Caries"
+    ],
+    "unresolved": [
+      "Bruxism"
+    ],
+    "original": "plan-7",
+    "historyVersions": 1
+  },
+  "hygienist": {
+    "writesRefused": 5
+  },
+  "refusals": {
+    "stale": "concurrency_conflict",
+    "crossPatient": "plan_not_found",
+    "noCsrf": 400,
+    "resolvedReferenceLocked": "treatment_plan_reference_resolved",
+    "auditEvents": 7
+  },
+  "catalogUsage": {
+    "treatmentPlanUses": 2,
+    "warned": true,
+    "confirmedBeforeInactivating": true,
+    "planStillShowsFee": 120,
+    "refusedForNewWork": true
+  }
+}

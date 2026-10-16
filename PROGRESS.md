@@ -675,3 +675,10 @@
   - What changed: `docs/design/GATE_C_SEQUENCE_REVIEW_RESPONSE.md` recorded (Gate C is run late, before Gate D, not waived); gate tooling added before the evaluation: `src/Alveara.Api.Tests/GateCHistoryIntegrityTests.cs` (C8: direct UPDATE/DELETE attempts against signed notes and addenda, diagnoses, odontogram history, finalized perio, plan revisions and state history, completed procedures; each must be rejected by the database with the table unchanged, and the sanctioned path is exercised) and `src/alveara-client/gate-c/` (C2 real-backend spec, config, README).
   - Verification: C8 tests 4/4 pass; mutation check: weakening trigger 51072 (diagnosis history) to a PRINT made the C8 diagnoses test fail, then the migration was restored (git checkout); C2 spec 6/6 pass on a fresh migrated database; tests/gate-tooling-coexistence.test.mjs passes; LocalDB alveara_ database count flat at 248.
   - Notes: tooling only; no product code changed and no threshold changed. Observation recorded, not asserted: a signed-but-not-finalized note is protected by the service, not by a database trigger. The Gate C evaluation itself is the next step.
+
+- [x] Gate C late evaluation: evidence run recorded (report follows)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/C/evidence/` added: gate outputs, the C8 attempt tables, the C2 and criterion walkthrough outputs, and the item-38 R02 backend result reused as same-head evidence, all from one run on head `45abf51`.
+  - Verification: tsc/build/lint exit 0; vitest 1453/1453; mocked Playwright 136/136; repo checks 8/8; C8 tooling 4/4 (51 attempts, 50 rejected by a named trigger, tables unchanged); 13 real-backend walkthroughs 9+9+11+6+11+11+10+12+12+12+8+11+11, all passing on fresh databases; scratch databases dropped, leak counts flat.
+  - Notes: evidence only; no product code or threshold changed. Tablet-width walkthroughs not run (no Gate C criterion requires them).

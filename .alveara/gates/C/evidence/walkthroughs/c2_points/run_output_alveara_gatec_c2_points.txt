@@ -1,0 +1,11 @@
+
+Running 6 tests using 1 worker
+
+  ok 1 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 planning: the safety strip carries the alert, allergy, medication and open clearance above the work area (302ms)
+  ok 2 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 completion (the treatment-plan screen is where the completion review is opened): the safety strip carries the alert, allergy, medication and open clearance above the work area (275ms)
+  ok 3 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 prescribing, composer: the safety strip carries the alert, allergy, medication and open clearance above the work area (339ms)
+  ok 4 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 prescribing, prescriptions list: the safety strip carries the alert, allergy, medication and open clearance above the work area (302ms)
+  ok 5 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 charting: odontogram: the safety strip carries the alert, allergy, medication and open clearance above the work area (285ms)
+  ok 6 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 diagnoses: the safety strip carries the alert, allergy, medication and open clearance above the work area (277ms)
+
+  6 passed (6.6s)

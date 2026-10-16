@@ -1,0 +1,140 @@
+{
+  "attempts": [
+    {
+      "RecordClass": "signed note (signed, not finalized): observed, not required",
+      "Table": "EncounterNotes",
+      "Statement": "UPDATE [EncounterNotes] SET [Body] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 4000) WHERE [Body] IS NOT NULL",
+      "Required": false,
+      "Rejected": false,
+      "SqlError": null,
+      "Mechanism": null,
+      "Message": null,
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": true
+    },
+    {
+      "RecordClass": "finalized encounter note",
+      "Table": "EncounterNotes",
+      "Statement": "UPDATE [EncounterNotes] SET [Body] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 4000) WHERE [Body] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51043,
+      "Mechanism": "TR_EncounterNotes_FinalizedImmutable",
+      "Message": "The notes of a finalized encounter cannot be changed; add an addendum.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized encounter note",
+      "Table": "EncounterNotes",
+      "Statement": "DELETE FROM [EncounterNotes]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51044,
+      "Mechanism": "TR_EncounterNotes_NoDelete",
+      "Message": "Encounter notes are never deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized encounter",
+      "Table": "Encounters",
+      "Statement": "UPDATE [Encounters] SET [EncounterAtUtc] = DATEADD(day, 1, [EncounterAtUtc]) WHERE [EncounterAtUtc] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51030,
+      "Mechanism": "TR_Encounters_FinalizedImmutable",
+      "Message": "A finalized encounter cannot be changed; add an addendum.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized encounter",
+      "Table": "Encounters",
+      "Statement": "DELETE FROM [Encounters]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51031,
+      "Mechanism": "TR_Encounters_NoDelete",
+      "Message": "Clinical encounters are never deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized encounter entries",
+      "Table": "EncounterEntries",
+      "Statement": "UPDATE [EncounterEntries] SET [Name] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 33) WHERE [Name] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51032,
+      "Mechanism": "TR_EncounterEntries_FinalizedImmutable",
+      "Message": "The entries of a finalized encounter cannot be changed; add an addendum.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "finalized encounter entries",
+      "Table": "EncounterEntries",
+      "Statement": "DELETE FROM [EncounterEntries]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51033,
+      "Mechanism": "TR_EncounterEntries_NoDelete",
+      "Message": "Clinical entries are never deleted; a removed entry is marked removed.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "encounter history",
+      "Table": "EncounterEvents",
+      "Statement": "UPDATE [EncounterEvents] SET [Detail] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 33) WHERE [Detail] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51037,
+      "Mechanism": "TR_EncounterEvents_Immutable",
+      "Message": "Encounter history is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "encounter history",
+      "Table": "EncounterEvents",
+      "Statement": "DELETE FROM [EncounterEvents]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51037,
+      "Mechanism": "TR_EncounterEvents_Immutable",
+      "Message": "Encounter history is append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "encounter addendum",
+      "Table": "EncounterAddenda",
+      "Statement": "UPDATE [EncounterAddenda] SET [Text] = LEFT(N\u0027overwritten by the Gate C attempt\u0027, 33) WHERE [Text] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51036,
+      "Mechanism": "TR_EncounterAddenda_Immutable",
+      "Message": "Encounter addenda are append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "encounter addendum",
+      "Table": "EncounterAddenda",
+      "Statement": "DELETE FROM [EncounterAddenda]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51036,
+      "Mechanism": "TR_EncounterAddenda_Immutable",
+      "Message": "Encounter addenda are append-only.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    }
+  ],
+  "sanctionedPaths": [
+    "signed note: a change through the service is refused (encounter_signed, 409): This note is signed. Unsign it to keep editing, or finalize it.",
+    "finalized note: a change through the service is refused (encounter_finalized); the sanctioned path is an addendum: it was added (1 addendum row) and the note rows were byte for byte unchanged by it"
+  ]
+}
