@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Architecture.Billing;
+using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Odontogram;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Architecture.Treatment;
@@ -18,13 +19,20 @@ namespace Alveara.Api.Architecture.Completion;
 ///   charge are written inside one explicit transaction; if anything fails (a charge, the chart, an audit write) the transaction is rolled back and the caller is told so. Nothing is half-recorded.
 /// - <b>Stale protection.</b> The request carries the plan version the person read. It is checked before anything is staged and again, atomically, by the save that advances the plan's version, so two sets that
 ///   overlap on a procedure end with exactly one winner and the other a conflict.
+/// - <b>A deadlock victim is run again, never leaked.</b> If SQL Server chooses the operation as a deadlock victim (the whole transaction is already rolled back) it is run again from the start, at most three times in all;
+///   the run that follows sees the competing request's result (a replay, a <c>concurrency_conflict</c>, or the procedures already completed), so nothing is recorded twice. After the last attempt the caller gets the documented
+///   <c>save_failed</c> (503), never a provider exception.
 /// - <b>Retries are safe.</b> The same key with the same canonical request returns the saved result with no writes (even from an out-of-date screen); the same key with a different request is
 ///   <c>idempotency_conflict</c>; the same procedures under a new key after success are refused as already completed.
 /// - <b>The chart and the ledger are touched only through their own services</b> (a finding is found only through the plan's diagnosis link; a charge is made only through <see cref="IProcedureCharging"/>).
 /// </summary>
-public partial class CompletedProcedureService(AlveraDbContext db, IPracticeClock clock, TreatmentPlanService plans, OdontogramService chart, IProcedureCharging charging, ILogger<CompletedProcedureService>? logger = null)
+public partial class CompletedProcedureService(AlveraDbContext db, IPracticeClock clock, TreatmentPlanService plans, OdontogramService chart, IProcedureCharging charging, ILogger<CompletedProcedureService>? logger = null, DeadlockRetryPolicy? deadlockRetry = null)
 {
-    public async Task<CompletionResult> CompleteAsync(Guid planId, CompleteProceduresRequest request, Guid actor, CancellationToken ct)
+    /// <summary>Completes the set; a deadlock victim is run again a bounded number of times (see <c>CompletedProcedureService.Deadlock.cs</c>) and never reaches the caller as a provider exception.</summary>
+    public Task<CompletionResult> CompleteAsync(Guid planId, CompleteProceduresRequest request, Guid actor, CancellationToken ct) =>
+        WithDeadlockRetryAsync("completion", "completed", () => CompleteOnceAsync(planId, request, actor, ct), ct);
+
+    private async Task<CompletionResult> CompleteOnceAsync(Guid planId, CompleteProceduresRequest request, Guid actor, CancellationToken ct)
     {
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw TreatmentPlanService.MissingPlan();
         var version = TreatmentPlanRules.ParseVersion(request.RowVersion);

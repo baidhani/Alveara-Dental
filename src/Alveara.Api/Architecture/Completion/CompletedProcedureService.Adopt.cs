@@ -21,7 +21,11 @@ namespace Alveara.Api.Architecture.Completion;
 /// </summary>
 public partial class CompletedProcedureService
 {
-    public async Task<CompletionResult> AdoptAsync(Guid planId, Guid itemId, AdoptCompletionRequest request, Guid actor, CancellationToken ct)
+    /// <summary>Adopts the legacy completion; a deadlock victim is run again a bounded number of times and never reaches the caller as a provider exception (see <c>CompletedProcedureService.Deadlock.cs</c>).</summary>
+    public Task<CompletionResult> AdoptAsync(Guid planId, Guid itemId, AdoptCompletionRequest request, Guid actor, CancellationToken ct) =>
+        WithDeadlockRetryAsync("adoption", "adopted", () => AdoptOnceAsync(planId, itemId, request, actor, ct), ct);
+
+    private async Task<CompletionResult> AdoptOnceAsync(Guid planId, Guid itemId, AdoptCompletionRequest request, Guid actor, CancellationToken ct)
     {
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw TreatmentPlanService.MissingPlan();
         var version = TreatmentPlanRules.ParseVersion(request.RowVersion);
