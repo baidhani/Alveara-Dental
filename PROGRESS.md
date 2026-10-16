@@ -682,3 +682,10 @@
   - What changed: `.alveara/gates/C/evidence/` added: gate outputs, the C8 attempt tables, the C2 and criterion walkthrough outputs, and the item-38 R02 backend result reused as same-head evidence, all from one run on head `45abf51`.
   - Verification: tsc/build/lint exit 0; vitest 1453/1453; mocked Playwright 136/136; repo checks 8/8; C8 tooling 4/4 (51 attempts, 50 rejected by a named trigger, tables unchanged); 13 real-backend walkthroughs 9+9+11+6+11+11+10+12+12+12+8+11+11, all passing on fresh databases; scratch databases dropped, leak counts flat.
   - Notes: evidence only; no product code or threshold changed. Tablet-width walkthroughs not run (no Gate C criterion requires them).
+
+- [x] Gate C late evaluation: report, QUALITY_GATES.md and BUILD_STATE.md (PASS, awaiting independent review)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/C/GATE_C_REPORT.md` (labelled late evaluation after items 31-38), C1-C8 rows in `.alveara/QUALITY_GATES.md` set to PASS with evidence references, a Gate C paragraph in `.alveara/BUILD_STATE.md`, and `.alveara/gates/C/reviews/README.md`.
+  - Verification: every criterion maps to the evidence run recorded in `eeb493b` (13 real-backend walkthroughs, C8 4/4 with 50 of 51 attempts rejected by named triggers and the remaining one disclosed, vitest 1453, mocked Playwright 136, repo checks 8, tsc/build/lint 0); backend 3686/3686 reused from `486e44c` and declared in the report; walkthrough claims in the report were checked against the spec test titles.
+  - Notes: no product code or threshold changed; Gate D and item 39 not started; not pushed. Two disclosures for the reviewer: the backend reuse and the signed-but-not-finalized note guarded by the service rather than a trigger.
