@@ -11,11 +11,11 @@ namespace Alveara.Api.Data;
 /// </summary>
 internal static class PrescriptionModel
 {
-    private static string In(IEnumerable<string> values) => string.Join(",", values.Select(v => $"'{v}'"));
+    internal static string In(IEnumerable<string> values) => string.Join(",", values.Select(v => $"'{v}'"));
 
-    private static string NoControl(string column) => $"PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [{column}] COLLATE Latin1_General_BIN2) = 0";
+    internal static string NoControl(string column) => $"PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [{column}] COLLATE Latin1_General_BIN2) = 0";
 
-    private static string DoseWithinCeiling() =>
+    internal static string DoseWithinCeiling() =>
         "(" + string.Join(" OR ", PrescriptionRules.TypingCeilings.Select(c =>
             $"([DoseUnit] COLLATE Latin1_General_CS_AS = '{c.Key}' AND [DoseValue] <= {c.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)})")) + ")";
 

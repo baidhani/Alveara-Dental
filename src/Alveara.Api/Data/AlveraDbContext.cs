@@ -116,6 +116,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Periodontal.PerioExamLink> PerioExamLinks => Set<Architecture.Periodontal.PerioExamLink>();
     public DbSet<Architecture.Clinical.Diagnosis> Diagnoses => Set<Architecture.Clinical.Diagnosis>();
     public DbSet<Architecture.Prescribing.Prescription> Prescriptions => Set<Architecture.Prescribing.Prescription>();
+    public DbSet<Architecture.Prescribing.PrescriptionDraft> PrescriptionDrafts => Set<Architecture.Prescribing.PrescriptionDraft>();
+    public DbSet<Architecture.Prescribing.PrescriptionDetail> PrescriptionDetails => Set<Architecture.Prescribing.PrescriptionDetail>();
+    public DbSet<Architecture.Prescribing.PrescriptionEvent> PrescriptionEvents => Set<Architecture.Prescribing.PrescriptionEvent>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -513,6 +516,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         FinancialDocumentModel.Configure(modelBuilder);
         CompletionModel.Configure(modelBuilder);
         PrescriptionModel.Configure(modelBuilder);
+        PrescriptionWorkflowModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

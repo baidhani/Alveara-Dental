@@ -89,6 +89,11 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Periodontal.PerioSessionServ
 builder.Services.AddScoped<Alveara.Api.Architecture.Periodontal.PerioComparisonService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Clinical.DiagnosisService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescribingSafetyReader>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionRecordReader>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionDraftService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionLifecycleService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Odontogram.ConditionTypeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Procedures.FindingLinkProcedureUsageSource>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Treatment.TreatmentPlanProcedureUsageSource>();

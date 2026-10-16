@@ -4193,6 +4193,307 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionDetail", b =>
+                {
+                    b.Property<Guid>("PrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DraftId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("FinalizedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("FinalizedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Instructions")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("QuantityUnit")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("QuantityValue")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("decimal(9,2)");
+
+                    b.Property<int>("Refills")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SafetyFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<string>("SafetySnapshot")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("SupersedesPrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PrescriptionId");
+
+                    b.HasIndex("DraftId")
+                        .IsUnique()
+                        .HasFilter("[DraftId] IS NOT NULL");
+
+                    b.HasIndex("FinalizedByUserId");
+
+                    b.HasIndex("SupersedesPrescriptionId")
+                        .IsUnique()
+                        .HasFilter("[SupersedesPrescriptionId] IS NOT NULL");
+
+                    b.ToTable("PrescriptionDetails", t =>
+                        {
+                            t.HasTrigger("TR_PrescriptionDetails_Immutable");
+
+                            t.HasTrigger("TR_PrescriptionDetails_Links");
+
+                            t.HasCheckConstraint("CK_PrescriptionDetails_Finalized", "[FinalizedAtUtc] >= '2000-01-01' AND [FinalizedAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_PrescriptionDetails_Fingerprint", "[SafetyFingerprint] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([SafetyFingerprint]) = 64");
+
+                            t.HasCheckConstraint("CK_PrescriptionDetails_Instructions", "LEN(LTRIM(RTRIM([Instructions]))) > 0");
+
+                            t.HasCheckConstraint("CK_PrescriptionDetails_Quantity", "[QuantityValue] > 0 AND [QuantityValue] <= 1000 AND [QuantityUnit] COLLATE Latin1_General_CS_AS IN ('tablet','capsule','mL','g','tube','bottle','inhaler','unit')");
+
+                            t.HasCheckConstraint("CK_PrescriptionDetails_Refills", "[Refills] >= 0 AND [Refills] <= 12");
+
+                            t.HasCheckConstraint("CK_PrescriptionDetails_Supersedes", "[SupersedesPrescriptionId] IS NULL OR [SupersedesPrescriptionId] <> [PrescriptionId]");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionDraft", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreateHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<string>("CreateKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DiscardedReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DoseUnit")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("DoseValue")
+                        .HasPrecision(9, 3)
+                        .HasColumnType("decimal(9,3)");
+
+                    b.Property<Guid?>("FinalizedPrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Frequency")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Medication")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("QuantityUnit")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal?>("QuantityValue")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("decimal(9,2)");
+
+                    b.Property<int?>("Refills")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReviewNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SafetyFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<string>("SafetySnapshot")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<Guid?>("SupersedesPrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("FinalizedPrescriptionId");
+
+                    b.HasIndex("SupersedesPrescriptionId")
+                        .IsUnique()
+                        .HasFilter("[SupersedesPrescriptionId] IS NOT NULL AND [Status] = 'Draft'");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.HasIndex("PatientId", "CreateKey")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "Status", "UpdatedAtUtc");
+
+                    b.ToTable("PrescriptionDrafts", t =>
+                        {
+                            t.HasTrigger("TR_PrescriptionDrafts_Guard");
+
+                            t.HasTrigger("TR_PrescriptionDrafts_NoDelete");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Dose", "[DoseValue] > 0 AND (([DoseUnit] COLLATE Latin1_General_CS_AS = 'mg' AND [DoseValue] <= 5000) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'mcg' AND [DoseValue] <= 5000) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'g' AND [DoseValue] <= 10) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'mL' AND [DoseValue] <= 100) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'tablet' AND [DoseValue] <= 10) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'capsule' AND [DoseValue] <= 10) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'drop' AND [DoseValue] <= 20) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'puff' AND [DoseValue] <= 20) OR ([DoseUnit] COLLATE Latin1_General_CS_AS = 'unit' AND [DoseValue] <= 1000))");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Fingerprint", "[SafetyFingerprint] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([SafetyFingerprint]) = 64");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Frequency", "[Frequency] COLLATE Latin1_General_CS_AS IN ('Once','Once daily','Twice daily','Three times daily','Four times daily','Every 4 hours','Every 6 hours','Every 8 hours','Every 12 hours','At bedtime','As needed')");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Hash", "[CreateHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([CreateHash]) = 64");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Instructions", "[Instructions] IS NULL OR LEN(LTRIM(RTRIM([Instructions]))) > 0");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Key", "LEN(LTRIM(RTRIM([CreateKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [CreateKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Medication", "LEN(LTRIM(RTRIM([Medication]))) >= 2 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Medication] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Outcome", "(([Status] = 'Finalized' AND [FinalizedPrescriptionId] IS NOT NULL) OR ([Status] <> 'Finalized' AND [FinalizedPrescriptionId] IS NULL)) AND ([DiscardedReason] IS NULL OR ([Status] = 'Discarded' AND LEN(LTRIM(RTRIM([DiscardedReason]))) > 0))");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Quantity", "([QuantityValue] IS NULL AND [QuantityUnit] IS NULL) OR ([QuantityValue] IS NOT NULL AND [QuantityUnit] IS NOT NULL AND [QuantityValue] > 0 AND [QuantityValue] <= 1000 AND [QuantityUnit] COLLATE Latin1_General_CS_AS IN ('tablet','capsule','mL','g','tube','bottle','inhaler','unit'))");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Refills", "[Refills] IS NULL OR ([Refills] >= 0 AND [Refills] <= 12)");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Review", "[ReviewNote] IS NULL OR LEN(LTRIM(RTRIM([ReviewNote]))) > 0");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Draft','Finalized','Discarded')");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Times", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND [UpdatedAtUtc] >= [CreatedAtUtc]");
+
+                            t.HasCheckConstraint("CK_PrescriptionDrafts_Unit", "[DoseUnit] COLLATE Latin1_General_CS_AS IN ('mg','mcg','g','mL','tablet','capsule','drop','puff','unit')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("PrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("SupersededByPrescriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("SupersededByPrescriptionId");
+
+                    b.HasIndex("PrescriptionId", "OccurredAtUtc");
+
+                    b.HasIndex(new[] { "PrescriptionId" }, "IX_PrescriptionEvents_OneEnding")
+                        .IsUnique()
+                        .HasFilter("[EventType] IN ('Cancelled','Discontinued','Superseded')");
+
+                    b.HasIndex(new[] { "PrescriptionId" }, "IX_PrescriptionEvents_OneFinalized")
+                        .IsUnique()
+                        .HasFilter("[EventType] = 'Finalized'");
+
+                    b.ToTable("PrescriptionEvents", t =>
+                        {
+                            t.HasTrigger("TR_PrescriptionEvents_Immutable");
+
+                            t.HasTrigger("TR_PrescriptionEvents_Links");
+
+                            t.HasCheckConstraint("CK_PrescriptionEvents_Reason", "(([EventType] IN ('Cancelled','Discontinued') AND [Reason] IS NOT NULL) OR ([EventType] NOT IN ('Cancelled','Discontinued') AND [Reason] IS NULL)) AND ([Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0)");
+
+                            t.HasCheckConstraint("CK_PrescriptionEvents_Superseded", "(([EventType] = 'Superseded' AND [SupersededByPrescriptionId] IS NOT NULL) OR ([EventType] <> 'Superseded' AND [SupersededByPrescriptionId] IS NULL)) AND ([SupersededByPrescriptionId] IS NULL OR [SupersededByPrescriptionId] <> [PrescriptionId])");
+
+                            t.HasCheckConstraint("CK_PrescriptionEvents_Time", "[OccurredAtUtc] >= '2000-01-01' AND [OccurredAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_PrescriptionEvents_Type", "[EventType] COLLATE Latin1_General_CS_AS IN ('Finalized','Cancelled','Discontinued','Superseded')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Procedures.ProcedureDefinition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6167,6 +6468,82 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("PrescriberUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionDetail", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.PrescriptionDraft", null)
+                        .WithMany()
+                        .HasForeignKey("DraftId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("FinalizedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithOne()
+                        .HasForeignKey("Alveara.Api.Architecture.Prescribing.PrescriptionDetail", "PrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("SupersedesPrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionDraft", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("FinalizedPrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("SupersedesPrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.PrescriptionEvent", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("PrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Prescribing.Prescription", null)
+                        .WithMany()
+                        .HasForeignKey("SupersededByPrescriptionId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Procedures.ProcedureEvent", b =>

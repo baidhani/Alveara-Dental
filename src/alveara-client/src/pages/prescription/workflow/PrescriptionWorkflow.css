@@ -1,0 +1,20 @@
+/* ALV-016-C01: the prescription composer, finalization confirmation and print preview. Colours come from the shared theme tokens; nothing is carried by colour alone (a change is listed in words, a status is a sentence). */
+.alv-rx__banner { margin: 0.5rem 0; padding: 0.625rem 0.875rem; border-left: 4px solid currentColor; border-radius: 0.25rem; }
+.alv-rx__changed { border: 2px solid var(--color-warning, #b5751b); border-radius: 0.375rem; padding: 0.5rem 0.75rem; margin: 0.25rem 0 0.5rem; }
+.alv-rx__changed h4 { font-size: 1rem; margin: 0 0 0.25rem; }
+.alv-rx__changed ul { margin: 0.25rem 0 0.5rem; padding-left: 1.25rem; }
+.alv-rx__summary { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.25rem 1rem; margin: 0.5rem 0; }
+.alv-rx__summary dt { font-weight: 600; }
+.alv-rx__summary dd { margin: 0; }
+.alv-rx__end { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border, #dde2e8); display: flex; flex-direction: column; gap: 0.375rem; }
+.alv-rx__preview { margin: 1rem 0; border: 1px solid var(--color-border, #dde2e8); border-radius: 0.375rem; padding: 0.75rem 1rem; }
+.alv-rx__printable h4 { margin-top: 0; }
+.alv-rx__status { border: 2px solid currentColor; padding: 0.25rem 0.5rem; display: inline-block; }
+.alv-rx__item[data-status="Cancelled"], .alv-rx__item[data-status="Superseded"], .alv-rx__item[data-status="Discontinued"] { border-style: dashed; }
+
+@media print {
+  body * { visibility: hidden; }
+  .alv-rx__printable, .alv-rx__printable * { visibility: visible; }
+  .alv-rx__printable { position: absolute; left: 0; top: 0; width: 100%; padding: 0; color: #000; background: #fff; }
+  .alv-rx__noprint { display: none !important; }
+}

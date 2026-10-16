@@ -1,8 +1,10 @@
 namespace Alveara.Api.Architecture.Prescribing;
 
 /// <summary>A refusal with a stable code, a message that is safe to show, and (for a validation or a review refusal) the problems and the allergy assessment behind it.</summary>
-public class PrescriptionException(string code, string message, int statusCode, IReadOnlyList<PrescriptionProblem>? problems = null, AllergyAssessment? assessment = null) : Exception(message)
+public class PrescriptionException(string code, string message, int statusCode, IReadOnlyList<PrescriptionProblem>? problems = null, AllergyAssessment? assessment = null, object? detail = null) : Exception(message)
 {
+    /// <summary>Anything else the caller needs to act on the refusal (ALV-016-C01: what changed in the allergy and medication lists); null for a STORY-016 refusal.</summary>
+    public object? Detail { get; } = detail;
     public string Code { get; } = code;
     public int StatusCode { get; } = statusCode;
     public IReadOnlyList<PrescriptionProblem> Problems { get; } = problems ?? [];

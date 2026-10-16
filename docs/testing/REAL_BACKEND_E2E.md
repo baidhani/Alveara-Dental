@@ -538,3 +538,16 @@ npx playwright test --config=playwright.prescriptions.config.ts
 ```
 
 It signs in a dentist, a hygienist and a front-desk user and shows: the form beside the patient-safety panel with what is NOT checked; a correct entry saved, listed with its prescriber and logged with user id and time (and nothing clinical in the log); an incorrect dose refused beside its box with what was typed kept and the ceiling said not to be a clinical limit; a medication matching a recorded allergy refused until the dentist gives their own words; a patient whose allergies were never reviewed treated the same way; the failure path (the audit write made to fail: "Nothing was saved", then the same click working); a replay and a conflicting replay; no route and no database path to change or delete a prescription; a hygienist who reads but cannot prescribe (403), front desk refused (403) and a missing CSRF token refused. Axe runs in light and dark on the main states. Saved evidence: `docs/testing/prescriptions-walkthrough/`.
+
+## ALV-016-C01: the prescription workflow
+
+`e2e/prescription-workflow-real-backend.spec.ts` is the un-mocked run for the Prescription composer tab. Prepare a fresh database and start the API as for the other walkthroughs (including `AuthAttemptRateLimit__PermitLimit=500`), and set `E2E_DB_NAME` to that database's name (the failed-log demonstration creates and drops a trigger in it, and the immutability demonstration runs refused UPDATE and DELETE statements against it), then from `src/alveara-client`:
+
+```powershell
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
+$env:E2E_DB_NAME = "<the database the API is using>"
+$env:PRESCRIPTION_WORKFLOW_E2E_OUT = "C:\tmp\prescription-workflow-e2e"   # optional: where the JSON results and screenshots go
+npx playwright test --config=playwright.prescription-workflow.config.ts
+```
+
+It signs in a dentist, a hygienist and a front-desk user and shows: the composer beside the safety panel with the not-configured banner and what is NOT checked; a draft saved incomplete, kept across a reload and refused for finalizing with every missing part named; a finalization through the confirmation, logged with user and time and no clinical content; an allergy match and an unreviewed allergy list each waiting for the dentist's own words; an allergy added after a draft was started, shown and acknowledged before finalizing; an amendment that leaves the original unedited and Superseded; a cancellation that needs a reason and prints as cancelled; a print that is logged and identical on reprint; the failure path (the audit write made to fail: nothing finalized, then the same finalization works); a discontinuation; a prescription saved by STORY-016 that cannot be printed and is amended; a hygienist who reads and prints but cannot change anything (403), front desk refused, a missing CSRF token refused; and no way to edit or delete (no route, and the database refuses it). Axe runs in light and dark on the composer, the incomplete state, the confirmation, the print preview and the changed-list alert.
