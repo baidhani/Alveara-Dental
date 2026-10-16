@@ -1942,21 +1942,21 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed_with_disclosed_intermittent_failure",
+        "summary": "Backend, full serial: 3675 of 3676 passed, 1 failed, 0 skipped (1 h 53 m). The one failure is CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once (ALV-008-C01), a SQL Server deadlock victim in a test that races two completions on purpose; it passed 5 of 5 isolated reruns and in the whole 19-test class afterwards, and this attempt changes no Treatment or Odontogram file. 167 new backend tests in 4 new classes (PrescriptionWorkflowRulesTests 46, PrescriptionWorkflowSchemaTests 68, PrescriptionWorkflowServiceTests 30, PrescriptionWorkflowApiTests 23); STORY-016's 185 backend tests pass unchanged. Frontend 1453 of 1453 (30 new in PrescriptionWorkflowPanel.test.tsx, incl. axe); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8; real-backend walkthroughs 110 of 110 (the story's own 15, STORY-016's 10, workspace 14, safety 11, clinical 9, companion 9, diagnoses 12, treatment plans 11, auth 12, patients 7). 31 negative controls: 26 killed first time, 4 survivors closed with added tests, 1 equivalent mutant documented. Leak counts unchanged (54 / 59 / 273 / 248). See docs/PRESCRIPTION_WORKFLOW.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "f09bb80f8698a94e5b344bb3cda4259aad361509",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-016-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

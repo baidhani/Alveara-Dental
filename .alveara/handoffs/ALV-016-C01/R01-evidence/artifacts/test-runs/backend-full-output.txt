@@ -1,0 +1,47 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 01:47:57.87]     Alveara.Api.Tests.CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once [FAIL]
+  Failed Alveara.Api.Tests.CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once [1 s]
+  Error Message:
+   System.InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.
+ ---> Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Transaction (Process ID 68) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+ClientConnectionId:732655da-6c2f-4a9a-afa5-80068ab8cddb
+Error Number:1205,State:47,Class:13
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Alveara.Api.Architecture.Concurrency.ConcurrencySaveGuard.SaveOrThrowConflictAsync(AlveraDbContext db, String entityType, Guid entityId, CancellationToken cancellationToken) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Concurrency\ConcurrencySaveGuard.cs:line 18
+   at Alveara.Api.Architecture.Treatment.TreatmentPlanService.SaveAsync(Guid planId, CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Treatment\TreatmentPlanService.cs:line 156
+   at Alveara.Api.Architecture.Completion.CompletedProcedureService.RecordAsync(TreatmentPlan snapshot, CleanCompletion input, String hash, Byte[] version, Loaded loaded, Guid actor, CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Completion\CompletedProcedureService.cs:line 71
+   at Alveara.Api.Architecture.Completion.CompletedProcedureService.RecordAsync(TreatmentPlan snapshot, CleanCompletion input, String hash, Byte[] version, Loaded loaded, Guid actor, CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Completion\CompletedProcedureService.cs:line 105
+   at Alveara.Api.Architecture.Completion.CompletedProcedureService.CompleteAsync(Guid planId, CompleteProceduresRequest request, Guid actor, CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Completion\CompletedProcedureService.cs:line 46
+   at Alveara.Api.Tests.SafetyTestBase.WithDb[T](Func`2 action) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SafetyTestBase.cs:line 45
+   at Alveara.Api.Tests.SafetyTestBase.WithDb[T](Func`2 action) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SafetyTestBase.cs:line 45
+  Stack Trace:
+     at Alveara.Api.Tests.CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\CompletedProcedureServiceTests.cs:line 180
+--- End of stack trace from previous location ---
+Results File: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TestResults\alv016c01_full.trx
+
+Failed!  - Failed:     1, Passed:  3675, Skipped:     0, Total:  3676, Duration: 1 h 53 m - Alveara.Api.Tests.dll (net10.0)
+FINISHED

@@ -1,0 +1,6 @@
+ALV-016-C01 R01, full serial backend run (dotnet test --nologo --no-build --logger trx), 2026-10-14/15
+total=3676 executed=3676 passed=3675 failed=1 skipped=0
+Failed tests: ['Alveara.Api.Tests.CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once']
+Duration 1 h 53 m.
+
+The one failure, CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once (ALV-008-C01), is a SQL Server deadlock victim ('Transaction (Process ID 68) was deadlocked ... chosen as the deadlock victim') in a test that deliberately races two completions. It passed 5 of 5 isolated reruns and in the whole 19-test CompletedProcedureServiceTests class run afterwards. No Treatment or Odontogram file is changed by this attempt.

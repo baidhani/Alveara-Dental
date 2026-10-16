@@ -1,0 +1,20 @@
+
+Running 15 tests using 1 worker
+
+  ok  1 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:149:1 › SETUP: Ann has her allergies reviewed (penicillin and latex); Bo's allergies were never reviewed (565ms)
+  ok  2 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:165:1 › THE SCREEN: a prescriber gets the composer beside the safety panel and a banner that says no drug-knowledge source is configured (2.2s)
+  ok  3 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:180:1 › A DRAFT is saved incomplete, kept across a reload, and an incomplete one is not finalized (every missing part is named) (3.0s)
+  ok  4 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:209:1 › FINALIZING: a complete entry goes through a confirmation, is logged with the user and the time, and appears with its instructions, quantity and refills (3.0s)
+  ok  5 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:250:1 › ALLERGY MATCH: penicillin waits for the dentist's own words, then finalizes with them kept (946ms)
+  ok  6 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:269:1 › UNREVIEWED ALLERGIES: Bo's list is never treated as clear: finalizing waits for the dentist's own words (811ms)
+  ok  7 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:284:1 › AMENDING replaces a prescription without editing it: the original stays as it was and shows Superseded (756ms)
+  ok  8 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:308:1 › CANCELLING needs a reason: without one nothing is recorded, with one the prescription is cancelled and says so when printed (716ms)
+  ok  9 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:332:1 › PRINTING: the print is prepared on the server, logged with who and when, opens the print dialog and a reprint is identical (2.4s)
+  ok 10 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:356:1 › FAILURE PATH: when the log is unavailable nothing is finalized, no internals are shown, and the same finalization works once it is back (1.4s)
+  ok 11 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:391:1 › A PRESCRIPTION SAVED BEFORE THE WORKFLOW says so, cannot be printed, and is amended by filling in the rest (688ms)
+  ok 12 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:407:1 › READ-ONLY: a hygienist reads and prints but cannot change anything and is refused by the server; front desk has no tab and is refused (660ms)
+  ok 13 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:430:1 › NOTHING CAN BE EDITED OR DELETED: no route does it and the database refuses it too (384ms)
+  ok 14 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:443:1 › AN ALLERGY ADDED AFTER THE DRAFT WAS STARTED is shown and must be acknowledged before the prescription can be finalized (3.6s)
+  ok 15 [chromium] › e2e\prescription-workflow-real-backend.spec.ts:475:1 › TRUST: every finalized prescription is in the audit log with the dentist's id and a time, and none of it names a medication, a dose or an allergy (497ms)
+
+  15 passed (26.5s)

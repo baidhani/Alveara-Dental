@@ -1,0 +1,105 @@
+===== tsc
+===== vitest
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+
+ Test Files  93 passed (93)
+      Tests  1452 passed (1452)
+   Start at  23:26:44
+   Duration  29.07s (tests 65%, environment 16%, transform 8%, setup 5%, import 5%)
+
+    Isolate  93 workers spawned · ~1.01s startup each (spawn + environment, per file)
+             at least ~3.09s faster with isolate: false — reuses workers across files instead of one per file
+
+===== build
+
+> alveara-client@0.0.0 build
+> tsc -b && vite build
+
+[36mvite v8.3.1 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 295 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:   0.29 kB
+dist/assets/index-LDiRruqo.css   66.25 kB │ gzip:  10.28 kB
+dist/assets/index-C7jleoXW.js   917.73 kB │ gzip: 235.42 kB
+
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 418ms[39m
+===== lint
+src/pages/configuration/SchedulingPreviewTab.tsx:30:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchroniz
+src/pages/AuditLogPage.tsx:42:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with external 
+src/pages/AdminUsersPage.tsx:55:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with externa
+src/pages/configuration/PracticeTab.tsx:56:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React w
+src/pages/BackupRecoveryPage.tsx:75:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with ext
+src/pages/ProcedureCatalogPage.tsx:54:10: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with 
+src/pages/AdminUserDetailPage.tsx:71:35: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with e
+src/pages/AdminUserDetailPage.tsx:75:34: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with e
+src/contexts/AuthContext.tsx:183:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between componen
+src/contexts/AuthContext.tsx:87:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with externa
+src/contexts/AuthContext.tsx:144:7: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with extern
+e2e/treatment-plans-real-backend.spec.ts:30:5: warning eslint(no-unused-vars): Variable 'filling' is assigned a value but never used. Unused variables should start with a '_'. help: Did you mean to us
+src/pages/configuration/AvailabilityTab.tsx:85:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize Rea
+src/pages/clinical/notes/TemplatesPage.tsx:44:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize Reac
+src/pages/prescription/PrescriptionForm.tsx:23:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions be
+src/components/Notification.tsx:44:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between compon
+src/pages/PermissionMatrixPage.tsx:37:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with e
+e2e/completion-real-backend.spec.ts:82:7: warning eslint(no-unused-vars): Variable 'statusLine' is declared but never used. Unused variables should start with a '_'. help: Consider removing this decla
+src/components/ConfigEntityPanel.tsx:104:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React wit
+e2e/backup-warning-contrast.spec.ts:9:114: warning eslint(no-useless-escape): Unnecessary escape character 'B' help: Replace `\B` with `B`.
+e2e/completion-adoption-real-backend.spec.ts:85:7: warning eslint(no-unused-vars): Variable 'reviewRow' is declared but never used. Unused variables should start with a '_'. help: Consider removing th
+e2e/completion-adoption-real-backend.spec.ts:103:16: warning eslint(no-unused-vars): Function 'openReview' is declared but never used. help: Consider removing this declaration.
+e2e/completion-adoption-real-backend.spec.ts:110:16: warning eslint(no-unused-vars): Function 'choose' is declared but never used. help: Consider removing this declaration.
+e2e/completion-adoption-real-backend.spec.ts:139:7: warning eslint(no-unused-vars): Variable 'adoptButton' is declared but never used. Unused variables should start with a '_'. help: Consider removing
+src/pages/treatmentplan/TreatmentPlanAdoptCompletion.tsx:23:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or
+===== playwright_mocked
+  ok 119 [tablet] › e2e\shell.spec.ts:47:3 › Application shell — real browser walkthrough › navigation reaches the showcase page and it renders every control (337ms)
+  ok 121 [tablet] › e2e\shell.spec.ts:91:3 › Application shell — real browser walkthrough › unknown route shows a truthful not-found page with a working, single-control return action (283ms)
+  ok 122 [tablet] › e2e\shell.spec.ts:70:3 › Application shell — real browser walkthrough › keyboard-only path: skip link, tab into navigation, activate with Enter (293ms)
+  ok 123 [tablet] › e2e\shell.spec.ts:102:3 › Application shell — real browser walkthrough › form validation appears on blur and clears when corrected (276ms)
+  ok 110 [tablet] › e2e\command-center.spec.ts:271:5 › Project Management: portal stories and engineering stories › the engineering story pop-up has no critical or serious accessibility violatio
+  ok 124 [tablet] › e2e\shell.spec.ts:117:3 › Application shell — real browser walkthrough › notification toasts appear for each tone (296ms)
+  ok 111 [tablet] › e2e\command-center.spec.ts:271:5 › Project Management: portal stories and engineering stories › the engineering story pop-up has no critical or serious accessibility violatio
+  ok 125 [tablet] › e2e\shell.spec.ts:128:3 › Application shell — real browser walkthrough › shows the disconnected banner when the API is unreachable, and clears it once healthy again (299ms)
+  ok 127 [tablet] › e2e\shell.spec.ts:140:3 › Application shell — real browser walkthrough › does not show the disconnected banner while the API is healthy (202ms)
+  ok 128 [tablet] › e2e\shell.spec.ts:162:3 › Application shell — real browser walkthrough › layout has no unintended horizontal overflow at this viewport (255ms)
+  ok 126 [tablet] › e2e\shell.spec.ts:146:3 › Application shell — real browser walkthrough › theme toggle switches and persists between light and dark (362ms)
+  ok 131 [tablet] › e2e\system-status.spec.ts:25:3 › System Status page — real browser › shows truthful reachable status for every field when the API reports healthy (252ms)
+  ok 133 [tablet] › e2e\system-status.spec.ts:46:3 › System Status page — real browser › shows the database as unreachable while the rest of the page still renders (283ms)
+  ok 134 [tablet] › e2e\system-status.spec.ts:66:3 › System Status page — real browser › distinguishes local-server-unavailable from public-internet state when the API cannot be reached at all
+  ok 116 [tablet] › e2e\notification-contrast.spec.ts:21:3 › all four notification variants pass the colour-contrast rule in light mode (1.3s)
+  ok 135 [tablet] › e2e\system-status.spec.ts:75:3 › System Status page — real browser › is reachable from the sidebar navigation (295ms)
+  ok 117 [tablet] › e2e\notification-contrast.spec.ts:21:3 › all four notification variants pass the colour-contrast rule in dark mode (1.4s)
+  ok 129 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in light mode (677ms)
+  ok 132 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (689ms)
+  ok 130 [tablet] › e2e\command-center.spec.ts:282:3 › Project Management: portal stories and engineering stories › an engineering story drills down to its details, and the views switch back and
+  ok 103 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (light) (2.6s)
+  ok 118 [tablet] › e2e\architecture-map.spec.ts:258:5 › Architecture Map tab › has no serious or critical accessibility violations in dark mode, with the dialog open (2.5s)
+  ok 136 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (dark) (2.6s)
+
+  136 passed (17.7s)
+===== repo_checks
+(node:29536) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ generated Gate B evidence specs exist and are not collected by the declared frontend test command (1034.9404ms)
+✔ the client project depends on no SQL/database driver package (1.2263ms)
+✔ if a production client build exists, its bundled JS contains no SQL Server connection-string shape (3.2342ms)
+✔ the API's connection string is only ever read from server-side configuration, never hard-coded in client source (122.8959ms)
+✔ root STORY-000 Command Center entry point still exists (0.7574ms)
+✔ root Command Center still reads .colaberry/* at runtime rather than hard-coding plan content (0.8137ms)
+✔ the production Alveara app lives in its own separate project paths (0.2219ms)
+✔ the production app did not replace or rename the root Command Center (1.7792ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1255.7079
