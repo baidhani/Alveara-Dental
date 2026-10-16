@@ -1,0 +1,26 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.12)
+[xUnit.net 00:00:00.23]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:00.66]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:00.69]   Starting:    Alveara.Api.Tests
+  Passed Alveara.Api.Tests.CompletionDeadlockTests.Racing_completions_of_one_plan_never_surface_a_provider_exception_however_the_server_orders_them [2 s]
+[xUnit.net 00:00:15.30]     Alveara.Api.Tests.CompletionDeadlockTests.A_real_deadlock_victim_during_a_completion_ends_in_a_domain_safe_outcome_and_never_a_provider_exception [FAIL]
+[xUnit.net 00:00:15.30]       a deadlock victim escaped as InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.; chain: AggregateException > InvalidOperationException > DbUpdateException > SqlException(1205)
+[xUnit.net 00:00:15.30]       Stack Trace:
+[xUnit.net 00:00:15.30]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\CompletionDeadlockTests.cs(99,0): at Alveara.Api.Tests.CompletionDeadlockTests.A_real_deadlock_victim_during_a_completion_ends_in_a_domain_safe_outcome_and_never_a_provider_exception()
+[xUnit.net 00:00:15.30]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:15.31]   Finished:    Alveara.Api.Tests
+  Failed Alveara.Api.Tests.CompletionDeadlockTests.A_real_deadlock_victim_during_a_completion_ends_in_a_domain_safe_outcome_and_never_a_provider_exception [1 s]
+  Error Message:
+   a deadlock victim escaped as InvalidOperationException: An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.; chain: AggregateException > InvalidOperationException > DbUpdateException > SqlException(1205)
+  Stack Trace:
+     at Alveara.Api.Tests.CompletionDeadlockTests.A_real_deadlock_victim_during_a_completion_ends_in_a_domain_safe_outcome_and_never_a_provider_exception() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\CompletionDeadlockTests.cs:line 99
+--- End of stack trace from previous location ---
+
+Test Run Failed.
+Total tests: 2
+     Passed: 1
+     Failed: 1
+ Total time: 15.7479 Seconds

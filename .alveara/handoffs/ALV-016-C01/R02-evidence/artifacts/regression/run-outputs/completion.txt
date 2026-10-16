@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\completion-real-backend.spec.ts:139:1 › SETUP: two providers, a patient with an encounter, a catalog, findings on the chart and five accepted plans (2.6s)
+  ok  2 [chromium] › e2e\completion-real-backend.spec.ts:200:1 › REVIEW: the screen shows what completing will do for each procedure, shows no legacy completion button and offers the providers and the encounter (4.3s)
+  ok  3 [chromium] › e2e\completion-real-backend.spec.ts:223:1 › FAILURE PATH: when the log is unavailable nothing is completed, no internals are shown, and the same click works once it is back (4.3s)
+  ok  4 [chromium] › e2e\completion-real-backend.spec.ts:252:1 › RESULT: what was recorded, the charge, the chart and the history, with links to each (3.5s)
+  ok  5 [chromium] › e2e\completion-real-backend.spec.ts:286:1 › a retry or a second submission completes nothing twice: the API replays the same set and refuses the same procedures under a new key (68ms)
+  ok  6 [chromium] › e2e\completion-real-backend.spec.ts:297:1 › AMBIGUITY: a procedure with more than one matching chart finding cannot be ticked, the rest complete, and the chart is untouched (3.6s)
+  ok  7 [chromium] › e2e\completion-real-backend.spec.ts:323:1 › STALE SECOND SCREEN: an out-of-date review is told, completes nothing, and works after it is reloaded (1.2s)
+  ok  8 [chromium] › e2e\completion-real-backend.spec.ts:342:1 › CORRECTION: an amendment changes the current provider, keeps the original and is safe to repeat or race (811ms)
+  ok  9 [chromium] › e2e\completion-real-backend.spec.ts:366:1 › the charge is always the plan's stored fee: an amount in the request means nothing (38ms)
+  ok 10 [chromium] › e2e\completion-real-backend.spec.ts:377:1 › LEGACY: the old routes answer 410 and change nothing; a completion made the old way (seeded) still shows with no detail until it is adopted (836ms)
+  ok 11 [chromium] › e2e\completion-real-backend.spec.ts:400:1 › a hygienist reads the history and the completed procedures and has no way to complete or correct; front desk reads neither (451ms)
+
+  11 passed (26.7s)

@@ -1,0 +1,17 @@
+== negative controls of the deadlock handling (13 mutants)
+BASELINE deadlock tests: rc=0 (85s) 
+D01 a deadlock wrapped by EF is not recognised: KILLED (125s) [xUnit.net 00:00:13.70]     Alveara.Api.Tests.CompletionDeadlockTests.After_a_deadlock_the_retry_meets_the_winners_resul
+D02 a deadlock inside an AggregateException is not recognised: KILLED (93s) [xUnit.net 00:01:05.02]     Alveara.Api.Tests.CompletionDeadlockTests.The_classifier_recognises_a_real_1205_however_it_i
+D03 any SQL error is treated as a deadlock: KILLED (88s) [xUnit.net 00:01:05.04]     Alveara.Api.Tests.CompletionDeadlockTests.The_classifier_recognises_a_real_1205_however_it_i
+D04 the policy never retries: KILLED (125s) [xUnit.net 00:00:18.61]     Alveara.Api.Tests.CompletionDeadlockTests.After_a_deadlock_the_retry_meets_the_winners_resul
+D05 the policy makes one attempt too many: KILLED (88s) [xUnit.net 00:00:44.47]     Alveara.Api.Tests.CompletionDeadlockTests.An_adoption_that_is_a_deadlock_victim_on_every_att
+D06 the policy retries failures that are not deadlocks: KILLED (92s) [xUnit.net 00:00:07.24]     Alveara.Api.Tests.CompletionDeadlockTests.A_domain_refusal_is_not_retried_and_passes_through
+D07 an exhausted retry is not turned into save_failed: KILLED (88s) [xUnit.net 00:00:43.95]     Alveara.Api.Tests.CompletionDeadlockTests.An_adoption_that_is_a_deadlock_victim_on_every_att
+D08 the change tracker is not cleared between attempts: SURVIVED (88s) 
+D09 a completion is not retried: KILLED (106s) [xUnit.net 00:00:14.69]     Alveara.Api.Tests.CompletionDeadlockTests.After_a_deadlock_the_retry_meets_the_winners_resul
+D10 an adoption is not retried: KILLED (105s) [xUnit.net 00:00:21.66]     Alveara.Api.Tests.CompletionDeadlockTests.An_adoption_that_is_a_deadlock_victim_is_run_again
+D11 a retry is not logged: KILLED (88s) [xUnit.net 00:00:21.45]     Alveara.Api.Tests.CompletionDeadlockTests.An_adoption_that_is_a_deadlock_victim_is_run_again
+D12 the pause does not grow with each failure: KILLED (92s) [xUnit.net 00:01:03.02]     Alveara.Api.Tests.CompletionDeadlockTests.The_policy_retries_only_a_deadlock_victim_a_bounde
+D13 the failure message names the deadlock: KILLED (93s) [xUnit.net 00:00:43.11]     Alveara.Api.Tests.CompletionDeadlockTests.An_adoption_that_is_a_deadlock_victim_on_every_att
+
+D08 is an equivalent mutant (see docs/testing/COMPLETION_DEADLOCK_NEGATIVE_CONTROLS.md).

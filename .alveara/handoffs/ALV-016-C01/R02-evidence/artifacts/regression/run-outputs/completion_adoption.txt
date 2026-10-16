@@ -1,0 +1,13 @@
+
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] › e2e\completion-adoption-real-backend.spec.ts:158:1 › SETUP: a provider, a patient with an encounter, a chart finding, and one plan whose three procedures were completed the old way (3.3s)
+  ok 2 [chromium] › e2e\completion-adoption-real-backend.spec.ts:195:1 › RETIRED: no screen offers the old completion, and the old routes answer 410 and change nothing (919ms)
+  ok 3 [chromium] › e2e\completion-adoption-real-backend.spec.ts:216:1 › ADOPT: the missing fields are named, then the adoption records the provider, the chart effect and the one charge (4.3s)
+  ok 4 [chromium] › e2e\completion-adoption-real-backend.spec.ts:245:1 › FAILURE: when the log is unavailable nothing is recorded, and the same click works once it is back (1.2s)
+  ok 5 [chromium] › e2e\completion-adoption-real-backend.spec.ts:272:1 › STALE: a second screen that is out of date is told, records nothing, and works after a reload (2.1s)
+  ok 6 [chromium] › e2e\completion-adoption-real-backend.spec.ts:298:1 › PARENT (STORY-008 criteria 2 and 3): revising afterwards keeps the original revision and the completed care, and the plan's log shows every change once, adoption adding none (770ms)
+  ok 7 [chromium] › e2e\completion-adoption-real-backend.spec.ts:320:1 › READ-ONLY: a hygienist sees no way to adopt and is refused by the server; front desk is refused; only the audit-log roles read the reconciliation (450ms)
+  ok 8 [chromium] › e2e\completion-adoption-real-backend.spec.ts:335:1 › GATE D: after the walk every legacy completion is adopted, every charge has a completion, and the chart agrees (500ms)
+
+  8 passed (18.6s)

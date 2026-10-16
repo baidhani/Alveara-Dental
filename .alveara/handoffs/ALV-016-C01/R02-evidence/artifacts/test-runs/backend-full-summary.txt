@@ -1,0 +1,4 @@
+ALV-016-C01 R02, full serial backend run (dotnet test --nologo --no-build --logger trx), 2026-10-16
+total=3686 executed=3686 passed=3686 failed=0 skipped=0
+Duration 1 h 54 m.
+The test that failed in R01 (CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once) passed in this run.

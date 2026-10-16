@@ -1,0 +1,54 @@
+== gate tsc exit=0
+== gate vitest exit=0
+   Duration  66.58s (environment 53%, tests 25%, setup 13%, import 5%, transform 4%)
+
+Environment  jsdom was created 93 times · 680.44s total, 53% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+== gate build exit=0
+[33m[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 1.54s[39m
+== gate lint exit=0
+src/pages/PermissionMatrixPage.tsx:37:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with e
+src/pages/AdminUserDetailPage.tsx:71:35: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with e
+src/pages/AdminUserDetailPage.tsx:75:34: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React with e
+src/pages/prescription/PrescriptionForm.tsx:23:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions be
+src/pages/treatmentplan/TreatmentPlanAdoptCompletion.tsx:23:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or
+src/components/ConfigEntityPanel.tsx:104:5: warning react(set-state-in-effect): Calling setState synchronously within an effect can trigger cascading renders help: Effects should synchronize React wit
+== gate playwright_mocked exit=0
+  ok 130 [tablet] › e2e\system-status-stale-contrast.spec.ts:17:3 › the stale-data banner passes the colour-contrast rule in dark mode (616ms)
+  ok 119 [tablet] › e2e\architecture-map.spec.ts:258:5 › Architecture Map tab › has no serious or critical accessibility violations in dark mode, with the dialog open (2.2s)
+  ok 121 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (light) (2.2s)
+  ok 136 [tablet] › e2e\command-center.spec.ts:323:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (dark) (2.5s)
+
+  136 passed (18.8s)
+== gate repo_checks exit=0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1488.6736
+GATES_DONE
+== walkthrough completion_adoption
+  8 passed (18.6s)
+== walkthrough completion
+  11 passed (26.7s)
+== walkthrough treatment_plans_complete
+  11 passed (36.8s)
+== walkthrough treatment_plans
+  11 passed (18.7s)
+== walkthrough billing
+  10 passed (22.4s)
+== walkthrough odontogram
+  11 passed (25.7s)
+== walkthrough prescription_workflow
+  15 passed (31.0s)
+== walkthrough prescriptions
+  10 passed (18.8s)
+DONE

@@ -1,0 +1,15 @@
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\prescriptions-real-backend.spec.ts:128:1 › SETUP: Ann has her allergies reviewed (penicillin and latex); Bo's allergies were never reviewed (759ms)
+  ok  2 [chromium] › e2e\prescriptions-real-backend.spec.ts:144:1 › THE SCREEN: a prescriber sees the form, what is recorded for the patient, and what is NOT checked; the list starts empty and says what that means (2.7s)
+  ok  3 [chromium] › e2e\prescriptions-real-backend.spec.ts:159:1 › CRITERION 1 and TRUST: a correct entry is checked for allergies, saved, listed with who prescribed it and logged with the user and the time (875ms)
+  ok  4 [chromium] › e2e\prescriptions-real-backend.spec.ts:185:1 › CRITERION 2: an incorrect dose is refused beside its box with what was typed kept and the ceiling said not to be a clinical limit; correcting it saves (2.8s)
+  ok  5 [chromium] › e2e\prescriptions-real-backend.spec.ts:214:1 › ALLERGY MATCH: penicillin is refused until the dentist gives their own words, then saved with them, and the list says it was reviewed (2.9s)
+  ok  6 [chromium] › e2e\prescriptions-real-backend.spec.ts:242:1 › UNREVIEWED ALLERGIES: Bo's list is never treated as clear: the panel says so and a prescription waits for the dentist's own words (711ms)
+  ok  7 [chromium] › e2e\prescriptions-real-backend.spec.ts:261:1 › FAILURE PATH: when the log is unavailable nothing is saved, no internals are shown, and the same click works once it is back (964ms)
+  ok  8 [chromium] › e2e\prescriptions-real-backend.spec.ts:289:1 › REPLAY and APPEND-ONLY: the same request again changes nothing, a changed one under the same key is a conflict, and a prescription can be neither changed nor deleted (229ms)
+  ok  9 [chromium] › e2e\prescriptions-real-backend.spec.ts:307:1 › READ-ONLY: a hygienist reads the prescriptions and the safety panel, has no form and is refused by the server; front desk has no tab and is refused (761ms)
+  ok 10 [chromium] › e2e\prescriptions-real-backend.spec.ts:328:1 › TRUST: every saved prescription is in the audit log with the dentist's id and a time, and none of it names a medication, a dose or an allergy (525ms)
+
+  10 passed (18.8s)
