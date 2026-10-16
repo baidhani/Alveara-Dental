@@ -696,3 +696,10 @@
   - What changed: `.alveara/gates/C/reviews/eeb493b.md` committed unchanged: Gate C initial evaluation (`f455c2e`, evidence `eeb493b`) is BLOCKED on finding C-REV-01 (the full serial backend regression was reused from `486e44c` instead of run on the Gate C tree, which adds `GateCHistoryIntegrityTests.cs`). C1-C8 evidence otherwise judged credible; the signed-but-not-finalized note observation is accepted as design debt.
   - Verification: the review file is byte for byte the one supplied; no product code, story status or threshold changed.
   - Notes: the correction is a fresh full serial backend run on the integrated head, a rerun report and a new package; Gate D and item 39 stay blocked until that rerun is independently approved. Not pushed.
+
+- [x] Gate C rerun: full serial backend regression on the Gate C head (evidence)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/C/rerun/evidence/` added: the full serial backend run on `aa85bc2` (the Gate C integrated head, containing the C8 tooling), its per-class summary, compressed TRX, build and test output, and the repository checks.
+  - Verification: `dotnet test --nologo --no-build` in `src/Alveara.Api.Tests`: 3690 passed / 0 failed / 0 skipped (1 h 29 m), including the four GateCHistoryIntegrityTests; build exit 0; repository checks 8/8; leak counts flat (AlveraTest 54, AlveraRestore 59, alveara_ logins 273, alveara_ databases 248).
+  - Notes: evidence only, answering review finding C-REV-01; no product code or threshold changed.
