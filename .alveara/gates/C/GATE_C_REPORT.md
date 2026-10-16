@@ -50,6 +50,7 @@ Evidence paths are relative to `.alveara/gates/C/evidence/`. "Walkthrough" = a r
 - **Completion has no screen of its own.** The completion review opens from the treatment-plan tab, so the C2 "planning" and "completion" checks share a route.
 - **Tablet-width walkthroughs were not run.** No Gate C criterion names a tablet or responsive check (Gate B's B6 did); mocked Playwright includes a tablet project (136/136).
 - **Screenshots are not in the package.** The walkthrough specs write screenshots; they were left out of the committed evidence to keep it text-only. The per-walkthrough JSON and run outputs are included.
+- **`frontend/tsc.txt`.** `tsc --noEmit` prints nothing when it passes, so the file captured by the run was empty; after the evidence commit it was given a one-line statement of the exit code (0), which the run recorded in `REPOSITORY_STATE.md`.
 - **Limits of the evidence.** Browser walkthroughs run against the Vite dev server proxying a real API; the C8 attempts are a defined set of statements per record class, not an exhaustive enumeration of every column.
 
 ## Reproduce
