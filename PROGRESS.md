@@ -689,3 +689,10 @@
   - What changed: `.alveara/gates/C/GATE_C_REPORT.md` (labelled late evaluation after items 31-38), C1-C8 rows in `.alveara/QUALITY_GATES.md` set to PASS with evidence references, a Gate C paragraph in `.alveara/BUILD_STATE.md`, and `.alveara/gates/C/reviews/README.md`.
   - Verification: every criterion maps to the evidence run recorded in `eeb493b` (13 real-backend walkthroughs, C8 4/4 with 50 of 51 attempts rejected by named triggers and the remaining one disclosed, vitest 1453, mocked Playwright 136, repo checks 8, tsc/build/lint 0); backend 3686/3686 reused from `486e44c` and declared in the report; walkthrough claims in the report were checked against the spec test titles.
   - Notes: no product code or threshold changed; Gate D and item 39 not started; not pushed. Two disclosures for the reviewer: the backend reuse and the signed-but-not-finalized note guarded by the service rather than a trigger.
+
+- [x] Gate C initial evaluation: independent review recorded (BLOCKED / CHANGES_REQUIRED)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/C/reviews/eeb493b.md` committed unchanged: Gate C initial evaluation (`f455c2e`, evidence `eeb493b`) is BLOCKED on finding C-REV-01 (the full serial backend regression was reused from `486e44c` instead of run on the Gate C tree, which adds `GateCHistoryIntegrityTests.cs`). C1-C8 evidence otherwise judged credible; the signed-but-not-finalized note observation is accepted as design debt.
+  - Verification: the review file is byte for byte the one supplied; no product code, story status or threshold changed.
+  - Notes: the correction is a fresh full serial backend run on the integrated head, a rerun report and a new package; Gate D and item 39 stay blocked until that rerun is independently approved. Not pushed.
