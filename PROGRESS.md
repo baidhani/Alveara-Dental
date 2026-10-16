@@ -661,3 +661,10 @@
   - What changed: `.alveara/reviews/ALV-016-C01/R02.md` (stored unchanged), `.alveara/EXECUTION_STATUS.json` item 38 to COMPLETE (review APPROVED, approved attempt R02, reviewed implementation `486e44c` and evidence `2d0f96e`, `completedAt` 2026-10-16T15:38:46Z), `.alveara/BUILD_STATE.md` (the header, the Prescriptions section heading and the `Last successful broad regression` baseline the cadence response requires).
   - Verification: the independent review of attempt R02 is APPROVED and names the same story, attempt, ZIP hash (7C461974...5E17), implementation, evidence and status commits as the package; the package hash was re-computed from the ZIP before recording. The review notes that its own focused rerun of the deadlock tests could not execute (LocalDB failed to start on the reviewer's machine), so its decision rests on the committed tests and the captured evidence.
   - Notes: no product code changed. The review asks for the closure to be committed and pushed before Gate D; the push waits for the user's explicit say-so. The next scheduled item is Gate D; it is not started.
+
+- [x] Gate sequence notice: Gate C was never evaluated (records only; not pushed)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `docs/design/GATE_C_SEQUENCE_NOTICE.md` (a question for the reviewer, not a gate result): the Execution Plan's mandatory stop after item 30 (Gate C) has no evaluation on record (no `.alveara/gates/C`, every Gate C row in `QUALITY_GATES.md` still `NOT YET EVALUABLE`, nothing in BUILD_STATE or the history), and items 31 to 38 were completed after it; Gate D's precondition is therefore unmet on the record. The note lists the facts, what Gate C needs, and four questions.
+  - Verification: the facts were checked against the repository before writing (gate folders, QUALITY_GATES.md, EXECUTION_STATUS.json completion times, BUILD_STATE and PROGRESS searches, git log).
+  - Notes: no product code, gate record, story status or QUALITY_GATES.md change; neither Gate C nor Gate D was evaluated, per the user's decision to let the reviewer decide the order. Item 39 is not started.
