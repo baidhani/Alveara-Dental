@@ -703,3 +703,10 @@
   - What changed: `.alveara/gates/C/rerun/evidence/` added: the full serial backend run on `aa85bc2` (the Gate C integrated head, containing the C8 tooling), its per-class summary, compressed TRX, build and test output, and the repository checks.
   - Verification: `dotnet test --nologo --no-build` in `src/Alveara.Api.Tests`: 3690 passed / 0 failed / 0 skipped (1 h 29 m), including the four GateCHistoryIntegrityTests; build exit 0; repository checks 8/8; leak counts flat (AlveraTest 54, AlveraRestore 59, alveara_ logins 273, alveara_ databases 248).
   - Notes: evidence only, answering review finding C-REV-01; no product code or threshold changed.
+
+- [x] Gate C rerun: report, QUALITY_GATES.md and BUILD_STATE.md (PASS, awaiting independent review of the rerun)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/C/rerun/GATE_C_RERUN_REPORT.md` (answers C-REV-01); C1-C8 rows in `.alveara/QUALITY_GATES.md` and the Gate C paragraph in `.alveara/BUILD_STATE.md` now cite the rerun and keep the initial BLOCKED evaluation as history. The initial report, package, evidence and review were not touched.
+  - Verification: full serial backend 3690 of 3690 on `aa85bc2` with the four Gate C tests inside the total (evidence commit `5f8bb27`); repository checks 8/8.
+  - Notes: no product code or threshold changed; Gate D and item 39 not started; not pushed.
