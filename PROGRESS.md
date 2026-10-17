@@ -731,3 +731,10 @@
   - What changed: `.alveara/gates/D/evidence/` added: gate outputs, the fresh full serial backend run (per-class summary, compressed TRX), the D5 attempt and case tables, and the real-backend walkthrough outputs, all from one run on head `851a64b`.
   - Verification: full serial backend 3692 passed / 0 failed / 0 skipped (1 h 50 m) including both GateDHistoryIntegrityTests; tsc/build/lint exit 0; vitest 1453/1453; mocked Playwright 136/136; repo checks 8/8; walkthroughs billing 10, billing-ledger 11, billing-statements 9, completion 11, completion-adoption 8, prescription-workflow 15, prescriptions 10 on fresh databases; the 7 scratch databases dropped, leak counts flat (54 / 59 / 273 / 248).
   - Notes: evidence only; no product code or threshold changed; tablet walkthroughs not run (no Gate D criterion requires them).
+
+- [x] Gate D evaluation: report, QUALITY_GATES.md and BUILD_STATE.md (PASS, awaiting independent review)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/D/GATE_D_REPORT.md`, the D1-D5 rows in `.alveara/QUALITY_GATES.md` set to PASS with evidence references, a Gate D paragraph in `.alveara/BUILD_STATE.md`, and `.alveara/gates/D/reviews/README.md`.
+  - Verification: every criterion maps to the evidence run in commit `d052330` (fresh full serial backend 3692/3692, vitest 1453, mocked Playwright 136, repo checks 8, seven real-backend walkthroughs, D5 tooling 2/2 with its mutation check); walkthrough claims in the report were checked against the spec test titles.
+  - Notes: no product code or threshold changed; item 39 not started; not pushed. Disclosures for the reviewer: D5 had no single predeclared check (tooling added), the D4 inspection limits, tablet not run.
