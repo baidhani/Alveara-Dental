@@ -1,0 +1,50 @@
+{
+  "axe": {
+    "prescribe-screen-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "prescribe-screen-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incorrect-dose-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incorrect-dose-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "allergy-match-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "allergy-match-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792203150088,
+  "audit": {
+    "events": 1,
+    "performedBy": "dentist",
+    "containsNoClinicalContent": true
+  },
+  "incorrectDose": {
+    "refusedAt": 6000,
+    "savedAt": 500
+  },
+  "failurePath": {
+    "savedWhileLogDown": 0,
+    "savedAfter": 1
+  },
+  "readOnly": {
+    "hygienistWrite": 403,
+    "frontDeskRead": 403
+  },
+  "trust": {
+    "prescriptions": 6,
+    "auditEntries": 6
+  }
+}

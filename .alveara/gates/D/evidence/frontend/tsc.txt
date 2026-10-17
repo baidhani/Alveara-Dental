@@ -1,0 +1,1 @@
+npx tsc --noEmit: exit 0 (no output on success; exit code recorded in REPOSITORY_STATE.md "== gate tsc exit=0")

@@ -1,0 +1,91 @@
+{
+  "axe": {
+    "refund-recorded-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "refund-recorded-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "timeline-and-aging-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "timeline-and-aging-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "charge-source-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "charge-source-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "statement-issued-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "statement-issued-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792203014814,
+  "refund": {
+    "entries": 4,
+    "balance": 90,
+    "releases": [
+      20,
+      30
+    ]
+  },
+  "chargeSource": {
+    "status": 200,
+    "keys": [
+      "entryNumber",
+      "procedureCode",
+      "procedureDescription",
+      "toothKey",
+      "surface",
+      "chargeAmount",
+      "currency",
+      "chargeReversed",
+      "completionRecorded",
+      "completedProcedureId",
+      "completedAtUtc",
+      "performedAtUtc",
+      "performedTimeAmended",
+      "correlationId"
+    ],
+    "clinicalRecordStatus": 403
+  },
+  "timelineTypes": [
+    "Charge",
+    "Charge",
+    "Payment",
+    "Application",
+    "Application",
+    "Refund",
+    "Release",
+    "Release",
+    "Payment",
+    "Application",
+    "Release",
+    "Application",
+    "Receipt",
+    "Reversal",
+    "Payment"
+  ],
+  "statementCsvRows": 9,
+  "finalVerification": {
+    "patientId": "c0b2dcbf-4e63-49f5-a5a3-989d3c07917a",
+    "consistent": true,
+    "findings": [],
+    "balanceOwed": 70,
+    "entryCount": 8,
+    "allocationCount": 4
+  }
+}

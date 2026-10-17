@@ -1,0 +1,236 @@
+{
+  "attempts": [
+    {
+      "RecordClass": "ledger entry",
+      "Table": "BillingEntries",
+      "Statement": "UPDATE [BillingEntries] SET [Amount] = [Amount] \u002B 1 WHERE [Amount] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51120,
+      "Mechanism": "TR_BillingEntries_Immutable",
+      "Message": "Financial history is append-only; a mistake is corrected with a new entry.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "ledger entry",
+      "Table": "BillingEntries",
+      "Statement": "DELETE FROM [BillingEntries]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51120,
+      "Mechanism": "TR_BillingEntries_Immutable",
+      "Message": "Financial history is append-only; a mistake is corrected with a new entry.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "ledger entry",
+      "Table": "BillingEntries",
+      "Statement": "UPDATE [BillingEntries] SET [IdempotencyKey] = N\u0027overwritten\u0027 WHERE [IdempotencyKey] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51120,
+      "Mechanism": "TR_BillingEntries_Immutable",
+      "Message": "Financial history is append-only; a mistake is corrected with a new entry.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "billing account",
+      "Table": "BillingAccounts",
+      "Statement": "UPDATE [BillingAccounts] SET [PatientId] = \u00270779088e-7a73-444e-8b9c-c2115e5b0d35\u0027",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51119,
+      "Mechanism": "TR_BillingAccounts_Identity",
+      "Message": "A billing account\u0027s patient and origin never change.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "billing account",
+      "Table": "BillingAccounts",
+      "Statement": "DELETE FROM [BillingAccounts]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51118,
+      "Mechanism": "TR_BillingAccounts_NoDelete",
+      "Message": "A billing account is never deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "payment allocation",
+      "Table": "BillingAllocations",
+      "Statement": "UPDATE [BillingAllocations] SET [Amount] = [Amount] \u002B 1 WHERE [Amount] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51127,
+      "Mechanism": "TR_BillingAllocations_Immutable",
+      "Message": "Allocations are append-only; reversing a payment releases its allocations.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "payment allocation",
+      "Table": "BillingAllocations",
+      "Statement": "DELETE FROM [BillingAllocations]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51127,
+      "Mechanism": "TR_BillingAllocations_Immutable",
+      "Message": "Allocations are append-only; reversing a payment releases its allocations.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "allocation release (refund)",
+      "Table": "BillingAllocationReleases",
+      "Statement": "UPDATE [BillingAllocationReleases] SET [Amount] = [Amount] \u002B 1 WHERE [Amount] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51164,
+      "Mechanism": "TR_BillingAllocationReleases_Immutable",
+      "Message": "A release is append-only; it is never changed or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "allocation release (refund)",
+      "Table": "BillingAllocationReleases",
+      "Statement": "DELETE FROM [BillingAllocationReleases]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51164,
+      "Mechanism": "TR_BillingAllocationReleases_Immutable",
+      "Message": "A release is append-only; it is never changed or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "issued statement",
+      "Table": "FinancialDocuments",
+      "Statement": "UPDATE [FinancialDocuments] SET [DocumentNumber] = [DocumentNumber] \u002B 1 WHERE [DocumentNumber] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51169,
+      "Mechanism": "TR_FinancialDocuments_Immutable",
+      "Message": "An issued document is append-only; it is never changed or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "issued statement",
+      "Table": "FinancialDocuments",
+      "Statement": "DELETE FROM [FinancialDocuments]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51169,
+      "Mechanism": "TR_FinancialDocuments_Immutable",
+      "Message": "An issued document is append-only; it is never changed or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    }
+  ],
+  "cases": [
+    {
+      "Label": "charge: the same key again",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "payment: the same key and request again, from the older account version",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "payment: the same key for a different amount",
+      "Outcome": "refused",
+      "ExceptionType": "BillingException",
+      "Code": "idempotency_key_reused",
+      "StateUnchanged": true
+    },
+    {
+      "Label": "payment: a new key from the out-of-date account (stale edit)",
+      "Outcome": "refused",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "payment: two simultaneous submissions from the same account version",
+      "Outcome": "one recorded, one conflict",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "adjustment: the same key again",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "adjustment: from the out-of-date account (stale edit)",
+      "Outcome": "refused",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "refund: the same key and request again, from the older account version",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "refund: the same key for a different amount",
+      "Outcome": "refused",
+      "ExceptionType": "BillingException",
+      "Code": "idempotency_key_reused",
+      "StateUnchanged": true
+    },
+    {
+      "Label": "refund: from the out-of-date account (stale edit)",
+      "Outcome": "refused",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "reversal: the same key and request again, from the older account version",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "reversal: the same key for a different entry",
+      "Outcome": "refused",
+      "ExceptionType": "BillingException",
+      "Code": "idempotency_key_reused",
+      "StateUnchanged": true
+    },
+    {
+      "Label": "reversal: from the out-of-date account (stale edit)",
+      "Outcome": "refused",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "statement: issued again under the same key",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    }
+  ]
+}

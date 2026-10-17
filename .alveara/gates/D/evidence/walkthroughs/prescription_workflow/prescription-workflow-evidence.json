@@ -1,0 +1,76 @@
+{
+  "axe": {
+    "composer-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "composer-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incomplete-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incomplete-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "confirmation-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "confirmation-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "print-preview-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "print-preview-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-changed-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-changed-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792203111450,
+  "draft": {
+    "savedIncomplete": true,
+    "survivedReload": true,
+    "finalizedWhileIncomplete": 0
+  },
+  "finalized": {
+    "recorded": 1,
+    "loggedWithUser": true,
+    "containsNoClinicalContent": true
+  },
+  "print": {
+    "prints": 6,
+    "stable": true
+  },
+  "failurePath": {
+    "finalizedWhileLogDown": 0,
+    "finalizedAfter": 1
+  },
+  "readOnly": {
+    "hygienistWrite": 403,
+    "frontDeskRead": 403
+  },
+  "staleLists": {
+    "acknowledged": true,
+    "finalized": 1
+  },
+  "trust": {
+    "finalized": 7,
+    "auditEntries": 7,
+    "clinicalContentInLog": false
+  }
+}

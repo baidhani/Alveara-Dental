@@ -1,0 +1,144 @@
+{
+  "attempts": [
+    {
+      "RecordClass": "completed procedure",
+      "Table": "CompletedProcedures",
+      "Statement": "UPDATE [CompletedProcedures] SET [ToothKey] = [ToothKey] \u002B 1 WHERE [ToothKey] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51145,
+      "Mechanism": "TR_CompletedProcedures_Immutable",
+      "Message": "A completed procedure is finalized when it is created; correct it with an amendment, never by changing or deleting it.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completed procedure",
+      "Table": "CompletedProcedures",
+      "Statement": "DELETE FROM [CompletedProcedures]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51145,
+      "Mechanism": "TR_CompletedProcedures_Immutable",
+      "Message": "A completed procedure is finalized when it is created; correct it with an amendment, never by changing or deleting it.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completion set",
+      "Table": "CompletionSets",
+      "Statement": "UPDATE [CompletionSets] SET [IdempotencyKey] = LEFT(N\u0027overwritten by the Gate D attempt\u0027, 33) WHERE [IdempotencyKey] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51144,
+      "Mechanism": "TR_CompletionSets_Immutable",
+      "Message": "A completion set is append-only; it is never changed or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completion set",
+      "Table": "CompletionSets",
+      "Statement": "DELETE FROM [CompletionSets]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51144,
+      "Mechanism": "TR_CompletionSets_Immutable",
+      "Message": "A completion set is append-only; it is never changed or deleted.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completed procedure amendment",
+      "Table": "CompletedProcedureAmendments",
+      "Statement": "UPDATE [CompletedProcedureAmendments] SET [Reason] = LEFT(N\u0027overwritten by the Gate D attempt\u0027, 33) WHERE [Reason] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51146,
+      "Mechanism": "TR_CompletedProcedureAmendments_Immutable",
+      "Message": "An amendment is append-only; record a new amendment instead.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completed procedure amendment",
+      "Table": "CompletedProcedureAmendments",
+      "Statement": "DELETE FROM [CompletedProcedureAmendments]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51146,
+      "Mechanism": "TR_CompletedProcedureAmendments_Immutable",
+      "Message": "An amendment is append-only; record a new amendment instead.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completion charge (ledger entry)",
+      "Table": "BillingEntries",
+      "Statement": "UPDATE [BillingEntries] SET [Amount] = [Amount] \u002B 1 WHERE [Amount] IS NOT NULL",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51120,
+      "Mechanism": "TR_BillingEntries_Immutable",
+      "Message": "Financial history is append-only; a mistake is corrected with a new entry.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    },
+    {
+      "RecordClass": "completion charge (ledger entry)",
+      "Table": "BillingEntries",
+      "Statement": "DELETE FROM [BillingEntries]",
+      "Required": true,
+      "Rejected": true,
+      "SqlError": 51120,
+      "Mechanism": "TR_BillingEntries_Immutable",
+      "Message": "Financial history is append-only; a mistake is corrected with a new entry.",
+      "TableUnchanged": true,
+      "RowsChangedInsideTransaction": false
+    }
+  ],
+  "cases": [
+    {
+      "Label": "completion: the same set again (same key, same request, older plan version)",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "completion: the same key for a different set",
+      "Outcome": "refused",
+      "ExceptionType": "TreatmentPlanException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "completion: a new key from the out-of-date plan (stale edit)",
+      "Outcome": "refused",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "amendment: the same key and request again",
+      "Outcome": "replayed quietly",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "amendment: a new key from the out-of-date amendment number (stale edit)",
+      "Outcome": "refused",
+      "ExceptionType": "ConcurrencyConflictException",
+      "Code": null,
+      "StateUnchanged": true
+    },
+    {
+      "Label": "reconciliation after all of it",
+      "Outcome": "clean",
+      "ExceptionType": null,
+      "Code": null,
+      "StateUnchanged": true
+    }
+  ]
+}
