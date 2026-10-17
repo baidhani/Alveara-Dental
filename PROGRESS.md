@@ -710,3 +710,10 @@
   - What changed: `.alveara/gates/C/rerun/GATE_C_RERUN_REPORT.md` (answers C-REV-01); C1-C8 rows in `.alveara/QUALITY_GATES.md` and the Gate C paragraph in `.alveara/BUILD_STATE.md` now cite the rerun and keep the initial BLOCKED evaluation as history. The initial report, package, evidence and review were not touched.
   - Verification: full serial backend 3690 of 3690 on `aa85bc2` with the four Gate C tests inside the total (evidence commit `5f8bb27`); repository checks 8/8.
   - Notes: no product code or threshold changed; Gate D and item 39 not started; not pushed.
+
+- [x] Gate C closure: rerun approval recorded (PASS / APPROVED)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/gates/C/rerun/reviews/5f8bb27.md` committed unchanged (Gate C PASS, APPROVED; C-REV-01 closed); the C1-C8 rows and the Gate C paragraph in `.alveara/QUALITY_GATES.md` and `.alveara/BUILD_STATE.md` moved from awaiting review to approved, keeping the initial BLOCKED evaluation as history.
+  - Verification: closure-only commit (no product, tooling or evidence file changed); the review decision is the supplied file; rerun evidence 3690/3690 on `aa85bc2`.
+  - Notes: Gate D is authorized only after this commit is pushed; not pushed, Gate D and item 39 not started.
