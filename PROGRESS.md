@@ -717,3 +717,10 @@
   - What changed: `.alveara/gates/C/rerun/reviews/5f8bb27.md` committed unchanged (Gate C PASS, APPROVED; C-REV-01 closed); the C1-C8 rows and the Gate C paragraph in `.alveara/QUALITY_GATES.md` and `.alveara/BUILD_STATE.md` moved from awaiting review to approved, keeping the initial BLOCKED evaluation as history.
   - Verification: closure-only commit (no product, tooling or evidence file changed); the review decision is the supplied file; rerun evidence 3690/3690 on `aa85bc2`.
   - Notes: Gate D is authorized only after this commit is pushed; not pushed, Gate D and item 39 not started.
+
+- [x] Gate D evidence tooling (D5 duplicate / stale / correction / direct-overwrite checks)
+  - Date: 2026-10-16
+  - Session: CC-20261008-k4q9
+  - What changed: `src/Alveara.Api.Tests/GateDHistoryIntegrityTests.cs` and `src/alveara-client/gate-d/README.md` added before the Gate D evaluation. D5 has no single predeclared check, so the tooling submits payments, adjustments, refunds, reversals, statements, completions and amendments twice, with the same key for a different request, and from stale versions through the real services (each must be quiet or refused with a classified exception, and leave every named table checksum unchanged), runs two simultaneous payments, reconciles the preserved history, and attacks the preserved financial and completed-procedure records through the persistence layer (each rejected by a named trigger, SQL error 51000 or above).
+  - Verification: 2 of 2 tests pass; mutation check: weakening TR_BillingEntries_Immutable (51120) failed 2 of 2 and weakening TR_CompletedProcedureAmendments_Immutable (51146) failed 1 of 2, migrations restored with git checkout; first-run findings fixed before commit (two attacks had been stopped by type errors 206/245 instead of a control, and a stale-reversal case had been refused for another reason; the tooling now requires a custom trigger error and asserts the conflict type).
+  - Notes: tooling only; no product code or threshold changed; the Gate C harness is repeated, not edited. Not pushed.
