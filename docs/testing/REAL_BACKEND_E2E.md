@@ -5,46 +5,71 @@ so those specs run against nothing but the built static client (`playwright.conf
 `webServer` only starts `vite preview`).
 
 `e2e/auth-real-backend.spec.ts` is different: it makes genuine network calls to a real,
-running `Alveara.Api` process backed by a real (migrated) SQL Server LocalDB database, with no
+running `Alveara.Api` process backed by a real (migrated) SQL Server database, with no
 mocking anywhere. This exists specifically to satisfy ALV-001-C01's requirement to "exercise the
 actual rendered application in a real browser against the real API/database" — component tests
 and route-mocked browser tests don't prove that; this does.
 
-It is **not** part of `npm run test:e2e` (which uses `playwright.config.ts`). Run it explicitly
-with its own config, after starting both a real API and the Vite dev server yourself:
+It is **not** part of `npm run test:e2e` (which uses `playwright.config.ts`). Each walkthrough has its own
+Playwright config and is run with the runner below.
 
-## 1. Prepare a fresh database
+## How to run a walkthrough
+
+Use the runner. It does the whole setup for you and removes everything it created afterwards, even when the
+walkthrough fails or is interrupted:
 
 ```powershell
-cd src/Alveara.Api
-dotnet ef database update --connection "Server=(localdb)\MSSQLLocalDB;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
+Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]"     # the [ ] in the folder name need -LiteralPath
+.\scripts\Invoke-RealBackendWalkthrough.ps1 -Config playwright.auth.config.ts
 ```
 
-Bootstrap is one-time per database — if you re-run the suite, drop and recreate `AlveraE2E`
-first:
+It (1) creates a uniquely named database `AlveraWalk_<name>_<id>` with its files in
+`C:\.alvera-data\Test-Data\Database` and applies every migration, (2) starts the real API on
+`http://localhost:5072` against it, with its document storage, key ring and backup folders also under `Test-Data`,
+(3) runs `npx playwright test --config=<Config>` from `src\alveara-client` (the config starts the Vite dev server),
+and (4) always stops the API, drops the database (its files go with it) and deletes the folders it made. The exit code
+is the walkthrough's own (0 = all passed). It never touches `Dev-Data` or `AlveraDev`.
+
+Parameters: `-Config` (required, relative to `src\alveara-client`, for example `playwright.billing.config.ts` or
+`gate-c/playwright.c2.config.ts`); `-OutputVariable` (the variable the spec reads for its output folder, named in the
+section for that walkthrough below, for example `BILLING_E2E_OUT`) and `-OutputDir` (where the screenshots and JSON go;
+default `Test-Data\Temp\walkthrough-output\<database>`, kept after the run because it is the evidence; copy what you
+need, then `.\scripts\Clear-TestData.ps1` removes the rest); `-SkipBuild` (when the API was just built).
+
+Requirements: SQL Server Express reachable as `.\SQLEXPRESS` (`ALVERA_SQL_SERVER` overrides the name), the SQL Server
+service account able to write under `C:\.alvera-data` (`ALVERA_DATA_ROOT` overrides the root), `sqlcmd` on the path, and
+ports 5072 and 5173 free (stop the dev API and client first: `scripts\Start-DevApi.ps1` uses the same port).
+
+In every section below, "start the API ... then run `npx playwright test --config=...`" is what the runner does for you;
+the section tells you the config, the output variable and what the walkthrough proves.
+
+## Running by hand (to debug a walkthrough)
 
 ```powershell
-sqlcmd -S "(localdb)\MSSQLLocalDB" -Q "ALTER DATABASE AlveraE2E SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE AlveraE2E;"
-```
+# 1. a fresh database with its files under Test-Data (use a name of your own; it must not exist yet)
+sqlcmd -S ".\SQLEXPRESS" -Q "CREATE DATABASE AlveraE2E ON (NAME=N'AlveraE2E_data', FILENAME=N'C:\.alvera-data\Test-Data\Database\AlveraE2E.mdf') LOG ON (NAME=N'AlveraE2E_log', FILENAME=N'C:\.alvera-data\Test-Data\Database\AlveraE2E_log.ldf');"
+Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api"
+dotnet ef database update --connection "Server=.\SQLEXPRESS;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
 
-## 2. Start the real API against that database
+# 2. the real API, in its own terminal (its files under Test-Data too)
+$env:ConnectionStrings__Alveara = "Server=.\SQLEXPRESS;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
+$env:AdminBootstrapSecret = "e2e-real-backend-secret"         # or your own value; pass the same one below
+$env:AuthAttemptRateLimit__PermitLimit = "500"                 # the specs sign in several accounts from one address
+$env:StorageRoot = "C:\.alvera-data\Test-Data\Storage\by-hand"
+$env:DataProtectionKeysPath = "C:\.alvera-data\Test-Data\Keys\by-hand"
+$env:Backup__Root = "C:\.alvera-data\Test-Data\Backup\by-hand"
+dotnet run
 
-```powershell
-cd src/Alveara.Api
-$env:ConnectionStrings__Alveara = "Server=(localdb)\MSSQLLocalDB;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
-$env:AdminBootstrapSecret = "e2e-real-backend-secret"   # or your own value — pass the same one below
-dotnet run --no-build
-```
-
-## 3. Run the spec
-
-From `src/alveara-client`, in a second terminal (the config starts the Vite dev server for you,
-which proxies `/api` to the API started above — see `vite.config.ts`):
-
-```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"   # must match step 2
+# 3. the walkthrough, from src\alveara-client in a second terminal
+$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"          # must match step 2
+$env:E2E_DB_NAME = "AlveraE2E"                                  # the specs that seed or break something in the database need it
 npx playwright test --config=playwright.auth.config.ts
+
+# 4. afterwards: the first administrator can be created once per database, so drop it before running again
+sqlcmd -S ".\SQLEXPRESS" -Q "ALTER DATABASE AlveraE2E SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE AlveraE2E;"
 ```
+
+Then delete the `by-hand` folders under `Test-Data`, or run `.\scripts\Clear-TestData.ps1`.
 
 ## What it proves
 
