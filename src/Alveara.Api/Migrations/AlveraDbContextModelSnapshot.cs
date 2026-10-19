@@ -2467,6 +2467,524 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ProviderWeeklyAvailabilities");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.BlockedFileExtension", b =>
+                {
+                    b.Property<string>("Extension")
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<DateTimeOffset>("AddedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("AddedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsBuiltIn")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Extension");
+
+                    b.HasIndex("AddedByUserId");
+
+                    b.ToTable("BlockedFileExtensions", null, t =>
+                        {
+                            t.HasTrigger("TR_BlockedFileExtensions_Guard");
+
+                            t.HasCheckConstraint("CK_BlockedFileExtensions_Extension", "[Extension] COLLATE Latin1_General_BIN2 NOT LIKE '%[^a-z0-9]%' AND LEN([Extension]) > 0");
+
+                            t.HasCheckConstraint("CK_BlockedFileExtensions_Owner", "[IsBuiltIn] = 1 OR [AddedByUserId] IS NOT NULL");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Extension = "bat",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "cmd",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "com",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "dll",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "exe",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "hta",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "htm",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "html",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "jar",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "js",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "lnk",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "msi",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "ps1",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "scr",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        },
+                        new
+                        {
+                            Extension = "vbs",
+                            AddedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 19, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsBuiltIn = true
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("DocumentCategories", null, t =>
+                        {
+                            t.HasTrigger("TR_DocumentCategories_Guard");
+
+                            t.HasCheckConstraint("CK_DocumentCategories_Code", "[Code] COLLATE Latin1_General_BIN2 NOT LIKE '%[^a-z0-9_]%' AND LEN([Code]) > 0");
+
+                            t.HasCheckConstraint("CK_DocumentCategories_Name", "LEN(LTRIM(RTRIM([Name]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Name] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000001"),
+                            Code = "radiograph",
+                            IsActive = true,
+                            Name = "Radiograph",
+                            RowVersion = new byte[0],
+                            SortOrder = 10
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000002"),
+                            Code = "photo",
+                            IsActive = true,
+                            Name = "Photo",
+                            RowVersion = new byte[0],
+                            SortOrder = 20
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000003"),
+                            Code = "referral_letter",
+                            IsActive = true,
+                            Name = "Referral letter",
+                            RowVersion = new byte[0],
+                            SortOrder = 30
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000004"),
+                            Code = "medical_clearance",
+                            IsActive = true,
+                            Name = "Medical clearance",
+                            RowVersion = new byte[0],
+                            SortOrder = 40
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000005"),
+                            Code = "lab_report",
+                            IsActive = true,
+                            Name = "Lab report",
+                            RowVersion = new byte[0],
+                            SortOrder = 50
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000006"),
+                            Code = "insurance_card",
+                            IsActive = true,
+                            Name = "Insurance card",
+                            RowVersion = new byte[0],
+                            SortOrder = 60
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000007"),
+                            Code = "identification",
+                            IsActive = true,
+                            Name = "Identification",
+                            RowVersion = new byte[0],
+                            SortOrder = 70
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000008"),
+                            Code = "correspondence",
+                            IsActive = true,
+                            Name = "Correspondence",
+                            RowVersion = new byte[0],
+                            SortOrder = 80
+                        },
+                        new
+                        {
+                            Id = new Guid("d0c00000-0000-0000-0000-000000000009"),
+                            Code = "other",
+                            IsActive = true,
+                            Name = "Other",
+                            RowVersion = new byte[0],
+                            SortOrder = 90
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentEvent", b =>
+                {
+                    b.Property<long>("EventNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("AtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FromCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ToCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("EventNumber");
+
+                    b.HasIndex("ByUserId");
+
+                    b.HasIndex("FromCategoryId");
+
+                    b.HasIndex("RelatedDocumentId");
+
+                    b.HasIndex("ToCategoryId");
+
+                    b.HasIndex("DocumentId", "EventNumber");
+
+                    b.HasIndex("PatientId", "EventNumber");
+
+                    b.ToTable("DocumentEvents", null, t =>
+                        {
+                            t.HasTrigger("TR_DocumentEvents_Immutable");
+
+                            t.HasTrigger("TR_DocumentEvents_Links");
+
+                            t.HasCheckConstraint("CK_DocumentEvents_Categories", "(([Kind] = 'Categorized' AND [FromCategoryId] IS NOT NULL AND [ToCategoryId] IS NOT NULL AND [FromCategoryId] <> [ToCategoryId]) OR ([Kind] <> 'Categorized' AND [FromCategoryId] IS NULL AND [ToCategoryId] IS NULL))");
+
+                            t.HasCheckConstraint("CK_DocumentEvents_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Imported','ImportedAsDuplicate','Categorized','MetadataEdited','Opened')");
+
+                            t.HasCheckConstraint("CK_DocumentEvents_Number", "[EventNumber] > 0");
+
+                            t.HasCheckConstraint("CK_DocumentEvents_Related", "(([Kind] = 'ImportedAsDuplicate' AND [RelatedDocumentId] IS NOT NULL) OR ([Kind] <> 'ImportedAsDuplicate' AND [RelatedDocumentId] IS NULL)) AND ([RelatedDocumentId] IS NULL OR [RelatedDocumentId] <> [DocumentId])");
+
+                            t.HasCheckConstraint("CK_DocumentEvents_Time", "[AtUtc] >= '2000-01-01' AND [AtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentEventCounter", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<long>("LastEventNumber")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocumentEventCounter", null, t =>
+                        {
+                            t.HasTrigger("TR_DocumentEventCounter_Guard");
+
+                            t.HasCheckConstraint("CK_DocumentEventCounter_Last", "[LastEventNumber] >= 0");
+
+                            t.HasCheckConstraint("CK_DocumentEventCounter_OneRow", "[Id] = 1");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LastEventNumber = 0L
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<long>("MaxUploadBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UpdatedByUserId");
+
+                    b.ToTable("DocumentSettings", null, t =>
+                        {
+                            t.HasTrigger("TR_DocumentSettings_NoDelete");
+
+                            t.HasCheckConstraint("CK_DocumentSettings_Max", "[MaxUploadBytes] >= 1048576 AND [MaxUploadBytes] <= 1073741824");
+
+                            t.HasCheckConstraint("CK_DocumentSettings_OneRow", "[Id] = 1");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            MaxUploadBytes = 104857600L,
+                            RowVersion = new byte[0]
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.PatientDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BlobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DetectedType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateOnly>("DocumentDate")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("DuplicateOfDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset>("ImportedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ImportedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlobId")
+                        .IsUnique();
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("DuplicateOfDocumentId");
+
+                    b.HasIndex("ImportedByUserId");
+
+                    b.HasIndex("PatientId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "Sha256");
+
+                    b.HasIndex("PatientId", "CategoryId", "DocumentDate");
+
+                    b.ToTable("Documents", null, t =>
+                        {
+                            t.HasTrigger("TR_Documents_Immutable");
+
+                            t.HasTrigger("TR_Documents_Links");
+
+                            t.HasTrigger("TR_Documents_NoDelete");
+
+                            t.HasCheckConstraint("CK_Documents_ContentType", "LEN(LTRIM(RTRIM([ContentType]))) > 0");
+
+                            t.HasCheckConstraint("CK_Documents_Date", "[DocumentDate] >= '1900-01-01' AND [DocumentDate] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_Documents_Description", "[Description] IS NULL OR (LEN(LTRIM(RTRIM([Description]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Description] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_Documents_Hash", "[Sha256] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([Sha256]) = 64");
+
+                            t.HasCheckConstraint("CK_Documents_Imported", "[ImportedAtUtc] >= '2000-01-01' AND [ImportedAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_Documents_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_Documents_Name", "LEN(LTRIM(RTRIM([OriginalFileName]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [OriginalFileName] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_Documents_NotOwnDuplicate", "[DuplicateOfDocumentId] IS NULL OR [DuplicateOfDocumentId] <> [Id]");
+
+                            t.HasCheckConstraint("CK_Documents_RequestHash", "[RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([RequestHash]) = 64");
+
+                            t.HasCheckConstraint("CK_Documents_Size", "[SizeBytes] > 0 AND [SizeBytes] <= 1073741824");
+
+                            t.HasCheckConstraint("CK_Documents_Type", "[DetectedType] COLLATE Latin1_General_CS_AS IN ('pdf','png','jpeg','tiff','other')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Forms.FormTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -6241,6 +6759,84 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("ProviderProfile");
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.BlockedFileExtension", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AddedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentEvent", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.DocumentCategory", null)
+                        .WithMany()
+                        .HasForeignKey("FromCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.DocumentCategory", null)
+                        .WithMany()
+                        .HasForeignKey("ToCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentSettings", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.PatientDocument", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Documents.DocumentCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DuplicateOfDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ImportedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Forms.FormTemplateVersion", b =>

@@ -119,6 +119,12 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Prescribing.PrescriptionDraft> PrescriptionDrafts => Set<Architecture.Prescribing.PrescriptionDraft>();
     public DbSet<Architecture.Prescribing.PrescriptionDetail> PrescriptionDetails => Set<Architecture.Prescribing.PrescriptionDetail>();
     public DbSet<Architecture.Prescribing.PrescriptionEvent> PrescriptionEvents => Set<Architecture.Prescribing.PrescriptionEvent>();
+    public DbSet<Architecture.Documents.DocumentCategory> DocumentCategories => Set<Architecture.Documents.DocumentCategory>();
+    public DbSet<Architecture.Documents.PatientDocument> Documents => Set<Architecture.Documents.PatientDocument>();
+    public DbSet<Architecture.Documents.DocumentEvent> DocumentEvents => Set<Architecture.Documents.DocumentEvent>();
+    public DbSet<Architecture.Documents.DocumentEventCounter> DocumentEventCounters => Set<Architecture.Documents.DocumentEventCounter>();
+    public DbSet<Architecture.Documents.DocumentSettings> DocumentSettings => Set<Architecture.Documents.DocumentSettings>();
+    public DbSet<Architecture.Documents.BlockedFileExtension> BlockedFileExtensions => Set<Architecture.Documents.BlockedFileExtension>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -517,6 +523,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         CompletionModel.Configure(modelBuilder);
         PrescriptionModel.Configure(modelBuilder);
         PrescriptionWorkflowModel.Configure(modelBuilder);
+        DocumentModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {
