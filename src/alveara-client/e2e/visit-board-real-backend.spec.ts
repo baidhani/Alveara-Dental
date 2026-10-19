@@ -2,10 +2,11 @@ import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
+import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-011-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-011-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.board.config.ts against an API the caller started
 // (see docs/testing/REAL_BACKEND_E2E.md). It walks the story's acceptance items as the front office and the chairside team would: a visit travels the whole
 // production chain across four different roles; the provider and operatory assignment is visible and changeable without moving the booking; a room never holds
@@ -109,7 +110,7 @@ const press = (page: Page, id: string, button: string, patient: string) => cardO
 function sql(statement: string) {
   const db = process.env.E2E_DB_NAME;
   if (!db) throw new Error("E2E_DB_NAME must name the database the API is using (the 'left open from an earlier day' arrangement needs it)");
-  execFileSync("sqlcmd", ["-S", "(localdb)\\MSSQLLocalDB", "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
+  execFileSync("sqlcmd", ["-S", sqlServer, "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
 }
 
 test.beforeAll(async ({ browser }: { browser: Browser }) => {

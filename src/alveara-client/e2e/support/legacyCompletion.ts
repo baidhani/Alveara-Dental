@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { sqlServer } from "./sqlServer";
 
 /**
  * ALV-008-C02 TEST-ONLY SEED. The routes that completed a procedure the old, state-only way are retired (they answer 410), so the only way for a real-backend walkthrough to start from "a procedure that was
@@ -10,7 +11,7 @@ const GUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a
 export function sqlOnE2eDatabase(statement: string): void {
   const db = process.env.E2E_DB_NAME;
   if (!db) throw new Error("E2E_DB_NAME must name the database the API is using (a legacy completion can only be seeded into it)");
-  execFileSync("sqlcmd", ["-S", "(localdb)\\MSSQLLocalDB", "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
+  execFileSync("sqlcmd", ["-S", sqlServer, "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
 }
 
 /** Completes one accepted procedure the old way. Completing an already completed procedure changes nothing. */

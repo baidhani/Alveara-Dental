@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// STORY-006 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// STORY-006 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.odontogram.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the story's acceptance items as a practice would: a condition recorded on a tooth is saved with exactly the lifecycle state chosen (and the tooth is stored as its FDI key
 // whatever number is shown), a completed treatment updates the odontogram, every update is in the audit log with the user and a time (and nothing clinical is), a wrong entry is

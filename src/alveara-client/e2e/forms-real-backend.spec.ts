@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-N010 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-N010 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Like the other real-backend specs it is excluded from the default mocked run (playwright.config.ts) and run with
 // playwright.forms.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the story's acceptance items as practice staff would: an administrator builds a versioned template, the front desk

@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-006-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-006-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.odontogram-longitudinal.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the story's acceptance items as a practice would: permanent, primary and mixed dentition on one patient (switching the view loses nothing), surface-specific findings on primary teeth,
 // a condition catalogue a dentist extends and retires (retiring stops new findings and leaves old ones as they were), tooth-state validation (an implant is not placed in a primary tooth, a missing

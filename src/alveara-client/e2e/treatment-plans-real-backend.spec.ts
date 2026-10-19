@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// STORY-015 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// STORY-015 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.treatment-plans.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the three acceptance items as a dentist would: from a patient's diagnosis, create a treatment plan that links to a catalog procedure and carries its fee (1); see a wrong entry refused beside its
 // field with what was typed kept (2); and find every change in the history and the audit log with who and when (3). Then the fee is copied (a later catalog fee change does not rewrite the plan), a

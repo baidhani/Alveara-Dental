@@ -6,7 +6,7 @@ import type { Browser, BrowserContext, Page } from "@playwright/test";
 // finding was specifically that component tests and route-mocked "real browser" tests do not
 // satisfy "exercise the actual rendered application in a real browser against the real
 // API/database." Every request here is a genuine network call from a real Chromium instance to a
-// real running Alveara.Api process backed by a real (migrated) LocalDB database.
+// real running Alveara.Api process backed by a real (migrated) SQL Server database.
 //
 // This spec is NOT wired into playwright.config.ts's default `npm test:e2e` run, because that
 // config's webServer only starts the built static client (`vite preview`), with no backend behind

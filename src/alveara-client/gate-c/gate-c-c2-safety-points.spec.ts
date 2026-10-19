@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 // Gate C criterion C2 (late evaluation): "Manual walkthrough with flagged patient ... alert visible at each gated point".
-// Gate tooling, not a product test: real Chromium -> real Vite proxy -> real Alveara.Api -> real LocalDB (run with gate-c/playwright.c2.config.ts against an API the caller started).
+// Gate tooling, not a product test: real Chromium -> real Vite proxy -> real Alveara.Api -> real SQL Server (run with gate-c/playwright.c2.config.ts against an API the caller started).
 // A synthetic patient is flagged (a Critical alert, a severe allergy, a current medication and an open clearance); then, as a dentist, every screen where treatment is
 // PLANNED, COMPLETED and PRESCRIBED is opened and the patient safety strip must be on screen, above the work area, carrying the alert (with its highest severity), the allergy, the medication and the open clearance, with a link to the details.
 

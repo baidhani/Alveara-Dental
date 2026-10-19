@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { seedLegacyCompletion } from "./support/legacyCompletion";
 
-// ALV-015-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-015-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.treatment-plans-complete.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the companion story as a dentist would: a plan revised into phases with a rationale and a patient explanation; a patient's answers recorded with who gave them (and the whole-plan answer refused when it
 // would overwrite an opposite one); a procedure scheduled and completed (and then final); two revisions compared; the patient copy shown and printed; an old diagnosis reference tied to the right plan (and never to

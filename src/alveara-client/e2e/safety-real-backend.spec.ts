@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-N011 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-N011 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.safety.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the story's acceptance items as a practice would: nothing is invented for an empty chart (and what is NOT established is said), allergies and medications are read from the
 // clinical record, a clinician states an alert with its source, acknowledging is shown to be different from resolving, resolution needs a reason and keeps who/when/why, clearances

@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-005-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-005-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.clinical-companion.config.ts against an API the caller started (see
 // docs/testing/REAL_BACKEND_E2E.md). It walks the story's acceptance items as a practice would: the longitudinal record is captured with attribution and a change keeps its
 // history; "none known" / "unknown" / "not reviewed" stay distinguishable and invent nothing; a template shapes an encounter's SOAP and treatment notes and blocks signing until

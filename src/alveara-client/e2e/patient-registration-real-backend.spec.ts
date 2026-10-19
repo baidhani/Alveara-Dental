@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// STORY-003 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// STORY-003 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Like auth-real-backend.spec.ts it is excluded from the default mocked run (playwright.config.ts) and run with
 // playwright.patients.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // Walks the three acceptance criteria as a front-desk user would, then checks the audit trail as an admin, and

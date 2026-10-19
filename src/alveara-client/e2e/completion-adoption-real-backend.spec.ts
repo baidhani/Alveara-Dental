@@ -2,11 +2,12 @@ import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
+import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { seedLegacyCompletion } from "./support/legacyCompletion";
 
-// ALV-008-C02 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-008-C02 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.completion-adoption.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // The old completion routes are retired (410) and no screen offers them. Procedures completed the old way (seeded straight into the database, support/legacyCompletion.ts) are adopted through the screen: the
 // provider, encounter, time and reason are recorded, the chart follows and exactly one charge is made. When the log is unavailable nothing is recorded and the same click works once it is back; a second
@@ -40,7 +41,7 @@ async function api(page: Page, method: "post" | "put" | "get", url: string, data
 function sql(statement: string) {
   const db = process.env.E2E_DB_NAME;
   if (!db) throw new Error("E2E_DB_NAME must name the database the API is using (the failed-log demonstration needs it)");
-  execFileSync("sqlcmd", ["-S", "(localdb)\\MSSQLLocalDB", "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
+  execFileSync("sqlcmd", ["-S", sqlServer, "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
 }
 
 async function createUser(role: string, username: string): Promise<string> {

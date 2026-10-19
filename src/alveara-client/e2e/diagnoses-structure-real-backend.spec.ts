@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-013-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-013-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.diagnoses-structure.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the companion's acceptance items as a clinician would, against REAL encounters, REAL odontogram findings and REAL periodontal charts: a diagnosis is stored with no coding at all, and with
 // optional coding, source and region that survive a round trip; an amendment keeps what it replaced, who changed it, when and why, and carries the treatment-plan forward reference through unresolved;

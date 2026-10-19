@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// STORY-013 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// STORY-013 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.diagnoses.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the story's acceptance items as a clinician would, against REAL encounters started through the clinical documentation API: a diagnosis recorded for an encounter is linked to the patient and
 // to the encounter and carries an optional treatment-plan reference that is shown as unresolved and never looked up; incorrect data is refused with every problem named and nothing saved; and every

@@ -2,10 +2,11 @@ import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
+import { sqlServer } from "./support/sqlServer";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-016-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-016-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.prescription-workflow.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // A dentist writes a prescription as a draft (saved incomplete, kept across a reload), is told what is missing, finalizes it through a confirmation, and it is logged with who and when; a medication that matches a
 // recorded allergy waits for the dentist's own words; a patient whose allergies were never reviewed gets the same; an allergy added after the draft was started is shown and must be acknowledged; an amendment
@@ -39,7 +40,7 @@ async function api(page: Page, method: "post" | "put" | "get" | "delete", url: s
 function sql(statement: string) {
   const db = process.env.E2E_DB_NAME;
   if (!db) throw new Error("E2E_DB_NAME must name the database the API is using (the failed-log and immutability demonstrations need it)");
-  execFileSync("sqlcmd", ["-S", "(localdb)\\MSSQLLocalDB", "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
+  execFileSync("sqlcmd", ["-S", sqlServer, "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
 }
 
 async function createUser(role: string, username: string): Promise<string> {

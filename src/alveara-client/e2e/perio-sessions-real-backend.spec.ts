@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// ALV-012-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// ALV-012-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.perio-sessions.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
 // It walks the story's acceptance items as a hygienist or dentist would: full-mouth keyboard entry that never loses its place (all 192 sites typed without the mouse), the six sites told apart on every
 // tooth, pus, plaque, mobility and furcation recorded, a tooth the odontogram records as missing skipped and refused with the way out, a wrong entry refused by the server without losing anything

@@ -4,7 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// STORY-005 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real LocalDB.
+// STORY-005 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Like the other real-backend specs it is excluded from the default mocked run (playwright.config.ts) and run with playwright.clinical.config.ts against an API the
 // caller started (see docs/testing/REAL_BACKEND_E2E.md). It walks the story's acceptance items as a practice would: a dentist documents an encounter (medical and
 // dental history, an allergy, a medication), an incomplete note cannot be finalized, a finalized note is immutable, an addendum is added beside the untouched original,
