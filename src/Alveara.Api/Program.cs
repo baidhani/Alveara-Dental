@@ -43,7 +43,7 @@ builder.Services.AddCors(options =>
 // is never sent to the client. See tests/no-db-credentials-in-client-bundle for the check that
 // enforces this.
 var connectionString = builder.Configuration.GetConnectionString("Alveara")
-    ?? "Server=(localdb)\\MSSQLLocalDB;Database=AlveraDev;Trusted_Connection=True;TrustServerCertificate=True";
+    ?? "Server=.\\SQLEXPRESS;Database=AlveraDev;Trusted_Connection=True;TrustServerCertificate=True";
 builder.Services.AddDbContext<AlveraDbContext>(options => options.UseSqlServer(connectionString));
 
 // Practice time zone — configurable, defaults to America/Chicago. All appointment-local
