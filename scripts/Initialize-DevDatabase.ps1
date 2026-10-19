@@ -4,7 +4,8 @@
 
 .DESCRIPTION
   1. Creates the Dev-Data folders if missing.
-  2. Creates AlveraDev with explicit data and log files in <root>\Dev-Data\Database, unless it already exists.
+  2. Creates AlveraDev with explicit data and log files in <root>\Dev-Data\Database, unless it already exists, and makes sure READ_COMMITTED_SNAPSHOT is on
+     (what EF Core's creator sets and the application's concurrency depends on; an existing database without it is repaired, which resets its connections).
   3. Builds the API and applies the migrations (dotnet ef database update). With nothing new to apply this changes nothing.
 
   -Reset first DROPS AlveraDev and its files (every user, patient and record in it is lost), then recreates it. It asks for confirmation;
@@ -50,6 +51,14 @@ if (-not $exists) {
 }
 else {
     Write-Host "$DevDatabaseName already exists; keeping its data."
+}
+
+# READ_COMMITTED_SNAPSHOT ON is what EF Core's own database creator sets. The application's concurrency depends on it (without it, concurrent inserts that a trigger reads
+# deadlock), so a database created with explicit file paths must be given it too, and an older database that lacks it is repaired. Idempotent.
+$rcsi = (Invoke-DevSql "SET NOCOUNT ON; SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = N'$DevDatabaseName'" | Select-Object -First 1).Trim()
+if ($rcsi -ne '1') {
+    Invoke-DevSql "ALTER DATABASE [$DevDatabaseName] SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;" | Out-Null
+    Write-Host "Turned READ_COMMITTED_SNAPSHOT on for $DevDatabaseName (connections to it were reset)."
 }
 
 $apiProject = Join-Path $RepoRoot 'src\Alveara.Api'

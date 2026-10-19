@@ -60,7 +60,7 @@ $exitCode = 1
 try {
     $mdf = (Join-Path $TestDbDir "$Database.mdf").Replace("'", "''")
     $ldf = (Join-Path $TestDbDir "${Database}_log.ldf").Replace("'", "''")
-    Invoke-DevSql "CREATE DATABASE [$Database] ON (NAME = N'${Database}_data', FILENAME = N'$mdf') LOG ON (NAME = N'${Database}_log', FILENAME = N'$ldf');" | Out-Null
+    Invoke-DevSql "CREATE DATABASE [$Database] ON (NAME = N'${Database}_data', FILENAME = N'$mdf') LOG ON (NAME = N'${Database}_log', FILENAME = N'$ldf'); ALTER DATABASE [$Database] SET READ_COMMITTED_SNAPSHOT ON;" | Out-Null     # RCSI on, as EF Core's creator sets it
     Write-Host "Database $Database created in $TestDbDir"
 
     $connection = "Server=$SqlServer;Database=$Database;Trusted_Connection=True;TrustServerCertificate=True"

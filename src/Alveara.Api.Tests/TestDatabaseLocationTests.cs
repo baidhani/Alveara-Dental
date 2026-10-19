@@ -52,6 +52,28 @@ public class TestDatabaseLocationTests
     }
 
     [Fact]
+    public async Task A_fixture_database_has_read_committed_snapshot_on_exactly_as_one_created_by_ef_core_does()
+    {
+        // The application's concurrency relies on it (see AlveraTestEnvironment.CreateDatabaseIfMissingSql): a database created without it deadlocks concurrent inserts that a trigger reads.
+        var fixture = new TestDatabaseFixture();
+        await fixture.InitializeAsync();
+        try
+        {
+            var database = new SqlConnectionStringBuilder(fixture.ConnectionString).InitialCatalog;
+            await using var c = new SqlConnection(AlveraTestEnvironment.MasterConnectionString);
+            await c.OpenAsync();
+            await using var cmd = c.CreateCommand();
+            cmd.CommandText = "SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name = @n";
+            cmd.Parameters.AddWithValue("@n", database);
+            Assert.True((bool)(await cmd.ExecuteScalarAsync())!);
+        }
+        finally
+        {
+            await fixture.DisposeAsync();
+        }
+    }
+
+    [Fact]
     public void The_test_data_folders_all_sit_under_the_single_data_root()
     {
         var root = Path.GetFullPath(AlveraTestEnvironment.DataRoot);
@@ -96,7 +118,8 @@ public class TestDatabaseLocationTests
     public void Creating_the_same_database_statement_twice_is_safe_to_repeat_because_it_tests_for_existence_first()
     {
         var sql = AlveraTestEnvironment.CreateDatabaseIfMissingSql("AlveraTest_probe");
-        Assert.StartsWith("IF DB_ID(N'AlveraTest_probe') IS NULL CREATE DATABASE", sql);
+        Assert.StartsWith("IF DB_ID(N'AlveraTest_probe') IS NULL BEGIN CREATE DATABASE", sql);
         Assert.Contains(AlveraTestEnvironment.DatabaseFolder, sql, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("SET READ_COMMITTED_SNAPSHOT ON", sql);
     }
 }

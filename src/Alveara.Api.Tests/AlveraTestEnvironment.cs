@@ -83,13 +83,15 @@ internal static class AlveraTestEnvironment
     }
 
     /// <summary>
-    /// A statement that creates <paramref name="database"/> with its files inside <c>Test-Data\Database</c>, and does nothing when it already exists (so it can be repeated).
+    /// A statement that creates <paramref name="database"/> with its files inside <c>Test-Data\Database</c> and READ_COMMITTED_SNAPSHOT on (as EF Core's creator does), and does nothing when it already exists (so it can be repeated).
     /// The folder is created first: SQL Server does not create missing folders.
     /// </summary>
     public static string CreateDatabaseIfMissingSql(string database)
     {
         var (data, log) = FilesOf(database);
-        return $"IF DB_ID(N'{database}') IS NULL CREATE DATABASE [{database}] ON (NAME = N'{database}_data', FILENAME = N'{data.Replace("'", "''")}') LOG ON (NAME = N'{database}_log', FILENAME = N'{log.Replace("'", "''")}');";
+        // READ_COMMITTED_SNAPSHOT ON is what EF Core's own database creator sets after CREATE DATABASE. The application's concurrency (for example six identical requests at once, where a trigger reads
+        // the table the other requests are inserting into) depends on it: without it those reads take shared locks and the requests deadlock. A database created here must therefore match.
+        return $"IF DB_ID(N'{database}') IS NULL BEGIN CREATE DATABASE [{database}] ON (NAME = N'{database}_data', FILENAME = N'{data.Replace("'", "''")}') LOG ON (NAME = N'{database}_log', FILENAME = N'{log.Replace("'", "''")}'); ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON; END;";
     }
 
     private static void RequireSafeName(string database)

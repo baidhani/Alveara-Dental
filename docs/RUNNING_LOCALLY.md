@@ -87,7 +87,7 @@ It asks you to confirm and then drops `AlveraDev` **and its files**: every user,
 .\scripts\Initialize-DevDatabase.ps1
 ```
 
-It creates `AlveraDev` with its files in `C:\.alvera-data\Dev-Data\Database` (if it does not exist yet), builds the API, and applies every migration (93 tables, 42 migrations at the time of writing). It ends with `AlveraDev is ready on .\SQLEXPRESS.` Running it again changes nothing.
+It creates `AlveraDev` with its files in `C:\.alvera-data\Dev-Data\Database` (if it does not exist yet), makes sure the database option `READ_COMMITTED_SNAPSHOT` is on (what EF Core's own database creator sets; the application's concurrency depends on it, and an existing database without it is repaired, which resets its connections), builds the API, and applies every migration (93 tables, 42 migrations at the time of writing). It ends with `AlveraDev is ready on .\SQLEXPRESS.` Running it again changes nothing.
 
 ## 5. Start the API (window A)
 

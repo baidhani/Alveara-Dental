@@ -46,8 +46,10 @@ the section tells you the config, the output variable and what the walkthrough p
 ## Running by hand (to debug a walkthrough)
 
 ```powershell
-# 1. a fresh database with its files under Test-Data (use a name of your own; it must not exist yet)
-sqlcmd -S ".\SQLEXPRESS" -Q "CREATE DATABASE AlveraE2E ON (NAME=N'AlveraE2E_data', FILENAME=N'C:\.alvera-data\Test-Data\Database\AlveraE2E.mdf') LOG ON (NAME=N'AlveraE2E_log', FILENAME=N'C:\.alvera-data\Test-Data\Database\AlveraE2E_log.ldf');"
+# 1. a fresh database with its files under Test-Data (use a name of your own; it must not exist yet).
+#    READ_COMMITTED_SNAPSHOT must be ON, as it is for a database EF Core creates itself: the application's concurrency
+#    depends on it (without it, concurrent inserts that a trigger reads deadlock).
+sqlcmd -S ".\SQLEXPRESS" -Q "CREATE DATABASE AlveraE2E ON (NAME=N'AlveraE2E_data', FILENAME=N'C:\.alvera-data\Test-Data\Database\AlveraE2E.mdf') LOG ON (NAME=N'AlveraE2E_log', FILENAME=N'C:\.alvera-data\Test-Data\Database\AlveraE2E_log.ldf'); ALTER DATABASE AlveraE2E SET READ_COMMITTED_SNAPSHOT ON;"
 Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api"
 dotnet ef database update --connection "Server=.\SQLEXPRESS;Database=AlveraE2E;Trusted_Connection=True;TrustServerCertificate=True"
 
