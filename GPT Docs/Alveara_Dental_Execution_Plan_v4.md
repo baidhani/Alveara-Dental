@@ -4,7 +4,7 @@
 
 ## COURSE INITIALIZATION — COMPLETE BEFORE ITEM 1
 
-This initialization is performed by the course workflow and is **not** part of the 53 numbered Alveara/course execution items. Follow the current course/portal instructions when their generated commands differ from the descriptive sequence below.
+This initialization is performed by the course workflow and is **not** part of the 55 numbered Alveara/course execution items. Follow the current course/portal instructions when their generated commands differ from the descriptive sequence below.
 
 ### A. Scaffold the local course workspace
 
@@ -2747,17 +2747,93 @@ Parent course story: STORY-010 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 41 — STORY-009** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 42 — STORY-009** below.
 
-# 41 — STORY-009 — Manage follow-up tasks and reminders
+# 41 — ALV-N015 — Notification Center and Internal Messaging
+
+**Type:** New Production
+**Dependencies:** STORY-010, ALV-010-C01, ALV-N001, ALV-N009, ALV-002-C01, ALV-N002, ALV-N004
+
+### Full Coding-Agent Prompt
+
+**Story:** ALV-N015 — Notification Center and Internal Messaging
+
+**Dependencies:** STORY-010, ALV-010-C01, ALV-N001, ALV-N009, ALV-002-C01, ALV-N002, ALV-N004
+
+**User story:** As staff, I want a personal notification bell and an operational message inbox so that important events and colleague messages reach the right person without requiring them to search for them.
+
+**Why this story exists:** The application needs one privacy-safe, per-person way to deliver operational attention items. `STORY-010` supplies the first producer seam through immutable duplicate-document events. This story consumes that committed history; it must not change `STORY-010` or make document import depend on notification delivery.
+
+**Binding design decisions**
+
+1. A `Message` is immutable operational communication, never clinical documentation. Its optional patient link is a navigation aid only; clinical instructions and care decisions belong in the clinical chart. Every related-patient notification or message offers an authorization-checked link that resolves from the notification/message context, then opens the patient record only when the current user has patient-view permission.
+2. A `Notification` is a recipient-owned inbox entry. Marking read, hiding a deleted entry, or clearing read history changes only that recipient's view. No application action physically deletes a message or notification record.
+3. Every staff member who may send messages may select Normal, Important, or Urgent. Priority is not permission-limited. Every send records immutable sender, recipient identifiers, priority, and time in audit; never record subject or body in logs or audit text. Keep a per-sender rate limit.
+4. The normal message audience is sender and named active recipients only. Messages are not searchable by administrators and no general read-all mailbox exists.
+5. An Admin may view all notification-history metadata, including records hidden by a recipient: recipient, kind, priority, created/read/deleted times, status, and safe source identifiers. This view must not expose a message subject/body or a patient identifier merely because a message or system notification refers to one.
+6. An Admin may open the subject and body of one selected message or thread only through an Admin-only break-glass action. Require a nonblank reason and confirmation; audit attempted and successful access with administrator id, message/thread id, reason, time, and outcome. Never put message content in audit or diagnostic logs. There is no bulk export, read-all mailbox, or silent access.
+7. System notifications are eventually consistent. A durable background consumer reads a producer's immutable, ordered event history after commit, creates recipient notifications idempotently, and advances its cursor in the same transaction. A producer never calls the center and is unaffected if the consumer is unavailable.
+8. First release starts each consumer cursor at the current high-water mark. Historical back-fill is out of scope; do not add an administrative back-fill command in this story.
+9. Poll every 60 seconds, and when the browser regains focus, while preserving the last known count and showing an unobtrusive failure state rather than a false zero. Push, email, SMS, attachments, group messaging, real-time chat, message recall, and search are out of scope.
+10. The `STORY-010` duplicate-document rule is one Important notification for each enabled Admin and Office Manager at processing time. The initiating person is included when they hold the recipient permission. A later permission grant does not back-fill an already-passed event; a removed permission prevents future delivery.
+
+**Implementation scope**
+
+- Per-person notifications: stable kind, Normal/Important/Urgent priority, source and related identifiers, created/read/deleted timestamps, row version, and a unique source key per recipient.
+- Immutable messages with immutable recipient rows, optional subject (120 characters), plain-text body (2,000 characters), priority, optional patient link, reply/thread linkage and sent/read-receipt views.
+- Database guards and triggers: messages and recipient rows append-only; notification rows permit only read/deleted state transitions; direct overwrite or delete is refused. All state transitions are idempotent and concurrency-safe.
+- A durable cursor-driven consumer for immutable producer event histories. Register the `DocumentEvents.ImportedAsDuplicate` mapping only; consume its `EventNumber`, document identifiers, patient identifier and timestamp, without reading or storing document names, filenames, descriptions, or file content.
+- Routes for the caller's notification summary, unread/history lists, mark read/read-all, delete one read item/clear read history, send/read/list messages, named recipient lookup, and the Admin metadata/history and break-glass audit views.
+- Permissions in the existing fixed role matrix: `SendMessages` for staff roles, `ReceiveDocumentNotifications` for Admin and Office Manager, `ViewNotificationAuditHistory` and `ViewMessageAuditContent` for Admin only.
+- Bell, unread panel, history, messages, compose/reply/thread/sent views, read receipts, and an Important/Urgent-only banner. The bell is available to every signed-in user. Banner text is generic and contains no patient name, filename, subject, or message body.
+
+**Security, privacy, and integrity requirements**
+
+- A sender or recipient may read a message; everyone else receives the same safe not-found result. The Admin break-glass route is the sole exception and must satisfy its reason, confirmation, permission, and audit requirements.
+- Plain-text message content is escaped on display. Apply CSRF protection to every write and to break-glass access recording. Do not render markup or arbitrary links.
+- Every notification/message with a related patient offers a notification/message-scoped link. Its resolver checks the current user's patient-view permission before redirecting to the patient record; on denial it returns a safe access refusal and reveals no patient details. Do not expose a raw patient identifier in notification/list payloads merely to make this link work.
+- Sending a message, its recipient rows, recipient notifications, idempotency receipt, and audit entry succeeds as one transaction or fails with no effect. The same idempotency key and canonical request replays safely; a changed request conflicts.
+- Consumer replays are harmless through recipient-specific source keys. A consumer failure or crash leaves the producer unchanged and resumes safely. Disabled recipients receive no new notifications.
+
+**Failure paths to handle**
+
+- Consumer stop/crash or a crash between notification creation and cursor advance; duplicate event processing; polling failure; disabled recipient; send or audit failure; unauthorized message or patient-link read; stale and concurrent read/delete; rate-limit refusal; priority misuse; break-glass refusal, audit-write failure, and concurrent access.
+
+**Acceptance / stop condition**
+
+- Every signed-in role sees only its own bell/count, and read entries move to history; deleting or clearing hides only that person's read entries.
+- Important and Urgent notifications show the dismissible generic banner at sign-in and during a session; Normal notifications never do.
+- A staff member can send a Normal, Important, or Urgent operational message to a named colleague; the recipient sees it, the sender sees the read receipt, and the message remains immutable.
+- An Admin can view notification-history metadata including recipient-hidden entries, while message content remains inaccessible except through a reason-required, fully audited break-glass view of one selected message or thread.
+- A confirmed duplicate document import produces exactly one Important notification for each eligible Admin and Office Manager, never twice, without changing `STORY-010`.
+- No message text, subject, patient name, filename, or raw patient identifier appears in audit entries, diagnostic logs, banners, or notification-list payloads. A related-patient link resolves only after its server-side authorization check.
+- Atomic-send, idempotency, consumer recovery, direct database mutation refusal, authorization, accessibility, and the `STORY-010` regression are proven.
+
+**Required tests and evidence**
+
+- Service, API, database-trigger, authorization, idempotency, concurrency, and fault-injection tests for messages, notifications, consumer cursor/replay and break-glass audit access.
+- Privacy tests that inspect stored rows and captured logs, plus negative tests proving a nonparticipant receives no content and an unauthorized patient-link selection reveals no patient details while an authorized selection opens the correct record.
+- Tests for direct SQL update/delete refusal on immutable messages/recipients and impermissible notification fields; tests that the permitted read/deleted transitions remain usable.
+- Real-backend browser walkthroughs for bell, banner, history, messaging, read receipt, document-duplicate delivery, Admin metadata history, and break-glass access; accessibility scans in both themes.
+- Run the targeted suites required by the testing cadence. This story is high privacy/authorization risk: run the full serial backend suite, full frontend suite, mocked browser suite, repository checks, its real-backend walkthroughs, and the unchanged `STORY-010` regression before packaging.
+
+**Out of scope / future extension** Email, SMS, push delivery, attachments, group recipients, real-time chat, message search, recall, back-fill, and any clinical-record workflow are deferred.
+
+**When you finish — package this story for review**
+
+Follow the standard ALVEARA handoff protocol: preserve prior attempts; commit implementation and evidence/status separately; generate and validate `Alveara_Handoff_ALV-N015_<implementation-short-sha>_<attempt>.zip`; set only `AWAITING_REVIEW`; and do not begin the next story until independent approval is durably closed.
+
+**NEXT:** Do not continue until this story has been independently reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 42 — STORY-009** below.
+
+# 42 — STORY-009 — Manage follow-up tasks and reminders
 
 **ORIGINAL COURSE STORY — EXECUTE IN THE COURSE PORTAL**
 
 Open `STORY-009` in the course portal and execute its **current portal-generated coding prompt**. The portal's current Done Means, unlock state, and verification are authoritative. Do not substitute an ALV prompt for this course story and do not mark it complete merely to preserve this plan's order.
 
-When the portal has genuinely verified `STORY-009` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-009` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-009: record course completion`. Then continue directly to **item 42 — ALV-009-C01** below.
+When the portal has genuinely verified `STORY-009` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-009` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-009: record course completion`. Then continue directly to **item 43 — ALV-009-C01** below.
 
-# 42 — ALV-009-C01 — Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations
+# 43 — ALV-009-C01 — Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations
 
 **Type:** Companion
 **Parent:** STORY-009
@@ -2841,9 +2917,9 @@ Parent course story: STORY-009 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 43 — ALV-009-C02** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 44 — ALV-009-C02** below.
 
-# 43 — ALV-009-C02 — Referral and Dental Laboratory Case Tracking
+# 44 — ALV-009-C02 — Referral and Dental Laboratory Case Tracking
 
 **Type:** Companion
 **Parent:** STORY-009
@@ -2912,17 +2988,17 @@ Parent course story: STORY-009 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 44 — STORY-017** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 45 — STORY-017** below.
 
-# 44 — STORY-017 — Support duplicate detection and controlled merge of patient records
+# 45 — STORY-017 — Support duplicate detection and controlled merge of patient records
 
 **ORIGINAL COURSE STORY — EXECUTE IN THE COURSE PORTAL**
 
 Open `STORY-017` in the course portal and execute its **current portal-generated coding prompt**. The portal's current Done Means, unlock state, and verification are authoritative. Do not substitute an ALV prompt for this course story and do not mark it complete merely to preserve this plan's order.
 
-When the portal has genuinely verified `STORY-017` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-017` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-017: record course completion`. Then continue directly to **item 45 — ALV-017-C01** below.
+When the portal has genuinely verified `STORY-017` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-017` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-017: record course completion`. Then continue directly to **item 46 — ALV-017-C01** below.
 
-# 45 — ALV-017-C01 — Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery
+# 46 — ALV-017-C01 — Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery
 
 **Type:** Companion
 **Parent:** STORY-017
@@ -2997,17 +3073,17 @@ Parent course story: STORY-017 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 46 — STORY-018** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 47 — STORY-018** below.
 
-# 46 — STORY-018 — Provide data portability with patient export and import capabilities
+# 47 — STORY-018 — Provide data portability with patient export and import capabilities
 
 **ORIGINAL COURSE STORY — EXECUTE IN THE COURSE PORTAL**
 
 Open `STORY-018` in the course portal and execute its **current portal-generated coding prompt**. The portal's current Done Means, unlock state, and verification are authoritative. Do not substitute an ALV prompt for this course story and do not mark it complete merely to preserve this plan's order.
 
-When the portal has genuinely verified `STORY-018` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-018` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-018: record course completion`. Then continue directly to **item 47 — ALV-018-C01** below.
+When the portal has genuinely verified `STORY-018` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-018` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-018: record course completion`. Then continue directly to **item 48 — ALV-018-C01** below.
 
-# 47 — ALV-018-C01 — Versioned Data Export and Portable Record Package
+# 48 — ALV-018-C01 — Versioned Data Export and Portable Record Package
 
 **Type:** Companion
 **Parent:** STORY-018
@@ -3089,9 +3165,9 @@ Parent course story: STORY-018 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 48 — ALV-018-C02** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 49 — ALV-018-C02** below.
 
-# 48 — ALV-018-C02 — Validated Bulk Import and Migration Workbench
+# 49 — ALV-018-C02 — Validated Bulk Import and Migration Workbench
 
 **Type:** Companion
 **Parent:** STORY-018
@@ -3185,9 +3261,9 @@ Parent course story: STORY-018 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 49 — ALV-N006** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 50 — ALV-N006** below.
 
-# 49 — ALV-N006 — Operational, Clinical, Financial Reporting, and Outcome Measurement
+# 50 — ALV-N006 — Operational, Clinical, Financial Reporting, and Outcome Measurement
 
 **Type:** New Production
 **Dependencies:** ALV-007-C02, ALV-009-C01, ALV-011-C01, ALV-017-C01
@@ -3311,6 +3387,7 @@ GATE E EVIDENCE REQUIREMENTS
 Required evidence:
 
 - Document/image imports are safe, integrity-checked, backed up and recoverable.
+- Per-person notification delivery is privacy-safe, idempotent and recoverable; operational-message access, including break-glass audit access, obeys its authorization and immutable-audit boundary.
 - Follow-up/recall work queues and due internal reminders operate through durable background work and survive restart without duplication.
 - Referral/lab tracking works with document links.
 - Duplicate detection/merge preserves linked data with recovery strategy as implemented.
@@ -3322,14 +3399,14 @@ Required evidence:
 Return the gate decision, criterion-by-criterion results, evidence references, repository state/commit information, blockers if any, and the next authorized action.
 ```
 
-**PASS → continue directly to item 50 — ALV-N007. FAIL/BLOCKED → stop; do not move forward.**
+**PASS → continue directly to item 51 — ALV-N007. FAIL/BLOCKED → stop; do not move forward.**
 
-# 50 — ALV-N007 — AI-Assisted Clinical Documentation and Review
+# 51 — ALV-N007 — AI-Assisted Clinical Documentation and Review
 
 **OPTIONAL AI BRANCH — DECIDE HERE:**
 
-- **Include AI in this release:** execute `ALV-N007` now. After it is reviewed and closed `COMPLETE`, continue to item 51 — `ALV-N012`.
-- **Defer AI from this release:** set **both** `ALV-N007` and `ALV-N012` to `DEFERRED` in `.alveara/EXECUTION_STATUS.json`, record the product-owner reason and release impact for each, verify the required non-AI core has no dependency on either story, and jump directly to **item 52 — ALV-N013**. Do not execute item 50 when `ALV-N007` is deferred.
+- **Include AI in this release:** execute `ALV-N007` now. After it is reviewed and closed `COMPLETE`, continue to item 52 — `ALV-N012`.
+- **Defer AI from this release:** set **both** `ALV-N007` and `ALV-N012` to `DEFERRED` in `.alveara/EXECUTION_STATUS.json`, record the product-owner reason and release impact for each, verify the required non-AI core has no dependency on either story, and jump directly to **item 53 — ALV-N013**. Do not execute item 51 when `ALV-N007` is deferred.
 
 **Type:** New Production
 **Dependencies:** ALV-005-C01, ALV-006-C01, ALV-013-C01, ALV-N011
@@ -3406,17 +3483,17 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 51 — ALV-N012** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 52 — ALV-N012** below.
 
-# 51 — ALV-N012 — AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up
+# 52 — ALV-N012 — AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up
 
-**OPTIONAL AI BRANCH — ITEM 50 IS REACHABLE ONLY IF ITEM 49 WAS EXECUTED:**
+**OPTIONAL AI BRANCH — ITEM 51 IS REACHABLE ONLY IF ITEM 50 WAS EXECUTED:**
 
 `ALV-N012` depends on `ALV-N007`. Do **not** execute this story if `ALV-N007` was deferred.
 
 - If `ALV-N007` is `COMPLETE`, you may execute `ALV-N012` now.
-- If you completed `ALV-N007` but choose to defer only this second AI enhancement, set `ALV-N012` to `DEFERRED`, record the product-owner reason and release impact, verify no required core workflow depends on it, and continue directly to **item 52 — ALV-N013**.
-- If `ALV-N007` was deferred, `ALV-N012` must already have been marked `DEFERRED`; jump to item 51.
+- If you completed `ALV-N007` but choose to defer only this second AI enhancement, set `ALV-N012` to `DEFERRED`, record the product-owner reason and release impact, verify no required core workflow depends on it, and continue directly to **item 53 — ALV-N013**.
+- If `ALV-N007` was deferred, `ALV-N012` must already have been marked `DEFERRED`; jump to item 52.
 
 **Type:** New Production — Optional first-release enhancement
 **Dependencies:** ALV-N007, ALV-N006, ALV-015-C01, ALV-009-C01
@@ -3498,9 +3575,9 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 52 — ALV-N013** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 53 — ALV-N013** below.
 
-# 52 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
+# 53 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
 
 **Type:** New Production
 **Dependencies:** ALV-N004, ALV-018-C01, ALV-N002
@@ -3583,9 +3660,9 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 53 — ALV-N014** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 54 — ALV-N014** below.
 
-# 53 — ALV-N014 — Security and Privacy Engineering Readiness
+# 54 — ALV-N014 — Security and Privacy Engineering Readiness
 
 **Type:** New Production
 **Dependencies:** ALV-001-C01, ALV-002-C01, ALV-N004, ALV-010-C01, ALV-018-C01, ALV-018-C02, ALV-N013
@@ -3669,9 +3746,9 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 54 — ALV-N008** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 55 — ALV-N008** below.
 
-# 54 — ALV-N008 — Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification
+# 55 — ALV-N008 — Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification
 
 **Type:** New Production
 **Dependencies:** ALV-N004, ALV-N006, ALV-N013, ALV-N014, ALV-018-C01, ALV-018-C02, ALV-007-C02

@@ -3,16 +3,16 @@
   "generatedBy": "ALV-CONTROL bootstrap R02",
   "generatedAt": "2026-09-27T22:17:54.318Z",
   "counts": {
-    "totalActiveFirstReleaseRecords": 54,
+    "totalActiveFirstReleaseRecords": 55,
     "courseRecords": 19,
-    "alvRecords": 35
+    "alvRecords": 36
   },
   "records": [
     {
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 1,
@@ -57,7 +57,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 2,
@@ -115,7 +115,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 3,
@@ -172,7 +172,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 4,
@@ -210,7 +210,7 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
+      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) \u2014 the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -222,7 +222,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 5,
@@ -282,7 +282,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 6,
@@ -334,7 +334,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 7,
@@ -384,7 +384,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 8,
@@ -444,7 +444,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 9,
@@ -504,7 +504,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 10,
@@ -572,7 +572,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 11,
@@ -622,7 +622,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 12,
@@ -671,7 +671,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 13,
@@ -721,7 +721,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 14,
@@ -771,7 +771,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 15,
@@ -821,7 +821,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 16,
@@ -871,7 +871,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 17,
@@ -921,7 +921,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 18,
@@ -971,7 +971,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 19,
@@ -1021,7 +1021,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 20,
@@ -1071,7 +1071,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 21,
@@ -1121,7 +1121,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 22,
@@ -1171,7 +1171,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 23,
@@ -1221,7 +1221,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 24,
@@ -1271,7 +1271,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 25,
@@ -1321,7 +1321,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 26,
@@ -1372,7 +1372,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 27,
@@ -1421,7 +1421,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 28,
@@ -1471,7 +1471,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 29,
@@ -1521,7 +1521,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 30,
@@ -1571,7 +1571,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 31,
@@ -1621,7 +1621,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 32,
@@ -1672,7 +1672,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 33,
@@ -1721,7 +1721,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 34,
@@ -1773,7 +1773,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 35,
@@ -1873,7 +1873,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 37,
@@ -1924,7 +1924,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 38,
@@ -1975,7 +1975,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 39,
@@ -2024,7 +2024,7 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 40,
@@ -2076,10 +2076,64 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
       "num": 41,
+      "phase": "Operations & Data",
+      "storyId": "ALV-N015",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "STORY-010",
+        "ALV-010-C01",
+        "ALV-N001",
+        "ALV-N009",
+        "ALV-002-C01",
+        "ALV-N002",
+        "ALV-N004"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 7,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a_new_production",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": "docs/design/NOTIFICATION_CENTER_AND_MESSAGING_PROPOSAL.md",
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.3",
+        "handoffSchemaVersion": "2"
+      },
+      "num": 42,
       "phase": "Operations & Data",
       "storyId": "STORY-009",
       "storyType": "course",
@@ -2125,10 +2179,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 42,
+      "num": 43,
       "phase": "Operations & Data",
       "storyId": "ALV-009-C01",
       "storyType": "companion",
@@ -2176,10 +2230,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 43,
+      "num": 44,
       "phase": "Operations & Data",
       "storyId": "ALV-009-C02",
       "storyType": "companion",
@@ -2226,10 +2280,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 44,
+      "num": 45,
       "phase": "Operations & Data",
       "storyId": "STORY-017",
       "storyType": "course",
@@ -2275,10 +2329,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 45,
+      "num": 46,
       "phase": "Operations & Data",
       "storyId": "ALV-017-C01",
       "storyType": "companion",
@@ -2326,10 +2380,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 46,
+      "num": 47,
       "phase": "Operations & Data",
       "storyId": "STORY-018",
       "storyType": "course",
@@ -2375,10 +2429,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 47,
+      "num": 48,
       "phase": "Operations & Data",
       "storyId": "ALV-018-C01",
       "storyType": "companion",
@@ -2426,10 +2480,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 48,
+      "num": 49,
       "phase": "Operations & Data",
       "storyId": "ALV-018-C02",
       "storyType": "companion",
@@ -2478,10 +2532,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 49,
+      "num": 50,
       "phase": "Operations & Data",
       "storyId": "ALV-N006",
       "storyType": "new_production",
@@ -2529,10 +2583,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 50,
+      "num": 51,
       "phase": "Optional AI",
       "storyId": "ALV-N007",
       "storyType": "new_production",
@@ -2580,10 +2634,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 51,
+      "num": 52,
       "phase": "Optional AI",
       "storyId": "ALV-N012",
       "storyType": "new_production",
@@ -2631,10 +2685,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 52,
+      "num": 53,
       "phase": "Release Engineering",
       "storyId": "ALV-N013",
       "storyType": "new_production",
@@ -2681,10 +2735,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 53,
+      "num": 54,
       "phase": "Release Engineering",
       "storyId": "ALV-N014",
       "storyType": "new_production",
@@ -2735,10 +2789,10 @@
       "schemaVersion": "2",
       "controlSet": {
         "masterPlanVersion": "3.3",
-        "executionIndexVersion": "1.2",
+        "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "2"
       },
-      "num": 54,
+      "num": 55,
       "phase": "Release Engineering",
       "storyId": "ALV-N008",
       "storyType": "new_production",
