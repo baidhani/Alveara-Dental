@@ -6,7 +6,7 @@ namespace Alveara.Api.Tests;
 
 /// <summary>
 /// TESTSPEED-P2 remediation: the bounded retry helper behind the fixture's drop (SQL error 1205 and the pool-acquisition timeout) and initialisation. The loop is tested with ordinary controlled exceptions and a predicate (no SqlException
-/// construction, no reflection) plus one real, engineered LocalDB deadlock that proves an actual error 1205 is classified correctly. No test asserts on elapsed time: the delay function is a
+/// construction, no reflection) plus one real, engineered SQL Server deadlock that proves an actual error 1205 is classified correctly. No test asserts on elapsed time: the delay function is a
 /// recorder. In the serial collection: the real-deadlock test works on a database of its own through master-level cleanup.
 /// </summary>
 [Collection(ParallelismCollections.SerialServer)]
@@ -152,7 +152,7 @@ public class TestDatabaseTransientRetryTests
     }
 
     [Fact]
-    public async Task A_real_LocalDB_deadlock_is_classified_as_1205_retried_once_and_then_succeeds()
+    public async Task A_real_SQL_Server_deadlock_is_classified_as_1205_retried_once_and_then_succeeds()
     {
         var fixture = new TestDatabaseFixture();
         await fixture.InitializeAsync();

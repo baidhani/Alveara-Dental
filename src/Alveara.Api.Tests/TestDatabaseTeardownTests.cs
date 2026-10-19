@@ -15,7 +15,7 @@ namespace Alveara.Api.Tests;
 [Collection(ParallelismCollections.SerialServer)]
 public class TestDatabaseTeardownTests
 {
-    private const string MasterCs = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+    private static string MasterCs => AlveraTestEnvironment.MasterConnectionString;
 
     private static string DatabaseOf(TestDatabaseFixture f) => new SqlConnectionStringBuilder(f.ConnectionString).InitialCatalog;
 

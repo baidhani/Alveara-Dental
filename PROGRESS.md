@@ -745,3 +745,10 @@
   - What changed: `.alveara/gates/D/reviews/d052330.md` committed unchanged (Gate D PASS, APPROVED, no findings); the D1-D5 rows and the Gate D paragraph in `.alveara/QUALITY_GATES.md` and `.alveara/BUILD_STATE.md` moved from awaiting review to approved, keeping the evidence references.
   - Verification: closure-only commit (no product, tooling or evidence file changed); the review decision is the supplied file; evidence 3692/3692 fresh on `851a64b`.
   - Notes: item 39 (`STORY-010`) is authorized once this is pushed, through its course-portal prompt only; not started.
+
+- [x] Test infrastructure step 1: one data root, test databases in Test-Data (SQL Server Express)
+  - Date: 2026-10-18
+  - Session: CC-20261008-k4q9
+  - What changed: new `src/Alveara.Api.Tests/AlveraTestEnvironment.cs` (the one place for the SQL Server name, default `.\SQLEXPRESS`, override `ALVERA_SQL_SERVER`, and the single data root, default `C:\.alvera-data`, override `ALVERA_DATA_ROOT`, refused unless absolute; test folders `Test-Data\{Database,Backup,Storage,Keys,Temp}`); `TestDatabaseFixture` now creates each `AlveraTest_<guid>` database with explicit data and log files in `Test-Data\Database` before `MigrateAsync()` (inside the existing retry, repeat-safe), and its three own test classes use the helper instead of the hardcoded LocalDB string; new `TestDatabaseLocationTests` (10 tests).
+  - Verification: 87 of 87 pass (the four fixture test classes plus `AccountServiceBootstrapTests`, `BillingLedgerMathTests`, `BillingServiceTests`); `Test-Data\Database` empty and no user database left afterwards; mutation check: disabling the explicit create made the location test fail (files landed in `C:\SQL-EXPRESS`), restored and 10 of 10 pass.
+  - Notes: first of six steps; the other test files, API fallback, browser specs, scripts and docs still point at LocalDB and are the next steps, so the full backend suite is not expected to pass until they are done. Server defaults of the instance were not changed. Not pushed.

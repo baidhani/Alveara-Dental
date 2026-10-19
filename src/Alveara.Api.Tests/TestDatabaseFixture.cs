@@ -7,7 +7,7 @@ using Xunit;
 namespace Alveara.Api.Tests;
 
 /// <summary>
-/// Creates a uniquely-named real SQL Server (LocalDB) database per test class, applies the actual
+/// Creates a uniquely-named real SQL Server database per test class (its files inside Test-Data\Database of the one data root, see <see cref="AlveraTestEnvironment"/>), applies the actual
 /// EF Core migrations against it, and drops it afterward. This exercises the real migration
 /// pipeline and real SQL Server transaction/constraint behavior — not an in-memory provider,
 /// which does not enforce unique indexes, foreign keys, or real transaction semantics the same
@@ -15,7 +15,7 @@ namespace Alveara.Api.Tests;
 /// </summary>
 public sealed class TestDatabaseFixture : IAsyncLifetime
 {
-    private const string MasterConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+    private static string MasterConnectionString => AlveraTestEnvironment.MasterConnectionString;
 
     /// <summary>SQL Server "chosen as the deadlock victim".</summary>
     internal const int DeadlockErrorNumber = 1205;
@@ -70,7 +70,7 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        ConnectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={_databaseName};Trusted_Connection=True;TrustServerCertificate=True";
+        ConnectionString = AlveraTestEnvironment.ConnectionStringFor(_databaseName);
 
         var options = new DbContextOptionsBuilder<AlveraDbContext>()
             .UseSqlServer(ConnectionString)
@@ -84,6 +84,16 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
             await RunWithTransientRetryAsync(async () =>
             {
                 if (_beforeCreateForTest is not null) await _beforeCreateForTest();
+
+                // The database is created here, with its files inside Test-Data\Database, instead of by MigrateAsync (which would leave the files to the server's default folders).
+                // MigrateAsync then finds it and only applies the migrations. Repeating this on a retry is safe: it creates nothing when the database already exists.
+                await using (var master = new SqlConnection(MasterConnectionString))
+                {
+                    await master.OpenAsync();
+                    await using var create = master.CreateCommand();
+                    create.CommandText = AlveraTestEnvironment.CreateDatabaseIfMissingSql(_databaseName);
+                    await create.ExecuteNonQueryAsync();
+                }
 
                 await using var db = new AlveraDbContext(options);
                 await db.Database.MigrateAsync();

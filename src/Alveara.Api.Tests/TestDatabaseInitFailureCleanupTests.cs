@@ -11,7 +11,7 @@ namespace Alveara.Api.Tests;
 [Collection(ParallelismCollections.SerialServer)]
 public class TestDatabaseInitFailureCleanupTests
 {
-    private const string MasterCs = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+    private static string MasterCs => AlveraTestEnvironment.MasterConnectionString;
 
     private sealed class MarkerException(string message) : Exception(message);
 
