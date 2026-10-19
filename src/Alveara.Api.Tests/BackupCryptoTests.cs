@@ -71,7 +71,7 @@ public class BackupCryptoTests
     public async Task A_large_multi_chunk_file_streams_through_encryption_and_decryption_intact_and_tampering_deep_inside_it_is_detected()
     {
         // 96 MiB generated as a stream (never held in memory by the test), through real files: the realistic large-backup path.
-        var dir = Path.Combine(Path.GetTempPath(), $"alv-crypto-large-{Guid.NewGuid():N}");
+        var dir = Path.Combine(AlveraTestEnvironment.TempFolder, $"alv-crypto-large-{Guid.NewGuid():N}");
         Directory.CreateDirectory(dir);
         try
         {
@@ -202,7 +202,7 @@ public class BackupCryptoTests
             return;
         }
 
-        var home = Path.Combine(Path.GetTempPath(), $"alv-gpg-{Guid.NewGuid():N}");
+        var home = Path.Combine(AlveraTestEnvironment.TempFolder, $"alv-gpg-{Guid.NewGuid():N}");
         Directory.CreateDirectory(home);
         try
         {

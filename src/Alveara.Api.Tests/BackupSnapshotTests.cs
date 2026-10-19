@@ -7,7 +7,7 @@ namespace Alveara.Api.Tests;
 public class BackupSnapshotTests : IClassFixture<TestDatabaseFixture>, IDisposable
 {
     private readonly TestDatabaseFixture _fixture;
-    private readonly string _backupPath = Path.Combine(Path.GetTempPath(), $"alveara-backup-test-{Guid.NewGuid():N}.bak");
+    private readonly string _backupPath = Path.Combine(AlveraTestEnvironment.BackupFolder, $"alveara-backup-test-{Guid.NewGuid():N}.bak");
 
     public BackupSnapshotTests(TestDatabaseFixture fixture)
     {

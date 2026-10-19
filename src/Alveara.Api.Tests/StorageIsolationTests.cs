@@ -25,7 +25,7 @@ public class StorageIsolationTests : IClassFixture<TestDatabaseFixture>
     [Fact]
     public async Task A_stored_blob_is_not_reachable_over_HTTP_even_with_static_file_serving_active()
     {
-        var storageRoot = Path.Combine(Path.GetTempPath(), $"alveara-storage-isolation-test-{Guid.NewGuid():N}");
+        var storageRoot = Path.Combine(AlveraTestEnvironment.StorageFolder, $"alveara-storage-isolation-test-{Guid.NewGuid():N}");
         Directory.CreateDirectory(storageRoot);
 
         try

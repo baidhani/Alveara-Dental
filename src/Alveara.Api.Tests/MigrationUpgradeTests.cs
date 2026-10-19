@@ -85,7 +85,16 @@ public class MigrationFailureTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        _connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={_databaseName};Trusted_Connection=True;TrustServerCertificate=True";
+        _connectionString = AlveraTestEnvironment.ConnectionStringFor(_databaseName);
+        // Created here, with its files inside Test-Data\Database, instead of by the migrator (which would leave the files to the server's default folders).
+        await using (var master = new Microsoft.Data.SqlClient.SqlConnection(AlveraTestEnvironment.MasterConnectionString))
+        {
+            await master.OpenAsync();
+            await using var create = master.CreateCommand();
+            create.CommandText = AlveraTestEnvironment.CreateDatabaseIfMissingSql(_databaseName);
+            await create.ExecuteNonQueryAsync();
+        }
+
         await using var db = CreateContext();
         // Target the first migration explicitly — a plain MigrateAsync() would apply every
         // migration EF discovers in this assembly, including the deliberately-broken second one.
@@ -95,7 +104,7 @@ public class MigrationFailureTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        var masterConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+        var masterConnectionString = AlveraTestEnvironment.MasterConnectionString;
         await using var connection = new Microsoft.Data.SqlClient.SqlConnection(masterConnectionString);
         await connection.OpenAsync();
         await using var command = connection.CreateCommand();

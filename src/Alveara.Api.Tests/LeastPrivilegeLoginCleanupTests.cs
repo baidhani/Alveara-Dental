@@ -13,7 +13,7 @@ namespace Alveara.Api.Tests;
 [Collection(ParallelismCollections.SerialServer)]
 public class LeastPrivilegeLoginCleanupTests
 {
-    private const string MasterCs = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+    private static string MasterCs => AlveraTestEnvironment.MasterConnectionString;
 
     private static async Task<int> ScalarAsync(string sql, string name)
     {

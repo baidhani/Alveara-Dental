@@ -58,7 +58,7 @@ public sealed class BackupTestEnvironment : IDisposable
     public const string DefaultTimeZoneId = "America/Chicago";
     public StubDeploymentSettings Deployment { get; } = new(DefaultTimeZoneId, DataProtectionApplicationName);
     public string ImportRoot => Path.Combine(Root, "import");
-    public string Root { get; } = Path.Combine(Path.GetTempPath(), $"alveara-backup-tests-{Guid.NewGuid():N}");
+    public string Root { get; } = Path.Combine(AlveraTestEnvironment.BackupFolder, $"alveara-backup-tests-{Guid.NewGuid():N}");
     public string SetsDirectory => Path.Combine(Root, "sets");
     public string BlobRoot => Path.Combine(Root, "blobs");
     public string KeysRoot => Path.Combine(Root, "keys");

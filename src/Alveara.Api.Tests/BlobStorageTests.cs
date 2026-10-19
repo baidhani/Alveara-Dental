@@ -7,7 +7,7 @@ namespace Alveara.Api.Tests;
 [Collection(ParallelismCollections.SerialServer)]
 public class BlobStorageTests : IDisposable
 {
-    private readonly string _storageRoot = Path.Combine(Path.GetTempPath(), $"alveara-blob-test-{Guid.NewGuid():N}");
+    private readonly string _storageRoot = Path.Combine(AlveraTestEnvironment.StorageFolder, $"alveara-blob-test-{Guid.NewGuid():N}");
     private readonly LocalDiskBlobStorage _storage;
 
     public BlobStorageTests()

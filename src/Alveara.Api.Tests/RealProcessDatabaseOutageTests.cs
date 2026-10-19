@@ -23,7 +23,7 @@ public class RealProcessDatabaseOutageTests : IAsyncLifetime
     public async Task InitializeAsync()
     {
         var apiDllPath = FindApiDll();
-        var connectionString = $"Server=(localdb)\\MSSQLLocalDB;Database={_databaseName};Trusted_Connection=True;TrustServerCertificate=True";
+        var connectionString = AlveraTestEnvironment.ConnectionStringFor(_databaseName);
 
         var startInfo = new ProcessStartInfo
         {
@@ -75,7 +75,7 @@ public class RealProcessDatabaseOutageTests : IAsyncLifetime
         // Clean up the database if the recovery test created it.
         try
         {
-            const string masterConnectionString = "Server=(localdb)\\MSSQLLocalDB;Database=master;Trusted_Connection=True;TrustServerCertificate=True";
+            var masterConnectionString = AlveraTestEnvironment.MasterConnectionString;
             await using var connection = new SqlConnection(masterConnectionString);
             await connection.OpenAsync();
             await using var command = connection.CreateCommand();

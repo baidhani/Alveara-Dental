@@ -462,7 +462,7 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
 
         // 2. The REAL monitor cannot reach its database during the initial check (delayed/failed start).
         var services = new ServiceCollection();
-        services.AddDbContext<Alveara.Api.Data.AlveraDbContext>(o => o.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=AlveraDoesNotExist_" + Guid.NewGuid().ToString("N") + ";Trusted_Connection=True;TrustServerCertificate=True;Connect Timeout=3"));
+        services.AddDbContext<Alveara.Api.Data.AlveraDbContext>(o => o.UseSqlServer(AlveraTestEnvironment.ConnectionStringFor("AlveraDoesNotExist_" + Guid.NewGuid().ToString("N")) + ";Connect Timeout=3"));
         await using var provider = services.BuildServiceProvider();
         var status = new DeploymentInvariantStatus();
         var monitor = new DeploymentInvariantMonitor(provider.GetRequiredService<IServiceScopeFactory>(), _env.Deployment, status, new ConfigurationBuilder().Build(), NullLogger<DeploymentInvariantMonitor>.Instance);

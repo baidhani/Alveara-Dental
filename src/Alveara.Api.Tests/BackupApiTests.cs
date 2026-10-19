@@ -18,7 +18,7 @@ namespace Alveara.Api.Tests;
 public class BackupApiTests : IAsyncLifetime
 {
     private readonly TestDatabaseFixture _fixture = new();
-    private readonly string _root = Path.Combine(Path.GetTempPath(), $"alveara-backup-api-{Guid.NewGuid():N}");
+    private readonly string _root = Path.Combine(AlveraTestEnvironment.BackupFolder, $"alveara-backup-api-{Guid.NewGuid():N}");
     private const string AdminPassword = "admin-password";
     
     public Task InitializeAsync() => _fixture.InitializeAsync();

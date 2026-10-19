@@ -26,11 +26,41 @@ internal static class AlveraTestEnvironment
     public static string DataRoot => ValidateRoot(Environment.GetEnvironmentVariable(DataRootVariable) is { Length: > 0 } value ? value : DefaultDataRoot);
 
     public static string TestData => Path.Combine(DataRoot, "Test-Data");
-    public static string DatabaseFolder => Path.Combine(TestData, "Database");
-    public static string BackupFolder => Path.Combine(TestData, "Backup");
-    public static string StorageFolder => Path.Combine(TestData, "Storage");
-    public static string KeysFolder => Path.Combine(TestData, "Keys");
-    public static string TempFolder => Path.Combine(TestData, "Temp");
+    public static string DatabaseFolder => Ensure(Path.Combine(TestData, "Database"));
+    public static string BackupFolder => Ensure(Path.Combine(TestData, "Backup"));
+    public static string StorageFolder => Ensure(Path.Combine(TestData, "Storage"));
+    public static string KeysFolder => Ensure(Path.Combine(TestData, "Keys"));
+    public static string TempFolder => Ensure(Path.Combine(TestData, "Temp"));
+
+    /// <summary>The folder exists when it is returned: SQL Server does not create missing folders for a backup or a database file, and a test should not have to remember to.</summary>
+    private static string Ensure(string folder)
+    {
+        Directory.CreateDirectory(folder);
+        return folder;
+    }
+
+    /// <summary>The folders the real API reads from configuration (<c>StorageRoot</c>, <c>DataProtectionKeysPath</c>, <c>Backup:Root</c>) when a test starts it, as a settings name and its test folder.</summary>
+    internal static IReadOnlyDictionary<string, string> ApplicationFileSettings => new Dictionary<string, string>
+    {
+        ["StorageRoot"] = Path.Combine(StorageFolder, "app"),
+        ["DataProtectionKeysPath"] = Path.Combine(KeysFolder, "app"),
+        ["Backup__Root"] = Path.Combine(BackupFolder, "app"),
+    };
+
+    /// <summary>
+    /// Runs once when the test assembly loads, before any test: points every API host a test starts, and every API process a test spawns (a child process inherits the variables), at Test-Data instead of
+    /// <c>src\Alveara.Api\App_Data</c> inside the repository. A variable that is already set is left alone (a person may have chosen a folder on purpose). A bad <c>ALVERA_DATA_ROOT</c> fails here, loudly.
+    /// </summary>
+    [System.Runtime.CompilerServices.ModuleInitializer]
+    internal static void RouteApplicationFilesToTestData()
+    {
+        foreach (var (name, folder) in ApplicationFileSettings)
+        {
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name))) continue;
+            Directory.CreateDirectory(folder);
+            Environment.SetEnvironmentVariable(name, folder);
+        }
+    }
 
     public static string MasterConnectionString => ConnectionStringFor("master");
 
@@ -48,7 +78,8 @@ internal static class AlveraTestEnvironment
     public static (string Data, string Log) FilesOf(string database)
     {
         RequireSafeName(database);
-        return (Path.Combine(DatabaseFolder, database + ".mdf"), Path.Combine(DatabaseFolder, database + "_log.ldf"));
+        var folder = DatabaseFolder;                                  // also creates it
+        return (Path.Combine(folder, database + ".mdf"), Path.Combine(folder, database + "_log.ldf"));
     }
 
     /// <summary>
@@ -58,7 +89,6 @@ internal static class AlveraTestEnvironment
     public static string CreateDatabaseIfMissingSql(string database)
     {
         var (data, log) = FilesOf(database);
-        Directory.CreateDirectory(DatabaseFolder);
         return $"IF DB_ID(N'{database}') IS NULL CREATE DATABASE [{database}] ON (NAME = N'{database}_data', FILENAME = N'{data.Replace("'", "''")}') LOG ON (NAME = N'{database}_log', FILENAME = N'{log.Replace("'", "''")}');";
     }
 

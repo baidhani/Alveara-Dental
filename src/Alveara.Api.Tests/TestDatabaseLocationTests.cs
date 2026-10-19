@@ -60,6 +60,18 @@ public class TestDatabaseLocationTests
         Assert.Equal(Path.Combine(root, "Test-Data"), AlveraTestEnvironment.TestData, ignoreCase: true);
     }
 
+    [Fact]
+    public void The_applications_own_file_settings_point_into_test_data_for_every_api_host_a_test_starts()
+    {
+        var root = Path.GetFullPath(AlveraTestEnvironment.TestData);
+        foreach (var name in new[] { "StorageRoot", "DataProtectionKeysPath", "Backup__Root" })
+        {
+            var value = Environment.GetEnvironmentVariable(name);
+            Assert.False(string.IsNullOrEmpty(value), $"{name} should be set for the test process");
+            Assert.StartsWith(root, Path.GetFullPath(value!), StringComparison.OrdinalIgnoreCase);   // nothing falls back to App_Data inside the repository
+        }
+    }
+
     [Theory]
     [InlineData(@"relative\folder")]
     [InlineData(@".\here")]
