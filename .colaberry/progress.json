@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 15,
+    "stories_verified": 16,
     "stories_submitted": 0,
-    "stories_in_progress": 4,
+    "stories_in_progress": 3,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 47,
-    "points_awarded": 3007
+    "criteria_passed": 50,
+    "points_awarded": 3049
   },
   "stories": [
     {
@@ -427,7 +427,7 @@
         "verified_at": "2026-10-04T22:14:59.043Z",
         "commit_sha": "b8eef585f459bc1f36bb56f7eaec2ad29520f539",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/b8eef585f459bc1f36bb56f7eaec2ad29520f539",
-        "commit_at": "2026-10-04T18:07:44Z",
+        "commit_at": "2026-10-04T20:13:11Z",
         "points_awarded": 130,
         "outstanding": []
       }
@@ -650,19 +650,15 @@
       "notes": "All three criteria pass: import and categorize link the document to its patient with the right metadata (service, API and browser tests); a signed form is listed read-only and its snapshot hash is unchanged after the template is edited; every document action and settings change is logged with user and time in the same transaction, with no file name, description or patient in the log. Full serial backend run 4040 of 4040; client suite 1503 of 1503; real-backend walkthrough 14 of 14. Known limits are listed in docs/DOCUMENTS.md (open points 3, 5, 6, 7).",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a document is imported, when categorized, then it is linked with the correct metadata.",
-          "Given a form is e-signed, when completed, then the signed version is preserved.",
-          "Trust: All document actions are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-20T14:00:58.140Z",
+        "commit_sha": "9e145d972e50cb67caeb1505b47694e07ba0910b",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/9e145d972e50cb67caeb1505b47694e07ba0910b",
+        "commit_at": "2026-10-19T22:50:57Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
