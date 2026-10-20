@@ -73,8 +73,9 @@ describe("Patients routes", () => {
 describe("module registries", () => {
   it("the patient workspace lists only tabs that exist (no placeholders for later modules)", () => {
     // ALV-N010 added the Forms tab and STORY-005 the Clinical tab through this extension point; each is permission-gated and nothing else was added.
-    expect(patientWorkspaceTabs.map((t) => t.id)).toEqual(["details", "household", "history", "forms", "clinical", "safety", "odontogram", "perio", "diagnoses", "treatment-plan", "prescriptions", "prescription-composer", "billing"]);
+    expect(patientWorkspaceTabs.map((t) => t.id)).toEqual(["details", "household", "history", "forms", "documents", "clinical", "safety", "odontogram", "perio", "diagnoses", "treatment-plan", "prescriptions", "prescription-composer", "billing"]);
     expect(patientWorkspaceTabs.find((t) => t.id === "forms")?.requiredPermission).toBe("ViewSignedForms");
+    expect(patientWorkspaceTabs.find((t) => t.id === "documents")?.requiredPermission).toBe("ViewDocuments"); // STORY-010
     expect(patientWorkspaceTabs.find((t) => t.id === "clinical")?.requiredPermission).toBe("ViewClinicalDocumentation");
     expect(patientWorkspaceTabs.find((t) => t.id === "safety")?.requiredPermission).toBe("ViewClinicalDocumentation"); // ALV-N011
     expect(patientWorkspaceTabs.find((t) => t.id === "prescriptions")?.requiredPermission).toBe("ViewPrescriptions"); // STORY-016
@@ -89,5 +90,6 @@ describe("module registries", () => {
   it("the Patients and Register Patient nav entries are gated by the right permissions", () => {
     expect(moduleRegistry.find((m) => m.id === "patients")?.requiredPermission).toBe("ViewPatientRecords");
     expect(moduleRegistry.find((m) => m.id === "register-patient")?.requiredPermission).toBe("RegisterPatients");
+    expect(moduleRegistry.find((m) => m.id === "document-settings")?.requiredPermission).toBe("ManageDocumentSettings"); // STORY-010
   });
 });

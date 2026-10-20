@@ -16,11 +16,12 @@ import { PermissionMatrixPage } from "./pages/PermissionMatrixPage";
 import { AuditLogPage } from "./pages/AuditLogPage";
 import { ConfigurationHubPage } from "./pages/ConfigurationHubPage";
 import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
+import { DocumentSettingsPage } from "./pages/documents/DocumentSettingsPage";
 import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
@@ -136,6 +137,14 @@ function createAppRouter() {
             }
           />
           <Route
+            path="/admin/documents"
+            element={
+              <RequirePermission permission="ManageDocumentSettings">
+                <DocumentSettingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
             path="/admin/backup"
             element={
               <RequirePermission permission="ViewBackupStatus">
@@ -204,6 +213,7 @@ function createAppRouter() {
             <Route path="history" element={<PatientHistoryTab />} />
             <Route path="forms" element={<RequirePermission permission="ViewSignedForms"><PatientFormsTab /></RequirePermission>} />
             <Route path="forms/:formId" element={<RequirePermission permission="ViewSignedForms"><PatientFormTab /></RequirePermission>} />
+            <Route path="documents" element={<RequirePermission permission="ViewDocuments"><PatientDocumentsTab /></RequirePermission>} />
             <Route path="clinical" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTab /></RequirePermission>} />
             <Route path="safety" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientSafetyTab /></RequirePermission>} />
             <Route path="odontogram" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientOdontogramTab /></RequirePermission>} />

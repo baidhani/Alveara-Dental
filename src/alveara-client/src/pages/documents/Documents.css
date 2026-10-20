@@ -1,0 +1,127 @@
+/* STORY-010: the Documents tab. Status is carried by words (Duplicate, Voided) and a border, never by colour alone. */
+.alv-documents__import,
+.alv-documents__edit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.alv-documents__wide {
+  grid-column: 1 / -1;
+  max-width: none;
+}
+
+.alv-documents__textarea {
+  height: auto;
+  padding: var(--space-2) var(--density-control-padding-x);
+  font: inherit;
+  resize: vertical;
+}
+
+.alv-documents__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alv-documents__status {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  color: var(--color-text);
+}
+
+.alv-documents__duplicate {
+  grid-column: 1 / -1;
+  padding: var(--space-3);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-bg);
+  color: var(--color-text);
+}
+
+.alv-documents__duplicate-title,
+.alv-documents__edit-title {
+  margin: 0 0 var(--space-1);
+  font-weight: var(--font-weight-medium);
+}
+
+.alv-documents__filter {
+  margin-bottom: var(--space-3);
+}
+
+.alv-documents__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alv-documents__table th,
+.alv-documents__table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.alv-documents__row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alv-documents__badge {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.alv-documents__badge--void {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.alv-documents__section {
+  margin-bottom: var(--space-6);
+}
+
+.alv-documents__inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.alv-documents__types {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.alv-documents__types li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alv-documents__type {
+  min-width: 5rem;
+  font-family: var(--font-mono, monospace);
+  font-weight: var(--font-weight-medium);
+}

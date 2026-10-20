@@ -21,6 +21,7 @@ import { PrescriptionWorkflowPanel } from "./prescription/workflow/PrescriptionW
 import { TreatmentPlansPanel } from "./treatmentplan/TreatmentPlansPanel";
 import { BillingPanel } from "./billing/BillingPanel";
 import { PatientClinicalPanel } from "./clinical/PatientClinicalPanel";
+import { DocumentsPanel } from "./documents/DocumentsPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
 import { PatientHistoryPanel } from "./PatientHistoryPanel";
@@ -106,6 +107,12 @@ export function PatientHouseholdTab() {
 export function PatientFormsTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   return <PatientFormsPanel patient={patient} />;
+}
+
+export function PatientDocumentsTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  const { hasPermission } = useAuth();
+  return <DocumentsPanel patient={patient} canImport={hasPermission("ImportDocuments")} />;
 }
 
 export function PatientFormTab() {
