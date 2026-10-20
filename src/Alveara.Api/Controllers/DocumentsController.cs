@@ -59,10 +59,15 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
 
     [HttpGet("api/patients/{patientId:guid}/documents")]
     [RequirePermission(Permission.ViewDocuments)]
-    public Task<IActionResult> List(Guid patientId, [FromQuery] Guid? categoryId, [FromQuery] bool includeInactive, CancellationToken ct) => Run(async () =>
+    public Task<IActionResult> List(Guid patientId, [FromQuery] string? categoryId, [FromQuery] string? encounterId, [FromQuery] string? toothKey, [FromQuery] string? regionKey, [FromQuery] string? from,
+        [FromQuery] string? to, [FromQuery] string? text, [FromQuery] string? status, [FromQuery] bool includeInactive, CancellationToken ct) => Run(async () =>
     {
         await library.EnsurePatientAsync(patientId, ct);
-        return Ok(new { patientId, entries = await library.ListAsync(patientId, categoryId, ct, includeInactive), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
+        var problems = new List<DocumentProblem>();
+        var filter = new DocumentLibraryFilter(ParseGuid(categoryId, "category", problems), ParseGuid(encounterId, "encounter", problems), toothKey, regionKey, ParseDate(from, "from", problems), ParseDate(to, "to", problems), text,
+            status ?? (includeInactive ? DocumentLibraryFilter.StatusAll : null));
+        if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The filter has entries that need correcting.", 400, problems);
+        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, ct), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
     });
 
     [HttpGet("api/documents/{documentId:guid}")]
@@ -90,6 +95,28 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         Response.Headers[HeaderNames.ContentDisposition] = new ContentDispositionHeaderValue(inline ? "inline" : "attachment") { FileNameStar = opened.FileName }.ToString();
         if (inline) Response.Headers["Content-Security-Policy"] = "sandbox";
         return new FileStreamResult(opened.Content, opened.InlineSafe ? opened.ContentType : "application/octet-stream");        // the result disposes the stream
+    }
+
+    /// <summary>The picture of a PNG or JPEG for the library's list: the stored file itself (up to 5 MB), the browser scales it. Not logged as an open. <c>not_an_image</c> (415) or <c>thumbnail_too_large</c> (413) otherwise.</summary>
+    [HttpGet("api/documents/{documentId:guid}/thumbnail")]
+    [RequirePermission(Permission.ViewDocuments)]
+    public async Task<IActionResult> Thumbnail(Guid documentId, CancellationToken ct)
+    {
+        OpenedDocument opened;
+        try
+        {
+            opened = await library.OpenThumbnailAsync(documentId, ct);
+        }
+        catch (DocumentException ex)
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message });
+        }
+
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        Response.Headers[HeaderNames.CacheControl] = "private, no-store";
+        Response.Headers[HeaderNames.ContentDisposition] = new ContentDispositionHeaderValue("inline") { FileNameStar = opened.FileName }.ToString();
+        Response.Headers["Content-Security-Policy"] = "sandbox";
+        return new FileStreamResult(opened.Content, opened.ContentType);
     }
 
     // ---------- import and edit ----------
@@ -204,11 +231,13 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         return null;
     }
 
-    private static DateOnly? ParseDate(string? raw, List<DocumentProblem> problems)
+    private static DateOnly? ParseDate(string? raw, List<DocumentProblem> problems, string field = "documentDate")
     {
         if (string.IsNullOrWhiteSpace(raw)) return null;
         if (DateOnly.TryParseExact(raw.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)) return date;
-        problems.Add(new DocumentProblem("documentDate", "invalid", "Enter the date as year-month-day, for example 2026-10-01."));
+        problems.Add(new DocumentProblem(field, "invalid", "Enter the date as year-month-day, for example 2026-10-01."));
         return null;
     }
+
+    private static DateOnly? ParseDate(string? raw, string field, List<DocumentProblem> problems) => ParseDate(raw, problems, field);
 }

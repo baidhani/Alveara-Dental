@@ -130,6 +130,97 @@ public class DocumentLibraryApiTests : IAsyncLifetime
         Assert.Equal(JsonValueKind.Null, cleared.Body.GetProperty("document").GetProperty("toothKey").ValueKind);
     }
 
+    // ---------- filters and thumbnails ----------
+
+    private async Task<(HttpStatusCode Status, JsonElement Body)> FilterAsync(Session by, string query) => await by.SendAsync(HttpMethod.Get, $"/api/patients/{_patient}/documents?{query}");
+    private static List<string> Titles(JsonElement body) => body.GetProperty("entries").EnumerateArray().Select(e => Str(e, "title")).Order().ToList();
+
+    [Fact]
+    public async Task The_library_is_filtered_by_encounter_tooth_region_date_status_and_text_through_the_query_and_the_filters_combine()
+    {
+        var office = await _api.SessionAsync("OfficeManager");
+        async Task<JsonElement> Import(string name, int salt, string? tooth = null, string? region = null, string? encounter = null)
+        {
+            using var form = new MultipartFormDataContent();
+            var file = new ByteArrayContent(Png(salt)); file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+            form.Add(file, "file", name);
+            form.Add(new StringContent(Radiograph.ToString()), "categoryId");
+            form.Add(new StringContent(salt == 3 ? "2026-09-01" : "2026-03-01"), "documentDate");
+            if (tooth is not null) form.Add(new StringContent(tooth), "toothKey");
+            if (region is not null) form.Add(new StringContent(region), "regionKey");
+            if (encounter is not null) form.Add(new StringContent(encounter), "encounterId");
+            var request = new HttpRequestMessage(HttpMethod.Post, $"/api/patients/{_patient}/documents") { Content = form };
+            request.Headers.Add("X-CSRF-Token", office.Csrf); request.Headers.Add("Idempotency-Key", $"k-{Guid.NewGuid():N}");
+            var response = await office.Client.SendAsync(request);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            return JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement.GetProperty("document").Clone();
+        }
+        await Import("upper-molar.png", 1, tooth: "16", encounter: _encounter.ToString());
+        await Import("whole-mouth.png", 2, region: "FullMouth");
+        var late = await Import("september.png", 3);
+        await office.SendAsync(HttpMethod.Post, $"/api/documents/{Str(late, "id")}/inactivate", new { reason = "Duplicate.", rowVersion = Str(late, "rowVersion") });
+
+        Assert.Equal(["upper-molar.png", "whole-mouth.png"], Titles((await FilterAsync(office, "")).Body));
+        Assert.Equal(["upper-molar.png"], Titles((await FilterAsync(office, "toothKey=16")).Body));
+        Assert.Equal(["upper-molar.png"], Titles((await FilterAsync(office, $"encounterId={_encounter}")).Body));
+        Assert.Equal(["whole-mouth.png"], Titles((await FilterAsync(office, "regionKey=FullMouth")).Body));
+        Assert.Equal(["september.png"], Titles((await FilterAsync(office, "status=Inactive")).Body));
+        Assert.Equal(3, (await FilterAsync(office, "status=All")).Body.GetProperty("entries").GetArrayLength());
+        Assert.Equal(3, (await FilterAsync(office, "includeInactive=true")).Body.GetProperty("entries").GetArrayLength());
+        Assert.Equal(["whole-mouth.png"], Titles((await FilterAsync(office, "text=mouth&from=2026-01-01&to=2026-04-30")).Body));
+        Assert.Empty(Titles((await FilterAsync(office, "text=mouth&toothKey=16")).Body));
+    }
+
+    [Fact]
+    public async Task A_wrong_filter_is_named_and_refused_with_400()
+    {
+        var office = await _api.SessionAsync("OfficeManager");
+        foreach (var (query, field) in new[]
+        {
+            ("toothKey=99", "toothKey"), ("regionKey=Nose", "regionKey"), ("from=yesterday", "from"), ("to=2026-13-40", "to"), ("categoryId=not-a-guid", "category"), ("encounterId=nope", "encounter"),
+            ("status=Deleted", "status"), ("from=2026-09-01&to=2026-01-01", "from"), ($"text={new string('t', 101)}", "text"),
+        })
+        {
+            var r = await FilterAsync(office, query);
+            Assert.True((HttpStatusCode.BadRequest, "metadata_invalid", field) == (r.Status, Error(r.Body), Str(r.Body.GetProperty("problems")[0], "field")), $"{query}: {r.Status} {r.Body}");
+        }
+    }
+
+    [Fact]
+    public async Task A_thumbnail_is_the_stored_picture_served_safely_without_an_open_being_logged_and_other_types_and_large_pictures_have_none()
+    {
+        var office = await _api.SessionAsync("OfficeManager");
+        var png = await ImportedAsync(office, Png(300));
+        var response = await office.Client.GetAsync($"/api/documents/{Str(png, "id")}/thumbnail");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(Png(300), await response.Content.ReadAsByteArrayAsync());
+        Assert.Equal(("image/png", "inline", "nosniff", "sandbox"), (response.Content.Headers.ContentType!.MediaType, response.Content.Headers.ContentDisposition!.DispositionType, response.Headers.GetValues("X-Content-Type-Options").Single(),
+            response.Headers.GetValues("Content-Security-Policy").Single()));
+        Assert.Contains("no-store", response.Headers.CacheControl!.ToString());
+        await using (var db = _fixture.CreateContext()) Assert.Equal(0, await db.DocumentEvents.CountAsync(e => e.Kind == Alveara.Api.Architecture.Documents.DocumentEventKinds.Opened));
+
+        using var form = new MultipartFormDataContent();
+        var text = new ByteArrayContent("just text"u8.ToArray()); text.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+        form.Add(text, "file", "notes.txt"); form.Add(new StringContent(Radiograph.ToString()), "categoryId"); form.Add(new StringContent("2026-10-01"), "documentDate");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/patients/{_patient}/documents") { Content = form };
+        request.Headers.Add("X-CSRF-Token", office.Csrf); request.Headers.Add("Idempotency-Key", $"k-{Guid.NewGuid():N}");
+        var notes = JsonDocument.Parse(await (await office.Client.SendAsync(request)).Content.ReadAsStringAsync()).RootElement.GetProperty("document");
+        var none = await office.Client.GetAsync($"/api/documents/{Str(notes, "id")}/thumbnail");
+        Assert.Equal((HttpStatusCode.UnsupportedMediaType, "not_an_image"), (none.StatusCode, JsonDocument.Parse(await none.Content.ReadAsStringAsync()).RootElement.GetProperty("error").GetString()));
+        Assert.Equal(HttpStatusCode.NotFound, (await office.Client.GetAsync($"/api/documents/{Guid.NewGuid()}/thumbnail")).StatusCode);
+    }
+
+    [Theory]
+    [InlineData("Admin")] [InlineData("OfficeManager")] [InlineData("FrontDesk")] [InlineData("Dentist")] [InlineData("Hygienist")] [InlineData("Assistant")] [InlineData("Billing")]
+    public async Task The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(string role)
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var png = await ImportedAsync(admin, Png(400));
+        var by = await _api.SessionAsync(role);
+        Assert.Equal(HttpStatusCode.OK, (await by.Client.GetAsync($"/api/documents/{Str(png, "id")}/thumbnail")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _api.Factory.CreateClient().GetAsync($"/api/documents/{Str(png, "id")}/thumbnail")).StatusCode);
+    }
+
     // ---------- inactivate and reactivate ----------
 
     [Theory]
