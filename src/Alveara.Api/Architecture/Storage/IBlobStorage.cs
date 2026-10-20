@@ -19,6 +19,11 @@ public interface IBlobStorage
 
     Task<Stream> OpenReadAsync(Guid blobId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Removes a stored blob. Safe to call twice: a blob that is already gone is not an error (STORY-010 removes a file whose import did not complete, and that cleanup may be retried).
+    /// </summary>
+    Task DeleteAsync(Guid blobId, CancellationToken cancellationToken = default);
+
     /// <summary>Recomputes the hash of the stored content and compares it to the recorded one.</summary>
     Task<bool> VerifyIntegrityAsync(Guid blobId, string expectedSha256, CancellationToken cancellationToken = default);
 }
@@ -78,6 +83,12 @@ public sealed class LocalDiskBlobStorage : IBlobStorage
         var path = PathFor(blobId);
         if (!File.Exists(path)) throw new FileNotFoundException($"Blob {blobId} not found in storage.", path);
         return Task.FromResult<Stream>(File.OpenRead(path));
+    }
+
+    public Task DeleteAsync(Guid blobId, CancellationToken cancellationToken = default)
+    {
+        File.Delete(PathFor(blobId));                                    // File.Delete does not throw when the file does not exist, which is what makes a repeated cleanup safe
+        return Task.CompletedTask;
     }
 
     public async Task<bool> VerifyIntegrityAsync(Guid blobId, string expectedSha256, CancellationToken cancellationToken = default)

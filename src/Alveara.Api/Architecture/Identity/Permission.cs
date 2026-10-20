@@ -81,4 +81,11 @@ public enum Permission
     // hygienist, assistant, administrator). Front desk, billing and the practice manager hold neither. Appended last so existing ordinals are undisturbed.
     ManagePrescriptions,
     ViewPrescriptions,
+
+    // STORY-010: imported patient documents. Importing, recategorizing and editing a document's details is the administrator's and the office manager's; reading the library follows the staff who work with a
+    // patient's file (administrator, office manager, front desk, dentist, hygienist, assistant, billing); the size limit, the categories and the blocked file types are the administrator's. Appended last so existing
+    // ordinals are undisturbed.
+    ImportDocuments,
+    ViewDocuments,
+    ManageDocumentSettings,
 }
