@@ -47,6 +47,30 @@ public class SignedFormSnapshotTests : IAsyncLifetime
         Assert.False(after.Summary.NewerVersionAvailable); // only drafts are offered a newer version
     }
 
+    /// <summary>ALV-010-C01: the document library lists signed forms through this seam, so a template edit or inactivation must not change what it lists for a form signed earlier.</summary>
+    [Fact]
+    public async Task The_document_library_still_lists_the_signed_form_with_the_same_snapshot_and_hash_after_the_template_is_edited_and_inactivated()
+    {
+        await using (var read = _fixture.CreateContext())
+        {
+            var before = Assert.Single(await _s.Reader(read).SignedDocumentsAsync(_patient, default));
+            Assert.Equal(_signed.Snapshot!.SnapshotHash, before.SnapshotHash);
+        }
+        TemplateDetail edited;
+        await using (var db = _fixture.CreateContext())
+            edited = await _s.Templates(db).PublishVersionAsync(_template.Template.Id,
+                Content("Privacy notice v2", "Completely different wording.", [new FormFieldDefinition("only_new", "New question", FormFieldKinds.Text, true)]),
+                _template.Template.RowVersion, _s.Actor, default);
+        await using (var db = _fixture.CreateContext())
+            await _s.Templates(db).SetActiveAsync(_template.Template.Id, false, edited.Template.RowVersion, _s.Actor, default);
+
+        await using var after = _fixture.CreateContext();
+        var doc = Assert.Single(await _s.Reader(after).SignedDocumentsAsync(_patient, default));
+        Assert.Equal(_signed.Snapshot.Id, doc.SnapshotId);
+        Assert.Equal(_signed.Snapshot.SnapshotHash, doc.SnapshotHash);
+        Assert.False(doc.IsVoided);
+    }
+
     [Fact]
     public async Task Inactivating_the_template_leaves_the_signed_form_untouched()
     {

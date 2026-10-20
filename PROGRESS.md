@@ -926,3 +926,10 @@
   - What changed: the restore validation gains a check, `restored_documents_have_their_files`: every document in a restored database must have its file in the backup with the size and SHA-256 recorded at import, otherwise the restore fails validation (`restore_validation_failed`) naming counts and document ids, never file names. Before this, a backup that lacked a document's file, or held a damaged copy, was restored and trusted. A database that predates documents passes.
   - Verification: `DocumentBackupRestoreTests` 5 cases written first (4 red before the check): documents, history, status changes, event numbers and storage results survive a backup and restore byte for byte; the recovered application serves content and thumbnails and its storage check is clean; a backup missing a file fails; a backup with a differing file fails; an empty library passes. Existing backup suites with them 126 of 126. Mutation check, four breakages: three each failed tests (a missing or damaged file trusted, hash not compared, check never run); the size comparison removed survives because a changed size always changes the hash, so it is redundant, kept as a second line.
   - Notes: not pushed.
+
+- [x] ALV-010-C01 step 8 of the build: signed forms stay unchanged when their template changes, as seen from the document library
+  - Date: 2026-10-20
+  - Session: CC-20261008-k4q9
+  - What changed: tests only. The existing signed-form tests already prove a template edit or inactivation leaves a signed snapshot and hash unchanged, the database refuses changes to it, an interrupted signature leaves a plain draft, and a retry succeeds. Added one regression: the document library's signed-form listing keeps the same snapshot id and hash after the template is edited to a new version and then inactivated. The form template admin is reused (linked from Document settings), not duplicated.
+  - Verification: `SignedFormSnapshotTests`, `FormSigningTests`, `FormLifecycleTests` and `FormTemplateVersionTests` 85 of 85 pass.
+  - Notes: not pushed.
