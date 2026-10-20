@@ -9,7 +9,10 @@ using Alveara.Api.Architecture.Identity;
 
 namespace Alveara.Api.Controllers;
 
-public record DocumentEditRequest(Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? RowVersion);
+/// <summary>An edit states everything that can be edited: a context field (encounter, tooth, region) left out or null is cleared.</summary>
+public record DocumentEditRequest(Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? RowVersion, Guid? EncounterId = null, string? ToothKey = null, string? RegionKey = null);
+public record InactivateDocumentRequest(string? Reason, string? RowVersion);
+public record ReactivateDocumentRequest(string? RowVersion);
 public record AddCategoryRequest(string? Name);
 public record EditCategoryRequest(string? Name, bool? IsActive, string? RowVersion);
 public record SizeLimitRequest(long? MaxUploadBytes, string? RowVersion);
@@ -29,7 +32,7 @@ public record BlockedExtensionRequest(string? Extension);
 /// </summary>
 [ApiController]
 [Authorize]
-public class DocumentsController(DocumentImportService importer, DocumentLibraryService library, DocumentEditService editor, DocumentSettingsService settings) : ControllerBase
+public class DocumentsController(DocumentImportService importer, DocumentLibraryService library, DocumentEditService editor, DocumentStatusService status, DocumentSettingsService settings) : ControllerBase
 {
     /// <summary>Room for the multipart boundaries and the small text fields around the file when the request size is compared with the limit.</summary>
     private const long FormOverheadBytes = 1_048_576;
@@ -56,10 +59,10 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
 
     [HttpGet("api/patients/{patientId:guid}/documents")]
     [RequirePermission(Permission.ViewDocuments)]
-    public Task<IActionResult> List(Guid patientId, [FromQuery] Guid? categoryId, CancellationToken ct) => Run(async () =>
+    public Task<IActionResult> List(Guid patientId, [FromQuery] Guid? categoryId, [FromQuery] bool includeInactive, CancellationToken ct) => Run(async () =>
     {
         await library.EnsurePatientAsync(patientId, ct);
-        return Ok(new { patientId, entries = await library.ListAsync(patientId, categoryId, ct), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
+        return Ok(new { patientId, entries = await library.ListAsync(patientId, categoryId, ct, includeInactive), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
     });
 
     [HttpGet("api/documents/{documentId:guid}")]
@@ -113,10 +116,11 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         var category = ParseGuid(form["categoryId"], "category", problems);
         var confirm = ParseGuid(form["confirmDuplicateOf"], "confirmDuplicateOf", problems);
         var date = ParseDate(form["documentDate"], problems);
+        var encounter = ParseGuid(form["encounterId"], "encounter", problems);
         if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The document has entries that need correcting. Nothing was imported.", 400, problems);
 
         await using var content = file.OpenReadStream();
-        var result = await importer.ImportAsync(new DocumentImportRequest(patientId, content, file.Length, file.FileName, category, date, form["description"].ToString(), idempotencyKey, confirm), Actor, ct);
+        var result = await importer.ImportAsync(new DocumentImportRequest(patientId, content, file.Length, file.FileName, category, date, form["description"].ToString(), idempotencyKey, confirm, encounter, form["toothKey"].ToString(), form["regionKey"].ToString()), Actor, ct);
         return StatusCode(result.Replayed ? StatusCodes.Status200OK : StatusCodes.Status201Created, new { document = result.Document, replayed = result.Replayed });
     });
 
@@ -124,7 +128,20 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
     [RequirePermission(Permission.ImportDocuments)]
     [RequireCsrfToken]
     public Task<IActionResult> Edit(Guid documentId, [FromBody] DocumentEditRequest request, CancellationToken ct) =>
-        Run(async () => Ok(new { document = await editor.UpdateAsync(documentId, new DocumentEditInput(request.CategoryId, request.DocumentDate, request.Description, request.RowVersion), Actor, ct) }));
+        Run(async () => Ok(new { document = await editor.UpdateAsync(documentId, new DocumentEditInput(request.CategoryId, request.DocumentDate, request.Description, request.RowVersion, request.EncounterId, request.ToothKey, request.RegionKey), Actor, ct) }));
+
+    /// <summary>Hides the document from the library (it is never deleted). Needs a reason; repeating it changes nothing.</summary>
+    [HttpPost("api/documents/{documentId:guid}/inactivate")]
+    [RequirePermission(Permission.ImportDocuments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Inactivate(Guid documentId, [FromBody] InactivateDocumentRequest request, CancellationToken ct) =>
+        Run(async () => Ok(new { document = await status.InactivateAsync(documentId, request.RowVersion, request.Reason, Actor, ct) }));
+
+    [HttpPost("api/documents/{documentId:guid}/reactivate")]
+    [RequirePermission(Permission.ImportDocuments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Reactivate(Guid documentId, [FromBody] ReactivateDocumentRequest request, CancellationToken ct) =>
+        Run(async () => Ok(new { document = await status.ReactivateAsync(documentId, request.RowVersion, Actor, ct) }));
 
     // ---------- categories ----------
 

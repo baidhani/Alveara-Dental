@@ -20,10 +20,12 @@ public class DocumentEditService(AlveraDbContext db, IPracticeClock clock, ILogg
         var document = await db.Documents.SingleOrDefaultAsync(d => d.Id == documentId, ct) ?? throw new DocumentException("document_not_found", "That document was not found.", 404);
         db.Entry(document).Property(d => d.RowVersion).OriginalValue = expected;
 
-        var (category, description) = await DocumentMetadataChecker.CheckAsync(db, clock, input.CategoryId, input.DocumentDate, input.Description, document.CategoryId, ct);
+        var meta = await DocumentMetadataChecker.CheckAsync(db, clock, document.PatientId, input.CategoryId, input.DocumentDate, input.Description, input.EncounterId, input.ToothKey, input.RegionKey, document.CategoryId, ct);
+        var (category, description) = (meta.Category, meta.Description);
         var date = input.DocumentDate!.Value;
         var recategorized = category.Id != document.CategoryId;
-        var detailsChanged = date != document.DocumentDate || description != document.Description;
+        var detailsChanged = date != document.DocumentDate || description != document.Description
+            || meta.EncounterId != document.EncounterId || meta.ToothKey != document.ToothKey || meta.RegionKey != document.RegionKey;
         if (!recategorized && !detailsChanged) return await DocumentMapper.ViewAsync(db, document, ct);     // nothing changed: nothing is saved and nothing is logged
 
         var fromCategory = document.CategoryId;
@@ -32,8 +34,9 @@ public class DocumentEditService(AlveraDbContext db, IPracticeClock clock, ILogg
         {
             await using var transaction = await db.Database.BeginTransactionAsync(ct);
             (document.CategoryId, document.DocumentDate, document.Description) = (category.Id, date, description);
+            (document.EncounterId, document.ToothKey, document.RegionKey) = (meta.EncounterId, meta.ToothKey, meta.RegionKey);
             if (recategorized) AuditService.Record(db, "DocumentCategorized", "Document", document.Id, actor, $"Document moved to category {category.Code}.", correlationId: correlation);
-            if (detailsChanged) AuditService.Record(db, "DocumentMetadataEdited", "Document", document.Id, actor, "Document date or description edited.", correlationId: correlation);
+            if (detailsChanged) AuditService.Record(db, "DocumentMetadataEdited", "Document", document.Id, actor, "Document details edited.", correlationId: correlation);
             await db.SaveChangesAsync(ct);                                                                   // the version check happens here
 
             if (recategorized) db.DocumentEvents.Add(Event(await DocumentEventNumbers.IssueAsync(db, ct), DocumentEventKinds.Categorized, document, actor, fromCategory, category.Id));

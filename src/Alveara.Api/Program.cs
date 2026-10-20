@@ -97,6 +97,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionLife
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentImportService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentSettingsService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Odontogram.ConditionTypeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Procedures.IProcedureUsageSource, Alveara.Api.Architecture.Procedures.FindingLinkProcedureUsageSource>();

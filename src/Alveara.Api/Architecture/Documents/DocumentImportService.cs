@@ -43,11 +43,12 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
         var detected = DocumentFileRules.DetectContent(await ReadHeaderAsync(request.Content, ct));
         if (DocumentFileRules.CheckContent(name.Extension, detected) is { } contentError) throw Refusal(contentError);
         var type = DocumentFileRules.Classify(detected);
-        var (category, description) = await DocumentMetadataChecker.CheckAsync(db, clock, request.CategoryId, request.DocumentDate, request.Description, null, ct);
+        var meta = await DocumentMetadataChecker.CheckAsync(db, clock, request.PatientId, request.CategoryId, request.DocumentDate, request.Description, request.EncounterId, request.ToothKey, request.RegionKey, null, ct);
+        var (category, description) = (meta.Category, meta.Description);
 
         request.Content.Position = 0;
         var blob = await StoreAsync(request.Content, ct);
-        var hash = RequestHash(request.PatientId, blob.Sha256Hash, category.Id, request.DocumentDate!.Value, description, name.Name!, request.ConfirmDuplicateOf);
+        var hash = RequestHash(request.PatientId, blob.Sha256Hash, category.Id, request.DocumentDate!.Value, description, name.Name!, request.ConfirmDuplicateOf, meta.EncounterId, meta.ToothKey, meta.RegionKey);
         try
         {
             // the declared length is only a claim: what was really stored decides
@@ -64,7 +65,7 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
             {
                 Id = Guid.NewGuid(), PatientId = request.PatientId, CategoryId = category.Id, DocumentDate = request.DocumentDate!.Value, Description = description, DuplicateOfDocumentId = duplicateOf,
                 OriginalFileName = name.Name!, DetectedType = type.DetectedType, ContentType = type.ContentType, SizeBytes = blob.SizeBytes, Sha256 = blob.Sha256Hash, BlobId = blob.Id,
-                ImportedByUserId = actor, ImportedAtUtc = clock.UtcNow, IdempotencyKey = key, RequestHash = hash,
+                ImportedByUserId = actor, ImportedAtUtc = clock.UtcNow, IdempotencyKey = key, RequestHash = hash, EncounterId = meta.EncounterId, ToothKey = meta.ToothKey, RegionKey = meta.RegionKey,
             };
             await RecordAsync(document, category.Code, actor, ct);
             return new DocumentImportResult(await DocumentMapper.ViewAsync(db, document, ct), false);
@@ -129,7 +130,7 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
     /// <summary>The document this one duplicates (when the importer confirmed it), or null when it is not a duplicate. Refuses an unconfirmed duplicate and a confirmation that does not match.</summary>
     private async Task<Guid?> CheckDuplicateAsync(DocumentImportRequest r, string sha256, CancellationToken ct)
     {
-        var same = await db.Documents.AsNoTracking().Where(d => d.PatientId == r.PatientId && d.Sha256 == sha256).OrderBy(d => d.ImportedAtUtc).ThenBy(d => d.Id).ToListAsync(ct);
+        var same = await db.Documents.AsNoTracking().Where(d => d.PatientId == r.PatientId && d.Sha256 == sha256 && d.Status == DocumentStatuses.Active).OrderBy(d => d.ImportedAtUtc).ThenBy(d => d.Id).ToListAsync(ct);
         if (same.Count == 0)
         {
             if (r.ConfirmDuplicateOf is not null) throw InvalidConfirmation();
@@ -227,9 +228,9 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
     }, code == DocumentErrorCodes.FileTooLarge ? 413 : 400);
 
     /// <summary>A fingerprint of everything the importer asked for, so the same key with anything different is refused and the same request is a replay.</summary>
-    private static string RequestHash(Guid patientId, string sha256, Guid categoryId, DateOnly date, string? description, string fileName, Guid? confirmDuplicateOf)
+    private static string RequestHash(Guid patientId, string sha256, Guid categoryId, DateOnly date, string? description, string fileName, Guid? confirmDuplicateOf, Guid? encounterId, string? toothKey, string? regionKey)
     {
-        var text = string.Join('|', "document-import-v1", patientId.ToString("N"), sha256, categoryId.ToString("N"), date.ToString("yyyy-MM-dd"), description ?? string.Empty, fileName, confirmDuplicateOf?.ToString("N") ?? string.Empty);
+        var text = string.Join('|', "document-import-v1", patientId.ToString("N"), sha256, categoryId.ToString("N"), date.ToString("yyyy-MM-dd"), description ?? string.Empty, fileName, confirmDuplicateOf?.ToString("N") ?? string.Empty, encounterId?.ToString("N") ?? string.Empty, toothKey ?? string.Empty, regionKey ?? string.Empty);
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
     }
 }

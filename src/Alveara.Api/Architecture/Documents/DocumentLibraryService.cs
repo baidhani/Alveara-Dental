@@ -26,12 +26,13 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new DocumentException("patient_not_found", "That patient was not found.", 404);
     }
 
-    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, Guid? categoryId, CancellationToken ct)
+    /// <summary>The patient's library. Inactive documents are left out unless <paramref name="includeInactive"/> is set (they are never deleted, only hidden).</summary>
+    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, Guid? categoryId, CancellationToken ct, bool includeInactive = false)
     {
-        var rows = await db.Documents.AsNoTracking().Where(d => d.PatientId == patientId && (categoryId == null || d.CategoryId == categoryId)).ToListAsync(ct);
+        var rows = await db.Documents.AsNoTracking().Where(d => d.PatientId == patientId && (categoryId == null || d.CategoryId == categoryId) && (includeInactive || d.Status == DocumentStatuses.Active)).ToListAsync(ct);
         var entries = (await DocumentMapper.ViewsAsync(db, rows, ct))
             .Select(v => new LibraryEntry(LibraryEntry.DocumentKind, v.Id, null, v.OriginalFileName, v.CategoryName, v.DocumentDate, v.DetectedType, v.SizeBytes, v.ImportedByName, v.ImportedAtUtc, false,
-                v.DuplicateOfDocumentId is not null, v)).ToList();
+                v.DuplicateOfDocumentId is not null, v, v.Status == DocumentStatuses.Inactive)).ToList();
 
         if (categoryId is null)                                                       // signed forms have no document category, so a category filter leaves them out
             foreach (var f in await forms.SignedDocumentsAsync(patientId, ct))
@@ -49,8 +50,12 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
         var categoryIds = events.SelectMany(e => new[] { e.FromCategoryId, e.ToCategoryId }).Where(i => i is not null).Select(i => i!.Value).Distinct().ToList();
         var categories = await db.DocumentCategories.AsNoTracking().Where(c => categoryIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Name, ct);
         string? CategoryName(Guid? id) => id is null ? null : categories.GetValueOrDefault(id.Value);
+
+        var changes = await db.DocumentStatusChanges.AsNoTracking().Where(c => c.DocumentId == documentId).OrderBy(c => c.AtUtc).ThenBy(c => c.Id).ToListAsync(ct);
+        var changeNames = await ClinicalNames.ResolveAsync(db, changes.Select(c => (Guid?)c.ByUserId), ct);
         return new DocumentDetail(await DocumentMapper.ViewAsync(db, row, ct), events.Select(e =>
-            new DocumentHistoryEntry(e.EventNumber, e.Kind, e.AtUtc, ClinicalNames.Name(names, e.ByUserId)!, CategoryName(e.FromCategoryId), CategoryName(e.ToCategoryId), e.RelatedDocumentId)).ToList());
+            new DocumentHistoryEntry(e.EventNumber, e.Kind, e.AtUtc, ClinicalNames.Name(names, e.ByUserId)!, CategoryName(e.FromCategoryId), CategoryName(e.ToCategoryId), e.RelatedDocumentId)).ToList(),
+            changes.Select(c => new StatusChangeEntry(c.ToStatus, c.Reason, ClinicalNames.Name(changeNames, c.ByUserId)!, c.AtUtc)).ToList());
     }
 
     public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, CancellationToken ct)

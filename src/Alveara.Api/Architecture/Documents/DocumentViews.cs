@@ -13,29 +13,38 @@ public class DocumentException(string code, string message, int statusCode, IRea
 }
 
 /// <summary>An import: the file's stream (seekable) and its declared length, and everything the importer typed. Nothing in it is trusted until the service has checked it.</summary>
-public sealed record DocumentImportRequest(Guid PatientId, Stream Content, long Length, string? FileName, Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? IdempotencyKey, Guid? ConfirmDuplicateOf);
+public sealed record DocumentImportRequest(Guid PatientId, Stream Content, long Length, string? FileName, Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? IdempotencyKey, Guid? ConfirmDuplicateOf,
+    Guid? EncounterId = null, string? ToothKey = null, string? RegionKey = null);
 
 public sealed record DocumentView(Guid Id, Guid PatientId, Guid CategoryId, string CategoryCode, string CategoryName, DateOnly DocumentDate, string? Description, Guid? DuplicateOfDocumentId,
-    string OriginalFileName, string DetectedType, bool TypeVerified, long SizeBytes, string Sha256, string ImportedByName, DateTimeOffset ImportedAtUtc, string RowVersion);
+    string OriginalFileName, string DetectedType, bool TypeVerified, long SizeBytes, string Sha256, string ImportedByName, DateTimeOffset ImportedAtUtc, string RowVersion,
+    Guid? EncounterId = null, string? ToothKey = null, string? RegionKey = null, string Status = "Active", string? InactiveReason = null, string? InactivatedByName = null, DateTimeOffset? InactivatedAtUtc = null,
+    string IntegrityStatus = "Unchecked", DateTimeOffset? IntegrityCheckedAtUtc = null);
 
 public sealed record DocumentImportResult(DocumentView Document, bool Replayed);
 
 /// <summary>What the duplicate warning shows about the document already filed (docs/DOCUMENTS.md, "Store, then check for a duplicate").</summary>
 public sealed record DuplicateSummary(Guid DocumentId, string CategoryName, DateOnly DocumentDate, string ImportedByName, DateTimeOffset ImportedAtUtc);
 
-/// <summary>What an edit may change: the category, the date and the description. The row version is what the caller last read, so a change made by someone else in between is refused.</summary>
-public sealed record DocumentEditInput(Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? RowVersion);
+/// <summary>
+/// What an edit may change: the category, the date, the description and the clinical context (encounter, tooth or region). An edit states all of them: a context field left null is cleared. The row version is what
+/// the caller last read, so a change made by someone else in between is refused.
+/// </summary>
+public sealed record DocumentEditInput(Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? RowVersion, Guid? EncounterId = null, string? ToothKey = null, string? RegionKey = null);
 
 public sealed record DocumentHistoryEntry(long EventNumber, string Kind, DateTimeOffset AtUtc, string ByName, string? FromCategoryName, string? ToCategoryName, Guid? RelatedDocumentId);
 
-public sealed record DocumentDetail(DocumentView Document, IReadOnlyList<DocumentHistoryEntry> History);
+/// <summary>One inactivation or reactivation: what the document moved to, why (an inactivation always says), who and when.</summary>
+public sealed record StatusChangeEntry(string ToStatus, string? Reason, string ByName, DateTimeOffset AtUtc);
+
+public sealed record DocumentDetail(DocumentView Document, IReadOnlyList<DocumentHistoryEntry> History, IReadOnlyList<StatusChangeEntry>? StatusChanges = null);
 
 /// <summary>
 /// One line of a patient's library: an imported document or a signed form (read-only, listed through the existing signed-form seam; the form itself is not copied). For a signed form <see cref="Id"/> is the
 /// snapshot's id and <see cref="Document"/> is null.
 /// </summary>
 public sealed record LibraryEntry(string Kind, Guid Id, Guid? PatientFormId, string Title, string CategoryName, DateOnly Date, string DetectedType, long? SizeBytes, string? ImportedByName,
-    DateTimeOffset AtUtc, bool IsVoided, bool IsDuplicate, DocumentView? Document)
+    DateTimeOffset AtUtc, bool IsVoided, bool IsDuplicate, DocumentView? Document, bool IsInactive = false)
 {
     public const string DocumentKind = "Document";
     public const string SignedFormKind = "SignedForm";
