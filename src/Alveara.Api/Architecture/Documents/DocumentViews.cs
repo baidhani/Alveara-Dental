@@ -52,3 +52,12 @@ public sealed class OpenedDocument(Stream content, string fileName, string conte
     public long SizeBytes { get; } = sizeBytes;
     public ValueTask DisposeAsync() => Content.DisposeAsync();
 }
+
+public sealed record CategoryView(Guid Id, string Code, string Name, int SortOrder, bool IsActive, string RowVersion);
+
+/// <summary>A rename and/or a deactivation or reactivation. Leave a field null to leave it as it is.</summary>
+public sealed record CategoryEditInput(string? Name, bool? IsActive, string? RowVersion);
+
+public sealed record DocumentSettingsView(long MaxUploadBytes, long MinAllowedBytes, long MaxAllowedBytes, string RowVersion);
+
+public sealed record BlockedExtensionView(string Extension, bool IsBuiltIn, DateTimeOffset AddedAtUtc);
