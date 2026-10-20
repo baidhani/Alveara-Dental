@@ -1990,26 +1990,26 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 4040 of 4040 in the full serial run (2 h 18 m, real SQL Server; previous full run 3704, +336 from this story). New: DocumentFileRulesTests 132, DocumentSchemaTests 53, DocumentImportServiceTests 44, DocumentLibraryServiceTests 21, DocumentSettingsServiceTests 40, DocumentApiTests 37, DocumentPermissionTests 10. Frontend 1503 of 1503 (95 files; 50 new in DocumentsPanel.test.tsx and DocumentSettingsPage.test.tsx); tsc and build exit 0; real-backend documents walkthrough 14 of 14 (axe light and dark). Mutation checks on every layer: all breakages caught except three equivalent or redundant ones, one of which led to an added test. See docs/DOCUMENTS.md and docs/testing/STORY-010_TEST_RESULTS.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "4f35077163d1cd0d34a92eee3650fbf6617bae65",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "4f35077163d1cd0d34a92eee3650fbf6617bae65",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -2017,8 +2017,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-20T14:00:58.140Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 9e145d972e50cb67caeb1505b47694e07ba0910b - see .colaberry/progress.json (STORY-010.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-20T14:00:58.140Z; portal sync commit e1a17f0). The story's work spans 0f4ad3a to 4f35077 (the portal attributes the verification to the commit that first named the story)."
     },
     {
       "schemaVersion": "2",

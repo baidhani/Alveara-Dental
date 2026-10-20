@@ -871,3 +871,9 @@
   - What changed: `docs/DOCUMENTS.md` brought up to date with what was built (status, the library's size-limit field and 404, the real error codes, open points on PDF viewing, the recorded limits and fixed permissions); `docs/testing/STORY-010_TEST_RESULTS.md`; `.colaberry/progress.json` (the three criteria, files touched, tests added) and `.colaberry/enrichment/STORY-010.json`.
   - Verification: full serial backend run 4040 of 4040 (2 h 18 m); client suite 1503 of 1503, `tsc -b` clean, `npm run build` succeeds; real-backend walkthrough 14 of 14; all three acceptance criteria pass (import then categorize links the right metadata; a signed form stays unchanged after its template is edited; every action is logged with user and time and no file name, description or patient).
   - Notes: not pushed; the portal reads pushed commits, so the story stays unverified there until the push. Notification center and messaging remain the separate ALV-N015.
+
+- [x] STORY-010: record course completion in the execution status
+  - Date: 2026-10-20
+  - Session: CC-20261008-k4q9
+  - What changed: the STORY-010 record in `.alveara/EXECUTION_STATUS.json` is now COMPLETE (acceptance 3 of 3, test summary, implementation commit `4f35077`, `externalVerification` course_portal with the portal's verification time), as the execution plan asks once the portal has verified a course story. Only that record changed.
+  - Verification: `.colaberry/progress.json` shows STORY-010 `verification.state == "verified"`, 3 of 3 criteria, 130 points, verified_at 2026-10-20T14:00:58.140Z (portal sync commit `e1a17f0`).
