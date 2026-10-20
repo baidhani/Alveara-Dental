@@ -489,6 +489,7 @@ public class BackupRestoreService(
             $"Read {accounts} account(s) and {audits} audit entr{(audits == 1 ? "y" : "ies")} from the restored database" + (latestAudit is null ? "." : $" (latest event: {latestAudit}).")));
 
         checks.Add(await RestoredDeploymentRecordAsync(extracted, connectionString, ct));
+        checks.Add(await RestoredDocumentsHaveFilesAsync(extracted, restoredDb, ct));
 
         var keysDirectory = Path.Combine(extracted.Root, ManagedAssetClasses.DataProtectionKeys);
         var secrets = await restoredDb.UserAccounts.AsNoTracking().Where(u => u.MfaSecretProtected != null).Select(u => u.MfaSecretProtected!).Take(5).ToListAsync(ct);
@@ -513,6 +514,30 @@ public class BackupRestoreService(
             }
         }
         return checks;
+    }
+
+    /// <summary>
+    /// ALV-010-C01: every document in the restored database must have its file in the backup, with the size and SHA-256 recorded at import. The backup's own hash check proves each file is the file that was backed up;
+    /// this proves the files that were backed up are the files the records point to, so a backup that lacks a document's file (or holds a damaged copy) is refused instead of silently restoring a library with holes.
+    /// The detail names counts and document ids, never a file name.
+    /// </summary>
+    private static async Task<ValidationCheck> RestoredDocumentsHaveFilesAsync(Extracted extracted, AlveraDbContext restoredDb, CancellationToken ct)
+    {
+        const string name = "restored_documents_have_their_files";
+        try
+        {
+            var documents = await restoredDb.Documents.AsNoTracking().Select(d => new { d.Id, d.BlobId, d.Sha256, d.SizeBytes }).ToListAsync(ct);
+            var files = extracted.Manifest.Components.Where(c => c.AssetClass == ManagedAssetClasses.Documents).ToDictionary(c => c.Path, StringComparer.OrdinalIgnoreCase);
+            var bad = documents.Where(d => !files.TryGetValue($"{ManagedAssetClasses.Documents}/{d.BlobId:N}", out var file)
+                                           || !string.Equals(file.Sha256, d.Sha256, StringComparison.OrdinalIgnoreCase) || file.SizeBytes != d.SizeBytes).Select(d => d.Id).ToList();
+            if (bad.Count == 0)
+                return new(name, true, documents.Count == 0 ? "There are no documents to check." : $"All {documents.Count} document(s) have their file in the backup with the size and hash recorded at import.");
+            return new(name, false, $"{bad.Count} document(s) have no file in the backup, or a file that differs from the size or hash recorded at import (document ids: {string.Join(", ", bad.Take(5))}{(bad.Count > 5 ? ", …" : "")}).");
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 208)
+        {
+            return new(name, true, "The restored database predates documents, so there is nothing to check.");               // invalid object name: an older schema without the Documents table
+        }
     }
 
     /// <summary>
