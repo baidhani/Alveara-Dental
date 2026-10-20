@@ -2774,7 +2774,7 @@ namespace Alveara.Api.Migrations
 
                             t.HasCheckConstraint("CK_DocumentEvents_Categories", "(([Kind] = 'Categorized' AND [FromCategoryId] IS NOT NULL AND [ToCategoryId] IS NOT NULL AND [FromCategoryId] <> [ToCategoryId]) OR ([Kind] <> 'Categorized' AND [FromCategoryId] IS NULL AND [ToCategoryId] IS NULL))");
 
-                            t.HasCheckConstraint("CK_DocumentEvents_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Imported','ImportedAsDuplicate','Categorized','MetadataEdited','Opened')");
+                            t.HasCheckConstraint("CK_DocumentEvents_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Imported','ImportedAsDuplicate','Categorized','MetadataEdited','Opened','Inactivated','Reactivated')");
 
                             t.HasCheckConstraint("CK_DocumentEvents_Number", "[EventNumber] > 0");
 
@@ -2859,6 +2859,50 @@ namespace Alveara.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentStatusChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ToStatus")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ByUserId");
+
+                    b.HasIndex("DocumentId", "AtUtc");
+
+                    b.ToTable("DocumentStatusChanges", null, t =>
+                        {
+                            t.HasTrigger("TR_DocumentStatusChanges_Immutable");
+
+                            t.HasCheckConstraint("CK_DocumentStatusChanges_Reason", "([ToStatus] = 'Inactive' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0) OR ([ToStatus] = 'Active' AND [Reason] IS NULL)");
+
+                            t.HasCheckConstraint("CK_DocumentStatusChanges_Status", "[ToStatus] COLLATE Latin1_General_CS_AS IN ('Active','Inactive')");
+
+                            t.HasCheckConstraint("CK_DocumentStatusChanges_Time", "[AtUtc] >= '2000-01-01' AND [AtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Documents.PatientDocument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2891,6 +2935,9 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid?>("DuplicateOfDocumentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("EncounterId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("IdempotencyKey")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -2902,6 +2949,26 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("ImportedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("InactivatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("InactivatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InactiveReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset?>("IntegrityCheckedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("IntegrityStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("Unchecked");
+
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -2909,6 +2976,10 @@ namespace Alveara.Api.Migrations
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RegionKey")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("RequestHash")
                         .IsRequired()
@@ -2933,6 +3004,18 @@ namespace Alveara.Api.Migrations
                     b.Property<long>("SizeBytes")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasDefaultValue("Active");
+
+                    b.Property<string>("ToothKey")
+                        .HasMaxLength(2)
+                        .HasColumnType("nchar(2)")
+                        .IsFixedLength();
+
                     b.HasKey("Id");
 
                     b.HasIndex("BlobId")
@@ -2942,17 +3025,25 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("DuplicateOfDocumentId");
 
+                    b.HasIndex("EncounterId");
+
                     b.HasIndex("ImportedByUserId");
+
+                    b.HasIndex("InactivatedByUserId");
 
                     b.HasIndex("PatientId", "IdempotencyKey")
                         .IsUnique();
 
                     b.HasIndex("PatientId", "Sha256");
 
+                    b.HasIndex("PatientId", "Status");
+
                     b.HasIndex("PatientId", "CategoryId", "DocumentDate");
 
                     b.ToTable("Documents", null, t =>
                         {
+                            t.HasTrigger("TR_Documents_EncounterLinks");
+
                             t.HasTrigger("TR_Documents_Immutable");
 
                             t.HasTrigger("TR_Documents_Links");
@@ -2969,15 +3060,25 @@ namespace Alveara.Api.Migrations
 
                             t.HasCheckConstraint("CK_Documents_Imported", "[ImportedAtUtc] >= '2000-01-01' AND [ImportedAtUtc] < '2200-01-01'");
 
+                            t.HasCheckConstraint("CK_Documents_Inactive", "([Status] = 'Active' AND [InactiveReason] IS NULL AND [InactivatedByUserId] IS NULL AND [InactivatedAtUtc] IS NULL) OR ([Status] = 'Inactive' AND [InactiveReason] IS NOT NULL AND LEN(LTRIM(RTRIM([InactiveReason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [InactiveReason] COLLATE Latin1_General_BIN2) = 0 AND [InactivatedByUserId] IS NOT NULL AND [InactivatedAtUtc] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_Documents_Integrity", "[IntegrityStatus] COLLATE Latin1_General_CS_AS IN ('Unchecked','Ok','Missing','Corrupt') AND (([IntegrityStatus] = 'Unchecked' AND [IntegrityCheckedAtUtc] IS NULL) OR ([IntegrityStatus] <> 'Unchecked' AND [IntegrityCheckedAtUtc] IS NOT NULL))");
+
                             t.HasCheckConstraint("CK_Documents_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
 
                             t.HasCheckConstraint("CK_Documents_Name", "LEN(LTRIM(RTRIM([OriginalFileName]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [OriginalFileName] COLLATE Latin1_General_BIN2) = 0");
 
                             t.HasCheckConstraint("CK_Documents_NotOwnDuplicate", "[DuplicateOfDocumentId] IS NULL OR [DuplicateOfDocumentId] <> [Id]");
 
+                            t.HasCheckConstraint("CK_Documents_Region", "[RegionKey] IS NULL OR ([RegionKey] COLLATE Latin1_General_CS_AS IN ('FullMouth','UpperArch','LowerArch','UpperRight','UpperLeft','LowerRight','LowerLeft','SoftTissue','Tmj') AND [ToothKey] IS NULL)");
+
                             t.HasCheckConstraint("CK_Documents_RequestHash", "[RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([RequestHash]) = 64");
 
                             t.HasCheckConstraint("CK_Documents_Size", "[SizeBytes] > 0 AND [SizeBytes] <= 1073741824");
+
+                            t.HasCheckConstraint("CK_Documents_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Active','Inactive')");
+
+                            t.HasCheckConstraint("CK_Documents_ToothKey", "[ToothKey] IS NULL OR [ToothKey] COLLATE Latin1_General_CS_AS IN ('11','12','13','14','15','16','17','18','21','22','23','24','25','26','27','28','31','32','33','34','35','36','37','38','41','42','43','44','45','46','47','48','51','52','53','54','55','61','62','63','64','65','71','72','73','74','75','81','82','83','84','85')");
 
                             t.HasCheckConstraint("CK_Documents_Type", "[DetectedType] COLLATE Latin1_General_CS_AS IN ('pdf','png','jpeg','tiff','other')");
                         });
@@ -6813,6 +6914,21 @@ namespace Alveara.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentStatusChange", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Documents.PatientDocument", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Documents.DocumentCategory", null)
@@ -6826,11 +6942,21 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("DuplicateOfDocumentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Alveara.Api.Architecture.Clinical.Encounter", null)
+                        .WithMany()
+                        .HasForeignKey("EncounterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("ImportedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("InactivatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
                         .WithMany()

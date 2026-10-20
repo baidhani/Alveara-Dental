@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.Clinical;
 using Alveara.Api.Architecture.Documents;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Odontogram;
 using Alveara.Api.Architecture.Patients;
 
 namespace Alveara.Api.Data;
@@ -9,7 +11,7 @@ namespace Alveara.Api.Data;
 /// STORY-010: the model for imported documents (docs/DOCUMENTS.md). As elsewhere, the database refuses by itself what the rules refuse. Triggers (created in the migration; errors 51182 to 51190, 51191 and up are free):
 /// a document is never deleted (51182) and its file never changes (51183); a duplicate must name an earlier document of the same patient with the same hash (51184); the history is append-only (51185) and every row
 /// has an issued number and the right patient (51186); the event counter only moves forward by one and is never deleted (51187); a category is never deleted and its code never changes (51188); a built-in blocked
-/// extension is never changed or deleted (51189); the settings row is never deleted (51190).
+/// extension is never changed or deleted (51189); the settings row is never deleted (51190). ALV-010-C01 adds: a documents encounter must belong to its patient (51192), a status change is append-only (51193) and a rollback is refused over library data (51194); 51195 and up are free.
 /// </summary>
 internal static class DocumentModel
 {
@@ -47,6 +49,15 @@ internal static class DocumentModel
             e.Property(x => x.IdempotencyKey).HasMaxLength(64);
             e.Property(x => x.RequestHash).HasMaxLength(64).IsFixedLength().IsUnicode(false);
             e.Property(x => x.RowVersion).IsRowVersion();
+            e.Property(x => x.ToothKey).HasMaxLength(2).IsFixedLength();
+            e.Property(x => x.RegionKey).HasMaxLength(20);
+            e.Property(x => x.Status).HasMaxLength(10).HasDefaultValue(DocumentStatuses.Active);
+            e.Property(x => x.InactiveReason).HasMaxLength(500);
+            e.Property(x => x.IntegrityStatus).HasMaxLength(10).HasDefaultValue(IntegrityStatuses.Unchecked);
+            e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.InactivatedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.PatientId, x.Status });
+            e.HasIndex(x => x.EncounterId);
             e.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<DocumentCategory>().WithMany().HasForeignKey(x => x.CategoryId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<PatientDocument>().WithMany().HasForeignKey(x => x.DuplicateOfDocumentId).OnDelete(DeleteBehavior.Restrict);
@@ -60,6 +71,7 @@ internal static class DocumentModel
                 t.HasTrigger("TR_Documents_NoDelete");
                 t.HasTrigger("TR_Documents_Immutable");
                 t.HasTrigger("TR_Documents_Links");
+                t.HasTrigger("TR_Documents_EncounterLinks");
                 t.HasCheckConstraint("CK_Documents_Hash", Hex("Sha256"));
                 t.HasCheckConstraint("CK_Documents_RequestHash", Hex("RequestHash"));
                 t.HasCheckConstraint("CK_Documents_Key", $"LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND {PrescriptionModel.NoControl("IdempotencyKey")}");
@@ -71,6 +83,34 @@ internal static class DocumentModel
                 t.HasCheckConstraint("CK_Documents_Date", "[DocumentDate] >= '1900-01-01' AND [DocumentDate] < '2200-01-01'");
                 t.HasCheckConstraint("CK_Documents_Imported", "[ImportedAtUtc] >= '2000-01-01' AND [ImportedAtUtc] < '2200-01-01'");
                 t.HasCheckConstraint("CK_Documents_NotOwnDuplicate", "[DuplicateOfDocumentId] IS NULL OR [DuplicateOfDocumentId] <> [Id]");
+                // ALV-010-C01: a document is about one tooth or one region, never both; an inactive document says why, who and when and an active one carries none of that; the storage check's result and its time go together
+                t.HasCheckConstraint("CK_Documents_ToothKey", $"[ToothKey] IS NULL OR [ToothKey] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(ToothKeys.All)})");
+                t.HasCheckConstraint("CK_Documents_Region", $"[RegionKey] IS NULL OR ([RegionKey] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(DiagnosisRegions.All)}) AND [ToothKey] IS NULL)");
+                t.HasCheckConstraint("CK_Documents_Status", $"[Status] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(DocumentStatuses.All)})");
+                t.HasCheckConstraint("CK_Documents_Inactive",
+                    $"([Status] = '{DocumentStatuses.Active}' AND [InactiveReason] IS NULL AND [InactivatedByUserId] IS NULL AND [InactivatedAtUtc] IS NULL) " +
+                    $"OR ([Status] = '{DocumentStatuses.Inactive}' AND [InactiveReason] IS NOT NULL AND LEN(LTRIM(RTRIM([InactiveReason]))) > 0 AND {PrescriptionModel.NoControl("InactiveReason")} AND [InactivatedByUserId] IS NOT NULL AND [InactivatedAtUtc] IS NOT NULL)");
+                t.HasCheckConstraint("CK_Documents_Integrity",
+                    $"[IntegrityStatus] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(IntegrityStatuses.All)}) " +
+                    $"AND (([IntegrityStatus] = '{IntegrityStatuses.Unchecked}' AND [IntegrityCheckedAtUtc] IS NULL) OR ([IntegrityStatus] <> '{IntegrityStatuses.Unchecked}' AND [IntegrityCheckedAtUtc] IS NOT NULL))");
+            });
+        });
+
+        modelBuilder.Entity<DocumentStatusChange>(e =>
+        {
+            e.ToTable("DocumentStatusChanges");
+            e.Property(x => x.ToStatus).HasMaxLength(10);
+            e.Property(x => x.Reason).HasMaxLength(500);
+            e.HasOne<PatientDocument>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.ByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.DocumentId, x.AtUtc });
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_DocumentStatusChanges_Immutable");
+                t.HasCheckConstraint("CK_DocumentStatusChanges_Status", $"[ToStatus] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(DocumentStatuses.All)})");
+                t.HasCheckConstraint("CK_DocumentStatusChanges_Reason",
+                    $"([ToStatus] = '{DocumentStatuses.Inactive}' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0 AND {PrescriptionModel.NoControl("Reason")}) OR ([ToStatus] = '{DocumentStatuses.Active}' AND [Reason] IS NULL)");
+                t.HasCheckConstraint("CK_DocumentStatusChanges_Time", "[AtUtc] >= '2000-01-01' AND [AtUtc] < '2200-01-01'");
             });
         });
 

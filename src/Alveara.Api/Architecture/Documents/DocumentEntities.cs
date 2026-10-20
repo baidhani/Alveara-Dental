@@ -8,8 +8,30 @@ public static class DocumentEventKinds
     public const string Categorized = "Categorized";
     public const string MetadataEdited = "MetadataEdited";
     public const string Opened = "Opened";
+    public const string Inactivated = "Inactivated";
+    public const string Reactivated = "Reactivated";
 
-    public static readonly IReadOnlyList<string> All = [Imported, ImportedAsDuplicate, Categorized, MetadataEdited, Opened];
+    public static readonly IReadOnlyList<string> All = [Imported, ImportedAsDuplicate, Categorized, MetadataEdited, Opened, Inactivated, Reactivated];
+}
+
+/// <summary>ALV-010-C01: whether a document is in use. An inactive document is hidden by default and kept for ever (never deleted); inactivating needs a reason and is reversible.</summary>
+public static class DocumentStatuses
+{
+    public const string Active = "Active";
+    public const string Inactive = "Inactive";
+
+    public static readonly IReadOnlyList<string> All = [Active, Inactive];
+}
+
+/// <summary>ALV-010-C01: what the last storage check found for a document's file. Unchecked until the first check; Missing is a file that is not on disk; Corrupt is a file whose size or hash no longer matches what was recorded at import.</summary>
+public static class IntegrityStatuses
+{
+    public const string Unchecked = "Unchecked";
+    public const string Ok = "Ok";
+    public const string Missing = "Missing";
+    public const string Corrupt = "Corrupt";
+
+    public static readonly IReadOnlyList<string> All = [Unchecked, Ok, Missing, Corrupt];
 }
 
 /// <summary>The categories every installation starts with. Fixed ids and codes: a category is renamed or deactivated, never deleted, and its code never changes.</summary>
@@ -75,7 +97,40 @@ public class PatientDocument
     public DateTimeOffset ImportedAtUtc { get; set; }
     public required string IdempotencyKey { get; set; }
     public required string RequestHash { get; set; }
+
+    // ---- ALV-010-C01: clinical context, status and storage integrity (all editable or maintained after import; none of them is part of the immutable file) ----
+
+    /// <summary>The encounter this document belongs to, when it does (the database refuses an encounter of another patient).</summary>
+    public Guid? EncounterId { get; set; }
+    /// <summary>The tooth it is about, as its two-digit FDI key; never together with <see cref="RegionKey"/>.</summary>
+    public string? ToothKey { get; set; }
+    /// <summary>The oral region it is about (one of <c>DiagnosisRegions</c>); never together with <see cref="ToothKey"/>.</summary>
+    public string? RegionKey { get; set; }
+    /// <summary>One of <see cref="DocumentStatuses"/>.</summary>
+    public string Status { get; set; } = DocumentStatuses.Active;
+    /// <summary>Why it was inactivated; set only while inactive.</summary>
+    public string? InactiveReason { get; set; }
+    public Guid? InactivatedByUserId { get; set; }
+    public DateTimeOffset? InactivatedAtUtc { get; set; }
+    /// <summary>One of <see cref="IntegrityStatuses"/>, from the last storage check.</summary>
+    public string IntegrityStatus { get; set; } = IntegrityStatuses.Unchecked;
+    public DateTimeOffset? IntegrityCheckedAtUtc { get; set; }
     public byte[] RowVersion { get; set; } = [];
+}
+
+/// <summary>
+/// ALV-010-C01: one inactivation or reactivation of a document, with who, when and (for an inactivation) the reason. Append-only: the document row only says what it is now, this keeps every reason for ever.
+/// The reason is free text, so it lives here and never in <see cref="DocumentEvent"/>, whose columns stay ids and codes only.
+/// </summary>
+public class DocumentStatusChange
+{
+    public Guid Id { get; set; }
+    public Guid DocumentId { get; set; }
+    /// <summary>The status the document moved to.</summary>
+    public required string ToStatus { get; set; }
+    public string? Reason { get; set; }
+    public Guid ByUserId { get; set; }
+    public DateTimeOffset AtUtc { get; set; }
 }
 
 /// <summary>
