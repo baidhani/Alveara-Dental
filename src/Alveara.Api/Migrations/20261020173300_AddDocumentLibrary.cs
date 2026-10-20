@@ -40,20 +40,6 @@ namespace Alveara.Api.Migrations
                 maxLength: 500,
                 nullable: true);
 
-            migrationBuilder.AddColumn<DateTimeOffset>(
-                name: "IntegrityCheckedAtUtc",
-                table: "Documents",
-                type: "datetimeoffset",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "IntegrityStatus",
-                table: "Documents",
-                type: "nvarchar(10)",
-                maxLength: 10,
-                nullable: false,
-                defaultValue: "Unchecked");
-
             migrationBuilder.AddColumn<string>(
                 name: "RegionKey",
                 table: "Documents",
@@ -76,6 +62,34 @@ namespace Alveara.Api.Migrations
                 fixedLength: true,
                 maxLength: 2,
                 nullable: true);
+
+            migrationBuilder.CreateTable(
+                name: "DocumentIntegrity",
+                columns: table => new
+                {
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    CheckedAtUtc = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CheckedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentIntegrity", x => x.DocumentId);
+                    table.CheckConstraint("CK_DocumentIntegrity_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Ok','Missing','Corrupt')");
+                    table.CheckConstraint("CK_DocumentIntegrity_Time", "[CheckedAtUtc] >= '2000-01-01' AND [CheckedAtUtc] < '2200-01-01'");
+                    table.ForeignKey(
+                        name: "FK_DocumentIntegrity_Documents_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DocumentIntegrity_UserAccounts_CheckedByUserId",
+                        column: x => x.CheckedByUserId,
+                        principalTable: "UserAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
 
             migrationBuilder.CreateTable(
                 name: "DocumentStatusChanges",
@@ -129,11 +143,6 @@ namespace Alveara.Api.Migrations
                 sql: "([Status] = 'Active' AND [InactiveReason] IS NULL AND [InactivatedByUserId] IS NULL AND [InactivatedAtUtc] IS NULL) OR ([Status] = 'Inactive' AND [InactiveReason] IS NOT NULL AND LEN(LTRIM(RTRIM([InactiveReason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [InactiveReason] COLLATE Latin1_General_BIN2) = 0 AND [InactivatedByUserId] IS NOT NULL AND [InactivatedAtUtc] IS NOT NULL)");
 
             migrationBuilder.AddCheckConstraint(
-                name: "CK_Documents_Integrity",
-                table: "Documents",
-                sql: "[IntegrityStatus] COLLATE Latin1_General_CS_AS IN ('Unchecked','Ok','Missing','Corrupt') AND (([IntegrityStatus] = 'Unchecked' AND [IntegrityCheckedAtUtc] IS NULL) OR ([IntegrityStatus] <> 'Unchecked' AND [IntegrityCheckedAtUtc] IS NOT NULL))");
-
-            migrationBuilder.AddCheckConstraint(
                 name: "CK_Documents_Region",
                 table: "Documents",
                 sql: "[RegionKey] IS NULL OR ([RegionKey] COLLATE Latin1_General_CS_AS IN ('FullMouth','UpperArch','LowerArch','UpperRight','UpperLeft','LowerRight','LowerLeft','SoftTissue','Tmj') AND [ToothKey] IS NULL)");
@@ -152,6 +161,16 @@ namespace Alveara.Api.Migrations
                 name: "CK_DocumentEvents_Kind",
                 table: "DocumentEvents",
                 sql: "[Kind] COLLATE Latin1_General_CS_AS IN ('Imported','ImportedAsDuplicate','Categorized','MetadataEdited','Opened','Inactivated','Reactivated')");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentIntegrity_CheckedByUserId",
+                table: "DocumentIntegrity",
+                column: "CheckedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentIntegrity_Status",
+                table: "DocumentIntegrity",
+                column: "Status");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DocumentStatusChanges_ByUserId",
@@ -196,7 +215,8 @@ END");
         {
             // a rollback is only possible while the library holds nothing it would lose: afterwards these columns and rows are patient records that a script must not drop
             migrationBuilder.Sql(@"IF EXISTS (SELECT 1 FROM [DocumentStatusChanges])
-   OR EXISTS (SELECT 1 FROM [Documents] WHERE [EncounterId] IS NOT NULL OR [ToothKey] IS NOT NULL OR [RegionKey] IS NOT NULL OR [Status] <> 'Active' OR [IntegrityStatus] <> 'Unchecked')
+   OR EXISTS (SELECT 1 FROM [DocumentIntegrity])
+   OR EXISTS (SELECT 1 FROM [Documents] WHERE [EncounterId] IS NOT NULL OR [ToothKey] IS NOT NULL OR [RegionKey] IS NOT NULL OR [Status] <> 'Active')
     THROW 51194, 'Document library data exists, so this migration cannot be rolled back.', 1;");
             // the trigger on the Documents table outlives the added columns unless it is dropped here (the status-change table's trigger goes with its table)
             migrationBuilder.Sql(@"DROP TRIGGER IF EXISTS [TR_Documents_EncounterLinks]");
@@ -207,6 +227,9 @@ END");
             migrationBuilder.DropForeignKey(
                 name: "FK_Documents_UserAccounts_InactivatedByUserId",
                 table: "Documents");
+
+            migrationBuilder.DropTable(
+                name: "DocumentIntegrity");
 
             migrationBuilder.DropTable(
                 name: "DocumentStatusChanges");
@@ -225,10 +248,6 @@ END");
 
             migrationBuilder.DropCheckConstraint(
                 name: "CK_Documents_Inactive",
-                table: "Documents");
-
-            migrationBuilder.DropCheckConstraint(
-                name: "CK_Documents_Integrity",
                 table: "Documents");
 
             migrationBuilder.DropCheckConstraint(
@@ -261,14 +280,6 @@ END");
 
             migrationBuilder.DropColumn(
                 name: "InactiveReason",
-                table: "Documents");
-
-            migrationBuilder.DropColumn(
-                name: "IntegrityCheckedAtUtc",
-                table: "Documents");
-
-            migrationBuilder.DropColumn(
-                name: "IntegrityStatus",
                 table: "Documents");
 
             migrationBuilder.DropColumn(

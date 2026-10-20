@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alveara.Api.Migrations
 {
     [DbContext(typeof(AlveraDbContext))]
-    [Migration("20261020145626_AddDocumentLibrary")]
+    [Migration("20261020173300_AddDocumentLibrary")]
     partial class AddDocumentLibrary
     {
         /// <inheritdoc />
@@ -2818,6 +2818,36 @@ namespace Alveara.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentIntegrity", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CheckedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("CheckedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("DocumentId");
+
+                    b.HasIndex("CheckedByUserId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("DocumentIntegrity", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_DocumentIntegrity_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Ok','Missing','Corrupt')");
+
+                            t.HasCheckConstraint("CK_DocumentIntegrity_Time", "[CheckedAtUtc] >= '2000-01-01' AND [CheckedAtUtc] < '2200-01-01'");
+                        });
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -2962,16 +2992,6 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTimeOffset?>("IntegrityCheckedAtUtc")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("IntegrityStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasDefaultValue("Unchecked");
-
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -3064,8 +3084,6 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_Documents_Imported", "[ImportedAtUtc] >= '2000-01-01' AND [ImportedAtUtc] < '2200-01-01'");
 
                             t.HasCheckConstraint("CK_Documents_Inactive", "([Status] = 'Active' AND [InactiveReason] IS NULL AND [InactivatedByUserId] IS NULL AND [InactivatedAtUtc] IS NULL) OR ([Status] = 'Inactive' AND [InactiveReason] IS NOT NULL AND LEN(LTRIM(RTRIM([InactiveReason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [InactiveReason] COLLATE Latin1_General_BIN2) = 0 AND [InactivatedByUserId] IS NOT NULL AND [InactivatedAtUtc] IS NOT NULL)");
-
-                            t.HasCheckConstraint("CK_Documents_Integrity", "[IntegrityStatus] COLLATE Latin1_General_CS_AS IN ('Unchecked','Ok','Missing','Corrupt') AND (([IntegrityStatus] = 'Unchecked' AND [IntegrityCheckedAtUtc] IS NULL) OR ([IntegrityStatus] <> 'Unchecked' AND [IntegrityCheckedAtUtc] IS NOT NULL))");
 
                             t.HasCheckConstraint("CK_Documents_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
 
@@ -6907,6 +6925,20 @@ namespace Alveara.Api.Migrations
                         .WithMany()
                         .HasForeignKey("ToCategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentIntegrity", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CheckedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithOne()
+                        .HasForeignKey("Alveara.Api.Architecture.Documents.DocumentIntegrity", "DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Documents.DocumentSettings", b =>

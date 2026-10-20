@@ -33,6 +33,8 @@ public abstract class DocumentTestBase : SafetyTestBase
         }
         public Task<Stream> OpenReadAsync(Guid blobId, CancellationToken cancellationToken = default) => inner.OpenReadAsync(blobId, cancellationToken);
         public Task<bool> VerifyIntegrityAsync(Guid blobId, string expectedSha256, CancellationToken cancellationToken = default) => inner.VerifyIntegrityAsync(blobId, expectedSha256, cancellationToken);
+        public Task<BlobInfo?> GetInfoAsync(Guid blobId, CancellationToken cancellationToken = default) => inner.GetInfoAsync(blobId, cancellationToken);
+        public IAsyncEnumerable<BlobInfo> ListAsync(CancellationToken cancellationToken = default) => inner.ListAsync(cancellationToken);
         public Task DeleteAsync(Guid blobId, CancellationToken cancellationToken = default)
         {
             if (FailDelete) throw new IOException("locked");

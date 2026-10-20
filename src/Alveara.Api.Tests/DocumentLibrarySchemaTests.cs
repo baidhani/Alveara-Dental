@@ -10,8 +10,8 @@ using Xunit;
 namespace Alveara.Api.Tests;
 
 /// <summary>
-/// ALV-010-C01, the database on its own: what the document library adds to a document (an encounter, a tooth or a region, a status with its reason, the result of the last storage check) and to its history (every
-/// inactivation and reactivation with its reason). Rows are written straight to the tables, around any service, so the tests prove the database refuses an encounter of another patient, a tooth together with a region,
+/// ALV-010-C01, the database on its own: what the document library adds to a document (an encounter, a tooth or a region, a status with its reason) and around it (the result of the last storage check, in its own
+/// table, and every inactivation and reactivation with its reason). Rows are written straight to the tables, around any service, so the tests prove the database refuses an encounter of another patient, a tooth together with a region,
 /// an inactive document with no reason, a storage result without a time and any change to a status change, while STORY-010's own guarantees (the file never changes) still hold, and that a rollback refuses to lose
 /// library data.
 /// </summary>
@@ -76,8 +76,8 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
         await AddAsync(doc);
         await using var db = Fixture.CreateContext();
         var row = await db.Documents.AsNoTracking().SingleAsync();
-        Assert.Equal((DocumentStatuses.Active, IntegrityStatuses.Unchecked, null, null, null), (row.Status, row.IntegrityStatus, row.EncounterId, row.ToothKey, row.RegionKey));
-        Assert.Null(row.IntegrityCheckedAtUtc);
+        Assert.Equal((DocumentStatuses.Active, null, null, null), (row.Status, row.EncounterId, row.ToothKey, row.RegionKey));
+        Assert.Equal(0, await db.DocumentIntegrity.CountAsync());                                                // never checked: no result row
     }
 
     [Fact]
@@ -98,19 +98,14 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
     }
 
     [Fact]
-    public async Task An_inactive_document_says_why_who_and_when_and_every_storage_result_is_accepted_with_its_time()
+    public async Task An_inactive_document_says_why_who_and_when()
     {
-        var now = DateTimeOffset.UtcNow;
-        await AddAsync(
-            NewDocument(d => { d.Status = DocumentStatuses.Inactive; d.InactiveReason = "Scanned under the wrong patient."; d.InactivatedByUserId = S.Actor; d.InactivatedAtUtc = now; }),
-            NewDocument(d => { d.IntegrityStatus = IntegrityStatuses.Ok; d.IntegrityCheckedAtUtc = now; }),
-            NewDocument(d => { d.IntegrityStatus = IntegrityStatuses.Missing; d.IntegrityCheckedAtUtc = now; }),
-            NewDocument(d => { d.IntegrityStatus = IntegrityStatuses.Corrupt; d.IntegrityCheckedAtUtc = now; }));
-        Assert.Equal(4, await CountAsync<PatientDocument>());
+        await AddAsync(NewDocument(d => { d.Status = DocumentStatuses.Inactive; d.InactiveReason = "Scanned under the wrong patient."; d.InactivatedByUserId = S.Actor; d.InactivatedAtUtc = DateTimeOffset.UtcNow; }));
+        Assert.Equal(1, await CountAsync<PatientDocument>());
     }
 
     [Fact]
-    public async Task The_status_encounter_tooth_and_storage_result_of_a_document_may_change_after_import()
+    public async Task The_status_encounter_and_tooth_of_a_document_may_change_after_import()
     {
         var doc = NewDocument();
         await AddAsync(doc);
@@ -121,7 +116,6 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
             var row = await db.Documents.SingleAsync();
             row.EncounterId = encounter; row.ToothKey = "26";
             row.Status = DocumentStatuses.Inactive; row.InactiveReason = "Duplicate scan."; row.InactivatedByUserId = S.Actor; row.InactivatedAtUtc = now;
-            row.IntegrityStatus = IntegrityStatuses.Ok; row.IntegrityCheckedAtUtc = now;
             await db.SaveChangesAsync();
         }
         await using (var db = Fixture.CreateContext())
@@ -150,7 +144,7 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
     {
         "tooth-unknown", "tooth-letter", "tooth-one-digit", "tooth-lowercase-region", "region-unknown", "region-wrong-case", "tooth-and-region", "status-unknown", "status-wrong-case",
         "inactive-without-reason", "inactive-blank-reason", "inactive-control-reason", "inactive-without-who", "inactive-without-time", "active-with-reason", "active-with-who", "active-with-time",
-        "integrity-unknown", "integrity-ok-without-time", "integrity-unchecked-with-time", "encounter-unknown",
+        "encounter-unknown",
     };
 
     [Theory]
@@ -179,9 +173,6 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
                 case "active-with-reason": d.InactiveReason = "Why."; break;
                 case "active-with-who": d.InactivatedByUserId = S.Actor; break;
                 case "active-with-time": d.InactivatedAtUtc = now; break;
-                case "integrity-unknown": d.IntegrityStatus = "Fine"; d.IntegrityCheckedAtUtc = now; break;
-                case "integrity-ok-without-time": d.IntegrityStatus = IntegrityStatuses.Ok; break;
-                case "integrity-unchecked-with-time": d.IntegrityCheckedAtUtc = now; break;
                 case "encounter-unknown": d.EncounterId = Guid.NewGuid(); break;
             }
         });
@@ -198,6 +189,70 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
         await AddAsync(doc);
         Assert.Equal(51192, (await SqlRefusalAsync($"UPDATE [Documents] SET [EncounterId] = {bosEncounter} WHERE [Id] = {doc.Id}")).Number);
         Assert.Equal(1, await CountAsync<PatientDocument>());
+    }
+
+    // ---------- the storage check result ----------
+
+    [Fact]
+    public async Task Every_storage_result_is_accepted_for_a_document_and_a_check_can_be_repeated_by_replacing_its_row()
+    {
+        var docs = new[] { NewDocument(), NewDocument(), NewDocument() };
+        await AddAsync([.. docs]);
+        var results = new[] { IntegrityStatuses.Ok, IntegrityStatuses.Missing, IntegrityStatuses.Corrupt };
+        await AddAsync([.. docs.Select((d, i) => new DocumentIntegrity { DocumentId = d.Id, Status = results[i], CheckedAtUtc = DateTimeOffset.UtcNow, CheckedByUserId = S.Actor })]);
+        await using (var db = Fixture.CreateContext())
+        {
+            var row = await db.DocumentIntegrity.SingleAsync(i => i.DocumentId == docs[1].Id);
+            (row.Status, row.CheckedAtUtc) = (IntegrityStatuses.Ok, DateTimeOffset.UtcNow);
+            await db.SaveChangesAsync();
+        }
+        await using var check = Fixture.CreateContext();
+        Assert.Equal([IntegrityStatuses.Corrupt, IntegrityStatuses.Ok, IntegrityStatuses.Ok], (await check.DocumentIntegrity.AsNoTracking().ToListAsync()).Select(i => i.Status).Order());
+    }
+
+    [Fact]
+    public async Task The_migration_refuses_to_roll_back_over_a_storage_result()
+    {
+        var doc = NewDocument();
+        await AddAsync(doc);
+        await AddAsync(new DocumentIntegrity { DocumentId = doc.Id, Status = IntegrityStatuses.Missing, CheckedAtUtc = DateTimeOffset.UtcNow });
+        var e = await Refusal(async () => { await using var db = Fixture.CreateContext(); await db.GetInfrastructure().GetRequiredService<IMigrator>().MigrateAsync(BeforeLibrary); });
+        Assert.Equal(51194, e.Number);
+        Assert.Equal(1, await CountAsync<DocumentIntegrity>());
+    }
+
+    [Fact]
+    public async Task A_storage_check_never_moves_the_row_version_of_its_document()
+    {
+        var doc = NewDocument();
+        await AddAsync(doc);
+        byte[] before;
+        await using (var db = Fixture.CreateContext()) before = (await db.Documents.AsNoTracking().SingleAsync()).RowVersion;
+        await AddAsync(new DocumentIntegrity { DocumentId = doc.Id, Status = IntegrityStatuses.Corrupt, CheckedAtUtc = DateTimeOffset.UtcNow });
+        await using var after = Fixture.CreateContext();
+        Assert.Equal(before, (await after.Documents.AsNoTracking().SingleAsync()).RowVersion);
+    }
+
+    [Theory]
+    [InlineData("Unchecked")]
+    [InlineData("Fine")]
+    [InlineData("ok")]
+    [InlineData("time-too-early")]
+    [InlineData("unknown-document")]
+    [InlineData("second-row")]
+    [InlineData("unknown-user")]
+    public async Task The_database_refuses_an_incorrect_storage_result(string problem)
+    {
+        var doc = NewDocument();
+        await AddAsync(doc);
+        if (problem == "second-row") await AddAsync(new DocumentIntegrity { DocumentId = doc.Id, Status = IntegrityStatuses.Ok, CheckedAtUtc = DateTimeOffset.UtcNow });
+        var row = new DocumentIntegrity
+        {
+            DocumentId = problem == "unknown-document" ? Guid.NewGuid() : doc.Id, Status = problem is "second-row" or "time-too-early" or "unknown-document" or "unknown-user" ? IntegrityStatuses.Ok : problem,
+            CheckedAtUtc = problem == "time-too-early" ? new DateTimeOffset(1999, 1, 1, 0, 0, 0, TimeSpan.Zero) : DateTimeOffset.UtcNow, CheckedByUserId = problem == "unknown-user" ? Guid.NewGuid() : null,
+        };
+        await Refusal(() => AddAsync(row));
+        Assert.Equal(problem == "second-row" ? 1 : 0, await CountAsync<DocumentIntegrity>());
     }
 
     // ---------- the status history ----------
@@ -266,15 +321,15 @@ public class DocumentLibrarySchemaTests : SafetyTestBase
         await using (var db = Fixture.CreateContext()) await db.GetInfrastructure().GetRequiredService<IMigrator>().MigrateAsync(BeforeLibrary);
         await using (var db = Fixture.CreateContext())
         {
-            Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.columns WHERE object_id = OBJECT_ID('Documents') AND name IN ('Status','ToothKey','IntegrityStatus','EncounterId')").SingleAsync());
-            Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name = 'DocumentStatusChanges'").SingleAsync());
+            Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.columns WHERE object_id = OBJECT_ID('Documents') AND name IN ('Status','ToothKey','EncounterId')").SingleAsync());
+            Assert.Equal(0, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name IN ('DocumentStatusChanges','DocumentIntegrity')").SingleAsync());
             Assert.Equal(1, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM [Documents]").SingleAsync());                       // STORY-010's document stays
         }
         await using (var db = Fixture.CreateContext()) await db.Database.MigrateAsync();
         await using (var db = Fixture.CreateContext())
         {
             Assert.Equal(DocumentStatuses.Active, (await db.Documents.AsNoTracking().SingleAsync()).Status);                                      // the existing document came through as Active and Unchecked
-            Assert.Equal(1, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name = 'DocumentStatusChanges'").SingleAsync());
+            Assert.Equal(2, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name IN ('DocumentStatusChanges','DocumentIntegrity')").SingleAsync());
         }
 
         await using (var db = Fixture.CreateContext()) await db.Database.ExecuteSqlAsync($"UPDATE [Documents] SET [ToothKey] = '16' WHERE [Id] = {doc.Id}");

@@ -26,9 +26,17 @@ public interface IBlobStorage
 
     /// <summary>Recomputes the hash of the stored content and compares it to the recorded one.</summary>
     Task<bool> VerifyIntegrityAsync(Guid blobId, string expectedSha256, CancellationToken cancellationToken = default);
+
+    /// <summary>What is on disk for a blob (its size and when it was last written), or null when there is no such blob. Reads no content.</summary>
+    Task<BlobInfo?> GetInfoAsync(Guid blobId, CancellationToken cancellationToken = default);
+
+    /// <summary>Every blob in the store, with its size and last write time. A file still being written (a temporary file) is not a blob and is not listed.</summary>
+    IAsyncEnumerable<BlobInfo> ListAsync(CancellationToken cancellationToken = default);
 }
 
 public sealed record StoredBlob(Guid Id, string Sha256Hash, long SizeBytes);
+
+public sealed record BlobInfo(Guid Id, long SizeBytes, DateTimeOffset LastWriteUtc);
 
 /// <summary>
 /// Local-disk implementation for first release (single Windows server, no cloud storage yet).
@@ -83,6 +91,25 @@ public sealed class LocalDiskBlobStorage : IBlobStorage
         var path = PathFor(blobId);
         if (!File.Exists(path)) throw new FileNotFoundException($"Blob {blobId} not found in storage.", path);
         return Task.FromResult<Stream>(File.OpenRead(path));
+    }
+
+    public Task<BlobInfo?> GetInfoAsync(Guid blobId, CancellationToken cancellationToken = default)
+    {
+        var file = new FileInfo(PathFor(blobId));
+        return Task.FromResult<BlobInfo?>(file.Exists ? new BlobInfo(blobId, file.Length, new DateTimeOffset(file.LastWriteTimeUtc, TimeSpan.Zero)) : null);
+    }
+
+    public async IAsyncEnumerable<BlobInfo> ListAsync([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (var path in Directory.EnumerateFiles(_storageRoot))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            // a blob is named by its generated id in the compact form; anything else (a temporary file, a stray file) is not a blob
+            if (!Guid.TryParseExact(Path.GetFileName(path), "N", out var id)) continue;
+            var file = new FileInfo(path);
+            yield return new BlobInfo(id, file.Length, new DateTimeOffset(file.LastWriteTimeUtc, TimeSpan.Zero));
+        }
+        await Task.CompletedTask;
     }
 
     public Task DeleteAsync(Guid blobId, CancellationToken cancellationToken = default)

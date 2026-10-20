@@ -121,6 +121,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Prescribing.PrescriptionEvent> PrescriptionEvents => Set<Architecture.Prescribing.PrescriptionEvent>();
     public DbSet<Architecture.Documents.DocumentCategory> DocumentCategories => Set<Architecture.Documents.DocumentCategory>();
     public DbSet<Architecture.Documents.PatientDocument> Documents => Set<Architecture.Documents.PatientDocument>();
+    public DbSet<Architecture.Documents.DocumentIntegrity> DocumentIntegrity => Set<Architecture.Documents.DocumentIntegrity>();
     public DbSet<Architecture.Documents.DocumentStatusChange> DocumentStatusChanges => Set<Architecture.Documents.DocumentStatusChange>();
     public DbSet<Architecture.Documents.DocumentEvent> DocumentEvents => Set<Architecture.Documents.DocumentEvent>();
     public DbSet<Architecture.Documents.DocumentEventCounter> DocumentEventCounters => Set<Architecture.Documents.DocumentEventCounter>();

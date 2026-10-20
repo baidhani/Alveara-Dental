@@ -88,4 +88,7 @@ public enum Permission
     ImportDocuments,
     ViewDocuments,
     ManageDocumentSettings,
+
+    // ALV-010-C01: checking that the stored files of documents are present and intact, and reviewing and removing stored files that no document points to. Held by the administrator and the office manager.
+    ManageDocumentStorage,
 }

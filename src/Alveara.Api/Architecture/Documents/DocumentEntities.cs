@@ -23,7 +23,7 @@ public static class DocumentStatuses
     public static readonly IReadOnlyList<string> All = [Active, Inactive];
 }
 
-/// <summary>ALV-010-C01: what the last storage check found for a document's file. Unchecked until the first check; Missing is a file that is not on disk; Corrupt is a file whose size or hash no longer matches what was recorded at import.</summary>
+/// <summary>ALV-010-C01: what the last storage check found for a document's file. Unchecked is a document that has never been checked (it has no <see cref="DocumentIntegrity"/> row); Missing is a file that is not on disk; Corrupt is a file whose size or hash no longer matches what was recorded at import.</summary>
 public static class IntegrityStatuses
 {
     public const string Unchecked = "Unchecked";
@@ -112,10 +112,20 @@ public class PatientDocument
     public string? InactiveReason { get; set; }
     public Guid? InactivatedByUserId { get; set; }
     public DateTimeOffset? InactivatedAtUtc { get; set; }
-    /// <summary>One of <see cref="IntegrityStatuses"/>, from the last storage check.</summary>
-    public string IntegrityStatus { get; set; } = IntegrityStatuses.Unchecked;
-    public DateTimeOffset? IntegrityCheckedAtUtc { get; set; }
     public byte[] RowVersion { get; set; } = [];
+}
+
+/// <summary>
+/// ALV-010-C01: the result of the last storage check of a document's file. A separate row, not columns on the document, so that a check (which may run over every document at once) never moves a document's row
+/// version and so never makes someone's open edit look stale. No row means the document was never checked.
+/// </summary>
+public class DocumentIntegrity
+{
+    public Guid DocumentId { get; set; }
+    /// <summary>Ok, Missing or Corrupt (<see cref="IntegrityStatuses"/>).</summary>
+    public required string Status { get; set; }
+    public DateTimeOffset CheckedAtUtc { get; set; }
+    public Guid? CheckedByUserId { get; set; }
 }
 
 /// <summary>

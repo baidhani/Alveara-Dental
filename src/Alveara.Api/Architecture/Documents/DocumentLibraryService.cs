@@ -61,6 +61,21 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, CancellationToken ct)
     {
         var row = await FindAsync(documentId, ct);
+
+        // a cheap check before anything is served or logged: the file is there with the size recorded at import, and the last full check did not find it damaged (opening does not re-hash a large file)
+        var info = await blobs.GetInfoAsync(row.BlobId, ct);
+        if (info is null)
+        {
+            logger?.LogError("document_file_missing document_id={DocumentId}", documentId);
+            throw new DocumentException("file_missing", "The stored file could not be found. Contact support; the record is intact.", 404);
+        }
+        var lastResult = await db.DocumentIntegrity.AsNoTracking().Where(i => i.DocumentId == documentId).Select(i => i.Status).SingleOrDefaultAsync(ct);
+        if (info.SizeBytes != row.SizeBytes || lastResult == IntegrityStatuses.Corrupt)
+        {
+            logger?.LogError("document_file_corrupt document_id={DocumentId}", documentId);
+            throw new DocumentException("file_corrupt", "The stored file does not match what was imported, so it is not opened. Contact support; the record is intact.", 409);
+        }
+
         Stream stream;
         try
         {

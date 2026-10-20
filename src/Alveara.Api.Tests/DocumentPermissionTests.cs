@@ -22,6 +22,20 @@ public class DocumentPermissionTests
         Assert.Equal(settings, PermissionMatrix.RoleHas(role, Permission.ManageDocumentSettings));
     }
 
+    [Theory]
+    [InlineData(Role.Admin, true)]
+    [InlineData(Role.OfficeManager, true)]
+    [InlineData(Role.FrontDesk, false)]
+    [InlineData(Role.Dentist, false)]
+    [InlineData(Role.Hygienist, false)]
+    [InlineData(Role.Assistant, false)]
+    [InlineData(Role.Billing, false)]
+    [InlineData(Role.Unassigned, false)]
+    public void The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(Role role, bool held)
+    {
+        Assert.Equal(held, PermissionMatrix.RoleHas(role, Permission.ManageDocumentStorage));
+    }
+
     [Fact]
     public void Nobody_can_import_a_document_without_being_able_to_view_it()
     {

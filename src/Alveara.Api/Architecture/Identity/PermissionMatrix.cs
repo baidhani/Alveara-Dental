@@ -61,7 +61,8 @@ public static class PermissionMatrix
             Permission.ViewBackupStatus, Permission.RegisterPatients, Permission.EditPatients,
             Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms, // ALV-N010
             Permission.UpdateVisitFlow, Permission.UpdateChairsideFlow, // ALV-011-C01: the practice manager covers both teams
-            Permission.ImportDocuments, Permission.ViewDocuments), // STORY-010: imports and categorizes; the settings stay with the administrator
+            Permission.ImportDocuments, Permission.ViewDocuments, // STORY-010: imports and categorizes; the settings stay with the administrator
+            Permission.ManageDocumentStorage), // ALV-010-C01: checks the stored files and reviews the ones nothing points to
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

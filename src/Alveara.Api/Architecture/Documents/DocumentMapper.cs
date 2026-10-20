@@ -13,9 +13,12 @@ internal static class DocumentMapper
         var categoryIds = rows.Select(r => r.CategoryId).Distinct().ToList();
         var categories = await db.DocumentCategories.AsNoTracking().Where(c => categoryIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, ct);
         var names = await ClinicalNames.ResolveAsync(db, rows.SelectMany(r => new Guid?[] { r.ImportedByUserId, r.InactivatedByUserId }), ct);
+        var documentIds = rows.Select(r => r.Id).ToList();
+        var integrity = await db.DocumentIntegrity.AsNoTracking().Where(i => documentIds.Contains(i.DocumentId)).ToDictionaryAsync(i => i.DocumentId, ct);
         return rows.Select(r => new DocumentView(r.Id, r.PatientId, r.CategoryId, categories[r.CategoryId].Code, categories[r.CategoryId].Name, r.DocumentDate, r.Description, r.DuplicateOfDocumentId,
             r.OriginalFileName, r.DetectedType, r.DetectedType != "other", r.SizeBytes, r.Sha256, ClinicalNames.Name(names, r.ImportedByUserId)!, r.ImportedAtUtc, Convert.ToBase64String(r.RowVersion),
-            r.EncounterId, r.ToothKey, r.RegionKey, r.Status, r.InactiveReason, ClinicalNames.Name(names, r.InactivatedByUserId), r.InactivatedAtUtc, r.IntegrityStatus, r.IntegrityCheckedAtUtc)).ToList();
+            r.EncounterId, r.ToothKey, r.RegionKey, r.Status, r.InactiveReason, ClinicalNames.Name(names, r.InactivatedByUserId), r.InactivatedAtUtc,
+            integrity.TryGetValue(r.Id, out var check) ? check.Status : IntegrityStatuses.Unchecked, check?.CheckedAtUtc)).ToList();
     }
 
     public static async Task<DocumentView> ViewAsync(AlveraDbContext db, PatientDocument row, CancellationToken ct) => (await ViewsAsync(db, [row], ct))[0];

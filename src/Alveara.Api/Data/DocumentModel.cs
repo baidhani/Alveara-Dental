@@ -53,7 +53,6 @@ internal static class DocumentModel
             e.Property(x => x.RegionKey).HasMaxLength(20);
             e.Property(x => x.Status).HasMaxLength(10).HasDefaultValue(DocumentStatuses.Active);
             e.Property(x => x.InactiveReason).HasMaxLength(500);
-            e.Property(x => x.IntegrityStatus).HasMaxLength(10).HasDefaultValue(IntegrityStatuses.Unchecked);
             e.HasOne<Encounter>().WithMany().HasForeignKey(x => x.EncounterId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.InactivatedByUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.PatientId, x.Status });
@@ -83,16 +82,29 @@ internal static class DocumentModel
                 t.HasCheckConstraint("CK_Documents_Date", "[DocumentDate] >= '1900-01-01' AND [DocumentDate] < '2200-01-01'");
                 t.HasCheckConstraint("CK_Documents_Imported", "[ImportedAtUtc] >= '2000-01-01' AND [ImportedAtUtc] < '2200-01-01'");
                 t.HasCheckConstraint("CK_Documents_NotOwnDuplicate", "[DuplicateOfDocumentId] IS NULL OR [DuplicateOfDocumentId] <> [Id]");
-                // ALV-010-C01: a document is about one tooth or one region, never both; an inactive document says why, who and when and an active one carries none of that; the storage check's result and its time go together
+                // ALV-010-C01: a document is about one tooth or one region, never both; an inactive document says why, who and when and an active one carries none of that
                 t.HasCheckConstraint("CK_Documents_ToothKey", $"[ToothKey] IS NULL OR [ToothKey] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(ToothKeys.All)})");
                 t.HasCheckConstraint("CK_Documents_Region", $"[RegionKey] IS NULL OR ([RegionKey] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(DiagnosisRegions.All)}) AND [ToothKey] IS NULL)");
                 t.HasCheckConstraint("CK_Documents_Status", $"[Status] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(DocumentStatuses.All)})");
                 t.HasCheckConstraint("CK_Documents_Inactive",
                     $"([Status] = '{DocumentStatuses.Active}' AND [InactiveReason] IS NULL AND [InactivatedByUserId] IS NULL AND [InactivatedAtUtc] IS NULL) " +
                     $"OR ([Status] = '{DocumentStatuses.Inactive}' AND [InactiveReason] IS NOT NULL AND LEN(LTRIM(RTRIM([InactiveReason]))) > 0 AND {PrescriptionModel.NoControl("InactiveReason")} AND [InactivatedByUserId] IS NOT NULL AND [InactivatedAtUtc] IS NOT NULL)");
-                t.HasCheckConstraint("CK_Documents_Integrity",
-                    $"[IntegrityStatus] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(IntegrityStatuses.All)}) " +
-                    $"AND (([IntegrityStatus] = '{IntegrityStatuses.Unchecked}' AND [IntegrityCheckedAtUtc] IS NULL) OR ([IntegrityStatus] <> '{IntegrityStatuses.Unchecked}' AND [IntegrityCheckedAtUtc] IS NOT NULL))");
+            });
+        });
+
+        modelBuilder.Entity<DocumentIntegrity>(e =>
+        {
+            e.ToTable("DocumentIntegrity");
+            e.HasKey(x => x.DocumentId);
+            e.Property(x => x.Status).HasMaxLength(10);
+            e.HasOne<PatientDocument>().WithOne().HasForeignKey<DocumentIntegrity>(x => x.DocumentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.CheckedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.Status);
+            e.ToTable(t =>
+            {
+                // only a result is stored: a document that was never checked has no row
+                t.HasCheckConstraint("CK_DocumentIntegrity_Status", $"[Status] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(IntegrityStatuses.All.Where(s => s != IntegrityStatuses.Unchecked))})");
+                t.HasCheckConstraint("CK_DocumentIntegrity_Time", "[CheckedAtUtc] >= '2000-01-01' AND [CheckedAtUtc] < '2200-01-01'");
             });
         });
 
