@@ -27,8 +27,6 @@ namespace Alveara.Api.Architecture.Documents;
 public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPracticeClock clock, ILogger<DocumentImportService>? logger = null)
 {
     private const int KeyMax = 64;
-    private const int DescriptionMax = 500;
-    private static readonly DateOnly EarliestDate = new(1900, 1, 1);
 
     public async Task<DocumentImportResult> ImportAsync(DocumentImportRequest request, Guid actor, CancellationToken ct)
     {
@@ -45,7 +43,7 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
         var detected = DocumentFileRules.DetectContent(await ReadHeaderAsync(request.Content, ct));
         if (DocumentFileRules.CheckContent(name.Extension, detected) is { } contentError) throw Refusal(contentError);
         var type = DocumentFileRules.Classify(detected);
-        var (category, description) = await CheckMetadataAsync(request, ct);
+        var (category, description) = await DocumentMetadataChecker.CheckAsync(db, clock, request.CategoryId, request.DocumentDate, request.Description, null, ct);
 
         request.Content.Position = 0;
         var blob = await StoreAsync(request.Content, ct);
@@ -126,30 +124,6 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
         }
         content.Position = 0;
         return buffer[..read];
-    }
-
-    private async Task<(DocumentCategory Category, string? Description)> CheckMetadataAsync(DocumentImportRequest r, CancellationToken ct)
-    {
-        var problems = new List<DocumentProblem>();
-        DocumentCategory? category = null;
-        if (r.CategoryId is null) problems.Add(new("category", "required", "Choose a category."));
-        else
-        {
-            category = await db.DocumentCategories.AsNoTracking().SingleOrDefaultAsync(c => c.Id == r.CategoryId, ct);
-            if (category is null) problems.Add(new("category", "unknown", "That category does not exist."));
-            else if (!category.IsActive) problems.Add(new("category", "inactive", "That category is no longer in use. Choose another."));
-        }
-
-        if (r.DocumentDate is not { } date) problems.Add(new("documentDate", "required", "Enter the date of the document."));
-        else if (date < EarliestDate) problems.Add(new("documentDate", "invalid", "Enter a date from 1900 onward."));
-        else if (date > DateOnly.FromDateTime(clock.ToPracticeLocal(clock.UtcNow).DateTime)) problems.Add(new("documentDate", "future", "The date of a document cannot be in the future."));
-
-        var description = string.IsNullOrWhiteSpace(r.Description) ? null : r.Description.Trim();
-        if (description is not null && description.Length > DescriptionMax) problems.Add(new("description", "too_long", $"The description can be at most {DescriptionMax} characters."));
-        else if (description is not null && description.Any(char.IsControl)) problems.Add(new("description", "invalid", "The description cannot contain control characters."));
-
-        if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The document has entries that need correcting. Nothing was imported.", 400, problems);
-        return (category!, description);
     }
 
     /// <summary>The document this one duplicates (when the importer confirmed it), or null when it is not a duplicate. Refuses an unconfirmed duplicate and a confirmation that does not match.</summary>

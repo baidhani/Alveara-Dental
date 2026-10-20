@@ -1,0 +1,95 @@
+using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.Auditing;
+using Alveara.Api.Architecture.Clinical;
+using Alveara.Api.Architecture.Forms;
+using Alveara.Api.Architecture.Storage;
+using Alveara.Api.Architecture.Time;
+using Alveara.Api.Data;
+
+namespace Alveara.Api.Architecture.Documents;
+
+/// <summary>
+/// STORY-010: reading a patient's library and opening a file (docs/DOCUMENTS.md, "What happens when a file is opened"). Listing and reading write nothing. Signed forms are listed through the existing
+/// <see cref="PatientFormReader.SignedDocumentsAsync"/> seam, as read-only entries that point at the immutable snapshot; they are never copied into Documents and nothing here can change one.
+///
+/// Opening is logged before the file is handed over: the history row and the log entry are written in one transaction, and if they cannot be written the file is not opened (<c>save_failed</c>, 503). A stored file that
+/// has gone missing is reported (<c>file_missing</c>) and nothing is logged as opened. Not handled: the file's integrity is not re-hashed on every open (a 1 GB file would make every open slow); the backup
+/// verification covers corruption.
+/// </summary>
+public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms, IBlobStorage blobs, IPracticeClock clock, ILogger<DocumentLibraryService>? logger = null)
+{
+    private static readonly HashSet<string> InlineTypes = ["pdf", "png", "jpeg"];
+
+    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, Guid? categoryId, CancellationToken ct)
+    {
+        var rows = await db.Documents.AsNoTracking().Where(d => d.PatientId == patientId && (categoryId == null || d.CategoryId == categoryId)).ToListAsync(ct);
+        var entries = (await DocumentMapper.ViewsAsync(db, rows, ct))
+            .Select(v => new LibraryEntry(LibraryEntry.DocumentKind, v.Id, null, v.OriginalFileName, v.CategoryName, v.DocumentDate, v.DetectedType, v.SizeBytes, v.ImportedByName, v.ImportedAtUtc, false,
+                v.DuplicateOfDocumentId is not null, v)).ToList();
+
+        if (categoryId is null)                                                       // signed forms have no document category, so a category filter leaves them out
+            foreach (var f in await forms.SignedDocumentsAsync(patientId, ct))
+                entries.Add(new LibraryEntry(LibraryEntry.SignedFormKind, f.SnapshotId, f.PatientFormId, f.Title, LibraryEntry.SignedFormCategory, DateOnly.FromDateTime(clock.ToPracticeLocal(f.SignedAtUtc).DateTime),
+                    "form", null, null, f.SignedAtUtc, f.IsVoided, false, null));
+
+        return entries.OrderByDescending(e => e.Date).ThenByDescending(e => e.AtUtc).ThenBy(e => e.Id).ToList();
+    }
+
+    public async Task<DocumentDetail> GetAsync(Guid documentId, CancellationToken ct)
+    {
+        var row = await FindAsync(documentId, ct);
+        var events = await db.DocumentEvents.AsNoTracking().Where(e => e.DocumentId == documentId).OrderBy(e => e.EventNumber).ToListAsync(ct);
+        var names = await ClinicalNames.ResolveAsync(db, events.Select(e => (Guid?)e.ByUserId), ct);
+        var categoryIds = events.SelectMany(e => new[] { e.FromCategoryId, e.ToCategoryId }).Where(i => i is not null).Select(i => i!.Value).Distinct().ToList();
+        var categories = await db.DocumentCategories.AsNoTracking().Where(c => categoryIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, c => c.Name, ct);
+        string? CategoryName(Guid? id) => id is null ? null : categories.GetValueOrDefault(id.Value);
+        return new DocumentDetail(await DocumentMapper.ViewAsync(db, row, ct), events.Select(e =>
+            new DocumentHistoryEntry(e.EventNumber, e.Kind, e.AtUtc, ClinicalNames.Name(names, e.ByUserId)!, CategoryName(e.FromCategoryId), CategoryName(e.ToCategoryId), e.RelatedDocumentId)).ToList());
+    }
+
+    public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, CancellationToken ct)
+    {
+        var row = await FindAsync(documentId, ct);
+        Stream stream;
+        try
+        {
+            stream = await blobs.OpenReadAsync(row.BlobId, ct);
+        }
+        catch (FileNotFoundException)
+        {
+            logger?.LogError("document_file_missing document_id={DocumentId}", documentId);
+            throw new DocumentException("file_missing", "The stored file could not be found. Contact support; the record is intact.", 404);
+        }
+
+        try
+        {
+            var correlation = Guid.NewGuid();
+            await using var transaction = await db.Database.BeginTransactionAsync(ct);
+            AuditService.Record(db, "DocumentOpened", "Document", row.Id, actor, "Document opened.", correlationId: correlation);
+            await db.SaveChangesAsync(ct);
+            db.DocumentEvents.Add(new DocumentEvent
+            {
+                EventNumber = await DocumentEventNumbers.IssueAsync(db, ct), Kind = DocumentEventKinds.Opened, DocumentId = row.Id, PatientId = row.PatientId, ByUserId = actor, AtUtc = clock.UtcNow,
+            });
+            await db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
+        }
+        catch (OperationCanceledException)
+        {
+            db.ChangeTracker.Clear();
+            await stream.DisposeAsync();
+            throw;
+        }
+        catch (Exception ex)
+        {
+            db.ChangeTracker.Clear();
+            await stream.DisposeAsync();
+            logger?.LogWarning("document_open_not_logged error_class={ErrorClass}", ex.InnerException?.GetType().Name ?? ex.GetType().Name);
+            throw new DocumentException("save_failed", "The document could not be opened because the action could not be logged. Try again; if it keeps failing, contact support.", 503);
+        }
+        return new OpenedDocument(stream, row.OriginalFileName, row.ContentType, InlineTypes.Contains(row.DetectedType), row.SizeBytes);
+    }
+
+    private async Task<PatientDocument> FindAsync(Guid documentId, CancellationToken ct) =>
+        await db.Documents.AsNoTracking().SingleOrDefaultAsync(d => d.Id == documentId, ct) ?? throw new DocumentException("document_not_found", "That document was not found.", 404);
+}

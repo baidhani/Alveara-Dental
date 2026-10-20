@@ -22,3 +22,33 @@ public sealed record DocumentImportResult(DocumentView Document, bool Replayed);
 
 /// <summary>What the duplicate warning shows about the document already filed (docs/DOCUMENTS.md, "Store, then check for a duplicate").</summary>
 public sealed record DuplicateSummary(Guid DocumentId, string CategoryName, DateOnly DocumentDate, string ImportedByName, DateTimeOffset ImportedAtUtc);
+
+/// <summary>What an edit may change: the category, the date and the description. The row version is what the caller last read, so a change made by someone else in between is refused.</summary>
+public sealed record DocumentEditInput(Guid? CategoryId, DateOnly? DocumentDate, string? Description, string? RowVersion);
+
+public sealed record DocumentHistoryEntry(long EventNumber, string Kind, DateTimeOffset AtUtc, string ByName, string? FromCategoryName, string? ToCategoryName, Guid? RelatedDocumentId);
+
+public sealed record DocumentDetail(DocumentView Document, IReadOnlyList<DocumentHistoryEntry> History);
+
+/// <summary>
+/// One line of a patient's library: an imported document or a signed form (read-only, listed through the existing signed-form seam; the form itself is not copied). For a signed form <see cref="Id"/> is the
+/// snapshot's id and <see cref="Document"/> is null.
+/// </summary>
+public sealed record LibraryEntry(string Kind, Guid Id, Guid? PatientFormId, string Title, string CategoryName, DateOnly Date, string DetectedType, long? SizeBytes, string? ImportedByName,
+    DateTimeOffset AtUtc, bool IsVoided, bool IsDuplicate, DocumentView? Document)
+{
+    public const string DocumentKind = "Document";
+    public const string SignedFormKind = "SignedForm";
+    public const string SignedFormCategory = "Signed form";
+}
+
+/// <summary>A file ready to be served. <see cref="InlineSafe"/> is true only for PDF, PNG and JPEG, which may be shown in the browser under a restrictive policy; everything else is a download.</summary>
+public sealed class OpenedDocument(Stream content, string fileName, string contentType, bool inlineSafe, long sizeBytes) : IAsyncDisposable
+{
+    public Stream Content { get; } = content;
+    public string FileName { get; } = fileName;
+    public string ContentType { get; } = contentType;
+    public bool InlineSafe { get; } = inlineSafe;
+    public long SizeBytes { get; } = sizeBytes;
+    public ValueTask DisposeAsync() => Content.DisposeAsync();
+}
