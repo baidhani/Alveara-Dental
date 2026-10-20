@@ -20,6 +20,12 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
 {
     private static readonly HashSet<string> InlineTypes = ["pdf", "png", "jpeg"];
 
+    /// <summary>Refuses an unknown patient (404), so a route can tell "no documents yet" from "no such patient".</summary>
+    public async Task EnsurePatientAsync(Guid patientId, CancellationToken ct)
+    {
+        if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new DocumentException("patient_not_found", "That patient was not found.", 404);
+    }
+
     public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, Guid? categoryId, CancellationToken ct)
     {
         var rows = await db.Documents.AsNoTracking().Where(d => d.PatientId == patientId && (categoryId == null || d.CategoryId == categoryId)).ToListAsync(ct);
