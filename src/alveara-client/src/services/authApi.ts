@@ -99,6 +99,11 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
 }
 
+/** For a caller that makes its own request (an upload that reports progress) and so cannot use <see cref="request"/>: a 401 from it must still sign the user out the same way. */
+export function reportUnauthorized(): void {
+  onUnauthorized?.();
+}
+
 export async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, { credentials: "include", ...init });
   if (!res.ok) {

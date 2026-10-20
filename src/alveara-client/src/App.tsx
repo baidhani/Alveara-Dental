@@ -17,6 +17,7 @@ import { AuditLogPage } from "./pages/AuditLogPage";
 import { ConfigurationHubPage } from "./pages/ConfigurationHubPage";
 import { BackupRecoveryPage } from "./pages/BackupRecoveryPage";
 import { DocumentSettingsPage } from "./pages/documents/DocumentSettingsPage";
+import { DocumentStoragePage } from "./pages/documents/DocumentStoragePage";
 import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
@@ -141,6 +142,14 @@ function createAppRouter() {
             element={
               <RequirePermission permission="ManageDocumentSettings">
                 <DocumentSettingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/admin/document-storage"
+            element={
+              <RequirePermission permission="ManageDocumentStorage">
+                <DocumentStoragePage />
               </RequirePermission>
             }
           />

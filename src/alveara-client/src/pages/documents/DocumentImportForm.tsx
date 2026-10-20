@@ -3,16 +3,19 @@ import { Button } from "../../components/Button";
 import { FormField } from "../../components/FormField";
 import { ApiError } from "../../services/authApi";
 import { duplicateOf, importDocument, newKey, problemsOf } from "../../services/documentsApi";
-import type { CategoryView, DuplicateSummary } from "../../services/documentsApi";
+import type { CategoryView, DocumentContext, DuplicateSummary } from "../../services/documentsApi";
+import type { EncounterSummary } from "../../services/clinicalApi";
+import { DocumentContextFields } from "./DocumentContextFields";
+import type { ContextErrors } from "./documentContext";
 import { FILE_ERROR_CODES, formatBytes, formatDate, formatDateTime, todayValue } from "./documentText";
 
-type Errors = Partial<Record<"file" | "category" | "documentDate" | "description", string>>;
+type Errors = Partial<Record<"file" | "category" | "documentDate" | "description", string>> & ContextErrors;
 
 /**
  * STORY-010: the import form. Every wrong entry is named beside its box and what was typed stays; one attempt keeps one save key, so a retry after a failure can never import the file twice, and a changed
  * entry starts a new attempt. A file the patient already has is warned about, naming the document that exists, and is added only by pressing "Add anyway", which sends the same file again with the confirmation.
  */
-export function DocumentImportForm({ patientId, categories, maxBytes, onImported }: { patientId: string; categories: CategoryView[]; maxBytes: number; onImported: () => void }) {
+export function DocumentImportForm({ patientId, categories, encounters, maxBytes, onImported }: { patientId: string; categories: CategoryView[]; encounters: EncounterSummary[]; maxBytes: number; onImported: () => void }) {
   const categoryId = useId();
   const descriptionId = useId();
   const [file, setFile] = useState<File | null>(null);
@@ -20,6 +23,9 @@ export function DocumentImportForm({ patientId, categories, maxBytes, onImported
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(todayValue());
   const [description, setDescription] = useState("");
+  const [context, setContext] = useState<DocumentContext>({ encounterId: "", toothKey: "", regionKey: "" });
+  const [progress, setProgress] = useState<number | null>(null);
+  const abort = useRef<AbortController | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -42,9 +48,11 @@ export function DocumentImportForm({ patientId, categories, maxBytes, onImported
     if (Object.keys(found).length > 0 || !file) return;
 
     setBusy(true);
+    setProgress(0);
+    abort.current = new AbortController();
     key.current ??= newKey();
     try {
-      const result = await importDocument(patientId, { file, categoryId: category, documentDate: date, description, key: key.current, confirmDuplicateOf });
+      const result = await importDocument(patientId, { file, categoryId: category, documentDate: date, description, ...context, key: key.current, confirmDuplicateOf }, setProgress, abort.current.signal);
       setStatus(`Imported ${result.document.originalFileName}.`);
       setFile(null); setFileVersion((v) => v + 1); setDescription(""); setDuplicate(null);
       key.current = null;
@@ -53,15 +61,18 @@ export function DocumentImportForm({ patientId, categories, maxBytes, onImported
       const existing = duplicateOf(err);
       if (existing) { setDuplicate(existing); return; }
       setDuplicate(null);
+      if (err instanceof DOMException && err.name === "AbortError") { setFormError("The upload was cancelled. Nothing was imported. You can import the file again."); return; }
       if (!(err instanceof ApiError)) { setFormError("Could not reach the server. Nothing was imported. Check your connection and try again."); return; }
       const problems = problemsOf(err);
       const byField: Errors = {};
-      for (const p of problems) if (p.field in { category: 1, documentDate: 1, description: 1 }) byField[p.field as keyof Errors] = p.message;
+      for (const p of problems) if (p.field in { category: 1, documentDate: 1, description: 1, encounter: 1, toothKey: 1, regionKey: 1 }) byField[p.field as keyof Errors] = p.message;
       if (FILE_ERROR_CODES.has(err.code)) byField.file = err.message;
       setErrors(byField);
       if (Object.keys(byField).length === 0) setFormError(err.message);
     } finally {
       setBusy(false);
+      setProgress(null);
+      abort.current = null;
     }
   }
 
@@ -93,6 +104,7 @@ export function DocumentImportForm({ patientId, categories, maxBytes, onImported
         {errors.category && <p id={`${categoryId}-error`} className="alv-form-field__error" role="alert">{errors.category}</p>}
       </div>
       <FormField label="Date of document" type="date" value={date} error={errors.documentDate} onChange={(e) => changed(setDate)(e.target.value)} disabled={busy} />
+      <DocumentContextFields value={context} onChange={changed(setContext)} encounters={encounters} errors={errors} disabled={busy} />
       <div className="alv-form-field alv-documents__wide">
         <label htmlFor={descriptionId} className="alv-form-field__label">Description (optional)</label>
         <textarea
@@ -118,6 +130,13 @@ export function DocumentImportForm({ patientId, categories, maxBytes, onImported
             <Button type="button" variant="primary" onClick={() => void send(duplicate.documentId)} disabled={busy}>Add anyway</Button>
             <Button type="button" onClick={() => setDuplicate(null)} disabled={busy}>Cancel</Button>
           </div>
+        </div>
+      )}
+      {progress !== null && (
+        <div className="alv-documents__wide alv-documents__progress">
+          <progress aria-label="Upload progress" value={progress} max={1} />
+          <span>Uploading… {Math.round(progress * 100)}%</span>
+          <Button type="button" onClick={() => abort.current?.abort()}>Cancel upload</Button>
         </div>
       )}
       {formError && <p className="alv-form-field__error alv-documents__wide" role="alert">{formError}</p>}

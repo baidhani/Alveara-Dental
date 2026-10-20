@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
 import type { BlockedExtension, CategoryView, DocumentSettings } from "../../services/documentsApi";
 import { DocumentSettingsPage } from "./DocumentSettingsPage";
@@ -53,7 +54,7 @@ function stub(over: Partial<Script> = {}) {
 }
 
 async function open() {
-  const view = render(<DocumentSettingsPage />);
+  const view = render(<MemoryRouter><DocumentSettingsPage /></MemoryRouter>);
   await screen.findByRole("heading", { name: "Document settings" });
   await screen.findByRole("table", { name: "Categories" });
   return view;
@@ -76,9 +77,15 @@ describe("what it shows", () => {
     expect(within(list).queryByRole("button", { name: "Unblock .exe" })).toBeNull();
   });
 
+  it("links to the form templates, which are managed there and not here", async () => {
+    stub();
+    await open();
+    expect(screen.getByRole("link", { name: "Manage form templates" })).toHaveAttribute("href", "/admin/form-templates");
+  });
+
   it("says plainly when it cannot be loaded", async () => {
     stub({ loadFails: true });
-    render(<DocumentSettingsPage />);
+    render(<MemoryRouter><DocumentSettingsPage /></MemoryRouter>);
     expect(await screen.findByText("Could not load the document settings")).toBeInTheDocument();
   });
 });

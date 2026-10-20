@@ -28,3 +28,21 @@ export const INLINE_TYPES: ReadonlySet<string> = new Set(["pdf", "png", "jpeg"])
 export const FILE_ERROR_CODES: ReadonlySet<string> = new Set([
   "file_empty", "file_too_large", "file_type_blocked", "file_type_mismatch", "executable_content", "file_name_invalid", "file_required",
 ]);
+
+/** An encounter shown by the day it took place (the viewer's own date format). */
+export const encounterLabel = (atUtc: string) => new Date(atUtc).toLocaleDateString();
+
+/** One line of a document's history in words. */
+export function historyText(e: { kind: string; fromCategoryName: string | null; toCategoryName: string | null; byName: string; atUtc: string }): string {
+  const when = formatDateTime(e.atUtc);
+  switch (e.kind) {
+    case "Imported": return `Imported by ${e.byName}, ${when}`;
+    case "ImportedAsDuplicate": return `Imported as a duplicate by ${e.byName}, ${when}`;
+    case "Categorized": return `Moved from ${e.fromCategoryName ?? "no category"} to ${e.toCategoryName ?? "no category"} by ${e.byName}, ${when}`;
+    case "MetadataEdited": return `Details edited by ${e.byName}, ${when}`;
+    case "Opened": return `Opened by ${e.byName}, ${when}`;
+    case "Inactivated": return `Made inactive by ${e.byName}, ${when}`;
+    case "Reactivated": return `Made active again by ${e.byName}, ${when}`;
+    default: return `${e.kind} by ${e.byName}, ${when}`;
+  }
+}

@@ -34,6 +34,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "patient-requirements", label: "Patient Registration Settings", path: "/admin/patient-registration", requiredPermission: "ManagePracticeConfiguration" },
   { id: "form-templates", label: "Form Templates", path: "/admin/form-templates", requiredPermission: "ManageFormTemplates" },
   { id: "document-settings", label: "Document Settings", path: "/admin/documents", requiredPermission: "ManageDocumentSettings" },
+  { id: "document-storage", label: "Document Storage", path: "/admin/document-storage", requiredPermission: "ManageDocumentStorage" },
   { id: "backup-recovery", label: "Backup & Recovery", path: "/admin/backup", requiredPermission: "ViewBackupStatus" },
   { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];

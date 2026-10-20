@@ -91,5 +91,6 @@ describe("module registries", () => {
     expect(moduleRegistry.find((m) => m.id === "patients")?.requiredPermission).toBe("ViewPatientRecords");
     expect(moduleRegistry.find((m) => m.id === "register-patient")?.requiredPermission).toBe("RegisterPatients");
     expect(moduleRegistry.find((m) => m.id === "document-settings")?.requiredPermission).toBe("ManageDocumentSettings"); // STORY-010
+    expect(moduleRegistry.find((m) => m.id === "document-storage")?.requiredPermission).toBe("ManageDocumentStorage"); // ALV-010-C01
   });
 });

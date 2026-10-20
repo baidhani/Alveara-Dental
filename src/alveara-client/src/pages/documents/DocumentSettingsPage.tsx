@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import { FormField } from "../../components/FormField";
@@ -137,6 +138,10 @@ export function DocumentSettingsPage() {
           <FormField label="Largest file (MB)" type="number" value={limit} hint={`Between ${minMb} and ${maxMb} MB.`} error={fieldErrors.limit} onChange={(e) => setLimit(e.target.value)} />
           <Button type="submit" variant="primary" disabled={busy}>Save size limit</Button>
         </form>
+      </Section>
+
+      <Section title="Forms and consents" intro="Forms and consents are signed in the patient's file and appear in the library as read-only entries. Their wording and versions are managed with the form templates; a signed copy never changes when a template is edited.">
+        <p><Link to="/admin/form-templates">Manage form templates</Link></p>
       </Section>
 
       <Section title="Blocked file types" intro="Nobody can import these types. The built-in types protect every installation and cannot be unblocked; you can block more.">
