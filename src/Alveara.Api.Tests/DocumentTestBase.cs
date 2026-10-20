@@ -24,6 +24,13 @@ public abstract class DocumentTestBase : SafetyTestBase
     protected sealed class RecordingBlobStorage(IBlobStorage inner) : IBlobStorage
     {
         public int Stored; public int Deleted; public bool FailStore; public bool FailDelete;
+        private TaskCompletionSource? _gate;
+        private int _arrived;
+        private int _gateSize;
+        private TimeSpan _gateTimeout;
+
+        /// <summary>Holds the first callers that look at a file until <paramref name="callers"/> have arrived (or the timeout passes), then lets everyone through, so that simultaneous callers really overlap.</summary>
+        public void ArmInfoGate(int callers, TimeSpan timeout) { _arrived = 0; (_gateSize, _gateTimeout) = (callers, timeout); _gate = new(TaskCreationOptions.RunContinuationsAsynchronously); }
         public async Task<StoredBlob> StoreAsync(Stream content, CancellationToken cancellationToken = default)
         {
             if (FailStore) throw new IOException("disk full");
@@ -33,7 +40,15 @@ public abstract class DocumentTestBase : SafetyTestBase
         }
         public Task<Stream> OpenReadAsync(Guid blobId, CancellationToken cancellationToken = default) => inner.OpenReadAsync(blobId, cancellationToken);
         public Task<bool> VerifyIntegrityAsync(Guid blobId, string expectedSha256, CancellationToken cancellationToken = default) => inner.VerifyIntegrityAsync(blobId, expectedSha256, cancellationToken);
-        public Task<BlobInfo?> GetInfoAsync(Guid blobId, CancellationToken cancellationToken = default) => inner.GetInfoAsync(blobId, cancellationToken);
+        public async Task<BlobInfo?> GetInfoAsync(Guid blobId, CancellationToken cancellationToken = default)
+        {
+            if (_gate is { } gate)
+            {
+                if (Interlocked.Increment(ref _arrived) >= _gateSize) gate.TrySetResult();
+                else await Task.WhenAny(gate.Task, Task.Delay(_gateTimeout, cancellationToken));
+            }
+            return await inner.GetInfoAsync(blobId, cancellationToken);
+        }
         public IAsyncEnumerable<BlobInfo> ListAsync(CancellationToken cancellationToken = default) => inner.ListAsync(cancellationToken);
         public Task DeleteAsync(Guid blobId, CancellationToken cancellationToken = default)
         {

@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Auditing;
@@ -22,6 +23,23 @@ public sealed record StorageReport(int Checked, int Ok, int Missing, int Corrupt
 /// <summary>The current picture without running a check: how many documents have each stored result (and how many were never checked), the problems, and the unreferenced files on disk right now.</summary>
 public sealed record StorageSummary(int Documents, int Ok, int Missing, int Corrupt, int NeverChecked, IReadOnlyList<StorageProblem> Problems, IReadOnlyList<OrphanFile> Orphans);
 
+/// <summary>What happened to one file a reviewer asked to remove.</summary>
+public static class OrphanOutcomes
+{
+    public const string Removed = "Removed";
+    public const string AlreadyGone = "AlreadyGone";
+    public const string StillReferenced = "StillReferenced";
+    public const string TooNew = "TooNew";
+    public const string Failed = "Failed";
+}
+
+public sealed record OrphanRemoval(Guid BlobId, string Outcome);
+
+public sealed record OrphanRemovalReport(IReadOnlyList<OrphanRemoval> Results)
+{
+    public int Removed => Results.Count(r => r.Outcome == OrphanOutcomes.Removed);
+}
+
 /// <summary>
 /// ALV-010-C01: checking that the stored files of documents are present and intact, and finding stored files that no document points to (docs/DOCUMENTS.md, "Storage integrity").
 ///
@@ -31,8 +49,10 @@ public sealed record StorageSummary(int Documents, int Ok, int Missing, int Corr
 /// - <b>A check never makes an edit look stale.</b> The result is its own row per document (replaced by each check), not columns on the document, so a document's row version does not move.
 /// - <b>One save with its log entry.</b> A single check saves its result with a <c>DocumentIntegrityChecked</c> entry; a run over every document saves all its results with one <c>DocumentStorageChecked</c> entry,
 ///   in one transaction, and the entry carries counts only (never a file name or a patient). A failed log write saves no result (<c>save_failed</c>, 503). A run honours cancellation and saves nothing if cancelled.
-/// - <b>Unreferenced files are only listed here.</b> A file counts only once it is older than <see cref="OrphanGracePeriod"/>, so an import still being written is never listed; a temporary file or a stray file with
-///   another name is not a stored file. Removing one is a separate, logged action.
+/// - <b>Unreferenced files are listed, then removed only by a reviewer.</b> A file counts only once it is older than <see cref="OrphanGracePeriod"/>, so an import still being written is never listed; a temporary
+///   file or a stray file with another name is not a stored file. <see cref="RemoveOrphansAsync"/> removes the files a reviewer names, each in its own transaction: it takes a lock on that file (so simultaneous
+///   removals act once), re-checks at that moment that no document points to it and that it is old enough, writes a <c>DocumentOrphanRemoved</c> entry (the file's id, never a name or a patient) and only then
+///   deletes the file; if the entry cannot be saved or the delete fails the file stays and nothing is logged (outcome Failed), and one failure never stops the others. Nothing is ever removed automatically.
 /// - Not handled: a run hashes every file, so it takes time proportional to the library's size and is meant to be run on request (or off hours), not on every page view.
 /// </summary>
 public class DocumentIntegrityService(AlveraDbContext db, IBlobStorage blobs, IPracticeClock clock, ILogger<DocumentIntegrityService>? logger = null)
@@ -122,6 +142,62 @@ public class DocumentIntegrityService(AlveraDbContext db, IBlobStorage blobs, IP
                               orderby i.CheckedAtUtc descending
                               select new StorageProblem(d.Id, d.PatientId, d.OriginalFileName, i.Status, i.CheckedAtUtc)).ToListAsync(ct);
         return new StorageSummary(documents, Of(IntegrityStatuses.Ok), Of(IntegrityStatuses.Missing), Of(IntegrityStatuses.Corrupt), documents - counts.Sum(c => c.Count), problems, await ListOrphansAsync(ct));
+    }
+
+    public const int MaxRemovalBatch = 500;
+
+    public async Task<OrphanRemovalReport> RemoveOrphansAsync(IReadOnlyList<Guid> blobIds, Guid actor, CancellationToken ct)
+    {
+        var ids = blobIds.Distinct().ToList();
+        if (ids.Count is 0 or > MaxRemovalBatch)
+            throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "That entry needs correcting. Nothing was removed.", 400,
+                [new DocumentProblem("blobIds", ids.Count == 0 ? "required" : "too_many", $"Name between 1 and {MaxRemovalBatch} files to remove.")]);
+
+        var results = new List<OrphanRemoval>();
+        foreach (var id in ids)
+        {
+            ct.ThrowIfCancellationRequested();
+            results.Add(new OrphanRemoval(id, await RemoveOneAsync(id, actor, ct)));
+        }
+        return new OrphanRemovalReport(results);
+    }
+
+    private async Task<string> RemoveOneAsync(Guid blobId, Guid actor, CancellationToken ct)
+    {
+        try
+        {
+            await using var transaction = await db.Database.BeginTransactionAsync(ct);
+            await TakeLockAsync(blobId, ct);                                                   // held until this transaction ends, so a simultaneous removal of the same file waits and then finds it gone
+            if (await db.Documents.AsNoTracking().AnyAsync(d => d.BlobId == blobId, ct)) return OrphanOutcomes.StillReferenced;
+            var info = await blobs.GetInfoAsync(blobId, ct);
+            if (info is null) return OrphanOutcomes.AlreadyGone;
+            if (info.LastWriteUtc >= clock.UtcNow - OrphanGracePeriod) return OrphanOutcomes.TooNew;
+
+            AuditService.Record(db, "DocumentOrphanRemoved", "StoredFile", blobId, actor, "Unreferenced stored file removed.");
+            await db.SaveChangesAsync(ct);                                                     // the entry first: if it cannot be saved the file is not touched
+            await blobs.DeleteAsync(blobId, ct);                                               // if this throws, leaving the transaction rolls the entry back
+            await transaction.CommitAsync(ct);
+            return OrphanOutcomes.Removed;
+        }
+        catch (OperationCanceledException)
+        {
+            db.ChangeTracker.Clear();
+            throw;
+        }
+        catch (Exception ex)
+        {
+            db.ChangeTracker.Clear();
+            logger?.LogWarning("document_orphan_not_removed blob_id={BlobId} error_class={ErrorClass}", blobId, ex.InnerException?.GetType().Name ?? ex.GetType().Name);
+            return OrphanOutcomes.Failed;
+        }
+    }
+
+    private async Task TakeLockAsync(Guid blobId, CancellationToken ct)
+    {
+        var result = new SqlParameter("@result", SqlDbType.Int) { Direction = ParameterDirection.Output };
+        await db.Database.ExecuteSqlRawAsync("EXEC @result = sp_getapplock @Resource = @resource, @LockMode = 'Exclusive', @LockOwner = 'Transaction', @LockTimeout = 10000",
+            [result, new SqlParameter("@resource", $"document-orphan:{blobId:N}")], ct);
+        if (result.Value is not int code || code < 0) throw new InvalidOperationException("The removal lock for the stored file could not be taken.");
     }
 
     public async Task<IReadOnlyList<OrphanFile>> ListOrphansAsync(CancellationToken ct)

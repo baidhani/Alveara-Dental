@@ -55,6 +55,7 @@ public class DocumentStorageApiTests : IAsyncLifetime
 
     private string Stray(DateTimeOffset writtenAt)
     {
+        Directory.CreateDirectory(_storage);                                                                   // the API creates it on its first request; a test may write a file before that
         var path = Path.Combine(_storage, Guid.NewGuid().ToString("N"));
         File.WriteAllBytes(path, [1, 2, 3]);
         File.SetLastWriteTimeUtc(path, writtenAt.UtcDateTime);
@@ -136,6 +137,80 @@ public class DocumentStorageApiTests : IAsyncLifetime
         var recheck = await office.SendAsync(HttpMethod.Post, $"/api/document-storage/documents/{damaged}/check");
         Assert.Equal((HttpStatusCode.OK, "Ok"), (recheck.Status, Str(recheck.Body, "status")));
         Assert.Equal(HttpStatusCode.OK, (await office.Client.GetAsync($"/api/documents/{damaged}/content")).StatusCode);
+    }
+
+    // ---------- removing unreferenced files ----------
+
+    private Task<(HttpStatusCode Status, JsonElement Body)> RemoveAsync(Session by, object body, bool csrf = true) => by.SendAsync(HttpMethod.Post, "/api/document-storage/orphans/remove", body, csrf: csrf);
+
+    [Fact]
+    public async Task Anonymous_callers_get_401_from_the_removal_route()
+    {
+        var anon = _api.Factory.CreateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PostAsync("/api/document-storage/orphans/remove", null)).StatusCode);
+    }
+
+    [Theory]
+    [InlineData("Admin", true)] [InlineData("OfficeManager", true)]
+    [InlineData("FrontDesk", false)] [InlineData("Dentist", false)] [InlineData("Hygienist", false)] [InlineData("Assistant", false)] [InlineData("Billing", false)]
+    public async Task Only_the_administrator_and_office_manager_remove_unreferenced_files(string role, bool allowed)
+    {
+        var by = await _api.SessionAsync(role);
+        var stray = Stray(DateTimeOffset.UtcNow.AddHours(-3));
+        var r = await RemoveAsync(by, new { blobIds = new[] { Guid.Parse(stray) } });
+        if (allowed) { Assert.Equal(HttpStatusCode.OK, r.Status); Assert.False(File.Exists(Path.Combine(_storage, stray))); }
+        else { Assert.Equal(HttpStatusCode.Forbidden, r.Status); Assert.True(File.Exists(Path.Combine(_storage, stray))); }
+    }
+
+    [Fact]
+    public async Task A_removal_without_a_csrf_token_is_refused_and_removes_nothing()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var stray = Stray(DateTimeOffset.UtcNow.AddHours(-3));
+        Assert.Equal(HttpStatusCode.BadRequest, (await RemoveAsync(admin, new { blobIds = new[] { Guid.Parse(stray) } }, csrf: false)).Status);
+        Assert.True(File.Exists(Path.Combine(_storage, stray)));
+    }
+
+    [Fact]
+    public async Task A_reviewer_lists_the_unreferenced_files_removes_the_ones_they_saw_and_each_outcome_is_reported()
+    {
+        var office = await _api.SessionAsync("OfficeManager");
+        var (_, docPath) = await ImportedAsync(office, 100);
+        File.SetLastWriteTimeUtc(docPath, DateTime.UtcNow.AddHours(-9));
+        var old1 = Stray(DateTimeOffset.UtcNow.AddHours(-3));
+        var old2 = Stray(DateTimeOffset.UtcNow.AddHours(-4));
+        var recent = Stray(DateTimeOffset.UtcNow.AddMinutes(-5));
+
+        var summary = await office.SendAsync(HttpMethod.Get, "/api/document-storage");
+        var listed = summary.Body.GetProperty("orphans").EnumerateArray().Select(o => Str(o, "blobId")).ToList();
+        Assert.Equal(new[] { Guid.Parse(old1).ToString(), Guid.Parse(old2).ToString() }.Order(), listed.Order());
+
+        var r = await RemoveAsync(office, new { blobIds = new[] { Guid.Parse(old1), Guid.Parse(old2), Guid.Parse(recent), Guid.Parse(Path.GetFileName(docPath)) } });
+        Assert.Equal(HttpStatusCode.OK, r.Status);
+        Assert.Equal(new[] { "Removed", "Removed", "TooNew", "StillReferenced" }, r.Body.GetProperty("results").EnumerateArray().Select(x => Str(x, "outcome")));
+        Assert.Equal(2, r.Body.GetProperty("removed").GetInt32());
+        Assert.False(File.Exists(Path.Combine(_storage, old1)) || File.Exists(Path.Combine(_storage, old2)));
+        Assert.True(File.Exists(Path.Combine(_storage, recent)) && File.Exists(docPath));
+        Assert.Empty((await office.SendAsync(HttpMethod.Get, "/api/document-storage")).Body.GetProperty("orphans").EnumerateArray());
+
+        await using var db = _fixture.CreateContext();
+        var log = await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == "DocumentOrphanRemoved").ToListAsync();
+        Assert.Equal(2, log.Count);
+        Assert.All(log, a => Assert.NotNull(a.PerformedByUserAccountId));
+    }
+
+    [Fact]
+    public async Task A_removal_that_names_nothing_or_too_many_files_or_something_that_is_not_an_id_is_refused()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var none = await RemoveAsync(admin, new { blobIds = Array.Empty<Guid>() });
+        Assert.Equal((HttpStatusCode.BadRequest, "metadata_invalid", "blobIds"), (none.Status, Str(none.Body, "error"), Str(none.Body.GetProperty("problems")[0], "field")));
+        var many = await RemoveAsync(admin, new { blobIds = Enumerable.Range(0, 501).Select(_ => Guid.NewGuid()).ToArray() });
+        Assert.Equal("blobIds", Str(many.Body.GetProperty("problems")[0], "field"));
+        var absent = await RemoveAsync(admin, new { });
+        Assert.Equal(HttpStatusCode.BadRequest, absent.Status);
+        var junk = await RemoveAsync(admin, new { blobIds = new[] { "not-an-id" } });
+        Assert.Equal(HttpStatusCode.BadRequest, junk.Status);
     }
 
     [Fact]
