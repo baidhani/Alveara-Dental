@@ -1,6 +1,6 @@
 # Documents: import, categorization and metadata (STORY-010)
 
-> **Status: design note, written before any code.** The notification center and person-to-person messaging discussed with the owner are **not part of this story**: they are specified in `docs/design/NOTIFICATION_CENTER_AND_MESSAGING_PROPOSAL.md`, approved by the reviewer on 2026-10-19 as `ALV-N015` (item 41; `docs/design/NOTIFICATION_CENTER_AND_MESSAGING_REVIEW_RESPONSE.md`), and built later on top of this story's event history, without changing it (see *Seam for the notification story*). Nothing described here is built yet. It records the decisions taken with the project owner on 2026-10-19 so they can be reviewed first. It becomes the user-facing description of the feature when the story is finished.
+> **Status: built (STORY-010).** This note was written before the code and has been brought up to date with what was built; where it differs from the first design, the text below is what the code does. The notification center and person-to-person messaging discussed with the owner are **not part of this story**: they are specified in `docs/design/NOTIFICATION_CENTER_AND_MESSAGING_PROPOSAL.md`, approved by the reviewer on 2026-10-19 as `ALV-N015` (item 41; `docs/design/NOTIFICATION_CENTER_AND_MESSAGING_REVIEW_RESPONSE.md`), and built later on top of this story's event history, without changing it (see *Seam for the notification story*). It records the decisions taken with the project owner on 2026-10-19 and is the description of the feature.
 
 Requirement **REQ-015**: *The system must import and categorize documents and forms, supporting e-signature and metadata linkage.*
 
@@ -58,15 +58,15 @@ Every file is served as a **download**: `Content-Disposition: attachment`, a gen
 | Route | Purpose | Permission |
 |---|---|---|
 | `POST /api/patients/{id}/documents` | Import (multipart: file, category, date, description). `201` on create, `200` on an exact replay. | `ImportDocuments` |
-| `GET /api/patients/{id}/documents` | The patient's library: documents and signed forms, optional category filter. | `ViewDocuments` |
+| `GET /api/patients/{id}/documents` | The patient's library: documents and signed forms, optional `categoryId` filter (which leaves signed forms out), and the current `maxUploadBytes`. `404` for an unknown patient. | `ViewDocuments` |
 | `GET /api/documents/{id}` | One document's metadata and history. | `ViewDocuments` |
-| `GET /api/documents/{id}/content` | The file, under the serving rules above. Logs the open. | `ViewDocuments` |
+| `GET /api/documents/{id}/content` | The file, under the serving rules above (`?download=true` forces a download of PDF, PNG and JPEG too). The open is logged first; if it cannot be logged nothing is returned. | `ViewDocuments` |
 | `PUT /api/documents/{id}` | Categorize / edit date and description (needs the row version). | `ImportDocuments` |
 | `GET /api/document-categories`, `POST`, `PUT /{id}` | List, add, rename, deactivate or reactivate a category. | read: `ViewDocuments`; write: `ManageDocumentSettings` |
 | `GET /api/document-settings`, `PUT` | The maximum size. | `ManageDocumentSettings` |
 | `GET /api/document-settings/blocked-extensions`, `POST`, `DELETE /{ext}` | The blocked list. Built-in entries cannot be deleted. | read: `ViewDocuments`; write: `ManageDocumentSettings` |
 
-Stable error codes include: `file_empty`, `file_too_large`, `file_type_blocked`, `file_type_mismatch`, `executable_content`, `file_name_invalid`, `category_invalid`, `category_inactive`, `metadata_invalid`, `duplicate_document` (409), `duplicate_confirmation_invalid`, `idempotency_key_required`, `idempotency_key_reused`, a standard `409` conflict for a stale row version, and `storage_failed` / `audit_unavailable` (`503`, nothing saved).
+Stable error codes (each with a message safe to show; wrong details also carry `problems`, each naming its field, and a duplicate carries a `detail` naming the existing document): `400` `file_empty`, `file_required`, `file_type_blocked`, `file_type_mismatch`, `executable_content`, `file_name_invalid`, `metadata_invalid`, `idempotency_key_required`, `row_version_required`, `row_version_invalid`; `413` `file_too_large` (a request larger than the limit is refused before its body is read); `404` `patient_not_found`, `document_not_found`, `category_not_found`, `file_missing`; `409` `duplicate_document`, `duplicate_confirmation_invalid`, `idempotency_key_reused`, `category_exists`, `last_active_category`, `built_in_locked`, `concurrency_conflict`; `503` `store_failed`, `save_failed` (nothing saved). Missing CSRF is `400`, no permission `403`, no session `401`.
 
 ## Permissions (added to the existing fixed role table)
 
@@ -134,3 +134,6 @@ The owner wants an admin to be able to configure any permission for any role, an
 3. A Windows program whose `PE` signature lies beyond the first 4096 bytes (very unusual) is not recognized by content; its extension still blocks it when it is named like one. HTML and JavaScript cannot be reliably recognized from their content, so for those the extension rule is the only protection (a file renamed to another type would be stored as a download-only file, never rendered).
 4. A duplicate is the same content for the **same patient** only; the same file for a different patient is accepted without a warning.
 5. The duplicate notification itself is delivered by the separate notification story, not by this one. Until that story exists, a confirmed duplicate is visible in the document's history and in the audit log, but nobody is notified.
+6. **PDF under `sandbox`.** The design serves PDF inline under `Content-Security-Policy: sandbox`. Chromium's own PDF viewer was checked on a PDF served exactly that way and navigated to as a page (what the Open link does): it renders normally. A PDF embedded in a frame under that policy would be a different case and is not used. Firefox and Safari were not checked; Download always works.
+7. **Limits recorded in the code.** A stored file is not re-hashed on every open (backup verification covers corruption). Two simultaneous imports of the same new file under different save keys both succeed (each reads before the other commits); the second is an ordinary document. If the process dies between the file write and the database commit an unreferenced file can remain on disk; reconciliation belongs to `ALV-010-C01`.
+8. **Fixed permissions.** Who may import, edit and configure is the fixed role table above. Letting an administrator grant these to other roles is the separate, deferred proposal.

@@ -595,20 +595,59 @@
       "criteria": [
         {
           "text": "Given a document is imported, when categorized, then it is linked with the correct metadata.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a form is e-signed, when completed, then the signed version is preserved.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All document actions are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Documents/DocumentFileRules.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentEntities.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentViews.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentImportService.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentLibraryService.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentEditService.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentSettingsService.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentMetadataChecker.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentEventNumbers.cs",
+        "src/Alveara.Api/Architecture/Documents/DocumentMapper.cs",
+        "src/Alveara.Api/Architecture/Storage/IBlobStorage.cs",
+        "src/Alveara.Api/Architecture/Identity/Permission.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+        "src/Alveara.Api/Controllers/DocumentsController.cs",
+        "src/Alveara.Api/Data/DocumentModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Migrations/20261019231115_AddDocuments.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/alveara-client/src/services/documentsApi.ts",
+        "src/alveara-client/src/pages/documents/DocumentsPanel.tsx",
+        "src/alveara-client/src/pages/documents/DocumentImportForm.tsx",
+        "src/alveara-client/src/pages/documents/DocumentEditForm.tsx",
+        "src/alveara-client/src/pages/documents/DocumentSettingsPage.tsx",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/App.tsx",
+        "docs/DOCUMENTS.md",
+        "docs/testing/REAL_BACKEND_E2E.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/DocumentFileRulesTests.cs",
+        "src/Alveara.Api.Tests/DocumentSchemaTests.cs",
+        "src/Alveara.Api.Tests/DocumentImportServiceTests.cs",
+        "src/Alveara.Api.Tests/DocumentLibraryServiceTests.cs",
+        "src/Alveara.Api.Tests/DocumentSettingsServiceTests.cs",
+        "src/Alveara.Api.Tests/DocumentApiTests.cs",
+        "src/Alveara.Api.Tests/DocumentPermissionTests.cs",
+        "src/alveara-client/src/pages/documents/DocumentsPanel.test.tsx",
+        "src/alveara-client/src/pages/documents/DocumentSettingsPage.test.tsx",
+        "src/alveara-client/e2e/documents-real-backend.spec.ts"
+      ],
+      "notes": "All three criteria pass: import and categorize link the document to its patient with the right metadata (service, API and browser tests); a signed form is listed read-only and its snapshot hash is unchanged after the template is edited; every document action and settings change is logged with user and time in the same transaction, with no file name, description or patient in the log. Full serial backend run 4040 of 4040; client suite 1503 of 1503; real-backend walkthrough 14 of 14. Known limits are listed in docs/DOCUMENTS.md (open points 3, 5, 6, 7).",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

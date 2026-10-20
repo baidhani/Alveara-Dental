@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-010",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-20T03:00:00Z",
+  "sourceCommitSha": "120a175bc37c360b59bbd6354470fa65b8fa8a65",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Importing, recategorizing and editing a patient document is held by the Admin and Office manager roles only (ImportDocuments); reading the library and opening a file (ViewDocuments) is held by Admin, Office manager, Front desk, Dentist, Hygienist, Assistant and Billing; the categories, the size limit and the blocked file types (ManageDocumentSettings) are held by Admin only. The three permissions were appended to the fixed role table.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "A document is imported as multipart (file, category, date of document, optional description of up to 500 characters) with a required Idempotency-Key header (1 to 64 characters, no control characters) and, to add a file the patient already has, confirmDuplicateOf naming that document. The file name is kept as metadata only, normalized (path parts, trailing dots and spaces and an ':stream' suffix removed; control and invisible formatting characters, characters Windows does not allow, reserved device names and names over 255 characters refused) and never decides where the file is stored.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentFileRules.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "Any file type may be imported except a locked list of 15 built-in blocked extensions (exe, html, js, htm, bat, cmd, com, msi, scr, ps1, vbs, dll, jar, hta, lnk) that no one can remove, plus any an administrator adds; a file whose content is a Windows program (MZ header with a valid PE signature in the first 4096 bytes) is refused whatever it is named; a file that claims to be PDF, PNG, JPEG or TIFF must match its content; the largest file is configurable from 1 MB to 1 GB (default 100 MB) and a request over the limit is refused before its body is read.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentImportService.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "An imported document stores its patient, category, date, description, original file name, server-detected type, size, SHA-256, a storage blob id, importer and time. The file itself is immutable and a document is never deleted: SQL Server triggers (errors 51182 to 51191) refuse any change to the stored file's columns, any deletion, an unissued or cross-patient history row, a counter that does not move forward by one, a category deletion or code change, and a change to a built-in blocked extension.",
+      "evidence": "src/Alveara.Api/Migrations/20261019231115_AddDocuments.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "Every document action (import, import as a confirmed duplicate, recategorization, metadata edit, open) writes an append-only DocumentEvents row with a gap-free EventNumber issued from a one-row counter under a row lock held until commit, so a reader that has seen number N has seen every lower number; the row carries ids and category ids only, never a file name or description. This is the seam the later notification story reads.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentEventNumbers.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "Every file is served as a download (Content-Disposition attachment, application/octet-stream, X-Content-Type-Options nosniff, no-store) except PDF, PNG and JPEG, which are served inline with their real type under Content-Security-Policy: sandbox; TIFF and every other type are download-only. Responses never name where a file is stored.",
+      "evidence": "src/Alveara.Api/Controllers/DocumentsController.cs"
+    },
+    {
+      "dimension": "integrations",
+      "value": "A patient's signed forms are listed in the document library as read-only entries through the existing signed-form seam (PatientFormReader.SignedDocumentsAsync); they are not copied into Documents, so the signed snapshot's hash and content are unchanged by anything the library does or by a later template edit.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentLibraryService.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every document action and every settings change writes an audit log entry with the performing user and a timestamp in the same transaction as the change, so a failed audit write fails the action and nothing is saved (an import also removes its stored file). Audit entries carry the document's own id, the action and a category code only; they never carry a file name, a description or a patient id.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentImportService.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "The same file content already filed for the same patient is refused with 409 duplicate_document naming the existing document and stores nothing; it is added only when the importer repeats the request with confirmDuplicateOf, which the server verifies, and is then recorded as ImportedAsDuplicate in the history and the audit log. A repeated request under the same key returns the same document; the same key with a different file or different details is refused (409 idempotency_key_reused); a stale edit is refused (409 concurrency_conflict).",
+      "evidence": "src/Alveara.Api.Tests/DocumentImportServiceTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Stored the file through the existing IBlobStorage (generated identity, atomic write, SHA-256) and added DeleteAsync to it, rather than writing files from the document code.",
+      "rationale": "Storage identity must never depend on a user-supplied name, and an import that fails after the file was written has to remove the file again; adding a repeat-safe delete to the one storage seam keeps both rules in one place.",
+      "evidence": "src/Alveara.Api/Architecture/Storage/IBlobStorage.cs"
+    },
+    {
+      "statement": "Issued history numbers from a one-row counter updated inside the writing transaction instead of using a database identity column.",
+      "rationale": "Two concurrent imports can commit out of order with an identity column, so a consumer using the number as a cursor would skip the earlier one for good; the counter's row lock is held until commit, which makes numbers visible in commit order.",
+      "evidence": "src/Alveara.Api.Tests/DocumentImportServiceTests.cs"
+    },
+    {
+      "statement": "Kept categories in a database table (seeded with nine categories, administrator-editable, never deleted, codes fixed) and the blocked list in a table with a locked built-in set, rather than hard-coding either.",
+      "rationale": "The owner wanted categories and blocked types to be changeable by an administrator without a code change, while the three types the owner named (and twelve close relatives) must stay blocked for everyone.",
+      "evidence": "src/Alveara.Api/Data/DocumentModel.cs"
+    },
+    {
+      "statement": "Listed signed forms in the library through the read-only seam instead of copying them into the document store.",
+      "rationale": "A copy could drift from the immutable signed snapshot; listing through the seam keeps exactly one authoritative signed version.",
+      "evidence": "src/Alveara.Api.Tests/DocumentLibraryServiceTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "Two simultaneous imports of the same new file under different save keys both succeed, because the duplicate check reads before either commits; the second is an ordinary document.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentImportService.cs"
+    },
+    {
+      "statement": "A Windows program whose PE signature lies beyond the first 4096 bytes is not recognized by content (its extension still blocks it when named like one), and HTML and JavaScript cannot be recognized from their content, so for those the extension list is the only protection; no malware scanning is done.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentFileRules.cs"
+    },
+    {
+      "statement": "A stored file is not re-hashed on every open, and a file left on disk by a process that died between the file write and the database commit is not cleaned up; storage reconciliation belongs to ALV-010-C01.",
+      "evidence": "src/Alveara.Api/Architecture/Documents/DocumentLibraryService.cs"
+    },
+    {
+      "statement": "No notification is sent when a duplicate is added; the document history and the audit log record it, and the notification center is the separate story ALV-N015.",
+      "evidence": "docs/DOCUMENTS.md"
+    },
+    {
+      "statement": "Who may import, edit and configure documents is the fixed role table; letting an administrator grant these to other roles is a separate, deferred proposal. Chromium's PDF viewer was checked under the sandbox policy; Firefox and Safari were not.",
+      "evidence": "docs/DOCUMENTS.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentFileRulesTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentSchemaTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentImportServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentLibraryServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentSettingsServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentApiTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/DocumentPermissionTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/pages/documents/DocumentsPanel.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/src/pages/documents/DocumentSettingsPage.test.tsx" },
+    { "kind": "test", "ref": "src/alveara-client/e2e/documents-real-backend.spec.ts" }
+  ],
+  "measurementEvents": []
+}
