@@ -1,6 +1,6 @@
 import { useId } from "react";
 import type { DocumentContext } from "../../services/documentsApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import type { EncounterChoice } from "../../services/documentsApi";
 import { REGIONS, REGION_LABELS } from "../diagnosis/diagnosisStructureRules";
 import { encounterLabel } from "./documentText";
 import { TEETH, toothOptionLabel } from "./documentContext";
@@ -11,7 +11,7 @@ import type { ContextErrors } from "./documentContext";
  * Each box is optional and a refusal from the server is shown beside the box it is about.
  */
 export function DocumentContextFields({ value, onChange, encounters, errors, disabled = false }: {
-  value: DocumentContext; onChange: (next: DocumentContext) => void; encounters: EncounterSummary[]; errors: ContextErrors; disabled?: boolean;
+  value: DocumentContext; onChange: (next: DocumentContext) => void; encounters: EncounterChoice[]; errors: ContextErrors; disabled?: boolean;
 }) {
   const id = useId();
   const field = (name: keyof ContextErrors) => ({ "aria-invalid": errors[name] ? true : undefined, "aria-describedby": errors[name] ? `${id}-${name}-error` : undefined });

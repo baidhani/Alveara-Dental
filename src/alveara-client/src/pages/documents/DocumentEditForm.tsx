@@ -5,7 +5,7 @@ import { FormField } from "../../components/FormField";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import { editDocument, problemsOf } from "../../services/documentsApi";
 import type { CategoryView, DocumentContext, DocumentView } from "../../services/documentsApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import type { EncounterChoice } from "../../services/documentsApi";
 import { DocumentContextFields } from "./DocumentContextFields";
 import type { ContextErrors } from "./documentContext";
 
@@ -16,7 +16,7 @@ type Errors = Partial<Record<"category" | "documentDate" | "description", string
  * explained rather than overwritten; a deactivated category the document already has stays selectable so saving other changes does not force a move.
  */
 export function DocumentEditForm({ document, categories, encounters, onSaved, onCancel, onReload }: {
-  document: DocumentView; categories: CategoryView[]; encounters: EncounterSummary[]; onSaved: () => void; onCancel: () => void; onReload: () => void;
+  document: DocumentView; categories: CategoryView[]; encounters: EncounterChoice[]; onSaved: () => void; onCancel: () => void; onReload: () => void;
 }) {
   const categoryId = useId();
   const descriptionId = useId();

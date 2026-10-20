@@ -221,6 +221,28 @@ public class DocumentLibraryApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized, (await _api.Factory.CreateClient().GetAsync($"/api/documents/{Str(png, "id")}/thumbnail")).StatusCode);
     }
 
+    // ---------- the encounter picker ----------
+
+    [Theory]
+    [InlineData("Admin")] [InlineData("OfficeManager")] [InlineData("FrontDesk")] [InlineData("Billing")]
+    public async Task Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(string role)
+    {
+        var by = await _api.SessionAsync(role);
+        var r = await by.SendAsync(HttpMethod.Get, $"/api/patients/{_patient}/documents/encounters");
+
+        Assert.Equal(HttpStatusCode.OK, r.Status);
+        var only = Assert.Single(r.Body.EnumerateArray().ToList());
+        Assert.Equal(_encounter.ToString(), Str(only, "id"));                                                              // never the other patient's encounter
+        Assert.Equal(["encounterAtUtc", "id", "status"], only.EnumerateObject().Select(p => p.Name).Order().ToArray());      // a date and a state, no notes, entries or appointment
+    }
+
+    [Fact]
+    public async Task The_encounter_picker_list_for_an_unknown_patient_is_a_404()
+    {
+        var by = await _api.SessionAsync("OfficeManager");
+        Assert.Equal(HttpStatusCode.NotFound, (await by.SendAsync(HttpMethod.Get, $"/api/patients/{Guid.NewGuid()}/documents/encounters")).Status);
+    }
+
     // ---------- inactivate and reactivate ----------
 
     [Theory]

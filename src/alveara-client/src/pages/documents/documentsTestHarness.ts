@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import type { PatientDetail } from "../../services/patientsApi";
 import type { CategoryView, DocumentDetail, DocumentView, LibraryEntry } from "../../services/documentsApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import type { EncounterChoice } from "../../services/documentsApi";
 import { installFakeXhr } from "../../test/fakeXhr";
 import type { FakeXhrOptions } from "../../test/fakeXhr";
 
@@ -18,8 +18,8 @@ export const categories: CategoryView[] = [
   { id: "c-old", code: "other", name: "Other", sortOrder: 90, isActive: false, rowVersion: "r3" },
 ];
 
-export const encounterOf = (id: string, atUtc: string): EncounterSummary => ({ id, appointmentId: null, encounterAtUtc: atUtc, status: "Finalized", isComplete: true, entryCount: 0, addendumCount: 0 });
-export const encounters: EncounterSummary[] = [encounterOf("e1", "2030-03-09T15:00:00Z"), encounterOf("e2", "2030-02-01T15:00:00Z")];
+export const encounterOf = (id: string, atUtc: string): EncounterChoice => ({ id, encounterAtUtc: atUtc, status: "Finalized" });
+export const encounters: EncounterChoice[] = [encounterOf("e1", "2030-03-09T15:00:00Z"), encounterOf("e2", "2030-02-01T15:00:00Z")];
 
 export const docOf = (over: Partial<DocumentView> = {}): DocumentView => ({
   id: "d1", patientId: "p1", categoryId: "c-rad", categoryCode: "radiograph", categoryName: "Radiograph", documentDate: "2030-03-09", description: "Bitewing, left side.", duplicateOfDocumentId: null,
@@ -43,7 +43,7 @@ export const detailOf = (d: DocumentView, over: Partial<DocumentDetail> = {}): D
 
 export interface Call { url: string; method: string; headers: Record<string, string>; form: FormData | null; body: Record<string, unknown> | null }
 export interface Script {
-  entries: LibraryEntry[]; max: number; loadFails: boolean; encounters: EncounterSummary[];
+  entries: LibraryEntry[]; max: number; loadFails: boolean; encounters: EncounterChoice[];
   import: (c: Call) => Response | Promise<Response>; edit: (c: Call) => Response;
   inactivate: (id: string, c: Call) => Response; reactivate: (id: string, c: Call) => Response; detail: (id: string) => Response;
 }
@@ -68,7 +68,7 @@ export function stub(over: Partial<Script> = {}, xhr: FakeXhrOptions = {}) {
     calls.push(call);
     if (u.includes("/api/auth/csrf-token")) return Promise.resolve(json({ token: "csrf" }));
     if (u.includes("/api/document-categories")) return Promise.resolve(json({ categories: u.includes("includeInactive") ? categories : categories.filter((c) => c.isActive) }));
-    if (u.includes("/api/patients/p1/encounters")) return Promise.resolve(json(script.encounters));
+    if (u.includes("/api/patients/p1/documents/encounters")) return Promise.resolve(json(script.encounters));
     if (u.includes("/api/patients/p1/documents") && method === "GET") return Promise.resolve(script.loadFails ? json({ error: "server_error" }, 500) : json({ patientId: "p1", entries: script.entries, maxUploadBytes: script.max }));
     if (u.endsWith("/inactivate") && method === "POST") return Promise.resolve(script.inactivate(u.split("/").slice(-2)[0], call));
     if (u.endsWith("/reactivate") && method === "POST") return Promise.resolve(script.reactivate(u.split("/").slice(-2)[0], call));

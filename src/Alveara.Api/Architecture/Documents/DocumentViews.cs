@@ -70,3 +70,6 @@ public sealed record CategoryEditInput(string? Name, bool? IsActive, string? Row
 public sealed record DocumentSettingsView(long MaxUploadBytes, long MinAllowedBytes, long MaxAllowedBytes, string RowVersion);
 
 public sealed record BlockedExtensionView(string Extension, bool IsBuiltIn, DateTimeOffset AddedAtUtc);
+
+/// <summary>One encounter as the document pickers show it: which one, when, and its state. Nothing the clinical record holds.</summary>
+public sealed record EncounterChoice(Guid Id, DateTimeOffset EncounterAtUtc, string Status);

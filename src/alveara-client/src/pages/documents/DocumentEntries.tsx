@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { THUMBNAIL_MAX_BYTES, THUMBNAIL_TYPES, contentUrl, thumbnailUrl } from "../../services/documentsApi";
 import type { DocumentView, LibraryEntry } from "../../services/documentsApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import type { EncounterChoice } from "../../services/documentsApi";
 import { REGION_LABELS } from "../diagnosis/diagnosisStructureRules";
 import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";
 import { INLINE_TYPES, encounterLabel, formatBytes, formatDate, formatDateTime } from "./documentText";
@@ -33,7 +33,7 @@ export function EntryBadges({ entry }: { entry: LibraryEntry }) {
 }
 
 /** What a document is about: its encounter, one tooth or one region. */
-export function EntryAbout({ document, encounters }: { document: DocumentView | null; encounters: EncounterSummary[] }) {
+export function EntryAbout({ document, encounters }: { document: DocumentView | null; encounters: EncounterChoice[] }) {
   if (!document || (!document.encounterId && !document.toothKey && !document.regionKey)) return <>—</>;
   const encounter = encounters.find((e) => e.id === document.encounterId);
   return (
@@ -74,7 +74,7 @@ function Thumbnail({ entry }: { entry: LibraryEntry }) {
   return <div className="alv-documents__thumb alv-documents__thumb--word">{entry.detectedType === "other" ? "File" : entry.detectedType.toUpperCase()}</div>;
 }
 
-export function DocumentTable({ entries, patientId, encounters, handlers }: { entries: LibraryEntry[]; patientId: string; encounters: EncounterSummary[]; handlers: EntryHandlers }) {
+export function DocumentTable({ entries, patientId, encounters, handlers }: { entries: LibraryEntry[]; patientId: string; encounters: EncounterChoice[]; handlers: EntryHandlers }) {
   return (
     <table className="alv-documents__table" aria-label="Documents">
       <thead>
@@ -97,7 +97,7 @@ export function DocumentTable({ entries, patientId, encounters, handlers }: { en
   );
 }
 
-export function DocumentGrid({ entries, patientId, encounters, handlers }: { entries: LibraryEntry[]; patientId: string; encounters: EncounterSummary[]; handlers: EntryHandlers }) {
+export function DocumentGrid({ entries, patientId, encounters, handlers }: { entries: LibraryEntry[]; patientId: string; encounters: EncounterChoice[]; handlers: EntryHandlers }) {
   return (
     <ul className="alv-documents__grid" aria-label="Document thumbnails">
       {entries.map((entry) => (

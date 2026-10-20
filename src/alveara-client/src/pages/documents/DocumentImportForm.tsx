@@ -4,7 +4,7 @@ import { FormField } from "../../components/FormField";
 import { ApiError } from "../../services/authApi";
 import { duplicateOf, importDocument, newKey, problemsOf } from "../../services/documentsApi";
 import type { CategoryView, DocumentContext, DuplicateSummary } from "../../services/documentsApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import type { EncounterChoice } from "../../services/documentsApi";
 import { DocumentContextFields } from "./DocumentContextFields";
 import type { ContextErrors } from "./documentContext";
 import { FILE_ERROR_CODES, formatBytes, formatDate, formatDateTime, todayValue } from "./documentText";
@@ -15,7 +15,7 @@ type Errors = Partial<Record<"file" | "category" | "documentDate" | "description
  * STORY-010: the import form. Every wrong entry is named beside its box and what was typed stays; one attempt keeps one save key, so a retry after a failure can never import the file twice, and a changed
  * entry starts a new attempt. A file the patient already has is warned about, naming the document that exists, and is added only by pressing "Add anyway", which sends the same file again with the confirmation.
  */
-export function DocumentImportForm({ patientId, categories, encounters, maxBytes, onImported }: { patientId: string; categories: CategoryView[]; encounters: EncounterSummary[]; maxBytes: number; onImported: () => void }) {
+export function DocumentImportForm({ patientId, categories, encounters, maxBytes, onImported }: { patientId: string; categories: CategoryView[]; encounters: EncounterChoice[]; maxBytes: number; onImported: () => void }) {
   const categoryId = useId();
   const descriptionId = useId();
   const [file, setFile] = useState<File | null>(null);
@@ -54,7 +54,7 @@ export function DocumentImportForm({ patientId, categories, encounters, maxBytes
     try {
       const result = await importDocument(patientId, { file, categoryId: category, documentDate: date, description, ...context, key: key.current, confirmDuplicateOf }, setProgress, abort.current.signal);
       setStatus(`Imported ${result.document.originalFileName}.`);
-      setFile(null); setFileVersion((v) => v + 1); setDescription(""); setDuplicate(null);
+      setFile(null); setFileVersion((v) => v + 1); setDescription(""); setContext({ encounterId: "", toothKey: "", regionKey: "" }); setDuplicate(null);
       key.current = null;
       onImported();
     } catch (err) {

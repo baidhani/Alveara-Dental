@@ -57,6 +57,15 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
 
     // ---------- the library ----------
 
+    /// <summary>The patient's encounters as a date and a state only, for the encounter picker on the import form and the filters. Needs only ViewDocuments, so the people who file documents can tie one to an encounter without being able to read clinical notes.</summary>
+    [HttpGet("api/patients/{patientId:guid}/documents/encounters")]
+    [RequirePermission(Permission.ViewDocuments)]
+    public Task<IActionResult> Encounters(Guid patientId, CancellationToken ct) => Run(async () =>
+    {
+        await library.EnsurePatientAsync(patientId, ct);
+        return Ok(await library.ListEncountersAsync(patientId, ct));
+    });
+
     [HttpGet("api/patients/{patientId:guid}/documents")]
     [RequirePermission(Permission.ViewDocuments)]
     public Task<IActionResult> List(Guid patientId, [FromQuery] string? categoryId, [FromQuery] string? encounterId, [FromQuery] string? toothKey, [FromQuery] string? regionKey, [FromQuery] string? from,

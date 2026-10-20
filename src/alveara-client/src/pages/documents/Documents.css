@@ -77,6 +77,11 @@
   gap: var(--space-3);
 }
 
+/* Links among the actions use the information colour, which keeps AA contrast on every surface in both themes; the plain link colour does not in dark mode (found by the ALV-010-C01 walkthrough). */
+.alv-documents__row-actions a {
+  color: var(--color-info);
+}
+
 .alv-documents__badge {
   display: inline-block;
   margin-left: var(--space-2);

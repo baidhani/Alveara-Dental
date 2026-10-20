@@ -25,6 +25,11 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     public const long ThumbnailMaxBytes = 5 * 1024 * 1024;
 
     /// <summary>Refuses an unknown patient (404), so a route can tell "no documents yet" from "no such patient".</summary>
+    /// <summary>A patient's encounters, newest first, as an id, a date and a state: enough to pick one, nothing clinical.</summary>
+    public async Task<IReadOnlyList<EncounterChoice>> ListEncountersAsync(Guid patientId, CancellationToken ct) =>
+        await db.Encounters.AsNoTracking().Where(e => e.PatientId == patientId).OrderByDescending(e => e.EncounterAtUtc).ThenByDescending(e => e.CreatedAtUtc)
+            .Select(e => new EncounterChoice(e.Id, e.EncounterAtUtc, e.Status)).ToListAsync(ct);
+
     public async Task EnsurePatientAsync(Guid patientId, CancellationToken ct)
     {
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new DocumentException("patient_not_found", "That patient was not found.", 404);

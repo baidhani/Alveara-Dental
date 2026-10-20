@@ -244,3 +244,7 @@ export function problemsOf(err: unknown): DocumentProblem[] {
 export function duplicateOf(err: unknown): DuplicateSummary | null {
   return err instanceof ApiError && err.status === 409 && err.code === "duplicate_document" ? (err.body.detail as DuplicateSummary) : null;
 }
+
+/** An encounter as the pickers show it: which one, when, its state. Read with the right to view documents, so it carries nothing clinical. */
+export interface EncounterChoice { id: string; encounterAtUtc: string; status: string }
+export const listDocumentEncounters = (patientId: string, signal?: AbortSignal) => request<EncounterChoice[]>(`/api/patients/${patientId}/documents/encounters`, { signal });

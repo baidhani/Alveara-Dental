@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { Button } from "../../components/Button";
 import { FormField } from "../../components/FormField";
 import type { CategoryView, LibraryFilter } from "../../services/documentsApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import type { EncounterChoice } from "../../services/documentsApi";
 import { REGIONS, REGION_LABELS } from "../diagnosis/diagnosisStructureRules";
 import { TEETH, toothOptionLabel } from "./documentContext";
 import { encounterLabel } from "./documentText";
@@ -13,7 +13,7 @@ import type { Draft, FilterErrors } from "./documentFilter";
  * ALV-010-C01: narrowing a patient's library. Nothing is sent until "Apply filters" is pressed; a tooth or a region (never both); a filter the server refuses is named beside its box and what was typed stays.
  * By default only active documents are shown; inactive ones (hidden, never deleted) are asked for with "Show".
  */
-export function DocumentFilters({ categories, encounters, errors, onApply }: { categories: CategoryView[]; encounters: EncounterSummary[]; errors: FilterErrors; onApply: (filter: LibraryFilter) => void }) {
+export function DocumentFilters({ categories, encounters, errors, onApply }: { categories: CategoryView[]; encounters: EncounterChoice[]; errors: FilterErrors; onApply: (filter: LibraryFilter) => void }) {
   const id = useId();
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));

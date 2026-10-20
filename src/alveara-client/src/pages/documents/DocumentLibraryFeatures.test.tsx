@@ -310,6 +310,19 @@ describe("the clinical context on edit and on import", () => {
     expect([form.get("encounterId"), form.get("toothKey"), form.get("regionKey")]).toEqual(["e2", null, "UpperLeft"]);
   });
 
+  it("clears the encounter, tooth and region after an import so the next file never inherits them", async () => {
+    stub();
+    const user = userEvent.setup();
+    await open();
+    await fillImport(user);
+    await user.selectOptions(importForm().getByLabelText("Encounter (optional)"), "e2");
+    await user.selectOptions(importForm().getByLabelText("Tooth (optional)"), "16");
+    await user.click(importForm().getByRole("button", { name: "Import document" }));
+    await waitFor(() => expect(importForm().getByLabelText("Tooth (optional)")).toHaveValue(""));
+    expect(importForm().getByLabelText("Encounter (optional)")).toHaveValue("");
+    expect(importForm().getByLabelText("Oral region (optional)")).toHaveValue("");
+  });
+
   it("names a wrong tooth beside its box on import and keeps what was typed", async () => {
     stub({ import: () => json({ error: "metadata_invalid", message: "x", problems: [{ field: "toothKey", code: "unknown_tooth", message: "Use the two-digit FDI tooth number, such as 16 or 55, or leave the tooth empty." }] }, 400) });
     const user = userEvent.setup();

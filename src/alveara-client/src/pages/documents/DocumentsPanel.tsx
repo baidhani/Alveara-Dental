@@ -4,10 +4,8 @@ import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictB
 import { EmptyState, ErrorState, LoadingState } from "../../components/StatePatterns";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
-import { contentUrl, listCategories, listLibrary, problemsOf, reactivateDocument } from "../../services/documentsApi";
-import type { CategoryView, DocumentLibrary, LibraryFilter } from "../../services/documentsApi";
-import { listEncounters } from "../../services/clinicalApi";
-import type { EncounterSummary } from "../../services/clinicalApi";
+import { contentUrl, listCategories, listDocumentEncounters, listLibrary, problemsOf, reactivateDocument } from "../../services/documentsApi";
+import type { CategoryView, DocumentLibrary, EncounterChoice, LibraryFilter } from "../../services/documentsApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { DocumentDetailsPanel } from "./DocumentDetailsPanel";
 import { DocumentEditForm } from "./DocumentEditForm";
@@ -29,7 +27,7 @@ const FILTER_FIELDS: Record<string, keyof FilterErrors> = { category: "category"
 export function DocumentsPanel({ patient, canImport }: { patient: PatientDetail; canImport: boolean }) {
   const [library, setLibrary] = useState<DocumentLibrary | null>(null);
   const [categories, setCategories] = useState<CategoryView[]>([]);
-  const [encounters, setEncounters] = useState<EncounterSummary[]>([]);
+  const [encounters, setEncounters] = useState<EncounterChoice[]>([]);
   const [filter, setFilter] = useState<LibraryFilter>({});
   const [filterErrors, setFilterErrors] = useState<FilterErrors>({});
   const [view, setView] = useState<"list" | "grid">("list");
@@ -46,7 +44,7 @@ export function DocumentsPanel({ patient, canImport }: { patient: PatientDetail;
   useEffect(() => {
     const controller = new AbortController();
     listCategories(true, controller.signal).then(setCategories).catch(() => { if (!controller.signal.aborted) setCategories([]); });
-    listEncounters(patient.id, controller.signal).then((e) => setEncounters(Array.isArray(e) ? e : [])).catch(() => { if (!controller.signal.aborted) setEncounters([]); });
+    listDocumentEncounters(patient.id, controller.signal).then((e) => setEncounters(Array.isArray(e) ? e : [])).catch(() => { if (!controller.signal.aborted) setEncounters([]); });
     return () => controller.abort();
   }, [patient.id]);
 
