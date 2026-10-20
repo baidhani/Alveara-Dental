@@ -10,3 +10,6 @@ App_Data/
 *.user
 .vs/
 node_modules/.tmp/
+
+# test run result logs (dotnet test --logger trx)
+TestResults/
