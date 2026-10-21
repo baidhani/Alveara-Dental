@@ -1,0 +1,20 @@
+Database AlveraWalk_playwright_c2_config_41cb56ca created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running gate-c/playwright.c2.config.ts ...
+
+Running 6 tests using 1 worker
+
+  ok 1 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 planning: the safety strip carries the alert, allergy, medication and open clearance above the work area (404ms)
+  ok 2 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 completion (the treatment-plan screen is where the completion review is opened): the safety strip carries the alert, allergy, medication and open clearance above the work area (454ms)
+  ok 3 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 prescribing, composer: the safety strip carries the alert, allergy, medication and open clearance above the work area (420ms)
+  ok 4 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 prescribing, prescriptions list: the safety strip carries the alert, allergy, medication and open clearance above the work area (278ms)
+  ok 5 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 charting: odontogram: the safety strip carries the alert, allergy, medication and open clearance above the work area (573ms)
+  ok 6 [chromium] › gate-c\gate-c-c2-safety-points.spec.ts:77:3 › C2 diagnoses: the safety strip carries the alert, allergy, medication and open clearance above the work area (462ms)
+
+  6 passed (8.0s)
+Database AlveraWalk_playwright_c2_config_41cb56ca dropped (its files went with it).
+The run produced no output files.

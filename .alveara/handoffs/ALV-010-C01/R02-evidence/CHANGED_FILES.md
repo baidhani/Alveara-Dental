@@ -1,0 +1,163 @@
+# Changed files - ALV-010-C01 R02
+
+Implementation commit `17a2f073b3cd49b99a9de73a0949dea12ca521fc` (`17a2f07`): its `src/` is identical to `be29f3b`. Files changed from the baseline `05f3880` (STORY-010 complete) to `17a2f07`: 146. `A` = added, `M` = modified.
+
+## Backend (API) (19)
+- `M` `src/Alveara.Api/Architecture/Backup/BackupRestoreService.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentEditService.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentEntities.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentImportService.cs`
+- `A` `src/Alveara.Api/Architecture/Documents/DocumentIntegrityService.cs`
+- `A` `src/Alveara.Api/Architecture/Documents/DocumentLibraryFilter.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentLibraryService.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentMapper.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentMetadataChecker.cs`
+- `A` `src/Alveara.Api/Architecture/Documents/DocumentStatusService.cs`
+- `M` `src/Alveara.Api/Architecture/Documents/DocumentViews.cs`
+- `M` `src/Alveara.Api/Architecture/Identity/Permission.cs`
+- `M` `src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs`
+- `M` `src/Alveara.Api/Architecture/Storage/IBlobStorage.cs`
+- `A` `src/Alveara.Api/Controllers/DocumentStorageController.cs`
+- `M` `src/Alveara.Api/Controllers/DocumentsController.cs`
+- `M` `src/Alveara.Api/Data/AlveraDbContext.cs`
+- `M` `src/Alveara.Api/Data/DocumentModel.cs`
+- `M` `src/Alveara.Api/Program.cs`
+
+## Migration (3)
+- `A` `src/Alveara.Api/Migrations/20261020173300_AddDocumentLibrary.Designer.cs`
+- `A` `src/Alveara.Api/Migrations/20261020173300_AddDocumentLibrary.cs`
+- `M` `src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs`
+
+## Backend tests (13)
+- `A` `src/Alveara.Api.Tests/DocumentBackupRestoreTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentContextServiceTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentIntegrityServiceTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentLibraryApiTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentLibraryFilterTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentLibrarySchemaTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentOrphanServiceTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentPathSafetyTests.cs`
+- `M` `src/Alveara.Api.Tests/DocumentPermissionTests.cs`
+- `A` `src/Alveara.Api.Tests/DocumentStorageApiTests.cs`
+- `M` `src/Alveara.Api.Tests/DocumentTestBase.cs`
+- `M` `src/Alveara.Api.Tests/SchedulingApiHarness.cs`
+- `M` `src/Alveara.Api.Tests/SignedFormSnapshotTests.cs`
+
+## Frontend (UI) (25)
+- `M` `src/alveara-client/src/App.patientWorkspaceRoutes.test.tsx`
+- `M` `src/alveara-client/src/App.tsx`
+- `M` `src/alveara-client/src/app/moduleRegistry.ts`
+- `A` `src/alveara-client/src/pages/documents/DocumentContextFields.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentDetailsPanel.tsx`
+- `M` `src/alveara-client/src/pages/documents/DocumentEditForm.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentEntries.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentFilters.tsx`
+- `M` `src/alveara-client/src/pages/documents/DocumentImportForm.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentInactivateForm.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentLibraryFeatures.test.tsx`
+- `M` `src/alveara-client/src/pages/documents/DocumentSettingsPage.test.tsx`
+- `M` `src/alveara-client/src/pages/documents/DocumentSettingsPage.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentStoragePage.test.tsx`
+- `A` `src/alveara-client/src/pages/documents/DocumentStoragePage.tsx`
+- `M` `src/alveara-client/src/pages/documents/Documents.css`
+- `M` `src/alveara-client/src/pages/documents/DocumentsPanel.test.tsx`
+- `M` `src/alveara-client/src/pages/documents/DocumentsPanel.tsx`
+- `A` `src/alveara-client/src/pages/documents/documentContext.ts`
+- `A` `src/alveara-client/src/pages/documents/documentFilter.ts`
+- `M` `src/alveara-client/src/pages/documents/documentText.ts`
+- `A` `src/alveara-client/src/pages/documents/documentsTestHarness.ts`
+- `M` `src/alveara-client/src/services/authApi.ts`
+- `M` `src/alveara-client/src/services/documentsApi.ts`
+- `A` `src/alveara-client/src/test/fakeXhr.ts`
+
+## Real-backend walkthrough and config (3)
+- `A` `src/alveara-client/e2e/documents-library-real-backend.spec.ts`
+- `M` `src/alveara-client/playwright.config.ts`
+- `A` `src/alveara-client/playwright.documents-library.config.ts`
+
+## Documentation and evidence (14)
+- `M` `docs/DOCUMENTS.md`
+- `A` `docs/design/HANDOFF_TWO_STAGE_REVIEW_PROPOSAL.md`
+- `A` `docs/design/HANDOFF_TWO_STAGE_REVIEW_RESPONSE.md`
+- `M` `docs/design/TESTING_CADENCE_NOTICE.md`
+- `M` `docs/testing/REAL_BACKEND_E2E.md`
+- `A` `docs/testing/documents-library-walkthrough/01-library-with-context.png`
+- `A` `docs/testing/documents-library-walkthrough/02-filter-refused-range.png`
+- `A` `docs/testing/documents-library-walkthrough/03-thumbnails.png`
+- `A` `docs/testing/documents-library-walkthrough/04-inactive-details.png`
+- `A` `docs/testing/documents-library-walkthrough/05-storage-intact.png`
+- `A` `docs/testing/documents-library-walkthrough/06-storage-missing.png`
+- `A` `docs/testing/documents-library-walkthrough/07-library-missing.png`
+- `A` `docs/testing/documents-library-walkthrough/08-unreferenced-listed.png`
+- `A` `docs/testing/documents-library-walkthrough/documents-library-evidence.json`
+
+## Repository records (69)
+- `M` `.alveara/BUILD_STATE.md`
+- `M` `.alveara/EXECUTION_STATUS.json`
+- `M` `.alveara/HANDOFF_SCHEMA.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/CHANGED_FILES.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/DEMO_EVIDENCE.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/NEXT_STORY_IMPACT.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/PARENT_REGRESSION.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/TEST_RESULTS.md`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/leak/leak_after_backend.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/leak/leak_before.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/leak/leak_final.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/negative-controls/negative-controls.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/gates/build.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/gates/lint.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/gates/playwright_mocked.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/gates/repo_checks.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/gates/tsc.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/gates/vitest.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/summary.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/gate-c_playwright.c2.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.auth.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.billing-ledger.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.billing-statements.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.billing.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.board.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.calendar.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.clinical-companion.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.clinical.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.completion-adoption.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.completion.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.diagnoses-structure.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.diagnoses.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.documents-library.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.documents.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.flow.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.forms.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.odontogram-longitudinal.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.odontogram.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.patients.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.perio-sessions.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.perio.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.prescription-workflow.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.prescriptions.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.procedures.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.safety.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.schedule.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.treatment-plans-complete.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.treatment-plans.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/sweep/walkthroughs/playwright.workspace.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/test-runs/backend-full-run-summary.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/test-runs/backend-summary.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/test-runs/backend-tests.csv`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/test-runs/post-fix-reruns.txt`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/01-library-with-context.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/02-filter-refused-range.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/03-thumbnails.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/04-inactive-details.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/05-storage-intact.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/06-storage-missing.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/07-library-missing.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/08-unreferenced-listed.png`
+- `A` `.alveara/handoffs/ALV-010-C01/R01-evidence/artifacts/walkthrough/documents-library-evidence.json`
+- `A` `.alveara/handoffs/ALV-010-C01/R01.md`
+- `A` `.alveara/reviews/ALV-010-C01/R01-stage1.md`
+- `M` `.alveara/story_catalog.json`
+- `M` `GPT Docs/Alveara_Dental_Engineering_Product_Reference_v2.md`
+- `M` `GPT Docs/Alveara_Dental_Execution_Plan_v4.md`
+- `M` `PROGRESS.md`

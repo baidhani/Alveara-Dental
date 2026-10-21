@@ -2044,27 +2044,27 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
-        "passed": 7
+        "passed": 6
       },
       "tests": {
-        "status": "passed",
-        "summary": "Attempt R01, single-stage. High risk under the testing cadence (migration AddDocumentLibrary; restore validation; shared test infrastructure), so the full regression ran. Backend full serial 4294 of 4294 passed, 0 failed, 0 skipped (2 h 41 m, on be29f3b; later commits changed test infrastructure and link styling only, with the document classes 702 of 702 and the 29 API-harness classes 639 of 639 re-run). Frontend 1544 of 1544 (97 files); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8. Real-backend walkthroughs on fresh databases, all 30 configs: 323 of 323, including the new documents-library walkthrough 12 of 12 (axe light and dark, 0 serious or critical) and STORY-010's 14 of 14 on its unchanged spec. Negative controls 62 breakages, 60 killed, 2 documented non-gaps. Defects found by own verification and fixed: encounter picker empty for importers, previous file's tooth kept for the next import, dark-mode contrast of two links, restore trusting a backup lacking document files, document test storage leaks (3,500 folders). Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); the full backend run was not repeated on the final commit. See docs/DOCUMENTS.md."
+        "status": "failed",
+        "summary": "Attempt R02 (prior attempt R01 for implementation f3eb57b: Stage 1 APPROVED_PENDING_REGRESSION, then superseded because src/ was restored at the owner's instruction to the tree the full run tested). Implementation 17a2f07, whose src/ is identical to be29f3b. High risk under the testing cadence. NOT CLEAN: STORY-010's real-backend walkthrough (spec unchanged) fails: 10 passed, 1 failed, 3 did not run, a dark-mode color-contrast violation on the 'Manage form templates' link this story added; acceptance 6 of 7 (item 1 not met). Backend full serial 4294 of 4294 passed, 0 failed, 0 skipped (2 h 41 m, on be29f3b, src identical to the implementation). Frontend 1544 of 1544 (97 files); tsc, build, lint exit 0; mocked browser 136 of 136 after one story-catalog entry (first pass 134 + 2 failed on a pre-existing catalog gap); repository checks 8 of 8. Real-backend walkthroughs, all 30 configs on fresh databases (first sweep pass, the tree of 5983636 whose production code and client equal the implementation): 319 checks passed, 1 failed, 3 did not run; the new documents-library walkthrough 12 of 12. Negative controls 62 breakages, 60 killed, 2 documented non-gaps. Leak counts: databases and logins flat at zero; the Test-Data Storage folder count grew 3,641 to 3,914 (document and API tests leave their storage; cleanup in history at 5983636, not part of this attempt). The storage page's 'Open the patient's documents' link was not contrast-checked on this code. Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). See docs/DOCUMENTS.md."
       },
       "demo": "verified",
-      "parentRegression": "verified",
-      "implementationCommit": "f3eb57b9b6548f7e8fd800269011ff75ccb6e628",
-      "evidenceCommit": "30a92ce6d42c720f2449a89f4b89dab1e599cfd8",
-      "handoffPath": ".alveara/handoffs/ALV-010-C01/R01.md",
+      "parentRegression": "failed",
+      "implementationCommit": "17a2f073b3cd49b99a9de73a0949dea12ca521fc",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-010-C01/R02.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-010-C01/R01-stage1.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "f3eb57b9b6548f7e8fd800269011ff75ccb6e628",
-        "reviewedEvidenceCommit": "30a92ce6d42c720f2449a89f4b89dab1e599cfd8"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
       "revalidation": {
@@ -2072,7 +2072,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",

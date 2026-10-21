@@ -1,0 +1,60 @@
+Database AlveraWalk_playwright_documents_config_0bf414df created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.documents.config.ts ...
+
+Running 14 tests using 1 worker
+
+  ok  1 [chromium] › e2e\documents-real-backend.spec.ts:134:1 › SETUP: a patient exists and has no documents (284ms)
+  ok  2 [chromium] › e2e\documents-real-backend.spec.ts:141:1 › THE SCREEN: the office manager sees an empty library, the size limit and the import form (2.1s)
+  ok  3 [chromium] › e2e\documents-real-backend.spec.ts:150:1 › IMPORT: a PNG, a PDF and a text file are imported through the screen, each with the right category, date, size and importer (1.5s)
+  ok  4 [chromium] › e2e\documents-real-backend.spec.ts:166:1 › IMPORT (checked against the server): what is stored is what was sent, linked to the right patient and category (12ms)
+  ok  5 [chromium] › e2e\documents-real-backend.spec.ts:178:1 › SERVING: every file is a download except PDF and PNG, which are shown under a restrictive policy; nothing names where a file is stored (191ms)
+  ok  6 [chromium] › e2e\documents-real-backend.spec.ts:199:1 › DUPLICATE: the same file is warned about naming the existing document; Cancel imports nothing; Add anyway records a duplicate in the list, the history and the log (1.2s)
+  ok  7 [chromium] › e2e\documents-real-backend.spec.ts:230:1 › REFUSALS: a program, a blocked type, a mislabelled file and an empty file are each refused beside the file box and nothing is stored (1.0s)
+  ok  8 [chromium] › e2e\documents-real-backend.spec.ts:252:1 › EDIT: recategorizing and editing the description is saved with a history row and a log entry; a stale edit is explained and nothing is overwritten (1.1s)
+  ok  9 [chromium] › e2e\documents-real-backend.spec.ts:282:1 › SIGNED FORM: a signed form appears in the library read-only and is unchanged when its template is edited afterwards (1.6s)
+  ok 10 [chromium] › e2e\documents-real-backend.spec.ts:317:1 › PERMISSIONS: the dentist reads the library but has no import form and the API refuses an import (403); the front desk likewise; only the administrator reaches the settings (839ms)
+  x  11 [chromium] › e2e\documents-real-backend.spec.ts:338:1 › SETTINGS: the administrator adds and renames categories, sets the size limit and blocks and unblocks a type; built-in types are locked (2.6s)
+  -  12 [chromium] › e2e\documents-real-backend.spec.ts:387:1 › FAILURE: when the log cannot be written nothing is imported and the screen says so; once it is back the same click works
+  -  13 [chromium] › e2e\documents-real-backend.spec.ts:406:1 › TRUST: every document action is in the log with the user and a time, none names a file, a description or a patient, and the history numbers have no gap
+  -  14 [chromium] › e2e\documents-real-backend.spec.ts:420:1 › IMMUTABILITY: the database itself refuses to change or delete an imported file or its history
+
+
+  1) [chromium] › e2e\documents-real-backend.spec.ts:338:1 › SETTINGS: the administrator adds and renames categories, sets the size limit and blocks and unblocks a type; built-in types are locked 
+
+    Error: settings (dark): critical/serious axe violations
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "color-contrast:p:nth-child(3) > a[href$=\"form-templates\"][data-discover=\"true\"]",
+    + ]
+
+      81 |     const blocking = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
+      82 |     (evidence.axe as Record<string, unknown>)[`${label}-${theme}`] = { blocking: blocking.length, violations: results.violations.map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.length })) };
+    > 83 |     expect(blocking.map((v) => `${v.id}:${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`), `${label} (${theme}): critical/serious axe violations`).toEqual([]);
+         |                                                                                                                                                          ^
+      84 |   }
+      85 |   await setTheme(page, "light");
+      86 | }
+        at scanBothThemes (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\documents-real-backend.spec.ts:83:154)
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\documents-real-backend.spec.ts:364:3
+
+    Error Context: test-results\documents-real-backend-SET-4b262-e-built-in-types-are-locked-chromium\error-context.md
+
+    Error Context: test-results\documents-real-backend-SET-4b262-e-built-in-types-are-locked-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\documents-real-backend.spec.ts:338:1 › SETTINGS: the administrator adds and renames categories, sets the size limit and blocks and unblocks a type; built-in types are locked 
+  3 did not run
+  10 passed (17.5s)
+Database AlveraWalk_playwright_documents_config_0bf414df dropped (its files went with it).
+The run produced no output files.
