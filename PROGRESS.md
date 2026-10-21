@@ -947,3 +947,10 @@
   - What changed: tests only. The document tests left their storage folders under `Test-Data\Storage` (273 more in the full run, about 3,500 since STORY-010) and the API tests shared one `Storage\app` folder nobody emptied (900 files). Now `DocumentTestBase` and `DocumentStorageApiTests` remove their folder when the test ends; `DocumentBackupRestoreTests` also removes the folder its base class had made (it had replaced it and skipped the base cleanup, 5 tests, 5 folders); each `SchedulingApiHarness` host has its own storage folder removed with it (a folder a test names itself stays with that test). A removal that fails is reported, never swallowed (`TestStorageCleanup`).
   - Verification: written test-first (`DocumentTestStorageCleanupTests` 3, `ApiHarnessStorageCleanupTests` 3, red before the change); all document tests 702 of 702 with the Storage folder count unchanged (3920 before and after); the 29 classes that use the API harness 639 of 639 with the folder count unchanged (3920) and the `app` folder unchanged (957 files).
   - Notes: the full serial backend run (4294 of 4294, 2 h 41 m, on be29f3b) ran before these test-only changes; they are covered by the two targeted runs above. Folders and files already on disk are not deleted. Not pushed.
+
+- [x] ALV-010-C01 step 9b-2: the ledger story ALV-N015 was missing from the Architecture Map's story catalog
+  - Date: 2026-10-20
+  - Session: CC-20261008-k4q9
+  - What changed: one entry for `ALV-N015` (Notification Center and Internal Messaging, subsystem "Operations & Finance") in `.alveara/story_catalog.json`. The catalog says an entry is added whenever a story is added to the ledger; the commit that added ALV-N015 to the ledger did not, so the mocked-browser test "describes every ledger story exactly once" failed on committed code before this story started.
+  - Verification: `architecture-map.spec.ts` 36 of 36; the whole mocked Playwright run 136 of 136.
+  - Notes: found by this story's sweep, not caused by it. The subsystem is a display label; change it if another fits better. Not pushed.
