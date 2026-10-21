@@ -1,0 +1,20 @@
+Results from earlier runs on a tree whose src/ is identical to this attempt's (f3eb57b; this attempt's implementation a3b4bc9 has no src difference from it). They are transcribed from the session's command output, not raw logs, and were not repeated on a3b4bc9.
+
+Runs made AFTER the full backend run and after the sweep's first pass, on the working tree that became implementation commit f3eb57b9b6548f7e8fd800269011ff75ccb6e628.
+These are transcribed from the command output of the session (the commands were run interactively, not through the sweep script).
+
+Backend, filtered, after the test-storage cleanup changes (commit 5983636):
+  dotnet test --filter "FullyQualifiedName~Document"                      Passed! 702 of 702 (24 min); Test-Data\Storage folder count 3920 before and 3920 after
+  dotnet test --filter <the 29 classes that use SchedulingApiHarness>      Passed! 639 of 639 (31 min); Storage folder count 3920 before and 3920 after; Storage\app 957 files before and after
+  dotnet test --filter "ApiHarnessStorageCleanupTests|DocumentTestStorageCleanupTests|DocumentStorageApiTests|DocumentApiTests"  Passed! 62 of 62
+  dotnet test --filter "SignedFormSnapshotTests|FormSigningTests|FormLifecycleTests|FormTemplateVersionTests"                    Passed! 85 of 85 (step 8)
+  dotnet test --filter "Backup|DocumentBackupRestoreTests"                                                                        Passed! 126 of 126 (step 7)
+
+After the dark-mode contrast fix and the story-catalog entry (commits 3bd8ede and f3eb57b):
+  npx tsc -b                                  exit 0
+  npx vitest run                              97 files, 1544 of 1544 passed
+  npm run build                               built
+  npm run lint                                exit 0 (28 warnings of the existing kinds; none are errors)
+  npx playwright test (mocked, whole run)     136 of 136 passed (the first pass of the sweep had 134 passed and 2 failed: the story catalog lacked ALV-N015)
+  playwright.documents.config.ts  (STORY-010 walkthrough)   14 of 14 passed (first pass: 10 passed, 1 failed on a dark-mode contrast violation, 3 did not run)
+  playwright.documents-library.config.ts                   12 of 12 passed, now including an axe scan of the storage page in its missing-file state

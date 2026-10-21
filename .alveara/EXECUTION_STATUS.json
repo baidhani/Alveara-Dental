@@ -2044,38 +2044,35 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 7,
-        "passed": 6
+        "passed": 7
       },
       "tests": {
-        "status": "failed",
-        "summary": "Attempt R02 (prior attempt R01 for implementation f3eb57b: Stage 1 APPROVED_PENDING_REGRESSION, then superseded because src/ was restored at the owner's instruction to the tree the full run tested). Implementation 17a2f07, whose src/ is identical to be29f3b. High risk under the testing cadence. NOT CLEAN: STORY-010's real-backend walkthrough (spec unchanged) fails: 10 passed, 1 failed, 3 did not run, a dark-mode color-contrast violation on the 'Manage form templates' link this story added; acceptance 6 of 7 (item 1 not met). Backend full serial 4294 of 4294 passed, 0 failed, 0 skipped (2 h 41 m, on be29f3b, src identical to the implementation). Frontend 1544 of 1544 (97 files); tsc, build, lint exit 0; mocked browser 136 of 136 after one story-catalog entry (first pass 134 + 2 failed on a pre-existing catalog gap); repository checks 8 of 8. Real-backend walkthroughs, all 30 configs on fresh databases (first sweep pass, the tree of 5983636 whose production code and client equal the implementation): 319 checks passed, 1 failed, 3 did not run; the new documents-library walkthrough 12 of 12. Negative controls 62 breakages, 60 killed, 2 documented non-gaps. Leak counts: databases and logins flat at zero; the Test-Data Storage folder count grew 3,641 to 3,914 (document and API tests leave their storage; cleanup in history at 5983636, not part of this attempt). The storage page's 'Open the patient's documents' link was not contrast-checked on this code. Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). See docs/DOCUMENTS.md."
+        "status": "passed",
+        "summary": "Attempt R03, a Stage 1 package under the two-stage policy (prior attempt R02: CHANGES_REQUIRED on ALV-010-C01-R02-01, the unchanged STORY-010 walkthrough failing on dark-mode contrast, and ALV-010-C01-R02-02, test storage leaks). Implementation a3b4bc9, whose src/ is identical to f3eb57b, the tree the R01 Stage 1 review approved; no new code. High risk under the testing cadence; the broad regression is PENDING (Stage 2) and frozen in the package: full serial backend (expected 4,300 tests, 0 failed, 0 skipped, the Test-Data Storage count unchanged) and the client gates. Fresh runs on this tree: focused backend 47 of 47 passed (ApiHarnessStorageCleanupTests, DocumentTestStorageCleanupTests, DocumentStorageApiTests, DocumentBackupRestoreTests, DocumentOrphanServiceTests); Test-Data Storage entries 3,920 before and 3,920 after (flat); tsc exit 0; documents client tests 91 of 91; STORY-010's real-backend walkthrough (spec unchanged) 14 of 14; the documents-library walkthrough 12 of 12 with the storage page scanned in its missing-file state, light and dark, 0 critical or serious. Earlier runs on the identical tree (transcribed): document classes 702 of 702, API-harness classes 639 of 639, vitest 1544 of 1544, mocked browser 136 of 136, repository checks 8 of 8, tsc/build/lint exit 0; negative controls 62 breakages, 60 killed, 2 documented non-gaps. The historical 4,294-test full run on be29f3b is not claimed as Stage 2 evidence. Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); two AlveraTest databases left by interrupted runs are not deleted. See docs/DOCUMENTS.md."
       },
       "demo": "verified",
-      "parentRegression": "failed",
-      "implementationCommit": "17a2f073b3cd49b99a9de73a0949dea12ca521fc",
-      "evidenceCommit": "5ea4041fffe6358ec67d73f413a0096b6e9e4493",
-      "handoffPath": ".alveara/handoffs/ALV-010-C01/R02.md",
+      "parentRegression": "verified",
+      "implementationCommit": "a3b4bc92db59043a31ba089cc31dbe2fd4ce25ac",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-010-C01/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-010-C01/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "17a2f073b3cd49b99a9de73a0949dea12ca521fc",
-        "reviewedEvidenceCommit": "5ea4041fffe6358ec67d73f413a0096b6e9e4493"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
       },
-      "blockingIssues": [
-        "ALV-010-C01-R02-01: the unchanged STORY-010 real-backend documents walkthrough fails in dark mode on the 'Manage form templates' link added by this story (serious color-contrast); the final three steps (failure path, audit/history, database immutability) did not run; parent regression failed and acceptance item 1 is not met (6 of 7). Restore or reimplement the contrast correction, keep the accessibility coverage and rerun the walkthrough until all 14 steps pass.",
-        "ALV-010-C01-R02-02: the restored test tree leaks storage folders (Test-Data Storage grew from 3,641 to 3,914 entries in the full run). Restore or reimplement the cleanup for document-test and API-harness storage with focused tests and a before/after leak count, and keep accessibility coverage of the storage page's patient-documents link in its missing-file state."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "PASSED"
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

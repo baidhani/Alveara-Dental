@@ -1,0 +1,38 @@
+{
+  "axe": {
+    "library-list-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "library-list-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "library-thumbnails-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "library-thumbnails-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "storage-intact-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "storage-intact-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "storage-missing-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "storage-missing-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792558354772,
+  "logChecked": true
+}

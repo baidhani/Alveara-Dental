@@ -1003,3 +1003,10 @@
   - What changed: `src/` is restored to exactly the content of `f3eb57b` (the tree the R01 Stage 1 review approved): the "Manage form templates" link on Document settings and the "Open the patient's documents" link on Document storage use the information colour (dark-mode contrast; R02-01), the library walkthrough scans the storage page in its missing-file state, and the document tests and every API test host remove their storage folder on dispose through `TestStorageCleanup` (R02-02). No new code was written; both corrections were proven before and had been removed by the owner's earlier instruction.
   - Verification: `git diff f3eb57b HEAD -- src` is empty after this commit; the focused runs are recorded with the R03 handoff.
   - Notes: no full backend run (the reviewer directed a Stage 1 package first). Not pushed.
+
+- [x] ALV-010-C01: engineering handoff, attempt R03 (Stage 1, AWAITING_REVIEW)
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: handoff `.alveara/handoffs/ALV-010-C01/R03.md` with `R03-evidence/`, `BUILD_STATE.md` and the ledger record for implementation `a3b4bc92db59043a31ba089cc31dbe2fd4ce25ac`, whose `src/` is identical to `f3eb57b` (the tree the R01 Stage 1 review approved): both corrections of the R02 review restored (link contrast; test storage cleanup). A Stage 1 package under the two-stage policy: the broad regression is pending and its contract is frozen in the package.
+  - Verification: fresh runs on this tree: focused backend 47 of 47; `Test-Data\Storage` count 3920 before and after; tsc exit 0; documents client tests 91 of 91; STORY-010's walkthrough 14 of 14; the library walkthrough 12 of 12 (storage page scanned in its missing-file state). Earlier runs on the identical tree cited as such. No full backend run (the reviewer directed none before Stage 1 approval).
+  - Notes: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). The status record's evidenceCommit is set by the next commit. Not pushed.

@@ -1,0 +1,18 @@
+start 2026-10-21T12:12:52-05:00 head a3b4bc92db59043a31ba089cc31dbe2fd4ce25ac tree-changes 0
+backend filter: FullyQualifiedName~ApiHarnessStorageCleanupTests|FullyQualifiedName~DocumentTestStorageCleanupTests|FullyQualifiedName~DocumentStorageApiTests|FullyQualifiedName~DocumentBackupRestoreTests|FullyQualifiedName~DocumentOrphanServiceTests
+== backend focused exit=0
+Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 2 m 54 s - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0
+== gate vitest_documents exit=0
+
+ Test Files  4 passed (4)
+      Tests  91 passed (91)
+   Start at  12:15:55
+   Duration  159.94s (tests 98%, environment 1%)
+
+== walkthrough playwright.documents exit=0
+  14 passed (18.5s)
+== walkthrough playwright.documents-library exit=0
+  12 passed (21.6s)
+end 2026-10-21T12:19:44-05:00 tree-changes 2
+DONE
