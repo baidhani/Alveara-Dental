@@ -1024,3 +1024,10 @@
   - What changed: stored the reviewer's final decision unchanged at `.alveara/reviews/ALV-010-C01/R03.md`; the status record is `APPROVED` and `COMPLETE` (approved attempt R03, `fullRegression: PASSED`, implementation `a3b4bc9`, Stage 1 closure `277ff0b`, regression evidence `9a1923e`); `BUILD_STATE.md` carries the approved broad-regression baseline. No product, test, migration, script or configuration change.
   - Verification: user confirmed (the reviewer's final decision `APPROVED` for R03, Stage 2: full serial backend 4300 of 4300, Vitest 1544 of 1544, mocked Playwright 136 of 136, repository checks 8 of 8, leak counts unchanged).
   - Notes: ALV-N015 (item 41) may begin only after this commit. Three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). Not pushed.
+
+- [x] Test-speed initiative restarted: the template-database plan (M2) written for the reviewer
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: `docs/design/TESTSPEED_TEMPLATE_DATABASE_PLAN.md` (a plan only; no code, no change to `xunit.runner.json`). Measured from the ALV-010-C01 R03 Stage 2 results file and probes against a throw-away database: of the 94.2 minute run only 14.5 minutes are inside test bodies; about 3,210 databases are created, one per test for 160 classes; applying the 44 migrations costs about 2.5 s per database, a `RESTORE` of a ready template about 0.15 s; projection about 35 to 45 minutes for a full run, to be measured. Copy-and-attach was tried and is refused by file permissions.
+  - Verification: user confirmed (the owner directed the restart); the figures are from the stage 2 results file and probe timings recorded in the plan; no test code ran against the plan. The probe databases and files were removed (user databases: AlveraDev only).
+  - Notes: submitted for independent review; nothing implemented. The two interrupted-run test databases were dropped at the owner's request earlier in this session. Not pushed.
