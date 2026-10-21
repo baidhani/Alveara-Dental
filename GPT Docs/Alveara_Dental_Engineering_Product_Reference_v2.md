@@ -83,9 +83,19 @@ Historically, v3.2 was not a product redesign. It synchronized the source Master
 - Requires acceptance-by-acceptance evidence, exact test results, parent-course regression evidence for companions, demo evidence where applicable, Git state, changed-file summary, and next-story impact in the package.
 - Keeps the ZIP compact and free of secrets/real PHI; the full repository is not copied into every package by default.
 - Preserves code/tests as the ultimate implementation truth if packaged prose is stale.
-- The reviewing ChatGPT returns `APPROVED → COMPLETE`, `CHANGES_REQUIRED`, `BLOCKED`, or `REOPENED`; only approval permits the next ALV story to begin.
+- The reviewing ChatGPT returns Stage 1 `APPROVED_PENDING_REGRESSION` only when the frozen broad regression remains; final `APPROVED → COMPLETE`, `CHANGES_REQUIRED`, `BLOCKED`, or `REOPENED` retain their existing meanings. Only final approval permits the next ALV story to begin.
 
 In the current two-document split, the Execution Plan controls **when** work runs and contains the executable story prompts; this Engineering & Product Reference preserves cross-cutting engineering/product rules and immutable course contracts; `HANDOFF_SCHEMA.md` controls **how** ALV results are packaged; `EXECUTION_STATUS.json` records **where production execution stands**.
+
+### v3.4 Two-Stage Broad-Regression Review Summary
+
+The approved two-stage timing protocol applies to every future story, milestone, release, and gate beginning after `ALV-010-C01` when broad regression is required by the risk-based cadence. It adds `APPROVED_PENDING_REGRESSION` and `AWAITING_REGRESSION` without weakening the final approval requirement:
+
+- Stage 1 reviews the implementation, focused evidence, and prompt-required walkthroughs before the expensive broad run.
+- Stage 2 runs the exact broad-regression contract frozen in the approved Stage 1 package on code-equivalent work, then receives a final review.
+- Only final `APPROVED` produces `COMPLETE`; a product/test regression failure starts a new attempt.
+- An unavailable or otherwise inconclusive Stage 2 environment is `BLOCKED` and may rerun the unchanged contract after repair.
+- Gates, releases, milestones, and future prompts use the same two-stage timing: review focused readiness evidence and the frozen verification plan first, then run the broad contract. Single-stage evidence is allowed only when the reviewer records why broad regression is itself needed to assess a specific acceptance criterion before implementation review.
 
 ### v3.3 Source Execution-Control Hardening Summary
 
@@ -352,13 +362,18 @@ The course portal remains authoritative for course completion. `EXECUTION_STATUS
 
 ### 3. ALV Story Status Lifecycle
 
-Use only these normal states:
+Normal single-stage lifecycle:
 
 `PLANNED → READY → IN_PROGRESS → AWAITING_REVIEW → COMPLETE`
 
+Permitted two-stage lifecycle:
+
+`PLANNED → READY → IN_PROGRESS → AWAITING_REVIEW → AWAITING_REGRESSION → AWAITING_REVIEW → COMPLETE`
+
 Exceptional states:
 
-- `BLOCKED` — cannot proceed because a dependency, requirement, credential, architecture decision, or defect blocks truthful completion.
+- `AWAITING_REGRESSION` — Stage 1 conditionally accepted the implementation; the frozen broad-regression contract remains before final review.
+- `BLOCKED` — cannot proceed because a dependency, requirement, credential, architecture decision, defect, or an inconclusive regression environment blocks truthful completion.
 - `CHANGES_REQUIRED` — implementation ran, review found work that must be corrected before completion.
 - `DEFERRED` — product owner deliberately postponed the story; impact/reason must be recorded.
 - `REOPENED` — a previously complete story later regressed or must be changed.
@@ -409,13 +424,13 @@ A companion or new production story is **COMPLETE only when every applicable con
 
 9.  **`.alveara/BUILD_STATE.md` is updated** with durable current-state facts.
 
-10. **`.alveara/EXECUTION_STATUS.json` is updated to `AWAITING_REVIEW`** with acceptance/test/demo/regression evidence and commit identifiers.
+10. **`.alveara/EXECUTION_STATUS.json` is updated to `AWAITING_REVIEW`** with acceptance/test/demo/regression evidence and commit identifiers. A permitted two-stage Stage 1 records broad regression as `PENDING`; after conditional approval it moves to `AWAITING_REGRESSION`, never `COMPLETE`.
 
 11. **A complete attempt ZIP is generated and validated.** The coding agent creates `Alveara_Handoff_<ALV-ID>_<implementation-short-sha>_<attempt>.zip` according to Section 7. The user should not collect evidence manually.
 
 12. **Review is completed.** The reviewing ChatGPT inspects the ZIP against the Execution Plan, this Engineering & Product Reference, dependencies, tests, parent contract and next-story impact. Only if the package reveals an uncertainty that cannot be resolved from its evidence should the reviewer request the smallest additional source/project artifact necessary.
 
-13. **Approval is durably closed in the repository.** The coding agent records the review decision under `.alveara/reviews/<ALV-ID>/<attempt>.md`, updates `EXECUTION_STATUS.json` to `COMPLETE`, and makes a small review-closure commit. Only then may the next execution item begin.
+13. **Approval is durably closed in the repository.** For a two-stage story, the conditional Stage 1 decision is stored separately and the exact frozen broad-regression contract is run on code-equivalent work before final review. Only final `APPROVED` lets the coding agent record `.alveara/reviews/<ALV-ID>/<attempt>.md`, update `EXECUTION_STATUS.json` to `COMPLETE`, and make the small review-closure commit. Only then may the next execution item begin.
 
 Optional first-release AI stories may be deliberately `DEFERRED` without blocking the safe core release, provided the dependency/gate impact is recorded.
 
@@ -423,7 +438,7 @@ Optional first-release AI stories may be deliberately `DEFERRED` without blockin
 
 ### 5. Canonical `EXECUTION_STATUS.json` Story Record
 
-The repository bootstrap creates all 53 first-release records. A representative ALV record is:
+The repository execution ledger currently contains 55 first-release records (19 course and 36 ALV); additions are governed by the Execution Plan. A representative ALV record is:
 
 ``` json
 {
@@ -456,7 +471,10 @@ The repository bootstrap creates all 53 first-release records. A representative 
   "blockingIssues": [],
   "qualityGateContribution": ["Gate B"],
   "revalidation": {"required": false, "reason": null},
-  "completedAt": null
+  "completedAt": null,
+  "fullRegression": "PENDING",
+  "regressionEvidencePath": null,
+  "regressionRunCommit": null
 }
 ```
 
@@ -851,7 +869,7 @@ STEP 0 creates and commits:
 
 Bootstrap requirements:
 
-1.  Prepopulate `EXECUTION_STATUS.json` with exactly the 53 numbered first-release items from the Execution Plan: 19 course records and 34 first-release ALV records.
+1.  Prepopulate `EXECUTION_STATUS.json` with the current 55 numbered first-release items from the Execution Plan: 19 course records and 36 first-release ALV records.
 2.  Course records declare `externalVerification: "course_portal"`.
 3.  Record the lifecycle, immutable Rxx attempt model, review decisions, approval closure, BLOCKED/CHANGES_REQUIRED/revalidation behavior, canonical ZIP construction, package safety, and Git-SHA rule in `HANDOFF_SCHEMA.md`.
 4.  Create `BUILD_STATE.md` as honest current implemented truth, not a roadmap.

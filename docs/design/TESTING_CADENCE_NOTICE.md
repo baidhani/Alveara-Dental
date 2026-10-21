@@ -34,6 +34,11 @@ A full regression is immediately required when a story changes any of the follow
 
 A prompt that explicitly requires a full suite is stricter than this cadence and must be followed.
 
+
+## Two-stage review timing
+
+For every story, milestone, release, and gate beginning after `ALV-010-C01` that requires broad regression under this cadence, Stage 1 carries all required focused evidence and a frozen broad-verification plan while broad regression is pending. After independent `APPROVED_PENDING_REGRESSION`, the coding agent runs the exact Stage 2 contract on code-equivalent approved work. Final `APPROVED` remains mandatory before `COMPLETE` or a gate/release PASS decision. Product/test failures require a new attempt or responsible-work correction; environment-only inconclusive runs are `BLOCKED` and may rerun unchanged. A reviewer may require single-stage evidence only when broad regression is itself required to assess a specific acceptance criterion before implementation review, and must record that reason. See `.alveara/HANDOFF_SCHEMA.md` v3.
+
 ## Gates, releases, and milestones
 
 At every quality gate, release, or declared milestone, run the broad regression plus the required real-backend walkthroughs and all gate-specific evidence. Real-backend walkthroughs are therefore not routine substitutes for targeted per-story testing.

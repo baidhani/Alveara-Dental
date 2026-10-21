@@ -961,3 +961,10 @@
   - What changed: the "Manage form templates" link on Document settings (added in this story) and the "Open the patient's documents" link on Document storage used the plain link colour, which fails contrast in dark mode; both now use the information colour, like the other action links of the library. The library walkthrough also scans the storage page in its missing-file state, which is where the second link is drawn and which was not scanned before. Evidence in `docs/testing/documents-library-walkthrough/` regenerated.
   - Verification: the STORY-010 documents walkthrough failed on the first (axe, `color-contrast`) and now passes 14 of 14; the library walkthrough 12 of 12 with the new scan; vitest 1544 of 1544 (97 files), `tsc -b` clean, build ok, lint exit 0 with the existing warnings (28, none new in kind: the effect-load pattern the other pages use).
   - Notes: the sweep's other results are in the handoff evidence. Not pushed.
+
+- [x] Record the reviewer's two-stage handoff review decision (handoff schema v3) and the proposal that led to it
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: documents only, written by the reviewer in answer to the owner's proposal `docs/design/HANDOFF_TWO_STAGE_REVIEW_PROPOSAL.md`: `.alveara/HANDOFF_SCHEMA.md` v3 (new decision `APPROVED_PENDING_REGRESSION`, new status `AWAITING_REGRESSION`, the two-stage flow for stories after `ALV-010-C01`), the Execution Plan and Engineering/Product Reference text, `TESTING_CADENCE_NOTICE.md`, `HANDOFF_TWO_STAGE_REVIEW_RESPONSE.md`, and `handoffSchemaVersion` "3" on every ledger record. Committed as received; `ALV-010-C01` itself stays single-stage.
+  - Verification: user confirmed (owner asked for the proposal; the reviewer's files were reviewed by the coding agent and read against each other); no code changed.
+  - Notes: committed before this story's handoff commits so those commits touch only this story's status. Not pushed.
