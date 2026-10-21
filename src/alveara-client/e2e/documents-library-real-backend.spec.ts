@@ -286,7 +286,6 @@ test("MISSING FILE: a file taken from disk is reported missing, the library says
     await expect(page.getByRole("table", { name: "Files that need attention" })).toContainText("region.png");
     await expect(page.getByRole("table", { name: "Files that need attention" })).toContainText("Missing");
     await shot(page, "06-storage-missing.png");
-    await scanBothThemes(page, "storage-missing");
 
     await gotoDocuments(page);
     await expect(rowOf(page, "region.png")).toContainText("File missing");

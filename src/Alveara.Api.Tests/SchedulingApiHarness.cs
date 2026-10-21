@@ -33,22 +33,8 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
     /// <summary>Set before the first request to see what the API logs (a test that asserts a structured log event); left null, logging is as the host configures it.</summary>
     public Action<Microsoft.Extensions.Logging.ILoggingBuilder>? ConfigureLogging { get; set; }
 
-    private string? _storageRoot;
-    private bool _ownsStorageRoot;
-
-    /// <summary>
-    /// The API's document storage folder. Left alone, each host gets its own folder under the test data root and removes it when disposed (the shared folder every host once used was never emptied). A test that sets it
-    /// (it reads or damages the stored files, or lists the files nothing points to) names a folder it removes itself. Set before the first request.
-    /// </summary>
-    public string StorageRoot
-    {
-        get
-        {
-            if (_storageRoot is null) { _storageRoot = Path.Combine(AlveraTestEnvironment.StorageFolder, $"api-{Guid.NewGuid():N}"); _ownsStorageRoot = true; }
-            return _storageRoot;
-        }
-        set { _storageRoot = value; _ownsStorageRoot = false; }
-    }
+    /// <summary>Set before the first request to give the API its own document storage folder (a test that reads or damages the stored files, or lists the files nothing points to); left null, the shared test storage folder is used.</summary>
+    public string? StorageRoot { get; set; }
 
     public WebApplicationFactory<Program> Factory => _factory ??= new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
     {
@@ -56,7 +42,7 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         builder.UseSetting("ConnectionStrings:Alveara", fixture.ConnectionString);
         builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
-        builder.UseSetting("StorageRoot", StorageRoot);
+        if (StorageRoot is not null) builder.UseSetting("StorageRoot", StorageRoot);
     });
 
     private static async Task<string> CsrfAsync(HttpClient client) =>
@@ -84,10 +70,5 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         return new Session(client, await CsrfAsync(client));
     }
 
-    public void Dispose()
-    {
-        _factory?.Dispose();
-        _factory = null;
-        if (_ownsStorageRoot && _storageRoot is not null) TestStorageCleanup.Delete(_storageRoot);
-    }
+    public void Dispose() => _factory?.Dispose();
 }

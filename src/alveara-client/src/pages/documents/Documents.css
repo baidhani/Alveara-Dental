@@ -78,8 +78,7 @@
 }
 
 /* Links among the actions use the information colour, which keeps AA contrast on every surface in both themes; the plain link colour does not in dark mode (found by the ALV-010-C01 walkthrough). */
-.alv-documents__row-actions a,
-.alv-documents__link {
+.alv-documents__row-actions a {
   color: var(--color-info);
 }
 

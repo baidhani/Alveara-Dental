@@ -20,13 +20,6 @@ public abstract class DocumentTestBase : SafetyTestBase
         _blobs = new RecordingBlobStorage(new LocalDiskBlobStorage(_storageRoot));
     }
 
-    /// <summary>Removes the test's storage folder with its database, so a full run leaves no document folders behind.</summary>
-    public override async Task DisposeAsync()
-    {
-        await base.DisposeAsync();
-        if (_storageRoot.Length > 0) TestStorageCleanup.Delete(_storageRoot);
-    }
-
     /// <summary>The real store, counting what it was asked to do and able to fail on request.</summary>
     protected sealed class RecordingBlobStorage(IBlobStorage inner) : IBlobStorage
     {

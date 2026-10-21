@@ -975,3 +975,10 @@
   - What changed: handoff `.alveara/handoffs/ALV-010-C01/R01.md` with `R01-evidence/` (test results, acceptance, parent regression, demo, changed files, next-story impact, artifacts), `BUILD_STATE.md` section and the ledger record moved to `AWAITING_REVIEW` (implementation `f3eb57b9b6548f7e8fd800269011ff75ccb6e628`).
   - Verification: full serial backend 4294 of 4294 (on be29f3b); document classes 702 and API-harness classes 639 re-run after the test cleanup; vitest 1544 of 1544; mocked Playwright 136 of 136; repository checks 8 of 8; tsc, build and lint exit 0; 30 real-backend walkthroughs 323 of 323; negative controls 62 breakages, 60 killed, 2 documented non-gaps; leak counts flat for databases and logins, the storage-folder count flat after the cleanup fix.
   - Notes: single-stage handoff. Three local commits carry a Co-Authored-By trailer against the owner's instruction; the owner chose not to rewrite them. The status record's evidenceCommit is set by the next commit. Not pushed.
+
+- [x] Restore src/ to exactly the tree the full backend run tested (be29f3b)
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: on the owner's instruction, `src/` is back to the content of `be29f3b`, the commit the 2 h 41 m full serial backend run (4294 of 4294) executed on. Nine files restored and three removed, all from this story's three post-run commits (5983636 test storage cleanup, f3eb57b link contrast and the storage-missing scan; 3bd8ede's catalog entry is outside `src/` and was kept). Done as a new commit; history is not rewritten.
+  - Verification: `git diff be29f3b HEAD -- src` is empty after this commit. No test was run.
+  - Notes: this undoes fixes the sweep had found: document tests leave their storage folders again, the "Manage form templates" and "Open the patient's documents" links fail dark-mode contrast again (the STORY-010 documents walkthrough failed on this before the fix), and the library walkthrough no longer scans the storage page in its missing-file state. The handoff package, status record and Stage 1 review all name implementation `f3eb57b`, so they no longer describe `src/`. Not pushed.
