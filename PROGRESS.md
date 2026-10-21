@@ -1031,3 +1031,10 @@
   - What changed: `docs/design/TESTSPEED_TEMPLATE_DATABASE_PLAN.md` (a plan only; no code, no change to `xunit.runner.json`). Measured from the ALV-010-C01 R03 Stage 2 results file and probes against a throw-away database: of the 94.2 minute run only 14.5 minutes are inside test bodies; about 3,210 databases are created, one per test for 160 classes; applying the 44 migrations costs about 2.5 s per database, a `RESTORE` of a ready template about 0.15 s; projection about 35 to 45 minutes for a full run, to be measured. Copy-and-attach was tried and is refused by file permissions.
   - Verification: user confirmed (the owner directed the restart); the figures are from the stage 2 results file and probe timings recorded in the plan; no test code ran against the plan. The probe databases and files were removed (user databases: AlveraDev only).
   - Notes: submitted for independent review; nothing implemented. The two interrupted-run test databases were dropped at the owner's request earlier in this session. Not pushed.
+
+- [x] Record the reviewer's approval of the template-database plan and the new story ALV-N016
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: documents only, written by the reviewer: `docs/design/TESTSPEED_TEMPLATE_DATABASE_PLAN.md` status (approved with required implementation controls), `docs/design/TESTSPEED_TEMPLATE_DATABASE_REVIEW_RESPONSE.md`, the Execution Plan (item 41 `ALV-N016`, ALV-N015 moves to item 42), the Engineering/Product Reference, the ledger record for `ALV-N016` (56 records; later items renumbered) and its story-catalog entry. Committed as received.
+  - Verification: user confirmed (the owner asked for the reviewer's files to be checked and said go); ledger and catalog both list 56 stories (script check); no code changed.
+  - Notes: the reviewer's tool re-serialised one finished record (STORY-010 `completedAt` `...58.140Z` became `...58.14Z`, the same instant) and re-encoded a few characters; kept as received. Not pushed.

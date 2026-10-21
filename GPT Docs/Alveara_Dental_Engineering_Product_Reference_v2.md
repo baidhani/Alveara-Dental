@@ -87,6 +87,10 @@ Historically, v3.2 was not a product redesign. It synchronized the source Master
 
 In the current two-document split, the Execution Plan controls **when** work runs and contains the executable story prompts; this Engineering & Product Reference preserves cross-cutting engineering/product rules and immutable course contracts; `HANDOFF_SCHEMA.md` controls **how** ALV results are packaged; `EXECUTION_STATUS.json` records **where production execution stands**.
 
+### v3.5 Template-Database Test-Speed Initiative
+
+`ALV-N016` is immediate next execution after `ALV-010-C01`, before `ALV-N015`. It is high-risk test infrastructure with serial execution, isolated real-SQL clones, explicit migration-test bypasses, two-stage review, one Stage 2 run, and a 55-minute backend qualification ceiling. See Execution Plan item 41 and `docs/design/TESTSPEED_TEMPLATE_DATABASE_REVIEW_RESPONSE.md`.
+
 ### v3.4 Two-Stage Broad-Regression Review Summary
 
 The approved two-stage timing protocol applies to every future story, milestone, release, and gate beginning after `ALV-010-C01` when broad regression is required by the risk-based cadence. It adds `APPROVED_PENDING_REGRESSION` and `AWAITING_REGRESSION` without weakening the final approval requirement:
@@ -690,26 +694,27 @@ This is intentionally **not backend-first followed by frontend-later**. The appl
 |  37 | Treatment & Finance    | `STORY-016`   | Course         | Support prescriptions with medication, dosage, and allergy checks                                    | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-016-C01` |
 |  38 | Treatment & Finance    | `ALV-016-C01` | Companion      | Complete Prescription Workflow Using the Shared Clinical Safety Framework                            | 6 story acceptance items + ALV Completion Contract; parent regression STORY-016 | Review handoff, then `STORY-010`                  |
 |  39 | Operations & Data      | `STORY-010`   | Course         | Implement document import and categorization                                                         | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-010-C01` |
-|  40 | Operations & Data      | `ALV-010-C01` | Companion      | Complete Document and Imaging Imports, Metadata, Storage Integrity, and Advanced Form Management     | 7 story acceptance items + ALV Completion Contract; parent regression STORY-010 | Review handoff, then `ALV-N015`                  |
-|  41 | Operations & Data      | `ALV-N015`    | New production | Notification Center and Internal Messaging                                                           | 7 story acceptance items + ALV Completion Contract                              | Review handoff, then `STORY-009`                  |
-|  42 | Operations & Data      | `STORY-009`   | Course         | Manage follow-up tasks and reminders                                                                 | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-009-C01` |
-|  43 | Operations & Data      | `ALV-009-C01` | Companion      | Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations                            | 7 story acceptance items + ALV Completion Contract; parent regression STORY-009 | Review handoff, then `ALV-009-C02`                |
-|  44 | Operations & Data      | `ALV-009-C02` | Companion      | Referral and Dental Laboratory Case Tracking                                                         | 4 story acceptance items + ALV Completion Contract; parent regression STORY-009 | Review handoff, then `STORY-017`                  |
-|  45 | Operations & Data      | `STORY-017`   | Course         | Support duplicate detection and controlled merge of patient records                                  | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-017-C01` |
-|  46 | Operations & Data      | `ALV-017-C01` | Companion      | Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery                         | 6 story acceptance items + ALV Completion Contract; parent regression STORY-017 | Review handoff, then `STORY-018`                  |
-|  47 | Operations & Data      | `STORY-018`   | Course         | Provide data portability with patient export and import capabilities                                 | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-018-C01` |
-|  48 | Operations & Data      | `ALV-018-C01` | Companion      | Versioned Data Export and Portable Record Package                                                    | 6 story acceptance items + ALV Completion Contract; parent regression STORY-018 | Review handoff, then `ALV-018-C02`                |
-|  49 | Operations & Data      | `ALV-018-C02` | Companion      | Validated Bulk Import and Migration Workbench                                                        | 8 story acceptance items + ALV Completion Contract; parent regression STORY-018 | Review handoff, then `ALV-N006`                   |
-|  50 | Operations & Data      | `ALV-N006`    | New production | Operational, Clinical, Financial Reporting, and Outcome Measurement                                  | 7 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N007`                   |
-|  51 | Optional AI            | `ALV-N007`    | New production | AI-Assisted Clinical Documentation and Review                                                        | 5 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N012`                   |
-|  52 | Optional AI            | `ALV-N012`    | New / optional | AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up                 | 6 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N013`                   |
-|  53 | Release Engineering    | `ALV-N013`    | New production | Windows Installation, Upgrade, Schema Migration, and Rollback                                        | 6 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N014`                   |
-|  54 | Release Engineering    | `ALV-N014`    | New production | Security and Privacy Engineering Readiness                                                           | 5 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N008`                   |
-|  55 | Release Engineering    | `ALV-N008`    | New production | Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification | 8 story acceptance items + ALV Completion Contract                              | Release candidate / first-production baseline     |
+|  40 | Operations & Data      | `ALV-010-C01` | Companion      | Complete Document and Imaging Imports, Metadata, Storage Integrity, and Advanced Form Management     | 7 story acceptance items + ALV Completion Contract; parent regression STORY-010 | Review handoff, then `ALV-N016`                  |
+|   41 | Operations & Data      | `ALV-N016`    | New production | Template Database Test-Speed Infrastructure                                                           | 8 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N015`                  |
+|  42 | Operations & Data      | `ALV-N015`    | New production | Notification Center and Internal Messaging                                                           | 7 story acceptance items + ALV Completion Contract                              | Review handoff, then `STORY-009`                  |
+|  43 | Operations & Data      | `STORY-009`   | Course         | Manage follow-up tasks and reminders                                                                 | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-009-C01` |
+|  44 | Operations & Data      | `ALV-009-C01` | Companion      | Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations                            | 7 story acceptance items + ALV Completion Contract; parent regression STORY-009 | Review handoff, then `ALV-009-C02`                |
+|  45 | Operations & Data      | `ALV-009-C02` | Companion      | Referral and Dental Laboratory Case Tracking                                                         | 4 story acceptance items + ALV Completion Contract; parent regression STORY-009 | Review handoff, then `STORY-017`                  |
+|  46 | Operations & Data      | `STORY-017`   | Course         | Support duplicate detection and controlled merge of patient records                                  | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-017-C01` |
+|  47 | Operations & Data      | `ALV-017-C01` | Companion      | Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery                         | 6 story acceptance items + ALV Completion Contract; parent regression STORY-017 | Review handoff, then `STORY-018`                  |
+|  48 | Operations & Data      | `STORY-018`   | Course         | Provide data portability with patient export and import capabilities                                 | Portal Done Means + course repo verification                                    | Confirm portal, mirror status, then `ALV-018-C01` |
+|  49 | Operations & Data      | `ALV-018-C01` | Companion      | Versioned Data Export and Portable Record Package                                                    | 6 story acceptance items + ALV Completion Contract; parent regression STORY-018 | Review handoff, then `ALV-018-C02`                |
+|  50 | Operations & Data      | `ALV-018-C02` | Companion      | Validated Bulk Import and Migration Workbench                                                        | 8 story acceptance items + ALV Completion Contract; parent regression STORY-018 | Review handoff, then `ALV-N006`                   |
+|  51 | Operations & Data      | `ALV-N006`    | New production | Operational, Clinical, Financial Reporting, and Outcome Measurement                                  | 7 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N007`                   |
+|  52 | Optional AI            | `ALV-N007`    | New production | AI-Assisted Clinical Documentation and Review                                                        | 5 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N012`                   |
+|  53 | Optional AI            | `ALV-N012`    | New / optional | AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up                 | 6 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N013`                   |
+|  54 | Release Engineering    | `ALV-N013`    | New production | Windows Installation, Upgrade, Schema Migration, and Rollback                                        | 6 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N014`                   |
+|  55 | Release Engineering    | `ALV-N014`    | New production | Security and Privacy Engineering Readiness                                                           | 5 story acceptance items + ALV Completion Contract                              | Review handoff, then `ALV-N008`                   |
+|  56 | Release Engineering    | `ALV-N008`    | New production | Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification | 8 story acceptance items + ALV Completion Contract                              | Release candidate / first-production baseline     |
 
 #### Mandatory Phase Gate Checkpoints
 
-The 55 story items include the approved Notification Center and Internal Messaging story, but daily execution has six **non-story stop points**:
+The 56 story items include the approved Notification Center and Internal Messaging story, but daily execution has six **non-story stop points**:
 
 | After item | Gate                                                       | Rule                                                             |
 |-----------:|------------------------------------------------------------|------------------------------------------------------------------|
@@ -717,8 +722,8 @@ The 55 story items include the approved Notification Center and Internal Messagi
 |         17 | **Gate B — Patient, Scheduling, and Visit Entry Ready**    | Do not start Clinical Core until Gate B passes.                  |
 |         30 | **Gate C — Clinical Core Ready**                           | Do not start Treatment & Finance until Gate C passes.            |
 |         37 | **Gate D — Treatment Completion and Financial Core Ready** | Do not start Operations & Data until Gate D passes.              |
-|         48 | **Gate E — Operations, Documents, and Data Ready**         | Resolve Gate E before optional AI/release engineering.           |
-|         53 | **Gate F — Production Candidate**                          | Required before first-production baseline is declared.           |
+|  49 | **Gate E — Operations, Documents, and Data Ready**         | Resolve Gate E before optional AI/release engineering.           |
+|  54 | **Gate F — Production Candidate**                          | Required before first-production baseline is declared.           |
 
 At a gate, run the gate checks defined at that point in the Execution Plan and update `.alveara/QUALITY_GATES.md`. A failed gate stops forward phase progression. Repair/reopen the responsible story or stories, run impact revalidation, then reevaluate the gate. Do not lower a predeclared threshold merely to pass.
 
@@ -726,7 +731,7 @@ Gate evaluation is evidence-producing work. When a gate requires a substantial i
 
 #### Optional AI branch
 
-After item 48 / Gate E:
+After item 49 / Gate E:
 
 - **Include AI:** execute and review-close `ALV-N007`. Then either execute/review-close `ALV-N012`, or deliberately defer only `ALV-N012` with product-owner reason and release impact.
 - **Defer AI entirely:** record **both** `ALV-N007` and `ALV-N012` as `DEFERRED` with product-owner reason and release impact, verify no required core workflow depends on AI, then continue directly to `ALV-N013`.

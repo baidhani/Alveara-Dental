@@ -2749,9 +2749,51 @@ Parent course story: STORY-010 — its completion contract is immutable and must
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 42 — STORY-009** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 41 — ALV-N016** below.
 
-# 41 — ALV-N015 — Notification Center and Internal Messaging
+# 41 — ALV-N016 — Template Database Test-Speed Infrastructure
+
+**Type:** New production — test infrastructure  
+**Dependencies:** ALV-010-C01
+
+### Full Coding-Agent Prompt
+
+**Story:** ALV-N016 — Template Database Test-Speed Infrastructure
+
+**Purpose:** Reduce serial backend fixture setup time without weakening real SQL Server migration coverage, fixture isolation, or serial xUnit execution. This is the next authorized work. Do not begin `ALV-N015` or another product story first.
+
+**Implementation boundary**
+
+- Change test infrastructure only. Do not change production behavior, test assertions, test selection, or `xunit.runner.json` parallelism.
+- Build one fresh, process-local template backup by using the real EF migration path once; verify migration history and `READ_COMMITTED_SNAPSHOT`; then drop the template database.
+- Restore a unique normal-fixture clone with explicit logical-file discovery and `WITH MOVE`. Each clone must preserve migration state/settings and remain isolated.
+- Keep an explicit named inventory of migration/rollback and fixture-initialisation tests that bypass the template and retain the real create-and-migrate path.
+- Missing/corrupt backup or injected restore failure must clean up the partial clone, log safe structured telemetry, and fall back to create-and-migrate. Template-build failure must fail loudly. Any fallback in final qualification fails performance qualification.
+- Preserve retries, failed-initialisation cleanup, connection-pool release, file-location protection, and abnormal-run leftover reporting. Never automatically delete older leftovers.
+
+**Acceptance criteria**
+
+1. Serial execution remains enabled; every ordinary fixture uses a distinct real SQL Server clone with equivalent migration state and SQL settings.
+2. Clone isolation is directly proved: clone A data/mutations never appear in clone B.
+3. The bypass inventory is complete and proves real migration/rollback and fixture-failure behavior remain exercised.
+4. Migration mismatch, corrupt/missing backup, injected restore failure, template-build failure, and partial-clone cleanup are directly tested; fallback is observable.
+5. Backup, clone file, storage, database, SQL-login, and Temp artifacts are measured before/after; successful-run artifacts clean up and earlier leftovers are reported only.
+6. Focused tests prove migration history, `READ_COMMITTED_SNAPSHOT`, file locations, clone isolation, fallback, cleanup, and bypass behavior without weakening existing assertions/IDs.
+7. Stage 2 has the same existing backend test IDs/outcomes as the ALV-010-C01 baseline, zero failures/skips, zero unexpected fallback, and clean client/repository gates.
+8. One formal Stage 2 backend run completes in **55 minutes or less** on the quiet designated machine. Missing this target is `CHANGES_REQUIRED`, even if correctness passes.
+
+**Two-stage evidence**
+
+Stage 1 uses ALV-010-C01 R03 Stage 2 (4,300 backend tests, 94 minutes) as baseline. Do **not** run a new pre-change full suite. Run focused timing, fixture, mutation, isolation, cleanup, and inventory tests; freeze one Stage 2 contract: retained-TRX full serial backend, exact test-ID/outcome comparison, TypeScript, full Vitest, build, lint, mocked Playwright, repository checks, before/after artifact counts, zero fallback, and the 55-minute ceiling. Package at `AWAITING_REVIEW` with `fullRegression: "PENDING"` and stop.
+
+After `APPROVED_PENDING_REGRESSION`, run that frozen contract **once** on the closure-only code-equivalent tree. A second broad run is not required. Any correctness, cleanup, fallback, or time failure begins a new Stage 1 attempt.
+
+**Out of scope:** parallel execution, shared databases, SQL Server tuning, production-code changes, and changing test assertions.
+
+**When you finish:** Follow `.alveara/HANDOFF_SCHEMA.md` v3. This high-risk test-infrastructure story requires two-stage review. Do not mark `COMPLETE` or start ALV-N015 until final Stage 2 approval and closure.
+
+**NEXT:** After final approval and closure, continue to **item 42 — ALV-N015**.
+# 42 — ALV-N015 — Notification Center and Internal Messaging
 
 **Type:** New Production
 **Dependencies:** STORY-010, ALV-010-C01, ALV-N001, ALV-N009, ALV-002-C01, ALV-N002, ALV-N004
@@ -2825,9 +2867,9 @@ Parent course story: STORY-010 — its completion contract is immutable and must
 
 Follow the standard ALVEARA handoff protocol: preserve prior attempts; commit implementation and evidence/status separately; generate and validate `Alveara_Handoff_ALV-N015_<implementation-short-sha>_<attempt>.zip`; set only `AWAITING_REVIEW`; and do not begin the next story until independent approval is durably closed.
 
-**NEXT:** Do not continue until this story has been independently reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 42 — STORY-009** below.
+**NEXT:** Do not continue until this story has been independently reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 43 — STORY-009** below.
 
-# 42 — STORY-009 — Manage follow-up tasks and reminders
+# 43 — STORY-009 — Manage follow-up tasks and reminders
 
 **ORIGINAL COURSE STORY — EXECUTE IN THE COURSE PORTAL**
 
@@ -2835,7 +2877,7 @@ Open `STORY-009` in the course portal and execute its **current portal-generated
 
 When the portal has genuinely verified `STORY-009` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-009` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-009: record course completion`. Then continue directly to **item 43 — ALV-009-C01** below.
 
-# 43 — ALV-009-C01 — Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations
+# 44 — ALV-009-C01 — Recall, Unscheduled Treatment, Work Queues, and Follow-Up Task Operations
 
 **Type:** Companion
 **Parent:** STORY-009
@@ -2921,7 +2963,7 @@ Parent course story: STORY-009 — its completion contract is immutable and must
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 44 — ALV-009-C02** below.
 
-# 44 — ALV-009-C02 — Referral and Dental Laboratory Case Tracking
+# 45 — ALV-009-C02 — Referral and Dental Laboratory Case Tracking
 
 **Type:** Companion
 **Parent:** STORY-009
@@ -2992,7 +3034,7 @@ Parent course story: STORY-009 — its completion contract is immutable and must
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 45 — STORY-017** below.
 
-# 45 — STORY-017 — Support duplicate detection and controlled merge of patient records
+# 46 — STORY-017 — Support duplicate detection and controlled merge of patient records
 
 **ORIGINAL COURSE STORY — EXECUTE IN THE COURSE PORTAL**
 
@@ -3000,7 +3042,7 @@ Open `STORY-017` in the course portal and execute its **current portal-generated
 
 When the portal has genuinely verified `STORY-017` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-017` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-017: record course completion`. Then continue directly to **item 46 — ALV-017-C01** below.
 
-# 46 — ALV-017-C01 — Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery
+# 47 — ALV-017-C01 — Safe Duplicate Review, Conflict Resolution, Merge Preservation, and Recovery
 
 **Type:** Companion
 **Parent:** STORY-017
@@ -3077,7 +3119,7 @@ Parent course story: STORY-017 — its completion contract is immutable and must
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 47 — STORY-018** below.
 
-# 47 — STORY-018 — Provide data portability with patient export and import capabilities
+# 48 — STORY-018 — Provide data portability with patient export and import capabilities
 
 **ORIGINAL COURSE STORY — EXECUTE IN THE COURSE PORTAL**
 
@@ -3085,7 +3127,7 @@ Open `STORY-018` in the course portal and execute its **current portal-generated
 
 When the portal has genuinely verified `STORY-018` complete, update `.alveara/EXECUTION_STATUS.json` for `STORY-018` to `COMPLETE`, record `externalVerification = "course_portal"` plus the verification timestamp/evidence reference, and commit that control-state synchronization using `STORY-018: record course completion`. Then continue directly to **item 48 — ALV-018-C01** below.
 
-# 48 — ALV-018-C01 — Versioned Data Export and Portable Record Package
+# 49 — ALV-018-C01 — Versioned Data Export and Portable Record Package
 
 **Type:** Companion
 **Parent:** STORY-018
@@ -3169,7 +3211,7 @@ Parent course story: STORY-018 — its completion contract is immutable and must
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 49 — ALV-018-C02** below.
 
-# 49 — ALV-018-C02 — Validated Bulk Import and Migration Workbench
+# 50 — ALV-018-C02 — Validated Bulk Import and Migration Workbench
 
 **Type:** Companion
 **Parent:** STORY-018
@@ -3265,7 +3307,7 @@ Parent course story: STORY-018 — its completion contract is immutable and must
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 50 — ALV-N006** below.
 
-# 50 — ALV-N006 — Operational, Clinical, Financial Reporting, and Outcome Measurement
+# 51 — ALV-N006 — Operational, Clinical, Financial Reporting, and Outcome Measurement
 
 **Type:** New Production
 **Dependencies:** ALV-007-C02, ALV-009-C01, ALV-011-C01, ALV-017-C01
@@ -3403,7 +3445,7 @@ Return the gate decision, criterion-by-criterion results, evidence references, r
 
 **PASS → continue directly to item 51 — ALV-N007. FAIL/BLOCKED → stop; do not move forward.**
 
-# 51 — ALV-N007 — AI-Assisted Clinical Documentation and Review
+# 52 — ALV-N007 — AI-Assisted Clinical Documentation and Review
 
 **OPTIONAL AI BRANCH — DECIDE HERE:**
 
@@ -3487,7 +3529,7 @@ No course parent. This is production work omitted by the generated course backlo
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 52 — ALV-N012** below.
 
-# 52 — ALV-N012 — AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up
+# 53 — ALV-N012 — AI-Assisted Authorized Search, Summaries, Explanations, and Administrative Follow-Up
 
 **OPTIONAL AI BRANCH — ITEM 51 IS REACHABLE ONLY IF ITEM 50 WAS EXECUTED:**
 
@@ -3579,7 +3621,7 @@ No course parent. This is production work omitted by the generated course backlo
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 53 — ALV-N013** below.
 
-# 53 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
+# 54 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
 
 **Type:** New Production
 **Dependencies:** ALV-N004, ALV-018-C01, ALV-N002
@@ -3664,7 +3706,7 @@ No course parent. This is production work omitted by the generated course backlo
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 54 — ALV-N014** below.
 
-# 54 — ALV-N014 — Security and Privacy Engineering Readiness
+# 55 — ALV-N014 — Security and Privacy Engineering Readiness
 
 **Type:** New Production
 **Dependencies:** ALV-001-C01, ALV-002-C01, ALV-N004, ALV-010-C01, ALV-018-C01, ALV-018-C02, ALV-N013
@@ -3750,7 +3792,7 @@ No course parent. This is production work omitted by the generated course backlo
 
 **NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 55 — ALV-N008** below.
 
-# 55 — ALV-N008 — Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification
+# 56 — ALV-N008 — Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification
 
 **Type:** New Production
 **Dependencies:** ALV-N004, ALV-N006, ALV-N013, ALV-N014, ALV-018-C01, ALV-018-C02, ALV-007-C02
@@ -4400,3 +4442,4 @@ This is a future Alveara execution story. Begin only after Gate F and only when 
 - Use the normal immutable attempt lifecycle from `.alveara/HANDOFF_SCHEMA.md`: implementation commit → evidence/status commit → validated `Alveara_Handoff_<ALV-F-ID>_<implementation-short-sha>_<attempt>.zip` → `AWAITING_REVIEW`.
 - The coding agent must not self-certify `COMPLETE`. Stop after producing the validated handoff ZIP and final response. After reviewer approval, perform the normal review-closure commit before any other future story begins.
 - Never package secrets, credentials, tokens, encryption/recovery keys, real PHI/patient data, or real-data backups.
+

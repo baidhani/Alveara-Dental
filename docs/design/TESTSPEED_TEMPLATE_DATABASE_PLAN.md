@@ -1,6 +1,6 @@
 # Test-speed plan: a template database for the backend tests (Phase 1b, milestone M2)
 
-**Status:** PROPOSED, for independent review. **No code has been written or changed for it.** `xunit.runner.json` stays `parallelizeTestCollections:false`; nothing here enables parallelism.
+**Status:** APPROVED WITH REQUIRED IMPLEMENTATION CONTROLS (2026-10-21). **No code has been written or changed for it.** See `docs/design/TESTSPEED_TEMPLATE_DATABASE_REVIEW_RESPONSE.md`; authoritative prompt: `ALV-N016` item 41. `xunit.runner.json` stays `parallelizeTestCollections:false`; nothing here enables parallelism.
 **Raised by:** the product owner, 2026-10-21, after the full backend run of `ALV-010-C01` took 1 h 34 m (2 h 41 m on an earlier run of the same suite) and about 15 stories remain.
 **Written for:** the reviewer. It is the "M2" plan of `docs/MILESTONES_2026-10-07.md`.
 
@@ -80,3 +80,4 @@ About 3,210 database creations. If applying migrations costs about 1.2 s in proc
 ## 9. Not proposed here, kept for later
 
 Parallel lanes on isolated databases (the closed phase 2 reached 1.77 to 1.9 times against a 1.8 times gate; the backup and restore classes were most of the serial tail), SQL settings for test databases (small initial files, delayed durability), and a shared database for classes that only read after setup. Each needs its own measurement; none is part of this plan.
+
