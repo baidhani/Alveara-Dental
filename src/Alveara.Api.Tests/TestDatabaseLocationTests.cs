@@ -26,7 +26,7 @@ public class TestDatabaseLocationTests
     [Fact]
     public async Task A_fixture_database_keeps_both_its_files_in_the_test_data_database_folder_and_the_drop_removes_them()
     {
-        var fixture = new TestDatabaseFixture();
+        var fixture = new RealMigrationTestDatabaseFixture();
         await fixture.InitializeAsync();
         string database;
         List<string> files;
@@ -55,7 +55,7 @@ public class TestDatabaseLocationTests
     public async Task A_fixture_database_has_read_committed_snapshot_on_exactly_as_one_created_by_ef_core_does()
     {
         // The application's concurrency relies on it (see AlveraTestEnvironment.CreateDatabaseIfMissingSql): a database created without it deadlocks concurrent inserts that a trigger reads.
-        var fixture = new TestDatabaseFixture();
+        var fixture = new RealMigrationTestDatabaseFixture();
         await fixture.InitializeAsync();
         try
         {

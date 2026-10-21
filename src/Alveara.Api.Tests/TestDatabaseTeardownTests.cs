@@ -60,7 +60,7 @@ public class TestDatabaseTeardownTests
     /// <summary>A fixture that is always disposed exactly once, whatever the test does.</summary>
     private sealed class Owned : IAsyncDisposable
     {
-        public TestDatabaseFixture Fixture { get; } = new();
+        public TestDatabaseFixture Fixture { get; } = new RealMigrationTestDatabaseFixture();
         private bool _disposed;
         public async Task StartAsync() => await Fixture.InitializeAsync();
         public async Task DisposeNowAsync() { if (_disposed) return; _disposed = true; await Fixture.DisposeAsync(); }

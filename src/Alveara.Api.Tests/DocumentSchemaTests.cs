@@ -13,6 +13,7 @@ namespace Alveara.Api.Tests;
 /// imported file, keeps the history append-only with issued numbers that only move forward by one, locks the built-in blocked extensions, keeps a duplicate inside one patient and one hash, seeds what the story
 /// promises exactly once, and refuses to roll back over recorded documents.
 /// </summary>
+[RealMigrations]
 public class DocumentSchemaTests : SafetyTestBase
 {
     private const string BeforeDocuments = "20261014024801_AddPrescriptionWorkflow";

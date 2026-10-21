@@ -13,7 +13,7 @@ namespace Alveara.Api.Tests;
 /// which does not enforce unique indexes, foreign keys, or real transaction semantics the same
 /// way and would not actually prove ALV-N002's migration/transaction acceptance items.
 /// </summary>
-public sealed class TestDatabaseFixture : IAsyncLifetime
+public class TestDatabaseFixture : IAsyncLifetime
 {
     private static string MasterConnectionString => AlveraTestEnvironment.MasterConnectionString;
 
@@ -37,6 +37,14 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
 
     private readonly string _databaseName = $"AlveraTest_{Guid.NewGuid():N}";
 
+    private static int _realMigrationFixtures;
+    /// <summary>ALV-N016: how many fixtures of this run used the real create-and-migrate path (the named inventory, and fallbacks), for the run's telemetry summary.</summary>
+    internal static int RealMigrationFixtureCount => Volatile.Read(ref _realMigrationFixtures);
+
+    // ALV-N016: an ordinary fixture restores a clone of the run's template; a fixture of the real-migration inventory (and every fixture built through the internal hook constructor) keeps the real path.
+    private readonly TestDatabaseTemplate? _template;
+    private readonly Func<Task>? _afterRestoreForTest;
+
     // Test-only hooks. They are set only through the internal constructor below (xUnit constructs fixtures through the public parameterless one), so they cannot change production behaviour.
     private readonly Func<Task>? _beforeCreateForTest;
     private readonly Func<Task>? _afterMigrateForTest;
@@ -47,10 +55,14 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
 
     public string ConnectionString { get; private set; } = string.Empty;
 
-    public TestDatabaseFixture()
+    public TestDatabaseFixture() : this(useTemplate: true) { }
+
+    /// <summary>The constructor of <see cref="RealMigrationTestDatabaseFixture"/> passes false: the fixture creates and migrates its own database exactly as before the template existed.</summary>
+    protected TestDatabaseFixture(bool useTemplate)
     {
         _delay = Task.Delay;
         _log = Console.Error;
+        if (useTemplate && TestDatabaseTemplate.Enabled) _template = TestDatabaseTemplate.Default;
     }
 
     /// <summary>
@@ -58,7 +70,7 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
     /// that every drop starts with, replace the cleanup drop, record the waits instead of sleeping, and capture the log.
     /// </summary>
     internal TestDatabaseFixture(Func<Task>? beforeCreateForTest = null, Func<Task>? afterMigrateForTest = null, Func<string, Task>? cleanupDropForTest = null, TextWriter? logForTest = null,
-        Func<Task>? beforeMasterOpenForTest = null, Func<TimeSpan, Task>? delayForTest = null)
+        Func<Task>? beforeMasterOpenForTest = null, Func<TimeSpan, Task>? delayForTest = null, TestDatabaseTemplate? templateForTest = null, Func<Task>? afterRestoreForTest = null)
     {
         _beforeCreateForTest = beforeCreateForTest;
         _afterMigrateForTest = afterMigrateForTest;
@@ -66,6 +78,8 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
         _beforeMasterOpenForTest = beforeMasterOpenForTest;
         _delay = delayForTest ?? Task.Delay;
         _log = logForTest ?? Console.Error;
+        _template = templateForTest;                                                                  // only a test that supplies a template uses one through this constructor
+        _afterRestoreForTest = afterRestoreForTest;
     }
 
     public async Task InitializeAsync()
@@ -84,6 +98,11 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
             await RunWithTransientRetryAsync(async () =>
             {
                 if (_beforeCreateForTest is not null) await _beforeCreateForTest();
+
+                // ALV-N016: an ordinary fixture restores a clone of the run's template. A restore failure removes the partial clone, is logged and counted, and this fixture falls back to the real path below;
+                // a template that cannot be built is NOT a fallback: it fails loudly (TemplateBuildException), as does a transient failure the retry loop owns.
+                if (_template is not null && await TryRestoreCloneAsync()) return;
+                Interlocked.Increment(ref _realMigrationFixtures);
 
                 // The database is created here, with its files inside Test-Data\Database, instead of by MigrateAsync (which would leave the files to the server's default folders).
                 // MigrateAsync then finds it and only applies the migrations. Repeating this on a retry is safe: it creates nothing when the database already exists.
@@ -107,6 +126,31 @@ public sealed class TestDatabaseFixture : IAsyncLifetime
             // a failed initialisation must still fail its test, and nothing in the cleanup may replace or hide the cause.
             await CleanUpFailedInitializationAsync();
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Restores this fixture's clone from the template. Returns true when the clone exists; false after a fallback (the partial clone is removed, the event is logged and counted). Raises a
+    /// <see cref="TemplateBuildException"/> unchanged and lets a transient failure (the retry loop's) through.
+    /// </summary>
+    private async Task<bool> TryRestoreCloneAsync()
+    {
+        try
+        {
+            await _template!.RestoreCloneAsync(_databaseName);
+            if (_afterRestoreForTest is not null) await _afterRestoreForTest();
+            return true;
+        }
+        catch (TemplateBuildException) { throw; }
+        catch (Exception ex) when (IsPoolAcquisitionTimeout(ex)) { throw; }
+        catch (Exception ex)
+        {
+            var reason = ex is SqlException sql ? $"SQL {sql.Number}" : ex.GetType().Name;           // a class and a number only: never a message, a path or a connection string
+            try { ReleasePooledConnections(); } catch (Exception releaseFailure) { _log.WriteLine($"[TestDatabaseFixture] releasing pooled connections after a failed restore failed ({releaseFailure.GetType().Name}). Database {_databaseName}."); }
+            try { await DropDatabaseAsync(onlyIfExists: true); }
+            catch (Exception dropFailure) { _log.WriteLine($"[TestDatabaseFixture] removing the partial clone {_databaseName} failed ({dropFailure.GetType().Name}); it may remain."); }
+            _template!.RecordFallback(_databaseName, reason);
+            return false;
         }
     }
 

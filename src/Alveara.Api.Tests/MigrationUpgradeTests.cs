@@ -12,11 +12,11 @@ namespace Alveara.Api.Tests;
 /// which the story's acceptance item explicitly requires.
 /// </summary>
 [Collection(ParallelismCollections.SerialServer)]
-public class MigrationUpgradeTests : IClassFixture<TestDatabaseFixture>
+public class MigrationUpgradeTests : IClassFixture<RealMigrationTestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;
 
-    public MigrationUpgradeTests(TestDatabaseFixture fixture)
+    public MigrationUpgradeTests(RealMigrationTestDatabaseFixture fixture)
     {
         _fixture = fixture;
     }

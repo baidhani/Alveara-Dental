@@ -221,10 +221,10 @@ public class DiagnosisStructureSchemaTests : IAsyncLifetime
 
 /// <summary>ALV-013-C01 migration check: rolling back removes only what this migration added (the structure columns and the links table) and keeps STORY-013's diagnoses; rolling forward again loses nothing.</summary>
 [Collection(ParallelismCollections.SerialServer)]
-public class DiagnosisStructureMigrationTests : IClassFixture<TestDatabaseFixture>
+public class DiagnosisStructureMigrationTests : IClassFixture<RealMigrationTestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;
-    public DiagnosisStructureMigrationTests(TestDatabaseFixture fixture) => _fixture = fixture;
+    public DiagnosisStructureMigrationTests(RealMigrationTestDatabaseFixture fixture) => _fixture = fixture;
 
     private async Task<bool> TableExistsAsync(string name)
     {

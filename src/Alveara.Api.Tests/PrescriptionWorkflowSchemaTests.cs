@@ -12,6 +12,7 @@ namespace Alveara.Api.Tests;
 /// finalized prescription's history append-only, lets a draft change only while it is a draft, allows one ending event and one amendment per prescription, keeps an amendment inside one patient, and refuses to roll
 /// back over recorded workflow history.
 /// </summary>
+[RealMigrations]
 public class PrescriptionWorkflowSchemaTests : SafetyTestBase
 {
     private const string AfterPrescriptions = "20261013231207_AddPrescriptions";

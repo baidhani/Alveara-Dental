@@ -4,11 +4,11 @@ using Xunit;
 namespace Alveara.Api.Tests;
 
 [Collection(ParallelismCollections.SerialServer)]
-public class MigrationTests : IClassFixture<TestDatabaseFixture>
+public class MigrationTests : IClassFixture<RealMigrationTestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;
 
-    public MigrationTests(TestDatabaseFixture fixture)
+    public MigrationTests(RealMigrationTestDatabaseFixture fixture)
     {
         _fixture = fixture;
     }

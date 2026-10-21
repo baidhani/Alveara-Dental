@@ -13,6 +13,7 @@ namespace Alveara.Api.Tests;
 /// forward restores everything and the database again refuses to delete a release or to refund a payment for more than it was. A rollback is only possible while no refund has been recorded: afterwards the
 /// ledger holds money returned and is deliberately not rewritten by a script (the same stance as the earlier ledger migrations).
 /// </summary>
+[RealMigrations]
 public class BillingRefundMigrationTests : BillingTestBase
 {
     private const string Before = "20261012020128_AddCompletedProcedures";

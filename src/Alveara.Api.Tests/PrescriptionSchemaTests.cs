@@ -12,6 +12,7 @@ namespace Alveara.Api.Tests;
 /// happen through a bug or a script). A dose that is not positive or is above the typing-error ceiling of its unit, a unit or frequency off the closed lists, an allergy outcome that disagrees with the list state it
 /// was made from, an entry that needed the prescriber's review and has none, a duplicate save key, a changed or deleted prescription, and a migration that cannot be rolled back over recorded history.
 /// </summary>
+[RealMigrations]
 public class PrescriptionSchemaTests : SafetyTestBase
 {
     private const string Before = "20261013170209_AddCompletionChartVersion";

@@ -12,6 +12,7 @@ namespace Alveara.Api.Tests;
 /// completed procedure stays); rolling forward restores them and the database again refuses a change to a completion row. A rollback is only possible while no completion has been recorded: after that the
 /// tables hold authoritative history and are deliberately not dropped by a script (they are append-only), the same stance as the billing ledger.
 /// </summary>
+[RealMigrations]
 public class CompletedProcedureMigrationTests : CompletionTestBase
 {
     private const string Before = "20261011155619_AddBillingLedger";

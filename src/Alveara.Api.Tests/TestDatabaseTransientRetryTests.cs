@@ -115,7 +115,7 @@ public class TestDatabaseTransientRetryTests
         Assert.False(TestDatabaseFixture.IsDeadlock(new TimeoutException()));
 
         // a real SqlException that is not a deadlock (divide by zero, error 8134)
-        var fixture = new TestDatabaseFixture();
+        var fixture = new RealMigrationTestDatabaseFixture();
         await fixture.InitializeAsync();
         try
         {
@@ -154,7 +154,7 @@ public class TestDatabaseTransientRetryTests
     [Fact]
     public async Task A_real_SQL_Server_deadlock_is_classified_as_1205_retried_once_and_then_succeeds()
     {
-        var fixture = new TestDatabaseFixture();
+        var fixture = new RealMigrationTestDatabaseFixture();
         await fixture.InitializeAsync();
         try
         {

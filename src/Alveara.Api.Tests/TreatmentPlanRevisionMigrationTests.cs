@@ -11,6 +11,7 @@ namespace Alveara.Api.Tests;
 /// ALV-015-C01 migration check: a plan that exists before the revision tables do gets its first revision (its content as it stands) when the migration runs, with its procedures (the withdrawn one marked),
 /// revision number 1 and no acceptance state; rolling back removes only what the migration added and keeps the plan, its procedures and its history.
 /// </summary>
+[RealMigrations]
 public class TreatmentPlanRevisionMigrationTests : TreatmentPlanTestBase
 {
     private const string Before = "20261008164128_AddTreatmentPlans";

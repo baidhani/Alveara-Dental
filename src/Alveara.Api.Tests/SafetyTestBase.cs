@@ -15,11 +15,17 @@ namespace Alveara.Api.Tests;
 /// </summary>
 public abstract class SafetyTestBase : IAsyncLifetime
 {
-    protected readonly TestDatabaseFixture Fixture = new();
+    protected readonly TestDatabaseFixture Fixture;
     protected SchedulingTestSupport S = null!;
     protected Guid Ann;
     protected Guid Bo;
     protected readonly Guid Other = Guid.NewGuid();
+
+    /// <summary>ALV-N016: an ordinary test restores a clone of the run's template; a class marked <see cref="RealMigrationsAttribute"/> (the named inventory) keeps the real create-and-migrate path.</summary>
+    protected SafetyTestBase()
+    {
+        Fixture = GetType().IsDefined(typeof(RealMigrationsAttribute), inherit: true) ? new RealMigrationTestDatabaseFixture() : new TestDatabaseFixture();
+    }
 
     public virtual async Task InitializeAsync()
     {
