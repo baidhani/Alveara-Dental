@@ -1010,3 +1010,10 @@
   - What changed: handoff `.alveara/handoffs/ALV-010-C01/R03.md` with `R03-evidence/`, `BUILD_STATE.md` and the ledger record for implementation `a3b4bc92db59043a31ba089cc31dbe2fd4ce25ac`, whose `src/` is identical to `f3eb57b` (the tree the R01 Stage 1 review approved): both corrections of the R02 review restored (link contrast; test storage cleanup). A Stage 1 package under the two-stage policy: the broad regression is pending and its contract is frozen in the package.
   - Verification: fresh runs on this tree: focused backend 47 of 47; `Test-Data\Storage` count 3920 before and after; tsc exit 0; documents client tests 91 of 91; STORY-010's walkthrough 14 of 14; the library walkthrough 12 of 12 (storage page scanned in its missing-file state). Earlier runs on the identical tree cited as such. No full backend run (the reviewer directed none before Stage 1 approval).
   - Notes: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). The status record's evidenceCommit is set by the next commit. Not pushed.
+
+- [x] ALV-010-C01 R03 Stage 2: the frozen full regression, run once on the Stage 1 closure commit
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: regression evidence `.alveara/handoffs/ALV-010-C01/R03-regression.md` and `R03-regression-evidence/`; the status record returns to `AWAITING_REVIEW` with `fullRegression: PASSED`; `BUILD_STATE.md` updated. No source, test, migration, script or configuration changed.
+  - Verification: run on `277ff0b` (clean tree; `src/` identical to implementation `a3b4bc9`): full serial backend 4300 of 4300 passed, 0 failed, 0 skipped (1 h 34 m); tsc, build, lint exit 0; Vitest 1544 of 1544 (97 files); mocked Playwright 136 of 136; repository checks 8 of 8; Test-Data Storage 3920, databases 3 and SQL logins 0 before and after.
+  - Notes: awaiting the final independent review; not complete; ALV-N015 remains blocked. Three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). Not pushed.

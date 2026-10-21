@@ -2044,7 +2044,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -2052,7 +2052,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R03, a Stage 1 package under the two-stage policy (prior attempt R02: CHANGES_REQUIRED on ALV-010-C01-R02-01, the unchanged STORY-010 walkthrough failing on dark-mode contrast, and ALV-010-C01-R02-02, test storage leaks). Implementation a3b4bc9, whose src/ is identical to f3eb57b, the tree the R01 Stage 1 review approved; no new code. High risk under the testing cadence; the broad regression is PENDING (Stage 2) and frozen in the package: full serial backend (expected 4,300 tests, 0 failed, 0 skipped, the Test-Data Storage count unchanged) and the client gates. Fresh runs on this tree: focused backend 47 of 47 passed (ApiHarnessStorageCleanupTests, DocumentTestStorageCleanupTests, DocumentStorageApiTests, DocumentBackupRestoreTests, DocumentOrphanServiceTests); Test-Data Storage entries 3,920 before and 3,920 after (flat); tsc exit 0; documents client tests 91 of 91; STORY-010's real-backend walkthrough (spec unchanged) 14 of 14; the documents-library walkthrough 12 of 12 with the storage page scanned in its missing-file state, light and dark, 0 critical or serious. Earlier runs on the identical tree (transcribed): document classes 702 of 702, API-harness classes 639 of 639, vitest 1544 of 1544, mocked browser 136 of 136, repository checks 8 of 8, tsc/build/lint exit 0; negative controls 62 breakages, 60 killed, 2 documented non-gaps. The historical 4,294-test full run on be29f3b is not claimed as Stage 2 evidence. Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); two AlveraTest databases left by interrupted runs are not deleted. See docs/DOCUMENTS.md."
+        "summary": "Attempt R03, a Stage 1 package under the two-stage policy (prior attempt R02: CHANGES_REQUIRED on ALV-010-C01-R02-01, the unchanged STORY-010 walkthrough failing on dark-mode contrast, and ALV-010-C01-R02-02, test storage leaks). Implementation a3b4bc9, whose src/ is identical to f3eb57b, the tree the R01 Stage 1 review approved; no new code. High risk under the testing cadence; the broad regression is PENDING (Stage 2) and frozen in the package: full serial backend (expected 4,300 tests, 0 failed, 0 skipped, the Test-Data Storage count unchanged) and the client gates. Fresh runs on this tree: focused backend 47 of 47 passed (ApiHarnessStorageCleanupTests, DocumentTestStorageCleanupTests, DocumentStorageApiTests, DocumentBackupRestoreTests, DocumentOrphanServiceTests); Test-Data Storage entries 3,920 before and 3,920 after (flat); tsc exit 0; documents client tests 91 of 91; STORY-010's real-backend walkthrough (spec unchanged) 14 of 14; the documents-library walkthrough 12 of 12 with the storage page scanned in its missing-file state, light and dark, 0 critical or serious. Earlier runs on the identical tree (transcribed): document classes 702 of 702, API-harness classes 639 of 639, vitest 1544 of 1544, mocked browser 136 of 136, repository checks 8 of 8, tsc/build/lint exit 0; negative controls 62 breakages, 60 killed, 2 documented non-gaps. The historical 4,294-test full run on be29f3b is not claimed as Stage 2 evidence. Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); two AlveraTest databases left by interrupted runs are not deleted. See docs/DOCUMENTS.md. Stage 2 (the frozen regression contract, run once on the Stage 1 closure commit 277ff0b, a clean tree whose src/ is identical to the implementation): full serial backend 4300 of 4300 passed, 0 failed, 0 skipped (1 h 34 m); tsc, build and lint exit 0; Vitest 1544 of 1544 (97 files); mocked Playwright 136 of 136; repository checks 8 of 8; Test-Data Storage entries 3,920, databases 3 and SQL logins 0 before and after (unchanged). See .alveara/handoffs/ALV-010-C01/R03-regression.md."
       },
       "demo": "verified",
       "parentRegression": "verified",
@@ -2072,7 +2072,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",
