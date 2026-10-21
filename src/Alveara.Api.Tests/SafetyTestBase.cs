@@ -37,7 +37,7 @@ public abstract class SafetyTestBase : IAsyncLifetime
         await people.CreateStaffAsync("Hana Hygienist", null, Other, S.Actor, default);
     }
 
-    public Task DisposeAsync() => Fixture.DisposeAsync();
+    public virtual Task DisposeAsync() => Fixture.DisposeAsync();
 
     protected async Task<T> WithDb<T>(Func<AlveraDbContext, Task<T>> action)
     {

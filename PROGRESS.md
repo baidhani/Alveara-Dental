@@ -996,3 +996,10 @@
   - What changed: stored the reviewer's decision unchanged at `.alveara/reviews/ALV-010-C01/R02.md`; the status record is `CHANGES_REQUIRED` with two blocking issues (ALV-010-C01-R02-01 the failing STORY-010 documents walkthrough on the dark-mode contrast of the Manage form templates link; ALV-010-C01-R02-02 the test storage leaks); BUILD_STATE wording updated. The reviewer directs R03 as a Stage 1 package with no full backend run first.
   - Verification: user confirmed (the owner supplied the review file); no code changed.
   - Notes: left unchecked because the story is not complete. Not pushed.
+
+- [x] ALV-010-C01 R03 implementation: restore the storage cleanup and the link contrast fixes (review findings ALV-010-C01-R02-01 and ALV-010-C01-R02-02)
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: `src/` is restored to exactly the content of `f3eb57b` (the tree the R01 Stage 1 review approved): the "Manage form templates" link on Document settings and the "Open the patient's documents" link on Document storage use the information colour (dark-mode contrast; R02-01), the library walkthrough scans the storage page in its missing-file state, and the document tests and every API test host remove their storage folder on dispose through `TestStorageCleanup` (R02-02). No new code was written; both corrections were proven before and had been removed by the owner's earlier instruction.
+  - Verification: `git diff f3eb57b HEAD -- src` is empty after this commit; the focused runs are recorded with the R03 handoff.
+  - Notes: no full backend run (the reviewer directed a Stage 1 package first). Not pushed.

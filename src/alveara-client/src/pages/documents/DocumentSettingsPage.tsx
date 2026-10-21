@@ -141,7 +141,7 @@ export function DocumentSettingsPage() {
       </Section>
 
       <Section title="Forms and consents" intro="Forms and consents are signed in the patient's file and appear in the library as read-only entries. Their wording and versions are managed with the form templates; a signed copy never changes when a template is edited.">
-        <p><Link to="/admin/form-templates">Manage form templates</Link></p>
+        <p><Link to="/admin/form-templates" className="alv-documents__link">Manage form templates</Link></p>
       </Section>
 
       <Section title="Blocked file types" intro="Nobody can import these types. The built-in types protect every installation and cannot be unblocked; you can block more.">
