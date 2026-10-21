@@ -2044,7 +2044,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 7,
@@ -2060,13 +2060,16 @@
       "evidenceCommit": "5ea4041fffe6358ec67d73f413a0096b6e9e4493",
       "handoffPath": ".alveara/handoffs/ALV-010-C01/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-010-C01/R02.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "17a2f073b3cd49b99a9de73a0949dea12ca521fc",
+        "reviewedEvidenceCommit": "5ea4041fffe6358ec67d73f413a0096b6e9e4493"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-010-C01-R02-01: the unchanged STORY-010 real-backend documents walkthrough fails in dark mode on the 'Manage form templates' link added by this story (serious color-contrast); the final three steps (failure path, audit/history, database immutability) did not run; parent regression failed and acceptance item 1 is not met (6 of 7). Restore or reimplement the contrast correction, keep the accessibility coverage and rerun the walkthrough until all 14 steps pass.",
+        "ALV-010-C01-R02-02: the restored test tree leaks storage folders (Test-Data Storage grew from 3,641 to 3,914 entries in the full run). Restore or reimplement the cleanup for document-test and API-harness storage with focused tests and a before/after leak count, and keep accessibility coverage of the storage page's patient-documents link in its missing-file state."
+      ],
       "revalidation": {
         "required": false,
         "reason": null

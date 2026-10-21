@@ -989,3 +989,10 @@
   - What changed: handoff `.alveara/handoffs/ALV-010-C01/R02.md` with `R02-evidence/`, `BUILD_STATE.md` and the ledger record, for implementation `17a2f073b3cd49b99a9de73a0949dea12ca521fc` whose `src/` equals `be29f3b`, the tree the full backend run tested. R01 (implementation `f3eb57b`, conditional Stage 1 approval) is unchanged history and is superseded.
   - Verification: full serial backend 4294 of 4294 (on `be29f3b`, identical `src/`); vitest 1544 of 1544; mocked Playwright 136 of 136 after one catalog entry; repository checks 8 of 8; tsc, build and lint exit 0; real-backend walkthroughs 319 checks passed, 1 failed, 3 did not run (STORY-010's documents walkthrough fails on a dark-mode contrast violation); acceptance 6 of 7. Not marked complete.
   - Notes: left unchecked because a parent walkthrough fails on this tree and the test storage leaks are unfixed (the fixes are in history at `f3eb57b` and `5983636` and are excluded at the owner's instruction). Three local commits carry a Co-Authored-By trailer against the owner's instruction. The status record's evidenceCommit is set by the next commit. Not pushed.
+
+- [ ] ALV-010-C01: record the R02 review (CHANGES_REQUIRED)
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: stored the reviewer's decision unchanged at `.alveara/reviews/ALV-010-C01/R02.md`; the status record is `CHANGES_REQUIRED` with two blocking issues (ALV-010-C01-R02-01 the failing STORY-010 documents walkthrough on the dark-mode contrast of the Manage form templates link; ALV-010-C01-R02-02 the test storage leaks); BUILD_STATE wording updated. The reviewer directs R03 as a Stage 1 package with no full backend run first.
+  - Verification: user confirmed (the owner supplied the review file); no code changed.
+  - Notes: left unchecked because the story is not complete. Not pushed.
