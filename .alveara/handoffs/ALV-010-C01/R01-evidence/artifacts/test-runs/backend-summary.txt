@@ -1,0 +1,17 @@
+Full serial backend run, `dotnet test` of Alveara.Api.Tests, run on commit be29f3bae2d2eb8f1d8adfa09fc10684f3df12bf
+Outcomes in the results file: {'Passed': 4294}
+The .trx (7 MB) is kept on the machine at C:\tmp\c010c01\fullrun\trx\full_serial.trx and is not packaged; backend-tests.csv lists every test with its outcome and duration.
+
+Slowest test classes in this run (minutes):
+   2.1 min  BackupRecoveryHardeningTests
+   1.2 min  BackupRestoreTests
+   0.7 min  BackupCryptoTests
+   0.7 min  BillingRefundSchemaTests
+   0.6 min  BackupServiceTests
+   0.6 min  CompletionDeadlockTests
+   0.5 min  TestDatabaseInitFailureCleanupTests
+   0.5 min  CompletionApiTests
+   0.5 min  BackupApiTests
+   0.5 min  LeastPrivilegeLoginCleanupTests
+   0.4 min  CompletedProcedureSchemaTests
+   0.4 min  TestDatabaseTeardownTests

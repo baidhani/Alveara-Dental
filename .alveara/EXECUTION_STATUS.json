@@ -2044,21 +2044,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, single-stage. High risk under the testing cadence (migration AddDocumentLibrary; restore validation; shared test infrastructure), so the full regression ran. Backend full serial 4294 of 4294 passed, 0 failed, 0 skipped (2 h 41 m, on be29f3b; later commits changed test infrastructure and link styling only, with the document classes 702 of 702 and the 29 API-harness classes 639 of 639 re-run). Frontend 1544 of 1544 (97 files); tsc, build and lint exit 0; mocked browser 136 of 136; repository checks 8 of 8. Real-backend walkthroughs on fresh databases, all 30 configs: 323 of 323, including the new documents-library walkthrough 12 of 12 (axe light and dark, 0 serious or critical) and STORY-010's 14 of 14 on its unchanged spec. Negative controls 62 breakages, 60 killed, 2 documented non-gaps. Defects found by own verification and fixed: encounter picker empty for importers, previous file's tooth kept for the next import, dark-mode contrast of two links, restore trusting a backup lacking document files, document test storage leaks (3,500 folders). Disclosures: three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); the full backend run was not repeated on the final commit. See docs/DOCUMENTS.md."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "verified",
+      "parentRegression": "verified",
+      "implementationCommit": "f3eb57b9b6548f7e8fd800269011ff75ccb6e628",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-010-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

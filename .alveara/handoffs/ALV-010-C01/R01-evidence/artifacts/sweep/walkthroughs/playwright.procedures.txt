@@ -1,0 +1,22 @@
+Database AlveraWalk_playwright_procedures_config_48fd2b6a created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.procedures.config.ts ...
+
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] › e2e\procedures-real-backend.spec.ts:109:1 › billing finds the catalog in the navigation and adds a procedure with its fee (3.1s)
+  ok 2 [chromium] › e2e\procedures-real-backend.spec.ts:140:1 › a fee change is a new version: the old fee stays readable, and the history says who and why (2.5s)
+  ok 3 [chromium] › e2e\procedures-real-backend.spec.ts:163:1 › inactivating needs a reason, removes it from planning, and reactivating restores it (795ms)
+  ok 4 [chromium] › e2e\procedures-real-backend.spec.ts:184:1 › a dentist can read the catalog but is offered no way to change it (2.0s)
+  ok 5 [chromium] › e2e\procedures-real-backend.spec.ts:195:1 › a hygienist has no catalog link and is told permission is needed at the address (307ms)
+  ok 6 [chromium] › e2e\procedures-real-backend.spec.ts:203:1 › the API refuses what the screen does not offer (123ms)
+  ok 7 [chromium] › e2e\procedures-real-backend.spec.ts:224:1 › a CDT code must name the licensed source it came from: refused without one on screen and at the API, accepted with one (2.6s)
+  ok 8 [chromium] › e2e\procedures-real-backend.spec.ts:258:1 › STORY-014 failure path: when the change cannot be logged nothing is saved and billing is told so, what was typed is kept, and the same save works once the log is back (2.6s)
+
+  8 passed (19.2s)
+Database AlveraWalk_playwright_procedures_config_48fd2b6a dropped (its files went with it).
+The run produced no output files.

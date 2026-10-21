@@ -1,0 +1,10 @@
+start 2026-10-20T19:12:36-05:00 head be29f3bae2d2eb8f1d8adfa09fc10684f3df12bf
+== build exit=0
+== full backend exit=0
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\tmp\c010c01\fullrun\trx\full_serial.trx
+
+Passed!  - Failed:     0, Passed:  4294, Skipped:     0, Total:  4294, Duration: 2 h 41 m - Alveara.Api.Tests.dll (net10.0)
+end 2026-10-20T21:54:24-05:00
+DONE

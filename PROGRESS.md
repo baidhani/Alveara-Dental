@@ -968,3 +968,10 @@
   - What changed: documents only, written by the reviewer in answer to the owner's proposal `docs/design/HANDOFF_TWO_STAGE_REVIEW_PROPOSAL.md`: `.alveara/HANDOFF_SCHEMA.md` v3 (new decision `APPROVED_PENDING_REGRESSION`, new status `AWAITING_REGRESSION`, the two-stage flow for stories after `ALV-010-C01`), the Execution Plan and Engineering/Product Reference text, `TESTING_CADENCE_NOTICE.md`, `HANDOFF_TWO_STAGE_REVIEW_RESPONSE.md`, and `handoffSchemaVersion` "3" on every ledger record. Committed as received; `ALV-010-C01` itself stays single-stage.
   - Verification: user confirmed (owner asked for the proposal; the reviewer's files were reviewed by the coding agent and read against each other); no code changed.
   - Notes: committed before this story's handoff commits so those commits touch only this story's status. Not pushed.
+
+- [x] ALV-010-C01: engineering handoff, attempt R01 (AWAITING_REVIEW)
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: handoff `.alveara/handoffs/ALV-010-C01/R01.md` with `R01-evidence/` (test results, acceptance, parent regression, demo, changed files, next-story impact, artifacts), `BUILD_STATE.md` section and the ledger record moved to `AWAITING_REVIEW` (implementation `f3eb57b9b6548f7e8fd800269011ff75ccb6e628`).
+  - Verification: full serial backend 4294 of 4294 (on be29f3b); document classes 702 and API-harness classes 639 re-run after the test cleanup; vitest 1544 of 1544; mocked Playwright 136 of 136; repository checks 8 of 8; tsc, build and lint exit 0; 30 real-backend walkthroughs 323 of 323; negative controls 62 breakages, 60 killed, 2 documented non-gaps; leak counts flat for databases and logins, the storage-folder count flat after the cleanup fix.
+  - Notes: single-stage handoff. Three local commits carry a Co-Authored-By trailer against the owner's instruction; the owner chose not to rewrite them. The status record's evidenceCommit is set by the next commit. Not pushed.
