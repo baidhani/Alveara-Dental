@@ -26,10 +26,12 @@ public class DocumentBackupRestoreTests : DocumentTestBase, IAsyncLifetime
 {
     private BackupTestEnvironment _env = null!;
     private readonly List<string> _restored = [];
+    private string _unusedRoot = "";                                                                      // the folder the base class made before this class pointed the documents at the backup environment
 
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
+        _unusedRoot = _storageRoot;
         _env = new BackupTestEnvironment(Fixture);
         await _env.ResetBackupStateAsync();
         await _env.ConfigureRecoveryKeyAsync();
@@ -42,6 +44,7 @@ public class DocumentBackupRestoreTests : DocumentTestBase, IAsyncLifetime
         foreach (var name in _restored) await _env.RestoreProvider.DropDatabaseAsync(name, default);
         _env.Dispose();
         await Fixture.DisposeAsync();
+        if (_unusedRoot.Length > 0) TestStorageCleanup.Delete(_unusedRoot);
     }
 
     private sealed record Expected(Guid Id, byte[] Bytes, string Sha256, string Name, string Status, string? Reason, string? Tooth, Guid? Encounter, Guid Category, string? Description, Guid? DuplicateOf);
