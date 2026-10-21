@@ -1017,3 +1017,10 @@
   - What changed: regression evidence `.alveara/handoffs/ALV-010-C01/R03-regression.md` and `R03-regression-evidence/`; the status record returns to `AWAITING_REVIEW` with `fullRegression: PASSED`; `BUILD_STATE.md` updated. No source, test, migration, script or configuration changed.
   - Verification: run on `277ff0b` (clean tree; `src/` identical to implementation `a3b4bc9`): full serial backend 4300 of 4300 passed, 0 failed, 0 skipped (1 h 34 m); tsc, build, lint exit 0; Vitest 1544 of 1544 (97 files); mocked Playwright 136 of 136; repository checks 8 of 8; Test-Data Storage 3920, databases 3 and SQL logins 0 before and after.
   - Notes: awaiting the final independent review; not complete; ALV-N015 remains blocked. Three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). Not pushed.
+
+- [x] ALV-010-C01: review closure, attempt R03 APPROVED, story COMPLETE
+  - Date: 2026-10-21
+  - Session: CC-20261008-k4q9
+  - What changed: stored the reviewer's final decision unchanged at `.alveara/reviews/ALV-010-C01/R03.md`; the status record is `APPROVED` and `COMPLETE` (approved attempt R03, `fullRegression: PASSED`, implementation `a3b4bc9`, Stage 1 closure `277ff0b`, regression evidence `9a1923e`); `BUILD_STATE.md` carries the approved broad-regression baseline. No product, test, migration, script or configuration change.
+  - Verification: user confirmed (the reviewer's final decision `APPROVED` for R03, Stage 2: full serial backend 4300 of 4300, Vitest 1544 of 1544, mocked Playwright 136 of 136, repository checks 8 of 8, leak counts unchanged).
+  - Notes: ALV-N015 (item 41) may begin only after this commit. Three local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). Not pushed.
