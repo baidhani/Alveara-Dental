@@ -954,3 +954,10 @@
   - What changed: one entry for `ALV-N015` (Notification Center and Internal Messaging, subsystem "Operations & Finance") in `.alveara/story_catalog.json`. The catalog says an entry is added whenever a story is added to the ledger; the commit that added ALV-N015 to the ledger did not, so the mocked-browser test "describes every ledger story exactly once" failed on committed code before this story started.
   - Verification: `architecture-map.spec.ts` 36 of 36; the whole mocked Playwright run 136 of 136.
   - Notes: found by this story's sweep, not caused by it. The subsystem is a display label; change it if another fits better. Not pushed.
+
+- [x] ALV-010-C01 step 9b-3: two dark-mode contrast failures the sweep found in the document links
+  - Date: 2026-10-20
+  - Session: CC-20261008-k4q9
+  - What changed: the "Manage form templates" link on Document settings (added in this story) and the "Open the patient's documents" link on Document storage used the plain link colour, which fails contrast in dark mode; both now use the information colour, like the other action links of the library. The library walkthrough also scans the storage page in its missing-file state, which is where the second link is drawn and which was not scanned before. Evidence in `docs/testing/documents-library-walkthrough/` regenerated.
+  - Verification: the STORY-010 documents walkthrough failed on the first (axe, `color-contrast`) and now passes 14 of 14; the library walkthrough 12 of 12 with the new scan; vitest 1544 of 1544 (97 files), `tsc -b` clean, build ok, lint exit 0 with the existing warnings (28, none new in kind: the effect-load pattern the other pages use).
+  - Notes: the sweep's other results are in the handoff evidence. Not pushed.

@@ -112,7 +112,7 @@ export function DocumentStoragePage() {
                   <td className="alv-documents__row-actions">
                     <Button type="button" aria-label={`Check ${p.fileName} again`} disabled={busy !== null}
                       onClick={() => void run("check", () => checkDocumentStorage(p.documentId), (r) => `${p.fileName} is ${r.status === "Ok" ? "intact" : r.status === "Missing" ? "missing" : "damaged"}.`)}>Check again</Button>
-                    <Link to={`/patients/${p.patientId}/documents`} aria-label={`Open documents of the patient for ${p.fileName}`}>Open the patient's documents</Link>
+                    <Link to={`/patients/${p.patientId}/documents`} className="alv-documents__link" aria-label={`Open documents of the patient for ${p.fileName}`}>Open the patient's documents</Link>
                   </td>
                 </tr>
               ))}
