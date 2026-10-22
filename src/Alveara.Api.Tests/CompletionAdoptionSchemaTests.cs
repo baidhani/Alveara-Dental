@@ -13,7 +13,6 @@ namespace Alveara.Api.Tests;
 /// (trigger 51172) and any change to a recorded adoption (the set's existing append-only trigger 51144); it accepts an ordinary set with no reason and a reason of the maximum length. The migration that adds the
 /// column and the trigger can be rolled back and forward again with a completion in the database, and is refused (not silently lossy) while an adoption exists.
 /// </summary>
-[RealMigrations]
 public class CompletionAdoptionSchemaTests : CompletionTestBase
 {
     private const string Before = "20261012133723_AddRefundsReleasesAndDocuments";

@@ -1,5 +1,8 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.DependencyInjection;
 using Alveara.Api.Data;
 using Xunit;
 
@@ -124,6 +127,33 @@ public class TestDatabaseTemplateTests : IAsyncLifetime
             Assert.True(fromReal.Length > 10_000, "the fingerprint should cover the whole schema");
             Assert.Equal(fromReal, fromClone);                                                                          // every table, column, index, check, trigger body, foreign key, history row and seeded row count
         }
+        finally { await real.DisposeAsync(); }
+    }
+
+    [Fact]
+    public async Task A_clone_can_be_rolled_back_through_the_real_migrator_and_forward_again_to_exactly_the_same_schema()
+    {
+        var (template, log) = NewTemplate();
+        var clone = await StartAsync(template, log);
+        var migrations = CodeMigrations();
+        var target = migrations[^10];                                                                                   // ten migrations back
+
+        var before = await ScalarAsync<string>(SchemaFingerprintSql, NameOf(clone));
+        await using (var db = clone.CreateContext())
+            await db.GetInfrastructure().GetRequiredService<IMigrator>().MigrateAsync(target);                          // the real Down migrations
+        await using (var db = clone.CreateContext())
+            Assert.Equal(migrations.Take(migrations.Count - 9).ToList(), (await db.Database.GetAppliedMigrationsAsync()).ToList());
+        var rolledBack = await ScalarAsync<string>(SchemaFingerprintSql, NameOf(clone));
+        await using (var db = clone.CreateContext())
+            await db.Database.MigrateAsync();                                                                           // the real Up migrations
+        var after = await ScalarAsync<string>(SchemaFingerprintSql, NameOf(clone));
+
+        Assert.NotEqual(before, rolledBack);                                                                            // the rollback really changed the schema
+        Assert.Equal(before, after);                                                                                    // and rolling forward restored it exactly: the same columns, indexes, checks, trigger bodies, history and seed rows
+
+        var real = new RealMigrationTestDatabaseFixture();
+        await real.InitializeAsync();
+        try { Assert.Equal(await ScalarAsync<string>(SchemaFingerprintSql, NameOf(real)), after); }                      // and it is the schema a real create-and-migrate produces
         finally { await real.DisposeAsync(); }
     }
 

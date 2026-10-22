@@ -15,7 +15,6 @@ namespace Alveara.Api.Tests;
 /// an inactive document with no reason, a storage result without a time and any change to a status change, while STORY-010's own guarantees (the file never changes) still hold, and that a rollback refuses to lose
 /// library data.
 /// </summary>
-[RealMigrations]
 public class DocumentLibrarySchemaTests : SafetyTestBase
 {
     private const string BeforeLibrary = "20261019231115_AddDocuments";

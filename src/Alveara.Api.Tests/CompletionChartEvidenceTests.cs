@@ -17,7 +17,6 @@ namespace Alveara.Api.Tests;
 /// the SAME practice-clock instant leaves either clear; the authoritative completion records it too (including two procedures on one finding in one set); missing, altered or non-completed evidence is reported
 /// as a mismatch; the database refuses such evidence at insert on its own; and the migration's one-time backfill picks the first active Completed version, which a later change at the same instant cannot displace.
 /// </summary>
-[RealMigrations]
 public class CompletionChartEvidenceTests : CompletionTestBase
 {
     private const string Reason = "Completed before procedure records existed";

@@ -57,16 +57,16 @@ public class RealMigrationInventoryTests
         typeof(SafetyTestBase).GetField("Fixture", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)!.GetValue(testClass);
 
     [Fact]
-    public void Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_uses_it()
+    public void Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it()
     {
-        var inventory = RealMigrationInventory.All.Select(e => e.TestClass.Name).ToHashSet();
+        var realPath = RealMigrationInventory.All.Where(e => e.UsesRealCreateAndMigrate).Select(e => e.TestClass.Name).ToHashSet();
         var usingReal = Classes().Where(c => !Infrastructure.Contains(c.Name) && RealFixtureUse.IsMatch(c.Text)).Select(c => c.Name).ToHashSet();
 
-        var unlisted = usingReal.Except(inventory).ToList();
-        var notBypassing = inventory.Except(usingReal).ToList();
-        Assert.True(unlisted.Count == 0, "Use the real path but are not in the inventory: " + string.Join(", ", unlisted));                // nothing bypasses the template without being listed
-        Assert.True(notBypassing.Count == 0, "Are in the inventory but do not use the real path: " + string.Join(", ", notBypassing));     // nothing is listed without really bypassing it
-        Assert.Equal(RealMigrationInventory.All.Count, inventory.Count);                                                // and no class is listed twice
+        var unlisted = usingReal.Except(realPath).ToList();
+        var notBypassing = realPath.Except(usingReal).ToList();
+        Assert.True(unlisted.Count == 0, "Use the real path but are not listed as doing so: " + string.Join(", ", unlisted));                // nothing bypasses the template without being listed
+        Assert.True(notBypassing.Count == 0, "Are listed as using the real path but do not: " + string.Join(", ", notBypassing));            // nothing is listed as bypassing without really bypassing
+        Assert.Equal(RealMigrationInventory.All.Count, RealMigrationInventory.All.Select(e => e.TestClass).Distinct().Count());              // no class is listed twice
     }
 
     [Fact]
@@ -83,24 +83,27 @@ public class RealMigrationInventoryTests
     }
 
     [Fact]
-    public void An_entry_listed_as_calling_the_migrator_still_does_and_none_can_fall_back_to_the_template()
+    public void An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group()
     {
         var classes = Classes().ToDictionary(c => c.Name);
         foreach (var entry in RealMigrationInventory.All)
         {
             var source = classes[entry.TestClass.Name];
             if (entry.CallsMigratorDirectly) Assert.True(MigratorCall.IsMatch(source.Text), $"{entry.TestClass.Name} is listed as calling the migrator but no longer does.");
-            Assert.False(TemplateFixtureUse.IsMatch(source.Text), $"{entry.TestClass.Name} is in the inventory but still builds an ordinary template fixture.");
+            if (entry.UsesRealCreateAndMigrate) Assert.False(TemplateFixtureUse.IsMatch(source.Text), $"{entry.TestClass.Name} is listed as using the real path but still builds an ordinary template fixture.");
+            else Assert.False(RealFixtureUse.IsMatch(source.Text), $"{entry.TestClass.Name} is listed as rolling back on a clone but still bypasses the template.");
         }
     }
 
     [Fact]
-    public void A_marked_class_gets_a_real_migration_fixture_and_an_ordinary_class_a_template_fixture()
+    public void A_class_gets_the_fixture_of_its_group_a_real_migration_fixture_or_a_template_clone()
     {
         foreach (var entry in RealMigrationInventory.All.Where(e => typeof(SafetyTestBase).IsAssignableFrom(e.TestClass)))
         {
-            Assert.True(entry.TestClass.IsDefined(typeof(RealMigrationsAttribute), inherit: true), entry.TestClass.Name);
-            Assert.IsType<RealMigrationTestDatabaseFixture>(FixtureOf(Activator.CreateInstance(entry.TestClass)!));
+            Assert.Equal(entry.UsesRealCreateAndMigrate, entry.TestClass.IsDefined(typeof(RealMigrationsAttribute), inherit: true));
+            var fixture = FixtureOf(Activator.CreateInstance(entry.TestClass)!);
+            if (entry.UsesRealCreateAndMigrate) Assert.IsType<RealMigrationTestDatabaseFixture>(fixture);
+            else Assert.IsNotType<RealMigrationTestDatabaseFixture>(fixture);
         }
 
         Assert.False(typeof(DocumentImportServiceTests).IsDefined(typeof(RealMigrationsAttribute), inherit: true));
@@ -108,10 +111,11 @@ public class RealMigrationInventoryTests
     }
 
     [Fact]
-    public void The_inventory_names_both_reasons_and_is_not_empty()
+    public void The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture()
     {
-        Assert.Contains(RealMigrationInventory.All, e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForward);
-        Assert.Contains(RealMigrationInventory.All, e => e.Reason == RealMigrationReason.TestsTheFixtureItself);
-        Assert.True(RealMigrationInventory.All.Count >= 19);
+        Assert.Equal(2, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.MigratesFromAnEmptyDatabase));
+        Assert.Equal(4, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.TestsTheFixtureItself));
+        Assert.Equal(13, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone));
+        Assert.All(RealMigrationInventory.All.Where(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone), e => Assert.True(e.CallsMigratorDirectly));   // every rollback class really calls the migrator
     }
 }

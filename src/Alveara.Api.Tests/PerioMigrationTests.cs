@@ -12,10 +12,10 @@ namespace Alveara.Api.Tests;
 /// assessed, there are no whole-tooth records or links yet, and the session tables exist and are empty), and rolling back removes only what this migration added, then forward again loses nothing.
 /// </summary>
 [Collection(ParallelismCollections.SerialServer)]
-public class PerioMigrationTests : IClassFixture<RealMigrationTestDatabaseFixture>
+public class PerioMigrationTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;
-    public PerioMigrationTests(RealMigrationTestDatabaseFixture fixture) => _fixture = fixture;
+    public PerioMigrationTests(TestDatabaseFixture fixture) => _fixture = fixture;
 
     private const string Before = "20261005051102_AddPeriodontalCharting";
 
