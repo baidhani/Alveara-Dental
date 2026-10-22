@@ -1,0 +1,8 @@
+Negative control of the new tests (run in the session on this tree).
+The fixed ledger load (BillingService.Ledger.cs) was replaced by the previous version (git checkout of the file), the test project rebuilt, and the 5 new tests run:
+  Failed!  - Failed: 4, Passed: 1, Total: 5  (KeyNotFoundException: "The given key '...' was not present in the dictionary." in three of them and as the actual exception type in the fourth)
+  The four failing tests: A_payment_committed_between_the_ledger_queries_gives_the_writer_the_controlled_conflict_and_never_a_missing_key; The_loser_retried_with_the_fresh_version_is_recorded_once_and_the_same_key_again_changes_nothing; A_reader_that_meets_a_payment_mid_read_repeats_the_read_and_returns_one_coherent_account; A_reader_that_never_gets_a_stable_picture_is_refused_as_a_conflict_after_the_capped_attempts.
+  The one that passes on the old code, An_account_nobody_has_billed_yet_reads_as_empty_without_the_version_check_failing, is the boundary case with no ledger to read, so it cannot fail on either version.
+The fixed file was then restored (byte-identical to the committed 37d2b08), rebuilt, and the 5 tests pass (Passed: 5, Failed: 0).
+An earlier version of the hook matched the idempotency lookup instead of the ledger's entries query, so the window was not forced; two tests then passed on the old code, which showed the hook was wrong and it was corrected before the control above.
+This file transcribes the session output; no raw log was kept.

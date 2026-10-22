@@ -1,0 +1,1 @@
+Parent `STORY-007` (course story, portal-verified): its backend tests (`BillingServiceTests`, `BillingApiTests`, `BillingSchemaTests`, and the Gate C/D classes) are part of the 409-test run on the fixed code and all passed: **409 of 409**. Its client panel tests and walkthrough are untouched (no client file changed) and are part of the Stage 2 contract.

@@ -1,0 +1,410 @@
+test,outcome,duration
+"Alveara.Api.Tests.BillingRefundSchemaTests.Each_of_the_two_triggers_that_guard_a_refunds_method_refuses_on_its_own(disabled: &quot;TR_BillingEntries_Refunds&quot;, expected: 51143)",Passed,00:00:00.8080630
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.An_account_nobody_has_billed_yet_reads_as_empty_without_the_version_check_failing",Passed,00:00:00.0104350
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;unknownCause&quot;, constraint: &quot;CK_BillingAllocationReleases_Cause&quot;)",Passed,00:00:00.5786034
+"Alveara.Api.Tests.BillingTimelineAgingTests.The_timeline_reads_the_history_in_order_and_names_the_procedure_behind_each_charge",Passed,00:00:01.0310427
+"Alveara.Api.Tests.GateCHistoryIntegrityTests.C8_diagnoses_and_odontogram_history",Passed,00:00:00.4294317
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_charge_that_payments_are_applied_to_cannot_be_reversed_until_those_payments_are",Passed,00:00:00.4332373
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.Recording_who_is_responsible_is_audited_without_names_and_a_failed_audit_stores_nothing",Passed,00:00:00.0822533
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_reader_that_meets_a_payment_mid_read_repeats_the_read_and_returns_one_coherent_account",Passed,00:00:00.7209661
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_release_cannot_be_for_more_than_its_allocation_still_holds_even_across_several_releases",Passed,00:00:00.5667735
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:01.1247171
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;zero&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.6071273
+"Alveara.Api.Tests.BillingSchemaTests.An_account_cannot_be_deleted_and_its_patient_cannot_change",Passed,00:00:00.0198638
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2445966
+"Alveara.Api.Tests.BillingDocumentServiceTests.The_practice_as_it_was_on_the_day_is_kept_with_the_document_and_a_change_before_issue_makes_the_preview_stale",Passed,00:00:01.3035855
+"Alveara.Api.Tests.BillingApiTests.Every_change_needs_a_csrf_token",Passed,00:00:00.7438090
+"Alveara.Api.Tests.BillingRefundMathTests.A_reversed_payment_has_nothing_left_to_refund",Passed,00:00:00.0001513
+"Alveara.Api.Tests.BillingRefundServiceTests.A_refund_beyond_the_unapplied_money_releases_the_newest_applications_first",Passed,00:00:00.6541702
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_payment_can_be_recorded_as_made_by_the_responsible_party_once_billing_has_recorded_them",Passed,00:00:00.5692281
+"Alveara.Api.Tests.BillingServiceTests.Every_billing_action_is_audited_with_the_user_and_time_and_no_patient_or_clinical_wording",Passed,00:00:00.9441512
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.Two_completions_racing_for_the_same_procedure_end_with_exactly_one_charge",Passed,00:00:00.5497495
+"Alveara.Api.Tests.BillingDocumentServiceTests.Issuing_the_same_preview_with_the_same_key_returns_the_same_document_and_another_use_of_the_key_is_refused",Passed,00:00:01.8396973
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_date_before_the_one_it_replaces_is_refused_and_a_stale_account_is_a_conflict",Passed,00:00:00.0663827
+"Alveara.Api.Tests.BillingStatementsApiTests.A_refund_a_move_and_a_correction_through_the_routes_leave_a_history_that_always_verifies",Passed,00:00:01.4288744
+"Alveara.Api.Tests.BillingRefundServiceTests.The_same_move_again_changes_nothing_in_any_row_order_and_a_different_one_under_the_key_is_refused",Passed,00:00:01.0116345
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_failed_audit_write_leaves_neither_the_charge_nor_the_completion_behind",Passed,00:00:00.6203659
+"Alveara.Api.Tests.BillingApiTests.Billing_cannot_read_treatment_plans_so_the_billable_list_is_the_only_view_it_gets_of_them",Passed,00:00:00.7134856
+"Alveara.Api.Tests.BillingRefundSchemaTests.After_a_refund_a_payment_cannot_be_applied_for_more_than_what_is_left_of_it",Passed,00:00:00.5952520
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;adjustmentZero&quot;, constraint: &quot;CK_BillingEntries_Sign&quot;)",Passed,00:00:00.3467121
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;paymentBadMethod&quot;, constraint: &quot;CK_BillingEntries_Method&quot;)",Passed,00:00:00.3348650
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_refund_is_returned_by_an_active_method_of_its_own_kind",Passed,00:00:00.5798344
+"Alveara.Api.Tests.BillingRefundServiceTests.A_refund_from_an_out_of_date_account_is_a_conflict_that_changes_nothing",Passed,00:00:00.9425134
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_release_and_an_issued_document_can_never_be_changed_or_deleted(statement: &quot;DELETE FROM [BillingAllocationReleases]&quot;, number: 51164)",Passed,00:00:00.6486461
+"Alveara.Api.Tests.BillingServiceTests.Two_people_paying_the_same_balance_at_once_end_with_one_payment_and_one_conflict",Passed,00:00:00.6985629
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_payment_cannot_be_refunded_for_more_than_it_was(which: &quot;twoRefundsTooMuch&quot;)",Passed,00:00:01.1083805
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;templateZero&quot;, constraint: &quot;CK_FinancialDocuments_CutOffs&quot;)",Passed,00:00:00.5302953
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.1846861
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;chargeWithoutProcedure&quot;, constraint: &quot;CK_BillingEntries_ChargeSource&quot;)",Passed,00:00:00.4345620
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;unknownType&quot;, constraint: &quot;CK_FinancialDocuments_Type&quot;)",Passed,00:00:00.5637546
+"Alveara.Api.Tests.CompletedProcedureAdoptionHardeningTests.A_failure_writing_the_chart_the_ledger_or_the_log_undoes_the_set_the_record_the_chart_and_the_charge_and_the_same_request_then_works(failing: &quot;BillingEntries&quot;)",Passed,00:00:00.8178060
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_responsibility_sequence_is_used_once_per_account",Passed,00:00:00.0229324
+"Alveara.Api.Tests.BillingRefundMigrationTests.Rolling_back_keeps_the_ledger_restores_the_old_allocation_trigger_and_rolling_forward_restores_the_refund_rules",Passed,00:00:02.3098061
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;zero&quot;, field: &quot;amount&quot;)",Passed,00:00:00.5929932
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_reversal_undoes_an_entry_of_the_same_account_and_never_a_reversal",Passed,00:00:00.4278279
+"Alveara.Api.Tests.BillingLedgerMathTests.Money_arithmetic_never_drifts_across_many_small_entries",Passed,00:00:00.0017795
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_payment_cannot_be_allocated_for_more_than_it_holds_nor_a_charge_paid_for_more_than_it_is",Passed,00:00:00.4471548
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;reversalWithoutReason&quot;, constraint: &quot;CK_BillingEntries_Reason&quot;)",Passed,00:00:00.3241330
+"Alveara.Api.Tests.BillingServiceTests.An_adjustment_corrects_the_balance_with_a_reason_and_is_kept_in_the_history",Passed,00:00:00.9762473
+"Alveara.Api.Tests.BillingRefundServiceTests.A_reversed_payment_cannot_be_refunded_a_refunded_payment_cannot_be_reversed_and_a_refund_cannot_be_reversed",Passed,00:00:00.9991526
+"Alveara.Api.Tests.BillingDocumentBuilderTests.A_csv_neutralises_formulas_and_quotes_what_needs_quotes",Passed,00:00:00.0007834
+"Alveara.Api.Tests.BillingLedgerApiTests.A_wrong_allocation_or_reversal_is_refused_with_a_message_per_field_and_a_stable_code_and_changes_nothing",Passed,00:00:01.1958520
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;noPayment&quot;, constraint: &quot;CK_BillingEntries_Refunds&quot;)",Passed,00:00:00.5564753
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.4202184
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_payment_can_be_recorded_as_made_by_someone_responsible_for_the_account_and_nobody_else",Passed,00:00:00.7292516
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3938145
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_preview_shows_the_ledger_and_issuing_it_stores_a_numbered_document_with_no_amount",Passed,00:00:01.2799115
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_billing_only_reader_can_follow_a_charges_source_and_still_cannot_read_the_clinical_record",Passed,00:00:01.2907757
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2294077
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_payment_larger_than_the_open_charges_leaves_the_rest_unapplied_when_an_adjustment_raised_the_balance",Passed,00:00:00.7529209
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_adjustment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;blankReason&quot;, field: &quot;reason&quot;)",Passed,00:00:00.6316802
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.The_four_built_in_methods_are_listed_first_and_billing_can_add_a_named_method_that_maps_to_a_kind",Passed,00:00:00.0187509
+"Alveara.Api.Tests.PermissionMatrixTests.Billing_can_manage_billing_but_not_clinical_notes",Passed,00:00:00.0004166
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;statementWithPayment&quot;, constraint: &quot;CK_FinancialDocuments_Payment&quot;)",Passed,00:00:00.5450410
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_an_allocation_that_breaks_a_shape_rule(which: &quot;overTheCeiling&quot;, constraint: &quot;CK_BillingAllocations_Amount&quot;)",Passed,00:00:00.4901238
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;noTargets&quot;, field: &quot;allocations&quot;)",Passed,00:00:00.7075498
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_replacement_stands_in_only_for_a_reversed_entry_of_the_same_kind_and_only_once(which: &quot;secondReplacement&quot;)",Passed,00:00:00.5166093
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;negativeAmount&quot;, constraint: &quot;CK_BillingEntries_Sign&quot;)",Passed,00:00:00.6556785
+"Alveara.Api.Tests.BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed: 1)",Passed,00:00:00.0308259
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 90, bucket: &quot;61-90&quot;)",Passed,00:00:00.0000087
+"Alveara.Api.Tests.BillingLedgerServiceTests.Applying_refuses_a_reversed_payment_an_unknown_one_a_charge_with_nothing_left_and_a_reused_key",Passed,00:00:00.8768270
+"Alveara.Api.Tests.BillingStatementsApiTests.A_payment_is_corrected_through_the_route_with_an_exact_reversal_and_a_linked_unapplied_replacement",Passed,00:00:01.3934831
+"Alveara.Api.Tests.CompletedProcedureAdoptionHardeningTests.A_failure_writing_the_chart_the_ledger_or_the_log_undoes_the_set_the_record_the_chart_and_the_charge_and_the_same_request_then_works(failing: &quot;AuditLogEntries&quot;)",Passed,00:00:01.0741181
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3794144
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;envelopeNotJson&quot;, constraint: &quot;CK_FinancialDocuments_Envelope&quot;)",Passed,00:00:00.5532821
+"Alveara.Api.Tests.BillingRefundMathTests.Cents_never_drift_across_many_small_refunds_and_releases",Passed,00:00:00.0018890
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;chargeWithNote&quot;, constraint: &quot;CK_BillingEntries_Reason&quot;)",Passed,00:00:00.4022661
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_release_and_an_issued_document_can_never_be_changed_or_deleted(statement: &quot;DELETE FROM [FinancialDocuments]&quot;, number: 51169)",Passed,00:00:00.7198268
+"Alveara.Api.Tests.BillingApiTests.A_wrong_entry_is_refused_with_a_message_per_field_in_one_answer",Passed,00:00:01.6868921
+"Alveara.Api.Tests.BillingRefundServiceTests.Correcting_an_adjustment_that_the_account_could_not_afford_to_reverse_is_refused_before_anything_is_saved",Passed,00:00:00.7905171
+"Alveara.Api.Tests.BillingDocumentBuilderTests.A_receipt_needs_a_payment_that_existed_and_had_not_been_reversed_at_the_cut_offs",Passed,00:00:00.0009668
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_responsibility_is_refused_beside_its_field_and_nothing_is_recorded(which: &quot;inactive&quot;, field: &quot;responsiblePatientId&quot;)",Passed,00:00:00.0229105
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_adjustment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;zero&quot;, field: &quot;amount&quot;)",Passed,00:00:00.5830206
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3342568
+"Alveara.Api.Tests.BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed: 3)",Passed,00:00:00.0246747
+"Alveara.Api.Tests.BillingDocumentServiceTests.An_issued_statement_reprints_exactly_as_issued_and_what_happened_since_is_listed_apart",Passed,00:00:00.6116341
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_releases_of_a_refund_cannot_add_up_to_more_than_the_refund",Passed,00:00:00.5721992
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_exports_as_csv_with_one_row_per_ledger_line",Passed,00:00:00.7390925
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;reversalWithoutTarget&quot;, constraint: &quot;CK_BillingEntries_Reverses&quot;)",Passed,00:00:00.4774091
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;namedTwice&quot;, field: &quot;allocations[1]&quot;)",Passed,00:00:00.6061580
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.Method_changes_are_audited_with_the_user",Passed,00:00:00.0267135
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;noConfiguredMethod&quot;, constraint: &quot;CK_BillingEntries_PaymentOnly&quot;)",Passed,00:00:00.4764990
+"Alveara.Api.Tests.BillingLedgerMathTests.A_payment_has_an_unapplied_amount_until_it_is_applied_in_full",Passed,00:00:00.0005918
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_reversed_payment_and_a_replacement_payment_are_accepted_once_the_reversal_exists",Passed,00:00:00.5309874
+"Alveara.Api.Tests.BillingRefundConcurrencyTests.Of_two_corrections_of_the_same_payment_only_one_is_recorded",Passed,00:00:01.0083912
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2536806
+"Alveara.Api.Tests.BillingTimelineAgingTests.An_account_with_nothing_on_it_has_an_empty_timeline_and_zero_aging",Passed,00:00:00.0136021
+"Alveara.Api.Tests.BillingLedgerMathTests.A_consistent_history_has_no_findings",Passed,00:00:00.0002695
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.3803155
+"Alveara.Api.Tests.CompletedProcedureAdoptionHardeningTests.A_failure_writing_the_chart_the_ledger_or_the_log_undoes_the_set_the_record_the_chart_and_the_charge_and_the_same_request_then_works(failing: &quot;ToothFindingVersions&quot;)",Passed,00:00:00.8247468
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:00.3833964
+"Alveara.Api.Tests.BillingRefundServiceTests.Moving_what_a_payment_pays_releases_the_old_application_and_records_the_new_one",Passed,00:00:00.9400559
+"Alveara.Api.Tests.BillingApiTests.When_the_log_cannot_be_written_every_billing_action_answers_503_save_failed_without_internals_and_stores_nothing",Passed,00:00:01.1468767
+"Alveara.Api.Tests.BillingApiTests.A_payment_with_nothing_billed_and_a_payment_from_an_out_of_date_account_are_refused_and_change_nothing",Passed,00:00:01.1937175
+"Alveara.Api.Tests.BillingLedgerApiTests.The_contract_for_atomic_completion_is_registered_and_is_the_billing_service",Passed,00:00:00.0441050
+"Alveara.Api.Tests.BillingRefundMathTests.Verify_names_a_release_beyond_its_allocation_and_the_releases_of_a_refund_beyond_the_refund",Passed,00:00:00.0006130
+"Alveara.Api.Tests.BillingApiTests.A_completed_procedure_is_billed_a_payment_lowers_the_balance_an_adjustment_corrects_it_and_the_history_keeps_every_entry",Passed,00:00:01.1549371
+"Alveara.Api.Tests.BillingRefundConcurrencyTests.Two_statements_issued_at_once_are_numbered_one_and_two_never_the_same_number_twice",Passed,00:00:00.8323473
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;numberZero&quot;, constraint: &quot;CK_BillingAllocationReleases_Number&quot;)",Passed,00:00:00.6276172
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_responsibility_is_refused_beside_its_field_and_nothing_is_recorded(which: &quot;unknown&quot;, field: &quot;responsiblePatientId&quot;)",Passed,00:00:00.0221429
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_procedure_that_cannot_be_billed_is_refused_with_a_stable_code_and_leaves_nothing_behind",Passed,00:00:00.4939163
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;replacementOnACharge&quot;, constraint: &quot;CK_BillingEntries_Replaces&quot;)",Passed,00:00:00.5772531
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;blankKey&quot;, constraint: &quot;CK_BillingEntries_Key&quot;)",Passed,00:00:00.6988788
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_document_cannot_be_cut_off_beyond_the_history_that_exists(which: &quot;release&quot;)",Passed,00:00:00.6504171
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;noMethod&quot;, field: &quot;method&quot;)",Passed,00:00:00.6346316
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;numberZero&quot;, constraint: &quot;CK_FinancialDocuments_Number&quot;)",Passed,00:00:00.4804585
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_reversed_charge_says_so_and_a_later_amendment_of_the_performed_time_is_shown_as_amended",Passed,00:00:01.3314994
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;sameCharge&quot;, field: &quot;allocations&quot;)",Passed,00:00:00.6520231
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_payment_method_is_never_deleted_or_renamed_and_a_payment_uses_an_active_method_of_its_own_kind",Passed,00:00:00.4151289
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;negative&quot;, field: &quot;amount&quot;)",Passed,00:00:00.5779355
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.3329550
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.3259107
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;noReleases&quot;, field: &quot;releases&quot;)",Passed,00:00:00.7928375
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_responsibility_is_refused_beside_its_field_and_nothing_is_recorded(which: &quot;noOne&quot;, field: &quot;responsiblePatientId&quot;)",Passed,00:00:00.0229886
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;moreThanOwed&quot;, field: &quot;amount&quot;)",Passed,00:00:00.7897378
+"Alveara.Api.Tests.BillingRefundServiceTests.Correcting_a_payment_reverses_it_exactly_and_records_a_linked_replacement_that_starts_unapplied",Passed,00:00:01.0329795
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_replacement_stands_in_only_for_a_reversed_entry_of_the_same_kind_and_only_once(which: &quot;otherKind&quot;)",Passed,00:00:00.4506783
+"Alveara.Api.Tests.BillingStatementsApiTests.A_statement_and_a_receipt_are_previewed_issued_listed_reprinted_and_the_statement_exported",Passed,00:00:01.1911274
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;withPayer&quot;, constraint: &quot;CK_BillingEntries_PaymentOnly&quot;)",Passed,00:00:00.6321610
+"Alveara.Api.Tests.BillingServiceTests.A_payment_lowers_the_balance_and_the_history_keeps_every_entry_as_it_was",Passed,00:00:00.7143666
+"Alveara.Api.Tests.BillingLedgerSchemaTests.Reversing_a_payment_releases_what_it_was_applied_to_and_a_reversed_entry_cannot_be_allocated",Passed,00:00:00.3570608
+"Alveara.Api.Tests.SafetyApiTests.Billing_cannot_read_the_board_at_all",Passed,00:00:00.8635797
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.3321633
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_method_is_inactivated_not_deleted_the_built_ins_stay_and_old_payments_keep_showing_their_method",Passed,00:00:00.6742648
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2280496
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.2940599
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_stale_account_makes_applying_or_reversing_a_conflict_and_two_people_reversing_at_once_end_with_one_reversal",Passed,00:00:00.6298934
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3731229
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_responsibility_is_refused_beside_its_field_and_nothing_is_recorded(which: &quot;longReason&quot;, field: &quot;reason&quot;)",Passed,00:00:00.0216766
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_adjustment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;noReason&quot;, field: &quot;reason&quot;)",Passed,00:00:00.6552449
+"Alveara.Api.Tests.BillingTimelineAgingTests.Live_aging_follows_a_later_amendment_while_an_issued_statement_keeps_the_date_it_was_issued_with",Passed,00:00:00.9162402
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 61, bucket: &quot;61-90&quot;)",Passed,00:00:00.0000162
+"Alveara.Api.Tests.BillingLedgerMathTests.A_charge_is_open_for_what_live_payments_left_and_a_reversed_payment_releases_its_share",Passed,00:00:00.0036675
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.Replaying_a_completion_never_makes_a_second_charge",Passed,00:00:00.5454224
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.2657009
+"Alveara.Api.Tests.BillingRefundConcurrencyTests.A_double_submitted_refund_is_recorded_once_and_the_retry_returns_the_recorded_one",Passed,00:00:00.8572820
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_adjustment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;tooBig&quot;, field: &quot;amount&quot;)",Passed,00:00:00.6212995
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;reversalZero&quot;, constraint: &quot;CK_BillingEntries_Sign&quot;)",Passed,00:00:00.4137332
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;chargeNegative&quot;, constraint: &quot;CK_BillingEntries_Sign&quot;)",Passed,00:00:00.3400232
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_an_allocation_that_breaks_a_shape_rule(which: &quot;numberZero&quot;, constraint: &quot;CK_BillingAllocations_Number&quot;)",Passed,00:00:00.4610586
+"Alveara.Api.Tests.BillingDocumentServiceTests.Nothing_can_be_put_on_a_document_before_anything_is_billed",Passed,00:00:00.0102015
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_document_number_and_a_document_key_are_each_used_once_per_account",Passed,00:00:00.3956986
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;zero&quot;, field: &quot;releases[0]&quot;)",Passed,00:00:00.7300971
+"Alveara.Api.Tests.BillingServiceTests.Billing_sees_only_the_completed_unbilled_procedures_and_nothing_clinical",Passed,00:00:00.6485692
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_responsibility_that_breaks_a_shape_rule(which: &quot;zeroSequence&quot;, constraint: &quot;CK_BillingResponsibilities_Sequence&quot;)",Passed,00:00:00.0138452
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;longNote&quot;, field: &quot;note&quot;)",Passed,00:00:00.5802094
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.3164127
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.It_refuses_to_run_outside_a_transaction_because_the_charge_and_the_completion_must_stand_or_fall_together",Passed,00:00:00.3986295
+"Alveara.Api.Tests.BillingServiceTests.A_failed_audit_write_stores_nothing_says_so_and_the_same_entry_works_once_the_log_is_back",Passed,00:00:00.7564710
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.Recording_a_responsible_party_opens_the_account_keeps_the_history_and_never_touches_the_registered_guarantor",Passed,00:00:00.0562707
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3271839
+"Alveara.Api.Tests.BillingRefundServiceTests.A_correction_cannot_leave_the_account_owing_less_than_nothing_and_a_repeat_changes_nothing",Passed,00:00:01.0851865
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_charge_with_payments_applied_to_it_cannot_be_reversed_until_they_are_and_the_procedure_stays_billed",Passed,00:00:00.8071815
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_is_counted_to_the_documents_own_instant_and_only_open_amounts_age",Passed,00:00:00.0004093
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;v1.AAAA&quot;)",Passed,00:00:00.7019123
+"Alveara.Api.Tests.BillingServiceTests.Billing_the_same_procedure_twice_never_double_charges",Passed,00:00:00.6524186
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_payment_can_name_the_charge_it_pays_and_what_it_does_not_apply_stays_visible_until_applied_later",Passed,00:00:00.8282176
+"Alveara.Api.Tests.BillingLedgerServiceTests.Repeating_a_reversal_is_quiet_and_a_different_one_under_the_same_key_is_refused",Passed,00:00:00.5452823
+"Alveara.Api.Tests.BillingRefundServiceTests.The_same_refund_again_changes_nothing_and_the_same_key_for_something_else_is_refused",Passed,00:00:01.0570797
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.3881014
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;paymentPositive&quot;, constraint: &quot;CK_BillingEntries_Sign&quot;)",Passed,00:00:00.3595176
+"Alveara.Api.Tests.BillingLedgerApiTests.Payment_methods_are_configured_by_billing_and_a_payment_can_use_a_configured_one_by_name",Passed,00:00:01.2400307
+"Alveara.Api.Tests.BillingLedgerMathTests.The_default_allocation_pays_the_oldest_open_charges_first(payment: 0, charges: [], amounts: [])",Passed,00:00:00.0028436
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_patient_who_is_responsible_for_nobody_has_an_empty_summary_and_an_unknown_patient_is_a_404",Passed,00:00:00.0136861
+"Alveara.Api.Tests.BillingServiceTests.An_adjustment_on_an_account_with_nothing_on_it_is_refused_and_a_stale_one_is_a_conflict",Passed,00:00:00.6085427
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.3479731
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3429530
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;noReason&quot;, constraint: &quot;CK_BillingEntries_Reason&quot;)",Passed,00:00:00.6352889
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;asOfAfterIssued&quot;, constraint: &quot;CK_FinancialDocuments_AsOf&quot;)",Passed,00:00:00.5218382
+"Alveara.Api.Tests.BillingServiceTests.A_payment_made_from_an_out_of_date_copy_of_the_account_is_a_conflict_that_changes_nothing",Passed,00:00:00.7424448
+"Alveara.Api.Tests.BillingServiceTests.A_completed_procedure_is_billed_at_the_fee_it_was_proposed_at_with_who_and_when",Passed,00:00:00.5724466
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;threeDecimals&quot;, field: &quot;amount&quot;)",Passed,00:00:01.0732856
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.Adding_a_method_again_is_quiet_a_different_kind_under_the_same_name_is_refused_and_two_at_once_make_one",Passed,00:00:00.0248728
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_method_is_refused_beside_its_field(name: &quot;Venmo&quot;, kind: null, field: &quot;kind&quot;)",Passed,00:00:00.0034280
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_payment_method_that_breaks_a_shape_rule(which: &quot;blankName&quot;, constraint: &quot;CK_BillingPaymentMethods_Name&quot;)",Passed,00:00:00.0339054
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:00.4108478
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_reversed_payments_allocations_are_already_released_by_its_reversal_and_cannot_be_released_again",Passed,00:00:00.6308903
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_payment_is_made_by_the_patient_or_by_someone_recorded_as_responsible_for_the_account",Passed,00:00:00.5370295
+"Alveara.Api.Tests.BillingRefundMathTests.Verify_names_a_payment_applied_for_more_than_it_holds_after_its_refunds",Passed,00:00:00.0005340
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;notACharge&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.7052307
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;threeDecimals&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.6134624
+"Alveara.Api.Tests.CompletedProcedureAdoptionServiceTests.A_charge_that_billing_already_made_by_hand_is_reused_never_duplicated",Passed,00:00:01.7119086
+"Alveara.Api.Tests.BillingLedgerMathTests.The_balance_is_the_sum_of_the_entries_and_each_entry_shows_the_balance_after_it",Passed,00:00:00.0023643
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;adjustmentWithoutReason&quot;, constraint: &quot;CK_BillingEntries_Reason&quot;)",Passed,00:00:00.3747784
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_rolled_back_completion_leaves_no_charge_no_audit_entry_and_no_completion",Passed,00:00:00.6922150
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_charge_cannot_be_paid_for_more_than_it_is_counting_only_what_remains_after_releases",Passed,00:00:00.6231455
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3631979
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3401290
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_method_is_refused_beside_its_field(name: &quot;   &quot;, kind: &quot;Other&quot;, field: &quot;name&quot;)",Passed,00:00:00.0042333
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.4418995
+"Alveara.Api.Tests.BillingRefundServiceTests.A_refund_takes_the_unapplied_money_first_and_touches_no_application",Passed,00:00:00.9030902
+"Alveara.Api.Tests.BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed: 2)",Passed,00:00:00.0357177
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_document_carries_the_patient_of_its_account_and_a_receipt_is_for_a_payment_that_existed_at_its_cut_off",Passed,00:00:00.6316801
+"Alveara.Api.Tests.BillingLedgerServiceTests.Reversing_a_payment_adds_the_opposite_entry_releases_its_allocations_and_changes_nothing_that_was_recorded",Passed,00:00:00.8399314
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;&quot;)",Passed,00:00:00.6776515
+"Alveara.Api.Tests.BillingLedgerSchemaTests.An_allocation_number_is_used_once_per_account_but_a_command_key_may_cover_several_allocations",Passed,00:00:00.6348775
+"Alveara.Api.Tests.BillingRefundConcurrencyTests.Of_two_refunds_that_would_together_refund_more_than_the_payment_only_the_one_that_finishes_first_is_recorded",Passed,00:00:00.8367874
+"Alveara.Api.Tests.BillingLedgerApiTests.Anonymous_callers_get_401_from_every_new_endpoint",Passed,00:00:00.0960592
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3718215
+"Alveara.Api.Tests.BillingTimelineAgingTests.A_statement_issued_before_a_legacy_completion_was_adopted_still_reprints_exactly_as_issued_and_a_new_preview_sees_the_adoption",Passed,00:00:00.7663991
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;refundCauseNoRefund&quot;, constraint: &quot;CK_BillingAllocationReleases_Cause&quot;)",Passed,00:00:00.6358256
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_preview_whose_content_would_now_differ_is_refused_as_stale_and_nothing_is_issued",Passed,00:00:00.8345941
+"Alveara.Api.Tests.BillingLedgerServiceTests.An_adjustment_can_be_reversed_and_a_reversal_that_would_overdraw_the_account_is_refused",Passed,00:00:00.5706750
+"Alveara.Api.Tests.BillingLedgerMathTests.The_default_allocation_pays_the_oldest_open_charges_first(payment: 500, charges: [1, 2, 3], amounts: [100, 50, 80])",Passed,00:00:00.0000032
+"Alveara.Api.Tests.BillingRefundMathTests.A_consistent_refunded_history_verifies_clean",Passed,00:00:00.0002744
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:01.1965687
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_adjustment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;threeDecimals&quot;, field: &quot;amount&quot;)",Passed,00:00:00.6015787
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;negativeCutOff&quot;, constraint: &quot;CK_FinancialDocuments_CutOffs&quot;)",Passed,00:00:00.3933241
+"Alveara.Api.Tests.BillingSchemaTests.An_entry_must_carry_the_same_patient_as_its_account",Passed,00:00:00.1703895
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_refund_cannot_be_reversed",Passed,00:00:00.6676360
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;chargeWithMethod&quot;, constraint: &quot;CK_BillingEntries_Method&quot;)",Passed,00:00:00.5319661
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_responsibility_that_breaks_a_shape_rule(which: &quot;blankReason&quot;, constraint: &quot;CK_BillingResponsibilities_Reason&quot;)",Passed,00:00:00.0083158
+"Alveara.Api.Tests.BillingLedgerApiTests.When_the_log_cannot_be_written_a_reversal_and_a_responsibility_answer_503_save_failed_without_internals_and_store_nothing",Passed,00:00:01.1470876
+"Alveara.Api.Tests.BillingApiTests.A_double_click_adds_nothing_twice",Passed,00:00:00.8935433
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_an_allocation_that_breaks_a_shape_rule(which: &quot;blankKey&quot;, constraint: &quot;CK_BillingAllocations_Key&quot;)",Passed,00:00:00.3686925
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2911763
+"Alveara.Api.Tests.BillingLedgerMathTests.The_default_allocation_pays_the_oldest_open_charges_first(payment: 60, charges: [1], amounts: [60])",Passed,00:00:00.0000097
+"Alveara.Api.Tests.BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed: 6)",Passed,00:00:00.0404921
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;duplicateTarget&quot;, field: &quot;allocations[1]&quot;)",Passed,00:00:00.6740437
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_correction_release_frees_room_and_a_new_application_up_to_the_net_is_accepted",Passed,00:00:00.7527290
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_for_a_reversed_payment_or_something_that_is_not_a_payment_is_refused",Passed,00:00:01.6018685
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;fraction&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.7065342
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_charge_made_through_the_contract_and_one_made_by_billing_are_the_same_charge_and_the_procedure_is_not_offered_again",Passed,00:00:00.6355272
+"Alveara.Api.Tests.BillingApiTests.A_procedure_that_is_not_completed_is_refused_and_another_patients_looks_like_an_unknown_one",Passed,00:00:00.7536164
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;zero&quot;, constraint: &quot;CK_BillingAllocationReleases_Amount&quot;)",Passed,00:00:00.6353531
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3782138
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:00.3107845
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 91, bucket: &quot;Over 90&quot;)",Passed,00:00:00.0000094
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;adjustmentBlankReason&quot;, constraint: &quot;CK_BillingEntries_Reason&quot;)",Passed,00:00:00.3027192
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_refund_must_return_part_of_a_payment_of_the_same_account",Passed,00:00:00.5694422
+"Alveara.Api.Tests.BillingRefundMathTests.A_refund_of_the_whole_payment_with_its_releases_leaves_an_exact_ledger",Passed,00:00:00.0015257
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.9430345
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3222600
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.4270185
+"Alveara.Api.Tests.BillingSchemaTests.An_entry_cannot_leave_the_account_with_a_negative_balance",Passed,00:00:00.4639430
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.3152588
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.Naming_the_party_who_is_already_responsible_changes_nothing",Passed,00:00:00.0509826
+"Alveara.Api.Tests.BillingServiceTests.A_procedure_that_cannot_be_billed_is_refused_with_the_reason_and_nothing_is_stored",Passed,00:00:00.4384147
+"Alveara.Api.Tests.BillingRefundServiceTests.A_refund_cannot_exceed_what_the_payment_still_has_and_names_a_payment_a_reason_and_a_method",Passed,00:00:01.0140997
+"Alveara.Api.Tests.BillingReconciliationTests.More_than_sixty_real_transactions_reconcile_to_the_cent_after_every_step_and_an_issued_statement_reprints_unchanged",Passed,00:00:02.7869742
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_reversal_is_exactly_the_opposite_of_the_entry_it_undoes",Passed,00:00:00.5387432
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_an_allocation_that_breaks_a_shape_rule(which: &quot;negative&quot;, constraint: &quot;CK_BillingAllocations_Amount&quot;)",Passed,00:00:00.4948983
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;hashUpper&quot;, constraint: &quot;CK_FinancialDocuments_Hash&quot;)",Passed,00:00:00.4866782
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;v1.&quot;)",Passed,00:00:00.5898775
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3278079
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;notPaidByThePayment&quot;, field: &quot;releases[0]&quot;)",Passed,00:00:00.5947801
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_with_a_changed_hash_or_cut_offs_beyond_the_history_is_stale",Passed,00:00:00.4163947
+"Alveara.Api.Tests.BillingRefundConcurrencyTests.Of_two_moves_of_the_same_money_only_one_is_recorded",Passed,00:00:00.9088503
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3459313
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;noMethodKind&quot;, constraint: &quot;CK_BillingEntries_Method&quot;)",Passed,00:00:00.5267866
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_method_is_refused_beside_its_field(name: &quot;Venmo&quot;, kind: &quot;Barter&quot;, field: &quot;kind&quot;)",Passed,00:00:00.0093481
+"Alveara.Api.Tests.BillingSchemaTests.A_plan_procedure_can_be_charged_once_an_entry_number_and_a_key_are_used_once_per_account",Passed,00:00:00.5683793
+"Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_completed_procedure_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite",Passed,00:00:00.8128743
+"Alveara.Api.Tests.BillingLedgerMathTests.Verification_names_every_rule_a_history_can_break",Passed,00:00:00.0017903
+"Alveara.Api.Tests.FormsApiTests.Billing_can_read_but_not_complete_sign_or_void_and_the_front_desk_cannot_void_a_signed_form",Passed,00:00:01.0344357
+"Alveara.Api.Tests.GateCHistoryIntegrityTests.C8_signed_notes_and_their_addenda",Passed,00:00:00.6633540
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_release_belongs_to_the_account_and_patient_of_its_allocation_and_a_refunds_release_to_the_refunded_payment",Passed,00:00:00.6508001
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.3337896
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3334739
+"Alveara.Api.Tests.BillingServiceTests.The_charge_is_the_plans_fee_even_after_the_catalog_fee_changes",Passed,00:00:00.6069560
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_is_addressed_to_who_was_responsible_on_the_day_and_a_reprint_keeps_that_addressee",Passed,00:00:00.9176563
+"Alveara.Api.Tests.BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed: 5)",Passed,00:00:00.0262215
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_payment_committed_between_the_ledger_queries_gives_the_writer_the_controlled_conflict_and_never_a_missing_key",Passed,00:00:00.6303529
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_reader_that_never_gets_a_stable_picture_is_refused_as_a_conflict_after_the_capped_attempts",Passed,00:00:00.9636354
+"Alveara.Api.Tests.BillingLedgerSchemaTests.An_allocation_applies_a_payment_to_a_charge_within_one_account",Passed,00:00:00.4887980
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3341572
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;receiptWithoutPayment&quot;, constraint: &quot;CK_FinancialDocuments_Payment&quot;)",Passed,00:00:00.5695459
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;hashShort&quot;, constraint: &quot;CK_FinancialDocuments_Hash&quot;)",Passed,00:00:00.6032900
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_replacement_stands_in_only_for_a_reversed_entry_of_the_same_kind_and_only_once(which: &quot;notReversed&quot;)",Passed,00:00:00.6449806
+"Alveara.Api.Tests.BillingRefundServiceTests.Correcting_an_adjustment_replaces_it_and_a_charge_a_refund_a_refunded_payment_and_a_reversed_entry_cannot_be_corrected",Passed,00:00:01.1634251
+"Alveara.Api.Tests.BillingLedgerServiceTests.Repeating_a_payment_with_allocations_or_an_application_adds_nothing",Passed,00:00:00.7649520
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_payment_method_that_breaks_a_shape_rule(which: &quot;controlName&quot;, constraint: &quot;CK_BillingPaymentMethods_Name&quot;)",Passed,00:00:00.0063477
+"Alveara.Api.Tests.BillingDocumentBuilderTests.A_receipt_shows_the_payment_its_applications_net_of_releases_and_what_is_left",Passed,00:00:00.0013064
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;moreThanThePayment&quot;, field: &quot;allocations&quot;)",Passed,00:00:00.6376233
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;unequal&quot;, field: &quot;allocations&quot;)",Passed,00:00:00.8529917
+"Alveara.Api.Tests.BillingRefundMathTests.A_refund_adds_to_the_balance_and_reduces_what_the_payment_can_still_give_back",Passed,00:00:00.0011748
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_method_is_refused_beside_its_field(name: &quot;Ve\anmo&quot;, kind: &quot;Other&quot;, field: &quot;name&quot;)",Passed,00:00:00.0034592
+"Alveara.Api.Tests.BillingStatementsApiTests.Anonymous_callers_get_401_from_every_new_endpoint",Passed,00:00:00.0813967
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;adjustmentWithPayer&quot;, constraint: &quot;CK_BillingEntries_PaymentOnly&quot;)",Passed,00:00:00.5501874
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;correctionWithRefund&quot;, constraint: &quot;CK_BillingAllocationReleases_Cause&quot;)",Passed,00:00:00.5306829
+"Alveara.Api.Tests.BillingServiceTests.A_payment_cannot_reach_another_patients_account_or_an_account_with_nothing_on_it",Passed,00:00:00.7304233
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3675532
+"Alveara.Api.Tests.BillingServiceTests.A_missing_procedure_or_key_is_named_in_one_answer_and_nothing_is_stored",Passed,00:00:00.0179142
+"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.3300930
+"Alveara.Api.Tests.MeasurementEventTests.Recording_an_event_never_writes_to_a_clinical_or_financial_table",Passed,00:00:00.0637749
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.The_loser_retried_with_the_fresh_version_is_recorded_once_and_the_same_key_again_changes_nothing",Passed,00:00:00.7500103
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_payment_that_names_no_charge_is_applied_to_the_oldest_open_charges_first",Passed,00:00:00.7469611
+"Alveara.Api.Tests.BillingRefundMathTests.A_release_of_a_reversed_payment_changes_nothing_because_its_allocations_are_already_given_up",Passed,00:00:00.0002524
+"Alveara.Api.Tests.BillingStatementsApiTests.Every_change_needs_a_csrf_token",Passed,00:00:01.1210287
+"Alveara.Api.Tests.BillingDocumentServiceTests.Showing_and_exporting_a_document_are_audited_and_a_refused_reprint_leaves_no_trace",Passed,00:00:00.9216009
+"Alveara.Api.Tests.BillingSchemaTests.Financial_history_cannot_be_edited_or_deleted",Passed,00:00:00.6464515
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_payment_method_that_breaks_a_shape_rule(which: &quot;builtInInactive&quot;, constraint: &quot;CK_BillingPaymentMethods_BuiltInActive&quot;)",Passed,00:00:00.0062371
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;duplicateRelease&quot;, field: &quot;releases[1]&quot;)",Passed,00:00:00.7210750
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_refund_or_replacement_that_breaks_a_shape_rule(which: &quot;adjustmentWithRefundTarget&quot;, constraint: &quot;CK_BillingEntries_Refunds&quot;)",Passed,00:00:00.6213090
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 0, bucket: &quot;Current&quot;)",Passed,00:00:00.0000630
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:01.1593446
+"Alveara.Api.Tests.BillingLedgerMathTests.A_reversed_charge_is_not_open",Passed,00:00:00.0002581
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 30, bucket: &quot;Current&quot;)",Passed,00:00:00.0009376
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:01.1458333
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_reversed_charge_is_still_the_procedures_one_charge_and_is_not_made_again",Passed,00:00:00.5993288
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Only_billing_the_practice_manager_and_the_administrator_can_change_the_catalog(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.3169383
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.4380096
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_shows_the_payment_and_later_a_reversal_or_refund_is_a_separate_note",Passed,00:00:00.5241983
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;overTheCeiling&quot;, constraint: &quot;CK_BillingEntries_Max&quot;)",Passed,00:00:00.3824568
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.2938045
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_responsibility_is_refused_beside_its_field_and_nothing_is_recorded(which: &quot;future&quot;, field: &quot;effectiveFrom&quot;)",Passed,00:00:00.0214762
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;paymentWithoutMethod&quot;, constraint: &quot;CK_BillingEntries_Method&quot;)",Passed,00:00:00.6345389
+"Alveara.Api.Tests.BillingLedgerSchemaTests.Who_is_responsible_cannot_be_edited_or_deleted_and_must_be_an_active_patient_of_the_right_account",Passed,00:00:00.0352370
+"Alveara.Api.Tests.BillingSchemaTests.A_charge_is_for_the_fee_the_procedure_was_proposed_at_and_no_other_amount",Passed,00:00:00.4823040
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;noCharge&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.6500247
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;moreThanLeft&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.6534424
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 31, bucket: &quot;31-60&quot;)",Passed,00:00:00.0002865
+"Alveara.Api.Tests.PatientIdentityApiTests.Clinical_and_billing_roles_may_view_patients_but_not_register_or_change_them",Passed,00:00:00.7897926
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3254862
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Appending_to_the_ledger_never_changes_a_statement_at_earlier_cut_offs",Passed,00:00:00.0023313
+"Alveara.Api.Tests.BillingLedgerApiTests.A_payment_is_applied_to_the_charges_it_names_applied_later_reversed_and_the_history_always_verifies",Passed,00:00:01.9298455
+"Alveara.Api.Tests.BillingStatementsApiTests.A_stale_preview_and_a_preview_that_cannot_be_read_are_refused_with_their_codes_and_nothing_is_issued",Passed,00:00:00.9712240
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_an_allocation_that_breaks_a_shape_rule(which: &quot;zero&quot;, constraint: &quot;CK_BillingAllocations_Amount&quot;)",Passed,00:00:00.3444231
+"Alveara.Api.Tests.BillingRefundServiceTests.A_refund_without_a_reason_is_refused_naming_the_reason_and_records_nothing",Passed,00:00:00.8552426
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;reversalBlankReason&quot;, constraint: &quot;CK_BillingEntries_Reason&quot;)",Passed,00:00:00.3839701
+"Alveara.Api.Tests.BillingSchemaTests.One_account_per_patient",Passed,00:00:00.0096385
+"Alveara.Api.Tests.BillingRefundSchemaTests.An_issued_statement_and_receipt_are_accepted_and_numbered_apart",Passed,00:00:00.6318535
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_document_cannot_be_cut_off_beyond_the_history_that_exists(which: &quot;responsibility&quot;)",Passed,00:00:00.5843384
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_refund_of_the_unapplied_part_and_then_of_an_applied_part_with_its_release_is_accepted_and_the_balance_is_the_plain_sum",Passed,00:00:00.7661948
+"Alveara.Api.Tests.BillingApiTests.Anonymous_callers_get_401_from_every_endpoint",Passed,00:00:00.1863756
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.Completing_a_procedure_and_charging_for_it_in_one_transaction_makes_one_charge_at_the_plans_fee",Passed,00:00:00.5449330
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_source_is_only_for_a_charge_of_that_patient_and_never_another_patients_or_another_kind_of_entry",Passed,00:00:01.2283527
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Aging_falls_into_the_four_buckets_at_their_edges(days: 60, bucket: &quot;31-60&quot;)",Passed,00:00:00.0000192
+"Alveara.Api.Tests.BillingLedgerMathTests.The_default_allocation_pays_the_oldest_open_charges_first(payment: 150, charges: [1, 2], amounts: [100, 50])",Passed,00:00:00.0011141
+"Alveara.Api.Tests.ProcedureCatalogApiTests.Whoever_can_see_billing_can_read_the_catalog(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.3873214
+"Alveara.Api.Tests.BillingLedgerSchemaTests.A_reversal_cannot_leave_the_account_owing_less_than_nothing",Passed,00:00:00.2811609
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_ledger_that_moved_on_after_the_preview_still_issues_exactly_the_reviewed_content",Passed,00:00:00.6070750
+"Alveara.Api.Tests.BillingServiceTests.Repeating_a_payment_is_quiet_and_a_different_one_under_the_same_key_is_refused",Passed,00:00:00.7516780
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.3349197
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.The_charge_is_the_fee_the_plan_copied_whatever_the_catalog_says_later",Passed,00:00:00.6119545
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;badKind&quot;, constraint: &quot;CK_BillingEntries_Kind&quot;)",Passed,00:00:00.4885797
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_charge_is_reversible_once_every_application_to_it_has_been_released_and_not_before",Passed,00:00:00.5935337
+"Alveara.Api.Tests.BillingApiTests.Whoever_can_see_billing_can_read_an_account_and_the_billable_procedures(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.3642773
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_reversed_payment_cannot_be_refunded_and_a_refunded_payment_cannot_be_reversed",Passed,00:00:00.6996010
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.3102099
+"Alveara.Api.Tests.BillingStatementsApiTests.When_the_log_cannot_be_written_a_refund_a_move_a_correction_and_an_issue_answer_503_and_store_nothing_not_even_the_releases_a_move_saved_first",Passed,00:00:01.3416347
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_release_and_an_issued_document_can_never_be_changed_or_deleted(statement: &quot;UPDATE [BillingAllocationReleases] SET [Amount] = &quot;···, number: 51164)",Passed,00:00:00.6912399
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_reprint_whose_content_no_longer_matches_its_stored_hash_is_refused",Passed,00:00:00.5577789
+"Alveara.Api.Tests.BillingLedgerServiceTests.Applying_and_reversing_are_audited_with_the_user_and_the_reason_and_a_failed_audit_stores_nothing",Passed,00:00:00.8451170
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;paymentNamingAProcedure&quot;, constraint: &quot;CK_BillingEntries_ChargeSource&quot;)",Passed,00:00:00.3090890
+"Alveara.Api.Tests.BillingRefundMathTests.Verify_names_a_refund_beyond_its_payment_a_refund_of_a_reversed_payment_and_a_refund_naming_no_payment",Passed,00:00:00.0013956
+"Alveara.Api.Tests.BillingDocumentBuilderTests.The_hash_is_stable_whatever_scale_an_amount_carries_and_changes_when_anything_shown_changes",Passed,00:00:00.0011309
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.3250326
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_adjustment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;belowZero&quot;, field: &quot;amount&quot;)",Passed,00:00:00.5553730
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_payment_cannot_be_refunded_for_more_than_it_was(which: &quot;oneTooMuch&quot;)",Passed,00:00:00.9386043
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_wrong_method_is_refused_beside_its_field(name: null, kind: &quot;Other&quot;, field: &quot;name&quot;)",Passed,00:00:00.0035005
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;nonReversalWithTarget&quot;, constraint: &quot;CK_BillingEntries_Reverses&quot;)",Passed,00:00:00.3351102
+"Alveara.Api.Tests.BillingLedgerApiTests.Who_is_responsible_for_the_account_is_recorded_a_guarantor_sees_the_account_and_can_be_recorded_as_the_payer",Passed,00:00:01.2076461
+"Alveara.Api.Tests.GateCHistoryIntegrityTests.C8_treatment_plan_revisions_state_history_and_completed_procedures",Passed,00:00:02.0937161
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.2783703
+"Alveara.Api.Tests.BillingLedgerApiTests.Every_new_change_needs_a_csrf_token",Passed,00:00:00.9539384
+"Alveara.Api.Tests.BillingDocumentBuilderTests.Amended_service_dates_age_the_charge_from_the_date_the_snapshot_carries",Passed,00:00:00.0003132
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_payment_uses_a_configured_active_method_by_name_and_the_ledger_keeps_its_kind",Passed,00:00:00.8349287
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;entryCutOffZero&quot;, constraint: &quot;CK_FinancialDocuments_CutOffs&quot;)",Passed,00:00:00.5423147
+"Alveara.Api.Tests.BillingRefundServiceTests.A_move_that_breaks_a_rule_is_refused_naming_the_row_and_changes_nothing(which: &quot;moreThanApplied&quot;, field: &quot;releases[0]&quot;)",Passed,00:00:00.8044762
+"Alveara.Api.Tests.BillingLedgerApiTests.Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.3459694
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_payment_method_that_breaks_a_shape_rule(which: &quot;badKind&quot;, constraint: &quot;CK_BillingPaymentMethods_Kind&quot;)",Passed,00:00:00.0048367
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:00.4600154
+"Alveara.Api.Tests.BillingSchemaTests.The_database_refuses_an_entry_that_breaks_a_shape_rule(which: &quot;numberZero&quot;, constraint: &quot;CK_BillingEntries_Number&quot;)",Passed,00:00:00.4439747
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_document_cannot_be_cut_off_beyond_the_history_that_exists(which: &quot;allocation&quot;)",Passed,00:00:00.5246251
+"Alveara.Api.Tests.BillingRefundServiceTests.A_reversed_payment_cannot_be_moved_and_a_move_needs_a_reason_and_a_payment",Passed,00:00:00.8535122
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_charge_completed_the_old_way_has_a_source_that_says_no_completion_record_exists",Passed,00:00:01.1553221
+"Alveara.Api.Tests.GateCHistoryIntegrityTests.C8_finalized_periodontal_records_and_sessions",Passed,00:00:00.5383200
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_wrong_allocation_is_refused_beside_its_entry_and_nothing_is_stored(which: &quot;unknownCharge&quot;, field: &quot;allocations[0]&quot;)",Passed,00:00:00.6538197
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2698148
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_release_and_an_issued_document_can_never_be_changed_or_deleted(statement: &quot;UPDATE [FinancialDocuments] SET [ContentHash] = RE&quot;···, number: 51169)",Passed,00:00:00.7042960
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;tooBig&quot;, field: &quot;amount&quot;)",Passed,00:00:00.6251304
+"Alveara.Api.Tests.BillingLedgerServiceTests.A_reversal_cannot_be_reversed_an_entry_is_reversed_once_and_a_missing_entry_or_reason_is_refused",Passed,00:00:00.7095928
+"Alveara.Api.Tests.BillingLedgerServiceTests.Verification_finds_a_history_that_was_tampered_with_behind_the_database_rules",Passed,00:00:00.7294018
+"Alveara.Api.Tests.BillingLedgerSchemaTests.An_entry_is_reversed_at_most_once",Passed,00:00:00.2617443
+"Alveara.Api.Tests.BillingRefundMathTests.Releases_are_subtracted_from_what_a_charge_has_been_paid_and_from_what_a_payment_has_applied",Passed,00:00:00.0003410
+"Alveara.Api.Tests.ClinicalPermissionTests.The_permission_that_front_desk_and_billing_use_to_find_patients_does_not_open_the_medical_history",Passed,00:00:00.0010115
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:01.1245173
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_document_cannot_be_cut_off_beyond_the_history_that_exists(which: &quot;entry&quot;)",Passed,00:00:00.6628415
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_database_refuses_a_ledger_entry_that_breaks_a_shape_rule(which: &quot;adjustmentWithMethodId&quot;, constraint: &quot;CK_BillingEntries_PaymentOnly&quot;)",Passed,00:00:00.5279312
+"Alveara.Api.Tests.BillingDocumentBuilderTests.A_statement_lists_the_ledger_with_running_balances_and_the_totals",Passed,00:00:00.0011634
+"Alveara.Api.Tests.BillingRefundSchemaTests.Each_of_the_two_triggers_that_guard_a_refunds_method_refuses_on_its_own(disabled: &quot;TR_BillingEntries_Reversals&quot;, expected: 51161)",Passed,00:00:00.7724534
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_document_that_breaks_a_shape_rule(which: &quot;blankKey&quot;, constraint: &quot;CK_FinancialDocuments_Key&quot;)",Passed,00:00:00.4875450
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:01.2682161
+"Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_financial_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite",Passed,00:00:01.6100669
+"Alveara.Api.Tests.BillingLedgerApiTests.Whoever_can_see_billing_can_read_the_verification_responsibility_guarantor_summary_and_payment_methods(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.3050757
+"Alveara.Api.Tests.BillingApiTests.Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.2864814
+"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;garbage&quot;)",Passed,00:00:00.5599715
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;correctionNoReason&quot;, constraint: &quot;CK_BillingAllocationReleases_Cause&quot;)",Passed,00:00:00.6034815
+"Alveara.Api.Tests.BillingRefundSchemaTests.The_database_refuses_a_release_that_breaks_a_shape_rule(which: &quot;blankKey&quot;, constraint: &quot;CK_BillingAllocationReleases_Key&quot;)",Passed,00:00:00.6044728
+"Alveara.Api.Tests.BillingStatementsApiTests.The_refusal_codes_the_screen_relies_on_come_back_from_the_routes",Passed,00:00:01.2690862
+"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3353167
+"Alveara.Api.Tests.BillingLedgerSchemaTests.The_four_built_in_methods_exist_and_a_method_name_is_used_once_whatever_its_case",Passed,00:00:00.0254653
+"Alveara.Api.Tests.BillingLedgerMathTests.After_every_step_of_a_random_history_it_verifies_and_the_numbers_reconcile(seed: 4)",Passed,00:00:00.0261164
+"Alveara.Api.Tests.BillingSchemaTests.A_charge_must_bill_a_completed_procedure_of_the_same_patient_that_is_not_withdrawn",Passed,00:00:00.5938638
+"Alveara.Api.Tests.BillingLedgerServiceTests.The_balance_and_every_derived_number_can_be_rebuilt_and_verified_from_the_preserved_entries",Passed,00:00:00.9003833
+"Alveara.Api.Tests.BillingRefundSchemaTests.A_payment_can_be_refunded_in_parts_up_to_exactly_what_it_was",Passed,00:00:00.4982281
+"Alveara.Api.Tests.BillingServiceTests.A_wrong_payment_is_refused_beside_its_field_and_nothing_is_stored(which: &quot;badMethod&quot;, field: &quot;method&quot;)",Passed,00:00:00.5446741
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.A_guarantor_sees_every_account_they_are_responsible_for_with_each_accounts_own_balance_and_a_total",Passed,00:00:00.7212798
+"Alveara.Api.Tests.BillingResponsibilityServiceTests.Without_a_record_the_account_follows_the_registered_guarantor_and_otherwise_the_patient",Passed,00:00:00.0401986
+"Alveara.Api.Tests.BillingLedgerSchemaTests.Allocations_cannot_be_edited_or_deleted",Passed,00:00:00.6156239

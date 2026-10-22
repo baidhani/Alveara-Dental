@@ -1,0 +1,4 @@
+exit=0 elapsed=970s
+Results File: C:\tmp\alv007r02\trx_desc\desc.trx
+
+Passed!  - Failed:     0, Passed:  1379, Skipped:     0, Total:  1379, Duration: 16 m 7 s - Alveara.Api.Tests.dll (net10.0)
