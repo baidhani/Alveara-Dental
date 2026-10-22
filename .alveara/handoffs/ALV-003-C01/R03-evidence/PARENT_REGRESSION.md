@@ -1,0 +1,1 @@
+Parent `STORY-003` (course story, portal-verified): its registration tests are in `PatientRegistrationPage.test.tsx` and the rest of the client suite (1,545 of 1,545 passed); the product code is unchanged, so STORY-003's contract is untouched.

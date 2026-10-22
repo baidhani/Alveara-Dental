@@ -1,0 +1,35 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/_negative_control.test.tsx (1 test | 1 failed) 256ms
+   ❯ negative control: the previous assertion under a forced race (1)
+     × PREVIOUS test body, with the focus frame landing between the click on City and the keystroke 254ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/_negative_control.test.tsx > negative control: the previous assertion under a forced race > PREVIOUS test body, with the focus frame landing between the click on City and the keystroke
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <p
+  class="alv-form-field__error"
+  id="_r_a_-error"
+  role="alert"
+>
+  City is required.
+</p> instead[39m
+ ❯ src/pages/_negative_control.test.tsx:62:57
+     60|     pending.splice(0).forEach((cb) => cb(0));
+     61|     await user.keyboard("A");
+     62|     expect(screen.queryByText("City is required.")).not.toBeInTheDocum…
+       |                                                         ^
+     63|   });
+     64| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  17:34:23
+   Duration  1.26s (environment 48%, tests 22%, setup 15%, transform 10%, import 5%, worker 1%)
+

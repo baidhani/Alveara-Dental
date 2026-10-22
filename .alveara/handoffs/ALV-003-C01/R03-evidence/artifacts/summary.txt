@@ -1,0 +1,4 @@
+tsc exit=0
+vitest exit=0 elapsed=162s
+lint exit=0
+repo_checks exit=0

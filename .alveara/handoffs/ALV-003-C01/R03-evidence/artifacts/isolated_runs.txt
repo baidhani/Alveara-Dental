@@ -1,0 +1,1 @@
+fixed file isolated runs: pass=30 fail=0
