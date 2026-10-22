@@ -1,0 +1,21 @@
+run commit: e89721cd8f31a1089646d4f5997a41835f9670f8
+implementation commit: 3ae51e23adbd7769a0bafb71fd16731b1eee3466
+working tree before: 0 changed paths (0 = clean)
+env: ALVERA_TEST_TEMPLATE=[]
+start: 2026-10-21T21:20:29-05:00
+backend command: cd src/Alveara.Api.Tests && dotnet test --nologo --logger "trx;LogFileName=full_serial.trx" --results-directory C:/tmp/n016/stage2_run/trx
+== backend exit=0 elapsed=3466s
+  Alveara.Api.Tests -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\tmp\n016\stage2_run\trx\full_serial.trx
+
+Passed!  - Failed:     0, Passed:  4318, Skipped:     0, Total:  4318, Duration: 57 m 22 s - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=7s
+== gate vitest exit=0 elapsed=179s
+== gate build exit=0 elapsed=8s
+== gate lint exit=0 elapsed=1s
+== gate playwright_mocked exit=0 elapsed=20s
+== gate repo_checks exit=0 elapsed=1s
+end: 2026-10-21T22:21:52-05:00
+working tree after: 0 changed paths
