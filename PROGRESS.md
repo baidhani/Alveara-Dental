@@ -1132,4 +1132,10 @@
   - What changed: recorded the two Stage 1 approvals (closure-only commits `d2890b1`, `9183c18`), ran the reviewer's frozen frontend gate once and both reuse evaluations on the shared closure tree, and recorded the unedited outputs `.alveara/handoffs/ALV-N016/R04-regression-evidence/` with additive packages `ALV-N016/R04-regression.md` and `ALV-007-C01/R03-regression.md`; both stories recorded `CHANGES_REQUIRED`, `fullRegression: FAILED`.
   - Verification: both reuse evaluations REUSE EQUIVALENCE HOLDS; Playwright 140 passed, repository checks 13 passed, tsc/build/lint exit 0; Vitest 1 failed of 1,544 (src/pages/PatientRegistrationPage.test.tsx, unrelated, 12 of 12 passes in isolation); the frontend evaluator: DOES NOT QUALIFY.
   - Notes: left unchecked; the gate was not rerun (one-run rule); the reviewer decides: rerun the unchanged gate once, or make that test deterministic first. Not pushed.
+- [ ] Reviews of the Stage 2 for ALV-N016 R04 and ALV-007-C01 R03 recorded (CHANGES_REQUIRED)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: stored the reviewer's two final decisions unchanged (`.alveara/reviews/ALV-N016/R04.md`, `.alveara/reviews/ALV-007-C01/R03.md`); both stories stay `CHANGES_REQUIRED`, `fullRegression: FAILED`. Blocking issues ALV-N016-R04-01 and ALV-007-C01-R03-01: the frontend gate's one Vitest failure (`PatientRegistrationPage.test.tsx`). The reviewer did not authorize an unchanged rerun and directs a corrective attempt on `ALV-003-C01` (make the test deterministic; no product change), then one shared frontend-only gate; the backend equivalence stays valid; no backend full suite.
+  - Verification: user supplied the review files; no code changed.
+  - Notes: left unchecked; neither story is complete. Not pushed.
 

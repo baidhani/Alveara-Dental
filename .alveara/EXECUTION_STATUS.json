@@ -1655,13 +1655,13 @@
       "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
       "handoffPath": ".alveara/handoffs/ALV-007-C01/R03.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R03-stage1.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R03.md",
         "approvedAttempt": "R01",
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
         "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
         "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R02-stage1.md"
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R03-stage1.md"
       },
       "blockingIssues": [
         "ALV-007-C01-R03-01: the shared Stage 2 (equivalence plus one fresh frontend gate, closure commit 9183c18) did not qualify: Vitest 1 failed, 1543 passed (an unrelated client test, PatientRegistrationPage, not touched by this release). Everything else passed: Playwright 140, repository checks 13; both reuse evaluations HOLD (no backend file differs). The gate was not rerun. See .alveara/handoffs/ALV-007-C01/R03-regression.md."
@@ -2119,12 +2119,12 @@
       "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
       "handoffPath": ".alveara/handoffs/ALV-N016/R04.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R04-stage1.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N016/R04.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "69c6f7fe0c4155338b8d752804878d44784348a6",
         "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R03-stage1.md"
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R04-stage1.md"
       },
       "blockingIssues": [
         "ALV-N016-R04-01: the shared Stage 2 (equivalence plus one fresh frontend gate, closure commit 9183c18) did not qualify: Vitest 1 failed, 1543 passed (src/pages/PatientRegistrationPage.test.tsx, an unrelated client test not touched by this release; passes 12 of 12 in isolation and in 3 earlier full runs). Everything else passed: Playwright 140, repository checks 13, tsc, build, lint; both reuse evaluations HOLD. The gate was not rerun. See .alveara/handoffs/ALV-N016/R04-regression.md."
