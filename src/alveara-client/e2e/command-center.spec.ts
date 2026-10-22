@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import type { Server } from "node:http";
+import { statusLabels } from "./executionStatus";
 
 /**
  * The repository's ROOT Command Center (index.html + assets/ + .colaberry/* + .alveara/EXECUTION_STATUS.json), served as a static site exactly as GitHub
@@ -21,7 +22,7 @@ const ledger = readJson<{ records: LedgerRecord[] }>(".alveara/EXECUTION_STATUS.
 const plan = readJson<{ stories: { id: string }[] }>(".colaberry/plan.json");
 const progress = readJson<{ stories: { id: string; verification?: { state?: string } }[] }>(".colaberry/progress.json");
 const engineering = ledger.records.filter((r) => r.storyType === "companion" || r.storyType === "new_production");
-const STATUS_LABELS: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+const STATUS_LABELS = statusLabels();                                  // the page's own table (assets/status-labels.js)
 
 /** The engineering stories attached to a portal story, computed from the ledger the same way the page documents it. */
 function attached(storyId: string) {
@@ -235,7 +236,7 @@ test.describe("Project Management: portal stories and engineering stories", () =
     await expect(rows).toHaveCount(engineering.length);
     const ids = await rows.locator("td:nth-child(2)").allInnerTexts();
     expect(ids.every((id) => id.startsWith("ALV-")), "only engineering stories are rows here").toBe(true);
-    const labels: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+    const labels = STATUS_LABELS;
     for (const r of engineering.slice().sort((a, b) => a.num - b.num)) {
       const row = rows.filter({ hasText: r.storyId }).first();
       await expect(row, r.storyId).toContainText(labels[r.status] ?? r.status);

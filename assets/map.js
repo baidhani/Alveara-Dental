@@ -16,9 +16,7 @@ function mapMarker(storyType) {
   const icon = MAP_TYPE_ICONS[storyType];
   return `<span class="map-marker ${escapeHtml(storyType)}">${icon ? `<span aria-hidden="true">${icon}</span> ` : ""}${escapeHtml(MAP_TYPE_MARKERS[storyType] || "STORY")}</span>`;
 }
-const MAP_STATUS_LABELS = {
-  PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", BLOCKED: "Blocked", REOPENED: "Reopened", COMPLETE: "Complete",
-};
+const MAP_STATUS_LABELS = EXECUTION_STATUS_LABELS;   // assets/status-labels.js: every status HANDOFF_SCHEMA.md allows
 const MAP_FILTERS = [
   { key: "phase", label: "Phase", all: "All phases" },
   { key: "type", label: "Story type", all: "All story types" },
@@ -47,7 +45,7 @@ function mapRecords() {
     const criteriaPassed = prog ? (prog.criteria || []).filter((c) => c.passed).length : 0;
     const criteriaTotal = prog ? (prog.criteria || []).length || r.acceptance?.total || 0 : 0;
     // A portal story the portal has not yet verified but whose criteria have started to pass is in progress; every other state is the ledger's own word.
-    const inProgress = r.status === "PLANNED" && criteriaPassed > 0;
+    const inProgress = (r.status === "PLANNED" && criteriaPassed > 0) || r.status === "IN_PROGRESS";
     return {
       ...r,
       title: planTitles.get(r.storyId) || entry?.title || null,

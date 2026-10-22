@@ -506,10 +506,7 @@ function renderSystems() {
 }
 
 const ENGINEERING_TYPES = { companion: "Companion", new_production: "New production" };
-const ENGINEERING_STATUS_LABELS = {
-  PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", BLOCKED: "Blocked",
-  REOPENED: "Reopened", COMPLETE: "Complete",
-};
+const ENGINEERING_STATUS_LABELS = EXECUTION_STATUS_LABELS;   // assets/status-labels.js: every status HANDOFF_SCHEMA.md allows
 
 /** Companion and new-production stories from the engineering ledger, in plan order. */
 function engineeringRecords() {
@@ -588,7 +585,7 @@ function renderStoryExpansion(story, prog) {
 }
 
 function engineeringStatusTag(status) {
-  const cls = status === "COMPLETE" ? "verified" : ["CHANGES_REQUIRED", "BLOCKED", "REOPENED"].includes(status) ? "gap" : "";
+  const cls = status === "COMPLETE" ? "verified" : ["CHANGES_REQUIRED", "BLOCKED", "REOPENED", "REVALIDATION_REQUIRED"].includes(status) ? "gap" : "";
   return `<span class="tag ${cls}">${escapeHtml(ENGINEERING_STATUS_LABELS[status] || status)}</span>`;
 }
 

@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import type { Server } from "node:http";
+import { allowedStatuses, statusLabels } from "./executionStatus";
 
 /**
  * The Command Center's Architecture & Execution Map tab, in a real browser against the repository root served as a static site exactly as GitHub Pages would.
@@ -25,7 +26,7 @@ const records = ledger.records.slice().sort((a, b) => a.num - b.num);
 // The page shows a planned portal story as "In progress" once any of its criteria pass in the progress file (assets/map.js); the expectations below follow the same data rule instead of assuming no story is mid-build.
 const passingCriteria = new Map(progress.stories.map((s) => [s.id, s.criteria.filter((c) => c.passed).length]));
 const startedPassing = (r: LedgerRecord) => r.status === "PLANNED" && r.storyType === "course" && (passingCriteria.get(r.storyId) ?? 0) > 0;
-const STATE_LABELS: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+const STATE_LABELS = statusLabels();                                  // the page's own table (assets/status-labels.js), checked against HANDOFF_SCHEMA.md below
 const stateLabelOf = (r: LedgerRecord) => (startedPassing(r) ? "In progress" : STATE_LABELS[r.status]);
 const planTitles = new Map(plan.stories.map((s) => [s.id, s.title]));
 const catalogById = new Map(catalog.stories.map((s) => [s.storyId, s]));
@@ -100,9 +101,47 @@ test.describe("Architecture Map tab", () => {
     await expect(page.locator(".map-phase h3")).toHaveCount(phases.length);
   });
 
+  test("labels exactly the statuses HANDOFF_SCHEMA.md allows, and every status in the ledger is one of them", () => {
+    const allowed = allowedStatuses();
+    for (const named of ["READY", "IN_PROGRESS", "AWAITING_REGRESSION", "DEFERRED", "REVALIDATION_REQUIRED"]) expect(allowed, `the schema parser found ${named}`).toContain(named);
+    expect(Object.keys(STATE_LABELS).sort(), "one label per allowed status, and no label for a status the schema does not allow").toEqual([...allowed].sort());
+    for (const [status, label] of Object.entries(STATE_LABELS)) expect(label, status).toMatch(/^[A-Z][a-z]+( [a-z]+)*$/);          // a readable word or phrase, never the raw status
+    expect(new Set(Object.values(STATE_LABELS)).size, "every label is different").toBe(allowed.length);
+    for (const r of records) expect(allowed, `${r.storyId} has status ${r.status}`).toContain(r.status);
+  });
+
+  test("every allowed status shows as its label on the cards, in the legend, in the state filter and in the story dialog", async ({ page }) => {
+    const allowed = allowedStatuses();
+    const chosen = records.slice(0, allowed.length);
+    const finalStatus = new Map(records.map((r) => [r.storyId, r.status]));
+    chosen.forEach((r, i) => finalStatus.set(r.storyId, allowed[i]));
+    overrides[".alveara/EXECUTION_STATUS.json"] = (l) => {
+      for (const r of l.records as { storyId: string; status: string }[]) r.status = finalStatus.get(r.storyId)!;
+    };
+    // the page's own rule (assets/map.js): a planned portal story whose criteria have started to pass reads "In progress"; every other status reads its label
+    const shownLabel = (r: LedgerRecord) => (startedPassing({ ...r, status: finalStatus.get(r.storyId)! }) ? "In progress" : STATE_LABELS[finalStatus.get(r.storyId)!]);
+    await openMap(page);
+    for (const r of chosen) await expect(page.locator(`[data-map-story="${r.storyId}"] .map-state`), `${r.storyId} as ${finalStatus.get(r.storyId)}`).toHaveText(shownLabel(r));
+    const typeLabels: Record<string, string> = { course: "Portal story", companion: "Engineering companion", new_production: "Engineering story" };
+    const shown = records.map(shownLabel);
+    for (const label of Object.values(STATE_LABELS)) expect(shown, `some story reads "${label}"`).toContain(label);   // the data now exercises every allowed status
+    const legend = page.getByRole("group", { name: /Legend/ });
+    await expect(legend.getByRole("button")).toHaveCount(new Set([...shown, ...records.map((r) => typeLabels[r.storyType])]).size);
+    for (const label of new Set(shown)) {
+      await expect(legend.locator(`[data-map-legend="state"][data-map-value="${label}"]`), `legend key for ${label}`).toBeVisible();
+      await page.locator("#map-filter-state").selectOption(label);
+      await expect(page.locator("[data-map-story]"), `filter ${label}`).toHaveCount(shown.filter((x) => x === label).length);
+    }
+    await page.locator("#map-filter-state").selectOption("");
+    const target = chosen[allowed.indexOf("REVALIDATION_REQUIRED")];
+    await page.locator(`[data-map-story="${target.storyId}"]`).click();
+    await expect(page.getByRole("dialog")).toContainText("Revalidation required");
+    await expect(page.getByRole("dialog")).not.toContainText("REVALIDATION_REQUIRED");
+  });
+
   test("shows each story's delivery state as a word, taken from the ledger, and the gate from the ledger", async ({ page }) => {
     await openMap(page);
-    const labels: Record<string, string> = { PLANNED: "Planned", AWAITING_REVIEW: "Awaiting review", CHANGES_REQUIRED: "Changes required", COMPLETE: "Complete", BLOCKED: "Blocked", REOPENED: "Reopened" };
+    const labels = STATE_LABELS;
     const complete = records.find((r) => r.status === "COMPLETE")!;
     await expect(page.locator(`[data-map-story="${complete.storyId}"] .map-state`)).toHaveText("Complete");
     const planned = records.find((r) => r.status === "PLANNED" && r.storyType !== "course")!;

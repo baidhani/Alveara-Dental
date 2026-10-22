@@ -570,8 +570,10 @@ table.attached-table {
 .map-node:hover { outline: 2px solid var(--color-primary); }
 .map-node:focus-visible, .map-reset:focus-visible, .map-toggle:focus-visible, .map-filters select:focus-visible, .map-close:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 .map-node.complete { border-left-color: var(--color-success); }
-.map-node.progress, .map-node.awaiting-review { border-left-color: var(--color-primary); }
+.map-node.progress, .map-node.awaiting-review, .map-node.awaiting-regression { border-left-color: var(--color-primary); }
 .map-node.changes-required, .map-node.blocked, .map-node.reopened { border-left-color: var(--color-danger); }
+.map-node.revalidation-required { border-left-color: var(--color-warning); }
+.map-node.ready, .map-node.deferred { border-left-color: var(--color-grey-dot); }
 .map-node-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .map-order, .map-marker { padding: 2px 6px; border: 1px solid var(--color-border); border-radius: 99px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.03em; white-space: nowrap; color: var(--color-text-muted); }
 /* each story type has its own colour and icon; the colours are chosen for text contrast against their own tint in both themes */
@@ -586,8 +588,10 @@ table.attached-table {
 .map-dialog { width: min(720px, calc(100% - 32px)); max-height: 86vh; padding: 22px; border: 1px solid var(--color-border); border-top: 6px solid var(--color-grey-dot); border-radius: var(--radius); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-lg); }
 .map-dialog::backdrop { background: rgba(10, 17, 23, 0.6); }
 .map-dialog.complete { border-top-color: var(--color-success); }
-.map-dialog.progress, .map-dialog.awaiting-review { border-top-color: var(--color-primary); }
+.map-dialog.progress, .map-dialog.awaiting-review, .map-dialog.awaiting-regression { border-top-color: var(--color-primary); }
 .map-dialog.changes-required, .map-dialog.blocked, .map-dialog.reopened { border-top-color: var(--color-danger); }
+.map-dialog.revalidation-required { border-top-color: var(--color-warning); }
+.map-dialog.ready, .map-dialog.deferred { border-top-color: var(--color-grey-dot); }
 .map-dialog h2 { margin: 6px 36px 12px 0; font-size: 1.1rem; }
 .map-close { position: absolute; right: 14px; top: 12px; width: 32px; height: 32px; padding: 0; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); font-size: 1.2rem; line-height: 1; cursor: pointer; }
 .map-detail-grid { display: grid; grid-template-columns: 160px 1fr; gap: 8px; margin: 0; }
@@ -608,8 +612,10 @@ table.attached-table {
 .map-legend-button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 .map-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--color-grey-dot); }
 .map-dot.complete { background: var(--color-success); }
-.map-dot.progress, .map-dot.awaiting-review { background: var(--color-primary); }
+.map-dot.progress, .map-dot.awaiting-review, .map-dot.awaiting-regression { background: var(--color-primary); }
 .map-dot.changes-required, .map-dot.blocked, .map-dot.reopened { background: var(--color-danger); }
+.map-dot.revalidation-required { background: var(--color-warning); }
+.map-dot.ready, .map-dot.deferred { background: var(--color-grey-dot); }
 
 :root {
   --map-course-bg: #dceef9; --map-course-fg: #155b7c;
