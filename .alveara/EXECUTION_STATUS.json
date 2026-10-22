@@ -2109,7 +2109,7 @@
       "demo": "n/a_test_infrastructure",
       "parentRegression": "n/a_no_course_parent",
       "implementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
-      "evidenceCommit": null,
+      "evidenceCommit": "45c2176be2b2724332b6e4b2f1cf21e81c652994",
       "handoffPath": ".alveara/handoffs/ALV-N016/R01.md",
       "review": {
         "decision": "pending",
