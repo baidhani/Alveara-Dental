@@ -94,6 +94,39 @@ public class TestDatabaseTemplateTests : IAsyncLifetime
         Assert.Equal(1, template.Clones);
     }
 
+    private const string SettingsSql = @"SELECT CONCAT(compatibility_level, '|', collation_name COLLATE DATABASE_DEFAULT, '|', recovery_model_desc COLLATE DATABASE_DEFAULT, '|', is_read_committed_snapshot_on, '|', snapshot_isolation_state, '|', is_auto_close_on, '|', is_auto_shrink_on,
+        '|', page_verify_option_desc COLLATE DATABASE_DEFAULT, '|', is_ansi_nulls_on, '|', is_quoted_identifier_on, '|', is_arithabort_on, '|', is_auto_create_stats_on, '|', is_auto_update_stats_on, '|', containment_desc COLLATE DATABASE_DEFAULT, '|', is_trustworthy_on)
+        FROM sys.databases WHERE name = DB_NAME()";
+
+    /// <summary>Everything the migrations create, as text: columns, indexes, check constraints, triggers (their definitions), foreign keys, the migration history and the number of rows each table holds (seed data).</summary>
+    private const string SchemaFingerprintSql = @"SELECT STRING_AGG(CAST(x AS nvarchar(max)), CHAR(10)) WITHIN GROUP (ORDER BY x) FROM (
+        SELECT CONCAT('col:', t.name COLLATE DATABASE_DEFAULT, '.', c.name COLLATE DATABASE_DEFAULT, ':', ty.name COLLATE DATABASE_DEFAULT, ':', c.max_length, ':', c.precision, ':', c.scale, ':', c.is_nullable, ':', c.is_identity, ':', ISNULL(c.collation_name COLLATE DATABASE_DEFAULT, '')) AS x FROM sys.tables t JOIN sys.columns c ON c.object_id = t.object_id JOIN sys.types ty ON ty.user_type_id = c.user_type_id
+        UNION ALL SELECT CONCAT('idx:', t.name COLLATE DATABASE_DEFAULT, '.', i.name COLLATE DATABASE_DEFAULT, ':', i.type_desc COLLATE DATABASE_DEFAULT, ':', i.is_unique, ':', ISNULL(i.filter_definition COLLATE DATABASE_DEFAULT, '')) FROM sys.indexes i JOIN sys.tables t ON t.object_id = i.object_id WHERE i.name IS NOT NULL
+        UNION ALL SELECT CONCAT('chk:', o.name COLLATE DATABASE_DEFAULT, ':', cc.definition COLLATE DATABASE_DEFAULT) FROM sys.check_constraints cc JOIN sys.objects o ON o.object_id = cc.object_id
+        UNION ALL SELECT CONCAT('trg:', tr.name COLLATE DATABASE_DEFAULT, ':', m.definition COLLATE DATABASE_DEFAULT) FROM sys.triggers tr JOIN sys.sql_modules m ON m.object_id = tr.object_id
+        UNION ALL SELECT CONCAT('fk:', fk.name COLLATE DATABASE_DEFAULT, ':', fk.delete_referential_action, ':', fk.update_referential_action) FROM sys.foreign_keys fk
+        UNION ALL SELECT CONCAT('hist:', MigrationId COLLATE DATABASE_DEFAULT) FROM __EFMigrationsHistory
+        UNION ALL SELECT CONCAT('rows:', t.name COLLATE DATABASE_DEFAULT, ':', SUM(ps.row_count)) FROM sys.tables t JOIN sys.dm_db_partition_stats ps ON ps.object_id = t.object_id AND ps.index_id IN (0, 1) GROUP BY t.name
+    ) q";
+
+    [Fact]
+    public async Task A_clone_has_the_same_database_settings_schema_and_seed_data_as_a_database_the_real_migrations_built()
+    {
+        var (template, log) = NewTemplate();
+        var clone = await StartAsync(template, log);
+        var real = new RealMigrationTestDatabaseFixture();
+        await real.InitializeAsync();
+        try
+        {
+            Assert.Equal(await ScalarAsync<string>(SettingsSql, NameOf(real)), await ScalarAsync<string>(SettingsSql, NameOf(clone)));      // compatibility level, collation, recovery model, snapshot isolation, ...
+            var fromReal = await ScalarAsync<string>(SchemaFingerprintSql, NameOf(real));
+            var fromClone = await ScalarAsync<string>(SchemaFingerprintSql, NameOf(clone));
+            Assert.True(fromReal.Length > 10_000, "the fingerprint should cover the whole schema");
+            Assert.Equal(fromReal, fromClone);                                                                          // every table, column, index, check, trigger body, foreign key, history row and seeded row count
+        }
+        finally { await real.DisposeAsync(); }
+    }
+
     [Fact]
     public async Task Clones_are_distinct_databases_and_data_written_to_one_never_appears_in_another()
     {
@@ -166,10 +199,12 @@ public class TestDatabaseTemplateTests : IAsyncLifetime
     {
         var (template, log) = NewTemplate();
         var observed = new List<bool>();
+        var partialCreated = DateTime.MinValue;
         TestDatabaseFixture? fixture = null;
         fixture = NewFixture(template, log, afterRestore: async () =>
         {
             observed.Add(await DatabasesLikeAsync(NameOf(fixture!)) == 1);                                               // the clone exists at this moment
+            partialCreated = await ScalarAsync<DateTime>($"SELECT create_date FROM sys.databases WHERE name = N'{NameOf(fixture!)}'");
             throw new IOException("injected failure after the restore");
         });
 
@@ -177,6 +212,7 @@ public class TestDatabaseTemplateTests : IAsyncLifetime
         _fixtures.Add(fixture);
 
         Assert.Equal([true], observed);                                                                                  // the hook ran once, on the template path only
+        Assert.True(await ScalarAsync<DateTime>($"SELECT create_date FROM sys.databases WHERE name = N'{NameOf(fixture)}'") > partialCreated);   // the partial clone was removed and the database re-created, not reused
         Assert.Equal(1, template.Fallbacks);
         await using var db = fixture.CreateContext();
         Assert.Equal(CodeMigrations(), (await db.Database.GetAppliedMigrationsAsync()).ToList());                        // the database that exists now is the real-migration one
