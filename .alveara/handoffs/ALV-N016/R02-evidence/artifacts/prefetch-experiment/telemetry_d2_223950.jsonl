@@ -1,0 +1,3 @@
+{"timestamp":"2026-10-22T03:40:01.1380471+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":44,"migrate_ms":4660,"total_ms":7875,"backup_bytes":6737920}}
+{"timestamp":"2026-10-22T03:42:55.1474477+00:00","level":"info","service":"backend-tests","role":"run","event":"template_prefetch_dropped","outcome":"success","context":{"dropped":2,"unclaimed":2}}
+{"timestamp":"2026-10-22T03:42:55.1503427+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":275,"fallbacks":0,"prefetch_hits":272,"prefetch_misses":1,"prefetch_waits":0,"real_migration_fixtures":0,"build_ms":7875,"restore_ms_total":106426}}

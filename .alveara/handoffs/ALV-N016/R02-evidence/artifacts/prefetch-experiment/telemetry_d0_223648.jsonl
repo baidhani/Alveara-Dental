@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-22T03:37:00.478565+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":44,"migrate_ms":4970,"total_ms":8235,"backup_bytes":6737920}}
+{"timestamp":"2026-10-22T03:39:49.2056545+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":273,"fallbacks":0,"prefetch_hits":0,"prefetch_misses":0,"prefetch_waits":0,"real_migration_fixtures":0,"build_ms":8235,"restore_ms_total":74294}}

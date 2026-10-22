@@ -1,0 +1,17 @@
+KILLED the logical file names are not read from the backup (wrong names) -> Failed!  - Failed:     4, Passed:    13, Skipped:  | A_clone_carries_the_migration_history_the_snapshot_setting_a, An_injected_restore_failure_removes_the_partial_clone_and_fa, Clones_are_distinct_databases_and_data_written_to_one_never_
+KILLED the migration history is not checked against the code -> Failed!  - Failed:     1, Passed:    16, Skipped:  | A_migration_list_that_no_longer_matches_is_detected_and_a_wr
+KILLED a stale template is reused when the code's migrations changed -> Failed!  - Failed:     1, Passed:    16, Skipped:  | A_migration_list_that_no_longer_matches_is_detected_and_a_wr
+KILLED the partial clone is not removed after a failed restore -> Failed!  - Failed:     1, Passed:    16, Skipped:  | An_injected_restore_failure_removes_the_partial_clone_and_fa
+KILLED a failed restore is raised instead of falling back -> Failed!  - Failed:     3, Passed:    14, Skipped:  | A_corrupt_backup_falls_back_and_the_partial_clone_is_removed, A_missing_backup_cleans_up_falls_back_to_create_and_migrate_, An_injected_restore_failure_removes_the_partial_clone_and_fa
+KILLED a template build failure is turned into a quiet fallback -> Failed!  - Failed:     2, Passed:    15, Skipped:  | A_migration_list_that_no_longer_matches_is_detected_and_a_wr, A_template_build_failure_fails_loudly_for_every_fixture_and_
+KILLED the template backup is not removed on dispose -> Failed!  - Failed:     1, Passed:    16, Skipped:  | A_successful_runs_artifacts_are_removed_when_the_template_is
+SURVIVED/OTHER a leftover is deleted instead of only reported -> DID NOT COMPILE
+KILLED the template is built without READ_COMMITTED_SNAPSHOT on the clone side (setting changed after migrate) -> Failed!  - Failed:    10, Passed:     7, Skipped:  | A_clone_carries_the_migration_history_the_snapshot_setting_a, A_clone_has_the_same_database_settings_schema_and_seed_data_, A_corrupt_backup_falls_back_and_the_partial_clone_is_removed
+KILLED a real-migration class loses its attribute -> Failed!  - Failed:     2, Passed:    15, Skipped:  | A_marked_class_gets_a_real_migration_fixture_and_an_ordinary, Every_class_using_the_real_path_is_named_in_the_inventory_an
+KILLED the base class ignores the real-migration attribute -> Failed!  - Failed:     1, Passed:    16, Skipped:  | A_marked_class_gets_a_real_migration_fixture_and_an_ordinary
+KILLED a migration-calling class is missing from the inventory -> Failed!  - Failed:     3, Passed:    14, Skipped:  | Every_class_using_the_real_path_is_named_in_the_inventory_an, No_class_that_calls_the_migrator_is_missing_from_the_invento, The_inventory_names_both_reasons_and_is_not_empty
+KILLED telemetry carries the connection string -> Failed!  - Failed:     1, Passed:    16, Skipped:  | A_missing_backup_cleans_up_falls_back_to_create_and_migrate_
+
+Re-run of the one breakage that did not compile (a leftover deleted instead of only reported): the edit was redone with braces around the loop body; it compiled, and the test
+`Leftovers_of_an_earlier_run_are_reported_and_never_deleted` failed (1 failed, 16 passed), so all 13 breakages were caught.
+The original code was restored byte for byte after each breakage and the suite was rebuilt.

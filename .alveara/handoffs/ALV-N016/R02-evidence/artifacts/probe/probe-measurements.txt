@@ -1,0 +1,7 @@
+Probes made during R02 on .\SQLEXPRESS (throw-away databases, created and dropped; the leftovers of the prefetch experiment were deleted). Transcribed from the session; no raw log was kept except where a file is named.
+
+1. Restore of a clone, by template size (8 restores each, median): as built (16 MB of files) 308 ms; after DBCC SHRINKFILE (10.3 MB) 351 ms; shrunk plus BUFFERCOUNT 16 and MAXTRANSFERSIZE 4 MB 341 ms.
+   Conclusion: the restore cost is SQL-internal and fixed (about 250 to 350 ms), not a function of file size; a smaller template does not help.
+2. 30 restore and drop cycles: 8.9 s, 298 ms per cycle (restore median 243 ms, so about 55 ms for the drop).
+3. Cost of applying the migrations in process, four rounds (a throw-away test, not committed): generating the SQL (EF side, no database) 2,161 / 1,064 / 904 / 682 ms for 228 KB of SQL; MigrateAsync in total 3,105 / 2,196 / 2,166 / 2,982 ms. So about 0.7 to 1.1 s of a real-path fixture is EF-side work and the rest is SQL.
+4. The machine: Intel Core Ultra 9 275HX (24 logical processors); SQL Server Express (64-bit) sees cpu_count 4 and 4 schedulers; max server memory is the Express limit; Windows Defender real-time protection is on, and its exclusions cannot be read without administrator rights.

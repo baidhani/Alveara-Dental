@@ -1,0 +1,12 @@
+== leak counts: after_before 2026-10-21T23:21:22-05:00
+databases_total 1
+AlveraTest 0
+AlveraRestore 0
+AlveraWalk 0
+alveara_ 0
+sql_logins 0
+folder_Storage 3920
+folder_Keys 1
+folder_Backup 1
+folder_Database 0
+folder_Temp 1

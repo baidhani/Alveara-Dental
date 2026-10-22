@@ -1,0 +1,42 @@
+  Determining projects to restore...
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7 [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj]
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx [C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj]
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+  All projects are up-to-date for restore.
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\Alveara.Api.Tests.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+  Alveara.Api -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\bin\Debug\net10.0\Alveara.Api.dll
+  Alveara.Api.Tests -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:16:20.64]     Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_financial_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite [FAIL]
+  Failed Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_financial_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite [745 ms]
+  Error Message:
+   Assert.Single() Failure: The collection did not contain any matching items
+Expected:   (predicate expression)
+Collection: [System.Collections.Generic.KeyNotFoundException: The given key 'c3dd1bd1-0462-490b-83ea-f99be14463d8' was not present in the dictionary.
+   at System.Collections.Generic.Dictionary`2.get_Item(TKey key)
+   at Alveara.Api.Architecture.Billing.BillingService.Ledger.<get_MathAllocations>b__14_0(BillingAllocation a) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Billing\BillingService.Ledger.cs:line 28
+   at System.Linq.Enumerable.ListSelectIterator`2.ToList()
+   at Alveara.Api.Architecture.Billing.BillingService.Ledger.get_MathAllocations() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Billing\BillingService.Ledger.cs:line 28
+   at Alveara.Api.Architecture.Billing.BillingService.BuildAllocations(Ledger ledger, Decimal available, IReadOnlyList`1 requested, IDictionary`2 errors) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Billing\BillingService.Ledger.cs:line 61
+   at Alveara.Api.Architecture.Billing.BillingService.RecordPaymentAsync(Guid patientId, PaymentInput input, Guid actor, CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Billing\BillingService.cs:line 120
+   at Alveara.Api.Tests.SafetyTestBase.WithDb[T](Func`2 action) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SafetyTestBase.cs:line 51
+   at Alveara.Api.Tests.SafetyTestBase.WithDb[T](Func`2 action) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SafetyTestBase.cs:line 51
+   at Alveara.Api.Tests.GateDHistoryIntegrityTests.SettleAsync(Task task) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\GateDHistoryIntegrityTests.cs:line 177, null]
+  Stack Trace:
+     at Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_financial_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\GateDHistoryIntegrityTests.cs:line 200
+--- End of stack trace from previous location ---
+  Standard Output Messages:
+ charge: the same key again                                             REPLAYED QUIETLY
+ payment: the same key and request again, from the older account version REPLAYED QUIETLY
+ payment: the same key for a different amount                           REFUSED BillingException idempotency_key_reused
+ payment: a new key from the out-of-date account (stale edit)           REFUSED ConcurrencyConflictException 
+
+
+Results File: C:\tmp\n016\focused_r02\trx\focused.trx
+
+Failed!  - Failed:     1, Passed:  4318, Skipped:     0, Total:  4319, Duration: 53 m 4 s - Alveara.Api.Tests.dll (net10.0)

@@ -1,0 +1,10 @@
+baseline (the R01 tree: these classes on the real create-and-migrate path) start 2026-10-21T23:06:29-05:00 head 729fc81c75ad210ed7f702e189c52034f7572ba2 tree-changes 0
+== baseline exit=0 elapsed=666s
+Passed!  - Failed:     0, Passed:   250, Skipped:     0, Total:   250, Duration: 11 m 4 s - Alveara.Api.Tests.dll (net10.0)
+end 2026-10-21T23:17:38-05:00
+DONE
+after (the same 13 classes on clones) start 2026-10-21T23:21:22-05:00 head 0da6f36e6321b46a26d5c63c13fcd2d1c9908aaf tree-changes 0
+== after exit=0 elapsed=184s
+Passed!  - Failed:     0, Passed:   250, Skipped:     0, Total:   250, Duration: 3 m 1 s - Alveara.Api.Tests.dll (net10.0)
+end 2026-10-21T23:24:28-05:00
+DONE2

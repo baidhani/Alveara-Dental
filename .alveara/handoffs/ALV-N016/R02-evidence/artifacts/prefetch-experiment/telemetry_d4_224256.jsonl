@@ -1,0 +1,1 @@
+{"timestamp":"2026-10-22T03:43:07.8809117+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":44,"migrate_ms":5077,"total_ms":8320,"backup_bytes":6737920}}
