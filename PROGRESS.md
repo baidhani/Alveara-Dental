@@ -1102,4 +1102,10 @@
   - What changed: stored the reviewer's two final decisions unchanged (`.alveara/reviews/ALV-N016/R03.md`, `.alveara/reviews/ALV-007-C01/R02.md`); both stories stay `CHANGES_REQUIRED`, `fullRegression: FAILED`, with the decision artifacts recorded. Finding ALV-N016-R03-01: the Command Center Architecture Map lacks labels for the valid statuses `AWAITING_REGRESSION` and `REVALIDATION_REQUIRED` (and the others `HANDOFF_SCHEMA.md` permits); it must be corrected at its owner and independently reviewed, then ALV-N016 and ALV-007-C01 are resubmitted; the eight descendants stay `REVALIDATION_REQUIRED`; ALV-N015 stays blocked.
   - Verification: user supplied the review files; no code changed.
   - Notes: left unchecked: neither story is complete. Not pushed.
+- [ ] ALV-CONTROL-C01 R01: label every execution-control status on the Command Center (focused Stage 1, awaiting review)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: new item ALV-CONTROL-C01 (reviewer-created, STORY-000 not reopened) for finding ALV-N016-R03-01: one label table `assets/status-labels.js` for all eleven statuses `HANDOFF_SCHEMA.md` allows, read by `assets/map.js` and `assets/app.js`; styles; the specs' closed status tables replaced by the page's table plus an exhaustive schema check; `tests/status-labels.test.mjs`; ledger record (count 57) and catalog entry; handoff `.alveara/handoffs/ALV-CONTROL-C01/R01*` (implementation `69c6f7f`).
+  - Verification: tsc exit 0; mocked Playwright 140 passed; Architecture Map spec 40 passed; repository checks 13 passed; lint exit 0; Vitest 1,544 passed; negative control caught (1 repository test and 4 Playwright tests); a dry run of the frozen frontend gate qualified.
+  - Notes: left unchecked: awaiting review; the formal frontend gate is rerun once after Stage 1 approval; no backend run. Not pushed.
 
