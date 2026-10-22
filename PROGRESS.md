@@ -1090,4 +1090,10 @@
   - What changed: no source change; handoff `.alveara/handoffs/ALV-N016/R03.md` and evidence on the combined tree (the approved R02 clone-based rollback design plus the approved ALV-007-C01 ledger correction, `37d2b08`); a shared frozen Stage 2 (`stage2/`: one run script, two independent evaluators, 4,324 tests, 55-minute ceiling, template-use criteria, ledger and D5 checks); ALV-007-C01's Stage 1 approval recorded earlier (`481dc2d`).
   - Verification: focused 318 of 318 passed (0 fallbacks, 32 real-path fixtures, artifact counts unchanged); both evaluators smoke-tested against the R01 Stage 2 output (both run and both correctly fail it).
   - Notes: left unchecked: awaiting review; the shared Stage 2 is PENDING and runs once after both closure-only commits. Not pushed.
+- [ ] Shared Stage 2 run for ALV-007-C01 R02 and ALV-N016 R03 (one physical run; one client gate failed)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: ran the frozen shared Stage 2 once on closure commit `ba51d2e` and recorded the raw outputs unchanged in `.alveara/handoffs/ALV-N016/R03-regression-evidence/` with additive packages `ALV-N016/R03-regression.md` and `ALV-007-C01/R02-regression.md`; both stories recorded `CHANGES_REQUIRED`, `fullRegression: FAILED`.
+  - Verification: backend 4,324 of 4,324 passed in 34.2 minutes (55-minute ceiling met), 0 fallbacks, 3,289 clones, ledger tests and D5 passed, tsc/Vitest/build/lint/repository checks passed; mocked Playwright 134 passed, 2 failed (Command Center map has no label for AWAITING_REGRESSION and REVALIDATION_REQUIRED); both evaluators: DOES NOT QUALIFY (that one line).
+  - Notes: left unchecked: the failing gate is outside both stories' source; the reviewer decides the resolution. No second run was made. Not pushed.
 

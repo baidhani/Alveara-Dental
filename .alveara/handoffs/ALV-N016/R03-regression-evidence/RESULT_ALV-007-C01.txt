@@ -1,0 +1,23 @@
+PASS  run commit is the Stage 1 closure commit                                                                ba51d2e321c227713001871537898a584590f084
+PASS  working tree clean before and after                                                                     
+PASS  no src/ file differs between the implementation and the run commit                                      0 files
+PASS  the template mode switch is not set                                                                     
+PASS  backend run exit code 0                                                                                 
+PASS  backend elapsed is within the two-hour sanity bound                                                     2055s = 34.2 min (bound 120 min)
+PASS  discovered and passed are exactly the expected count, none failed or skipped                            {'Passed': 4324} (expected Passed 4324)
+PASS  same existing test ids and outcomes as the ALV-010-C01 baseline; exactly the 24 new ids                 COMPARISON PASS
+PASS  the run built exactly one template and it was not rebuilt                                               built 1
+PASS  zero fallback to create-and-migrate by the run's own template                                           0 fallback events
+PASS  no template build failure                                                                               
+PASS  the 5 ledger read-consistency tests ran and passed                                                      5 found, outcomes ['Passed']
+PASS  the concurrency test that exposed the defect passed (D5 financial history)                              
+PASS  Storage, Temp, Database, Backup and Keys entries, databases, SQL logins and template backups unchanged  before {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 1, 'folder_Database': 0, 'folder_Temp': 1, 'template_backups_in_Temp': 0} after {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 1, 'folder_Database': 0, 'folder_Temp': 1, 'template_backups_in_Temp': 0}
+PASS  no AlveraTemplate database or backup left                                                               
+PASS  gate tsc                                                                                                exit 0
+PASS  gate vitest                                                                                             exit 0
+PASS  gate build                                                                                              exit 0
+PASS  gate lint                                                                                               exit 0
+FAIL  gate playwright_mocked                                                                                  exit 1
+PASS  gate repo_checks                                                                                        exit 0
+
+STAGE 2 DOES NOT QUALIFY

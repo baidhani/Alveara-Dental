@@ -1,0 +1,30 @@
+baseline ids: 4300; result ids: 4324; new ids: 24 (expected 24)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+    Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_payment_committed_between_the_ledger_queries_gives_the_writer_the_controlled_conflict_and_never_a_missing_key -> Passed
+    Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_reader_that_meets_a_payment_mid_read_repeats_the_read_and_returns_one_coherent_account -> Passed
+    Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_reader_that_never_gets_a_stable_picture_is_refused_as_a_conflict_after_the_capped_attempts -> Passed
+    Alveara.Api.Tests.BillingLedgerReadConsistencyTests.An_account_nobody_has_billed_yet_reads_as_empty_without_the_version_check_failing -> Passed
+    Alveara.Api.Tests.BillingLedgerReadConsistencyTests.The_loser_retried_with_the_fresh_version_is_recorded_once_and_the_same_key_again_changes_nothing -> Passed
+    Alveara.Api.Tests.RealMigrationInventoryTests.A_class_gets_the_fixture_of_its_group_a_real_migration_fixture_or_a_template_clone -> Passed
+    Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group -> Passed
+    Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it -> Passed
+    Alveara.Api.Tests.RealMigrationInventoryTests.No_class_that_calls_the_migrator_is_missing_from_the_inventory -> Passed
+    Alveara.Api.Tests.RealMigrationInventoryTests.The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_clone_can_be_rolled_back_through_the_real_migrator_and_forward_again_to_exactly_the_same_schema -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_clone_carries_the_migration_history_the_snapshot_setting_and_its_files_of_a_real_migration -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_clone_has_the_same_database_settings_schema_and_seed_data_as_a_database_the_real_migrations_built -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_corrupt_backup_falls_back_and_the_partial_clone_is_removed -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_migration_list_that_no_longer_matches_is_detected_and_a_wrong_template_is_never_used -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_missing_backup_cleans_up_falls_back_to_create_and_migrate_and_is_observable -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_real_migration_fixture_never_touches_the_template -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_successful_runs_artifacts_are_removed_when_the_template_is_disposed -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.A_template_build_failure_fails_loudly_for_every_fixture_and_leaves_nothing_behind -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.An_injected_restore_failure_removes_the_partial_clone_and_falls_back -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.Clones_are_distinct_databases_and_data_written_to_one_never_appears_in_another -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.Leftovers_of_an_earlier_run_are_reported_and_never_deleted -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.Telemetry_names_the_role_of_the_template_so_the_runs_own_fallbacks_are_separable_from_injected_ones -> Passed
+    Alveara.Api.Tests.TestDatabaseTemplateTests.The_template_is_built_once_by_the_real_migrations_and_dropped_at_once_and_every_clone_reuses_its_backup -> Passed
+COMPARISON PASS
