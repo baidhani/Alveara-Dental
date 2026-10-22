@@ -2920,15 +2920,15 @@
       ],
       "optional": false,
       "qualityGateContribution": [],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 5
+        "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a focused Stage 1 package (low risk: Command Center display labels and test tables; no backend, no full backend run, none required before approval). Corrects finding ALV-N016-R03-01: one label table (assets/status-labels.js) with a label for every status HANDOFF_SCHEMA.md allows, read by the Architecture Map and the Engineering stories list; styles for the new states; the specs' closed status tables replaced by that table and an exhaustive check against the schema; a repository test tests/status-labels.test.mjs. Results on the clean tree: tsc exit 0; mocked Playwright 140 passed (136 + 4 new); Architecture Map spec 40 passed; repository checks 13 passed (8 + 5); lint exit 0; Vitest 1,544 in 97 files; negative control (two labels removed) fails 1 repository test and 4 Playwright tests. A dry run of the frozen frontend gate qualified (not the formal gate). STORY-000 is not reopened. The formal frontend gate rerun is PENDING after Stage 1 approval (R01-evidence/stage2/)."
+        "summary": "Attempt R01, a focused Stage 1 package (low risk: Command Center display labels and test tables; no backend, no full backend run, none required before approval). Corrects finding ALV-N016-R03-01: one label table (assets/status-labels.js) with a label for every status HANDOFF_SCHEMA.md allows, read by the Architecture Map and the Engineering stories list; styles for the new states; the specs' closed status tables replaced by that table and an exhaustive check against the schema; a repository test tests/status-labels.test.mjs. Results on the clean tree: tsc exit 0; mocked Playwright 140 passed (136 + 4 new); Architecture Map spec 40 passed; repository checks 13 passed (8 + 5); lint exit 0; Vitest 1,544 in 97 files; negative control (two labels removed) fails 1 repository test and 4 Playwright tests. A dry run of the frozen frontend gate qualified (not the formal gate). STORY-000 is not reopened. Stage 2 (the frozen frontend gate, once, on the closure commit fcf40dd, clean tree): QUALIFIES - tsc, build, lint, Vitest (1,544 in 97 files), mocked Playwright (140 passed, 0 failed) and repository checks (13 passed) all exit 0; no backend run. See .alveara/handoffs/ALV-CONTROL-C01/R01-regression.md."
       },
       "demo": "n/a_control_ui_labels",
       "parentRegression": "n/a_not_a_course_extension",
@@ -2948,7 +2948,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED"
     }
   ]
 }

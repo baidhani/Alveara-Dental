@@ -1108,4 +1108,10 @@
   - What changed: new item ALV-CONTROL-C01 (reviewer-created, STORY-000 not reopened) for finding ALV-N016-R03-01: one label table `assets/status-labels.js` for all eleven statuses `HANDOFF_SCHEMA.md` allows, read by `assets/map.js` and `assets/app.js`; styles; the specs' closed status tables replaced by the page's table plus an exhaustive schema check; `tests/status-labels.test.mjs`; ledger record (count 57) and catalog entry; handoff `.alveara/handoffs/ALV-CONTROL-C01/R01*` (implementation `69c6f7f`).
   - Verification: tsc exit 0; mocked Playwright 140 passed; Architecture Map spec 40 passed; repository checks 13 passed; lint exit 0; Vitest 1,544 passed; negative control caught (1 repository test and 4 Playwright tests); a dry run of the frozen frontend gate qualified.
   - Notes: left unchecked: awaiting review; the formal frontend gate is rerun once after Stage 1 approval; no backend run. Not pushed.
+- [ ] ALV-CONTROL-C01 R01 Stage 2: frozen frontend gate run once (qualifies)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded the Stage 1 approval (closure-only commit `fcf40dd`), ran the frozen frontend gate once on it and recorded the unedited outputs `.alveara/handoffs/ALV-CONTROL-C01/R01-regression-evidence/` with `R01-regression.md`; status `AWAITING_REVIEW`, `fullRegression: PASSED`.
+  - Verification: tsc, build, lint, Vitest (1,544 in 97 files), mocked Playwright (140 passed / 0 failed) and repository checks (13 passed) all exit 0; clean tree before and after; evaluator verdict `FRONTEND GATE QUALIFIES`; no backend run.
+  - Notes: left unchecked: awaiting final review. The reviewer's one-argument evaluator command does not match the frozen script (needs the implementation sha); disclosed in the package. Not pushed.
 
