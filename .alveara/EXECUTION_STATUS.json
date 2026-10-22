@@ -2096,23 +2096,23 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 8,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a Stage 1 package under the two-stage policy: focused evidence only, no new full suite run; the formal Stage 2 backend run is PENDING and its contract is frozen in .alveara/handoffs/ALV-N016/R01-evidence/stage2/. High risk (test infrastructure shared by every database test). Implementation 3ae51e2: a per-process template database built with the real migrations, verified and backed up; ordinary fixtures restore a unique clone; a restore failure removes the partial clone, logs a structured event and falls back; a template build failure fails loudly; leftovers are reported, never deleted; a named inventory of 19 classes (293 tests) keeps the real create-and-migrate path. No production code, assertion or xunit.runner.json change. Fresh results: 18 new tests (13 template, 5 inventory) passed; 13 of 13 negative controls caught; focused regression 444 of 444 passed on the final commit (37 classes; the run's own template 1 build, 0 fallbacks, 0 rebuilds; Storage entries 3920, databases, logins, Database and Temp entries identical before and after); in-process A/B on the same 273 ordinary tests: 3 m 19 s with the template and 12 m 40 s without (3.8 times faster, 273 of 273 passed both ways). Acceptance 6 of 8 met at Stage 1; items 7 (same ids and outcomes against the 4,300-test baseline, zero unexpected fallback, clean gates; 4,318 tests expected) and 8 (55 minutes or less) are decided only by Stage 2. Baseline: ALV-010-C01 R03 Stage 2, 4,300 tests in 94 m 14 s. Disclosures: three older local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); the A/B timing ran on the first of three commits; ALVERA_TEST_TEMPLATE=off is a measurement switch the evaluator requires unset. Stage 2 (the frozen contract, run once on the Stage 1 closure commit e89721c, clean tree, src identical to the implementation): the evaluator DOES NOT QUALIFY because of one criterion: backend elapsed 3466 s = 57.8 min against the 3300 s ceiling. Passed: 4318 of 4318 tests, no failures or skips; all 4300 baseline ids and outcomes plus exactly the 18 new ids; one template build, 0 rebuilds, 0 fallbacks, 3034 clones, 281 real-migration fixtures; Storage 3920, databases, logins, Database, Temp and template backups unchanged; tsc, Vitest 1544 in 97 files, build, lint, mocked Playwright 136 and repository checks 8 passed. See .alveara/handoffs/ALV-N016/R01-regression.md."
+        "summary": "Attempt R02, a Stage 1 package (previous attempt R01 was CHANGES_REQUIRED for a 166 s miss of the 55-minute ceiling; its Stage 2 evidence is preserved). 13 rollback classes now start from a template clone and still run the real Down and Up migrations (6 classes keep the real create-and-migrate path); a new proof test shows the clone gives the same schema as a real create-and-migrate. Same 250 tests: 666 s on the real path, 184 s on clones. A prefetch pool was built, measured (no gain) and reverted. The reviewer is asked to decide whether the rollback classes may start from a clone, and how to treat a latent production race in billing found by an unplanned full run (4,318 of 4,319 passed, 53 m 09 s, NOT Stage 2 evidence). The formal Stage 2 is PENDING; its contract (4,319 tests, 3,300 s) is frozen in .alveara/handoffs/ALV-N016/R02-evidence/stage2/. See R02-evidence/DECISION_REQUEST.md."
       },
       "demo": "n/a_test_infrastructure",
       "parentRegression": "n/a_no_course_parent",
-      "implementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
-      "evidenceCommit": "45c2176be2b2724332b6e4b2f1cf21e81c652994",
-      "handoffPath": ".alveara/handoffs/ALV-N016/R01.md",
+      "implementationCommit": "0da6f36e6321b46a26d5c63c13fcd2d1c9908aaf",
+      "evidenceCommit": "332c851f1e10d490e22e2aae9746d28eb72c156d",
+      "handoffPath": ".alveara/handoffs/ALV-N016/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
+        "decision": null,
         "decisionArtifact": ".alveara/reviews/ALV-N016/R01.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
@@ -2129,7 +2129,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "FAILED"
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

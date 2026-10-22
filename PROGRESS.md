@@ -1066,3 +1066,10 @@
   - What changed: stored the reviewer's final decision unchanged at `.alveara/reviews/ALV-N016/R01.md`; the status record keeps `CHANGES_REQUIRED` and `fullRegression: FAILED` and now names the review as its decision artifact (the Stage 1 decision and closure are kept in the review block); `BUILD_STATE.md` wording updated. The reviewer's sole finding is the 166 s miss of the 55-minute ceiling; the unchanged R01 tree must not be rerun; an R02 Stage 1 package with a targeted performance correction is required.
   - Verification: user confirmed (the owner supplied the review file); no code changed.
   - Notes: left unchecked because the story is not complete; ALV-N015 stays blocked. Not pushed.
+- [ ] ALV-N016 R02 Stage 1 package (13 rollback classes start from a clone; awaiting reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: implementation `0da6f36` (test project only): 13 rollback classes use a template clone and still run the real Down and Up migrations, 6 keep the real path, inventory and guard updated, clone-rollback proof test added; a prefetch pool was built, measured (no gain) and reverted; evidence `332c851` with a decision request, the frozen Stage 2 contract (4,319 tests, 3,300 s) and the disclosure of an unplanned full run (4,318 of 4,319, 53 m 09 s, not Stage 2) and a latent billing race.
+  - Verification: 19 of 19 inventory and template tests passed; 5 of 5 negative controls caught; 250 tests 666 s on the real path against 184 s on clones, all passed.
+  - Notes: left unchecked: awaiting review; the formal Stage 2 is PENDING. Not pushed.
+

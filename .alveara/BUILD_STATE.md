@@ -166,7 +166,9 @@ Implementation `4d4cb0e` (R01) corrected by `0ef1ab4` (R02); evidence `.alveara/
 - **Findings recorded, not fixed here** (shared components of completed stories): success-toast contrast 4.45:1 (`ALV-N001`) and conflict-banner title contrast 3.46:1 (`ALV-002-C01`); this story avoids the toast and overrides the banner title inside the patient workspace only. See `R01.md` F1/F2. Per the R01 review these are open findings against `ALV-N001` and `ALV-002-C01` and must be corrected through reopened-story attempts before Gate B is evaluated.
 - 492 backend / 319 frontend / 40 mocked-browser / 14 real-backend walkthrough / 7 STORY-003 walkthrough / 12 auth / 3 Gate A route-scan / 7 repository tests pass. STORY-003's own tests are unchanged and pass. Gate B (rows B1, B3) is not evaluated. See `.alveara/handoffs/ALV-003-C01/R01-evidence/`.
 
-## Template database for the backend tests (ALV-N016, CHANGES_REQUIRED - attempt R01 missed the 55-minute ceiling by 166 s; a new attempt is needed)
+## Template database for the backend tests (ALV-N016, AWAITING_REVIEW - attempt R02, a Stage 1 package; R01 missed the 55-minute ceiling by 166 s)
+
+**R02 (implementation `0da6f36`, evidence `332c851`, handoff `.alveara/handoffs/ALV-N016/R02.md`):** the 13 rollback classes now start from a template clone and still run the real Down and Up migrations; 6 classes keep the real create-and-migrate path (so the inventory counts below are R01's). Same 250 tests: 666 s on the real path, 184 s on clones. Awaiting the reviewer's decision on that relaxation and on a latent billing race (`R02-evidence/DECISION_REQUEST.md`). The formal Stage 2 is PENDING (4,319 tests, 3,300 s). An unplanned full run (4,318 of 4,319, 53 m 09 s) is disclosed and is not Stage 2 evidence.
 
 New production story, test infrastructure only (no file under `src/Alveara.Api/`, no assertion, no `xunit.runner.json` change). Dependency `ALV-010-C01`. Implementation `3ae51e2`; evidence `.alveara/handoffs/ALV-N016/R01-evidence/`:
 
