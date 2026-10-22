@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Auditing;
+using Alveara.Api.Architecture.Concurrency;
 using AppMoney = Alveara.Api.Architecture.Money.Money;
 
 namespace Alveara.Api.Architecture.Billing;
@@ -43,10 +44,32 @@ public partial class BillingService
         public int NextAllocationNumber => (Allocations.Select(a => (int?)a.AllocationNumber).Max() ?? 0) + 1;
     }
 
-    private async Task<Ledger> LoadLedgerAsync(Guid accountId, CancellationToken ct) =>
-        new(await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == accountId).ToListAsync(ct),
-            await db.BillingAllocations.AsNoTracking().Where(a => a.AccountId == accountId).ToListAsync(ct),
-            await db.BillingAllocationReleases.AsNoTracking().Where(r => r.AccountId == accountId).ToListAsync(ct));
+    /// <summary>How many times a ledger read is repeated when someone records on the account while it is being read, before the reader is told to reload (<see cref="ConcurrencyConflictException"/>).</summary>
+    private const int LedgerReadAttempts = 4;
+
+    /// <summary>
+    /// ALV-007-C01 (correction): the entries, allocations and releases are three queries, and each query sees what is committed at the moment it runs, so a payment recorded by someone else between two of them can show
+    /// an allocation whose entry the first query did not return. Every recorded change moves the account's row version in the same transaction, so the three reads form one coherent picture exactly when the version is
+    /// the same before and after them; when it moved, the read is repeated (at most <see cref="LedgerReadAttempts"/> times) and then refused as a conflict, the same classified outcome as any other stale read.
+    /// Failure modes handled: a concurrent recording (retried, then a conflict). Not handled: a database that is down (the exception goes to the caller unchanged).
+    /// </summary>
+    private async Task<Ledger> LoadLedgerAsync(Guid accountId, CancellationToken ct)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            var before = await AccountVersionAsync(accountId, ct);
+            var entries = await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == accountId).ToListAsync(ct);
+            var allocations = await db.BillingAllocations.AsNoTracking().Where(a => a.AccountId == accountId).ToListAsync(ct);
+            var releases = await db.BillingAllocationReleases.AsNoTracking().Where(r => r.AccountId == accountId).ToListAsync(ct);
+            var after = await AccountVersionAsync(accountId, ct);
+            if ((before is null && after is null) || (before is not null && after is not null && before.AsSpan().SequenceEqual(after))) return new Ledger(entries, allocations, releases);
+            logger?.LogWarning("billing_ledger_read_changed error_class={ErrorClass} attempt={Attempt}", nameof(ConcurrencyConflictException), attempt);
+            if (attempt >= LedgerReadAttempts) throw new ConcurrencyConflictException(nameof(BillingAccount), accountId);
+        }
+    }
+
+    private Task<byte[]?> AccountVersionAsync(Guid accountId, CancellationToken ct) =>
+        db.BillingAccounts.AsNoTracking().Where(a => a.Id == accountId).Select(a => a.RowVersion).FirstOrDefaultAsync(ct)!;
 
     private Task<List<BillingPaymentMethod>> ActiveMethodsAsync(CancellationToken ct) =>
         db.BillingPaymentMethods.AsNoTracking().Where(m => m.IsActive).OrderBy(m => m.Kind == m.Name ? 0 : 1).ThenBy(m => m.Name).ToListAsync(ct);
