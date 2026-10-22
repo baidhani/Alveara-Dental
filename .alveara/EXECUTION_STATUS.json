@@ -638,34 +638,38 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "COMPLETE",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "R02 re-run on the unchanged tree: 492 of 492 backend (dotnet test, real SQL Server LocalDB), 319 of 319 frontend, 7 of 7 repository checks. Real-browser suites (mocked Playwright 40, ALV-003-C01 walkthrough 14, STORY-003 walkthrough 7, auth 12, Gate A route scans 3) are R01 results on the byte-identical tree, carried forward. STORY-003's six test files unchanged and pass. See .alveara/handoffs/ALV-003-C01/R02-evidence/TEST_RESULTS.md."
+        "summary": "Attempt R03, a focused Stage 1 corrective package (low risk: one client unit test; test-only, no product, backend or configuration change; no backend run). Reopened by the reviewer's decisions on ALV-N016 R04 and ALV-007-C01 R03 (ALV-N016-R04-01 / ALV-007-C01-R03-01: the frozen frontend gate failed PatientRegistrationPage.test.tsx once). Root cause found by reproducing it: the refused-submit focus frame (requestAnimationFrame) can run between the click on City and the keystroke of user.type, sending the letter to First name. The test now waits for focus to reach the first invalid field before typing and waits for the prompt to clear; a second test covers a late frame. Negative control: the previous body fails every time when the interleaving is forced. Results: the file 10 of 10 and 30 runs in a row; full client suite 1,545 of 1,545 in 97 files; tsc, lint exit 0; repository checks 13. A dry run of the frozen shared frontend gate qualified (not the formal gate). The formal shared frontend-only gate (Vitest 1,545, Playwright 140, repository checks 13, reuse evaluations for ALV-N016 and ALV-007-C01) is PENDING after Stage 1 approval (R03-evidence/stage2/)."
       },
-      "demo": "verified",
+      "demo": "n/a_test_only_corrective",
       "parentRegression": "verified",
-      "implementationCommit": "fdafb00b37b717bb768265453b0309eee8ff5717",
-      "evidenceCommit": "8e9fc31e0989b314f73438152768fc3b8b2eaad2",
-      "handoffPath": ".alveara/handoffs/ALV-003-C01/R02.md",
+      "implementationCommit": "30e2f69df452e85cac7dab06e907c5c9325cfc09",
+      "evidenceCommit": "38a1bf8031a324be4e8acc9523cd7dab0e4a6976",
+      "handoffPath": ".alveara/handoffs/ALV-003-C01/R03.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-003-C01/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": "R02",
-        "reviewedImplementationCommit": "fdafb00b37b717bb768265453b0309eee8ff5717",
-        "reviewedEvidenceCommit": "8e9fc31e0989b314f73438152768fc3b8b2eaad2"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "reopenDecisionArtifacts": [".alveara/reviews/ALV-N016/R04.md", ".alveara/reviews/ALV-007-C01/R03.md"]
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
-        "reason": null
+        "reason": null,
+        "reopened": true,
+        "reopenReason": "ALV-N016-R04-01 and ALV-007-C01-R03-01: the shared frontend gate failed one ALV-003-C01 client test (PatientRegistrationPage.test.tsx) once under load; corrected test-only in attempt R03. No descendant is affected (test-only change); see R03-evidence/DESCENDANT_ASSESSMENT.md."
       },
-      "completedAt": "2026-10-02T02:53:28Z"
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

@@ -1138,4 +1138,10 @@
   - What changed: stored the reviewer's two final decisions unchanged (`.alveara/reviews/ALV-N016/R04.md`, `.alveara/reviews/ALV-007-C01/R03.md`); both stories stay `CHANGES_REQUIRED`, `fullRegression: FAILED`. Blocking issues ALV-N016-R04-01 and ALV-007-C01-R03-01: the frontend gate's one Vitest failure (`PatientRegistrationPage.test.tsx`). The reviewer did not authorize an unchanged rerun and directs a corrective attempt on `ALV-003-C01` (make the test deterministic; no product change), then one shared frontend-only gate; the backend equivalence stays valid; no backend full suite.
   - Verification: user supplied the review files; no code changed.
   - Notes: left unchecked; neither story is complete. Not pushed.
+- [ ] ALV-003-C01 R03: deterministic registration test (test-only corrective Stage 1, awaiting reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: reopened ALV-003-C01 as the reviewer directed; `PatientRegistrationPage.test.tsx` now waits for focus to reach the first invalid field before typing and for the prompt to clear (plus a late-frame test and spy restoration); handoff and evidence `.alveara/handoffs/ALV-003-C01/R03*` with the frozen shared frontend-only gate (`stage2/`: Vitest 1,545 in 97 files, Playwright 140, repository checks 13, reuse evaluations for ALV-N016 and ALV-007-C01); implementation `30e2f69`; ledger `AWAITING_REVIEW`.
+  - Verification: negative control (previous body fails every time when the focus frame is forced between the click and the keystroke); the file 10 of 10 and 30 runs in a row; full Vitest 1,545 of 1,545; tsc and lint exit 0; repository checks 13; a dry run of the shared gate qualified.
+  - Notes: left unchecked: awaiting review; the formal shared gate runs once after Stage 1 approval; no backend run; ALV-N016 and ALV-007-C01 stay CHANGES_REQUIRED. Not pushed.
 
