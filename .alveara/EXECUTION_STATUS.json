@@ -2096,21 +2096,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 8,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, a Stage 1 package under the two-stage policy: focused evidence only, no new full suite run; the formal Stage 2 backend run is PENDING and its contract is frozen in .alveara/handoffs/ALV-N016/R01-evidence/stage2/. High risk (test infrastructure shared by every database test). Implementation 3ae51e2: a per-process template database built with the real migrations, verified and backed up; ordinary fixtures restore a unique clone; a restore failure removes the partial clone, logs a structured event and falls back; a template build failure fails loudly; leftovers are reported, never deleted; a named inventory of 19 classes (293 tests) keeps the real create-and-migrate path. No production code, assertion or xunit.runner.json change. Fresh results: 18 new tests (13 template, 5 inventory) passed; 13 of 13 negative controls caught; focused regression 444 of 444 passed on the final commit (37 classes; the run's own template 1 build, 0 fallbacks, 0 rebuilds; Storage entries 3920, databases, logins, Database and Temp entries identical before and after); in-process A/B on the same 273 ordinary tests: 3 m 19 s with the template and 12 m 40 s without (3.8 times faster, 273 of 273 passed both ways). Acceptance 6 of 8 met at Stage 1; items 7 (same ids and outcomes against the 4,300-test baseline, zero unexpected fallback, clean gates; 4,318 tests expected) and 8 (55 minutes or less) are decided only by Stage 2. Baseline: ALV-010-C01 R03 Stage 2, 4,300 tests in 94 m 14 s. Disclosures: three older local commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten); the A/B timing ran on the first of three commits; ALVERA_TEST_TEMPLATE=off is a measurement switch the evaluator requires unset."
       },
       "demo": "n/a_test_infrastructure",
       "parentRegression": "n/a_no_course_parent",
-      "implementationCommit": null,
+      "implementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N016/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

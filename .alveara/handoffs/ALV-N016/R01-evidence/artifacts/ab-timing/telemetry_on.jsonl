@@ -1,0 +1,2 @@
+{"timestamp":"2026-10-21T23:30:53.562923+00:00","level":"info","service":"backend-tests","event":"template_built","outcome":"success","context":{"migrations":44,"migrate_ms":5307,"total_ms":8586,"backup_bytes":6737920}}
+{"timestamp":"2026-10-21T23:34:04.0813507+00:00","level":"info","service":"backend-tests","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":273,"fallbacks":0,"real_migration_fixtures":0,"build_ms":8586,"restore_ms_total":86829}}

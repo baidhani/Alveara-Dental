@@ -1,0 +1,8 @@
+Probe against a throw-away database on .\SQLEXPRESS (created and dropped; nothing left on disk), 2026-10-21, before any change. Transcribed from the session; no raw log was kept.
+
+create database with explicit files + READ_COMMITTED_SNAPSHOT on : 0.07 to 0.08 s
+drop database                                                       : 0.02 s
+dotnet ef database update on an empty database (44 migrations)      : 5.07 to 5.26 s (2.58 to 2.84 s of that is the no-op update of an already migrated database, i.e. tool start-up)
+template: 101 tables, 16 MB of files, backup once               : 0.04 s
+RESTORE DATABASE ... WITH MOVE from the backup, 5 clones            : 0.14 to 0.16 s each; READ_COMMITTED_SNAPSHOT kept (1)
+copy the files of an offline template and ATTACH                    : not usable, the copy is refused by file permissions

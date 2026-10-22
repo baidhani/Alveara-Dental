@@ -1,0 +1,1 @@
+{"timestamp":"2026-10-21T23:46:48.5915781+00:00","level":"info","service":"backend-tests","event":"template_summary","outcome":"success","context":{"builds":0,"rebuilds":0,"clones":0,"fallbacks":0,"real_migration_fixtures":274,"build_ms":0,"restore_ms_total":0}}
