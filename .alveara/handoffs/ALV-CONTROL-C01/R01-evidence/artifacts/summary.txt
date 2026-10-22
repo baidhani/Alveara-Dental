@@ -1,0 +1,6 @@
+tsc exit=0
+playwright exit=0 elapsed=18s
+architecture-map exit=0
+repo_checks exit=0
+lint exit=0
+vitest exit=0

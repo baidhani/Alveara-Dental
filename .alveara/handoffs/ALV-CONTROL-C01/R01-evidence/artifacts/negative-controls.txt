@@ -1,0 +1,6 @@
+Negative controls (run in the session on the implementation tree; the changed file was restored byte-identically afterwards, `git diff` empty):
+1. Remove the labels for AWAITING_REGRESSION and REVALIDATION_REQUIRED from assets/status-labels.js (the state this release was in when the defect was found):
+   - node --test tests/status-labels.test.mjs: pass 4, FAIL 1 (the label table must equal the statuses the schema allows).
+   - npx playwright test e2e/architecture-map.spec.ts: 4 failed (desktop and tablet) - "labels exactly the statuses HANDOFF_SCHEMA.md allows" and "every allowed status shows as its label ..." - 36 passed.
+2. The original defect, reproduced before the fix: the unchanged spec failed 2 tests in the shared Stage 2 run (R03-regression-evidence of ALV-N016, gates/playwright_mocked.txt: the legend expected 6 keys and found 7).
+This file transcribes the session output; no raw log was kept for control 1.

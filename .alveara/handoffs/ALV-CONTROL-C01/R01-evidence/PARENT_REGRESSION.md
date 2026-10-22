@@ -1,0 +1,1 @@
+Not a course-story extension: parent regression **N/A**. The root Command Center contract that STORY-000 owns is intact: `tests/story-000-coexistence.test.mjs` (part of the 13 repository tests) passes, and the Command Center specs (Architecture Map, Project Management) pass in the 140-test Playwright run.

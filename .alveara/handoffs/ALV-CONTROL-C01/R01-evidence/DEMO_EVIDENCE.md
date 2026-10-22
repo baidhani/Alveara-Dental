@@ -1,0 +1,1 @@
+Demo **N/A (justified)**: a label and style correction whose visible effect (each status read as a word on the map and the engineering list) is asserted state by state by the new rendering test in a real browser at desktop and tablet widths.
