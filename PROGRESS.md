@@ -1150,4 +1150,10 @@
   - What changed: recorded the Stage 1 approval (closure-only commit `fd21228`), ran the frozen gate once on it and recorded the unedited outputs `.alveara/handoffs/ALV-003-C01/R03-regression-evidence/` with additive packages `ALV-003-C01/R03-regression.md`, `ALV-N016/R04-regression-rerun.md` and `ALV-007-C01/R03-regression-rerun.md` (the reviewer ruled no paperwork-only attempts); all three stories `AWAITING_REVIEW`, `fullRegression: PASSED`.
   - Verification: frontend evaluator FRONTEND GATE QUALIFIES (Vitest 1,545 in 97 files, Playwright 140 passed / 0 failed, repository checks 13 passed, tsc/build/lint exit 0, clean tree before and after); both reuse evaluations REUSE EQUIVALENCE HOLDS; no backend run.
   - Notes: left unchecked: awaiting the three final reviews. Not pushed.
+- [x] ALV-003-C01 R03, ALV-N016 R04 and ALV-007-C01 R03 approved and closed (COMPLETE)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded the reviewer's three final decisions (`.alveara/reviews/ALV-003-C01/R03.md`, `.alveara/reviews/ALV-N016/R04-stage2-rerun.md`, `.alveara/reviews/ALV-007-C01/R03-stage2-rerun.md`) and set the three stories `COMPLETE`; the evidence chain (preserved 4,324-test backend run, reuse equivalence, shared frontend gate) is referenced. No source or test change. The eight `REVALIDATION_REQUIRED` descendants of ALV-007-C01 are not cleared.
+  - Verification: reviewer APPROVED all three 2026-10-22; shared frontend gate qualified on `fd21228` (Vitest 1,545, Playwright 140, repository checks 13); both reuse evaluations HOLD.
+  - Notes: next: the revalidation of the eight descendants; ALV-N015 stays blocked until STORY-010 and ALV-010-C01 are restored. Not pushed.
 

@@ -638,7 +638,7 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -654,9 +654,9 @@
       "evidenceCommit": "38a1bf8031a324be4e8acc9523cd7dab0e4a6976",
       "handoffPath": ".alveara/handoffs/ALV-003-C01/R03.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-003-C01/R03-stage1.md",
-        "approvedAttempt": "R02",
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-003-C01/R03.md",
+        "approvedAttempt": "R03",
         "reviewedImplementationCommit": "30e2f69df452e85cac7dab06e907c5c9325cfc09",
         "reviewedEvidenceCommit": "38a1bf8031a324be4e8acc9523cd7dab0e4a6976",
         "reopenDecisionArtifacts": [".alveara/reviews/ALV-N016/R04.md", ".alveara/reviews/ALV-007-C01/R03.md"]
@@ -668,7 +668,7 @@
         "reopened": true,
         "reopenReason": "ALV-N016-R04-01 and ALV-007-C01-R03-01: the shared frontend gate failed one ALV-003-C01 client test (PatientRegistrationPage.test.tsx) once under load; corrected test-only in attempt R03. No descendant is affected (test-only change); see R03-evidence/DESCENDANT_ASSESSMENT.md."
       },
-      "completedAt": null,
+      "completedAt": "2026-10-22T23:50:35Z",
       "fullRegression": "PASSED"
     },
     {
@@ -1643,7 +1643,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -1659,11 +1659,12 @@
       "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
       "handoffPath": ".alveara/handoffs/ALV-007-C01/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R03.md",
-        "approvedAttempt": "R01",
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R03-stage2-rerun.md",
+        "approvedAttempt": "R03",
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
         "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
+        "priorFinalReviewArtifact": ".alveara/reviews/ALV-007-C01/R03.md",
         "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R03-stage1.md"
       },
@@ -1674,7 +1675,7 @@
         "reopened": true,
         "reopenReason": "ALV-N016-R02-01: BillingService.LoadLedgerAsync read the entries, allocations and releases in three separate queries; a payment committed between them escaped as KeyNotFoundException. Corrected in attempt R02 (account row-version bracket with repeat); declared descendants are marked REVALIDATION_REQUIRED."
       },
-      "completedAt": null,
+      "completedAt": "2026-10-22T23:50:35Z",
       "fullRegression": "PASSED"
     },
     {
@@ -2105,7 +2106,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R04",
       "acceptance": {
         "total": 8,
@@ -2121,11 +2122,12 @@
       "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
       "handoffPath": ".alveara/handoffs/ALV-N016/R04.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R04.md",
-        "approvedAttempt": null,
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N016/R04-stage2-rerun.md",
+        "approvedAttempt": "R04",
         "reviewedImplementationCommit": "69c6f7fe0c4155338b8d752804878d44784348a6",
         "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
+        "priorFinalReviewArtifact": ".alveara/reviews/ALV-N016/R04.md",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R04-stage1.md"
       },
       "blockingIssues": [],
@@ -2133,7 +2135,7 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
+      "completedAt": "2026-10-22T23:50:35Z",
       "fullRegression": "PASSED"
     },
     {
