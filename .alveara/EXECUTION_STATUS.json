@@ -2096,7 +2096,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 8,
@@ -2112,8 +2112,8 @@
       "evidenceCommit": "332c851f1e10d490e22e2aae9746d28eb72c156d",
       "handoffPath": ".alveara/handoffs/ALV-N016/R02.md",
       "review": {
-        "decision": null,
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R01.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
         "reviewedEvidenceCommit": "fcc1a98ebfb6bf0b02ba4f918746b4ada167ed6b",
@@ -2122,7 +2122,7 @@
         "stage1ClosureCommit": "e89721cd8f31a1089646d4f5997a41835f9670f8"
       },
       "blockingIssues": [
-        "ALV-N016-R01-01: the frozen Stage 2 backend run took 3466 s (57.8 min) against the 3300 s (55 min) ceiling of acceptance item 8 (166 s, 5.0 percent over); every other Stage 2 criterion passed (4318 of 4318 passed, same ids and outcomes plus the 18 new, zero fallback, 3034 clones, unchanged artifact counts, client and repository gates). Under the story prompt and the Stage 1 review a missed ceiling is CHANGES_REQUIRED; a new Stage 1 attempt is needed."
+        "ALV-N016-R02-01: a production billing-concurrency defect (KeyNotFoundException from BillingService.Ledger.MathAllocations under two simultaneous payments; LoadLedgerAsync reads in three queries without a coherent snapshot) must be corrected under ALV-007-C01 before any formal regression; R02 Stage 2 must not be run. The rollback-on-clone design is APPROVED."
       ],
       "revalidation": {
         "required": false,
