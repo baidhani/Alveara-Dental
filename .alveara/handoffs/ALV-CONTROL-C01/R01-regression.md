@@ -34,7 +34,7 @@ FRONTEND GATE QUALIFIES
 |---|---|
 | all commands exit zero | tsc 0, vitest 0, build 0, lint 0, playwright 0, repository checks 0 |
 | Vitest 1,544 tests in 97 files | 1,544 tests in 97 files |
-| mocked Playwright 140 passed / 0 failed | 140 passed, 0 failed (16 s elapsed in the run's own timing: 23 s) |
+| mocked Playwright 140 passed / 0 failed | 140 passed, 0 failed (23 s) |
 | repository checks 13 passed / 0 failed | 13 pass, 0 fail |
 | clean tree before and after | 0 changed paths before and after |
 
