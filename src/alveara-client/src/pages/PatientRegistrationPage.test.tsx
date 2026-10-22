@@ -43,7 +43,7 @@ async function fillValid(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText("Postal code *"), "78701");
 }
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });   // the late-frame test replaces requestAnimationFrame; no test may inherit that
 
 describe("PatientRegistrationPage", () => {
   it("captures demographics and contact details and sends them with an idempotency key and CSRF token", async () => {
@@ -84,6 +84,11 @@ describe("PatientRegistrationPage", () => {
     expect(calls).toHaveLength(0);
   });
 
+  /**
+   * A refused submit schedules a frame (requestAnimationFrame) that moves focus to the first invalid field. A person cannot start typing before that has happened, but a test can:
+   * if the frame ran between the click on City and the keystroke, the keystroke would go to First name and City's prompt would (rightly) stay. So these tests wait for the visible
+   * state transition (focus reaching the first invalid field) before they type, and wait for the prompt to clear instead of asserting it the instant the interaction returns.
+   */
   it("clears a field's prompt as soon as the user starts fixing it", async () => {
     mockApi(() => json(201, created()));
     const user = userEvent.setup();
@@ -91,8 +96,26 @@ describe("PatientRegistrationPage", () => {
 
     await user.click(screen.getByRole("button", { name: "Register patient" }));
     expect(screen.getByText("City is required.")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText("First name *")).toHaveFocus());     // the page has finished moving focus
     await user.type(screen.getByLabelText("City *"), "A");
-    expect(screen.queryByText("City is required.")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("City *")).toHaveValue("A");
+    await waitFor(() => expect(screen.queryByText("City is required.")).not.toBeInTheDocument());
+    expect(screen.getByText("First name is required.")).toBeInTheDocument();              // only the field being fixed was cleared
+  });
+
+  it("clears a field's prompt as soon as the user starts fixing it even when the page moves focus late", async () => {
+    // A slow machine: the focus frame runs 80 ms after the refused submit instead of at the next frame. The test must still type into City, not into whichever field takes focus.
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((cb) => window.setTimeout(() => cb(performance.now()), 80) as unknown as number);
+    mockApi(() => json(201, created()));
+    const user = userEvent.setup();
+    render(<PatientRegistrationPage />);
+
+    await user.click(screen.getByRole("button", { name: "Register patient" }));
+    expect(screen.getByText("City is required.")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText("First name *")).toHaveFocus());
+    await user.type(screen.getByLabelText("City *"), "A");
+    expect(screen.getByLabelText("City *")).toHaveValue("A");
+    await waitFor(() => expect(screen.queryByText("City is required.")).not.toBeInTheDocument());
   });
 
   it("shows the server's per-field messages when it rejects a value the browser accepted", async () => {
