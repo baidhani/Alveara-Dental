@@ -2100,24 +2100,24 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 8,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R02, a Stage 1 package (previous attempt R01 was CHANGES_REQUIRED for a 166 s miss of the 55-minute ceiling; its Stage 2 evidence is preserved). 13 rollback classes now start from a template clone and still run the real Down and Up migrations (6 classes keep the real create-and-migrate path); a new proof test shows the clone gives the same schema as a real create-and-migrate. Same 250 tests: 666 s on the real path, 184 s on clones. A prefetch pool was built, measured (no gain) and reverted. The reviewer is asked to decide whether the rollback classes may start from a clone, and how to treat a latent production race in billing found by an unplanned full run (4,318 of 4,319 passed, 53 m 09 s, NOT Stage 2 evidence). The formal Stage 2 is PENDING; its contract (4,319 tests, 3,300 s) is frozen in .alveara/handoffs/ALV-N016/R02-evidence/stage2/. See R02-evidence/DECISION_REQUEST.md."
+        "summary": "Attempt R03, a Stage 1 package (combined tree, no source change). Prior attempts: R01 (Stage 2 missed the 3,300 s ceiling by 166 s, CHANGES_REQUIRED) and R02 (Stage 1 CHANGES_REQUIRED on the billing race owned by ALV-007-C01; the clone-based rollback design was approved). The source is the common tree 37d2b08: the approved R02 implementation 0da6f36 plus the approved ALV-007-C01 ledger correction (two src files differ). Focused evidence on the combined tree: 318 of 318 passed (template, inventory guard, 13 rollback classes on clones, 6 real-path classes, 5 ledger tests); 0 fallbacks; 32 real-path fixtures; artifact counts unchanged; ALV-007-C01's billing (409) and descendant (1,379) selections also passed on this tree. The formal Stage 2 is PENDING: one shared physical run for this story and ALV-007-C01 R02, frozen in .alveara/handoffs/ALV-N016/R03-evidence/stage2/ (4,324 tests, 55-minute ceiling, template-use criteria, the 5 ledger and D5 checks; two independent evaluators). No full run made."
       },
       "demo": "n/a_test_infrastructure",
       "parentRegression": "n/a_no_course_parent",
-      "implementationCommit": "0da6f36e6321b46a26d5c63c13fcd2d1c9908aaf",
-      "evidenceCommit": "332c851f1e10d490e22e2aae9746d28eb72c156d",
-      "handoffPath": ".alveara/handoffs/ALV-N016/R02.md",
+      "implementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
+      "evidenceCommit": "1cbf591093ed36b4b190ba41c3ac4892bf1362a8",
+      "handoffPath": ".alveara/handoffs/ALV-N016/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
         "reviewedImplementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
         "reviewedEvidenceCommit": "fcc1a98ebfb6bf0b02ba4f918746b4ada167ed6b",
@@ -2125,9 +2125,7 @@
         "stage1EvidenceCommit": "45c2176be2b2724332b6e4b2f1cf21e81c652994",
         "stage1ClosureCommit": "e89721cd8f31a1089646d4f5997a41835f9670f8"
       },
-      "blockingIssues": [
-        "ALV-N016-R02-01: a production billing-concurrency defect (KeyNotFoundException from BillingService.Ledger.MathAllocations under two simultaneous payments; LoadLedgerAsync reads in three queries without a coherent snapshot) must be corrected under ALV-007-C01 before any formal regression; R02 Stage 2 must not be run. The rollback-on-clone design is APPROVED."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

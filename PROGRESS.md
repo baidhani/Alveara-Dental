@@ -1084,4 +1084,10 @@
   - What changed: `BillingService.LoadLedgerAsync` brackets its three queries with the account row version and repeats the read (4 attempts, then `ConcurrencyConflictException`), fixing the `KeyNotFoundException` race found by the ALV-N016 R02 full run; 5 deterministic tests in `BillingLedgerReadConsistencyTests` (implementation `37d2b08`); handoff and evidence `.alveara/handoffs/ALV-007-C01/R02*`; the eight listed descendants set to `REVALIDATION_REQUIRED` with an assessment; ALV-007-C01 set to `AWAITING_REVIEW`.
   - Verification: 5 of 5 new tests pass (4 of 5 fail on the old code); ledger-focused 409 of 409; descendant selection 1,379 of 1,379.
   - Notes: left unchecked: awaiting review; the formal Stage 2 is PENDING; ALV-N016 and ALV-N015 stay blocked. Not pushed.
+- [ ] ALV-N016 R03 Stage 1 package (combined tree, shared frozen Stage 2; awaiting reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: no source change; handoff `.alveara/handoffs/ALV-N016/R03.md` and evidence on the combined tree (the approved R02 clone-based rollback design plus the approved ALV-007-C01 ledger correction, `37d2b08`); a shared frozen Stage 2 (`stage2/`: one run script, two independent evaluators, 4,324 tests, 55-minute ceiling, template-use criteria, ledger and D5 checks); ALV-007-C01's Stage 1 approval recorded earlier (`481dc2d`).
+  - Verification: focused 318 of 318 passed (0 fallbacks, 32 real-path fixtures, artifact counts unchanged); both evaluators smoke-tested against the R01 Stage 2 output (both run and both correctly fail it).
+  - Notes: left unchecked: awaiting review; the shared Stage 2 is PENDING and runs once after both closure-only commits. Not pushed.
 
