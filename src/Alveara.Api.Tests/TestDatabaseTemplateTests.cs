@@ -296,6 +296,18 @@ public class TestDatabaseTemplateTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Telemetry_names_the_role_of_the_template_so_the_runs_own_fallbacks_are_separable_from_injected_ones()
+    {
+        var (template, log) = NewTemplate();
+        await template.EnsureBuiltAsync();
+        template.RecordFallback("AlveraTest_demo", "SQL 3201");
+
+        Assert.All(log.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries), l => Assert.Contains("\"role\":\"test\"", l));
+        Assert.Equal("run", TestDatabaseTemplate.RunRole);
+        Assert.Equal("run", TestDatabaseTemplate.Default.Role);
+    }
+
+    [Fact]
     public async Task A_real_migration_fixture_never_touches_the_template()
     {
         var (template, log) = NewTemplate();

@@ -38,9 +38,12 @@ internal sealed class TestDatabaseTemplate : IDisposable
 
     static TestDatabaseTemplate()
     {
-        Default = new TestDatabaseTemplate();
+        Default = new TestDatabaseTemplate(role: RunRole);
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Default.Dispose();
     }
+
+    /// <summary>The role of the template that serves the run itself; the templates the tests of this class build to test it have the role "test", so a run's telemetry can tell its own fallbacks from injected ones.</summary>
+    public const string RunRole = "run";
 
     public static bool Enabled => !string.Equals(Environment.GetEnvironmentVariable(ModeVariable), "off", StringComparison.OrdinalIgnoreCase);
 
@@ -57,9 +60,11 @@ internal sealed class TestDatabaseTemplate : IDisposable
     private long _buildMs, _restoreMs;
 
     public string BackupFolder { get; }
+    public string Role { get; }
 
-    internal TestDatabaseTemplate(string? backupFolder = null, TextWriter? log = null, Func<IReadOnlyList<string>>? expectedMigrations = null, Func<Task>? beforeBuild = null)
+    internal TestDatabaseTemplate(string? backupFolder = null, TextWriter? log = null, Func<IReadOnlyList<string>>? expectedMigrations = null, Func<Task>? beforeBuild = null, string role = "test")
     {
+        Role = role;
         BackupFolder = backupFolder ?? AlveraTestEnvironment.TempFolder;
         _log = log ?? Console.Error;
         _expectedMigrations = expectedMigrations;
@@ -262,7 +267,7 @@ internal sealed class TestDatabaseTemplate : IDisposable
 
     private void Event(string name, string level, object context, string outcome = "success")
     {
-        var line = JsonSerializer.Serialize(new { timestamp = DateTimeOffset.UtcNow, level, service = "backend-tests", @event = name, outcome, context });
+        var line = JsonSerializer.Serialize(new { timestamp = DateTimeOffset.UtcNow, level, service = "backend-tests", role = Role, @event = name, outcome, context });
         lock (_writeLock)
         {
             _log.WriteLine("[TestDatabaseTemplate] " + line);
