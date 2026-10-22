@@ -1,0 +1,35 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/PatientRegistrationPage.test.tsx (9 tests | 1 failed) 3403ms
+   ❯ PatientRegistrationPage (9)
+     × clears a field's prompt as soon as the user starts fixing it 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/PatientRegistrationPage.test.tsx > PatientRegistrationPage > clears a field's prompt as soon as the user starts fixing it
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <p
+  class="alv-form-field__error"
+  id="_r_14_-error"
+  role="alert"
+>
+  City is required.
+</p> instead[39m
+ ❯ src/pages/PatientRegistrationPage.test.tsx:95:57
+     93|     expect(screen.getByText("City is required.")).toBeInTheDocument();
+     94|     await user.type(screen.getByLabelText("City *"), "A");
+     95|     expect(screen.queryByText("City is required.")).not.toBeInTheDocum…
+       |                                                         ^
+     96|   });
+     97|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 96 passed (97)
+      Tests  1 failed | 1543 passed (1544)
+   Start at  15:41:15
+   Duration  152.22s (tests 65%, environment 18%, transform 6%, setup 6%, import 5%)
+

@@ -1639,7 +1639,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -1663,7 +1663,9 @@
         "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R02-stage1.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-007-C01-R03-01: the shared Stage 2 (equivalence plus one fresh frontend gate, closure commit 9183c18) did not qualify: Vitest 1 failed, 1543 passed (an unrelated client test, PatientRegistrationPage, not touched by this release). Everything else passed: Playwright 140, repository checks 13; both reuse evaluations HOLD (no backend file differs). The gate was not rerun. See .alveara/handoffs/ALV-007-C01/R03-regression.md."
+      ],
       "revalidation": {
         "required": false,
         "reason": null,
@@ -1671,7 +1673,7 @@
         "reopenReason": "ALV-N016-R02-01: BillingService.LoadLedgerAsync read the entries, allocations and releases in three separate queries; a payment committed between them escaped as KeyNotFoundException. Corrected in attempt R02 (account row-version bracket with repeat); declared descendants are marked REVALIDATION_REQUIRED."
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "FAILED"
     },
     {
       "schemaVersion": "2",
@@ -2101,7 +2103,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R04",
       "acceptance": {
         "total": 8,
@@ -2124,13 +2126,15 @@
         "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R03-stage1.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N016-R04-01: the shared Stage 2 (equivalence plus one fresh frontend gate, closure commit 9183c18) did not qualify: Vitest 1 failed, 1543 passed (src/pages/PatientRegistrationPage.test.tsx, an unrelated client test not touched by this release; passes 12 of 12 in isolation and in 3 earlier full runs). Everything else passed: Playwright 140, repository checks 13, tsc, build, lint; both reuse evaluations HOLD. The gate was not rerun. See .alveara/handoffs/ALV-N016/R04-regression.md."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "FAILED"
     },
     {
       "schemaVersion": "2",

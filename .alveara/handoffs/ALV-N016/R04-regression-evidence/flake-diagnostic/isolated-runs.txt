@@ -1,0 +1,5 @@
+Diagnostic made after the formal gate failed (NOT part of the gate; the gate was not rerun):
+npx vitest run src/pages/PatientRegistrationPage.test.tsx, repeated 12 times in a row on the same clean tree: 12 passed, 0 failed.
+The same test passed in the three earlier complete Vitest runs of this release (1,544 of 1,544 on 12:13, 14:58 and in the ALV-CONTROL-C01 evidence run) and failed in the formal run at 15:41 (Test Files 1 failed | 96 passed; Tests 1 failed | 1543 passed).
+The failing assertion (src/pages/PatientRegistrationPage.test.tsx line 95) checks, immediately after an awaited user.type, that a validation message has cleared. The file was last changed by ALV-003-C01 (fdafb00); nothing in this release touches it, PatientRegistrationPage, or any client source file.
+This file transcribes the session output; the loop produced no per-run logs worth keeping.

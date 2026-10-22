@@ -1126,4 +1126,10 @@
   - What changed: recorded ALV-CONTROL-C01's closure; wrote the two handoffs (`.alveara/handoffs/ALV-N016/R04*`, `.alveara/handoffs/ALV-007-C01/R03*`) stating how the shared-regression evidence is revalidated: default one new physical shared full run (updated evaluators: Playwright 140, repository checks 13, Command Center equivalence), plus an equivalence alternative as a decision request; shared tooling in `ALV-N016/R04-evidence/stage2/`; both stories `AWAITING_REVIEW`, `fullRegression: PENDING`.
   - Verification: `git diff` of `src/Alveara.Api` and `src/Alveara.Api.Tests` since the failed run is empty; both updated evaluators run and fail the failed run's output as designed; the reuse evaluator holds on a clean tree.
   - Notes: left unchecked: awaiting review; the new Stage 2 runs once after both Stage 1 closure-only commits. Not pushed.
+- [ ] Stage 2 for ALV-N016 R04 and ALV-007-C01 R03 (equivalence plus one fresh frontend gate): the gate failed one unrelated Vitest test
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded the two Stage 1 approvals (closure-only commits `d2890b1`, `9183c18`), ran the reviewer's frozen frontend gate once and both reuse evaluations on the shared closure tree, and recorded the unedited outputs `.alveara/handoffs/ALV-N016/R04-regression-evidence/` with additive packages `ALV-N016/R04-regression.md` and `ALV-007-C01/R03-regression.md`; both stories recorded `CHANGES_REQUIRED`, `fullRegression: FAILED`.
+  - Verification: both reuse evaluations REUSE EQUIVALENCE HOLDS; Playwright 140 passed, repository checks 13 passed, tsc/build/lint exit 0; Vitest 1 failed of 1,544 (src/pages/PatientRegistrationPage.test.tsx, unrelated, 12 of 12 passes in isolation); the frontend evaluator: DOES NOT QUALIFY.
+  - Notes: left unchecked; the gate was not rerun (one-run rule); the reviewer decides: rerun the unchanged gate once, or make that test deterministic first. Not pushed.
 

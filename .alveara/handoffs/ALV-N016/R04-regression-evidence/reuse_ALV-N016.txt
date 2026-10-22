@@ -1,0 +1,8 @@
+PASS  the preserved shared run had exactly one failed line, the mocked Playwright gate, and every other criterion passed             24 lines, 1 failed
+PASS  the preserved run commit is the one the failed review examined                                                                 
+PASS  no backend or backend-test file differs between the preserved run commit and this run commit                                   []
+PASS  nothing outside the control records and the Command Center client differs (no build, package, solution or configuration file)  []
+PASS  the changes since the preserved run are exactly the approved ALV-CONTROL-C01 files                                             implementation 69c6f7f vs run commit
+PASS  the working tree is clean                                                                                                      
+
+REUSE EQUIVALENCE HOLDS
