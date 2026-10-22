@@ -1,0 +1,4 @@
+exit=0 elapsed=423s head=481dc2dab70e15c373cd22a0dcf11e7313a94b65 tree_changes=0
+Results File: C:\tmp\n016\r03focused\trx\focused.trx
+
+Passed!  - Failed:     0, Passed:   318, Skipped:     0, Total:   318, Duration: 7 m - Alveara.Api.Tests.dll (net10.0)

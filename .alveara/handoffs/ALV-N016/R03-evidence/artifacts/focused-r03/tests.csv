@@ -1,0 +1,319 @@
+test,outcome,duration
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_fixture_database_keeps_both_its_files_in_the_test_data_database_folder_and_the_drop_removes_them",Passed,00:00:02.7659121
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;status-wrong-case&quot;)",Passed,00:00:00.0224117
+"Alveara.Api.Tests.TestDatabaseTeardownTests.T4_Disposing_the_fixture_while_a_host_is_still_alive_still_drops_the_database_and_the_host_disposes_without_error",Passed,00:00:03.5357520
+"Alveara.Api.Tests.CompletionChartEvidenceTests.An_adoption_that_writes_a_completed_version_records_exactly_that_version_and_reconciles_clean",Passed,00:00:00.8656377
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.A_reason_of_the_maximum_length_is_accepted_and_one_character_more_is_not",Passed,00:00:00.4131148
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;medicationControl&quot;, constraint: &quot;CK_Prescriptions_Medication&quot;)",Passed,00:00:00.0219512
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_chart_evidence_that_is_missing_not_completed_withdrawn_or_newer_than_the_completion(which: &quot;versionAfterTheCompletion&quot;, number: 51173)",Passed,00:00:00.4275880
+"Alveara.Api.Tests.RealMigrationInventoryTests.A_class_gets_the_fixture_of_its_group_a_real_migration_fixture_or_a_template_clone",Passed,00:00:00.0050426
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.An_adoption_records_exactly_one_procedure(count: 2)",Passed,00:00:00.4118727
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;keyControl&quot;, constraint: &quot;CK_PrescriptionDrafts_Key&quot;)",Passed,00:00:00.0336924
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;reasonOnADraft&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0368059
+"Alveara.Api.Tests.CompletedProcedureMigrationTests.Rolling_back_removes_the_completion_tables_and_triggers_keeps_the_plan_and_rolling_forward_restores_them",Passed,00:00:02.8511056
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_file_of_a_document_still_never_changes_and_a_document_is_still_never_deleted",Passed,00:00:00.0477564
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.Success_on_the_first_attempt_logs_nothing_and_waits_for_nothing",Passed,00:00:00.0007580
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;kind-unknown&quot;)",Passed,00:00:00.0617394
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;createdBy&quot;)",Passed,00:00:00.0455549
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-and-region&quot;)",Passed,00:00:00.0242438
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;finalizedWithoutPrescription&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0457794
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;doseNegative&quot;, constraint: &quot;CK_Prescriptions_Dose&quot;)",Passed,00:00:00.0176303
+"Alveara.Api.Tests.PerioMigrationTests.Upgrading_a_database_that_holds_charts_keeps_every_chart_and_reading_and_rolling_back_then_forward_loses_nothing",Passed,00:00:06.2536311
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;OriginalFileName&quot;)",Passed,00:00:00.0531808
+"Alveara.Api.Tests.TestDatabaseTemplateTests.The_template_is_built_once_by_the_real_migrations_and_dropped_at_once_and_every_clone_reuses_its_backup",Passed,00:00:06.6445258
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_migration_rolls_back_and_forward_while_the_library_holds_nothing_and_refuses_to_roll_back_over_library_data",Passed,00:00:00.5685120
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;second-row&quot;)",Passed,00:00:00.0330647
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_pool_timeout_while_opening_master_for_the_cleanup_drop_is_retried_and_the_original_initialisation_exception_still_wins",Passed,00:00:02.8284051
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;draftNamingAPrescription&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0427195
+"Alveara.Api.Tests.TestDatabaseTemplateTests.Leftovers_of_an_earlier_run_are_reported_and_never_deleted",Passed,00:00:05.4496627
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_prescription_for_a_patient_or_by_a_prescriber_that_does_not_exist_is_refused",Passed,00:00:00.0247508
+"Alveara.Api.Tests.DocumentSchemaTests.The_migration_seeds_the_nine_categories_the_fifteen_blocked_extensions_the_counter_and_the_default_size_once",Passed,00:00:00.0404989
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;size-over-a-gigabyte&quot;)",Passed,00:00:00.0329438
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.A_failure_the_predicate_does_not_accept_is_not_retried",Passed,00:00:00.0019108
+"Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group",Passed,00:00:00.0790970
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_document_cannot_name_an_encounter_of_another_patient_when_added_or_later",Passed,00:00:00.0982403
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;name-blank&quot;)",Passed,00:00:00.0255681
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;supersededByItself&quot;, constraint: &quot;CK_PrescriptionEvents_Superseded&quot;)",Passed,00:00:00.0320894
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;DetectedType&quot;)",Passed,00:00:00.0473429
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;ImportedByUserId&quot;)",Passed,00:00:00.0600519
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_successful_runs_artifacts_are_removed_when_the_template_is_disposed",Passed,00:00:05.7455826
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_database_name_that_is_not_a_plain_identifier_is_refused_before_any_sql_is_built(name: &quot;a]b&quot;)",Passed,00:00:00.0003606
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_storage_check_never_moves_the_row_version_of_its_document",Passed,00:00:00.0529189
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;statusUnknown&quot;, constraint: &quot;CK_PrescriptionDrafts_Status|CK_PrescriptionDrafts&quot;···)",Passed,00:00:00.0214915
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_drop_retries_the_deadlock_and_the_pool_timeout_and_nothing_else",Passed,00:00:00.0003284
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.A_blank_or_control_character_reason_is_refused_by_the_database(reason: &quot;   &quot;)",Passed,00:00:00.4305679
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;createdLongAgo&quot;, constraint: &quot;CK_Prescriptions_Created&quot;)",Passed,00:00:00.0215121
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;status-unknown&quot;)",Passed,00:00:00.0199411
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_database_created_by_a_failed_attempt_is_really_removed_before_the_retry_creates_it_again",Passed,00:00:06.2879372
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-without-who&quot;)",Passed,00:00:00.0221161
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;imported-too-early&quot;)",Passed,00:00:00.0339531
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;RequestHash&quot;)",Passed,00:00:00.0649303
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_same_save_key_may_be_used_by_two_different_patients",Passed,00:00:00.0186200
+"Alveara.Api.Tests.DocumentSchemaTests.A_built_in_blocked_extension_is_never_changed_or_deleted_while_an_added_one_can_be_removed",Passed,00:00:00.0742811
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;quantityAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDetails_Quantity&quot;)",Passed,00:00:00.0206195
+"Alveara.Api.Tests.BillingRefundMigrationTests.Rolling_back_keeps_the_ledger_restores_the_old_allocation_trigger_and_rolling_forward_restores_the_refund_rules",Passed,00:00:03.6595932
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;cancelledWithoutReason&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.0122215
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;instructionsBlank&quot;, constraint: &quot;CK_PrescriptionDetails_Instructions&quot;)",Passed,00:00:00.0204060
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_new_document_is_active_and_unchecked_with_no_encounter_tooth_or_region",Passed,00:00:00.0345812
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;frequencyUnknown&quot;, constraint: &quot;CK_PrescriptionDrafts_Frequency&quot;)",Passed,00:00:00.0257017
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Missing_altered_or_non_completed_chart_evidence_is_reported_as_a_chart_mismatch(which: &quot;nonCompletedVersion&quot;)",Passed,00:00:00.6825110
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;outcomeUnknown&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0193927
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;duplicate-without-related&quot;)",Passed,00:00:00.0676117
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;inactivate-blank-reason&quot;)",Passed,00:00:00.0326540
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-without-time&quot;)",Passed,00:00:00.0213296
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;SizeBytes&quot;)",Passed,00:00:00.0638324
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_missing_backup_cleans_up_falls_back_to_create_and_migrate_and_is_observable",Passed,00:00:08.0433201
+"Alveara.Api.Tests.CompletionChartEvidenceTests.A_completion_whose_evidence_cannot_be_derived_in_the_backfill_stays_empty_and_is_reported(which: &quot;completedOnlyAfterTheCompletion&quot;)",Passed,00:00:01.8332407
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.An_inactivation_with_its_reason_and_a_reactivation_are_recorded_and_the_new_history_kinds_are_accepted",Passed,00:00:00.0793308
+"Alveara.Api.Tests.MigrationTests.Unique_index_on_username_is_actually_enforced_by_the_real_database",Passed,00:00:00.0065654
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.When_the_master_open_keeps_failing_the_drop_gives_up_after_four_attempts_with_the_first_exception",Passed,00:00:02.4952466
+"Alveara.Api.Tests.CompletionChartEvidenceTests.A_completion_whose_evidence_cannot_be_derived_in_the_backfill_stays_empty_and_is_reported(which: &quot;findingNeverCompleted&quot;)",Passed,00:00:02.0671903
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;fingerprintNotHex&quot;, constraint: &quot;CK_PrescriptionDetails_Fingerprint&quot;)",Passed,00:00:00.0240255
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.An_inactive_document_says_why_who_and_when",Passed,00:00:00.0271509
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;DuplicateOfDocumentId&quot;)",Passed,00:00:00.0650289
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_is_finalized_once_and_ends_at_most_once",Passed,00:00:00.0427586
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_detail_for_a_prescription_that_does_not_exist_is_refused",Passed,00:00:00.0262746
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_detail_and_the_events_of_a_prescription_are_accepted_and_the_quantity_keeps_two_decimals",Passed,00:00:00.0385775
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;refillsNegative&quot;, constraint: &quot;CK_PrescriptionDrafts_Refills&quot;)",Passed,00:00:00.0380274
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;request-hash-bad&quot;)",Passed,00:00:00.0322044
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;finalizedLongAgo&quot;, constraint: &quot;CK_PrescriptionDetails_Finalized&quot;)",Passed,00:00:00.0250876
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_data_root_that_is_not_an_absolute_path_is_refused(root: &quot;relative\\folder&quot;)",Passed,00:00:00.0002300
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;medicationControl&quot;, constraint: &quot;CK_PrescriptionDrafts_Medication&quot;)",Passed,00:00:00.0919242
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;hash-upper&quot;)",Passed,00:00:00.0268846
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;g&quot;, ceiling: 10, above: 10.000999999999999)",Passed,00:00:00.0195709
+"Alveara.Api.Tests.TestDatabaseLocationTests.The_test_data_folders_all_sit_under_the_single_data_root",Passed,00:00:00.0005823
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_failure_after_the_migration_removes_the_database_and_rethrows_the_original_exception",Passed,00:00:02.3724679
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;hashShort&quot;, constraint: &quot;CK_Prescriptions_Hash&quot;)",Passed,00:00:00.0139896
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_real_migration_fixture_never_touches_the_template",Passed,00:00:02.0542965
+"Alveara.Api.Tests.TreatmentPlanRevisionMigrationTests.Rolling_back_keeps_the_plan_and_rolling_forward_gives_it_one_revision_holding_its_procedures",Passed,00:00:03.5669215
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.A_blank_or_control_character_reason_is_refused_by_the_database(reason: &quot;tab\there&quot;)",Passed,00:00:00.3853495
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_draft_with_and_without_the_optional_parts_a_discarded_draft_and_a_finalized_one_are_accepted",Passed,00:00:00.0721052
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;encounter-unknown&quot;)",Passed,00:00:00.0222675
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;mg&quot;, ceiling: 5000, above: 5000.0010000000002)",Passed,00:00:00.0217318
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_status_encounter_and_tooth_of_a_document_may_change_after_import",Passed,00:00:00.0692604
+"Alveara.Api.Tests.DocumentSchemaTests.A_history_row_needs_an_issued_number_and_the_patient_of_its_document_and_the_related_document_the_same_patient",Passed,00:00:00.1875230
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;region-wrong-case&quot;)",Passed,00:00:00.0213876
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_pool_acquisition_classifier_matches_only_the_SqlClient_pool_timeout_message",Passed,00:00:00.0001704
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_a_version_number_that_has_no_finding_or_is_not_positive(which: &quot;versionZero&quot;)",Passed,00:00:00.5907453
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.Cleanup_runs_before_every_retry_and_once_more_for_the_final_failure",Passed,00:00:00.0028997
+"Alveara.Api.Tests.PrescriptionSchemaTests.An_entry_that_needed_review_is_accepted_when_it_carries_the_prescribers_note",Passed,00:00:00.0291819
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;capsule&quot;, ceiling: 10, above: 10.000999999999999)",Passed,00:00:00.0210558
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_reader_that_never_gets_a_stable_picture_is_refused_as_a_conflict_after_the_capped_attempts",Passed,00:00:00.9123429
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;medicationOneCharacter&quot;, constraint: &quot;CK_Prescriptions_Medication&quot;)",Passed,00:00:00.0176179
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_reader_that_meets_a_payment_mid_read_repeats_the_read_and_returns_one_coherent_account",Passed,00:00:00.6474274
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_database_name_that_is_not_a_plain_identifier_is_refused_before_any_sql_is_built(name: &quot;x'; DROP DATABASE master;--&quot;)",Passed,00:00:00.0000096
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;matchWithBlankMatches&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0199418
+"Alveara.Api.Tests.CompletionChartEvidenceTests.An_adoption_that_observes_an_already_completed_finding_records_the_observed_version_and_a_later_change_at_the_same_instant_leaves_it_clear",Passed,00:00:00.8136165
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;createdAt&quot;)",Passed,00:00:00.1500289
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;supersedesItself&quot;, constraint: &quot;CK_PrescriptionDetails_Supersedes&quot;)",Passed,00:00:00.0208016
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_details_and_the_events_of_a_prescription_can_be_neither_changed_nor_deleted",Passed,00:00:00.1219037
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;hashUpper&quot;, constraint: &quot;CK_Prescriptions_Hash&quot;)",Passed,00:00:00.0215681
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;doseAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDrafts_Dose&quot;)",Passed,00:00:00.0340107
+"Alveara.Api.Tests.TestDatabaseTeardownTests.T3_Releasing_one_fixtures_pool_does_not_touch_another_fixtures_pooled_connection",Passed,00:00:04.8580286
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;key-blank&quot;)",Passed,00:00:00.0609088
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_chart_evidence_that_is_missing_not_completed_withdrawn_or_newer_than_the_completion(which: &quot;nonCompletedVersion&quot;, number: 51173)",Passed,00:00:00.4797791
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.Every_listed_region_and_both_tooth_numberings_are_accepted",Passed,00:00:00.0704227
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.Three_retryable_failures_then_success_uses_all_three_delays",Passed,00:00:00.0010305
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;mcg&quot;, ceiling: 5000, above: 5000.0010000000002)",Passed,00:00:00.0180666
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_pool_timeout_on_the_first_attempt_is_retried_after_a_cleanup_and_the_second_attempt_succeeds",Passed,00:00:02.4221860
+"Alveara.Api.Tests.TestDatabaseTeardownTests.T5_A_connection_held_open_with_a_transaction_is_terminated_by_the_drop_and_nothing_is_left_behind",Passed,00:00:05.3692980
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Missing_altered_or_non_completed_chart_evidence_is_reported_as_a_chart_mismatch(which: &quot;withdrawnVersion&quot;)",Passed,00:00:00.7492392
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_status_change_is_append_only",Passed,00:00:00.0367553
+"Alveara.Api.Tests.MigrationTests.Re_running_migrate_on_an_already_migrated_database_is_a_safe_no_op",Passed,00:00:00.1681591
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.A_recorded_adoption_reason_can_be_neither_changed_nor_removed_and_the_set_cannot_be_deleted",Passed,00:00:00.4496663
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;keyBlank&quot;, constraint: &quot;CK_Prescriptions_Key&quot;)",Passed,00:00:00.0192585
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;Fine&quot;)",Passed,00:00:00.0319512
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_is_never_deleted",Passed,00:00:00.0493057
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-blank-reason&quot;)",Passed,00:00:00.0204378
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;notEstablishedWithMatchesText&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0180074
+"Alveara.Api.Tests.TestDatabaseTemplateTests.An_injected_restore_failure_removes_the_partial_clone_and_falls_back",Passed,00:00:08.4724690
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityZero&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0363131
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;matchWithoutNote&quot;, constraint: &quot;CK_Prescriptions_ReviewRequired&quot;)",Passed,00:00:00.0226832
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;frequencyWrongCase&quot;, constraint: &quot;CK_Prescriptions_Frequency&quot;)",Passed,00:00:00.0145039
+"Alveara.Api.Tests.RealMigrationInventoryTests.The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture",Passed,00:00:00.0021088
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;categories-on-import&quot;)",Passed,00:00:00.0648564
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;medicationBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Medication&quot;)",Passed,00:00:00.0229198
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_with_and_without_a_description_and_a_confirmed_duplicate_are_accepted_and_the_same_file_may_be_filed_for_two_patients",Passed,00:00:00.0771270
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;categorized-same-category&quot;)",Passed,00:00:00.0773211
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;inactivate-without-reason&quot;)",Passed,00:00:00.0378171
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;tablet&quot;, ceiling: 10, above: 10.000999999999999)",Passed,00:00:00.0182196
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;name-control&quot;)",Passed,00:00:00.0336263
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;hashNotHex&quot;, constraint: &quot;CK_PrescriptionDrafts_Hash&quot;)",Passed,00:00:00.0338316
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_chart_evidence_that_is_missing_not_completed_withdrawn_or_newer_than_the_completion(which: &quot;withdrawnVersion&quot;, number: 51173)",Passed,00:00:00.6683772
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_that_has_a_detail_or_an_event_cannot_be_deleted_and_the_story_016_trigger_still_holds",Passed,00:00:00.0744660
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;unknown-status&quot;)",Passed,00:00:00.0483387
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_can_only_be_replaced_by_a_prescription_of_the_same_patient",Passed,00:00:00.0412152
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;supersededWithoutSuccessor&quot;, constraint: &quot;CK_PrescriptionEvents_Superseded&quot;)",Passed,00:00:00.0282570
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_database_name_that_is_not_a_plain_identifier_is_refused_before_any_sql_is_built(name: &quot;&quot;)",Passed,00:00:00.0000152
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;related-is-itself&quot;)",Passed,00:00:00.0725317
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;refillsAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDetails_Refills&quot;)",Passed,00:00:00.0223049
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;reviewBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Review&quot;)",Passed,00:00:00.0969698
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_chart_evidence_that_is_missing_not_completed_withdrawn_or_newer_than_the_completion(which: &quot;versionDoesNotExist&quot;, number: 51173)",Passed,00:00:00.7735157
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_saved_by_story_016_needs_no_detail_and_no_event",Passed,00:00:00.0246887
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;description-blank&quot;)",Passed,00:00:00.0340248
+"Alveara.Api.Tests.DocumentSchemaTests.A_new_category_may_be_added_but_not_with_a_code_or_name_already_in_use",Passed,00:00:00.0183730
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Missing_altered_or_non_completed_chart_evidence_is_reported_as_a_chart_mismatch(which: &quot;alteredHistory&quot;)",Passed,00:00:00.5894039
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_migration_rolls_back_and_forward_while_the_workflow_is_empty_and_refuses_to_roll_back_over_a_draft_a_detail_or_an_event",Passed,00:00:01.5018618
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_clone_has_the_same_database_settings_schema_and_seed_data_as_a_database_the_real_migrations_built",Passed,00:00:12.6352689
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-unknown&quot;)",Passed,00:00:00.0233103
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.A_real_SQL_Server_deadlock_is_classified_as_1205_retried_once_and_then_succeeds",Passed,00:00:07.5689240
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;noMatchOnAnUnestablishedList&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0216348
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;fingerprintShort&quot;, constraint: &quot;CK_PrescriptionDrafts_Fingerprint&quot;)",Passed,00:00:00.0365836
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_finalized_or_discarded_draft_never_changes(status: &quot;finalized&quot;)",Passed,00:00:00.0439685
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.Rolling_back_is_refused_while_an_adoption_exists_and_changes_nothing",Passed,00:00:01.2363050
+"Alveara.Api.Tests.MigrationFailureTests.A_partially_executed_failing_migration_is_fully_rolled_back_not_left_half_applied_and_does_not_destroy_existing_data",Passed,00:00:00.0899774
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;unknown-user&quot;)",Passed,00:00:00.0320535
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_deadlock_predicate_accepts_only_SQL_error_1205",Passed,00:00:02.3969127
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_clone_can_be_rolled_back_through_the_real_migrator_and_forward_again_to_exactly_the_same_schema",Passed,00:00:15.3218541
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.A_payment_committed_between_the_ledger_queries_gives_the_writer_the_controlled_conflict_and_never_a_missing_key",Passed,00:00:00.7413920
+"Alveara.Api.Tests.TestDatabaseLocationTests.Creating_the_same_database_statement_twice_is_safe_to_repeat_because_it_tests_for_existence_first",Passed,00:00:00.0002588
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;doseZero&quot;, constraint: &quot;CK_PrescriptionDrafts_Dose&quot;)",Passed,00:00:00.0206637
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;ImportedAtUtc&quot;)",Passed,00:00:00.0587773
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;refillsAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDrafts_Refills&quot;)",Passed,00:00:00.0407031
+"Alveara.Api.Tests.CompletionChartEvidenceTests.A_completion_that_moves_no_finding_records_no_version_and_reconciles_clean",Passed,00:00:00.7489239
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityWithoutUnit&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0331117
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-lowercase-region&quot;)",Passed,00:00:00.0234066
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.Only_one_draft_can_be_open_to_amend_a_prescription_and_a_new_one_is_allowed_once_the_first_is_not_a_draft_any_more",Passed,00:00:00.0534118
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;createKey&quot;)",Passed,00:00:00.0636719
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_fixture_database_has_read_committed_snapshot_on_exactly_as_one_created_by_ef_core_does",Passed,00:00:02.2062158
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;active-with-who&quot;)",Passed,00:00:00.0238961
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-control-reason&quot;)",Passed,00:00:00.0226192
+"Alveara.Api.Tests.DocumentSchemaTests.The_counter_only_moves_forward_by_one_and_is_never_deleted",Passed,00:00:00.0241968
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;date-too-early&quot;)",Passed,00:00:00.0205113
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;time-too-early&quot;)",Passed,00:00:00.0342135
+"Alveara.Api.Tests.DocumentSchemaTests.A_duplicate_must_name_a_document_of_the_same_patient_with_the_same_hash",Passed,00:00:00.0506182
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;doseZero&quot;, constraint: &quot;CK_Prescriptions_Dose&quot;)",Passed,00:00:00.0208029
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;successorOnCancelled&quot;, constraint: &quot;CK_PrescriptionEvents_Superseded|CK_PrescriptionEv&quot;···)",Passed,00:00:00.0214518
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_draft_can_be_edited_and_then_finalized_and_the_edit_is_refused_when_a_stale_version_is_used",Passed,00:00:00.1166115
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_a_version_number_that_has_no_finding_or_is_not_positive(which: &quot;versionWithoutFinding&quot;)",Passed,00:00:00.5370100
+"Alveara.Api.Tests.DocumentSchemaTests.Events_with_issued_numbers_are_accepted_and_a_recategorization_names_both_categories",Passed,00:00:00.1072938
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_cannot_be_its_own_duplicate",Passed,00:00:00.0331338
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_clone_carries_the_migration_history_the_snapshot_setting_and_its_files_of_a_real_migration",Passed,00:00:06.1846527
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_successful_initialisation_is_not_touched_by_the_cleanup_path",Passed,00:00:02.4908337
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;type-unknown&quot;)",Passed,00:00:00.0357225
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;categorized-without-categories&quot;)",Passed,00:00:00.0745233
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_migration_list_that_no_longer_matches_is_detected_and_a_wrong_template_is_never_used",Passed,00:00:11.3381551
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_template_build_failure_fails_loudly_for_every_fixture_and_leaves_nothing_behind",Passed,00:00:00.0796961
+"Alveara.Api.Tests.CompletionChartEvidenceTests.A_finding_that_is_not_an_active_completed_state_when_its_version_is_read_is_refused_not_recorded",Passed,00:00:00.6282778
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;ContentType&quot;)",Passed,00:00:00.0630137
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-one-digit&quot;)",Passed,00:00:00.0209040
+"Alveara.Api.Tests.DiagnosisStructureMigrationTests.Rolling_back_removes_the_structure_and_keeps_the_diagnoses_and_rolling_forward_again_loses_nothing",Passed,00:00:02.9932753
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;occurredLongAgo&quot;, constraint: &quot;CK_PrescriptionEvents_Time&quot;)",Passed,00:00:00.0131959
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_correct_entry_is_accepted_and_its_dose_keeps_three_decimals",Passed,00:00:00.0310929
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_document_may_name_an_encounter_of_its_patient_and_one_tooth_or_one_region",Passed,00:00:00.0813506
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;unknown-document&quot;)",Passed,00:00:00.0329391
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Missing_altered_or_non_completed_chart_evidence_is_reported_as_a_chart_mismatch(which: &quot;missingVersion&quot;)",Passed,00:00:00.6861786
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;unitUnknown&quot;, constraint: &quot;CK_PrescriptionDrafts_Unit|CK_PrescriptionDrafts_D&quot;···)",Passed,00:00:00.0653558
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;Unchecked&quot;)",Passed,00:00:00.0298129
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;noteBlank&quot;, constraint: &quot;CK_Prescriptions_Review&quot;)",Passed,00:00:00.0170087
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;PatientId&quot;)",Passed,00:00:00.0605968
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.Rolling_back_removes_the_column_and_trigger_keeps_the_completions_and_rolling_forward_restores_them",Passed,00:00:01.7847799
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_finalized_or_discarded_draft_never_changes(status: &quot;discarded&quot;)",Passed,00:00:00.0351751
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;doseRoundsToZero&quot;, constraint: &quot;CK_Prescriptions_Dose&quot;)",Passed,00:00:00.0199832
+"Alveara.Api.Tests.MigrationTests.Migration_creates_all_expected_tables_on_a_fresh_database",Passed,00:00:00.0060916
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0365970
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.A_blank_or_control_character_reason_is_refused_by_the_database(reason: &quot;line one\nline two&quot;)",Passed,00:00:00.4117913
+"Alveara.Api.Tests.DocumentSchemaTests.A_rolled_back_event_leaves_no_gap_and_a_number_is_never_reused",Passed,00:00:00.0974232
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_same_create_key_may_be_used_by_two_different_patients",Passed,00:00:00.0246215
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.An_account_nobody_has_billed_yet_reads_as_empty_without_the_version_check_failing",Passed,00:00:00.0270944
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_authoritative_completion_records_the_version_it_wrote_and_two_procedures_on_one_finding_share_it",Passed,00:00:01.0787829
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-without-reason&quot;)",Passed,00:00:00.0249699
+"Alveara.Api.Tests.RealMigrationInventoryTests.No_class_that_calls_the_migrator_is_missing_from_the_inventory",Passed,00:00:00.1918224
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;related-on-import&quot;)",Passed,00:00:00.0728844
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;inactivate-control-reason&quot;)",Passed,00:00:00.0227024
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;time-too-early&quot;)",Passed,00:00:00.4527694
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_failure_before_the_database_exists_has_nothing_to_remove_and_still_rethrows_the_original_exception",Passed,00:00:00.0036027
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.A_blank_or_control_character_reason_is_refused_by_the_database(reason: &quot;&quot;)",Passed,00:00:00.4094220
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_data_root_that_is_not_an_absolute_path_is_refused(root: &quot;.\\here&quot;)",Passed,00:00:00.0005453
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;quantityZero&quot;, constraint: &quot;CK_PrescriptionDetails_Quantity&quot;)",Passed,00:00:00.0212315
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;date-too-late&quot;)",Passed,00:00:00.0302001
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_same_create_key_cannot_make_a_second_draft_for_one_patient_and_a_draft_needs_a_patient_and_a_prescriber_that_exist",Passed,00:00:00.0521372
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;Sha256&quot;)",Passed,00:00:00.0604987
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;unitUnknown&quot;, constraint: &quot;CK_Prescriptions_Unit|CK_Prescriptions_Dose&quot;)",Passed,00:00:00.0221298
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;active-with-reason&quot;)",Passed,00:00:00.0229105
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;discontinuedWithoutReason&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.0138079
+"Alveara.Api.Tests.CompletionChartEvidenceTests.The_database_refuses_chart_evidence_that_is_missing_not_completed_withdrawn_or_newer_than_the_completion(which: &quot;missingVersion&quot;, number: 51173)",Passed,00:00:00.7998993
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;unit&quot;, ceiling: 1000, above: 1000.001)",Passed,00:00:00.0217370
+"Alveara.Api.Tests.DocumentSchemaTests.The_history_is_append_only",Passed,00:00:00.0706392
+"Alveara.Api.Tests.OdontogramCatalogueMigrationTests.Upgrading_a_database_that_holds_findings_fills_in_each_scope_seeds_the_catalogue_and_keeps_every_finding_and_its_history",Passed,00:00:03.7828219
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.When_every_attempt_hits_the_pool_timeout_the_first_exception_is_rethrown_after_exactly_three_attempts_and_nothing_is_left_behind",Passed,00:00:07.2673867
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;unknown-user&quot;)",Passed,00:00:00.0332229
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.One_retryable_failure_then_success_retries_once_with_the_first_delay",Passed,00:00:00.0009478
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;reasonBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0401126
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_needs_a_real_patient_category_and_importer_and_one_key_makes_one_document_per_patient_and_one_blob_belongs_to_one_document",Passed,00:00:00.0610542
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;hashNotHex&quot;, constraint: &quot;CK_Prescriptions_Hash&quot;)",Passed,00:00:00.0164069
+"Alveara.Api.Tests.TestDatabaseTeardownTests.T6_A_session_from_a_different_pool_is_not_released_and_the_drop_still_succeeds",Passed,00:00:05.3238639
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.An_ordinary_set_has_no_adoption_reason_and_may_hold_several_procedures_while_an_adoption_of_one_is_accepted",Passed,00:00:00.4207646
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.Every_storage_result_is_accepted_for_a_document_and_a_check_can_be_repeated_by_replacing_its_row",Passed,00:00:00.0681165
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;time-too-early&quot;)",Passed,00:00:00.0741704
+"Alveara.Api.Tests.BillingLedgerReadConsistencyTests.The_loser_retried_with_the_fresh_version_is_recorded_once_and_the_same_key_again_changes_nothing",Passed,00:00:00.6576610
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;unitWrongCase&quot;, constraint: &quot;CK_Prescriptions_Unit|CK_Prescriptions_Dose&quot;)",Passed,00:00:00.0196507
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;reasonBlank&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.0332178
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;frequencyUnknown&quot;, constraint: &quot;CK_Prescriptions_Frequency&quot;)",Passed,00:00:00.2479572
+"Alveara.Api.Tests.TestDatabaseTemplateTests.A_corrupt_backup_falls_back_and_the_partial_clone_is_removed",Passed,00:00:08.1343108
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Rolling_back_and_forward_restores_the_evidence_as_the_first_active_completed_version_which_a_same_instant_withdrawal_cannot_displace",Passed,00:00:02.3627847
+"Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it",Passed,00:00:00.1015149
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Missing_altered_or_non_completed_chart_evidence_is_reported_as_a_chart_mismatch(which: &quot;versionDoesNotExist&quot;)",Passed,00:00:00.6436755
+"Alveara.Api.Tests.MigrationUpgradeTests.Upgrading_a_database_already_on_an_older_migration_preserves_existing_data_and_adds_the_new_schema",Passed,00:00:05.3827758
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;updatedBeforeCreated&quot;, constraint: &quot;CK_PrescriptionDrafts_Times&quot;)",Passed,00:00:00.0201228
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;IdempotencyKey&quot;)",Passed,00:00:00.0600645
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_migration_rolls_back_and_forward_while_nothing_is_recorded_and_refuses_to_roll_back_over_a_prescription",Passed,00:00:01.7389041
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;number-zero&quot;)",Passed,00:00:00.0658726
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_failure_that_is_not_a_pool_timeout_is_not_retried_by_the_initialisation",Passed,00:00:02.5046377
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Evidence_that_names_a_completed_active_version_not_newer_than_the_completion_is_accepted",Passed,00:00:00.6571858
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_failing_cleanup_is_logged_and_never_replaces_the_original_exception",Passed,00:00:02.5040853
+"Alveara.Api.Tests.TestDatabaseLocationTests.The_applications_own_file_settings_point_into_test_data_for_every_api_host_a_test_starts",Passed,00:00:00.0002919
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_prescription_can_be_neither_changed_nor_deleted",Passed,00:00:00.0423863
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;notEstablishedOnAnEstablishedList&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0193514
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;fingerprintUpper&quot;, constraint: &quot;CK_PrescriptionDrafts_Fingerprint&quot;)",Passed,00:00:00.0248072
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;mL&quot;, ceiling: 100, above: 100.001)",Passed,00:00:00.0137671
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;keyBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Key&quot;)",Passed,00:00:00.0292913
+"Alveara.Api.Tests.TestDatabaseTemplateTests.Telemetry_names_the_role_of_the_template_so_the_runs_own_fallbacks_are_separable_from_injected_ones",Passed,00:00:05.8497237
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_same_save_key_cannot_save_a_second_prescription_for_one_patient",Passed,00:00:00.0227162
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;notEstablishedWithoutNote&quot;, constraint: &quot;CK_Prescriptions_ReviewRequired&quot;)",Passed,00:00:00.0194514
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;keyControl&quot;, constraint: &quot;CK_Prescriptions_Key&quot;)",Passed,00:00:00.0152765
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;patient&quot;)",Passed,00:00:00.0605208
+"Alveara.Api.Tests.TestDatabaseTemplateTests.Clones_are_distinct_databases_and_data_written_to_one_never_appears_in_another",Passed,00:00:07.2900129
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;size-zero&quot;)",Passed,00:00:00.0210803
+"Alveara.Api.Tests.CompletionChartEvidenceTests.Missing_altered_or_non_completed_chart_evidence_is_reported_as_a_chart_mismatch(which: &quot;versionAfterTheCompletion&quot;)",Passed,00:00:00.6768541
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_has_one_detail_a_draft_becomes_one_prescription_and_a_prescription_is_amended_by_one_successor",Passed,00:00:00.0881783
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;createdLongAgo&quot;, constraint: &quot;CK_PrescriptionDrafts_Times&quot;)",Passed,00:00:00.0207990
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;matchWithoutMatches&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0214524
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_migration_refuses_to_roll_back_over_a_storage_result",Passed,00:00:00.3218646
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_database_name_that_is_not_a_plain_identifier_is_refused_before_any_sql_is_built(name: &quot;name with space&quot;)",Passed,00:00:00.0008072
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;supersedes&quot;)",Passed,00:00:00.0605761
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;active-with-time&quot;)",Passed,00:00:00.0202181
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_draft_is_never_deleted",Passed,00:00:00.0351720
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;unknown-document&quot;)",Passed,00:00:00.0323511
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;content-type-blank&quot;)",Passed,00:00:00.0220939
+"Alveara.Api.Tests.DocumentSchemaTests.The_settings_and_the_counter_hold_one_row_and_the_size_limit_stays_between_one_megabyte_and_one_gigabyte",Passed,00:00:00.0438886
+"Alveara.Api.Tests.DocumentSchemaTests.The_category_and_the_description_of_a_document_may_change_and_a_category_may_be_renamed_and_deactivated",Passed,00:00:00.1300762
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.An_amendment_must_be_for_the_same_patient_as_the_prescription_it_replaces_and_as_the_draft_it_came_from",Passed,00:00:00.1161313
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;BlobId&quot;)",Passed,00:00:00.3812359
+"Alveara.Api.Tests.CompletionAdoptionSchemaTests.An_adoption_records_exactly_one_procedure(count: 3)",Passed,00:00:00.4148591
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityUnknownUnit&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0202735
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;reasonOnFinalized&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.0291042
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;drop&quot;, ceiling: 20, above: 20.001000000000001)",Passed,00:00:00.0222573
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;noMatchWithMatchesText&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0208197
+"Alveara.Api.Tests.TestDatabaseTeardownTests.T1_A_direct_context_leaves_pooled_sessions_that_ReleasePooledConnections_closes_and_the_database_is_then_dropped",Passed,00:00:02.4881885
+"Alveara.Api.Tests.TestDatabaseTransientRetryTests.Exhaustion_stops_at_exactly_four_attempts_and_rethrows_the_first_exception_unchanged",Passed,00:00:00.0014365
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;refillsNegative&quot;, constraint: &quot;CK_PrescriptionDetails_Refills&quot;)",Passed,00:00:00.0209190
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;ok&quot;)",Passed,00:00:00.0335944
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;region-unknown&quot;)",Passed,00:00:00.0290862
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;type-wrong-case&quot;)",Passed,00:00:00.0291073
+"Alveara.Api.Tests.TestDatabaseTeardownTests.T2_An_API_host_that_signed_people_in_leaves_pooled_sessions_that_are_released_and_the_database_is_dropped",Passed,00:00:02.7845285
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;reactivate-with-reason&quot;)",Passed,00:00:00.0323083
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;hash-short&quot;)",Passed,00:00:00.0320782
+"Alveara.Api.Tests.DocumentSchemaTests.The_migration_rolls_back_and_forward_while_no_document_exists_and_refuses_to_roll_back_over_a_document",Passed,00:00:01.3809556
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;unitWithoutQuantity&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0403516
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;quantityUnknownUnit&quot;, constraint: &quot;CK_PrescriptionDetails_Quantity&quot;)",Passed,00:00:00.0183198
+"Alveara.Api.Tests.PrescriptionSchemaTests.A_dose_above_the_typing_ceiling_of_its_unit_is_refused_by_the_database_and_one_at_the_ceiling_is_accepted(unit: &quot;puff&quot;, ceiling: 20, above: 20.001000000000001)",Passed,00:00:00.0200321
+"Alveara.Api.Tests.DocumentSchemaTests.A_category_is_never_deleted_and_its_code_never_changes",Passed,00:00:00.0289809
+"Alveara.Api.Tests.DiagnosisMigrationTests.Rolling_back_removes_only_the_diagnosis_tables_and_rolling_forward_again_loses_nothing_else",Passed,00:00:02.9097513
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-letter&quot;)",Passed,00:00:00.0202642
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;medicationBlank&quot;, constraint: &quot;CK_Prescriptions_Medication&quot;)",Passed,00:00:00.0222993
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;instructionsBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Instructions&quot;)",Passed,00:00:00.0383352
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;typeUnknown&quot;, constraint: &quot;CK_PrescriptionEvents_Type|CK_PrescriptionEvents_R&quot;···)",Passed,00:00:00.0626802
+"Alveara.Api.Tests.TestDatabaseLocationTests.A_data_root_that_is_not_an_absolute_path_is_refused(root: &quot;alvera-data&quot;)",Passed,00:00:00.0000142
+"Alveara.Api.Tests.TestDatabaseInitFailureCleanupTests.A_pool_timeout_while_opening_the_master_connection_for_the_drop_is_retried_as_a_whole",Passed,00:00:02.0549190
+"Alveara.Api.Tests.PrescriptionSchemaTests.The_database_refuses_an_incorrect_entry_by_itself(which: &quot;listStateUnknown&quot;, constraint: &quot;CK_Prescriptions_Allergy&quot;)",Passed,00:00:00.0185046

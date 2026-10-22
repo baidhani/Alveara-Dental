@@ -1,0 +1,1 @@
+ALV-N016 is a new production story (test infrastructure) with no course parent: parent regression is **N/A (no course parent)**. The corrected dependency ALV-007-C01 R02 is Stage 1 approved; its billing and descendant selections (409 and 1,379 tests) passed on this same tree under the template-clone infrastructure.

@@ -1,0 +1,12 @@
+== artifact counts: before 2026-10-22T09:22:35-05:00
+databases_total 1
+AlveraTest 0
+AlveraTemplate 0
+AlveraRestore 0
+sql_logins 0
+folder_Storage 3920
+folder_Keys 1
+folder_Backup 1
+folder_Database 0
+folder_Temp 1
+template_backups_in_Temp 0
