@@ -638,7 +638,7 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "AWAITING_REGRESSION",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -654,11 +654,11 @@
       "evidenceCommit": "38a1bf8031a324be4e8acc9523cd7dab0e4a6976",
       "handoffPath": ".alveara/handoffs/ALV-003-C01/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "APPROVED_PENDING_REGRESSION",
+        "decisionArtifact": ".alveara/reviews/ALV-003-C01/R03-stage1.md",
         "approvedAttempt": "R02",
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null,
+        "reviewedImplementationCommit": "30e2f69df452e85cac7dab06e907c5c9325cfc09",
+        "reviewedEvidenceCommit": "38a1bf8031a324be4e8acc9523cd7dab0e4a6976",
         "reopenDecisionArtifacts": [".alveara/reviews/ALV-N016/R04.md", ".alveara/reviews/ALV-007-C01/R03.md"]
       },
       "blockingIssues": [],
@@ -669,7 +669,7 @@
         "reopenReason": "ALV-N016-R04-01 and ALV-007-C01-R03-01: the shared frontend gate failed one ALV-003-C01 client test (PatientRegistrationPage.test.tsx) once under load; corrected test-only in attempt R03. No descendant is affected (test-only change); see R03-evidence/DESCENDANT_ASSESSMENT.md."
       },
       "completedAt": null,
-      "fullRegression": "PENDING"
+      "fullRegression": "REQUIRED"
     },
     {
       "schemaVersion": "2",
