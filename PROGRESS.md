@@ -1059,3 +1059,10 @@
   - What changed: regression evidence `.alveara/handoffs/ALV-N016/R01-regression.md` and `R01-regression-evidence/`; the status record is `CHANGES_REQUIRED` with `fullRegression: FAILED` and one blocking issue; `BUILD_STATE.md` updated. No source, test, migration, script or configuration change.
   - Verification: run on `e89721c` (clean tree, `src/` identical to implementation `3ae51e2`) by `stage2/run_stage2.sh`; the evaluator's verdict is STAGE 2 DOES NOT QUALIFY because the backend took 3466 s = 57.8 min against the 3300 s ceiling; all other criteria passed: 4318 of 4318 tests, same ids and outcomes plus the 18 new, 0 fallbacks, 3034 clones, artifact counts unchanged, client gates passed.
   - Notes: the story is not complete; ALV-N015 stays blocked. A new Stage 1 attempt is required. Three older commits carry a Co-Authored-By trailer against the owner's instruction (not rewritten). Not pushed.
+
+- [ ] ALV-N016: record the R01 review (CHANGES_REQUIRED)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: stored the reviewer's final decision unchanged at `.alveara/reviews/ALV-N016/R01.md`; the status record keeps `CHANGES_REQUIRED` and `fullRegression: FAILED` and now names the review as its decision artifact (the Stage 1 decision and closure are kept in the review block); `BUILD_STATE.md` wording updated. The reviewer's sole finding is the 166 s miss of the 55-minute ceiling; the unchanged R01 tree must not be rerun; an R02 Stage 1 package with a targeted performance correction is required.
+  - Verification: user confirmed (the owner supplied the review file); no code changed.
+  - Notes: left unchecked because the story is not complete; ALV-N015 stays blocked. Not pushed.

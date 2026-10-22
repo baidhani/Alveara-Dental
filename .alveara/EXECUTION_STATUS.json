@@ -2112,11 +2112,14 @@
       "evidenceCommit": "45c2176be2b2724332b6e4b2f1cf21e81c652994",
       "handoffPath": ".alveara/handoffs/ALV-N016/R01.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R01-stage1.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N016/R01.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "3ae51e23adbd7769a0bafb71fd16731b1eee3466",
-        "reviewedEvidenceCommit": "45c2176be2b2724332b6e4b2f1cf21e81c652994"
+        "reviewedEvidenceCommit": "fcc1a98ebfb6bf0b02ba4f918746b4ada167ed6b",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R01-stage1.md",
+        "stage1EvidenceCommit": "45c2176be2b2724332b6e4b2f1cf21e81c652994",
+        "stage1ClosureCommit": "e89721cd8f31a1089646d4f5997a41835f9670f8"
       },
       "blockingIssues": [
         "ALV-N016-R01-01: the frozen Stage 2 backend run took 3466 s (57.8 min) against the 3300 s (55 min) ceiling of acceptance item 8 (166 s, 5.0 percent over); every other Stage 2 criterion passed (4318 of 4318 passed, same ids and outcomes plus the 18 new, zero fallback, 3034 clones, unchanged artifact counts, client and repository gates). Under the story prompt and the Stage 1 review a missed ceiling is CHANGES_REQUIRED; a new Stage 1 attempt is needed."
