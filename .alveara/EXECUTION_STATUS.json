@@ -1639,33 +1639,31 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R02, a corrective Stage 1 package under the two-stage policy (high risk: money/billing and a concurrency primitive); no full suite run, the formal Stage 2 is PENDING and its contract is frozen in .alveara/handoffs/ALV-007-C01/R02-evidence/stage2/ (4,324 tests expected). Implementation 37d2b08: BillingService.LoadLedgerAsync brackets its three reads with the account row version and repeats the read (4 attempts, then the controlled ConcurrencyConflictException). 5 new deterministic tests force the window: 4 of 5 fail with KeyNotFoundException on the old code and all 5 pass on the fix. Ledger-focused selection 409 of 409 passed; descendant selection (treatment completion, completed procedures, completion, prescriptions, documents) 1,379 of 1,379 passed; D5 financial history passed. The eight listed descendants are marked REVALIDATION_REQUIRED with a per-story assessment (R02-evidence/REVALIDATION_ASSESSMENT.md). No schema, endpoint, permission or client change."
+        "summary": "Attempt R03, a corrective Stage 1 package with no source change (R02's Stage 1 was approved; its shared Stage 2 failed one client gate unrelated to billing, finding ALV-N016-R03-01, corrected by the approved and COMPLETE ALV-CONTROL-C01). The ledger read correction 37d2b08 and its five deterministic tests are unchanged; backend and backend-test files are byte-identical to the failed run. The revalidation plan: one new physical shared full run judged by this story's own evaluator (stage2/evaluate_stage2_alv007c01.py in .alveara/handoffs/ALV-N016/R04-evidence/stage2/), with an equivalence alternative as a decision request. The eight descendants stay REVALIDATION_REQUIRED. No full run made."
       },
       "demo": "n/a_justified_read_consistency_correction",
       "parentRegression": "verified",
       "implementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
-      "evidenceCommit": "26905945bf77383010f53df05076f0ff38f66015",
-      "handoffPath": ".alveara/handoffs/ALV-007-C01/R02.md",
+      "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
+      "handoffPath": ".alveara/handoffs/ALV-007-C01/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R02.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": "R01",
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
         "reviewedEvidenceCommit": "26905945bf77383010f53df05076f0ff38f66015",
         "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R02-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-007-C01-R02-01: the shared Stage 2 run (same run as ALV-N016 R03) failed one client gate unrelated to billing: mocked Playwright 134 passed, 2 failed (architecture-map.spec.ts:145): the Command Center map has no label for AWAITING_REGRESSION and REVALIDATION_REQUIRED. All billing criteria passed: 4324 of 4324 backend tests, the 5 ledger tests and D5. See .alveara/handoffs/ALV-007-C01/R02-regression.md."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null,
@@ -1673,7 +1671,7 @@
         "reopenReason": "ALV-N016-R02-01: BillingService.LoadLedgerAsync read the entries, allocations and releases in three separate queries; a payment committed between them escaped as KeyNotFoundException. Corrected in attempt R02 (account row-version bracket with repeat); declared descendants are marked REVALIDATION_REQUIRED."
       },
       "completedAt": null,
-      "fullRegression": "FAILED"
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",
@@ -2103,38 +2101,36 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R03",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R04",
       "acceptance": {
         "total": 8,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R03, a Stage 1 package (combined tree, no source change). Prior attempts: R01 (Stage 2 missed the 3,300 s ceiling by 166 s, CHANGES_REQUIRED) and R02 (Stage 1 CHANGES_REQUIRED on the billing race owned by ALV-007-C01; the clone-based rollback design was approved). The source is the common tree 37d2b08: the approved R02 implementation 0da6f36 plus the approved ALV-007-C01 ledger correction (two src files differ). Focused evidence on the combined tree: 318 of 318 passed (template, inventory guard, 13 rollback classes on clones, 6 real-path classes, 5 ledger tests); 0 fallbacks; 32 real-path fixtures; artifact counts unchanged; ALV-007-C01's billing (409) and descendant (1,379) selections also passed on this tree. The formal Stage 2 is PENDING: one shared physical run for this story and ALV-007-C01 R02, frozen in .alveara/handoffs/ALV-N016/R03-evidence/stage2/ (4,324 tests, 55-minute ceiling, template-use criteria, the 5 ledger and D5 checks; two independent evaluators). No full run made."
+        "summary": "Attempt R04, a Stage 1 package with no source change (prior attempts: R01 time ceiling, R02 billing race with the clone-based design approved, R03 Stage 1 approved but its shared Stage 2 failed one client gate, finding ALV-N016-R03-01, corrected by the approved and COMPLETE ALV-CONTROL-C01). Backend and backend-test files are byte-identical to the failed run (git diff empty); the only code differences since it are ALV-CONTROL-C01's Command Center files. The revalidation plan is frozen in .alveara/handoffs/ALV-N016/R04-evidence/stage2/: default one new physical shared full run judged by two updated evaluators (4,324 tests, 55-minute ceiling, template-use criteria, ledger and D5 checks, Playwright 140, repository checks 13, Command Center files equal to the approved item); an equivalence alternative (reuse of the preserved backend result plus a fresh frontend gate) is a decision request to the reviewer. The failed Stage 2 is not claimed as final approval. No full run made."
       },
       "demo": "n/a_test_infrastructure",
       "parentRegression": "n/a_no_course_parent",
-      "implementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
-      "evidenceCommit": "1cbf591093ed36b4b190ba41c3ac4892bf1362a8",
-      "handoffPath": ".alveara/handoffs/ALV-N016/R03.md",
+      "implementationCommit": "69c6f7fe0c4155338b8d752804878d44784348a6",
+      "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
+      "handoffPath": ".alveara/handoffs/ALV-N016/R04.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R03.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
         "reviewedEvidenceCommit": "1cbf591093ed36b4b190ba41c3ac4892bf1362a8",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R03-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-N016-R03-01: the shared Stage 2 run (ba51d2e, one physical run, evaluators in R03-regression-evidence) failed one client gate: mocked Playwright 134 passed, 2 failed (architecture-map.spec.ts:145, desktop and tablet): the Command Center map and its spec have no label for the valid statuses AWAITING_REGRESSION and REVALIDATION_REQUIRED, now present together in the ledger. Every ALV-N016 criterion passed: 4324 of 4324 backend tests in 34.2 min (ceiling 55), 0 fallbacks, 3289 clones, 32 real-path fixtures, counts unchanged. See .alveara/handoffs/ALV-N016/R03-regression.md."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "FAILED"
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

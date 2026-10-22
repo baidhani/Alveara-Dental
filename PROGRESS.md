@@ -1120,4 +1120,10 @@
   - What changed: recorded the reviewer's final `APPROVED` (`.alveara/reviews/ALV-CONTROL-C01/R01.md`) and set `ALV-CONTROL-C01` to `COMPLETE`; the formal frontend-only gate result is preserved (`.alveara/handoffs/ALV-CONTROL-C01/R01-regression.md`). No source or test change.
   - Verification: reviewer APPROVED 2026-10-22; frontend gate qualified on closure commit `fcf40dd` (tsc, build, lint, Vitest 1,544 in 97 files, Playwright 140 passed / 0 failed, repository checks 13 passed).
   - Notes: ALV-N016 R03 and ALV-007-C01 R02 stay `CHANGES_REQUIRED` until their re-qualification under a new frozen shared plan; ALV-N015 stays blocked. Not pushed.
+- [ ] ALV-N016 R04 and ALV-007-C01 R03: Stage 1 resubmissions after ALV-CONTROL-C01 (no source change; awaiting reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded ALV-CONTROL-C01's closure; wrote the two handoffs (`.alveara/handoffs/ALV-N016/R04*`, `.alveara/handoffs/ALV-007-C01/R03*`) stating how the shared-regression evidence is revalidated: default one new physical shared full run (updated evaluators: Playwright 140, repository checks 13, Command Center equivalence), plus an equivalence alternative as a decision request; shared tooling in `ALV-N016/R04-evidence/stage2/`; both stories `AWAITING_REVIEW`, `fullRegression: PENDING`.
+  - Verification: `git diff` of `src/Alveara.Api` and `src/Alveara.Api.Tests` since the failed run is empty; both updated evaluators run and fail the failed run's output as designed; the reuse evaluator holds on a clean tree.
+  - Notes: left unchecked: awaiting review; the new Stage 2 runs once after both Stage 1 closure-only commits. Not pushed.
 
