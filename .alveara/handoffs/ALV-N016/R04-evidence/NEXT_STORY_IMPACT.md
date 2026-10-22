@@ -1,0 +1,1 @@
+Unchanged: next scheduled item `ALV-N015` (item 42) stays blocked until this story's final approval; the eight `REVALIDATION_REQUIRED` descendants of ALV-007-C01 are restored only by the final review of the shared Stage 2.

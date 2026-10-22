@@ -1,0 +1,1 @@
+**No source or test file changed in R03.** R03 adds only `.alveara/` files: this handoff and `R03-evidence/`. The code under review is the correction `37d2b08420d1b24837052aafddb8994bd186d6da` (`BillingService.Ledger.cs`, `BillingLedgerReadConsistencyTests.cs`), unchanged.

@@ -1,0 +1,1 @@
+Parent `STORY-007`: its backend tests are part of the 4,324-test run and the 409-test selection (all passed on this byte-identical backend); client panel tests and walkthrough are part of the shared Stage 2 contract (Vitest, Playwright, repository checks).

@@ -1,0 +1,1 @@
+No source change since R02: the approved conditions and the reviewer's corrective conditions are as in `../R02-evidence/ACCEPTANCE_EVIDENCE.md` (7 approved conditions plus R1 to R5), with the final shared Stage 2 `PENDING` (`TEST_RESULTS.md`).
