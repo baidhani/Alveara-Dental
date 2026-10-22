@@ -1655,12 +1655,13 @@
       "evidenceCommit": "26905945bf77383010f53df05076f0ff38f66015",
       "handoffPath": ".alveara/handoffs/ALV-007-C01/R02.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R02-stage1.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R02.md",
         "approvedAttempt": "R01",
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
         "reviewedEvidenceCommit": "26905945bf77383010f53df05076f0ff38f66015",
-        "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md"
+        "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R02-stage1.md"
       },
       "blockingIssues": [
         "ALV-007-C01-R02-01: the shared Stage 2 run (same run as ALV-N016 R03) failed one client gate unrelated to billing: mocked Playwright 134 passed, 2 failed (architecture-map.spec.ts:145): the Command Center map has no label for AWAITING_REGRESSION and REVALIDATION_REQUIRED. All billing criteria passed: 4324 of 4324 backend tests, the 5 ledger tests and D5. See .alveara/handoffs/ALV-007-C01/R02-regression.md."
@@ -2118,11 +2119,12 @@
       "evidenceCommit": "1cbf591093ed36b4b190ba41c3ac4892bf1362a8",
       "handoffPath": ".alveara/handoffs/ALV-N016/R03.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-N016/R03-stage1.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N016/R03.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
-        "reviewedEvidenceCommit": "1cbf591093ed36b4b190ba41c3ac4892bf1362a8"
+        "reviewedEvidenceCommit": "1cbf591093ed36b4b190ba41c3ac4892bf1362a8",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R03-stage1.md"
       },
       "blockingIssues": [
         "ALV-N016-R03-01: the shared Stage 2 run (ba51d2e, one physical run, evaluators in R03-regression-evidence) failed one client gate: mocked Playwright 134 passed, 2 failed (architecture-map.spec.ts:145, desktop and tablet): the Command Center map and its spec have no label for the valid statuses AWAITING_REGRESSION and REVALIDATION_REQUIRED, now present together in the ledger. Every ALV-N016 criterion passed: 4324 of 4324 backend tests in 34.2 min (ceiling 55), 0 fallbacks, 3289 clones, 32 real-path fixtures, counts unchanged. See .alveara/handoffs/ALV-N016/R03-regression.md."

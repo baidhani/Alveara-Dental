@@ -1096,4 +1096,10 @@
   - What changed: ran the frozen shared Stage 2 once on closure commit `ba51d2e` and recorded the raw outputs unchanged in `.alveara/handoffs/ALV-N016/R03-regression-evidence/` with additive packages `ALV-N016/R03-regression.md` and `ALV-007-C01/R02-regression.md`; both stories recorded `CHANGES_REQUIRED`, `fullRegression: FAILED`.
   - Verification: backend 4,324 of 4,324 passed in 34.2 minutes (55-minute ceiling met), 0 fallbacks, 3,289 clones, ledger tests and D5 passed, tsc/Vitest/build/lint/repository checks passed; mocked Playwright 134 passed, 2 failed (Command Center map has no label for AWAITING_REGRESSION and REVALIDATION_REQUIRED); both evaluators: DOES NOT QUALIFY (that one line).
   - Notes: left unchecked: the failing gate is outside both stories' source; the reviewer decides the resolution. No second run was made. Not pushed.
+- [ ] Reviews of the shared Stage 2 recorded (ALV-N016 R03 and ALV-007-C01 R02: CHANGES_REQUIRED)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: stored the reviewer's two final decisions unchanged (`.alveara/reviews/ALV-N016/R03.md`, `.alveara/reviews/ALV-007-C01/R02.md`); both stories stay `CHANGES_REQUIRED`, `fullRegression: FAILED`, with the decision artifacts recorded. Finding ALV-N016-R03-01: the Command Center Architecture Map lacks labels for the valid statuses `AWAITING_REGRESSION` and `REVALIDATION_REQUIRED` (and the others `HANDOFF_SCHEMA.md` permits); it must be corrected at its owner and independently reviewed, then ALV-N016 and ALV-007-C01 are resubmitted; the eight descendants stay `REVALIDATION_REQUIRED`; ALV-N015 stays blocked.
+  - Verification: user supplied the review files; no code changed.
+  - Notes: left unchecked: neither story is complete. Not pushed.
 
