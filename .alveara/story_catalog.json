@@ -263,6 +263,11 @@
       "storyId": "ALV-N015",
       "title": "Notification Center and Internal Messaging",
       "subsystem": "Operations & Finance"
+    },
+    {
+      "storyId": "ALV-CONTROL-C01",
+      "title": "Architecture Map Execution-State Labels",
+      "subsystem": "Platform & Release"
     }
   ]
 }

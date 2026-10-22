@@ -3,9 +3,9 @@
   "generatedBy": "ALV-CONTROL bootstrap R02",
   "generatedAt": "2026-09-27T22:17:54.318Z",
   "counts": {
-    "totalActiveFirstReleaseRecords": 56,
+    "totalActiveFirstReleaseRecords": 57,
     "courseRecords": 19,
-    "alvRecords": 37
+    "alvRecords": 38
   },
   "records": [
     {
@@ -2902,6 +2902,53 @@
         "reason": null
       },
       "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.3",
+        "handoffSchemaVersion": "3"
+      },
+      "num": 57,
+      "phase": "Foundation",
+      "storyId": "ALV-CONTROL-C01",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "STORY-000"
+      ],
+      "optional": false,
+      "qualityGateContribution": [],
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
+      "acceptance": {
+        "total": 6,
+        "passed": 5
+      },
+      "tests": {
+        "status": "passed",
+        "summary": "PLACEHOLDER"
+      },
+      "demo": "n/a_control_ui_labels",
+      "parentRegression": "n/a_not_a_course_extension",
+      "implementationCommit": "69c6f7fe0c4155338b8d752804878d44784348a6",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-CONTROL-C01/R01.md",
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null,
+      "fullRegression": "PENDING"
     }
   ]
 }
