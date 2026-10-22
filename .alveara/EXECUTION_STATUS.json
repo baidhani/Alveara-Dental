@@ -1639,7 +1639,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "AWAITING_REGRESSION",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -1655,11 +1655,11 @@
       "evidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
       "handoffPath": ".alveara/handoffs/ALV-007-C01/R03.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "APPROVED_PENDING_REGRESSION",
+        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R03-stage1.md",
         "approvedAttempt": "R01",
         "reviewedImplementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
-        "reviewedEvidenceCommit": "26905945bf77383010f53df05076f0ff38f66015",
+        "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
         "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R02-stage1.md"
       },
@@ -1671,7 +1671,7 @@
         "reopenReason": "ALV-N016-R02-01: BillingService.LoadLedgerAsync read the entries, allocations and releases in three separate queries; a payment committed between them escaped as KeyNotFoundException. Corrected in attempt R02 (account row-version bracket with repeat); declared descendants are marked REVALIDATION_REQUIRED."
       },
       "completedAt": null,
-      "fullRegression": "PENDING"
+      "fullRegression": "REQUIRED"
     },
     {
       "schemaVersion": "2",
