@@ -1639,34 +1639,38 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "Backend, full serial: 2,856 of 2,856 passed, 0 failed, 0 skipped (1 h 9 m). New: 127 in six classes (BillingLedgerSchemaTests 33, BillingLedgerMathTests 17, BillingLedgerServiceTests 23, BillingResponsibilityServiceTests 22, BillingProcedureChargeContractTests 10, BillingLedgerApiTests 22); the STORY-007 billing tests (75) pass unchanged inside it.; Frontend, full: 1,346 of 1,346 passed (87 files; 21 new in BillingLedgerPanel.test.tsx); the 15 STORY-007 panel tests pass unchanged.; Type check / build / lint: tsc exit 0, build ok, lint exit 0.; Mocked browser: 136 of 136 passed.; Repository checks: 8 of 8 passed.; Real-backend walkthrough (new, ledger): 11 of 11 passed; axe, light and dark, 0 critical/serious.; Real-backend walkthrough (parent, STORY-007): 10 of 10 passed with its spec unchanged (its first sweep attempt failed because the new responsibility form was offered before anything was billed; the form is now offered once the account exists).; Real-backend sweep on fresh databases: 23 runs, 238 of 238 passed (the 17 existing 187, procedures 8, STORY-015 11, treatment plans complete 11, billing 10, billing ledger 11).; Leak check: databases and logins unchanged (AlveraTest 54, AlveraRestore 59, logins 273, alveara_ 248).; Negative controls: twelve rules, each caught, each restored byte-identical.; Migration reversibility: Down removes the 3 tables, 7 triggers and 4 columns; Up restores them."
+        "summary": "Attempt R02, a corrective Stage 1 package under the two-stage policy (high risk: money/billing and a concurrency primitive); no full suite run, the formal Stage 2 is PENDING and its contract is frozen in .alveara/handoffs/ALV-007-C01/R02-evidence/stage2/ (4,324 tests expected). Implementation 37d2b08: BillingService.LoadLedgerAsync brackets its three reads with the account row version and repeats the read (4 attempts, then the controlled ConcurrencyConflictException). 5 new deterministic tests force the window: 4 of 5 fail with KeyNotFoundException on the old code and all 5 pass on the fix. Ledger-focused selection 409 of 409 passed; descendant selection (treatment completion, completed procedures, completion, prescriptions, documents) 1,379 of 1,379 passed; D5 financial history passed. The eight listed descendants are marked REVALIDATION_REQUIRED with a per-story assessment (R02-evidence/REVALIDATION_ASSESSMENT.md). No schema, endpoint, permission or client change."
       },
-      "demo": "verified",
+      "demo": "n/a_justified_read_consistency_correction",
       "parentRegression": "verified",
-      "implementationCommit": "9dd15c1712a1010eafc8c457c4a207b5cb2b625b",
-      "evidenceCommit": "917b32f83e414c71b653860e889b5a059d6e01a5",
-      "handoffPath": ".alveara/handoffs/ALV-007-C01/R01.md",
+      "implementationCommit": "37d2b08420d1b24837052aafddb8994bd186d6da",
+      "evidenceCommit": "26905945bf77383010f53df05076f0ff38f66015",
+      "handoffPath": ".alveara/handoffs/ALV-007-C01/R02.md",
       "review": {
-        "decision": "APPROVED",
-        "decisionArtifact": ".alveara/reviews/ALV-007-C01/R01.md",
+        "decision": null,
+        "decisionArtifact": null,
         "approvedAttempt": "R01",
-        "reviewedImplementationCommit": "9dd15c1712a1010eafc8c457c4a207b5cb2b625b",
-        "reviewedEvidenceCommit": "917b32f83e414c71b653860e889b5a059d6e01a5"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
-        "reason": null
+        "reason": null,
+        "reopened": true,
+        "reopenReason": "ALV-N016-R02-01: BillingService.LoadLedgerAsync read the entries, allocations and releases in three separate queries; a payment committed between them escaped as KeyNotFoundException. Corrected in attempt R02 (account row-version bracket with repeat); declared descendants are marked REVALIDATION_REQUIRED."
       },
-      "completedAt": "2026-10-11T20:51:40Z"
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",
@@ -1687,7 +1691,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": null,
       "acceptance": {
         "total": 3,
@@ -1711,8 +1715,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-11T22:47:43.194Z",
       "externalVerification": "course_portal"
@@ -1740,7 +1744,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -1764,8 +1768,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-12T13:09:43Z"
     },
@@ -1790,7 +1794,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -1814,8 +1818,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-13T03:59:07Z"
     },
@@ -1840,7 +1844,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -1864,8 +1868,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-13T22:37:42Z"
     },
@@ -1889,7 +1893,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": null,
       "acceptance": {
         "total": 3,
@@ -1913,8 +1917,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-14T02:12:35.095Z",
       "externalVerification": "course_portal",
@@ -1942,7 +1946,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -1966,8 +1970,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-16T15:38:46Z"
     },
@@ -1990,7 +1994,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": null,
       "acceptance": {
         "total": 3,
@@ -2014,8 +2018,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-20T14:00:58.14Z",
       "externalVerification": "course_portal",
@@ -2044,7 +2048,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "COMPLETE",
+      "status": "REVALIDATION_REQUIRED",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -2071,8 +2075,8 @@
       },
       "blockingIssues": [],
       "revalidation": {
-        "required": false,
-        "reason": null
+        "required": true,
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
       },
       "completedAt": "2026-10-21T22:03:03Z",
       "fullRegression": "PASSED"

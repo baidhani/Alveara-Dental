@@ -1078,4 +1078,10 @@
   - What changed: stored the reviewer's R02 decision at `.alveara/reviews/ALV-N016/R02.md` and set the status record to `CHANGES_REQUIRED`. The 13 rollback classes may start from a clone; the blocking finding ALV-N016-R02-01 is the billing ledger read race, owned by ALV-007-C01, which must be corrected and its descendants revalidated before R03 Stage 1. R02 Stage 2 must not be run; ALV-N015 stays blocked.
   - Verification: user supplied the review file; no code changed.
   - Notes: left unchecked; story not complete. Not pushed.
+- [ ] ALV-007-C01 R02: coherent ledger read under concurrent recording (Stage 1, awaiting review)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: `BillingService.LoadLedgerAsync` brackets its three queries with the account row version and repeats the read (4 attempts, then `ConcurrencyConflictException`), fixing the `KeyNotFoundException` race found by the ALV-N016 R02 full run; 5 deterministic tests in `BillingLedgerReadConsistencyTests` (implementation `37d2b08`); handoff and evidence `.alveara/handoffs/ALV-007-C01/R02*`; the eight listed descendants set to `REVALIDATION_REQUIRED` with an assessment; ALV-007-C01 set to `AWAITING_REVIEW`.
+  - Verification: 5 of 5 new tests pass (4 of 5 fail on the old code); ledger-focused 409 of 409; descendant selection 1,379 of 1,379.
+  - Notes: left unchecked: awaiting review; the formal Stage 2 is PENDING; ALV-N016 and ALV-N015 stay blocked. Not pushed.
 
