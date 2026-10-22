@@ -638,7 +638,7 @@
       "qualityGateContribution": [
         "Gate B"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -646,7 +646,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R03, a focused Stage 1 corrective package (low risk: one client unit test; test-only, no product, backend or configuration change; no backend run). Reopened by the reviewer's decisions on ALV-N016 R04 and ALV-007-C01 R03 (ALV-N016-R04-01 / ALV-007-C01-R03-01: the frozen frontend gate failed PatientRegistrationPage.test.tsx once). Root cause found by reproducing it: the refused-submit focus frame (requestAnimationFrame) can run between the click on City and the keystroke of user.type, sending the letter to First name. The test now waits for focus to reach the first invalid field before typing and waits for the prompt to clear; a second test covers a late frame. Negative control: the previous body fails every time when the interleaving is forced. Results: the file 10 of 10 and 30 runs in a row; full client suite 1,545 of 1,545 in 97 files; tsc, lint exit 0; repository checks 13. A dry run of the frozen shared frontend gate qualified (not the formal gate). The formal shared frontend-only gate (Vitest 1,545, Playwright 140, repository checks 13, reuse evaluations for ALV-N016 and ALV-007-C01) is PENDING after Stage 1 approval (R03-evidence/stage2/)."
+        "summary": "Attempt R03, a focused Stage 1 corrective package (low risk: one client unit test; test-only, no product, backend or configuration change; no backend run). Reopened by the reviewer's decisions on ALV-N016 R04 and ALV-007-C01 R03 (ALV-N016-R04-01 / ALV-007-C01-R03-01: the frozen frontend gate failed PatientRegistrationPage.test.tsx once). Root cause found by reproducing it: the refused-submit focus frame (requestAnimationFrame) can run between the click on City and the keystroke of user.type, sending the letter to First name. The test now waits for focus to reach the first invalid field before typing and waits for the prompt to clear; a second test covers a late frame. Negative control: the previous body fails every time when the interleaving is forced. Results: the file 10 of 10 and 30 runs in a row; full client suite 1,545 of 1,545 in 97 files; tsc, lint exit 0; repository checks 13. A dry run of the frozen shared frontend gate qualified (not the formal gate). The formal shared frontend-only gate (Vitest 1,545, Playwright 140, repository checks 13, reuse evaluations for ALV-N016 and ALV-007-C01) is PENDING after Stage 1 approval (R03-evidence/stage2/). Stage 2 (the frozen shared frontend-only gate, once, on the closure commit fd21228, clean tree): QUALIFIES - Vitest 1,545 in 97 files, mocked Playwright 140 passed / 0 failed, repository checks 13 passed, tsc/build/lint exit 0; both reuse evaluations HOLD; no backend run. See .alveara/handoffs/ALV-003-C01/R03-regression.md."
       },
       "demo": "n/a_test_only_corrective",
       "parentRegression": "verified",
@@ -669,7 +669,7 @@
         "reopenReason": "ALV-N016-R04-01 and ALV-007-C01-R03-01: the shared frontend gate failed one ALV-003-C01 client test (PatientRegistrationPage.test.tsx) once under load; corrected test-only in attempt R03. No descendant is affected (test-only change); see R03-evidence/DESCENDANT_ASSESSMENT.md."
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",
@@ -1643,7 +1643,7 @@
       "qualityGateContribution": [
         "Gate D"
       ],
-      "status": "CHANGES_REQUIRED",
+      "status": "AWAITING_REVIEW",
       "attempt": "R03",
       "acceptance": {
         "total": 7,
@@ -1651,7 +1651,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R03, a corrective Stage 1 package with no source change (R02's Stage 1 was approved; its shared Stage 2 failed one client gate unrelated to billing, finding ALV-N016-R03-01, corrected by the approved and COMPLETE ALV-CONTROL-C01). The ledger read correction 37d2b08 and its five deterministic tests are unchanged; backend and backend-test files are byte-identical to the failed run. The revalidation plan: one new physical shared full run judged by this story's own evaluator (stage2/evaluate_stage2_alv007c01.py in .alveara/handoffs/ALV-N016/R04-evidence/stage2/), with an equivalence alternative as a decision request. The eight descendants stay REVALIDATION_REQUIRED. No full run made."
+        "summary": "Attempt R03, a corrective Stage 1 package with no source change (R02's Stage 1 was approved; its shared Stage 2 failed one client gate unrelated to billing, finding ALV-N016-R03-01, corrected by the approved and COMPLETE ALV-CONTROL-C01). The ledger read correction 37d2b08 and its five deterministic tests are unchanged; backend and backend-test files are byte-identical to the failed run. The revalidation plan: one new physical shared full run judged by this story's own evaluator (stage2/evaluate_stage2_alv007c01.py in .alveara/handoffs/ALV-N016/R04-evidence/stage2/), with an equivalence alternative as a decision request. The eight descendants stay REVALIDATION_REQUIRED. No full run made. Additive Stage 2 re-run (reviewer ruling in .alveara/reviews/ALV-003-C01/R03-stage1.md): the blocking frontend test was corrected by ALV-003-C01 R03 and the shared frontend-only gate (closure commit fd21228) QUALIFIES with the reuse evaluation HOLDING; the preserved backend evidence stands; blocking issue ALV-007-C01-R03-01 addressed. See .alveara/handoffs/ALV-007-C01/R03-regression-rerun.md."
       },
       "demo": "n/a_justified_read_consistency_correction",
       "parentRegression": "verified",
@@ -1667,9 +1667,7 @@
         "reopenDecisionArtifact": ".alveara/reviews/ALV-N016/R02.md",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-007-C01/R03-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-007-C01-R03-01: the shared Stage 2 (equivalence plus one fresh frontend gate, closure commit 9183c18) did not qualify: Vitest 1 failed, 1543 passed (an unrelated client test, PatientRegistrationPage, not touched by this release). Everything else passed: Playwright 140, repository checks 13; both reuse evaluations HOLD (no backend file differs). The gate was not rerun. See .alveara/handoffs/ALV-007-C01/R03-regression.md."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null,
@@ -1677,7 +1675,7 @@
         "reopenReason": "ALV-N016-R02-01: BillingService.LoadLedgerAsync read the entries, allocations and releases in three separate queries; a payment committed between them escaped as KeyNotFoundException. Corrected in attempt R02 (account row-version bracket with repeat); declared descendants are marked REVALIDATION_REQUIRED."
       },
       "completedAt": null,
-      "fullRegression": "FAILED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",
@@ -2107,7 +2105,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
+      "status": "AWAITING_REVIEW",
       "attempt": "R04",
       "acceptance": {
         "total": 8,
@@ -2115,7 +2113,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R04, a Stage 1 package with no source change (prior attempts: R01 time ceiling, R02 billing race with the clone-based design approved, R03 Stage 1 approved but its shared Stage 2 failed one client gate, finding ALV-N016-R03-01, corrected by the approved and COMPLETE ALV-CONTROL-C01). Backend and backend-test files are byte-identical to the failed run (git diff empty); the only code differences since it are ALV-CONTROL-C01's Command Center files. The revalidation plan is frozen in .alveara/handoffs/ALV-N016/R04-evidence/stage2/: default one new physical shared full run judged by two updated evaluators (4,324 tests, 55-minute ceiling, template-use criteria, ledger and D5 checks, Playwright 140, repository checks 13, Command Center files equal to the approved item); an equivalence alternative (reuse of the preserved backend result plus a fresh frontend gate) is a decision request to the reviewer. The failed Stage 2 is not claimed as final approval. No full run made."
+        "summary": "Attempt R04, a Stage 1 package with no source change (prior attempts: R01 time ceiling, R02 billing race with the clone-based design approved, R03 Stage 1 approved but its shared Stage 2 failed one client gate, finding ALV-N016-R03-01, corrected by the approved and COMPLETE ALV-CONTROL-C01). Backend and backend-test files are byte-identical to the failed run (git diff empty); the only code differences since it are ALV-CONTROL-C01's Command Center files. The revalidation plan is frozen in .alveara/handoffs/ALV-N016/R04-evidence/stage2/: default one new physical shared full run judged by two updated evaluators (4,324 tests, 55-minute ceiling, template-use criteria, ledger and D5 checks, Playwright 140, repository checks 13, Command Center files equal to the approved item); an equivalence alternative (reuse of the preserved backend result plus a fresh frontend gate) is a decision request to the reviewer. The failed Stage 2 is not claimed as final approval. No full run made. Additive Stage 2 re-run (reviewer ruling in .alveara/reviews/ALV-003-C01/R03-stage1.md): the blocking frontend test was corrected by ALV-003-C01 R03 and the shared frontend-only gate (closure commit fd21228) QUALIFIES with the reuse evaluation HOLDING; the preserved backend evidence (34.2 min) stands; blocking issue ALV-N016-R04-01 addressed. See .alveara/handoffs/ALV-N016/R04-regression-rerun.md."
       },
       "demo": "n/a_test_infrastructure",
       "parentRegression": "n/a_no_course_parent",
@@ -2130,15 +2128,13 @@
         "reviewedEvidenceCommit": "e2a237a41bd3bf6ccbb66006f8ebd5a792c82c41",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-N016/R04-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-N016-R04-01: the shared Stage 2 (equivalence plus one fresh frontend gate, closure commit 9183c18) did not qualify: Vitest 1 failed, 1543 passed (src/pages/PatientRegistrationPage.test.tsx, an unrelated client test not touched by this release; passes 12 of 12 in isolation and in 3 earlier full runs). Everything else passed: Playwright 140, repository checks 13, tsc, build, lint; both reuse evaluations HOLD. The gate was not rerun. See .alveara/handoffs/ALV-N016/R04-regression.md."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "FAILED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",

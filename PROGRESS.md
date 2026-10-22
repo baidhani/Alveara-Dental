@@ -1144,4 +1144,10 @@
   - What changed: reopened ALV-003-C01 as the reviewer directed; `PatientRegistrationPage.test.tsx` now waits for focus to reach the first invalid field before typing and for the prompt to clear (plus a late-frame test and spy restoration); handoff and evidence `.alveara/handoffs/ALV-003-C01/R03*` with the frozen shared frontend-only gate (`stage2/`: Vitest 1,545 in 97 files, Playwright 140, repository checks 13, reuse evaluations for ALV-N016 and ALV-007-C01); implementation `30e2f69`; ledger `AWAITING_REVIEW`.
   - Verification: negative control (previous body fails every time when the focus frame is forced between the click and the keystroke); the file 10 of 10 and 30 runs in a row; full Vitest 1,545 of 1,545; tsc and lint exit 0; repository checks 13; a dry run of the shared gate qualified.
   - Notes: left unchecked: awaiting review; the formal shared gate runs once after Stage 1 approval; no backend run; ALV-N016 and ALV-007-C01 stay CHANGES_REQUIRED. Not pushed.
+- [ ] Shared frontend-only gate for ALV-003-C01 R03, ALV-N016 R04 and ALV-007-C01 R03 (one run; qualifies)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded the Stage 1 approval (closure-only commit `fd21228`), ran the frozen gate once on it and recorded the unedited outputs `.alveara/handoffs/ALV-003-C01/R03-regression-evidence/` with additive packages `ALV-003-C01/R03-regression.md`, `ALV-N016/R04-regression-rerun.md` and `ALV-007-C01/R03-regression-rerun.md` (the reviewer ruled no paperwork-only attempts); all three stories `AWAITING_REVIEW`, `fullRegression: PASSED`.
+  - Verification: frontend evaluator FRONTEND GATE QUALIFIES (Vitest 1,545 in 97 files, Playwright 140 passed / 0 failed, repository checks 13 passed, tsc/build/lint exit 0, clean tree before and after); both reuse evaluations REUSE EQUIVALENCE HOLDS; no backend run.
+  - Notes: left unchecked: awaiting the three final reviews. Not pushed.
 
