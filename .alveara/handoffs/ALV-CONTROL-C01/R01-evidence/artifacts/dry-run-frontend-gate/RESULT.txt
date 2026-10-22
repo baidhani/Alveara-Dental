@@ -1,0 +1,10 @@
+PASS  working tree clean before and after                                                                 
+PASS  no file other than the control records differs between the reviewed data commit and the run commit  []
+PASS  gate tsc                                                                                            exit 0
+PASS  gate vitest                                                                                         exit 0 1544 tests in 97 files
+PASS  gate build                                                                                          exit 0
+PASS  gate lint                                                                                           exit 0
+PASS  gate playwright_mocked                                                                              exit 0 140 passed
+PASS  gate repo_checks                                                                                    exit 0 13 pass, 0 fail
+
+FRONTEND GATE QUALIFIES
