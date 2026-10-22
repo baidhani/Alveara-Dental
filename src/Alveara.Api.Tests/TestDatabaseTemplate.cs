@@ -31,9 +31,6 @@ internal sealed class TestDatabaseTemplate : IDisposable
     public const string TelemetryFileVariable = "ALVERA_TEST_TEMPLATE_TELEMETRY";
     /// <summary>Set to "off" to run every fixture on the real create-and-migrate path (a measurement switch for before/after timings; the default is on).</summary>
     public const string ModeVariable = "ALVERA_TEST_TEMPLATE";
-    /// <summary>How many clones the run's template keeps prepared ahead (default 2; 0 prepares none ahead). A measurement switch like <see cref="ModeVariable"/>.</summary>
-    public const string PrefetchVariable = "ALVERA_TEST_TEMPLATE_PREFETCH";
-    public const int DefaultPrefetchDepth = 2;
     internal static readonly TimeSpan RestoreTimeout = TimeSpan.FromSeconds(120);
 
     /// <summary>The template of this test run, built on first use and disposed (its backup deleted) when the process exits.</summary>
@@ -41,8 +38,7 @@ internal sealed class TestDatabaseTemplate : IDisposable
 
     static TestDatabaseTemplate()
     {
-        var depth = int.TryParse(Environment.GetEnvironmentVariable(PrefetchVariable), out var configured) && configured >= 0 ? configured : DefaultPrefetchDepth;
-        Default = new TestDatabaseTemplate(role: RunRole, prefetchDepth: depth);
+        Default = new TestDatabaseTemplate(role: RunRole);
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Default.Dispose();
     }
 
@@ -56,7 +52,6 @@ internal sealed class TestDatabaseTemplate : IDisposable
     private readonly Func<IReadOnlyList<string>>? _expectedMigrations;
     private readonly Func<Task>? _beforeBuild;
     private readonly object _writeLock = new();
-    private readonly DatabasePrefetcher _prefetcher;
     private TemplateInfo? _info;
     private Exception? _buildFailure;
     private bool _leftoversReported;
@@ -67,26 +62,14 @@ internal sealed class TestDatabaseTemplate : IDisposable
     public string BackupFolder { get; }
     public string Role { get; }
 
-    internal TestDatabaseTemplate(string? backupFolder = null, TextWriter? log = null, Func<IReadOnlyList<string>>? expectedMigrations = null, Func<Task>? beforeBuild = null, string role = "test", int prefetchDepth = 0)
+    internal TestDatabaseTemplate(string? backupFolder = null, TextWriter? log = null, Func<IReadOnlyList<string>>? expectedMigrations = null, Func<Task>? beforeBuild = null, string role = "test")
     {
         Role = role;
-        _prefetcher = new DatabasePrefetcher(prefetchDepth, RestoreCloneAsync, DropIfExistsAsync, (name, level, context) => Event(name, level, context));
         BackupFolder = backupFolder ?? AlveraTestEnvironment.TempFolder;
         _log = log ?? Console.Error;
         _expectedMigrations = expectedMigrations;
         _beforeBuild = beforeBuild;
     }
-
-    /// <summary>ALV-N016 R02: how many claims found a clone prepared ahead, how many found none, and how many of the hits still had to wait for it.</summary>
-    public int PrefetchHits => _prefetcher.Hits;
-    public int PrefetchMisses => _prefetcher.Misses;
-    public int PrefetchWaits => _prefetcher.Waits;
-    public int PrefetchReady => _prefetcher.Ready;
-
-    /// <summary>The oldest prepared clone for a fixture to adopt, or null (depth 0, not started, none left); see <see cref="DatabasePrefetcher"/>.</summary>
-    internal DatabasePrefetcher.Entry? TryClaimPrefetched() => _prefetcher.TryClaim();
-    public Task DiscardPreparedAsync() => _prefetcher.DiscardAsync();
-    public void RestartPrefetch() => _prefetcher.Restart();
 
     public int Builds => Volatile.Read(ref _builds);
     public int Rebuilds => Volatile.Read(ref _rebuilds);
@@ -113,7 +96,6 @@ internal sealed class TestDatabaseTemplate : IDisposable
             if (_info is not null)
             {
                 Event("template_migration_mismatch", "warn", new { template_migrations = _info.Migrations.Count, code_migrations = expected.Count });
-                await _prefetcher.DiscardAsync();
                 TryDeleteBackup(_info.BackupPath);
                 _info = null;
                 Interlocked.Increment(ref _rebuilds);
@@ -123,7 +105,6 @@ internal sealed class TestDatabaseTemplate : IDisposable
             try
             {
                 _info = await BuildAsync(expected);
-                _prefetcher.Start();                                                                                    // prepare clones ahead from now on
                 return _info;
             }
             catch (Exception ex)
@@ -226,15 +207,11 @@ internal sealed class TestDatabaseTemplate : IDisposable
     public void Dispose()
     {
         lock (_writeLock) { if (_disposed) return; _disposed = true; }
-        _prefetcher.Dispose();                                                                                          // drops every clone nobody claimed
         if (_info is not null) TryDeleteBackup(_info.BackupPath);
-        Event("template_summary", "info", new { builds = Builds, rebuilds = Rebuilds, clones = Clones, fallbacks = Fallbacks, prefetch_hits = PrefetchHits, prefetch_misses = PrefetchMisses, prefetch_waits = PrefetchWaits, real_migration_fixtures = TestDatabaseFixture.RealMigrationFixtureCount, build_ms = _buildMs, restore_ms_total = Volatile.Read(ref _restoreMs) });
+        Event("template_summary", "info", new { builds = Builds, rebuilds = Rebuilds, clones = Clones, fallbacks = Fallbacks, real_migration_fixtures = TestDatabaseFixture.RealMigrationFixtureCount, build_ms = _buildMs, restore_ms_total = Volatile.Read(ref _restoreMs) });
     }
 
     // ---------------------------------------------------------------- helpers
-
-    private static Task DropIfExistsAsync(string database) =>
-        ExecuteMasterAsync($"IF DB_ID(N'{database}') IS NOT NULL BEGIN ALTER DATABASE [{database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{database}]; END");
 
     private static string Q(string s) => s.Replace("'", "''");
 

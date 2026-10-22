@@ -44,7 +44,7 @@ public class RealMigrationInventoryTests
 
     private static readonly HashSet<string> Infrastructure =
     [
-        nameof(TestDatabaseFixture), nameof(RealMigrationTestDatabaseFixture), nameof(TestDatabaseTemplate), nameof(TestDatabaseTemplateTests), nameof(TestDatabasePrefetcherTests), nameof(DatabasePrefetcher), nameof(RealMigrationInventory),
+        nameof(TestDatabaseFixture), nameof(RealMigrationTestDatabaseFixture), nameof(TestDatabaseTemplate), nameof(TestDatabaseTemplateTests), nameof(RealMigrationInventory),
         nameof(RealMigrationInventoryTests), nameof(RealMigrationsAttribute), nameof(SafetyTestBase),
     ];
 

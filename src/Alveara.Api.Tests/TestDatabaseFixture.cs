@@ -35,7 +35,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// <summary>The start of the message SqlClient uses for its pool-acquisition timeout (whitespace normalised before comparing).</summary>
     private const string PoolAcquisitionTimeoutPrefix = "Timeout expired. The timeout period elapsed prior to obtaining a connection from the pool.";
 
-    private string _databaseName = $"AlveraTest_{Guid.NewGuid():N}";                                  // replaced by the name of a prepared clone when the fixture adopts one
+    private readonly string _databaseName = $"AlveraTest_{Guid.NewGuid():N}";
 
     private static int _realMigrationFixtures;
     /// <summary>ALV-N016: how many fixtures of this run used the real create-and-migrate path (the named inventory, and fallbacks), for the run's telemetry summary.</summary>
@@ -84,10 +84,6 @@ public class TestDatabaseFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        // ALV-N016 R02: a clone the template prepared ahead (restored in the background while the previous test ran) is adopted under its own name; when there is none, or its restore failed,
-        // this fixture restores or creates its own database below, exactly as before.
-        if (_template is not null && await TryAdoptPrefetchedAsync()) return;
-
         ConnectionString = AlveraTestEnvironment.ConnectionStringFor(_databaseName);
 
         var options = new DbContextOptionsBuilder<AlveraDbContext>()
@@ -131,32 +127,6 @@ public class TestDatabaseFixture : IAsyncLifetime
             await CleanUpFailedInitializationAsync();
             throw;
         }
-    }
-
-    /// <summary>
-    /// Adopts a clone the template prepared ahead. Returns false when there is none (the caller restores its own) or when the background restore of the claimed one failed (its partial database is removed,
-    /// the fallback is logged and counted, and the caller creates its own). A <see cref="TemplateBuildException"/> is raised unchanged.
-    /// </summary>
-    private async Task<bool> TryAdoptPrefetchedAsync()
-    {
-        var claim = _template!.TryClaimPrefetched();
-        if (claim is null) return false;
-        try
-        {
-            await claim.Ready;
-        }
-        catch (TemplateBuildException) { throw; }
-        catch (Exception ex)
-        {
-            var reason = ex is SqlException sql ? $"SQL {sql.Number}" : ex.GetType().Name;
-            try { await DropDatabaseAsync(onlyIfExists: true, claim.Name); }
-            catch (Exception dropFailure) { _log.WriteLine($"[TestDatabaseFixture] removing the failed prepared clone {claim.Name} failed ({dropFailure.GetType().Name}); it may remain."); }
-            _template.RecordFallback(claim.Name, reason);
-            return false;
-        }
-        _databaseName = claim.Name;
-        ConnectionString = AlveraTestEnvironment.ConnectionStringFor(_databaseName);
-        return true;
     }
 
     /// <summary>
@@ -240,11 +210,10 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// The drop (<c>ALTER DATABASE ... SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE ...</c>), retried as a WHOLE (opening the master connection included) on the failures of
     /// <see cref="IsTransientDropFailure"/>. The batch itself is unchanged.
     /// </summary>
-    private async Task DropDatabaseAsync(bool onlyIfExists, string? database = null)
+    private async Task DropDatabaseAsync(bool onlyIfExists)
     {
-        database ??= _databaseName;
-        var statement = $"ALTER DATABASE [{database}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{database}];";
-        if (onlyIfExists) statement = $"IF DB_ID(N'{database}') IS NOT NULL BEGIN {statement} END";
+        var statement = $"ALTER DATABASE [{_databaseName}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [{_databaseName}];";
+        if (onlyIfExists) statement = $"IF DB_ID(N'{_databaseName}') IS NOT NULL BEGIN {statement} END";
 
         await RunWithTransientRetryAsync(async () =>
         {
@@ -255,7 +224,7 @@ public class TestDatabaseFixture : IAsyncLifetime
             await using var command = connection.CreateCommand();
             command.CommandText = statement;
             await command.ExecuteNonQueryAsync();
-        }, IsTransientDropFailure, "drop", database, MaxDropAttempts, DropRetryDelays, _delay, _log, beforeRetry: null);
+        }, IsTransientDropFailure, "drop", _databaseName, MaxDropAttempts, DropRetryDelays, _delay, _log, beforeRetry: null);
     }
 
     /// <summary>
