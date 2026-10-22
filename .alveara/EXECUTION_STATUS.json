@@ -2920,7 +2920,7 @@
       ],
       "optional": false,
       "qualityGateContribution": [],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R01",
       "acceptance": {
         "total": 6,
@@ -2936,18 +2936,19 @@
       "evidenceCommit": "59b5eaff7fa99910c5b8b15e94c7a25fd18a150d",
       "handoffPath": ".alveara/handoffs/ALV-CONTROL-C01/R01.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-CONTROL-C01/R01-stage1.md",
-        "approvedAttempt": null,
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-CONTROL-C01/R01.md",
+        "approvedAttempt": "R01",
         "reviewedImplementationCommit": "69c6f7fe0c4155338b8d752804878d44784348a6",
-        "reviewedEvidenceCommit": "59b5eaff7fa99910c5b8b15e94c7a25fd18a150d"
+        "reviewedEvidenceCommit": "59b5eaff7fa99910c5b8b15e94c7a25fd18a150d",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-CONTROL-C01/R01-stage1.md"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
+      "completedAt": "2026-10-22T20:07:29Z",
       "fullRegression": "PASSED"
     }
   ]

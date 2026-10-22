@@ -1114,4 +1114,10 @@
   - What changed: recorded the Stage 1 approval (closure-only commit `fcf40dd`), ran the frozen frontend gate once on it and recorded the unedited outputs `.alveara/handoffs/ALV-CONTROL-C01/R01-regression-evidence/` with `R01-regression.md`; status `AWAITING_REVIEW`, `fullRegression: PASSED`.
   - Verification: tsc, build, lint, Vitest (1,544 in 97 files), mocked Playwright (140 passed / 0 failed) and repository checks (13 passed) all exit 0; clean tree before and after; evaluator verdict `FRONTEND GATE QUALIFIES`; no backend run.
   - Notes: left unchecked: awaiting final review. The reviewer's one-argument evaluator command does not match the frozen script (needs the implementation sha); disclosed in the package. Not pushed.
+- [x] ALV-CONTROL-C01 approved and closed (Command Center execution-state labels)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded the reviewer's final `APPROVED` (`.alveara/reviews/ALV-CONTROL-C01/R01.md`) and set `ALV-CONTROL-C01` to `COMPLETE`; the formal frontend-only gate result is preserved (`.alveara/handoffs/ALV-CONTROL-C01/R01-regression.md`). No source or test change.
+  - Verification: reviewer APPROVED 2026-10-22; frontend gate qualified on closure commit `fcf40dd` (tsc, build, lint, Vitest 1,544 in 97 files, Playwright 140 passed / 0 failed, repository checks 13 passed).
+  - Notes: ALV-N016 R03 and ALV-007-C01 R02 stay `CHANGES_REQUIRED` until their re-qualification under a new frozen shared plan; ALV-N015 stays blocked. Not pushed.
 
