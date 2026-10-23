@@ -1162,4 +1162,10 @@
   - What changed: wrote `.alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md` and `R03-revalidation-evidence/` (summary and one backend-test CSV per story extracted from the preserved 4,324-test run); pointed each descendant's revalidation reason at it. No status changed; no test was run.
   - Verification: every extracted backend test is Passed (53, 129, 364, 182, 158, 167, 592, 592 for the eight stories); the only production change of the reopening is BillingService.Ledger.cs (checked by diff).
   - Notes: left unchecked: awaiting the reviewer's per-story decisions; ALV-N015 stays blocked until STORY-010 and ALV-010-C01 are restored. Not pushed.
+- [x] Descendant revalidation of ALV-007-C01 approved: the eight descendants restored to COMPLETE
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: recorded the reviewer's approval (`.alveara/reviews/ALV-007-C01/R03-descendant-revalidation.md`) and restored `STORY-008`, `ALV-008-C01`, `ALV-007-C02`, `ALV-008-C02`, `STORY-016`, `ALV-016-C01`, `STORY-010`, `ALV-010-C01` to `COMPLETE`, `revalidation.required` cleared with the review recorded as the closure. Control records only; no source or test change.
+  - Verification: reviewer APPROVED 2026-10-22 on the 4,324-test backend run, the 409 and 1,379 targeted selections and the shared frontend gate.
+  - Notes: ALV-N015 (item 42) is no longer blocked by these records; it is not started. Not pushed.
 
