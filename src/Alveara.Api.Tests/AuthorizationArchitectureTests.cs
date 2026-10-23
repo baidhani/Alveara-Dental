@@ -62,4 +62,24 @@ public class AuthorizationArchitectureTests
         Assert.True(sites >= 270, $"{sites} RequirePermission sites");                                                // the design counted 274; the number may grow with new routes, never silently shrink
         Assert.True(any >= 1);
     }
+
+    /// <summary>The only file allowed to change an account role or enabled state, or to delete an account: the guarded account service. Registration and the first-administrator bootstrap create accounts in object initializers, which is not a write to an existing account.</summary>
+    private const string AccountWriter = "Architecture/Identity/AccountService.cs";
+
+    [Fact]
+    public void An_accounts_role_and_disabled_state_are_written_and_accounts_deleted_only_by_the_guarded_account_service()
+    {
+        var offenders = Sources()
+            .Where(s => s.Path != AccountWriter)
+            .Where(s => Regex.IsMatch(s.Text, @"\.(Role|IsDisabled)\s*=[^=>]")                                                   // account.Role = ..., account.IsDisabled = ...
+                     || Regex.IsMatch(s.Text, @"SetProperty\(\s*\w+\s*=>\s*\w+\.(Role|IsDisabled)\b")                           // ExecuteUpdate(s => s.SetProperty(u => u.Role, ...))
+                     || Regex.IsMatch(s.Text, @"UserAccounts\s*\.\s*(Remove|RemoveRange)\b")
+                     || Regex.IsMatch(s.Text, @"UserAccounts[^;]*ExecuteDelete"))
+            .Select(s => s.Path).ToList();
+        Assert.Empty(offenders);
+        var service = Sources().Single(s => s.Path == AccountWriter).Text;
+        Assert.Contains("account.Role = newRole;", service);                                                                // the guard really protects the writer it names
+        Assert.Contains("account.IsDisabled = !enabled;", service);
+        Assert.Contains("AdminAvailabilityGuard.AcquireAsync", service);
+    }
 }

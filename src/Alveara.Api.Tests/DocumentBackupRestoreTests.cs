@@ -201,11 +201,11 @@ public class DocumentBackupRestoreTests : DocumentTestBase, IAsyncLifetime
         string username;
         await using (var seed = _env.NewDb())
         {
-            var accounts = new AccountService(seed, _env.DataProtection);
+            var accounts = new AccountService(seed, _env.DataProtection, PolicyTestSupport.Defaults());
             username = $"doc-drill-{Guid.NewGuid():N}";
             var created = await accounts.RegisterAsync(username, password);
+            await accounts.SetAccountEnabledAsync(created.Id, true, S.Actor);                                     // enable first: the seeding actor is not an administrator, so it may only act on an account that holds no role
             await accounts.ChangeRoleAsync(created.Id, Role.Admin, S.Actor);
-            await accounts.SetAccountEnabledAsync(created.Id, true, S.Actor);
         }
         var record = await BackupAsync();
         var drill = await DrillAsync(record.Id);

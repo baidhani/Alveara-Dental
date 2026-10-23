@@ -321,6 +321,18 @@ public class AuthController(AccountService accountService, IConfiguration config
             var account = await accountService.ChangeRoleAsync(userId, newRole, performedByUserId, cancellationToken);
             return Ok(new AccountResponse(account.Id, account.Username, account.Role.ToString()));
         }
+        catch (LastAdminException)
+        {
+            return Conflict(new { error = "last_admin", message = "At least one enabled administrator must remain." });
+        }
+        catch (AdminGuardBusyException)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "admin_guard_busy", message = "The administrator guard is busy. Try again." });
+        }
+        catch (AccountTargetNotAllowedException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "account_target_not_allowed", rule = ex.Rule, message = ex.Message });
+        }
         catch (AccountNotFoundException)
         {
             return NotFound(new { error = "account_not_found" });
@@ -339,6 +351,18 @@ public class AuthController(AccountService accountService, IConfiguration config
             var account = await accountService.SetAccountEnabledAsync(userId, request.Enabled, performedByUserId, cancellationToken);
             return Ok(new { account.Id, account.Username, account.IsDisabled });
         }
+        catch (LastAdminException)
+        {
+            return Conflict(new { error = "last_admin", message = "At least one enabled administrator must remain." });
+        }
+        catch (AdminGuardBusyException)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "admin_guard_busy", message = "The administrator guard is busy. Try again." });
+        }
+        catch (AccountTargetNotAllowedException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "account_target_not_allowed", rule = ex.Rule, message = ex.Message });
+        }
         catch (AccountNotFoundException)
         {
             return NotFound(new { error = "account_not_found" });
@@ -356,6 +380,18 @@ public class AuthController(AccountService accountService, IConfiguration config
         {
             var account = await accountService.SetSessionTimeoutAsync(userId, request.SessionTimeoutMinutes, performedByUserId, cancellationToken);
             return Ok(new { account.Id, account.Username, account.SessionTimeoutMinutes });
+        }
+        catch (LastAdminException)
+        {
+            return Conflict(new { error = "last_admin", message = "At least one enabled administrator must remain." });
+        }
+        catch (AdminGuardBusyException)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "admin_guard_busy", message = "The administrator guard is busy. Try again." });
+        }
+        catch (AccountTargetNotAllowedException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "account_target_not_allowed", rule = ex.Rule, message = ex.Message });
         }
         catch (AccountNotFoundException)
         {
@@ -412,6 +448,18 @@ public class AuthController(AccountService accountService, IConfiguration config
         {
             await accountService.RevokeAllSessionsAsync(userId, performedByUserId, cancellationToken);
             return Ok();
+        }
+        catch (LastAdminException)
+        {
+            return Conflict(new { error = "last_admin", message = "At least one enabled administrator must remain." });
+        }
+        catch (AdminGuardBusyException)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new { error = "admin_guard_busy", message = "The administrator guard is busy. Try again." });
+        }
+        catch (AccountTargetNotAllowedException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = "account_target_not_allowed", rule = ex.Rule, message = ex.Message });
         }
         catch (AccountNotFoundException)
         {

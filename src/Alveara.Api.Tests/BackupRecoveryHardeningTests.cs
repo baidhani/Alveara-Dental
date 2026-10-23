@@ -44,11 +44,11 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         var (accountId, _, secret) = await _env.SeedAccountsAndAuditAsync();
         const string password = "recovered-app-password-1";
         await using var db = _env.NewDb();
-        var accounts = new AccountService(db, _env.DataProtection);
+        var accounts = new AccountService(db, _env.DataProtection, PolicyTestSupport.Defaults());
         var loginUser = $"drill-login-{Guid.NewGuid():N}";
         var created = await accounts.RegisterAsync(loginUser, password);
+        await accounts.SetAccountEnabledAsync(created.Id, true, accountId);                                       // enable first: the seeding account holds no role, so it may only act on an account that holds none either
         await accounts.ChangeRoleAsync(created.Id, Role.Admin, accountId);
-        await accounts.SetAccountEnabledAsync(created.Id, true, accountId);
         return (accountId, loginUser, password, secret);
     }
 

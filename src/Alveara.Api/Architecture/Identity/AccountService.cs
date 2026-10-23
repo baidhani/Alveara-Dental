@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Auditing;
+using Alveara.Api.Architecture.Permissions;
 using Alveara.Api.Data;
 
 namespace Alveara.Api.Architecture.Identity;
@@ -44,7 +45,7 @@ public class MfaChallengeRequiredException(string challengeToken) : Exception("M
 /// touches account or role state writes its audit entry in the same transaction as the change,
 /// so an audit write can never succeed or fail independently of what it documents.
 /// </summary>
-public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProtectionProvider)
+public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProtectionProvider, IEffectivePermissions? permissions = null)
 {
     private const int UniqueConstraintViolation = 2627;
     private const int UniqueIndexViolation = 2601;
@@ -646,40 +647,59 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         }
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == targetUserAccountId, cancellationToken)
-            ?? throw new AccountNotFoundException(targetUserAccountId);
-
-        var previousRole = account.Role;
-        if (previousRole != newRole)
+        try
         {
-            account.Role = newRole;
-            BumpSecurityStamp(account);
-            AddAudit(AuditEventTypes.RoleChanged, account.Id, performedByUserAccountId,
-                $"Role changed for '{account.Username}' from {previousRole} to {newRole}.");
-            await db.SaveChangesAsync(cancellationToken);
-        }
+            await AdminAvailabilityGuard.AcquireAsync(db, cancellationToken);                                       // ALV-N017: one administrator-availability decision at a time
+            var account = await LoadLockedAsync(targetUserAccountId, cancellationToken);
 
-        await transaction.CommitAsync(cancellationToken);
-        return account;
+            var previousRole = account.Role;
+            if (previousRole != newRole)
+            {
+                if (previousRole == Role.Admin && !account.IsDisabled) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
+                account.Role = newRole;
+                BumpSecurityStamp(account);
+                AddAudit(AuditEventTypes.RoleChanged, account.Id, performedByUserAccountId,
+                    $"Role changed for '{account.Username}' from {previousRole} to {newRole}.");
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            return account;
+        }
+        catch (Exception ex) when (ex is LastAdminException or AdminGuardBusyException)
+        {
+            await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, RuleOf(ex), cancellationToken);
+            throw;
+        }
     }
 
     public async Task<UserAccount> SetAccountEnabledAsync(Guid targetUserAccountId, bool enabled, Guid performedByUserAccountId, CancellationToken cancellationToken = default)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == targetUserAccountId, cancellationToken)
-            ?? throw new AccountNotFoundException(targetUserAccountId);
-
-        if (account.IsDisabled != !enabled)
+        try
         {
-            account.IsDisabled = !enabled;
-            BumpSecurityStamp(account);
-            AddAudit(enabled ? AuditEventTypes.AccountEnabled : AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
-                $"Account '{account.Username}' {(enabled ? "enabled" : "disabled")}.");
-            await db.SaveChangesAsync(cancellationToken);
-        }
+            await AdminAvailabilityGuard.AcquireAsync(db, cancellationToken);                                       // ALV-N017: one administrator-availability decision at a time
+            var account = await LoadLockedAsync(targetUserAccountId, cancellationToken);
+            var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, enabled ? AccountAction.SetEnabled : AccountAction.Disable, cancellationToken);
 
-        await transaction.CommitAsync(cancellationToken);
-        return account;
+            if (account.IsDisabled != !enabled)
+            {
+                if (!enabled && account.Role == Role.Admin) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
+                account.IsDisabled = !enabled;
+                BumpSecurityStamp(account);
+                AddAudit(enabled ? AuditEventTypes.AccountEnabled : AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
+                    $"Account '{account.Username}' {(enabled ? "enabled" : "disabled")}.{actorNote}");
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            return account;
+        }
+        catch (Exception ex) when (ex is LastAdminException or AdminGuardBusyException or AccountTargetNotAllowedException)
+        {
+            await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, RuleOf(ex), cancellationToken);
+            throw;
+        }
     }
 
     private const int MinSessionTimeoutMinutes = 5;
@@ -696,20 +716,28 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         }
 
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == targetUserAccountId, cancellationToken)
-            ?? throw new AccountNotFoundException(targetUserAccountId);
-
-        if (account.SessionTimeoutMinutes != sessionTimeoutMinutes)
+        try
         {
-            var previous = account.SessionTimeoutMinutes;
-            account.SessionTimeoutMinutes = sessionTimeoutMinutes;
-            AddAudit(AuditEventTypes.SessionTimeoutChanged, account.Id, performedByUserAccountId,
-                $"Session timeout for '{account.Username}' changed from {previous} to {sessionTimeoutMinutes} minutes.");
-            await db.SaveChangesAsync(cancellationToken);
-        }
+            var account = await LoadLockedAsync(targetUserAccountId, cancellationToken);
+            var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, AccountAction.SetSessionTimeout, cancellationToken);
 
-        await transaction.CommitAsync(cancellationToken);
-        return account;
+            if (account.SessionTimeoutMinutes != sessionTimeoutMinutes)
+            {
+                var previous = account.SessionTimeoutMinutes;
+                account.SessionTimeoutMinutes = sessionTimeoutMinutes;
+                AddAudit(AuditEventTypes.SessionTimeoutChanged, account.Id, performedByUserAccountId,
+                    $"Session timeout for '{account.Username}' changed from {previous} to {sessionTimeoutMinutes} minutes.{actorNote}");
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+            return account;
+        }
+        catch (AccountTargetNotAllowedException ex)
+        {
+            await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, ex.Rule, cancellationToken);
+            throw;
+        }
     }
 
     /// <summary>Admin-issued, one-time, short-lived reset token. The raw token is returned once and never stored.</summary>
@@ -771,12 +799,20 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     public async Task RevokeAllSessionsAsync(Guid targetUserAccountId, Guid performedByUserAccountId, CancellationToken cancellationToken = default)
     {
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-        var account = await db.UserAccounts.SingleOrDefaultAsync(u => u.Id == targetUserAccountId, cancellationToken)
-            ?? throw new AccountNotFoundException(targetUserAccountId);
-        BumpSecurityStamp(account);
-        AddAudit(AuditEventTypes.SessionsRevoked, account.Id, performedByUserAccountId, $"All sessions revoked for '{account.Username}'.");
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        try
+        {
+            var account = await LoadLockedAsync(targetUserAccountId, cancellationToken);
+            var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, AccountAction.RevokeSessions, cancellationToken);
+            BumpSecurityStamp(account);
+            AddAudit(AuditEventTypes.SessionsRevoked, account.Id, performedByUserAccountId, $"All sessions revoked for '{account.Username}'.{actorNote}");
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (AccountTargetNotAllowedException ex)
+        {
+            await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, ex.Rule, cancellationToken);
+            throw;
+        }
     }
 
     // ---------- helpers ----------
@@ -835,6 +871,45 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     }
 
     private static void BumpSecurityStamp(UserAccount account) => account.SecurityStamp = Guid.NewGuid();
+
+    // ---------- ALV-N017: the account-administration safety rules ----------
+
+    /// <summary>Loads the account and holds an update lock on its row until the transaction ends, so the rules below are checked against the row as it will be written (a role change cannot slip in between).</summary>
+    private async Task<UserAccount> LoadLockedAsync(Guid id, CancellationToken ct) =>
+        await db.UserAccounts.FromSqlInterpolated($"SELECT * FROM [UserAccounts] WITH (UPDLOCK, ROWLOCK) WHERE [Id] = {id}").SingleOrDefaultAsync(ct)
+            ?? throw new AccountNotFoundException(id);
+
+    /// <summary>
+    /// When the acting account is not an administrator, applies the target rules (<see cref="AccountTargetRules"/>); throws <see cref="AccountTargetNotAllowedException"/> when one fails. Returns the note appended to
+    /// the audit entry of an allowed action by a non-administrator (the actor's role), or an empty string. An actor that is not an account (a test or a job passing an unknown id) is not restricted here: every
+    /// request that reaches this method has an authenticated, existing account behind it.
+    /// </summary>
+    private async Task<string> ApplyTargetRulesAsync(Guid actorId, UserAccount target, AccountAction action, CancellationToken ct)
+    {
+        var actor = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == actorId, ct);
+        if (actor is null || actor.Role == Role.Admin) return "";
+        var effective = permissions ?? throw new InvalidOperationException("The effective-permission service is required when a non-administrator administers accounts.");
+        var failed = await AccountTargetRules.EvaluateAsync(effective, actor, target, action, ct);
+        if (failed is not null) throw new AccountTargetNotAllowedException(failed);
+        return $" Performed by a {actor.Role} under the account target rules.";
+    }
+
+    private static string RuleOf(Exception ex) => ex switch
+    {
+        LastAdminException => "last_admin",
+        AdminGuardBusyException => "admin_guard_busy",
+        AccountTargetNotAllowedException t => t.Rule,
+        _ => "refused",
+    };
+
+    /// <summary>Undoes the refused operation and records the refusal on its own (ids and the rule only), so nothing is half-applied and the attempt is still on record.</summary>
+    private async Task RefuseAsync(Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction transaction, Guid actorId, Guid targetId, string rule, CancellationToken ct)
+    {
+        await transaction.RollbackAsync(ct);
+        db.ChangeTracker.Clear();
+        var actor = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Id == actorId, ct);
+        await AccountTargetRules.RecordRefusalAsync(db, actorId, actor?.Role ?? Role.Unassigned, targetId, rule, ct);
+    }
 
     // ALV-002-C01: every account/role audit write in this service now goes through the shared
     // AuditService primitive - this wrapper exists only so all 20+ existing call sites keep their

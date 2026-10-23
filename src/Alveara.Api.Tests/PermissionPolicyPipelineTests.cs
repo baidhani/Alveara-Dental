@@ -189,6 +189,95 @@ public class PermissionPolicyPipelineTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, (await GetAsync(dentist, "/api/auth/permissions")).Status);
     }
 
+    // ---------- account administration through the API (ALV-N017 target rules, last administrator, unchanged user list) ----------
+
+    [Fact]
+    public async Task The_user_list_has_the_same_status_and_body_for_every_role_before_and_after_the_two_assignable_permissions_are_granted()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var roles = Enum.GetValues<Role>().Where(r => r is not (Role.Admin or Role.Unassigned)).ToList();
+        var sessions = new Dictionary<Role, Session>();
+        foreach (var role in roles) sessions[role] = await _api.SessionAsync(role.ToString());
+        async Task<Dictionary<string, (HttpStatusCode, string?)>> Snapshot()
+        {
+            var result = new Dictionary<string, (HttpStatusCode, string?)> { ["Admin"] = ((await GetAsync(admin, "/api/auth/users")).Status, null) };
+            foreach (var role in roles)
+            {
+                var r = await GetAsync(sessions[role], "/api/auth/users");
+                result[role.ToString()] = (r.Status, r.Body.ValueKind == JsonValueKind.Undefined ? null : r.Body.GetRawText());
+            }
+            return result;
+        }
+        var before = await Snapshot();
+        Assert.Equal(HttpStatusCode.OK, before["Admin"].Item1);
+        Assert.All(roles, r => Assert.Equal(HttpStatusCode.Forbidden, before[r.ToString()].Item1));
+        await SetOverrideAsync(Role.OfficeManager, Permission.ManageAccountStatus, OverrideEffects.Grant);
+        await SetOverrideAsync(Role.OfficeManager, Permission.RevokeSessions, OverrideEffects.Grant);
+        var after = await Snapshot();
+        Assert.All(roles, r => Assert.Equal(before[r.ToString()], after[r.ToString()]));                              // the broader, target-filtered listing belongs to ALV-N018
+        Assert.Equal("permission_denied", JsonDocument.Parse(after["OfficeManager"].Item2!).RootElement.GetProperty("error").GetString());
+    }
+
+    [Fact]
+    public async Task A_granted_office_manager_is_stopped_by_the_target_rules_through_the_api_and_every_refusal_is_audited()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var manager = await _api.SessionAsync("OfficeManager");
+        var frontDesk = await _api.SessionAsync("FrontDesk");
+        var dentist = await _api.SessionAsync("Dentist");
+        await SetOverrideAsync(Role.OfficeManager, Permission.ManageAccountStatus, OverrideEffects.Grant);
+        await SetOverrideAsync(Role.OfficeManager, Permission.RevokeSessions, OverrideEffects.Grant);
+
+        var onAdmin = await manager.SendAsync(HttpMethod.Put, $"/api/auth/{admin.UserId}/enabled", new { enabled = false });
+        Assert.Equal((HttpStatusCode.Forbidden, "account_target_not_allowed", "target_is_admin"), (onAdmin.Status, onAdmin.Body.GetProperty("error").GetString(), onAdmin.Body.GetProperty("rule").GetString()));
+        var onDentist = await manager.SendAsync(HttpMethod.Put, $"/api/auth/{dentist.UserId}/enabled", new { enabled = false });
+        Assert.Equal("target_exceeds_actor", onDentist.Body.GetProperty("rule").GetString());
+        var self = await manager.SendAsync(HttpMethod.Put, $"/api/auth/{manager.UserId}/enabled", new { enabled = false });
+        Assert.Equal("self_disable", self.Body.GetProperty("rule").GetString());
+        Assert.Equal(HttpStatusCode.Forbidden, (await manager.SendAsync(HttpMethod.Post, $"/api/auth/{dentist.UserId}/revoke-sessions")).Status);
+        Assert.Equal(HttpStatusCode.Forbidden, (await manager.SendAsync(HttpMethod.Put, $"/api/auth/{dentist.UserId}/session-timeout", new { sessionTimeoutMinutes = 60 })).Status);
+
+        Assert.Equal(HttpStatusCode.OK, (await manager.SendAsync(HttpMethod.Put, $"/api/auth/{frontDesk.UserId}/enabled", new { enabled = false })).Status);   // a subset of the office manager permissions
+        Assert.Equal(HttpStatusCode.OK, (await manager.SendAsync(HttpMethod.Post, $"/api/auth/{frontDesk.UserId}/revoke-sessions")).Status);
+
+        await using var db = _fixture.CreateContext();
+        Assert.Equal(5, await db.AuditLogEntries.CountAsync(a => a.EventType == AuditEventTypes.AccountActionRefused));
+        Assert.True((await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == frontDesk.UserId)).IsDisabled);
+        Assert.False((await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == dentist.UserId)).IsDisabled);
+        Assert.False((await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == admin.UserId)).IsDisabled);
+    }
+
+    [Fact]
+    public async Task The_only_administrator_cannot_demote_or_disable_themselves_through_the_api_and_the_refusal_is_a_stable_409()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var demote = await admin.SendAsync(HttpMethod.Put, $"/api/auth/{admin.UserId}/role", new { role = "Dentist" });
+        Assert.Equal((HttpStatusCode.Conflict, "last_admin"), (demote.Status, demote.Body.GetProperty("error").GetString()));
+        var disable = await admin.SendAsync(HttpMethod.Put, $"/api/auth/{admin.UserId}/enabled", new { enabled = false });
+        Assert.Equal((HttpStatusCode.Conflict, "last_admin"), (disable.Status, disable.Body.GetProperty("error").GetString()));
+        Assert.Equal(HttpStatusCode.OK, (await GetAsync(admin, "/api/auth/users")).Status);                             // still signed in and still an administrator
+    }
+
+    [Fact]
+    public async Task No_combination_of_stored_grants_lets_a_non_administrator_reach_a_protected_endpoint()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var manager = await _api.SessionAsync("OfficeManager");
+        var target = await _api.SessionAsync("FrontDesk");
+        foreach (var p in Enum.GetValues<Permission>().Where(PermissionProtection.IsGrantable).Where(p => !PermissionMatrix.RoleHas(Role.OfficeManager, p)))
+            await SetOverrideAsync(Role.OfficeManager, p, OverrideEffects.Grant);                                          // every grantable permission an office manager lacks
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await manager.SendAsync(HttpMethod.Put, $"/api/auth/{target.UserId}/role", new { role = "Admin" })).Status);          // ManageRoles
+        Assert.Equal(HttpStatusCode.Forbidden, (await manager.SendAsync(HttpMethod.Post, $"/api/auth/{target.UserId}/reset-password")).Status);                       // IssuePasswordResets
+        Assert.Equal(HttpStatusCode.Forbidden, (await GetAsync(manager, "/api/auth/users")).Status);                                                                    // ManageUsers
+        var protectedNames = new[] { Permission.ManageUsers, Permission.ManageRoles, Permission.ManageMfaPolicy, Permission.IssuePasswordResets, Permission.ManagePermissionGrants };
+        var mine = (await GetAsync(manager, "/api/auth/permissions")).Body.GetProperty("permissions").EnumerateArray().Select(e => e.GetString()).ToHashSet();
+        Assert.All(protectedNames, p => Assert.DoesNotContain(p.ToString(), mine));
+        Assert.Equal(HttpStatusCode.OK, (await GetAsync(admin, "/api/auth/users")).Status);
+        await using var db = _fixture.CreateContext();
+        Assert.Equal(Role.FrontDesk, (await db.UserAccounts.AsNoTracking().SingleAsync(u => u.Id == target.UserId)).Role);
+    }
+
     [Fact]
     public async Task Without_a_session_the_answer_is_still_401_and_the_policy_is_not_consulted_for_a_missing_role()
     {

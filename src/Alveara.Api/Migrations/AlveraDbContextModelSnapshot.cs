@@ -3704,7 +3704,12 @@ namespace Alveara.Api.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("UserAccounts");
+                    b.ToTable("UserAccounts", t =>
+                        {
+                            t.HasTrigger("TR_UserAccounts_LastAdmin");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Measurement.MeasurementEvent", b =>

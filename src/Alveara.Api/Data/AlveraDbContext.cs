@@ -142,6 +142,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         modelBuilder.Entity<UserAccount>(e =>
         {
             e.HasIndex(u => u.Username).IsUnique();
+            // ALV-N017: the database backstop of the last-enabled-administrator rule (error 51207, busy 51208): raw SQL and bulk updates cannot leave the practice without an enabled administrator
+            e.ToTable(t => t.HasTrigger("TR_UserAccounts_LastAdmin"));
         });
 
         modelBuilder.Entity<StaffProfile>(e =>

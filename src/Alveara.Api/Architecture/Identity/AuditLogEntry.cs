@@ -87,5 +87,6 @@ public static class AuditEventTypes
     public const string NotificationsCleared = "NotificationsCleared";
     public const string MessageBreakGlassAttempted = "MessageBreakGlassAttempted";
     public const string MessageBreakGlassSucceeded = "MessageBreakGlassSucceeded";
+    public const string AccountActionRefused = "AccountActionRefused";
     public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";
 }

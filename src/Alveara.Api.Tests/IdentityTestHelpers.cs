@@ -17,7 +17,7 @@ public static class IdentityTestHelpers
 
     /// <summary>An ephemeral (non-persisted) Data Protection provider — fine for a test process's lifetime.</summary>
     public static AccountService CreateAccountService(AlveraDbContext db) =>
-        new(db, new EphemeralDataProtectionProvider());
+        new(db, new EphemeralDataProtectionProvider(), PolicyTestSupport.Defaults());
 
     /// <summary>Same as <see cref="CreateAccountService(AlveraDbContext)"/> but against a caller-supplied
     /// provider - needed whenever two AccountService instances (different DbContexts, e.g. a
@@ -25,7 +25,7 @@ public static class IdentityTestHelpers
     /// created EphemeralDataProtectionProvider instances do not share key material (matching
     /// production, where the provider is a singleton shared across all scoped DbContexts).</summary>
     public static AccountService CreateAccountService(AlveraDbContext db, IDataProtectionProvider provider) =>
-        new(db, provider);
+        new(db, provider, PolicyTestSupport.Defaults());
 
     public static Task<UserAccount> BootstrapAdminAsync(AccountService service, string username = "", string password = "bootstrap-admin-password") =>
         service.BootstrapFirstAdminAsync(
