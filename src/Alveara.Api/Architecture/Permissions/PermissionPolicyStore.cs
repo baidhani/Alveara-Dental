@@ -54,7 +54,7 @@ public sealed record PolicyRead(PolicySnapshot Snapshot, bool Stale);
 /// snapshot may serve for at most 60 seconds counted from the last time it was confirmed current; after that, or with no snapshot, the answer is <see cref="PolicyUnavailableException"/>. The defaults are never
 /// used as a fallback while stored rows may exist: they come only from a successful read that found no rows.
 /// </summary>
-public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider time, ILogger<PermissionPolicyStore> logger)
+public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider time, ILogger<PermissionPolicyStore> logger, IPolicyObserver? observer = null)
 {
     public static readonly TimeSpan MaxStaleness = TimeSpan.FromSeconds(60);
     public static readonly TimeSpan ReloadWait = TimeSpan.FromSeconds(2);
@@ -128,6 +128,7 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
                 Volatile.Write(ref _current, snapshot);                                                        // one atomic swap
                 Volatile.Write(ref _verifiedAt, time.GetTimestamp());
                 Interlocked.Increment(ref _reloads);
+                if (observer is not null) await observer.OnPublishedAsync(snapshot, CancellationToken.None);       // reports invalid rows (own time budget, never throws); only does work when there are some
                 return snapshot;
             }
             throw new PolicyUnavailableException("The policy kept changing while it was being read.");

@@ -21,6 +21,8 @@ public enum InvalidRowReason
     FixedRoleOverride,
     ProtectedPermissionOverride,
     DelegationUnknownPermission,
+    /// <summary>Internal: a delegation naming a retired permission is reported as retired, not invalid.</summary>
+    DelegationRetiredPermission,
     DelegationProtectedPermission,
     DelegationNotDelegable,
     DelegationBadDelegate,
@@ -29,6 +31,9 @@ public enum InvalidRowReason
 
 /// <summary>One stored row the engine refused, with its raw values so an administrator can repair it. <see cref="Table"/> is <c>Override</c> or <c>Delegation</c>.</summary>
 public sealed record InvalidPolicyRow(Guid Id, string Table, string Role, string Permission, string? TargetRole, string? Effect, InvalidRowReason Reason, byte[]? RowVersion);
+
+/// <summary>A stored row that names a retired permission: ignored by the engine, harmless, and removable. <see cref="Table"/> is <c>Override</c> or <c>Delegation</c>.</summary>
+public sealed record RetiredPolicyRow(Guid Id, string Table, string Role, string Permission);
 
 /// <summary>A delegation that passed validation: the delegate role may grant or revoke the permission for the target role.</summary>
 public sealed record ActiveDelegation(Role DelegateRole, Permission Permission, Role TargetRole);
@@ -47,7 +52,9 @@ public sealed class PolicySnapshot
     public required bool Degraded { get; init; }
     public required IReadOnlyList<InvalidPolicyRow> InvalidRows { get; init; }
     /// <summary>Rows that name a retired permission: ignored and harmless, reported only so they can be removed.</summary>
-    public required int RetiredRowCount { get; init; }
+    public required IReadOnlyList<RetiredPolicyRow> RetiredRows { get; init; }
+
+    public int RetiredRowCount => RetiredRows.Count;
     /// <summary>How many valid override rows are in force (for operational visibility).</summary>
     public required int OverrideCount { get; init; }
 

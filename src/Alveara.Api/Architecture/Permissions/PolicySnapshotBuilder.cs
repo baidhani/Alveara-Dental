@@ -17,7 +17,7 @@ public static class PolicySnapshotBuilder
         var effective = Enum.GetValues<Role>().ToDictionary(r => r, r => new HashSet<Permission>(PermissionMatrix.PermissionsFor(r)));
         var health = new Dictionary<Role, RoleHealth>();
         var invalid = new List<InvalidPolicyRow>();
-        var retired = 0;
+        var retired = new List<RetiredPolicyRow>();
         var valid = 0;
         var degraded = false;
 
@@ -30,7 +30,7 @@ public static class PolicySnapshotBuilder
                 continue;
             }
 
-            if (names.IsRetired(row.Permission)) { retired++; continue; }
+            if (names.IsRetired(row.Permission)) { retired.Add(new RetiredPolicyRow(row.Id, "Override", row.Role, row.Permission)); continue; }
 
             if (!TryPermission(row.Permission, names, out var permission))
             {
@@ -49,7 +49,9 @@ public static class PolicySnapshotBuilder
         foreach (var d in delegations.OrderBy(x => x.Id))
         {
             var reason = CheckDelegation(d, names, out var del);
-            if (reason is null) active.Add(del!); else invalid.Add(new InvalidPolicyRow(d.Id, "Delegation", d.DelegateRole, d.Permission, d.TargetRole, null, reason.Value, d.RowVersion));
+            if (reason is null) active.Add(del!);
+            else if (reason == InvalidRowReason.DelegationRetiredPermission) retired.Add(new RetiredPolicyRow(d.Id, "Delegation", d.DelegateRole, d.Permission));
+            else invalid.Add(new InvalidPolicyRow(d.Id, "Delegation", d.DelegateRole, d.Permission, d.TargetRole, null, reason.Value, d.RowVersion));
         }
 
         // the administrator holds everything and an unassigned account nothing, whatever any row says
@@ -64,7 +66,7 @@ public static class PolicySnapshotBuilder
             RoleHealth = health.ToFrozenDictionary(),
             Degraded = degraded,
             InvalidRows = invalid,
-            RetiredRowCount = retired,
+            RetiredRows = retired,
             OverrideCount = valid,
         };
 
@@ -83,7 +85,8 @@ public static class PolicySnapshotBuilder
         result = null;
         if (!TryRole(d.DelegateRole, out var delegateRole) || !PermissionProtection.MayDelegate(delegateRole)) return InvalidRowReason.DelegationBadDelegate;
         if (!TryRole(d.TargetRole, out var target) || !PermissionProtection.IsDelegationTarget(target)) return InvalidRowReason.DelegationBadTarget;
-        if (names.IsRetired(d.Permission) || !TryPermission(d.Permission, names, out var permission)) return InvalidRowReason.DelegationUnknownPermission;
+        if (names.IsRetired(d.Permission)) return InvalidRowReason.DelegationRetiredPermission;
+        if (!TryPermission(d.Permission, names, out var permission)) return InvalidRowReason.DelegationUnknownPermission;
         if (PermissionProtection.AdminOnly.Contains(permission)) return InvalidRowReason.DelegationProtectedPermission;
         if (!PermissionProtection.IsDelegable(permission)) return InvalidRowReason.DelegationNotDelegable;
         result = new ActiveDelegation(delegateRole, permission, target);

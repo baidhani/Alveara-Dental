@@ -88,5 +88,7 @@ public static class AuditEventTypes
     public const string MessageBreakGlassAttempted = "MessageBreakGlassAttempted";
     public const string MessageBreakGlassSucceeded = "MessageBreakGlassSucceeded";
     public const string AccountActionRefused = "AccountActionRefused";
+    public const string PermissionPolicyInvalidRowDetected = "PermissionPolicyInvalidRowDetected";
+    public const string InvalidPolicyRowRemoved = "InvalidPolicyRowRemoved";
     public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";
 }
