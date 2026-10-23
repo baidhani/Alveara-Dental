@@ -127,6 +127,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Documents.DocumentEventCounter> DocumentEventCounters => Set<Architecture.Documents.DocumentEventCounter>();
     public DbSet<Architecture.Documents.DocumentSettings> DocumentSettings => Set<Architecture.Documents.DocumentSettings>();
     public DbSet<Architecture.Documents.BlockedFileExtension> BlockedFileExtensions => Set<Architecture.Documents.BlockedFileExtension>();
+    public DbSet<Architecture.Notifications.Message> Messages => Set<Architecture.Notifications.Message>();
+    public DbSet<Architecture.Notifications.MessageRecipient> MessageRecipients => Set<Architecture.Notifications.MessageRecipient>();
+    public DbSet<Architecture.Notifications.Notification> Notifications => Set<Architecture.Notifications.Notification>();
+    public DbSet<Architecture.Notifications.NotificationCursor> NotificationCursors => Set<Architecture.Notifications.NotificationCursor>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -526,6 +530,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         PrescriptionModel.Configure(modelBuilder);
         PrescriptionWorkflowModel.Configure(modelBuilder);
         DocumentModel.Configure(modelBuilder);
+        NotificationModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

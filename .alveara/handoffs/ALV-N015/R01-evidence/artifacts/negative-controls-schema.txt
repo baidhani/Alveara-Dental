@@ -1,0 +1,15 @@
+('a message can be updated (the immutability trigger does nothing)', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_message_is_never_updated_or_deleted_not_even_by_direct_sql')
+('a read time can change (the once-only check removed)', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_notification_can_be_marked_read_once_and_then_hidden_once_and_nothin')
+('a message notification can go to a non-recipient', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_notification_cannot_go_to_a_disabled_account_to_a_non_recipient_or_c')
+('a cursor can move backward', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_cursor_only_moves_forward_and_is_never_deleted')
+('the cursor does not start at the high-water mark', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | The_cursor_starts_at_the_high_water_mark_of_the_document_events_presen')
+('the roll-back guard is removed', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | The_migration_rolls_back_and_forward_while_nothing_was_sent_and_refuse')
+('a message can be addressed to a disabled account', 'Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_message_cannot_be_addressed_to_a_disabled_account_or_an_unknown_one')
+--- summary (the migration file was restored byte-identically: True)
+KILLED a message can be updated (the immutability trigger does nothing) -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_message_is_never_updated_or_deleted_not_even_by_direct_sql
+KILLED a read time can change (the once-only check removed) -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_notification_can_be_marked_read_once_and_then_hidden_once_and_nothin
+KILLED a message notification can go to a non-recipient -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_notification_cannot_go_to_a_disabled_account_to_a_non_recipient_or_c
+KILLED a cursor can move backward -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_cursor_only_moves_forward_and_is_never_deleted
+KILLED the cursor does not start at the high-water mark -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | The_cursor_starts_at_the_high_water_mark_of_the_document_events_presen
+KILLED the roll-back guard is removed -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | The_migration_rolls_back_and_forward_while_nothing_was_sent_and_refuse
+KILLED a message can be addressed to a disabled account -> Failed!  - Failed:     1, Passed:    55, Skipped:     0, Tot | A_message_cannot_be_addressed_to_a_disabled_account_or_an_unknown_one

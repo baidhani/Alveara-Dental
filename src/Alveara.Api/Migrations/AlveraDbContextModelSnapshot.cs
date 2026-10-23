@@ -3732,6 +3732,243 @@ namespace Alveara.Api.Migrations
                     b.ToTable("MeasurementEvents");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid?>("InReplyToMessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid?>("RelatedPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .IsUnicode(false)
+                        .HasColumnType("char(64)")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("SenderUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid>("ThreadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InReplyToMessageId");
+
+                    b.HasIndex("RelatedPatientId");
+
+                    b.HasIndex("ThreadId");
+
+                    b.HasIndex("SenderUserId", "CreatedAtUtc");
+
+                    b.HasIndex("SenderUserId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.ToTable("Messages", null, t =>
+                        {
+                            t.HasTrigger("TR_Messages_Immutable");
+
+                            t.HasTrigger("TR_Messages_Links");
+
+                            t.HasCheckConstraint("CK_Messages_Body", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Body], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Body] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Body] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_Messages_Key", "LEN([IdempotencyKey]) > 0 AND [RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([RequestHash]) = 64");
+
+                            t.HasCheckConstraint("CK_Messages_Priority", "[Priority] COLLATE Latin1_General_CS_AS IN ('Normal','Important','Urgent')");
+
+                            t.HasCheckConstraint("CK_Messages_Subject", "[Subject] IS NULL OR (LEN(LTRIM(RTRIM([Subject]))) > 0 AND CHARINDEX(NCHAR(0), [Subject] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Subject] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_Messages_Thread", "([InReplyToMessageId] IS NULL AND [ThreadId] = [Id]) OR ([InReplyToMessageId] IS NOT NULL AND [InReplyToMessageId] <> [Id] AND [ThreadId] <> [Id])");
+
+                            t.HasCheckConstraint("CK_Messages_Time", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.MessageRecipient", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RecipientUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("MessageId", "RecipientUserId");
+
+                    b.HasIndex("RecipientUserId");
+
+                    b.ToTable("MessageRecipients", null, t =>
+                        {
+                            t.HasTrigger("TR_MessageRecipients_Immutable");
+
+                            t.HasTrigger("TR_MessageRecipients_Links");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("DeletedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<Guid?>("MessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTimeOffset?>("ReadAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RecipientUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedOtherDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RelatedPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("SourceKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedDocumentId");
+
+                    b.HasIndex("RelatedOtherDocumentId");
+
+                    b.HasIndex("RelatedPatientId");
+
+                    b.HasIndex("MessageId", "RecipientUserId")
+                        .IsUnique()
+                        .HasFilter("[MessageId] IS NOT NULL");
+
+                    b.HasIndex("RecipientUserId", "SourceKey")
+                        .IsUnique()
+                        .HasFilter("[SourceKey] IS NOT NULL");
+
+                    b.HasIndex("RecipientUserId", "DeletedAtUtc", "ReadAtUtc");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("RecipientUserId", "DeletedAtUtc", "ReadAtUtc"), new[] { "Priority", "CreatedAtUtc" });
+
+                    b.ToTable("Notifications", null, t =>
+                        {
+                            t.HasTrigger("TR_Notifications_Guard");
+
+                            t.HasTrigger("TR_Notifications_Links");
+
+                            t.HasTrigger("TR_Notifications_NoDelete");
+
+                            t.HasCheckConstraint("CK_Notifications_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('document.duplicate_added','message.received')");
+
+                            t.HasCheckConstraint("CK_Notifications_Priority", "[Priority] COLLATE Latin1_General_CS_AS IN ('Normal','Important','Urgent')");
+
+                            t.HasCheckConstraint("CK_Notifications_Shape", "([Kind] = 'message.received' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'document.duplicate_added' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId])");
+
+                            t.HasCheckConstraint("CK_Notifications_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._-]%')");
+
+                            t.HasCheckConstraint("CK_Notifications_Times", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND ([ReadAtUtc] IS NULL OR [ReadAtUtc] >= [CreatedAtUtc]) AND ([DeletedAtUtc] IS NULL OR ([ReadAtUtc] IS NOT NULL AND [DeletedAtUtc] >= [ReadAtUtc]))");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.NotificationCursor", b =>
+                {
+                    b.Property<string>("Source")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<long>("LastEventNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Source");
+
+                    b.ToTable("NotificationCursors", null, t =>
+                        {
+                            t.HasTrigger("TR_NotificationCursors_Guard");
+
+                            t.HasCheckConstraint("CK_NotificationCursors_Last", "[LastEventNumber] >= 0");
+
+                            t.HasCheckConstraint("CK_NotificationCursors_Source", "[Source] COLLATE Latin1_General_CS_AS IN ('DocumentEvents')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Source = "DocumentEvents",
+                            LastEventNumber = 0L,
+                            RowVersion = new byte[0],
+                            UpdatedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        });
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Odontogram.ConditionType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -7070,6 +7307,69 @@ namespace Alveara.Api.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("UserAccount");
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Message", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Notifications.Message", null)
+                        .WithMany()
+                        .HasForeignKey("InReplyToMessageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedPatientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("SenderUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.MessageRecipient", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Notifications.Message", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Notification", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Notifications.Message", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedOtherDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("RelatedPatientId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Odontogram.ConditionTypeEvent", b =>

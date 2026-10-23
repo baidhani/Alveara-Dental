@@ -115,7 +115,7 @@ public class RealMigrationInventoryTests
     {
         Assert.Equal(2, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.MigratesFromAnEmptyDatabase));
         Assert.Equal(4, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.TestsTheFixtureItself));
-        Assert.Equal(13, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone));
+        Assert.Equal(14, RealMigrationInventory.All.Count(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone));   // ALV-N015 added NotificationSchemaTests
         Assert.All(RealMigrationInventory.All.Where(e => e.Reason == RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone), e => Assert.True(e.CallsMigratorDirectly));   // every rollback class really calls the migrator
     }
 }

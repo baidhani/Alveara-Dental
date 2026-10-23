@@ -22,7 +22,8 @@ public static class PermissionMatrix
             Permission.ManageClinicalTemplates, // ALV-005-C01
             Permission.ViewSafetyIndicator, // ALV-N011
             Permission.ManagePrescriptions, Permission.ViewPrescriptions, // STORY-016: prescribes
-            Permission.ViewDocuments), // STORY-010: reads the library
+            Permission.ViewDocuments, // STORY-010: reads the library
+            Permission.SendMessages), // ALV-N015
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
@@ -31,7 +32,8 @@ public static class PermissionMatrix
             Permission.ViewClinicalDocumentation, // STORY-005
             Permission.ViewSafetyIndicator, // ALV-N011
             Permission.ViewPrescriptions, // STORY-016: reads, cannot prescribe
-            Permission.ViewDocuments), // STORY-010
+            Permission.ViewDocuments, // STORY-010
+            Permission.SendMessages), // ALV-N015
 
         [Role.Assistant] = Set(
             Permission.ViewPatientRecords, Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms,
@@ -39,7 +41,8 @@ public static class PermissionMatrix
             Permission.ViewClinicalDocumentation, // STORY-005: reads the chart, cannot write it
             Permission.ViewSafetyIndicator, // ALV-N011
             Permission.ViewPrescriptions, // STORY-016: reads, cannot prescribe
-            Permission.ViewDocuments), // STORY-010
+            Permission.ViewDocuments, // STORY-010
+            Permission.SendMessages), // ALV-N015
 
         [Role.FrontDesk] = Set(
             Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
@@ -47,12 +50,14 @@ public static class PermissionMatrix
             Permission.ViewPatientRecords, // ALV-003-C01: front desk must find and open the patients it registers
             Permission.CompleteForms, Permission.ViewSignedForms, // ALV-N010: forms are completed at the front desk
             Permission.UpdateVisitFlow, // ALV-011-C01: confirm, check in and check out
-            Permission.ViewDocuments), // STORY-010: reads the library, cannot import
+            Permission.ViewDocuments, // STORY-010: reads the library, cannot import
+            Permission.SendMessages), // ALV-N015
 
         [Role.Billing] = Set(
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords,
             Permission.ViewSignedForms, // ALV-N010: read-only (financial forms)
-            Permission.ViewDocuments), // STORY-010
+            Permission.ViewDocuments, // STORY-010
+            Permission.SendMessages), // ALV-N015
 
         [Role.OfficeManager] = Set(
             Permission.ViewPatientRecords, Permission.ManageAppointments, Permission.ViewSchedule,
@@ -62,7 +67,8 @@ public static class PermissionMatrix
             Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms, // ALV-N010
             Permission.UpdateVisitFlow, Permission.UpdateChairsideFlow, // ALV-011-C01: the practice manager covers both teams
             Permission.ImportDocuments, Permission.ViewDocuments, // STORY-010: imports and categorizes; the settings stay with the administrator
-            Permission.ManageDocumentStorage), // ALV-010-C01: checks the stored files and reviews the ones nothing points to
+            Permission.ManageDocumentStorage, // ALV-010-C01: checks the stored files and reviews the ones nothing points to
+            Permission.SendMessages, Permission.ReceiveDocumentNotifications), // ALV-N015: sends messages; is told when a duplicate document is imported
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

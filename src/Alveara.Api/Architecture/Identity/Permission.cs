@@ -91,4 +91,12 @@ public enum Permission
 
     // ALV-010-C01: checking that the stored files of documents are present and intact, and reviewing and removing stored files that no document points to. Held by the administrator and the office manager.
     ManageDocumentStorage,
+
+    // ALV-N015: notifications and operational messages. Reading, marking read and hiding one's own notifications and messages needs no permission (every signed-in person has a bell). Sending a message is held by
+    // every working role; the administrator also holds it. Being a recipient of the duplicate-document notification is the administrator's and the office manager's. Seeing the notification history of everyone
+    // (metadata only, never message text) and opening one chosen message through the audited break-glass action are the administrator's alone. Appended last so existing ordinals are undisturbed.
+    SendMessages,
+    ReceiveDocumentNotifications,
+    ViewNotificationAuditHistory,
+    ViewMessageAuditContent,
 }
