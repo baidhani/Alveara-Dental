@@ -99,4 +99,8 @@ public enum Permission
     ReceiveDocumentNotifications,
     ViewNotificationAuditHistory,
     ViewMessageAuditContent,
+
+    // ALV-N017: the right to change which roles hold which permissions (the policy write path arrives in ALV-N018; this story only defines the permission). It is protected: held by the administrator
+    // alone, it can never be granted to another role or delegated. Appended last so existing ordinals are undisturbed.
+    ManagePermissionGrants,
 }

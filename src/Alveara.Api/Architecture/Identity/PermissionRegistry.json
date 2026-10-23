@@ -1,0 +1,165 @@
+{
+  "description": "Every permission name ever shipped, with its status. A permission removed from the Permission enum must be marked Retired here in the same change (with a data migration deleting its policy rows); a rename is a retirement plus a new permission. Checked by PermissionRegistryTests.",
+  "permissions": [
+    {
+      "name": "ManageUsers",
+      "status": "Active"
+    },
+    {
+      "name": "ManageRoles",
+      "status": "Active"
+    },
+    {
+      "name": "ManageAccountStatus",
+      "status": "Active"
+    },
+    {
+      "name": "ManageMfaPolicy",
+      "status": "Active"
+    },
+    {
+      "name": "IssuePasswordResets",
+      "status": "Active"
+    },
+    {
+      "name": "RevokeSessions",
+      "status": "Active"
+    },
+    {
+      "name": "ViewAuditLog",
+      "status": "Active"
+    },
+    {
+      "name": "ViewPermissionMatrix",
+      "status": "Active"
+    },
+    {
+      "name": "ViewPatientRecords",
+      "status": "Active"
+    },
+    {
+      "name": "ManageClinicalNotes",
+      "status": "Active"
+    },
+    {
+      "name": "ManageTreatmentPlans",
+      "status": "Active"
+    },
+    {
+      "name": "ManageAppointments",
+      "status": "Active"
+    },
+    {
+      "name": "ViewSchedule",
+      "status": "Active"
+    },
+    {
+      "name": "ViewBilling",
+      "status": "Active"
+    },
+    {
+      "name": "ManageBilling",
+      "status": "Active"
+    },
+    {
+      "name": "ManagePracticeConfiguration",
+      "status": "Active"
+    },
+    {
+      "name": "ManageBackups",
+      "status": "Active"
+    },
+    {
+      "name": "ViewBackupStatus",
+      "status": "Active"
+    },
+    {
+      "name": "RegisterPatients",
+      "status": "Active"
+    },
+    {
+      "name": "EditPatients",
+      "status": "Active"
+    },
+    {
+      "name": "ManageFormTemplates",
+      "status": "Active"
+    },
+    {
+      "name": "CompleteForms",
+      "status": "Active"
+    },
+    {
+      "name": "ViewSignedForms",
+      "status": "Active"
+    },
+    {
+      "name": "VoidForms",
+      "status": "Active"
+    },
+    {
+      "name": "UpdateVisitFlow",
+      "status": "Active"
+    },
+    {
+      "name": "UpdateChairsideFlow",
+      "status": "Active"
+    },
+    {
+      "name": "ViewClinicalDocumentation",
+      "status": "Active"
+    },
+    {
+      "name": "ManageClinicalTemplates",
+      "status": "Active"
+    },
+    {
+      "name": "ViewSafetyIndicator",
+      "status": "Active"
+    },
+    {
+      "name": "ManagePrescriptions",
+      "status": "Active"
+    },
+    {
+      "name": "ViewPrescriptions",
+      "status": "Active"
+    },
+    {
+      "name": "ImportDocuments",
+      "status": "Active"
+    },
+    {
+      "name": "ViewDocuments",
+      "status": "Active"
+    },
+    {
+      "name": "ManageDocumentSettings",
+      "status": "Active"
+    },
+    {
+      "name": "ManageDocumentStorage",
+      "status": "Active"
+    },
+    {
+      "name": "SendMessages",
+      "status": "Active"
+    },
+    {
+      "name": "ReceiveDocumentNotifications",
+      "status": "Active"
+    },
+    {
+      "name": "ViewNotificationAuditHistory",
+      "status": "Active"
+    },
+    {
+      "name": "ViewMessageAuditContent",
+      "status": "Active"
+    },
+    {
+      "name": "ManagePermissionGrants",
+      "status": "Active"
+    }
+  ]
+}
