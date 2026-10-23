@@ -1,0 +1,7 @@
+.alv-bell { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; color: inherit; text-decoration: none; }
+.alv-bell:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.alv-bell__count { min-width: 1.5rem; padding: 0 0.4rem; border-radius: 999px; background: #1f4e8c; color: #fff; font-size: 0.8rem; text-align: center; }
+.alv-bell__failed { font-size: 0.8rem; text-decoration: underline; }
+.alv-bell-banner { padding: 0.6rem 1rem; background: #fff4d6; color: #4a3500; border-bottom: 1px solid #e0b84a; }
+.alv-bell-banner--urgent { background: #fde7e7; color: #6b0f0f; border-bottom-color: #c94444; }
+.alv-bell-banner a { color: inherit; font-weight: 600; }

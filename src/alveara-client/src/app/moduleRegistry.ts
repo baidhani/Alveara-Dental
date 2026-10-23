@@ -25,6 +25,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "visit-board", label: "Visit board", path: "/flow", requiredPermission: "ViewSchedule" },
   { id: "schedule", label: "Schedule", path: "/schedule", requiredPermission: "ViewSchedule" },
   { id: "procedures", label: "Procedures & fees", path: "/procedures", requiredPermission: "ViewBilling" },
+  { id: "messages", label: "Messages", path: "/messages" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users", requiredPermission: "ManageUsers" },
@@ -35,6 +36,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "form-templates", label: "Form Templates", path: "/admin/form-templates", requiredPermission: "ManageFormTemplates" },
   { id: "document-settings", label: "Document Settings", path: "/admin/documents", requiredPermission: "ManageDocumentSettings" },
   { id: "document-storage", label: "Document Storage", path: "/admin/document-storage", requiredPermission: "ManageDocumentStorage" },
+  { id: "notification-history", label: "Notification history", path: "/admin/notifications", requiredPermission: "ViewNotificationAuditHistory" },
   { id: "backup-recovery", label: "Backup & Recovery", path: "/admin/backup", requiredPermission: "ViewBackupStatus" },
   { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];

@@ -27,6 +27,9 @@ import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { FlowBoardPage } from "./pages/flow/FlowBoardPage";
+import { NotificationsPage } from "./pages/notifications/NotificationsPage";
+import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
+import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { NotificationProvider } from "./components/Notification";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -235,6 +238,10 @@ function createAppRouter() {
             <Route path="clinical/templates" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTemplatesTab /></RequirePermission>} />
             <Route path="clinical/:encounterId" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientEncounterTab /></RequirePermission>} />
           </Route>
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/messages/:id" element={<MessageDetailPage />} />
+          <Route path="/admin/notifications" element={<RequirePermission permission="ViewNotificationAuditHistory"><AdminNotificationsPage /></RequirePermission>} />
           <Route path="/settings/mfa" element={<MfaSettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

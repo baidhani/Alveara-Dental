@@ -7,6 +7,7 @@ import { confirmDiscard } from "../hooks/useUnsavedChangesWarning";
 import { PatientContextProvider } from "../contexts/PatientContext";
 import { PatientRequirementsProvider } from "../contexts/PatientRequirementsContext";
 import { PatientHeader } from "./PatientHeader";
+import { NotificationBell } from "../components/NotificationBell";
 import "./AppShell.css";
 
 const THEME_KEY = "alveara-theme";
@@ -101,6 +102,7 @@ export function AppShell() {
         </nav>
 
         <div className="alv-shell__sidebar-footer">
+          <NotificationBell />
           {state.kind === "signed-in" && (
             <div className="alv-shell__account" aria-label="Account">
               <div className="alv-shell__account-identity">

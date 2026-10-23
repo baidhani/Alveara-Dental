@@ -324,6 +324,21 @@ public class NotificationApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Break_glass_returns_no_content_when_the_success_cannot_be_audited()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var dentist = await _api.SessionAsync("Dentist");
+        var desk = await _api.SessionAsync("FrontDesk");
+        var id = await SentAsync(dentist, desk, "Private subject", "Private body.");
+        await using (var db = _fixture.CreateContext())
+            await db.Database.ExecuteSqlRawAsync($"CREATE TRIGGER TR_TestRefuseBreakGlassSuccess ON AuditLogEntries AFTER INSERT AS IF EXISTS (SELECT 1 FROM inserted WHERE EventType = '{AuditEventTypes.MessageBreakGlassSucceeded}') THROW 59999, 'audit down', 1;");
+        var r = await admin.SendAsync(HttpMethod.Post, "/api/admin/messages/break-glass", new { messageId = id, reason = "Complaint review", confirmed = true });
+        Assert.Equal((HttpStatusCode.ServiceUnavailable, "audit_unavailable"), (r.Status, Error(r.Body)));
+        Assert.DoesNotContain("Private", r.Body.GetRawText());
+        Assert.DoesNotContain(await AuditAsync(id), a => a.Event == AuditEventTypes.MessageBreakGlassSucceeded);
+    }
+
+    [Fact]
     public async Task Break_glass_on_an_unknown_message_is_audited_and_returns_not_found()
     {
         var admin = await _api.SessionAsync("Admin");
