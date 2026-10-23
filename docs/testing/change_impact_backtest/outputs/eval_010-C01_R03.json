@@ -1,0 +1,56 @@
+{
+ "run": "010-C01 R03",
+ "run_commit": "a3b4bc9",
+ "baseline": "010-C01 R01",
+ "baseline_commit": "be29f3b",
+ "tests": 4300,
+ "duplicates": 0,
+ "changed_files": 153,
+ "changed_cs_modified": [
+  "src/Alveara.Api.Tests/DocumentBackupRestoreTests.cs",
+  "src/Alveara.Api.Tests/DocumentStorageApiTests.cs",
+  "src/Alveara.Api.Tests/DocumentTestBase.cs",
+  "src/Alveara.Api.Tests/SafetyTestBase.cs",
+  "src/Alveara.Api.Tests/SchedulingApiHarness.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "src/Alveara.Api.Tests/ApiHarnessStorageCleanupTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/ApiHarnessStorageCleanupTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/DocumentTestBase.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/DocumentTestStorageCleanupTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyTestBase.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/SchedulingApiHarness.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestStorageCleanup.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestStorageCleanup.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ]
+ ],
+ "forced_full_reason_count": 8,
+ "failed_in_run": [],
+ "flipped_passed_to_failed": [],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}

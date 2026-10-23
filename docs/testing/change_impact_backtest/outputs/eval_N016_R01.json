@@ -1,0 +1,107 @@
+{
+ "run": "N016 R01",
+ "run_commit": "3ae51e2",
+ "baseline": "010-C01 R03",
+ "baseline_commit": "a3b4bc9",
+ "tests": 4318,
+ "duplicates": 0,
+ "changed_files": 75,
+ "changed_cs_modified": [
+  "src/Alveara.Api.Tests/BillingRefundMigrationTests.cs",
+  "src/Alveara.Api.Tests/CompletedProcedureMigrationTests.cs",
+  "src/Alveara.Api.Tests/CompletionAdoptionSchemaTests.cs",
+  "src/Alveara.Api.Tests/CompletionChartEvidenceTests.cs",
+  "src/Alveara.Api.Tests/DiagnosisSchemaTests.cs",
+  "src/Alveara.Api.Tests/DiagnosisStructureSchemaTests.cs",
+  "src/Alveara.Api.Tests/DocumentLibrarySchemaTests.cs",
+  "src/Alveara.Api.Tests/DocumentSchemaTests.cs",
+  "src/Alveara.Api.Tests/MigrationTests.cs",
+  "src/Alveara.Api.Tests/MigrationUpgradeTests.cs",
+  "src/Alveara.Api.Tests/OdontogramCatalogueSchemaTests.cs",
+  "src/Alveara.Api.Tests/PerioMigrationTests.cs",
+  "src/Alveara.Api.Tests/PrescriptionSchemaTests.cs",
+  "src/Alveara.Api.Tests/PrescriptionWorkflowSchemaTests.cs",
+  "src/Alveara.Api.Tests/SafetyTestBase.cs",
+  "src/Alveara.Api.Tests/TestDatabaseFixture.cs",
+  "src/Alveara.Api.Tests/TestDatabaseLocationTests.cs",
+  "src/Alveara.Api.Tests/TestDatabaseTeardownTests.cs",
+  "src/Alveara.Api.Tests/TestDatabaseTransientRetryTests.cs",
+  "src/Alveara.Api.Tests/TreatmentPlanRevisionMigrationTests.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventory.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventory.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventoryTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventoryTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationTestDatabaseFixture.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationTestDatabaseFixture.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationsAttribute.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationsAttribute.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyTestBase.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseFixture.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseLocationTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTeardownTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTemplate.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTemplate.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTemplateTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTemplateTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTransientRetryTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ]
+ ],
+ "forced_full_reason_count": 17,
+ "failed_in_run": [],
+ "flipped_passed_to_failed": [],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}

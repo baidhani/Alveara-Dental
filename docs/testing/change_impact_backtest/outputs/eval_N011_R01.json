@@ -1,0 +1,151 @@
+{
+ "run": "N011 R01",
+ "run_commit": "9a3ac31",
+ "baseline": "005-C01 R01",
+ "baseline_commit": "cd56749",
+ "tests": 1369,
+ "duplicates": 0,
+ "changed_files": 89,
+ "changed_cs_modified": [
+  "src/Alveara.Api.Tests/ClinicalPermissionTests.cs",
+  "src/Alveara.Api/Architecture/Identity/Permission.cs",
+  "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+  "src/Alveara.Api/Architecture/Scheduling/VisitBoardService.cs",
+  "src/Alveara.Api/Controllers/VisitsController.cs",
+  "src/Alveara.Api/Data/AlveraDbContext.cs",
+  "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+  "src/Alveara.Api/Program.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "src/Alveara.Api.Tests/ClearanceServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyAlertServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyContextServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetySchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyTestBase.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/SafetyTestBase.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Identity/Permission.cs",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/ClearanceService.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/SafetyAlertService.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/SafetyContextService.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/SafetyEntities.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/SafetyRules.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/SafetyViews.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Safety/SafetyViews.cs",
+   "DTO / view contract"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Scheduling/VisitBoardService.cs",
+   "DTO / record contract (a changed line)"
+  ],
+  [
+   "src/Alveara.Api/Controllers/SafetyController.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Controllers/SafetyController.cs",
+   "endpoint / controller wiring"
+  ],
+  [
+   "src/Alveara.Api/Controllers/VisitsController.cs",
+   "endpoint / controller wiring"
+  ],
+  [
+   "src/Alveara.Api/Data/AlveraDbContext.cs",
+   "data models / EF configuration"
+  ],
+  [
+   "src/Alveara.Api/Data/SafetyModel.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Data/SafetyModel.cs",
+   "data models / EF configuration"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004030506_AddPatientSafety.Designer.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004030506_AddPatientSafety.Designer.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004030506_AddPatientSafety.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004030506_AddPatientSafety.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+   "EF configuration (a changed line)"
+  ],
+  [
+   "src/Alveara.Api/Program.cs",
+   "service registration / startup"
+  ],
+  [
+   "src/Alveara.Api/Program.cs",
+   "dependency-injection / service registration (a changed line)"
+  ]
+ ],
+ "forced_full_reason_count": 31,
+ "failed_in_run": [],
+ "flipped_passed_to_failed": [],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}

@@ -1,0 +1,1179 @@
+[
+ {
+  "commit": "37d2b08",
+  "subject": "ALV-007-C01 R02: read the ledger coherently under concurrent recording",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 2
+ },
+ {
+  "commit": "0da6f36",
+  "subject": "ALV-N016 R02: the 13 rollback classes start from a clone and keep the real Down ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "reflection / dynamic loading (a changed line)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 16
+ },
+ {
+  "commit": "729fc81",
+  "subject": "ALV-N016 R02: revert the prefetch pool (measured: no gain, and a leak risk at ex",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (D)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 5
+ },
+ {
+  "commit": "11b413c",
+  "subject": "ALV-N016 R02: prefetch pool, clones restored ahead while the current test runs",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 5
+ },
+ {
+  "commit": "3ae51e2",
+  "subject": "ALV-N016: tag template telemetry with the template's role",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "serialization / validation (a changed line)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 2
+ },
+ {
+  "commit": "10ba376",
+  "subject": "ALV-N016: prove clone equivalence and partial-clone removal",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 1
+ },
+ {
+  "commit": "7c6b40f",
+  "subject": "ALV-N016: the template database, the fixture integration and the real-migration ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 27
+ },
+ {
+  "commit": "a3b4bc9",
+  "subject": "ALV-010-C01: restore the storage cleanup and the link contrast fixes (R02-01, R0",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 13
+ },
+ {
+  "commit": "17a2f07",
+  "subject": "wip: restore src/ to the tree the full backend run tested (be29f3b)",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (D)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 13
+ },
+ {
+  "commit": "5983636",
+  "subject": "ALV-010-C01: remove the storage folders the document and API tests leave behind",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 9
+ },
+ {
+  "commit": "be29f3b",
+  "subject": "ALV-010-C01: real-backend walkthrough for the library and storage, and the three",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 29
+ },
+ {
+  "commit": "4ed2d14",
+  "subject": "ALV-010-C01: signed form listing survives template edits",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 2
+ },
+ {
+  "commit": "20d4926",
+  "subject": "ALV-010-C01: backup and restore drill for documents",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "934930a",
+  "subject": "ALV-010-C01: library filters, thumbnails and the import safety matrix",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "reflection / dynamic loading (a changed line)"
+  ],
+  "changed_files": 7
+ },
+ {
+  "commit": "64c7aa0",
+  "subject": "ALV-010-C01: review and removal of unreferenced files, and recovery from an inte",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "reflection / dynamic loading (a changed line)"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "d18d420",
+  "subject": "ALV-010-C01: storage integrity: the check, damaged-file refusal and unreferenced",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 21
+ },
+ {
+  "commit": "53d1de4",
+  "subject": "ALV-010-C01: clinical context and inactivation of documents",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 12
+ },
+ {
+  "commit": "0c22bbc",
+  "subject": "ALV-010-C01: the library schema: encounter, tooth or region, status and storage ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 8
+ },
+ {
+  "commit": "9fc5ed6",
+  "subject": "STORY-010: the document routes",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "service registration / startup"
+  ],
+  "changed_files": 5
+ },
+ {
+  "commit": "2c6929c",
+  "subject": "STORY-010: the administrator's document settings service",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 4
+ },
+ {
+  "commit": "dd1a9d1",
+  "subject": "STORY-010: the library, opening a file and editing a document",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 9
+ },
+ {
+  "commit": "3b43f55",
+  "subject": "STORY-010: the import service and the document permissions",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 11
+ },
+ {
+  "commit": "51ea77d",
+  "subject": "STORY-010: the document tables, seeds and triggers",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 8
+ },
+ {
+  "commit": "0f4ad3a",
+  "subject": "STORY-010: the pure file rules for document import",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 4
+ },
+ {
+  "commit": "1acc302",
+  "subject": "Fix: databases created with explicit files must have READ_COMMITTED_SNAPSHOT on",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "an unclassified path outside the known non-backend areas",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 7
+ },
+ {
+  "commit": "7c34235",
+  "subject": "Dev: scripts to create and run AlveraDev with every file under Dev-Data",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "an unclassified path outside the known non-backend areas",
+   "service registration / startup"
+  ],
+  "changed_files": 7
+ },
+ {
+  "commit": "c19a929",
+  "subject": "Tests: every test file under Test-Data; remaining files on the shared helper",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "dependency-injection / service registration (a changed line)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 13
+ },
+ {
+  "commit": "b7f1da7",
+  "subject": "Tests: one data root, test databases created in Test-Data\\Database",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 7
+ },
+ {
+  "commit": "851a64b",
+  "subject": "Gate D: add the D5 evidence tooling",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "45abf51",
+  "subject": "Gate C: record the reviewer's sequence decision and add the C8 and C2 evidence t",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "486e44c",
+  "subject": "ALV-016-C01: R02 run a deadlock victim in completion and adoption again instead ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 8
+ },
+ {
+  "commit": "f09bb80",
+  "subject": "ALV-016-C01: complete the prescription workflow on the shared clinical safety fr",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 56
+ },
+ {
+  "commit": "65545e4",
+  "subject": "STORY-016: support prescriptions with medication, dosage and allergy checks",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 53
+ },
+ {
+  "commit": "d03b9e7",
+  "subject": "ALV-008-C02: R02 record the exact chart-history version of each completion",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 15
+ },
+ {
+  "commit": "5ef44f0",
+  "subject": "ALV-008-C02: retire legacy completion paths and adopt historical completions",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "data models / EF configuration",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 75
+ },
+ {
+  "commit": "19c8f1c",
+  "subject": "ALV-007-C02: R02 authorized charge source for billing readers",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 13
+ },
+ {
+  "commit": "bc25a94",
+  "subject": "ALV-007-C02: refunds, allocation moves, corrections, statements, receipts, timel",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 53
+ },
+ {
+  "commit": "9bc1df8",
+  "subject": "ALV-008-C01: atomic procedure completion with provider, encounter, odontogram ef",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 52
+ },
+ {
+  "commit": "8da1119",
+  "subject": "STORY-008: complete an accepted plan in one step and show completed care in the ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 22
+ },
+ {
+  "commit": "9dd15c1",
+  "subject": "ALV-007-C01: financial ledger with allocation, reversals, guarantor responsibili",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 43
+ },
+ {
+  "commit": "b3651b6",
+  "subject": "TESTQ-BACKUPCRYPTO-TAMPER: fix the tamper flake and a real decrypt error-handlin",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 20
+ },
+ {
+  "commit": "3471727",
+  "subject": "STORY-007: billing with charges, payments and adjustments, preserving financial ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 37
+ },
+ {
+  "commit": "977a3db",
+  "subject": "STORY-014: prove the catalog criteria and close the failed-save and failed-log p",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "reflection / dynamic loading (a changed line)"
+  ],
+  "changed_files": 12
+ },
+ {
+  "commit": "3fbb798",
+  "subject": "ALV-015-C01: count treatment-plan procedures in the catalog usage check (R02)",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "dependency-injection / service registration (a changed line)",
+   "new / deleted / renamed / copied file (A)",
+   "service registration / startup",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 13
+ },
+ {
+  "commit": "3ec1215",
+  "subject": "ALV-015-C01: complete treatment planning with phases, answers, revisions, patien",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 73
+ },
+ {
+  "commit": "9d5d82e",
+  "subject": "STORY-015: treatment plans with diagnosis linkage, catalog procedures, fee estim",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 30
+ },
+ {
+  "commit": "a981c49",
+  "subject": "wip: treatment plan backend for course item 28 (in progress, not complete, not v",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 18
+ },
+ {
+  "commit": "0ef1ab4",
+  "subject": "ALV-N005: enforce source provenance for every CDT and external procedure (R02)",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)",
+   "reflection / dynamic loading (a changed line)"
+  ],
+  "changed_files": 12
+ },
+ {
+  "commit": "4d4cb0e",
+  "subject": "ALV-N005: production procedure and fee catalog foundation",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 33
+ },
+ {
+  "commit": "020160f",
+  "subject": "TESTQ-BACKUPCRYPTO-DETERMINISTIC: the not-a-backup test no longer uses random in",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 2
+ },
+ {
+  "commit": "e3a05ad",
+  "subject": "TESTSPEED-P2-SERIAL: restore the serial runner configuration pending review",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "a non-C# file in a backend project"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "fe28a80",
+  "subject": "TESTSPEED-P2-LOGINFIX: test that a cleanup which removes nothing is reported",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 1
+ },
+ {
+  "commit": "02da4ea",
+  "subject": "TESTSPEED-P2-LOGINFIX: no wait needed after the up-front release, non-15434 erro",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 2
+ },
+ {
+  "commit": "0c83d9c",
+  "subject": "TESTSPEED-P2-LOGINFIX: assert the login-drop cap as literals",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 1
+ },
+ {
+  "commit": "31b501b",
+  "subject": "TESTSPEED-P2-LOGINFIX: stop LeastPrivilegeAccessTests leaking server logins",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 5
+ },
+ {
+  "commit": "261b5a6",
+  "subject": "TESTSPEED-P2-MODEB-FIX: bounded retry of the pool-acquisition timeout at init an",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (R)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "919f2dc",
+  "subject": "TESTSPEED-P2-REM: bounded SQL 1205 drop retry and failed-initialisation cleanup",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "368ee8d",
+  "subject": "TESTSPEED-P2: run test classes in parallel, 20 classes kept serial",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "a non-C# file in a backend project",
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 25
+ },
+ {
+  "commit": "1d5f92a",
+  "subject": "TESTSPEED-P1A: release the fixture database's own pooled connections before drop",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "b94eb69",
+  "subject": "ALV-013-C01: structured diagnosis lifecycle, coding provenance, context linkage ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 38
+ },
+ {
+  "commit": "fd7e152",
+  "subject": "STORY-013: structured diagnoses linked to patient, encounter and a treatment-pla",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 38
+ },
+ {
+  "commit": "c4797b2",
+  "subject": "ALV-012-C01: complete six-site periodontal charting, draft sessions, missing-too",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 54
+ },
+ {
+  "commit": "26354bd",
+  "subject": "STORY-012: periodontal charting with probing depth, recession and bleeding",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 38
+ },
+ {
+  "commit": "0b2aceb",
+  "subject": "ALV-006-C01: correct R01-01, hold the missing-tooth invariant atomically in both",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 15
+ },
+ {
+  "commit": "90f6ebd",
+  "subject": "ALV-006-C01: add mixed dentition, the condition catalogue, tooth-state validatio",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 44
+ },
+ {
+  "commit": "9f6b7a3",
+  "subject": "STORY-006: add odontogram API with role, CSRF and concurrency contract",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "b79b760",
+  "subject": "STORY-006: add odontogram service with lifecycle, withdrawal and audit",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "dependency-injection / service registration (a changed line)",
+   "new / deleted / renamed / copied file (A)",
+   "service registration / startup"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "b8eef58",
+  "subject": "STORY-006: add tooth-key rules, numbering mapper and odontogram schema",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 11
+ },
+ {
+  "commit": "9a3ac31",
+  "subject": "ALV-N011: add patient safety alerts, the shared safety context, clearance tracki",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 55
+ },
+ {
+  "commit": "cd56749",
+  "subject": "ALV-005-C01: add the longitudinal clinical record, notes, templates, vitals, sig",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 62
+ },
+ {
+  "commit": "65e41be",
+  "subject": "STORY-005: develop the clinical documentation module - documentation, progress a",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 7
+ },
+ {
+  "commit": "d87ceae",
+  "subject": "STORY-005: clinical encounters - structured history, allergies and medications, ",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 17
+ },
+ {
+  "commit": "64d47bc",
+  "subject": "ALV-011-C01: add the full visit workflow, one patient per room, form readiness a",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 63
+ },
+ {
+  "commit": "207791d",
+  "subject": "STORY-011: track patient flow from scheduled to checked in to completed",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 35
+ },
+ {
+  "commit": "4179fa4",
+  "subject": "ALV-004-C01: add the calendar, reschedule, cancel, no-show and patient-overlap p",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 36
+ },
+ {
+  "commit": "d0024f3",
+  "subject": "STORY-004: schedule appointments without provider or operatory conflicts",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 28
+ },
+ {
+  "commit": "a4c6c4f",
+  "subject": "ALV-N010: add versioned forms, consents and e-signature foundation",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  "changed_files": 49
+ },
+ {
+  "commit": "fdafb00",
+  "subject": "ALV-003-C01: complete patient identity, household, guarantor and registration wo",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "DTO / view contract",
+   "EF configuration (a changed line)",
+   "data models / EF configuration"
+  ],
+  "changed_files": 66
+ },
+ {
+  "commit": "014ef9d",
+  "subject": "STORY-003: implement patient registration workflow",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 27
+ },
+ {
+  "commit": "2d98193",
+  "subject": "ALV-N004 R05: a proven archive defect is stored durably and enforced across ever",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "migrations",
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 11
+ },
+ {
+  "commit": "7d50581",
+  "subject": "ALV-N004 R04: restore proof is earned only by a drill; a proven archive defect p",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "migrations",
+   "new / deleted / renamed / copied file (A)",
+   "serialization / validation (a changed line)"
+  ],
+  "changed_files": 16
+ },
+ {
+  "commit": "4b99e2a",
+  "subject": "ALV-N004 R03: verified-before-serve deployment guard; manifest, asset and captur",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "dependency-injection / service registration (a changed line)",
+   "serialization / validation (a changed line)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 8
+ },
+ {
+  "commit": "f8969c2",
+  "subject": "ALV-N004 R02: OpenPGP backup format, history-free archive recovery, DP compatibi",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "EF configuration (a changed line)",
+   "a non-C# file in a backend project",
+   "data models / EF configuration"
+  ],
+  "changed_files": 33
+ },
+ {
+  "commit": "bd50b4a",
+  "subject": "ALV-N004: encrypted full-state backup, verification, restore drill, and recovery",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 39
+ },
+ {
+  "commit": "4d4f3c3",
+  "subject": "ALV-N003 R02: versioned availability schedule, provider-bound editor, DST-safe c",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "data models / EF configuration",
+   "endpoint / controller wiring",
+   "migrations"
+  ],
+  "changed_files": 26
+ },
+ {
+  "commit": "848fce8",
+  "subject": "ALV-N003: practice, staff, provider, operatory, appointment-type, and availabili",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 38
+ },
+ {
+  "commit": "cc053da",
+  "subject": "ALV-002-C01 R03: audit API returns shared metadata; viewer requests the window i",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "reflection / dynamic loading (a changed line)"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "1f6b0fa",
+  "subject": "ALV-002-C01 R02: add audit viewer, conflict UI pattern, and real audit-INSERT fa",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "data models / EF configuration",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 14
+ },
+ {
+  "commit": "ef19d25",
+  "subject": "ALV-002-C01: shared audit, concurrency, and record-lifecycle primitives",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 17
+ },
+ {
+  "commit": "cc9f83d",
+  "subject": "STORY-002: add audit-log immutability guard and permission-gated view endpoint",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "data models / EF configuration",
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 7
+ },
+ {
+  "commit": "47a80c3",
+  "subject": "ALV-N009 R03: fix idle-session sliding renewal and out-of-order refresh race",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "reflection / dynamic loading (a changed line)",
+   "service registration / startup"
+  ],
+  "changed_files": 4
+ },
+ {
+  "commit": "1127f01",
+  "subject": "ALV-N009: authorization-aware navigation, session UX, and identity context",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "reflection / dynamic loading (a changed line)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 18
+ },
+ {
+  "commit": "d6fd281",
+  "subject": "ALV-001-C01 R06: replace uncontrolled race tests with deterministic branch-forci",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 2
+ },
+ {
+  "commit": "9fd920a",
+  "subject": "ALV-001-C01 R05: fix threshold test math and close two-challenges-one-recovery-c",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 2
+ },
+ {
+  "commit": "1d15cfd",
+  "subject": "ALV-001-C01 R04: close step-up race and challenge-audit-atomicity findings",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "3203c05",
+  "subject": "ALV-001-C01 R03: close MFA-challenge replay and step-up throttling findings",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "endpoint / controller wiring",
+   "migrations"
+  ],
+  "changed_files": 11
+ },
+ {
+  "commit": "f575771",
+  "subject": "ALV-001-C01 R02: correct all five review findings (MFA lifecycle, crypto, audit,",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "a non-C# file in a backend project",
+   "endpoint / controller wiring",
+   "migrations"
+  ],
+  "changed_files": 27
+ },
+ {
+  "commit": "01afb66",
+  "subject": "ALV-001-C01: audit and cookie-attribute test coverage for handoff evidence",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 2
+ },
+ {
+  "commit": "583ac46",
+  "subject": "ALV-001-C01: granular permission matrix mapped to the story's named roles",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "8b1f789",
+  "subject": "ALV-001-C01: rate-limit repeated authentication attempts",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)",
+   "service registration / startup"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "9e8133c",
+  "subject": "ALV-001-C01: MFA and password-reset test coverage",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 3
+ },
+ {
+  "commit": "f92d409",
+  "subject": "ALV-001-C01: core identity security controls (bootstrap, MFA, lockout rearm, CSR",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "DTO / record contract (a changed line)",
+   "EF configuration (a changed line)",
+   "a non-C# file in a backend project",
+   "data models / EF configuration"
+  ],
+  "changed_files": 25
+ },
+ {
+  "commit": "8fb17c3",
+  "subject": "STORY-001: seed MigrationUpgradeTests via raw SQL matching the older schema",
+  "decision": "SELECT",
+  "reasons": [],
+  "changed_files": 1
+ },
+ {
+  "commit": "3e0a7b7",
+  "subject": "STORY-001: implement secure authentication and RBAC",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 19
+ },
+ {
+  "commit": "b0ff9a4",
+  "subject": "ALV-N002 R04: fix publish bundling and framework PHI-safe logging",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "a non-C# file in a backend project",
+   "new / deleted / renamed / copied file (A)",
+   "service registration / startup",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 7
+ },
+ {
+  "commit": "951b425",
+  "subject": "ALV-N002 R03: fix all four R02 review findings",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "new / deleted / renamed / copied file (A)",
+   "service registration / startup",
+   "shared core (audit, concurrency, idempotency, authorization, money, time, storage, backup, lifecycle, configuration, logging, jobs)"
+  ],
+  "changed_files": 6
+ },
+ {
+  "commit": "848d0fc",
+  "subject": "ALV-N002: correct execution (R02) \u2014 atomic job claims, transactional effects, su",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "EF configuration (a changed line)",
+   "data models / EF configuration",
+   "migrations",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 20
+ },
+ {
+  "commit": "7d312b4",
+  "subject": "ALV-N002: Core Architecture, Local Deployment, Data Invariants, and Durable Back",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "a non-C# file in a backend project",
+   "data models / EF configuration",
+   "dependency-injection / service registration (a changed line)",
+   "endpoint / controller wiring"
+  ],
+  "changed_files": 40
+ },
+ {
+  "commit": "c036865",
+  "subject": "ALV-N001: Alveara Application Shell and Design Foundation",
+  "decision": "FORCED_FULL",
+  "reasons": [
+   "a non-C# file in a backend project",
+   "an unclassified path outside the known non-backend areas",
+   "endpoint / controller wiring",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  "changed_files": 57
+ }
+]

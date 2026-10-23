@@ -1,0 +1,296 @@
+{
+ "run": "010-C01 R01",
+ "run_commit": "be29f3b",
+ "baseline": "006-C01 R02",
+ "baseline_commit": "0b2aceb",
+ "tests": 4294,
+ "duplicates": 0,
+ "changed_files": 1422,
+ "changed_cs_modified": [
+  "src/Alveara.Api.Tests/AccountServiceLoginTests.cs",
+  "src/Alveara.Api.Tests/AppointmentLifecycleTests.cs",
+  "src/Alveara.Api.Tests/BackupApiTests.cs",
+  "src/Alveara.Api.Tests/BackupCryptoTests.cs",
+  "src/Alveara.Api.Tests/BackupRecoveryHardeningTests.cs",
+  "src/Alveara.Api.Tests/BackupRestoreTests.cs",
+  "src/Alveara.Api.Tests/BackupSchedulerTests.cs",
+  "src/Alveara.Api.Tests/BackupServiceTests.cs",
+  "src/Alveara.Api.Tests/BackupSnapshotTests.cs",
+  "src/Alveara.Api.Tests/BackupTestSupport.cs",
+  "src/Alveara.Api.Tests/BlobStorageTests.cs",
+  "src/Alveara.Api.Tests/ClinicalRecordApiTests.cs",
+  "src/Alveara.Api.Tests/ClinicalRecordServiceTests.cs",
+  "src/Alveara.Api.Tests/ConditionTypeServiceTests.cs",
+  "src/Alveara.Api.Tests/EncounterNotesServiceTests.cs",
+  "src/Alveara.Api.Tests/LeastPrivilegeAccessTests.cs",
+  "src/Alveara.Api.Tests/MigrationTests.cs",
+  "src/Alveara.Api.Tests/MigrationUpgradeTests.cs",
+  "src/Alveara.Api.Tests/OdontogramCatalogueSchemaTests.cs",
+  "src/Alveara.Api.Tests/OdontogramHistoryAndLinksTests.cs",
+  "src/Alveara.Api.Tests/PatientFlowLifecycleTests.cs",
+  "src/Alveara.Api.Tests/RealProcessDatabaseOutageTests.cs",
+  "src/Alveara.Api.Tests/SafetyAlertServiceTests.cs",
+  "src/Alveara.Api.Tests/SchedulingApiHarness.cs",
+  "src/Alveara.Api.Tests/SignedFormSnapshotTests.cs",
+  "src/Alveara.Api.Tests/StorageIsolationTests.cs",
+  "src/Alveara.Api.Tests/TestDatabaseFixture.cs",
+  "src/Alveara.Api/Architecture/Backup/BackupCrypto.cs",
+  "src/Alveara.Api/Architecture/Backup/BackupRestoreService.cs",
+  "src/Alveara.Api/Architecture/Identity/Pbkdf2PasswordHasher.cs",
+  "src/Alveara.Api/Architecture/Identity/Permission.cs",
+  "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+  "src/Alveara.Api/Architecture/Odontogram/OdontogramService.cs",
+  "src/Alveara.Api/Architecture/Storage/IBlobStorage.cs",
+  "src/Alveara.Api/Data/AlveraDbContext.cs",
+  "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+  "src/Alveara.Api/Program.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "scripts/Clear-TestData.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/DevEnvironment.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/Initialize-DevDatabase.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/Invoke-RealBackendWalkthrough.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/New-DevAdmin.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/Start-DevApi.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/Start-DevClient.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "scripts/Test-DataLocations.ps1",
+   "an unclassified path outside the known non-backend areas"
+  ],
+  [
+   "src/Alveara.Api.Tests/AllergyCheckTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/AlveraTestEnvironment.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BackupRecoveryHardeningTests.cs",
+   "dependency-injection / service registration (a changed line)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingChargeSourceApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingDocumentBuilderTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingDocumentServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingLedgerApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingLedgerMathTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingLedgerSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingLedgerServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingProcedureChargeContractTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingReconciliationTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingRefundConcurrencyTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingRefundMathTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingRefundMigrationTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingRefundSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingRefundServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingResponsibilityServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingStatementsApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingTestBase.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingTestBase.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/BillingTimelineAgingTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureAdoptionHardeningTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureAdoptionServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureAmendmentTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureEffectsTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureHistoryTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureMigrationTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletedProcedureServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionAdoptionApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionAdoptionRulesTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionAdoptionSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionChartEvidenceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionDeadlockTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionReconciliationTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionRulesTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionTestBase.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/CompletionTestBase.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisReconciliationTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisRulesTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisStructureApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisStructureRulesTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisStructureSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/DiagnosisStructureServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ]
+ ],
+ "forced_full_reason_count": 385,
+ "failed_in_run": [],
+ "flipped_passed_to_failed": [],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}

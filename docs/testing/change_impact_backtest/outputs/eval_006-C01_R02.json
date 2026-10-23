@@ -1,0 +1,55 @@
+{
+ "run": "006-C01 R02",
+ "run_commit": "0b2aceb",
+ "baseline": "006-C01 R01",
+ "baseline_commit": "90f6ebd",
+ "tests": 1736,
+ "duplicates": 0,
+ "changed_files": 55,
+ "changed_cs_modified": [
+  "src/Alveara.Api/Architecture/Odontogram/OdontogramEntities.cs",
+  "src/Alveara.Api/Architecture/Odontogram/OdontogramService.cs",
+  "src/Alveara.Api/Data/OdontogramModel.cs",
+  "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "src/Alveara.Api.Tests/ToothPresenceApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/ToothPresenceInvariantTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Data/OdontogramModel.cs",
+   "data models / EF configuration"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261005013032_AddToothPresenceInvariant.Designer.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261005013032_AddToothPresenceInvariant.Designer.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261005013032_AddToothPresenceInvariant.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261005013032_AddToothPresenceInvariant.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+   "migrations"
+  ]
+ ],
+ "forced_full_reason_count": 8,
+ "failed_in_run": [],
+ "flipped_passed_to_failed": [],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}

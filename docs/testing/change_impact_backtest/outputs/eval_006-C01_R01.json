@@ -1,0 +1,162 @@
+{
+ "run": "006-C01 R01",
+ "run_commit": "90f6ebd",
+ "baseline": "N011 R01",
+ "baseline_commit": "9a3ac31",
+ "tests": 1711,
+ "duplicates": 0,
+ "changed_files": 118,
+ "changed_cs_modified": [
+  "src/Alveara.Api/Data/AlveraDbContext.cs",
+  "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+  "src/Alveara.Api/Program.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "src/Alveara.Api.Tests/ConditionTypeServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/OdontogramApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/OdontogramCatalogueApiTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/OdontogramCatalogueSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/OdontogramHistoryAndLinksTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/OdontogramSchemaTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/OdontogramServiceTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api.Tests/ToothNumberingTests.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/ConditionCatalogue.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/ConditionTypeService.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/OdontogramEntities.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/OdontogramRules.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/OdontogramService.History.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/OdontogramService.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/OdontogramViews.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/OdontogramViews.cs",
+   "DTO / view contract"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/ToothKeys.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Architecture/Odontogram/ToothNumbering.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Controllers/OdontogramController.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Controllers/OdontogramController.cs",
+   "endpoint / controller wiring"
+  ],
+  [
+   "src/Alveara.Api/Data/AlveraDbContext.cs",
+   "data models / EF configuration"
+  ],
+  [
+   "src/Alveara.Api/Data/OdontogramModel.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Data/OdontogramModel.cs",
+   "data models / EF configuration"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004175626_AddOdontogram.Designer.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004175626_AddOdontogram.Designer.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004175626_AddOdontogram.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004175626_AddOdontogram.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004223713_AddConditionCatalogueAndLinks.Designer.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004223713_AddConditionCatalogueAndLinks.Designer.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004223713_AddConditionCatalogueAndLinks.cs",
+   "new / deleted / renamed / copied file (A)"
+  ],
+  [
+   "src/Alveara.Api/Migrations/20261004223713_AddConditionCatalogueAndLinks.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+   "migrations"
+  ],
+  [
+   "src/Alveara.Api/Migrations/AlveraDbContextModelSnapshot.cs",
+   "EF configuration (a changed line)"
+  ],
+  [
+   "src/Alveara.Api/Program.cs",
+   "service registration / startup"
+  ],
+  [
+   "src/Alveara.Api/Program.cs",
+   "dependency-injection / service registration (a changed line)"
+  ]
+ ],
+ "forced_full_reason_count": 35,
+ "failed_in_run": [],
+ "flipped_passed_to_failed": [],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}

@@ -1174,4 +1174,10 @@
   - What changed: added `docs/design/CHANGE_IMPACT_TEST_SELECTION_PROPOSAL.md` (status PROPOSED; nothing in force): a deterministic, conservative rule that runs only the test classes a change can reach (plus dependents, new tests and a smoke set) and reuses a preserved passing full run for the rest, generalising the approved reuse-by-equivalence of ALV-N016 R04; safeguards (shared-core list forces a full run, scheduled full runs, miss handling), a frozen evaluator contract, a backtest-then-shadow-pilot path, estimates and seven decisions for the reviewer. Documentation only.
   - Verification: "user confirmed" the request; figures taken from the preserved 4,324-test run (`backend-tests.csv`), the R04 reuse review and the focused-run records.
   - Notes: no code or cadence change; the reviewer decides. Not pushed.
+- [ ] Change-impact test selection: historical backtest report (read-only; awaiting reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: added `docs/testing/change_impact_backtest/` (`backtest.py`, `csharp_model.py`, `make_report.py`, `REPORT.md`, `outputs/*.json`): a read-only analysis of git history and the 10 preserved full-run results as the reviewer authorized in `docs/design/CHANGE_IMPACT_TEST_SELECTION_REVIEW_RESPONSE.md`. No application code, test, configuration, cadence or review rule changed; no test or build was run.
+  - Verification: the strict fail-closed rule forces a full run in 9 of 9 evaluated changes and 102 of 109 backend-touching commits; a graph-only diagnostic selected in 4 changes with reconciliation exact and one would-be miss (the latent `D5` billing race); recommendation `NOT_READY_FOR_SHADOW_PILOT` with five exact gaps.
+  - Notes: left unchecked: AWAITING_REVIEW; no shadow pilot or policy change without a separate reviewer decision. Not pushed.
 

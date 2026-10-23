@@ -1,0 +1,59 @@
+{
+ "run": "N016 R02 (unplanned run)",
+ "run_commit": "0da6f36",
+ "baseline": "N016 R01",
+ "baseline_commit": "3ae51e2",
+ "tests": 4319,
+ "duplicates": 0,
+ "changed_files": 65,
+ "changed_cs_modified": [
+  "src/Alveara.Api.Tests/BillingRefundMigrationTests.cs",
+  "src/Alveara.Api.Tests/CompletedProcedureMigrationTests.cs",
+  "src/Alveara.Api.Tests/CompletionAdoptionSchemaTests.cs",
+  "src/Alveara.Api.Tests/CompletionChartEvidenceTests.cs",
+  "src/Alveara.Api.Tests/DiagnosisSchemaTests.cs",
+  "src/Alveara.Api.Tests/DiagnosisStructureSchemaTests.cs",
+  "src/Alveara.Api.Tests/DocumentLibrarySchemaTests.cs",
+  "src/Alveara.Api.Tests/DocumentSchemaTests.cs",
+  "src/Alveara.Api.Tests/OdontogramCatalogueSchemaTests.cs",
+  "src/Alveara.Api.Tests/PerioMigrationTests.cs",
+  "src/Alveara.Api.Tests/PrescriptionSchemaTests.cs",
+  "src/Alveara.Api.Tests/PrescriptionWorkflowSchemaTests.cs",
+  "src/Alveara.Api.Tests/RealMigrationInventory.cs",
+  "src/Alveara.Api.Tests/RealMigrationInventoryTests.cs",
+  "src/Alveara.Api.Tests/TestDatabaseTemplateTests.cs",
+  "src/Alveara.Api.Tests/TreatmentPlanRevisionMigrationTests.cs"
+ ],
+ "forced_full_reasons": [
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventory.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventory.cs",
+   "DTO / record contract (a changed line)"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventoryTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ],
+  [
+   "src/Alveara.Api.Tests/RealMigrationInventoryTests.cs",
+   "reflection / dynamic loading (a changed line)"
+  ],
+  [
+   "src/Alveara.Api.Tests/TestDatabaseTemplateTests.cs",
+   "shared test fixture / base class / harness / template machinery"
+  ]
+ ],
+ "forced_full_reason_count": 5,
+ "failed_in_run": [
+  "Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_financial_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite"
+ ],
+ "flipped_passed_to_failed": [
+  "Alveara.Api.Tests.GateDHistoryIntegrityTests.D5_financial_history_survives_duplicate_submissions_corrections_stale_edits_and_direct_overwrite"
+ ],
+ "failed_new_tests": [],
+ "decision": "FORCED_FULL",
+ "misses": []
+}
