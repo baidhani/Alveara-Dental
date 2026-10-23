@@ -1,0 +1,16 @@
+M1 a non-participant may read any message: KILLED (Failed!  - Failed:     1, Passed:    22)
+    Failed Alveara.Api.Tests.NotificationApiTests.Someone_who_is_not_a_participant_gets_the_same_not_found_as_a_missing_message [626 ms]
+M2 the per-sender rate limit is removed: KILLED (Failed!  - Failed:     1, Passed:    22)
+    Failed Alveara.Api.Tests.NotificationApiTests.The_sender_is_limited_to_thirty_messages_a_minute [661 ms]
+M3 a changed body under a used key is accepted as a replay: KILLED (Failed!  - Failed:     1, Passed:    22)
+    Failed Alveara.Api.Tests.NotificationApiTests.Sending_twice_with_the_same_key_creates_one_message_and_a_changed_body_with_that_key_is_refused [526 ms]
+M4 an unread notification may be hidden: KILLED (Failed!  - Failed:     1, Passed:    22)
+    Failed Alveara.Api.Tests.NotificationApiTests.An_unread_notification_cannot_be_hidden_and_a_read_one_is_hidden_once_and_never_deleted [512 ms]
+M5 break-glass success is not audited: KILLED (Failed!  - Failed:     2, Passed:    21)
+    Failed Alveara.Api.Tests.NotificationApiTests.Break_glass_returns_no_content_when_the_success_cannot_be_audited [423 ms]
+    Failed Alveara.Api.Tests.NotificationApiTests.Break_glass_needs_a_reason_and_a_confirmation_audits_every_attempt_and_returns_one_message [426 ms]
+M6 the consumer notifies every enabled account, not only those holding the permission: KILLED (Failed!  - Failed:     1, Passed:    22)
+    Failed Alveara.Api.Tests.NotificationApiTests.A_duplicate_import_tells_the_people_who_hold_the_permission_once_however_often_the_consumer_runs [727 ms]
+M7 the consumer does not skip a notice it already created: KILLED (Failed!  - Failed:     1, Passed:    22)
+    Failed Alveara.Api.Tests.NotificationApiTests.A_replay_after_a_lost_cursor_creates_no_second_notification [391 ms]
+restored: git diff of src/Alveara.Api/Architecture/Notifications is EMPTY

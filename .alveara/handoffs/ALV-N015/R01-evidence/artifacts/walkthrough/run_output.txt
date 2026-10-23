@@ -1,0 +1,48 @@
+﻿Database AlveraWalk_playwright_notifications_config_f7d2e132 created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.notifications.config.ts ...
+node.exe : [WebServer] (node:50492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:65208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\notifications-real-backend.spec.ts:125:1 › SETUP: a patient exists (184ms)
+  ok  2 [chromium] › e2e\notifications-real-backend.spec.ts:131:1 › BELL: a Normal message is counted by the bell and raises no banner (1.6s)
+  ok  3 [chromium] › e2e\notifications-real-backend.spec.ts:143:1 › BANNER: an Urgent message raises a generic, dismissible banner that carries no subject and returns after sign-in (891ms)
+  ok  4 [chromium] › e2e\notifications-real-backend.spec.ts:160:1 › RECEIPT: opening a message shows the sender when it was read, and the message stays unchanged (737ms)
+  ok  5 [chromium] › e2e\notifications-real-backend.spec.ts:175:1 › HISTORY: a read notice moves to history, can be hidden, and stays in the administrator's metadata history without any text (809ms)
+  ok  6 [chromium] › e2e\notifications-real-backend.spec.ts:196:1 › LINK: a patient link resolves through the server and opens the patient (418ms)
+  ok  7 [chromium] › e2e\notifications-real-backend.spec.ts:210:1 › DUPLICATE: a confirmed duplicate import reaches the administrator and the office manager exactly once, and not the dentist (14.1s)
+  ok  8 [chromium] › e2e\notifications-real-backend.spec.ts:243:1 › BREAK-GLASS: one message opens only with a reason and a confirmation, every attempt is audited, and no text reaches the audit log (649ms)
+  ok  9 [chromium] › e2e\notifications-real-backend.spec.ts:274:1 › DB: the database itself refuses to change or delete a message or a notification, and to hide an unread one (281ms)
+  ok 10 [chromium] › e2e\notifications-real-backend.spec.ts:284:1 › ACCESSIBILITY: the bell, notifications, messages, thread, compose and administrator screens pass an axe scan in both themes (10.1s)
+
+  10 passed (34.5s)
+Database AlveraWalk_playwright_notifications_config_f7d2e132 dropped (its files went with it).
+Output kept in C:\tmp\n015\walk

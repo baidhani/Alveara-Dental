@@ -2182,21 +2182,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed_stage1",
+        "summary": "Attempt R01, a Stage 1 package: focused backend 156 of 156 (NotificationApiTests 23; schema, inventory and permission tests; unchanged STORY-010 API tests 66), service negative controls 7 of 7 killed (schema 7 of 7), tsc 0, Vitest 1,553 of 1,553 in 98 files, build and lint exit 0, mocked Playwright 140, repository checks 13, real-backend walkthrough 10 of 10 with axe clean in both themes, unchanged STORY-010 walkthroughs 14 and 12. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N015/R01-evidence/stage2/) expects 4,392 backend tests. No full run made."
       },
-      "demo": "not_started",
+      "demo": "real_backend_walkthrough_10_of_10",
       "parentRegression": "n/a_new_production",
-      "implementationCommit": null,
+      "implementationCommit": "263fb66adfaac722ced34804dee5f2b1b123411f",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N015/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": "docs/design/NOTIFICATION_CENTER_AND_MESSAGING_PROPOSAL.md",
@@ -2209,7 +2209,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",
