@@ -210,7 +210,7 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
+      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) \u2014 the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -2303,7 +2303,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 10,
@@ -2319,13 +2319,16 @@
       "evidenceCommit": "effc0a51bbb0e114bc75e15f7e9bfa1341f14fc0",
       "handoffPath": ".alveara/handoffs/ALV-N018/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N018/R01-stage1.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "41c44abf671ba869e60beeb9bc496f7f2d46034c",
+        "reviewedEvidenceCommit": "effc0a51bbb0e114bc75e15f7e9bfa1341f14fc0",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N018/R01-stage1.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N018-R01-01: the refresh proof allows 45 seconds, not the required 30. The walkthrough waits up to 45 s and records withinSeconds 45, and the client polls every exactly 30 s, so a change just after a tick cannot be shown to arrive within 30 s end to end. R02 must poll with margin (about 25 s) keeping the no-refresh-while-editing and hidden-document safeguards, measure the elapsed time from the other-session write to the visible refreshed state in the real-backend walkthrough and fail at more than 30 s, keep the unit test aligned, and regenerate the evidence as a new immutable Stage 1 attempt. The full Stage 2 must not be run for R01."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
