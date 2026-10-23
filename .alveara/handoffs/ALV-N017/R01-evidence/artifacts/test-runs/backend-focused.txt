@@ -1,0 +1,2 @@
+dotnet test --no-build --filter (new ALV-N017 classes + PermissionMatrixTests, NotificationPermissionTests, AuthControllerPermissionMatrixTests, RealMigrationInventoryTests, NotificationSchemaTests)
+Passed!  - Failed:     0, Passed:   242, Skipped:     0, Total:   242, Duration: 2 m 11 s - Alveara.Api.Tests.dll (net10.0)

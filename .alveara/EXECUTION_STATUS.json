@@ -2245,21 +2245,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 12,
-        "passed": 0
+        "passed": 12
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed_stage1",
+        "summary": "Attempt R01, a Stage 1 package: focused backend 242 of 242 (159 new ids; 13 new classes), 788 HTTP-level ApiTests of 788 on the final tree, negative controls 15 of 15 killed, tsc 0, Vitest 1,553 of 1,553 in 98 files, build and lint exit 0, mocked Playwright 140, repository checks 13, real-backend walkthrough 7 of 7 (permission policy) with the ALV-N015 and STORY-010 walkthroughs 10, 14 and 12, restore drill passing, predeclared performance budget met on three consecutive runs (warm path added p95 at most 0.43 ms, reload at most 7.9 ms, write at most 45 ms) with a same-machine A/B showing no slowdown. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N017/R01-evidence/stage2/) expects 4,569 backend tests (the 4,410 baseline plus exactly the 159 listed new ids). Open questions for the reviewer: administrator behaviour during a policy outage, the inherited 55-minute ceiling, and the warm-path judging method. No full run made."
       },
-      "demo": "not_started",
+      "demo": "real_backend_walkthrough_7_of_7",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "266d1e3c5f5ce6724e0c4a07d25aa4889ac6e687",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N017/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
@@ -2272,7 +2272,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

@@ -1,0 +1,88 @@
+{
+  "axe": {
+    "notifications-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "notifications-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "messages-compose-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "messages-compose-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "message-thread-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "message-thread-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "admin-history-break-glass-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "admin-history-break-glass-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "banner-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "banner-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792770524355,
+  "bell": {
+    "unread": 1,
+    "banner": false
+  },
+  "banner": {
+    "generic": true,
+    "dismissible": true,
+    "returnsAfterReload": true
+  },
+  "receipt": {
+    "senderSeesRead": true,
+    "recipientSeesReceipt": false
+  },
+  "history": {
+    "hiddenByRecipient": true,
+    "adminSeesHidden": true,
+    "adminSeesText": false
+  },
+  "link": {
+    "listHasPatientId": false,
+    "opensPatient": true
+  },
+  "duplicate": {
+    "adminUnreadImportant": 1,
+    "officeManagerUnreadImportant": 1,
+    "dentist": 0,
+    "rowsInDatabase": 2,
+    "textInNotice": false
+  },
+  "breakGlass": {
+    "attempted": 3,
+    "refused": 2,
+    "succeeded": 1,
+    "textInAudit": false,
+    "nonAdmin": 403
+  },
+  "database": {
+    "updateMessage": "refused",
+    "deleteMessage": "refused",
+    "deleteNotification": "refused",
+    "changePriority": "refused",
+    "hideUnread": "refused"
+  }
+}
