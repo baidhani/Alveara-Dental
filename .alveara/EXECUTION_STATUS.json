@@ -2182,15 +2182,15 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
-        "status": "passed_stage1",
-        "summary": "Attempt R02, a Stage 1 package correcting R01 finding ALV-N015-R01-01 (the notification list carried the message subject; the property is now absent). Focused backend 157 of 157 (NotificationApiTests 24 including the new raw-JSON privacy test; schema, inventory, permission and unchanged STORY-010 API tests), negative control for the subject killed 2 tests, tsc 0, Vitest 1,553 of 1,553 in 98 files, build and lint exit 0, mocked Playwright 140, repository checks 13, real-backend walkthrough 10 of 10 (axe clean, both themes), unchanged STORY-010 walkthroughs 14 and 12. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N015/R02-evidence/stage2/) expects 4,393 backend tests. The R01 Stage 2 was not run. No full run made. Prior attempt R01 returned CHANGES_REQUIRED at Stage 1. Stage 2 (run once on closure commit d3a0d30, evidence .alveara/handoffs/ALV-N015/R02-regression.md): backend 4,410 passed, 0 failed, 0 skipped, 0 baseline ids missing or changed, 53.6 min, template and leak checks pass, client gates pass, walkthroughs 10, 14 and 12 pass; the frozen evaluator does NOT qualify only because two count criteria (expected 4,393 total and 69 new; observed 4,410 and 86) were miscounted from --list-tests in the frozen contract. Recorded as FAILED pending the reviewer ruling."
+        "status": "passed",
+        "summary": "Attempt R02, a Stage 1 package correcting R01 finding ALV-N015-R01-01 (the notification list carried the message subject; the property is now absent). Focused backend 157 of 157 (NotificationApiTests 24 including the new raw-JSON privacy test; schema, inventory, permission and unchanged STORY-010 API tests), negative control for the subject killed 2 tests, tsc 0, Vitest 1,553 of 1,553 in 98 files, build and lint exit 0, mocked Playwright 140, repository checks 13, real-backend walkthrough 10 of 10 (axe clean, both themes), unchanged STORY-010 walkthroughs 14 and 12. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N015/R02-evidence/stage2/) expects 4,393 backend tests. The R01 Stage 2 was not run. No full run made. Prior attempt R01 returned CHANGES_REQUIRED at Stage 1. Stage 2 (run once on closure commit d3a0d30, evidence .alveara/handoffs/ALV-N015/R02-regression.md): backend 4,410 passed, 0 failed, 0 skipped, 0 baseline ids missing or changed, 53.6 min, template and leak checks pass, client gates pass, walkthroughs 10, 14 and 12 pass; the frozen evaluator does NOT qualify only because two count criteria (expected 4,393 total and 69 new; observed 4,410 and 86) were miscounted from --list-tests in the frozen contract. Recorded as FAILED pending the reviewer ruling. FINAL (reviewer ruling .alveara/reviews/ALV-N015/R02.md): the authoritative observed Stage 2 backend count is 4,410 passed / 0 failed / 0 skipped with 86 net-new ids over the 4,324-test ALV-N016 R03 baseline; the evaluator's original failed result and its 4,393/69 expectations are kept as historical evidence of a count defect in the frozen contract."
       },
       "demo": "real_backend_walkthrough_10_of_10",
       "parentRegression": "n/a_new_production",
@@ -2198,21 +2198,22 @@
       "evidenceCommit": "7e04666cbb9e1540ea3bebddfb751e86bfffcb66",
       "handoffPath": ".alveara/handoffs/ALV-N015/R02.md",
       "review": {
-        "decision": "pending_regression_ruling",
-        "decisionArtifact": ".alveara/reviews/ALV-N015/R02-stage1.md",
-        "approvedAttempt": null,
+        "decision": "APPROVED",
+        "decisionArtifact": ".alveara/reviews/ALV-N015/R02.md",
+        "approvedAttempt": "R02",
         "reviewedImplementationCommit": "71bf8499737135df5b2079c4ce744a56ac65d991",
         "reviewedEvidenceCommit": "7e04666cbb9e1540ea3bebddfb751e86bfffcb66",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-N015/R02-stage1.md",
-        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md"
+        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md",
+        "regressionEvidenceCommit": "c0e48a549a3782e025e960c2fb80becb8ef8ca6b"
       },
       "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "fullRegression": "FAILED",
+      "completedAt": "2026-10-23T13:28:51Z",
+      "fullRegression": "PASSED",
       "regression": {
         "runCommit": "d3a0d307e2e0a2bc360b31b233fb861c215bc74b",
         "verdict": "DOES_NOT_QUALIFY",
