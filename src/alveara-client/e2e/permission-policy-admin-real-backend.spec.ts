@@ -137,7 +137,19 @@ test("EDIT: an administrator grants and reverts a cell on screen with a reason a
   await save(admin, "Back to the default", undefined, /^Revert to default$/);
   await expect(admin.getByText(/ViewBackupStatus for Billing: reverted/)).toBeVisible();
   expect((await api(billing, "get", "/api/backup/history")).status).toBe(403);
-  evidence.edit = { grantApplied: "next request", revertApplied: "next request", reasonAndConfirmationRequired: true };
+
+  expect((await api(billing, "get", "/api/billing/payment-methods")).status).toBe(200);                          // the other direction: a default the role holds is revoked on screen
+  await change(admin, "ViewBilling", "Billing").click();
+  await expect(admin.getByRole("heading", { name: "Revoke ViewBilling for Billing" })).toBeVisible();
+  await save(admin, "Billing is moving to the new portal");
+  await expect(admin.getByText(/ViewBilling for Billing: revoked\. It applies to the next request\./)).toBeVisible();
+  expect((await api(billing, "get", "/api/billing/payment-methods"))).toMatchObject({ status: 403, body: { error: "permission_denied", required: "ViewBilling" } });
+  await shot(admin, "02b-after-revoke.png");
+  await change(admin, "ViewBilling", "Billing").click();
+  await save(admin, "Billing keeps the old view after all", undefined, /^Revert to default$/);
+  await expect(admin.getByText(/ViewBilling for Billing: reverted/)).toBeVisible();
+  expect((await api(billing, "get", "/api/billing/payment-methods")).status).toBe(200);                           // the revert restores access on the next request
+  evidence.edit = { grantApplied: "next request", revokeApplied: "next request", revertApplied: "next request", reasonAndConfirmationRequired: true };
 });
 
 test("PROTECTED AND TYPED: protected permissions are locked, and a high-impact change needs the permission name typed", async () => {
