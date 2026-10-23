@@ -4963,6 +4963,252 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.PermissionDelegation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ChangedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DelegateRole")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("TargetRole")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("DelegateRole", "Permission", "TargetRole")
+                        .IsUnique();
+
+                    b.ToTable("PermissionDelegations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_PermissionDelegations_Time", "[ChangedAtUtc] >= '2000-01-01' AND [ChangedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("0e1e9a7e-0000-4000-8000-000000000000"),
+                            ChangedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DelegateRole = "OfficeManager",
+                            Permission = "ImportDocuments",
+                            TargetRole = "Dentist"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e1e9a7e-0000-4000-8000-000000000001"),
+                            ChangedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DelegateRole = "OfficeManager",
+                            Permission = "ImportDocuments",
+                            TargetRole = "Hygienist"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e1e9a7e-0000-4000-8000-000000000002"),
+                            ChangedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DelegateRole = "OfficeManager",
+                            Permission = "ImportDocuments",
+                            TargetRole = "Assistant"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e1e9a7e-0000-4000-8000-000000000003"),
+                            ChangedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DelegateRole = "OfficeManager",
+                            Permission = "ImportDocuments",
+                            TargetRole = "FrontDesk"
+                        },
+                        new
+                        {
+                            Id = new Guid("0e1e9a7e-0000-4000-8000-000000000004"),
+                            ChangedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DelegateRole = "OfficeManager",
+                            Permission = "ImportDocuments",
+                            TargetRole = "Billing"
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.PermissionPolicyState", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("Version")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PermissionPolicyState", null, t =>
+                        {
+                            t.HasTrigger("TR_PermissionPolicyState_Guard");
+
+                            t.HasCheckConstraint("CK_PermissionPolicyState_OneRow", "[Id] = 1");
+
+                            t.HasCheckConstraint("CK_PermissionPolicyState_Version", "[Version] >= 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            UpdatedAtUtc = new DateTimeOffset(new DateTime(2026, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Version = 0L
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.RolePermissionHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ChangedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("NewEffective")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("OldEffective")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<long>("PolicyVersion")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("TargetRole")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<bool>("ViaDelegation")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("PolicyVersion");
+
+                    b.HasIndex("Role", "Permission", "PolicyVersion");
+
+                    b.ToTable("RolePermissionHistories", null, t =>
+                        {
+                            t.HasTrigger("TR_RolePermissionHistories_Immutable");
+
+                            t.HasCheckConstraint("CK_RolePermissionHistories_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Granted','Revoked','Reverted','DelegationAdded','DelegationRemoved','InvalidRowRemoved')");
+
+                            t.HasCheckConstraint("CK_RolePermissionHistories_Reason", "LEN(LTRIM(RTRIM([Reason]))) > 0");
+
+                            t.HasCheckConstraint("CK_RolePermissionHistories_Time", "[ChangedAtUtc] >= '2000-01-01' AND [ChangedAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_RolePermissionHistories_Version", "[PolicyVersion] > 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.RolePermissionOverride", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("ChangedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("ChangedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Effect")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("Role", "Permission")
+                        .IsUnique();
+
+                    b.ToTable("RolePermissionOverrides", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RolePermissionOverrides_Effect", "[Effect] COLLATE Latin1_General_CS_AS IN ('Grant','Revoke')");
+
+                            t.HasCheckConstraint("CK_RolePermissionOverrides_Reason", "LEN(LTRIM(RTRIM([Reason]))) > 0");
+
+                            t.HasCheckConstraint("CK_RolePermissionOverrides_Time", "[ChangedAtUtc] >= '2000-01-01' AND [ChangedAtUtc] < '2200-01-01'");
+                        });
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Prescribing.Prescription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -7505,6 +7751,32 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Periodontal.PerioExam", null)
                         .WithMany()
                         .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.PermissionDelegation", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.RolePermissionHistory", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Permissions.RolePermissionOverride", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

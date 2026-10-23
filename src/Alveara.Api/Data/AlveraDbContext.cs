@@ -131,6 +131,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Notifications.MessageRecipient> MessageRecipients => Set<Architecture.Notifications.MessageRecipient>();
     public DbSet<Architecture.Notifications.Notification> Notifications => Set<Architecture.Notifications.Notification>();
     public DbSet<Architecture.Notifications.NotificationCursor> NotificationCursors => Set<Architecture.Notifications.NotificationCursor>();
+    public DbSet<Architecture.Permissions.RolePermissionOverride> RolePermissionOverrides => Set<Architecture.Permissions.RolePermissionOverride>();
+    public DbSet<Architecture.Permissions.RolePermissionHistory> RolePermissionHistories => Set<Architecture.Permissions.RolePermissionHistory>();
+    public DbSet<Architecture.Permissions.PermissionDelegation> PermissionDelegations => Set<Architecture.Permissions.PermissionDelegation>();
+    public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -531,6 +535,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         PrescriptionWorkflowModel.Configure(modelBuilder);
         DocumentModel.Configure(modelBuilder);
         NotificationModel.Configure(modelBuilder);
+        PermissionPolicyModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {
