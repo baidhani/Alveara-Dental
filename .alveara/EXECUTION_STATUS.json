@@ -1722,7 +1722,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-11T22:47:43.194Z",
       "externalVerification": "course_portal"
@@ -1775,7 +1775,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-12T13:09:43Z"
     },
@@ -1825,7 +1825,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-13T03:59:07Z"
     },
@@ -1875,7 +1875,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-13T22:37:42Z"
     },
@@ -1924,7 +1924,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-14T02:12:35.095Z",
       "externalVerification": "course_portal",
@@ -1977,7 +1977,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-16T15:38:46Z"
     },
@@ -2025,7 +2025,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-20T14:00:58.14Z",
       "externalVerification": "course_portal",
@@ -2082,7 +2082,7 @@
       "blockingIssues": [],
       "revalidation": {
         "required": true,
-        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it."
+        "reason": "Declared descendant of the reopened ALV-007-C01 (corrective attempt R02, finding ALV-N016-R02-01). Impact-reviewed in .alveara/handoffs/ALV-007-C01/R02-evidence/REVALIDATION_ASSESSMENT.md; targeted tests passed (1,379 of 1,379 in the descendant selection). The reviewer restores this story to COMPLETE on that evidence or reopens it. Revalidation requested from the reviewer with evidence in .alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md (no new test run; the preserved 4,324-test backend run on the corrected code, the 409 and 1,379 targeted selections, the shared frontend gate)."
       },
       "completedAt": "2026-10-21T22:03:03Z",
       "fullRegression": "PASSED"

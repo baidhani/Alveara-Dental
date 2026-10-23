@@ -1156,4 +1156,10 @@
   - What changed: recorded the reviewer's three final decisions (`.alveara/reviews/ALV-003-C01/R03.md`, `.alveara/reviews/ALV-N016/R04-stage2-rerun.md`, `.alveara/reviews/ALV-007-C01/R03-stage2-rerun.md`) and set the three stories `COMPLETE`; the evidence chain (preserved 4,324-test backend run, reuse equivalence, shared frontend gate) is referenced. No source or test change. The eight `REVALIDATION_REQUIRED` descendants of ALV-007-C01 are not cleared.
   - Verification: reviewer APPROVED all three 2026-10-22; shared frontend gate qualified on `fd21228` (Vitest 1,545, Playwright 140, repository checks 13); both reuse evaluations HOLD.
   - Notes: next: the revalidation of the eight descendants; ALV-N015 stays blocked until STORY-010 and ALV-010-C01 are restored. Not pushed.
+- [ ] Descendant revalidation request for the eight REVALIDATION_REQUIRED stories of ALV-007-C01 (awaiting reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: wrote `.alveara/handoffs/ALV-007-C01/R03-descendant-revalidation.md` and `R03-revalidation-evidence/` (summary and one backend-test CSV per story extracted from the preserved 4,324-test run); pointed each descendant's revalidation reason at it. No status changed; no test was run.
+  - Verification: every extracted backend test is Passed (53, 129, 364, 182, 158, 167, 592, 592 for the eight stories); the only production change of the reopening is BillingService.Ledger.cs (checked by diff).
+  - Notes: left unchecked: awaiting the reviewer's per-story decisions; ALV-N015 stays blocked until STORY-010 and ALV-010-C01 are restored. Not pushed.
 
