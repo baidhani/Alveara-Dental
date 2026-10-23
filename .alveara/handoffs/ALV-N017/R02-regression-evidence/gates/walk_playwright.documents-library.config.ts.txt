@@ -1,0 +1,26 @@
+Database AlveraWalk_playwright_documents_library_config_bb30481d created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.documents-library.config.ts ...
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] › e2e\documents-library-real-backend.spec.ts:144:1 › SETUP: a patient with one encounter and an empty library (351ms)
+  ok  2 [chromium] › e2e\documents-library-real-backend.spec.ts:154:1 › IMPORT: documents are tied to an encounter, a tooth and an oral region through the screen, and the server holds exactly that (852ms)
+  ok  3 [chromium] › e2e\documents-library-real-backend.spec.ts:172:1 › FILTERS: by tooth, region, encounter and a search word, with a bad range explained beside its box and Clear bringing everything back (2.8s)
+  ok  4 [chromium] › e2e\documents-library-real-backend.spec.ts:201:1 › THUMBNAILS: a picture is drawn small, anything else is named in words, and fetching a thumbnail leaves no trace in the log (2.2s)
+  ok  5 [chromium] › e2e\documents-library-real-backend.spec.ts:219:1 › PREVIEW: Preview shows the picture on the screen (327ms)
+  ok  6 [chromium] › e2e\documents-library-real-backend.spec.ts:227:1 › INACTIVATE: a reason is required; the document leaves the library but is kept, listed under Inactive with the reason, and reactivated (1.2s)
+  ok  7 [chromium] › e2e\documents-library-real-backend.spec.ts:255:1 › THE DENTIST reads but cannot make a document inactive, and the API refuses with 403 (320ms)
+  ok  8 [chromium] › e2e\documents-library-real-backend.spec.ts:265:1 › STORAGE: the office manager checks every stored file and all are intact (1.8s)
+  ok  9 [chromium] › e2e\documents-library-real-backend.spec.ts:276:1 › MISSING FILE: a file taken from disk is reported missing, the library says so, opening it is refused, and putting it back makes it intact (2.4s)
+  ok 10 [chromium] › e2e\documents-library-real-backend.spec.ts:309:1 › UNREFERENCED FILES: a stray file is listed once it is old, a fresh one is never listed, removal needs a selection and a confirmation, and is logged (504ms)
+  ok 11 [chromium] › e2e\documents-library-real-backend.spec.ts:347:1 › THE LOG: every action is recorded with who and when, and none of it names a file, a reason or the patient (7ms)
+  ok 12 [chromium] › e2e\documents-library-real-backend.spec.ts:354:1 › ACCESS: the front desk and the dentist cannot reach the storage page or its API (295ms)
+
+  12 passed (17.1s)
+Database AlveraWalk_playwright_documents_library_config_bb30481d dropped (its files went with it).
+Output kept in C:/tmp/n017/stage2/out/walkthroughs/playwright.documents-library.config.ts

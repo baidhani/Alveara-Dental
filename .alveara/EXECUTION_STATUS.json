@@ -2245,7 +2245,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R02",
       "acceptance": {
         "total": 12,
@@ -2253,7 +2253,7 @@
       },
       "tests": {
         "status": "passed_stage1",
-        "summary": "Attempt R02, a Stage 1 package correcting R01 finding ALV-N017-R01-01 (an execution-control defect only: the frozen Stage 2 evaluator failed a backend run over 55 minutes, a ceiling inherited from ALV-N016 that item 43 does not set). The ceiling is removed as a pass/fail criterion (elapsed time is reported as operational evidence) and validate_evaluator.py proves with 9 scenarios, plus a control against the R01 evaluator, that an 80-minute run meeting every substantive criterion is accepted while a failed or skipped test, a missing baseline id, a changed baseline outcome, an unexpected id and a missing allowlisted id are rejected. The product is unchanged (git diff of src against the R01 product commit 266d1e3 is empty), so the R01 evidence stands: focused backend 242 of 242 (159 new ids), 788 HTTP-level ApiTests of 788, negative controls 15 of 15 killed, tsc 0, Vitest 1,553 of 1,553, build and lint exit 0, mocked Playwright 140, repository checks 13, walkthroughs 7, 10, 14 and 12, restore drill passing, performance budget met on three consecutive runs. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N017/R02-evidence/stage2/) expects 4,569 backend tests (the 4,410 baseline plus exactly the 159 listed new ids) with no time limit. The R01 and R02 Stage 2 were not run. No full run made."
+        "summary": "Attempt R02, a Stage 1 package correcting R01 finding ALV-N017-R01-01 (an execution-control defect only: the frozen Stage 2 evaluator failed a backend run over 55 minutes, a ceiling inherited from ALV-N016 that item 43 does not set). The ceiling is removed as a pass/fail criterion (elapsed time is reported as operational evidence) and validate_evaluator.py proves with 9 scenarios, plus a control against the R01 evaluator, that an 80-minute run meeting every substantive criterion is accepted while a failed or skipped test, a missing baseline id, a changed baseline outcome, an unexpected id and a missing allowlisted id are rejected. The product is unchanged (git diff of src against the R01 product commit 266d1e3 is empty), so the R01 evidence stands: focused backend 242 of 242 (159 new ids), 788 HTTP-level ApiTests of 788, negative controls 15 of 15 killed, tsc 0, Vitest 1,553 of 1,553, build and lint exit 0, mocked Playwright 140, repository checks 13, walkthroughs 7, 10, 14 and 12, restore drill passing, performance budget met on three consecutive runs. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N017/R02-evidence/stage2/) expects 4,569 backend tests (the 4,410 baseline plus exactly the 159 listed new ids) with no time limit. The R01 and R02 Stage 2 were not run. No full run made. STAGE 2 (run once on closure commit e2a4263, evidence .alveara/handoffs/ALV-N017/R02-regression.md): STAGE 2 QUALIFIES, every frozen criterion passed: backend 4,569 passed / 0 failed / 0 skipped in 36.1 min (no time limit applies), exact baseline plus the 159 allowlisted ids, template and leak checks, client and repository gates, walkthroughs 7, 10, 14 and 12, performance budget met (warm path p95 1.082 ms, reload 1.389 and 5.29 ms, write 6.174 ms)."
       },
       "demo": "real_backend_walkthrough_7_of_7",
       "parentRegression": "n/a",
@@ -2261,7 +2261,7 @@
       "evidenceCommit": "210689e3427c8595af719a00cc450172f0171255",
       "handoffPath": ".alveara/handoffs/ALV-N017/R02.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
+        "decision": "pending_final_review",
         "decisionArtifact": ".alveara/reviews/ALV-N017/R02-stage1.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "134fbdfc77097638c936f45edeb0c86b7c386090",
@@ -2275,7 +2275,13 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED",
+      "regression": {
+        "runCommit": "e2a42636118908951a5aff871aef353fa4347bef",
+        "verdict": "QUALIFIES",
+        "backendPassed": 4569,
+        "addendum": ".alveara/handoffs/ALV-N017/R02-regression.md"
+      }
     },
     {
       "schemaVersion": "2",
