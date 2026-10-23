@@ -1,0 +1,92 @@
+baseline ids: 4324; result ids: 4410; new ids: 86 (expected 69)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+    Alveara.Api.Tests.NotificationApiTests.A_bad_send_is_refused_with_named_problems_and_saves_nothing -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_disabled_account_is_not_notified_and_a_notification_carries_no_file_name_or_patient_id -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_duplicate_import_tells_the_people_who_hold_the_permission_once_however_often_the_consumer_runs -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_message_reaches_its_named_recipient_and_the_sender_sees_when_it_was_read -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_missing_link_and_a_foreign_message_reveal_nothing -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_notification_list_never_carries_the_subject_or_the_body_unread_or_in_history -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_patient_link_is_resolved_by_the_server_and_no_list_carries_the_patient_id -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_replay_after_a_lost_cursor_creates_no_second_notification -> Passed
+    Alveara.Api.Tests.NotificationApiTests.A_reply_must_come_from_a_participant_and_joins_the_thread -> Passed
+    Alveara.Api.Tests.NotificationApiTests.An_unread_notification_cannot_be_hidden_and_a_read_one_is_hidden_once_and_never_deleted -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Break_glass_needs_a_reason_and_a_confirmation_audits_every_attempt_and_returns_one_message -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Break_glass_on_an_unknown_message_is_audited_and_returns_not_found -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Break_glass_returns_no_content_when_the_success_cannot_be_audited -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Marking_all_read_and_clearing_history_touch_only_the_callers_own_entries -> Passed
+    Alveara.Api.Tests.NotificationApiTests.No_audit_entry_and_no_log_line_holds_a_subject_a_body_a_patient_id_or_a_file_name -> Passed
+    Alveara.Api.Tests.NotificationApiTests.One_person_cannot_read_or_hide_another_persons_notification -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Only_important_and_urgent_messages_raise_the_banner_counts -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Reading_and_hiding_the_same_notification_at_once_ends_in_one_consistent_state -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Sending_needs_a_session_and_a_csrf_token -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Sending_the_same_message_at_once_with_one_key_creates_exactly_one -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Sending_twice_with_the_same_key_creates_one_message_and_a_changed_body_with_that_key_is_refused -> Passed
+    Alveara.Api.Tests.NotificationApiTests.Someone_who_is_not_a_participant_gets_the_same_not_found_as_a_missing_message -> Passed
+    Alveara.Api.Tests.NotificationApiTests.The_notification_history_is_metadata_only_and_for_the_administrator -> Passed
+    Alveara.Api.Tests.NotificationApiTests.The_sender_is_limited_to_thirty_messages_a_minute -> Passed
+    Alveara.Api.Tests.NotificationPermissionTests.Every_working_role_may_send_messages_and_a_self_registered_account_may_not -> Passed
+    Alveara.Api.Tests.NotificationPermissionTests.No_permission_limits_who_may_choose_Urgent -> Passed
+    Alveara.Api.Tests.NotificationPermissionTests.Only_the_administrator_and_the_office_manager_are_told_about_a_duplicate_document -> Passed
+    Alveara.Api.Tests.NotificationPermissionTests.The_new_permissions_are_appended_after_the_existing_ones_so_no_stored_ordinal_moves -> Passed
+    Alveara.Api.Tests.NotificationPermissionTests.The_notification_history_and_the_break_glass_message_view_are_the_administrators_alone(permission: ViewMessageAuditContent) -> Passed
+    Alveara.Api.Tests.NotificationPermissionTests.The_notification_history_and_the_break_glass_message_view_are_the_administrators_alone(permission: ViewNotificationAuditHistory) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_cursor_has_a_known_source_and_a_non_negative_position_and_there_is_one_per_source -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_cursor_only_moves_forward_and_is_never_deleted -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_document_notification_must_name_documents_of_its_patient -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_message_can_carry_a_patient_link_and_the_patient_must_exist -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_message_cannot_be_addressed_to_a_disabled_account_or_an_unknown_one -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_message_has_one_row_per_recipient_and_a_recipient_cannot_be_listed_twice -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_message_is_never_updated_or_deleted_not_even_by_direct_sql -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_message_notification_and_a_document_notification_are_stored -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_message_with_a_subject_a_multiline_body_and_every_priority_is_stored -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_notification_can_be_marked_read_once_and_then_hidden_once_and_nothing_else_about_it_can_change -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_notification_cannot_go_to_a_disabled_account_to_a_non_recipient_or_carry_another_priority_or_patient_than_its_message -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_notification_is_never_physically_deleted -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_reply_keeps_the_thread_of_the_message_it_answers_and_a_reply_into_another_thread_is_refused -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.A_system_notification_is_unique_per_source_event_and_recipient_and_a_message_notification_is_unique_per_recipient -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;CreatedAtUtc&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;Kind&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;MessageId&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;Priority&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;RecipientUserId&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;RelatedPatientId&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.Nothing_about_a_notification_but_its_read_and_deleted_times_can_be_changed(column: &quot;SourceKey&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_cursor_starts_at_the_high_water_mark_of_the_document_events_present_when_the_center_is_installed_and_never_back_fills -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;body-blank&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;body-control-character&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;body-over-2000&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;key-blank&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;priority-unknown&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;priority-urgent-lowercase&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;reply-answering-itself&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;reply-in-its-own-thread&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;request-hash-not-hex&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;request-hash-short&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;root-with-another-thread&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;subject-blank&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;subject-control-character&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;subject-over-120&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;time-after-2200&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_message(flaw: &quot;time-before-2000&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;created-before-2000&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;deleted-before-read&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;deleted-without-read&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;document-kind-same-document-twice&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;document-kind-with-message&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;document-kind-without-patient&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;document-kind-without-source-key&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;kind-unknown&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;message-kind-with-source-key&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;message-kind-without-message&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;priority-unknown&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;read-before-created&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;source-key-bad-characters&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_database_refuses_an_incorrect_notification(flaw: &quot;source-key-blank&quot;) -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_migration_rolls_back_and_forward_while_nothing_was_sent_and_refuses_to_roll_back_over_a_message_or_a_notification -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_migration_seeds_one_cursor_for_the_document_events_at_zero_on_an_empty_database_and_creates_no_message_or_notification -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_recipient_rows_of_a_message_are_never_updated_or_deleted -> Passed
+    Alveara.Api.Tests.NotificationSchemaTests.The_same_sender_cannot_reuse_a_key_but_another_sender_can -> Passed
+COMPARISON FAIL

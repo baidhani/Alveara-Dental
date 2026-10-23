@@ -1241,3 +1241,9 @@
   - What changed: corrected R01 finding ALV-N015-R01-01: `NotificationView` no longer has a `Subject` (the property is absent from `GET /api/notifications`), the list shows the generic kind label with the sender and priority; the subject stays on the authorized message routes and break-glass; `docs/NOTIFICATIONS.md` updated; implementation commit `71bf849`.
   - Verification: focused backend 157 of 157 (new raw-JSON privacy test for the unread and history lists; negative control re-adding a `subject` property killed 2 tests); tsc 0; Vitest 1,553 of 1,553; build 0; lint 0; mocked Playwright 140; repository checks 13; real-backend walkthrough 10 of 10; unchanged STORY-010 walkthroughs 14 and 12. Evidence `.alveara/handoffs/ALV-N015/R02-evidence/`.
   - Notes: Stage 1 only; full regression PENDING (frozen Stage 2 in `R02-evidence/stage2/`, expects 4,393 tests); the R01 Stage 2 was not run. The inbox and sent lists still show the subject to participants (disclosed). Not pushed.
+- [x] ALV-N015 R02 Stage 1 review recorded and the one authorized Stage 2 run made: DOES NOT QUALIFY on two count criteria
+  - Date: 2026-10-23
+  - Session: CC-20261008-k4q9
+  - What changed: closure commit `d3a0d30` (`APPROVED_PENDING_REGRESSION`, status `AWAITING_REGRESSION`); Stage 2 run once on it; regression addendum `.alveara/handoffs/ALV-N015/R02-regression.md` and evidence `R02-regression-evidence/`; status set to `AWAITING_REVIEW` with `fullRegression: "FAILED"`.
+  - Verification: backend 4,410 passed, 0 failed, 0 skipped, 0 baseline ids missing or changed, 53.6 min; 22 of 24 evaluator criteria pass; the 2 failures are my frozen expected counts (4,393 and 69 new vs 4,410 and 86 observed), miscounted from `--list-tests`.
+  - Notes: no rerun, contract and evaluator untouched; reviewer to rule. Not pushed.
