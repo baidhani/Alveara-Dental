@@ -1168,4 +1168,10 @@
   - What changed: recorded the reviewer's approval (`.alveara/reviews/ALV-007-C01/R03-descendant-revalidation.md`) and restored `STORY-008`, `ALV-008-C01`, `ALV-007-C02`, `ALV-008-C02`, `STORY-016`, `ALV-016-C01`, `STORY-010`, `ALV-010-C01` to `COMPLETE`, `revalidation.required` cleared with the review recorded as the closure. Control records only; no source or test change.
   - Verification: reviewer APPROVED 2026-10-22 on the 4,324-test backend run, the 409 and 1,379 targeted selections and the shared frontend gate.
   - Notes: ALV-N015 (item 42) is no longer blocked by these records; it is not started. Not pushed.
+- [x] Proposal written: change-impact test selection for Stage 2 backend regression (for the reviewer)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: added `docs/design/CHANGE_IMPACT_TEST_SELECTION_PROPOSAL.md` (status PROPOSED; nothing in force): a deterministic, conservative rule that runs only the test classes a change can reach (plus dependents, new tests and a smoke set) and reuses a preserved passing full run for the rest, generalising the approved reuse-by-equivalence of ALV-N016 R04; safeguards (shared-core list forces a full run, scheduled full runs, miss handling), a frozen evaluator contract, a backtest-then-shadow-pilot path, estimates and seven decisions for the reviewer. Documentation only.
+  - Verification: "user confirmed" the request; figures taken from the preserved 4,324-test run (`backend-tests.csv`), the R04 reuse review and the focused-run records.
+  - Notes: no code or cadence change; the reviewer decides. Not pushed.
 
