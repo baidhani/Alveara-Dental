@@ -1,2 +1,2 @@
-# ALV-N017 R01 - Parent regression
+# ALV-N017 R02 - Parent regression
 `n/a_new_production`: the story has no course parent. Dependency regression: 788 HTTP-level `*ApiTests` through every module with the new seam (all passed, on the final tree), the unchanged ALV-N015 notification and STORY-010 document walkthroughs (10, 14 and 12 passed), the account, backup and restore tests that administer accounts (adjusted only in their seed order and service construction, passing), and the full Vitest, mocked Playwright and repository checks (client source unchanged).

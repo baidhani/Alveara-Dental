@@ -1259,3 +1259,9 @@
   - What changed: stored the reviewer's decision unchanged (`.alveara/reviews/ALV-N017/R01-stage1.md`); status set to `CHANGES_REQUIRED` with blocking issue ALV-N017-R01-01 (the frozen Stage 2 evaluator failed a backend run over 55 minutes, a ceiling inherited from ALV-N016 that item 43 does not set; the reviewer found no product defect and accepted the administrator-during-outage behaviour). R01 files and ZIP are preserved; no Stage 2 run for R01.
   - Verification: the finding was checked in `stage2/evaluate_stage2.py` (`CEILING_SECONDS` and its criterion) before recording.
   - Notes: R02 will remove the ceiling as a criterion (elapsed time stays as evidence) and add a focused evaluator validation. Not pushed.
+- [x] ALV-N017 R02 (Stage 1): the Stage 2 contract without the inherited backend time ceiling, awaiting review
+  - Date: 2026-10-23
+  - Session: CC-20261008-k4q9
+  - What changed: corrected R01 finding ALV-N017-R01-01: `CEILING_SECONDS` and its criterion are removed from the frozen Stage 2 evaluator (elapsed time is reported as an INFO line, never a criterion); handoff and test-results language corrected; new `validate_evaluator.py` with 9 scenarios and a control; implementation commit `134fbdf`. No product, test or configuration file changed.
+  - Verification: evaluator validation 9 of 9 scenarios as required (an 80-minute run meeting every substantive criterion accepted; a failed or skipped test, a missing baseline id, a changed outcome, an unexpected id and a missing allowlisted id rejected) and the control against the R01 evaluator rejects the 80-minute case; `git diff 266d1e3 134fbdf -- src` empty, so the R01 product evidence stands. Evidence `.alveara/handoffs/ALV-N017/R02-evidence/`.
+  - Notes: Stage 1 only; full regression PENDING (frozen Stage 2 in `R02-evidence/stage2/`, 4,569 tests, exactly the 159 listed new ids, no time limit); neither the R01 nor the R02 Stage 2 was run. Not pushed.

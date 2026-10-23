@@ -1,4 +1,4 @@
-# ALV-N017 R01 - Acceptance evidence (item 43: required behaviour and required proof)
+# ALV-N017 R02 - Acceptance evidence (item 43: required behaviour and required proof)
 
 ## Required behaviour
 1. **`ManagePermissionGrants` added; defaults stay in `PermissionMatrix`; Admin holds everything; `Unassigned` nothing; with no rows effective equals defaults for every enum-derived cell (not hard-coded).** `PermissionRegistryTests` (Admin all, Unassigned none, the new permission); `PolicySnapshotBuilderTests.With_no_stored_rows_every_cell_equals_the_code_default_generated_from_the_enums` (every role times every permission, computed from the enums); `EffectivePermissionServiceTests.Every_cell_decision_equals_the_code_default_when_there_are_no_rows`; `PermissionPolicyStoreTests.The_first_read_finding_no_rows_gives_the_code_defaults`.

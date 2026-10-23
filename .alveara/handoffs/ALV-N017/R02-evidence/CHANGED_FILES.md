@@ -1,4 +1,4 @@
-# ALV-N017 R01 - Changed files (material groups)
+# ALV-N017 R02 - Changed files (material groups)
 - Permission model: `Architecture/Identity/Permission.cs` (`ManagePermissionGrants`), `PermissionRegistry.cs` and `.json` (embedded), `PermissionProtection.cs`, `RequirePermissionAttribute.cs`, `RequireAnyPermissionAttribute.cs`, `Alveara.Api.csproj`.
 - Engine: `Architecture/Permissions/*` (`PolicyEntities`, `PolicySnapshot`, `PolicySnapshotBuilder`, `PermissionPolicyStore`, `EffectivePermissions`, `PolicyAdminService`, `PolicyObserver`), `Controllers/PermissionsController.cs`.
 - Schema: `Data/PermissionPolicyModel.cs`, `Data/AlveraDbContext.cs`, migrations `AddPermissionPolicy` and `AddAdminAvailabilityGuard` (with designers and the snapshot).
