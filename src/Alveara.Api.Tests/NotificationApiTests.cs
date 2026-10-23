@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Notifications;
@@ -20,12 +21,13 @@ public class NotificationApiTests : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private SchedulingTestSupport _s = null!;
     private SchedulingApiHarness _api = null!;
+    private readonly CapturingLoggerProvider _logs = new();
 
     public async Task InitializeAsync()
     {
         await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
-        _api = new SchedulingApiHarness(_fixture);
+        _api = new SchedulingApiHarness(_fixture) { ConfigureLogging = b => b.AddProvider(_logs) };
         await _s.ArrangeAsync();
     }
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
@@ -346,6 +348,69 @@ public class NotificationApiTests : IAsyncLifetime
         var r = await admin.SendAsync(HttpMethod.Post, "/api/admin/messages/break-glass", new { messageId = unknown, reason = "Check", confirmed = true });
         Assert.Equal((HttpStatusCode.NotFound, "message_not_found"), (r.Status, Error(r.Body)));
         Assert.Contains((await AuditAsync(unknown)), a => a.Event == AuditEventTypes.MessageBreakGlassRefused);
+    }
+
+    // ---------- privacy and concurrency ----------
+
+    [Fact]
+    public async Task No_audit_entry_and_no_log_line_holds_a_subject_a_body_a_patient_id_or_a_file_name()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var dentist = await _api.SessionAsync("Dentist");
+        var desk = await _api.SessionAsync("FrontDesk");
+        var patient = await _s.PatientAsync();
+        var id = await SentAsync(dentist, desk, "Zebra-subject-77", "Zebra-body-text-88", "Urgent", patient);
+        await desk.SendAsync(HttpMethod.Get, $"/api/messages/{id}");
+        await admin.SendAsync(HttpMethod.Post, "/api/admin/messages/break-glass", new { messageId = id, reason = "Complaint review", confirmed = true });
+        var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A }.Concat(Enumerable.Repeat((byte)3, 300)).ToArray();
+        var first = (await UploadAsync(admin, patient, png)).GetProperty("document").GetProperty("id").GetGuid();
+        await UploadAsync(admin, patient, png, confirm: first.ToString());
+        await RunConsumerAsync();
+
+        await using var db = _fixture.CreateContext();
+        var audits = await db.AuditLogEntries.AsNoTracking().Select(a => a.Details + " | " + a.Reason + " | " + a.EntityType).ToListAsync();
+        var stored = string.Join("\n", audits) + string.Join("\n", await db.Notifications.AsNoTracking().Select(n => n.Kind + n.SourceKey).ToListAsync());
+        var logged = string.Join("\n", _logs.Entries.Select(e => e.Message));
+        foreach (var secret in new[] { "Zebra-subject-77", "Zebra-body-text-88", patient.ToString(), "scan.png" })
+        {
+            Assert.DoesNotContain(secret, stored, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(secret, logged, StringComparison.OrdinalIgnoreCase);
+        }
+        Assert.Contains(audits, a => a.Contains("Urgent message was sent to 1 recipient"));
+    }
+
+    [Fact]
+    public async Task Reading_and_hiding_the_same_notification_at_once_ends_in_one_consistent_state()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        var desk = await _api.SessionAsync("FrontDesk");
+        await SentAsync(dentist, desk);
+        var id = (await desk.SendAsync(HttpMethod.Get, "/api/notifications?status=unread")).Body.GetProperty("items")[0].GetProperty("id").GetGuid();
+        var calls = Enumerable.Range(0, 6).SelectMany(_ => new[]
+        {
+            desk.SendAsync(HttpMethod.Post, $"/api/notifications/{id}/read"),
+            desk.SendAsync(HttpMethod.Delete, $"/api/notifications/{id}"),
+        }).ToArray();
+        var results = await Task.WhenAll(calls);
+        Assert.All(results, r => Assert.Contains(r.Status, new[] { HttpStatusCode.OK, HttpStatusCode.Conflict }));
+        await using var db = _fixture.CreateContext();
+        var row = await db.Notifications.AsNoTracking().SingleAsync(n => n.Id == id);
+        Assert.NotNull(row.ReadAtUtc);
+        if (row.DeletedAtUtc is { } deleted) Assert.True(deleted >= row.ReadAtUtc);
+    }
+
+    [Fact]
+    public async Task Sending_the_same_message_at_once_with_one_key_creates_exactly_one()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        var desk = await _api.SessionAsync("FrontDesk");
+        var key = Key();
+        var results = await Task.WhenAll(Enumerable.Range(0, 6).Select(_ => SendAsync(dentist, Msg(desk), key)));
+        Assert.All(results, r => Assert.Contains(r.Status, new[] { HttpStatusCode.Created, HttpStatusCode.OK }));
+        Assert.Equal(1, results.Count(r => r.Status == HttpStatusCode.Created));
+        await using var db = _fixture.CreateContext();
+        Assert.Equal(1, await db.Messages.CountAsync(m => m.SenderUserId == dentist.UserId));
+        Assert.Equal(1, await db.Notifications.CountAsync(n => n.RecipientUserId == desk.UserId));
     }
 
     // ---------- the consumer ----------

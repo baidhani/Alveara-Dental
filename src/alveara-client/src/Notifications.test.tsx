@@ -26,6 +26,20 @@ describe("ALV-N015 notification bell", () => {
     expect((await screen.findByRole("alert")).textContent).toContain("urgent notification");
   });
 
+  it("can be dismissed, and comes back when a newer important notice arrives", async () => {
+    const answers = [{ ...summary(1, 1), newestBannerAtUtc: "2026-10-01T10:00:00Z" }, { ...summary(2, 2), newestBannerAtUtc: "2026-10-01T10:00:00Z" }, { ...summary(3, 3), newestBannerAtUtc: "2026-10-01T11:00:00Z" }];
+    let i = 0;
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(() => Promise.resolve(json(answers[Math.min(i++, 2)]))));
+    render(<MemoryRouter><NotificationBell /></MemoryRouter>);
+    await userEvent.click(await screen.findByRole("button", { name: "Dismiss" }));
+    expect(screen.queryByText(/important notification/)).toBeNull();
+    await act(async () => { window.dispatchEvent(new Event("focus")); });
+    await waitFor(() => expect(i).toBe(2));
+    expect(screen.queryByText(/important notification/)).toBeNull();            // the same newest notice stays dismissed
+    await act(async () => { window.dispatchEvent(new Event("focus")); });
+    expect(await screen.findByText(/important notification/)).toBeTruthy();       // a newer one shows again
+  });
+
   it("says it could not check instead of showing zero when the server is unreachable", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("offline")));
     render(<MemoryRouter><NotificationBell /></MemoryRouter>);

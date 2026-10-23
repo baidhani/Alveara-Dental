@@ -5,3 +5,4 @@
 .alv-bell-banner { padding: 0.6rem 1rem; background: #fff4d6; color: #4a3500; border-bottom: 1px solid #e0b84a; }
 .alv-bell-banner--urgent { background: #fde7e7; color: #6b0f0f; border-bottom-color: #c94444; }
 .alv-bell-banner a { color: inherit; font-weight: 600; }
+.alv-bell-banner__dismiss { margin-left: 0.5rem; background: transparent; border: 1px solid currentColor; color: inherit; border-radius: 4px; padding: 0.1rem 0.5rem; cursor: pointer; }

@@ -15,6 +15,7 @@ type Check = { kind: "loading" } | { kind: "failed"; last: NotificationSummary |
 export function NotificationBell() {
   const [check, setCheck] = useState<Check>({ kind: "loading" });
   const last = useRef<NotificationSummary | null>(null);
+  const [dismissed, setDismissed] = useState<{ at: string | null } | null>(null);                    // the newest banner entry the person has dismissed (this session only)
 
   const refresh = useCallback(async () => {
     try {
@@ -39,10 +40,11 @@ export function NotificationBell() {
 
   return (
     <>
-      {summary && (summary.unreadUrgent > 0 || summary.unreadImportant > 0) && (
+      {summary && (summary.unreadUrgent > 0 || summary.unreadImportant > 0) && dismissed?.at !== summary.newestBannerAtUtc && (
         <div className={`alv-bell-banner${summary.unreadUrgent > 0 ? " alv-bell-banner--urgent" : ""}`} role={summary.unreadUrgent > 0 ? "alert" : "status"}>
           {summary.unreadUrgent > 0 ? "You have an urgent notification." : "You have an important notification."}{" "}
-          <Link to="/notifications">Open notifications</Link>
+          <Link to="/notifications">Open notifications</Link>{" "}
+          <button type="button" className="alv-bell-banner__dismiss" onClick={() => setDismissed({ at: summary.newestBannerAtUtc })}>Dismiss</button>
         </div>
       )}
       <Link to="/notifications" className="alv-bell" aria-label={label}>
