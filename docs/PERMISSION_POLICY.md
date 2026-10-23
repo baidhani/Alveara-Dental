@@ -41,7 +41,7 @@ Every write carries an `Idempotency-Key` header (up to 64 characters), CSRF, a w
 
 `GET /api/auth/users` is open to holders of `ManageUsers`, `ManageAccountStatus` or `RevokeSessions`. An administrator sees every account. Another holder sees only the accounts the target rules allow it to act on (never an administrator; only roles whose permissions are a subset of its own). Every other role keeps the existing 403 body `{error: "permission_denied", required: "ManageUsers"}`.
 
-Screens: the Admin permission matrix is editable for `ManagePermissionGrants` (source, enabled-account counts, reason, revert, typed confirmation, stale-write recovery, protected cells locked, 30-second refresh), with the policy health and repair panel, the delegation table, and the change history for holders of `ViewAuditLog`. The office manager sees the "Who may import documents" card.
+Screens: the Admin permission matrix is editable for `ManagePermissionGrants` (source, enabled-account counts, reason, revert, typed confirmation, stale-write recovery, protected cells locked, re-read every 25 seconds unless an editor is open or the page is hidden, so a change elsewhere shows within the required 30 seconds: measured 25.1 s in the real-backend walkthrough), with the policy health and repair panel, the delegation table, and the change history for holders of `ViewAuditLog`. The office manager sees the "Who may import documents" card.
 
 ## Account safety (`AccountService`, `AccountSafety.cs`)
 

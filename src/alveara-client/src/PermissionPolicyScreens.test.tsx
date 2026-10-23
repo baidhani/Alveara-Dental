@@ -151,7 +151,8 @@ describe("ALV-N018 editable matrix", () => {
     expect(s.calls.filter((c) => c.method === "PUT")[2].headers["Idempotency-Key"]).not.toBe(first.headers["Idempotency-Key"]);
   });
 
-  it("re-reads the policy every half minute unless an editor is open, so a change elsewhere shows within about 30 seconds", async () => {
+  it("re-reads the policy at least every 25 seconds, a margin under the required 30, unless an editor is open", async () => {
+    expect(MATRIX_REFRESH_MS).toBeLessThanOrEqual(25_000);                                                       // 30 s is the requirement; the margin covers the request and the render
     vi.useFakeTimers({ shouldAdvanceTime: true });
     render(<PermissionMatrixPage />);
     await screen.findByRole("table", { name: /Permission matrix/ });

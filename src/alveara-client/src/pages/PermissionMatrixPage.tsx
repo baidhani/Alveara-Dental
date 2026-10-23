@@ -24,8 +24,8 @@ type PageState =
   | { kind: "error" }
   | { kind: "loaded"; matrix: PermissionMatrixEntry[]; policy: EffectivePolicy | null };
 
-/** The matrix is re-read this often so a change made elsewhere shows within about half a minute (the shell re-reads the caller's own permissions on the same cycle). */
-export const MATRIX_REFRESH_MS = 30_000;
+/** The matrix is re-read this often. Item 44 requires a change made elsewhere to show within 30 seconds, so the interval keeps a margin of 5 seconds for the request and the render (ALV-N018-R01-01). Not refreshed while an editor is open or the page is hidden. */
+export const MATRIX_REFRESH_MS = 25_000;
 
 /**
  * ALV-001-C01's permission-visibility screen: the full role-to-permission matrix, read from the server's own authorization source of truth. ALV-N018: for a holder of the permission-grant permission (an administrator)

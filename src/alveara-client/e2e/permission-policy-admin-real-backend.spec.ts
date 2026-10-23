@@ -9,7 +9,7 @@ import path from "node:path";
 // ALV-N018 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // An administrator edits the permission matrix on screen (reason, confirmation, typed confirmation for a high-impact permission, revert) and the very next request of the affected role changes; protected
 // permissions are locked; a stale edit is explained; an office manager delegates document import for a working role and is refused everything outside the delegation; a holder of account status sees only the accounts
-// the rules allow; the health panel repairs an invalid row; another session's change shows on the open screen within about 30 seconds; the history lists the changes; the editing screens are scanned in both themes.
+// the rules allow; the health panel repairs an invalid row; another session's change shows on the open screen within 30 seconds (measured); the history lists the changes; the editing screens are scanned in both themes.
 
 test.describe.configure({ mode: "serial" });
 
@@ -281,21 +281,26 @@ test("HEALTH: an invalid stored row is shown and repaired on screen with a reaso
   evidence.health = { shown: true, repairedOnScreen: true, roleRestored: true };
 });
 
-test("REFRESH: a change made in another session shows on the open screen within about 30 seconds, and the history lists the changes", async () => {
+test("REFRESH: a change made in another session shows on the open screen within 30 seconds (measured), and the history lists the changes", async () => {
   test.setTimeout(90_000);
   await admin.goto("/admin/permissions");
   await expect(matrix(admin)).toBeVisible();
   const row = admin.getByRole("row", { name: /ViewBackupStatus/ });
   await expect(row.locator(".alv-policy-source--granted")).toHaveCount(0);
   const v = await versionOf();
-  expect((await api(admin, "put", "/api/permissions/overrides", { role: "Assistant", permission: "ViewBackupStatus", effect: "Grant", reason: "Changed while the screen was open", expectedVersion: v, confirmed: true }, { "Idempotency-Key": `refresh-${stamp}` })).status).toBe(200);
-  await expect(row.locator(".alv-policy-source--granted")).toHaveCount(1, { timeout: 45_000 });                  // without reloading the page
+  // the write comes straight after the screen loaded, the worst phase of the polling cycle: the next poll is as far away as it can be
+  const written = await api(admin, "put", "/api/permissions/overrides", { role: "Assistant", permission: "ViewBackupStatus", effect: "Grant", reason: "Changed while the screen was open", expectedVersion: v, confirmed: true }, { "Idempotency-Key": `refresh-${stamp}` });
+  expect(written.status).toBe(200);
+  const writtenAt = Date.now();                                                                                  // from the other-session write returning ...
+  await expect(row.locator(".alv-policy-source--granted")).toHaveCount(1, { timeout: 31_000 });                  // ... to the refreshed state on the screen, without reloading the page
+  const elapsedMs = Date.now() - writtenAt;
+  expect(elapsedMs, `the refresh took ${elapsedMs} ms; the requirement is 30 seconds or less`).toBeLessThanOrEqual(30_000);
   await expect(admin.getByRole("heading", { name: "Change history" })).toBeVisible();
   await expect(admin.getByText("Changed while the screen was open")).toBeVisible({ timeout: 10_000 });
   await shot(admin, "08-refreshed-with-history.png");
   const noAudit = await api(sessions.Dentist.page, "get", "/api/permissions/history");
   expect(noAudit.status).toBe(403);                                                                              // history is for holders of the audit permission
-  evidence.refresh = { seenWithoutReload: true, withinSeconds: 45 };
+  evidence.refresh = { seenWithoutReload: true, measuredElapsedMs: elapsedMs, requirementMs: 30_000, pollIntervalMs: 25_000, writeAtWorstPhase: true };
 });
 
 test("ACCESSIBILITY: the editing screens pass an axe scan in both themes", async () => {
