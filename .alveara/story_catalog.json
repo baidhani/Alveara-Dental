@@ -188,6 +188,16 @@
       "subsystem": "Patient Records & Data"
     },
     {
+      "storyId": "ALV-N017",
+      "title": "Effective Permission Policy Engine and Authorization Safety",
+      "subsystem": "Security & Foundation"
+    },
+    {
+      "storyId": "ALV-N018",
+      "title": "Permission Policy Administration and Controlled Delegation",
+      "subsystem": "Security & Foundation"
+    },
+    {
       "storyId": "STORY-009",
       "subsystem": "Operations & Finance"
     },

@@ -3,9 +3,9 @@
   "generatedBy": "ALV-CONTROL bootstrap R02",
   "generatedAt": "2026-09-27T22:17:54.318Z",
   "counts": {
-    "totalActiveFirstReleaseRecords": 57,
+    "totalActiveFirstReleaseRecords": 59,
     "courseRecords": 19,
-    "alvRecords": 38
+    "alvRecords": 40
   },
   "records": [
     {
@@ -210,7 +210,7 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
+      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) \u2014 the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -659,7 +659,10 @@
         "approvedAttempt": "R03",
         "reviewedImplementationCommit": "30e2f69df452e85cac7dab06e907c5c9325cfc09",
         "reviewedEvidenceCommit": "38a1bf8031a324be4e8acc9523cd7dab0e4a6976",
-        "reopenDecisionArtifacts": [".alveara/reviews/ALV-N016/R04.md", ".alveara/reviews/ALV-007-C01/R03.md"]
+        "reopenDecisionArtifacts": [
+          ".alveara/reviews/ALV-N016/R04.md",
+          ".alveara/reviews/ALV-007-C01/R03.md"
+        ]
       },
       "blockingIssues": [],
       "revalidation": {
@@ -2216,6 +2219,106 @@
         "handoffSchemaVersion": "3"
       },
       "num": 43,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-N017",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N015",
+        "ALV-001-C01",
+        "ALV-N009",
+        "ALV-N002",
+        "ALV-N004"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 12,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.3",
+        "handoffSchemaVersion": "3"
+      },
+      "num": 44,
+      "phase": "Security & Foundation",
+      "storyId": "ALV-N018",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": [
+        "ALV-N017"
+      ],
+      "optional": false,
+      "qualityGateContribution": [
+        "Gate E"
+      ],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {
+        "total": 10,
+        "passed": 0
+      },
+      "tests": {
+        "status": "not_started",
+        "summary": null
+      },
+      "demo": "not_started",
+      "parentRegression": "n/a",
+      "implementationCommit": null,
+      "evidenceCommit": null,
+      "handoffPath": null,
+      "review": {
+        "decision": "pending",
+        "decisionArtifact": null,
+        "approvedAttempt": null,
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null
+      },
+      "blockingIssues": [],
+      "revalidation": {
+        "required": false,
+        "reason": null
+      },
+      "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {
+        "masterPlanVersion": "3.3",
+        "executionIndexVersion": "1.3",
+        "handoffSchemaVersion": "3"
+      },
+      "num": 45,
       "phase": "Operations & Data",
       "storyId": "STORY-009",
       "storyType": "course",
@@ -2264,7 +2367,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 44,
+      "num": 46,
       "phase": "Operations & Data",
       "storyId": "ALV-009-C01",
       "storyType": "companion",
@@ -2315,7 +2418,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 45,
+      "num": 47,
       "phase": "Operations & Data",
       "storyId": "ALV-009-C02",
       "storyType": "companion",
@@ -2365,7 +2468,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 46,
+      "num": 48,
       "phase": "Operations & Data",
       "storyId": "STORY-017",
       "storyType": "course",
@@ -2414,7 +2517,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 47,
+      "num": 49,
       "phase": "Operations & Data",
       "storyId": "ALV-017-C01",
       "storyType": "companion",
@@ -2465,7 +2568,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 48,
+      "num": 50,
       "phase": "Operations & Data",
       "storyId": "STORY-018",
       "storyType": "course",
@@ -2514,7 +2617,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 49,
+      "num": 51,
       "phase": "Operations & Data",
       "storyId": "ALV-018-C01",
       "storyType": "companion",
@@ -2565,7 +2668,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 50,
+      "num": 52,
       "phase": "Operations & Data",
       "storyId": "ALV-018-C02",
       "storyType": "companion",
@@ -2617,7 +2720,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 51,
+      "num": 53,
       "phase": "Operations & Data",
       "storyId": "ALV-N006",
       "storyType": "new_production",
@@ -2668,7 +2771,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 52,
+      "num": 54,
       "phase": "Optional AI",
       "storyId": "ALV-N007",
       "storyType": "new_production",
@@ -2719,7 +2822,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 53,
+      "num": 55,
       "phase": "Optional AI",
       "storyId": "ALV-N012",
       "storyType": "new_production",
@@ -2770,7 +2873,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 54,
+      "num": 56,
       "phase": "Release Engineering",
       "storyId": "ALV-N013",
       "storyType": "new_production",
@@ -2820,7 +2923,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 55,
+      "num": 57,
       "phase": "Release Engineering",
       "storyId": "ALV-N014",
       "storyType": "new_production",
@@ -2874,7 +2977,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 56,
+      "num": 58,
       "phase": "Release Engineering",
       "storyId": "ALV-N008",
       "storyType": "new_production",
@@ -2928,7 +3031,7 @@
         "executionIndexVersion": "1.3",
         "handoffSchemaVersion": "3"
       },
-      "num": 57,
+      "num": 59,
       "phase": "Foundation",
       "storyId": "ALV-CONTROL-C01",
       "storyType": "new_production",
