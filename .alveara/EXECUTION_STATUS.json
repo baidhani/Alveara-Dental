@@ -2245,7 +2245,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 12,
@@ -2261,13 +2261,16 @@
       "evidenceCommit": "fbfe2a969cf6384024b74840579777b73e4edcff",
       "handoffPath": ".alveara/handoffs/ALV-N017/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N017/R01-stage1.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "266d1e3c5f5ce6724e0c4a07d25aa4889ac6e687",
+        "reviewedEvidenceCommit": "fbfe2a969cf6384024b74840579777b73e4edcff",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N017/R01-stage1.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N017-R01-01: the frozen Stage 2 evaluator fails a backend run longer than 55 minutes, a ceiling inherited from ALV-N016 that item 43 does not set. R02 must remove it as a pass/fail criterion (keep elapsed time as evidence) and prove with a focused evaluator validation that a long run meeting every substantive criterion is accepted while a failed test or any baseline or allowlist mismatch is rejected. No product defect found."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
