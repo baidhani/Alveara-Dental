@@ -110,6 +110,39 @@ public class PermissionPolicyBackupRestoreTests : SafetyTestBase
         Assert.Equal(4L, (await live.PermissionPolicyStates.AsNoTracking().SingleAsync()).Version);
     }
 
+    /// <summary>ALV-N018: changes written through the policy write service (an override, a delegation-table edit and a delegated grant) are restored with their history, audit entries and receipts, and a change after the backup is not.</summary>
+    [Fact]
+    public async Task Policy_changes_written_through_the_write_service_survive_a_backup_and_restore_with_their_history_and_audit()
+    {
+        await using (var db = Fixture.CreateContext())
+        {
+            var writes = new PolicyWriteService(db, PolicyTestSupport.Defaults());
+            async Task<long> Version() => await db.PermissionPolicyStates.AsNoTracking().Select(s => s.Version).SingleAsync();
+            await writes.SetOverrideAsync(S.Actor, new SetOverrideRequest("Dentist", nameof(Permission.ViewBilling), OverrideEffects.Revoke, "Dentists no longer see billing", await Version(), true, null), "restore-1", default);
+            await writes.SetDelegationsAsync(S.Actor, new SetDelegationsRequest(
+                [new("OfficeManager", nameof(Permission.ImportDocuments), "Dentist"), new("OfficeManager", nameof(Permission.ImportDocuments), "FrontDesk")], "Only two roles are delegated", await Version(), true), "restore-2", default);
+            await writes.DelegatedGrantAsync(S.Actor, Role.OfficeManager, new DelegatedGrantRequest("FrontDesk", nameof(Permission.ImportDocuments), true, "Front desk scans intake forms", await Version(), true), "restore-3", default);
+        }
+        var record = await BackupAsync();
+        await using (var db = Fixture.CreateContext())
+            await new PolicyWriteService(db, PolicyTestSupport.Defaults()).SetOverrideAsync(S.Actor, new SetOverrideRequest("Dentist", nameof(Permission.ViewBilling), "Revert", "After the backup", await db.PermissionPolicyStates.AsNoTracking().Select(s => s.Version).SingleAsync(), true, null), "restore-4", default);
+
+        var drill = await DrillAsync(record.Id);
+        Assert.Equal("Succeeded", drill.Outcome);
+        await using var restored = RestoredDb(drill);
+        Assert.Equal(3L, (await restored.PermissionPolicyStates.AsNoTracking().SingleAsync()).Version);               // the later revert is not in the restore
+        var overrides = await restored.RolePermissionOverrides.AsNoTracking().ToListAsync();
+        Assert.Equal(new[] { "Dentist:ViewBilling:Revoke", "FrontDesk:ImportDocuments:Grant" }, overrides.Select(o => $"{o.Role}:{o.Permission}:{o.Effect}").OrderBy(x => x, StringComparer.Ordinal).ToArray());
+        Assert.Equal(2, await restored.PermissionDelegations.CountAsync());
+        var history = await restored.RolePermissionHistories.AsNoTracking().OrderBy(h => h.PolicyVersion).ThenBy(h => h.Kind).ToListAsync();
+        Assert.Equal(new long[] { 1, 2, 2, 2, 3 }, history.Select(h => h.PolicyVersion).ToArray());                  // one override, three delegation rows removed, one delegated grant
+        Assert.Single(history, h => h.ViaDelegation);
+        Assert.Equal(3, await restored.AuditLogEntries.CountAsync(a => a.EventType == AuditEventTypes.PermissionGranted || a.EventType == AuditEventTypes.PermissionRevoked || a.EventType == AuditEventTypes.DelegationChanged));
+        var snapshot = PolicySnapshotBuilder.Build(3, overrides, await restored.PermissionDelegations.AsNoTracking().ToListAsync());
+        Assert.DoesNotContain(Permission.ViewBilling, snapshot.EffectiveFor(Role.Dentist));
+        Assert.Contains(Permission.ImportDocuments, snapshot.EffectiveFor(Role.FrontDesk));
+    }
+
     [Fact]
     public async Task The_restored_policy_resolves_to_the_same_effective_permissions_as_the_live_policy_did_at_backup_time()
     {

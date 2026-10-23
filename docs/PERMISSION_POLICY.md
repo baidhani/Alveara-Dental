@@ -1,6 +1,6 @@
 # Effective permission policy and authorization safety (ALV-N017)
 
-Design authority: `docs/design/ADMIN_GRANTABLE_PERMISSIONS_PROPOSAL.md` revision R04 (approved). This story builds the engine and the safety controls only. It adds **no policy-write API**, **no editable matrix** and **no delegation screen**, and it changes **no ordinary access** on deployment (ALV-N018 adds administration).
+Design authority: `docs/design/ADMIN_GRANTABLE_PERMISSIONS_PROPOSAL.md` revision R04 (approved). ALV-N017 built the engine and the safety controls and changed **no ordinary access** on deployment; ALV-N018 adds the policy-write API, the editable matrix, the delegation screens and the opened account list (see "Writing the policy").
 
 ## What changed
 
@@ -30,7 +30,18 @@ An override naming a known non-administrator role but an unknown permission, an 
 
 `GET /api/permissions/effective` (`ViewPermissionMatrix`: every cell with source default, granted or revoked, who, when, why, whether it can be granted or delegated, and the health), `GET /api/permissions/history` (`ViewAuditLog`), `GET /api/permissions/health` and `POST /api/permissions/invalid-rows/{id}/remove` (`ManagePermissionGrants`, CSRF, a reason of up to 500 characters and the row version you were shown). Removing an invalid (or retired) row bumps the version, deletes the row, writes its history row and its audit entry in **one transaction**; a failure of any part changes nothing (`policy_write_failed`, 503). A valid row cannot be removed here (`row_not_removable`, 409); a changed row is `row_changed` (409); an unknown row is `row_not_found` (404).
 
-`GET /api/auth/users` keeps its current authorization and response for every role.
+### Writing the policy (ALV-N018)
+
+Every write carries an `Idempotency-Key` header (up to 64 characters), CSRF, a written `reason` (1 to 500 characters, no control characters), `confirmed: true`, and the policy `expectedVersion` the caller was shown. One transaction moves the version only if it is still that version (otherwise `policy_changed`, 409, nothing stored), changes the rows, writes the immutable history row and the audit entry and records two idempotency receipts, so any failure (the audit write included) changes nothing. The same key with the same request replays quietly; the same key with another request is `idempotency_key_reused` (409). Role and permission names are matched exactly (never case-folded, never numeric).
+
+* `PUT /api/permissions/overrides` (`ManagePermissionGrants`): `Grant`, `Revoke` or `Revert` one cell of a working role. Protected permissions (`permission_protected`), the Administrator and Unassigned columns (`role_not_editable`) and a role that is in repair (`policy_needs_repair`) are refused; a change that leaves the cell as it is is `no_change` or `matches_default` (409). A high-impact permission (account status, session sign-out, patient records, audit log, backups, billing, prescriptions, practice configuration, document settings and storage) also needs `typedConfirmation` equal to the permission name (`typed_confirmation_required`).
+* `PUT /api/permissions/delegations` (`ManagePermissionGrants`): the closed delegation table, written as a full list of rows. Only the office manager can be a delegate, only for a delegable permission, only for Dentist, Hygienist, Assistant, FrontDesk or Billing. By default the office manager may allow or stop `ImportDocuments` for those five roles.
+* `POST /api/permissions/delegated-grants` (any signed-in role, CSRF): a delegate allows or stops a delegated permission for a delegated target role. The delegate's role comes from its own session, the row must be in the delegation table (`delegation_not_allowed`, 403), and the delegate must itself hold the permission (nobody grants what they do not hold). Delegated changes are recorded with `viaDelegation`.
+* `GET /api/permissions/delegations` (`ManagePermissionGrants`) and `GET /api/permissions/my-delegations` (the caller's own rows).
+
+`GET /api/auth/users` is open to holders of `ManageUsers`, `ManageAccountStatus` or `RevokeSessions`. An administrator sees every account. Another holder sees only the accounts the target rules allow it to act on (never an administrator; only roles whose permissions are a subset of its own). Every other role keeps the existing 403 body `{error: "permission_denied", required: "ManageUsers"}`.
+
+Screens: the Admin permission matrix is editable for `ManagePermissionGrants` (source, enabled-account counts, reason, revert, typed confirmation, stale-write recovery, protected cells locked, 30-second refresh), with the policy health and repair panel, the delegation table, and the change history for holders of `ViewAuditLog`. The office manager sees the "Who may import documents" card.
 
 ## Account safety (`AccountService`, `AccountSafety.cs`)
 
@@ -43,4 +54,4 @@ Store outage, corrupt rows, a writer racing a reader, two hosts and an audit fai
 
 ## Verification
 
-`PermissionRegistryTests`, `PermissionPolicySchemaTests`, `PolicySnapshotBuilderTests`, `PermissionPolicyStoreTests`, `EffectivePermissionServiceTests`, `PermissionPolicyPipelineTests`, `PermissionPolicyHealthTests`, `PermissionPolicyTwoHostTests`, `PermissionPolicyPerformanceTests` (read counts on every run; timings with `ALVERA_PERF_EVIDENCE=<folder>`), `PermissionPolicyBackupRestoreTests`, `AccountSafetyTests`, `AuthorizationArchitectureTests`; walkthrough `e2e/permission-policy-real-backend.spec.ts` (`playwright.permission-policy.config.ts`).
+`PermissionRegistryTests`, `PermissionPolicySchemaTests`, `PolicySnapshotBuilderTests`, `PermissionPolicyStoreTests`, `EffectivePermissionServiceTests`, `PermissionPolicyPipelineTests`, `PermissionPolicyHealthTests`, `PermissionPolicyTwoHostTests`, `PermissionPolicyPerformanceTests` (read counts on every run; timings with `ALVERA_PERF_EVIDENCE=<folder>`), `PermissionPolicyBackupRestoreTests`, `AccountSafetyTests`, `AuthorizationArchitectureTests`, `PermissionPolicyWriteTests` (ALV-N018); walkthroughs `e2e/permission-policy-real-backend.spec.ts` (`playwright.permission-policy.config.ts`) and `e2e/permission-policy-admin-real-backend.spec.ts` (`playwright.permission-policy-admin.config.ts`).
