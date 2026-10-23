@@ -1,0 +1,7 @@
+# ALV-N017 R01 - Next-story impact
+- **ALV-N018** (policy administration and controlled delegation) starts only after this story is COMPLETE. It adds the write path on top of this engine: overrides, delegated grants, delegation administration and the broader, target-filtered user list. The seams it uses already exist: `IEffectivePermissions` (reads), `PolicyAdminService` (the repair write shows the transaction pattern: version bump, rows, history, audit, one commit; a stale row version is a 409), `AccountTargetRules` (the target rules), `PermissionProtection` (what may be granted or delegated) and `PermissionPolicyState`. Every ALV-N018 write must bump the version in its transaction, write a history row and an audit entry, and be proven with the same negative-control approach.
+- The matrix screen is still read-only and still reads `GET /api/auth/permission-matrix`; `GET /api/permissions/effective` already returns source, who, when, why, grantable and delegable per cell for an editing screen.
+- `GET /api/auth/users` is deliberately unchanged; ALV-N018 changes it together with the target-filtered listing.
+- Open reviewer questions from this attempt (handoff decisions 2, 6 and 7) may change thresholds or the outage behaviour of the administrator.
+- Error codes 51204 to 51208 are used; 51209 onward are free.
+- New permissions in future stories must be added to `PermissionRegistry.json` as Active (a test enforces it).

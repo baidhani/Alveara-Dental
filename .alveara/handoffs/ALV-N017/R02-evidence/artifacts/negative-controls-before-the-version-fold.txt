@@ -1,0 +1,64 @@
+N1 defaults only: stored rows are ignored: KILLED (Failed!  - Failed:    21, Passed:    23)
+    Failed Alveara.Api.Tests.EffectivePermissionServiceTests.A_grant_and_a_revoke_change_the_next_decision_and_check_any_needs_just_one [10 ms]
+    Failed Alveara.Api.Tests.EffectivePermissionServiceTests.A_role_with_an_invalid_row_is_denied_everything_with_its_own_outcome_and_other_roles_are_unaffected [1 ms]
+    Failed Alveara.Api.Tests.EffectivePermissionServiceTests.A_degraded_store_denies_every_non_administrator_and_leaves_the_administrator_able_to_repair [3 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_override_whose_role_cannot_be_attributed_degrades_the_whole_store(role: "dentist") [< 1 ms]
+N2 ignore revokes: a revoke removes nothing: KILLED (Failed!  - Failed:     4, Passed:    40)
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.A_revoke_removes_a_default_a_grant_adds_one_and_a_redundant_row_changes_nothing [3 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.A_row_naming_a_retired_permission_is_ignored_and_counted_and_is_not_invalid [1 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.Reverting_means_the_row_is_gone_and_the_default_returns [< 1 ms]
+    Failed Alveara.Api.Tests.EffectivePermissionServiceTests.A_grant_and_a_revoke_change_the_next_decision_and_check_any_needs_just_one [9 ms]
+N3 allow an override for a protected permission: KILLED (Failed!  - Failed:     6, Passed:    38)
+    Failed Alveara.Api.Tests.EffectivePermissionServiceTests.A_role_with_an_invalid_row_is_denied_everything_with_its_own_outcome_and_other_roles_are_unaffected [1 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_invalid_override_for_a_known_role_puts_that_role_in_repair_and_never_restores_access(role: "OfficeManager", permiss
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_invalid_override_for_a_known_role_puts_that_role_in_repair_and_never_restores_access(role: "OfficeManager", permiss
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_invalid_override_for_a_known_role_puts_that_role_in_repair_and_never_restores_access(role: "Dentist", permission: "
+N4 ignore an invalid row: an unknown permission does not put the role in repair: KILLED (Failed!  - Failed:     3, Passed:    41)
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_invalid_override_for_a_known_role_puts_that_role_in_repair_and_never_restores_access(role: "Dentist", permission: "
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_invalid_override_for_a_known_role_puts_that_role_in_repair_and_never_restores_access(role: "Dentist", permission: "
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_invalid_override_for_a_known_role_puts_that_role_in_repair_and_never_restores_access(role: "Dentist", permission: "
+N5 an unattributable role does not degrade the store: KILLED (Failed!  - Failed:     5, Passed:    39)
+    Failed Alveara.Api.Tests.EffectivePermissionServiceTests.A_degraded_store_denies_every_non_administrator_and_leaves_the_administrator_able_to_repair [2 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_override_whose_role_cannot_be_attributed_degrades_the_whole_store(role: "dentist") [< 1 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_override_whose_role_cannot_be_attributed_degrades_the_whole_store(role: "Wizard") [< 1 ms]
+    Failed Alveara.Api.Tests.PolicySnapshotBuilderTests.An_override_whose_role_cannot_be_attributed_degrades_the_whole_store(role: "") [< 1 ms]
+N6 fail open on outage: the defaults are served when the store cannot be read and nothing is held: KILLED (Failed!  - Failed:     5, Passed:     6)
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.A_stale_snapshot_is_never_used_for_a_version_it_knows_has_moved_once_the_allowance_is_over [6 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.A_policy_that_never_stops_changing_during_a_read_is_unavailable_after_three_attempts_and_not_guessed [48 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.An_unreadable_store_serves_the_last_verified_snapshot_for_sixty_seconds_then_denies [2 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.With_no_snapshot_and_an_unreadable_store_the_answer_is_deny_never_the_defaults [1 ms]
+N7 no sixty-second limit: a stale snapshot is served for ever: KILLED (Failed!  - Failed:     3, Passed:     8)
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.A_stale_snapshot_is_never_used_for_a_version_it_knows_has_moved_once_the_allowance_is_over [3 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.An_unreadable_store_serves_the_last_verified_snapshot_for_sixty_seconds_then_denies [2 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.The_sixty_seconds_count_from_the_last_confirmation_not_from_when_the_snapshot_was_loaded [2 ms]
+N8 no version bracket: a read that raced a writer is accepted: KILLED (Failed!  - Failed:     2, Passed:     9)
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.A_policy_that_never_stops_changing_during_a_read_is_unavailable_after_three_attempts_and_not_guessed [4 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyStoreTests.A_writer_racing_the_reload_is_detected_by_the_version_bracket_and_the_read_repeated [2 ms]
+N9 skip the audit write of the repair: KILLED (Failed!  - Failed:     3, Passed:     8)
+    Failed Alveara.Api.Tests.PermissionPolicyHealthTests.An_administrator_removes_an_invalid_row_with_a_reason_and_the_role_returns_to_its_default_with_history_and_audit [1 s
+    Failed Alveara.Api.Tests.PermissionPolicyHealthTests.Two_administrators_removing_the_same_row_at_once_produce_one_removal_and_one_quiet_refusal [346 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyHealthTests.When_the_audit_entry_cannot_be_written_the_whole_repair_is_rolled_back [263 ms]
+N10 skip the last-administrator guard on a role change: KILLED (Failed!  - Failed:     4, Passed:    20)
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_disabled_administrator_does_not_count_and_an_already_disabled_one_can_be_demoted [46 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.The_only_enabled_administrator_cannot_be_demoted_or_disabled_and_nothing_changes_but_the_audit [26 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.Twenty_mixed_concurrent_attempts_across_three_administrators_always_leave_at_least_one [61 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.Two_administrators_demoting_each_other_at_once_leave_exactly_one [32 ms]
+N11 skip target rule 1: a holder may act on an administrator: KILLED (Failed!  - Failed:     2, Passed:    22)
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_missing_target_is_still_not_found_and_the_audit_of_a_refusal_holds_ids_and_the_rule_only [46 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_non_administrator_holder_can_never_act_on_an_administrator [10 ms]
+N12 skip target rule 2: the subset check: KILLED (Failed!  - Failed:     5, Passed:    19)
+    Failed Alveara.Api.Tests.AccountSafetyTests.Concurrent_and_repeated_refused_requests_cannot_get_past_a_rule [161 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_holder_cannot_act_on_a_role_that_holds_a_permission_the_holder_lacks(targetRole: Assistant) [34 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_holder_cannot_act_on_a_role_that_holds_a_permission_the_holder_lacks(targetRole: Hygienist) [34 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_holder_cannot_act_on_a_role_that_holds_a_permission_the_holder_lacks(targetRole: Dentist) [37 ms]
+N13 skip the self-disable rule: KILLED (Failed!  - Failed:     1, Passed:    23)
+    Failed Alveara.Api.Tests.AccountSafetyTests.A_holder_may_not_disable_their_own_account_but_may_revoke_their_own_sessions [37 ms]
+N14 the database trigger never refuses (raw SQL may remove the last administrator): KILLED (Failed!  - Failed:     2, Passed:    22)
+    Failed Alveara.Api.Tests.AccountSafetyTests.Raw_sql_cannot_remove_the_last_administrator_by_update_bulk_update_or_delete [27 ms]
+    Failed Alveara.Api.Tests.AccountSafetyTests.Raw_sql_that_removes_both_of_two_administrators_in_one_statement_is_refused_and_one_that_removes_one_is_not [15 ms]
+N15 the permission seam is bypassed by the attribute: it reads the static table: KILLED (Failed!  - Failed:    24, Passed:    10)
+    Failed Alveara.Api.Tests.PermissionPolicyPipelineTests.A_stored_revoke_is_refused_on_the_very_next_request_with_the_known_403_body_and_a_revert_restores_it(permission: Ma
+    Failed Alveara.Api.Tests.PermissionPolicyPipelineTests.A_stored_revoke_is_refused_on_the_very_next_request_with_the_known_403_body_and_a_revert_restores_it(permission: Vi
+    Failed Alveara.Api.Tests.PermissionPolicyPipelineTests.A_stored_revoke_is_refused_on_the_very_next_request_with_the_known_403_body_and_a_revert_restores_it(permission: Co
+    Failed Alveara.Api.Tests.PermissionPolicyPipelineTests.A_stored_revoke_is_refused_on_the_very_next_request_with_the_known_403_body_and_a_revert_restores_it(permission: Vi
+restored: working tree under src is CLEAN

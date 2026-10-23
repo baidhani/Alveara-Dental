@@ -1,0 +1,55 @@
+{
+  "baselineGatedP95Ms": 1.2,
+  "thresholdAddedP95Ms": 1,
+  "worstGatedP95Ms": 1.634,
+  "repeats": [
+    {
+      "repeat": 1,
+      "gated": {
+        "n": 2000,
+        "p50": 1.093,
+        "p95": 1.634,
+        "p99": 2.456
+      },
+      "control": {
+        "n": 2000,
+        "p50": 1.216,
+        "p95": 1.535,
+        "p99": 2.316
+      },
+      "addedP95VsBaselineMs": 0.434
+    },
+    {
+      "repeat": 2,
+      "gated": {
+        "n": 2000,
+        "p50": 0.502,
+        "p95": 0.738,
+        "p99": 1.839
+      },
+      "control": {
+        "n": 2000,
+        "p50": 0.335,
+        "p95": 0.671,
+        "p99": 0.914
+      },
+      "addedP95VsBaselineMs": -0.462
+    },
+    {
+      "repeat": 3,
+      "gated": {
+        "n": 2000,
+        "p50": 0.41,
+        "p95": 0.65,
+        "p99": 0.996
+      },
+      "control": {
+        "n": 2000,
+        "p50": 0.504,
+        "p95": 0.724,
+        "p99": 1.456
+      },
+      "addedP95VsBaselineMs": -0.55
+    }
+  ]
+}

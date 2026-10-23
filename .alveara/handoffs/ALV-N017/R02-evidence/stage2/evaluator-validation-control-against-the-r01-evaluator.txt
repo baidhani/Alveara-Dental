@@ -1,0 +1,24 @@
+WRONG  A. 80 minutes with every substantive criterion met is accepted and the time is only reported  (exit 1, expected 0)
+      expected the output to contain: INFO  backend elapsed (operational evidence, not a criterion): 4800s = 80.0 min
+      | PASS  gate repo_checks                                                                                                      exit 0
+      | PASS  walkthrough walk_playwright.permission-policy.config.ts: 7 passed, none failed                                        
+      | PASS  walkthrough walk_playwright.notifications.config.ts: 10 passed, none failed                                           
+      | PASS  walkthrough walk_playwright.documents.config.ts: 14 passed, none failed                                               
+      | PASS  walkthrough walk_playwright.documents-library.config.ts: 12 passed, none failed                                       
+      | PASS  performance evidence run exit code 0                                                                                  
+      | PASS  warm path adds at most 1.0 ms at p95 over the 1.20 ms baseline (worst of three repeats)                               worst p95 1.5 ms
+      | PASS  reload p95 at most 25 ms for the standard dataset (worst of three repeats)                                            3.0 ms
+      | PASS  reload p95 at most 50 ms with 500 overrides (worst of three repeats)                                                  5.0 ms
+      | PASS  policy write p95 at most 100 ms                                                                                       8.0 ms
+      | 
+      | STAGE 2 DOES NOT QUALIFY
+OK    B. 3 minutes with every substantive criterion met is accepted  (exit 0, expected 0)
+OK    C. 80 minutes but one backend test failed is rejected  (exit 1, expected 1)
+OK    D. 80 minutes but one backend test was skipped is rejected  (exit 1, expected 1)
+OK    E. a baseline id is missing (count made up with an extra id) is rejected  (exit 1, expected 1)
+OK    F. a baseline id is missing and nothing replaces it is rejected  (exit 1, expected 1)
+OK    G. a baseline outcome changed (Passed to Failed) is rejected  (exit 1, expected 1)
+OK    H. an allowlisted new id did not run (replaced by an id outside the allowlist) is rejected  (exit 1, expected 1)
+OK    I. one extra id beyond the allowlist is rejected  (exit 1, expected 1)
+
+1 scenario(s) behaved differently from the statement
