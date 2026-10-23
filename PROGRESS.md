@@ -1180,4 +1180,10 @@
   - What changed: added `docs/testing/change_impact_backtest/` (`backtest.py`, `csharp_model.py`, `make_report.py`, `REPORT.md`, `outputs/*.json`): a read-only analysis of git history and the 10 preserved full-run results as the reviewer authorized in `docs/design/CHANGE_IMPACT_TEST_SELECTION_REVIEW_RESPONSE.md`. No application code, test, configuration, cadence or review rule changed; no test or build was run.
   - Verification: the strict fail-closed rule forces a full run in 9 of 9 evaluated changes and 102 of 109 backend-touching commits; a graph-only diagnostic selected in 4 changes with reconciliation exact and one would-be miss (the latent `D5` billing race); recommendation `NOT_READY_FOR_SHADOW_PILOT` with five exact gaps.
   - Notes: left unchecked: AWAITING_REVIEW; no shadow pilot or policy change without a separate reviewer decision. Not pushed.
+- [x] Change-impact test selection backtest reviewed: APPROVED, NOT_READY_FOR_SHADOW_PILOT (closed for now)
+  - Date: 2026-10-22
+  - Session: CC-20261008-k4q9
+  - What changed: stored the reviewer's decision unchanged at `docs/design/CHANGE_IMPACT_TEST_SELECTION_BACKTEST_REVIEW.md`. The report is accepted as a read-only analysis; no shadow pilot, no selected Stage 2, no implementation or shadow-pilot story, and no change to the Execution Plan, the Engineering/Product Reference or `HANDOFF_SCHEMA.md`. The current approaches stay: two-stage review, reuse by exact equivalence, whole frontend gates, and full backend runs at gates, releases, milestones, shared-core changes and other high-risk boundaries. The attribution distinction for latent defects is not adopted as policy. Reconsider only after enough future preserved full-run history exists and a semantic, closure-commit-specific analyzer shows several meaningful candidate selections without weakening the fail-closed boundary.
+  - Verification: reviewer APPROVED 2026-10-22 (package SHA-256 155A662D...).
+  - Notes: documentation only. Not pushed.
 
