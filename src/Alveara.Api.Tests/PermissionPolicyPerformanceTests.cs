@@ -14,8 +14,8 @@ namespace Alveara.Api.Tests;
 
 /// <summary>
 /// ALV-N017 database-read behaviour and the predeclared performance budget (docs/design/ADMIN_GRANTABLE_PERMISSIONS_PROPOSAL.md section 3.7). The read counts are checked on every run by counting the commands the real
-/// pipeline sends to SQL Server: a warm authorization sends exactly one policy command (the version), a reload sends the bracketed reads (the version that triggered it, the overrides, the delegations, the version
-/// again), and a burst of 50 requests on a changed version reloads once. The timings are an evidence generator: they run, and judge their thresholds, only when <c>ALVERA_PERF_EVIDENCE</c> names an output folder
+/// pipeline sends to SQL Server: a warm authorization sends NO policy command of its own (the version rides on the security-stamp query the cookie check already makes for every request), a reload sends the
+/// closing version read, the overrides and the delegations (the version that showed the change opened the bracket), and a burst of 50 requests on a changed version reloads once. The timings are an evidence generator: they run, and judge their thresholds, only when <c>ALVERA_PERF_EVIDENCE</c> names an output folder
 /// (a quiet machine is required; the worst of three repeats is judged), so a busy full run cannot fail on machine noise and the Stage 2 contract runs them explicitly.
 /// </summary>
 public class PermissionPolicyPerformanceTests : IAsyncLifetime
@@ -39,7 +39,11 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
-    private int Commands(string table) => _logs.Entries.Count(e => e.Category.Contains("Database.Command") && e.Message.Contains($"[{table}]"));
+    private int Commands(string table, string? except = null) =>
+        _logs.Entries.Count(e => e.Category.Contains("Database.Command") && e.Message.Contains($"[{table}]") && (except is null || !e.Message.Contains($"[{except}]")));
+
+    /// <summary>Commands that read the policy version on their own (the version otherwise rides on the cookie check query that already runs for every authenticated request).</summary>
+    private int VersionCommands() => Commands("PermissionPolicyState", except: "UserAccounts");
 
     private async Task BumpAsync()
     {
@@ -50,7 +54,7 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
     // ---------- read behaviour (every run) ----------
 
     [Fact]
-    public async Task A_warm_authorization_sends_exactly_one_policy_command_and_never_reads_the_rows()
+    public async Task A_warm_authorization_sends_no_policy_command_of_its_own_and_never_reads_the_rows()
     {
         var manager = await _api.SessionAsync("OfficeManager");
         await manager.SendAsync(HttpMethod.Get, "/api/auth/permission-matrix");                                           // loads the first snapshot
@@ -59,7 +63,8 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
             _logs.Entries.Clear();
             var response = await manager.SendAsync(HttpMethod.Get, "/api/auth/permission-matrix");
             Assert.Equal(HttpStatusCode.OK, response.Status);
-            Assert.Equal(1, Commands("PermissionPolicyState"));                                                          // the version, once, however many times the request asks the seam
+            Assert.Equal(1, Commands("PermissionPolicyState"));                                                          // the version, once, inside the security-stamp query
+            Assert.Equal(0, VersionCommands());                                                                          // so no round trip of its own, however many times the request asks the seam
             Assert.Equal(0, Commands("RolePermissionOverrides"));
             Assert.Equal(0, Commands("PermissionDelegations"));
         }
@@ -73,7 +78,7 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
         await BumpAsync();
         _logs.Entries.Clear();
         Assert.Equal(HttpStatusCode.OK, (await manager.SendAsync(HttpMethod.Get, "/api/auth/permission-matrix")).Status);
-        Assert.Equal(2, Commands("PermissionPolicyState"));                                                              // the version that showed the change opens the bracket; the closing read follows the rows
+        Assert.Equal(1, VersionCommands());                                                                              // the version that showed the change (read with the stamp) opens the bracket; one closing read follows the rows
         Assert.Equal(1, Commands("RolePermissionOverrides"));
         Assert.Equal(1, Commands("PermissionDelegations"));
     }
@@ -98,10 +103,10 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
         await admin.SendAsync(HttpMethod.Get, "/api/auth/permission-matrix");                                             // the matrix endpoint itself asks for every role, which needs the policy: this loads the first snapshot
         _logs.Entries.Clear();
         Assert.Equal(HttpStatusCode.OK, (await admin.SendAsync(HttpMethod.Get, "/api/auth/permission-matrix")).Status);
-        Assert.Equal(1, Commands("PermissionPolicyState"));                                                              // warm: the version, once
+        Assert.Equal(0, VersionCommands());                                                                              // warm: no policy command of its own
         _logs.Entries.Clear();
         Assert.Equal(HttpStatusCode.OK, (await admin.SendAsync(HttpMethod.Get, "/api/backup/history")).Status);
-        Assert.Equal(0, Commands("PermissionPolicyState"));                                                              // a permission-gated route for the administrator reads no policy at all
+        Assert.Equal(0, VersionCommands());                                                                              // a permission-gated route for the administrator reads no policy at all
     }
 
     // ---------- timings (evidence generator) ----------

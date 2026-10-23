@@ -73,13 +73,14 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
     /// <summary>The snapshot currently held, if any (for health and tests; decisions use <see cref="GetAsync"/>).</summary>
     public PolicySnapshot? Current => Volatile.Read(ref _current);
 
-    public async Task<PolicyRead> GetAsync(CancellationToken ct)
+    /// <summary>The policy version a request already read (see <see cref="PolicyVersionHandoff"/>) may be passed in so the store does not read it again; null reads it.</summary>
+    public async Task<PolicyRead> GetAsync(CancellationToken ct, long? versionAlreadyRead = null)
     {
         var held = Volatile.Read(ref _current);
         long version;
         try
         {
-            version = await source.ReadVersionAsync(ct);
+            version = versionAlreadyRead ?? await source.ReadVersionAsync(ct);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {

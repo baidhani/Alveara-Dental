@@ -105,6 +105,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationCo
 builder.Services.AddHostedService<Alveara.Api.Architecture.Notifications.NotificationConsumerHostedService>();
 // ALV-N017: the one effective-permission seam: a process-wide store of the current policy snapshot and one decision service per request
 builder.Services.TryAddSingleton(TimeProvider.System);
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.IPolicyDataSource, Alveara.Api.Architecture.Permissions.SqlPolicyDataSource>();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.PermissionPolicyStore>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.IEffectivePermissions, Alveara.Api.Architecture.Permissions.EffectivePermissionService>();
@@ -246,16 +247,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 return;
             }
 
+            // ALV-N017: the permission policy version rides on the query this check already makes for every request, so deciding permissions later in the same request costs no extra database round trip
             var db = context.HttpContext.RequestServices.GetRequiredService<AlveraDbContext>();
-            var currentStamp = await db.UserAccounts
+            var current = await db.UserAccounts
                 .Where(u => u.Id == userId)
-                .Select(u => (Guid?)u.SecurityStamp)
+                .Select(u => new { u.SecurityStamp, PolicyVersion = db.PermissionPolicyStates.Select(s => (long?)s.Version).FirstOrDefault() })
                 .SingleOrDefaultAsync();
 
-            if (currentStamp is null || currentStamp.Value.ToString() != stampClaim)
+            if (current is null || current.SecurityStamp.ToString() != stampClaim)
             {
                 context.RejectPrincipal();
+                return;
             }
+            if (current.PolicyVersion is { } policyVersion) context.HttpContext.Items[Alveara.Api.Architecture.Permissions.PolicyVersionHandoff.Key] = policyVersion;
         };
     });
 builder.Services.AddAuthorization();

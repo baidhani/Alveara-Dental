@@ -3,6 +3,12 @@ using Alveara.Api.Architecture.Identity;
 
 namespace Alveara.Api.Architecture.Permissions;
 
+/// <summary>Where the policy version read by the cookie check (the query that already runs for every authenticated request) is left for the permission decisions later in the same request.</summary>
+public static class PolicyVersionHandoff
+{
+    public const string Key = "alveara.policy-version";
+}
+
 /// <summary>The answer to "does this role hold this permission, right now?". Only <see cref="Allowed"/> lets the request through; the rest are refusals with different stable codes.</summary>
 public enum PermissionOutcome
 {
@@ -46,11 +52,12 @@ public interface IEffectivePermissions
 /// The production implementation, one per request (so the version is read once per request, however many checks the request makes). Role and permission outcomes follow the design: administrator and unassigned
 /// are answered from the code rules; any other role waits for the store, then is denied when the store is degraded or the role is in repair required, otherwise decided by its effective set.
 /// </summary>
-public sealed class EffectivePermissionService(PermissionPolicyStore store) : IEffectivePermissions
+public sealed class EffectivePermissionService(PermissionPolicyStore store, IHttpContextAccessor? http = null) : IEffectivePermissions
 {
     private PolicyRead? _read;
 
-    public async Task<PolicyRead> SnapshotAsync(CancellationToken ct = default) => _read ??= await store.GetAsync(ct);
+    public async Task<PolicyRead> SnapshotAsync(CancellationToken ct = default) =>
+        _read ??= await store.GetAsync(ct, http?.HttpContext?.Items[PolicyVersionHandoff.Key] as long?);
 
     public async Task<PermissionOutcome> CheckAsync(Role role, Permission permission, CancellationToken ct = default) =>
         await CheckAnyAsync(role, [permission], ct);
