@@ -1,0 +1,44 @@
+M1 skip the delegation table check: a delegate may change any cell: KILLED (Failed!  - Failed:     5, Passed:    53)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: "Admin", permission: "ImportDocuments") [454 m
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: "Unassigned", permission: "ImportDocuments") [
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: "OfficeManager", permission: "ImportDocuments"
+M2 skip the no-escalation check: a delegate may grant what it does not hold: KILLED (Failed!  - Failed:     1, Passed:    57)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_delegate_cannot_grant_what_it_does_not_hold_and_loses_the_ability_when_the_delegation_is_removed [598 ms]
+M3 allow an override of a protected permission through the API: KILLED (Failed!  - Failed:     5, Passed:    53)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: "Dentist", permission: "IssuePasswordResets") [322 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: "OfficeManager", permission: "ManageUsers") [344 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: "OfficeManager", permission: "ManageRoles") [282 ms]
+M4 skip the reason rule: KILLED (Failed!  - Failed:     3, Passed:    55)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.An_ordinary_change_needs_an_explicit_confirmation_a_bounded_reason_a_key_and_the_version_seen [463 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_delegated_write_is_stale_checked_idempotent_and_needs_a_confirmation_and_a_reason [423 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_write_is_stale_checked_idempotent_and_needs_a_reason_and_a_confirmation [330 ms]
+M5 skip the confirmation flag: KILLED (Failed!  - Failed:     1, Passed:    57)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.An_ordinary_change_needs_an_explicit_confirmation_a_bounded_reason_a_key_and_the_version_seen [372 ms]
+M6 skip the typed confirmation for high-impact permissions: KILLED (Failed!  - Failed:     7, Passed:    51)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: "ManageBackups") [277 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: "ViewAuditLog") [310 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: "ManageBilling") [237 ms]
+M7 skip the policy version check (stale writes are stored): KILLED (Failed!  - Failed:     4, Passed:    54)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.Concurrent_writes_from_the_same_version_produce_exactly_one_change [263 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_stale_write_is_a_409_and_stores_nothing [258 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_delegated_write_is_stale_checked_idempotent_and_needs_a_confirmation_and_a_reason [386 ms]
+M8 skip the idempotency receipts: KILLED (Failed!  - Failed:     3, Passed:    55)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_same_key_and_request_replays_quietly_and_the_same_key_with_another_request_is_refused [287 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_delegated_write_is_stale_checked_idempotent_and_needs_a_confirmation_and_a_reason [357 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_write_is_stale_checked_idempotent_and_needs_a_reason_and_a_confirmation [316 ms]
+M9 skip the audit entry of a cell change: KILLED (Failed!  - Failed:     2, Passed:    56)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.When_the_audit_entry_cannot_be_written_the_whole_change_is_rolled_back [269 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.An_administrator_grants_and_reverts_a_cell_with_a_reason_and_it_applies_to_the_very_next_request [674 ms]
+M10 the user list is not filtered for a non-administrator holder: KILLED (Failed!  - Failed:     1, Passed:    57)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_holder_of_an_assignable_permission_sees_only_the_accounts_the_target_rule_allows_and_an_administrator_sees_all [822 
+M11 skip the repair guard: a role in repair can be edited: KILLED (Failed!  - Failed:     1, Passed:    57)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_role_whose_stored_policy_needs_repair_cannot_be_edited_until_it_is_repaired [332 ms]
+M12 the delegation table accepts a permission that can never be delegated: KILLED (Failed!  - Failed:     7, Passed:    51)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: "
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: "
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: "
+M13 skip the history row of a cell change: KILLED (Failed!  - Failed:     6, Passed:    52)
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.The_same_key_and_request_replays_quietly_and_the_same_key_with_another_request_is_refused [335 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.Concurrent_writes_from_the_same_version_produce_exactly_one_change [253 ms]
+    Failed Alveara.Api.Tests.PermissionPolicyWriteTests.A_change_that_leaves_the_cell_as_it_is_is_refused_and_consumes_no_version [380 ms]
+restored: working tree under src is CLEAN

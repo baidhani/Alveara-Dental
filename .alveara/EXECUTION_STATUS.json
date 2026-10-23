@@ -2303,32 +2303,30 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 10,
         "passed": 10
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a Stage 1 package under the two-stage policy. PermissionPolicyWriteTests 58 of 58; focused backend 238 of 238 (60 new ids; one ALV-N017 baseline id, the pipeline test that asserted a closed user list, is retired by design and declared in the Stage 2 contract); 788 HTTP-level ApiTests of 788; restore drill 3 of 3 (one new: API-written policy changes survive backup and restore); negative controls 13 of 13 killed; tsc 0, Vitest 1,572 of 1,572, build and lint exit 0, mocked Playwright 140, repository checks 13; real-backend walkthroughs permission-policy-admin 8 of 8 and permission-policy 7 of 7; evaluator validation 11 of 11. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N018/R01-evidence/stage2/) expects 4,628 backend tests (the 4,569 baseline minus the 1 retired id plus exactly the 60 listed new ids) with no time limit. No full run made."
+        "summary": "Attempt R02, a Stage 1 package correcting R01 finding ALV-N018-R01-01 (the refresh proof allowed 45 seconds against the required 30). The matrix now polls every 25 seconds (no refresh while an editor is open or the page is hidden), the screens test asserts the interval, and the real-backend walkthrough measures the time from a change in another session to the refreshed screen at the worst phase of the polling cycle and fails above 30,000 ms: measured 25,143 ms. The backend is byte-identical to R01 (empty git diff of src/Alveara.Api and src/Alveara.Api.Tests against the R01 product commit 41c44ab), so the R01 backend evidence stands: PermissionPolicyWriteTests 58 of 58, focused backend 238 of 238 (60 new ids; one ALV-N017 baseline id retired by design and declared in the Stage 2 contract), 788 HTTP-level ApiTests of 788, restore drill 3 of 3, negative controls 13 of 13 killed. Re-run on the R02 tree: tsc 0, Vitest 1,572 of 1,572, build and lint exit 0, mocked Playwright 140, repository checks 13, walkthrough permission-policy-admin 8 of 8; evaluator validation 11 of 11. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N018/R02-evidence/stage2/) expects 4,628 backend tests (the 4,569 baseline minus the 1 retired id plus exactly the 60 listed new ids) with no time limit. No full run made."
       },
       "demo": "real_backend_walkthrough_8_of_8",
       "parentRegression": "n/a",
-      "implementationCommit": "41c44abf671ba869e60beeb9bc496f7f2d46034c",
-      "evidenceCommit": "effc0a51bbb0e114bc75e15f7e9bfa1341f14fc0",
-      "handoffPath": ".alveara/handoffs/ALV-N018/R01.md",
+      "implementationCommit": "f70e93f81a1f89ea9087c651917a2c1489d43731",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N018/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-N018/R01-stage1.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "41c44abf671ba869e60beeb9bc496f7f2d46034c",
-        "reviewedEvidenceCommit": "effc0a51bbb0e114bc75e15f7e9bfa1341f14fc0",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-N018/R01-stage1.md"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N018/R01-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-N018-R01-01: the refresh proof allows 45 seconds, not the required 30. The walkthrough waits up to 45 s and records withinSeconds 45, and the client polls every exactly 30 s, so a change just after a tick cannot be shown to arrive within 30 s end to end. R02 must poll with margin (about 25 s) keeping the no-refresh-while-editing and hidden-document safeguards, measure the elapsed time from the other-session write to the visible refreshed state in the real-backend walkthrough and fail at more than 30 s, keep the unit test aligned, and regenerate the evidence as a new immutable Stage 1 attempt. The full Stage 2 must not be run for R01."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

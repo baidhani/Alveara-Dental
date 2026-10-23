@@ -1283,3 +1283,9 @@
   - What changed: review stored unchanged at `.alveara/reviews/ALV-N018/R01-stage1.md`; EXECUTION_STATUS record set to `CHANGES_REQUIRED` with finding ALV-N018-R01-01 as the blocking issue; BUILD_STATE wording updated.
   - Verification: the review file is byte-identical to the one received; the finding is reproduced in code before any fix (`MATRIX_REFRESH_MS = 30_000`; the walkthrough waits `timeout: 45_000` and writes `withinSeconds: 45`).
   - Notes: the sole finding is the refresh proof (45 s allowed against a 30 s requirement); no other defect was identified. The full Stage 2 is not authorized for R01 and was not run. R02 follows as a new Stage 1 attempt. Not pushed.
+- [x] ALV-N018 R02 Stage 1: the refresh proof corrected (finding ALV-N018-R01-01)
+  - Date: 2026-10-23
+  - Session: CC-20261008-k4q9
+  - What changed: the permission matrix polls every 25 s instead of 30 s (still not while an editor is open or the page is hidden); the screens test asserts the interval; the real-backend walkthrough measures the time from the other-session write to the refreshed screen at the worst polling phase and fails above 30,000 ms; the policy doc says 25 s. Implementation commit `f70e93f`; the backend is unchanged.
+  - Verification: walkthrough permission-policy-admin 8 of 8 with the refresh measured at 25,143 ms; Vitest 1,572 of 1,572 (100 files), tsc 0, build and lint exit 0, mocked Playwright 140, repository checks 13; `git diff 41c44ab f70e93f -- src/Alveara.Api src/Alveara.Api.Tests` empty so the R01 backend evidence stands; evaluator validation 11 of 11. Evidence `.alveara/handoffs/ALV-N018/R02-evidence/`.
+  - Notes: Stage 1 only; the full regression is PENDING (frozen Stage 2 in `R02-evidence/stage2/`: 4,628 backend tests, exactly the 60 listed new ids, one declared retired id, no time limit); no full backend run made. Not pushed.

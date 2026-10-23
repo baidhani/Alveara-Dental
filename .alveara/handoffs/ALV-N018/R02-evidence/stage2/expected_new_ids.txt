@@ -1,0 +1,60 @@
+Alveara.Api.Tests.PermissionPolicyBackupRestoreTests.Policy_changes_written_through_the_write_service_survive_a_backup_and_restore_with_their_history_and_audit
+Alveara.Api.Tests.PermissionPolicyPipelineTests.The_user_list_stays_closed_for_every_role_that_holds_neither_assignable_permission_and_opens_only_for_a_holder_of_one
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_change_that_leaves_the_cell_as_it_is_is_refused_and_consumes_no_version
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_delegate_cannot_grant_what_it_does_not_hold_and_loses_the_ability_when_the_delegation_is_removed
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_delegated_write_is_stale_checked_idempotent_and_needs_a_confirmation_and_a_reason
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: &quot;ManageBackups&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: &quot;ManageBilling&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: &quot;ManagePrescriptions&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: &quot;ViewAuditLog&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_high_impact_change_needs_the_permission_name_typed_exactly(permission: &quot;ViewPatientRecords&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_holder_of_an_assignable_permission_sees_only_the_accounts_the_target_rule_allows_and_an_administrator_sees_all
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: &quot;Dentist&quot;, permission: &quot;IssuePasswordResets&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: &quot;Dentist&quot;, permission: &quot;ManageMfaPolicy&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: &quot;OfficeManager&quot;, permission: &quot;ManagePermissionGrants&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: &quot;OfficeManager&quot;, permission: &quot;ManageRoles&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_protected_permission_can_never_be_written_for_any_role(role: &quot;OfficeManager&quot;, permission: &quot;ManageUsers&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_revoke_of_a_default_keeps_the_known_403_body_and_a_revert_restores_it
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_role_whose_stored_policy_needs_repair_cannot_be_edited_until_it_is_repaired
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_role_without_a_delegation_cannot_delegate_and_unknown_names_are_refused
+Alveara.Api.Tests.PermissionPolicyWriteTests.A_stale_write_is_a_409_and_stores_nothing
+Alveara.Api.Tests.PermissionPolicyWriteTests.An_administrator_edits_the_delegation_table_within_the_closed_sets_with_history_and_audit
+Alveara.Api.Tests.PermissionPolicyWriteTests.An_administrator_grants_and_reverts_a_cell_with_a_reason_and_it_applies_to_the_very_next_request
+Alveara.Api.Tests.PermissionPolicyWriteTests.An_ordinary_change_needs_an_explicit_confirmation_a_bounded_reason_a_key_and_the_version_seen
+Alveara.Api.Tests.PermissionPolicyWriteTests.Concurrent_writes_from_the_same_version_produce_exactly_one_change
+Alveara.Api.Tests.PermissionPolicyWriteTests.Everyone_else_keeps_the_existing_denial_of_the_user_list_with_the_same_body
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;3&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;Grant&quot;, code: &quot;invalid_role&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Admin&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;Revoke&quot;, code: &quot;role_not_editable&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Dentist&quot;, permission: &quot;17&quot;, effect: &quot;Revoke&quot;, code: &quot;invalid_permission&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Dentist&quot;, permission: &quot;NoSuchPermission&quot;, effect: &quot;Grant&quot;, code: &quot;invalid_permission&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Dentist&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;Allow&quot;, code: &quot;invalid_effect&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Dentist&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;grant&quot;, code: &quot;invalid_effect&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Dentist&quot;, permission: &quot;viewbilling&quot;, effect: &quot;Revoke&quot;, code: &quot;invalid_permission&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Unassigned&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;Grant&quot;, code: &quot;role_not_editable&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;Wizard&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;Grant&quot;, code: &quot;invalid_role&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Names_come_from_closed_sets_and_the_fixed_roles_cannot_be_edited(role: &quot;dentist&quot;, permission: &quot;ViewBilling&quot;, effect: &quot;Grant&quot;, code: &quot;invalid_role&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.Only_an_administrator_can_write_overrides_and_the_delegation_table_and_a_write_needs_a_csrf_token
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;Admin&quot;, permission: &quot;ImportDocuments&quot;, target: &quot;Dentist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;Dentist&quot;, permission: &quot;ImportDocuments&quot;, target: &quot;Hygienist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;ImportDocuments&quot;, target: &quot;Admin&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;ImportDocuments&quot;, target: &quot;OfficeManager&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;ImportDocuments&quot;, target: &quot;Unassigned&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;IssuePasswordResets&quot;, target: &quot;Dentist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;ManageAccountStatus&quot;, target: &quot;Dentist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;ManagePermissionGrants&quot;, target: &quot;Dentist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;ManageUsers&quot;, target: &quot;Dentist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_can_never_name_a_protected_permission_a_non_office_delegate_or_a_forbidden_target(delegateRole: &quot;OfficeManager&quot;, permission: &quot;RevokeSessions&quot;, target: &quot;Dentist&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_delegation_table_write_is_stale_checked_idempotent_and_needs_a_reason_and_a_confirmation
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_effective_view_carries_the_affected_user_count_and_the_high_impact_flag
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;Admin&quot;, permission: &quot;ImportDocuments&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;Dentist&quot;, permission: &quot;ManageAccountStatus&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;Dentist&quot;, permission: &quot;ManagePermissionGrants&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;Dentist&quot;, permission: &quot;ManageUsers&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;Dentist&quot;, permission: &quot;ViewBilling&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;OfficeManager&quot;, permission: &quot;ImportDocuments&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_cannot_go_beyond_the_closed_delegation_table(target: &quot;Unassigned&quot;, permission: &quot;ImportDocuments&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_office_manager_grants_and_removes_document_import_for_a_working_role_and_the_history_says_it_was_delegated
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_same_key_and_request_replays_quietly_and_the_same_key_with_another_request_is_refused
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_two_assignable_permissions_need_typed_confirmation_and_are_never_delegable(permission: &quot;ManageAccountStatus&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.The_two_assignable_permissions_need_typed_confirmation_and_are_never_delegable(permission: &quot;RevokeSessions&quot;)
+Alveara.Api.Tests.PermissionPolicyWriteTests.When_the_audit_entry_cannot_be_written_the_whole_change_is_rolled_back

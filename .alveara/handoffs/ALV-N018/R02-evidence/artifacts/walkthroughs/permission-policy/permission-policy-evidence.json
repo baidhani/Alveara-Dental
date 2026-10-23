@@ -1,0 +1,50 @@
+{
+  "axe": {
+    "permission-matrix-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "permission-matrix-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792785624078,
+  "defaults": {
+    "health": "Healthy",
+    "cellsNotDefault": 0,
+    "history": 0,
+    "officeManagerUserList": 403
+  },
+  "revoke": {
+    "apiStatus": 403,
+    "body": "permission_denied",
+    "screen": "denied",
+    "afterRevert": "visible",
+    "otherRoleAffected": false
+  },
+  "invalid": {
+    "repairRequiredCode": "permission_policy_repair_required",
+    "healthAfter": "Healthy",
+    "history": 1,
+    "detectedOnce": true
+  },
+  "lastAdmin": {
+    "roleChange": "409 last_admin",
+    "disable": "409 last_admin",
+    "rawSql": "refused (update and bulk update by trigger 51207; delete by trigger 51207 or the history foreign key)"
+  },
+  "targetRules": {
+    "onAdmin": "target_is_admin",
+    "onDentist": "target_exceeds_actor",
+    "self": "self_disable",
+    "userListHasNoAdministrator": true,
+    "refusalsAudited": 5
+  },
+  "database": {
+    "historyUpdate": "refused 51204",
+    "historyDelete": "refused 51204",
+    "versionJump": "refused 51205",
+    "stateDelete": "refused 51205"
+  }
+}
