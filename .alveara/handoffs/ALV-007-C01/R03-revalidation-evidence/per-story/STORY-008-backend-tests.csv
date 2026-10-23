@@ -1,0 +1,54 @@
+test,outcome,duration
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.3754134
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedTests.Completing_again_changes_nothing",Passed,00:00:00.1877697
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.A_wrong_revision_or_answer_is_refused_with_a_message_for_every_field_and_saves_nothing",Passed,00:00:00.3218373
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_withdrawn_plan_is_final_stays_readable_and_is_hidden_from_the_list_unless_asked_for",Passed,00:00:00.1583195
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.Every_change_is_audited_with_the_user_and_time_and_recorded_in_the_history_without_clinical_wording",Passed,00:00:00.1995317
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedTests.Completed_care_stays_in_the_history_and_the_earlier_revision_is_kept_when_the_plan_is_revised_or_withdrawn",Passed,00:00:00.2140492
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_failed_audit_write_saves_nothing_and_says_so_and_the_same_save_works_once_the_log_is_back",Passed,00:00:00.1249574
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_failed_audit_write_on_any_later_change_changes_nothing",Passed,00:00:00.1775890
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.1581335
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.The_estimate_is_labelled_as_the_practices_figure_everywhere_it_is_shown_and_never_claims_insurance_cover",Passed,00:00:00.3520495
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.Adding_twice_with_the_same_key_adds_one_item_even_when_the_retry_holds_an_old_version",Passed,00:00:00.1601110
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.Withdrawing_from_a_stale_copy_is_a_conflict_and_changes_nothing",Passed,00:00:00.1684156
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.An_unknown_patient_or_plan_is_a_404",Passed,00:00:00.0085270
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;OfficeManager&quot;, allowed: False)",Passed,00:00:00.3596718
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_procedure_is_withdrawn_with_a_reason_stays_on_the_plan_and_leaves_the_estimate",Passed,00:00:00.1847084
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;Assistant&quot;, allowed: True)",Passed,00:00:00.1577999
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.1681687
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;OfficeManager&quot;, allowed: False)",Passed,00:00:00.4173306
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.A_plan_is_revised_into_phases_answered_scheduled_completed_and_compared_with_every_step_logged_and_the_estimate_labelled",Passed,00:00:00.4600828
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.3709551
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.3710101
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_failed_insert_halfway_through_leaves_no_half_saved_plan",Passed,00:00:00.0805103
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.4133510
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.An_unknown_patients_clinical_history_is_not_found_and_a_write_is_not_part_of_it",Passed,00:00:00.1648830
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.The_three_acceptance_criteria_hold_end_to_end",Passed,00:00:00.7498211
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.4158024
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.An_old_diagnosis_reference_is_previewed_resolved_to_the_same_patients_plan_and_kept_and_another_patients_plan_is_refused",Passed,00:00:00.4189204
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.4271759
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.Withdrawing_something_already_withdrawn_changes_nothing_and_an_unknown_item_is_a_404",Passed,00:00:00.1725945
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.3855120
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_withdrawn_plan_accepts_no_more_procedures",Passed,00:00:00.1334299
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedTests.The_history_of_an_unknown_patient_is_not_found",Passed,00:00:00.0028997
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_procedure_is_added_with_the_next_number_a_fee_estimate_and_a_new_plan_version",Passed,00:00:00.1619918
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.4002252
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedTests.The_clinical_history_lists_each_completed_procedure_once_with_who_when_and_the_revision",Passed,00:00:00.1844752
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.A_stale_copy_is_a_409_conflict_a_withdrawn_plan_cannot_change_and_unknown_things_are_404",Passed,00:00:00.4083057
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.1707952
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.4169617
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedTests.A_withdrawn_procedure_is_not_completed",Passed,00:00:00.1961329
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;Hygienist&quot;, allowed: True)",Passed,00:00:00.1604733
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_patients_plans_are_listed_newest_first_and_never_include_another_patients",Passed,00:00:00.1511337
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.Adding_needs_the_plans_current_version_a_stale_one_is_a_conflict_and_changes_nothing",Passed,00:00:00.1724669
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_plan_is_renamed_and_saving_the_same_title_changes_nothing",Passed,00:00:00.1528435
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;Hygienist&quot;, allowed: True)",Passed,00:00:00.4170848
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedTests.Every_accepted_procedure_is_completed_in_one_save_and_the_declined_one_is_left_alone",Passed,00:00:00.1911213
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Anonymous_callers_get_401_from_every_new_endpoint",Passed,00:00:00.0506414
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_dentists_and_administrators_can_revise_answer_schedule_complete_code_and_resolve(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.4982243
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;OfficeManager&quot;, allowed: False)",Passed,00:00:00.1604532
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Anonymous_callers_get_401_from_the_clinical_history",Passed,00:00:00.0373890
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.A_write_without_a_csrf_token_is_refused_and_changes_nothing",Passed,00:00:00.3417863
+"Alveara.Api.Tests.TreatmentPlanLifecycleTests.A_wrong_added_procedure_is_refused_on_the_named_field_and_a_duplicate_is_refused_until_the_first_is_withdrawn",Passed,00:00:00.1806275
+"Alveara.Api.Tests.TreatmentPlanCompletionApiTests.Only_the_clinical_team_and_the_administrator_can_read_revisions_and_comparisons(role: &quot;Assistant&quot;, allowed: True)",Passed,00:00:00.3802968
+"Alveara.Api.Tests.TreatmentPlanCompleteAcceptedApiTests.Only_the_clinical_team_and_the_administrator_can_read_the_clinical_history(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.1120916

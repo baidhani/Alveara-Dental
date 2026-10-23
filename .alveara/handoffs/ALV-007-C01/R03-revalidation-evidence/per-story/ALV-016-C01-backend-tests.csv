@@ -1,0 +1,168 @@
+test,outcome,duration
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_prescription_with_no_ending_event_is_active_and_the_ending_event_decides_otherwise",Passed,00:00:00.0001589
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_details_and_the_events_of_a_prescription_can_be_neither_changed_nor_deleted",Passed,00:00:00.0357432
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.3442664
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;fingerprintNotHex&quot;, constraint: &quot;CK_PrescriptionDetails_Fingerprint&quot;)",Passed,00:00:00.0198512
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_hash_binds_every_field_except_the_key_and_ignores_the_case_of_the_medication",Passed,00:00:00.0005341
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;quantityThreeDecimals&quot;, field: &quot;quantityValue&quot;, code: &quot;too_many_decimals&quot;)",Passed,00:00:00.0000041
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_a_new_draft_that_replaces_the_prescription_only_when_it_is_finalized_and_the_original_is_never_edited",Passed,00:00:00.2587629
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;instructionsControlCharacter&quot;, field: &quot;instructions&quot;, code: &quot;invalid_characters&quot;)",Passed,00:00:00.0000032
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_boundaries_themselves_are_accepted(which: &quot;refillsAtCeiling&quot;)",Passed,00:00:00.0000092
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;instructionsTooLong&quot;, field: &quot;instructions&quot;, code: &quot;too_long&quot;)",Passed,00:00:00.0000119
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing",Passed,00:00:00.3007325
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.An_unchanged_view_has_the_same_fingerprint_and_the_difference_describes_what_changed_in_words",Passed,00:00:00.0005566
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_allergy_list_that_was_never_reviewed_is_never_treated_as_clear_at_finalization",Passed,00:00:00.0651331
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;instructionsBlank&quot;, constraint: &quot;CK_PrescriptionDetails_Instructions&quot;)",Passed,00:00:00.0165325
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;unitWithoutQuantity&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0202408
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;quantityUnknownUnit&quot;, field: &quot;quantityUnit&quot;, code: &quot;unknown_unit&quot;)",Passed,00:00:00.0000087
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.There_is_no_way_to_edit_or_delete_a_prescription_or_to_delete_a_draft",Passed,00:00:00.2861284
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_detail_and_the_events_of_a_prescription_are_accepted_and_the_quantity_keeps_two_decimals",Passed,00:00:00.0374978
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_same_create_key_may_be_used_by_two_different_patients",Passed,00:00:00.0199047
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_amendment_hash_names_the_prescription_being_amended_and_nothing_else",Passed,00:00:00.0001091
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_safety_context_cannot_be_read_no_draft_is_created",Passed,00:00:00.0125968
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;keyControl&quot;, constraint: &quot;CK_PrescriptionDrafts_Key&quot;)",Passed,00:00:00.0207429
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_discontinued_and_a_story_016_prescription_can_be_ended_too",Passed,00:00:00.0880713
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Anonymous_callers_get_401_from_every_route",Passed,00:00:00.0416513
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_finalized_or_discarded_draft_never_changes(status: &quot;discarded&quot;)",Passed,00:00:00.0336860
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_change_to_the_allergy_list_after_the_draft_was_started_stops_the_finalization_and_says_what_changed",Passed,00:00:00.0645169
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_edited_and_the_edit_is_logged_a_stale_edit_is_refused_and_an_unchanged_one_is_quiet",Passed,00:00:00.0596330
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.An_amendment_must_be_for_the_same_patient_as_the_prescription_it_replaces_and_as_the_draft_it_came_from",Passed,00:00:00.0319896
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;anAllergyIsRemoved&quot;)",Passed,00:00:00.0000682
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;aMedicationChanges&quot;)",Passed,00:00:00.0000076
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_can_only_be_replaced_by_a_prescription_of_the_same_patient",Passed,00:00:00.0228975
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_complete_entry_can_be_finalized_and_is_complete",Passed,00:00:00.0017358
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;allergyAdded&quot;)",Passed,00:00:00.0596860
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;medicationAdded&quot;)",Passed,00:00:00.0965318
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_migration_rolls_back_and_forward_while_the_workflow_is_empty_and_refuses_to_roll_back_over_a_draft_a_detail_or_an_event",Passed,00:00:00.8252097
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_saved_before_the_workflow_cannot_be_printed_and_says_so",Passed,00:00:00.5198199
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;successorOnCancelled&quot;, constraint: &quot;CK_PrescriptionEvents_Superseded|CK_PrescriptionEv&quot;···)",Passed,00:00:00.0152828
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.3153097
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;cancelledWithoutReason&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.1946325
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;reviewBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Review&quot;)",Passed,00:00:00.0199619
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_goes_from_a_draft_to_finalized_printed_and_cancelled_and_every_step_is_logged",Passed,00:00:00.3254575
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;quantityAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDetails_Quantity&quot;)",Passed,00:00:00.3410091
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;patient&quot;)",Passed,00:00:00.0292857
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;refillsNegative&quot;, constraint: &quot;CK_PrescriptionDetails_Refills&quot;)",Passed,00:00:00.0180518
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_cancelled_with_a_reason_once_and_the_log_never_contains_the_reason",Passed,00:00:00.0935421
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;quantityUnknownUnit&quot;, constraint: &quot;CK_PrescriptionDetails_Quantity&quot;)",Passed,00:00:00.0174754
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;supersedes&quot;)",Passed,00:00:00.0306733
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Finalizing_a_missing_entry_is_refused",Passed,00:00:00.0000735
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityUnknownUnit&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0199938
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_reason_is_trimmed_and_limited_in_length",Passed,00:00:00.0000612
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_refusals_carry_stable_codes_and_the_details_the_screen_needs_and_nothing_is_saved",Passed,00:00:00.3347738
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_prints_from_the_immutable_record_the_print_is_logged_and_a_reprint_is_identical_until_the_status_changes",Passed,00:00:00.0882535
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;refillsAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDetails_Refills&quot;)",Passed,00:00:00.0177386
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;supersededByItself&quot;, constraint: &quot;CK_PrescriptionEvents_Superseded&quot;)",Passed,00:00:00.0148104
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.Only_one_draft_can_be_open_to_amend_a_prescription_and_a_new_one_is_allowed_once_the_first_is_not_a_draft_any_more",Passed,00:00:00.0319740
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;finalizedLongAgo&quot;, constraint: &quot;CK_PrescriptionDetails_Finalized&quot;)",Passed,00:00:00.0179654
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_same_create_key_cannot_make_a_second_draft_for_one_patient_and_a_draft_needs_a_patient_and_a_prescriber_that_exist",Passed,00:00:00.0232665
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;createdLongAgo&quot;, constraint: &quot;CK_PrescriptionDrafts_Times&quot;)",Passed,00:00:00.0201774
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;medicationBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Medication&quot;)",Passed,00:00:00.0198887
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_limits_are_described_as_typing_ceilings_and_not_as_clinical_or_legal_limits",Passed,00:00:00.0002499
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.3201489
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_draft_needs_only_the_core_entry_and_may_leave_the_instructions_quantity_and_refills_empty",Passed,00:00:00.0023647
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_amendment_replaces_a_prescription_through_the_api_and_the_old_one_stays_as_it_was",Passed,00:00:00.3017281
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.8826391
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;reasonOnFinalized&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.0145038
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.3297062
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;reasonOnADraft&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0186334
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;doseZero&quot;, constraint: &quot;CK_PrescriptionDrafts_Dose&quot;)",Passed,00:00:00.0198151
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;createdBy&quot;)",Passed,00:00:00.0221603
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_is_finalized_once_and_ends_at_most_once",Passed,00:00:00.0216661
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.3136432
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;hashNotHex&quot;, constraint: &quot;CK_PrescriptionDrafts_Hash&quot;)",Passed,00:00:00.0177477
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;allergyListBecomesUnknown&quot;)",Passed,00:00:00.0469810
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.4519843
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Finalizing_refuses_each_missing_part_on_its_own(missing: &quot;instructions&quot;)",Passed,00:00:00.0001570
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;discontinuedWithoutReason&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.2200848
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Hygienist&quot;, allowed: True)",Passed,00:00:00.3447750
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_boundaries_themselves_are_accepted(which: &quot;instructionsAtLimit&quot;)",Passed,00:00:00.0000045
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;anAllergyIsAdded&quot;)",Passed,00:00:00.0000038
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_boundaries_themselves_are_accepted(which: &quot;quantitySmallest&quot;)",Passed,00:00:00.0002363
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_medication_that_matches_a_recorded_allergy_is_not_finalized_until_the_prescriber_gives_their_own_words",Passed,00:00:00.0987120
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_changed_by_someone_else_is_not_finalized_on_a_stale_version",Passed,00:00:00.1634189
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;finalizedWithoutPrescription&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0194934
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Finalizing_refuses_each_missing_part_on_its_own(missing: &quot;refills&quot;)",Passed,00:00:00.0000460
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_nothing_is_finalized_and_the_same_click_works_once_it_is_back",Passed,00:00:00.0841691
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;aReactionChanges&quot;)",Passed,00:00:00.0002076
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;frequencyUnknown&quot;, constraint: &quot;CK_PrescriptionDrafts_Frequency&quot;)",Passed,00:00:00.0230975
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Every_problem_is_reported_together_the_core_ones_and_the_new_ones",Passed,00:00:00.0002363
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;quantityZero&quot;, field: &quot;quantityValue&quot;, code: &quot;not_positive&quot;)",Passed,00:00:00.0009525
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_no_draft_is_created_and_the_same_request_works_once_it_is_back",Passed,00:00:00.0379206
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_reason_is_required_and_must_be_plain_text(reason: &quot;Bad\areason&quot;, code: &quot;invalid_characters&quot;)",Passed,00:00:00.0000917
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;draftNamingAPrescription&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0199784
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;quantityZero&quot;, constraint: &quot;CK_PrescriptionDetails_Quantity&quot;)",Passed,00:00:00.0172119
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;doseAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDrafts_Dose&quot;)",Passed,00:00:00.0201003
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;unitUnknown&quot;, constraint: &quot;CK_PrescriptionDrafts_Unit|CK_PrescriptionDrafts_D&quot;···)",Passed,00:00:00.0214385
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;OfficeManager&quot;, allowed: False)",Passed,00:00:00.3370500
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_reason_is_required_and_must_be_plain_text(reason: null, code: &quot;required&quot;)",Passed,00:00:00.0000011
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;keyBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Key&quot;)",Passed,00:00:00.0855578
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Only_an_active_prescription_can_end",Passed,00:00:00.0001027
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_snapshot_survives_being_stored_as_text_and_an_empty_one_is_still_two_lines_for_the_lists",Passed,00:00:00.0001675
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;supersededWithoutSuccessor&quot;, constraint: &quot;CK_PrescriptionEvents_Superseded&quot;)",Passed,00:00:00.0141522
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.4449263
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;updatedBeforeCreated&quot;, constraint: &quot;CK_PrescriptionDrafts_Times&quot;)",Passed,00:00:00.0203723
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;typeUnknown&quot;, constraint: &quot;CK_PrescriptionEvents_Type|CK_PrescriptionEvents_R&quot;···)",Passed,00:00:00.0198139
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_that_has_a_detail_or_an_event_cannot_be_deleted_and_the_story_016_trigger_still_holds",Passed,00:00:00.0291780
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;quantityNegative&quot;, field: &quot;quantityValue&quot;, code: &quot;not_positive&quot;)",Passed,00:00:00.0000040
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_saved_by_story_016_needs_no_detail_and_no_event",Passed,00:00:00.0163318
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.No_drug_knowledge_source_is_configured_and_nothing_claims_interaction_checking_or_dose_appropriateness",Passed,00:00:00.0430394
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_boundaries_themselves_are_accepted(which: &quot;quantityAtCeiling&quot;)",Passed,00:00:00.0000028
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;createKey&quot;)",Passed,00:00:00.0285649
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_drafts_patient_creation_and_amended_prescription_never_change_even_while_it_is_a_draft(which: &quot;createdAt&quot;)",Passed,00:00:00.0269115
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_draft_is_never_deleted",Passed,00:00:00.0215902
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Acknowledging_the_lists_as_they_are_lets_the_finalization_go_ahead_and_editing_the_draft_does_not_acknowledge_anything",Passed,00:00:00.1333805
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;theMedicationListNeedsReview&quot;)",Passed,00:00:00.0005465
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Assistant&quot;, allowed: True)",Passed,00:00:00.3190084
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Creating_a_draft_twice_under_one_key_returns_it_and_the_same_key_for_a_different_entry_is_refused",Passed,00:00:00.0320987
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;unitWithoutQuantity&quot;, field: &quot;quantityValue&quot;, code: &quot;required&quot;)",Passed,00:00:00.0001254
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_cancellations_record_one_event_and_a_failed_log_records_nothing",Passed,00:00:00.1167436
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;theAllergyListNeedsReview&quot;)",Passed,00:00:00.0000034
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;reasonBlank&quot;, constraint: &quot;CK_PrescriptionEvents_Reason&quot;)",Passed,00:00:00.0142769
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_draft_with_and_without_the_optional_parts_a_discarded_draft_and_a_finalized_one_are_accepted",Passed,00:00:00.0346322
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_discarded_draft_is_kept_cannot_be_changed_and_discarding_it_again_changes_nothing",Passed,00:00:00.1278496
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0207117
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;quantityAboveCeiling&quot;, field: &quot;quantityValue&quot;, code: &quot;above_typing_ceiling&quot;)",Passed,00:00:00.0000125
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;refillsAboveCeiling&quot;, constraint: &quot;CK_PrescriptionDrafts_Refills&quot;)",Passed,00:00:00.0217191
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_prescription_has_one_detail_a_draft_becomes_one_prescription_and_a_prescription_is_amended_by_one_successor",Passed,00:00:00.0377380
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_finalized_or_discarded_draft_never_changes(status: &quot;finalized&quot;)",Passed,00:00:00.0258123
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;quantityWithoutUnit&quot;, field: &quot;quantityUnit&quot;, code: &quot;required&quot;)",Passed,00:00:00.0000049
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;fingerprintShort&quot;, constraint: &quot;CK_PrescriptionDrafts_Fingerprint&quot;)",Passed,00:00:00.0196141
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;OfficeManager&quot;, allowed: False)",Passed,00:00:00.3371075
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Finalizing_refuses_each_missing_part_on_its_own(missing: &quot;quantity&quot;)",Passed,00:00:00.0016924
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;refillsAboveCeiling&quot;, field: &quot;refills&quot;, code: &quot;above_typing_ceiling&quot;)",Passed,00:00:00.0000049
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incomplete_draft_cannot_be_finalized_and_each_missing_part_is_named",Passed,00:00:00.0453141
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_draft_is_normalized_the_same_way_as_a_prescription_and_the_instructions_are_trimmed_with_line_breaks_made_uniform",Passed,00:00:00.0002244
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Each_new_field_is_refused_for_the_right_reason_and_nothing_is_accepted(which: &quot;refillsNegative&quot;, field: &quot;refills&quot;, code: &quot;negative&quot;)",Passed,00:00:00.0000049
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_missing_entry_and_a_bad_core_field_are_refused_by_the_story_016_rules_unchanged",Passed,00:00:00.0005882
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_to_the_allergy_list_stops_the_finalization_with_what_changed_and_acknowledging_it_lets_it_go_ahead",Passed,00:00:00.3221001
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;reasonBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Outcome&quot;)",Passed,00:00:00.0196465
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;statusUnknown&quot;, constraint: &quot;CK_PrescriptionDrafts_Status|CK_PrescriptionDrafts&quot;···)",Passed,00:00:00.0189998
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_event_by_itself(which: &quot;occurredLongAgo&quot;, constraint: &quot;CK_PrescriptionEvents_Time&quot;)",Passed,00:00:00.0146630
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;fingerprintUpper&quot;, constraint: &quot;CK_PrescriptionDrafts_Fingerprint&quot;)",Passed,00:00:00.0235543
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_without_instructions_quantity_and_refills_cannot_be_printed_and_a_failed_log_prints_nothing",Passed,00:00:00.1166994
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Any_change_to_an_allergy_a_medication_or_how_far_a_list_can_be_relied_on_changes_the_fingerprint(which: &quot;aSeverityChanges&quot;)",Passed,00:00:00.0000416
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;refillsNegative&quot;, constraint: &quot;CK_PrescriptionDrafts_Refills&quot;)",Passed,00:00:00.0204539
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;instructionsBlank&quot;, constraint: &quot;CK_PrescriptionDrafts_Instructions&quot;)",Passed,00:00:00.0200856
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_saved_incomplete_and_is_logged_with_the_user_and_the_time_without_any_clinical_content",Passed,00:00:00.0516707
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_finalized_draft_cannot_be_discarded_and_nothing_about_it_changes",Passed,00:00:00.0747592
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityZero&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0203103
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself(which: &quot;supersedesItself&quot;, constraint: &quot;CK_PrescriptionDetails_Supersedes&quot;)",Passed,00:00:00.0169135
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_options_say_that_no_drug_knowledge_source_is_configured",Passed,00:00:00.1663360
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Finalizing_a_finalized_draft_returns_the_prescription_it_became_and_two_simultaneous_finalizations_make_one",Passed,00:00:00.0924704
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_detail_for_a_prescription_that_does_not_exist_is_refused",Passed,00:00:00.3291403
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;medicationControl&quot;, constraint: &quot;CK_PrescriptionDrafts_Medication&quot;)",Passed,00:00:00.0202266
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_draft_by_itself(which: &quot;quantityWithoutUnit&quot;, constraint: &quot;CK_PrescriptionDrafts_Quantity&quot;)",Passed,00:00:00.0222213
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_boundaries_themselves_are_accepted(which: &quot;refillsNone&quot;)",Passed,00:00:00.0001421
+"Alveara.Api.Tests.PrescriptionWorkflowSchemaTests.A_draft_can_be_edited_and_then_finalized_and_the_edit_is_refused_when_a_stale_version_is_used",Passed,00:00:00.0462379
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.3606920
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.The_snapshot_is_the_same_whatever_order_the_items_arrive_in_and_has_one_line_per_item_and_per_list",Passed,00:00:00.0001366
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Finalizing_keeps_the_draft_problems_and_does_not_repeat_them",Passed,00:00:00.0001631
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_creations_under_one_key_make_one_draft",Passed,00:00:00.0305862
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_refused_when_the_original_ended_in_the_meantime_or_never_existed_and_a_story_016_prescription_can_be_amended_by_filling_in_the_rest",Passed,00:00:00.0989525
+"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.3567139
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_complete_draft_is_finalized_into_a_prescription_with_its_details_event_and_log_entry_in_one_save",Passed,00:00:00.0931234
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.Finalizing_names_every_missing_part_once",Passed,00:00:00.0001919
+"Alveara.Api.Tests.PrescriptionWorkflowRulesTests.A_reason_is_required_and_must_be_plain_text(reason: &quot;   &quot;, code: &quot;required&quot;)",Passed,00:00:00.0001124
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incorrect_draft_is_refused_with_every_problem_named_and_nothing_is_saved",Passed,00:00:00.0085711
+"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_allergy_check_cannot_be_made_at_finalization_nothing_is_saved",Passed,00:00:00.0492765

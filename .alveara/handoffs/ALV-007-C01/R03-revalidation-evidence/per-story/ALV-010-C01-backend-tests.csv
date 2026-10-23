@@ -1,0 +1,593 @@
+test,outcome,duration
+"Alveara.Api.Tests.DocumentImportServiceTests.The_same_key_for_a_different_file_or_different_details_is_refused",Passed,00:00:00.0983377
+"Alveara.Api.Tests.DocumentLibraryApiTests.A_document_is_imported_with_an_encounter_and_a_tooth_and_read_back_with_them",Passed,00:00:00.2839834
+"Alveara.Api.Tests.DocumentSchemaTests.The_category_and_the_description_of_a_document_may_change_and_a_category_may_be_renamed_and_deactivated",Passed,00:00:00.0550096
+"Alveara.Api.Tests.DocumentImportServiceTests.A_failing_log_write_for_a_confirmed_duplicate_fails_that_import_too_and_changes_nothing",Passed,00:00:00.0681011
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;name-blank&quot;)",Passed,00:00:00.0137744
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;size-over-a-gigabyte&quot;)",Passed,00:00:00.0144659
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;Hygienist&quot;)",Passed,00:00:00.2086827
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Saving_without_changing_anything_writes_nothing",Passed,00:00:00.0530227
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a\tb.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0118766
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 104857600, valid: True)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentImportServiceTests.The_same_request_repeated_with_the_same_key_returns_the_same_document_and_changes_nothing",Passed,00:00:00.1101770
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;png-no-extension&quot;, name: &quot;noextension&quot;, expected: &quot;ok:png&quot;)",Passed,00:00:00.0479976
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;Dr. Lee  X-ray 2026.PNG&quot;, name: &quot;Dr. Lee  X-ray 2026.PNG&quot;, extension: &quot;png&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;scan.pdf&quot;, name: &quot;scan.pdf&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0001228
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;program-as-nothing&quot;, name: &quot;noextension&quot;, expected: &quot;err:executable_content&quot;)",Passed,00:00:00.0101609
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.1667979
+"Alveara.Api.Tests.DocumentLibraryServiceTests.An_unknown_document_is_not_found",Passed,00:00:00.0065789
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_is_recognized_by_its_mz_and_pe_headers",Passed,00:00:00.0001241
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;x.exe::$DATA&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0145871
+"Alveara.Api.Tests.DocumentSettingsServiceTests.The_limits_themselves_are_accepted_a_missing_value_is_refused_and_the_same_value_changes_nothing",Passed,00:00:00.0126451
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;pdf&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentStorageApiTests.A_removal_that_names_nothing_or_too_many_files_or_something_that_is_not_an_id_is_refused",Passed,00:00:00.1107032
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Filtering_by_a_category_leaves_signed_forms_out",Passed,00:00:00.0845585
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.2280004
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;Assistant&quot;)",Passed,00:00:00.2190579
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-without-time&quot;)",Passed,00:00:00.0164640
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: &quot;   &quot;)",Passed,00:00:00.0064038
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.2329312
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-without-who&quot;)",Passed,00:00:00.0174225
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;SCAN.PDF&quot;, name: &quot;SCAN.PDF&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0000834
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_that_is_not_on_disk_is_missing",Passed,00:00:00.0512955
+"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: &quot;has\x01control&quot;)",Passed,00:00:00.0120885
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: -5)",Passed,00:00:00.0062687
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 1073741825, valid: False)",Passed,00:00:00.0000008
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a?b.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0146756
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;exe&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: FrontDesk, import: False, view: True, settings: False)",Passed,00:00:00.0000008
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.2221635
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_stale_limit_change_is_refused_and_a_version_is_required",Passed,00:00:00.0161387
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2858456
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_removal_that_cannot_delete_the_file_is_logged_as_nothing_and_does_not_stop_the_others",Passed,00:00:00.0123808
+"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: &quot;a|b.png&quot;)",Passed,00:00:00.0129405
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;photo.jpeg   &quot;, name: &quot;photo.jpeg&quot;, extension: &quot;jpeg&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentOrphanServiceTests.Repeating_a_removal_changes_nothing_and_logs_nothing_more",Passed,00:00:00.0121125
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;jpg&quot;, detected: Tiff)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: &quot;front view&quot;, expected: &quot;photo&quot;)",Passed,00:00:00.4321076
+"Alveara.Api.Tests.DocumentFileRulesTests.A_name_of_exactly_255_characters_is_accepted_and_one_more_is_refused",Passed,00:00:00.0000863
+"Alveara.Api.Tests.DocumentFileRulesTests.The_built_in_blocked_list_is_exactly_the_three_named_types_and_their_twelve_close_relatives",Passed,00:00:00.0001507
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;pdf-with-junk-before&quot;, name: &quot;letter.pdf&quot;, expected: &quot;ok:pdf&quot;)",Passed,00:00:00.0458502
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: 0)",Passed,00:00:00.0107683
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;time-too-early&quot;)",Passed,00:00:00.0300535
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;encounter&quot;, problem: &quot;unknown&quot;)",Passed,00:00:00.0261101
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;region-unknown&quot;)",Passed,00:00:00.0158707
+"Alveara.Api.Tests.DocumentApiTests.A_duplicate_is_warned_about_with_409_and_added_only_with_the_confirmation",Passed,00:00:00.1838566
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;IdempotencyKey&quot;)",Passed,00:00:00.0222479
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;size-zero&quot;)",Passed,00:00:00.0266186
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;pdf&quot;, detected: Pdf)",Passed,00:00:00.0000010
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_status_encounter_and_tooth_of_a_document_may_change_after_import",Passed,00:00:00.0446442
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_mixed_request_gets_one_outcome_per_file_and_only_the_valid_ones_are_removed",Passed,00:00:00.0748738
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Unassigned, held: False)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;jpeg-as-png&quot;, name: &quot;scan.png&quot;, expected: &quot;err:file_type_mismatch&quot;)",Passed,00:00:00.0115085
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;reactivate-with-reason&quot;)",Passed,00:00:00.0869066
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_run_over_every_document_counts_what_it_found_lists_the_problems_and_logs_only_counts",Passed,00:00:00.0890916
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;EXE&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: 1048575)",Passed,00:00:00.0057584
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;&quot;)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentPermissionTests.Nobody_can_import_a_document_without_being_able_to_view_it",Passed,00:00:00.0001611
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;second-row&quot;)",Passed,00:00:00.0220312
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Opening_when_the_stored_file_is_missing_says_so_and_logs_no_open",Passed,00:00:00.0455945
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Only_pdf_png_and_jpeg_may_be_shown_in_the_browser_and_every_other_file_is_a_download(type: &quot;other&quot;, inline: False)",Passed,00:00:00.0521582
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;zip&quot;)",Passed,00:00:00.0000851
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;jpg&quot;, detected: Jpeg)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;abcdefghijklmnopq&quot;)",Passed,00:00:00.0002746
+"Alveara.Api.Tests.DocumentApiTests.The_administrator_manages_categories_the_size_limit_and_the_blocked_types",Passed,00:00:00.2464454
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Only_pdf_png_and_jpeg_may_be_shown_in_the_browser_and_every_other_file_is_a_download(type: &quot;pdf&quot;, inline: True)",Passed,00:00:00.0500325
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_is_refused_whatever_it_is_named(extension: &quot;png&quot;)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: 1073741825)",Passed,00:00:00.0058189
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-blank-reason&quot;)",Passed,00:00:00.0176058
+"Alveara.Api.Tests.DocumentSchemaTests.A_duplicate_must_name_a_document_of_the_same_patient_with_the_same_hash",Passed,00:00:00.0242131
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Two_names_that_make_the_same_code_still_get_different_codes",Passed,00:00:00.0062056
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;invoice‮fdp.exe&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentSchemaTests.The_history_is_append_only",Passed,00:00:00.0360206
+"Alveara.Api.Tests.DocumentLibraryFilterTests.One_patients_filter_never_shows_another_patients_documents",Passed,00:00:00.1071115
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.3300891
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;unknown-user&quot;)",Passed,00:00:00.0253223
+"Alveara.Api.Tests.DocumentLibraryApiTests.Reactivating_returns_the_document_to_the_library_and_keeps_the_old_reason_in_the_status_history",Passed,00:00:00.2762067
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: Admin, import: True, view: True, settings: True)",Passed,00:00:00.0000010
+"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: &quot;scan.tif&quot;, kind: &quot;tiff&quot;, contentType: &quot;application/octet-stream&quot;, inline: False)",Passed,00:00:00.1624877
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;program-as-pdf&quot;, name: &quot;letter.pdf&quot;, expected: &quot;err:executable_content&quot;)",Passed,00:00:00.0097615
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;.Svg&quot;, expected: &quot;svg&quot;)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;Hygienist&quot;, allowed: True)",Passed,00:00:00.2632689
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;ContentType&quot;)",Passed,00:00:00.0219689
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;Billing&quot;)",Passed,00:00:00.2286477
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.1777021
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: null)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.5966922
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;a\&quot;b.pdf&quot;)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;x.png &quot;, expected: &quot;ok:x.png&quot;)",Passed,00:00:00.0508510
+"Alveara.Api.Tests.DocumentLibraryApiTests.An_inactive_document_leaves_the_library_unless_asked_for_and_shows_its_reason_who_and_when_and_the_log_never_carries_the_reason",Passed,00:00:00.2906256
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;SVG&quot;, expected: &quot;svg&quot;)",Passed,00:00:00.0000995
+"Alveara.Api.Tests.DocumentApiTests.The_same_key_for_a_different_file_is_refused_with_409",Passed,00:00:00.1567361
+"Alveara.Api.Tests.DocumentLibraryApiTests.A_wrong_tooth_region_or_encounter_is_named_field_by_field_and_nothing_is_stored",Passed,00:00:00.1920815
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.5494714
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;payload.png.exe&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0137261
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;tar.gz&quot;)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_is_normalized_blocked_for_the_next_import_and_logged_and_adding_it_again_changes_nothing(typed: &quot;  .Iso&quot;, stored: &quot;iso&quot;)",Passed,00:00:00.0124158
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;%2e%2e%2fevil.png&quot;, expected: &quot;ok:%2e%2e%2fevil.png&quot;)",Passed,00:00:00.0474375
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 9223372036854775807, valid: False)",Passed,00:00:00.0001080
+"Alveara.Api.Tests.DocumentSchemaTests.Events_with_issued_numbers_are_accepted_and_a_recategorization_names_both_categories",Passed,00:00:00.0434813
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;   &quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0122967
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;hash-short&quot;)",Passed,00:00:00.0129431
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_stored_file_is_named_by_its_generated_id_not_by_anything_the_user_typed",Passed,00:00:00.0538334
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Opening_a_file_returns_the_stored_bytes_with_the_servers_own_type_and_logs_the_open_in_the_history_and_the_log",Passed,00:00:00.0623351
+"Alveara.Api.Tests.DocumentLibraryServiceTests.A_deactivated_category_cannot_be_chosen_but_a_document_that_already_has_it_can_still_be_edited",Passed,00:00:00.0710792
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.The_summary_counts_each_stored_result_and_the_documents_never_checked_and_lists_the_problems_and_the_orphans",Passed,00:00:00.0920048
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_is_normalized_blocked_for_the_next_import_and_logged_and_adding_it_again_changes_nothing(typed: &quot;swf&quot;, stored: &quot;swf&quot;)",Passed,00:00:00.0141926
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;inactivate-blank-reason&quot;)",Passed,00:00:00.0244676
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;  php &quot;, expected: &quot;php&quot;)",Passed,00:00:00.0000969
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: &quot;regionKey&quot;, problem: &quot;Nose&quot;)",Passed,00:00:00.0001047
+"Alveara.Api.Tests.DocumentContextServiceTests.A_document_is_imported_with_an_encounter_of_its_patient_and_a_tooth",Passed,00:00:00.0644713
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;résumé.png&quot;, expected: &quot;ok:résumé.png&quot;)",Passed,00:00:00.0474886
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_is_refused_whatever_it_is_named(extension: &quot;pdf&quot;)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;png&quot;)",Passed,00:00:00.0000591
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;html&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a|b.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0119115
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;inactivate-without-reason&quot;)",Passed,00:00:00.0237707
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;lnk&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;imported-too-early&quot;)",Passed,00:00:00.0141367
+"Alveara.Api.Tests.DocumentFileRulesTests.A_long_path_is_judged_by_the_name_alone_not_by_its_folders",Passed,00:00:00.0000742
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;PRN&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentImportServiceTests.Simultaneous_imports_with_one_key_make_one_document_whichever_one_wins",Passed,00:00:00.1874318
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_is_never_deleted",Passed,00:00:00.0233522
+"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: &quot;&quot;)",Passed,00:00:00.0550688
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;   &quot;)",Passed,00:00:00.0000015
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_category_name_over_eighty_characters_is_refused_and_exactly_eighty_is_accepted",Passed,00:00:00.0082439
+"Alveara.Api.Tests.DocumentImportServiceTests.Every_wrong_entry_is_listed_and_nothing_is_stored_for_an_incorrect_category_or_metadata",Passed,00:00:00.0162733
+"Alveara.Api.Tests.DocumentStorageApiTests.A_damaged_or_missing_file_is_found_named_refused_when_opened_and_served_again_after_a_re_check_finds_it_intact",Passed,00:00:00.2980132
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;setup.msi&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0145559
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_category_can_be_renamed_and_deactivated_in_one_change_with_both_logged",Passed,00:00:00.0156786
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;.&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0135280
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;jar&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;ok&quot;)",Passed,00:00:00.0213098
+"Alveara.Api.Tests.DocumentApiTests.No_response_names_where_a_file_is_stored_or_which_blob_it_is",Passed,00:00:00.2034801
+"Alveara.Api.Tests.DocumentLibraryFilterTests.The_status_filter_shows_active_inactive_or_all_and_a_legacy_include_inactive_listing_still_works",Passed,00:00:00.0953090
+"Alveara.Api.Tests.DocumentStorageApiTests.Anonymous_callers_get_401_from_every_route",Passed,00:00:00.0416329
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;description-blank&quot;)",Passed,00:00:00.0130953
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;related-on-import&quot;)",Passed,00:00:00.0271401
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;txt&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSchemaTests.A_history_row_needs_an_issued_number_and_the_patient_of_its_document_and_the_related_document_the_same_patient",Passed,00:00:00.0564355
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;categories-on-import&quot;)",Passed,00:00:00.0270700
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;ImportedByUserId&quot;)",Passed,00:00:00.0227260
+"Alveara.Api.Tests.DocumentImportServiceTests.A_deactivated_category_is_refused_for_a_new_import_and_a_document_keeps_its_category_when_it_is_deactivated_later",Passed,00:00:00.0809156
+"Alveara.Api.Tests.DocumentLibraryApiTests.Each_refusal_has_its_stable_code_and_status",Passed,00:00:00.2003578
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: &quot;&quot;)",Passed,00:00:00.0030160
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Signed_forms_appear_in_the_library_read_only_labelled_and_flagged_when_voided_and_are_left_alone_by_the_library",Passed,00:00:00.1150507
+"Alveara.Api.Tests.DocumentImportServiceTests.An_empty_file_is_refused",Passed,00:00:00.0094891
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;time-too-early&quot;)",Passed,00:00:00.0219617
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_migration_refuses_to_roll_back_over_a_storage_result",Passed,00:00:00.0598879
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_file_younger_than_an_hour_is_never_removed_because_it_may_be_an_import_in_progress",Passed,00:00:00.0093573
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;cmd&quot;)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentContextServiceTests.An_inactive_document_is_hidden_from_the_library_by_default_shown_and_flagged_when_asked_for_and_is_still_readable_and_openable",Passed,00:00:00.1054804
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;pdf-as-png&quot;, name: &quot;scan.png&quot;, expected: &quot;err:file_type_mismatch&quot;)",Passed,00:00:00.0120161
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;categorized-same-category&quot;)",Passed,00:00:00.0273250
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;tif&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;../../evil.exe&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0127261
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;RequestHash&quot;)",Passed,00:00:00.0239897
+"Alveara.Api.Tests.DocumentLibraryApiTests.A_thumbnail_is_the_stored_picture_served_safely_without_an_open_being_logged_and_other_types_and_large_pictures_have_none",Passed,00:00:00.2447585
+"Alveara.Api.Tests.DocumentStorageApiTests.A_reviewer_lists_the_unreferenced_files_removes_the_ones_they_saw_and_each_outcome_is_reported",Passed,00:00:00.2639388
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: &quot;MOLAR&quot;, expected: &quot;xray16&quot;)",Passed,00:00:00.0928609
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;archive.tar.gz&quot;, name: &quot;archive.tar.gz&quot;, extension: &quot;gz&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentImportServiceTests.A_confirmed_duplicate_is_added_and_recorded_as_one_in_the_history_and_the_log",Passed,00:00:00.0729043
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;bat&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing",Passed,00:00:00.1803790
+"Alveara.Api.Tests.DocumentSettingsServiceTests.The_blocked_list_shows_the_fifteen_built_in_types_as_locked",Passed,00:00:00.0034892
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a*b.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0128663
+"Alveara.Api.Tests.DocumentFileRulesTests.The_stored_type_comes_from_the_content_and_only_pdf_png_and_jpeg_may_be_shown_inline",Passed,00:00:00.0005129
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;a\tb.pdf&quot;)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-control-reason&quot;)",Passed,00:00:00.0190191
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_document_cannot_name_an_encounter_of_another_patient_when_added_or_later",Passed,00:00:00.0386618
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.2613293
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;a|b.pdf&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_file_of_a_document_still_never_changes_and_a_document_is_still_never_deleted",Passed,00:00:00.0281552
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_re_check_replaces_the_result_so_a_restored_file_is_ok_again_and_there_is_one_row_per_document",Passed,00:00:00.0613017
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;tiff&quot;)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;status-unknown&quot;)",Passed,00:00:00.0157919
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2333072
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.Every_listed_region_and_both_tooth_numberings_are_accepted",Passed,00:00:00.0475525
+"Alveara.Api.Tests.DocumentBackupRestoreTests.The_recovered_application_serves_the_restored_documents_and_their_storage_report_is_clean",Passed,00:00:00.9213322
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_failing_log_write_means_a_category_is_not_added_or_changed",Passed,00:00:00.0135052
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;AUX&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0117187
+"Alveara.Api.Tests.DocumentFileRulesTests.Png_jpeg_and_tiff_are_recognized_by_their_signatures",Passed,00:00:00.0001240
+"Alveara.Api.Tests.DocumentBackupRestoreTests.A_backup_that_lacks_a_documents_file_fails_the_restore_validation_instead_of_being_trusted",Passed,00:00:03.8681913
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.An_inactive_document_says_why_who_and_when",Passed,00:00:00.0201542
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.2194974
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-unknown&quot;)",Passed,00:00:00.0188680
+"Alveara.Api.Tests.DocumentImportServiceTests.A_file_over_the_configured_maximum_is_refused_before_it_is_stored_and_one_at_the_maximum_is_accepted",Passed,00:00:00.0624013
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_that_was_missing_and_is_back_with_the_right_size_opens_without_waiting_for_a_re_check",Passed,00:00:00.1673342
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;png-as-pdf&quot;, name: &quot;scan.pdf&quot;, expected: &quot;err:file_type_mismatch&quot;)",Passed,00:00:00.0109840
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;DuplicateOfDocumentId&quot;)",Passed,00:00:00.0257809
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;zero​width.pdf&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;toothKey&quot;, problem: &quot;1A&quot;)",Passed,00:00:00.0222663
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;.&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;lpt9&quot;)",Passed,00:00:00.0000801
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;payload.exe.&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0147638
+"Alveara.Api.Tests.DocumentImportServiceTests.An_imported_document_is_stored_and_linked_to_its_patient_with_the_right_category_date_description_hash_and_type",Passed,00:00:00.0526524
+"Alveara.Api.Tests.DocumentApiTests.Nothing_in_a_response_or_a_log_entry_carries_the_file_name_or_description",Passed,00:00:00.1558160
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: &quot;text&quot;, problem: &quot;too-long&quot;)",Passed,00:00:00.0001040
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;ImportedAtUtc&quot;)",Passed,00:00:00.0223408
+"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: &quot;run.bat. &quot;)",Passed,00:00:00.0096436
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: &quot;molar&quot;, expected: &quot;xray16&quot;)",Passed,00:00:00.2527456
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;active-with-reason&quot;)",Passed,00:00:00.0166031
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_document_may_name_an_encounter_of_its_patient_and_one_tooth_or_one_region",Passed,00:00:00.0435671
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;txt&quot;, detected: Pdf)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.1780952
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;BlobId&quot;)",Passed,00:00:00.0218390
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;js&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentContextServiceTests.An_edit_with_a_wrong_tooth_region_or_encounter_is_refused_and_changes_nothing",Passed,00:00:00.0662166
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;png&quot;, detected: Pdf)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;vbs&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentLibraryFilterTests.The_date_range_includes_both_of_its_ends",Passed,00:00:00.0909013
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_cannot_be_its_own_duplicate",Passed,00:00:00.0157430
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;jpeg&quot;)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;png&quot;, detected: Png)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentSchemaTests.A_rolled_back_event_leaves_no_gap_and_a_number_is_never_reused",Passed,00:00:00.0362703
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;con.pdf&quot;)",Passed,00:00:00.0000012
+"Alveara.Api.Tests.DocumentLibraryServiceTests.A_stale_edit_is_refused_and_changes_nothing_and_a_missing_version_is_required",Passed,00:00:00.0669905
+"Alveara.Api.Tests.DocumentImportServiceTests.A_confirmation_for_a_file_that_is_not_a_duplicate_is_refused",Passed,00:00:00.0625069
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;unknown-user&quot;)",Passed,00:00:00.0239263
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: FrontDesk, held: False)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentImportServiceTests.A_failure_to_remove_the_file_does_not_hide_the_original_error",Passed,00:00:00.0292471
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;Admin&quot;)",Passed,00:00:00.1684412
+"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: &quot;Admin&quot;)",Passed,00:00:00.1177513
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;number-zero&quot;)",Passed,00:00:00.0313316
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_failing_log_write_means_the_file_is_not_removed",Passed,00:00:00.0166338
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;..\\..\\windows\\system32\\drivers\\etc\\hosts&quot;, name: &quot;hosts&quot;, extension: &quot;&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentLibraryApiTests.A_wrong_filter_is_named_and_refused_with_400",Passed,00:00:00.1843829
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;payload.exe &quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0133955
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;name-control&quot;)",Passed,00:00:00.0131024
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.2560552
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Removing_an_unusable_extension_is_refused",Passed,00:00:00.0005331
+"Alveara.Api.Tests.DocumentStorageApiTests.A_check_without_a_csrf_token_is_refused_and_saves_nothing",Passed,00:00:00.1661882
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.An_inactivation_with_its_reason_and_a_reactivation_are_recorded_and_the_new_history_kinds_are_accepted",Passed,00:00:00.0421529
+"Alveara.Api.Tests.DocumentApiTests.Wrong_details_are_listed_field_by_field_including_a_date_that_is_not_a_date",Passed,00:00:00.1405443
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;/etc/passwd.png&quot;, expected: &quot;ok:passwd.png&quot;)",Passed,00:00:00.0475094
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: &quot;a b&quot;)",Passed,00:00:00.0024999
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;encounter-unknown&quot;)",Passed,00:00:00.0197297
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:00.2668252
+"Alveara.Api.Tests.DocumentImportServiceTests.A_windows_program_is_refused_even_under_a_harmless_name",Passed,00:00:00.0112740
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;jpeg&quot;, detected: Jpeg)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentContextServiceTests.A_failing_log_write_changes_nothing_for_an_inactivation_or_a_reactivation",Passed,00:00:00.0647600
+"Alveara.Api.Tests.DocumentLibraryServiceTests.One_document_is_read_with_its_history_in_order_naming_who_and_when",Passed,00:00:00.0591365
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;Assistant&quot;, allowed: True)",Passed,00:00:00.2654290
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_storage_check_never_moves_the_row_version_of_its_document",Passed,00:00:00.0259579
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;jpeg&quot;, detected: Pdf)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;date-too-late&quot;)",Passed,00:00:00.0136702
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;active-with-time&quot;)",Passed,00:00:00.0165479
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_crash_between_storing_the_file_and_recording_the_document_leaves_a_file_the_review_finds_and_removes",Passed,00:00:00.0125417
+"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: &quot;   &quot;)",Passed,00:00:00.0106409
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: null)",Passed,00:00:00.0023218
+"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: &quot;scan.pdf&quot;, kind: &quot;pdf&quot;, contentType: &quot;application/pdf&quot;, inline: True)",Passed,00:00:00.1628827
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.2711497
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;.htaccess&quot;, expected: &quot;ok:.htaccess&quot;)",Passed,00:00:00.0483567
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Deactivating_and_reactivating_a_category_are_logged_and_repeating_them_changes_nothing",Passed,00:00:00.0165097
+"Alveara.Api.Tests.DocumentLibraryServiceTests.The_library_can_be_filtered_by_category_and_a_duplicate_is_marked",Passed,00:00:00.0669100
+"Alveara.Api.Tests.DocumentContextServiceTests.A_confirmation_naming_an_inactive_document_is_refused",Passed,00:00:00.0756505
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_with_and_without_a_description_and_a_confirmed_duplicate_are_accepted_and_the_same_file_may_be_filed_for_two_patients",Passed,00:00:00.3963665
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.2158522
+"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: &quot;OfficeManager&quot;)",Passed,00:00:00.1731083
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;scán été.pdf&quot;, name: &quot;scán été.pdf&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0000041
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.2349011
+"Alveara.Api.Tests.DocumentImportServiceTests.The_type_comes_from_the_content_not_from_the_name",Passed,00:00:00.0572383
+"Alveara.Api.Tests.DocumentImportServiceTests.The_same_file_for_the_same_patient_is_warned_about_with_the_existing_document_and_nothing_is_stored_or_recorded",Passed,00:00:00.0641996
+"Alveara.Api.Tests.DocumentSettingsServiceTests.The_size_limit_starts_at_one_hundred_megabytes_with_its_allowed_range",Passed,00:00:00.0030168
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;abcdefghijklmnop&quot;, expected: &quot;abcdefghijklmnop&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_failing_log_write_leaves_the_limit_as_it_was",Passed,00:00:00.0124881
+"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: &quot;pic.png&quot;, kind: &quot;png&quot;, contentType: &quot;image/png&quot;, inline: True)",Passed,00:00:00.1661277
+"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: &quot;   &quot;)",Passed,00:00:00.0109532
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;folder/&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.Running_the_check_twice_gives_the_same_result_and_no_extra_rows",Passed,00:00:00.0824584
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;inactivate-control-reason&quot;)",Passed,00:00:00.0271432
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;report.exe.pdf&quot;, name: &quot;report.exe.pdf&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;a b&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: &quot;FrontDesk&quot;)",Passed,00:00:00.1666307
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.1695558
+"Alveara.Api.Tests.DocumentSchemaTests.The_settings_and_the_counter_hold_one_row_and_the_size_limit_stays_between_one_megabyte_and_one_gigabyte",Passed,00:00:00.0212572
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;setup.exe:hidden.pdf&quot;, name: &quot;setup.exe&quot;, extension: &quot;exe&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Renaming_keeps_the_code_and_every_document_in_it_and_is_logged_and_a_name_in_use_is_refused",Passed,00:00:00.0652069
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;unknown-status&quot;)",Passed,00:00:00.0263420
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_that_cannot_be_read_just_now_is_skipped_and_its_last_result_is_left_alone",Passed,00:00:00.0769452
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;payload.exe&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0128808
+"Alveara.Api.Tests.DocumentBackupRestoreTests.Documents_survive_a_backup_and_a_restore_byte_for_byte_with_their_records_history_and_status_changes",Passed,00:00:00.9936353
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.Every_storage_result_is_accepted_for_a_document_and_a_check_can_be_repeated_by_replacing_its_row",Passed,00:00:00.0375349
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;line\nbreak.pdf&quot;)",Passed,00:00:00.0000906
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: -5, valid: False)",Passed,00:00:00.0001263
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.2723533
+"Alveara.Api.Tests.DocumentImportServiceTests.An_unknown_patient_is_refused",Passed,00:00:00.0116341
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Dentist, held: False)",Passed,00:00:00.0000012
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: null)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentLibraryFilterTests.Other_types_and_pictures_over_five_megabytes_have_no_thumbnail_and_the_reason_is_a_code_not_a_guess",Passed,00:00:00.0861496
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;x.png\0.exe&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0127154
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;html-as-text&quot;, name: &quot;notes.txt&quot;, expected: &quot;ok:other&quot;)",Passed,00:00:00.0467481
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;folder\\&quot;)",Passed,00:00:00.0000010
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.An_intact_file_is_ok_and_the_result_is_kept_with_who_and_when_without_moving_the_documents_row_version",Passed,00:00:00.0653884
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;unknown-document&quot;)",Passed,00:00:00.0206958
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.2386131
+"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: &quot;bad\x01reason&quot;)",Passed,00:00:00.0548908
+"Alveara.Api.Tests.DocumentImportServiceTests.A_cancelled_import_leaves_nothing_behind",Passed,00:00:00.0104080
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: Assistant, import: False, view: True, settings: False)",Passed,00:00:00.0000035
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.1581515
+"Alveara.Api.Tests.DocumentImportServiceTests.One_save_writes_the_document_the_history_row_and_the_log_with_the_user_and_time_and_the_log_carries_no_filename_description_or_patient",Passed,00:00:00.0649025
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: &quot;&quot;)",Passed,00:00:00.0025109
+"Alveara.Api.Tests.DocumentContextServiceTests.Reactivating_clears_the_status_fields_and_keeps_the_old_reason_in_the_status_history_in_order",Passed,00:00:00.0832745
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;scan.pdf:evil.exe&quot;, name: &quot;scan.pdf&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentImportServiceTests.A_declared_length_that_is_smaller_than_the_real_file_cannot_get_a_large_file_past_the_limit",Passed,00:00:00.0155801
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;encounter&quot;, problem: &quot;another-patient&quot;)",Passed,00:00:00.0240814
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: &quot;seventeen-letters-x&quot;)",Passed,00:00:00.0027414
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.An_unknown_document_is_not_found",Passed,00:00:00.0056288
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;msi&quot;)",Passed,00:00:00.0000943
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_encounter_picker_list_for_an_unknown_patient_is_a_404",Passed,00:00:00.1751485
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_the_last_check_found_corrupt_is_not_served_until_a_re_check_finds_it_intact",Passed,00:00:00.0597375
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;request-hash-bad&quot;)",Passed,00:00:00.0136135
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.1066793
+"Alveara.Api.Tests.DocumentLibraryServiceTests.A_failing_log_write_means_the_file_is_not_opened_and_nothing_is_recorded",Passed,00:00:00.0528355
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;key-blank&quot;)",Passed,00:00:00.0137260
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;svg&quot;, expected: &quot;svg&quot;)",Passed,00:00:00.0000011
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.1846322
+"Alveara.Api.Tests.DocumentApiTests.Each_refusal_has_its_stable_code_and_status_and_stores_nothing",Passed,00:00:00.1310278
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;a*b.pdf&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentApiTests.Listing_the_library_of_an_unknown_patient_is_404_not_an_empty_list",Passed,00:00:00.1059008
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;NUL.txt&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: null)",Passed,00:00:00.0030310
+"Alveara.Api.Tests.DocumentApiTests.A_file_can_be_forced_to_download_and_an_unusual_name_is_carried_safely",Passed,00:00:00.1476507
+"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: &quot;   &quot;)",Passed,00:00:00.0541037
+"Alveara.Api.Tests.DocumentStorageApiTests.A_removal_without_a_csrf_token_is_refused_and_removes_nothing",Passed,00:00:00.1020479
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_has_no_stored_type_because_it_is_never_stored",Passed,00:00:00.0001008
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;run.js&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0134194
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.2655395
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;&quot;)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_migration_rolls_back_and_forward_while_the_library_holds_nothing_and_refuses_to_roll_back_over_library_data",Passed,00:00:00.3173629
+"Alveara.Api.Tests.DocumentImportServiceTests.A_document_may_have_no_description_and_a_file_of_another_type_is_stored_as_not_verified",Passed,00:00:00.0642688
+"Alveara.Api.Tests.DocumentFileRulesTests.An_empty_file_is_refused_and_the_limit_itself_is_allowed_but_not_one_byte_more",Passed,00:00:00.0000712
+"Alveara.Api.Tests.DocumentLibraryServiceTests.A_failing_log_write_fails_the_edit_and_changes_nothing",Passed,00:00:00.0590192
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;COM1.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0145280
+"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: &quot;page.HTML&quot;)",Passed,00:00:00.0109084
+"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: &quot;CON.png&quot;)",Passed,00:00:00.0093811
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;png-as-jpg&quot;, name: &quot;scan.jpg&quot;, expected: &quot;err:file_type_mismatch&quot;)",Passed,00:00:00.0106194
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_is_refused_whatever_it_is_named(extension: &quot;docx&quot;)",Passed,00:00:00.0000552
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;content-type-blank&quot;)",Passed,00:00:00.0137911
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;regionKey&quot;, problem: &quot;with-tooth&quot;)",Passed,00:00:00.0620963
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a/b/c.png&quot;, expected: &quot;ok:c.png&quot;)",Passed,00:00:00.0503316
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.2324357
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;nul.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0138779
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: &quot;periodontist&quot;, expected: &quot;letter&quot;)",Passed,00:00:00.0925016
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;unknown-document&quot;)",Passed,00:00:00.0241997
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: &quot;tar/gz&quot;)",Passed,00:00:00.0027902
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;7z&quot;, expected: &quot;7z&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.2988655
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Simultaneous_additions_of_one_type_make_one_entry_and_one_log_entry",Passed,00:00:00.0109914
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;   &quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;type-wrong-case&quot;)",Passed,00:00:00.0130507
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;scr&quot;)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: &quot;script.js&quot;)",Passed,00:00:00.0102913
+"Alveara.Api.Tests.DocumentSchemaTests.The_migration_seeds_the_nine_categories_the_fifteen_blocked_extensions_the_counter_and_the_default_size_once",Passed,00:00:00.0178105
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_is_refused_whatever_it_is_named(extension: &quot;txt&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: &quot;pdf.exe&quot;)",Passed,00:00:00.0061775
+"Alveara.Api.Tests.DocumentSchemaTests.The_counter_only_moves_forward_by_one_and_is_never_deleted",Passed,00:00:00.0118090
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: &quot;OfficeManager&quot;, allowed: False)",Passed,00:00:00.1744439
+"Alveara.Api.Tests.DocumentImportServiceTests.A_type_an_admin_added_to_the_blocked_list_is_refused_and_a_removed_one_is_accepted_again",Passed,00:00:00.0597541
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;..\\evil.html&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0191998
+"Alveara.Api.Tests.DocumentSchemaTests.A_built_in_blocked_extension_is_never_changed_or_deleted_while_an_added_one_can_be_removed",Passed,00:00:00.0211114
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: &quot;toothKey&quot;, problem: &quot;99&quot;)",Passed,00:00:00.0000986
+"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: &quot;Billing&quot;)",Passed,00:00:00.2045065
+"Alveara.Api.Tests.DocumentOrphanServiceTests.The_same_file_named_twice_is_handled_once",Passed,00:00:00.0104620
+"Alveara.Api.Tests.DocumentImportServiceTests.A_failing_log_write_fails_the_import_and_removes_the_stored_file",Passed,00:00:00.0271513
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-letter&quot;)",Passed,00:00:00.0170279
+"Alveara.Api.Tests.DocumentFileRulesTests.A_windows_program_is_refused_whatever_it_is_named(extension: &quot;&quot;)",Passed,00:00:00.0000838
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;hta&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: Hygienist, import: False, view: True, settings: False)",Passed,00:00:00.0000022
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;Fine&quot;)",Passed,00:00:00.0209976
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;PatientId&quot;)",Passed,00:00:00.0220235
+"Alveara.Api.Tests.DocumentFileRulesTests.Text_that_merely_starts_with_mz_is_not_a_windows_program",Passed,00:00:00.0001406
+"Alveara.Api.Tests.DocumentImportServiceTests.Simultaneous_imports_get_history_numbers_with_no_gap_and_no_reuse_and_a_failed_import_does_not_leave_a_hole",Passed,00:00:00.0813292
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: Unassigned, import: False, view: False, settings: False)",Passed,00:00:00.0000587
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Changing_the_limit_is_logged_and_takes_effect_on_the_next_import",Passed,00:00:00.0154290
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;page.HTM&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0128836
+"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: &quot;setup.exe::$DATA&quot;)",Passed,00:00:00.0112197
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Editing_the_date_and_description_is_logged_as_a_metadata_edit",Passed,00:00:00.0583162
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;docx&quot;, detected: Unknown)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentApiTests.A_file_over_the_limit_is_refused_with_413_before_it_is_stored",Passed,00:00:00.1828629
+"Alveara.Api.Tests.DocumentLibraryApiTests.Anonymous_callers_get_401_and_a_missing_csrf_token_is_refused_for_both_routes",Passed,00:00:00.2552798
+"Alveara.Api.Tests.DocumentOrphanServiceTests.Simultaneous_removals_of_one_file_remove_it_once_and_log_it_once",Passed,00:00:04.5425924
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;C:\\Windows\\win.png&quot;, expected: &quot;ok:win.png&quot;)",Passed,00:00:00.0587444
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a\\b\\c.png&quot;, expected: &quot;ok:c.png&quot;)",Passed,00:00:00.0494467
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;C:\\Users\\x\\scan.PDF&quot;, name: &quot;scan.PDF&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 0, valid: False)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSettingsServiceTests.The_last_active_category_cannot_be_deactivated",Passed,00:00:00.0204570
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;duplicate-without-related&quot;)",Passed,00:00:00.0269801
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;toothKey&quot;, problem: &quot;6&quot;)",Passed,00:00:00.0238461
+"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: &quot;notes.txt&quot;, kind: &quot;other&quot;, contentType: &quot;application/octet-stream&quot;, inline: False)",Passed,00:00:00.1544676
+"Alveara.Api.Tests.DocumentContextServiceTests.A_reason_of_exactly_five_hundred_characters_is_accepted_and_one_more_is_refused",Passed,00:00:00.0643247
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;toothKey&quot;, problem: &quot;99&quot;)",Passed,00:00:00.0225774
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;html-as-png&quot;, name: &quot;page.png&quot;, expected: &quot;err:file_type_mismatch&quot;)",Passed,00:00:00.0109526
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: OfficeManager, held: True)",Passed,00:00:00.0002317
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_new_category_gets_a_stable_code_goes_last_and_can_be_used_for_an_import_and_is_logged",Passed,00:00:00.0646832
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;tif&quot;, detected: Jpeg)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;FrontDesk&quot;)",Passed,00:00:00.2223230
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;JPG&quot;, detected: Unknown)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_missing_or_damaged_picture_has_no_thumbnail_and_an_unknown_document_is_not_found",Passed,00:00:00.0673348
+"Alveara.Api.Tests.DocumentOrphanServiceTests.An_unreferenced_old_file_is_removed_and_logged_with_its_id_the_user_and_the_time_and_nothing_else",Passed,00:00:00.0147894
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;\0evil.pdf&quot;)",Passed,00:00:00.0000008
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;.png&quot;, expected: &quot;ok:.png&quot;)",Passed,00:00:00.0468038
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;tiff&quot;, detected: Tiff)",Passed,00:00:00.0000618
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;OriginalFileName&quot;)",Passed,00:00:00.0233173
+"Alveara.Api.Tests.DocumentImportServiceTests.A_reader_that_has_seen_a_number_has_seen_every_lower_one",Passed,00:00:00.0666327
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;date-too-early&quot;)",Passed,00:00:00.0131693
+"Alveara.Api.Tests.DocumentBackupRestoreTests.A_backup_whose_file_no_longer_matches_the_hash_recorded_at_import_fails_the_restore_validation",Passed,00:00:03.6641854
+"Alveara.Api.Tests.DocumentLibraryFilterTests.An_inactive_pictures_thumbnail_is_still_served_because_it_is_hidden_not_removed",Passed,00:00:00.0580484
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;program-as-text&quot;, name: &quot;notes.txt&quot;, expected: &quot;err:executable_content&quot;)",Passed,00:00:00.0106071
+"Alveara.Api.Tests.DocumentContextServiceTests.The_same_request_with_the_same_context_is_a_replay_and_a_different_tooth_under_the_same_key_is_refused",Passed,00:00:00.0613215
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_stored_file_nothing_points_to_is_listed_once_it_is_older_than_an_hour_and_the_files_of_documents_are_not",Passed,00:00:00.0952668
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;payload.EXE&quot;, expected: &quot;err:file_type_blocked&quot;)",Passed,00:00:00.0130695
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;...&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0119776
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: &quot;bad\x01name&quot;)",Passed,00:00:00.0061334
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;a?b.pdf&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-one-digit&quot;)",Passed,00:00:00.0180570
+"Alveara.Api.Tests.DocumentContextServiceTests.Repeating_an_inactivation_or_a_reactivation_changes_nothing_and_logs_nothing",Passed,00:00:00.0695251
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;type-unknown&quot;)",Passed,00:00:00.0148143
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_to_block_is_normalized_to_lower_case_without_a_dot(raw: &quot;a&quot;, expected: &quot;a&quot;)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;SizeBytes&quot;)",Passed,00:00:00.0232626
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 1048576, valid: True)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;Dentist&quot;)",Passed,00:00:00.2203784
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_name_already_in_use_is_refused_whatever_the_case",Passed,00:00:00.0046492
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;noextension&quot;, name: &quot;noextension&quot;, extension: &quot;&quot;)",Passed,00:00:00.0000016
+"Alveara.Api.Tests.DocumentBackupRestoreTests.An_empty_library_restores_and_the_check_passes_because_there_is_nothing_to_lose",Passed,00:00:00.5574744
+"Alveara.Api.Tests.DocumentImportServiceTests.Today_is_accepted_as_a_date_and_the_day_after_is_not",Passed,00:00:00.0449906
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;region-wrong-case&quot;)",Passed,00:00:00.0168952
+"Alveara.Api.Tests.DocumentImportServiceTests.A_failing_store_saves_nothing_and_reports_a_clear_error",Passed,00:00:00.0483726
+"Alveara.Api.Tests.DocumentOrphanServiceTests.Nothing_named_or_too_many_named_is_refused",Passed,00:00:00.1358534
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.1627570
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.1725071
+"Alveara.Api.Tests.DocumentContextServiceTests.Simultaneous_inactivations_make_exactly_one_status_change_whoever_wins",Passed,00:00:00.0721289
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_new_document_is_active_and_unchecked_with_no_encounter_tooth_or_region",Passed,00:00:00.0273472
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;/tmp/a/b.png&quot;, name: &quot;b.png&quot;, extension: &quot;png&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.1863961
+"Alveara.Api.Tests.DocumentSchemaTests.A_category_is_never_deleted_and_its_code_never_changes",Passed,00:00:00.0106733
+"Alveara.Api.Tests.DocumentTestStorageCleanupTests.Disposing_twice_or_with_nothing_written_is_harmless",Passed,00:00:00.2402756
+"Alveara.Api.Tests.DocumentTestStorageCleanupTests.A_folder_that_cannot_be_removed_is_reported_not_hidden",Passed,00:00:00.0208105
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: &quot;!!!&quot;)",Passed,00:00:00.0027609
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;.exe&quot;, name: &quot;.exe&quot;, extension: &quot;exe&quot;)",Passed,00:00:00.0000011
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;related-is-itself&quot;)",Passed,00:00:00.0278335
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Only_pdf_png_and_jpeg_may_be_shown_in_the_browser_and_every_other_file_is_a_download(type: &quot;tiff&quot;, inline: False)",Passed,00:00:00.0485664
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Hygienist, held: False)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentSettingsServiceTests.Adding_a_built_in_type_again_is_quiet_and_removing_one_is_refused",Passed,00:00:00.0114451
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a\nb.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0119783
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;exe/&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;pdf&quot;, detected: Unknown)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 1048575, valid: False)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_stale_category_change_is_refused_a_version_is_required_and_an_unknown_category_is_not_found",Passed,00:00:00.0166855
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;active-with-who&quot;)",Passed,00:00:00.0181688
+"Alveara.Api.Tests.DocumentSettingsServiceTests.The_nine_starting_categories_are_listed_in_order_and_inactive_ones_only_when_asked_for",Passed,00:00:00.0217150
+"Alveara.Api.Tests.DocumentFileRulesTests.A_pdf_is_recognized_by_its_header_even_with_a_little_leading_junk",Passed,00:00:00.0014809
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Changing_the_category_and_the_details_together_writes_both_history_rows_and_both_log_entries_in_order",Passed,00:00:00.0857281
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_text_of_exactly_one_hundred_characters_is_accepted",Passed,00:00:00.1117080
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;png&quot;, detected: Unknown)",Passed,00:00:00.0002081
+"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.3269316
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;...&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;a&lt;b&gt;.pdf&quot;)",Passed,00:00:00.0000015
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;x.png.&quot;, expected: &quot;ok:x.png&quot;)",Passed,00:00:00.0510484
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Billing, held: False)",Passed,00:00:00.0000045
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;program-as-png&quot;, name: &quot;photo.png&quot;, expected: &quot;err:executable_content&quot;)",Passed,00:00:00.0101844
+"Alveara.Api.Tests.DocumentContextServiceTests.A_document_may_be_about_a_region_or_about_nothing_in_particular",Passed,00:00:00.0665925
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;&quot;, detected: Png)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: Dentist, import: False, view: True, settings: False)",Passed,00:00:00.0000012
+"Alveara.Api.Tests.DocumentLibraryFilterTests.Filters_combine_so_a_document_must_match_all_of_them",Passed,00:00:00.1088752
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.2214350
+"Alveara.Api.Tests.DocumentLibraryApiTests.An_edit_sets_and_clears_the_context_and_a_wrong_context_is_refused",Passed,00:00:00.2455021
+"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: &quot;report.pdf.exe&quot;)",Passed,00:00:00.0102948
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: &quot;status&quot;, problem: &quot;Deleted&quot;)",Passed,00:00:00.0003986
+"Alveara.Api.Tests.DocumentStorageApiTests.Anonymous_callers_get_401_from_the_removal_route",Passed,00:00:00.0425588
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;‮gpj.exe&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0111839
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;&quot;, detected: Unknown)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: &quot;Billing&quot;, allowed: False)",Passed,00:00:00.5018827
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: &quot;range&quot;, problem: &quot;from-after-to&quot;)",Passed,00:00:00.0001028
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;name:stream.png&quot;, expected: &quot;ok:name&quot;)",Passed,00:00:00.0476335
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;con.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0112621
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;regionKey&quot;, problem: &quot;tmj&quot;)",Passed,00:00:00.0215905
+"Alveara.Api.Tests.DocumentLibraryServiceTests.The_library_lists_the_patients_documents_newest_date_first_with_their_details_and_nobody_elses",Passed,00:00:00.0727555
+"Alveara.Api.Tests.DocumentLibraryFilterTests.No_filter_shows_the_active_documents_and_leaves_out_the_inactive_one",Passed,00:00:00.0877240
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;Aux.png&quot;)",Passed,00:00:00.0000009
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-lowercase-region&quot;)",Passed,00:00:00.0162180
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_can_be_removed_and_is_then_accepted_and_removing_it_again_changes_nothing",Passed,00:00:00.0648017
+"Alveara.Api.Tests.DocumentContextServiceTests.A_file_that_was_inactivated_is_not_a_duplicate_for_the_next_import_of_the_same_content_but_an_active_one_still_is",Passed,00:00:00.0876751
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;status-wrong-case&quot;)",Passed,00:00:00.0171554
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.A_status_change_is_append_only",Passed,00:00:00.0275370
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: &quot;.png&quot;, expected: &quot;xray16,xray26,photo,letter,plain&quot;)",Passed,00:00:00.0919122
+"Alveara.Api.Tests.DocumentLibraryFilterTests.Each_filter_picks_exactly_its_documents",Passed,00:00:00.1377020
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;file.PNG&quot;, expected: &quot;ok:file.PNG&quot;)",Passed,00:00:00.0758458
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_failing_log_write_saves_no_result",Passed,00:00:00.0628534
+"Alveara.Api.Tests.DocumentLibraryFilterTests.Text_is_matched_literally_so_a_percent_sign_or_underscore_is_not_a_wildcard",Passed,00:00:00.0670592
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: null)",Passed,00:00:00.0000003
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;a\&quot;b.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0120181
+"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: &quot;&quot;)",Passed,00:00:00.0116571
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.Opening_a_file_that_is_gone_or_cut_short_is_refused_with_a_clear_code_and_logs_no_open",Passed,00:00:00.0762838
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;../../etc/passwd&quot;, name: &quot;passwd&quot;, extension: &quot;&quot;)",Passed,00:00:00.0000007
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;docx&quot;)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;&lt;script&gt;&quot;)",Passed,00:00:00.0000889
+"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_and_office_manager_import_and_edit_documents(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.2330703
+"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: null)",Passed,00:00:00.0619413
+"Alveara.Api.Tests.DocumentLibraryServiceTests.A_wrong_edit_names_each_field_and_changes_nothing",Passed,00:00:00.0536177
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: OfficeManager, import: True, view: True, settings: False)",Passed,00:00:00.0000008
+"Alveara.Api.Tests.DocumentStorageApiTests.An_unknown_document_is_404_and_the_log_never_carries_a_file_name",Passed,00:00:00.1879354
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Two_simultaneous_edits_of_one_version_let_exactly_one_win",Passed,00:00:00.0603480
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;Html&quot;)",Passed,00:00:00.0001062
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_that_is_not_plain_letters_and_digits_is_refused(raw: &quot;é&quot;)",Passed,00:00:00.0000008
+"Alveara.Api.Tests.DocumentApiTests.Anonymous_callers_get_401_from_every_route",Passed,00:00:00.0401007
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;COM1.pdf&quot;)",Passed,00:00:00.0000010
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;inactive-without-reason&quot;)",Passed,00:00:00.0186759
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_storage_result(problem: &quot;Unchecked&quot;)",Passed,00:00:00.0230679
+"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: null)",Passed,00:00:00.0157909
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;report.pdf.exe&quot;, name: &quot;report.pdf.exe&quot;, extension: &quot;exe&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentApiTests.A_document_is_imported_listed_read_downloaded_edited_and_its_history_kept",Passed,00:00:00.2797446
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;pdf&quot;, detected: Png)",Passed,00:00:00.0001972
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: &quot;OfficeManager&quot;)",Passed,00:00:00.2118952
+"Alveara.Api.Tests.DocumentImportServiceTests.The_original_name_is_normalized_and_never_decides_where_the_file_is_stored",Passed,00:00:00.0444691
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;categorized-without-categories&quot;)",Passed,00:00:00.0517448
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;FrontDesk&quot;, allowed: False)",Passed,00:00:00.1750368
+"Alveara.Api.Tests.DocumentContextServiceTests.An_edit_sets_changes_and_clears_the_encounter_tooth_and_region_with_a_history_row_and_a_log_entry_each_time",Passed,00:00:00.0808350
+"Alveara.Api.Tests.DocumentLibraryApiTests.The_library_is_filtered_by_encounter_tooth_region_date_status_and_text_through_the_query_and_the_filters_combine",Passed,00:00:00.3318477
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;jpg&quot;)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentSettingsServiceTests.A_failing_log_write_means_the_blocked_list_does_not_change",Passed,00:00:00.0110630
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;..&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0135015
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;htm&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;hash-upper&quot;)",Passed,00:00:00.0135699
+"Alveara.Api.Tests.DocumentSchemaTests.A_document_needs_a_real_patient_category_and_importer_and_one_key_makes_one_document_per_patient_and_one_blob_belongs_to_one_document",Passed,00:00:00.0269592
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;ps1&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentFileRulesTests.A_file_that_claims_pdf_png_jpeg_or_tiff_but_is_not_is_refused_as_a_mismatch(extension: &quot;tiff&quot;, detected: Png)",Passed,00:00:00.0000014
+"Alveara.Api.Tests.DocumentImportServiceTests.A_file_whose_content_is_not_the_type_it_claims_is_refused",Passed,00:00:00.0171937
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: &quot;regionKey&quot;, problem: &quot;with-tooth&quot;)",Passed,00:00:00.0007677
+"Alveara.Api.Tests.DocumentImportServiceTests.A_duplicate_warning_uses_up_no_save_key_so_the_confirmed_retry_may_reuse_it",Passed,00:00:00.0609754
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;&lt;script&gt;.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0125819
+"Alveara.Api.Tests.DocumentFileRulesTests.Other_types_and_a_missing_extension_are_not_blocked(extension: &quot;&quot;)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Admin, held: True)",Passed,00:00:00.0000014
+"Alveara.Api.Tests.DocumentFileRulesTests.An_unusable_filename_is_refused_with_the_name_invalid_code(raw: &quot;CON&quot;)",Passed,00:00:00.0000005
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_status_change(problem: &quot;time-too-early&quot;)",Passed,00:00:00.0238127
+"Alveara.Api.Tests.DocumentLibraryFilterTests.Signed_forms_appear_unless_a_filter_narrows_to_a_documents_own_properties_and_the_date_and_text_filters_apply_to_them_too",Passed,00:00:00.1120817
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;..\\..\\x.png&quot;, expected: &quot;ok:x.png&quot;)",Passed,00:00:00.0491057
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_cancelled_run_saves_nothing",Passed,00:00:00.0544411
+"Alveara.Api.Tests.DocumentOrphanServiceTests.An_import_whose_clean_up_failed_leaves_a_file_that_is_found_later_and_the_failure_was_reported_at_the_time",Passed,00:00:00.0396178
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;emoji\ud83d\ude00.png&quot;, expected: &quot;ok:emoji\ud83d\ude00.png&quot;)",Passed,00:00:00.0456313
+"Alveara.Api.Tests.DocumentLibraryServiceTests.Recategorizing_changes_the_category_keeps_the_old_one_in_the_history_and_logs_it_and_leaves_the_file_untouched",Passed,00:00:00.0675463
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;dll&quot;)",Passed,00:00:00.0000002
+"Alveara.Api.Tests.DocumentSchemaTests.The_migration_rolls_back_and_forward_while_no_document_exists_and_refuses_to_roll_back_over_a_document",Passed,00:00:00.5691778
+"Alveara.Api.Tests.DocumentLibraryFilterTests.A_png_and_a_jpeg_have_a_thumbnail_that_is_the_stored_picture_and_serving_it_writes_no_open",Passed,00:00:00.0786667
+"Alveara.Api.Tests.DocumentSchemaTests.A_new_category_may_be_added_but_not_with_a_code_or_name_already_in_use",Passed,00:00:00.0086788
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;png-as-text&quot;, name: &quot;notes.txt&quot;, expected: &quot;ok:png&quot;)",Passed,00:00:00.0482809
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;script-as-text&quot;, name: &quot;notes.txt&quot;, expected: &quot;ok:other&quot;)",Passed,00:00:00.0482118
+"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_and_office_manager_read_by_the_staff_who_work_with_a_file_and_configured_by_the_administrator(role: Billing, import: False, view: True, settings: False)",Passed,00:00:00.0001609
+"Alveara.Api.Tests.DocumentApiTests.Unknown_documents_are_404_and_a_stale_or_missing_version_is_refused",Passed,00:00:00.1895918
+"Alveara.Api.Tests.DocumentFileRulesTests.An_extension_an_admin_added_is_blocked_too_and_the_list_it_was_added_to_is_not_the_built_in_one",Passed,00:00:00.0000839
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;../../x.png&quot;, expected: &quot;ok:x.png&quot;)",Passed,00:00:00.0476769
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_document_whose_file_was_lost_afterwards_is_found_by_the_storage_check_and_refused_when_opened",Passed,00:00:00.0540197
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;DetectedType&quot;)",Passed,00:00:00.0238984
+"Alveara.Api.Tests.DocumentFileRulesTests.The_default_maximum_is_100_megabytes_and_inside_the_allowed_range",Passed,00:00:00.0000440
+"Alveara.Api.Tests.DocumentLibrarySchemaTests.The_database_refuses_an_incorrect_document(problem: &quot;tooth-and-region&quot;)",Passed,00:00:00.0205136
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.An_inactive_documents_file_is_checked_like_any_other",Passed,00:00:00.0788280
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;txt&quot;, detected: Unknown)",Passed,00:00:00.0000004
+"Alveara.Api.Tests.DocumentContextServiceTests.Inactivating_a_document_records_the_reason_who_and_when_in_one_save_with_a_history_row_and_a_log_entry_that_does_not_carry_the_reason",Passed,00:00:00.0774145
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_file_that_gained_a_document_after_the_reviewer_saw_it_is_not_removed",Passed,00:00:00.0653681
+"Alveara.Api.Tests.DocumentFileRulesTests.Empty_short_and_plain_content_is_unknown",Passed,00:00:00.0003941
+"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: &quot;setup.exe&quot;)",Passed,00:00:00.0107866
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_name_of_exactly_two_hundred_and_fifty_five_characters_is_accepted_and_one_more_is_refused",Passed,00:00:00.0482695
+"Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_with_changed_content_of_the_same_size_and_a_file_that_was_cut_short_are_both_corrupt",Passed,00:00:00.0672695
+"Alveara.Api.Tests.DocumentPathSafetyTests.A_file_name_is_normalized_or_refused_and_never_decides_where_the_file_goes(name: &quot;zero​width.png&quot;, expected: &quot;err:file_name_invalid&quot;)",Passed,00:00:00.0121984
+"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: &quot;regionKey&quot;, problem: &quot;Nose&quot;)",Passed,00:00:00.0216241
+"Alveara.Api.Tests.DocumentSchemaTests.The_database_refuses_an_incorrect_history_row(problem: &quot;kind-unknown&quot;)",Passed,00:00:00.0271305
+"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_is_normalized_blocked_for_the_next_import_and_logged_and_adding_it_again_changes_nothing(typed: &quot;.SWF &quot;, stored: &quot;swf&quot;)",Passed,00:00:00.0129675
+"Alveara.Api.Tests.DocumentContextServiceTests.A_stale_status_change_is_refused_a_version_is_required_and_an_unknown_document_is_not_found",Passed,00:00:00.0706175
+"Alveara.Api.Tests.DocumentFileRulesTests.A_matching_claim_and_an_unverified_type_are_accepted(extension: &quot;tif&quot;, detected: Tiff)",Passed,00:00:00.0001336
+"Alveara.Api.Tests.DocumentContextServiceTests.Saving_the_same_context_again_writes_nothing_and_the_log_never_carries_the_tooth_or_the_encounter",Passed,00:00:00.0695591
+"Alveara.Api.Tests.DocumentImportServiceTests.A_confirmation_that_does_not_match_is_refused_and_stores_nothing",Passed,00:00:00.1260117
+"Alveara.Api.Tests.DocumentSchemaTests.The_file_of_a_document_never_changes(column: &quot;Sha256&quot;)",Passed,00:00:00.0238752
+"Alveara.Api.Tests.DocumentTestStorageCleanupTests.A_document_tests_storage_folder_is_removed_when_the_test_ends",Passed,00:00:00.2417572
+"Alveara.Api.Tests.DocumentPathSafetyTests.The_type_of_a_file_comes_from_its_content_so_a_program_a_page_or_a_picture_of_another_type_cannot_pass_under_a_harmless_name(kind: &quot;empty-png&quot;, name: &quot;scan.png&quot;, expected: &quot;err:file_empty&quot;)",Passed,00:00:00.0111789
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;file.pdf::$DATA&quot;, name: &quot;file.pdf&quot;, extension: &quot;pdf&quot;)",Passed,00:00:00.0000008
+"Alveara.Api.Tests.DocumentOrphanServiceTests.A_file_a_document_points_to_is_never_removed_however_old_it_is",Passed,00:00:00.0643891
+"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: &quot;Dentist&quot;, allowed: False)",Passed,00:00:00.2731990
+"Alveara.Api.Tests.DocumentFileRulesTests.A_configured_maximum_must_be_between_1_megabyte_and_1_gigabyte(maxBytes: 1073741824, valid: True)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Assistant, held: False)",Passed,00:00:00.0001713
+"Alveara.Api.Tests.DocumentFileRulesTests.A_filename_is_reduced_to_its_last_part_without_trailing_dots_spaces_or_a_stream_suffix_and_its_extension_is_lower_case(raw: &quot;photo.png...&quot;, name: &quot;photo.png&quot;, extension: &quot;png&quot;)",Passed,00:00:00.0000006
+"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: &quot;..\\..\\x‮gnp.exe&quot;)",Passed,00:00:00.0104723
+"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.1803080
+"Alveara.Api.Tests.DocumentFileRulesTests.Every_built_in_blocked_extension_is_refused_whatever_its_case(extension: &quot;com&quot;)",Passed,00:00:00.0000004

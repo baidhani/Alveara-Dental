@@ -1,0 +1,130 @@
+test,outcome,duration
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_failed_audit_write_in_either_save_of_the_transaction_undoes_every_record_and_says_so(failing: &quot;CompletionSetRecorded&quot;)",Passed,00:00:00.4188357
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_rolled_back_completion_leaves_no_charge_no_audit_entry_and_no_completion",Passed,00:00:00.2800839
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.Two_corrections_made_at_once_against_the_same_amendment_leave_exactly_one_winner",Passed,00:00:00.3845417
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_selected_subset_is_completed_in_one_set_with_a_record_a_history_event_and_an_audit_entry_for_each_and_the_plans_version_moves",Passed,00:00:00.3552484
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Readiness_says_what_a_completion_will_do_and_the_completion_then_does_exactly_that",Passed,00:00:00.4179977
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;hashShort&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Hash&quot;)",Passed,00:00:00.2244578
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_must_carry_the_patient_of_its_plan",Passed,00:00:00.2126507
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;DELETE FROM [CompletionSets]&quot;, number: 51144)",Passed,00:00:00.2663576
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_patients_completed_procedures_list_newest_performed_first_with_their_current_values_charge_and_chart",Passed,00:00:00.3921577
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Hygienist&quot;, allowed: False)",Passed,00:00:00.5422264
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.Every_missing_or_wrong_field_of_a_correction_is_named_and_nothing_is_recorded",Passed,00:00:00.3632610
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.Completing_a_procedure_and_charging_for_it_in_one_transaction_makes_one_charge_at_the_plans_fee",Passed,00:00:00.2973390
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.It_refuses_to_run_outside_a_transaction_because_the_charge_and_the_completion_must_stand_or_fall_together",Passed,00:00:00.1738921
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;noCorrection&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Changes&quot;)",Passed,00:00:00.2324223
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_is_out_of_sequence_belongs_to_another_patient_or_predates_the_plan(which: &quot;beforeAcceptance&quot;, number: 51155)",Passed,00:00:00.2538215
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Without_a_linked_finding_on_the_same_tooth_and_surface_the_chart_is_left_alone(which: &quot;otherSurface&quot;)",Passed,00:00:00.2938068
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_is_out_of_sequence_belongs_to_another_patient_or_predates_the_plan(which: &quot;gap&quot;, number: 51152)",Passed,00:00:00.2541140
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_that_moved_a_chart_finding_names_that_finding_on_the_procedures_tooth_and_surface",Passed,00:00:00.2422469
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_is_out_of_sequence_belongs_to_another_patient_or_predates_the_plan(which: &quot;otherPatientsEncounter&quot;, number: 51151)",Passed,00:00:00.2522333
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_finding_that_is_already_completed_is_reported_as_such_and_left_alone",Passed,00:00:00.3401129
+"Alveara.Api.Tests.CompletedProcedureServiceTests.Scheduling_a_procedure_does_not_move_the_time_it_must_not_be_performed_before",Passed,00:00:00.2895956
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;performedFarFuture&quot;, constraint: &quot;CK_CompletedProcedures_Performed&quot;)",Passed,00:00:00.2279795
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;OfficeManager&quot;, allowed: True)",Passed,00:00:00.6251917
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;otherPlanItem&quot;, number: 51147)",Passed,00:00:00.2532540
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;countZero&quot;, constraint: &quot;CK_CompletionSets_Counts&quot;)",Passed,00:00:00.1757650
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;surfaceWithoutTooth&quot;, constraint: &quot;CK_CompletedProcedures_Surface&quot;)",Passed,00:00:00.2096447
+"Alveara.Api.Tests.CompletedProcedureServiceTests.The_same_key_and_request_replays_the_saved_result_with_no_writes_even_from_an_out_of_date_screen",Passed,00:00:00.3534509
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;UPDATE [CompletedProcedureAmendments] SET [Reason]&quot;···, number: 51146)",Passed,00:00:00.2504203
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.Two_completions_racing_for_the_same_procedure_end_with_exactly_one_charge",Passed,00:00:00.2881055
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;numberZero&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Number&quot;)",Passed,00:00:00.2304201
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;reasonBlank&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Reason&quot;)",Passed,00:00:00.2674866
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_failed_charge_for_the_second_of_three_procedures_undoes_the_first_charge_the_account_and_every_completion",Passed,00:00:00.4033638
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;keyControl&quot;, constraint: &quot;CK_CompletionSets_Key&quot;)",Passed,00:00:00.1739378
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_completion_advances_the_plans_version_so_a_second_screen_holding_the_old_one_is_refused_until_it_reloads",Passed,00:00:00.3375087
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.The_same_key_and_correction_replays_the_original_amendment_and_records_nothing",Passed,00:00:00.4310297
+"Alveara.Api.Tests.CompletedProcedureHistoryTests.A_correction_changes_what_the_history_shows_and_a_zero_fee_procedure_shows_no_charge",Passed,00:00:00.3429001
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_failed_audit_write_in_either_save_of_the_transaction_undoes_every_record_and_says_so(failing: &quot;TreatmentPlanItemCompleted&quot;)",Passed,00:00:00.3385841
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_draft_or_a_finalized_encounter_can_be_named_and_the_encounter_itself_is_never_changed(status: &quot;Finalized&quot;)",Passed,00:00:00.2697729
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_set_of_only_no_charge_procedures_opens_no_account_and_a_replay_reports_the_same_charges",Passed,00:00:00.1911538
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;versionMismatch&quot;, number: 51148)",Passed,00:00:00.2489861
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_correction_made_against_an_older_amendment_is_a_conflict_until_the_caller_looks_again",Passed,00:00:00.3835477
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_linked_planned_or_diagnosed_finding_on_the_procedures_tooth_and_surface_moves_to_completed_with_its_history(state: &quot;Planned&quot;)",Passed,00:00:00.3087698
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;otherPatientsEncounter&quot;, number: 51149)",Passed,00:00:00.2204387
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;surfaceMismatch&quot;, number: 51148)",Passed,00:00:00.2257330
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.The_charge_is_the_fee_the_plan_copied_whatever_the_catalog_says_later",Passed,00:00:00.2723282
+"Alveara.Api.Tests.CompletedProcedureServiceTests.Two_overlapping_sets_submitted_at_once_leave_exactly_one_winner_and_each_procedure_completed_once",Passed,00:00:00.3443242
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;FrontDesk&quot;, allowed: True)",Passed,00:00:00.5642602
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.The_same_key_with_a_different_correction_is_a_conflict_and_records_nothing",Passed,00:00:00.3692045
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Without_a_linked_finding_on_the_same_tooth_and_surface_the_chart_is_left_alone(which: &quot;unlinked&quot;)",Passed,00:00:00.2756388
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;itemNotCompleted&quot;, number: 51150)",Passed,00:00:00.1845639
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;otherPlan&quot;, number: 51147)",Passed,00:00:00.2439474
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_linked_planned_or_diagnosed_finding_on_the_procedures_tooth_and_surface_moves_to_completed_with_its_history(state: &quot;Diagnosed&quot;)",Passed,00:00:00.3175843
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_plan_changed_after_it_was_checked_but_before_the_set_is_saved_is_still_a_conflict_and_records_nothing",Passed,00:00:00.2244554
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.More_than_one_linked_finding_that_could_be_the_procedures_refuses_the_whole_set_and_names_the_procedure",Passed,00:00:00.2383903
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_draft_or_a_finalized_encounter_can_be_named_and_the_encounter_itself_is_never_changed(status: &quot;Draft&quot;)",Passed,00:00:00.2790762
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;notApplicableWithFinding&quot;, constraint: &quot;CK_CompletedProcedures_Chart&quot;)",Passed,00:00:00.2579167
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_source_is_only_for_a_charge_of_that_patient_and_never_another_patients_or_another_kind_of_entry",Passed,00:00:00.6593773
+"Alveara.Api.Tests.CompletedProcedureServiceTests.The_performed_time_may_be_five_minutes_ahead_of_the_practice_clock_and_not_one_millisecond_more",Passed,00:00:00.2891945
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;performedTooEarly&quot;, constraint: &quot;CK_CompletedProcedures_Performed&quot;)",Passed,00:00:00.2048578
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_failed_audit_write_leaves_neither_the_charge_nor_the_completion_behind",Passed,00:00:00.2643308
+"Alveara.Api.Tests.CompletedProcedureMigrationTests.Rolling_back_removes_the_completion_tables_and_triggers_keeps_the_plan_and_rolling_forward_restores_them",Passed,00:00:01.4989841
+"Alveara.Api.Tests.CompletedProcedureServiceTests.One_procedure_can_be_completed_alone_and_the_rest_complete_later_in_another_set",Passed,00:00:00.3429242
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_failed_chart_write_undoes_the_whole_set_including_the_completion_states_already_saved",Passed,00:00:00.3345813
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;keyBlank&quot;, constraint: &quot;CK_CompletionSets_Key&quot;)",Passed,00:00:00.1928172
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;revisionMismatch&quot;, number: 51147)",Passed,00:00:00.2173123
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_reversed_charge_says_so_and_a_later_amendment_of_the_performed_time_is_shown_as_amended",Passed,00:00:00.7744936
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_billing_only_reader_can_follow_a_charges_source_and_still_cannot_read_the_clinical_record",Passed,00:00:00.9768227
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_correction_that_changes_nothing_is_refused",Passed,00:00:00.3924391
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Admin&quot;, allowed: True)",Passed,00:00:00.8432984
+"Alveara.Api.Tests.CompletedProcedureServiceTests.Every_procedure_that_cannot_be_completed_is_listed_with_its_reason_and_none_of_the_others_is_completed_either",Passed,00:00:00.2387873
+"Alveara.Api.Tests.CompletedProcedureHistoryTests.The_readiness_offers_the_active_providers_and_only_this_patients_encounters_newest_first",Passed,00:00:00.1911445
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;keyBlank&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Key&quot;)",Passed,00:00:00.3053749
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_procedure_of_another_plan_another_patients_encounter_and_an_unknown_or_inactive_provider_are_each_named_and_nothing_is_recorded",Passed,00:00:00.2156071
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_correction_can_name_a_finalized_encounter_and_does_not_change_it",Passed,00:00:00.3693212
+"Alveara.Api.Tests.CompletedProcedureServiceTests.The_same_key_with_a_different_request_is_a_conflict_and_records_nothing",Passed,00:00:00.3101851
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Without_a_linked_finding_on_the_same_tooth_and_surface_the_chart_is_left_alone(which: &quot;otherTooth&quot;)",Passed,00:00:00.3057679
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_plan_procedure_is_completed_once_and_a_key_is_used_once_per_plan",Passed,00:00:00.2238974
+"Alveara.Api.Tests.CompletedProcedureHistoryTests.A_procedure_completed_through_the_workflow_shows_its_provider_performed_time_encounter_charge_and_chart_outcome",Passed,00:00:00.3730491
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;UPDATE [CompletedProcedures] SET [ChartOutcome] = &quot;···, number: 51145)",Passed,00:00:00.2594130
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_correction_changes_the_current_provider_keeps_the_original_and_touches_nothing_else",Passed,00:00:00.3868352
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;alreadyWithoutFinding&quot;, constraint: &quot;CK_CompletedProcedures_Chart&quot;)",Passed,00:00:00.2196332
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;performedBeforePlan&quot;, number: 51153)",Passed,00:00:00.2214956
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_is_out_of_sequence_belongs_to_another_patient_or_predates_the_plan(which: &quot;beforePlan&quot;, number: 51155)",Passed,00:00:00.2372770
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;hashUpper&quot;, constraint: &quot;CK_CompletionSets_Hash&quot;)",Passed,00:00:00.1989910
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.An_amendment_number_and_an_amendment_key_are_each_used_once_per_procedure",Passed,00:00:00.2509172
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;hashNotHex&quot;, constraint: &quot;CK_CompletionSets_Hash&quot;)",Passed,00:00:00.1762963
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;unknownOutcome&quot;, constraint: &quot;CK_CompletedProcedures_Chart&quot;)",Passed,00:00:00.2031949
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Readiness_names_the_procedures_that_cannot_be_completed_and_an_ambiguous_chart_match_with_how_many_matched",Passed,00:00:00.2822342
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Two_procedures_of_one_set_that_share_a_finding_move_it_once_and_the_second_reports_it_as_already_completed",Passed,00:00:00.3380702
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.Replaying_a_completion_never_makes_a_second_charge",Passed,00:00:00.2900518
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.An_unknown_completed_procedure_is_not_found",Passed,00:00:00.0045097
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;performedBeforeAcceptance&quot;, number: 51154)",Passed,00:00:00.2354297
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_plan_changed_since_it_was_read_is_a_conflict_and_nothing_is_recorded",Passed,00:00:00.1986177
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_failed_audit_write_records_no_amendment_and_says_so_and_the_same_correction_works_once_the_log_is_back",Passed,00:00:00.3692950
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Without_a_linked_finding_on_the_same_tooth_and_surface_the_chart_is_left_alone(which: &quot;wholeMouth&quot;)",Passed,00:00:00.2462114
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_procedure_that_cannot_be_billed_is_refused_with_a_stable_code_and_leaves_nothing_behind",Passed,00:00:00.2199943
+"Alveara.Api.Tests.CompletedProcedureServiceTests.The_same_procedures_under_a_new_key_after_success_are_refused_as_already_completed_and_never_charged_or_recorded_twice",Passed,00:00:00.3292938
+"Alveara.Api.Tests.CompletedProcedureHistoryTests.A_procedure_completed_the_old_way_is_listed_as_before_with_the_detail_empty_and_the_plan_services_history_is_unchanged",Passed,00:00:00.3147251
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;performedTooEarly&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Performed&quot;)",Passed,00:00:00.2302737
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Assistant&quot;, allowed: False)",Passed,00:00:00.8521359
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;DELETE FROM [CompletedProcedureAmendments]&quot;, number: 51146)",Passed,00:00:00.2507759
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Dentist&quot;, allowed: True)",Passed,00:00:00.5349787
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_withdrawn_plan_and_an_unknown_plan_complete_nothing",Passed,00:00:00.1820471
+"Alveara.Api.Tests.BillingChargeSourceApiTests.A_charge_completed_the_old_way_has_a_source_that_says_no_completion_record_exists",Passed,00:00:00.8458598
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.The_charts_own_rules_still_apply_completing_an_extraction_is_refused_while_other_findings_stand_on_the_tooth",Passed,00:00:00.2399895
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;hashShort&quot;, constraint: &quot;CK_CompletionSets_Hash&quot;)",Passed,00:00:00.1707899
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_replay_reports_the_original_charges_as_created_and_makes_no_second_one",Passed,00:00:00.3004567
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.Successive_corrections_are_numbered_and_each_field_shows_its_latest_value_with_the_originals_kept",Passed,00:00:00.4415685
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.Without_a_linked_finding_on_the_same_tooth_and_surface_the_chart_is_left_alone(which: &quot;existing&quot;)",Passed,00:00:00.2907013
+"Alveara.Api.Tests.CompletedProcedureServiceTests.A_performed_time_before_the_plan_existed_or_before_the_procedure_was_accepted_is_refused_and_says_what_it_is_compared_with",Passed,00:00:00.3028445
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_chart_finding_must_be_the_patients_own_on_the_procedures_tooth_and_surface(which: &quot;otherPatientsFinding&quot;)",Passed,00:00:00.1951249
+"Alveara.Api.Tests.CompletedProcedureAmendmentTests.A_corrected_time_is_judged_by_the_same_rules_as_a_completion",Passed,00:00:00.3654867
+"Alveara.Api.Tests.BillingChargeSourceApiTests.Whoever_can_see_billing_can_read_a_charges_source_and_nobody_else_can(role: &quot;Billing&quot;, allowed: True)",Passed,00:00:00.5646416
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;updatedWithoutFinding&quot;, constraint: &quot;CK_CompletedProcedures_Chart&quot;)",Passed,00:00:00.2074863
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;UPDATE [CompletionSets] SET [ItemCount] = 2&quot;, number: 51144)",Passed,00:00:00.2519584
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_does_not_belong_with_its_set_plan_item_encounter_or_time(which: &quot;toothMismatch&quot;, number: 51148)",Passed,00:00:00.1933246
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;DELETE FROM [CompletedProcedures]&quot;, number: 51145)",Passed,00:00:00.2438324
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_breaks_a_shape_rule(which: &quot;reasonControl&quot;, constraint: &quot;CK_CompletedProcedureAmendments_Reason&quot;)",Passed,00:00:00.2317021
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_reversed_charge_is_still_the_procedures_one_charge_and_is_not_made_again",Passed,00:00:00.2796742
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completed_procedure_that_breaks_a_shape_rule(which: &quot;revisionZero&quot;, constraint: &quot;CK_CompletedProcedures_Revision&quot;)",Passed,00:00:00.2034078
+"Alveara.Api.Tests.BillingProcedureChargeContractTests.A_charge_made_through_the_contract_and_one_made_by_billing_are_the_same_charge_and_the_procedure_is_not_offered_again",Passed,00:00:00.3137598
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_completion_set_a_completed_procedure_and_an_amendment_can_never_be_changed_or_deleted(statement: &quot;UPDATE [CompletedProcedures] SET [PerformedAtUtc] &quot;···, number: 51145)",Passed,00:00:00.2510434
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_an_amendment_that_is_out_of_sequence_belongs_to_another_patient_or_predates_the_plan(which: &quot;otherPatient&quot;, number: 51151)",Passed,00:00:00.2449583
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_chart_finding_must_be_the_patients_own_on_the_procedures_tooth_and_surface(which: &quot;otherSurfaceFinding&quot;)",Passed,00:00:00.2007529
+"Alveara.Api.Tests.CompletedProcedureHistoryTests.The_history_of_a_patient_with_nothing_completed_is_empty_and_an_unknown_patient_is_not_found",Passed,00:00:00.0060367
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_set_a_completed_procedure_and_amendments_numbered_in_order_are_accepted",Passed,00:00:00.2745967
+"Alveara.Api.Tests.CompletedProcedureEffectsTests.A_set_of_billable_and_no_charge_procedures_charges_the_billable_ones_once_and_the_no_charge_one_not_at_all",Passed,00:00:00.2795961
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.The_database_refuses_a_completion_set_that_breaks_a_shape_rule(which: &quot;revisionZero&quot;, constraint: &quot;CK_CompletionSets_Counts&quot;)",Passed,00:00:00.2121754
+"Alveara.Api.Tests.CompletedProcedureSchemaTests.A_chart_finding_must_be_the_patients_own_on_the_procedures_tooth_and_surface(which: &quot;otherToothFinding&quot;)",Passed,00:00:00.1985411
