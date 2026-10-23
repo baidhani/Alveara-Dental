@@ -13,6 +13,8 @@ export interface ModuleDefinition {
   label: string;
   path: string;
   requiredPermission?: string;
+  /** ALV-N018: the entry shows for a caller who holds any one of these (used instead of `requiredPermission`). */
+  anyPermission?: string[];
   /** Optional override of when this entry is highlighted (default: the current path starts with `path`). */
   activeWhen?: (pathname: string) => boolean;
 }
@@ -28,7 +30,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "messages", label: "Messages", path: "/messages" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
-  { id: "admin-users", label: "Security Administration", path: "/admin/users", requiredPermission: "ManageUsers" },
+  { id: "admin-users", label: "Security Administration", path: "/admin/users", anyPermission: ["ManageUsers", "ManageAccountStatus", "RevokeSessions"] },
   { id: "admin-permissions", label: "Permission Matrix", path: "/admin/permissions", requiredPermission: "ViewPermissionMatrix" },
   { id: "audit-log", label: "Audit Log", path: "/admin/audit-log", requiredPermission: "ViewAuditLog" },
   { id: "practice-config", label: "Practice Configuration", path: "/admin/configuration", requiredPermission: "ManagePracticeConfiguration" },

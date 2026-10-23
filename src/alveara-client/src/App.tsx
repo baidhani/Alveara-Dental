@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider } from "react-router-dom";
 import { AppShell } from "./app/AppShell";
 import { NavigationGuard } from "./app/NavigationGuard";
-import { RequireAuth, RequirePermission } from "./app/RouteGuards";
+import { RequireAnyPermission, RequireAuth, RequirePermission } from "./app/RouteGuards";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ShowcasePage } from "./pages/ShowcasePage";
 import { SystemStatusPage } from "./pages/SystemStatusPage";
@@ -87,17 +87,17 @@ function createAppRouter() {
           <Route
             path="/admin/users"
             element={
-              <RequirePermission permission="ManageUsers">
+              <RequireAnyPermission permissions={["ManageUsers", "ManageAccountStatus", "RevokeSessions"]} shown="ManageUsers">
                 <AdminUsersPage />
-              </RequirePermission>
+              </RequireAnyPermission>
             }
           />
           <Route
             path="/admin/users/:userId"
             element={
-              <RequirePermission permission="ManageUsers">
+              <RequireAnyPermission permissions={["ManageUsers", "ManageAccountStatus", "RevokeSessions"]} shown="ManageUsers">
                 <AdminUserDetailPage />
-              </RequirePermission>
+              </RequireAnyPermission>
             }
           />
           <Route

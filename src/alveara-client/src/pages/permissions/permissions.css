@@ -1,0 +1,86 @@
+/* ALV-N018: the editable permission matrix and its panels. Colours come from the shared tokens only (the danger colour is AA on the surface in both themes; links use the information colour, see Documents.css). */
+.alv-policy-panel {
+  margin-top: var(--space-6);
+}
+
+.alv-policy-panel h2 {
+  margin-bottom: var(--space-2);
+}
+
+.alv-policy-sub {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+  color: var(--color-text-muted);
+}
+
+.alv-policy-error {
+  color: var(--color-danger);
+}
+
+.alv-policy-source {
+  display: inline-block;
+  margin: 0 var(--space-2);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.alv-policy-source--granted {
+  border-color: var(--color-success);
+}
+
+.alv-policy-source--revoked {
+  border-color: var(--color-danger);
+}
+
+.alv-policy-selected {
+  outline: 2px solid var(--color-info);
+  outline-offset: -2px;
+}
+
+.alv-policy-editor {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  max-width: 44rem;
+}
+
+.alv-policy-editor :is(h2, h3):focus {
+  outline: 2px solid var(--color-info);
+  outline-offset: 2px;
+}
+
+.alv-policy-editor textarea {
+  width: 100%;
+}
+
+.alv-policy-check {
+  display: block;
+  margin: var(--space-3) 0;
+}
+
+.alv-policy-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.alv-policy-add {
+  margin-top: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.alv-policy-add label {
+  margin-right: var(--space-3);
+}
+
+.alv-policy-polling {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

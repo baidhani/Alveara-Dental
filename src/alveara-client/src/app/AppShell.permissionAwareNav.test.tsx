@@ -64,6 +64,25 @@ describe("AppShell — permission-aware navigation (ALV-N009)", () => {
     vi.unstubAllGlobals();
   });
 
+  it("ALV-N018: shows Security Administration to a holder of account status or session revocation, who can see only the accounts the role may act on", async () => {
+    for (const permission of ["ManageAccountStatus", "RevokeSessions"]) {
+      stubPermissions("OfficeManager", [permission]);
+      const { unmount } = renderShell();
+      await waitFor(() => expect(screen.getByText("Dashboard content")).toBeInTheDocument());
+      expect(screen.getByRole("link", { name: "Security Administration" })).toBeInTheDocument();
+      unmount();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("ALV-N018: still hides Security Administration from a role that holds none of the three permissions", async () => {
+    stubPermissions("Dentist", ["ViewPatientRecords", "ViewSchedule"]);
+    renderShell();
+    await waitFor(() => expect(screen.getByText("Dashboard content")).toBeInTheDocument());
+    expect(screen.queryByRole("link", { name: "Security Administration" })).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
   it("shows the signed-in caller's identity and a working, keyboard-reachable sign-out control", async () => {
     stubPermissions("Dentist", []);
     renderShell();

@@ -102,7 +102,7 @@ export function AdminUsersPage() {
 
   return (
     <>
-      <PageHeader title="Security administration" description="Manage user accounts, roles, and sessions." />
+      <PageHeader title="Security administration" description={hasPermission("ManageUsers") ? "Manage user accounts, roles, and sessions." : "The accounts your role may act on: you can see only accounts whose role holds no permission that yours lacks, never an administrator."} />
 
       {state.kind === "loading" && <LoadingState label="Loading users…" />}
       {state.kind === "permission-denied" && <PermissionDenied requiredPermission="ManageUsers" />}

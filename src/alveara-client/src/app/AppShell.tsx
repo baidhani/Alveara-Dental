@@ -49,7 +49,7 @@ export function AppShell() {
   const { pathname } = useLocation();
   const unsaved = useUnsavedChangesRegistry();
 
-  const visibleModules = moduleRegistry.filter((mod) => !mod.requiredPermission || hasPermission(mod.requiredPermission));
+  const visibleModules = moduleRegistry.filter((mod) => (!mod.requiredPermission || hasPermission(mod.requiredPermission)) && (!mod.anyPermission || mod.anyPermission.some((p) => hasPermission(p))));
 
   async function handleSignOut() {
     // Signing out discards any open draft, so it asks first like every other voluntary exit.

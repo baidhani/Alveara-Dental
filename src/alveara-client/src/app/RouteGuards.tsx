@@ -32,6 +32,16 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 /** Denies access to the wrapped route when the signed-in caller lacks `permission`, rendering the
  *  same PermissionDenied state a page's own data fetch would show on a 403 - but before any
  *  protected data fetch for this route ever starts. */
+/** ALV-N018: like <see cref="RequirePermission"/> but any one of the listed permissions is enough (the account list opens for a holder of account status or session revocation). */
+export function RequireAnyPermission({ permissions, shown, children }: { permissions: string[]; shown?: string; children: ReactNode }) {
+  const { hasPermission } = useAuth();
+
+  if (!permissions.some((p) => hasPermission(p))) {
+    return <PermissionDenied requiredPermission={shown ?? permissions[0]} />;
+  }
+  return <>{children}</>;
+}
+
 export function RequirePermission({ permission, children }: { permission: string; children: ReactNode }) {
   const { hasPermission } = useAuth();
 
