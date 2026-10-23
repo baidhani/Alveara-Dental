@@ -1,0 +1,23 @@
+(node:39120) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ generated Gate B evidence specs exist and are not collected by the declared frontend test command (989.2134ms)
+✔ the client project depends on no SQL/database driver package (0.8539ms)
+✔ if a production client build exists, its bundled JS contains no SQL Server connection-string shape (3.2868ms)
+✔ the API's connection string is only ever read from server-side configuration, never hard-coded in client source (237.9116ms)
+✔ the schema parser finds the statuses the reviewer named, so this guard cannot pass on an empty list (1.7317ms)
+✔ every status the schema allows has a label, and the table has no status the schema does not allow (1.3777ms)
+✔ every label is a readable phrase, never the raw status, and no two statuses share a label (0.7209ms)
+✔ every status in the execution ledger is one the schema allows (2.0292ms)
+✔ the Architecture Map and the Engineering stories list both read the one label table, and the page loads it first (0.7574ms)
+✔ root STORY-000 Command Center entry point still exists (0.6394ms)
+✔ root Command Center still reads .colaberry/* at runtime rather than hard-coding plan content (0.8526ms)
+✔ the production Alveara app lives in its own separate project paths (0.183ms)
+✔ the production app did not replace or rename the root Command Center (0.8385ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1040.2001
