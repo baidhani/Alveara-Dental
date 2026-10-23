@@ -2303,21 +2303,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 10,
-        "passed": 0
+        "passed": 10
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, a Stage 1 package under the two-stage policy. PermissionPolicyWriteTests 58 of 58; focused backend 238 of 238 (60 new ids; one ALV-N017 baseline id, the pipeline test that asserted a closed user list, is retired by design and declared in the Stage 2 contract); 788 HTTP-level ApiTests of 788; restore drill 3 of 3 (one new: API-written policy changes survive backup and restore); negative controls 13 of 13 killed; tsc 0, Vitest 1,572 of 1,572, build and lint exit 0, mocked Playwright 140, repository checks 13; real-backend walkthroughs permission-policy-admin 8 of 8 and permission-policy 7 of 7; evaluator validation 11 of 11. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N018/R01-evidence/stage2/) expects 4,628 backend tests (the 4,569 baseline minus the 1 retired id plus exactly the 60 listed new ids) with no time limit. No full run made."
       },
-      "demo": "not_started",
+      "demo": "real_backend_walkthrough_8_of_8",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "41c44abf671ba869e60beeb9bc496f7f2d46034c",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N018/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
@@ -2330,7 +2330,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

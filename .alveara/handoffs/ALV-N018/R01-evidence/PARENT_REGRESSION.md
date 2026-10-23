@@ -1,0 +1,2 @@
+# ALV-N018 R01 - Parent regression
+`n/a_new_production`: the story has no course parent. Dependency regression: 788 HTTP-level `*ApiTests` through every module with the opened user list and the new write endpoints (all passed), the permission-policy classes (238 passed, including the N017 two-host, store, health, schema and account-safety tests, unchanged), the N017 walkthrough (7 of 7 after its user-list step was updated), and the full Vitest, mocked Playwright and repository checks. The full regression is Stage 2.

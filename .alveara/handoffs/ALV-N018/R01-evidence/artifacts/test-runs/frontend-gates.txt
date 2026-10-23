@@ -1,0 +1,7 @@
+ALV-N018 R01 Stage 1 - client and repository gates, summarized from the terminal output of the runs on the final client tree (2026-10-23).
+tsc --noEmit: exit 0
+vitest run: Test Files 100 passed (100); Tests 1572 passed (1572); duration 161 s
+npm run build (tsc -b && vite build): exit 0
+npm run lint (oxlint): exit 0, warnings only
+npx playwright test (mocked): 140 passed (19.2 s)
+node --test tests/*.test.mjs: tests 13, pass 13, fail 0

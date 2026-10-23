@@ -1,0 +1,13 @@
+OK    A. 80 minutes with every substantive criterion met is accepted and the time is only reported  (exit 0, expected 0)
+OK    B. 3 minutes with every substantive criterion met is accepted  (exit 0, expected 0)
+OK    C. 80 minutes but one backend test failed is rejected  (exit 1, expected 1)
+OK    D. 80 minutes but one backend test was skipped is rejected  (exit 1, expected 1)
+OK    E. a baseline id is missing (count made up with an extra id) is rejected  (exit 1, expected 1)
+OK    F. a baseline id is missing and nothing replaces it is rejected  (exit 1, expected 1)
+OK    G. a baseline outcome changed (Passed to Failed) is rejected  (exit 1, expected 1)
+OK    H. an allowlisted new id did not run (replaced by an id outside the allowlist) is rejected  (exit 1, expected 1)
+OK    I. one extra id beyond the allowlist is rejected  (exit 1, expected 1)
+OK    J. the declared retired id still running (in place of an allowlisted id) is rejected  (exit 1, expected 1)
+OK    K. the retired id replaced by a different baseline id going missing is rejected  (exit 1, expected 1)
+
+every scenario behaved as stated
