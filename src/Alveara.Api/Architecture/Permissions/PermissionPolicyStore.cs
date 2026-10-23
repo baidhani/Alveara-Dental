@@ -123,7 +123,11 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
                 var before = await source.ReadVersionAsync(CancellationToken.None);
                 var rows = await source.ReadRowsAsync(CancellationToken.None);
                 var after = await source.ReadVersionAsync(CancellationToken.None);
-                if (before != after) continue;                                                                 // a writer got in between: the rows may belong to neither version, read again
+                if (before != after)                                                                           // a writer got in between: the rows may belong to neither version, read again
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(5 * attempt));                                  // a short pause lets a burst of writes settle
+                    continue;
+                }
                 var snapshot = PolicySnapshotBuilder.Build(before, rows.Overrides, rows.Delegations);
                 Volatile.Write(ref _current, snapshot);                                                        // one atomic swap
                 Volatile.Write(ref _verifiedAt, time.GetTimestamp());
