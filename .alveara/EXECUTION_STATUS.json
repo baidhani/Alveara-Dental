@@ -210,7 +210,7 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
-      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) \u2014 the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
+      "blockingIssuesResolvedBy": "ALV-001-C01, APPROVED and COMPLETE as of attempt R06 (.alveara/reviews/ALV-001-C01/R06.md) — the caller-selected-role, lockout-rearm, and timing-side-channel findings themselves closed as of attempt R01 and remain corrected in the carried implementation; see .alveara/handoffs/ALV-001-C01/R01-evidence/ACCEPTANCE_EVIDENCE.md item 2/4/5 for the specific tests. Original finding text preserved in this file's git history.",
       "revalidation": {
         "required": false,
         "reason": null
@@ -2316,7 +2316,7 @@
       "demo": "real_backend_walkthrough_8_of_8",
       "parentRegression": "n/a",
       "implementationCommit": "41c44abf671ba869e60beeb9bc496f7f2d46034c",
-      "evidenceCommit": null,
+      "evidenceCommit": "effc0a51bbb0e114bc75e15f7e9bfa1341f14fc0",
       "handoffPath": ".alveara/handoffs/ALV-N018/R01.md",
       "review": {
         "decision": "pending",
