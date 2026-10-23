@@ -11,8 +11,9 @@ public record RemoveInvalidRowBody(string? Reason, string? RowVersion);
 /// <summary>
 /// ALV-N017: reading the effective permission policy and keeping it healthy. <c>GET effective</c> (<see cref="Permission.ViewPermissionMatrix"/>) lists every role's effective permissions with where each cell comes from
 /// (default, granted, revoked), who changed it and why, whether it can be granted or delegated, and the health of the stored rows; <c>GET history</c> (<see cref="Permission.ViewAuditLog"/>) is the immutable change
-/// history; <c>GET health</c> and <c>POST invalid-rows/{id}/remove</c> need <see cref="Permission.ManagePermissionGrants"/>, which only an administrator can ever hold. The one write here removes a stored row
-/// that is invalid (or names a retired permission) with a written reason; changing the policy itself is not part of this story. Refusals carry a stable <c>error</c>: <c>reason_required</c>,
+/// history; <c>GET health</c> and <c>POST invalid-rows/{id}/remove</c> need <see cref="Permission.ManagePermissionGrants"/>, which only an administrator can ever hold. The invalid-row repair removes a stored row
+/// that is invalid (or names a retired permission) with a written reason. ALV-N018 added the writes below: overrides, the delegation table and a delegate's grant (see <c>PolicyWriteService</c>
+/// and <c>docs/PERMISSION_POLICY.md</c>). Refusals carry a stable <c>error</c>: <c>reason_required</c>,
 /// <c>row_version_required</c> (400), <c>row_not_found</c> (404), <c>row_not_removable</c>, <c>row_changed</c> (409).
 /// </summary>
 [ApiController]
