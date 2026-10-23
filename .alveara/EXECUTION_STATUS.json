@@ -2182,7 +2182,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -2198,13 +2198,16 @@
       "evidenceCommit": "64422661c31f4ccf91bc8b0a2827246efc31eaaf",
       "handoffPath": ".alveara/handoffs/ALV-N015/R01.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": "docs/design/NOTIFICATION_CENTER_AND_MESSAGING_PROPOSAL.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null
+        "reviewedImplementationCommit": "263fb66adfaac722ced34804dee5f2b1b123411f",
+        "reviewedEvidenceCommit": "64422661c31f4ccf91bc8b0a2827246efc31eaaf",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-N015-R01-01: the notification-list payload (GET /api/notifications) carries the message subject; item 42 forbids a subject in notification-list payloads. R02 must remove the property from the DTO and the UI and prove it with a raw-JSON privacy test."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
