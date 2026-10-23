@@ -13,8 +13,8 @@ public sealed class PolicyAdminException(string code, string message, int status
     public int StatusCode { get; } = statusCode;
 }
 
-public sealed record EffectiveCell(string Permission, bool Effective, string Source, bool Grantable, bool Delegable, string? Reason, Guid? ChangedByUserId, DateTimeOffset? ChangedAtUtc);
-public sealed record EffectiveRole(string Role, string Health, IReadOnlyList<EffectiveCell> Permissions);
+public sealed record EffectiveCell(string Permission, bool Effective, string Source, bool Grantable, bool Delegable, string? Reason, Guid? ChangedByUserId, DateTimeOffset? ChangedAtUtc, bool RequiresTypedConfirmation = false);
+public sealed record EffectiveRole(string Role, string Health, IReadOnlyList<EffectiveCell> Permissions, int EnabledUsers = 0);
 public sealed record PolicyHealth(string Status, long Version, bool Stale, int InvalidRowCount, int RetiredRowCount, int OverrideCount, IReadOnlyList<string> RolesNeedingRepair, IReadOnlyList<InvalidRowView> InvalidRows, IReadOnlyList<RetiredRowView> RetiredRows);
 public sealed record EffectivePolicy(long Version, PolicyHealth Health, IReadOnlyList<EffectiveRole> Roles);
 public sealed record InvalidRowView(Guid Id, string Table, string Role, string Permission, string? TargetRole, string? Effect, string Reason, string RowVersion);
@@ -45,6 +45,7 @@ public class PolicyAdminService(AlveraDbContext db, IEffectivePermissions permis
         var read = await permissions.SnapshotAsync(ct);
         var snapshot = read.Snapshot;
         var overrides = await db.RolePermissionOverrides.AsNoTracking().ToListAsync(ct);
+        var enabledByRole = (await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled).GroupBy(u => u.Role).Select(g => new { Role = g.Key, Count = g.Count() }).ToListAsync(ct)).ToDictionary(x => x.Role, x => x.Count);
         var roles = new List<EffectiveRole>();
         foreach (var role in Enum.GetValues<Role>())
         {
@@ -57,9 +58,9 @@ public class PolicyAdminService(AlveraDbContext db, IEffectivePermissions permis
             {
                 var row = overrides.FirstOrDefault(o => o.Role == role.ToString() && o.Permission == permission.ToString() && IsApplied(snapshot, role, o));
                 var source = row is null ? "default" : row.Effect == OverrideEffects.Grant ? "granted" : "revoked";
-                cells.Add(new EffectiveCell(permission.ToString(), held.Contains(permission), source, PermissionProtection.IsGrantable(permission) && !fixedRole, PermissionProtection.IsDelegable(permission), row?.Reason, row?.ChangedByUserId, row?.ChangedAtUtc));
+                cells.Add(new EffectiveCell(permission.ToString(), held.Contains(permission), source, PermissionProtection.IsGrantable(permission) && !fixedRole, PermissionProtection.IsDelegable(permission), row?.Reason, row?.ChangedByUserId, row?.ChangedAtUtc, PolicyWriteRules.HighImpact.Contains(permission)));
             }
-            roles.Add(new EffectiveRole(role.ToString(), health, cells));
+            roles.Add(new EffectiveRole(role.ToString(), health, cells, enabledByRole.GetValueOrDefault(role)));
         }
         return new EffectivePolicy(snapshot.Version, ToHealth(snapshot, read.Stale), roles);
     }

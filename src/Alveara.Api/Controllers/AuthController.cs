@@ -292,12 +292,26 @@ public class AuthController(AccountService accountService, IConfiguration config
 
     // ---------- Admin-only account/role/session administration ----------
 
+    /// <summary>
+    /// The account list. An administrator (the only holder of <see cref="Permission.ManageUsers"/>) sees every account. ALV-N018: a holder of <see cref="Permission.ManageAccountStatus"/> or
+    /// <see cref="Permission.RevokeSessions"/> sees only the accounts the full-subset target rule lets that holder act on (never an administrator; only roles whose complete effective permission set is a subset of the
+    /// holder's, the holder's own role and an unassigned account included). Everyone else is refused with the same 403 body as before (<c>required: ManageUsers</c>).
+    /// </summary>
     [HttpGet("users")]
     [Authorize]
-    [RequirePermission(Permission.ManageUsers)]
+    [RequireAnyPermission(Permission.ManageUsers, Permission.ManageAccountStatus, Permission.RevokeSessions, RequiredText = nameof(Permission.ManageUsers))]
     public async Task<IActionResult> ListUsers(CancellationToken cancellationToken)
     {
-        var users = await db.UserAccounts
+        IQueryable<UserAccount> query = db.UserAccounts;
+        if (Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var actorRole) && actorRole != Role.Admin)
+        {
+            var actorSet = await permissions.PermissionsForAsync(actorRole, cancellationToken);
+            var allowed = new List<Role>();
+            foreach (var role in Enum.GetValues<Role>())
+                if (role != Role.Admin && (await permissions.PermissionsForAsync(role, cancellationToken)).IsSubsetOf(actorSet)) allowed.Add(role);
+            query = query.Where(u => allowed.Contains(u.Role));
+        }
+        var users = await query
             .OrderBy(u => u.Username)
             .Select(u => new AdminUserSummary(u.Id, u.Username, u.Role.ToString(), u.IsDisabled, u.MfaEnabled, u.SessionTimeoutMinutes, u.CreatedAtUtc))
             .ToListAsync(cancellationToken);

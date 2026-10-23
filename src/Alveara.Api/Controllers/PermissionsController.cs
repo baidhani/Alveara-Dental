@@ -18,9 +18,55 @@ public record RemoveInvalidRowBody(string? Reason, string? RowVersion);
 [ApiController]
 [Authorize]
 [Route("api/permissions")]
-public class PermissionsController(PolicyAdminService policy) : ControllerBase
+public class PermissionsController(PolicyAdminService policy, PolicyWriteService writes) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    private async Task<IActionResult> Run(Func<Task<object>> action)
+    {
+        try
+        {
+            return Ok(await action());
+        }
+        catch (PolicyAdminException ex)
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message });
+        }
+    }
+
+    // ---------- ALV-N018: the writes ----------
+
+    /// <summary>Grant, revoke or revert one non-protected cell of a working role (administrator only). Needs <c>Idempotency-Key</c>, the policy version the caller was shown, a reason and a confirmation (typed for the high-impact list).</summary>
+    [HttpPut("overrides")]
+    [RequirePermission(Permission.ManagePermissionGrants)]
+    [RequireCsrfToken]
+    public Task<IActionResult> SetOverride([FromBody] SetOverrideRequest request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) =>
+        Run(async () => await writes.SetOverrideAsync(Actor, request, key, ct));
+
+    /// <summary>A delegate (today the office manager) grants or revokes a delegated permission for a delegated role. No permission attribute: the delegation table and the delegate's own permissions decide, and a refusal is <c>delegation_not_allowed</c>.</summary>
+    [HttpPost("delegated-grants")]
+    [RequireCsrfToken]
+    public Task<IActionResult> DelegatedGrant([FromBody] DelegatedGrantRequest request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) =>
+        Run(async () =>
+        {
+            if (!Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role)) throw new PolicyAdminException("delegation_not_allowed", "You may not change that permission for that role.", 403);
+            return await writes.DelegatedGrantAsync(Actor, role, request, key, ct);
+        });
+
+    /// <summary>What the caller may delegate and where each delegated cell stands (empty for a role that holds no delegation).</summary>
+    [HttpGet("my-delegations")]
+    public Task<IActionResult> MyDelegations(CancellationToken ct) =>
+        Run(async () => Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) ? await writes.MyDelegationsAsync(role, ct) : new { policyVersion = 0L, delegations = Array.Empty<object>() });
+
+    [HttpGet("delegations")]
+    [RequirePermission(Permission.ManagePermissionGrants)]
+    public Task<IActionResult> Delegations(CancellationToken ct) => Run(async () => await writes.DelegationsAsync(ct));
+
+    [HttpPut("delegations")]
+    [RequirePermission(Permission.ManagePermissionGrants)]
+    [RequireCsrfToken]
+    public Task<IActionResult> SetDelegations([FromBody] SetDelegationsRequest request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) =>
+        Run(async () => await writes.SetDelegationsAsync(Actor, request, key, ct));
 
     [HttpGet("effective")]
     [RequirePermission(Permission.ViewPermissionMatrix)]

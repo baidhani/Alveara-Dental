@@ -192,7 +192,7 @@ public class PermissionPolicyPipelineTests : IAsyncLifetime
     // ---------- account administration through the API (ALV-N017 target rules, last administrator, unchanged user list) ----------
 
     [Fact]
-    public async Task The_user_list_has_the_same_status_and_body_for_every_role_before_and_after_the_two_assignable_permissions_are_granted()
+    public async Task The_user_list_stays_closed_for_every_role_that_holds_neither_assignable_permission_and_opens_only_for_a_holder_of_one()
     {
         var admin = await _api.SessionAsync("Admin");
         var roles = Enum.GetValues<Role>().Where(r => r is not (Role.Admin or Role.Unassigned)).ToList();
@@ -214,8 +214,9 @@ public class PermissionPolicyPipelineTests : IAsyncLifetime
         await SetOverrideAsync(Role.OfficeManager, Permission.ManageAccountStatus, OverrideEffects.Grant);
         await SetOverrideAsync(Role.OfficeManager, Permission.RevokeSessions, OverrideEffects.Grant);
         var after = await Snapshot();
-        Assert.All(roles, r => Assert.Equal(before[r.ToString()], after[r.ToString()]));                              // the broader, target-filtered listing belongs to ALV-N018
-        Assert.Equal("permission_denied", JsonDocument.Parse(after["OfficeManager"].Item2!).RootElement.GetProperty("error").GetString());
+        Assert.All(roles.Where(r => r != Role.OfficeManager), r => Assert.Equal(before[r.ToString()], after[r.ToString()]));   // everyone who holds neither permission keeps the same status and body
+        Assert.Equal(HttpStatusCode.OK, after["OfficeManager"].Item1);                                                // ALV-N018: a holder now sees the accounts it may act on (the filter is proven in PermissionPolicyWriteTests)
+        Assert.DoesNotContain("\"role\":\"Admin\"", after["OfficeManager"].Item2!);
     }
 
     [Fact]
@@ -269,7 +270,9 @@ public class PermissionPolicyPipelineTests : IAsyncLifetime
 
         Assert.Equal(HttpStatusCode.Forbidden, (await manager.SendAsync(HttpMethod.Put, $"/api/auth/{target.UserId}/role", new { role = "Admin" })).Status);          // ManageRoles
         Assert.Equal(HttpStatusCode.Forbidden, (await manager.SendAsync(HttpMethod.Post, $"/api/auth/{target.UserId}/reset-password")).Status);                       // IssuePasswordResets
-        Assert.Equal(HttpStatusCode.Forbidden, (await GetAsync(manager, "/api/auth/users")).Status);                                                                    // ManageUsers
+        var listed = await GetAsync(manager, "/api/auth/users");                                                                                                        // ALV-N018: the target-filtered list, which never holds an administrator
+        Assert.Equal(HttpStatusCode.OK, listed.Status);
+        Assert.DoesNotContain("\"role\":\"Admin\"", listed.Body.GetRawText().Replace(" ", ""));
         var protectedNames = new[] { Permission.ManageUsers, Permission.ManageRoles, Permission.ManageMfaPolicy, Permission.IssuePasswordResets, Permission.ManagePermissionGrants };
         var mine = (await GetAsync(manager, "/api/auth/permissions")).Body.GetProperty("permissions").EnumerateArray().Select(e => e.GetString()).ToHashSet();
         Assert.All(protectedNames, p => Assert.DoesNotContain(p.ToString(), mine));

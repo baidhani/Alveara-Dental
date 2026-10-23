@@ -11,6 +11,9 @@ namespace Alveara.Api.Architecture.Permissions;
 /// </summary>
 public static class PolicySnapshotBuilder
 {
+    /// <summary>Does the code default give this role this permission? (the only way outside this file to ask the default, for the policy writer)</summary>
+    public static bool DefaultHolds(Role role, Permission permission) => PermissionMatrix.RoleHas(role, permission);
+
     public static PolicySnapshot Build(long version, IEnumerable<RolePermissionOverride> overrides, IEnumerable<PermissionDelegation> delegations, IPermissionNames? names = null)
     {
         names ??= PermissionNames.Committed;

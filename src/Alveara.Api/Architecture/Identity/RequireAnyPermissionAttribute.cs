@@ -12,6 +12,9 @@ namespace Alveara.Api.Architecture.Identity;
 /// </summary>
 public class RequireAnyPermissionAttribute(params Permission[] permissions) : Attribute, IAsyncActionFilter
 {
+    /// <summary>What a refusal says is required. Left null it names every permission that would have allowed the request; a route that was once guarded by one permission keeps its old 403 body by naming it here (ALV-N018).</summary>
+    public string? RequiredText { get; init; }
+
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var roleClaim = context.HttpContext.User.FindFirstValue(ClaimTypes.Role);
@@ -23,7 +26,7 @@ public class RequireAnyPermissionAttribute(params Permission[] permissions) : At
 
         // ALV-N017: decided by the one effective-permission seam, like <see cref="RequirePermissionAttribute"/>.
         var effective = context.HttpContext.RequestServices.GetRequiredService<IEffectivePermissions>();
-        var refusal = PermissionResults.Refusal(await effective.CheckAnyAsync(role, permissions, context.HttpContext.RequestAborted), string.Join(" or ", permissions));
+        var refusal = PermissionResults.Refusal(await effective.CheckAnyAsync(role, permissions, context.HttpContext.RequestAborted), RequiredText ?? string.Join(" or ", permissions));
         if (refusal is not null)
         {
             context.Result = refusal;
