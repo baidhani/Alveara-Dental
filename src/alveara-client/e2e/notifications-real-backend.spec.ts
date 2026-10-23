@@ -176,12 +176,12 @@ test("HISTORY: a read notice moves to history, can be hidden, and stays in the a
   const desk = sessions.FrontDesk.page;
   await desk.goto("/notifications");
   await expect(desk.getByText("Loading notifications…")).toHaveCount(0);
-  await expect(desk.getByText("Room 3 setup")).toHaveCount(0);                            // read, so no longer in the unread list
+  await expect(desk.getByRole("listitem").filter({ hasText: "New message" })).toHaveCount(1);   // only the Urgent one is unread; the read one is in history
   await desk.getByRole("tab", { name: "History" }).click();
-  const row = desk.getByRole("listitem").filter({ hasText: "Room 3 setup" });
+  const row = desk.getByRole("listitem").filter({ hasText: "New message" });
   await expect(row).toBeVisible();
   await row.getByRole("button", { name: "Hide" }).click();
-  await expect(desk.getByRole("listitem").filter({ hasText: "Room 3 setup" })).toHaveCount(0);
+  await expect(desk.getByRole("listitem").filter({ hasText: "New message" })).toHaveCount(0);
   await shot(desk, "05-history-hidden.png");
 
   await admin.goto("/admin/notifications");
@@ -199,6 +199,8 @@ test("LINK: a patient link resolves through the server and opens the patient", a
   const sent = await api(dentist, "post", "/api/messages", { recipientUserIds: [ids.FrontDeskUser], subject: "About a patient", body: "Please call about the estimate.", priority: "Normal", relatedPatientId: ids.ann }, { "Idempotency-Key": `link-${stamp}` });
   expect(sent.status).toBe(201);
   const list = await api(desk, "get", "/api/messages?box=inbox");
+  const raw = JSON.stringify((await api(desk, "get", "/api/notifications?status=unread")).body) + JSON.stringify((await api(desk, "get", "/api/notifications?status=history")).body);
+  expect(raw).not.toMatch(/subject|About a patient|Room 3|Confidential/i);                 // R02: no notification-list payload carries a subject
   expect(JSON.stringify(list.body)).not.toContain(ids.ann);                              // no list carries the patient id
   await desk.goto("/messages");
   await desk.getByRole("link", { name: "About a patient" }).click();

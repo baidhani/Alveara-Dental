@@ -71,7 +71,7 @@ export function NotificationsPage() {
           <ul>
             {state.data.items.map((n) => (
               <li key={n.id}>
-                <strong>{n.priority !== "Normal" ? `${n.priority}: ` : ""}{n.subject ?? KIND_LABEL[n.kind] ?? "Notification"}</strong>
+                <strong>{n.priority !== "Normal" ? `${n.priority}: ` : ""}{KIND_LABEL[n.kind] ?? "Notification"}</strong>
                 {n.senderName && <> from {n.senderName}</>} <small>{when(n.createdAtUtc)}</small>{" "}
                 {(n.messageId || n.hasPatientLink) && <Button onClick={() => open(n)}>{n.messageId ? "Open message" : "Open patient"}</Button>}
                 {!n.readAtUtc && <Button onClick={() => act(() => markRead(n.id))}>Mark read</Button>}

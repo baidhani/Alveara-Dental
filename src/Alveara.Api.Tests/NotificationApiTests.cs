@@ -63,7 +63,8 @@ public class NotificationApiTests : IAsyncLifetime
         Assert.Equal(1, (await SummaryAsync(desk)).GetProperty("unread").GetInt32());
         var list = await desk.SendAsync(HttpMethod.Get, "/api/notifications?status=unread");
         var item = list.Body.GetProperty("items")[0];
-        Assert.Equal(("message.received", "Room 3"), (Str(item, "kind"), Str(item, "subject")));
+        Assert.Equal("message.received", Str(item, "kind"));
+        Assert.False(item.TryGetProperty("subject", out _));
 
         var opened = await desk.SendAsync(HttpMethod.Get, $"/api/messages/{id}");
         Assert.Equal(HttpStatusCode.OK, opened.Status);
@@ -158,6 +159,29 @@ public class NotificationApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.NotFound, (await outsider.SendAsync(HttpMethod.Get, $"/api/messages/threads/{Str(thread.Body, "threadId")}")).Status);
         Assert.Empty((await outsider.SendAsync(HttpMethod.Get, "/api/messages?box=inbox")).Body.GetProperty("items").EnumerateArray());
         Assert.Equal(0, (await SummaryAsync(outsider)).GetProperty("unread").GetInt32());
+    }
+
+    [Fact]
+    public async Task A_notification_list_never_carries_the_subject_or_the_body_unread_or_in_history()
+    {
+        var dentist = await _api.SessionAsync("Dentist");
+        var desk = await _api.SessionAsync("FrontDesk");
+        var id = await SentAsync(dentist, desk, "Zebra-list-subject-55", "Zebra-list-body-66", "Important");
+        async Task AssertCleanAsync(string status)
+        {
+            var response = await desk.SendAsync(HttpMethod.Get, $"/api/notifications?status={status}");
+            var raw = response.Body.GetRawText();
+            Assert.Equal(HttpStatusCode.OK, response.Status);
+            Assert.DoesNotContain("subject", raw, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("body", raw, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("Zebra", raw);
+        }
+        await AssertCleanAsync("unread");
+        Assert.Equal(1, (await desk.SendAsync(HttpMethod.Get, "/api/notifications?status=unread")).Body.GetProperty("items").GetArrayLength());
+        var opened = await desk.SendAsync(HttpMethod.Get, $"/api/messages/{id}");                           // the authorized route still delivers the subject
+        Assert.Equal("Zebra-list-subject-55", Str(opened.Body, "subject"));
+        await AssertCleanAsync("history");
+        Assert.Equal(1, (await desk.SendAsync(HttpMethod.Get, "/api/notifications?status=history")).Body.GetProperty("items").GetArrayLength());
     }
 
     [Fact]

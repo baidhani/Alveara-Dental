@@ -13,7 +13,7 @@ export type Priority = "Normal" | "Important" | "Urgent";
 export interface NotificationSummary { unread: number; unreadImportant: number; unreadUrgent: number; newestBannerAtUtc: string | null }
 export interface NotificationView {
   id: string; kind: string; priority: Priority; createdAtUtc: string; readAtUtc: string | null;
-  messageId: string | null; senderName: string | null; subject: string | null; hasPatientLink: boolean;
+  messageId: string | null; senderName: string | null; hasPatientLink: boolean;
 }
 export interface Paged<T> { items: T[]; total: number; page: number; pageSize: number }
 export interface MessageRecipientView { userId: string; name: string; readAtUtc: string | null }

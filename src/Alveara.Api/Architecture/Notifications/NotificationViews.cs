@@ -19,7 +19,7 @@ public sealed record NotificationSummary(int Unread, int UnreadImportant, int Un
 /// One entry of the caller's own list. It holds a kind, a priority and times, and for a message the sender's name and the subject (the panel shows them); it never holds a patient name, a patient id,
 /// a file name or message text. <see cref="HasPatientLink"/> only says that a server-checked link exists; the link is resolved from the notification, never built from an id the client holds.
 /// </summary>
-public sealed record NotificationView(Guid Id, string Kind, string Priority, DateTimeOffset CreatedAtUtc, DateTimeOffset? ReadAtUtc, Guid? MessageId, string? SenderName, string? Subject, bool HasPatientLink);
+public sealed record NotificationView(Guid Id, string Kind, string Priority, DateTimeOffset CreatedAtUtc, DateTimeOffset? ReadAtUtc, Guid? MessageId, string? SenderName, bool HasPatientLink);
 
 public sealed record NotificationPage(IReadOnlyList<NotificationView> Items, int Total, int Page, int PageSize);
 

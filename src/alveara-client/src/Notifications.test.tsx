@@ -109,17 +109,17 @@ describe("ALV-N015 compose", () => {
 
 describe("ALV-N015 notifications list", () => {
   it("never lets a slow answer for the Unread tab replace the History tab the person has since opened", async () => {
-    const item = (id: string, subject: string, readAtUtc: string | null) => ({ id, kind: "message.received", priority: "Normal", createdAtUtc: "2026-10-01T10:00:00Z", readAtUtc, messageId: "m", senderName: "A", subject, hasPatientLink: false });
+    const item = (id: string, sender: string, readAtUtc: string | null) => ({ id, kind: "message.received", priority: "Normal", createdAtUtc: "2026-10-01T10:00:00Z", readAtUtc, messageId: "m", senderName: sender, hasPatientLink: false });
     let releaseUnread: (r: Response) => void = () => {};
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => {
       if (String(url).includes("status=unread")) return new Promise<Response>((resolve) => { releaseUnread = resolve; });
-      return Promise.resolve(json({ items: [item("2", "Already read", "2026-10-01T11:00:00Z")], total: 1, page: 1, pageSize: 25 }));
+      return Promise.resolve(json({ items: [item("2", "Reader Rita", "2026-10-01T11:00:00Z")], total: 1, page: 1, pageSize: 25 }));
     }));
     render(<MemoryRouter><NotificationsPage /></MemoryRouter>);
     await userEvent.click(screen.getByRole("tab", { name: "History" }));
-    expect(await screen.findByText("Already read")).toBeTruthy();
-    await act(async () => { releaseUnread(json({ items: [item("1", "Still unread", null)], total: 1, page: 1, pageSize: 25 })); });
-    expect(screen.getByText("Already read")).toBeTruthy();
-    expect(screen.queryByText("Still unread")).toBeNull();
+    expect(await screen.findByText(/Reader Rita/)).toBeTruthy();
+    await act(async () => { releaseUnread(json({ items: [item("1", "Unread Ula", null)], total: 1, page: 1, pageSize: 25 })); });
+    expect(screen.getByText(/Reader Rita/)).toBeTruthy();
+    expect(screen.queryByText(/Unread Ula/)).toBeNull();
   });
 });

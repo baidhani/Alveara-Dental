@@ -10,7 +10,7 @@ namespace Alveara.Api.Architecture.Notifications;
 /// <summary>
 /// ALV-N015: a person's own bell. Everything here is about the caller's own entries: another person's id is the same not-found as an id that does not exist. Marking read, hiding one read entry and
 /// clearing the read history change only the caller's view (the entry is never physically deleted and a message is never touched). Each change is a single conditional statement, so a repeat or a concurrent
-/// repeat is quiet and a stale request cannot undo a newer one. Nothing here reads or returns a patient name, a patient id, a file name or message text beyond the subject of a message the caller received.
+/// repeat is quiet and a stale request cannot undo a newer one. Nothing here reads or returns a patient name, a patient id, a file name or message text or subject (a list names the sender and the kind only; the subject is read on the authorized message routes).
 /// </summary>
 public class NotificationService(AlveraDbContext db, IPracticeClock clock)
 {
@@ -43,13 +43,13 @@ public class NotificationService(AlveraDbContext db, IPracticeClock clock)
         var rows = await q.OrderByDescending(n => n.CreatedAtUtc).ThenBy(n => n.Id).Skip((p - 1) * size).Take(size).ToListAsync(ct);
 
         var messageIds = rows.Where(r => r.MessageId != null).Select(r => r.MessageId!.Value).Distinct().ToList();
-        var messages = messageIds.Count == 0 ? [] : await db.Messages.AsNoTracking().Where(m => messageIds.Contains(m.Id)).Select(m => new { m.Id, m.SenderUserId, m.Subject }).ToListAsync(ct);
+        var messages = messageIds.Count == 0 ? [] : await db.Messages.AsNoTracking().Where(m => messageIds.Contains(m.Id)).Select(m => new { m.Id, m.SenderUserId }).ToListAsync(ct);
         var names = await ClinicalNames.ResolveAsync(db, messages.Select(m => (Guid?)m.SenderUserId), ct);
         var byMessage = messages.ToDictionary(m => m.Id);
         var items = rows.Select(r =>
         {
             var m = r.MessageId is { } id && byMessage.TryGetValue(id, out var found) ? found : null;
-            return new NotificationView(r.Id, r.Kind, r.Priority, r.CreatedAtUtc, r.ReadAtUtc, r.MessageId, m is null ? null : ClinicalNames.Name(names, m.SenderUserId), m?.Subject, r.RelatedPatientId != null);
+            return new NotificationView(r.Id, r.Kind, r.Priority, r.CreatedAtUtc, r.ReadAtUtc, r.MessageId, m is null ? null : ClinicalNames.Name(names, m.SenderUserId), r.RelatedPatientId != null);
         }).ToList();
         return new NotificationPage(items, total, p, size);
     }
