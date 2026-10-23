@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Alveara.Api.Architecture.Permissions;
 
 namespace Alveara.Api.Architecture.Identity;
 
@@ -11,24 +12,24 @@ namespace Alveara.Api.Architecture.Identity;
 /// </summary>
 public class RequireAnyPermissionAttribute(params Permission[] permissions) : Attribute, IAsyncActionFilter
 {
-    public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var roleClaim = context.HttpContext.User.FindFirstValue(ClaimTypes.Role);
         if (roleClaim is null || !Enum.TryParse<Role>(roleClaim, out var role))
         {
             context.Result = new UnauthorizedResult();
-            return Task.CompletedTask;
+            return;
         }
 
-        if (!permissions.Any(p => PermissionMatrix.RoleHas(role, p)))
+        // ALV-N017: decided by the one effective-permission seam, like <see cref="RequirePermissionAttribute"/>.
+        var effective = context.HttpContext.RequestServices.GetRequiredService<IEffectivePermissions>();
+        var refusal = PermissionResults.Refusal(await effective.CheckAnyAsync(role, permissions, context.HttpContext.RequestAborted), string.Join(" or ", permissions));
+        if (refusal is not null)
         {
-            context.Result = new ObjectResult(new { error = "permission_denied", required = string.Join(" or ", permissions) })
-            {
-                StatusCode = StatusCodes.Status403Forbidden,
-            };
-            return Task.CompletedTask;
+            context.Result = refusal;
+            return;
         }
 
-        return next();
+        await next();
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Permissions;
 using Alveara.Api.Architecture.Scheduling;
 using Alveara.Api.Architecture.Time;
 
@@ -26,12 +27,12 @@ public record AssignVisitBody(Guid? ProviderId, Guid? OperatoryId, string? RowVe
 [ApiController]
 [Route("api/visits")]
 [Authorize]
-public class VisitsController(VisitBoardService board, AppointmentFlowService flow, VisitAssignmentService assignment) : ControllerBase
+public class VisitsController(VisitBoardService board, AppointmentFlowService flow, VisitAssignmentService assignment, IEffectivePermissions permissions) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    private bool Can(Permission permission) =>
-        Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && PermissionMatrix.RoleHas(role, permission);
+    private async Task<bool> CanAsync(Permission permission, CancellationToken ct) =>
+        Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, permission, ct);
 
     private IActionResult Refusal(SchedulingException ex) =>
         StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, conflictingAppointmentId = ex.ConflictingAppointmentId, reason = ex.Reason });
@@ -62,7 +63,9 @@ public class VisitsController(VisitBoardService board, AppointmentFlowService fl
             return BadRequest(new { error = "invalid_range", message = "The date must look like 2030-01-14." });
         try
         {
-            return Ok(await board.BoardAsync(day, includeReadiness: Can(Permission.ViewSignedForms), ct, includeSafety: Can(Permission.ViewSafetyIndicator)));
+            var readiness = await CanAsync(Permission.ViewSignedForms, ct);
+            var safety = await CanAsync(Permission.ViewSafetyIndicator, ct);
+            return Ok(await board.BoardAsync(day, includeReadiness: readiness, ct, includeSafety: safety));
         }
         catch (LocalTimeConversionException ex)
         {
@@ -72,14 +75,15 @@ public class VisitsController(VisitBoardService board, AppointmentFlowService fl
 
     [HttpPost("{id:guid}/state")]
     [RequireCsrfToken]
-    public Task<IActionResult> Transition(Guid id, [FromBody] VisitStateBody body, CancellationToken ct)
+    public async Task<IActionResult> Transition(Guid id, [FromBody] VisitStateBody body, CancellationToken ct)
     {
         if (!VisitStates.IsKnown(body.Target))
-            return Task.FromResult<IActionResult>(BadRequest(new { error = "validation_failed", message = $"The target must be one of: {string.Join(", ", VisitStates.InOrder)}." }));
+            return BadRequest(new { error = "validation_failed", message = $"The target must be one of: {string.Join(", ", VisitStates.InOrder)}." });
         var needed = VisitStateMachine.DutyFor(body.Target!) == TransitionDuty.FrontOffice ? Permission.UpdateVisitFlow : Permission.UpdateChairsideFlow;
-        if (!Can(needed))
-            return Task.FromResult<IActionResult>(StatusCode(StatusCodes.Status403Forbidden, new { error = "permission_denied", required = needed.ToString() }));
-        return Run(async () => Ok(await flow.TransitionAsync(id, body.Target!, body.RowVersion, Actor, ct)));
+        if (!Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role)) return Unauthorized();
+        var refusal = PermissionResults.Refusal(await permissions.CheckAsync(role, needed, ct), needed.ToString());
+        if (refusal is not null) return refusal;
+        return await Run(async () => Ok(await flow.TransitionAsync(id, body.Target!, body.RowVersion, Actor, ct)));
     }
 
     [HttpPut("{id:guid}/assignment")]

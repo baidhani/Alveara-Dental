@@ -460,7 +460,7 @@ public class NotificationApiTests : IAsyncLifetime
     private async Task<int> RunConsumerAsync()
     {
         await using var db = _fixture.CreateContext();
-        return await new NotificationConsumer(db, PatientTestSupport.Clock).ProcessAllAsync(CancellationToken.None);
+        return await new NotificationConsumer(db, PatientTestSupport.Clock, PolicyTestSupport.Defaults()).ProcessAllAsync(CancellationToken.None);
     }
 
     private async Task<(Session Admin, Session Manager, Session Dentist, Guid Original)> ADuplicateAsync()

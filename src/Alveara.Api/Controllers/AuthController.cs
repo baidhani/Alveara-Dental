@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Permissions;
 using Alveara.Api.Data;
 
 namespace Alveara.Api.Controllers;
@@ -33,7 +34,7 @@ public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDis
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db) : ControllerBase
+public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db, IEffectivePermissions permissions) : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("AuthAttempts")]
@@ -180,7 +181,7 @@ public class AuthController(AccountService accountService, IConfiguration config
         {
             username = User.FindFirstValue(ClaimTypes.Name),
             role = role.ToString(),
-            permissions = PermissionMatrix.PermissionsFor(role).Select(p => p.ToString()).OrderBy(p => p),
+            permissions = (await permissions.PermissionsForAsync(role, HttpContext.RequestAborted)).Select(p => p.ToString()).OrderBy(p => p),
             sessionExpiresAtUtc = authenticateResult.Properties?.ExpiresUtc,
         });
     }
@@ -190,12 +191,13 @@ public class AuthController(AccountService accountService, IConfiguration config
     [HttpGet("permission-matrix")]
     [Authorize]
     [RequirePermission(Permission.ViewPermissionMatrix)]
-    public IActionResult GetPermissionMatrix()
+    public async Task<IActionResult> GetPermissionMatrix()
     {
+        var all = await permissions.MatrixAsync(HttpContext.RequestAborted);
         var matrix = Enum.GetValues<Role>().Select(role => new
         {
             role = role.ToString(),
-            permissions = PermissionMatrix.PermissionsFor(role).Select(p => p.ToString()).OrderBy(p => p),
+            permissions = all[role].Select(p => p.ToString()).OrderBy(p => p),
         });
         return Ok(matrix);
     }

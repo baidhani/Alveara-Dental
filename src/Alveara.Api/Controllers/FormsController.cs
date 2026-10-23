@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Forms;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Permissions;
 
 namespace Alveara.Api.Controllers;
 
@@ -35,12 +36,12 @@ public record VoidFormRequest(string? Reason, string? RowVersion);
 /// </summary>
 [ApiController]
 [Authorize]
-public class FormsController(FormTemplateService templates, PatientFormService forms, PatientFormReader reader, CheckInReadinessService readiness) : ControllerBase
+public class FormsController(FormTemplateService templates, PatientFormService forms, PatientFormReader reader, CheckInReadinessService readiness, IEffectivePermissions permissions) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    private bool Can(Permission permission) =>
-        Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && PermissionMatrix.RoleHas(role, permission);
+    private async Task<bool> CanAsync(Permission permission, CancellationToken ct) =>
+        Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, permission, ct);
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {
@@ -160,5 +161,5 @@ public class FormsController(FormTemplateService templates, PatientFormService f
     [RequirePermission(Permission.CompleteForms)]
     [RequireCsrfToken]
     public Task<IActionResult> Void(Guid formId, [FromBody] VoidFormRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await forms.VoidAsync(formId, request.Reason, request.RowVersion, Can(Permission.VoidForms), Actor, ct)));
+        Run(async () => Ok(await forms.VoidAsync(formId, request.Reason, request.RowVersion, await CanAsync(Permission.VoidForms, ct), Actor, ct)));
 }

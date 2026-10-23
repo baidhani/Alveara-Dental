@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Notifications;
+using Alveara.Api.Architecture.Permissions;
 
 namespace Alveara.Api.Controllers;
 
@@ -20,11 +21,11 @@ public record BreakGlassBody(Guid? MessageId, Guid? ThreadId, string? Reason, bo
 [ApiController]
 [Authorize]
 [Route("api")]
-public class NotificationsController(NotificationService notifications, MessageService messages, NotificationLinkService links, NotificationAdminService admin) : ControllerBase
+public class NotificationsController(NotificationService notifications, MessageService messages, NotificationLinkService links, NotificationAdminService admin, IEffectivePermissions permissions) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-    private bool MayViewPatients => Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && PermissionMatrix.RoleHas(role, Permission.ViewPatientRecords);
+    private async Task<bool> MayViewPatientsAsync(CancellationToken ct) => Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ViewPatientRecords, ct);
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {
@@ -66,7 +67,7 @@ public class NotificationsController(NotificationService notifications, MessageS
 
     /// <summary>Resolves the patient link of a notification. Answers with a path only when the caller may view patient records; otherwise the same refusal whatever the reason.</summary>
     [HttpGet("notifications/{id:guid}/patient-link")]
-    public Task<IActionResult> NotificationPatientLink(Guid id, CancellationToken ct) => Run(async () => Ok(await links.ForNotificationAsync(Actor, id, MayViewPatients, ct)));
+    public Task<IActionResult> NotificationPatientLink(Guid id, CancellationToken ct) => Run(async () => Ok(await links.ForNotificationAsync(Actor, id, await MayViewPatientsAsync(ct), ct)));
 
     // ---------- messages ----------
 
@@ -75,7 +76,7 @@ public class NotificationsController(NotificationService notifications, MessageS
     [RequireCsrfToken]
     public Task<IActionResult> Send([FromBody] SendMessageRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken ct) => Run(async () =>
     {
-        var result = await messages.SendAsync(Actor, request with { IdempotencyKey = idempotencyKey }, MayViewPatients, ct);
+        var result = await messages.SendAsync(Actor, request with { IdempotencyKey = idempotencyKey }, await MayViewPatientsAsync(ct), ct);
         return result.Replayed ? Ok(result) : StatusCode(StatusCodes.Status201Created, result);
     });
 
@@ -94,7 +95,7 @@ public class NotificationsController(NotificationService notifications, MessageS
     public Task<IActionResult> GetThread(Guid threadId, CancellationToken ct) => Run(async () => Ok(await messages.GetThreadAsync(Actor, threadId, ct)));
 
     [HttpGet("messages/{id:guid}/patient-link")]
-    public Task<IActionResult> MessagePatientLink(Guid id, CancellationToken ct) => Run(async () => Ok(await links.ForMessageAsync(Actor, id, MayViewPatients, ct)));
+    public Task<IActionResult> MessagePatientLink(Guid id, CancellationToken ct) => Run(async () => Ok(await links.ForMessageAsync(Actor, id, await MayViewPatientsAsync(ct), ct)));
 
     // ---------- the administrator's views ----------
 

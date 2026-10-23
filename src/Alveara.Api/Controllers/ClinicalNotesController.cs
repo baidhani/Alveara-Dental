@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Alveara.Api.Architecture.Clinical;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Permissions;
 
 namespace Alveara.Api.Controllers;
 
@@ -31,7 +32,7 @@ public record NoteTemplateActiveRequest(bool Active, string? RowVersion);
 /// </summary>
 [ApiController]
 [Authorize]
-public class ClinicalNotesController(EncounterNoteService notes, EncounterVitalsService vitals, EncounterSigningService signing, NoteTemplateService templates) : ControllerBase
+public class ClinicalNotesController(EncounterNoteService notes, EncounterVitalsService vitals, EncounterSigningService signing, NoteTemplateService templates, IEffectivePermissions permissions) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -107,7 +108,7 @@ public class ClinicalNotesController(EncounterNoteService notes, EncounterVitals
     public Task<IActionResult> ListTemplates([FromQuery] bool includeInactive, CancellationToken ct) =>
         Run(async () =>
         {
-            var configurator = Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && PermissionMatrix.RoleHas(role, Permission.ManageClinicalTemplates);
+            var configurator = Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ManageClinicalTemplates, ct);
             return Ok(await templates.ListAsync(includeInactive && configurator, ct));
         });
 

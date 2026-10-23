@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Documents;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Permissions;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
 
@@ -13,7 +14,7 @@ namespace Alveara.Api.Architecture.Notifications;
 /// file name, description or content (the event holds none). The recipients are the enabled accounts whose role holds <see cref="Permission.ReceiveDocumentNotifications"/> <i>when the event is processed</i>: a permission
 /// granted later does not back-fill an event that has already passed, and a removed permission prevents future delivery. The initiating person is included when they hold the permission.
 /// </summary>
-public class NotificationConsumer(AlveraDbContext db, IPracticeClock clock)
+public class NotificationConsumer(AlveraDbContext db, IPracticeClock clock, IEffectivePermissions permissions)
 {
     public const int BatchSize = 100;
 
@@ -25,7 +26,9 @@ public class NotificationConsumer(AlveraDbContext db, IPracticeClock clock)
         var events = await db.DocumentEvents.AsNoTracking().Where(e => e.EventNumber > cursor.LastEventNumber).OrderBy(e => e.EventNumber).Take(BatchSize).ToListAsync(ct);
         if (events.Count == 0) return 0;
 
-        var roles = Enum.GetValues<Role>().Where(r => PermissionMatrix.RoleHas(r, Permission.ReceiveDocumentNotifications)).ToList();
+        var roles = new List<Role>();
+        foreach (var r in Enum.GetValues<Role>())
+            if (await permissions.HasAsync(r, Permission.ReceiveDocumentNotifications, ct)) roles.Add(r);
         var recipients = await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled && roles.Contains(u.Role)).Select(u => u.Id).ToListAsync(ct);
         var now = clock.UtcNow;
 

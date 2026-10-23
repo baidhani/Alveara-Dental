@@ -11,6 +11,7 @@ using Alveara.Api.Architecture.Measurement;
 using Alveara.Api.Architecture.Storage;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 const string LocalClientCorsPolicy = "LocalClientCorsPolicy";
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.Filters.Add<Alveara.Api.Architecture.Permissions.PolicyUnavailableFilter>());
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -102,6 +103,11 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationLi
 builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationAdminService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationConsumer>();
 builder.Services.AddHostedService<Alveara.Api.Architecture.Notifications.NotificationConsumerHostedService>();
+// ALV-N017: the one effective-permission seam: a process-wide store of the current policy snapshot and one decision service per request
+builder.Services.TryAddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.IPolicyDataSource, Alveara.Api.Architecture.Permissions.SqlPolicyDataSource>();
+builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.PermissionPolicyStore>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.IEffectivePermissions, Alveara.Api.Architecture.Permissions.EffectivePermissionService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();
