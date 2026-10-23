@@ -2245,7 +2245,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "AWAITING_REGRESSION",
       "attempt": "R02",
       "acceptance": {
         "total": 12,
@@ -2261,11 +2261,12 @@
       "evidenceCommit": "210689e3427c8595af719a00cc450172f0171255",
       "handoffPath": ".alveara/handoffs/ALV-N017/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": ".alveara/reviews/ALV-N017/R01-stage1.md",
+        "decision": "APPROVED_PENDING_REGRESSION",
+        "decisionArtifact": ".alveara/reviews/ALV-N017/R02-stage1.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null,
+        "reviewedImplementationCommit": "134fbdfc77097638c936f45edeb0c86b7c386090",
+        "reviewedEvidenceCommit": "210689e3427c8595af719a00cc450172f0171255",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-N017/R02-stage1.md",
         "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N017/R01-stage1.md"
       },
       "blockingIssues": [],
@@ -2274,7 +2275,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "PENDING"
+      "fullRegression": "REQUIRED"
     },
     {
       "schemaVersion": "2",
