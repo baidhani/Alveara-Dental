@@ -2182,32 +2182,30 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed_stage1",
-        "summary": "Attempt R01, a Stage 1 package: focused backend 156 of 156 (NotificationApiTests 23; schema, inventory and permission tests; unchanged STORY-010 API tests 66), service negative controls 7 of 7 killed (schema 7 of 7), tsc 0, Vitest 1,553 of 1,553 in 98 files, build and lint exit 0, mocked Playwright 140, repository checks 13, real-backend walkthrough 10 of 10 with axe clean in both themes, unchanged STORY-010 walkthroughs 14 and 12. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N015/R01-evidence/stage2/) expects 4,392 backend tests. No full run made."
+        "summary": "Attempt R02, a Stage 1 package correcting R01 finding ALV-N015-R01-01 (the notification list carried the message subject; the property is now absent). Focused backend 157 of 157 (NotificationApiTests 24 including the new raw-JSON privacy test; schema, inventory, permission and unchanged STORY-010 API tests), negative control for the subject killed 2 tests, tsc 0, Vitest 1,553 of 1,553 in 98 files, build and lint exit 0, mocked Playwright 140, repository checks 13, real-backend walkthrough 10 of 10 (axe clean, both themes), unchanged STORY-010 walkthroughs 14 and 12. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N015/R02-evidence/stage2/) expects 4,393 backend tests. The R01 Stage 2 was not run. No full run made. Prior attempt R01 returned CHANGES_REQUIRED at Stage 1."
       },
       "demo": "real_backend_walkthrough_10_of_10",
       "parentRegression": "n/a_new_production",
-      "implementationCommit": "263fb66adfaac722ced34804dee5f2b1b123411f",
-      "evidenceCommit": "64422661c31f4ccf91bc8b0a2827246efc31eaaf",
-      "handoffPath": ".alveara/handoffs/ALV-N015/R01.md",
+      "implementationCommit": "71bf8499737135df5b2079c4ce744a56ac65d991",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-N015/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
+        "decision": "pending",
         "decisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "263fb66adfaac722ced34804dee5f2b1b123411f",
-        "reviewedEvidenceCommit": "64422661c31f4ccf91bc8b0a2827246efc31eaaf",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N015/R01-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-N015-R01-01: the notification-list payload (GET /api/notifications) carries the message subject; item 42 forbids a subject in notification-list payloads. R02 must remove the property from the DTO and the UI and prove it with a raw-JSON privacy test."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

@@ -1235,3 +1235,9 @@
   - What changed: stored the reviewer's decision unchanged (`.alveara/reviews/ALV-N015/R01-stage1.md`); status set to `CHANGES_REQUIRED` with blocking issue ALV-N015-R01-01 (the notification-list payload carries the message subject, which item 42 forbids). R01 files and ZIP are preserved; the frozen R01 Stage 2 must not be run.
   - Verification: the finding was checked in the code (`NotificationView.Subject`, `NotificationService.ListAsync`, `NotificationsPage.tsx`, and the test that asserted the subject) before recording.
   - Notes: R02 will remove the subject from the list DTO and UI and add a raw-JSON privacy test. Not pushed.
+- [x] ALV-N015 R02 (Stage 1): the message subject removed from the notification list, awaiting review
+  - Date: 2026-10-23
+  - Session: CC-20261008-k4q9
+  - What changed: corrected R01 finding ALV-N015-R01-01: `NotificationView` no longer has a `Subject` (the property is absent from `GET /api/notifications`), the list shows the generic kind label with the sender and priority; the subject stays on the authorized message routes and break-glass; `docs/NOTIFICATIONS.md` updated; implementation commit `71bf849`.
+  - Verification: focused backend 157 of 157 (new raw-JSON privacy test for the unread and history lists; negative control re-adding a `subject` property killed 2 tests); tsc 0; Vitest 1,553 of 1,553; build 0; lint 0; mocked Playwright 140; repository checks 13; real-backend walkthrough 10 of 10; unchanged STORY-010 walkthroughs 14 and 12. Evidence `.alveara/handoffs/ALV-N015/R02-evidence/`.
+  - Notes: Stage 1 only; full regression PENDING (frozen Stage 2 in `R02-evidence/stage2/`, expects 4,393 tests); the R01 Stage 2 was not run. The inbox and sent lists still show the subject to participants (disclosed). Not pushed.
