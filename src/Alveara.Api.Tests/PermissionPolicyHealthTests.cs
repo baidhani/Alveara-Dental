@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Alveara.Api.Architecture.Identity;
@@ -158,11 +159,14 @@ public class PermissionPolicyHealthTests : IAsyncLifetime
         var admin = await _api.SessionAsync("Admin");
         var dentist = await _api.SessionAsync("Dentist");
         var id = await AddRowAsync("Wizard", "SecretPermissionName", OverrideEffects.Revoke);
-        await GetAsync(dentist, "/api/patients");                                                                    // a request on the changed version reloads and reports
+        await GetAsync(dentist, "/api/patients");                                                                    // a request on the changed version reloads and reports (in the background)
+        await _api.Factory.Services.GetRequiredService<PermissionPolicyStore>().ReportsIdle();
         await ApplyAsync(db => Guid.Empty);                                                                          // two more policy versions: two more reloads
         await GetAsync(dentist, "/api/patients");
+        await _api.Factory.Services.GetRequiredService<PermissionPolicyStore>().ReportsIdle();
         await ApplyAsync(db => Guid.Empty);
         await GetAsync(dentist, "/api/patients");
+        await _api.Factory.Services.GetRequiredService<PermissionPolicyStore>().ReportsIdle();
         await using (var db = _fixture.CreateContext())
         {
             var reports = await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == AuditEventTypes.PermissionPolicyInvalidRowDetected && a.TargetUserAccountId == id).ToListAsync();

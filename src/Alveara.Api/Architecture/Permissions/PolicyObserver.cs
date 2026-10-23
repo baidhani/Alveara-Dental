@@ -31,11 +31,20 @@ public sealed class AuditingPolicyObserver(IServiceScopeFactory scopes, ILogger<
             timeout.CancelAfter(Budget);
             await using var scope = scopes.CreateAsyncScope();
             var db = scope.ServiceProvider.GetRequiredService<AlveraDbContext>();
+            // one query per batch of rows, not one per row: which of these rows were already reported, by the exact text of the entry
+            var reported = new HashSet<(Guid, string)>();
+            foreach (var batch in snapshot.InvalidRows.Chunk(500))
+            {
+                var ids = batch.Select(r => r.Id).ToList();
+                var found = await db.AuditLogEntries.AsNoTracking()
+                    .Where(a => a.EventType == AuditEventTypes.PermissionPolicyInvalidRowDetected && ids.Contains(a.TargetUserAccountId))
+                    .Select(a => new { a.TargetUserAccountId, a.Details }).ToListAsync(timeout.Token);
+                foreach (var f in found) reported.Add((f.TargetUserAccountId, f.Details));
+            }
             foreach (var row in snapshot.InvalidRows)
             {
                 var details = $"Invalid permission policy row detected: {row.Reason} (row version {Convert.ToHexString(row.RowVersion ?? [])}).";
-                var already = await db.AuditLogEntries.AsNoTracking().AnyAsync(a => a.EventType == AuditEventTypes.PermissionPolicyInvalidRowDetected && a.TargetUserAccountId == row.Id && a.Details == details, timeout.Token);
-                if (!already) AuditService.Record(db, AuditEventTypes.PermissionPolicyInvalidRowDetected, "PermissionPolicyRow", row.Id, null, details);
+                if (!reported.Contains((row.Id, details))) AuditService.Record(db, AuditEventTypes.PermissionPolicyInvalidRowDetected, "PermissionPolicyRow", row.Id, null, details);
             }
             await db.SaveChangesAsync(timeout.Token);
         }

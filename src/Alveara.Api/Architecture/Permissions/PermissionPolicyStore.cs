@@ -94,7 +94,7 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
 
         try
         {
-            return new PolicyRead(await ReloadAsync(ct), false);
+            return new PolicyRead(await ReloadAsync(version, ct), false);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {
@@ -102,25 +102,28 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
         }
     }
 
-    private Task<PolicySnapshot> ReloadAsync(CancellationToken ct)
+    private Task<PolicySnapshot> ReloadAsync(long knownVersion, CancellationToken ct)
     {
         Task<PolicySnapshot> flight;
         lock (_gate)
         {
-            _reload ??= RunReloadAsync();
+            // a reload that finished after this request read the version has already published what it needs: serve that, do not read the store again
+            if (Volatile.Read(ref _current) is { } published && published.Version >= knownVersion) return Task.FromResult(published);
+            _reload ??= RunReloadAsync(knownVersion);
             flight = _reload;
         }
         return flight.WaitAsync(ReloadWait, ct);
     }
 
-    private async Task<PolicySnapshot> RunReloadAsync()
+    /// <summary>The version the caller just read opens the bracket (it was read before the rows, so the bracket is still sound); later attempts read their own opening version.</summary>
+    private async Task<PolicySnapshot> RunReloadAsync(long knownVersion)
     {
         try
         {
             await Task.Yield();                                                                                // never run the read inside the caller's lock
             for (var attempt = 1; attempt <= MaxReloadAttempts; attempt++)
             {
-                var before = await source.ReadVersionAsync(CancellationToken.None);
+                var before = attempt == 1 ? knownVersion : await source.ReadVersionAsync(CancellationToken.None);
                 var rows = await source.ReadRowsAsync(CancellationToken.None);
                 var after = await source.ReadVersionAsync(CancellationToken.None);
                 if (before != after)                                                                           // a writer got in between: the rows may belong to neither version, read again
@@ -132,7 +135,7 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
                 Volatile.Write(ref _current, snapshot);                                                        // one atomic swap
                 Volatile.Write(ref _verifiedAt, time.GetTimestamp());
                 Interlocked.Increment(ref _reloads);
-                if (observer is not null) await observer.OnPublishedAsync(snapshot, CancellationToken.None);       // reports invalid rows (own time budget, never throws); only does work when there are some
+                Report(snapshot);                                                                              // invalid rows are reported off the decision path
                 return snapshot;
             }
             throw new PolicyUnavailableException("The policy kept changing while it was being read.");
@@ -140,6 +143,41 @@ public sealed class PermissionPolicyStore(IPolicyDataSource source, TimeProvider
         finally
         {
             lock (_gate) _reload = null;
+        }
+    }
+
+    private readonly object _reportGate = new();
+    private PolicySnapshot? _pendingReport;
+    private bool _reporting;
+    private Task _lastReport = Task.CompletedTask;
+
+    /// <summary>Completes when the reporting started so far has finished (tests wait on it; nothing in production does).</summary>
+    public Task ReportsIdle() { lock (_reportGate) return _lastReport; }
+
+    /// <summary>Hands the snapshot to the observer in the background. At most one report runs at a time and only the newest snapshot waiting is reported, so a burst of policy changes cannot pile up work.</summary>
+    private void Report(PolicySnapshot snapshot)
+    {
+        if (observer is null || (snapshot.InvalidRows.Count == 0 && !snapshot.Degraded)) return;
+        lock (_reportGate)
+        {
+            _pendingReport = snapshot;
+            if (_reporting) return;
+            _reporting = true;
+            _lastReport = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    PolicySnapshot? next;
+                    lock (_reportGate)
+                    {
+                        next = _pendingReport;
+                        _pendingReport = null;
+                        if (next is null) { _reporting = false; return; }
+                    }
+                    try { await observer.OnPublishedAsync(next, CancellationToken.None); }
+                    catch (Exception ex) { logger.LogWarning("permission_policy_report_failed error_class={ErrorClass}", ex.GetType().Name); }
+                }
+            });
         }
     }
 

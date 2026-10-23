@@ -48,7 +48,7 @@ public class EffectivePermissionServiceTests
         for (var i = 0; i < 25; i++) await service.CheckAsync(Role.Dentist, Permission.ViewBilling);
         await service.CheckAnyAsync(Role.Dentist, [Permission.ManageBilling, Permission.ViewBilling]);
         await service.PermissionsForAsync(Role.Hygienist);
-        Assert.Equal(3, source.VersionReads);                                                                           // the first check: the version, then the bracketed reload (version, rows, version); the rest reuse it
+        Assert.Equal(2, source.VersionReads);                                                                           // the first check: the version it reads opens the bracket, then rows, then the closing version; the rest reuse it
         Assert.Equal(1, source.RowReads);
     }
 
