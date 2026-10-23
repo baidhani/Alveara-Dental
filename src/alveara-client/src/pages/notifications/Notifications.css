@@ -1,0 +1,4 @@
+/* Links use the information colour, which keeps AA contrast on every surface in both themes; the plain link colour does not in dark mode (see Documents.css, found by the ALV-010-C01 walkthrough). */
+.alv-notif__link {
+  color: var(--color-info);
+}

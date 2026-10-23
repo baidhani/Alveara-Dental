@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/PageHeader";
-import { Button } from "../../components/Button";
+import { Button, ButtonLink } from "../../components/Button";
 import { LoadingState, EmptyState, ErrorState } from "../../components/StatePatterns";
 import { ApiError } from "../../services/authApi";
 import { clearHistory, hideNotification, listNotifications, markAllRead, markRead, notificationPatientLink } from "../../services/notificationsApi";
@@ -19,10 +19,13 @@ export function NotificationsPage() {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const latest = useRef(0);                                                              // an answer to an earlier request (another tab) must never replace the current one
 
   const load = useCallback(async () => {
+    const mine = ++latest.current;
     setState({ kind: "loading" });
-    try { setState({ kind: "loaded", data: await listNotifications(view) }); } catch { setState({ kind: "error" }); }
+    try { const data = await listNotifications(view); if (mine === latest.current) setState({ kind: "loaded", data }); }
+    catch { if (mine === latest.current) setState({ kind: "error" }); }
   }, [view]);
   useEffect(() => { void load(); }, [load]);
 
@@ -48,7 +51,7 @@ export function NotificationsPage() {
       <PageHeader
         title="Notifications"
         description="Notices for you. An unread notice has to be read before it can be hidden; nothing is ever deleted."
-        actions={<Link to="/messages">Messages</Link>}
+        actions={<ButtonLink to="/messages">Messages</ButtonLink>}
       />
       <div role="tablist" aria-label="Notification view">
         {(["unread", "history"] as View[]).map((v) => (

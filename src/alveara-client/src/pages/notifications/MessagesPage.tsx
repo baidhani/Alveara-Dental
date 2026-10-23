@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/PageHeader";
-import { Button } from "../../components/Button";
+import { Button, ButtonLink } from "../../components/Button";
 import { LoadingState, EmptyState, ErrorState } from "../../components/StatePatterns";
 import { useAuth } from "../../contexts/AuthContext";
 import { ApiError } from "../../services/authApi";
 import { getMessage, getThread, listMessages, messagePatientLink } from "../../services/notificationsApi";
 import type { MessageListItem, MessageView, Paged } from "../../services/notificationsApi";
 import { ComposeMessage } from "./ComposeMessage";
+import "./Notifications.css";
 
 const when = (iso: string) => new Date(iso).toLocaleString();
 
@@ -18,10 +19,13 @@ export function MessagesPage() {
   const [composing, setComposing] = useState(false);
   const [state, setState] = useState<{ kind: "loading" } | { kind: "error" } | { kind: "loaded"; data: Paged<MessageListItem> }>({ kind: "loading" });
   const navigate = useNavigate();
+  const latest = useRef(0);                                                              // an answer to an earlier request (another box) must never replace the current one
 
   const load = useCallback(async () => {
+    const mine = ++latest.current;
     setState({ kind: "loading" });
-    try { setState({ kind: "loaded", data: await listMessages(box) }); } catch { setState({ kind: "error" }); }
+    try { const data = await listMessages(box); if (mine === latest.current) setState({ kind: "loaded", data }); }
+    catch { if (mine === latest.current) setState({ kind: "error" }); }
   }, [box]);
   useEffect(() => { void load(); }, [load]);
 
@@ -45,7 +49,7 @@ export function MessagesPage() {
         <ul>
           {state.data.items.map((m) => (
             <li key={m.id}>
-              <Link to={`/messages/${m.id}`}>{m.isUnread ? <strong>{m.subject ?? "(no subject)"}</strong> : (m.subject ?? "(no subject)")}</Link>{" "}
+              <Link to={`/messages/${m.id}`} className="alv-notif__link">{m.isUnread ? <strong>{m.subject ?? "(no subject)"}</strong> : (m.subject ?? "(no subject)")}</Link>{" "}
               {m.priority !== "Normal" && <em>{m.priority}</em>} {box === "inbox" ? `from ${m.senderName}` : `to ${m.recipientCount}, read by ${m.readCount}`} <small>{when(m.sentAtUtc)}</small>
             </li>
           ))}
@@ -86,7 +90,7 @@ export function MessageDetailPage() {
 
   return (
     <>
-      <PageHeader title={state.message.subject ?? "(no subject)"} actions={<Link to="/messages">Back to messages</Link>} />
+      <PageHeader title={state.message.subject ?? "(no subject)"} actions={<ButtonLink to="/messages">Back to messages</ButtonLink>} />
       {note && <p role="status">{note}</p>}
       {state.thread.map((m) => (
         <article key={m.id} aria-label={`Message from ${m.senderName}`}>
