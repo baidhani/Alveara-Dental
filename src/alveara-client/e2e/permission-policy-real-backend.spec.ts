@@ -213,7 +213,7 @@ test("LAST ADMINISTRATOR: the only enabled administrator cannot be demoted or di
   evidence.lastAdmin = { roleChange: "409 last_admin", disable: "409 last_admin", rawSql: "refused (update and bulk update by trigger 51207; delete by trigger 51207 or the history foreign key)" };
 });
 
-test("TARGET RULES: an office manager who has been granted account administration can act only on accounts the rules allow, and the user list stays closed", async () => {
+test("TARGET RULES: an office manager who has been granted account administration can act only on accounts the rules allow, and the user list never shows an administrator", async () => {
   const manager = sessions.OfficeManager.page;
   addOverride("OfficeManager", "ManageAccountStatus", "Grant");
   addOverride("OfficeManager", "RevokeSessions", "Grant");
@@ -223,12 +223,14 @@ test("TARGET RULES: an office manager who has been granted account administratio
   expect([onDentist.status, onDentist.body.rule]).toEqual([403, "target_exceeds_actor"]);
   const self = await api(manager, "put", `/api/auth/${ids.OfficeManagerUser}/enabled`, { enabled: false });
   expect([self.status, self.body.rule]).toEqual([403, "self_disable"]);
-  expect((await api(manager, "get", "/api/auth/users")).status).toBe(403);                                      // no broader user-list access in this story
+  const listed = await api(manager, "get", "/api/auth/users");                                                    // ALV-N018 opens the list to a holder, filtered by the target rules: never an administrator
+  expect(listed.status).toBe(200);
+  expect((listed.body as any[]).some((u) => u.role === "Admin")).toBe(false);
   const refusals = ((await api(admin, "get", "/api/auth/audit-log?take=1000")).body as any[]).filter((e) => e.eventType === "AccountActionRefused");
   expect(refusals.length).toBeGreaterThanOrEqual(3);
   expect(sql("SELECT COUNT(*) FROM UserAccounts WHERE IsDisabled = 1").trim()).toBe("0");                       // nothing was disabled
   removeOverrides("OfficeManager");
-  evidence.targetRules = { onAdmin: "target_is_admin", onDentist: "target_exceeds_actor", self: "self_disable", userList: 403, refusalsAudited: refusals.length };
+  evidence.targetRules = { onAdmin: "target_is_admin", onDentist: "target_exceeds_actor", self: "self_disable", userListHasNoAdministrator: true, refusalsAudited: refusals.length };
 });
 
 test("DATABASE: the policy history cannot be changed or deleted and the policy version only moves forward by one", async () => {
