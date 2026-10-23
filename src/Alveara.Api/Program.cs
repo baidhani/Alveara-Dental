@@ -95,6 +95,13 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionDraf
 builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Prescribing.PrescriptionLifecycleService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentImportService>();
+// ALV-N015: the notification center. The consumer is a hosted service (Notifications:ConsumerPollSeconds, 0 turns it off); the services are scoped.
+builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.MessageService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationLinkService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationAdminService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Notifications.NotificationConsumer>();
+builder.Services.AddHostedService<Alveara.Api.Architecture.Notifications.NotificationConsumerHostedService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();

@@ -80,4 +80,12 @@ public static class AuditEventTypes
 
     // ALV-N004: a wrong current password on a sensitive administrative step-up (backup/recovery).
     public const string SensitiveActionStepUpFailed = "SensitiveActionStepUpFailed";
+
+    // ALV-N015: operational messages and notifications. Every one carries ids, counts and codes only: never a message subject or body, a patient name or a file name.
+    public const string MessageSent = "MessageSent";
+    public const string MessageRead = "MessageRead";
+    public const string NotificationsCleared = "NotificationsCleared";
+    public const string MessageBreakGlassAttempted = "MessageBreakGlassAttempted";
+    public const string MessageBreakGlassSucceeded = "MessageBreakGlassSucceeded";
+    public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";
 }

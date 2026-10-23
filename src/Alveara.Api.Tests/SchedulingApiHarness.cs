@@ -16,7 +16,7 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
     private WebApplicationFactory<Program>? _factory;
     private Session? _admin;
 
-    public sealed record Session(HttpClient Client, string Csrf)
+    public sealed record Session(HttpClient Client, string Csrf, Guid UserId = default)
     {
         public async Task<(HttpStatusCode Status, JsonElement Body)> SendAsync(HttpMethod method, string url, object? body = null, string? key = null, bool csrf = true)
         {
@@ -57,6 +57,7 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
         builder.UseSetting("StorageRoot", StorageRoot);
+        builder.UseSetting("Notifications:ConsumerPollSeconds", "0");                                  // tests drive the consumer themselves
     });
 
     private static async Task<string> CsrfAsync(HttpClient client) =>
@@ -69,9 +70,9 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         {
             var first = Factory.CreateClient();
             var adminName = $"admin-{Guid.NewGuid():N}";
-            await first.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(adminName, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+            var adminId = (await (await first.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(adminName, "admin-password", IdentityTestHelpers.TestBootstrapSecret))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
             await first.PostAsJsonAsync("/api/auth/login", new LoginRequest(adminName, "admin-password"));
-            _admin = new Session(first, await CsrfAsync(first));
+            _admin = new Session(first, await CsrfAsync(first), adminId);
         }
         if (role == "Admin") return _admin;
 
@@ -81,7 +82,7 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         await _admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/enabled", new SetEnabledRequest(true));
         var client = Factory.CreateClient();
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password"));
-        return new Session(client, await CsrfAsync(client));
+        return new Session(client, await CsrfAsync(client), id);
     }
 
     public void Dispose()
