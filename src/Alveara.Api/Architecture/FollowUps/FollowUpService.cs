@@ -263,6 +263,6 @@ public partial class FollowUpService(AlveraDbContext db, IPracticeClock clock, I
         var now = clock.UtcNow;
         return tasks.Select(t => new FollowUpView(
             t.Id, t.PatientId, t.Title, t.Note, t.DueAtUtc, t.Status, t.Status == FollowUpStatuses.Open && t.DueAtUtc < now, t.AssigneeUserId, t.AssigneeUserId is { } a ? names.GetValueOrDefault(a) : null, t.RecallIntervalDays,
-            t.RecallOfTaskId, recalls.FirstOrDefault(r => r.Of == t.Id)?.Id, t.CreatedByUserId, t.CreatedAtUtc, t.ClosedAtUtc, t.ClosedByUserId, t.ClosureNote, Convert.ToBase64String(t.RowVersion), t.Priority, t.Kind, t.AppointmentId, t.SourcePlanItemId, t.ClosedBySystem)).ToList();
+            t.RecallOfTaskId, recalls.FirstOrDefault(r => r.Of == t.Id)?.Id, t.CreatedByUserId, t.CreatedAtUtc, t.ClosedAtUtc, t.ClosedByUserId, t.ClosureNote, Convert.ToBase64String(t.RowVersion), t.Priority, t.Kind, t.AppointmentId, t.SourcePlanItemId, t.ClosedBySystem, t.SourceReferralCaseId, t.SourceLabCaseId)).ToList();
     }
 }
