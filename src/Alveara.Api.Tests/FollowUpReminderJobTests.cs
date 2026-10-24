@@ -31,6 +31,7 @@ public class FollowUpReminderJobTests : SafetyTestBase
     private async Task<FollowUpTask> TaskAsync(Guid? assignee, DateTimeOffset due, string status = FollowUpStatuses.Open)
     {
         var t = new FollowUpTask { Id = Guid.NewGuid(), PatientId = Ann, AssigneeUserId = assignee, Title = "Secret title", DueAtUtc = due, Status = status, CreatedByUserId = S.Actor, CreatedAtUtc = DateTimeOffset.UtcNow.AddDays(-30) };
+        if (status != FollowUpStatuses.Open) { t.ClosedAtUtc = DateTimeOffset.UtcNow.AddDays(1); t.ClosedByUserId = S.Actor; }
         await using var db = Fixture.CreateContext();
         db.FollowUpTasks.Add(t);
         await db.SaveChangesAsync();
@@ -58,6 +59,17 @@ public class FollowUpReminderJobTests : SafetyTestBase
     private async Task<BackgroundJob> JobAsync() { await using var db = Fixture.CreateContext(); return await db.BackgroundJobs.AsNoTracking().SingleAsync(j => j.JobType == FollowUpReminderService.JobType); }
 
     // ---------- the scan only enqueues ----------
+
+    [Theory]
+    [InlineData(FollowUpStatuses.Completed)]
+    [InlineData(FollowUpStatuses.Cancelled)]
+    public async Task The_scan_makes_no_job_for_a_task_that_is_already_closed(string status)
+    {
+        var hyg = await UserAsync(Role.Hygienist);
+        await TaskAsync(hyg, Now.AddMinutes(-5), status);
+        Assert.Equal(new ReminderEnqueueResult(0, 0, 0), await EnqueueAsync());
+        Assert.Equal((0, 0, 0, 0, 0), await CountsAsync());
+    }
 
     [Fact]
     public async Task The_scan_makes_one_job_per_task_due_time_and_channel_and_delivers_nothing_itself()

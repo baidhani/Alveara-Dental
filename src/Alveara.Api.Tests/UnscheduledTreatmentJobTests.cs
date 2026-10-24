@@ -192,6 +192,37 @@ public class UnscheduledTreatmentJobTests : TreatmentPlanTestBase
     }
 
     [Fact]
+    public async Task A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more()
+    {
+        var (_, item) = await PlanItemAsync(Ann);
+        await StateAsync(item, 1);
+        await PassAsync(); await RunAsync();
+        await using (var db = Fixture.CreateContext())
+        {
+            var payload = (await db.BackgroundJobs.AsNoTracking().SingleAsync(j => j.JobType == UnscheduledTreatmentScheduler.CreateJobType)).PayloadJson!;
+            await new BackgroundJobQueue(db).EnqueueAsync("replay-of-the-create-job", UnscheduledTreatmentScheduler.CreateJobType, payload, default);   // the same task asked for under another job key
+        }
+        await RunAsync();
+        Assert.Single(await TasksAsync());
+        await using var check = Fixture.CreateContext();
+        Assert.Equal(new[] { BackgroundJobStatus.Succeeded, BackgroundJobStatus.Succeeded }, await check.BackgroundJobs.AsNoTracking().Where(j => j.JobType == UnscheduledTreatmentScheduler.CreateJobType).Select(j => j.Status).ToArrayAsync());
+    }
+
+    [Fact]
+    public async Task A_close_job_for_a_task_whose_treatment_still_waits_leaves_it_open()
+    {
+        var (_, item) = await PlanItemAsync(Ann);
+        await StateAsync(item, 1);
+        await PassAsync(); await RunAsync();
+        var task = Assert.Single(await TasksAsync());
+        await using (var db = Fixture.CreateContext())
+            await new BackgroundJobQueue(db).EnqueueAsync("stale-close-job", UnscheduledTreatmentScheduler.CloseJobType, System.Text.Json.JsonSerializer.Serialize(new UnscheduledCloseJobPayload(task.Id)), default);
+        await RunAsync();                                                                                                // the treatment was never settled: a late or mistaken close job must not close the task
+        var after = Assert.Single(await TasksAsync());
+        Assert.Equal((FollowUpStatuses.Open, false), (after.Status, after.ClosedBySystem));
+    }
+
+    [Fact]
     public async Task A_task_a_person_already_closed_is_left_alone_when_the_treatment_is_later_scheduled()
     {
         var (_, item) = await PlanItemAsync(Ann);

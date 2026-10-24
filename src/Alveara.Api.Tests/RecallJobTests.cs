@@ -55,6 +55,28 @@ public class RecallJobTests : SafetyTestBase
     // ---------- the switch, the lead time, the one task ----------
 
     [Fact]
+    public async Task A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more()
+    {
+        await EnableRecallAsync();
+        var visit = await CompletedVisitAsync(Ann);
+        var now = visit.AddDays(170);
+        await SchedulePassAsync(now);
+        await RunJobsAsync(now);
+        await using (var close = Fixture.CreateContext())                                                              // the task is closed, so only the key (not the open-recall rule) can stop a second one
+            await close.Database.ExecuteSqlAsync($"UPDATE [FollowUpTasks] SET [Status] = N'Completed', [ClosedAtUtc] = DATEADD(YEAR, 5, SYSDATETIMEOFFSET()), [ClosedByUserId] = {S.Actor} WHERE [Kind] = N'Recall'");
+        string payload;
+        await using (var db = Fixture.CreateContext())
+        {
+            payload = (await db.BackgroundJobs.AsNoTracking().SingleAsync(j => j.JobType == RecallScheduler.JobType)).PayloadJson!;
+            await new BackgroundJobQueue(db).EnqueueAsync("replay-of-the-recall-job", RecallScheduler.JobType, payload, default);        // the same task asked for under another job key
+        }
+        await RunJobsAsync(now);
+        Assert.Single(await RecallTasksAsync());
+        await using var check = Fixture.CreateContext();
+        Assert.Equal(new[] { BackgroundJobStatus.Succeeded, BackgroundJobStatus.Succeeded }, await check.BackgroundJobs.AsNoTracking().Where(j => j.JobType == RecallScheduler.JobType).Select(j => j.Status).ToArrayAsync());
+    }
+
+    [Fact]
     public async Task Nothing_is_enqueued_while_recall_is_switched_off()
     {
         var visit = await CompletedVisitAsync(Ann);
