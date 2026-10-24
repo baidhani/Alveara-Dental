@@ -11,6 +11,9 @@ public sealed record QueueCounts(int Overdue, int DueSoon, int Unassigned, int M
 
 public sealed record QueuePage(IReadOnlyList<QueueItem> Items, int Total, int Page, int PageSize, QueueCounts Counts, int DueSoonDays);
 
+/// <summary>One line of a patient's follow-up timeline: what happened to which task, by whom and when. <see cref="Detail"/> is only ever a due time; the task's title is shown so the line makes sense, never its note.</summary>
+public sealed record TimelineEntry(Guid TaskId, string TaskTitle, string TaskKind, string TaskStatus, string EventKind, Guid? ActorUserId, string? ActorName, DateTimeOffset OccurredAtUtc, string? Detail);
+
 public sealed record AssignFollowUpRequest(Guid? AssigneeUserId, string? RowVersion);
 public sealed record ClaimFollowUpRequest(string? RowVersion);
 public sealed record SetPriorityRequest(string? Priority, string? RowVersion);
@@ -27,4 +30,5 @@ public static class QueueFilters
 
     public const int DefaultPageSize = 25;
     public const int MaxPageSize = 100;
+    public const int MaxTimelineEntries = 200;
 }

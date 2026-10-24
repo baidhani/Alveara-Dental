@@ -32,6 +32,11 @@ public class WorkQueueController(FollowUpService followUps, RecallAdminService r
     public Task<IActionResult> Queue([FromQuery] string? filter, [FromQuery] string? priority, [FromQuery] string? kind, [FromQuery] string? owner, [FromQuery] string? status, [FromQuery] int? page, [FromQuery] int? pageSize, CancellationToken ct) =>
         Run(async () => await followUps.QueueAsync(Actor, new QueueQuery(filter, priority, kind, owner, status, page, pageSize), ct));
 
+    /// <summary>Everything that happened to a patient's follow-ups, newest first.</summary>
+    [HttpGet("api/patients/{patientId:guid}/follow-ups/timeline")]
+    [RequirePermission(Permission.ViewFollowUps)]
+    public Task<IActionResult> Timeline(Guid patientId, CancellationToken ct) => Run(async () => await followUps.TimelineAsync(patientId, ct));
+
     [HttpPost("api/follow-ups/{id:guid}/assign")]
     [RequirePermission(Permission.ManageFollowUps)]
     [RequireCsrfToken]

@@ -423,6 +423,46 @@ public class WorkQueueApiTests : IAsyncLifetime
         Assert.Equal(new[] { FollowUpEventKinds.Edited, FollowUpEventKinds.Completed }, history);   // the system's own creation entry is not in this test's hand-made task
     }
 
+    // ---------- a patient's timeline ----------
+
+    [Fact]
+    public async Task A_patients_timeline_lists_what_happened_to_all_their_follow_ups_newest_first_and_nobody_elses()
+    {
+        var mine = await ManualAsync(_dentist, _hygienist.UserId, "Call about the crown", due: DateTimeOffset.UtcNow.AddDays(10));
+        var id = mine.GetProperty("id").GetGuid();
+        var system = await SystemTaskAsync(title: "Patient recall: schedule the next visit");
+        await using (var db = _fixture.CreateContext())
+        {
+            db.FollowUpTaskEvents.Add(new FollowUpTaskEvent { Id = Guid.NewGuid(), TaskId = system.Id, Kind = FollowUpEventKinds.SystemCreated, ActorUserId = null, OccurredAtUtc = DateTimeOffset.UtcNow.AddHours(-2), Detail = "Recall due 2027-01-01 (180 days)" });
+            await db.SaveChangesAsync();
+        }
+        await _frontDesk.SendAsync(HttpMethod.Post, $"/api/follow-ups/{system.Id}/claim", new { rowVersion = await VersionOfAsync(system.Id) });
+        await _hygienist.SendAsync(HttpMethod.Post, $"/api/follow-ups/{id}/priority", new { priority = "High", rowVersion = Str(mine, "rowVersion") });
+        await ManualAsync(_dentist, _hygienist.UserId, "Someone else's patient", patient: _bo);
+
+        var r = await _frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/follow-ups/timeline");
+        Assert.Equal(HttpStatusCode.OK, r.Status);
+        var entries = r.Body.EnumerateArray().ToList();
+        Assert.DoesNotContain("Someone else's patient", entries.Select(e => Str(e, "taskTitle")));
+        Assert.Equal(new[] { "PriorityChanged", "Assigned", "Created", "SystemCreated" }, entries.Select(e => Str(e, "eventKind")).ToArray());      // newest first
+        Assert.Equal(entries.OrderByDescending(e => e.GetProperty("occurredAtUtc").GetDateTimeOffset()).Select(e => Str(e, "eventKind")), entries.Select(e => Str(e, "eventKind")));
+        var systemEntry = entries.Last();
+        Assert.Equal((JsonValueKind.Null, JsonValueKind.Null), (systemEntry.GetProperty("actorUserId").ValueKind, systemEntry.GetProperty("actorName").ValueKind));   // the system's own entry has no person
+        Assert.Equal(JsonValueKind.Null, systemEntry.GetProperty("detail").ValueKind);                                                    // only a due time is ever shown as detail
+        Assert.Contains(entries, e => Str(e, "eventKind") == "Created" && e.GetProperty("detail").GetString()!.StartsWith("Due "));
+        Assert.DoesNotContain(entries, e => e.GetProperty("detail").ValueKind == JsonValueKind.String && !e.GetProperty("detail").GetString()!.StartsWith("Due "));
+    }
+
+    [Fact]
+    public async Task The_timeline_is_refused_to_billing_and_says_when_the_patient_does_not_exist()
+    {
+        var denied = await _billing.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/follow-ups/timeline");
+        Assert.Equal((HttpStatusCode.Forbidden, "permission_denied"), (denied.Status, Error(denied.Body)));
+        var missing = await _frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{Guid.NewGuid()}/follow-ups/timeline");
+        Assert.Equal((HttpStatusCode.NotFound, "patient_not_found"), (missing.Status, Error(missing.Body)));
+        Assert.Equal(0, (await _frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/follow-ups/timeline")).Body.GetArrayLength());
+    }
+
     // ---------- the recall settings ----------
 
     [Fact]
@@ -535,7 +575,8 @@ public class WorkQueueApiTests : IAsyncLifetime
     {
         var results = await Task.WhenAll(new[] { _frontDesk, _hygienist, _dentist, _manager }.Select((s, i) => s.SendAsync(HttpMethod.Put, $"/api/patients/{_ann}/recall", new { intervalDays = 60 + i, optedOut = false, reason = (string?)null })));
         Assert.Contains(HttpStatusCode.OK, results.Select(r => r.Status));
-        Assert.All(results.Where(r => r.Status != HttpStatusCode.OK), r => Assert.Equal((HttpStatusCode.Conflict, "plan_changed"), (r.Status, Error(r.Body))));
+        // a loser either collided with the winner's insert (plan_changed) or arrived after it and, having no version to send for a plan it had not seen, was asked for one (row_version_required): both mean "reload"
+        Assert.All(results.Where(r => r.Status != HttpStatusCode.OK), r => Assert.True(Error(r.Body) is "plan_changed" or "row_version_required", Error(r.Body)));
         await using var db = _fixture.CreateContext();
         Assert.Equal(1, await db.PatientRecallPlans.CountAsync());
     }

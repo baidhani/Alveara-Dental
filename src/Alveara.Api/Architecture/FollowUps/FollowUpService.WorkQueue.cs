@@ -67,6 +67,21 @@ public partial class FollowUpService
         return new QueuePage(items, total, page, pageSize, counts, settings.DueSoonDays);
     }
 
+    // ---------- a patient's timeline ----------
+
+    /// <summary>Everything that happened to a patient's follow-ups, newest first (at most 200 entries), across all their tasks: creation, assignment, priority, reminders, completion, recalls and the system's own entries.</summary>
+    public async Task<IReadOnlyList<TimelineEntry>> TimelineAsync(Guid patientId, CancellationToken ct)
+    {
+        if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new FollowUpException("patient_not_found", "That patient was not found.", 404);
+        var rows = await (from e in db.FollowUpTaskEvents.AsNoTracking()
+                          join t in db.FollowUpTasks.AsNoTracking() on e.TaskId equals t.Id
+                          where t.PatientId == patientId
+                          orderby e.OccurredAtUtc descending, e.Id
+                          select new { e.TaskId, t.Title, t.Kind, t.Status, EventKind = e.Kind, e.ActorUserId, e.OccurredAtUtc, e.Detail }).Take(QueueFilters.MaxTimelineEntries).ToListAsync(ct);
+        var names = await NamesAsync(rows.Where(r => r.ActorUserId != null).Select(r => r.ActorUserId!.Value).Distinct().ToList(), ct);
+        return rows.Select(r => new TimelineEntry(r.TaskId, r.Title, r.Kind, r.Status, r.EventKind, r.ActorUserId, r.ActorUserId is { } a ? names.GetValueOrDefault(a) : null, r.OccurredAtUtc, r.Detail is { } d && d.StartsWith("Due ", StringComparison.Ordinal) ? d : null)).ToList();
+    }
+
     // ---------- the quick actions ----------
 
     /// <summary>Gives the task to a person, or to nobody (null puts it back in the unassigned queue). The same owner again is a quiet replay.</summary>
