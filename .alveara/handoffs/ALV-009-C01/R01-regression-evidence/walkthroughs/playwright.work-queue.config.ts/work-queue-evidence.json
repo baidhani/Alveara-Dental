@@ -1,0 +1,38 @@
+{
+  "axe": {
+    "recall-settings-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "recall-settings-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "work-queue-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "work-queue-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patient-follow-ups-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patient-follow-ups-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792863117723,
+  "recallOffTasks": 0,
+  "recallTasks": 1,
+  "auditEventTypes": [
+    "FollowUpAssigned",
+    "FollowUpCompleted",
+    "FollowUpCreated",
+    "FollowUpPriorityChanged",
+    "RecallSettingsChanged"
+  ]
+}

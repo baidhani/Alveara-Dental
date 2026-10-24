@@ -1,0 +1,191 @@
+baseline ids: 4734; result ids: 4906; new ids: 172 (expected 162)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+    Alveara.Api.Tests.FollowUpReminderJobTests.A_backlog_bigger_than_a_page_is_worked_through_without_the_first_page_starving_the_rest -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.A_failed_job_is_not_reset_once_the_reminder_is_no_longer_owed -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.A_job_left_claimed_by_a_dead_server_is_recovered_and_the_reminder_is_sent_once -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.A_job_that_fails_all_its_attempts_is_given_fresh_ones_after_the_cool_down_for_as_long_as_the_reminder_is_owed -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.A_job_whose_effect_had_committed_before_the_server_died_is_finished_without_a_second_reminder -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.A_task_completed_or_re_dated_after_the_job_was_enqueued_gets_no_reminder_and_the_job_still_succeeds -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.An_unassigned_task_is_the_office_managers_and_the_delivery_says_so -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.Running_the_same_job_again_even_by_force_changes_nothing -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.The_application_registers_the_reminder_handler_and_the_in_app_channel_for_the_job_runner -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.The_inline_pass_runs_only_reminder_jobs_and_leaves_every_other_job_pending -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.The_job_runner_then_delivers_it_once_inside_its_transaction -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.The_scan_makes_no_job_for_a_task_that_is_already_closed(status: &quot;Cancelled&quot;) -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.The_scan_makes_no_job_for_a_task_that_is_already_closed(status: &quot;Completed&quot;) -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.The_scan_makes_one_job_per_task_due_time_and_channel_and_delivers_nothing_itself -> Passed
+    Alveara.Api.Tests.FollowUpReminderJobTests.When_nobody_can_be_told_no_job_is_made_until_someone_can_be -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_daylight_saving_change_never_moves_the_due_date_by_a_day -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_late_evening_visit_counts_for_the_day_the_practice_saw_it -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_lead_time_or_visit_age_limit_out_of_range_is_refused(lead: -1, months: 24) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_lead_time_or_visit_age_limit_out_of_range_is_refused(lead: 30, months: 0) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_lead_time_or_visit_age_limit_out_of_range_is_refused(lead: 30, months: 121) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_lead_time_or_visit_age_limit_out_of_range_is_refused(lead: 366, months: 24) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_leap_day_and_a_month_end_are_counted_in_whole_days -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_patient_becomes_due_exactly_when_the_lead_time_starts -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_patient_seen_two_years_ago_is_recalled_but_one_day_longer_has_lapsed -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.A_patients_own_interval_replaces_the_default -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.An_interval_outside_one_to_3650_days_is_refused(days: -1) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.An_interval_outside_one_to_3650_days_is_refused(days: 0) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.An_interval_outside_one_to_3650_days_is_refused(days: 3651) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.An_open_recall_or_a_future_appointment_means_no_new_recall -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.An_opted_out_patient_and_a_patient_never_seen_are_not_recalled -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.Next_due_is_the_visit_date_plus_the_interval_at_nine_in_the_morning_practice_time -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.The_defaults_are_inside_their_own_limits -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.The_patients_own_interval_decides_when_they_are_due -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.The_shortest_and_longest_intervals_work(days: 1, year: 2026, month: 1, day: 2) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.The_shortest_and_longest_intervals_work(days: 3650, year: 2035, month: 12, day: 30) -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.The_verdicts_have_a_fixed_order_of_precedence -> Passed
+    Alveara.Api.Tests.RecallCalculatorTests.With_no_lead_time_a_patient_is_due_on_the_due_date_itself -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_job_interrupted_by_a_restart_is_recovered_without_making_a_second_task -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_patient_inside_the_lead_time_gets_exactly_one_unassigned_recall_task_with_its_history_and_audit_entry -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_patient_seen_again_after_the_job_was_enqueued_gets_no_task_for_the_old_due_date -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_patient_who_books_after_the_job_was_enqueued_gets_no_task_and_the_job_still_succeeds -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_patient_who_opted_out_is_inactive_has_lapsed_has_an_open_recall_or_a_booking_or_was_never_seen_gets_no_recall -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_patients_own_interval_decides_when_they_come_due -> Passed
+    Alveara.Api.Tests.RecallJobTests.A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more -> Passed
+    Alveara.Api.Tests.RecallJobTests.However_often_the_passes_and_the_runner_run_there_is_one_job_and_one_task -> Passed
+    Alveara.Api.Tests.RecallJobTests.Nothing_is_enqueued_while_recall_is_switched_off -> Passed
+    Alveara.Api.Tests.RecallJobTests.Switching_recall_off_after_the_job_was_enqueued_stops_the_task -> Passed
+    Alveara.Api.Tests.RecallJobTests.The_lead_time_starts_to_the_second_and_a_patient_seen_recently_is_not_yet_due -> Passed
+    Alveara.Api.Tests.RecallJobTests.Two_schedulers_at_once_enqueue_one_job_for_the_patient -> Passed
+    Alveara.Api.Tests.RecallJobTests.When_the_audit_entry_cannot_be_written_nothing_is_stored_and_the_retry_makes_the_one_task -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Changing_one_patients_recall_interval_needs_only_the_follow_up_permission_the_clinical_roles_already_hold -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Admin, expected: True) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Assistant, expected: False) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Billing, expected: False) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Dentist, expected: False) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: FrontDesk, expected: False) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Hygienist, expected: False) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: OfficeManager, expected: True) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Unassigned, expected: False) -> Passed
+    Alveara.Api.Tests.RecallPermissionTests.The_recall_settings_permission_is_not_protected_so_it_can_be_granted_revoked_and_delegated -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_close_job_for_a_task_whose_treatment_still_waits_leaves_it_open -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_task_a_person_already_closed_is_left_alone_when_the_treatment_is_later_scheduled -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_withdrawn_plan_closes_its_open_task_as_cancelled -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Accepted_treatment_nobody_has_scheduled_gets_one_unassigned_task_with_its_history_and_audit_entry -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Accepting_again_after_un_scheduling_is_a_new_state_and_a_new_task_and_the_old_one_stays_closed -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.However_many_passes_and_runs_there_are_one_job_and_one_task_per_accepted_state -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Only_the_latest_state_counts_so_an_item_scheduled_after_acceptance_is_not_waiting -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_scheduled_after_the_job_was_enqueued_gets_no_task_and_the_job_still_succeeds -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;Completed&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;Declined&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;NoState&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;Pending&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;Scheduled&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;WithdrawnItem&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: &quot;WithdrawnPlan&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.Two_schedulers_at_once_enqueue_one_job_for_the_item -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.When_the_audit_entry_cannot_be_written_nothing_is_stored_and_the_retry_makes_the_one_task -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.When_the_treatment_is_settled_the_open_task_is_closed_by_the_system_with_the_right_words(how: &quot;completed&quot;, completed: True, note: &quot;The treatment has been completed.&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.When_the_treatment_is_settled_the_open_task_is_closed_by_the_system_with_the_right_words(how: &quot;declined&quot;, completed: False, note: &quot;The patient declined the treatment.&quot;) -> Passed
+    Alveara.Api.Tests.UnscheduledTreatmentJobTests.When_the_treatment_is_settled_the_open_task_is_closed_by_the_system_with_the_right_words(how: &quot;scheduled&quot;, completed: True, note: &quot;The treatment has been scheduled.&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_filter_value_that_means_nothing_is_refused_with_a_stable_code(query: &quot;?filter=whenever&quot;, expected: &quot;filter_invalid&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_filter_value_that_means_nothing_is_refused_with_a_stable_code(query: &quot;?kind=Referral&quot;, expected: &quot;kind_invalid&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_filter_value_that_means_nothing_is_refused_with_a_stable_code(query: &quot;?owner=somebody&quot;, expected: &quot;owner_invalid&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_filter_value_that_means_nothing_is_refused_with_a_stable_code(query: &quot;?priority=Critical&quot;, expected: &quot;priority_invalid&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_filter_value_that_means_nothing_is_refused_with_a_stable_code(query: &quot;?priority=low&quot;, expected: &quot;priority_invalid&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_filter_value_that_means_nothing_is_refused_with_a_stable_code(query: &quot;?status=gone&quot;, expected: &quot;status_invalid&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_patient_can_be_opted_out_and_the_plan_must_mean_something_and_stay_inside_its_limits -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_patient_never_seen_shows_why_they_are_not_due_and_follows_the_practice_default -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_patients_own_interval_can_be_set_changed_and_reset_with_versions_replays_and_audit_entries -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_patients_timeline_lists_what_happened_to_all_their_follow_ups_newest_first_and_nobody_elses -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_person_assigns_an_unassigned_task_and_it_is_recorded_as_an_assignment_in_the_history_and_the_audit_log -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_person_claims_a_task_for_themselves_and_claiming_it_again_changes_nothing -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_person_may_complete_a_system_made_task_and_its_history_says_who_and_the_owner_of_a_system_task_can_stay_unassigned_through_an_edit -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_priority_outside_the_four_names_is_refused(priority: &quot;&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_priority_outside_the_four_names_is_refused(priority: &quot;Critical&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_priority_outside_the_four_names_is_refused(priority: &quot;urgent&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;defaultIntervalDays&quot;, bad: 0) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;defaultIntervalDays&quot;, bad: 3651) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;dueSoonDays&quot;, bad: 0) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;dueSoonDays&quot;, bad: 31) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;leadDays&quot;, bad: -1) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;leadDays&quot;, bad: 366) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;maxVisitAgeMonths&quot;, bad: 0) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_setting_outside_its_limits_is_refused_and_the_limits_themselves_are_accepted(name: &quot;maxVisitAgeMonths&quot;, bad: 121) -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_stale_priority_change_is_a_409_and_stores_nothing -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_task_cannot_be_given_to_billing_an_unknown_person_or_a_disabled_account -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.A_task_the_system_made_can_go_back_to_the_unassigned_queue_but_a_task_a_person_made_needs_an_owner -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.An_appointment_of_the_same_patient_can_be_linked_and_unlinked_and_the_queue_shows_its_time -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Another_patients_appointment_or_one_that_does_not_exist_cannot_be_linked -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Billing_cannot_act_on_the_queue_and_an_action_without_a_csrf_token_changes_nothing -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Closed_work_is_hidden_by_default_and_listed_on_request_and_paging_is_bounded -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Each_filter_shows_exactly_its_own_open_tasks -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Every_role_that_can_see_follow_ups_reads_the_queue_and_billing_and_anonymous_callers_do_not -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Only_one_of_two_people_claiming_the_same_unassigned_task_at_once_gets_it -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Reassigning_and_completing_at_once_one_wins_nothing_is_lost_and_the_history_agrees -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Reassigning_to_someone_else_is_a_reassignment_and_the_same_owner_again_is_a_quiet_replay -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Setting_the_priority_is_recorded_and_the_same_priority_again_is_a_quiet_replay -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.The_counts_say_how_many_open_tasks_each_filter_would_show_whatever_filter_is_on -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.The_due_soon_window_follows_the_practice_setting_and_the_other_narrowings_work -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.The_office_manager_reads_and_changes_the_recall_settings_with_an_audit_entry_and_the_dentist_may_only_read_them -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.The_queue_lists_open_work_most_urgent_first_then_soonest_due_with_the_patient_and_the_urgency_in_words -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.The_timeline_is_refused_to_billing_and_says_when_the_patient_does_not_exist -> Passed
+    Alveara.Api.Tests.WorkQueueApiTests.Two_people_setting_a_patients_first_plan_at_once_one_wins_and_the_other_is_told -> Passed
+    Alveara.Api.Tests.WorkQueueBackupRestoreTests.Recall_settings_plans_and_system_made_tasks_survive_a_backup_and_restore_and_a_later_change_is_not_in_it -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_kind_is_one_of_the_three_exact_names(kind: &quot;&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_kind_is_one_of_the_three_exact_names(kind: &quot;Referral&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_kind_is_one_of_the_three_exact_names(kind: &quot;manual&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_manual_task_still_needs_a_creator_but_may_now_be_unassigned -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_patient_has_one_plan_a_real_patient_and_a_plain_short_reason -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_patients_own_interval_stays_inside_the_limits(days: -5) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_patients_own_interval_stays_inside_the_limits(days: 0) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_patients_own_interval_stays_inside_the_limits(days: 3651) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_patients_plan_has_an_interval_or_an_opt_out_or_both_and_nothing_else_is_stored -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_priority_is_one_of_the_four_exact_names(priority: &quot;&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_priority_is_one_of_the_four_exact_names(priority: &quot;Critical&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_priority_is_one_of_the_four_exact_names(priority: &quot;low&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_reminder_for_an_unassigned_task_is_recorded_with_its_own_outcome -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_source_key_holds_only_letters_digits_colons_dots_and_underscores(key: &quot;&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_source_key_holds_only_letters_digits_colons_dots_and_underscores(key: &quot;recall with space&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_source_key_holds_only_letters_digits_colons_dots_and_underscores(key: &quot;recall-with-hyphen&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_source_key_holds_only_letters_digits_colons_dots_and_underscores(key: &quot;recall:é&quot;) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_task_made_the_old_way_is_a_normal_priority_manual_task_and_the_recall_settings_start_off_with_the_defaults -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_task_the_system_made_has_no_creator_and_no_owner_and_can_wait_for_someone_to_take_it -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.A_treatment_task_names_a_plan_item_of_its_own_patient -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.An_appointment_link_must_be_an_appointment_of_the_same_patient -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.An_open_task_can_change_owner_priority_due_time_and_appointment_but_never_its_kind_creator_or_source -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DefaultIntervalDays&quot;, value: 0, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DefaultIntervalDays&quot;, value: 1, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DefaultIntervalDays&quot;, value: 3650, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DefaultIntervalDays&quot;, value: 3651, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DueSoonDays&quot;, value: 0, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DueSoonDays&quot;, value: 1, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DueSoonDays&quot;, value: 30, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;DueSoonDays&quot;, value: 31, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;LeadDays&quot;, value: -1, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;LeadDays&quot;, value: 0, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;LeadDays&quot;, value: 365, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;LeadDays&quot;, value: 366, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;MaxVisitAgeMonths&quot;, value: 0, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;MaxVisitAgeMonths&quot;, value: 1, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;MaxVisitAgeMonths&quot;, value: 120, allowed: True) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Each_recall_setting_stays_inside_its_limits_at_both_ends(column: &quot;MaxVisitAgeMonths&quot;, value: 121, allowed: False) -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Every_defined_priority_is_accepted_and_sorts_most_urgent_first -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.Linking_a_task_to_another_patients_appointment_later_is_refused_too -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.The_helper_keys_are_plain_and_a_source_key_is_unique_so_a_retry_cannot_make_the_same_task_twice -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.The_migration_rolls_back_and_forward_while_no_work_queue_data_exists_and_refuses_to_roll_back_over_it -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.The_new_event_kinds_exist_and_only_the_systems_own_kinds_have_no_person_behind_them -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.The_recall_settings_are_one_row_that_is_never_deleted -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.The_shape_of_each_kind_is_enforced_a_manual_task_has_no_source_a_recall_has_a_key_and_a_treatment_task_has_a_key_and_its_plan_item -> Passed
+    Alveara.Api.Tests.WorkQueueSchemaTests.The_system_can_close_a_task_and_a_closed_task_says_who_or_the_system -> Passed
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 10
+    Alveara.Api.Tests.RecallPermissionTests.Changing_one_patients_recall_interval_needs_only_the_follow_up_permission_the_clinical_roles_already_hold
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Admin, expected: True)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Assistant, expected: False)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Billing, expected: False)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Dentist, expected: False)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: FrontDesk, expected: False)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Hygienist, expected: False)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: OfficeManager, expected: True)
+    Alveara.Api.Tests.RecallPermissionTests.Only_the_administrator_and_the_office_manager_manage_the_recall_settings_by_default(role: Unassigned, expected: False)
+    Alveara.Api.Tests.RecallPermissionTests.The_recall_settings_permission_is_not_protected_so_it_can_be_granted_revoked_and_delegated
+EXPECTED new ids that did not appear: 0
+COMPARISON FAIL

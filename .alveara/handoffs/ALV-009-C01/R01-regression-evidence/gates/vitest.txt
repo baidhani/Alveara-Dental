@@ -1,0 +1,39 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/PatientWorkspace.test.tsx (19 tests | 1 failed) 2896ms
+   ❯ editing a patient (7)
+     × saves only on request, sends the version it read, and shows the saved values 209ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/PatientWorkspace.test.tsx > editing a patient > saves only on request, sends the version it read, and shows the saved values
+AssertionError: expected { firstName: 'Ann', …(12) } to match object { city: 'Dallas', …(2) }
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "city": "Dallas",
++   "city": "AustinDallas",
+    "firstName": "Ann",
+    "rowVersion": "v1",
+  }
+
+ ❯ src/PatientWorkspace.test.tsx:135:22
+    133|     await waitFor(() => expect(server.callsTo("PUT", `/api/patients/${…
+    134|     const put = server.callsTo("PUT", `/api/patients/${A}`)[0];
+    135|     expect(put.body).toMatchObject({ city: "Dallas", firstName: "Ann",…
+       |                      ^
+    136|     expect(put.headers["X-CSRF-Token"]).toBe("csrf-1");
+    137|     await waitFor(() => expect(screen.getByLabelText("City *")).toHave…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 101 passed (102)
+      Tests  1 failed | 1616 passed (1617)
+   Start at  12:28:40
+   Duration  160.24s (tests 77%, environment 11%, transform 4%, setup 4%, import 3%)
+

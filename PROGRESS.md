@@ -1432,3 +1432,9 @@
   - What changed: `.alveara/handoffs/ALV-009-C01/R01.md` and `R01-evidence/` (test results, acceptance evidence for 7 of 7, parent regression, demo, changed files, next-story impact, artifacts, negative-control record, frozen Stage 2 contract with its baseline, 162 expected new ids and evaluator validation 9 of 9), BUILD_STATE and EXECUTION_STATUS (ALV-009-C01 AWAITING_REVIEW, implementation 4b12cc19).
   - Verification: focused backend 314 of 314, every `*ApiTests` class 860 of 860, 20 of 20 negative controls killed, Vitest 1,617, mocked Playwright 140, five real-backend walkthroughs passed (8, 8, 10, 7, 8); no full backend run (Stage 2 pending).
   - Notes: the story is not COMPLETE; review pending. Not pushed.
+- [x] ALV-009-C01 attempt R01: Stage 2 run once and recorded (did not qualify)
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-009-C01/R01-regression.md` and `R01-regression-evidence/` (evaluator output, comparison, gates, walkthroughs, trx, the isolation runs of the flaky test), EXECUTION_STATUS (`fullRegression: FAILED`, AWAITING_REVIEW), BUILD_STATE. No source or test file changed.
+  - Verification: frozen evaluator 22 criteria passed and 3 failed: backend 4,906 passed / 0 failed / 0 skipped, 4,734 baseline ids unchanged, but 172 new ids ran against 162 allowlisted (10 `RecallPermissionTests` ids missing from my allowlist, all passed) and Vitest 1 failed of 1,617 (existing `PatientWorkspace.test.tsx`, 6 of 6 passes alone); all five walkthroughs passed.
+  - Notes: reviewer decides between CHANGES_REQUIRED with an R02 (corrected allowlist, deterministic test, new frozen Stage 2) and another ruling. Not pushed.

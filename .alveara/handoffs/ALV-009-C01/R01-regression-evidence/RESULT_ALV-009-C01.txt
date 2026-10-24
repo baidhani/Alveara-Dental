@@ -1,0 +1,29 @@
+PASS  run commit is the Stage 1 closure commit                                                                                     169bce5720d1d7fd1a3f70f4eb2eea81cf84ae4d
+PASS  working tree clean before and after                                                                                          
+PASS  no src/ file differs between the implementation and the run commit                                                           0 files
+PASS  the template mode switch is not set                                                                                          
+PASS  backend run exit code 0                                                                                                      
+FAIL  discovered and passed are exactly the expected count, none failed or skipped                                                 {'Passed': 4906} (expected Passed 4896)
+FAIL  same existing test ids and outcomes as the STORY-009 final-run baseline; exactly the 162 listed new ids (no more, no fewer)  COMPARISON FAIL
+PASS  the run built exactly one template and it was not rebuilt                                                                    built 1
+PASS  zero fallback to create-and-migrate by the run's own template                                                                0 fallback events
+PASS  no template build failure                                                                                                    
+PASS  the template was really used (at least 3000 clones)                                                                          3742 clones
+PASS  only the named real-path classes bypass the template (at most 60 fixtures)                                                   32 real-migration fixtures
+PASS  Storage, Temp, Database, Backup and Keys entries, databases, SQL logins and template backups unchanged                       before {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 0, 'folder_Temp': 1, 'template_backups_in_Temp': 0} after {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 0, 'folder_Temp': 1, 'template_backups_in_Temp': 0}
+PASS  no AlveraTemplate database or backup left                                                                                    
+PASS  gate tsc                                                                                                                     exit 0
+FAIL  gate vitest                                                                                                                  exit 1
+PASS  gate build                                                                                                                   exit 0
+PASS  gate lint                                                                                                                    exit 0
+PASS  gate playwright_mocked                                                                                                       exit 0
+PASS  gate repo_checks                                                                                                             exit 0
+PASS  walkthrough walk_playwright.work-queue.config.ts: 8 passed, none failed                                                      
+PASS  walkthrough walk_playwright.follow-ups.config.ts: 8 passed, none failed                                                      
+PASS  walkthrough walk_playwright.notifications.config.ts: 10 passed, none failed                                                  
+PASS  walkthrough walk_playwright.permission-policy.config.ts: 7 passed, none failed                                               
+PASS  walkthrough walk_playwright.permission-policy-admin.config.ts: 8 passed, none failed                                         
+
+INFO  backend elapsed (operational evidence, not a criterion): 2410s = 40.2 min
+
+STAGE 2 DOES NOT QUALIFY
