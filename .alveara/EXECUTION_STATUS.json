@@ -2414,21 +2414,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, a Stage 1 package. Focused backend 314 of 314 (new classes, all STORY-009 follow-up classes, ALV-N002 job tests, permission and migration-inventory classes) and every *ApiTests class 860 of 860; 162 new test ids against the STORY-009 final run of 4,734 (WorkQueueSchemaTests 46, WorkQueueApiTests 44, RecallCalculatorTests 22, UnscheduledTreatmentJobTests 21, FollowUpReminderJobTests 15, RecallJobTests 13, WorkQueueBackupRestoreTests 1), no existing id missing or changed in the classes run; 20 of 20 negative controls killed (4 survived the first pass and got tests); restore drill 1 of 1. Client: tsc 0, Vitest 1,617 of 1,617 (102 files), build and lint exit 0, mocked Playwright 140, repository checks 13. Real-backend walkthroughs on fresh databases: work queue 8 of 8, follow-ups (STORY-009's, three locators made unambiguous) 8 of 8, notifications 10, permission-policy 7 and admin 8. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-009-C01/R01-evidence/stage2/) expects 4,896 backend tests (the 4,734 baseline plus exactly the 162 listed new ids, nothing retired) with no time limit. No full run made."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "real_backend_walkthrough_8_of_8",
+      "parentRegression": "verified",
+      "implementationCommit": "4b12cc19bf8de4bf97a9c5e0aab3aee95218b8ae",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-009-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

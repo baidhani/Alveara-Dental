@@ -1,0 +1,22 @@
+Database AlveraWalk_playwright_follow_ups_config_be18546c created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.follow-ups.config.ts ...
+
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] › e2e\follow-ups-real-backend.spec.ts:122:1 › CREATE: a dentist checks the form, then creates a follow-up that is already due for the hygienist (867ms)
+  ok 2 [chromium] › e2e\follow-ups-real-backend.spec.ts:149:1 › REMINDER: within seconds the hygienist finds a reminder, with no title or note, and opens the patient's follow-ups from it (5.6s)
+  ok 3 [chromium] › e2e\follow-ups-real-backend.spec.ts:171:1 › COMPLETE: the hygienist completes it, the next follow-up is made, and the history says who did what and when (635ms)
+  ok 4 [chromium] › e2e\follow-ups-real-backend.spec.ts:204:1 › STALE: a change made from an out-of-date screen is explained, stores nothing and the reload shows the current task (937ms)
+  ok 5 [chromium] › e2e\follow-ups-real-backend.spec.ts:229:1 › ROLES: billing sees nothing, and revoking the manage permission removes the buttons on the next request (1.0s)
+  ok 6 [chromium] › e2e\follow-ups-real-backend.spec.ts:257:1 › FALLBACK: a reminder for someone who has left goes to the office manager (8.3s)
+  ok 7 [chromium] › e2e\follow-ups-real-backend.spec.ts:277:1 › AUDIT: every follow-up action is in the audit trail with who and when, and the reminder is the system's (141ms)
+  ok 8 [chromium] › e2e\follow-ups-real-backend.spec.ts:290:1 › ACCESSIBILITY: the follow-up screens pass an axe scan in both themes (5.2s)
+
+  8 passed (28.2s)
+Database AlveraWalk_playwright_follow_ups_config_be18546c dropped (its files went with it).
+Output kept in C:\tmp\alv009c01\walk\playwright.follow-ups.config.ts

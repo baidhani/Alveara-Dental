@@ -1,0 +1,58 @@
+ALV-009-C01 R01 negative controls: each is a deliberate break of one rule in shipped code, followed by a rebuild and a run of the focused suites
+(RecallJobTests, UnscheduledTreatmentJobTests, WorkQueueApiTests, FollowUpReminderJobTests [+ FollowUpReminderTests for R2]); the source is restored after every control (script: mutate_alv009c01.py).
+
+== FIRST PASS (before the four extra tests): K1-K2 then K3-K18
+K1 recall runs while the practice has it off: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.Nothing_is_enqueued_while_recall_is_switched_off [87 ms]
+K2 opted-out patients are recalled: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.A_patient_who_opted_out_is_inactive_has_lapsed_has_an_open_recall_or_a_booking_or_was_never_seen_gets_no_recall [150 ms]
+K3 patients with an open recall get another: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.A_patient_who_opted_out_is_inactive_has_lapsed_has_an_open_recall_or_a_booking_or_was_never_seen_gets_no_recall [185 ms]
+K4 patients with a future appointment are recalled: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.A_patient_who_opted_out_is_inactive_has_lapsed_has_an_open_recall_or_a_booking_or_was_never_seen_gets_no_recall [237 ms]
+K5 the handler does not look again (task made though recall was switched off): KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.Switching_recall_off_after_the_job_was_enqueued_stops_the_task [133 ms]
+K6 the handler ignores an existing task for the key (retry duplicates): SURVIVED (Passed!  - Failed:     0, Passed:    88)
+K7 the recall job key is new every time: KILLED (Failed!  - Failed:     2, Passed:    86)
+    Failed Alveara.Api.Tests.RecallJobTests.However_often_the_passes_and_the_runner_run_there_is_one_job_and_one_task [244 ms]
+    Failed Alveara.Api.Tests.RecallJobTests.Two_schedulers_at_once_enqueue_one_job_for_the_patient [142 ms]
+K8 unscheduled: withdrawn items still get tasks: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: "WithdrawnItem") [134 ms]
+K9 unscheduled: scheduled items still get tasks: KILLED (Failed!  - Failed:     2, Passed:    86)
+    Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: "Scheduled") [158 ms]
+    Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Only_the_latest_state_counts_so_an_item_scheduled_after_acceptance_is_not_waiting [121 ms]
+K10 unscheduled: handler ignores an existing task for the key: SURVIVED (Passed!  - Failed:     0, Passed:    88)
+K11 unscheduled: the close handler closes tasks whose treatment still waits: SURVIVED (Passed!  - Failed:     0, Passed:    88)
+K12 queue: assign ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing [56 ms]
+K13 queue: priority change ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_priority_change_is_a_409_and_stores_nothing [54 ms]
+K14 queue: assign is not audited: KILLED (Failed!  - Failed:     5, Passed:    83)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.Only_one_of_two_people_claiming_the_same_unassigned_task_at_once_gets_it [84 ms]
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing [92 ms]
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_person_claims_a_task_for_themselves_and_claiming_it_again_changes_nothing [56 ms]
+K15 queue: overdue filter includes tasks not yet due: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.Each_filter_shows_exactly_its_own_open_tasks [83 ms]
+K16 queue: a closed task can be reassigned: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing [93 ms]
+K17 settings: a change ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.The_office_manager_reads_and_changes_the_recall_settings_with_an_audit_entry_and_the_dentist_may_only_read_them [40 ms]
+K18 settings: a change is not audited: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.The_office_manager_reads_and_changes_the_recall_settings_with_an_audit_entry_and_the_dentist_may_only_read_them [32 ms]
+restored: the backend source is UNCHANGED by the controls
+
+First pass over all 20 controls (K1-K18, then R1 and R2, which were run after it; the R1 line is in the second-pass section): 16 killed (K1-K5, K7-K9, K12-K18, R1) and 4 survived (K6, K10, K11, R2).
+
+== TESTS ADDED FOR THE SURVIVORS
+A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more (RecallJobTests, UnscheduledTreatmentJobTests)
+A_close_job_for_a_task_whose_treatment_still_waits_leaves_it_open (UnscheduledTreatmentJobTests)
+The_scan_makes_no_job_for_a_task_that_is_already_closed x2 (FollowUpReminderJobTests)
+
+== SECOND PASS (after the added tests)
+K6 the handler ignores an existing task for the key (retry duplicates): KILLED (Failed: 1) A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more [RecallJobTests]
+K10 unscheduled: handler ignores an existing task for the key: KILLED (Failed: 1) A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more [UnscheduledTreatmentJobTests]
+K11 unscheduled: the close handler closes tasks whose treatment still waits: KILLED (Failed: 1) A_close_job_for_a_task_whose_treatment_still_waits_leaves_it_open
+R1 reminder: a task already reminded is enqueued again: KILLED (Failed: 2) The_scan_makes_one_job_per_task_due_time_and_channel_and_delivers_nothing_itself, A_backlog_bigger_than_a_page_is_worked_through_without_the_first_page_starving_the_rest
+R2 reminder: closed tasks are reminded: KILLED (Failed: 2) The_scan_makes_no_job_for_a_task_that_is_already_closed (Completed, Cancelled)
+
+== RESULT: 20 of 20 controls killed. Backend source restored to the committed state after every control (git status clean for src/Alveara.Api).

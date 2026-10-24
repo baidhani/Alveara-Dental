@@ -1426,3 +1426,9 @@
   - What changed: running the STORY-009 real-backend walkthrough against the new screens failed three times: the patient page now also shows a timeline that names the same task, so `getByRole("listitem")`, `getByText(title)` and `getByRole("button", {name: "All"})` (which also matches "Recall") became ambiguous. The three locators in `e2e/follow-ups-real-backend.spec.ts` now name the task list and use an exact button name. No product code changed.
   - Verification: STORY-009 walkthrough 8 of 8 after the fix (it was 8 of 8 before this story); work-queue walkthrough 8 of 8; notifications 10 of 10; permission-policy 7 of 7 and admin 8 of 8; focused backend run 314 of 314; every `*ApiTests` class 860 of 860 (9 m 5 s); mocked Playwright 140; `tsc` 0; repository checks 13; artifact counts show no leftover test databases, template or backups.
   - Notes: no full backend run (Stage 2 is the frozen contract after approval). Not pushed.
+- [x] ALV-009-C01 attempt R01 (Stage 1): engineering handoff recorded
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-009-C01/R01.md` and `R01-evidence/` (test results, acceptance evidence for 7 of 7, parent regression, demo, changed files, next-story impact, artifacts, negative-control record, frozen Stage 2 contract with its baseline, 162 expected new ids and evaluator validation 9 of 9), BUILD_STATE and EXECUTION_STATUS (ALV-009-C01 AWAITING_REVIEW, implementation 4b12cc19).
+  - Verification: focused backend 314 of 314, every `*ApiTests` class 860 of 860, 20 of 20 negative controls killed, Vitest 1,617, mocked Playwright 140, five real-backend walkthroughs passed (8, 8, 10, 7, 8); no full backend run (Stage 2 pending).
+  - Notes: the story is not COMPLETE; review pending. Not pushed.

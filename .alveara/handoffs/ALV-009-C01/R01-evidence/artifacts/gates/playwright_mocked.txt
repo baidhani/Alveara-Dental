@@ -1,0 +1,3 @@
+  ok 140 [tablet] › e2e\command-center.spec.ts:324:5 › Project Management: portal stories and engineering stories › both views have no critical or serious accessibility violations (dark) (2.1s)
+
+  140 passed (17.0s)

@@ -1,0 +1,34 @@
+K3 patients with an open recall get another: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.A_patient_who_opted_out_is_inactive_has_lapsed_has_an_open_recall_or_a_booking_or_was_never_seen_gets_no_recall [185 ms]
+K4 patients with a future appointment are recalled: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.A_patient_who_opted_out_is_inactive_has_lapsed_has_an_open_recall_or_a_booking_or_was_never_seen_gets_no_recall [237 ms]
+K5 the handler does not look again (task made though recall was switched off): KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.RecallJobTests.Switching_recall_off_after_the_job_was_enqueued_stops_the_task [133 ms]
+K6 the handler ignores an existing task for the key (retry duplicates): SURVIVED (Passed!  - Failed:     0, Passed:    88)
+K7 the recall job key is new every time: KILLED (Failed!  - Failed:     2, Passed:    86)
+    Failed Alveara.Api.Tests.RecallJobTests.However_often_the_passes_and_the_runner_run_there_is_one_job_and_one_task [244 ms]
+    Failed Alveara.Api.Tests.RecallJobTests.Two_schedulers_at_once_enqueue_one_job_for_the_patient [142 ms]
+K8 unscheduled: withdrawn items still get tasks: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: "WithdrawnItem") [134 ms]
+K9 unscheduled: scheduled items still get tasks: KILLED (Failed!  - Failed:     2, Passed:    86)
+    Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Treatment_that_is_not_waiting_gets_no_task(situation: "Scheduled") [158 ms]
+    Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Only_the_latest_state_counts_so_an_item_scheduled_after_acceptance_is_not_waiting [121 ms]
+K10 unscheduled: handler ignores an existing task for the key: SURVIVED (Passed!  - Failed:     0, Passed:    88)
+K11 unscheduled: the close handler closes tasks whose treatment still waits: SURVIVED (Passed!  - Failed:     0, Passed:    88)
+K12 queue: assign ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing [56 ms]
+K13 queue: priority change ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_priority_change_is_a_409_and_stores_nothing [54 ms]
+K14 queue: assign is not audited: KILLED (Failed!  - Failed:     5, Passed:    83)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.Only_one_of_two_people_claiming_the_same_unassigned_task_at_once_gets_it [84 ms]
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing [92 ms]
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_person_claims_a_task_for_themselves_and_claiming_it_again_changes_nothing [56 ms]
+K15 queue: overdue filter includes tasks not yet due: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.Each_filter_shows_exactly_its_own_open_tasks [83 ms]
+K16 queue: a closed task can be reassigned: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.A_stale_or_missing_version_closed_tasks_and_unknown_tasks_are_refused_and_store_nothing [93 ms]
+K17 settings: a change ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.The_office_manager_reads_and_changes_the_recall_settings_with_an_audit_entry_and_the_dentist_may_only_read_them [40 ms]
+K18 settings: a change is not audited: KILLED (Failed!  - Failed:     1, Passed:    87)
+    Failed Alveara.Api.Tests.WorkQueueApiTests.The_office_manager_reads_and_changes_the_recall_settings_with_an_audit_entry_and_the_dentist_may_only_read_them [32 ms]
+restored: the backend source is UNCHANGED by the controls
