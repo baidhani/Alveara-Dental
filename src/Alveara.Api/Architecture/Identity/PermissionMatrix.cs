@@ -24,7 +24,8 @@ public static class PermissionMatrix
             Permission.ManagePrescriptions, Permission.ViewPrescriptions, // STORY-016: prescribes
             Permission.ViewDocuments, // STORY-010: reads the library
             Permission.SendMessages, // ALV-N015
-            Permission.ViewFollowUps, Permission.ManageFollowUps), // STORY-009
+            Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
+            Permission.ViewExternalCases, Permission.ManageExternalCases), // ALV-009-C02: refers and orders lab work
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
@@ -35,7 +36,8 @@ public static class PermissionMatrix
             Permission.ViewPrescriptions, // STORY-016: reads, cannot prescribe
             Permission.ViewDocuments, // STORY-010
             Permission.SendMessages, // ALV-N015
-            Permission.ViewFollowUps, Permission.ManageFollowUps), // STORY-009
+            Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
+            Permission.ViewExternalCases), // ALV-009-C02: reads referral and lab cases
 
         [Role.Assistant] = Set(
             Permission.ViewPatientRecords, Permission.ViewSchedule, Permission.CompleteForms, Permission.ViewSignedForms,
@@ -45,7 +47,8 @@ public static class PermissionMatrix
             Permission.ViewPrescriptions, // STORY-016: reads, cannot prescribe
             Permission.ViewDocuments, // STORY-010
             Permission.SendMessages, // ALV-N015
-            Permission.ViewFollowUps, Permission.ManageFollowUps), // STORY-009
+            Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
+            Permission.ViewExternalCases), // ALV-009-C02: reads referral and lab cases
 
         [Role.FrontDesk] = Set(
             Permission.ManageAppointments, Permission.ViewSchedule, Permission.ViewBilling,
@@ -55,7 +58,8 @@ public static class PermissionMatrix
             Permission.UpdateVisitFlow, // ALV-011-C01: confirm, check in and check out
             Permission.ViewDocuments, // STORY-010: reads the library, cannot import
             Permission.SendMessages, // ALV-N015
-            Permission.ViewFollowUps, Permission.ManageFollowUps), // STORY-009
+            Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
+            Permission.ViewExternalCases, Permission.ManageExternalCases), // ALV-009-C02: tracks referral and lab cases
 
         [Role.Billing] = Set(
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords,
@@ -74,7 +78,8 @@ public static class PermissionMatrix
             Permission.ManageDocumentStorage, // ALV-010-C01: checks the stored files and reviews the ones nothing points to
             Permission.SendMessages, Permission.ReceiveDocumentNotifications, // ALV-N015: sends messages; is told when a duplicate document is imported
             Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
-            Permission.ManageRecallSettings), // ALV-009-C01: the practice's recall settings
+            Permission.ManageRecallSettings, // ALV-009-C01: the practice's recall settings
+            Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties), // ALV-009-C02
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

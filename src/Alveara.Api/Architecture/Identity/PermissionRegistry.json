@@ -172,6 +172,18 @@
     {
       "name": "ManageRecallSettings",
       "status": "Active"
+    },
+    {
+      "name": "ViewExternalCases",
+      "status": "Active"
+    },
+    {
+      "name": "ManageExternalCases",
+      "status": "Active"
+    },
+    {
+      "name": "ManageExternalParties",
+      "status": "Active"
     }
   ]
 }

@@ -1462,3 +1462,9 @@
   - What changed: `.alveara/handoffs/ALV-009-C01/R02-regression.md` and `R02-regression-evidence/` (evaluator output, comparison, gates, walkthroughs, trx, csv, leak counts), EXECUTION_STATUS (`fullRegression: PASSED`, AWAITING_REVIEW), BUILD_STATE. No source or test file changed.
   - Verification: frozen evaluator 25 of 25 criteria passed: backend 4,906 passed / 0 failed / 0 skipped (4,734 baseline ids unchanged plus exactly the 172 allowlisted), template 3,742 clones with no fallback, leak counts unchanged, Vitest 1,617 in 102 files, tsc, build, lint, mocked Playwright 140, repository checks 13, walkthroughs 8, 8, 10, 7, 8.
   - Notes: backend took 62.2 min against 40.2 min for the R01 run, cause not found, not a criterion. Not pushed; final review pending.
+- [x] ALV-009-C02 slice 1: the referral and lab permissions and the pure case rules
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: three permissions appended last (`ViewExternalCases`: dentist, hygienist, assistant, front desk, office manager, admin; `ManageExternalCases`: dentist, front desk, office manager, admin; `ManageExternalParties`: office manager, admin), none protected; `Architecture/ExternalCases/ExternalCaseRules.cs`: case and party kinds, referral and lab status sets and the moves between them (final statuses, lab remake loop), which moves need a note, tracked/overdue/wants-task rules (due today wants the task, the day after is overdue), date limits, the 09:00 practice-time task moment.
+  - Verification: `ExternalCaseRulesTests` (rules) and `ExternalCasePermissionTests` plus the permission, policy and architecture suites 258 passed.
+  - Notes: owner-approved plan (task created when the case becomes due, separate lab and referral aggregates, three new permissions). Not pushed.

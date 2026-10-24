@@ -112,4 +112,11 @@ public enum Permission
     // ALV-009-C01: the practice's recall settings (the default recall interval, how far ahead a recall task is made, which patients are still recalled). Held by the administrator and the office manager; changing one patient's
     // own recall interval needs only ManageFollowUps. Not protected: grantable and delegable like the follow-up permissions. Appended last so existing ordinals are undisturbed.
     ManageRecallSettings,
+
+    // ALV-009-C02: referrals and dental laboratory cases. Viewing the cases and their timeline (held like the follow-up view: dentist, hygienist, assistant, front desk, office manager), managing them
+    // (create, send, receive, complete, cancel, link documents: dentist, front desk, office manager) and maintaining the list of outside parties (referral providers, lab vendors: office manager) are
+    // separate. None is protected: all are grantable and delegable. A case's linked documents still need ViewDocuments. Appended last so existing ordinals are undisturbed.
+    ViewExternalCases,
+    ManageExternalCases,
+    ManageExternalParties,
 }
