@@ -58,6 +58,7 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
         builder.UseSetting("StorageRoot", StorageRoot);
         builder.UseSetting("Notifications:ConsumerPollSeconds", "0");                                  // tests drive the consumer themselves
+        builder.UseSetting("FollowUps:ReminderPollSeconds", "0");                                      // and the follow-up reminder pass (STORY-009)
     });
 
     private static async Task<string> CsrfAsync(HttpClient client) =>

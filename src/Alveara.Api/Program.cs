@@ -113,6 +113,9 @@ builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.IPolicyObserv
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.PolicyAdminService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.PolicyWriteService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpService>();   // STORY-009
+builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.IReminderChannel, Alveara.Api.Architecture.FollowUps.InAppReminderChannel>();
+builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpReminderService>();
+builder.Services.AddHostedService<Alveara.Api.Architecture.FollowUps.FollowUpReminderHostedService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();

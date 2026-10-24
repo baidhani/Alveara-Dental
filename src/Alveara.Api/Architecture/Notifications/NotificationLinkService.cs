@@ -17,6 +17,7 @@ public class NotificationLinkService(AlveraDbContext db)
         if (n.RelatedPatientId is not { } patient || !mayViewPatients) throw Denied();
         return new PatientLinkTarget(n.Kind == NotificationKinds.DocumentDuplicateAdded && n.RelatedDocumentId is { } doc
             ? $"/patients/{patient}/documents?document={doc}"
+            : n.Kind == NotificationKinds.FollowUpDue ? $"/patients/{patient}/follow-ups"   // STORY-009: a reminder opens the patient's follow-ups
             : $"/patients/{patient}");
     }
 
