@@ -1391,3 +1391,9 @@
   - What changed: `GET /api/patients/{id}/follow-ups/timeline` (`ViewFollowUps`): everything that happened to a patient's follow-ups across all their tasks, newest first, at most 200 entries (task title, kind and status, the event, who or the system, when, and a due time as the only detail); needed by the timeline screen.
   - Verification: two new tests in `WorkQueueApiTests` (44 passed, three runs in a row): the timeline holds only that patient's tasks, newest first, with the system's own entry having no person, and only a due time ever shown as detail; billing refused, an unknown patient is 404. A racing first-plan test was loosened to accept the two honest answers a loser can get (`plan_changed` or `row_version_required`), both meaning reload.
   - Notes: the screens follow. Not pushed.
+- [x] ALV-009-C01 slice 6: the work queue, patient timeline, recall card and recall settings screens
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: a Work queue page (filter chips with counts, narrowing by priority, kind and owner, paging, 60 s refresh paused while a form is open; Take, Owner and priority, Complete, Cancel with row versions), a patient recall card and follow-up timeline on the patient follow-ups panel, and a Recall settings page (`ManageRecallSettings`) with navigation entries; priority and urgency are said in words; stale changes are explained and reloaded.
+  - Verification: `WorkQueueScreens.test.tsx` 28 passed (incl. axe scans) and `FollowUpScreens.test.tsx` 17 passed; full vitest 1617 passed (102 files); `tsc --noEmit` clean; `npm run build` ok; oxlint reports no warnings in the new files; mocked Playwright 140 passed.
+  - Notes: action-form headings moved from h3 to h2 so the queue page has no skipped heading level. Not pushed.

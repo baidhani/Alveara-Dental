@@ -29,6 +29,8 @@ import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { FlowBoardPage } from "./pages/flow/FlowBoardPage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { MyFollowUpsPage } from "./pages/followups/MyFollowUpsPage";
+import { WorkQueuePage } from "./pages/followups/WorkQueuePage";
+import { RecallSettingsPage } from "./pages/followups/RecallSettingsPage";
 import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
 import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -241,6 +243,8 @@ function createAppRouter() {
             <Route path="clinical/:encounterId" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientEncounterTab /></RequirePermission>} />
           </Route>
           <Route path="/follow-ups" element={<RequirePermission permission="ViewFollowUps"><MyFollowUpsPage /></RequirePermission>} />
+          <Route path="/work-queue" element={<RequirePermission permission="ViewFollowUps"><WorkQueuePage /></RequirePermission>} />
+          <Route path="/admin/recall" element={<RequirePermission permission="ManageRecallSettings"><RecallSettingsPage /></RequirePermission>} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/messages/:id" element={<MessageDetailPage />} />

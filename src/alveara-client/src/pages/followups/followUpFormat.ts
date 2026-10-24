@@ -20,6 +20,20 @@ export function fromLocalInput(value: string): string | null {
 
 export const formatWhen = (iso: string) => new Date(iso).toLocaleString();
 
+/** How each kind of history entry reads (the same words in a task's history and in a patient's timeline). */
+export const EVENT_LABEL: Record<string, string> = {
+  Created: "Created", Edited: "Edited", Reassigned: "Reassigned", DueChanged: "Due date changed", Reminded: "Reminder sent", Completed: "Completed", Cancelled: "Cancelled",
+  RecallCreated: "Next follow-up created", Assigned: "Assigned", PriorityChanged: "Priority changed", SystemCreated: "Made by the system", SystemClosed: "Closed by the system",
+};
+
+/** The detail of an entry worth showing in words: a due time. Other details are identifiers and are not shown. */
+export function dueDetail(detail: string | null): string | null {
+  const m = detail?.match(/^Due (.+)$/);
+  return m && !Number.isNaN(new Date(m[1]).getTime()) ? `due ${formatWhen(m[1])}` : null;
+}
+
+export const actorWords = (name: string | null, id: string | null) => name ?? (id ? "a colleague" : "the system");
+
 export interface FormValues { title: string; note: string; due: string; assignee: string; interval: string }
 export type FormErrors = Partial<Record<keyof FormValues, string>>;
 

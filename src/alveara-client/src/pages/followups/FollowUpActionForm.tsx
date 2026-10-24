@@ -44,7 +44,7 @@ export function FollowUpActionForm({ mode, task, onSubmit, onCancel, onStale }: 
 
   return (
     <form className="alv-fu-form" onSubmit={submit} aria-labelledby="fu-action-title" noValidate>
-      <h3 id="fu-action-title" tabIndex={-1} ref={heading}>{completing ? "Complete" : "Cancel"} follow-up: {task.title}</h3>
+      <h2 id="fu-action-title" tabIndex={-1} ref={heading}>{completing ? "Complete" : "Cancel"} follow-up: {task.title}</h2>
       {completing && task.recallIntervalDays && <p>A new follow-up will be made for {task.recallIntervalDays} day{task.recallIntervalDays === 1 ? "" : "s"} after you complete this one.</p>}
       {error && <p role="alert" className="alv-fu-error">{error}</p>}
       {stale && <Button type="button" onClick={onStale}>Reload the follow-up</Button>}

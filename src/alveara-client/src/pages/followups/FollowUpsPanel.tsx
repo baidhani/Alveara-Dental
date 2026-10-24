@@ -7,6 +7,8 @@ import type { Assignee, FollowUp, FollowUpFilter, FollowUpPage } from "../../ser
 import { FollowUpActionForm } from "./FollowUpActionForm";
 import { FollowUpForm } from "./FollowUpForm";
 import { FollowUpItem } from "./FollowUpItem";
+import { PatientFollowUpTimeline } from "./PatientFollowUpTimeline";
+import { PatientRecallCard } from "./PatientRecallCard";
 import "./followups.css";
 
 type Editor = { kind: "new" } | { kind: "edit"; task: FollowUp } | { kind: "complete"; task: FollowUp } | { kind: "cancel"; task: FollowUp } | null;
@@ -25,6 +27,7 @@ export function FollowUpsPanel({ patientId, canManage }: { patientId: string; ca
   const [failed, setFailed] = useState(false);
   const [editor, setEditor] = useState<Editor>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [version, setVersion] = useState(0);   // bumped after every change so the timeline and the recall card reload
 
   const load = useCallback((signal?: AbortSignal) => {
     listForPatient(patientId, filter, signal).then((p) => { setPage(p); setFailed(false); }).catch(() => { if (!signal?.aborted) setFailed(true); });
@@ -45,8 +48,8 @@ export function FollowUpsPanel({ patientId, canManage }: { patientId: string; ca
 
   // new tasks default to the signed-in person (the assignee list names accounts by username)
   const me = state.kind === "signed-in" ? assignees.find((a) => a.name === state.username)?.id : undefined;
-  const done = (message: string) => { setEditor(null); setStatus(message); load(); };
-  const reload = () => { setEditor(null); setStatus("Reloaded the follow-ups."); load(); };
+  const done = (message: string) => { setEditor(null); setStatus(message); setVersion((v) => v + 1); load(); };
+  const reload = () => { setEditor(null); setStatus("Reloaded the follow-ups."); setVersion((v) => v + 1); load(); };
 
   if (failed && page === null) return <ErrorState title="Could not load the follow-ups" description="Do not assume there are none. Check your connection and reload the page." />;
   if (page === null) return <LoadingState label="Loading the follow-ups…" />;
@@ -97,6 +100,9 @@ export function FollowUpsPanel({ patientId, canManage }: { patientId: string; ca
           </ul>
         )}
       {page.more && <p className="alv-clinical__meta">Showing the first {page.count}. Narrow the list with Open or Closed.</p>}
+
+      <PatientRecallCard key={`recall-${version}`} patientId={patientId} canManage={canManage} onChanged={() => setVersion((v) => v + 1)} />
+      <PatientFollowUpTimeline patientId={patientId} version={version} />
     </section>
   );
 }

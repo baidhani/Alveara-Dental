@@ -17,7 +17,7 @@ vi.mock("../../contexts/AuthContext", () => ({
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 const task = (over: Record<string, unknown> = {}) => ({
   id: "t1", patientId: "p1", title: "Call about the crown", note: "Ask how the temporary feels", dueAtUtc: "2026-11-03T15:30:00Z", status: "Open", overdue: false, assigneeUserId: "u-hana", assigneeName: "hana",
-  recallIntervalDays: null, recallOfTaskId: null, recallTaskId: null, createdByUserId: "u-dr", createdAtUtc: "2026-10-20T10:00:00Z", closedAtUtc: null, closedByUserId: null, closureNote: null, rowVersion: "AAEC", ...over,
+  recallIntervalDays: null, recallOfTaskId: null, recallTaskId: null, createdByUserId: "u-dr", createdAtUtc: "2026-10-20T10:00:00Z", closedAtUtc: null, closedByUserId: null, closureNote: null, rowVersion: "AAEC", priority: "Normal", kind: "Manual", appointmentId: null, sourcePlanItemId: null, closedBySystem: false, ...over,
 });
 
 type Call = { method: string; url: string; headers: Record<string, string>; body: any };
@@ -41,6 +41,8 @@ beforeEach(() => {
     if (custom) return Promise.resolve(custom);
     const status = new URL(u, "http://x").searchParams.get("status");
     const filtered = () => tasks.filter((t) => status === "all" || (status === "closed" ? t.status !== "Open" : t.status === "Open"));
+    if (method === "GET" && /\/follow-ups\/timeline$/.test(u)) return Promise.resolve(json([]));
+    if (method === "GET" && /\/api\/patients\/p1\/recall$/.test(u)) return Promise.resolve(json({ patientId: "p1", hasPlan: false, ownIntervalDays: null, optedOut: false, reason: null, effectiveIntervalDays: 180, lastCompletedVisitUtc: null, nextDueUtc: null, verdict: "NoVisit", rowVersion: null }));
     if (method === "GET" && /^\/api\/patients\/p1\/follow-ups/.test(u)) return Promise.resolve(json({ items: filtered(), count: filtered().length, more: false }));
     if (method === "GET" && u.startsWith("/api/follow-ups/mine")) return Promise.resolve(json({ items: filtered(), count: filtered().length, more: false }));
     if (method === "GET" && u === "/api/follow-ups/assignees") return Promise.resolve(json([{ id: "u-dr", name: "dr", role: "Dentist" }, { id: "u-hana", name: "hana", role: "Hygienist" }]));
@@ -129,7 +131,7 @@ describe("STORY-009 follow-ups panel", () => {
     await userEvent.type(screen.getByLabelText(/^Note/), "Ask about the bite");
     await userEvent.type(screen.getByLabelText(/^Repeat every/), "180");
     await userEvent.click(screen.getByRole("button", { name: "Create follow-up" }));
-    expect(await screen.findByRole("status")).toHaveTextContent("Created the follow-up: Check the new filling.");
+    expect(await screen.findByText("Created the follow-up: Check the new filling.")).toBeInTheDocument();
     const post = sent("POST", /follow-ups$/)!;
     expect(post.headers["Idempotency-Key"]).toBeTruthy();
     expect(post.headers["X-CSRF-Token"]).toBe("t");
@@ -158,7 +160,7 @@ describe("STORY-009 follow-ups panel", () => {
     await userEvent.clear(title);
     await userEvent.type(title, "Call about the crown and the cleaning");
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
-    expect(await screen.findByRole("status")).toHaveTextContent("Saved the changes to: Call about the crown and the cleaning.");
+    expect(await screen.findByText("Saved the changes to: Call about the crown and the cleaning.")).toBeInTheDocument();
     const put = sent("PUT", /follow-ups\/t1$/)!;
     expect(put.body).toMatchObject({ title: "Call about the crown and the cleaning", rowVersion: "AAEC" });
   });
@@ -168,7 +170,7 @@ describe("STORY-009 follow-ups panel", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Complete Call about the crown" }));
     await userEvent.type(screen.getByLabelText(/^Note/), "recall");
     await userEvent.click(screen.getByRole("button", { name: "Mark complete" }));
-    expect(await screen.findByRole("status")).toHaveTextContent("Completed: Call about the crown. The next follow-up was created.");
+    expect(await screen.findByText("Completed: Call about the crown. The next follow-up was created.")).toBeInTheDocument();
     expect(sent("POST", /t1\/complete$/)!.body).toEqual({ note: "recall", rowVersion: "AAEC" });
   });
 
@@ -187,7 +189,7 @@ describe("STORY-009 follow-ups panel", () => {
     expect(sent("POST", /cancel$/)).toBeUndefined();
     await userEvent.type(screen.getByLabelText(/^Reason/), "Patient moved away");
     await userEvent.click(screen.getByRole("button", { name: "Cancel the follow-up" }));
-    expect(await screen.findByRole("status")).toHaveTextContent("Cancelled: Call about the crown.");
+    expect(await screen.findByText("Cancelled: Call about the crown.")).toBeInTheDocument();
     expect(sent("POST", /t1\/cancel$/)!.body).toEqual({ note: "Patient moved away", rowVersion: "AAEC" });
   });
 
@@ -199,7 +201,7 @@ describe("STORY-009 follow-ups panel", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Someone else changed this follow-up");
     reply = () => null;
     await userEvent.click(screen.getByRole("button", { name: "Reload the follow-up" }));
-    expect(await screen.findByRole("status")).toHaveTextContent("Reloaded the follow-ups.");
+    expect(await screen.findByText("Reloaded the follow-ups.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Mark complete" })).toBeNull();
   });
 

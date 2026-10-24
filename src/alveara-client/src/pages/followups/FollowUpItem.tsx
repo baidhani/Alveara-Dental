@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "../../components/Button";
 import type { FollowUp } from "../../services/followUpsApi";
+import { kindLabel } from "../../services/workQueueApi";
 import { FollowUpHistory } from "./FollowUpHistory";
 import { formatWhen } from "./followUpFormat";
 import "./followups.css";
@@ -24,9 +25,12 @@ export function FollowUpItem({ task, canManage, onEdit, onComplete, onCancel }: 
         <strong>{task.title}</strong>{" "}
         <span className={`alv-fu-badge alv-fu-badge--${task.status.toLowerCase()}`}>{task.status}</span>
         {open && task.overdue && <span className="alv-fu-badge alv-fu-badge--overdue">Overdue</span>}
+        {task.priority !== "Normal" && <span className={`alv-fu-badge alv-fu-badge--${task.priority.toLowerCase()}`}>{task.priority} priority</span>}
+        {task.kind !== "Manual" && <span className="alv-fu-badge">{kindLabel(task.kind)}</span>}
       </p>
       <p className="alv-fu-item__meta">
-        Due {formatWhen(task.dueAtUtc)} · Responsible: {task.assigneeName ?? "a former colleague"}
+        Due {formatWhen(task.dueAtUtc)} · Responsible: {task.assigneeUserId === null ? "nobody yet (unassigned)" : task.assigneeName ?? "a former colleague"}
+        {task.appointmentId ? " · Linked to an appointment" : ""}
         {task.recallIntervalDays ? ` · Repeats ${task.recallIntervalDays} day${task.recallIntervalDays === 1 ? "" : "s"} after completion` : ""}
         {task.recallOfTaskId ? " · Made by completing an earlier follow-up" : ""}
       </p>

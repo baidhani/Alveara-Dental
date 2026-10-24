@@ -101,3 +101,62 @@
 .alv-fu-item__meta a {
   color: var(--color-info);
 }
+
+/* ALV-009-C01: the work queue, priority and the recall card. Priority and urgency are always said in words; colour only adds to them. */
+.alv-fu-badge--urgent,
+.alv-fu-badge--high {
+  border-color: var(--color-danger);
+}
+
+.alv-fu-badge--low {
+  color: var(--color-text-muted);
+}
+
+.alv-fu-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.alv-fu-narrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.alv-fu-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.alv-fu-table th,
+.alv-fu-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.alv-fu-table a {
+  color: var(--color-info);
+}
+
+.alv-fu-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.alv-fu-pager {
+  margin-top: var(--space-3);
+}
+
+.alv-fu-recall,
+.alv-fu-timeline {
+  margin-top: var(--space-5);
+}
