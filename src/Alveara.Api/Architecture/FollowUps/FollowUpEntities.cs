@@ -67,7 +67,10 @@ public static class FollowUpKinds
     public const string Manual = "Manual";
     public const string Recall = "Recall";
     public const string UnscheduledTreatment = "UnscheduledTreatment";
-    public static readonly IReadOnlyList<string> All = [Manual, Recall, UnscheduledTreatment];
+    /// <summary>ALV-009-C02: the system's task to chase a referral that has reached its follow-up date, and to chase a lab case that has reached its due date.</summary>
+    public const string ReferralFollowUp = "ReferralFollowUp";
+    public const string LabCaseDue = "LabCaseDue";
+    public static readonly IReadOnlyList<string> All = [Manual, Recall, UnscheduledTreatment, ReferralFollowUp, LabCaseDue];
 }
 
 public static class FollowUpRules
@@ -76,6 +79,9 @@ public static class FollowUpRules
     public const int SourceKeyMaxLength = 100;
     public static string RecallSourceKey(Guid patientId, DateOnly dueDate) => $"recall:{patientId:N}:{dueDate:yyyyMMdd}";
     public static string UnscheduledSourceKey(Guid planItemId, int stateSequence) => $"unscheduled:{planItemId:N}:{stateSequence}";
+    /// <summary>ALV-009-C02: one chase task per referral or lab case and due date (a changed due date is a new chase).</summary>
+    public static string ReferralSourceKey(Guid caseId, DateOnly dueOn) => $"referral:{caseId:N}:{dueOn:yyyyMMdd}";
+    public static string LabSourceKey(Guid caseId, DateOnly dueOn) => $"lab:{caseId:N}:{dueOn:yyyyMMdd}";
     public const int TitleMaxLength = 120;
     public const int NoteMaxLength = 500;
     public const int DetailMaxLength = 200;
@@ -115,6 +121,10 @@ public class FollowUpTask
     public Guid? AppointmentId { get; set; }
     /// <summary>ALV-009-C01: for an UnscheduledTreatment task, the accepted treatment-plan item it is about.</summary>
     public Guid? SourcePlanItemId { get; set; }
+    /// <summary>ALV-009-C02: for a ReferralFollowUp task, the referral case it chases (the database refuses a case of another patient).</summary>
+    public Guid? SourceReferralCaseId { get; set; }
+    /// <summary>ALV-009-C02: for a LabCaseDue task, the lab case it chases.</summary>
+    public Guid? SourceLabCaseId { get; set; }
     /// <summary>ALV-009-C01: for a task the system made, a key naming what it was made for (a patient's due date, a plan item's acceptance); unique, so a retry or a restart can never make the same task twice.</summary>
     public string? SourceKey { get; set; }
     /// <summary>ALV-009-C01: true when the system closed the task (then <see cref="ClosedByUserId"/> is null).</summary>

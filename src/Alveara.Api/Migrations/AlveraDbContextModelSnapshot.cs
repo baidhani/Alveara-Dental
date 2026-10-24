@@ -3104,6 +3104,422 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ExternalCaseDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("LabCaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("LinkedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("LinkedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ReferralCaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("LinkedByUserId");
+
+                    b.HasIndex("LabCaseId", "DocumentId")
+                        .IsUnique()
+                        .HasFilter("[LabCaseId] IS NOT NULL");
+
+                    b.HasIndex("ReferralCaseId", "DocumentId")
+                        .IsUnique()
+                        .HasFilter("[ReferralCaseId] IS NOT NULL");
+
+                    b.ToTable("ExternalCaseDocuments", null, t =>
+                        {
+                            t.HasTrigger("TR_ExternalCaseDocuments_Links");
+
+                            t.HasCheckConstraint("CK_ExternalCaseDocuments_Case", "([ReferralCaseId] IS NOT NULL AND [LabCaseId] IS NULL) OR ([ReferralCaseId] IS NULL AND [LabCaseId] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_ExternalCaseDocuments_Time", "[LinkedAtUtc] >= '2000-01-01' AND [LinkedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ExternalCaseEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FromStatus")
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("LabCaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ReferralCaseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ToStatus")
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("DocumentId")
+                        .HasFilter("[DocumentId] IS NOT NULL");
+
+                    b.HasIndex("LabCaseId", "OccurredAtUtc")
+                        .HasFilter("[LabCaseId] IS NOT NULL");
+
+                    b.HasIndex("ReferralCaseId", "OccurredAtUtc")
+                        .HasFilter("[ReferralCaseId] IS NOT NULL");
+
+                    b.ToTable("ExternalCaseEvents", null, t =>
+                        {
+                            t.HasTrigger("TR_ExternalCaseEvents_Immutable");
+
+                            t.HasCheckConstraint("CK_ExternalCaseEvents_Case", "([ReferralCaseId] IS NOT NULL AND [LabCaseId] IS NULL) OR ([ReferralCaseId] IS NULL AND [LabCaseId] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_ExternalCaseEvents_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Created','Edited','StatusChanged','DocumentLinked','DocumentUnlinked')");
+
+                            t.HasCheckConstraint("CK_ExternalCaseEvents_Note", "[Note] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Note], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Note] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Note] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_ExternalCaseEvents_Shape", "([Kind] = 'StatusChanged' AND [ToStatus] IS NOT NULL AND [DocumentId] IS NULL) OR ([Kind] IN ('DocumentLinked','DocumentUnlinked') AND [DocumentId] IS NOT NULL AND [FromStatus] IS NULL AND [ToStatus] IS NULL) OR ([Kind] IN ('Created','Edited') AND [DocumentId] IS NULL AND [FromStatus] IS NULL AND ([ToStatus] IS NULL OR [Kind] = 'Created'))");
+
+                            t.HasCheckConstraint("CK_ExternalCaseEvents_Time", "[OccurredAtUtc] >= '2000-01-01' AND [OccurredAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ExternalParty", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContactDetails")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("Kind", "Name")
+                        .IsUnique();
+
+                    b.ToTable("ExternalParties", null, t =>
+                        {
+                            t.HasTrigger("TR_ExternalParties_Guard");
+
+                            t.HasCheckConstraint("CK_ExternalParties_Contact", "[ContactDetails] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([ContactDetails], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [ContactDetails] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [ContactDetails] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_ExternalParties_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('ReferralProvider','LabVendor')");
+
+                            t.HasCheckConstraint("CK_ExternalParties_Name", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Name], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Name] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Name] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_ExternalParties_Times", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND [UpdatedAtUtc] >= [CreatedAtUtc]");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.LabCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ClosedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClosureNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("DueOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Material")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PartyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("ReceivedOn")
+                        .HasColumnType("date");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateOnly?>("SentOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Shade")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ToothKey")
+                        .HasMaxLength(2)
+                        .HasColumnType("nchar(2)")
+                        .IsFixedLength();
+
+                    b.Property<Guid?>("TreatmentPlanItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClosedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("PartyId");
+
+                    b.HasIndex("TreatmentPlanItemId")
+                        .HasFilter("[TreatmentPlanItemId] IS NOT NULL");
+
+                    b.HasIndex("PatientId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "Status");
+
+                    b.HasIndex("Status", "DueOn");
+
+                    b.ToTable("LabCases", null, t =>
+                        {
+                            t.HasTrigger("TR_LabCases_Guard");
+
+                            t.HasTrigger("TR_LabCases_Links");
+
+                            t.HasCheckConstraint("CK_LabCases_ClosureNote", "[ClosureNote] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([ClosureNote], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [ClosureNote] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [ClosureNote] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_LabCases_Dates", "([SentOn] IS NULL OR ([SentOn] >= '2000-01-01' AND [SentOn] < '2200-01-01')) AND ([ReceivedOn] IS NULL OR ([ReceivedOn] >= '2000-01-01' AND [ReceivedOn] < '2200-01-01')) AND ([DueOn] IS NULL OR ([DueOn] >= '2000-01-01' AND [DueOn] < '2200-01-01')) AND ([ReceivedOn] IS NULL OR [SentOn] IS NOT NULL) AND ([ReceivedOn] IS NULL OR [ReceivedOn] >= [SentOn]) AND [CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND [UpdatedAtUtc] >= [CreatedAtUtc] AND ([ClosedAtUtc] IS NULL OR [ClosedAtUtc] >= [CreatedAtUtc])");
+
+                            t.HasCheckConstraint("CK_LabCases_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_LabCases_Material", "[Material] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Material], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Material] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Material] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_LabCases_Notes", "[Notes] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Notes], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Notes] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Notes] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_LabCases_Shade", "[Shade] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Shade], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Shade] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Shade] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_LabCases_Shape", "(([Status] = 'Draft' AND [SentOn] IS NULL AND [ReceivedOn] IS NULL AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] IN ('Sent','InProgress') AND [SentOn] IS NOT NULL AND [ReceivedOn] IS NULL AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] = 'Received' AND [SentOn] IS NOT NULL AND [ReceivedOn] IS NOT NULL AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] = 'Completed' AND [SentOn] IS NOT NULL AND [ReceivedOn] IS NOT NULL AND [ClosedAtUtc] IS NOT NULL AND [ClosedByUserId] IS NOT NULL) OR ([Status] = 'Cancelled' AND [ClosedAtUtc] IS NOT NULL AND [ClosedByUserId] IS NOT NULL AND [ClosureNote] IS NOT NULL))");
+
+                            t.HasCheckConstraint("CK_LabCases_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Draft','Sent','InProgress','Received','Completed','Cancelled')");
+
+                            t.HasCheckConstraint("CK_LabCases_Title", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Title], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Title] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Title] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_LabCases_ToothKey", "[ToothKey] IS NULL OR [ToothKey] COLLATE Latin1_General_CS_AS IN ('11','12','13','14','15','16','17','18','21','22','23','24','25','26','27','28','31','32','33','34','35','36','37','38','41','42','43','44','45','46','47','48','51','52','53','54','55','61','62','63','64','65','71','72','73','74','75','81','82','83','84','85')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ReferralCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ClosedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClosureNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("DueOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid?>("EncounterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("PartyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateOnly?>("ReceivedOn")
+                        .HasColumnType("date");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateOnly?>("SentOn")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClosedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("EncounterId")
+                        .HasFilter("[EncounterId] IS NOT NULL");
+
+                    b.HasIndex("PartyId");
+
+                    b.HasIndex("PatientId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("PatientId", "Status");
+
+                    b.HasIndex("Status", "DueOn");
+
+                    b.ToTable("ReferralCases", null, t =>
+                        {
+                            t.HasTrigger("TR_ReferralCases_Guard");
+
+                            t.HasTrigger("TR_ReferralCases_Links");
+
+                            t.HasCheckConstraint("CK_ReferralCases_ClosureNote", "[ClosureNote] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([ClosureNote], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [ClosureNote] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [ClosureNote] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_ReferralCases_Dates", "([SentOn] IS NULL OR ([SentOn] >= '2000-01-01' AND [SentOn] < '2200-01-01')) AND ([ReceivedOn] IS NULL OR ([ReceivedOn] >= '2000-01-01' AND [ReceivedOn] < '2200-01-01')) AND ([DueOn] IS NULL OR ([DueOn] >= '2000-01-01' AND [DueOn] < '2200-01-01')) AND ([ReceivedOn] IS NULL OR [SentOn] IS NOT NULL) AND ([ReceivedOn] IS NULL OR [ReceivedOn] >= [SentOn]) AND [CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND [UpdatedAtUtc] >= [CreatedAtUtc] AND ([ClosedAtUtc] IS NULL OR [ClosedAtUtc] >= [CreatedAtUtc])");
+
+                            t.HasCheckConstraint("CK_ReferralCases_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [IdempotencyKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_ReferralCases_Notes", "[Notes] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Notes], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Notes] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Notes] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_ReferralCases_Reason", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Reason], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Reason] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_ReferralCases_Shape", "(([Status] = 'Draft' AND [SentOn] IS NULL AND [ReceivedOn] IS NULL AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] IN ('Sent','InProgress') AND [SentOn] IS NOT NULL AND [ReceivedOn] IS NULL AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] = 'Received' AND [SentOn] IS NOT NULL AND [ReceivedOn] IS NOT NULL AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] = 'Completed' AND [SentOn] IS NOT NULL AND [ReceivedOn] IS NOT NULL AND [ClosedAtUtc] IS NOT NULL AND [ClosedByUserId] IS NOT NULL) OR ([Status] = 'Cancelled' AND [ClosedAtUtc] IS NOT NULL AND [ClosedByUserId] IS NOT NULL AND [ClosureNote] IS NOT NULL))");
+
+                            t.HasCheckConstraint("CK_ReferralCases_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Draft','Sent','Received','Completed','Cancelled')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpReminderDelivery", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3226,7 +3642,13 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("SourceLabCaseId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("SourcePlanItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SourceReferralCaseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
@@ -3260,8 +3682,14 @@ namespace Alveara.Api.Migrations
                         .IsUnique()
                         .HasFilter("[SourceKey] IS NOT NULL");
 
+                    b.HasIndex("SourceLabCaseId")
+                        .HasFilter("[SourceLabCaseId] IS NOT NULL");
+
                     b.HasIndex("SourcePlanItemId")
                         .HasFilter("[SourcePlanItemId] IS NOT NULL");
+
+                    b.HasIndex("SourceReferralCaseId")
+                        .HasFilter("[SourceReferralCaseId] IS NOT NULL");
 
                     b.HasIndex("Status", "DueAtUtc");
 
@@ -3287,7 +3715,7 @@ namespace Alveara.Api.Migrations
 
                             t.HasCheckConstraint("CK_FollowUpTasks_Interval", "[RecallIntervalDays] IS NULL OR ([RecallIntervalDays] >= 1 AND [RecallIntervalDays] <= 3650)");
 
-                            t.HasCheckConstraint("CK_FollowUpTasks_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Manual','Recall','UnscheduledTreatment')");
+                            t.HasCheckConstraint("CK_FollowUpTasks_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Manual','Recall','UnscheduledTreatment','ReferralFollowUp','LabCaseDue')");
 
                             t.HasCheckConstraint("CK_FollowUpTasks_Note", "[Note] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Note], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Note] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Note] COLLATE Latin1_General_BIN2) = 0)");
 
@@ -3295,7 +3723,7 @@ namespace Alveara.Api.Migrations
 
                             t.HasCheckConstraint("CK_FollowUpTasks_Recall", "[RecallOfTaskId] IS NULL OR [RecallOfTaskId] <> [Id]");
 
-                            t.HasCheckConstraint("CK_FollowUpTasks_Source", "([Kind] = 'Manual' AND [SourcePlanItemId] IS NULL AND [SourceKey] IS NULL) OR ([Kind] = 'Recall' AND [SourcePlanItemId] IS NULL AND [SourceKey] IS NOT NULL) OR ([Kind] = 'UnscheduledTreatment' AND [SourcePlanItemId] IS NOT NULL AND [SourceKey] IS NOT NULL)");
+                            t.HasCheckConstraint("CK_FollowUpTasks_Source", "([Kind] = 'Manual' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NULL) OR ([Kind] = 'Recall' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NOT NULL) OR ([Kind] = 'UnscheduledTreatment' AND [SourcePlanItemId] IS NOT NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NOT NULL) OR ([Kind] = 'ReferralFollowUp' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NOT NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NOT NULL) OR ([Kind] = 'LabCaseDue' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NOT NULL AND [SourceKey] IS NOT NULL)");
 
                             t.HasCheckConstraint("CK_FollowUpTasks_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._]%')");
 
@@ -7846,6 +8274,126 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ExternalCaseDocument", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.LabCase", null)
+                        .WithMany()
+                        .HasForeignKey("LabCaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("LinkedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.ReferralCase", null)
+                        .WithMany()
+                        .HasForeignKey("ReferralCaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ExternalCaseEvent", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.LabCase", null)
+                        .WithMany()
+                        .HasForeignKey("LabCaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.ReferralCase", null)
+                        .WithMany()
+                        .HasForeignKey("ReferralCaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ExternalParty", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.LabCase", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.ExternalParty", null)
+                        .WithMany()
+                        .HasForeignKey("PartyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
+                        .WithMany()
+                        .HasForeignKey("TreatmentPlanItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.ExternalCases.ReferralCase", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Clinical.Encounter", null)
+                        .WithMany()
+                        .HasForeignKey("EncounterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.ExternalParty", null)
+                        .WithMany()
+                        .HasForeignKey("PartyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpReminderDelivery", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
@@ -7894,9 +8442,19 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("RecallOfTaskId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.LabCase", null)
+                        .WithMany()
+                        .HasForeignKey("SourceLabCaseId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
                         .WithMany()
                         .HasForeignKey("SourcePlanItemId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.ExternalCases.ReferralCase", null)
+                        .WithMany()
+                        .HasForeignKey("SourceReferralCaseId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

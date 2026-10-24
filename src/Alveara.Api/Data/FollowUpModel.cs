@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.ExternalCases;
 using Alveara.Api.Architecture.FollowUps;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Patients;
@@ -34,6 +35,8 @@ internal static class FollowUpModel
             e.Property(x => x.RowVersion).IsRowVersion();
             e.HasOne<Appointment>().WithMany().HasForeignKey(x => x.AppointmentId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<TreatmentPlanItem>().WithMany().HasForeignKey(x => x.SourcePlanItemId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<ReferralCase>().WithMany().HasForeignKey(x => x.SourceReferralCaseId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<LabCase>().WithMany().HasForeignKey(x => x.SourceLabCaseId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.AssigneeUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
@@ -51,6 +54,8 @@ internal static class FollowUpModel
             e.HasIndex(x => x.DueAtUtc).HasFilter("[AssigneeUserId] IS NULL AND [Status] = 'Open'").HasDatabaseName("IX_FollowUpTasks_Open_Unassigned");
             e.HasIndex(x => x.AppointmentId).HasFilter("[AppointmentId] IS NOT NULL");
             e.HasIndex(x => x.SourcePlanItemId).HasFilter("[SourcePlanItemId] IS NOT NULL");
+            e.HasIndex(x => x.SourceReferralCaseId).HasFilter("[SourceReferralCaseId] IS NOT NULL");
+            e.HasIndex(x => x.SourceLabCaseId).HasFilter("[SourceLabCaseId] IS NOT NULL");
             // a system task is made once for what it is about, however many times the work is retried or restarted
             e.HasIndex(x => x.SourceKey).IsUnique().HasFilter("[SourceKey] IS NOT NULL");
             e.ToTable(t =>
@@ -72,9 +77,11 @@ internal static class FollowUpModel
                 // only a task the system made can be without a creator; a Recall task has a key, an UnscheduledTreatment task a key and its plan item, a Manual task neither a plan item nor a system key
                 t.HasCheckConstraint("CK_FollowUpTasks_Creator", $"[CreatedByUserId] IS NOT NULL OR [Kind] <> '{FollowUpKinds.Manual}'");
                 t.HasCheckConstraint("CK_FollowUpTasks_Source",
-                    $"([Kind] = '{FollowUpKinds.Manual}' AND [SourcePlanItemId] IS NULL AND [SourceKey] IS NULL) " +
-                    $"OR ([Kind] = '{FollowUpKinds.Recall}' AND [SourcePlanItemId] IS NULL AND [SourceKey] IS NOT NULL) " +
-                    $"OR ([Kind] = '{FollowUpKinds.UnscheduledTreatment}' AND [SourcePlanItemId] IS NOT NULL AND [SourceKey] IS NOT NULL)");
+                    $"([Kind] = '{FollowUpKinds.Manual}' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NULL) " +
+                    $"OR ([Kind] = '{FollowUpKinds.Recall}' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NOT NULL) " +
+                    $"OR ([Kind] = '{FollowUpKinds.UnscheduledTreatment}' AND [SourcePlanItemId] IS NOT NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NOT NULL) " +
+                    $"OR ([Kind] = '{FollowUpKinds.ReferralFollowUp}' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NOT NULL AND [SourceLabCaseId] IS NULL AND [SourceKey] IS NOT NULL) " +
+                    $"OR ([Kind] = '{FollowUpKinds.LabCaseDue}' AND [SourcePlanItemId] IS NULL AND [SourceReferralCaseId] IS NULL AND [SourceLabCaseId] IS NOT NULL AND [SourceKey] IS NOT NULL)");
                 t.HasCheckConstraint("CK_FollowUpTasks_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._]%')");
                 t.HasCheckConstraint("CK_FollowUpTasks_Recall", "[RecallOfTaskId] IS NULL OR [RecallOfTaskId] <> [Id]");
             });

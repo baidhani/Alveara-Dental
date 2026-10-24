@@ -139,6 +139,11 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.FollowUps.FollowUpReminderDelivery> FollowUpReminderDeliveries => Set<Architecture.FollowUps.FollowUpReminderDelivery>();
     public DbSet<Architecture.Recall.RecallSettings> RecallSettings => Set<Architecture.Recall.RecallSettings>();
     public DbSet<Architecture.Recall.PatientRecallPlan> PatientRecallPlans => Set<Architecture.Recall.PatientRecallPlan>();
+    public DbSet<Architecture.ExternalCases.ExternalParty> ExternalParties => Set<Architecture.ExternalCases.ExternalParty>();
+    public DbSet<Architecture.ExternalCases.ReferralCase> ReferralCases => Set<Architecture.ExternalCases.ReferralCase>();
+    public DbSet<Architecture.ExternalCases.LabCase> LabCases => Set<Architecture.ExternalCases.LabCase>();
+    public DbSet<Architecture.ExternalCases.ExternalCaseEvent> ExternalCaseEvents => Set<Architecture.ExternalCases.ExternalCaseEvent>();
+    public DbSet<Architecture.ExternalCases.ExternalCaseDocument> ExternalCaseDocuments => Set<Architecture.ExternalCases.ExternalCaseDocument>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
@@ -545,6 +550,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         PermissionPolicyModel.Configure(modelBuilder);
         FollowUpModel.Configure(modelBuilder);
         RecallModel.Configure(modelBuilder);
+        ExternalCaseModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {
