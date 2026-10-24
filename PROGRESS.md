@@ -1420,3 +1420,9 @@
   - Session: CC-20261008-k4q9
   - What changed: new `docs/RECALL_AND_WORK_QUEUE.md` (what the system makes and when, off by default, the durable-job design, the queue API and ordering, settings and the new permission, the four failure questions, verification list) and a pointer from `docs/FOLLOW_UPS.md`.
   - Verification: documentation only; every endpoint, permission, default, limit and key format in it was checked against the controller and code (corrected the key format and the queue ordering while checking).
+- [x] ALV-009-C01 slice 7e: the Stage 1 evidence sweep and a regression it found in the STORY-009 walkthrough
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: running the STORY-009 real-backend walkthrough against the new screens failed three times: the patient page now also shows a timeline that names the same task, so `getByRole("listitem")`, `getByText(title)` and `getByRole("button", {name: "All"})` (which also matches "Recall") became ambiguous. The three locators in `e2e/follow-ups-real-backend.spec.ts` now name the task list and use an exact button name. No product code changed.
+  - Verification: STORY-009 walkthrough 8 of 8 after the fix (it was 8 of 8 before this story); work-queue walkthrough 8 of 8; notifications 10 of 10; permission-policy 7 of 7 and admin 8 of 8; focused backend run 314 of 314; every `*ApiTests` class 860 of 860 (9 m 5 s); mocked Playwright 140; `tsc` 0; repository checks 13; artifact counts show no leftover test databases, template or backups.
+  - Notes: no full backend run (Stage 2 is the frozen contract after approval). Not pushed.

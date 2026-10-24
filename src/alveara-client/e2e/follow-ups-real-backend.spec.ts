@@ -87,7 +87,8 @@ function localInput(minutesFromNow: number): string {
 }
 
 const followUpsUrl = () => `/patients/${ids.ann}/follow-ups`;
-const listItem = (page: Page, title: string) => page.getByRole("listitem").filter({ hasText: title });
+// ALV-009-C01: the patient page also shows a timeline that names the same task, so the task list is picked out by its own name
+const listItem = (page: Page, title: string) => page.getByRole("list", { name: /follow-ups$/ }).getByRole("listitem").filter({ hasText: title });
 
 test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
@@ -243,7 +244,7 @@ test("ROLES: billing sees nothing, and revoking the manage permission removes th
   expect(revoke.status).toBe(200);
   expect((await api(desk, "post", `/api/patients/${ids.ann}/follow-ups`, { title: "x", dueAtUtc: new Date(Date.now() + 86_400_000).toISOString(), assigneeUserId: ids.Dentist }, { "Idempotency-Key": `fu-desk-${stamp}` })).status).toBe(403);   // the very next request
   await desk.goto(followUpsUrl());
-  await expect(desk.getByText("Order the night guard and the retainer")).toBeVisible();                          // still reads
+  await expect(desk.getByRole("list", { name: /follow-ups$/ }).getByText("Order the night guard and the retainer")).toBeVisible();                          // still reads
   await expect(desk.getByRole("button", { name: "New follow-up" })).toHaveCount(0);
   await expect(desk.getByText(/your role cannot change them/)).toBeVisible();
   await shot(desk, "08-front-desk-read-only.png");
@@ -294,7 +295,7 @@ test("ACCESSIBILITY: the follow-up screens pass an axe scan in both themes", asy
   await expect(dr.getByLabel(/^Title/)).toBeVisible();
   await scanBothThemes(dr, "follow-ups-with-form");
   await dr.getByRole("button", { name: "Cancel" }).first().click();
-  await dr.getByRole("button", { name: "All" }).click();
+  await dr.getByRole("button", { name: "All", exact: true }).click();
   await expect(dr.getByRole("list", { name: "all follow-ups" })).toBeVisible();
   await scanBothThemes(dr, "follow-ups-all");
   await dr.goto("/follow-ups");
