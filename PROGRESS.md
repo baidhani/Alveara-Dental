@@ -1415,3 +1415,8 @@
   - What changed: `WorkQueueBackupRestoreTests`: the recall settings, a patient's recall arrangement (opt-out with reason) and a system-made recall task (no creator, no owner, High priority) with its history and audit entry are backed up and restored into an isolated database through the real backup and restore services; a later switch-off, plan removal and cancellation are not in the restore; the restored database still refuses a second task for the same source key, a second settings row, an empty recall arrangement and an edit of a closed task; the live database is untouched by the drill.
   - Verification: `WorkQueueBackupRestoreTests` 1 passed against a real SQL Server (all blocking restore validation checks passed); with `RealMigrationInventoryTests` and `FollowUpBackupRestoreTests` 7 of 7.
   - Notes: no production code changed. Not pushed.
+- [x] ALV-009-C01 slice 7d: the behaviour doc
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: new `docs/RECALL_AND_WORK_QUEUE.md` (what the system makes and when, off by default, the durable-job design, the queue API and ordering, settings and the new permission, the four failure questions, verification list) and a pointer from `docs/FOLLOW_UPS.md`.
+  - Verification: documentation only; every endpoint, permission, default, limit and key format in it was checked against the controller and code (corrected the key format and the queue ordering while checking).

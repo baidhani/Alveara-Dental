@@ -25,6 +25,8 @@ Complete and cancel are idempotent by state instead of by key: the same person d
 
 ## Reminders
 
+> ALV-009-C01: reminders are now delivered through the durable job queue (one job per task, due time and channel), and tasks can be unassigned, prioritised and made by the system; see [RECALL_AND_WORK_QUEUE.md](RECALL_AND_WORK_QUEUE.md).
+
 `FollowUpReminderService` finds every open task that is due and has no recorded delivery for a channel and its current due time, oldest first, and tells the responsible person. Because the rule is "due and not yet reminded" and not "due in this window", a missed run, a restart, a clock jump or an outage only delays a reminder: the next pass sends everything owed. The notification (kind `followup.due`, in the notification center), the delivery record, a `Reminded` event and an audit entry are saved together, so a failure leaves none of them and the next pass repeats the batch; the unique keys make a repeat, or a second server running the same pass, harmless. A changed due time is a new reminder (the delivery is unique per task, due time and channel). A completed or cancelled task is never reminded. A reminder carries the task id, the patient and the due time; never the title or the note. Opening it takes the person to the patient's follow-ups.
 
 If the responsible person is disabled or can no longer see follow-ups, every enabled office manager who can is told instead and the delivery is recorded as a fallback. If nobody can be told, nothing is recorded and the next pass tries again (it is counted in the pass log, not lost).
