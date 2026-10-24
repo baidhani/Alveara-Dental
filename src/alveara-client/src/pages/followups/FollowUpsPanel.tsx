@@ -56,9 +56,8 @@ export function FollowUpsPanel({ patientId, canManage }: { patientId: string; ca
       <h2 id="alv-fu-title" className="alv-workspace__section-title">Follow-ups</h2>
       <p className="alv-clinical__meta">
         Tasks that keep this patient&apos;s care continuous. The responsible person is reminded when a task is due. Every action is recorded with who did it and when.
-        {canManage ? "" : " You can read follow-ups but your role cannot change them."}
       </p>
-      <p className="alv-clinical__status" role="status" aria-live="polite">{status ?? ""}</p>
+      <p className="alv-clinical__status" role="status" aria-live="polite">{status ?? (canManage ? "Nothing is saved until you create or change a follow-up." : "You can read follow-ups but your role cannot change them.")}</p>
       {failed && <p role="alert" className="alv-fu-error">Could not refresh the follow-ups. What is shown may be out of date.</p>}
 
       <div className="alv-fu-toolbar">

@@ -88,6 +88,7 @@ try {
     $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $connection
     $psi.EnvironmentVariables['AdminBootstrapSecret'] = $secret
     $psi.EnvironmentVariables['AuthAttemptRateLimit__PermitLimit'] = '500'
+    $psi.EnvironmentVariables['FollowUps__ReminderPollSeconds'] = '3'   # STORY-009: the follow-up reminder pass runs every 3 s here (60 s by default) so a walkthrough sees a reminder promptly
     $psi.EnvironmentVariables['StorageRoot'] = $runFolders[0]
     $psi.EnvironmentVariables['DataProtectionKeysPath'] = $runFolders[1]
     $psi.EnvironmentVariables['Backup__Root'] = $runFolders[2]

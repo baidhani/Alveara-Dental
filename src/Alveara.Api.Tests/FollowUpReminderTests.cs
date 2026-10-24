@@ -100,7 +100,8 @@ public class FollowUpReminderTests : SafetyTestBase
     {
         var hyg = await UserAsync(Role.Hygienist);
         await TaskAsync(hyg, Now.AddMinutes(-1));
-        for (var i = 0; i < 4; i++) await PassAsync(Now.AddMinutes(i));
+        Assert.Equal(1, (await PassAsync(Now)).Sent);
+        for (var i = 1; i < 4; i++) Assert.Equal(new ReminderPassResult(0, 0, 0, 0), await PassAsync(Now.AddMinutes(i)));   // later passes find nothing owed
         Assert.Equal((1, 1, 1, 1), await CountsAsync());
     }
 

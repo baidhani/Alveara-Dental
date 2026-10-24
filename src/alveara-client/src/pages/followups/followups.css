@@ -96,3 +96,8 @@
   padding-left: var(--space-5);
   font-size: var(--font-size-sm);
 }
+
+/* A link uses the information colour, which is AA on the surface in both themes (the default link colour is not in dark mode; found by the walkthrough's axe scan). */
+.alv-fu-item__meta a {
+  color: var(--color-info);
+}
