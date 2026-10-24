@@ -103,4 +103,9 @@ public enum Permission
     // ALV-N017: the right to change which roles hold which permissions (the policy write path arrives in ALV-N018; this story only defines the permission). It is protected: held by the administrator
     // alone, it can never be granted to another role or delegated. Appended last so existing ordinals are undisturbed.
     ManagePermissionGrants,
+
+    // STORY-009: follow-up tasks, recall intervals and reminders. Viewing a patient's follow-up tasks and their history, and managing them (create, assign, edit, complete, cancel), are separate so a role can be given one without the other.
+    // Held by the dentist, hygienist, assistant, front desk and office manager (and the administrator); billing holds neither. Neither is protected: both are grantable and delegable under the policy rules. Appended last so existing ordinals are undisturbed.
+    ViewFollowUps,
+    ManageFollowUps,
 }

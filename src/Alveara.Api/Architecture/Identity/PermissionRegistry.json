@@ -160,6 +160,14 @@
     {
       "name": "ManagePermissionGrants",
       "status": "Active"
+    },
+    {
+      "name": "ViewFollowUps",
+      "status": "Active"
+    },
+    {
+      "name": "ManageFollowUps",
+      "status": "Active"
     }
   ]
 }

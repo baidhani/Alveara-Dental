@@ -1295,3 +1295,9 @@
   - What changed: closure commit `6f2e4fc` (`APPROVED_PENDING_REGRESSION`, status `AWAITING_REGRESSION`); Stage 2 run once on it; regression addendum `.alveara/handoffs/ALV-N018/R02-regression.md` and evidence `R02-regression-evidence/`; status set to `AWAITING_REVIEW` with `fullRegression: "PASSED"`.
   - Verification: frozen evaluator STAGE 2 QUALIFIES: backend 4,628 passed / 0 failed / 0 skipped in 36.1 min, exact baseline except the declared retired id plus the 60 allowlisted ids, one template and 3,519 clones with no fallback, leak counts unchanged, tsc, Vitest, build, lint, mocked Playwright and repository checks exit 0, walkthroughs 7, 8, 10, 14 and 12, performance budget met (warm path worst p95 1.084 ms, reload 1.427 and 3.21 ms, write 10.373 ms).
   - Notes: no rerun, contract untouched. No leftover test databases. Not pushed.
+- [x] STORY-009 slice 1: the follow-up permissions and the approved design note
+  - Date: 2026-10-23
+  - Session: CC-20261008-k4q9
+  - What changed: `ViewFollowUps` and `ManageFollowUps` appended to `Permission`, registered as Active, defaults to Dentist, Hygienist, Assistant, FrontDesk and OfficeManager (Admin holds all; Billing and Unassigned neither); design note `docs/design/FOLLOW_UP_TASKS_DESIGN.md` (approved by the owner, with the email channel left as a seam).
+  - Verification: `FollowUpPermissionTests` (12 rows: the defaults table, manage implies view, neither permission is protected, both grantable and delegable); `PermissionRegistryTests`, `PermissionMatrixTests`, `PolicySnapshotBuilderTests`, `AuthControllerPermissionMatrixTests`, `PrescriptionPermissionTests` and `NotificationPermissionTests` still pass: 82 of 82.
+  - Notes: STORY-009 is in progress; no story criterion is met yet, so `.colaberry/progress.json` is not updated. Not pushed.
