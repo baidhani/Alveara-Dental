@@ -1450,3 +1450,9 @@
   - What changed: `src/PatientWorkspace.test.tsx` (existing ALV-003 test "saves only on request…"): the test now flushes pending effects with `act` before editing, and waits for the field to read "" and then "Dallas" before saving. The assertions about explicit save and the loaded version are unchanged; no product code changed.
   - Verification: root cause reproduced first with a probe (an edit made before the form's mount effect has run is overwritten by the re-seed: "expected 'Austin' to be ''", 3 of 3 runs; the same edit after flushing is kept); the file passes 19 of 19 in 40 of 40 isolated runs under 48 CPU burners; full Vitest 102 files / 1,617 of 1,617; tsc 0, build 0, lint 0, mocked Playwright 140, repository checks 13.
   - Notes: the old test also passed under CPU load alone, so repeat runs cannot discriminate; the probe pair is the evidence of the race and of the fix.
+- [x] ALV-009-C01 attempt R02 (Stage 1): engineering handoff recorded
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-009-C01/R02.md` and `R02-evidence/` (test results, the identity-manifest derivation and its output, the race probe and stress runs, the corrected frozen Stage 2 contract with 172 expected new ids and evaluator validation 9 of 9, gates, carried-over acceptance/demo/parent evidence), BUILD_STATE and EXECUTION_STATUS (ALV-009-C01 AWAITING_REVIEW, attempt R02, implementation 340624b).
+  - Verification: derived new ids 172 = the R01 full run's 172 (4,734 + 172 = 4,906); focused backend 324 of 324; every `*ApiTests` class 860 of 860; Vitest 1,617 of 1,617; 40 of 40 isolated stress runs of the fixed test; tsc, build, lint 0; mocked Playwright 140; repository checks 13. No full backend run and no Stage 2 run.
+  - Notes: R01 files and both R01 ZIPs untouched. Not pushed; review pending.

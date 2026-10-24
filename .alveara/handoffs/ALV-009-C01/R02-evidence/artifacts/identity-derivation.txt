@@ -1,0 +1,5 @@
+changed test classes: 11 | not present in either run: []
+baseline ids in covered classes missing from the runs: 0 | outcome changed: 0 | not Passed in runs: 0
+derived new ids: 172 | R01 full-run new ids: 172 | derived-only: 0 | full-run-only: 0
+expected total = 4734 + 172 = 4906 | R01 full run total: 4906 | every full-run outcome Passed: True
+MANIFEST DERIVED AND EQUAL TO THE R01 FULL RUN; wrote .alveara/handoffs/ALV-009-C01/R02-evidence/stage2/expected_new_ids.txt

@@ -2414,39 +2414,36 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 7,
         "passed": 7
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a Stage 1 package. Focused backend 314 of 314 (new classes, all STORY-009 follow-up classes, ALV-N002 job tests, permission and migration-inventory classes) and every *ApiTests class 860 of 860; 162 new test ids against the STORY-009 final run of 4,734 (WorkQueueSchemaTests 46, WorkQueueApiTests 44, RecallCalculatorTests 22, UnscheduledTreatmentJobTests 21, FollowUpReminderJobTests 15, RecallJobTests 13, WorkQueueBackupRestoreTests 1), no existing id missing or changed in the classes run; 20 of 20 negative controls killed (4 survived the first pass and got tests); restore drill 1 of 1. Client: tsc 0, Vitest 1,617 of 1,617 (102 files), build and lint exit 0, mocked Playwright 140, repository checks 13. Real-backend walkthroughs on fresh databases: work queue 8 of 8, follow-ups (STORY-009's, three locators made unambiguous) 8 of 8, notifications 10, permission-policy 7 and admin 8. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-009-C01/R01-evidence/stage2/) expects 4,896 backend tests (the 4,734 baseline plus exactly the 162 listed new ids, nothing retired) with no time limit. No full run made. STAGE 2 (run once on closure commit 169bce5, evidence .alveara/handoffs/ALV-009-C01/R01-regression.md): STAGE 2 DOES NOT QUALIFY (22 criteria passed, 3 failed). Backend 4,906 passed / 0 failed / 0 skipped in 40.2 min with all 4,734 baseline ids unchanged, but 172 new ids ran against the 162 allowlisted (10 RecallPermissionTests ids, all passed, were missing from the Stage 1 allowlist: an evidence error), and Vitest had 1 failure of 1,617 in an existing unrelated test (PatientWorkspace.test.tsx, passes 6 of 6 alone; probable timing flake). tsc, build, lint, mocked Playwright 140, repository checks 13, template and leak criteria and all five walkthroughs (8, 8, 10, 7, 8) passed. Decision left to the reviewer (CHANGES_REQUIRED and R02 proposed)."
+        "summary": "Attempt R02, a Stage 1 handoff only, correcting the two R01 final-review findings. ALV-009-C01-R01-02: the nondeterministic existing test PatientWorkspace.test.tsx was synchronized (test-only change, commit 340624b): root cause reproduced with a deterministic probe (an edit made before the form's mount effect has run is overwritten by the re-seed, giving AustinDallas), pending effects are now flushed before the first edit and each step awaited; 40 of 40 isolated runs under 48 CPU burners, full Vitest 1,617 of 1,617 in 102 files. ALV-009-C01-R01-01: the backend identity manifest was re-derived from the changed test surface (git diff since the baseline commit; 11 classes including RecallPermissionTests) and compared with the 4,734-id baseline and the R01 full run: 172 new ids, identical to the R01 full run's, 4,734 + 172 = 4,906; frozen contract now expects exactly 4,906 passing ids; evaluator validation 9 of 9. R02 tree: focused backend 324 of 324 and every *ApiTests class 860 of 860, tsc 0, build 0, lint 0, mocked Playwright 140, repository checks 13. Backend source unchanged from R01 (git diff of src is the one test file). Full regression PENDING: no Stage 2 run was made; the frozen Stage 2 (.alveara/handoffs/ALV-009-C01/R02-evidence/stage2/) expects 4,906 backend tests, nothing retired, with no time limit."
       },
       "demo": "real_backend_walkthrough_8_of_8",
       "parentRegression": "verified",
-      "implementationCommit": "4b12cc19bf8de4bf97a9c5e0aab3aee95218b8ae",
-      "evidenceCommit": "ce0bd94cc13d299b21cf1cf816510436ab9d5bf2",
-      "handoffPath": ".alveara/handoffs/ALV-009-C01/R01.md",
+      "implementationCommit": "340624b0fb9c54b32c82782e7c6b2e90bd651b74",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-009-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-009-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "4b12cc19bf8de4bf97a9c5e0aab3aee95218b8ae",
-        "reviewedEvidenceCommit": "ce0bd94cc13d299b21cf1cf816510436ab9d5bf2",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-009-C01/R01-stage1.md"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-009-C01/R01.md"
       },
-      "blockingIssues": [
-        "ALV-009-C01-R01-01: the frozen backend identity contract is incomplete. The Stage 2 run passed 4,906 of 4,906 with all 4,734 baseline ids unchanged, but 172 new ids ran against the 162 allowlisted: ten passing recall-permission cases (class RecallPermissionTests in RecallCalculatorTests.cs) were missing because the Stage 1 test filter did not cover every class added by the story. R02 must rebuild the identity manifest from the actual baseline and changed backend test surface and freeze exactly 4,906 passing ids (4,734 baseline plus 172 new); the R01 result cannot be made to satisfy the frozen 4,896/162 contract by editing the evaluator or the review result.",
-        "ALV-009-C01-R01-02: the full Vitest run contained a nondeterministic failure in the existing test src/PatientWorkspace.test.tsx > editing a patient > saves only on request, sends the version it read, and shows the saved values (expected city Dallas, the PUT held AustinDallas; six isolated runs passed). R02 must make the test observe the clear before typing the replacement, keep the explicit-save and loaded-version assertions, and show repeat and stress execution sufficient to demonstrate the race is addressed, with the revised identity-manifest derivation and comparison. R02 is a Stage 1 handoff only: no full regression run before it receives APPROVED_PENDING_REGRESSION."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "FAILED"
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",
