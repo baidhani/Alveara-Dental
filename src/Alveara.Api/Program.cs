@@ -115,6 +115,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.PolicyWriteServi
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpService>();   // STORY-009
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.IReminderChannel, Alveara.Api.Architecture.FollowUps.InAppReminderChannel>();
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpReminderService>();
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.FollowUps.FollowUpReminderJobHandler>();   // ALV-009-C01: reminder delivery runs on the durable job queue
 builder.Services.AddHostedService<Alveara.Api.Architecture.FollowUps.FollowUpReminderHostedService>();
 // ALV-009-C01: recall and accepted-treatment tasks, as durable background jobs (ALV-N002)
 builder.Services.AddScoped<Alveara.Api.Architecture.Recall.RecallScheduler>();

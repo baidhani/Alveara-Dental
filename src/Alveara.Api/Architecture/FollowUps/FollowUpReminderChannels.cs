@@ -30,16 +30,27 @@ public interface IReminderChannel
 }
 
 /// <summary>
+/// ALV-009-C01: a channel whose telling is a row in the database stages it on the context it is GIVEN (the job runner's, inside its transaction) instead of on one of its own. The in-app channel is one; an external channel
+/// (email) is not, and is simply called.
+/// </summary>
+public interface IStagingReminderChannel : IReminderChannel
+{
+    Task<ReminderChannelResult> StageAsync(ReminderRequest request, AlveraDbContext db, CancellationToken ct);
+}
+
+/// <summary>
 /// The in-app channel: stages a notification for the recipient in the notification center, in the same save as the delivery record. The notification carries the patient and a key naming the task and its due time,
 /// never the title or note; opening it takes the person to the patient's follow-ups. The unique key per recipient makes a repeat harmless.
 /// </summary>
-public sealed class InAppReminderChannel(AlveraDbContext db, IPracticeClock clock) : IReminderChannel
+public sealed class InAppReminderChannel(AlveraDbContext db, IPracticeClock clock) : IStagingReminderChannel
 {
     public string Channel => FollowUpChannels.InApp;
 
-    public Task<ReminderChannelResult> SendAsync(ReminderRequest request, CancellationToken ct)
+    public Task<ReminderChannelResult> SendAsync(ReminderRequest request, CancellationToken ct) => StageAsync(request, db, ct);
+
+    public Task<ReminderChannelResult> StageAsync(ReminderRequest request, AlveraDbContext target, CancellationToken ct)
     {
-        db.Notifications.Add(new Notification
+        target.Notifications.Add(new Notification
         {
             Id = Guid.NewGuid(), RecipientUserId = request.RecipientUserId, Kind = NotificationKinds.FollowUpDue, Priority = NotificationPriorities.Normal,
             RelatedPatientId = request.PatientId, SourceKey = request.SourceKey, CreatedAtUtc = clock.UtcNow,

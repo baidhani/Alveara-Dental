@@ -3,14 +3,14 @@ using Alveara.Api.Architecture.Time;
 namespace Alveara.Api.Architecture.FollowUps;
 
 /// <summary>
-/// STORY-009: runs the reminder pass in the background. <c>FollowUps:ReminderPollSeconds</c> sets the interval (default 60); 0 turns the loop off (tests that drive the pass themselves). A pass repeats while it still
-/// finds reminders owed, up to a cap per wake-up, so a long outage is caught up in a few wake-ups. A failure is logged with its error class only (never a task, title or note), the loop waits longer after each
-/// consecutive failure (capped) and carries on; the tasks themselves are unaffected and the reminders owed are simply sent by a later pass. Each pass logs its counts as one structured line.
+/// STORY-009: runs the reminder scan in the background. <c>FollowUps:ReminderPollSeconds</c> sets the interval (default 60); 0 turns the loop off (tests that drive the pass themselves). ALV-009-C01: the scan only ENQUEUES the
+/// reminders that are owed (and gives a failed one a fresh set of attempts after a cool-down); the ALV-N002 job runner, which polls on its own, delivers them with its retries, restart recovery and effect receipts. A failure
+/// is logged with its error class only (never a task, title or note), the loop waits longer after each consecutive failure (capped) and carries on; the tasks themselves are unaffected and the reminders owed are enqueued
+/// by a later pass. Each pass that did anything logs one structured line.
 /// </summary>
 public sealed class FollowUpReminderHostedService(IServiceScopeFactory scopeFactory, IConfiguration configuration, ILogger<FollowUpReminderHostedService> logger) : BackgroundService
 {
     private const int MaxBackoffSeconds = 300;
-    private const int MaxPassesPerWake = 20;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -22,18 +22,12 @@ public sealed class FollowUpReminderHostedService(IServiceScopeFactory scopeFact
             try
             {
                 var started = DateTimeOffset.UtcNow;
-                int sent = 0, fallback = 0, undeliverable = 0, deferred = 0;
-                for (var i = 0; i < MaxPassesPerWake; i++)
-                {
-                    await using var scope = scopeFactory.CreateAsyncScope();
-                    var result = await scope.ServiceProvider.GetRequiredService<FollowUpReminderService>().ProcessOnceAsync(stoppingToken);
-                    sent += result.Sent; fallback += result.Fallback; undeliverable = result.Undeliverable; deferred = result.Deferred;
-                    if (result.Total == 0) break;
-                }
+                await using var scope = scopeFactory.CreateAsyncScope();
+                var result = await scope.ServiceProvider.GetRequiredService<FollowUpReminderService>().EnqueueDueAsync(stoppingToken);
                 failures = 0;
-                if (sent + fallback + undeliverable + deferred > 0)
-                    logger.LogInformation("followup_reminders_pass outcome=success sent={Sent} fallback={Fallback} undeliverable={Undeliverable} deferred={Deferred} duration_ms={DurationMs}",
-                        sent, fallback, undeliverable, deferred, (int)(DateTimeOffset.UtcNow - started).TotalMilliseconds);
+                if (result.Enqueued + result.Undeliverable + result.Reset > 0)
+                    logger.LogInformation("followup_reminders_pass outcome=success enqueued={Enqueued} undeliverable={Undeliverable} reset={Reset} duration_ms={DurationMs}",
+                        result.Enqueued, result.Undeliverable, result.Reset, (int)(DateTimeOffset.UtcNow - started).TotalMilliseconds);
             }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {

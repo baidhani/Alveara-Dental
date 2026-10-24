@@ -139,10 +139,18 @@ public sealed class BackgroundJobRunner(
     }
 
     /// <summary>Processes every currently-Pending job once. Returns the number actually claimed and processed.</summary>
-    public async Task<int> ProcessOnceAsync(CancellationToken cancellationToken = default)
+    public Task<int> ProcessOnceAsync(CancellationToken cancellationToken = default) => ProcessPendingAsync(null, cancellationToken);
+
+    /// <summary>
+    /// ALV-009-C01: processes only the pending jobs of the given types, leaving every other job untouched. A caller that registers only some handlers (an inline run of one kind of job) must use this, because the
+    /// unfiltered run would claim a job it has no handler for and mark it Failed.
+    /// </summary>
+    public Task<int> ProcessOnceAsync(IReadOnlyCollection<string> jobTypes, CancellationToken cancellationToken = default) => ProcessPendingAsync(jobTypes, cancellationToken);
+
+    private async Task<int> ProcessPendingAsync(IReadOnlyCollection<string>? jobTypes, CancellationToken cancellationToken)
     {
         var pendingIds = await db.BackgroundJobs
-            .Where(j => j.Status == BackgroundJobStatus.Pending)
+            .Where(j => j.Status == BackgroundJobStatus.Pending && (jobTypes == null || jobTypes.Contains(j.JobType)))
             .Select(j => j.Id)
             .ToListAsync(cancellationToken);
 
