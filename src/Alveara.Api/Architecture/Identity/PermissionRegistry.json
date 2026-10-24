@@ -168,6 +168,10 @@
     {
       "name": "ManageFollowUps",
       "status": "Active"
+    },
+    {
+      "name": "ManageRecallSettings",
+      "status": "Active"
     }
   ]
 }

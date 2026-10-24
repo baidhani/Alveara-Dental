@@ -73,7 +73,8 @@ public static class PermissionMatrix
             Permission.ImportDocuments, Permission.ViewDocuments, // STORY-010: imports and categorizes; the settings stay with the administrator
             Permission.ManageDocumentStorage, // ALV-010-C01: checks the stored files and reviews the ones nothing points to
             Permission.SendMessages, Permission.ReceiveDocumentNotifications, // ALV-N015: sends messages; is told when a duplicate document is imported
-            Permission.ViewFollowUps, Permission.ManageFollowUps), // STORY-009
+            Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
+            Permission.ManageRecallSettings), // ALV-009-C01: the practice's recall settings
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

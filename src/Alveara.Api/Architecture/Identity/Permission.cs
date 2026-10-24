@@ -108,4 +108,8 @@ public enum Permission
     // Held by the dentist, hygienist, assistant, front desk and office manager (and the administrator); billing holds neither. Neither is protected: both are grantable and delegable under the policy rules. Appended last so existing ordinals are undisturbed.
     ViewFollowUps,
     ManageFollowUps,
+
+    // ALV-009-C01: the practice's recall settings (the default recall interval, how far ahead a recall task is made, which patients are still recalled). Held by the administrator and the office manager; changing one patient's
+    // own recall interval needs only ManageFollowUps. Not protected: grantable and delegable like the follow-up permissions. Appended last so existing ordinals are undisturbed.
+    ManageRecallSettings,
 }
