@@ -44,6 +44,12 @@ public static class FollowUpRules
     public const int NoteMaxLength = 500;
     public const int DetailMaxLength = 200;
     public const int MaxRecallIntervalDays = 3650;
+    /// <summary>A due date may be at most this many days in the past (back-dating a task is allowed, a typo is not) ...</summary>
+    public const int MaxPastDays = 366;
+    /// <summary>... and this many days in the future (about ten years).</summary>
+    public const int MaxFutureDays = 3660;
+    /// <summary>The most tasks a list returns.</summary>
+    public const int MaxListSize = 200;
     /// <summary>The key of the in-app reminder notification for one task at one due time. Dots, not hyphens: the notification source-key check (CK_Notifications_SourceKey) refuses a hyphen in practice, because its character class reads "_-]" as a range.</summary>
     public static string ReminderSourceKey(Guid taskId, DateTimeOffset dueAtUtc) => $"followup.due:{taskId:N}:{dueAtUtc.UtcTicks}";
 }

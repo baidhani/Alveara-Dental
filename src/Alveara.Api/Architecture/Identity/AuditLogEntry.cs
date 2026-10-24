@@ -92,6 +92,13 @@ public static class AuditEventTypes
     public const string PermissionRevoked = "PermissionRevoked";
     public const string PermissionReverted = "PermissionReverted";
     public const string DelegationChanged = "DelegationChanged";
+
+    // STORY-009: follow-up tasks. The entry names ids only, never the title or note.
+    public const string FollowUpCreated = "FollowUpCreated";
+    public const string FollowUpChanged = "FollowUpChanged";
+    public const string FollowUpCompleted = "FollowUpCompleted";
+    public const string FollowUpCancelled = "FollowUpCancelled";
+    public const string FollowUpReminderSent = "FollowUpReminderSent";
     public const string PermissionPolicyInvalidRowDetected = "PermissionPolicyInvalidRowDetected";
     public const string InvalidPolicyRowRemoved = "InvalidPolicyRowRemoved";
     public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";

@@ -112,6 +112,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.IEffectivePermis
 builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.IPolicyObserver, Alveara.Api.Architecture.Permissions.AuditingPolicyObserver>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.PolicyAdminService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.PolicyWriteService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpService>();   // STORY-009
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();
