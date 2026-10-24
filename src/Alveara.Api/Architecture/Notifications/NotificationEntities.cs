@@ -16,7 +16,9 @@ public static class NotificationKinds
 {
     public const string DocumentDuplicateAdded = "document.duplicate_added";
     public const string MessageReceived = "message.received";
-    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived];
+    /// <summary>STORY-009: a follow-up task is due. Carries the patient and a source key naming the task and its due time; never the task's title or note.</summary>
+    public const string FollowUpDue = "followup.due";
+    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue];
 }
 
 /// <summary>The producers whose immutable, ordered event history the consumer reads. One cursor row per source.</summary>

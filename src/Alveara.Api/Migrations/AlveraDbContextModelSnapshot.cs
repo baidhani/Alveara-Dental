@@ -3104,6 +3104,200 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpReminderDelivery", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("DueAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid>("RecipientUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipientUserId");
+
+                    b.HasIndex("TaskId", "DueAtUtc", "Channel")
+                        .IsUnique();
+
+                    b.ToTable("FollowUpReminderDeliveries", null, t =>
+                        {
+                            t.HasTrigger("TR_FollowUpReminderDeliveries_Immutable");
+
+                            t.HasCheckConstraint("CK_FollowUpReminderDeliveries_Channel", "[Channel] COLLATE Latin1_General_CS_AS IN ('InApp')");
+
+                            t.HasCheckConstraint("CK_FollowUpReminderDeliveries_Outcome", "[Outcome] COLLATE Latin1_General_CS_AS IN ('Delivered','Fallback')");
+
+                            t.HasCheckConstraint("CK_FollowUpReminderDeliveries_Time", "[DueAtUtc] >= '2000-01-01' AND [DueAtUtc] < '2200-01-01' AND [CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AssigneeUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("ClosedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("ClosedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClosureNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DueAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("RecallIntervalDays")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("RecallOfTaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClosedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("RecallOfTaskId")
+                        .IsUnique()
+                        .HasFilter("[RecallOfTaskId] IS NOT NULL");
+
+                    b.HasIndex("Status", "DueAtUtc");
+
+                    b.HasIndex("AssigneeUserId", "Status", "DueAtUtc");
+
+                    b.HasIndex("PatientId", "Status", "DueAtUtc");
+
+                    b.ToTable("FollowUpTasks", null, t =>
+                        {
+                            t.HasTrigger("TR_FollowUpTasks_Guard");
+
+                            t.HasTrigger("TR_FollowUpTasks_Links");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Closure", "([Status] = 'Open' AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL) OR ([Status] <> 'Open' AND [ClosedAtUtc] IS NOT NULL AND [ClosedByUserId] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_ClosureNote", "[ClosureNote] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([ClosureNote], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [ClosureNote] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [ClosureNote] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Interval", "[RecallIntervalDays] IS NULL OR ([RecallIntervalDays] >= 1 AND [RecallIntervalDays] <= 3650)");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Note", "[Note] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Note], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Note] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Note] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Recall", "[RecallOfTaskId] IS NULL OR [RecallOfTaskId] <> [Id]");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Open','Completed','Cancelled')");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Times", "[DueAtUtc] >= '2000-01-01' AND [DueAtUtc] < '2200-01-01' AND [CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND ([ClosedAtUtc] IS NULL OR [ClosedAtUtc] >= [CreatedAtUtc])");
+
+                            t.HasCheckConstraint("CK_FollowUpTasks_Title", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Title], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Title] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Title] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpTaskEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("OccurredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActorUserId");
+
+                    b.HasIndex("TaskId", "OccurredAtUtc");
+
+                    b.ToTable("FollowUpTaskEvents", null, t =>
+                        {
+                            t.HasTrigger("TR_FollowUpTaskEvents_Immutable");
+
+                            t.HasCheckConstraint("CK_FollowUpTaskEvents_Actor", "[ActorUserId] IS NOT NULL OR [Kind] = 'Reminded'");
+
+                            t.HasCheckConstraint("CK_FollowUpTaskEvents_Detail", "[Detail] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([Detail], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Detail] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Detail] COLLATE Latin1_General_BIN2) = 0)");
+
+                            t.HasCheckConstraint("CK_FollowUpTaskEvents_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Created','Edited','Reassigned','DueChanged','Reminded','Completed','Cancelled','RecallCreated')");
+
+                            t.HasCheckConstraint("CK_FollowUpTaskEvents_Time", "[OccurredAtUtc] >= '2000-01-01' AND [OccurredAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Forms.FormTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3919,11 +4113,11 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_Notifications_NoDelete");
 
-                            t.HasCheckConstraint("CK_Notifications_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('document.duplicate_added','message.received')");
+                            t.HasCheckConstraint("CK_Notifications_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('document.duplicate_added','message.received','followup.due')");
 
                             t.HasCheckConstraint("CK_Notifications_Priority", "[Priority] COLLATE Latin1_General_CS_AS IN ('Normal','Important','Urgent')");
 
-                            t.HasCheckConstraint("CK_Notifications_Shape", "([Kind] = 'message.received' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'document.duplicate_added' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId])");
+                            t.HasCheckConstraint("CK_Notifications_Shape", "([Kind] = 'message.received' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'document.duplicate_added' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId]) OR ([Kind] = 'followup.due' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
 
                             t.HasCheckConstraint("CK_Notifications_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._-]%')");
 
@@ -7481,6 +7675,66 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
                         .WithMany()
                         .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpReminderDelivery", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.FollowUps.FollowUpTask", null)
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpTask", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AssigneeUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.FollowUps.FollowUpTask", null)
+                        .WithMany()
+                        .HasForeignKey("RecallOfTaskId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.FollowUps.FollowUpTaskEvent", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.FollowUps.FollowUpTask", null)
+                        .WithMany()
+                        .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

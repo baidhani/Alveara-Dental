@@ -134,6 +134,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Permissions.RolePermissionOverride> RolePermissionOverrides => Set<Architecture.Permissions.RolePermissionOverride>();
     public DbSet<Architecture.Permissions.RolePermissionHistory> RolePermissionHistories => Set<Architecture.Permissions.RolePermissionHistory>();
     public DbSet<Architecture.Permissions.PermissionDelegation> PermissionDelegations => Set<Architecture.Permissions.PermissionDelegation>();
+    public DbSet<Architecture.FollowUps.FollowUpTask> FollowUpTasks => Set<Architecture.FollowUps.FollowUpTask>();
+    public DbSet<Architecture.FollowUps.FollowUpTaskEvent> FollowUpTaskEvents => Set<Architecture.FollowUps.FollowUpTaskEvent>();
+    public DbSet<Architecture.FollowUps.FollowUpReminderDelivery> FollowUpReminderDeliveries => Set<Architecture.FollowUps.FollowUpReminderDelivery>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
@@ -538,6 +541,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         DocumentModel.Configure(modelBuilder);
         NotificationModel.Configure(modelBuilder);
         PermissionPolicyModel.Configure(modelBuilder);
+        FollowUpModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

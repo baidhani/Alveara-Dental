@@ -17,15 +17,15 @@ internal static class NotificationModel
     private const string Utc = "'2000-01-01'";
 
     /// <summary>Not blank once spaces, tabs and line breaks are removed (LTRIM and RTRIM only remove spaces).</summary>
-    private static string NotBlank(string column) => $"LEN(REPLACE(REPLACE(REPLACE(REPLACE([{column}], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0";
+    internal static string NotBlank(string column) => $"LEN(REPLACE(REPLACE(REPLACE(REPLACE([{column}], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0";
 
     /// <summary>The existing control-character check starts at NCHAR(1), so NUL gets its own check.</summary>
-    private static string NoNul(string column) => $"CHARINDEX(NCHAR(0), [{column}] COLLATE Latin1_General_BIN2) = 0";
+    internal static string NoNul(string column) => $"CHARINDEX(NCHAR(0), [{column}] COLLATE Latin1_General_BIN2) = 0";
 
     private static string Hex(string column) => $"[{column}] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([{column}]) = 64";
 
     /// <summary>A message body may contain tab, line feed and carriage return but no other control character.</summary>
-    private static string BodyChars(string column) =>
+    internal static string BodyChars(string column) =>
         $"PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [{column}] COLLATE Latin1_General_BIN2) = 0";
 
     public static void Configure(ModelBuilder modelBuilder)
@@ -99,11 +99,13 @@ internal static class NotificationModel
                 t.HasTrigger("TR_Notifications_Links");
                 t.HasCheckConstraint("CK_Notifications_Priority", $"[Priority] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(NotificationPriorities.All)})");
                 t.HasCheckConstraint("CK_Notifications_Kind", $"[Kind] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(NotificationKinds.All)})");
-                // a message notification names its message and has no source key; a document-duplicate notification names its event, its patient and both documents and has no message
+                // a message notification names its message and has no source key; a document-duplicate notification names its event, its patient and both documents and has no message;
+                // a follow-up reminder (STORY-009) names its patient and its source key (the task and its due time) and has no message and no document
                 t.HasCheckConstraint("CK_Notifications_Shape",
                     $"([Kind] = '{NotificationKinds.MessageReceived}' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) " +
                     $"OR ([Kind] = '{NotificationKinds.DocumentDuplicateAdded}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL " +
-                    "AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId])");
+                    "AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId]) " +
+                    $"OR ([Kind] = '{NotificationKinds.FollowUpDue}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
                 t.HasCheckConstraint("CK_Notifications_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._-]%')");
                 // an entry is read before it is deleted; both times are real times
                 t.HasCheckConstraint("CK_Notifications_Times",
