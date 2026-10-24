@@ -265,6 +265,19 @@ public class FollowUpReminderTests : SafetyTestBase
     }
 
     [Fact]
+    public async Task A_channel_is_never_asked_again_for_a_reminder_it_has_already_delivered()
+    {
+        var hyg = await UserAsync(Role.Hygienist);
+        await TaskAsync(hyg, Now.AddMinutes(-5));
+        var other = new RecordingChannel("InApp2", ReminderChannelResult.Delivered);
+        await using (var db = Fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("ALTER TABLE [FollowUpReminderDeliveries] DROP CONSTRAINT [CK_FollowUpReminderDeliveries_Channel]");
+        for (var i = 0; i < 3; i++) await PassAsync(Now.AddMinutes(i), other);
+        Assert.Single(other.Seen);                                                  // delivered on the first pass, so not asked on the next two (the unique key would only catch it afterwards)
+        await using var check = Fixture.CreateContext();
+        Assert.Equal(new[] { "InApp", "InApp2" }, await check.FollowUpReminderDeliveries.Select(d => d.Channel).OrderBy(c => c).ToArrayAsync());
+    }
+
+    [Fact]
     public async Task A_second_channel_that_throws_is_contained_and_the_in_app_reminder_still_goes_out()
     {
         var hyg = await UserAsync(Role.Hygienist);

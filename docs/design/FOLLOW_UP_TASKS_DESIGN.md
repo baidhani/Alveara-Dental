@@ -55,5 +55,13 @@ Email or SMS reminders now (no email sender, provider or account address exists)
 2. The fallback when the assignee cannot be reminded goes to office managers: accepted.
 3. Default poll interval 60 seconds: accepted.
 
+## What changed from this note while building (recorded after the build)
+- A closed task carries `ClosedAtUtc`, `ClosedByUserId` and an optional `ClosureNote` (the note on completion, the reason on cancellation) instead of completion-only fields.
+- The reminder notification links through the patient and its source key; no new notification column was added. The key uses a dot (`followup.due:`) because the existing notification source-key check refuses a hyphen in practice.
+- Complete and cancel are idempotent by state (the same person doing the same thing again is a quiet replay), so they take no Idempotency-Key; only a create does, and its task id is derived from the person and the key.
+- A task nobody can be told about is not recorded: it is retried on every pass and counted in the pass log, instead of being given a dead-letter state.
+- Added: `GET /api/follow-ups/assignees` (who a task can be assigned to) and `GET /api/follow-ups/mine`.
+- Reminders may go through several channels; each channel's delivery is its own record, and a channel that defers or throws is asked again without repeating the others.
+
 ## Risk and size
 Medium blast radius (new tables, one migration, a new hosted service, one new notification kind). I expect about 70 new tests. No existing behavior changes except the permission list, the registry, and the notification kind list.
