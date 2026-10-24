@@ -2414,7 +2414,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R02",
       "acceptance": {
         "total": 7,
@@ -2422,7 +2422,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R02, a Stage 1 handoff only, correcting the two R01 final-review findings. ALV-009-C01-R01-02: the nondeterministic existing test PatientWorkspace.test.tsx was synchronized (test-only change, commit 340624b): root cause reproduced with a deterministic probe (an edit made before the form's mount effect has run is overwritten by the re-seed, giving AustinDallas), pending effects are now flushed before the first edit and each step awaited; 40 of 40 isolated runs under 48 CPU burners, full Vitest 1,617 of 1,617 in 102 files. ALV-009-C01-R01-01: the backend identity manifest was re-derived from the changed test surface (git diff since the baseline commit; 11 classes including RecallPermissionTests) and compared with the 4,734-id baseline and the R01 full run: 172 new ids, identical to the R01 full run's, 4,734 + 172 = 4,906; frozen contract now expects exactly 4,906 passing ids; evaluator validation 9 of 9. R02 tree: focused backend 324 of 324 and every *ApiTests class 860 of 860, tsc 0, build 0, lint 0, mocked Playwright 140, repository checks 13. Backend source unchanged from R01 (git diff of src is the one test file). Full regression PENDING: no Stage 2 run was made; the frozen Stage 2 (.alveara/handoffs/ALV-009-C01/R02-evidence/stage2/) expects 4,906 backend tests, nothing retired, with no time limit."
+        "summary": "Attempt R02, a Stage 1 handoff only, correcting the two R01 final-review findings. ALV-009-C01-R01-02: the nondeterministic existing test PatientWorkspace.test.tsx was synchronized (test-only change, commit 340624b): root cause reproduced with a deterministic probe (an edit made before the form's mount effect has run is overwritten by the re-seed, giving AustinDallas), pending effects are now flushed before the first edit and each step awaited; 40 of 40 isolated runs under 48 CPU burners, full Vitest 1,617 of 1,617 in 102 files. ALV-009-C01-R01-01: the backend identity manifest was re-derived from the changed test surface (git diff since the baseline commit; 11 classes including RecallPermissionTests) and compared with the 4,734-id baseline and the R01 full run: 172 new ids, identical to the R01 full run's, 4,734 + 172 = 4,906; frozen contract now expects exactly 4,906 passing ids; evaluator validation 9 of 9. R02 tree: focused backend 324 of 324 and every *ApiTests class 860 of 860, tsc 0, build 0, lint 0, mocked Playwright 140, repository checks 13. Backend source unchanged from R01 (git diff of src is the one test file). Full regression PENDING: no Stage 2 run was made; the frozen Stage 2 (.alveara/handoffs/ALV-009-C01/R02-evidence/stage2/) expects 4,906 backend tests, nothing retired, with no time limit. STAGE 2 (run once on closure commit 80775d7, evidence .alveara/handoffs/ALV-009-C01/R02-regression.md): STAGE 2 QUALIFIES, all 25 frozen criteria passed: backend 4,906 passed / 0 failed / 0 skipped in 62.2 min (no time limit applies), exact STORY-009 final-run baseline of 4,734 ids plus exactly the 172 allowlisted ids, one template and 3,742 clones with no fallback, leak counts unchanged, tsc, Vitest 1,617 in 102 files (PatientWorkspace.test.tsx passed), build, lint, mocked Playwright 140 and repository checks 13 exit 0, walkthroughs work queue 8, follow-ups 8, notifications 10, permission policy 7 and administration 8."
       },
       "demo": "real_backend_walkthrough_8_of_8",
       "parentRegression": "verified",
@@ -2444,7 +2444,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",

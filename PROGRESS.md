@@ -1456,3 +1456,9 @@
   - What changed: `.alveara/handoffs/ALV-009-C01/R02.md` and `R02-evidence/` (test results, the identity-manifest derivation and its output, the race probe and stress runs, the corrected frozen Stage 2 contract with 172 expected new ids and evaluator validation 9 of 9, gates, carried-over acceptance/demo/parent evidence), BUILD_STATE and EXECUTION_STATUS (ALV-009-C01 AWAITING_REVIEW, attempt R02, implementation 340624b).
   - Verification: derived new ids 172 = the R01 full run's 172 (4,734 + 172 = 4,906); focused backend 324 of 324; every `*ApiTests` class 860 of 860; Vitest 1,617 of 1,617; 40 of 40 isolated stress runs of the fixed test; tsc, build, lint 0; mocked Playwright 140; repository checks 13. No full backend run and no Stage 2 run.
   - Notes: R01 files and both R01 ZIPs untouched. Not pushed; review pending.
+- [x] ALV-009-C01 attempt R02: Stage 2 run once and recorded (qualifies)
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-009-C01/R02-regression.md` and `R02-regression-evidence/` (evaluator output, comparison, gates, walkthroughs, trx, csv, leak counts), EXECUTION_STATUS (`fullRegression: PASSED`, AWAITING_REVIEW), BUILD_STATE. No source or test file changed.
+  - Verification: frozen evaluator 25 of 25 criteria passed: backend 4,906 passed / 0 failed / 0 skipped (4,734 baseline ids unchanged plus exactly the 172 allowlisted), template 3,742 clones with no fallback, leak counts unchanged, Vitest 1,617 in 102 files, tsc, build, lint, mocked Playwright 140, repository checks 13, walkthroughs 8, 8, 10, 7, 8.
+  - Notes: backend took 62.2 min against 40.2 min for the R01 run, cause not found, not a criterion. Not pushed; final review pending.
