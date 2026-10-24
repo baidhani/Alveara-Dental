@@ -460,6 +460,24 @@ public class FollowUpApiTests : IAsyncLifetime
         Assert.Equal("task_closed", Error(complete.Body));
     }
 
+    // ---------- who can be chosen ----------
+
+    [Fact]
+    public async Task The_assignee_list_holds_enabled_accounts_whose_role_can_see_follow_ups_and_billing_cannot_read_it()
+    {
+        var off = await _api.SessionAsync("Hygienist");
+        await _admin.SendAsync(HttpMethod.Put, $"/api/auth/{off.UserId}/enabled", new { enabled = false });
+        var list = await _frontDesk.SendAsync(HttpMethod.Get, "/api/follow-ups/assignees");
+        Assert.Equal(HttpStatusCode.OK, list.Status);
+        var people = list.Body.EnumerateArray().ToDictionary(p => p.GetProperty("id").GetGuid(), p => Str(p, "role"));
+        Assert.Equal("Dentist", people[_dentist.UserId]);
+        Assert.Equal("Hygienist", people[_hygienist.UserId]);
+        Assert.Equal("FrontDesk", people[_frontDesk.UserId]);
+        Assert.DoesNotContain(_billing.UserId, people.Keys);                                                        // billing cannot see follow-ups
+        Assert.DoesNotContain(off.UserId, people.Keys);                                                             // and a disabled account cannot be chosen
+        Assert.Equal(HttpStatusCode.Forbidden, (await _billing.SendAsync(HttpMethod.Get, "/api/follow-ups/assignees")).Status);
+    }
+
     // ---------- audit failure ----------
 
     [Fact]

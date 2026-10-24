@@ -45,6 +45,12 @@ public class FollowUpsController(FollowUpService service) : ControllerBase
     public Task<IActionResult> Mine([FromQuery] string? status, CancellationToken ct) =>
         Run(async () => await service.MineAsync(Actor, status, ct));
 
+    /// <summary>Who a task can be assigned to (enabled accounts whose role can see follow-ups).</summary>
+    [HttpGet("api/follow-ups/assignees")]
+    [RequirePermission(Permission.ViewFollowUps)]
+    public Task<IActionResult> Assignees(CancellationToken ct) =>
+        Run(async () => await service.AssigneesAsync(ct));
+
     [HttpGet("api/follow-ups/{id:guid}")]
     [RequirePermission(Permission.ViewFollowUps)]
     public Task<IActionResult> Get(Guid id, CancellationToken ct) =>

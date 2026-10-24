@@ -30,3 +30,6 @@ public sealed record FollowUpDetail(FollowUpView Task, IReadOnlyList<FollowUpEve
 public sealed record FollowUpResult(FollowUpView Task, bool Replayed, Guid? RecallTaskId);
 
 public sealed record FollowUpPage(IReadOnlyList<FollowUpView> Items, int Count, bool More);
+
+/// <summary>A person a task can be assigned to: an enabled account whose role can see follow-ups. The username only, for choosing from a list.</summary>
+public sealed record FollowUpAssignee(Guid Id, string Name, string Role);
