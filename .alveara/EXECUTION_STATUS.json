@@ -2427,7 +2427,7 @@
       "demo": "real_backend_walkthrough_8_of_8",
       "parentRegression": "verified",
       "implementationCommit": "4b12cc19bf8de4bf97a9c5e0aab3aee95218b8ae",
-      "evidenceCommit": null,
+      "evidenceCommit": "ce0bd94cc13d299b21cf1cf816510436ab9d5bf2",
       "handoffPath": ".alveara/handoffs/ALV-009-C01/R01.md",
       "review": {
         "decision": "pending",
