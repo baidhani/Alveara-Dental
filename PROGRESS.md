@@ -1444,3 +1444,9 @@
   - What changed: review file `.alveara/reviews/ALV-009-C01/R01.md` stored unchanged; EXECUTION_STATUS (CHANGES_REQUIRED, two blocking findings), BUILD_STATE. No code changed.
   - Verification: the review names the same story, the R01 implementation `4b12cc19`, evidence `ce0bd94` and closure `169bce5`, and the two ZIP SHA-256 values I reported.
   - Notes: R02 (Stage 1 only) corrects the identity manifest (4,906 ids: 4,734 + 172) and makes `PatientWorkspace.test.tsx` deterministic. R01 files and ZIPs stay untouched.
+- [x] ALV-009-C01 R02 implementation: deterministic PatientWorkspace edit test (finding ALV-009-C01-R01-02)
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: `src/PatientWorkspace.test.tsx` (existing ALV-003 test "saves only on request…"): the test now flushes pending effects with `act` before editing, and waits for the field to read "" and then "Dallas" before saving. The assertions about explicit save and the loaded version are unchanged; no product code changed.
+  - Verification: root cause reproduced first with a probe (an edit made before the form's mount effect has run is overwritten by the re-seed: "expected 'Austin' to be ''", 3 of 3 runs; the same edit after flushing is kept); the file passes 19 of 19 in 40 of 40 isolated runs under 48 CPU burners; full Vitest 102 files / 1,617 of 1,617; tsc 0, build 0, lint 0, mocked Playwright 140, repository checks 13.
+  - Notes: the old test also passed under CPU load alone, so repeat runs cannot discriminate; the probe pair is the evidence of the race and of the fix.

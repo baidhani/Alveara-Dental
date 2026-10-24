@@ -123,10 +123,15 @@ describe("editing a patient", () => {
   it("saves only on request, sends the version it read, and shows the saved values", async () => {
     open(`/patients/${A}`);
     const city = await screen.findByLabelText("City *");
+    // The panel re-seeds its form from the loaded patient in an effect that runs after the field first appears; an edit made before that effect has run
+    // is overwritten by it (the former intermittent "AustinDallas"). Let the pending effects run first, then watch each step land before the next.
+    await act(async () => {});
     expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled(); // nothing changed yet
 
     await userEvent.clear(city);
+    await waitFor(() => expect(city).toHaveValue(""));
     await userEvent.type(city, "Dallas");
+    await waitFor(() => expect(city).toHaveValue("Dallas"));
     expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Save changes" }));
 
