@@ -3,13 +3,13 @@
   "project": "Alveara Dental",
   "totals": {
     "stories_total": 19,
-    "stories_verified": 16,
+    "stories_verified": 17,
     "stories_submitted": 0,
-    "stories_in_progress": 3,
+    "stories_in_progress": 2,
     "stories_not_started": 0,
     "criteria_total": 59,
-    "criteria_passed": 50,
-    "points_awarded": 3049
+    "criteria_passed": 53,
+    "points_awarded": 3091
   },
   "stories": [
     {
@@ -427,7 +427,7 @@
         "verified_at": "2026-10-04T22:14:59.043Z",
         "commit_sha": "b8eef585f459bc1f36bb56f7eaec2ad29520f539",
         "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/b8eef585f459bc1f36bb56f7eaec2ad29520f539",
-        "commit_at": "2026-10-04T20:13:11Z",
+        "commit_at": "2026-10-04T21:38:07Z",
         "points_awarded": 130,
         "outstanding": []
       }
@@ -619,19 +619,15 @@
       "notes": "All three criteria pass: a task that is due is reminded to its responsible person by a background pass, once, in the notification center, with no task text (reminder tests, API path and browser walkthrough); completing a task closes it with who and when, appends to its history and makes the next task exactly once when it has a recall interval; every follow-up action, including the system's reminder, is recorded in an append-only history and in the audit log with user and timestamp, in the same save as the change. Full serial backend run 4,734 of 4,734; client suite 1,589 of 1,589; mocked browser 140; real-backend walkthrough 8 of 8; 14 negative controls caught (one needed a new test first). Known limits are in docs/FOLLOW_UPS.md (in-app reminders only; email is designed for, not built).",
       "updated_at": null,
       "verification": {
-        "state": "in_progress",
-        "criteria_passed": 0,
+        "state": "verified",
+        "criteria_passed": 3,
         "criteria_total": 3,
-        "verified_at": null,
-        "commit_sha": null,
-        "commit_url": null,
-        "commit_at": null,
-        "points_awarded": 88,
-        "outstanding": [
-          "Given a follow-up task is created, when due, then a reminder is sent to the responsible party.",
-          "Given a task is completed, when marked, then the completion history is updated.",
-          "Trust: All follow-up actions are logged with user and timestamp."
-        ]
+        "verified_at": "2026-10-24T03:48:29.186Z",
+        "commit_sha": "41a2af8499b115699f681ce81553302857f0a917",
+        "commit_url": "https://github.com/baidhani/Alveara-Dental/commit/41a2af8499b115699f681ce81553302857f0a917",
+        "commit_at": "2026-10-24T00:39:24Z",
+        "points_awarded": 130,
+        "outstanding": []
       }
     },
     {
