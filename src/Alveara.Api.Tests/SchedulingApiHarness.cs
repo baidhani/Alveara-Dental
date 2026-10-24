@@ -59,6 +59,7 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         builder.UseSetting("StorageRoot", StorageRoot);
         builder.UseSetting("Notifications:ConsumerPollSeconds", "0");                                  // tests drive the consumer themselves
         builder.UseSetting("FollowUps:ReminderPollSeconds", "0");                                      // and the follow-up reminder pass (STORY-009)
+        builder.UseSetting("FollowUps:WorkPollSeconds", "0");                                          // and the recall and treatment passes (ALV-009-C01)
     });
 
     private static async Task<string> CsrfAsync(HttpClient client) =>

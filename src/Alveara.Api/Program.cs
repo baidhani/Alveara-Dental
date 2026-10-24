@@ -116,6 +116,13 @@ builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpService>()
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.IReminderChannel, Alveara.Api.Architecture.FollowUps.InAppReminderChannel>();
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpReminderService>();
 builder.Services.AddHostedService<Alveara.Api.Architecture.FollowUps.FollowUpReminderHostedService>();
+// ALV-009-C01: recall and accepted-treatment tasks, as durable background jobs (ALV-N002)
+builder.Services.AddScoped<Alveara.Api.Architecture.Recall.RecallScheduler>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Recall.UnscheduledTreatmentScheduler>();
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.RecallTaskJobHandler>();
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.UnscheduledTreatmentJobHandler>();
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.UnscheduledTreatmentCloseJobHandler>();
+builder.Services.AddHostedService<Alveara.Api.Architecture.Recall.FollowUpWorkHostedService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();
