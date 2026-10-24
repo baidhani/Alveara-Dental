@@ -2361,26 +2361,26 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 4734 of 4734 in the full serial run (36 m 23 s, real SQL Server; previous full run 4628, +106 from this story). New: FollowUpSchemaTests 38, FollowUpApiTests 27, FollowUpReminderTests 16, FollowUpValidationTests 12, FollowUpPermissionTests 11, FollowUpReminderApiTests 1, FollowUpBackupRestoreTests 1. Frontend 1589 of 1589 (101 files; 17 new in FollowUpScreens.test.tsx); tsc, build and lint exit 0; mocked Playwright 140; repository checks 13; real-backend follow-ups walkthrough 8 of 8 (axe light and dark) and the notifications walkthrough 10 of 10. 14 negative controls, all caught (one needed an added test first). See docs/FOLLOW_UPS.md and docs/testing/STORY-009_TEST_RESULTS.md."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "856f1699f047e7f4c0d070616fd89dddf1747d6e",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "856f1699f047e7f4c0d070616fd89dddf1747d6e",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -2388,8 +2388,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-24T03:48:29.186Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 41a2af8499b115699f681ce81553302857f0a917 - see .colaberry/progress.json (STORY-009.verification.state == \"verified\", 3/3 criteria, 130 points awarded, verified_at 2026-10-24T03:48:29.186Z; portal sync commit affa38f). The story's work spans 41a2af8 to 856f169 (the portal attributes the verification to the commit that first named the story)."
     },
     {
       "schemaVersion": "2",
