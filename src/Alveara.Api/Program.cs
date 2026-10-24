@@ -120,6 +120,7 @@ builder.Services.AddHostedService<Alveara.Api.Architecture.FollowUps.FollowUpRem
 // ALV-009-C01: recall and accepted-treatment tasks, as durable background jobs (ALV-N002)
 builder.Services.AddScoped<Alveara.Api.Architecture.Recall.RecallScheduler>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Recall.UnscheduledTreatmentScheduler>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Recall.RecallAdminService>();
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.RecallTaskJobHandler>();
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.UnscheduledTreatmentJobHandler>();
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.UnscheduledTreatmentCloseJobHandler>();

@@ -17,7 +17,7 @@ namespace Alveara.Api.Architecture.FollowUps;
 /// task in the same save; its id is made from the completed task's id, and the database allows one recall per task. The responsible party must be an enabled account whose role can view follow-ups.
 /// Who may call this is decided by the permission attributes on the controller; this service decides what is allowed to be stored.
 /// </summary>
-public class FollowUpService(AlveraDbContext db, IPracticeClock clock, IEffectivePermissions permissions)
+public partial class FollowUpService(AlveraDbContext db, IPracticeClock clock, IEffectivePermissions permissions)
 {
     // ---------- writes ----------
 
@@ -68,11 +68,13 @@ public class FollowUpService(AlveraDbContext db, IPracticeClock clock, IEffectiv
         var note = FollowUpValidation.Note(request.Note);
         var due = FollowUpValidation.Due(request.DueAtUtc, now);
         var interval = FollowUpValidation.Interval(request.RecallIntervalDays);
-        var assignee = request.AssigneeUserId ?? throw new FollowUpException("assignee_invalid", "Choose who is responsible for the follow-up.", 400);
+        var assignee = request.AssigneeUserId;
 
         var task = await LoadAsync(taskId, ct);
         if (task.Status != FollowUpStatuses.Open) throw new FollowUpException("task_closed", "That follow-up is already closed and cannot be changed.", 409);
-        if (assignee != task.AssigneeUserId) await RequireAssigneeAsync(assignee, ct);   // an unchanged assignee is not re-checked: editing the date of a task whose assignee has since left must still be possible
+        // a person's own task always has an owner; a task the system made may wait unassigned (ALV-009-C01)
+        if (assignee is null && task.Kind == FollowUpKinds.Manual) throw new FollowUpException("assignee_invalid", "Choose who is responsible for the follow-up.", 400);
+        if (assignee != task.AssigneeUserId && assignee is { } named) await RequireAssigneeAsync(named, ct);   // an unchanged assignee is not re-checked: editing the date of a task whose assignee has since left must still be possible
 
         var textChanged = title != task.Title || note != task.Note || interval != task.RecallIntervalDays;
         var reassigned = assignee != task.AssigneeUserId;
@@ -82,7 +84,7 @@ public class FollowUpService(AlveraDbContext db, IPracticeClock clock, IEffectiv
         db.Entry(task).Property(t => t.RowVersion).OriginalValue = version;
         task.Title = title; task.Note = note; task.RecallIntervalDays = interval; task.AssigneeUserId = assignee; task.DueAtUtc = due;
         if (textChanged) AddEvent(task.Id, FollowUpEventKinds.Edited, actor, now, null);
-        if (reassigned) AddEvent(task.Id, FollowUpEventKinds.Reassigned, actor, now, $"Assignee {assignee}");
+        if (reassigned) AddEvent(task.Id, FollowUpEventKinds.Reassigned, actor, now, $"Assignee {assignee?.ToString() ?? "none"}");
         if (dueChanged) AddEvent(task.Id, FollowUpEventKinds.DueChanged, actor, now, $"Due {due:O}");
         AuditService.Record(db, AuditEventTypes.FollowUpChanged, "FollowUpTask", task.Id, actor, $"Follow-up changed ({Describe(textChanged, reassigned, dueChanged)}).");
         await SaveAsync(task.Id, ct);

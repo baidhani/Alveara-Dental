@@ -99,6 +99,13 @@ public static class AuditEventTypes
     public const string FollowUpCompleted = "FollowUpCompleted";
     public const string FollowUpCancelled = "FollowUpCancelled";
     public const string FollowUpReminderSent = "FollowUpReminderSent";
+
+    // ALV-009-C01: who owns a follow-up and how urgent it is, and the recall settings. Ids and numbers only.
+    public const string FollowUpAssigned = "FollowUpAssigned";
+    public const string FollowUpPriorityChanged = "FollowUpPriorityChanged";
+    public const string RecallSettingsChanged = "RecallSettingsChanged";
+    public const string RecallPlanChanged = "RecallPlanChanged";
+    public const string RecallPlanReset = "RecallPlanReset";
     public const string PermissionPolicyInvalidRowDetected = "PermissionPolicyInvalidRowDetected";
     public const string InvalidPolicyRowRemoved = "InvalidPolicyRowRemoved";
     public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";
