@@ -10,7 +10,7 @@ import type { NotificationView, Paged } from "../../services/notificationsApi";
 type View = "unread" | "history";
 type State = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; data: Paged<NotificationView> };
 
-const KIND_LABEL: Record<string, string> = { "document.duplicate_added": "A duplicate document was added", "message.received": "New message" };
+const KIND_LABEL: Record<string, string> = { "document.duplicate_added": "A duplicate document was added", "message.received": "New message", "followup.due": "A follow-up is due" };
 const when = (iso: string) => new Date(iso).toLocaleString();
 
 /** ALV-N015: the caller's own notifications. Unread ones can be marked read; only read ones can be hidden (a hidden entry is kept, never deleted). */

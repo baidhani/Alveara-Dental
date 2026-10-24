@@ -22,12 +22,13 @@ import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientFollowUpsTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { FlowBoardPage } from "./pages/flow/FlowBoardPage";
 import { NotificationsPage } from "./pages/notifications/NotificationsPage";
+import { MyFollowUpsPage } from "./pages/followups/MyFollowUpsPage";
 import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
 import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -233,11 +234,13 @@ function createAppRouter() {
             <Route path="diagnoses" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientDiagnosesTab /></RequirePermission>} />
             <Route path="prescriptions" element={<RequirePermission permission="ViewPrescriptions"><PatientPrescriptionsTab /></RequirePermission>} />
             <Route path="prescription-composer" element={<RequirePermission permission="ViewPrescriptions"><PatientPrescriptionComposerTab /></RequirePermission>} />
+            <Route path="follow-ups" element={<RequirePermission permission="ViewFollowUps"><PatientFollowUpsTab /></RequirePermission>} />
             <Route path="treatment-plan" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientTreatmentPlanTab /></RequirePermission>} />
             <Route path="billing" element={<RequirePermission permission="ViewBilling"><PatientBillingTab /></RequirePermission>} />
             <Route path="clinical/templates" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTemplatesTab /></RequirePermission>} />
             <Route path="clinical/:encounterId" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientEncounterTab /></RequirePermission>} />
           </Route>
+          <Route path="/follow-ups" element={<RequirePermission permission="ViewFollowUps"><MyFollowUpsPage /></RequirePermission>} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/messages/:id" element={<MessageDetailPage />} />

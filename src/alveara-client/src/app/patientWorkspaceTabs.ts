@@ -39,6 +39,8 @@ export const patientWorkspaceTabs: PatientWorkspaceTab[] = [
   { id: "prescriptions", label: "Prescriptions", path: "prescriptions", requiredPermission: "ViewPrescriptions" },
   // ALV-016-C01: the prescription workflow (drafts, finalization with the allergy and medication lists acknowledged, amendment, cancellation, print); the same roles read it, only dentists and administrators change it.
   { id: "prescription-composer", label: "Prescription composer", path: "prescription-composer", requiredPermission: "ViewPrescriptions" },
+  // STORY-009: follow-up tasks (recall intervals, reminders and completion history); everyone who may view them reads the list, those who may manage them also change it.
+  { id: "follow-ups", label: "Follow-ups", path: "follow-ups", requiredPermission: "ViewFollowUps" },
   // STORY-007: the billing account (charges, payments, adjustments and the balance owed); everyone who can see billing may read it, only billing, the practice manager and admins change it.
   { id: "billing", label: "Billing", path: "billing", requiredPermission: "ViewBilling" },
 ];

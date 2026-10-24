@@ -27,6 +27,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "visit-board", label: "Visit board", path: "/flow", requiredPermission: "ViewSchedule" },
   { id: "schedule", label: "Schedule", path: "/schedule", requiredPermission: "ViewSchedule" },
   { id: "procedures", label: "Procedures & fees", path: "/procedures", requiredPermission: "ViewBilling" },
+  { id: "follow-ups", label: "My follow-ups", path: "/follow-ups", requiredPermission: "ViewFollowUps" },
   { id: "messages", label: "Messages", path: "/messages" },
   { id: "showcase", label: "Component Showcase", path: "/showcase" },
   { id: "system-status", label: "System Status", path: "/system-status" },
