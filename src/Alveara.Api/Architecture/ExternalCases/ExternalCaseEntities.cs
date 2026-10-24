@@ -1,5 +1,23 @@
 namespace Alveara.Api.Architecture.ExternalCases;
 
+/// <summary>ALV-009-C02: what a referral and a lab case have in common, so the status moves, the closure and the history are written once.</summary>
+public interface IExternalCase
+{
+    Guid Id { get; }
+    Guid PatientId { get; }
+    Guid PartyId { get; set; }
+    string Status { get; set; }
+    DateOnly? SentOn { get; set; }
+    DateOnly? ReceivedOn { get; set; }
+    DateOnly? DueOn { get; set; }
+    string? Notes { get; set; }
+    DateTimeOffset UpdatedAtUtc { get; set; }
+    DateTimeOffset? ClosedAtUtc { get; set; }
+    Guid? ClosedByUserId { get; set; }
+    string? ClosureNote { get; set; }
+    byte[] RowVersion { get; set; }
+}
+
 /// <summary>ALV-009-C02: the event kinds of a referral or lab case's append-only history. Every one has a person (the system never changes a case; it only makes and closes the case's follow-up task).</summary>
 public static class ExternalCaseEventKinds
 {
@@ -35,7 +53,7 @@ public class ExternalParty
 /// <see cref="ExternalCaseRules"/>; the database holds the same status set and the shape each status needs (a sent case has a sent date, a received or completed one a received date, a final one who closed it and when,
 /// a cancelled one its reason). Never deleted; a final case never changes. Documents are linked, not copied (<see cref="ExternalCaseDocument"/>).
 /// </summary>
-public class ReferralCase
+public class ReferralCase : IExternalCase
 {
     public Guid Id { get; set; }
     public Guid PatientId { get; set; }
@@ -65,7 +83,7 @@ public class ReferralCase
 /// treatment-plan item (the item carries the procedure and tooth; the case keeps its own tooth key so a case for a tooth not in a plan is possible). Same shape rules as <see cref="ReferralCase"/>, plus the lab
 /// statuses.
 /// </summary>
-public class LabCase
+public class LabCase : IExternalCase
 {
     public Guid Id { get; set; }
     public Guid PatientId { get; set; }

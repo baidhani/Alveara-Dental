@@ -106,6 +106,18 @@ public static class AuditEventTypes
     public const string RecallSettingsChanged = "RecallSettingsChanged";
     public const string RecallPlanChanged = "RecallPlanChanged";
     public const string RecallPlanReset = "RecallPlanReset";
+
+    // ALV-009-C02: outside parties, referral and lab cases and their attachments. Ids and status names only, never a reason, title or note.
+    public const string ExternalPartyCreated = "ExternalPartyCreated";
+    public const string ExternalPartyChanged = "ExternalPartyChanged";
+    public const string ReferralCaseCreated = "ReferralCaseCreated";
+    public const string ReferralCaseChanged = "ReferralCaseChanged";
+    public const string ReferralCaseStatusChanged = "ReferralCaseStatusChanged";
+    public const string LabCaseCreated = "LabCaseCreated";
+    public const string LabCaseChanged = "LabCaseChanged";
+    public const string LabCaseStatusChanged = "LabCaseStatusChanged";
+    public const string CaseDocumentLinked = "CaseDocumentLinked";
+    public const string CaseDocumentUnlinked = "CaseDocumentUnlinked";
     public const string PermissionPolicyInvalidRowDetected = "PermissionPolicyInvalidRowDetected";
     public const string InvalidPolicyRowRemoved = "InvalidPolicyRowRemoved";
     public const string MessageBreakGlassRefused = "MessageBreakGlassRefused";
