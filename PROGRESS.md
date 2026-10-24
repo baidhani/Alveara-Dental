@@ -1438,3 +1438,9 @@
   - What changed: `.alveara/handoffs/ALV-009-C01/R01-regression.md` and `R01-regression-evidence/` (evaluator output, comparison, gates, walkthroughs, trx, the isolation runs of the flaky test), EXECUTION_STATUS (`fullRegression: FAILED`, AWAITING_REVIEW), BUILD_STATE. No source or test file changed.
   - Verification: frozen evaluator 22 criteria passed and 3 failed: backend 4,906 passed / 0 failed / 0 skipped, 4,734 baseline ids unchanged, but 172 new ids ran against 162 allowlisted (10 `RecallPermissionTests` ids missing from my allowlist, all passed) and Vitest 1 failed of 1,617 (existing `PatientWorkspace.test.tsx`, 6 of 6 passes alone); all five walkthroughs passed.
   - Notes: reviewer decides between CHANGES_REQUIRED with an R02 (corrected allowlist, deterministic test, new frozen Stage 2) and another ruling. Not pushed.
+- [x] ALV-009-C01 attempt R01: final review recorded (CHANGES_REQUIRED)
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: review file `.alveara/reviews/ALV-009-C01/R01.md` stored unchanged; EXECUTION_STATUS (CHANGES_REQUIRED, two blocking findings), BUILD_STATE. No code changed.
+  - Verification: the review names the same story, the R01 implementation `4b12cc19`, evidence `ce0bd94` and closure `169bce5`, and the two ZIP SHA-256 values I reported.
+  - Notes: R02 (Stage 1 only) corrects the identity manifest (4,906 ids: 4,734 + 172) and makes `PatientWorkspace.test.tsx` deterministic. R01 files and ZIPs stay untouched.
