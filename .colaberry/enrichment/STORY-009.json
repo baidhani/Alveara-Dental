@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-009",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-24T03:15:00Z",
+  "sourceCommitSha": "5242649390e47bb62b26db644fa2c1a18ccf8e43",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Viewing a patient's follow-up tasks and their history (ViewFollowUps) and creating, editing, completing and cancelling them (ManageFollowUps) are held by the Admin, Dentist, Hygienist, Assistant, Front desk and Office manager roles; Billing and Unassigned hold neither. The responsible person of a task must be an enabled account whose role can view follow-ups.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "A follow-up is created for a patient with a title (1 to 120 characters, one line), an optional note (up to 500 characters), a due time (at most 366 days in the past and 3,660 in the future), a responsible person and an optional recall interval of 1 to 3,650 days, with a required Idempotency-Key header; an edit, completion or cancellation carries the row version the person saw, and a cancellation needs a written reason.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpValidation.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "When a task is due its responsible person receives one in-app notification of kind followup.due in the notification center; it names the patient and the task through a source key and carries no title or note, and opening it goes to the patient's follow-ups.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderChannels.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "Follow-up data is three tables: FollowUpTasks (status Open, Completed or Cancelled, closed with who and when, a unique recall link so a task makes at most one next task), an append-only FollowUpTaskEvents history (Created, Edited, Reassigned, DueChanged, Reminded, Completed, Cancelled, RecallCreated) and FollowUpReminderDeliveries (one per task, due time and channel).",
+      "evidence": "src/Alveara.Api/Data/FollowUpModel.cs"
+    },
+    {
+      "dimension": "systems",
+      "value": "A background hosted service runs the reminder pass every 60 seconds by default (FollowUps:ReminderPollSeconds; 0 turns it off) and logs one structured line per pass with its counts.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderHostedService.cs"
+    },
+    {
+      "dimension": "integrations",
+      "value": "Reminders are delivered only inside the application, through the notification center. No email or text provider is connected; a reminder channel interface exists so one can be added later without changing the reminder pass.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderChannels.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "If the responsible person is disabled or can no longer see follow-ups, the reminder goes to every enabled office manager instead and is recorded as a fallback; if nobody can be told, nothing is recorded and the next pass tries again.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderService.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every follow-up action, including the system's reminder, is saved with its audit entry in one save (a failed audit write stores nothing); audit entries and reminders name identifiers only, never the title or note; the database refuses changes to the history and to a closed task.",
+      "evidence": "src/Alveara.Api.Tests/FollowUpApiTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Found due reminders by scanning for open tasks that are due and have no recorded delivery for their current due time, instead of scheduling one job per task.",
+      "rationale": "A missed run, a restart or an outage then only delays a reminder: the next pass sends everything owed, and a changed due time is a new reminder because the delivery is unique per task, due time and channel.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderService.cs"
+    },
+    {
+      "statement": "Made a create idempotent by deriving the task id from the person and the Idempotency-Key, and made completion and cancellation idempotent by the task's state rather than by a key.",
+      "rationale": "A repeat then meets the same primary key or the same final state and cannot create a second task or a second recall, even under concurrent requests.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpValidation.cs"
+    },
+    {
+      "statement": "Added two dedicated permissions, ViewFollowUps and ManageFollowUps, instead of reusing patient-record or note permissions.",
+      "rationale": "No existing permission matched the roles that work follow-ups (note permissions exclude assistants and front desk; scheduling permissions exclude clinicians), and dedicated ones can be changed in the permission editor.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/Permission.cs"
+    },
+    {
+      "statement": "Sent reminders through a small channel interface with only the in-app channel built, recording each channel's delivery separately.",
+      "rationale": "Email reminders are expected later but no provider or address exists; a second channel can then be added without double-sending the first or being blocked by it.",
+      "evidence": "src/Alveara.Api.Tests/FollowUpReminderTests.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "Reminders reach a person only if they open the notification center; there is no second channel yet and no escalation if a reminder is never read.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderChannels.cs"
+    },
+    {
+      "statement": "A channel cannot report a permanent failure and there is no dead-letter store; a channel that defers or throws is simply asked again on the next pass.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderChannels.cs"
+    },
+    {
+      "statement": "A task nobody can be told about is retried on every pass and only counted in the pass log; since a pass takes the oldest 50 owed tasks, more than 50 such tasks could delay reminders for newer ones.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderService.cs"
+    },
+    {
+      "statement": "A recall is due exactly the interval's number of days after completion; weekends, holidays and the practice's opening days are not considered.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpService.cs"
+    },
+    {
+      "statement": "The list of people a task can be assigned to shows colleagues' usernames to every role that can view follow-ups and holds at most 500 people.",
+      "evidence": "src/Alveara.Api/Architecture/FollowUps/FollowUpService.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/FollowUpPermissionTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/FollowUpSchemaTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/FollowUpValidationTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/FollowUpApiTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/FollowUpReminderTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/FollowUpBackupRestoreTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/pages/followups/FollowUpScreens.test.tsx"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/follow-ups-real-backend.spec.ts"
+    }
+  ],
+  "measurementEvents": []
+}

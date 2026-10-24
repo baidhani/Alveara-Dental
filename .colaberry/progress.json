@@ -557,20 +557,66 @@
       "criteria": [
         {
           "text": "Given a follow-up task is created, when due, then a reminder is sent to the responsible party.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a task is completed, when marked, then the completion history is updated.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All follow-up actions are logged with user and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpEntities.cs",
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpViews.cs",
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpValidation.cs",
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpService.cs",
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderChannels.cs",
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderService.cs",
+        "src/Alveara.Api/Architecture/FollowUps/FollowUpReminderHostedService.cs",
+        "src/Alveara.Api/Architecture/Identity/Permission.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionRegistry.json",
+        "src/Alveara.Api/Architecture/Identity/AuditLogEntry.cs",
+        "src/Alveara.Api/Architecture/Notifications/NotificationEntities.cs",
+        "src/Alveara.Api/Architecture/Notifications/NotificationLinkService.cs",
+        "src/Alveara.Api/Controllers/FollowUpsController.cs",
+        "src/Alveara.Api/Data/FollowUpModel.cs",
+        "src/Alveara.Api/Data/NotificationModel.cs",
+        "src/Alveara.Api/Data/AlveraDbContext.cs",
+        "src/Alveara.Api/Migrations/20261024005717_AddFollowUps.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/alveara-client/src/services/followUpsApi.ts",
+        "src/alveara-client/src/pages/followups/FollowUpsPanel.tsx",
+        "src/alveara-client/src/pages/followups/FollowUpForm.tsx",
+        "src/alveara-client/src/pages/followups/FollowUpActionForm.tsx",
+        "src/alveara-client/src/pages/followups/FollowUpItem.tsx",
+        "src/alveara-client/src/pages/followups/FollowUpHistory.tsx",
+        "src/alveara-client/src/pages/followups/MyFollowUpsPage.tsx",
+        "src/alveara-client/src/pages/followups/followUpFormat.ts",
+        "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+        "src/alveara-client/src/pages/notifications/NotificationsPage.tsx",
+        "src/alveara-client/src/app/patientWorkspaceTabs.ts",
+        "src/alveara-client/src/app/moduleRegistry.ts",
+        "src/alveara-client/src/App.tsx",
+        "scripts/Invoke-RealBackendWalkthrough.ps1",
+        "docs/FOLLOW_UPS.md",
+        "docs/design/FOLLOW_UP_TASKS_DESIGN.md",
+        "docs/testing/STORY-009_TEST_RESULTS.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/FollowUpPermissionTests.cs",
+        "src/Alveara.Api.Tests/FollowUpSchemaTests.cs",
+        "src/Alveara.Api.Tests/FollowUpValidationTests.cs",
+        "src/Alveara.Api.Tests/FollowUpApiTests.cs",
+        "src/Alveara.Api.Tests/FollowUpReminderTests.cs",
+        "src/Alveara.Api.Tests/FollowUpBackupRestoreTests.cs",
+        "src/alveara-client/src/pages/followups/FollowUpScreens.test.tsx",
+        "src/alveara-client/e2e/follow-ups-real-backend.spec.ts"
+      ],
+      "notes": "All three criteria pass: a task that is due is reminded to its responsible person by a background pass, once, in the notification center, with no task text (reminder tests, API path and browser walkthrough); completing a task closes it with who and when, appends to its history and makes the next task exactly once when it has a recall interval; every follow-up action, including the system's reminder, is recorded in an append-only history and in the audit log with user and timestamp, in the same save as the change. Full serial backend run 4,734 of 4,734; client suite 1,589 of 1,589; mocked browser 140; real-backend walkthrough 8 of 8; 14 negative controls caught (one needed a new test first). Known limits are in docs/FOLLOW_UPS.md (in-app reminders only; email is designed for, not built).",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

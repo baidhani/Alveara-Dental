@@ -29,8 +29,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a follow-up task is created, when due, then a reminder is sent to the responsible party.
-- [ ] Given a task is completed, when marked, then the completion history is updated.
-- [ ] Trust: All follow-up actions are logged with user and timestamp.
+- [x] Given a follow-up task is created, when due, then a reminder is sent to the responsible party.
+- [x] Given a task is completed, when marked, then the completion history is updated.
+- [x] Trust: All follow-up actions are logged with user and timestamp.
 
 When every box above is ticked, stop and show the demo.
