@@ -124,6 +124,11 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Recall.RecallAdminService>()
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.RecallTaskJobHandler>();
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.UnscheduledTreatmentJobHandler>();
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Recall.UnscheduledTreatmentCloseJobHandler>();
+builder.Services.AddScoped<Alveara.Api.Architecture.ExternalCases.ExternalPartyService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.ExternalCases.ExternalCaseService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.ExternalCases.ExternalCaseTaskScheduler>();
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.ExternalCases.ExternalCaseTaskJobHandler>();
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.ExternalCases.ExternalCaseTaskCloseJobHandler>();
 builder.Services.AddHostedService<Alveara.Api.Architecture.Recall.FollowUpWorkHostedService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();

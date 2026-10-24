@@ -13,12 +13,13 @@ public static class SystemTaskWriter
 {
     public static Guid IdFor(string sourceKey) => FollowUpValidation.DeterministicId("system", sourceKey);
 
-    public static FollowUpTask Create(AlveraDbContext db, string kind, string sourceKey, Guid patientId, string title, DateTimeOffset dueAtUtc, string priority, Guid? planItemId, DateTimeOffset now, string detail)
+    public static FollowUpTask Create(AlveraDbContext db, string kind, string sourceKey, Guid patientId, string title, DateTimeOffset dueAtUtc, string priority, Guid? planItemId, DateTimeOffset now, string detail,
+        Guid? referralCaseId = null, Guid? labCaseId = null)
     {
         var task = new FollowUpTask
         {
             Id = IdFor(sourceKey), PatientId = patientId, AssigneeUserId = null, Title = title, DueAtUtc = dueAtUtc, Status = FollowUpStatuses.Open, Priority = priority, Kind = kind,
-            SourceKey = sourceKey, SourcePlanItemId = planItemId, CreatedByUserId = null, CreatedAtUtc = now,
+            SourceKey = sourceKey, SourcePlanItemId = planItemId, SourceReferralCaseId = referralCaseId, SourceLabCaseId = labCaseId, CreatedByUserId = null, CreatedAtUtc = now,
         };
         db.FollowUpTasks.Add(task);
         db.FollowUpTaskEvents.Add(new FollowUpTaskEvent { Id = Guid.NewGuid(), TaskId = task.Id, Kind = FollowUpEventKinds.SystemCreated, ActorUserId = null, OccurredAtUtc = now, Detail = detail });

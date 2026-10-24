@@ -22,10 +22,11 @@ public sealed class FollowUpWorkHostedService(IServiceScopeFactory scopeFactory,
                 await using var scope = scopeFactory.CreateAsyncScope();
                 var recall = await scope.ServiceProvider.GetRequiredService<RecallScheduler>().EnqueueDueAsync(DateTimeOffset.UtcNow, stoppingToken);
                 var treatment = await scope.ServiceProvider.GetRequiredService<UnscheduledTreatmentScheduler>().EnqueueAsync(stoppingToken);
+                var cases = await scope.ServiceProvider.GetRequiredService<ExternalCases.ExternalCaseTaskScheduler>().EnqueueAsync(stoppingToken);      // ALV-009-C02: referral and lab chase tasks
                 failures = 0;
-                if (recall.Enqueued + treatment.Enqueued + treatment.Closing > 0)
-                    logger.LogInformation("followup_work_pass outcome=success recall_due={RecallDue} recall_enqueued={RecallEnqueued} treatment_enqueued={TreatmentEnqueued} treatment_closing={TreatmentClosing} duration_ms={DurationMs}",
-                        recall.Due, recall.Enqueued, treatment.Enqueued, treatment.Closing, (int)(DateTimeOffset.UtcNow - started).TotalMilliseconds);
+                if (recall.Enqueued + treatment.Enqueued + treatment.Closing + cases.Enqueued + cases.Closing > 0)
+                    logger.LogInformation("followup_work_pass outcome=success recall_due={RecallDue} recall_enqueued={RecallEnqueued} treatment_enqueued={TreatmentEnqueued} treatment_closing={TreatmentClosing} case_tasks_enqueued={CaseEnqueued} case_tasks_closing={CaseClosing} duration_ms={DurationMs}",
+                        recall.Due, recall.Enqueued, treatment.Enqueued, treatment.Closing, cases.Enqueued, cases.Closing, (int)(DateTimeOffset.UtcNow - started).TotalMilliseconds);
             }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {
