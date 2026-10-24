@@ -137,6 +137,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.FollowUps.FollowUpTask> FollowUpTasks => Set<Architecture.FollowUps.FollowUpTask>();
     public DbSet<Architecture.FollowUps.FollowUpTaskEvent> FollowUpTaskEvents => Set<Architecture.FollowUps.FollowUpTaskEvent>();
     public DbSet<Architecture.FollowUps.FollowUpReminderDelivery> FollowUpReminderDeliveries => Set<Architecture.FollowUps.FollowUpReminderDelivery>();
+    public DbSet<Architecture.Recall.RecallSettings> RecallSettings => Set<Architecture.Recall.RecallSettings>();
+    public DbSet<Architecture.Recall.PatientRecallPlan> PatientRecallPlans => Set<Architecture.Recall.PatientRecallPlan>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
@@ -542,6 +544,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         NotificationModel.Configure(modelBuilder);
         PermissionPolicyModel.Configure(modelBuilder);
         FollowUpModel.Configure(modelBuilder);
+        RecallModel.Configure(modelBuilder);
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {

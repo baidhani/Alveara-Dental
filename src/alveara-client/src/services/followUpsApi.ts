@@ -8,6 +8,8 @@
 import { ApiError, fetchCsrfToken, request } from "./authApi";
 
 export type FollowUpStatus = "Open" | "Completed" | "Cancelled";
+export type FollowUpPriority = "Low" | "Normal" | "High" | "Urgent";
+export type FollowUpKind = "Manual" | "Recall" | "UnscheduledTreatment";
 
 export interface FollowUp {
   id: string;
@@ -17,17 +19,24 @@ export interface FollowUp {
   dueAtUtc: string;
   status: FollowUpStatus;
   overdue: boolean;
-  assigneeUserId: string;
+  /** Null for a task nobody owns yet (the system made it and it waits for someone to take it). */
+  assigneeUserId: string | null;
   assigneeName: string | null;
   recallIntervalDays: number | null;
   recallOfTaskId: string | null;
   recallTaskId: string | null;
-  createdByUserId: string;
+  /** Null for a task the system made. */
+  createdByUserId: string | null;
   createdAtUtc: string;
   closedAtUtc: string | null;
   closedByUserId: string | null;
   closureNote: string | null;
   rowVersion: string;
+  priority: FollowUpPriority;
+  kind: FollowUpKind;
+  appointmentId: string | null;
+  sourcePlanItemId: string | null;
+  closedBySystem: boolean;
 }
 
 export interface FollowUpEvent { kind: string; actorUserId: string | null; actorName: string | null; occurredAtUtc: string; detail: string | null }

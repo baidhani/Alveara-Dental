@@ -43,8 +43,8 @@ public class FollowUpReminderService(AlveraDbContext db, IPracticeClock clock, I
                 .OrderBy(t => t.DueAtUtc).ThenBy(t => t.Id).Take(BatchSize).ToListAsync(ct);
             foreach (var task in due)
             {
-                var primary = await CanReceiveAsync(task.AssigneeUserId, ct);
-                List<Guid> recipients = primary ? new() { task.AssigneeUserId } : (managers ??= await OfficeManagersAsync(ct));
+                var primary = task.AssigneeUserId is { } owner && await CanReceiveAsync(owner, ct);
+                List<Guid> recipients = primary ? new() { task.AssigneeUserId!.Value } : (managers ??= await OfficeManagersAsync(ct));   // an unassigned task, like one whose owner cannot be told, is the office managers'
                 if (recipients.Count == 0) { undeliverable++; continue; }
 
                 var key = FollowUpRules.ReminderSourceKey(task.Id, task.DueAtUtc);
@@ -59,15 +59,15 @@ public class FollowUpReminderService(AlveraDbContext db, IPracticeClock clock, I
                 db.FollowUpReminderDeliveries.Add(new FollowUpReminderDelivery
                 {
                     Id = Guid.NewGuid(), TaskId = task.Id, DueAtUtc = task.DueAtUtc, Channel = name, RecipientUserId = recipients[0],
-                    Outcome = primary ? FollowUpDeliveryOutcomes.Delivered : FollowUpDeliveryOutcomes.Fallback, CreatedAtUtc = now,
+                    Outcome = primary ? FollowUpDeliveryOutcomes.Delivered : task.AssigneeUserId is null ? FollowUpDeliveryOutcomes.Unassigned : FollowUpDeliveryOutcomes.Fallback, CreatedAtUtc = now,
                 });
                 db.FollowUpTaskEvents.Add(new FollowUpTaskEvent
                 {
                     Id = Guid.NewGuid(), TaskId = task.Id, Kind = FollowUpEventKinds.Reminded, ActorUserId = null, OccurredAtUtc = now,
-                    Detail = primary ? $"{name} to {recipients[0]}" : $"{name} to {recipients.Count} office manager(s) because {task.AssigneeUserId} could not be reminded",
+                    Detail = primary ? $"{name} to {recipients[0]}" : task.AssigneeUserId is null ? $"{name} to {recipients.Count} office manager(s) because the task has no owner" : $"{name} to {recipients.Count} office manager(s) because {task.AssigneeUserId} could not be reminded",
                 });
                 AuditService.Record(db, AuditEventTypes.FollowUpReminderSent, "FollowUpTask", task.Id, null,
-                    $"Reminder for follow-up {task.Id} (patient {task.PatientId}) sent by {name} to {string.Join(", ", recipients)}{(primary ? "" : " as a fallback")}.");
+                    $"Reminder for follow-up {task.Id} (patient {task.PatientId}) sent by {name} to {string.Join(", ", recipients)}{(primary ? "" : task.AssigneeUserId is null ? " (unassigned task)" : " as a fallback")}.");
                 if (primary) sent++; else fallback++;
             }
             if (!await TrySaveAsync(ct)) { sent = fallback = 0; }   // a concurrent pass got there first: nothing of this batch was stored, the next pass finds what is still owed

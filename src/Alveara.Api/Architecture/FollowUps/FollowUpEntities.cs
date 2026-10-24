@@ -20,7 +20,16 @@ public static class FollowUpEventKinds
     public const string Completed = "Completed";
     public const string Cancelled = "Cancelled";
     public const string RecallCreated = "RecallCreated";
-    public static readonly IReadOnlyList<string> All = [Created, Edited, Reassigned, DueChanged, Reminded, Completed, Cancelled, RecallCreated];
+    // ALV-009-C01
+    public const string Assigned = "Assigned";
+    public const string PriorityChanged = "PriorityChanged";
+    /// <summary>A task made by the system (a recall that came due, an accepted treatment nobody has scheduled): no person is behind it.</summary>
+    public const string SystemCreated = "SystemCreated";
+    /// <summary>A task the system closed because what it was about is settled (the treatment was scheduled, completed or declined).</summary>
+    public const string SystemClosed = "SystemClosed";
+    public static readonly IReadOnlyList<string> All = [Created, Edited, Reassigned, DueChanged, Reminded, Completed, Cancelled, RecallCreated, Assigned, PriorityChanged, SystemCreated, SystemClosed];
+    /// <summary>The kinds written by the system rather than by a person (the only ones with no actor).</summary>
+    public static readonly IReadOnlyList<string> BySystem = [Reminded, SystemCreated, SystemClosed];
 }
 
 /// <summary>The channels a reminder can be delivered by. Only the in-app channel exists now; an email channel is designed for and not built (docs/design/FOLLOW_UP_TASKS_DESIGN.md, "Later channels").</summary>
@@ -35,11 +44,38 @@ public static class FollowUpDeliveryOutcomes
 {
     public const string Delivered = "Delivered";
     public const string Fallback = "Fallback";
-    public static readonly IReadOnlyList<string> All = [Delivered, Fallback];
+    /// <summary>ALV-009-C01: the task has no owner, so the office managers were told (this is how an unassigned task is reminded, not a fallback).</summary>
+    public const string Unassigned = "Unassigned";
+    public static readonly IReadOnlyList<string> All = [Delivered, Fallback, Unassigned];
+}
+
+/// <summary>ALV-009-C01: how urgent a task is. Shown in words as well as colour; the queue sorts by it.</summary>
+public static class FollowUpPriorities
+{
+    public const string Low = "Low";
+    public const string Normal = "Normal";
+    public const string High = "High";
+    public const string Urgent = "Urgent";
+    public static readonly IReadOnlyList<string> All = [Low, Normal, High, Urgent];
+    /// <summary>Sort weight, most urgent first.</summary>
+    public static int Weight(string priority) => priority switch { Urgent => 0, High => 1, Normal => 2, _ => 3 };
+}
+
+/// <summary>ALV-009-C01: where a task came from. A person's own task is Manual (including the next task a completion makes from a recall interval); the system makes Recall and UnscheduledTreatment tasks.</summary>
+public static class FollowUpKinds
+{
+    public const string Manual = "Manual";
+    public const string Recall = "Recall";
+    public const string UnscheduledTreatment = "UnscheduledTreatment";
+    public static readonly IReadOnlyList<string> All = [Manual, Recall, UnscheduledTreatment];
 }
 
 public static class FollowUpRules
 {
+    /// <summary>The longest key that makes a system task unique (see <see cref="FollowUpTask.SourceKey"/>).</summary>
+    public const int SourceKeyMaxLength = 100;
+    public static string RecallSourceKey(Guid patientId, DateOnly dueDate) => $"recall:{patientId:N}:{dueDate:yyyyMMdd}";
+    public static string UnscheduledSourceKey(Guid planItemId, int stateSequence) => $"unscheduled:{planItemId:N}:{stateSequence}";
     public const int TitleMaxLength = 120;
     public const int NoteMaxLength = 500;
     public const int DetailMaxLength = 200;
@@ -62,7 +98,8 @@ public class FollowUpTask
 {
     public Guid Id { get; set; }
     public Guid PatientId { get; set; }
-    public Guid AssigneeUserId { get; set; }
+    /// <summary>The owner. Null means unassigned (a task the system made, waiting for someone to take it); STORY-009's own create route still requires one.</summary>
+    public Guid? AssigneeUserId { get; set; }
     public required string Title { get; set; }
     public string? Note { get; set; }
     public DateTimeOffset DueAtUtc { get; set; }
@@ -70,7 +107,20 @@ public class FollowUpTask
     public int? RecallIntervalDays { get; set; }
     /// <summary>When this task is the recall created by completing another, that task's id (unique: a task creates at most one recall).</summary>
     public Guid? RecallOfTaskId { get; set; }
-    public Guid CreatedByUserId { get; set; }
+    /// <summary>ALV-009-C01: <see cref="FollowUpPriorities"/>.</summary>
+    public string Priority { get; set; } = FollowUpPriorities.Normal;
+    /// <summary>ALV-009-C01: <see cref="FollowUpKinds"/>.</summary>
+    public string Kind { get; set; } = FollowUpKinds.Manual;
+    /// <summary>ALV-009-C01: an appointment of the same patient this task is about, if any (a database trigger checks the patient).</summary>
+    public Guid? AppointmentId { get; set; }
+    /// <summary>ALV-009-C01: for an UnscheduledTreatment task, the accepted treatment-plan item it is about.</summary>
+    public Guid? SourcePlanItemId { get; set; }
+    /// <summary>ALV-009-C01: for a task the system made, a key naming what it was made for (a patient's due date, a plan item's acceptance); unique, so a retry or a restart can never make the same task twice.</summary>
+    public string? SourceKey { get; set; }
+    /// <summary>ALV-009-C01: true when the system closed the task (then <see cref="ClosedByUserId"/> is null).</summary>
+    public bool ClosedBySystem { get; set; }
+    /// <summary>The person who made the task; null only for a task the system made (a Recall or UnscheduledTreatment task).</summary>
+    public Guid? CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     /// <summary>Set together with <see cref="ClosedByUserId"/> when the task is completed or cancelled, and only then.</summary>
     public DateTimeOffset? ClosedAtUtc { get; set; }

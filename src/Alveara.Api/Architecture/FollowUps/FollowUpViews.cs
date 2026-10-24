@@ -19,8 +19,9 @@ public sealed record CompleteFollowUpRequest(string? Note, string? RowVersion);
 public sealed record CancelFollowUpRequest(string? Note, string? RowVersion);
 
 public sealed record FollowUpView(
-    Guid Id, Guid PatientId, string Title, string? Note, DateTimeOffset DueAtUtc, string Status, bool Overdue, Guid AssigneeUserId, string? AssigneeName, int? RecallIntervalDays,
-    Guid? RecallOfTaskId, Guid? RecallTaskId, Guid CreatedByUserId, DateTimeOffset CreatedAtUtc, DateTimeOffset? ClosedAtUtc, Guid? ClosedByUserId, string? ClosureNote, string RowVersion);
+    Guid Id, Guid PatientId, string Title, string? Note, DateTimeOffset DueAtUtc, string Status, bool Overdue, Guid? AssigneeUserId, string? AssigneeName, int? RecallIntervalDays,
+    Guid? RecallOfTaskId, Guid? RecallTaskId, Guid? CreatedByUserId, DateTimeOffset CreatedAtUtc, DateTimeOffset? ClosedAtUtc, Guid? ClosedByUserId, string? ClosureNote, string RowVersion,
+    string Priority, string Kind, Guid? AppointmentId, Guid? SourcePlanItemId, bool ClosedBySystem);
 
 public sealed record FollowUpEventView(string Kind, Guid? ActorUserId, string? ActorName, DateTimeOffset OccurredAtUtc, string? Detail);
 

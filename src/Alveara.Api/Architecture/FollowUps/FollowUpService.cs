@@ -109,7 +109,7 @@ public class FollowUpService(AlveraDbContext db, IPracticeClock clock, IEffectiv
         {
             recallId = FollowUpValidation.DeterministicId("recall", task.Id);
             // the next task goes to the same person when they can still receive it, otherwise to the person completing this one (an unowned recall must not be lost)
-            var recipient = await CanReceiveAsync(task.AssigneeUserId, ct) ? task.AssigneeUserId : actor;
+            var recipient = task.AssigneeUserId is { } owner && await CanReceiveAsync(owner, ct) ? owner : actor;
             var recall = new FollowUpTask
             {
                 Id = recallId.Value, PatientId = task.PatientId, AssigneeUserId = recipient, Title = task.Title, Note = task.Note, DueAtUtc = now.AddDays(days), Status = FollowUpStatuses.Open,
@@ -257,10 +257,10 @@ public class FollowUpService(AlveraDbContext db, IPracticeClock clock, IEffectiv
         if (tasks.Count == 0) return [];
         var ids = tasks.Select(t => t.Id).ToList();
         var recalls = await db.FollowUpTasks.AsNoTracking().Where(t => t.RecallOfTaskId != null && ids.Contains(t.RecallOfTaskId!.Value)).Select(t => new { Of = t.RecallOfTaskId!.Value, t.Id }).ToListAsync(ct);
-        var names = await NamesAsync(tasks.Select(t => t.AssigneeUserId).Distinct().ToList(), ct);
+        var names = await NamesAsync(tasks.Where(t => t.AssigneeUserId != null).Select(t => t.AssigneeUserId!.Value).Distinct().ToList(), ct);
         var now = clock.UtcNow;
         return tasks.Select(t => new FollowUpView(
-            t.Id, t.PatientId, t.Title, t.Note, t.DueAtUtc, t.Status, t.Status == FollowUpStatuses.Open && t.DueAtUtc < now, t.AssigneeUserId, names.GetValueOrDefault(t.AssigneeUserId), t.RecallIntervalDays,
-            t.RecallOfTaskId, recalls.FirstOrDefault(r => r.Of == t.Id)?.Id, t.CreatedByUserId, t.CreatedAtUtc, t.ClosedAtUtc, t.ClosedByUserId, t.ClosureNote, Convert.ToBase64String(t.RowVersion))).ToList();
+            t.Id, t.PatientId, t.Title, t.Note, t.DueAtUtc, t.Status, t.Status == FollowUpStatuses.Open && t.DueAtUtc < now, t.AssigneeUserId, t.AssigneeUserId is { } a ? names.GetValueOrDefault(a) : null, t.RecallIntervalDays,
+            t.RecallOfTaskId, recalls.FirstOrDefault(r => r.Of == t.Id)?.Id, t.CreatedByUserId, t.CreatedAtUtc, t.ClosedAtUtc, t.ClosedByUserId, t.ClosureNote, Convert.ToBase64String(t.RowVersion), t.Priority, t.Kind, t.AppointmentId, t.SourcePlanItemId, t.ClosedBySystem)).ToList();
     }
 }
