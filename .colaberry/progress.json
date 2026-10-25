@@ -1097,20 +1097,53 @@
       "criteria": [
         {
           "text": "Given duplicate patient records, when detected, then the system suggests a controlled merge.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given a merge conflict, when resolved, then the system preserves linked data.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All merge actions are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientOwnedData.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientDuplicateScanner.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientMergeEntities.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientMergeService.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientMergePlanner.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientMergeCatalog.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientMergeFields.cs",
+        "src/Alveara.Api/Architecture/Patients/Merge/PatientMergeViews.cs",
+        "src/Alveara.Api/Controllers/PatientMergesController.cs",
+        "src/Alveara.Api/Data/PatientMergeModel.cs",
+        "src/Alveara.Api/Migrations/20261025052956_AddPatientMerges.cs",
+        "src/Alveara.Api/Architecture/Patients/Patient.cs",
+        "src/Alveara.Api/Architecture/Patients/PatientWrite.cs",
+        "src/Alveara.Api/Architecture/Identity/Permission.cs",
+        "src/Alveara.Api/Architecture/Identity/PermissionRegistry.json",
+        "src/Alveara.Api/Architecture/Identity/AuditLogEntry.cs",
+        "src/Alveara.Api/Program.cs",
+        "src/alveara-client/src/services/patientMergesApi.ts",
+        "src/alveara-client/src/pages/patientmerge/PatientMergePage.tsx",
+        "src/alveara-client/src/pages/patientmerge/MergeReview.tsx",
+        "src/alveara-client/src/App.tsx",
+        "src/alveara-client/src/app/moduleRegistry.ts",
+        "docs/PATIENT_MERGE.md"
+      ],
+      "tests_added": [
+        "src/Alveara.Api.Tests/PatientOwnedDataTests.cs",
+        "src/Alveara.Api.Tests/PatientDuplicateScannerTests.cs",
+        "src/Alveara.Api.Tests/PatientMergeSchemaTests.cs",
+        "src/Alveara.Api.Tests/PatientMergeServiceTests.cs",
+        "src/Alveara.Api.Tests/PatientMergeApiTests.cs",
+        "src/Alveara.Api.Tests/PatientMergeBackupRestoreTests.cs",
+        "src/alveara-client/src/pages/patientmerge/PatientMergeScreens.test.tsx",
+        "src/alveara-client/e2e/patient-merge-real-backend.spec.ts"
+      ],
+      "notes": "Duplicate detection and a controlled merge, administrator only (new MergePatients permission). The scan suggests pairs that share a birth date and a name, phone or email, with reasons and a suggested record to keep; the merge runs in one transaction: every column that holds a patient id (56 in 54 tables, kept equal to the model by a test) moves to the surviving record, the administrator answers each field the two records fill in differently (the replaced value is kept), the lineage, history and two audit entries (user and time) are written, and the retired record stays in place, marked merged, never deleted. A record the survivor already has its one of stays with the retired record together with what depends on it; a merge whose staying records point at moving ones is blocked. The database allows the move through one narrow exception (a session value, patient-id columns only). LIMITS: no undo; identity fields (name, date of birth) cannot be reconciled; other screens do not yet refuse new work on a retired (inactive) record; the full serial backend suite was not run on the final tree; portal verification had not yet happened when this was written.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

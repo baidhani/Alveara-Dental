@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-017",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-25T17:00:00Z",
+  "sourceCommitSha": "2c286611616b2ac6ddda901bfc8b62695021ee58",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Only the administrator holds MergePatients by default: the administrator finds possible duplicate patient records and merges two of them. Every other role is refused (403) on all four endpoints and an anonymous caller gets 401.",
+      "evidence": "src/Alveara.Api.Tests/PatientMergeApiTests.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "A merge request names the record to retire and the record to keep, a reason of up to 500 characters on one line, the row versions of both records the administrator reviewed, an answer (keep the kept record's value or take the retired record's) for every field the two records fill in differently, and an Idempotency-Key header.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Merge/PatientMergeService.cs"
+    },
+    {
+      "dimension": "constraints",
+      "value": "A pair is suggested only when both records have the same date of birth and share a name, phone number (at least seven digits) or email; a shared surname, phone or email alone is not enough. Name and date of birth cannot be reconciled in a merge because they form the unique identity key; the kept record keeps its own.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Merge/PatientDuplicateScanner.cs"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "A merge is refused with a stable code and changes nothing when a field answer is missing or invalid, a record changed after it was reviewed, a record is already merged, the same key was used for another pair, or a record that must stay with the retired patient points at one that would move (merge_blocked, 409).",
+      "evidence": "src/Alveara.Api.Tests/PatientMergeServiceTests.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "A merge moves the patient id of every row in 56 columns of 54 tables to the kept record in one transaction and writes a lineage (who, when, why, rows moved per column, each answer and each record left with the retired patient). The retired record stays in place, marked merged and inactive, and is never deleted; the lineage is append-only.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Merge/PatientOwnedData.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Each merge writes two audit entries (one for each record) with the administrator's user id, a timestamp and the lineage id as correlation id in the same save as the merge; the audit text carries no patient values. If the audit write fails nothing is merged. The database allows the patient-id change only inside a transaction that sets one session value, and then only for the patient-id columns.",
+      "evidence": "src/Alveara.Api.Tests/PatientMergeSchemaTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Re-pointed every patient-owned row to the kept record inside one transaction, with a lineage, rather than leaving a redirect or splitting records.",
+      "rationale": "The owner chose this when offered redirect-only, split and re-point; it keeps one chart per person and still records where everything came from.",
+      "evidence": "docs/PATIENT_MERGE.md"
+    },
+    {
+      "statement": "Gave the database one narrow exception to its append-only rules: a session value that lets the patient-id columns change, with a trigger on each of the 54 tables refusing anything else.",
+      "rationale": "Many tables are append-only by design; the merge needs exactly one kind of change and nothing wider, and every other write is refused as before.",
+      "evidence": "src/Alveara.Api/Migrations/20261025052956_AddPatientMerges.cs"
+    },
+    {
+      "statement": "Added a MergePatients permission held by the administrator only by default and not in the protected set.",
+      "rationale": "The requirement names the system administrator as the owner; leaving it grantable avoids changing four pinned tests and two screens, and the owner can protect it in one line.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/Permission.cs"
+    },
+    {
+      "statement": "A record the kept patient already has its one of stays with the retired patient together with what depends on it, and a merge whose staying records point at moving ones is blocked instead of split.",
+      "rationale": "Rows are never deleted and a record cannot belong to two patients; blocking is safer than guessing.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Merge/PatientMergePlanner.cs"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "A merge cannot be undone from the screen; the lineage keeps what is needed to build that later.",
+      "evidence": "docs/PATIENT_MERGE.md"
+    },
+    {
+      "statement": "Dismissing a pair as not a duplicate, and a merged into banner on a retired record's own page, are not built (planned for ALV-017-C01).",
+      "evidence": "docs/PATIENT_MERGE.md"
+    },
+    {
+      "statement": "Other screens do not yet refuse to attach new work to a retired record unless they already refuse inactive patients.",
+      "evidence": "docs/PATIENT_MERGE.md"
+    },
+    {
+      "statement": "The full serial backend suite was not run on the final tree; 1234 related backend tests, the mocked browser suite and a real-backend walkthrough were.",
+      "evidence": "docs/testing/STORY-017_TEST_RESULTS.md"
+    },
+    {
+      "statement": "The portal course verification of this story had not yet happened when this was written.",
+      "evidence": "docs/testing/STORY-017_TEST_RESULTS.md"
+    }
+  ],
+  "demonstrationEvidence": [
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PatientOwnedDataTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PatientDuplicateScannerTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PatientMergeSchemaTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PatientMergeServiceTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PatientMergeApiTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/Alveara.Api.Tests/PatientMergeBackupRestoreTests.cs"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/src/pages/patientmerge/PatientMergeScreens.test.tsx"
+    },
+    {
+      "kind": "test",
+      "ref": "src/alveara-client/e2e/patient-merge-real-backend.spec.ts"
+    },
+    {
+      "kind": "walkthrough",
+      "ref": "docs/testing/patient-merge-walkthrough/patient-merge-evidence.json"
+    },
+    {
+      "kind": "document",
+      "ref": "docs/testing/STORY-017_TEST_RESULTS.md"
+    },
+    {
+      "kind": "document",
+      "ref": "docs/testing/STORY-017_NEGATIVE_CONTROLS.md"
+    }
+  ],
+  "measurementEvents": []
+}
