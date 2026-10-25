@@ -54,6 +54,17 @@ describe("patient header and workspace", () => {
     expect(header().textContent).not.toMatch(/balance|diagnos|alert|unsigned|allerg/i);
   });
 
+  it("shows a record that was merged into another as read-only: it says so, the fields are locked, and there is no Save and no Reactivate (ALV-017-C01)", async () => {
+    const M = "dddddddd-0000-0000-0000-000000000004";
+    server.add(makePatient({ id: M, firstName: "Anne", lastName: "Lee", isActive: false, mergedAtUtc: "2026-10-25T10:00:00Z" } as never));
+    open(`/patients/${M}`);
+    expect(await screen.findByText(/This record was merged into another and can no longer be changed/)).toBeInTheDocument();
+    expect(await screen.findByLabelText("First name *")).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Save changes" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Reactivate patient" })).not.toBeInTheDocument();
+    expect(screen.queryByText("You can view this patient but not change them.")).not.toBeInTheDocument();     // the right reason is given
+  });
+
   it("shows 'No patient selected' with a way to find one when none is in context, and Close patient returns to that state", async () => {
     open("/patients");
     expect(await within(await screen.findByRole("region", { name: "Patient context" })).findByText(/No patient selected/)).toBeInTheDocument();

@@ -28,7 +28,8 @@ const toValues = (p: PatientDetail): PatientValues => ({
  */
 export function PatientDetailsPanel({ patient, onChanged }: { patient: PatientDetail; onChanged: () => void }) {
   const { hasPermission } = useAuth();
-  const canEdit = hasPermission("EditPatients");
+  const merged = !!patient.mergedAtUtc;                                // a record merged into another cannot be changed or reactivated (the database refuses it); the banner above says where it went
+  const canEdit = hasPermission("EditPatients") && !merged;
   const requirements = usePatientRequirements();
   const [values, setValues] = useState<PatientValues>(() => toValues(patient));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -113,7 +114,8 @@ export function PatientDetailsPanel({ patient, onChanged }: { patient: PatientDe
   return (
     <section aria-labelledby="alv-details-title">
       <h2 id="alv-details-title" className="alv-workspace__section-title">Details</h2>
-      {!canEdit && <p className="alv-workspace__note">You can view this patient but not change them.</p>}
+      {merged && <p className="alv-workspace__note">This record was merged into another and can no longer be changed. Open the record it was merged into to make changes.</p>}
+      {!canEdit && !merged && <p className="alv-workspace__note">You can view this patient but not change them.</p>}
       {/* Saved confirmations are inline, announced politely, and use the same text-on-tint treatment as the status badges. */}
       <p className={notice ? "alv-workspace__saved" : "alv-workspace__saved-slot"} role="status">{notice}</p>
       <form ref={formRef} className="alv-workspace__form" onSubmit={save} noValidate aria-label="Patient details">

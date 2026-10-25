@@ -55,7 +55,7 @@ internal static class PatientWrite
         {
             throw new PatientException("duplicate_patient", "A patient with the same name and date of birth is already registered.", 409);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 51233 })
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 51233 } || ex.InnerException is SqlException { Number: 547 } sql && sql.Message.Contains("CK_Patients_Merged", StringComparison.Ordinal))
         {
             // STORY-017: the database never lets a record that was merged into another change; say so instead of failing
             throw new PatientException("patient_merged", "This patient record was merged into another record and can no longer be changed. Open the record it was merged into.", 409);

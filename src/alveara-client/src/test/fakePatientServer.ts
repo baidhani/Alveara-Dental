@@ -71,7 +71,7 @@ export class FakePatientServer {
     return {
       id: p.id, firstName: p.firstName, middleName: p.middleName, lastName: p.lastName, dateOfBirth: p.dateOfBirth, sex: p.sex,
       phone: p.phone, email: p.email, addressLine1: p.addressLine1, addressLine2: p.addressLine2, city: p.city, state: p.state, postalCode: p.postalCode,
-      createdAtUtc: p.createdAtUtc, updatedAtUtc: p.updatedAtUtc, isActive: p.isActive, rowVersion: `v${p.version}`, age: 40,
+      createdAtUtc: p.createdAtUtc, updatedAtUtc: p.updatedAtUtc, isActive: p.isActive, mergedAtUtc: p.mergedAtUtc ?? null, rowVersion: `v${p.version}`, age: 40,
       guarantor: this.link(p.guarantorId),
       guaranteeFor: [...this.patients.values()].filter((o) => o.guarantorId === p.id).map((o) => this.link(o.id)!),
       household: p.householdId

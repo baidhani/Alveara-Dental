@@ -11,7 +11,8 @@ import path from "node:path";
 // The front desk has registered the same person twice (Ann and Anne Alder, the same birth date, different phone and address); each chart holds an allergy. Only the administrator can see the duplicate review;
 // it suggests the pair with its reasons; the review shows the two records side by side and will not merge until every differing field is answered, a reason is written and the merge is confirmed; the merge moves
 // the retired chart's allergy to the surviving record without losing either, leaves the retired record in place and uneditable, and is in the merge log and the audit log with the administrator's id and a time;
-// asking again with the same key changes nothing.
+// asking again with the same key changes nothing. ALV-017-C01 adds: a pair can be dismissed as not a duplicate and restored; the retired record says so on its own page and links to the one that carries on; and the merge
+// can be undone from the log: a review shows what goes back, the undo is confirmed with a reason, the data and the fields the merge changed return, the record is active again and the page no longer says merged.
 
 test.describe.configure({ mode: "serial" });
 
@@ -145,6 +146,27 @@ test("THE LIST: the administrator sees the pair with its reasons and a suggested
   await scanBothThemes(admin, "list");
 });
 
+test("NOT A DUPLICATE: the administrator can dismiss a suggested pair with a reason and restore it, and the pair leaves and returns", async () => {
+  await admin.goto("/admin/patient-merge");
+  const pair = new RegExp(`Ann Alder${stamp} and Anne Alder${stamp} are not duplicates`);
+  await admin.getByRole("button", { name: pair }).click();
+  await admin.getByRole("button", { name: /^Confirm:/ }).click();
+  await expect(admin.getByRole("alert")).toContainText("Write why these are different people");                       // a reason is required
+  await admin.getByLabel(/Why Ann Alder.* are different people/).fill("They are twins");
+  await shot(admin, "01b-dismiss-reason.png");
+  await admin.getByRole("button", { name: /^Confirm:/ }).click();
+  await expect(admin.getByText(/are no longer suggested/)).toBeVisible();
+  await expect(admin.getByText(/No possible duplicates found/)).toBeVisible();
+  const dismissed = admin.getByRole("table", { name: "Pairs dismissed as not a duplicate" });
+  await expect(dismissed).toContainText("They are twins");
+  await shot(admin, "01c-dismissed.png");
+  expect((await api(admin, "get", "/api/auth/audit-log?take=100")).body.filter((e: any) => e.eventType === "PatientDuplicateDismissed" && e.performedByUserAccountId === ids.adminUser)).toHaveLength(2);
+  await admin.getByRole("button", { name: /^Suggest Ann Alder.* again$/ }).click();
+  await expect(admin.getByText(/are suggested again/)).toBeVisible();
+  await expect(admin.getByRole("button", { name: new RegExp(`Review Ann Alder${stamp} and Anne Alder${stamp}`) })).toBeVisible();
+  evidence.dismissal = { dismissedAndRestored: true };
+});
+
 test("THE REVIEW: two records side by side; the merge stays off until every differing field is answered, a reason is written and it is confirmed", async () => {
   await admin.goto("/admin/patient-merge");
   await admin.getByRole("button", { name: new RegExp(`Review Ann Alder${stamp} and Anne Alder${stamp}`) }).click();
@@ -168,7 +190,7 @@ test("THE MERGE: it is made once, the chart is whole on the surviving record, th
   const beforeAnn = await recordOf(admin, ids.ann); const beforeAnne = await recordOf(admin, ids.anne);
   expect(beforeAnn).toContain("Penicillin"); expect(beforeAnne).toContain("Latex");
   await mergeButton(admin).click();
-  await expect(admin.getByRole("status").first()).toContainText(`Merged Anne Alder${stamp} into Ann Alder${stamp}`);
+  await expect(admin.getByRole("status").filter({ hasText: "Merged Anne" })).toContainText(`Merged Anne Alder${stamp} into Ann Alder${stamp}`);
   await shot(admin, "04-merged.png");
 
   const survivor = await recordOf(admin, ids.ann);
@@ -181,6 +203,22 @@ test("THE MERGE: it is made once, the chart is whole on the surviving record, th
   const edit = await api(admin, "put", `/api/patients/${ids.anne}`, { firstName: "Anne", lastName: `Alder${stamp}`, dateOfBirth: "1985-03-09", phone: "555-999-0000", addressLine1: "9 Oak Ave", city: "Austin", state: "TX", postalCode: "78701", rowVersion: retired.rowVersion });
   expect([edit.status, edit.body.error]).toEqual([409, "patient_merged"]);
   evidence.merge = { survivorHasBothAllergies: true, retiredStillThere: true, retiredEdit: edit.status };
+});
+
+test("THE RETIRED RECORD SAYS SO: its own page tells in words that it was merged and links to the record that carries on, which lists it", async () => {
+  await admin.goto(`/patients/${ids.anne}`);
+  const alert = admin.getByRole("alert").filter({ hasText: "was merged into another" });
+  await expect(alert).toContainText(`Ann Alder${stamp}`);
+  await expect(alert).toContainText("The front desk registered the same person twice");
+  await shot(admin, "04b-retired-record-banner.png");
+  await scanBothThemes(admin, "retired-record");
+  await alert.getByRole("link", { name: `Ann Alder${stamp}` }).click();
+  await expect(admin.getByText("Records merged into this one:")).toBeVisible();
+  await expect(admin.getByRole("link", { name: new RegExp(`Anne Alder${stamp} on`) })).toBeVisible();
+  await shot(admin, "04c-surviving-record-lineage.png");
+  const edit = await api(admin, "post", `/api/patients/${ids.anne}/clinical-record/items`, { kind: "Allergy", name: "Aspirin", reaction: "Rash", severity: "Mild" });
+  expect(edit.status).toBe(409);                                                                                       // a retired record takes no new records
+  evidence.retiredRecord = { bannerShown: true, newRecord: edit.status, error: edit.body.error };
 });
 
 test("TRUST: the merge log and the audit log say who and when; asking again with the same key changes nothing", async () => {
@@ -203,4 +241,45 @@ test("TRUST: the merge log and the audit log say who and when; asking again with
   await shot(admin, "05-merge-log.png");
   await scanBothThemes(admin, "log");
   evidence.trust = { logEntries: log.length, auditEntries: audit.length };
+});
+
+test("UNDO: the merge is undone from the log after a review; the data and the fields return, the record is active again and the page no longer says merged", async () => {
+  await admin.goto("/admin/patient-merge");
+  const table = admin.getByRole("table", { name: "Merges made" });
+  await expect(table).toContainText("In force");
+  await admin.getByRole("button", { name: new RegExp(`Undo the merge of Anne Alder${stamp} into Ann Alder${stamp}`) }).click();
+  await expect(admin.getByRole("heading", { name: new RegExp(`Undo the merge of Anne Alder${stamp}`) })).toBeVisible();
+  await expect(admin.getByText(/rows? moves? back to Anne Alder/)).toBeVisible();
+  await expect(admin.getByText(/Put back on Ann Alder.*Phone/)).toBeVisible();
+  const undo = admin.getByRole("button", { name: "Undo the merge" });
+  await expect(undo).toBeDisabled();
+  await shot(admin, "06-undo-review.png");
+  await scanBothThemes(admin, "undo-review");
+  await admin.getByLabel(/Reason for the undo/).fill("They turned out to be two people");
+  await expect(undo).toBeDisabled();                                                                                   // not confirmed yet
+  await admin.getByLabel(/I have reviewed what goes back/).check();
+  await expect(undo).toBeEnabled();
+  await undo.click();
+  await expect(admin.getByText(/Undid the merge of Anne Alder.* is active again/)).toBeVisible();
+  await expect(table).toContainText(/Undone .* by admin-/);
+  await shot(admin, "07-undone.png");
+
+  const kept = (await api(admin, "get", `/api/patients/${ids.ann}`)).body;
+  expect([kept.phone, kept.email, kept.addressLine1]).toEqual(["555-010-0100", null, "1 Main St"]);                      // the survivor's own values are back; the filled email is gone
+  const returned = (await api(admin, "get", `/api/patients/${ids.anne}`)).body;
+  expect(returned.isActive).toBe(true);
+  expect(await recordOf(admin, ids.anne)).toContain("Latex");                                                           // the allergy went home
+  expect(await recordOf(admin, ids.ann)).not.toContain("Latex");
+  expect(await recordOf(admin, ids.ann)).toContain("Penicillin");
+  const history = (await api(admin, "get", `/api/patients/${ids.anne}/merge-history`)).body;
+  expect(history.mergedInto).toBeNull();
+  await admin.goto(`/patients/${ids.anne}`);
+  await expect(admin.getByRole("heading", { name: "Patient workspace" })).toBeVisible();
+  await expect(admin.getByText("was merged into another")).toHaveCount(0);
+  const unmerged = ((await api(admin, "get", "/api/auth/audit-log?take=500")).body as any[]).filter((e) => e.eventType === "PatientUnmerged");
+  expect(unmerged).toHaveLength(2);
+  expect(unmerged.every((e) => e.performedByUserAccountId === ids.adminUser && !Number.isNaN(Date.parse(e.timestampUtc)))).toBe(true);
+  const edit = await api(admin, "put", `/api/patients/${ids.anne}`, { firstName: "Anne", lastName: `Alder${stamp}`, dateOfBirth: "1985-03-09", phone: "555-010-0222", addressLine1: "9 Oak Ave", city: "Austin", state: "TX", postalCode: "78701", rowVersion: returned.rowVersion });
+  expect(edit.status).toBe(200);                                                                                       // an ordinary record again
+  evidence.undo = { unmergeAuditEntries: unmerged.length, allergyReturned: true, active: true, editable: edit.status };
 });

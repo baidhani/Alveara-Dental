@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SafeLink } from "../../components/SafeLink";
 import { getPatientMergeHistory } from "../../services/patientMergesApi";
+import "./merge.css";
 import type { MergeLink, PatientMergeHistory } from "../../services/patientMergesApi";
 
 const when = (iso: string) => new Date(iso).toLocaleDateString();

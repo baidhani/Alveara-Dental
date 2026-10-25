@@ -103,4 +103,39 @@ public class PatientMergeBackupRestoreTests : TreatmentPlanTestBase
         await using var live = Fixture.CreateContext();
         Assert.Equal(2, await live.PatientMerges.CountAsync());
     }
+
+    [Fact]
+    public async Task The_ledger_the_undo_records_and_the_dismissals_survive_a_restore_and_a_merge_can_be_undone_in_the_restored_database_without_touching_the_live_one()
+    {
+        var diagnosis = await DiagnosisAsync(Ann, "Gingivitis");
+        var procedure = await ProcedureAsync(code: $"LOCAL-{Guid.NewGuid():N}"[..14]);
+        await CreateAsync([Item(diagnosis, procedure.Summary.Id)], title: "Ann's plan", patient: Ann);
+        var plansOfAnn = await WithDb(db => db.TreatmentPlans.CountAsync(p => p.PatientId == Ann));
+        var merged = await MergeAsync(Ann, Bo, "Registered twice");
+        var other = (await S.PatientAsync("Cy", "Kim"), await S.PatientAsync("Dee", "Kim"));
+        var dismissed = await WithDb(db => new PatientDuplicateReviewService(db, Clock).DismissAsync(S.Actor, new DismissRequest(other.Item1, other.Item2, "Twins"), default));
+
+        var drill = await DrillAsync((await BackupAsync()).Id);
+        Assert.Equal("Succeeded", drill.Outcome);
+        await using var restored = new AlveraDbContext(new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(_env.RestoreProvider.ConnectionStringFor(drill.TargetDatabase!)).Options);
+        Assert.Equal(merged.Moves.Sum(m => m.Rows), await restored.PatientMergeMovedRows.CountAsync(r => r.MergeId == merged.MergeId));      // the ledger came back whole
+        Assert.True((await restored.PatientMerges.AsNoTracking().SingleAsync()).HasLedger);
+        Assert.Equal(dismissed.Id, (await restored.PatientDuplicateDismissals.AsNoTracking().SingleAsync()).Id);                               // and the dismissal
+        Assert.Equal(4, await restored.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name IN ('TR_PatientMergeMovedRows_Immutable', 'TR_PatientUnmerges_Immutable', 'TR_PatientDuplicateDismissals_Guard', 'TR_PatientUnmerges_Active')").SingleAsync());                       // the guards came with it
+
+        // the merge is undone in the restored database, which is a different database from the live one
+        var preview = await new PatientUnmergeService(restored, Clock).PreviewAsync(merged.MergeId, default);
+        Assert.True(preview.CanUndo);
+        var done = await new PatientUnmergeService(restored, Clock).UnmergeAsync(S.Actor, new UnmergeRequest(merged.MergeId, "Undone in the restored copy", preview.SourceRowVersion, preview.SurvivorRowVersion, true), "restored-undo", default);
+        Assert.Equal(merged.Moves.Sum(m => m.Rows), done.RowsMovedBack);
+        restored.ChangeTracker.Clear();
+        Assert.Equal(plansOfAnn, await restored.TreatmentPlans.CountAsync(p => p.PatientId == Ann));
+        var ann = await restored.Patients.AsNoTracking().SingleAsync(p => p.Id == Ann);
+        Assert.True(ann.IsActive); Assert.Null(ann.MergedAtUtc);
+
+        await using var live = Fixture.CreateContext();
+        Assert.Equal(0, await live.PatientUnmerges.CountAsync());                                                                              // the live database still has the merge in force
+        Assert.NotNull((await live.Patients.AsNoTracking().SingleAsync(p => p.Id == Ann)).MergedAtUtc);
+        Assert.Equal(0, await live.TreatmentPlans.CountAsync(p => p.PatientId == Ann));
+    }
 }

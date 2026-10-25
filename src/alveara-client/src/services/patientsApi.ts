@@ -61,6 +61,8 @@ export interface PatientDetail extends RegisterPatientInput {
   createdAtUtc: string;
   updatedAtUtc: string | null;
   isActive: boolean;
+  /** ALV-017-C01: when this record was merged into another (null = never); a merged record cannot be changed or reactivated. */
+  mergedAtUtc?: string | null;
   rowVersion: string;
   guarantor: PatientLink | null;
   guaranteeFor: PatientLink[];

@@ -176,6 +176,9 @@ public class PatientMergeApiTests : IAsyncLifetime
         var retired = (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}")).Body;
         var edit = await frontDesk.SendAsync(HttpMethod.Put, $"/api/patients/{_ann}", new { firstName = "Ann", lastName = "Lee", dateOfBirth = Str(retired, "dateOfBirth"), phone = "(555) 010-9999", addressLine1 = "1 Main St", city = "Austin", state = "TX", postalCode = "78701", rowVersion = Str(retired, "rowVersion") });
         Assert.Equal((HttpStatusCode.Conflict, "patient_merged"), (edit.Status, Str(edit.Body, "error")));
+        Assert.NotEqual(JsonValueKind.Null, retired.GetProperty("mergedAtUtc").ValueKind);                                                      // the record says it was merged
+        var reactivate = await frontDesk.SendAsync(HttpMethod.Put, $"/api/patients/{_ann}/active", new { isActive = true, rowVersion = Str(retired, "rowVersion") });
+        Assert.Equal((HttpStatusCode.Conflict, "patient_merged"), (reactivate.Status, Str(reactivate.Body, "error")));                        // and cannot be reactivated either
         Assert.Equal(1, await CountAsync("SELECT COUNT(*) AS [Value] FROM [Patients] WHERE [Id] = '" + _ann + "' AND [Phone] <> N'(555) 010-9999'"));
         var search = await frontDesk.SendAsync(HttpMethod.Get, "/api/patients?q=Ann");
         Assert.DoesNotContain(_ann.ToString(), search.Body.GetRawText(), StringComparison.OrdinalIgnoreCase);

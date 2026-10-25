@@ -1,0 +1,6 @@
+/*
+ * ALV-017-C01: a link inside the red notice on a retired patient record (the one that says the record was merged into another) takes the notice's own colour, which is readable on its background in
+ * both themes; the default link colour is not. The real-browser walkthrough found it (colour-contrast, dark theme).
+ */
+.alv-merge-banner .alv-fu-error a { color: inherit; font-weight: 600; text-decoration: underline; }
+.alv-merge-banner .alv-fu-error a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
