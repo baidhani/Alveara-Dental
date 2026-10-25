@@ -204,8 +204,9 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
             await db.Database.ExecuteSqlAsync($"UPDATE [Documents] SET [PatientId] = {to} WHERE [PatientId] = {from}"),
             await db.Database.ExecuteSqlAsync($"UPDATE [ReferralCases] SET [PatientId] = {to} WHERE [PatientId] = {from}"),
             await db.Database.ExecuteSqlAsync($"UPDATE [Appointments] SET [PatientId] = {to} WHERE [PatientId] = {from}"),              // a table with nothing to move is quiet
+            await db.Database.ExecuteSqlAsync($"UPDATE [BillingAllocationReleases] SET [PatientId] = {to} WHERE [PatientId] = {from}"),  // so is one whose trigger refuses every update
         });
-        Assert.Equal(new[] { 1, 1, 1, 0 }, moved);
+        Assert.Equal(new[] { 1, 1, 1, 0, 0 }, moved);
         Assert.Equal(1, await QueryIntAsync($"SELECT COUNT(*) AS [Value] FROM [TreatmentPlans] WHERE [Id] = {plan.Id} AND [PatientId] = {to}"));
         Assert.Equal(1, await QueryIntAsync($"SELECT COUNT(*) AS [Value] FROM [ReferralCases] WHERE [Id] = {referral} AND [PatientId] = {to}"));
     }

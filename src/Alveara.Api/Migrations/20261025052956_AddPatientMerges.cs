@@ -139,7 +139,7 @@ namespace Alveara.Api.Migrations
                 column: "SurvivorPatientId");
 
             // STORY-017 (errors 51230 to 51234): the lineage tables are append-only, a retired patient is marked merged only by a lineage row and stays so, and the one narrow exception the merge service uses.
-            // 1. the immutable-record triggers of every table that holds a patient id stand aside for an UPDATE made inside a merge transaction (the session value alveara.patient_merge = 1);
+            // 1. the immutable-record triggers of every table that holds a patient id stand aside for an UPDATE made inside a merge transaction (one that changes no row too: some of them refuse every UPDATE, even an empty one) (the session value alveara.patient_merge = 1);
             // 2. TR_<table>_MergeScope, created for each of those tables, refuses that UPDATE unless it sets nothing but the patient-id columns, and refuses any insert or delete made inside a merge transaction.
             migrationBuilder.Sql(@"DECLARE @pairs TABLE (T sysname, C sysname);
 INSERT INTO @pairs (T, C) VALUES
@@ -199,22 +199,32 @@ INSERT INTO @pairs (T, C) VALUES
     ('TreatmentPlanRevisionPhases','PatientId'),
     ('TreatmentPlanRevisions','PatientId'),
     ('TreatmentPlans','PatientId');
-DECLARE @name sysname, @def nvarchar(max), @pos int, @guard nvarchar(max) = N'
-IF CONVERT(int, SESSION_CONTEXT(N''alveara.patient_merge'')) = 1 AND EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted) RETURN;
-';
+DECLARE @name sysname, @def nvarchar(max), @pos int, @instead bit, @tbl sysname, @cols nvarchar(max), @pk nvarchar(max), @guard nvarchar(max);
+-- true inside a merge for an UPDATE that changes rows, or for one that changes none (some of these triggers refuse every UPDATE, even an empty one)
+DECLARE @cond nvarchar(max) = N'IF CONVERT(int, SESSION_CONTEXT(N''alveara.patient_merge'')) = 1 AND ((EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)) OR NOT (EXISTS (SELECT 1 FROM inserted) OR EXISTS (SELECT 1 FROM deleted)))';
 DECLARE patch CURSOR LOCAL STATIC READ_ONLY FOR
-    SELECT DISTINCT t.name, m.definition FROM sys.triggers t
+    SELECT DISTINCT t.name, t.is_instead_of_trigger, OBJECT_NAME(t.parent_id), m.definition FROM sys.triggers t
     JOIN sys.sql_modules m ON m.object_id = t.object_id
     JOIN sys.trigger_events e ON e.object_id = t.object_id AND e.type = 2
-    WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN (SELECT T FROM @pairs) AND m.definition NOT LIKE N'%alveara.patient_merge%';
-OPEN patch; FETCH NEXT FROM patch INTO @name, @def;
+    WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN (SELECT T FROM @pairs) AND m.definition NOT LIKE N'%/*patient-merge*/%';
+OPEN patch; FETCH NEXT FROM patch INTO @name, @instead, @tbl, @def;
 WHILE @@FETCH_STATUS = 0
 BEGIN
     SET @pos = CHARINDEX(N' AS', @def, CHARINDEX(N' ON ', @def));
     IF @pos = 0 OR LEFT(@def, 14) <> N'CREATE TRIGGER ' THROW 51234, 'An immutable-record trigger has a shape the merge migration does not know how to patch.', 1;
+    IF @instead = 1
+    BEGIN
+        -- an INSTEAD OF trigger replaces the update, so inside a merge it has to do the one change that is allowed: the patient-id columns of the rows named
+        SELECT @pk = STRING_AGG(CAST(N't.' + QUOTENAME(c.name) + N' = i.' + QUOTENAME(c.name) AS nvarchar(max)), N' AND ')
+          FROM sys.indexes x JOIN sys.index_columns ic ON ic.object_id = x.object_id AND ic.index_id = x.index_id JOIN sys.columns c ON c.object_id = ic.object_id AND c.column_id = ic.column_id
+         WHERE x.object_id = OBJECT_ID(QUOTENAME(@tbl)) AND x.is_primary_key = 1;
+        SELECT @cols = STRING_AGG(CAST(N't.' + QUOTENAME(C) + N' = i.' + QUOTENAME(C) AS nvarchar(max)), N', ') FROM @pairs WHERE T = @tbl;
+        SET @guard = NCHAR(10) + N'/*patient-merge*/ ' + @cond + N' BEGIN UPDATE t SET ' + @cols + N' FROM ' + QUOTENAME(@tbl) + N' t JOIN inserted i ON ' + @pk + N'; RETURN; END /*end patient-merge*/';
+    END
+    ELSE SET @guard = NCHAR(10) + N'/*patient-merge*/ ' + @cond + N' RETURN; /*end patient-merge*/';
     SET @def = STUFF(STUFF(@def, @pos + 3, 0, @guard), 1, 6, N'ALTER');
     EXEC (@def);
-    FETCH NEXT FROM patch INTO @name, @def;
+    FETCH NEXT FROM patch INTO @name, @instead, @tbl, @def;
 END
 CLOSE patch; DEALLOCATE patch;");
 
@@ -316,7 +326,7 @@ BEGIN
     IF EXISTS (SELECT 1 FROM inserted i WHERE i.[MergedAtUtc] IS NOT NULL
                AND NOT EXISTS (SELECT 1 FROM [PatientMerges] m WHERE m.[SourcePatientId] = i.[Id] AND m.[MergedAtUtc] = i.[MergedAtUtc]))
         THROW 51232, 'A patient is marked merged only by a merge lineage with the same time.', 1;
-    IF CONVERT(int, SESSION_CONTEXT(N'alveara.patient_merge')) = 1 AND EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted) RETURN;
+    IF CONVERT(int, SESSION_CONTEXT(N'alveara.patient_merge')) = 1 AND ((EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)) OR NOT (EXISTS (SELECT 1 FROM inserted) OR EXISTS (SELECT 1 FROM deleted))) RETURN;
     IF EXISTS (SELECT 1 FROM deleted d WHERE d.[MergedAtUtc] IS NOT NULL)
         THROW 51233, 'A patient record that was merged into another never changes.', 1;
 END");
@@ -455,17 +465,18 @@ INSERT INTO @pairs (T, C) VALUES
     ('TreatmentPlanRevisionPhases','PatientId'),
     ('TreatmentPlanRevisions','PatientId'),
     ('TreatmentPlans','PatientId');
-DECLARE @name sysname, @def nvarchar(max), @guard nvarchar(max) = N'
-IF CONVERT(int, SESSION_CONTEXT(N''alveara.patient_merge'')) = 1 AND EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted) RETURN;
-';
+DECLARE @name sysname, @def nvarchar(max), @a int, @b int;
 DECLARE unpatch CURSOR LOCAL STATIC READ_ONLY FOR
     SELECT DISTINCT t.name, m.definition FROM sys.triggers t
     JOIN sys.sql_modules m ON m.object_id = t.object_id
-    WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN (SELECT T FROM @pairs) AND m.definition LIKE N'%alveara.patient_merge%';
+    WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN (SELECT T FROM @pairs) AND m.definition LIKE N'%/*patient-merge*/%';
 OPEN unpatch; FETCH NEXT FROM unpatch INTO @name, @def;
 WHILE @@FETCH_STATUS = 0
 BEGIN
-    SET @def = STUFF(REPLACE(@def, @guard, N''), 1, 6, N'ALTER');
+    -- take out exactly what the patch put in: from the line break before the first marker to the end of the last
+    SET @a = CHARINDEX(N'/*patient-merge*/', @def);
+    SET @b = CHARINDEX(N'/*end patient-merge*/', @def) + LEN(N'/*end patient-merge*/');
+    SET @def = STUFF(STUFF(@def, @a - 1, @b - @a + 1, N''), 1, 6, N'ALTER');
     EXEC (@def);
     FETCH NEXT FROM unpatch INTO @name, @def;
 END

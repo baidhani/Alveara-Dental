@@ -46,6 +46,9 @@ public static class AuditEventTypes
     public const string AccountLockedOut = "AccountLockedOut";
     public const string RoleChanged = "RoleChanged";
 
+    // STORY-017: a patient record merged into another (one entry for each of the two records, sharing the lineage id as the correlation id).
+    public const string PatientMerged = "PatientMerged";
+
     // ALV-001-C01 additions.
     public const string AccountEnabled = "AccountEnabled";
     public const string AccountDisabled = "AccountDisabled";
