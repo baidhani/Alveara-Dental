@@ -7,7 +7,8 @@
 | Gate | Command | Result |
 |---|---|---|
 | Story backend tests | `dotnet test --filter "FullyQualifiedName~PatientMerge\|FullyQualifiedName~PatientOwnedData\|FullyQualifiedName~PatientDuplicate"` | all passed: registry 6, scan 17, schema 12, service 15, API 6, restore proof 1 |
-| Related backend suites on the final tree | the story tests plus the migration-rollback, inventory, architecture, backup/restore, patient, permission, authorization, audit, safety and treatment-plan classes | **1234 passed / 0 failed / 0 skipped** (23 min) |
+| Backend, full serial | `dotnet build --nologo` then, in `src/Alveara.Api.Tests`, `dotnet test --nologo --no-build --logger "trx;LogFileName=story017_full2.trx"` on the committed final tree (f7270da) | **5080 passed / 0 failed / 0 skipped** (43 min). The first full run, one commit earlier, was 5078 of 5080: it found a trigger-count test that counted the merge-scope triggers (fixed in f7270da) and a teardown error "cannot drop database ... in use" in `PermissionPolicyPipelineTests` that did not recur (3 of 3 isolated re-runs and the clean full run); a flake, not proven pre-existing |
+| Related backend suites before the full run | the story tests plus the migration-rollback, inventory, architecture, backup/restore, patient, permission, authorization, audit, safety and treatment-plan classes | **1234 passed / 0 failed / 0 skipped** (23 min) |
 | Frontend unit | `npx vitest run` | 104 files, **1659 passed** before the last screen fixes; the story's screen tests (12) re-run after them and pass |
 | Type check and build | `npx tsc --noEmit`, `npm run build` | exit 0 each |
 | Mocked browser | `npx playwright test` | **140 passed / 0 failed** (the new real-backend spec is in `testIgnore`) |
@@ -18,7 +19,6 @@
 
 ## What was not run
 
-* **The full serial backend suite (about 2.5 hours) was not run on the final tree.** The 1234 related tests above were. It is the last gate and needs the owner's go-ahead.
 * ESLint has no configuration in `alveara-client` (pre-existing), so type-check is the lint gate.
 
 ## Defects found by the story's own verification
@@ -28,6 +28,7 @@
 * The rows-affected number of an UPDATE is unreliable through those triggers; the lineage's move counts come from a count taken before, and a conservation test proves them.
 * The permission registry file did not list the new permission; two registry tests failed until it was added.
 * The real browser walkthrough showed the merged pair still listed as a possible duplicate, and the merge log showing an id instead of who; both fixed with tests.
+* The first full serial run found a test that counted triggers by name prefix and so counted the 54 new merge-scope triggers; it now excludes them.
 * Editing a merged-away record through the existing screens was a raw 500; it is now a 409 `patient_merged`.
 
 ## Housekeeping

@@ -1576,3 +1576,9 @@
   - What changed: `PrescriptionWorkflowSchemaTests` counted triggers by the name prefix `TR_Prescription` and so counted the new `TR_PrescriptionDrafts_MergeScope`, `TR_PrescriptionDetails_MergeScope` and `TR_PrescriptionEvents_MergeScope`-style triggers (found by the full serial run: expected 6, got 8); the count now excludes names ending `_MergeScope`.
   - Verification: the full serial backend run on the tree before this fix was 5078 passed and 2 failed of 5080 (42 minutes): this test, and `PermissionPolicyPipelineTests.A_row_whose_role_cannot_be_attributed...` which failed at teardown with "Cannot drop database ... because it is currently in use" and passed 3 of 3 times when re-run with the prescription class; both classes pass after the fix (69 of 69, three times).
   - Notes: no other test counts triggers by name prefix (searched). A full serial re-run on this tree follows. Not pushed.
+- [x] STORY-017: the full serial backend run on the final tree
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: records only: `docs/testing/STORY-017_TEST_RESULTS.md` (the full-run row; the "not run" item removed), `.colaberry/enrichment/STORY-017.json` (that limitation replaced by what the run found; source commit set to the final tree), `.colaberry/progress.json` note, `docs/PATIENT_MERGE.md` (names the restore proof).
+  - Verification: `dotnet test --nologo --no-build` over the whole backend suite on the committed tree f7270da: 5080 passed, 0 failed, 0 skipped, 43 minutes (trx `story017_full2.trx`); the run before the one-line fix was 5078 of 5080.
+  - Notes: the one teardown error of the first run ("cannot drop database ... in use") did not recur in 3 isolated re-runs or the clean full run; recorded as a flake, not proven pre-existing. Portal verification still pending. Not pushed.

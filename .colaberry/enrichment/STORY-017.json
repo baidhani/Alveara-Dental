@@ -4,7 +4,7 @@
   "storyId": "STORY-017",
   "projectTruthBaseRevision": 1,
   "observedAt": "2026-10-25T17:00:00Z",
-  "sourceCommitSha": "2c286611616b2ac6ddda901bfc8b62695021ee58",
+  "sourceCommitSha": "f7270da00f8f8b1876e12f75ae3d3b293a8fd13a",
   "factProposals": [
     {
       "dimension": "actors",
@@ -73,11 +73,11 @@
       "evidence": "docs/PATIENT_MERGE.md"
     },
     {
-      "statement": "The full serial backend suite was not run on the final tree; 1234 related backend tests, the mocked browser suite and a real-backend walkthrough were.",
+      "statement": "The portal course verification of this story had not yet happened when this was written.",
       "evidence": "docs/testing/STORY-017_TEST_RESULTS.md"
     },
     {
-      "statement": "The portal course verification of this story had not yet happened when this was written.",
+      "statement": "The first full serial backend run found one trigger-count test that needed the merge-scope triggers excluded and one teardown error that did not recur; the final run on the committed tree passed 5080 of 5080.",
       "evidence": "docs/testing/STORY-017_TEST_RESULTS.md"
     }
   ],
