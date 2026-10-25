@@ -1654,3 +1654,8 @@
   - What changed: handoff `.alveara/handoffs/ALV-017-C01/R01.md` with evidence (test results, acceptance 6 of 6, parent regression, demo, changed files, next-story impact), the frozen Stage 2 contract adapted from ALV-009-C02 (expected 5,131 = 5,080 - 1 retired + 52 new; evaluator validated on 9 scenarios), BUILD_STATE and the item 49 record set to AWAITING_REVIEW (implementation 5f0efb5), and the STORY-017 lint wording corrected (oxlint, not "no ESLint").
   - Verification: focused backend 3,076 of 3,076, HTTP-level subset 883 of 883, tsc/build/lint exit 0, Vitest 1,676 of 1,676, mocked Playwright 140, repo checks 13, walkthroughs patient-merge 9 and workspace 14, patients 7, permission-policy 7, permission-policy-admin 8, negative controls 38 of 38 killed, evaluator validation "every scenario behaved as stated".
   - Notes: no full backend run (Stage 1; Stage 2 after approval). Scratch test database AlveraTest_14dc6e15... left by an interrupted run is disclosed, not dropped. Not pushed.
+- [x] ALV-017-C01: record the evidence commit in the item 49 status record
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: `evidenceCommit` of the item 49 record in `.alveara/EXECUTION_STATUS.json` set to 8f90cc1b9025284854ee620a8bd1a75c3523ff40 (a committed file cannot hold the SHA of its own commit).
+  - Verification: `git diff --stat` shows one line changed; the JSON loads.
