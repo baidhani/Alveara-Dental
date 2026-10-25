@@ -1,0 +1,71 @@
+B1 a merge goes ahead without the explicit confirmation: KILLED (Failed!  - Failed:     3, Passed:    97)
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_needs_explicit_confirmation_and_records_that_look_like_different_people_need_their_own [1 s]
+    Failed Alveara.Api.Tests.PatientMergeServiceTests.Without_explicit_confirmation_nothing_is_merged_however_complete_the_request_is(confirmed: False) [1
+B2 records that look like different people merge without their own confirmation: KILLED (Failed!  - Failed:     2, Passed:    98)
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_needs_explicit_confirmation_and_records_that_look_like_different_people_need_their_own [1 s]
+    Failed Alveara.Api.Tests.PatientMergeServiceTests.Records_that_look_like_different_people_need_their_own_confirmation_and_a_genuine_duplicate_does_not
+B3 a different date of birth is not an identity difference: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientMergeServiceTests.Records_that_look_like_different_people_need_their_own_confirmation_and_a_genuine_duplicate_does_not
+B4 a nickname is not an identity difference: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientMergeServiceTests.Records_that_look_like_different_people_need_their_own_confirmation_and_a_genuine_duplicate_does_not
+B5 the audit text names no field decisions: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientMergeServiceTests.The_audit_text_names_the_fields_that_were_decided_and_how_but_never_their_values [997 ms]
+B6 the merge writes no ledger: KILLED (Failed!  - Failed:     6, Passed:    94)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_that_fails_part_way_changes_nothing_and_the_same_request_succeeds_once_the_fault_is_gone(p
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_and_its_undo_leave_every_row_of_both_charts_where_it_was_and_the_record_active_again_with_
+B7 the merge does not say it has a ledger: KILLED (Failed!  - Failed:    15, Passed:    85)
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_l
+    Failed Alveara.Api.Tests.PatientUnmergeSchemaTests.A_merge_writes_a_ledger_of_exactly_the_rows_it_moved_by_the_key_each_has_afterwards_and_the_ledger_
+B8 an undone merge still shows as current on the patient page: KILLED (Failed!  - Failed:     2, Passed:    98)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_and_its_undo_leave_every_row_of_both_charts_where_it_was_and_the_record_active_again_with_
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_l
+B9 the undo needs no confirmation: KILLED (Failed!  - Failed:     2, Passed:    98)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_is_refused_without_confirmation_a_reason_or_a_key_for_an_unknown_merge_and_for_a_stale_rec
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_l
+B10 the undo does not check the ledger rows are where they were: SURVIVED (Passed!  - Failed:     0, Passed:   100)
+B11 the undo goes ahead over newer records: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.Records_made_after_the_merge_that_depend_on_rows_that_would_move_back_stop_the_undo_and_nothing_ch
+B12 the undo does not look for newer records: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.Records_made_after_the_merge_that_depend_on_rows_that_would_move_back_stop_the_undo_and_nothing_ch
+B13 an edited field is overwritten by the undo: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.A_field_edited_after_the_merge_is_kept_while_the_untouched_ones_are_put_back [3 s]
+B14 the retired record is not made active again: KILLED (Failed!  - Failed:    11, Passed:    89)
+    Failed Alveara.Api.Tests.PatientMergeBackupRestoreTests.The_ledger_the_undo_records_and_the_dismissals_survive_a_restore_and_a_merge_can_be_undone_in_
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_that_fails_part_way_changes_nothing_and_the_same_request_succeeds_once_the_fault_is_gone(p
+B15 a merge whose survivor was merged away can be undone: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_made_before_ledgers_existed_cannot_be_undone_and_neither_can_one_whose_survivor_was_merged
+B16 a merge without a ledger can be undone: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_made_before_ledgers_existed_cannot_be_undone_and_neither_can_one_whose_survivor_was_merged
+B17 a merge can be undone twice: KILLED (Failed!  - Failed:     2, Passed:    98)
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.After_an_undo_the_record_can_be_merged_away_again_and_that_merge_can_be_undone_in_turn [2 s]
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_l
+B18 the preview keeps what it moved: KILLED (Failed!  - Failed:    12, Passed:    88)
+    Failed Alveara.Api.Tests.PatientMergeBackupRestoreTests.The_ledger_the_undo_records_and_the_dismissals_survive_a_restore_and_a_merge_can_be_undone_in_
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_is_refused_without_confirmation_a_reason_or_a_key_for_an_unknown_merge_and_for_a_stale_rec
+B19 the undo writes no audit entry for the surviving record: KILLED (Failed!  - Failed:     3, Passed:    97)
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_l
+    Failed Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_and_its_undo_leave_every_row_of_both_charts_where_it_was_and_the_record_active_again_with_
+B20 a dismissal of a merged-away record is accepted by the service: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientDuplicateReviewTests.A_bad_request_is_refused_with_a_code_and_changes_nothing [1 s]
+B21 dismissed pairs stay on the list: KILLED (Failed!  - Failed:     2, Passed:    98)
+    Failed Alveara.Api.Tests.PatientMergeApiTests.A_pair_dismissed_as_not_a_duplicate_leaves_the_list_is_listed_with_who_and_why_and_comes_back_when_resto
+    Failed Alveara.Api.Tests.PatientDuplicateReviewTests.A_dismissed_pair_leaves_the_scan_in_either_order_and_is_counted_and_a_restore_brings_it_back [36 
+B22 restoring twice is not recognised: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientDuplicateReviewTests.A_repeat_is_the_dismissal_already_made_and_restoring_twice_is_the_same_restore [46 ms]
+B23 the error handler does not recognise the database refusal: BUILD FAILED C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Logging\SafeExceptionHandlingMiddleware.cs(19,26): error CS0161: 'Sa | C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Logging\SafeExceptionHandlingMiddleware.cs(19,26): error CS0161: 
+B24 the retired-record check runs inside a merge too: SURVIVED (Passed!  - Failed:     0, Passed:   100)
+B25 the retired-record check looks at updates and deletes too: KILLED (Failed!  - Failed:     6, Passed:    94)
+    Failed Alveara.Api.Tests.RetiredRecordGuardTests.The_guard_is_for_new_records_only_a_retired_patients_existing_rows_can_still_be_changed [1 s]
+    Failed Alveara.Api.Tests.PatientMergeBackupRestoreTests.A_merged_chart_survives_a_backup_and_restore_with_its_lineage_its_audit_and_its_guards_and_a_l
+B26 a merged record can change other columns when it comes back: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeSchemaTests.A_merged_record_comes_back_only_through_an_undone_merge_with_the_unmerge_value_and_only_its_active_
+B27 a record can be merged away twice at a time: KILLED (Failed!  - Failed:     2, Passed:    98)
+    Failed Alveara.Api.Tests.PatientMergeSchemaTests.A_lineage_names_two_different_patients_a_reason_and_a_key_and_a_patient_is_retired_once [26 ms]
+    Failed Alveara.Api.Tests.PatientUnmergeSchemaTests.A_record_is_merged_away_once_at_a_time_and_again_only_after_the_first_merge_was_undone_and_a_merged
+B28 an undo can be recorded for a merge that no longer holds: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientUnmergeSchemaTests.An_undo_is_refused_for_a_merge_whose_record_is_not_merged_any_more [39 ms]
+B29 a dismissal can be edited: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientDuplicateReviewTests.A_dismissal_is_never_deleted_keeps_its_pair_reason_and_origin_and_is_restored_once_after_which_th
+B30 a dismissal can be deleted: KILLED (Failed!  - Failed:     1, Passed:    99)
+    Failed Alveara.Api.Tests.PatientDuplicateReviewTests.A_dismissal_is_never_deleted_keeps_its_pair_reason_and_origin_and_is_restored_once_after_which_th
+state: clean

@@ -19,7 +19,7 @@
 
 ## What was not run
 
-* ESLint has no configuration in `alveara-client` (pre-existing), so type-check is the lint gate.
+* Lint: the project lint is oxlint (`npm run lint`); it was not recorded for this story, and a later run on the same code exits 0 with warnings only (see `ALV-017-C01` R01). An earlier version of this line wrongly said there is no ESLint configuration and that type-check is the lint gate.
 
 ## Defects found by the story's own verification
 

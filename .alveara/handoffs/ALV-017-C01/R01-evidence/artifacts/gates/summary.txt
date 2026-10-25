@@ -1,0 +1,7 @@
+== gate tsc exit=0
+== gate vitest exit=0
+== gate build exit=0
+== gate lint exit=0
+== gate playwright_mocked exit=0
+== gate repo_checks exit=0
+finished

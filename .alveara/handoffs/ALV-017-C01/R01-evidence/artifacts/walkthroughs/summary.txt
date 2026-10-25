@@ -1,0 +1,4 @@
+﻿playwright.workspace.config.ts: exit=0 14 passed (32.6s)
+playwright.patients.config.ts: exit=0 7 passed (10.7s)
+playwright.permission-policy.config.ts: exit=0 7 passed (11.8s)
+playwright.permission-policy-admin.config.ts: exit=0 8 passed (48.4s)

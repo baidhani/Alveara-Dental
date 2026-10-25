@@ -1,0 +1,17 @@
+U1 the undo is allowed without the confirmation: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > undoing a merge > reviews what goes back, keeps the undo off until a reason is written and
+U2 an undone merge still offers Undo: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > undoing a merge > shows each merge as in force with an Undo action, or as undone with who 
+U3 a dismissal is sent without its reason: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > pairs dismissed as not a duplicate > asks why, sends the pair and the reason, says the pai
+U4 a dismissal needs no reason: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > pairs dismissed as not a duplicate > will not dismiss without a reason, and cancelling cha
+U5 a retired record shows no banner: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/MergeHistoryBanner.test.tsx > the merge history banner > tells a retired record in words that it was merged, by whom, whe
+U6 different people merge without the identity confirmation: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > the review and the merge > warns when the records look like different people and keeps the
+U7 the undo sends no confirmation: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > undoing a merge > reviews what goes back, keeps the undo off until a reason is written and
+U8 the undo ignores blockers: KILLED (Tests  1 failed | 27 passed)
+    FAIL  src/pages/patientmerge/PatientMergeScreens.test.tsx > undoing a merge > says what stops an undo and offers no way to go ahead
+state: clean

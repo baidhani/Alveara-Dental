@@ -1,0 +1,13 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+
+ Test Files  105 passed (105)
+      Tests  1676 passed (1676)
+   Start at  18:09:22
+   Duration  177.45s (tests 48%, environment 36%, setup 9%, import 4%, transform 3%)
+
+Environment  jsdom was created 105 times · 368.02s total, 36% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

@@ -1,0 +1,73 @@
+{
+  "axe": {
+    "list-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "review-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "review-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "retired-record-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "retired-record-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "log-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "log-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "undo-review-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "undo-review-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792961084453,
+  "access": {
+    "dentist": 403,
+    "frontDesk": 403,
+    "anonymous": 401
+  },
+  "dismissal": {
+    "dismissedAndRestored": true
+  },
+  "merge": {
+    "survivorHasBothAllergies": true,
+    "retiredStillThere": true,
+    "retiredEdit": 409
+  },
+  "retiredRecord": {
+    "bannerShown": true,
+    "newRecord": 409,
+    "error": "patient_inactive"
+  },
+  "trust": {
+    "logEntries": 1,
+    "auditEntries": 2
+  },
+  "undo": {
+    "unmergeAuditEntries": 2,
+    "allergyReturned": true,
+    "active": true,
+    "editable": 200
+  }
+}
