@@ -1582,3 +1582,9 @@
   - What changed: records only: `docs/testing/STORY-017_TEST_RESULTS.md` (the full-run row; the "not run" item removed), `.colaberry/enrichment/STORY-017.json` (that limitation replaced by what the run found; source commit set to the final tree), `.colaberry/progress.json` note, `docs/PATIENT_MERGE.md` (names the restore proof).
   - Verification: `dotnet test --nologo --no-build` over the whole backend suite on the committed tree f7270da: 5080 passed, 0 failed, 0 skipped, 43 minutes (trx `story017_full2.trx`); the run before the one-line fix was 5078 of 5080.
   - Notes: the one teardown error of the first run ("cannot drop database ... in use") did not recur in 3 isolated re-runs or the clean full run; recorded as a flake, not proven pre-existing. Portal verification still pending. Not pushed.
+- [x] STORY-017: record course completion
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: records only: `.alveara/EXECUTION_STATUS.json` item 48 set to COMPLETE with externalVerification course_portal and the final code commit f7270da; `.alveara/BUILD_STATE.md` records item 48 as complete and as the last successful broad regression. No product code changed.
+  - Verification: the portal sync 4847e7c shows STORY-017 verified in `.colaberry/progress.json` (3 of 3 criteria, 80 points, verified 2026-10-25T19:02:06.725Z); the full serial backend run on the final tree was 5080 of 5080.
+  - Notes: next is ALV-017-C01 (item 49): a safe duplicate review with dismissal, undo, the merged-into banner and refusing new work on a retired record. STORY-018 is not started.

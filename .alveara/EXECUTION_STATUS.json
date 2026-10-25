@@ -2519,26 +2519,26 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Backend 5080 of 5080 in the full serial run on the final tree (43 min, real SQL Server). New: PatientOwnedDataTests 6, PatientDuplicateScannerTests 17, PatientMergeSchemaTests 12, PatientMergeServiceTests 15, PatientMergeApiTests 6, PatientMergeBackupRestoreTests 1 (a real backup and restore). Frontend 1659 of 1659 before the last screen fixes, then the 12 PatientMergeScreens tests re-run and pass; tsc and build exit 0 (ESLint has no configuration in the client); mocked browser 140 of 140; repository checks 13 of 13; real-backend walkthrough 6 of 6 with clean accessibility scans in both themes; 56 negative controls all killed in the end."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "f7270da00f8f8b1876e12f75ae3d3b293a8fd13a",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "f7270da00f8f8b1876e12f75ae3d3b293a8fd13a",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -2546,8 +2546,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-25T19:02:06.725Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit 6a6c8a45400fd1134a4c749ff8585746b16a3f41 - see .colaberry/progress.json (STORY-017.verification.state == \"verified\", 3/3 criteria, 80 points awarded, verified_at 2026-10-25T19:02:06.725Z; portal sync commit 4847e7c). The portal cites the first story commit; the final code is f7270da."
     },
     {
       "schemaVersion": "2",
