@@ -2468,21 +2468,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 4,
-        "passed": 0
+        "passed": 4
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, a Stage 1 package. Focused backend 1,606 of 1,606 (every new class plus the parents' follow-up, work-queue, recall and treatment-job suites, the ALV-N002 job tests, the permission, architecture, backup/restore and document suites) and every *ApiTests class 872 of 872; 117 new test ids against the ALV-009-C01 R02 Stage 2 baseline of 4,906 (ExternalCaseRulesTests 39, ExternalCaseServiceTests 24, ExternalCaseSchemaTests 15, ExternalCaseTaskJobTests 14, ExternalCaseApiTests 12, ExternalCasePermissionTests 10, ExternalCaseControllerPermissionTests 2, ExternalCaseBackupRestoreTests 1), none retired and no existing id missing or changed in the classes run; the identity manifest was derived from git diff of the changed test files and cross-checked against dotnet test --list-tests (117 new in the assembly = 117 new in the runs); 33 of 33 negative controls killed (31 at first, the two ViewDocuments checks got ExternalCaseControllerPermissionTests); restore drill 1 of 1. Client: tsc 0, Vitest 1,647 of 1,647 (103 files, 30 new), build and lint exit 0, mocked Playwright 140, repository checks 13. Real-backend walkthroughs on fresh databases: external cases 9 of 9 (new), work queue 8, follow-ups 8, notifications 10, permission-policy 7 and admin 8. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-009-C02/R01-evidence/stage2/) expects 5,023 backend tests (the 4,906 baseline plus exactly the 117 listed new ids, nothing retired) with no time limit. No full run made."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "real_backend_walkthrough_9_of_9",
+      "parentRegression": "verified",
+      "implementationCommit": "36f817efaeced07cbcfa718c5ba3170d7b263749",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-009-C02/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
@@ -2495,7 +2495,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

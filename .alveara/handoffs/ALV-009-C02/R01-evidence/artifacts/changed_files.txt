@@ -1,0 +1,9 @@
+src/Alveara.Api.Tests/ExternalCaseApiTests.cs
+src/Alveara.Api.Tests/ExternalCaseBackupRestoreTests.cs
+src/Alveara.Api.Tests/ExternalCaseControllerPermissionTests.cs
+src/Alveara.Api.Tests/ExternalCaseRulesTests.cs
+src/Alveara.Api.Tests/ExternalCaseSchemaTests.cs
+src/Alveara.Api.Tests/ExternalCaseServiceTests.cs
+src/Alveara.Api.Tests/ExternalCaseTaskJobTests.cs
+src/Alveara.Api.Tests/RealMigrationInventory.cs
+src/Alveara.Api.Tests/RealMigrationInventoryTests.cs

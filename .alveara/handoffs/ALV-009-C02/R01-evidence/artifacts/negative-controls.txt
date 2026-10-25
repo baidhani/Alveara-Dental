@@ -1,0 +1,190 @@
+ALV-009-C02 R01 negative controls: each is a deliberate break of one rule in shipped code, followed by a rebuild and a run of the ExternalCase suites
+(ExternalCaseServiceTests, ExternalCaseTaskJobTests, ExternalCaseApiTests, ExternalCaseRulesTests [+ ExternalCaseControllerPermissionTests in the second pass]); the source is restored after every control (script: negative-controls/mutate_alv009c02.py).
+
+== FIRST PASS: M1-M33
+M1 a cancellation needs no note: KILLED (Failed!  - Failed:     4, Passed:    85)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final [97 ms]
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_cancellation_and_a_remake_need_a_note_and_the_other_moves_do_not(kind: "Lab", from: "InProgress", to: "Cancelled", requi
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_cancellation_and_a_remake_need_a_note_and_the_other_moves_do_not(kind: "Referral", from: "Draft", to: "Cancelled", requi
+M2 a lab remake needs no note: KILLED (Failed!  - Failed:     3, Passed:    86)
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_cancellation_and_a_remake_need_a_note_and_the_other_moves_do_not(kind: "Lab", from: "Received", to: "Sent", required: Tr
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_goes_out_is_acknowledged_comes_back_and_may_be_sent_back_for_a_remake_which_needs_a_note [143 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_lab_case_links_a_tooth_goes_out_and_back_and_may_be_sent_back_for_a_remake_with_a_note [184 ms]
+M3 a case due today is already overdue: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_case_is_overdue_the_day_after_its_due_date_but_wants_its_task_on_the_due_date_itself [< 1 ms]
+M4 the task waits until the day after the due date: KILLED (Failed!  - Failed:    12, Passed:    77)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_job_interrupted_by_a_restart_is_recovered_without_making_a_second_task [203 ms]
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_task_a_person_already_closed_is_left_alone_when_the_case_is_later_finished [185 ms]
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.When_the_case_is_finished_the_open_task_is_closed_by_the_system_with_the_right_words(finish: "Completed", expectedStatus
+M5 a draft is tracked against its due date: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_draft_and_a_finished_case_are_never_overdue_and_never_want_a_task_however_old_the_due_date(status: "Draft") [< 1 ms]
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.Only_a_case_that_has_gone_out_and_is_not_finished_is_tracked_against_its_due_date(status: "Draft", tracked: False) [< 1 ms
+M6 a different request under a used key is replayed: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.Making_the_same_referral_twice_with_the_same_key_gives_one_case_and_a_different_request_under_that_key_is_refused [56 ms
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who [128 ms]
+M7 a referral may go to a lab vendor: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_case_needs_an_active_outside_party_of_the_matching_kind_and_a_real_patient [60 ms]
+M8 an inactive party can receive a new case: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again [283 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_case_needs_an_active_outside_party_of_the_matching_kind_and_a_real_patient [77 ms]
+M9 a status move ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_stale_version_is_refused_and_two_people_moving_the_same_case_at_once_cannot_both_win [125 ms]
+M10 a referral edit ignores the row version: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_stale_edit_and_two_people_moving_one_case_at_once_cannot_both_win_and_lose_nothing [131 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.An_edit_needs_the_current_version_changes_something_and_a_sent_case_keeps_its_party [110 ms]
+M11 a lab edit ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_is_edited_the_same_way [148 ms]
+M12 a sent case may change its party: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.An_edit_needs_the_current_version_changes_something_and_a_sent_case_keeps_its_party [343 ms]
+M13 a finished case may be changed: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links [264 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final [145 ms]
+M14 any status move is allowed: KILLED (Failed!  - Failed:     3, Passed:    86)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who [244 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final [82 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing [67 ms]
+M15 it may have come back before it was sent: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing [91 ms]
+M16 a date in the future is accepted: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing [65 ms]
+M17 a status move is not audited: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_referral_goes_from_draft_to_sent_to_received_to_completed_with_its_dates_closure_and_history [181 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.Every_change_to_a_case_is_in_the_audit_log_with_ids_and_status_names_only [114 ms]
+M18 a status move leaves no history entry: KILLED (Failed!  - Failed:     7, Passed:    82)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_patients_timeline_holds_what_happened_to_their_cases_newest_first_and_nobody_elses [268 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who [242 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_stale_edit_and_two_people_moving_one_case_at_once_cannot_both_win_and_lose_nothing [221 ms]
+M19 a remake keeps the old received date: KILLED (Failed!  - Failed:     3, Passed:    86)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_lab_remake_back_to_sent_with_a_later_due_date_closes_the_old_task_and_a_new_due_date_that_has_come_makes_a_new_one [27
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_lab_case_links_a_tooth_goes_out_and_back_and_may_be_sent_back_for_a_remake_with_a_note [188 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_goes_out_is_acknowledged_comes_back_and_may_be_sent_back_for_a_remake_which_needs_a_note [188 ms]
+M20 a document of another patient can be linked: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_document_is_linked_not_copied_shown_in_the_case_and_flagged_when_it_goes_bad [302 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links [196 ms]
+M21 an inactive document can be linked: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links [246 ms]
+M22 linking is not audited: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_is_linked_not_copied_linking_it_twice_is_a_quiet_replay_and_unlinking_leaves_the_document [221 ms]
+M23 an inactive document is not flagged as broken: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_link_whose_document_went_bad_after_linking_is_shown_as_broken_with_the_reason_and_not_dropped [178 ms]
+M24 the overdue filter is ignored: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.The_list_filters_by_kind_status_overdue_patient_and_party_with_counts_and_a_sensible_order [278 ms]
+M25 the same party name with other contact details is replayed: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again [40 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_made_once_per_kind_and_name_a_repeat_answers_with_it_and_other_contact_details_are_a_conflict [31 ms]
+M26 a party edit ignores the row version: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_edited_with_its_version_and_a_stale_version_a_taken_name_and_no_change_are_refused [44 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again [100 ms]
+M27 a draft gets a chase task: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_case_not_yet_due_a_draft_a_finished_case_and_a_case_without_a_due_date_get_no_task [238 ms]
+M28 the create handler ignores an existing task: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more [155 ms]
+M29 the create handler does not look at the case again: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_case_that_came_back_or_was_cancelled_after_the_job_was_enqueued_gets_no_task_and_the_job_still_succeeds [127 ms]
+M30 the close handler closes a task its case still wants: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_close_job_for_a_task_its_case_still_wants_leaves_it_open [142 ms]
+M31 an overdue case's task is not raised in priority: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_lab_case_that_reached_its_due_date_gets_a_lab_task_and_an_overdue_case_gets_a_high_priority_one [488 ms]
+M32 the documents route does not need the document permission: SURVIVED (Passed!  - Failed:     0, Passed:    89)
+M33 linking a document does not need the document permission: SURVIVED (Passed!  - Failed:     0, Passed:    89)
+restored: the backend source is UNCHANGED by the controls
+
+First pass: 31 of 33 killed; M32 and M33 survived: every role that holds the case permissions also holds ViewDocuments by default, so no API test could tell whether the documents routes check it.
+
+== TEST ADDED FOR THE SURVIVORS
+ExternalCaseControllerPermissionTests (2): with a permission seam that withholds ViewDocuments the three document actions refuse (403 naming ViewDocuments) and store nothing; with it held they link, list and unlink.
+
+== SECOND PASS (after the added tests; M32 and M33 re-run with the new class in the filter)
+M1 a cancellation needs no note: KILLED (Failed!  - Failed:     4, Passed:    85)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final [97 ms]
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_cancellation_and_a_remake_need_a_note_and_the_other_moves_do_not(kind: "Lab", from: "InProgress", to: "Cancelled", requi
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_cancellation_and_a_remake_need_a_note_and_the_other_moves_do_not(kind: "Referral", from: "Draft", to: "Cancelled", requi
+M2 a lab remake needs no note: KILLED (Failed!  - Failed:     3, Passed:    86)
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_cancellation_and_a_remake_need_a_note_and_the_other_moves_do_not(kind: "Lab", from: "Received", to: "Sent", required: Tr
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_goes_out_is_acknowledged_comes_back_and_may_be_sent_back_for_a_remake_which_needs_a_note [143 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_lab_case_links_a_tooth_goes_out_and_back_and_may_be_sent_back_for_a_remake_with_a_note [184 ms]
+M3 a case due today is already overdue: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_case_is_overdue_the_day_after_its_due_date_but_wants_its_task_on_the_due_date_itself [< 1 ms]
+M4 the task waits until the day after the due date: KILLED (Failed!  - Failed:    12, Passed:    77)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_job_interrupted_by_a_restart_is_recovered_without_making_a_second_task [203 ms]
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_task_a_person_already_closed_is_left_alone_when_the_case_is_later_finished [185 ms]
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.When_the_case_is_finished_the_open_task_is_closed_by_the_system_with_the_right_words(finish: "Completed", expectedStatus
+M5 a draft is tracked against its due date: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.A_draft_and_a_finished_case_are_never_overdue_and_never_want_a_task_however_old_the_due_date(status: "Draft") [< 1 ms]
+    Failed Alveara.Api.Tests.ExternalCaseRulesTests.Only_a_case_that_has_gone_out_and_is_not_finished_is_tracked_against_its_due_date(status: "Draft", tracked: False) [< 1 ms
+M6 a different request under a used key is replayed: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.Making_the_same_referral_twice_with_the_same_key_gives_one_case_and_a_different_request_under_that_key_is_refused [56 ms
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who [128 ms]
+M7 a referral may go to a lab vendor: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_case_needs_an_active_outside_party_of_the_matching_kind_and_a_real_patient [60 ms]
+M8 an inactive party can receive a new case: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again [283 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_case_needs_an_active_outside_party_of_the_matching_kind_and_a_real_patient [77 ms]
+M9 a status move ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_stale_version_is_refused_and_two_people_moving_the_same_case_at_once_cannot_both_win [125 ms]
+M10 a referral edit ignores the row version: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_stale_edit_and_two_people_moving_one_case_at_once_cannot_both_win_and_lose_nothing [131 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.An_edit_needs_the_current_version_changes_something_and_a_sent_case_keeps_its_party [110 ms]
+M11 a lab edit ignores the row version: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_is_edited_the_same_way [148 ms]
+M12 a sent case may change its party: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.An_edit_needs_the_current_version_changes_something_and_a_sent_case_keeps_its_party [343 ms]
+M13 a finished case may be changed: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links [264 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final [145 ms]
+M14 any status move is allowed: KILLED (Failed!  - Failed:     3, Passed:    86)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who [244 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final [82 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing [67 ms]
+M15 it may have come back before it was sent: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing [91 ms]
+M16 a date in the future is accepted: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing [65 ms]
+M17 a status move is not audited: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_referral_goes_from_draft_to_sent_to_received_to_completed_with_its_dates_closure_and_history [181 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.Every_change_to_a_case_is_in_the_audit_log_with_ids_and_status_names_only [114 ms]
+M18 a status move leaves no history entry: KILLED (Failed!  - Failed:     7, Passed:    82)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_patients_timeline_holds_what_happened_to_their_cases_newest_first_and_nobody_elses [268 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who [242 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_stale_edit_and_two_people_moving_one_case_at_once_cannot_both_win_and_lose_nothing [221 ms]
+M19 a remake keeps the old received date: KILLED (Failed!  - Failed:     3, Passed:    86)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_lab_remake_back_to_sent_with_a_later_due_date_closes_the_old_task_and_a_new_due_date_that_has_come_makes_a_new_one [27
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_lab_case_links_a_tooth_goes_out_and_back_and_may_be_sent_back_for_a_remake_with_a_note [188 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_goes_out_is_acknowledged_comes_back_and_may_be_sent_back_for_a_remake_which_needs_a_note [188 ms]
+M20 a document of another patient can be linked: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_document_is_linked_not_copied_shown_in_the_case_and_flagged_when_it_goes_bad [302 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links [196 ms]
+M21 an inactive document can be linked: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links [246 ms]
+M22 linking is not audited: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_document_is_linked_not_copied_linking_it_twice_is_a_quiet_replay_and_unlinking_leaves_the_document [221 ms]
+M23 an inactive document is not flagged as broken: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_link_whose_document_went_bad_after_linking_is_shown_as_broken_with_the_reason_and_not_dropped [178 ms]
+M24 the overdue filter is ignored: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.The_list_filters_by_kind_status_overdue_patient_and_party_with_counts_and_a_sensible_order [278 ms]
+M25 the same party name with other contact details is replayed: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again [40 ms]
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_made_once_per_kind_and_name_a_repeat_answers_with_it_and_other_contact_details_are_a_conflict [31 ms]
+M26 a party edit ignores the row version: KILLED (Failed!  - Failed:     2, Passed:    87)
+    Failed Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_edited_with_its_version_and_a_stale_version_a_taken_name_and_no_change_are_refused [44 ms]
+    Failed Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again [100 ms]
+M27 a draft gets a chase task: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_case_not_yet_due_a_draft_a_finished_case_and_a_case_without_a_due_date_get_no_task [238 ms]
+M28 the create handler ignores an existing task: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_second_job_for_a_task_that_already_exists_succeeds_and_makes_nothing_more [155 ms]
+M29 the create handler does not look at the case again: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_case_that_came_back_or_was_cancelled_after_the_job_was_enqueued_gets_no_task_and_the_job_still_succeeds [127 ms]
+M30 the close handler closes a task its case still wants: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_close_job_for_a_task_its_case_still_wants_leaves_it_open [142 ms]
+M31 an overdue case's task is not raised in priority: KILLED (Failed!  - Failed:     1, Passed:    88)
+    Failed Alveara.Api.Tests.ExternalCaseTaskJobTests.A_lab_case_that_reached_its_due_date_gets_a_lab_task_and_an_overdue_case_gets_a_high_priority_one [488 ms]
+M32 the documents route does not need the document permission: SURVIVED (Passed!  - Failed:     0, Passed:    89)
+M33 linking a document does not need the document permission: SURVIVED (Passed!  - Failed:     0, Passed:    89)
+restored: the backend source is UNCHANGED by the controls
+M32 the documents route does not need the document permission: KILLED (Failed!  - Failed:     1, Passed:    90)
+    Failed Alveara.Api.Tests.ExternalCaseControllerPermissionTests.Without_the_document_permission_the_three_document_actions_refuse_and_store_nothing [132 ms]
+M33 linking a document does not need the document permission: KILLED (Failed!  - Failed:     1, Passed:    90)
+    Failed Alveara.Api.Tests.ExternalCaseControllerPermissionTests.Without_the_document_permission_the_three_document_actions_refuse_and_store_nothing [146 ms]
+restored: the backend source is UNCHANGED by the controls (the one listed path was the new untracked test file)
+
+== RESULT: 33 of 33 controls killed. Backend source restored to the committed state after every control.

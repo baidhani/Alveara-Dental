@@ -1,0 +1,54 @@
+{
+  "axe": {
+    "outside-parties-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "outside-parties-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "work-queue-chase-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "work-queue-chase-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "case-detail-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "case-detail-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "case-list-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "case-list-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patient-cases-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patient-cases-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792894896586,
+  "auditEventTypes": [
+    "CaseDocumentLinked",
+    "ExternalPartyCreated",
+    "LabCaseChanged",
+    "LabCaseCreated",
+    "LabCaseStatusChanged",
+    "ReferralCaseCreated",
+    "ReferralCaseStatusChanged"
+  ]
+}

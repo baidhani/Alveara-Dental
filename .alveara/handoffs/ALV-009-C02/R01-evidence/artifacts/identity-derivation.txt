@@ -1,0 +1,5 @@
+changed-file classes: 10 (1 without tests of their own) | test classes that did not run: []
+new in the assembly (--list-tests): 117 | new in the runs: 117 | listed but did not run: 0 | ran but not listed: 0
+baseline ids in covered classes missing from the runs: 0 | outcome changed: 0 | not Passed in the runs: 0
+expected total = 4906 + 117 = 5023
+MANIFEST DERIVED AND CROSS-CHECKED; wrote .alveara/handoffs/ALV-009-C02/R01-evidence/stage2/expected_new_ids.txt
