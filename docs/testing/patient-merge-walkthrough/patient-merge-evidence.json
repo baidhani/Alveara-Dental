@@ -1,0 +1,43 @@
+{
+  "axe": {
+    "list-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "review-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "review-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "log-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "log-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792942342882,
+  "access": {
+    "dentist": 403,
+    "frontDesk": 403,
+    "anonymous": 401
+  },
+  "merge": {
+    "survivorHasBothAllergies": true,
+    "retiredStillThere": true,
+    "retiredEdit": 409
+  },
+  "trust": {
+    "logEntries": 1,
+    "auditEntries": 2
+  }
+}

@@ -44,7 +44,9 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         var left = await db.PatientMergeResolutions.AsNoTracking().Where(x => ids.Contains(x.MergeId) && x.Kind == PatientMergeResolutionKinds.Record).GroupBy(x => x.MergeId).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count, ct);
         var patientIds = merges.SelectMany(m => new[] { m.SourcePatientId, m.SurvivorPatientId }).Distinct().ToList();
         var patients = await db.Patients.AsNoTracking().Where(p => patientIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);
-        return merges.Select(m => new MergeLogEntry(m.Id, Brief(patients[m.SourcePatientId]), Brief(patients[m.SurvivorPatientId]), m.MergedByUserId, m.MergedAtUtc, m.Reason,
+        var userIds = merges.Select(m => m.MergedByUserId).Distinct().ToList();
+        var users = await db.UserAccounts.AsNoTracking().Where(u => userIds.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.Username, ct);
+        return merges.Select(m => new MergeLogEntry(m.Id, Brief(patients[m.SourcePatientId]), Brief(patients[m.SurvivorPatientId]), m.MergedByUserId, users.GetValueOrDefault(m.MergedByUserId, ""), m.MergedAtUtc, m.Reason,
             moved.GetValueOrDefault(m.Id), left.GetValueOrDefault(m.Id))).ToList();
     }
 

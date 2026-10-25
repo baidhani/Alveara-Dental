@@ -87,7 +87,7 @@ export function PatientMergePage() {
                     <td>{new Date(m.mergedAtUtc).toLocaleString()}</td>
                     <td>{briefName(m.source)}</td>
                     <td><Link to={`/patients/${m.survivor.id}`}>{briefName(m.survivor)}</Link></td>
-                    <td>{m.mergedByUserId}</td>
+                    <td>{m.mergedByName || m.mergedByUserId}</td>
                     <td>{m.reason}</td>
                     <td>{m.rowsMoved}</td>
                     <td>{m.recordsLeftBehind}</td>

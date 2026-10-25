@@ -33,7 +33,7 @@ export interface MergeResolution { kind: "Field" | "Record"; subject: string; ch
 export interface MergeResult {
   mergeId: string; sourcePatientId: string; survivorPatientId: string; mergedByUserId: string; mergedAtUtc: string; reason: string; moves: MergeMoveCount[]; resolutions: MergeResolution[]; replayed: boolean;
 }
-export interface MergeLogEntry { mergeId: string; source: PatientBrief; survivor: PatientBrief; mergedByUserId: string; mergedAtUtc: string; reason: string; rowsMoved: number; recordsLeftBehind: number }
+export interface MergeLogEntry { mergeId: string; source: PatientBrief; survivor: PatientBrief; mergedByUserId: string; mergedByName: string; mergedAtUtc: string; reason: string; rowsMoved: number; recordsLeftBehind: number }
 
 export const REASON_MAX = 500;
 

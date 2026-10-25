@@ -71,12 +71,12 @@ describe("the duplicate list", () => {
 
   it("says so when there is nothing to review and shows the merge log with who and when", async () => {
     pairs = [];
-    log = [{ mergeId: "m0", source: anne, survivor: ann, mergedByUserId: "u1", mergedAtUtc: "2026-10-24T10:00:00Z", reason: "Front desk registered twice", rowsMoved: 5, recordsLeftBehind: 1 }];
+    log = [{ mergeId: "m0", source: anne, survivor: ann, mergedByUserId: "u1", mergedByName: "admin-hana", mergedAtUtc: "2026-10-24T10:00:00Z", reason: "Front desk registered twice", rowsMoved: 5, recordsLeftBehind: 1 }];
     const { container } = renderPage();
     expect(await screen.findByText(/No possible duplicates found/)).toBeInTheDocument();
     const row = within(await screen.findByRole("table", { name: "Merges made" })).getAllByRole("row")[1];
     expect(within(row).getByText("Front desk registered twice")).toBeInTheDocument();
-    expect(within(row).getByText("u1")).toBeInTheDocument();
+    expect(within(row).getByText("admin-hana")).toBeInTheDocument();
     expect(await axe(container)).toHaveNoViolations();
   });
 

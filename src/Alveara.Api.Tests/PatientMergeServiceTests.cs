@@ -74,6 +74,19 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
     }
 
     [Fact]
+    public async Task A_record_that_was_merged_away_is_not_suggested_as_a_duplicate_again()
+    {
+        await SetAsync(Bo, "Phone", "(555) 010-0001"); await SetAsync(Ann, "Phone", "(555) 010-0001");
+        await using (var db = Fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("UPDATE [Patients] SET [DateOfBirth] = (SELECT [DateOfBirth] FROM [Patients] WHERE [Id] = {0}), [LastName] = (SELECT [LastName] FROM [Patients] WHERE [Id] = {0}) WHERE [Id] = {1}", Ann, Bo);
+        var before = await WithDb(db => new PatientDuplicateScanner(db).ScanAsync(default));
+        Assert.Single(before.Pairs);
+        await MergeAsync(Ann, Bo);
+        var after = await WithDb(db => new PatientDuplicateScanner(db).ScanAsync(default));
+        Assert.Empty(after.Pairs);
+        Assert.Equal(0, after.PatientsConsidered);
+    }
+
+    [Fact]
     public async Task The_retired_patient_stays_in_place_merged_and_inactive_and_the_lineage_the_history_and_the_audit_say_who_and_when()
     {
         await GiveChartAsync(Ann, "Gingivitis");

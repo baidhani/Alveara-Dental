@@ -22,7 +22,7 @@ public sealed record MergePreview(PatientBrief Source, PatientBrief Survivor, IR
 public sealed record MergeRequest(Guid? SourcePatientId, Guid? SurvivorPatientId, string? Reason, string? SourceRowVersion, string? SurvivorRowVersion, IReadOnlyDictionary<string, string>? FieldChoices);
 
 /// <summary>One line of the merge log: who merged which record into which, when and why, and how much moved or stayed.</summary>
-public sealed record MergeLogEntry(Guid MergeId, PatientBrief Source, PatientBrief Survivor, Guid MergedByUserId, DateTimeOffset MergedAtUtc, string Reason, int RowsMoved, int RecordsLeftBehind);
+public sealed record MergeLogEntry(Guid MergeId, PatientBrief Source, PatientBrief Survivor, Guid MergedByUserId, string MergedByName, DateTimeOffset MergedAtUtc, string Reason, int RowsMoved, int RecordsLeftBehind);
 
 public sealed record MergeResolutionView(string Kind, string Subject, string Choice, string? ReplacedValue);
 

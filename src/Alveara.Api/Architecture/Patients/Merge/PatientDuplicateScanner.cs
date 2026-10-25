@@ -54,7 +54,7 @@ public static class PatientMatchRules
 
 /// <summary>
 /// STORY-017: looks through the patients that already exist for pairs that may be the same person, and suggests them for a controlled merge. It only reads and reports: nothing here merges, changes or hides a record.
-/// Only patients who share a date of birth are compared (as in the registration check), the database picks the birth dates that more than one patient has, each pair is reported once, and the list is capped
+/// A record that was merged into another is never suggested again. Only patients who share a date of birth are compared (as in the registration check), the database picks the birth dates that more than one patient has, each pair is reported once, and the list is capped
 /// (<see cref="MaxPairs"/>, strongest first; <see cref="DuplicateScanResult.Truncated"/> says when there were more) so a large practice cannot make the scan expensive. The suggested survivor is the active record,
 /// otherwise the older one (the older chart usually holds more history), with the reason given; the administrator decides.
 /// </summary>
@@ -66,8 +66,8 @@ public class PatientDuplicateScanner(AlveraDbContext db)
     public async Task<DuplicateScanResult> ScanAsync(CancellationToken ct, int maxPairs = MaxPairs)
     {
         maxPairs = Math.Clamp(maxPairs, 1, MaxPairs);
-        var shared = await db.Patients.AsNoTracking().GroupBy(p => p.DateOfBirth).Where(g => g.Count() > 1).Select(g => g.Key).ToListAsync(ct);
-        var rows = shared.Count == 0 ? [] : await db.Patients.AsNoTracking().Where(p => shared.Contains(p.DateOfBirth))
+        var shared = await db.Patients.AsNoTracking().Where(p => p.MergedAtUtc == null).GroupBy(p => p.DateOfBirth).Where(g => g.Count() > 1).Select(g => g.Key).ToListAsync(ct);
+        var rows = shared.Count == 0 ? [] : await db.Patients.AsNoTracking().Where(p => p.MergedAtUtc == null && shared.Contains(p.DateOfBirth))
             .OrderBy(p => p.DateOfBirth).ThenBy(p => p.CreatedAtUtc).ThenBy(p => p.Id)
             .Select(p => new { p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth, p.Phone, p.Email, p.City, p.State, p.IsActive, p.CreatedAtUtc, p.HouseholdId }).ToListAsync(ct);
 

@@ -143,6 +143,20 @@ public class PatientMergeApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task A_record_that_was_merged_away_refuses_edits_with_a_clear_409_and_stays_out_of_the_patient_search()
+    {
+        var preview = await PreviewAsync(_ann, _anne);
+        Assert.Equal(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(preview, choices: new()), "edit-1")).Status);
+        var frontDesk = _others["FrontDesk"];
+        var retired = (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}")).Body;
+        var edit = await frontDesk.SendAsync(HttpMethod.Put, $"/api/patients/{_ann}", new { firstName = "Ann", lastName = "Lee", dateOfBirth = Str(retired, "dateOfBirth"), phone = "(555) 010-9999", addressLine1 = "1 Main St", city = "Austin", state = "TX", postalCode = "78701", rowVersion = Str(retired, "rowVersion") });
+        Assert.Equal((HttpStatusCode.Conflict, "patient_merged"), (edit.Status, Str(edit.Body, "error")));
+        Assert.Equal(1, await CountAsync("SELECT COUNT(*) AS [Value] FROM [Patients] WHERE [Id] = '" + _ann + "' AND [Phone] <> N'(555) 010-9999'"));
+        var search = await frontDesk.SendAsync(HttpMethod.Get, "/api/patients?q=Ann");
+        Assert.DoesNotContain(_ann.ToString(), search.Body.GetRawText(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task The_log_lists_each_merge_with_who_when_why_and_between_which_records()
     {
         var preview = await PreviewAsync(_ann, _anne);
@@ -150,6 +164,8 @@ public class PatientMergeApiTests : IAsyncLifetime
         var log = (await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/log")).Body.EnumerateArray().ToList();
         var entry = Assert.Single(log);
         Assert.Equal((_admin.UserId.ToString(), "Front desk registered the same person twice"), (Str(entry, "mergedByUserId"), Str(entry, "reason")));
+        Assert.False(string.IsNullOrWhiteSpace(Str(entry, "mergedByName")));
+        Assert.Empty((await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/duplicates")).Body.GetProperty("pairs").EnumerateArray());      // a merged-away record is not suggested again
         Assert.Equal((_ann.ToString(), _anne.ToString()), (Str(entry.GetProperty("source"), "id"), Str(entry.GetProperty("survivor"), "id")));
         Assert.True(DateTimeOffset.Parse(Str(entry, "mergedAtUtc")) > DateTimeOffset.UtcNow.AddMinutes(-5));
         Assert.Equal(2, await CountAsync("SELECT COUNT(*) AS [Value] FROM [AuditLogEntries] WHERE [EventType] = 'PatientMerged' AND [PerformedByUserAccountId] IS NOT NULL"));
