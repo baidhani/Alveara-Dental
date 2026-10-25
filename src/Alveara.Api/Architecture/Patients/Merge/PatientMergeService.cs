@@ -271,6 +271,11 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         return k;
     }
 
+    /// <summary>A reason as the merge and the dismissal both need it: one line, 1 to 500 characters.</summary>
+    public static string CleanReason(string? reason) => Reason(reason);
+
+    public static PatientBrief BriefOf(Patient p) => Brief(p);
+
     private static string Reason(string? reason)
     {
         var r = reason?.Trim() ?? "";

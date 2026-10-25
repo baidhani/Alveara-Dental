@@ -11,12 +11,12 @@ namespace Alveara.Api.Controllers;
 /// <summary>
 /// STORY-017: finding possible duplicate patient records and merging two of them, all behind <see cref="Permission.MergePatients"/> (the administrator by default). <c>GET duplicates</c> suggests pairs, strongest first;
 /// <c>GET preview</c> shows what a merge of one record into another would do and changes nothing; <c>POST</c> merges, needs a CSRF token and an <c>Idempotency-Key</c> (a repeat is the merge already made), and carries the
-/// record versions the screen showed, so a record changed since is a 409 and nothing is merged; <c>GET log</c> lists the merges with who and when. Refusals carry a stable <c>error</c> code (see <see cref="PatientMergeService"/>).
+/// record versions the screen showed, so a record changed since is a 409 and nothing is merged; <c>GET log</c> lists the merges with who and when; <c>dismissals</c> list, make and restore "not a duplicate" decisions. Refusals carry a stable <c>error</c> code (see <see cref="PatientMergeService"/>).
 /// </summary>
 [ApiController]
 [Route("api/patient-merges")]
 [Authorize]
-public class PatientMergesController(PatientDuplicateScanner scanner, PatientMergeService merges) : ControllerBase
+public class PatientMergesController(PatientDuplicateScanner scanner, PatientMergeService merges, PatientDuplicateReviewService review) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -38,6 +38,23 @@ public class PatientMergesController(PatientDuplicateScanner scanner, PatientMer
     [HttpGet("log")]
     [RequirePermission(Permission.MergePatients)]
     public Task<IActionResult> Log([FromQuery] int? take, CancellationToken ct) => Run(async () => await merges.LogAsync(take ?? 50, ct));
+
+    // ---------- pairs dismissed as not a duplicate (ALV-017-C01) ----------
+
+    [HttpGet("dismissals")]
+    [RequirePermission(Permission.MergePatients)]
+    public Task<IActionResult> Dismissals(CancellationToken ct) => Run(async () => await review.ListAsync(ct));
+
+    [HttpPost("dismissals")]
+    [RequirePermission(Permission.MergePatients)]
+    [RequireCsrfToken]
+    public Task<IActionResult> Dismiss([FromBody] DismissRequest request, CancellationToken ct) =>
+        Run(async () => await review.DismissAsync(Actor, request ?? throw new PatientException("body_required", "Send the pair to dismiss.", 400), ct));
+
+    [HttpPost("dismissals/{id:guid}/restore")]
+    [RequirePermission(Permission.MergePatients)]
+    [RequireCsrfToken]
+    public Task<IActionResult> RestoreDismissal(Guid id, CancellationToken ct) => Run(async () => await review.RestoreAsync(Actor, id, ct));
 
     [HttpPost]
     [RequirePermission(Permission.MergePatients)]

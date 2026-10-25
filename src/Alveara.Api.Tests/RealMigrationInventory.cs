@@ -54,6 +54,7 @@ public static class RealMigrationInventory
         new(typeof(WorkQueueSchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(ExternalCaseSchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(PatientMergeSchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
+        new(typeof(PatientDuplicateReviewTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(NotificationSchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(PermissionPolicySchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(OdontogramCatalogueMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),

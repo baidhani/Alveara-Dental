@@ -51,7 +51,7 @@ public class PatientMergeApiTests : IAsyncLifetime
               sourceRowVersion = Str(preview, "sourceRowVersion"), survivorRowVersion = Str(preview, "survivorRowVersion"), fieldChoices = choices, confirmed, confirmIdentityDifference = identity };
 
     [Fact]
-    public async Task Only_the_administrator_may_use_any_of_the_four_endpoints_and_an_anonymous_caller_sees_nothing()
+    public async Task Only_the_administrator_may_use_any_of_the_seven_endpoints_and_an_anonymous_caller_sees_nothing()
     {
         var preview = await PreviewAsync(_ann, _anne);
         var calls = new (HttpMethod Method, string Url, object? Body)[]
@@ -60,6 +60,9 @@ public class PatientMergeApiTests : IAsyncLifetime
             (HttpMethod.Get, $"/api/patient-merges/preview?sourceId={_ann}&survivorId={_anne}", null),
             (HttpMethod.Get, "/api/patient-merges/log", null),
             (HttpMethod.Post, "/api/patient-merges", Body(preview)),
+            (HttpMethod.Get, "/api/patient-merges/dismissals", null),
+            (HttpMethod.Post, "/api/patient-merges/dismissals", new { firstPatientId = _ann, secondPatientId = _anne, reason = "Twins" }),
+            (HttpMethod.Post, $"/api/patient-merges/dismissals/{Guid.NewGuid()}/restore", null),
         };
         foreach (var (role, session) in _others)
             foreach (var call in calls)
@@ -175,6 +178,31 @@ public class PatientMergeApiTests : IAsyncLifetime
         var search = await frontDesk.SendAsync(HttpMethod.Get, "/api/patients?q=Ann");
         Assert.DoesNotContain(_ann.ToString(), search.Body.GetRawText(), StringComparison.OrdinalIgnoreCase);
     }
+
+    [Fact]
+    public async Task A_pair_dismissed_as_not_a_duplicate_leaves_the_list_is_listed_with_who_and_why_and_comes_back_when_restored()
+    {
+        Assert.Single((await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/duplicates")).Body.GetProperty("pairs").EnumerateArray());
+        Assert.NotEqual(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges/dismissals", new { firstPatientId = _anne, secondPatientId = _ann, reason = "Twins" }, csrf: false)).Status);
+        Assert.Equal((HttpStatusCode.BadRequest, "reason_invalid"), await Both(_admin.SendAsync(HttpMethod.Post, "/api/patient-merges/dismissals", new { firstPatientId = _anne, secondPatientId = _ann, reason = " " })));
+
+        var made = await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges/dismissals", new { firstPatientId = _anne, secondPatientId = _ann, reason = "They are twins" });
+        Assert.Equal(HttpStatusCode.OK, made.Status);
+        Assert.Equal((_admin.UserId.ToString(), "They are twins", false), (Str(made.Body, "dismissedByUserId"), Str(made.Body, "reason"), made.Body.GetProperty("replayed").GetBoolean()));
+        Assert.False(string.IsNullOrWhiteSpace(Str(made.Body, "dismissedByName")));
+        var scan = (await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/duplicates")).Body;
+        Assert.Empty(scan.GetProperty("pairs").EnumerateArray()); Assert.Equal(1, scan.GetProperty("dismissed").GetInt32());
+        Assert.Single((await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/dismissals")).Body.EnumerateArray());
+        Assert.True((await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges/dismissals", new { firstPatientId = _ann, secondPatientId = _anne, reason = "again" })).Body.GetProperty("replayed").GetBoolean());
+
+        Assert.Equal(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/dismissals/{Str(made.Body, "id")}/restore")).Status);
+        Assert.Single((await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/duplicates")).Body.GetProperty("pairs").EnumerateArray());
+        Assert.Empty((await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/dismissals")).Body.EnumerateArray());
+        Assert.Equal(HttpStatusCode.NotFound, (await _admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/dismissals/{Guid.NewGuid()}/restore")).Status);
+        Assert.Equal(4, await CountAsync("SELECT COUNT(*) AS [Value] FROM [AuditLogEntries] WHERE [EventType] IN ('PatientDuplicateDismissed','PatientDuplicateRestored') AND [PerformedByUserAccountId] IS NOT NULL"));
+    }
+
+    private static async Task<(HttpStatusCode, string)> Both(Task<(HttpStatusCode Status, JsonElement Body)> call) { var r = await call; return (r.Status, Str(r.Body, "error")); }
 
     [Fact]
     public async Task The_log_lists_each_merge_with_who_when_why_and_between_which_records()

@@ -5160,6 +5160,75 @@ namespace Alveara.Api.Migrations
                     b.ToTable("Households");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientDuplicateDismissal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("DismissedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("DismissedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FirstPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PairKey")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)")
+                        .HasComputedColumnSql("CASE WHEN [FirstPatientId] < [SecondPatientId] THEN CONVERT(char(36), [FirstPatientId]) + '|' + CONVERT(char(36), [SecondPatientId]) ELSE CONVERT(char(36), [SecondPatientId]) + '|' + CONVERT(char(36), [FirstPatientId]) END", true);
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset?>("RestoredAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("RestoredByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SecondPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DismissedByUserId");
+
+                    b.HasIndex("FirstPatientId");
+
+                    b.HasIndex("PairKey")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PatientDuplicateDismissals_OneInForce")
+                        .HasFilter("[RestoredAtUtc] IS NULL");
+
+                    b.HasIndex("RestoredByUserId");
+
+                    b.HasIndex("SecondPatientId");
+
+                    b.ToTable("PatientDuplicateDismissals", null, t =>
+                        {
+                            t.HasTrigger("TR_PatientDuplicateDismissals_Active");
+
+                            t.HasTrigger("TR_PatientDuplicateDismissals_Guard");
+
+                            t.HasCheckConstraint("CK_PatientDuplicateDismissals_Distinct", "[FirstPatientId] <> [SecondPatientId]");
+
+                            t.HasCheckConstraint("CK_PatientDuplicateDismissals_Reason", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Reason], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Reason] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PatientDuplicateDismissals_Restored", "([RestoredAtUtc] IS NULL AND [RestoredByUserId] IS NULL) OR ([RestoredAtUtc] IS NOT NULL AND [RestoredByUserId] IS NOT NULL AND [RestoredAtUtc] >= [DismissedAtUtc])");
+
+                            t.HasCheckConstraint("CK_PatientDuplicateDismissals_Times", "[DismissedAtUtc] >= '2000-01-01' AND [DismissedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMerge", b =>
                 {
                     b.Property<Guid>("Id")
@@ -8924,6 +8993,32 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Odontogram.ToothFinding", null)
                         .WithMany()
                         .HasForeignKey("FindingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientDuplicateDismissal", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("DismissedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("FirstPatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("RestoredByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("SecondPatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

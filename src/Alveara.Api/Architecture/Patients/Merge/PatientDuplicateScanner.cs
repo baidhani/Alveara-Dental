@@ -12,7 +12,8 @@ public sealed record PatientBrief(Guid Id, string FirstName, string? MiddleName,
 /// </summary>
 public sealed record DuplicatePair(PatientBrief First, PatientBrief Second, int Score, IReadOnlyList<string> Reasons, Guid SuggestedSurvivorId, string SuggestionReason, bool SameHousehold);
 
-public sealed record DuplicateScanResult(IReadOnlyList<DuplicatePair> Pairs, bool Truncated, int PatientsConsidered);
+/// <summary><see cref="Dismissed"/> is how many suggested pairs were left out because an administrator dismissed them as not a duplicate.</summary>
+public sealed record DuplicateScanResult(IReadOnlyList<DuplicatePair> Pairs, bool Truncated, int PatientsConsidered, int Dismissed = 0);
 
 /// <summary>What the matching rules look at, so the same rules serve the registration check and the scan.</summary>
 public readonly record struct PatientFacts(string FirstName, string LastName, string Phone, string? Email);
@@ -85,9 +86,12 @@ public class PatientDuplicateScanner(AlveraDbContext db)
                     pairs.Add(new DuplicatePair(a, b, PatientMatchRules.Score(reasons), reasons, survivor, why, a.HouseholdId is not null && a.HouseholdId == b.HouseholdId));
                 }
         }
+        var dismissedPairs = await PatientDuplicateReviewService.ActivePairsAsync(db, ct);
+        var dismissed = pairs.Count(p => dismissedPairs.Contains(PatientDuplicateReviewService.Pair(p.First.Id, p.Second.Id)));
+        pairs = pairs.Where(p => !dismissedPairs.Contains(PatientDuplicateReviewService.Pair(p.First.Id, p.Second.Id))).ToList();
         var ordered = pairs.OrderByDescending(p => p.Score).ThenBy(p => p.First.LastName, StringComparer.OrdinalIgnoreCase).ThenBy(p => p.First.FirstName, StringComparer.OrdinalIgnoreCase)
             .ThenBy(p => p.First.Id).ThenBy(p => p.Second.Id).ToList();
-        return new DuplicateScanResult(ordered.Take(maxPairs).ToList(), ordered.Count > maxPairs, rows.Count);
+        return new DuplicateScanResult(ordered.Take(maxPairs).ToList(), ordered.Count > maxPairs, rows.Count, dismissed);
     }
 
     /// <summary>The record to keep: the active one; when both (or neither) are active, the one registered first, then the lower id so the answer never flips between scans.</summary>

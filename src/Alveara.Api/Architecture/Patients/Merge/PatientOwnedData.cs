@@ -107,8 +107,8 @@ public static class PatientOwnedData
     public const string MergeFlag = "alveara.patient_merge";
     public static string MergeScopeTrigger(string table) => $"TR_{table}_MergeScope";
 
-    /// <summary>The merge's own lineage table. It holds patient ids (who was merged into whom) but is not patient data: a merge never moves it, and the registry test leaves it out.</summary>
-    public static readonly IReadOnlyList<string> Bookkeeping = ["PatientMerges"];
+    /// <summary>The merge's own bookkeeping tables: the lineage and the dismissed pairs. They hold patient ids (who was merged into whom; which pairs are not duplicates) but are not patient data: a merge never moves them, and the registry test leaves them out.</summary>
+    public static readonly IReadOnlyList<string> Bookkeeping = ["PatientMerges", "PatientDuplicateDismissals"];
 
     /// <summary>The distinct tables a merge touches.</summary>
     public static IReadOnlyList<string> Tables => All.Select(c => c.Table).Distinct().Order().ToList();
