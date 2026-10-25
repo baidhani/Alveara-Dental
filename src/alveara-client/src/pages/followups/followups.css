@@ -180,3 +180,8 @@
 .alv-fu-docs {
   margin-top: var(--space-5);
 }
+
+/* ALV-009-C02: plain links on the case pages use the theme's link colour (the browser's default blue fails contrast on the dark theme) */
+.alv-fu a:not(.alv-button) {
+  color: var(--color-info);
+}
