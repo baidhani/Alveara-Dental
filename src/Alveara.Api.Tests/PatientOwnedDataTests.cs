@@ -19,7 +19,7 @@ public class PatientOwnedDataTests
     private static bool HoldsPatientId(IReadOnlyProperty p) => (p.ClrType == typeof(Guid) || p.ClrType == typeof(Guid?)) && p.Name.EndsWith("PatientId", StringComparison.Ordinal);
 
     private static IEnumerable<(IEntityType Entity, IProperty Property)> ModelColumns() =>
-        Model.GetEntityTypes().Where(e => e.GetTableName() is not null).SelectMany(e => e.GetProperties().Where(p => HoldsPatientId(p)).Select(p => (e, p)));
+        Model.GetEntityTypes().Where(e => e.GetTableName() is not null && !PatientOwnedData.Bookkeeping.Contains(e.GetTableName()!)).SelectMany(e => e.GetProperties().Where(p => HoldsPatientId(p)).Select(p => (e, p)));
 
     [Fact]
     public void The_registry_lists_exactly_the_columns_of_the_model_that_hold_a_patient_id()
@@ -52,7 +52,7 @@ public class PatientOwnedDataTests
     public void Every_uniqueness_rule_that_includes_a_patient_id_is_declared_with_how_a_merge_handles_a_collision()
     {
         var model = new List<string>();
-        foreach (var entity in Model.GetEntityTypes().Where(e => e.GetTableName() is not null))
+        foreach (var entity in Model.GetEntityTypes().Where(e => e.GetTableName() is not null && !PatientOwnedData.Bookkeeping.Contains(e.GetTableName()!)))
         {
             foreach (var index in entity.GetIndexes().Where(i => i.IsUnique && i.Properties.Any(HoldsPatientId)))
                 model.Add($"{entity.GetTableName()}:{string.Join(",", index.Properties.Select(p => p.Name))}");

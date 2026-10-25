@@ -48,6 +48,9 @@ public class Patient
     /// <summary>A patient is inactivated, never deleted, so history, audit entries and relationships keep resolving.</summary>
     public bool IsActive { get; set; } = true;
 
+    /// <summary>STORY-017: when this record was merged into another patient (null = never). A merged record stays in place, inactive, and can never be reactivated or merged again; the lineage (<c>PatientMerges</c>) says into whom.</summary>
+    public DateTimeOffset? MergedAtUtc { get; set; }
+
     /// <summary>The household this patient belongs to (null = none). Independent of <see cref="GuarantorPatientId"/>.</summary>
     public Guid? HouseholdId { get; set; }
     public Household? Household { get; set; }

@@ -398,6 +398,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_BillingAccounts_Identity");
 
+                            t.HasTrigger("TR_BillingAccounts_MergeScope");
+
                             t.HasTrigger("TR_BillingAccounts_NoDelete");
                         });
 
@@ -456,6 +458,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_BillingAllocations_Immutable");
 
                             t.HasTrigger("TR_BillingAllocations_Links");
+
+                            t.HasTrigger("TR_BillingAllocations_MergeScope");
 
                             t.HasCheckConstraint("CK_BillingAllocations_Amount", "[Amount] > 0 AND [Amount] <= 1000000.00");
 
@@ -529,6 +533,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_BillingAllocationReleases_Immutable");
 
                             t.HasTrigger("TR_BillingAllocationReleases_Links");
+
+                            t.HasTrigger("TR_BillingAllocationReleases_MergeScope");
 
                             t.HasCheckConstraint("CK_BillingAllocationReleases_Amount", "[Amount] > 0 AND [Amount] <= 1000000.00");
 
@@ -649,6 +655,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_BillingEntries_Immutable");
 
                             t.HasTrigger("TR_BillingEntries_Links");
+
+                            t.HasTrigger("TR_BillingEntries_MergeScope");
 
                             t.HasTrigger("TR_BillingEntries_Refunds");
 
@@ -833,6 +841,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_BillingResponsibilities_Links");
 
+                            t.HasTrigger("TR_BillingResponsibilities_MergeScope");
+
                             t.HasCheckConstraint("CK_BillingResponsibilities_Reason", "[Reason] IS NULL OR (LEN(LTRIM(RTRIM([Reason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0)");
 
                             t.HasCheckConstraint("CK_BillingResponsibilities_Sequence", "[Sequence] >= 1");
@@ -927,6 +937,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_FinancialDocuments_Links");
 
+                            t.HasTrigger("TR_FinancialDocuments_MergeScope");
+
                             t.HasCheckConstraint("CK_FinancialDocuments_AsOf", "[AsOfUtc] <= [IssuedAtUtc]");
 
                             t.HasCheckConstraint("CK_FinancialDocuments_CutOffs", "[AsOfEntryNumber] >= 1 AND [AsOfAllocationNumber] >= 0 AND [AsOfReleaseNumber] >= 0 AND [AsOfResponsibilitySequence] >= 0 AND [TemplateVersion] >= 1");
@@ -988,6 +1000,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ClinicalRecordEvents", t =>
                         {
                             t.HasTrigger("TR_ClinicalRecordEvents_Immutable");
+
+                            t.HasTrigger("TR_ClinicalRecordEvents_MergeScope");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -1071,6 +1085,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("ClinicalRecordItems", t =>
                         {
+                            t.HasTrigger("TR_ClinicalRecordItems_MergeScope");
+
                             t.HasTrigger("TR_ClinicalRecordItems_NoDelete");
 
                             t.HasCheckConstraint("CK_ClinicalRecordItems_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('MedicalHistory','DentalHistory','Allergy','Medication')");
@@ -1166,6 +1182,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_ClinicalRecordItemVersions_Immutable");
 
+                            t.HasTrigger("TR_ClinicalRecordItemVersions_MergeScope");
+
                             t.HasCheckConstraint("CK_ClinicalRecordItemVersions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Added','Changed','StatusChanged','RemovedInError')");
                         });
 
@@ -1204,10 +1222,14 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("ClinicalSectionReviews", t =>
                         {
+                            t.HasTrigger("TR_ClinicalSectionReviews_MergeScope");
+
                             t.HasCheckConstraint("CK_ClinicalSectionReviews_Section", "[Section] COLLATE Latin1_General_CS_AS IN ('MedicalHistory','DentalHistory','Allergy','Medication')");
 
                             t.HasCheckConstraint("CK_ClinicalSectionReviews_State", "[State] COLLATE Latin1_General_CS_AS IN ('Reviewed','NoneKnown','Unknown')");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Clinical.Diagnosis", b =>
@@ -1314,6 +1336,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_Diagnoses_Links");
 
+                            t.HasTrigger("TR_Diagnoses_MergeScope");
+
                             t.HasTrigger("TR_Diagnoses_NoDelete");
 
                             t.HasTrigger("TR_Diagnoses_ReferenceResolved");
@@ -1386,6 +1410,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("DiagnosisLinks", t =>
                         {
                             t.HasTrigger("TR_DiagnosisLinks_Immutable");
+
+                            t.HasTrigger("TR_DiagnosisLinks_MergeScope");
 
                             t.HasTrigger("TR_DiagnosisLinks_SamePatient");
 
@@ -1482,6 +1508,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_DiagnosisVersions_Immutable");
 
+                            t.HasTrigger("TR_DiagnosisVersions_MergeScope");
+
                             t.HasCheckConstraint("CK_DiagnosisVersions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Recorded','Corrected','Withdrawn','Amended','Resolved','Reactivated')");
 
                             t.HasCheckConstraint("CK_DiagnosisVersions_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Active','Resolved','Withdrawn')");
@@ -1568,6 +1596,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("Encounters", t =>
                         {
                             t.HasTrigger("TR_Encounters_FinalizedImmutable");
+
+                            t.HasTrigger("TR_Encounters_MergeScope");
 
                             t.HasTrigger("TR_Encounters_NoDelete");
 
@@ -1742,6 +1772,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("EncounterEvents", t =>
                         {
                             t.HasTrigger("TR_EncounterEvents_Immutable");
+
+                            t.HasTrigger("TR_EncounterEvents_MergeScope");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -1921,6 +1953,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("EncounterVitals", null, t =>
                         {
                             t.HasTrigger("TR_EncounterVitals_FinalizedImmutable");
+
+                            t.HasTrigger("TR_EncounterVitals_MergeScope");
 
                             t.HasTrigger("TR_EncounterVitals_NoDelete");
 
@@ -2107,6 +2141,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_CompletedProcedures_Links");
 
+                            t.HasTrigger("TR_CompletedProcedures_MergeScope");
+
                             t.HasCheckConstraint("CK_CompletedProcedures_Chart", "[ChartOutcome] COLLATE Latin1_General_CS_AS IN ('Updated','AlreadyCompleted','NotApplicable') AND (([ChartOutcome] = 'NotApplicable' AND [ToothFindingId] IS NULL) OR ([ChartOutcome] <> 'NotApplicable' AND [ToothFindingId] IS NOT NULL))");
 
                             t.HasCheckConstraint("CK_CompletedProcedures_ChartVersion", "[ToothFindingVersionNumber] IS NULL OR ([ToothFindingId] IS NOT NULL AND [ToothFindingVersionNumber] >= 1)");
@@ -2188,6 +2224,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_CompletedProcedureAmendments_Links");
 
+                            t.HasTrigger("TR_CompletedProcedureAmendments_MergeScope");
+
                             t.HasCheckConstraint("CK_CompletedProcedureAmendments_Changes", "[ProviderProfileId] IS NOT NULL OR [PerformedAtUtc] IS NOT NULL OR [EncounterId] IS NOT NULL");
 
                             t.HasCheckConstraint("CK_CompletedProcedureAmendments_Hash", "LEN([RequestHash]) = 64 AND [RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%'");
@@ -2263,6 +2301,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_CompletionSets_Immutable");
 
                             t.HasTrigger("TR_CompletionSets_Links");
+
+                            t.HasTrigger("TR_CompletionSets_MergeScope");
 
                             t.HasCheckConstraint("CK_CompletionSets_AdoptionReason", "[AdoptionReason] IS NULL OR (LEN(LTRIM(RTRIM([AdoptionReason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [AdoptionReason] COLLATE Latin1_General_BIN2) = 0)");
 
@@ -2772,6 +2812,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_DocumentEvents_Links");
 
+                            t.HasTrigger("TR_DocumentEvents_MergeScope");
+
                             t.HasCheckConstraint("CK_DocumentEvents_Categories", "(([Kind] = 'Categorized' AND [FromCategoryId] IS NOT NULL AND [ToCategoryId] IS NOT NULL AND [FromCategoryId] <> [ToCategoryId]) OR ([Kind] <> 'Categorized' AND [FromCategoryId] IS NULL AND [ToCategoryId] IS NULL))");
 
                             t.HasCheckConstraint("CK_DocumentEvents_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Imported','ImportedAsDuplicate','Categorized','MetadataEdited','Opened','Inactivated','Reactivated')");
@@ -3067,6 +3109,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_Documents_Immutable");
 
                             t.HasTrigger("TR_Documents_Links");
+
+                            t.HasTrigger("TR_Documents_MergeScope");
 
                             t.HasTrigger("TR_Documents_NoDelete");
 
@@ -3386,6 +3430,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_LabCases_Links");
 
+                            t.HasTrigger("TR_LabCases_MergeScope");
+
                             t.HasCheckConstraint("CK_LabCases_ClosureNote", "[ClosureNote] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([ClosureNote], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [ClosureNote] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [ClosureNote] COLLATE Latin1_General_BIN2) = 0)");
 
                             t.HasCheckConstraint("CK_LabCases_Dates", "([SentOn] IS NULL OR ([SentOn] >= '2000-01-01' AND [SentOn] < '2200-01-01')) AND ([ReceivedOn] IS NULL OR ([ReceivedOn] >= '2000-01-01' AND [ReceivedOn] < '2200-01-01')) AND ([DueOn] IS NULL OR ([DueOn] >= '2000-01-01' AND [DueOn] < '2200-01-01')) AND ([ReceivedOn] IS NULL OR [SentOn] IS NOT NULL) AND ([ReceivedOn] IS NULL OR [ReceivedOn] >= [SentOn]) AND [CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND [UpdatedAtUtc] >= [CreatedAtUtc] AND ([ClosedAtUtc] IS NULL OR [ClosedAtUtc] >= [CreatedAtUtc])");
@@ -3501,6 +3547,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_ReferralCases_Guard");
 
                             t.HasTrigger("TR_ReferralCases_Links");
+
+                            t.HasTrigger("TR_ReferralCases_MergeScope");
 
                             t.HasCheckConstraint("CK_ReferralCases_ClosureNote", "[ClosureNote] IS NULL OR (LEN(REPLACE(REPLACE(REPLACE(REPLACE([ClosureNote], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [ClosureNote] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [ClosureNote] COLLATE Latin1_General_BIN2) = 0)");
 
@@ -3706,6 +3754,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_FollowUpTasks_Guard");
 
                             t.HasTrigger("TR_FollowUpTasks_Links");
+
+                            t.HasTrigger("TR_FollowUpTasks_MergeScope");
 
                             t.HasCheckConstraint("CK_FollowUpTasks_Closure", "([Status] = 'Open' AND [ClosedAtUtc] IS NULL AND [ClosedByUserId] IS NULL AND [ClosureNote] IS NULL AND [ClosedBySystem] = 0) OR ([Status] <> 'Open' AND [ClosedAtUtc] IS NOT NULL AND (([ClosedByUserId] IS NOT NULL AND [ClosedBySystem] = 0) OR ([ClosedByUserId] IS NULL AND [ClosedBySystem] = 1)))");
 
@@ -3945,7 +3995,12 @@ namespace Alveara.Api.Migrations
                         .IsUnique()
                         .HasFilter("[Status] = 'Draft'");
 
-                    b.ToTable("PatientForms");
+                    b.ToTable("PatientForms", t =>
+                        {
+                            t.HasTrigger("TR_PatientForms_MergeScope");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Forms.PatientFormEvent", b =>
@@ -3982,7 +4037,12 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("PatientFormId", "OccurredAtUtc");
 
-                    b.ToTable("PatientFormEvents");
+                    b.ToTable("PatientFormEvents", t =>
+                        {
+                            t.HasTrigger("TR_PatientFormEvents_MergeScope");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Forms.SignedFormSnapshot", b =>
@@ -4083,7 +4143,12 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("PatientId", "SignedAtUtc");
 
-                    b.ToTable("SignedFormSnapshots");
+                    b.ToTable("SignedFormSnapshots", t =>
+                        {
+                            t.HasTrigger("TR_SignedFormSnapshots_MergeScope");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Idempotency.IdempotencyReceipt", b =>
@@ -4482,6 +4547,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_Messages_Links");
 
+                            t.HasTrigger("TR_Messages_MergeScope");
+
                             t.HasCheckConstraint("CK_Messages_Body", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Body], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Body] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(8) + NCHAR(11) + NCHAR(12) + NCHAR(14) + N'-' + NCHAR(31) + N']%', [Body] COLLATE Latin1_General_BIN2) = 0");
 
                             t.HasCheckConstraint("CK_Messages_Key", "LEN([IdempotencyKey]) > 0 AND [RequestHash] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%' AND LEN([RequestHash]) = 64");
@@ -4595,6 +4662,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_Notifications_Guard");
 
                             t.HasTrigger("TR_Notifications_Links");
+
+                            t.HasTrigger("TR_Notifications_MergeScope");
 
                             t.HasTrigger("TR_Notifications_NoDelete");
 
@@ -4924,6 +4993,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("ToothFindings", t =>
                         {
+                            t.HasTrigger("TR_ToothFindings_MergeScope");
+
                             t.HasTrigger("TR_ToothFindings_NoDelete");
 
                             t.HasTrigger("TR_ToothFindings_ToothPresence");
@@ -4986,6 +5057,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ToothFindingLinks", t =>
                         {
                             t.HasTrigger("TR_ToothFindingLinks_Immutable");
+
+                            t.HasTrigger("TR_ToothFindingLinks_MergeScope");
 
                             t.HasCheckConstraint("CK_ToothFindingLinks_LinkType", "[LinkType] COLLATE Latin1_General_CS_AS IN ('Diagnosis','TreatmentPlan','Procedure')");
 
@@ -5062,6 +5135,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_ToothFindingVersions_Immutable");
 
+                            t.HasTrigger("TR_ToothFindingVersions_MergeScope");
+
                             t.HasCheckConstraint("CK_ToothFindingVersions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Recorded','StateChanged','Withdrawn','Linked')");
                         });
 
@@ -5083,6 +5158,145 @@ namespace Alveara.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Households");
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMerge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MergeKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("MergedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("MergedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("SourcePatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SurvivorPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MergeKey")
+                        .IsUnique();
+
+                    b.HasIndex("MergedByUserId");
+
+                    b.HasIndex("SourcePatientId")
+                        .IsUnique();
+
+                    b.HasIndex("SurvivorPatientId");
+
+                    b.ToTable("PatientMerges", null, t =>
+                        {
+                            t.HasTrigger("TR_PatientMerges_Immutable");
+
+                            t.HasTrigger("TR_PatientMerges_Survivor");
+
+                            t.HasCheckConstraint("CK_PatientMerges_Distinct", "[SourcePatientId] <> [SurvivorPatientId]");
+
+                            t.HasCheckConstraint("CK_PatientMerges_Key", "LEN(LTRIM(RTRIM([MergeKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [MergeKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PatientMerges_Reason", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Reason], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Reason] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PatientMerges_Time", "[MergedAtUtc] >= '2000-01-01' AND [MergedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeMove", b =>
+                {
+                    b.Property<Guid>("MergeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TableName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ColumnName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("RowsMoved")
+                        .HasColumnType("int");
+
+                    b.HasKey("MergeId", "TableName", "ColumnName");
+
+                    b.ToTable("PatientMergeMoves", null, t =>
+                        {
+                            t.HasTrigger("TR_PatientMergeMoves_Immutable");
+
+                            t.HasCheckConstraint("CK_PatientMergeMoves_Names", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([TableName], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND LEN(REPLACE(REPLACE(REPLACE(REPLACE([ColumnName], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0");
+
+                            t.HasCheckConstraint("CK_PatientMergeMoves_Rows", "[RowsMoved] >= 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeResolution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Choice")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<Guid>("MergeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReplacedValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MergeId", "Kind", "Subject")
+                        .IsUnique();
+
+                    b.ToTable("PatientMergeResolutions", null, t =>
+                        {
+                            t.HasTrigger("TR_PatientMergeResolutions_Immutable");
+
+                            t.HasCheckConstraint("CK_PatientMergeResolutions_Choice", "[Choice] COLLATE Latin1_General_CS_AS IN ('KeptSurvivor','TookSource','LeftWithSource')");
+
+                            t.HasCheckConstraint("CK_PatientMergeResolutions_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Field','Record')");
+
+                            t.HasCheckConstraint("CK_PatientMergeResolutions_Replaced", "[ReplacedValue] IS NULL OR CHARINDEX(NCHAR(0), [ReplacedValue] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PatientMergeResolutions_Shape", "([Kind] = 'Field' AND [Choice] IN ('KeptSurvivor','TookSource') AND ([Choice] = 'TookSource' OR [ReplacedValue] IS NULL)) OR ([Kind] = 'Record' AND [Choice] = 'LeftWithSource' AND [ReplacedValue] IS NULL)");
+
+                            t.HasCheckConstraint("CK_PatientMergeResolutions_Subject", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Subject], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Subject] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Subject] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.Patient", b =>
@@ -5148,6 +5362,9 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
+                    b.Property<DateTimeOffset?>("MergedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("MiddleName")
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
@@ -5204,7 +5421,16 @@ namespace Alveara.Api.Migrations
                         .IsUnique()
                         .HasFilter("[RegistrationKey] IS NOT NULL");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", t =>
+                        {
+                            t.HasTrigger("TR_Patients_MergeScope");
+
+                            t.HasTrigger("TR_Patients_Merged");
+
+                            t.HasCheckConstraint("CK_Patients_Merged", "[MergedAtUtc] IS NULL OR ([IsActive] = 0 AND [MergedAtUtc] >= '2000-01-01' AND [MergedAtUtc] < '2200-01-01')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.PatientHistoryEntry", b =>
@@ -5244,7 +5470,12 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("PatientId", "ChangedAtUtc");
 
-                    b.ToTable("PatientHistory");
+                    b.ToTable("PatientHistory", t =>
+                        {
+                            t.HasTrigger("TR_PatientHistory_MergeScope");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.PatientRegistrationSettings", b =>
@@ -5316,6 +5547,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_PerioExams_Immutable");
 
+                            t.HasTrigger("TR_PerioExams_MergeScope");
+
                             t.HasCheckConstraint("CK_PerioExams_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0");
 
                             t.HasCheckConstraint("CK_PerioExams_ReadingCount", "[ReadingCount] BETWEEN 1 AND 192");
@@ -5362,6 +5595,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("PerioExamLinks", t =>
                         {
                             t.HasTrigger("TR_PerioExamLinks_Immutable");
+
+                            t.HasTrigger("TR_PerioExamLinks_MergeScope");
 
                             t.HasCheckConstraint("CK_PerioExamLinks_LinkType", "[LinkType] COLLATE Latin1_General_CS_AS IN ('Diagnosis','TreatmentPlan','Encounter','HistoryEntry')");
 
@@ -5484,6 +5719,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("PerioSessions", t =>
                         {
                             t.HasTrigger("TR_PerioSessions_ClosedIsFinal");
+
+                            t.HasTrigger("TR_PerioSessions_MergeScope");
 
                             t.HasTrigger("TR_PerioSessions_NoDelete");
 
@@ -5973,6 +6210,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_Prescriptions_Immutable");
 
+                            t.HasTrigger("TR_Prescriptions_MergeScope");
+
                             t.HasCheckConstraint("CK_Prescriptions_Allergy", "[AllergyOutcome] COLLATE Latin1_General_CS_AS IN ('RecordedAllergyMatch','NoRecordedMatch','NotEstablished') AND [AllergyListState] COLLATE Latin1_General_CS_AS IN ('Established','Unconfirmed','NotEstablished') AND (([AllergyOutcome] = 'RecordedAllergyMatch' AND [AllergyMatches] IS NOT NULL AND LEN(LTRIM(RTRIM([AllergyMatches]))) > 0) OR ([AllergyOutcome] = 'NoRecordedMatch' AND [AllergyListState] = 'Established' AND [AllergyMatches] IS NULL) OR ([AllergyOutcome] = 'NotEstablished' AND [AllergyListState] <> 'Established' AND [AllergyMatches] IS NULL))");
 
                             t.HasCheckConstraint("CK_Prescriptions_Created", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01'");
@@ -6199,6 +6438,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("PrescriptionDrafts", t =>
                         {
                             t.HasTrigger("TR_PrescriptionDrafts_Guard");
+
+                            t.HasTrigger("TR_PrescriptionDrafts_MergeScope");
 
                             t.HasTrigger("TR_PrescriptionDrafts_NoDelete");
 
@@ -6546,6 +6787,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("PatientRecallPlans", null, t =>
                         {
+                            t.HasTrigger("TR_PatientRecallPlans_MergeScope");
+
                             t.HasCheckConstraint("CK_PatientRecallPlans_Interval", "[IntervalDays] IS NULL OR ([IntervalDays] >= 1 AND [IntervalDays] <= 3650)");
 
                             t.HasCheckConstraint("CK_PatientRecallPlans_Means", "[OptedOut] = 1 OR [IntervalDays] IS NOT NULL");
@@ -6554,6 +6797,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasCheckConstraint("CK_PatientRecallPlans_Time", "[UpdatedAtUtc] >= '2000-01-01' AND [UpdatedAtUtc] < '2200-01-01'");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Recall.RecallSettings", b =>
@@ -6708,6 +6953,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("Clearances", t =>
                         {
+                            t.HasTrigger("TR_Clearances_MergeScope");
+
                             t.HasTrigger("TR_Clearances_NoDelete");
 
                             t.HasCheckConstraint("CK_Clearances_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Medical','Dental')");
@@ -6783,6 +7030,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ClearanceVersions", t =>
                         {
                             t.HasTrigger("TR_ClearanceVersions_Immutable");
+
+                            t.HasTrigger("TR_ClearanceVersions_MergeScope");
 
                             t.HasCheckConstraint("CK_ClearanceVersions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Requested','Received','DocumentAttached','Resolved','Cancelled')");
                         });
@@ -6874,6 +7123,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("SafetyAlerts", t =>
                         {
+                            t.HasTrigger("TR_SafetyAlerts_MergeScope");
+
                             t.HasTrigger("TR_SafetyAlerts_NoDelete");
 
                             t.HasCheckConstraint("CK_SafetyAlerts_Category", "[Category] COLLATE Latin1_General_CS_AS IN ('Condition','Pregnancy','Anticoagulant','AdverseReaction','Custom')");
@@ -6922,6 +7173,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("SafetyAlertAcknowledgements", t =>
                         {
+                            t.HasTrigger("TR_SafetyAlertAcknowledgements_MergeScope");
+
                             t.HasTrigger("TR_SafetyAlertAcks_Immutable");
                         });
 
@@ -6995,6 +7248,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("SafetyAlertVersions", t =>
                         {
                             t.HasTrigger("TR_SafetyAlertVersions_Immutable");
+
+                            t.HasTrigger("TR_SafetyAlertVersions_MergeScope");
 
                             t.HasCheckConstraint("CK_SafetyAlertVersions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','Changed','Resolved','Reopened')");
                         });
@@ -7107,12 +7362,16 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("Appointments", t =>
                         {
+                            t.HasTrigger("TR_Appointments_MergeScope");
+
                             t.HasCheckConstraint("CK_Appointments_FlowNeedsScheduled", "[FlowState] = 'Scheduled' OR [Status] = 'Scheduled'");
 
                             t.HasCheckConstraint("CK_Appointments_FlowState", "[FlowState] COLLATE Latin1_General_CS_AS IN ('Scheduled','Confirmed','CheckedIn','Ready','Seated','InTreatment','CheckedOut','Completed')");
 
                             t.HasCheckConstraint("CK_Appointments_Period", "[EndUtc] > [StartUtc]");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Scheduling.AppointmentEvent", b =>
@@ -7199,6 +7458,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_DiagnosisPlanResolutions_Links");
 
+                            t.HasTrigger("TR_DiagnosisPlanResolutions_MergeScope");
+
                             t.HasCheckConstraint("CK_DiagnosisPlanResolutions_Method", "[Method] COLLATE Latin1_General_CS_AS IN ('ReferenceCode','PlanId','Chosen')");
 
                             t.HasCheckConstraint("CK_DiagnosisPlanResolutions_Text", "LEN(LTRIM(RTRIM([ReferenceText]))) > 0");
@@ -7283,6 +7544,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_TreatmentPlans_Identity");
 
+                            t.HasTrigger("TR_TreatmentPlans_MergeScope");
+
                             t.HasTrigger("TR_TreatmentPlans_NoDelete");
 
                             t.HasTrigger("TR_TreatmentPlans_Revision");
@@ -7353,6 +7616,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("TreatmentPlanEvents", t =>
                         {
                             t.HasTrigger("TR_TreatmentPlanEvents_Immutable");
+
+                            t.HasTrigger("TR_TreatmentPlanEvents_MergeScope");
 
                             t.HasCheckConstraint("CK_TreatmentPlanEvents_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Withdrawn','Revised','ReferenceCodeSet','ItemAccepted','ItemDeclined','PlanAccepted','PlanDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted')");
 
@@ -7457,6 +7722,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlanItems_Links");
 
+                            t.HasTrigger("TR_TreatmentPlanItems_MergeScope");
+
                             t.HasTrigger("TR_TreatmentPlanItems_NoDelete");
 
                             t.HasCheckConstraint("CK_TreatmentPlanItems_Fee", "[Fee] >= 0 AND [Fee] <= 1000000.00 AND [Fee] = ROUND([Fee], 2)");
@@ -7541,6 +7808,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlanItemStates_Links");
 
+                            t.HasTrigger("TR_TreatmentPlanItemStates_MergeScope");
+
                             t.HasCheckConstraint("CK_TreatmentPlanItemStates_Acceptance", "[Acceptance] COLLATE Latin1_General_CS_AS IN ('Pending','Accepted','Declined')");
 
                             t.HasCheckConstraint("CK_TreatmentPlanItemStates_Accepted", "([Scheduling] = 'Unscheduled' AND [Completion] = 'NotStarted') OR [Acceptance] = 'Accepted'");
@@ -7621,6 +7890,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlanRevisions_Links");
 
+                            t.HasTrigger("TR_TreatmentPlanRevisions_MergeScope");
+
                             t.HasCheckConstraint("CK_TreatmentPlanRevisions_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Revised')");
 
                             t.HasCheckConstraint("CK_TreatmentPlanRevisions_Number", "[RevisionNumber] >= 1 AND [EventNumber] >= 1");
@@ -7672,6 +7943,8 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlanRevisionItems_Links");
 
+                            t.HasTrigger("TR_TreatmentPlanRevisionItems_MergeScope");
+
                             t.HasCheckConstraint("CK_TreatmentPlanRevisionItems_Phase", "[PhaseNumber] IS NULL OR [PhaseNumber] >= 1");
                         });
 
@@ -7718,6 +7991,8 @@ namespace Alveara.Api.Migrations
                             t.HasTrigger("TR_TreatmentPlanRevisionPhases_Immutable");
 
                             t.HasTrigger("TR_TreatmentPlanRevisionPhases_Links");
+
+                            t.HasTrigger("TR_TreatmentPlanRevisionPhases_MergeScope");
 
                             t.HasCheckConstraint("CK_TreatmentPlanRevisionPhases_Name", "LEN(LTRIM(RTRIM([Name]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Name] COLLATE Latin1_General_BIN2) = 0");
 
@@ -8649,6 +8924,45 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Odontogram.ToothFinding", null)
                         .WithMany()
                         .HasForeignKey("FindingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMerge", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("MergedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("SourcePatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("SurvivorPatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeMove", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Merge.PatientMerge", null)
+                        .WithMany()
+                        .HasForeignKey("MergeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeResolution", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Merge.PatientMerge", null)
+                        .WithMany()
+                        .HasForeignKey("MergeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

@@ -103,6 +103,13 @@ public static class PatientOwnedData
 
     public static IEnumerable<PatientOwnedColumn> References => All.Where(c => c.Role == PatientDataRole.Reference);
 
+    /// <summary>The session value only the merge service sets, inside its transaction, and the name of the merge-scope trigger every registered table carries (see the AddPatientMerges migration).</summary>
+    public const string MergeFlag = "alveara.patient_merge";
+    public static string MergeScopeTrigger(string table) => $"TR_{table}_MergeScope";
+
+    /// <summary>The merge's own lineage table. It holds patient ids (who was merged into whom) but is not patient data: a merge never moves it, and the registry test leaves it out.</summary>
+    public static readonly IReadOnlyList<string> Bookkeeping = ["PatientMerges"];
+
     /// <summary>The distinct tables a merge touches.</summary>
     public static IReadOnlyList<string> Tables => All.Select(c => c.Table).Distinct().Order().ToList();
 }

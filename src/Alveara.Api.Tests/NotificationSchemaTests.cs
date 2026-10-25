@@ -463,7 +463,7 @@ public class NotificationSchemaTests : SafetyTestBase
         await using (var db = Fixture.CreateContext())
         {
             Assert.Equal(4, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name IN ('Messages','MessageRecipients','Notifications','NotificationCursors')").SingleAsync());
-            Assert.Equal(8, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR[_]Message%' OR name LIKE 'TR[_]Notification%'").SingleAsync());
+            Assert.Equal(8, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE (name LIKE 'TR[_]Message%' OR name LIKE 'TR[_]Notification%') AND name NOT LIKE '%[_]MergeScope'").SingleAsync());
             Assert.Equal(1, await db.NotificationCursors.CountAsync());                                           // seeded once, again after the roll forward
         }
 

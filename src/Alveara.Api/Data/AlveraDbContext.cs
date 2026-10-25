@@ -144,6 +144,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.ExternalCases.LabCase> LabCases => Set<Architecture.ExternalCases.LabCase>();
     public DbSet<Architecture.ExternalCases.ExternalCaseEvent> ExternalCaseEvents => Set<Architecture.ExternalCases.ExternalCaseEvent>();
     public DbSet<Architecture.ExternalCases.ExternalCaseDocument> ExternalCaseDocuments => Set<Architecture.ExternalCases.ExternalCaseDocument>();
+    public DbSet<Architecture.Patients.Merge.PatientMerge> PatientMerges => Set<Architecture.Patients.Merge.PatientMerge>();
+    public DbSet<Architecture.Patients.Merge.PatientMergeMove> PatientMergeMoves => Set<Architecture.Patients.Merge.PatientMergeMove>();
+    public DbSet<Architecture.Patients.Merge.PatientMergeResolution> PatientMergeResolutions => Set<Architecture.Patients.Merge.PatientMergeResolution>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
@@ -551,6 +554,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         FollowUpModel.Configure(modelBuilder);
         RecallModel.Configure(modelBuilder);
         ExternalCaseModel.Configure(modelBuilder);
+        PatientMergeModel.Configure(modelBuilder);          // last: it declares a trigger on every table the registry lists, so every other table must be configured first
 
         modelBuilder.Entity<BackgroundJob>(e =>
         {
