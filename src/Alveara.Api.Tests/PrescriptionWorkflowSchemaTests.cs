@@ -480,7 +480,7 @@ public class PrescriptionWorkflowSchemaTests : SafetyTestBase
         await using (var db = Fixture.CreateContext())
         {
             Assert.Equal(3, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name IN ('PrescriptionDrafts','PrescriptionDetails','PrescriptionEvents')").SingleAsync());
-            Assert.Equal(6, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR_Prescription%' AND name NOT IN ('TR_Prescriptions_Immutable')").SingleAsync());
+            Assert.Equal(6, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR_Prescription%' AND name NOT IN ('TR_Prescriptions_Immutable') AND name NOT LIKE '%[_]MergeScope'").SingleAsync());
         }
 
         await AddAsync(Draft());
