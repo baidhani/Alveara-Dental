@@ -26,6 +26,12 @@ public sealed record MergeRequest(Guid? SourcePatientId, Guid? SurvivorPatientId
 /// <summary>One line of the merge log: who merged which record into which, when and why, and how much moved or stayed.</summary>
 public sealed record MergeLogEntry(Guid MergeId, PatientBrief Source, PatientBrief Survivor, Guid MergedByUserId, string MergedByName, DateTimeOffset MergedAtUtc, string Reason, int RowsMoved, int RecordsLeftBehind);
 
+/// <summary>The other side of one merge as a patient's own page shows it: the record, when, by whom and why.</summary>
+public sealed record MergeLinkView(Guid MergeId, Guid PatientId, string PatientName, DateTimeOffset MergedAtUtc, string Reason, string MergedByName);
+
+/// <summary>A patient's place in the merge lineage: the record this one was merged into (when it was retired), and the records merged into this one (when it carries on).</summary>
+public sealed record PatientMergeHistory(MergeLinkView? MergedInto, IReadOnlyList<MergeLinkView> Absorbed);
+
 public sealed record MergeResolutionView(string Kind, string Subject, string Choice, string? ReplacedValue);
 
 public sealed record MergeResult(Guid MergeId, Guid SourcePatientId, Guid SurvivorPatientId, Guid MergedByUserId, DateTimeOffset MergedAtUtc, string Reason,

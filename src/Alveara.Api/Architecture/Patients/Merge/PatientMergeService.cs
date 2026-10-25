@@ -42,6 +42,24 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         return conflicts;
     }
 
+    // ---------- a patient's own lineage ----------
+
+    /// <summary>Where this record stands in the merge lineage: merged into another (retired), and/or the survivor of earlier merges. Read-only.</summary>
+    public async Task<PatientMergeHistory> HistoryAsync(Guid patientId, CancellationToken ct)
+    {
+        if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new PatientException("patient_not_found", "The patient was not found.", 404);
+        var merges = await db.PatientMerges.AsNoTracking().Where(m => m.SourcePatientId == patientId || m.SurvivorPatientId == patientId).OrderByDescending(m => m.MergedAtUtc).ThenBy(m => m.Id).ToListAsync(ct);
+        var ids = merges.SelectMany(m => new[] { m.SourcePatientId, m.SurvivorPatientId }).Where(i => i != patientId).Distinct().ToList();
+        var people = await db.Patients.AsNoTracking().Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => PatientMergeViewsName(p), ct);
+        var userIds = merges.Select(m => m.MergedByUserId).Distinct().ToList();
+        var users = await db.UserAccounts.AsNoTracking().Where(u => userIds.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.Username, ct);
+        MergeLinkView Link(PatientMerge m, Guid other) => new(m.Id, other, people[other], m.MergedAtUtc, m.Reason, users.GetValueOrDefault(m.MergedByUserId, ""));
+        var into = merges.FirstOrDefault(m => m.SourcePatientId == patientId);
+        return new PatientMergeHistory(into is null ? null : Link(into, into.SurvivorPatientId), merges.Where(m => m.SurvivorPatientId == patientId).Select(m => Link(m, m.SourcePatientId)).ToList());
+    }
+
+    private static string PatientMergeViewsName(Patient p) => string.Join(" ", new[] { p.FirstName, p.MiddleName, p.LastName }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
     // ---------- the log ----------
 
     /// <summary>The most recent merges, newest first, for the administrator's review: who, when, why, between which records, and how much moved or stayed.</summary>
@@ -98,12 +116,12 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         var trackedSurvivor = await db.Patients.SingleAsync(p => p.Id == survivor.Id, ct);
         var resolutions = Apply(trackedSource, trackedSurvivor, decisions, plan, now, actor);
 
+        PatientWrite.History(db, source.Id, now, actor, "Inactivated", "IsActive", "True", "False");           // before the retired record is marked: the database takes no new record for a merged-away patient
         db.PatientMerges.Add(new PatientMerge { Id = mergeId, MergeKey = key, SourcePatientId = source.Id, SurvivorPatientId = survivor.Id, MergedByUserId = actor, MergedAtUtc = now, Reason = reason });
         await SaveAsync(ct);                                                                                         // the lineage first: the database marks a patient merged only when it exists
         db.PatientMergeMoves.AddRange(moves.Select(m => new PatientMergeMove { MergeId = mergeId, TableName = m.Table, ColumnName = m.Column, RowsMoved = m.Rows }));
         db.PatientMergeResolutions.AddRange(resolutions.Select(x => new PatientMergeResolution { Id = Guid.NewGuid(), MergeId = mergeId, Kind = x.Kind, Subject = x.Subject, Choice = x.Choice, ReplacedValue = x.ReplacedValue }));
         trackedSource.IsActive = false; trackedSource.MergedAtUtc = now; PatientWrite.Touch(trackedSource, now, actor);
-        PatientWrite.History(db, source.Id, now, actor, "Inactivated", "IsActive", "True", "False");
         var detail = $"Patient record merged: {moves.Sum(m => m.Rows)} rows moved to the surviving record, {plan.LeftCount} left with the retired record, {resolutions.Count(x => x.Kind == PatientMergeResolutionKinds.Field)} field decisions{Decisions(resolutions)}.{(identity.Count > 0 ? $" Identity differences confirmed on purpose: {string.Join(", ", identity)}." : "")}";
         AuditService.Record(db, AuditEventTypes.PatientMerged, nameof(Patient), source.Id, actor, detail + " This record is the retired one.", reason, mergeId);
         AuditService.Record(db, AuditEventTypes.PatientMerged, nameof(Patient), survivor.Id, actor, detail + " This record is the surviving one.", reason, mergeId);

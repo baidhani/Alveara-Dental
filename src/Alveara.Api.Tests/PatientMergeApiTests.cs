@@ -205,6 +205,46 @@ public class PatientMergeApiTests : IAsyncLifetime
     private static async Task<(HttpStatusCode, string)> Both(Task<(HttpStatusCode Status, JsonElement Body)> call) { var r = await call; return (r.Status, Str(r.Body, "error")); }
 
     [Fact]
+    public async Task A_new_record_for_a_merged_away_patient_is_a_clear_409_from_the_screens_and_the_surviving_record_still_takes_one()
+    {
+        var preview = await PreviewAsync(_ann, _anne);
+        Assert.Equal(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(preview), "guard-1")).Status);
+        var dentist = _others["Dentist"];
+        var refused = await dentist.SendAsync(HttpMethod.Post, $"/api/patients/{_ann}/clinical-record/items", new { kind = "Allergy", name = "Penicillin", reaction = "Rash", severity = "Mild" });
+        Assert.Equal((HttpStatusCode.Conflict, "patient_inactive"), (refused.Status, Str(refused.Body, "error")));    // a retired record is inactive, and the screens' own services say so first (the database check is the backstop behind them)
+        Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, $"/api/patients/{_anne}/clinical-record/items", new { kind = "Allergy", name = "Penicillin", reaction = "Rash", severity = "Mild" })).Status);
+    }
+
+    [Fact]
+    public async Task A_patients_own_page_can_read_where_it_stands_in_the_merge_lineage_whoever_may_view_patients()
+    {
+        var third = await _s.PatientAsync("Zed", "Moss");
+        var frontDesk = _others["FrontDesk"];
+        var before = await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/merge-history");
+        Assert.Equal(HttpStatusCode.OK, before.Status);
+        Assert.Equal(JsonValueKind.Null, before.Body.GetProperty("mergedInto").ValueKind); Assert.Empty(before.Body.GetProperty("absorbed").EnumerateArray());
+
+        var preview = await PreviewAsync(_ann, _anne);
+        Assert.Equal(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(preview, "Registered twice at the desk"), "hist-1")).Status);
+
+        var retired = (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/merge-history")).Body;
+        var into = retired.GetProperty("mergedInto");
+        Assert.Equal((_anne.ToString(), "Registered twice at the desk"), (Str(into, "patientId"), Str(into, "reason")));
+        Assert.False(string.IsNullOrWhiteSpace(Str(into, "mergedByName"))); Assert.False(string.IsNullOrWhiteSpace(Str(into, "patientName")));
+        Assert.Empty(retired.GetProperty("absorbed").EnumerateArray());
+
+        var survivor = (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{_anne}/merge-history")).Body;
+        Assert.Equal(JsonValueKind.Null, survivor.GetProperty("mergedInto").ValueKind);
+        Assert.Equal(_ann.ToString(), Str(Assert.Single(survivor.GetProperty("absorbed").EnumerateArray()), "patientId"));
+
+        var other = (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{third}/merge-history")).Body;
+        Assert.Equal(JsonValueKind.Null, other.GetProperty("mergedInto").ValueKind); Assert.Empty(other.GetProperty("absorbed").EnumerateArray());
+        Assert.Equal(HttpStatusCode.NotFound, (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{Guid.NewGuid()}/merge-history")).Status);
+        using var anonymous = _api.Factory.CreateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync($"/api/patients/{_ann}/merge-history")).StatusCode);
+    }
+
+    [Fact]
     public async Task The_log_lists_each_merge_with_who_when_why_and_between_which_records()
     {
         var preview = await PreviewAsync(_ann, _anne);

@@ -27,6 +27,7 @@ import { DocumentsPanel } from "./documents/DocumentsPanel";
 import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
 import { PatientHistoryPanel } from "./PatientHistoryPanel";
+import { MergeHistoryBanner } from "./patientmerge/MergeHistoryBanner";
 import "./PatientWorkspace.css";
 
 interface WorkspaceOutlet {
@@ -79,6 +80,7 @@ export function PatientWorkspacePage() {
   return (
     <div key={patient.id}>
       <PageHeader title="Patient workspace" description="Everything about this patient in one place. The patient shown above stays selected while you move between sections." />
+      <MergeHistoryBanner patientId={patient.id} />
       <nav className="alv-workspace__tabs" aria-label="Patient workspace sections">
         {tabs.map((tab) => (
           <NavLink

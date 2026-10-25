@@ -57,6 +57,11 @@ export const previewMerge = (sourceId: string, survivorId: string, signal?: Abor
   request<MergePreview>(`/api/patient-merges/preview?sourceId=${encodeURIComponent(sourceId)}&survivorId=${encodeURIComponent(survivorId)}`, { signal });
 export const getMergeLog = (signal?: AbortSignal) => request<MergeLogEntry[]>("/api/patient-merges/log", { signal });
 
+export interface MergeLink { mergeId: string; patientId: string; patientName: string; mergedAtUtc: string; reason: string; mergedByName: string }
+/** Where a patient stands in the merge lineage: merged into another record (retired), and/or the survivor of earlier merges. */
+export interface PatientMergeHistory { mergedInto: MergeLink | null; absorbed: MergeLink[] }
+export const getPatientMergeHistory = (patientId: string, signal?: AbortSignal) => request<PatientMergeHistory>(`/api/patients/${encodeURIComponent(patientId)}/merge-history`, { signal });
+
 export const listDismissals = (signal?: AbortSignal) => request<Dismissal[]>("/api/patient-merges/dismissals", { signal });
 export async function dismissPair(firstPatientId: string, secondPatientId: string, reason: string): Promise<Dismissal> {
   const csrf = await fetchCsrfToken();

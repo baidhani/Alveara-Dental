@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.Data.SqlClient;
 
 namespace Alveara.Api.Architecture.Logging;
 
@@ -14,6 +15,14 @@ namespace Alveara.Api.Architecture.Logging;
 /// </summary>
 public sealed class SafeExceptionHandlingMiddleware(RequestDelegate next, ILogger<SafeExceptionHandlingMiddleware> logger)
 {
+    /// <summary>Error 51235 anywhere in the exception chain.</summary>
+    internal static bool IsMergedPatientRefusal(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+            if (e is SqlException { Number: 51235 }) return true;
+        return false;
+    }
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -28,6 +37,16 @@ public sealed class SafeExceptionHandlingMiddleware(RequestDelegate next, ILogge
             if (context.Response.HasStarted)
             {
                 throw;
+            }
+
+            // ALV-017-C01: the database refused a new record for a patient whose record was merged into another (error 51235). Say so plainly; the database's own text is never sent.
+            if (IsMergedPatientRefusal(ex))
+            {
+                context.Response.Clear();
+                context.Response.StatusCode = StatusCodes.Status409Conflict;
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsJsonAsync(new { error = "patient_merged", message = "This patient record was merged into another record and takes no new records. Open the record it was merged into.", correlationId });
+                return;
             }
 
             context.Response.Clear();
