@@ -25,10 +25,18 @@ export interface MergeBlocker { code: string; message: string }
 export interface MergePreview {
   source: PatientBrief; survivor: PatientBrief; conflicts: MergeFieldConflict[]; autoFills: MergeAutoFill[]; moves: MergeMoveCount[]; leftBehind: MergeLeftBehind[];
   blockers: MergeBlocker[]; canMerge: boolean; sourceRowVersion: string; survivorRowVersion: string;
+  /** The ways the two records look like different people (date of birth, last name, first name); empty for a genuine duplicate. */
+  identityConflicts: string[];
 }
 
 export type FieldChoice = "Survivor" | "Source";
-export interface MergeInput { sourcePatientId: string; survivorPatientId: string; reason: string; sourceRowVersion: string; survivorRowVersion: string; fieldChoices: Record<string, FieldChoice> }
+export interface MergeInput {
+  sourcePatientId: string; survivorPatientId: string; reason: string; sourceRowVersion: string; survivorRowVersion: string; fieldChoices: Record<string, FieldChoice>;
+  /** The administrator's explicit confirmation: the server refuses a merge without it. */
+  confirmed: boolean;
+  /** Confirms on purpose that records that look like different people are the same person. */
+  confirmIdentityDifference: boolean;
+}
 export interface MergeResolution { kind: "Field" | "Record"; subject: string; choice: string; replacedValue: string | null }
 export interface MergeResult {
   mergeId: string; sourcePatientId: string; survivorPatientId: string; mergedByUserId: string; mergedAtUtc: string; reason: string; moves: MergeMoveCount[]; resolutions: MergeResolution[]; replayed: boolean;
@@ -50,6 +58,8 @@ export async function mergePatients(input: MergeInput, key: string): Promise<Mer
 }
 
 const MESSAGES: Record<string, string> = {
+  confirmation_required: "A merge needs your explicit confirmation. Tick the confirmation and try again. Nothing was merged.",
+  identity_conflict: "These records look like different people (their date of birth or name differ). Confirm that they are the same person to merge them. Nothing was merged.",
   choice_required: "Every field that differs needs an answer: keep the surviving record's value or take the retired record's.",
   choice_invalid: "One of the answers is not valid. Reload the review and choose again.",
   patient_changed: "One of the records changed after you reviewed it. Nothing was merged. Reload the review and check both records again.",

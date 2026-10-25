@@ -29,7 +29,17 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         var plan = await new PatientMergePlanner(db, new PatientMergeCatalog(db.Model)).PlanAsync(source, survivor, ct);
         var left = plan.Left.SelectMany(t => t.Value.Select(k => new MergeLeftBehind(t.Key, k.Key, k.Value))).OrderBy(l => l.Table).ThenBy(l => l.RowKey).ToList();
         return new MergePreview(Brief(source), Brief(survivor), plan.Conflicts, plan.AutoFills, plan.Moves, left, Distinct(plan.Blockers), plan.Blockers.Count == 0,
-            Convert.ToBase64String(source.RowVersion), Convert.ToBase64String(survivor.RowVersion));
+            Convert.ToBase64String(source.RowVersion), Convert.ToBase64String(survivor.RowVersion), IdentityConflicts(source, survivor));
+    }
+
+    /// <summary>The ways two records that are about to be merged look like different people: a different date of birth, a different last name, or a first name more than two typos apart (a nickname). A genuine duplicate has none; any is a conflict of identity the administrator must confirm on purpose.</summary>
+    public static IReadOnlyList<string> IdentityConflicts(Patient a, Patient b)
+    {
+        var conflicts = new List<string>();
+        if (a.DateOfBirth != b.DateOfBirth) conflicts.Add("date of birth");
+        if (Patient.NormalizeName(a.LastName) != Patient.NormalizeName(b.LastName)) conflicts.Add("last name");
+        if (PatientDuplicateDetector.EditDistance(Patient.NormalizeName(a.FirstName), Patient.NormalizeName(b.FirstName)) > 2) conflicts.Add("first name");
+        return conflicts;
     }
 
     // ---------- the log ----------
@@ -60,6 +70,7 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         var survivorId = r.SurvivorPatientId ?? throw new PatientException("survivor_required", "Choose the record to keep.", 400);
 
         if (await ReplayAsync(key, sourceId, survivorId, ct) is { } replay) return replay;
+        if (r.Confirmed != true) throw new PatientException("confirmation_required", "A merge needs the administrator's explicit confirmation. Nothing was merged.", 400);
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         await db.Database.ExecuteSqlRawAsync("SELECT 1 FROM [Patients] WITH (UPDLOCK, HOLDLOCK) WHERE [Id] IN (@a, @b)", [new SqlParameter("@a", sourceId), new SqlParameter("@b", survivorId)], ct);
@@ -67,6 +78,9 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
 
         var (source, survivor) = await LoadPairAsync(sourceId, survivorId, tracking: false, ct);
         RequireVersion(source, r.SourceRowVersion, "source"); RequireVersion(survivor, r.SurvivorRowVersion, "survivor");
+        var identity = IdentityConflicts(source, survivor);
+        if (identity.Count > 0 && r.ConfirmIdentityDifference != true)
+            throw new PatientException("identity_conflict", $"These records differ in {string.Join(" and ", identity)}, so they may not be the same person. Confirm that they are the same person to merge them. Nothing was merged.", 409);
 
         var catalog = new PatientMergeCatalog(db.Model);
         var plan = await new PatientMergePlanner(db, catalog).PlanAsync(source, survivor, ct);
@@ -90,7 +104,7 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         db.PatientMergeResolutions.AddRange(resolutions.Select(x => new PatientMergeResolution { Id = Guid.NewGuid(), MergeId = mergeId, Kind = x.Kind, Subject = x.Subject, Choice = x.Choice, ReplacedValue = x.ReplacedValue }));
         trackedSource.IsActive = false; trackedSource.MergedAtUtc = now; PatientWrite.Touch(trackedSource, now, actor);
         PatientWrite.History(db, source.Id, now, actor, "Inactivated", "IsActive", "True", "False");
-        var detail = $"Patient record merged: {moves.Sum(m => m.Rows)} rows moved to the surviving record, {plan.LeftCount} left with the retired record, {resolutions.Count(x => x.Kind == PatientMergeResolutionKinds.Field)} field decisions.";
+        var detail = $"Patient record merged: {moves.Sum(m => m.Rows)} rows moved to the surviving record, {plan.LeftCount} left with the retired record, {resolutions.Count(x => x.Kind == PatientMergeResolutionKinds.Field)} field decisions{Decisions(resolutions)}.{(identity.Count > 0 ? $" Identity differences confirmed on purpose: {string.Join(", ", identity)}." : "")}";
         AuditService.Record(db, AuditEventTypes.PatientMerged, nameof(Patient), source.Id, actor, detail + " This record is the retired one.", reason, mergeId);
         AuditService.Record(db, AuditEventTypes.PatientMerged, nameof(Patient), survivor.Id, actor, detail + " This record is the surviving one.", reason, mergeId);
         await SaveAsync(ct);
@@ -262,6 +276,13 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         var r = reason?.Trim() ?? "";
         if (r.Length is 0 or > 500 || r.Any(char.IsControl)) throw new PatientException("reason_invalid", "Write the reason for the merge (up to 500 characters) on one line.", 400);
         return r;
+    }
+
+    /// <summary>The fields that were decided and how, in words and without their values, for the audit text.</summary>
+    private static string Decisions(IEnumerable<Resolution> resolutions)
+    {
+        var fields = resolutions.Where(x => x.Kind == PatientMergeResolutionKinds.Field).Select(x => $"{x.Subject} {(x.Choice == PatientMergeChoices.KeptSurvivor ? "kept" : "taken from the retired record")}").ToList();
+        return fields.Count == 0 ? "" : " (" + string.Join("; ", fields) + ")";
     }
 
     private static string? Clip(string? value, int max = 500) => value is { } v && v.Length > max ? v[..max] : value;

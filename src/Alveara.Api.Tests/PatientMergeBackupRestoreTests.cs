@@ -38,7 +38,7 @@ public class PatientMergeBackupRestoreTests : TreatmentPlanTestBase
     private async Task<MergeResult> MergeAsync(Guid source, Guid survivor, string reason)
     {
         var preview = await WithDb(db => new PatientMergeService(db, Clock).PreviewAsync(source, survivor, default));
-        return await WithDb(db => new PatientMergeService(db, Clock).MergeAsync(S.Actor, new MergeRequest(source, survivor, reason, preview.SourceRowVersion, preview.SurvivorRowVersion, null), Guid.NewGuid().ToString("N"), default));
+        return await WithDb(db => new PatientMergeService(db, Clock).MergeAsync(S.Actor, new MergeRequest(source, survivor, reason, preview.SourceRowVersion, preview.SurvivorRowVersion, null, true, true), Guid.NewGuid().ToString("N"), default));
     }
 
     private async Task<BackupRecord> BackupAsync()

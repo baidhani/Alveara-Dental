@@ -193,7 +193,7 @@ test("TRUST: the merge log and the audit log say who and when; asking again with
   expect(audit.every((e) => e.performedByUserAccountId === ids.adminUser && !Number.isNaN(Date.parse(e.timestampUtc)) && e.correlationId === log[0].mergeId)).toBe(true);
   expect(JSON.stringify(audit)).not.toMatch(/Penicillin|Latex|555-010/);                                         // the audit text carries no patient values
 
-  const body = { sourcePatientId: ids.anne, survivorPatientId: ids.ann, reason: "again", sourceRowVersion: null, survivorRowVersion: null, fieldChoices: {} };
+  const body = { sourcePatientId: ids.anne, survivorPatientId: ids.ann, reason: "again", sourceRowVersion: null, survivorRowVersion: null, fieldChoices: {}, confirmed: true, confirmIdentityDifference: false };
   const again = await api(admin, "post", "/api/patient-merges", body, { "Idempotency-Key": "will-not-match" });
   expect([again.status, again.body.error]).toEqual([409, "already_merged"]);
   expect(await auditMerges()).toHaveLength(2);

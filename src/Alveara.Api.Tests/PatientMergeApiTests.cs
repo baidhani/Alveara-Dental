@@ -46,9 +46,9 @@ public class PatientMergeApiTests : IAsyncLifetime
         return r.Body;
     }
 
-    private object Body(JsonElement preview, string reason = "Registered twice", Dictionary<string, string>? choices = null) =>
+    private object Body(JsonElement preview, string reason = "Registered twice", Dictionary<string, string>? choices = null, bool? confirmed = true, bool identity = false) =>
         new { sourcePatientId = Guid.Parse(Str(preview.GetProperty("source"), "id")), survivorPatientId = Guid.Parse(Str(preview.GetProperty("survivor"), "id")), reason,
-              sourceRowVersion = Str(preview, "sourceRowVersion"), survivorRowVersion = Str(preview, "survivorRowVersion"), fieldChoices = choices };
+              sourceRowVersion = Str(preview, "sourceRowVersion"), survivorRowVersion = Str(preview, "survivorRowVersion"), fieldChoices = choices, confirmed, confirmIdentityDifference = identity };
 
     [Fact]
     public async Task Only_the_administrator_may_use_any_of_the_four_endpoints_and_an_anonymous_caller_sees_nothing()
@@ -116,6 +116,26 @@ public class PatientMergeApiTests : IAsyncLifetime
         var third = await _s.PatientAsync("Cy", "Kim");
         var other = await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", new { sourcePatientId = third, survivorPatientId = _anne, reason = "x", sourceRowVersion = (string?)null, survivorRowVersion = (string?)null }, "merge-a");
         Assert.Equal((HttpStatusCode.Conflict, "key_reused"), (other.Status, Str(other.Body, "error")));
+    }
+
+    [Fact]
+    public async Task A_merge_needs_explicit_confirmation_and_records_that_look_like_different_people_need_their_own()
+    {
+        var preview = await PreviewAsync(_ann, _anne);
+        Assert.Empty(preview.GetProperty("identityConflicts").EnumerateArray());                                                  // a genuine duplicate
+        var unconfirmed = await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(preview, confirmed: null), "c1");
+        Assert.Equal((HttpStatusCode.BadRequest, "confirmation_required"), (unconfirmed.Status, Str(unconfirmed.Body, "error")));
+        var declined = await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(preview, confirmed: false), "c2");
+        Assert.Equal("confirmation_required", Str(declined.Body, "error"));
+        Assert.Equal(0, await CountAsync("SELECT COUNT(*) AS [Value] FROM [PatientMerges]"));
+
+        var stranger = await _s.PatientAsync("Zed", "Moss");                                                                      // a different person altogether
+        var other = await PreviewAsync(stranger, _anne);
+        Assert.Contains("last name", other.GetProperty("identityConflicts").EnumerateArray().Select(c => c.GetString()));
+        var refused = await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(other), "c3");
+        Assert.Equal((HttpStatusCode.Conflict, "identity_conflict"), (refused.Status, Str(refused.Body, "error")));
+        Assert.Equal(0, await CountAsync("SELECT COUNT(*) AS [Value] FROM [PatientMerges]"));
+        Assert.Equal(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(other, identity: true), "c4")).Status);       // only on purpose
     }
 
     [Fact]

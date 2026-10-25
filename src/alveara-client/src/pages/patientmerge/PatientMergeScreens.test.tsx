@@ -19,7 +19,7 @@ const pair = { first: ann, second: anne, score: 40, reasons: ["Same last name an
 const preview = (over: Record<string, unknown> = {}) => ({
   source: anne, survivor: ann, conflicts: [{ field: "Phone", survivorValue: "(555) 010-0001", sourceValue: "(555) 010-0002" }], autoFills: [{ field: "Email", sourceValue: "anne@example.org" }],
   moves: [{ table: "Appointments", column: "PatientId", rows: 3 }, { table: "Diagnoses", column: "PatientId", rows: 2 }, { table: "Notes", column: "PatientId", rows: 0 }], leftBehind: [], blockers: [], canMerge: true,
-  sourceRowVersion: "VS", survivorRowVersion: "VV", ...over,
+  sourceRowVersion: "VS", survivorRowVersion: "VV", identityConflicts: [], ...over,
 });
 const mergeResult = () => ({
   mergeId: "m1", sourcePatientId: "b", survivorPatientId: "a", mergedByUserId: "u1", mergedAtUtc: "2026-10-25T10:00:00Z", reason: "Same person", replayed: false,
@@ -112,7 +112,7 @@ describe("the review and the merge", () => {
     expect(status).toHaveTextContent("Merged Anne Lee into Ann Lee. 5 rows moved");
     expect(within(status).getByRole("link", { name: "Open the record that carries on" })).toHaveAttribute("href", "/patients/a");
     const post = posts().find((c) => c.url.endsWith("/api/patient-merges"))!;
-    expect(post.body).toEqual({ sourcePatientId: "b", survivorPatientId: "a", reason: "Same person", sourceRowVersion: "VS", survivorRowVersion: "VV", fieldChoices: { Phone: "Source" } });
+    expect(post.body).toEqual({ sourcePatientId: "b", survivorPatientId: "a", reason: "Same person", sourceRowVersion: "VS", survivorRowVersion: "VV", fieldChoices: { Phone: "Source" }, confirmed: true, confirmIdentityDifference: false });
     expect(post.headers["Idempotency-Key"]).toMatch(/^[0-9a-f-]{8,}$/i);
   });
 
@@ -127,6 +127,28 @@ describe("the review and the merge", () => {
     if (done.confirm) await userEvent.click(screen.getByLabelText(/I have compared the two records/));
     expect(screen.getByRole("button", { name: "Merge the records" })).toBeDisabled();
     expect(posts()).toHaveLength(0);
+  });
+
+  it("warns when the records look like different people and keeps the merge off until that is confirmed on purpose, then says so to the server", async () => {
+    current = preview({ identityConflicts: ["date of birth", "last name"] });
+    await openReview();
+    expect(screen.getByRole("alert")).toHaveTextContent("These records may be different people. They differ in date of birth and last name");
+    await userEvent.click(screen.getByLabelText(/Take the retired record's/));
+    await userEvent.type(screen.getByLabelText(/Reason for the merge/), "Same person");
+    await userEvent.click(screen.getByLabelText(/I have compared the two records/));
+    const merge = screen.getByRole("button", { name: "Merge the records" });
+    expect(merge).toBeDisabled();                                                                   // everything else is done: only the identity confirmation is missing
+    expect(screen.getByRole("status")).toHaveTextContent("Confirm that these are the same person.");
+    await userEvent.click(screen.getByLabelText(/I confirm they are the same person despite these differences/));
+    expect(merge).toBeEnabled();
+    await userEvent.click(merge);
+    await screen.findByRole("link", { name: "Open the record that carries on" });
+    expect(posts().find((c) => c.url.endsWith("/api/patient-merges"))!.body).toMatchObject({ confirmed: true, confirmIdentityDifference: true });
+  });
+
+  it("shows no identity warning for a genuine duplicate", async () => {
+    await openReview();
+    expect(screen.queryByText(/may be different people/)).not.toBeInTheDocument();
   });
 
   it("can swap which record is kept", async () => {

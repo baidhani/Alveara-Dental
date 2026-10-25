@@ -29,6 +29,7 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
   const [choices, setChoices] = useState<Record<string, FieldChoice>>({});
   const [reason, setReason] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [sameAnyway, setSameAnyway] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
@@ -37,7 +38,7 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
 
   useEffect(() => {
     const controller = new AbortController();
-    setPreview(null); setFailed(false); setChoices({}); setConfirmed(false); setError(null); setStale(false);
+    setPreview(null); setFailed(false); setChoices({}); setConfirmed(false); setSameAnyway(false); setError(null); setStale(false);
     previewMerge(sourceId, survivorId, controller.signal).then(setPreview).catch(() => { if (!controller.signal.aborted) setFailed(true); });
     return () => controller.abort();
   }, [sourceId, survivorId, attempt]);
@@ -46,7 +47,8 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
   const unanswered = preview ? preview.conflicts.filter((c) => !choices[c.field]).length : 0;
   const reasonText = reason.trim();
   const reasonOk = reasonText.length > 0 && reasonText.length <= REASON_MAX;
-  const ready = !!preview && preview.canMerge && unanswered === 0 && reasonOk && confirmed && !busy;
+  const identityOk = !preview || preview.identityConflicts.length === 0 || sameAnyway;
+  const ready = !!preview && preview.canMerge && unanswered === 0 && reasonOk && identityOk && confirmed && !busy;
 
   const choose = (field: string, value: FieldChoice) => { setChoices((c) => ({ ...c, [field]: value })); setKey(newMergeKey()); };
 
@@ -55,7 +57,7 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
     if (!ready || !preview) return;
     setBusy(true); setError(null);
     try {
-      const result = await mergePatients({ sourcePatientId: sourceId, survivorPatientId: survivorId, reason: reasonText, sourceRowVersion: preview.sourceRowVersion, survivorRowVersion: preview.survivorRowVersion, fieldChoices: choices }, key);
+      const result = await mergePatients({ sourcePatientId: sourceId, survivorPatientId: survivorId, reason: reasonText, sourceRowVersion: preview.sourceRowVersion, survivorRowVersion: preview.survivorRowVersion, fieldChoices: choices, confirmed: true, confirmIdentityDifference: sameAnyway && preview.identityConflicts.length > 0 }, key);
       onMerged(result, preview.source, preview.survivor);
     } catch (err) {
       setError(mergeErrorMessage(err)); setStale(isStaleMerge(err));
@@ -91,6 +93,13 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
         <div role="alert" className="alv-fu-error">
           <strong>This merge cannot go ahead yet.</strong>
           <ul>{preview.blockers.map((b) => <li key={b.message}>{b.message}</li>)}</ul>
+        </div>
+      )}
+
+      {preview.identityConflicts.length > 0 && (
+        <div role="alert" className="alv-fu-error alv-merge__identity">
+          <strong>These records may be different people.</strong> They differ in {preview.identityConflicts.join(" and ")}. Merging two people into one chart is hard to undo.
+          <label className="alv-merge__confirm"><input type="checkbox" checked={sameAnyway} onChange={(e) => setSameAnyway(e.target.checked)} /> I have checked, and I confirm they are the same person despite these differences.</label>
         </div>
       )}
 
@@ -132,7 +141,7 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
         <Button type="submit" variant="primary" disabled={!ready}>Merge the records</Button>
         <Button type="button" onClick={onCancel}>Back to the list</Button>
       </div>
-      {!ready && !busy && preview.canMerge && <p className="alv-clinical__meta" role="status">{unanswered > 0 ? "Answer every field that differs." : !reasonOk ? "Write the reason." : !confirmed ? "Confirm that you have compared the records." : ""}</p>}
+      {!ready && !busy && preview.canMerge && <p className="alv-clinical__meta" role="status">{unanswered > 0 ? "Answer every field that differs." : !reasonOk ? "Write the reason." : !identityOk ? "Confirm that these are the same person." : !confirmed ? "Confirm that you have compared the records." : ""}</p>}
     </form>
   );
 }

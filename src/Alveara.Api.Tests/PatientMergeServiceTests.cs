@@ -24,10 +24,10 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
         await CreateAsync([Item(diagnosis, procedure.Summary.Id)], title: $"{label} plan", patient: patient);
     }
 
-    private async Task<MergeResult> MergeAsync(Guid source, Guid survivor, string? key = null, Dictionary<string, string>? choices = null, string reason = "Same person registered twice")
+    private async Task<MergeResult> MergeAsync(Guid source, Guid survivor, string? key = null, Dictionary<string, string>? choices = null, string reason = "Same person registered twice", bool confirmed = true, bool identityOk = true)
     {
         var preview = await WithService(s => s.PreviewAsync(source, survivor, default));
-        return await WithService(s => s.MergeAsync(S.Actor, new MergeRequest(source, survivor, reason, preview.SourceRowVersion, preview.SurvivorRowVersion, choices), key ?? Guid.NewGuid().ToString("N"), default));
+        return await WithService(s => s.MergeAsync(S.Actor, new MergeRequest(source, survivor, reason, preview.SourceRowVersion, preview.SurvivorRowVersion, choices, confirmed, identityOk), key ?? Guid.NewGuid().ToString("N"), default));
     }
 
     private async Task<PatientException> RefusedAsync(Func<Task> action) => await Assert.ThrowsAsync<PatientException>(action);
@@ -234,6 +234,66 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
 
     private async Task<Guid> ScalarGuidAsync(string sql, params SqlParameter[] parameters) { await using var db = Fixture.CreateContext(); return await db.Database.SqlQueryRaw<Guid>(sql, parameters).FirstAsync(); }
 
+    // ---------- explicit confirmation and identity (ALV-017-C01) ----------
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(false)]
+    public async Task Without_explicit_confirmation_nothing_is_merged_however_complete_the_request_is(bool? confirmed)
+    {
+        await GiveChartAsync(Ann, "Gingivitis");
+        var before = (Ann: await CountsAsync(Ann), Bo: await CountsAsync(Bo));
+        var preview = await WithService(s => s.PreviewAsync(Ann, Bo, default));
+        var request = new MergeRequest(Ann, Bo, "Same person", preview.SourceRowVersion, preview.SurvivorRowVersion, null, confirmed, true);
+        var refused = await RefusedAsync(() => WithService(s => s.MergeAsync(S.Actor, request, "no-confirm", default)));
+        Assert.Equal(("confirmation_required", 400), (refused.Code, refused.StatusCode));
+        Assert.Equal(before.Ann, await CountsAsync(Ann)); Assert.Equal(before.Bo, await CountsAsync(Bo));
+        Assert.Equal(0, await ScalarAsync("SELECT COUNT(*) AS [Value] FROM [PatientMerges]"));
+        Assert.Equal(0, await ScalarAsync("SELECT COUNT(*) AS [Value] FROM [AuditLogEntries] WHERE [EventType] = 'PatientMerged'"));
+    }
+
+    [Fact]
+    public async Task Records_that_look_like_different_people_need_their_own_confirmation_and_a_genuine_duplicate_does_not()
+    {
+        var preview = await WithService(s => s.PreviewAsync(Ann, Bo, default));
+        Assert.Equal(new[] { "date of birth", "last name", "first name" }.Order().ToArray(), preview.IdentityConflicts.Order().ToArray());          // Ann Lee and Bo Kim: different date, surname and first name
+        var before = (Ann: await CountsAsync(Ann), Bo: await CountsAsync(Bo));
+        var refused = await RefusedAsync(() => MergeAsync(Ann, Bo, identityOk: false));
+        Assert.Equal(("identity_conflict", 409), (refused.Code, refused.StatusCode));
+        Assert.Contains("date of birth", refused.Message);
+        Assert.Equal(before.Ann, await CountsAsync(Ann)); Assert.Equal(before.Bo, await CountsAsync(Bo));
+        Assert.Equal(0, await ScalarAsync("SELECT COUNT(*) AS [Value] FROM [PatientMerges]"));
+
+        var done = await MergeAsync(Ann, Bo);                                                                                                      // confirmed on purpose
+        await using (var db = Fixture.CreateContext())
+        {
+            var details = await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == "PatientMerged").Select(a => a.Details).ToListAsync();
+            Assert.All(details, d => Assert.Contains("Identity differences confirmed on purpose: date of birth, last name, first name", d));
+        }
+        Assert.False(done.Replayed);
+
+        var third = await S.PatientAsync("Cy", "Kim"); var fourth = await S.PatientAsync("Cyd", "Kim");                                            // a genuine duplicate: same birth date and surname, a first name a typo apart
+        await using (var db = Fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("UPDATE [Patients] SET [DateOfBirth] = (SELECT [DateOfBirth] FROM [Patients] WHERE [Id] = {0}) WHERE [Id] = {1}", third, fourth);
+        Assert.Empty((await WithService(s => s.PreviewAsync(third, fourth, default))).IdentityConflicts);
+        Assert.False((await MergeAsync(third, fourth, identityOk: false)).Replayed);
+    }
+
+    [Fact]
+    public async Task The_audit_text_names_the_fields_that_were_decided_and_how_but_never_their_values()
+    {
+        await SetAsync(Ann, "Phone", "(555) 010-0001"); await SetAsync(Bo, "Phone", "(555) 010-0002");
+        await SetAsync(Ann, "Email", "ann@example.org"); await SetAsync(Bo, "Email", "bo@example.org");
+        await MergeAsync(Ann, Bo, choices: new() { ["Phone"] = "Source", ["Email"] = "Survivor" });
+        await using var db = Fixture.CreateContext();
+        var details = await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == "PatientMerged").Select(a => a.Details).ToListAsync();
+        Assert.Equal(2, details.Count);
+        Assert.All(details, d =>
+        {
+            Assert.Contains("Phone taken from the retired record", d); Assert.Contains("Email kept", d);
+            Assert.DoesNotContain("555", d); Assert.DoesNotContain("example.org", d);
+        });
+    }
+
     // ---------- idempotency, refusals and races ----------
 
     [Fact]
@@ -271,14 +331,14 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
     public async Task A_merge_needs_a_key_a_reason_and_the_versions_of_both_records_and_refuses_a_record_that_changed_after_it_was_reviewed()
     {
         var preview = await WithService(s => s.PreviewAsync(Ann, Bo, default));
-        MergeRequest R(string? reason = "Same person", string? source = null, string? survivor = null) => new(Ann, Bo, reason, source ?? preview.SourceRowVersion, survivor ?? preview.SurvivorRowVersion, null);
+        MergeRequest R(string? reason = "Same person", string? source = null, string? survivor = null) => new(Ann, Bo, reason, source ?? preview.SourceRowVersion, survivor ?? preview.SurvivorRowVersion, null, true, true);
         Task<MergeResult> Run(MergeRequest r, string? key = "k1") => WithService(s => s.MergeAsync(S.Actor, r, key, default));
 
         Assert.Equal("idempotency_key_invalid", (await RefusedAsync(() => Run(R(), null))).Code);
         Assert.Equal("idempotency_key_invalid", (await RefusedAsync(() => Run(R(), new string('k', 101)))).Code);
         Assert.Equal("reason_invalid", (await RefusedAsync(() => Run(R(reason: "  ")))).Code);
         Assert.Equal("reason_invalid", (await RefusedAsync(() => Run(R(reason: new string('r', 501))))).Code);
-        Assert.Equal("row_version_required", (await RefusedAsync(() => Run(new MergeRequest(Ann, Bo, "x", null, preview.SurvivorRowVersion, null)))).Code);
+        Assert.Equal("row_version_required", (await RefusedAsync(() => Run(new MergeRequest(Ann, Bo, "x", null, preview.SurvivorRowVersion, null, true, true)))).Code);
         Assert.Equal("row_version_invalid", (await RefusedAsync(() => Run(R(source: "not base64!")))).Code);
 
         await SetAsync(Bo, "City", "Dallas");                                                                                           // someone edits the survivor after the review
@@ -293,7 +353,7 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
     {
         await GiveChartAsync(Ann, "Gingivitis");
         var preview = await WithService(s => s.PreviewAsync(Ann, Bo, default));
-        var request = new MergeRequest(Ann, Bo, "Same person", preview.SourceRowVersion, preview.SurvivorRowVersion, null);
+        var request = new MergeRequest(Ann, Bo, "Same person", preview.SourceRowVersion, preview.SurvivorRowVersion, null, true, true);
         var results = await Task.WhenAll(Enumerable.Range(0, 3).Select(_ => WithService(s => s.MergeAsync(S.Actor, request, "race-1", default))));
         Assert.Single(results.Select(r => r.MergeId).Distinct());
         Assert.Equal(1, results.Count(r => !r.Replayed));
@@ -310,7 +370,7 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
         var before = (Ann: await CountsAsync(Ann), Bo: await CountsAsync(Bo));
         await using (var db = Fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("CREATE TRIGGER [TR_TestAuditDown] ON [AuditLogEntries] AFTER INSERT AS THROW 59000, 'the audit store is down', 1;");
         var preview = await WithService(s => s.PreviewAsync(Ann, Bo, default));
-        var request = new MergeRequest(Ann, Bo, "Same person", preview.SourceRowVersion, preview.SurvivorRowVersion, null);
+        var request = new MergeRequest(Ann, Bo, "Same person", preview.SourceRowVersion, preview.SurvivorRowVersion, null, true, true);
 
         var failure = await Assert.ThrowsAnyAsync<Exception>(() => WithService(s => s.MergeAsync(S.Actor, request, "retry-1", default)));
         Assert.Equal(59000, Assert.IsType<SqlException>(failure is DbUpdateException { InnerException: not null } d ? d.InnerException : failure).Number);
