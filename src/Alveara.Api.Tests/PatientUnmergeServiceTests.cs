@@ -224,6 +224,31 @@ public class PatientUnmergeServiceTests : MergeChartTestBase
         Assert.Equal(0, await Scalar("SELECT COUNT(*) AS [Value] FROM [PatientUnmerges]"));
     }
 
+    [Fact]
+    public async Task An_undo_is_refused_when_a_row_the_ledger_names_is_no_longer_on_the_surviving_record_and_nothing_is_changed()
+    {
+        await GiveRetiringChartAsync(); await GiveSurvivingChartAsync();
+        var merged = await MergeAsync(Ann, Bo);
+        var stranger = await S.PatientAsync("Eli", "Moss");
+        await using (var db = Fixture.CreateContext())
+        {
+            var moved = await db.PatientMergeMovedRows.AsNoTracking().Where(r => r.MergeId == merged.MergeId && r.TableName == "TreatmentPlans").Select(r => r.RowKey).FirstAsync();
+            await using var tx = await db.Database.BeginTransactionAsync();
+            await db.Database.ExecuteSqlRawAsync("EXEC sp_set_session_context N'alveara.patient_merge', 1");                           // something moved a row the merge had moved, so the ledger no longer matches the data
+            await db.Database.ExecuteSqlRawAsync("UPDATE [TreatmentPlans] SET [PatientId] = {0} WHERE [Id] = {1}", stranger, Guid.Parse(moved));
+            await tx.CommitAsync();
+        }
+        var after = (Ann: await CountsAsync(Ann), Bo: await CountsAsync(Bo), Stranger: await CountsAsync(stranger));
+        var refused = await RefusedAsync(() => UnmergeAsync(new UnmergeRequest(merged.MergeId, "x", null, null, true), "mismatch"));
+        Assert.Equal(("unmerge_inconsistent", 500), (refused.Code, refused.StatusCode));                                              // found while the rows are moved back, before anything is kept
+        var preview = await Assert.ThrowsAsync<PatientException>(() => WithDb(db => new PatientUnmergeService(db, Clock).PreviewAsync(merged.MergeId, default)));
+        Assert.Equal(("unmerge_inconsistent", 500), (preview.Code, preview.StatusCode));
+        Assert.Contains("TreatmentPlans", preview.Message);
+        Assert.Equal(after.Ann, await CountsAsync(Ann)); Assert.Equal(after.Bo, await CountsAsync(Bo)); Assert.Equal(after.Stranger, await CountsAsync(stranger));       // the rows it had moved were put back by the rollback
+        Assert.Equal(0, await Scalar("SELECT COUNT(*) AS [Value] FROM [PatientUnmerges]"));
+        Assert.Equal(1, await Scalar($"SELECT COUNT(*) AS [Value] FROM [Patients] WHERE [Id] = '{Ann}' AND [MergedAtUtc] IS NOT NULL"));
+    }
+
     // ---------- failing part way ----------
 
     [Theory]

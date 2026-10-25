@@ -88,6 +88,19 @@ public class RetiredRecordGuardTests : TreatmentPlanTestBase
     }
 
     [Fact]
+    public async Task During_a_merge_a_new_row_for_a_retired_patient_is_answered_by_the_merge_scope_rule_and_not_by_the_retired_record_check()
+    {
+        var kept = await S.PatientAsync("Cy", "Kim"); var gone = await S.PatientAsync("Dee", "Kim");
+        await MergeAsync(gone, kept);
+        await using var db = Fixture.CreateContext();
+        await using var tx = await db.Database.BeginTransactionAsync();
+        await db.Database.ExecuteSqlRawAsync("EXEC sp_set_session_context N'alveara.patient_merge', 1");
+        db.Add(Recall(gone));
+        var refused = await Refusal(() => db.SaveChangesAsync());
+        Assert.Equal(51234, refused.Number);                                                                                          // the merge may only change patient ids: no new row, whoever it is for
+    }
+
+    [Fact]
     public async Task The_guard_is_for_new_records_only_a_retired_patients_existing_rows_can_still_be_changed()
     {
         var kept = await S.PatientAsync("Cy", "Kim"); var gone = await S.PatientAsync("Dee", "Kim");
