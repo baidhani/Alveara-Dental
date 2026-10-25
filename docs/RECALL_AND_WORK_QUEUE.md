@@ -1,6 +1,6 @@
 # Recall, unscheduled treatment and the work queue (ALV-009-C01)
 
-This extends [FOLLOW_UPS.md](FOLLOW_UPS.md). A follow-up task now also has a **priority** (Low, Normal, High, Urgent), a **kind** (Manual, Recall, UnscheduledTreatment), an optional appointment and an optional treatment-plan item, and may be **unassigned**. Tasks the system makes have no creator and no owner until a person takes them.
+This extends [FOLLOW_UPS.md](FOLLOW_UPS.md). ALV-009-C02 adds two more system task kinds, `ReferralFollowUp` and `LabCaseDue`: see [REFERRALS_AND_LAB_CASES.md](REFERRALS_AND_LAB_CASES.md). A follow-up task now also has a **priority** (Low, Normal, High, Urgent), a **kind** (Manual, Recall, UnscheduledTreatment), an optional appointment and an optional treatment-plan item, and may be **unassigned**. Tasks the system makes have no creator and no owner until a person takes them.
 
 ## What the system makes, and when
 
