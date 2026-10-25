@@ -56,11 +56,15 @@ internal sealed class PatientMergeCatalog
     public static string Q(string identifier) => "[" + identifier.Replace("]", "]]", StringComparison.Ordinal) + "]";
 
     /// <summary>The primary key of a row as text, the same expression everywhere so a key read from one query matches one computed in another.</summary>
-    public string KeyExpr(string table, string alias)
+    public string KeyExpr(string table, string alias, string? patientIdAs = null)
     {
         var entity = _entities[table];
         var key = entity.FindPrimaryKey() ?? throw new InvalidOperationException($"{table} has no primary key.");
-        return Concat(alias, key.Properties.Select(p => Column(entity, p)).ToList());
+        var columns = key.Properties.Select(p => Column(entity, p)).ToList();
+        if (patientIdAs is null) return Concat(alias, columns);
+        // the key a row will have once its patient id is changed to <patientIdAs>: only a table whose primary key includes the patient id (a recall plan is one per patient) differs
+        var parts = columns.Select(c => c == "PatientId" ? $"CONVERT(nvarchar(100), {patientIdAs})" : $"CONVERT(nvarchar(100), {alias}.{Q(c)})").ToList();
+        return parts.Count == 1 ? parts[0] : $"CONCAT_WS(N'|', {string.Join(", ", parts)})";
     }
 
     /// <summary>A (possibly composite) column list as text; null when any part is null, so a missing reference is never mistaken for a key.</summary>

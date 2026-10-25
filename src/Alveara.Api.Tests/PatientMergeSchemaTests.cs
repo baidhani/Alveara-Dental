@@ -108,7 +108,7 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
         Assert.Equal(547, (await AddRefusedAsync(Lineage(c, Guid.NewGuid()))).Number);                                 // a survivor that is not a patient
         Assert.Equal(547, (await AddRefusedAsync(Lineage(c, b, m => m.MergedByUserId = Guid.NewGuid()))).Number);      // a user that does not exist
         Assert.Equal(2601, (await AddRefusedAsync(Lineage(c, b, m => m.MergeKey = first.MergeKey))).Number);           // the same key is the same merge
-        Assert.Equal(2601, (await AddRefusedAsync(Lineage(a, c))).Number);                                             // a patient is retired once
+        Assert.Equal(51244, (await AddRefusedAsync(Lineage(a, c))).Number);                                            // a patient is retired once at a time (until its merge is undone)
         Assert.Equal(1, await CountAsync<PatientMerge>());
     }
 
@@ -300,7 +300,7 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
         await using (var db = Fixture.CreateContext()) await db.Database.MigrateAsync();
         await using (var db = Fixture.CreateContext())
         {
-            Assert.Equal(3, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name LIKE 'PatientMerge%'").SingleAsync());
+            Assert.Equal(4, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.tables WHERE name LIKE 'PatientMerge%'").SingleAsync());          // the lineage, its moves, its answers and its ledger
             Assert.Equal(54, await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.triggers WHERE name LIKE 'TR[_]%[_]MergeScope'").SingleAsync());
         }
         Assert.Equal(51086, (await SqlRefusalAsync($"UPDATE [TreatmentPlans] SET [PatientId] = {Bo} WHERE [Id] = {plan.Id}")).Number);

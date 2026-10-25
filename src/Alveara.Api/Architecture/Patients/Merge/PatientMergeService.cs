@@ -105,22 +105,23 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         if (plan.Blockers.Count > 0) throw new PatientException("merge_blocked", string.Join(" ", Distinct(plan.Blockers).Select(b => b.Message)), 409);
         var decisions = Decide(plan, r.FieldChoices);
 
-        await MoveAsync(catalog, plan, source.Id, survivor.Id, ct);
+        var now = clock.UtcNow;
+        var mergeId = Guid.NewGuid();
+        db.PatientMerges.Add(new PatientMerge { Id = mergeId, MergeKey = key, SourcePatientId = source.Id, SurvivorPatientId = survivor.Id, MergedByUserId = actor, MergedAtUtc = now, Reason = reason, HasLedger = true });
+        await SaveAsync(ct);                                                                                         // the lineage first: the ledger of the moved rows points at it, and the database marks a patient merged only when it exists
+        await MoveAsync(catalog, plan, source.Id, survivor.Id, mergeId, ct);
         var moves = plan.Moves;                                                                                     // counted before, by SELECT: the rows-affected of an UPDATE is not reliable through INSTEAD OF triggers
         await VerifyAsync(catalog, plan, source.Id, survivor.Id, ct);
 
         db.ChangeTracker.Clear();                                                                                   // the raw moves changed rows the context may hold
-        var now = clock.UtcNow;
-        var mergeId = Guid.NewGuid();
         var trackedSource = await db.Patients.SingleAsync(p => p.Id == source.Id, ct);
         var trackedSurvivor = await db.Patients.SingleAsync(p => p.Id == survivor.Id, ct);
         var resolutions = Apply(trackedSource, trackedSurvivor, decisions, plan, now, actor);
 
         PatientWrite.History(db, source.Id, now, actor, "Inactivated", "IsActive", "True", "False");           // before the retired record is marked: the database takes no new record for a merged-away patient
-        db.PatientMerges.Add(new PatientMerge { Id = mergeId, MergeKey = key, SourcePatientId = source.Id, SurvivorPatientId = survivor.Id, MergedByUserId = actor, MergedAtUtc = now, Reason = reason });
-        await SaveAsync(ct);                                                                                         // the lineage first: the database marks a patient merged only when it exists
         db.PatientMergeMoves.AddRange(moves.Select(m => new PatientMergeMove { MergeId = mergeId, TableName = m.Table, ColumnName = m.Column, RowsMoved = m.Rows }));
         db.PatientMergeResolutions.AddRange(resolutions.Select(x => new PatientMergeResolution { Id = Guid.NewGuid(), MergeId = mergeId, Kind = x.Kind, Subject = x.Subject, Choice = x.Choice, ReplacedValue = x.ReplacedValue }));
+        await SaveAsync(ct);                                                                                         // the survivor's answers, the moves and the answers recorded; the retired record is marked next
         trackedSource.IsActive = false; trackedSource.MergedAtUtc = now; PatientWrite.Touch(trackedSource, now, actor);
         var detail = $"Patient record merged: {moves.Sum(m => m.Rows)} rows moved to the surviving record, {plan.LeftCount} left with the retired record, {resolutions.Count(x => x.Kind == PatientMergeResolutionKinds.Field)} field decisions{Decisions(resolutions)}.{(identity.Count > 0 ? $" Identity differences confirmed on purpose: {string.Join(", ", identity)}." : "")}";
         AuditService.Record(db, AuditEventTypes.PatientMerged, nameof(Patient), source.Id, actor, detail + " This record is the retired one.", reason, mergeId);
@@ -148,7 +149,7 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
 
     // ---------- the moves ----------
 
-    private async Task MoveAsync(PatientMergeCatalog catalog, MergePlan plan, Guid source, Guid survivor, CancellationToken ct)
+    private async Task MoveAsync(PatientMergeCatalog catalog, MergePlan plan, Guid source, Guid survivor, Guid mergeId, CancellationToken ct)
     {
         await db.Database.ExecuteSqlRawAsync("CREATE TABLE #MergeLeft ([Tbl] nvarchar(100) NOT NULL, [RowKey] nvarchar(400) NOT NULL, PRIMARY KEY ([Tbl], [RowKey]))", ct);
         var stay = plan.Left.SelectMany(t => t.Value.Keys.Select(k => (Table: t.Key, Key: k))).ToList();
@@ -167,6 +168,9 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         {
             var table = PatientMergeCatalog.Q(column.Table); var name = PatientMergeCatalog.Q(column.Column);
             var exclude = plan.Left.ContainsKey(column.Table) ? $" AND NOT EXISTS (SELECT 1 FROM #MergeLeft l WHERE l.[Tbl] = @tn AND l.[RowKey] = {catalog.KeyExpr(column.Table, "t")})" : "";
+            // the ledger: exactly the rows about to move, each by the key it will have afterwards, so an undo can find them again
+            await db.Database.ExecuteSqlRawAsync($"INSERT INTO [PatientMergeMovedRows] ([MergeId], [TableName], [ColumnName], [RowKey]) SELECT @mid, @tn, @cn, {catalog.KeyExpr(column.Table, "t", "@surv")} FROM {table} t WHERE t.{name} = @src{exclude}",
+                [new SqlParameter("@mid", mergeId), new SqlParameter("@tn", column.Table), new SqlParameter("@cn", column.Column), new SqlParameter("@surv", survivor), new SqlParameter("@src", source)], ct);
             await db.Database.ExecuteSqlRawAsync($"UPDATE t SET {name} = @surv FROM {table} t WHERE t.{name} = @src{exclude}",
                 [new SqlParameter("@surv", survivor), new SqlParameter("@src", source), new SqlParameter("@tn", column.Table)], ct);
         }

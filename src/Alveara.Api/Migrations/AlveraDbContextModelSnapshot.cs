@@ -5235,6 +5235,11 @@ namespace Alveara.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("HasLedger")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("MergeKey")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -5264,8 +5269,7 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("MergedByUserId");
 
-                    b.HasIndex("SourcePatientId")
-                        .IsUnique();
+                    b.HasIndex("SourcePatientId");
 
                     b.HasIndex("SurvivorPatientId");
 
@@ -5317,6 +5321,35 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeMovedRow", b =>
+                {
+                    b.Property<Guid>("MergeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TableName")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ColumnName")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("RowKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("MergeId", "TableName", "ColumnName", "RowKey");
+
+                    b.ToTable("PatientMergeMovedRows", null, t =>
+                        {
+                            t.HasTrigger("TR_PatientMergeMovedRows_Immutable");
+
+                            t.HasCheckConstraint("CK_PatientMergeMovedRows_Names", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([TableName], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND LEN(REPLACE(REPLACE(REPLACE(REPLACE([ColumnName], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND LEN(REPLACE(REPLACE(REPLACE(REPLACE([RowKey], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeResolution", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5363,6 +5396,62 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_PatientMergeResolutions_Shape", "([Kind] = 'Field' AND [Choice] IN ('KeptSurvivor','TookSource') AND ([Choice] = 'TookSource' OR [ReplacedValue] IS NULL)) OR ([Kind] = 'Record' AND [Choice] = 'LeftWithSource' AND [ReplacedValue] IS NULL)");
 
                             t.HasCheckConstraint("CK_PatientMergeResolutions_Subject", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Subject], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Subject] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Subject] COLLATE Latin1_General_BIN2) = 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientUnmerge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MergeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("RowsMovedBack")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UnmergeKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("UnmergedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UnmergedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MergeId")
+                        .IsUnique();
+
+                    b.HasIndex("UnmergeKey")
+                        .IsUnique();
+
+                    b.HasIndex("UnmergedByUserId");
+
+                    b.ToTable("PatientUnmerges", null, t =>
+                        {
+                            t.HasTrigger("TR_PatientUnmerges_Active");
+
+                            t.HasTrigger("TR_PatientUnmerges_Immutable");
+
+                            t.HasCheckConstraint("CK_PatientUnmerges_Key", "LEN(LTRIM(RTRIM([UnmergeKey]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [UnmergeKey] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PatientUnmerges_Reason", "LEN(REPLACE(REPLACE(REPLACE(REPLACE([Reason], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0 AND CHARINDEX(NCHAR(0), [Reason] COLLATE Latin1_General_BIN2) = 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Reason] COLLATE Latin1_General_BIN2) = 0");
+
+                            t.HasCheckConstraint("CK_PatientUnmerges_Rows", "[RowsMovedBack] >= 0");
+
+                            t.HasCheckConstraint("CK_PatientUnmerges_Time", "[UnmergedAtUtc] >= '2000-01-01' AND [UnmergedAtUtc] < '2200-01-01'");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -9053,11 +9142,35 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeMovedRow", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Merge.PatientMerge", null)
+                        .WithMany()
+                        .HasForeignKey("MergeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientMergeResolution", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Patients.Merge.PatientMerge", null)
                         .WithMany()
                         .HasForeignKey("MergeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Merge.PatientUnmerge", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Patients.Merge.PatientMerge", null)
+                        .WithMany()
+                        .HasForeignKey("MergeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UnmergedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

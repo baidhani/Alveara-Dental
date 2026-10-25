@@ -40,7 +40,8 @@ internal static class PatientMergeModel
             e.HasOne<Patient>().WithMany().HasForeignKey(x => x.SurvivorPatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.MergedByUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.MergeKey).IsUnique();                // a repeated request is the same merge
-            e.HasIndex(x => x.SourcePatientId).IsUnique();         // a patient is retired once
+            e.HasIndex(x => x.SourcePatientId);                    // a patient is retired once at a time: the database refuses a second merge of a record whose first merge was not undone (TR_PatientMerges_Survivor)
+            e.Property(x => x.HasLedger).HasDefaultValue(false);
             e.HasIndex(x => x.SurvivorPatientId);
             e.ToTable(t =>
             {
@@ -50,6 +51,41 @@ internal static class PatientMergeModel
                 t.HasCheckConstraint("CK_PatientMerges_Key", $"LEN(LTRIM(RTRIM([MergeKey]))) > 0 AND {PrescriptionModel.NoControl("MergeKey")}");
                 t.HasCheckConstraint("CK_PatientMerges_Reason", Text("Reason"));
                 t.HasCheckConstraint("CK_PatientMerges_Time", $"[MergedAtUtc] >= {Utc} AND [MergedAtUtc] < {Never}");
+            });
+        });
+
+        modelBuilder.Entity<PatientMergeMovedRow>(e =>
+        {
+            e.ToTable("PatientMergeMovedRows");
+            e.HasKey(x => new { x.MergeId, x.TableName, x.ColumnName, x.RowKey });
+            e.Property(x => x.TableName).HasMaxLength(64);
+            e.Property(x => x.ColumnName).HasMaxLength(64);
+            e.Property(x => x.RowKey).HasMaxLength(100);
+            e.HasOne<PatientMerge>().WithMany().HasForeignKey(x => x.MergeId).OnDelete(DeleteBehavior.Restrict);
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_PatientMergeMovedRows_Immutable");
+                t.HasCheckConstraint("CK_PatientMergeMovedRows_Names", $"{NotificationModel.NotBlank("TableName")} AND {NotificationModel.NotBlank("ColumnName")} AND {NotificationModel.NotBlank("RowKey")}");
+            });
+        });
+
+        modelBuilder.Entity<PatientUnmerge>(e =>
+        {
+            e.ToTable("PatientUnmerges");
+            e.Property(x => x.UnmergeKey).HasMaxLength(100);
+            e.Property(x => x.Reason).HasMaxLength(500);
+            e.HasOne<PatientMerge>().WithMany().HasForeignKey(x => x.MergeId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.UnmergedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.MergeId).IsUnique();                 // a merge is undone once
+            e.HasIndex(x => x.UnmergeKey).IsUnique();              // a repeated request is the same undo
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_PatientUnmerges_Immutable");
+                t.HasTrigger("TR_PatientUnmerges_Active");
+                t.HasCheckConstraint("CK_PatientUnmerges_Key", $"LEN(LTRIM(RTRIM([UnmergeKey]))) > 0 AND {PrescriptionModel.NoControl("UnmergeKey")}");
+                t.HasCheckConstraint("CK_PatientUnmerges_Reason", Text("Reason"));
+                t.HasCheckConstraint("CK_PatientUnmerges_Rows", "[RowsMovedBack] >= 0");
+                t.HasCheckConstraint("CK_PatientUnmerges_Time", $"[UnmergedAtUtc] >= {Utc} AND [UnmergedAtUtc] < {Never}");
             });
         });
 

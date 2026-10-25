@@ -30,6 +30,31 @@ public class PatientMerge
     public Guid MergedByUserId { get; set; }
     public DateTimeOffset MergedAtUtc { get; set; }
     public required string Reason { get; set; }
+    /// <summary>True when the merge wrote a ledger of the exact rows it moved (<see cref="PatientMergeMovedRow"/>), which is what makes it possible to undo. Merges made before the ledger existed have none and cannot be undone.</summary>
+    public bool HasLedger { get; set; }
+}
+
+/// <summary>One row a merge moved: the table and the patient-id column it changed, and the row's key (its primary key as text, as it is after the move). The ledger is what an undo moves back; it is never changed or deleted.</summary>
+public class PatientMergeMovedRow
+{
+    public Guid MergeId { get; set; }
+    public required string TableName { get; set; }
+    public required string ColumnName { get; set; }
+    public required string RowKey { get; set; }
+}
+
+/// <summary>
+/// ALV-017-C01: a merge that was undone: who, when and why. The merge's lineage stays as it was (it is append-only); this row says it no longer holds. One undo per merge; a record whose merge was undone can be merged away again later.
+/// </summary>
+public class PatientUnmerge
+{
+    public Guid Id { get; set; }
+    public Guid MergeId { get; set; }
+    public required string UnmergeKey { get; set; }
+    public Guid UnmergedByUserId { get; set; }
+    public DateTimeOffset UnmergedAtUtc { get; set; }
+    public required string Reason { get; set; }
+    public int RowsMovedBack { get; set; }
 }
 
 /// <summary>How many rows of one patient-owned column a merge moved to the survivor (zero is recorded too, so the lineage shows every table was looked at).</summary>

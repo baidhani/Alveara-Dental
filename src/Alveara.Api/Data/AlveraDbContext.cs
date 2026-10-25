@@ -148,6 +148,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Patients.Merge.PatientMergeMove> PatientMergeMoves => Set<Architecture.Patients.Merge.PatientMergeMove>();
     public DbSet<Architecture.Patients.Merge.PatientMergeResolution> PatientMergeResolutions => Set<Architecture.Patients.Merge.PatientMergeResolution>();
     public DbSet<Architecture.Patients.Merge.PatientDuplicateDismissal> PatientDuplicateDismissals => Set<Architecture.Patients.Merge.PatientDuplicateDismissal>();
+    public DbSet<Architecture.Patients.Merge.PatientMergeMovedRow> PatientMergeMovedRows => Set<Architecture.Patients.Merge.PatientMergeMovedRow>();
+    public DbSet<Architecture.Patients.Merge.PatientUnmerge> PatientUnmerges => Set<Architecture.Patients.Merge.PatientUnmerge>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
