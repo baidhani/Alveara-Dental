@@ -22,7 +22,7 @@ import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientFollowUpsTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientFollowUpsTab, PatientExternalCasesTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
@@ -31,6 +31,9 @@ import { NotificationsPage } from "./pages/notifications/NotificationsPage";
 import { MyFollowUpsPage } from "./pages/followups/MyFollowUpsPage";
 import { WorkQueuePage } from "./pages/followups/WorkQueuePage";
 import { RecallSettingsPage } from "./pages/followups/RecallSettingsPage";
+import { ExternalCasesPage } from "./pages/externalcases/ExternalCasesPage";
+import { ExternalCaseDetailPage } from "./pages/externalcases/ExternalCaseDetailPage";
+import { ExternalPartiesPage } from "./pages/externalcases/ExternalPartiesPage";
 import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
 import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -237,6 +240,7 @@ function createAppRouter() {
             <Route path="prescriptions" element={<RequirePermission permission="ViewPrescriptions"><PatientPrescriptionsTab /></RequirePermission>} />
             <Route path="prescription-composer" element={<RequirePermission permission="ViewPrescriptions"><PatientPrescriptionComposerTab /></RequirePermission>} />
             <Route path="follow-ups" element={<RequirePermission permission="ViewFollowUps"><PatientFollowUpsTab /></RequirePermission>} />
+            <Route path="external-cases" element={<RequirePermission permission="ViewExternalCases"><PatientExternalCasesTab /></RequirePermission>} />
             <Route path="treatment-plan" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientTreatmentPlanTab /></RequirePermission>} />
             <Route path="billing" element={<RequirePermission permission="ViewBilling"><PatientBillingTab /></RequirePermission>} />
             <Route path="clinical/templates" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTemplatesTab /></RequirePermission>} />
@@ -245,6 +249,9 @@ function createAppRouter() {
           <Route path="/follow-ups" element={<RequirePermission permission="ViewFollowUps"><MyFollowUpsPage /></RequirePermission>} />
           <Route path="/work-queue" element={<RequirePermission permission="ViewFollowUps"><WorkQueuePage /></RequirePermission>} />
           <Route path="/admin/recall" element={<RequirePermission permission="ManageRecallSettings"><RecallSettingsPage /></RequirePermission>} />
+          <Route path="/external-cases" element={<RequirePermission permission="ViewExternalCases"><ExternalCasesPage /></RequirePermission>} />
+          <Route path="/external-cases/:route/:id" element={<RequirePermission permission="ViewExternalCases"><ExternalCaseDetailPage /></RequirePermission>} />
+          <Route path="/admin/external-parties" element={<RequirePermission permission="ManageExternalParties"><ExternalPartiesPage /></RequirePermission>} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/messages/:id" element={<MessageDetailPage />} />

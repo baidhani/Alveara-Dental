@@ -73,7 +73,7 @@ describe("Patients routes", () => {
 describe("module registries", () => {
   it("the patient workspace lists only tabs that exist (no placeholders for later modules)", () => {
     // ALV-N010 added the Forms tab and STORY-005 the Clinical tab through this extension point; each is permission-gated and nothing else was added.
-    expect(patientWorkspaceTabs.map((t) => t.id)).toEqual(["details", "household", "history", "forms", "documents", "clinical", "safety", "odontogram", "perio", "diagnoses", "treatment-plan", "prescriptions", "prescription-composer", "follow-ups", "billing"]);
+    expect(patientWorkspaceTabs.map((t) => t.id)).toEqual(["details", "household", "history", "forms", "documents", "clinical", "safety", "odontogram", "perio", "diagnoses", "treatment-plan", "prescriptions", "prescription-composer", "follow-ups", "external-cases", "billing"]);
     expect(patientWorkspaceTabs.find((t) => t.id === "forms")?.requiredPermission).toBe("ViewSignedForms");
     expect(patientWorkspaceTabs.find((t) => t.id === "documents")?.requiredPermission).toBe("ViewDocuments"); // STORY-010
     expect(patientWorkspaceTabs.find((t) => t.id === "clinical")?.requiredPermission).toBe("ViewClinicalDocumentation");

@@ -29,11 +29,11 @@ public sealed record UpdateLabRequest(Guid? PartyId, string? Title, DateOnly? Du
 /// <summary>A move to another status. <see cref="Date"/> is the practice-local date it went out or came back (today when absent). A cancellation and a lab remake need a <see cref="Note"/>.</summary>
 public sealed record ChangeStatusRequest(string? ToStatus, string? Note, DateOnly? Date, string? RowVersion);
 
-/// <summary>One shape for both kinds so a list can mix them: <see cref="Summary"/> is the referral's reason or the lab case's title; the lab-only fields are null on a referral and the encounter is null on a lab case.</summary>
+/// <summary>One shape for both kinds so a list can mix them (<see cref="OpenChaseTaskId"/> is the open follow-up task chasing the case in the work queue, if there is one): <see cref="Summary"/> is the referral's reason or the lab case's title; the lab-only fields are null on a referral and the encounter is null on a lab case.</summary>
 public sealed record ExternalCaseView(
     string Kind, Guid Id, Guid PatientId, Guid PartyId, string PartyName, bool PartyActive, string Summary, string Status, IReadOnlyList<string> NextStatuses,
     DateOnly? SentOn, DateOnly? ReceivedOn, DateOnly? DueOn, bool Overdue, Guid? EncounterId, string? ToothKey, Guid? TreatmentPlanItemId, string? Material, string? Shade, string? Notes,
-    string? ClosureNote, DateTimeOffset? ClosedAtUtc, string RowVersion, DateTimeOffset CreatedAtUtc, DateTimeOffset UpdatedAtUtc);
+    string? ClosureNote, DateTimeOffset? ClosedAtUtc, string RowVersion, DateTimeOffset CreatedAtUtc, DateTimeOffset UpdatedAtUtc, Guid? OpenChaseTaskId = null);
 
 public sealed record ExternalCaseResult(ExternalCaseView Case, bool Replayed);
 

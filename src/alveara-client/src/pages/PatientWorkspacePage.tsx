@@ -18,6 +18,7 @@ import { PerioPanel } from "./perio/PerioPanel";
 import { DiagnosesPanel } from "./diagnosis/DiagnosesPanel";
 import { PrescriptionsPanel } from "./prescription/PrescriptionsPanel";
 import { FollowUpsPanel } from "./followups/FollowUpsPanel";
+import { PatientExternalCasesPanel } from "./externalcases/PatientExternalCasesPanel";
 import { PrescriptionWorkflowPanel } from "./prescription/workflow/PrescriptionWorkflowPanel";
 import { TreatmentPlansPanel } from "./treatmentplan/TreatmentPlansPanel";
 import { BillingPanel } from "./billing/BillingPanel";
@@ -161,6 +162,13 @@ export function PatientFollowUpsTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
   return <FollowUpsPanel patientId={patient.id} canManage={hasPermission("ManageFollowUps")} />;
+}
+
+/** ALV-009-C02: the patient's referrals and lab cases. Anyone who may view them reads the list and the timeline; people who may manage them can also start a case. */
+export function PatientExternalCasesTab() {
+  const { patient } = useOutletContext<WorkspaceOutlet>();
+  const { hasPermission } = useAuth();
+  return <PatientExternalCasesPanel patientId={patient.id} canManage={hasPermission("ManageExternalCases")} />;
 }
 
 export function PatientPrescriptionComposerTab() {

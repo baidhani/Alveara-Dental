@@ -34,6 +34,7 @@ export interface PatientRecall {
 export const PRIORITIES: FollowUpPriority[] = ["Urgent", "High", "Normal", "Low"];
 export const KINDS: { id: FollowUpKind; label: string }[] = [
   { id: "Manual", label: "Follow-up" }, { id: "Recall", label: "Recall" }, { id: "UnscheduledTreatment", label: "Unscheduled treatment" },
+  { id: "ReferralFollowUp", label: "Referral follow-up" }, { id: "LabCaseDue", label: "Lab case due" },
 ];
 export const kindLabel = (kind: FollowUpKind) => KINDS.find((k) => k.id === kind)?.label ?? kind;
 

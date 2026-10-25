@@ -129,7 +129,8 @@ export function WorkQueuePage() {
               return (
                 <tr key={t.id}>
                   <td><span className={`alv-fu-badge alv-fu-badge--${t.priority.toLowerCase()}`}>{t.priority}</span></td>
-                  <td><strong>{t.title}</strong><br /><span className="alv-fu-item__meta">{kindLabel(t.kind)}{t.status !== "Open" ? ` · ${t.status}` : ""}</span></td>
+                  <td><strong>{t.title}</strong><br /><span className="alv-fu-item__meta">{kindLabel(t.kind)}{t.status !== "Open" ? ` · ${t.status}` : ""}</span>
+                    {(t.sourceReferralCaseId || t.sourceLabCaseId) && <><br /><Link to={`/external-cases/${t.sourceLabCaseId ? "lab-cases" : "referrals"}/${t.sourceLabCaseId ?? t.sourceReferralCaseId}`}>Open the case</Link></>}</td>
                   <td><Link to={`/patients/${t.patientId}/follow-ups`}>{item.patientName || "Open the patient"}</Link></td>
                   <td>{formatWhen(t.dueAtUtc)}{item.urgency === "Overdue" && <span className="alv-fu-badge alv-fu-badge--overdue">Overdue</span>}{item.urgency === "DueSoon" && <span className="alv-fu-badge">Due soon</span>}
                     {item.appointmentStartUtc && <><br /><span className="alv-fu-item__meta">Appointment {formatWhen(item.appointmentStartUtc)}</span></>}</td>

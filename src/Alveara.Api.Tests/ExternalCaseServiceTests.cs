@@ -305,7 +305,7 @@ public class ExternalCaseServiceTests : TreatmentPlanTestBase
             catch (ExternalCaseException e) { return e.Code; }
         })));
         Assert.Equal(1, outcomes.Count(o => o == "ok"));
-        Assert.Equal(1, outcomes.Count(o => o == "case_changed"));
+        Assert.Equal(1, outcomes.Count(o => o is "case_changed" or "status_invalid"));                                                              // the loser is told either that the case changed or (if it read the case after a cancellation) that the move is no longer allowed
         Assert.Equal(2, (await Cases(s => s.EventsAsync(Referral, d.Id, default))).Count);                                                           // created + exactly one move
     }
 

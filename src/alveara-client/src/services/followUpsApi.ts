@@ -9,7 +9,7 @@ import { ApiError, fetchCsrfToken, request } from "./authApi";
 
 export type FollowUpStatus = "Open" | "Completed" | "Cancelled";
 export type FollowUpPriority = "Low" | "Normal" | "High" | "Urgent";
-export type FollowUpKind = "Manual" | "Recall" | "UnscheduledTreatment";
+export type FollowUpKind = "Manual" | "Recall" | "UnscheduledTreatment" | "ReferralFollowUp" | "LabCaseDue";
 
 export interface FollowUp {
   id: string;
@@ -36,6 +36,9 @@ export interface FollowUp {
   kind: FollowUpKind;
   appointmentId: string | null;
   sourcePlanItemId: string | null;
+  /** ALV-009-C02: for a task that chases a referral or a lab case, the case it names. Absent on older responses. */
+  sourceReferralCaseId?: string | null;
+  sourceLabCaseId?: string | null;
   closedBySystem: boolean;
 }
 

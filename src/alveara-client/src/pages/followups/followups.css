@@ -160,3 +160,23 @@
 .alv-fu-timeline {
   margin-top: var(--space-5);
 }
+
+/* ALV-009-C02: referral and lab case pages */
+.alv-fu-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-3) 0;
+}
+
+.alv-fu-facts dt {
+  font-weight: 600;
+}
+
+.alv-fu-facts dd {
+  margin: 0;
+}
+
+.alv-fu-docs {
+  margin-top: var(--space-5);
+}

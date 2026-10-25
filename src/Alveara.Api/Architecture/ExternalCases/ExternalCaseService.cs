@@ -231,12 +231,14 @@ public partial class ExternalCaseService(AlveraDbContext db, IPracticeClock cloc
         var kind = KindOf(c);
         var next = ExternalCaseRules.NextStatuses(kind, c.Status);
         var overdue = ExternalCaseRules.IsOverdue(c.Status, c.DueOn, Today);
+        var chase = await db.FollowUpTasks.AsNoTracking().Where(t => t.Status == Alveara.Api.Architecture.FollowUps.FollowUpStatuses.Open && (t.SourceReferralCaseId == c.Id || t.SourceLabCaseId == c.Id))
+            .OrderByDescending(t => t.CreatedAtUtc).Select(t => (Guid?)t.Id).FirstOrDefaultAsync(ct);
         return c switch
         {
             ReferralCase r => new ExternalCaseView(kind, r.Id, r.PatientId, r.PartyId, party.Name, party.IsActive, r.Reason, r.Status, next, r.SentOn, r.ReceivedOn, r.DueOn, overdue, r.EncounterId, null, null, null, null, r.Notes,
-                r.ClosureNote, r.ClosedAtUtc, Convert.ToBase64String(r.RowVersion), r.CreatedAtUtc, r.UpdatedAtUtc),
+                r.ClosureNote, r.ClosedAtUtc, Convert.ToBase64String(r.RowVersion), r.CreatedAtUtc, r.UpdatedAtUtc, chase),
             LabCase l => new ExternalCaseView(kind, l.Id, l.PatientId, l.PartyId, party.Name, party.IsActive, l.Title, l.Status, next, l.SentOn, l.ReceivedOn, l.DueOn, overdue, null, l.ToothKey, l.TreatmentPlanItemId, l.Material, l.Shade, l.Notes,
-                l.ClosureNote, l.ClosedAtUtc, Convert.ToBase64String(l.RowVersion), l.CreatedAtUtc, l.UpdatedAtUtc),
+                l.ClosureNote, l.ClosedAtUtc, Convert.ToBase64String(l.RowVersion), l.CreatedAtUtc, l.UpdatedAtUtc, chase),
             _ => throw new InvalidOperationException("Unknown case type."),
         };
     }
