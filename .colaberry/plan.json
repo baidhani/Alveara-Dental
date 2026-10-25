@@ -857,27 +857,27 @@
     "prep": [
       {
         "key": "PREP-1",
-        "title": "Write the demo narrative: the problem, the one moment, the guardrail",
+        "title": "Record Your Project Introduction",
         "due_on": "2026-10-02"
       },
       {
         "key": "PREP-2",
-        "title": "Record a first run-through and watch it back",
+        "title": "Record Your Working-System Demo",
         "due_on": "2026-10-03"
       },
       {
         "key": "PREP-3",
-        "title": "Build the slides — what it does, who for, the number it moves",
+        "title": "Record Your AI Visual Presentation",
         "due_on": "2026-10-05"
       },
       {
         "key": "PREP-4",
-        "title": "Rehearse with one other person and take their notes",
+        "title": "Record Your Stakeholder Update",
         "due_on": "2026-10-06"
       },
       {
         "key": "PREP-5",
-        "title": "Record the final demo video",
+        "title": "Record Your Final Showcase",
         "due_on": "2026-10-07"
       },
       {
