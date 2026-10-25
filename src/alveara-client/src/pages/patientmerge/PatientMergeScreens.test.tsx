@@ -32,10 +32,12 @@ let reply: (c: Call) => Response | null;
 let pairs: unknown[];
 let log: unknown[];
 let dismissals: Record<string, unknown>[];
+let undoPreview: Record<string, unknown>;
 let current: ReturnType<typeof preview>;
 
 beforeEach(() => {
   calls = []; reply = () => null; pairs = [pair]; log = []; dismissals = []; current = preview();
+  undoPreview = { mergeId: "m0", source: anne, survivor: ann, canUndo: true, blockers: [], moves: [{ table: "Appointments", column: "PatientId", rows: 3 }, { table: "Diagnoses", column: "PatientId", rows: 2 }], fieldsToRestore: ["Phone", "Email"], fieldsKept: ["City"], sourceRowVersion: "US", survivorRowVersion: "UV" };
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
     const u = String(url); const method = init?.method ?? "GET";
     const body = init?.body ? JSON.parse(String(init.body)) : undefined;
@@ -44,6 +46,8 @@ beforeEach(() => {
     calls.push(call);
     const custom = reply(call);
     if (custom) return Promise.resolve(custom);
+    if (u.endsWith("/unmerge-preview")) return Promise.resolve(json(undoPreview));
+    if (u.endsWith("/unmerge") && method === "POST") { log = log.map((l) => ({ ...(l as object), undoneAtUtc: "2026-10-25T13:00:00Z", undoneByName: "admin-hana", canUndo: false })); return Promise.resolve(json({ unmergeId: "x1", mergeId: "m0", rowsMovedBack: 5, replayed: false })); }
     if (u.includes("/api/patient-merges/dismissals") && u.endsWith("/restore") && method === "POST") { const id = u.split("/").at(-2); dismissals = dismissals.filter((d) => d.id !== id); pairs = [pair]; return Promise.resolve(json({ id, replayed: false })); }
     if (u.includes("/api/patient-merges/dismissals") && method === "POST") { dismissals = [{ id: "d1", first: ann, second: anne, reason: body.reason, dismissedByUserId: "u1", dismissedByName: "admin-hana", dismissedAtUtc: "2026-10-25T12:00:00Z", replayed: false }]; pairs = []; return Promise.resolve(json(dismissals[0])); }
     if (u.includes("/api/patient-merges/dismissals")) return Promise.resolve(json(dismissals));
@@ -88,6 +92,80 @@ describe("the duplicate list", () => {
     reply = (c) => (c.url.includes("/duplicates") ? err(500, "boom") : null);
     renderPage();
     expect(await screen.findByText("Could not load the duplicate review")).toBeInTheDocument();
+  });
+});
+
+const logEntry = (over: Record<string, unknown> = {}) => ({ mergeId: "m0", source: anne, survivor: ann, mergedByUserId: "u1", mergedByName: "admin-hana", mergedAtUtc: "2026-10-24T10:00:00Z", reason: "Registered twice", rowsMoved: 5, recordsLeftBehind: 0, undoneAtUtc: null, undoneByName: null, canUndo: true, ...over });
+
+describe("undoing a merge", () => {
+  it("shows each merge as in force with an Undo action, or as undone with who and when and no action", async () => {
+    pairs = [];
+    log = [logEntry(), logEntry({ mergeId: "m1", canUndo: false, undoneAtUtc: "2026-10-25T09:00:00Z", undoneByName: "admin-lee" }), logEntry({ mergeId: "m2", canUndo: false })];
+    renderPage();
+    const table = await screen.findByRole("table", { name: "Merges made" });
+    expect(within(table).getAllByText("In force")).toHaveLength(2);
+    expect(within(table).getByText(/Undone .* by admin-lee/)).toBeInTheDocument();
+    expect(within(table).getAllByRole("button", { name: "Undo the merge of Anne Lee into Ann Lee" })).toHaveLength(1);      // only the one that can be undone
+  });
+
+  it("reviews what goes back, keeps the undo off until a reason is written and it is confirmed, then sends the versions it showed and an Idempotency-Key", async () => {
+    pairs = []; log = [logEntry()];
+    const { container } = renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Undo the merge of Anne Lee into Ann Lee" }));
+    expect(await screen.findByRole("heading", { name: "Undo the merge of Anne Lee into Ann Lee" })).toBeInTheDocument();
+    expect(screen.getByText("5 rows move back to Anne Lee.")).toBeInTheDocument();
+    expect(screen.getByText(/Put back on Ann Lee: Phone, Email/)).toBeInTheDocument();
+    expect(screen.getByText(/Kept as they are now, because they were edited after the merge: City/)).toBeInTheDocument();
+    expect(await axe(container)).toHaveNoViolations();
+    const undo = screen.getByRole("button", { name: "Undo the merge" });
+    expect(undo).toBeDisabled();
+    await userEvent.type(screen.getByLabelText(/Reason for the undo/), "They are different people");
+    expect(undo).toBeDisabled();                                                                                     // not confirmed yet
+    await userEvent.click(screen.getByLabelText(/I have reviewed what goes back/));
+    expect(undo).toBeEnabled();
+    await userEvent.click(undo);
+    expect(await screen.findByText(/Undid the merge of Anne Lee into Ann Lee: 5 rows moved back, and Anne Lee is active again\./)).toBeInTheDocument();
+    const post = posts().find((c) => c.url.endsWith("/api/patient-merges/m0/unmerge"))!;
+    expect(post.body).toEqual({ reason: "They are different people", sourceRowVersion: "US", survivorRowVersion: "UV", confirmed: true });
+    expect(post.headers["Idempotency-Key"]).toMatch(/^[0-9a-f-]{8,}$/i);
+    expect(await screen.findByText(/Undone .* by admin-hana/)).toBeInTheDocument();                                  // the log reloads and says so
+  });
+
+  it("says what stops an undo and offers no way to go ahead", async () => {
+    pairs = []; log = [logEntry()];
+    undoPreview = { ...undoPreview, canUndo: false, blockers: [{ code: "newer_records", message: "2 DiagnosisLinks record(s) made after the merge depend on Diagnoses rows that would move back. Resolve or remove them first." }] };
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Undo the merge of Anne Lee into Ann Lee" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("This merge cannot be undone yet.");
+    await userEvent.type(screen.getByLabelText(/Reason for the undo/), "Different people");
+    await userEvent.click(screen.getByLabelText(/I have reviewed what goes back/));
+    expect(screen.getByRole("button", { name: "Undo the merge" })).toBeDisabled();
+    expect(posts()).toHaveLength(0);
+  });
+
+  it("explains a merge that cannot be reviewed for an undo and goes back to the list", async () => {
+    pairs = []; log = [logEntry()];
+    reply = (c) => (c.url.endsWith("/unmerge-preview") ? err(409, "unmerge_unavailable") : null);
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Undo the merge of Anne Lee into Ann Lee" }));
+    expect(await screen.findByText("This merge cannot be reviewed for an undo")).toBeInTheDocument();
+    expect(screen.getByText(/before merges kept a ledger/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Back to the list" }));
+    expect(await screen.findByRole("heading", { name: "Merge log" })).toBeInTheDocument();
+  });
+
+  it("explains a refused undo, changes nothing and offers to reload the review", async () => {
+    pairs = []; log = [logEntry()];
+    reply = (c) => (c.method === "POST" && c.url.endsWith("/unmerge") ? err(409, "patient_changed") : null);
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Undo the merge of Anne Lee into Ann Lee" }));
+    await userEvent.type(await screen.findByLabelText(/Reason for the undo/), "Different people");
+    await userEvent.click(screen.getByLabelText(/I have reviewed what goes back/));
+    await userEvent.click(screen.getByRole("button", { name: "Undo the merge" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("changed after you reviewed it");
+    const before = calls.filter((c) => c.url.endsWith("/unmerge-preview")).length;
+    await userEvent.click(screen.getByRole("button", { name: "Reload the review" }));
+    await vi.waitFor(() => expect(calls.filter((c) => c.url.endsWith("/unmerge-preview")).length).toBe(before + 1));
   });
 });
 

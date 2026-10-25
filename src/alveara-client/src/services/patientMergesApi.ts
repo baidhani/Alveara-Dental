@@ -46,7 +46,17 @@ export interface MergeResolution { kind: "Field" | "Record"; subject: string; ch
 export interface MergeResult {
   mergeId: string; sourcePatientId: string; survivorPatientId: string; mergedByUserId: string; mergedAtUtc: string; reason: string; moves: MergeMoveCount[]; resolutions: MergeResolution[]; replayed: boolean;
 }
-export interface MergeLogEntry { mergeId: string; source: PatientBrief; survivor: PatientBrief; mergedByUserId: string; mergedByName: string; mergedAtUtc: string; reason: string; rowsMoved: number; recordsLeftBehind: number }
+export interface MergeLogEntry {
+  mergeId: string; source: PatientBrief; survivor: PatientBrief; mergedByUserId: string; mergedByName: string; mergedAtUtc: string; reason: string; rowsMoved: number; recordsLeftBehind: number;
+  /** Set when the merge was undone; `canUndo` is true only for a merge that still holds and kept a ledger of the rows it moved. */
+  undoneAtUtc: string | null; undoneByName: string | null; canUndo: boolean;
+}
+
+export interface UnmergePreview {
+  mergeId: string; source: PatientBrief; survivor: PatientBrief; canUndo: boolean; blockers: MergeBlocker[]; moves: MergeMoveCount[]; fieldsToRestore: string[]; fieldsKept: string[]; sourceRowVersion: string; survivorRowVersion: string;
+}
+export interface UnmergeInput { reason: string; sourceRowVersion: string; survivorRowVersion: string; confirmed: boolean }
+export interface UnmergeResult { unmergeId: string; mergeId: string; sourcePatientId: string; survivorPatientId: string; unmergedByUserId: string; unmergedAtUtc: string; reason: string; rowsMovedBack: number; fieldsRestored: string[]; fieldsKept: string[]; replayed: boolean }
 
 export const REASON_MAX = 500;
 
@@ -61,6 +71,12 @@ export interface MergeLink { mergeId: string; patientId: string; patientName: st
 /** Where a patient stands in the merge lineage: merged into another record (retired), and/or the survivor of earlier merges. */
 export interface PatientMergeHistory { mergedInto: MergeLink | null; absorbed: MergeLink[] }
 export const getPatientMergeHistory = (patientId: string, signal?: AbortSignal) => request<PatientMergeHistory>(`/api/patients/${encodeURIComponent(patientId)}/merge-history`, { signal });
+
+export const previewUnmerge = (mergeId: string, signal?: AbortSignal) => request<UnmergePreview>(`/api/patient-merges/${encodeURIComponent(mergeId)}/unmerge-preview`, { signal });
+export async function unmergePatients(mergeId: string, input: UnmergeInput, key: string): Promise<UnmergeResult> {
+  const csrf = await fetchCsrfToken();
+  return request<UnmergeResult>(`/api/patient-merges/${encodeURIComponent(mergeId)}/unmerge`, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf, "Idempotency-Key": key }, body: JSON.stringify(input) });
+}
 
 export const listDismissals = (signal?: AbortSignal) => request<Dismissal[]>("/api/patient-merges/dismissals", { signal });
 export async function dismissPair(firstPatientId: string, secondPatientId: string, reason: string): Promise<Dismissal> {
@@ -100,6 +116,25 @@ const MESSAGES: Record<string, string> = {
   patient_not_found: "One of the records was not found. Reload the list.",
   permission_denied: "Only an administrator can merge patient records.",
 };
+
+const UNMERGE_MESSAGES: Record<string, string> = {
+  unmerge_blocked: "This merge cannot be undone yet: records made after it depend on rows that would move back. Nothing was changed.",
+  unmerge_unavailable: "This merge was made before merges kept a ledger of the rows they moved, so it cannot be undone here. Recovery is by restoring a backup.",
+  already_unmerged: "This merge was already undone. Reload the list.",
+  merge_not_held: "This merge no longer holds. Reload the list.",
+  merge_not_found: "That merge was not found. Reload the list.",
+  survivor_merged: "The surviving record was itself merged into another record. Undo that merge first.",
+  unmerge_conflict: "Another request undid this merge at the same moment. Reload the list.",
+  unmerge_inconsistent: "The undo was stopped because the data was not where the merge left it. Nothing was changed. Tell support.",
+  patient_changed: "One of the records changed after you reviewed it. Nothing was undone. Reload the review.",
+  key_reused: "That attempt was already used for a different undo. Review it again.",
+};
+
+/** A message safe to show for a refused undo; the codes that mean something else for a merge are worded for an undo. */
+export function unmergeErrorMessage(err: unknown): string {
+  if (err instanceof ApiError && UNMERGE_MESSAGES[err.code]) return UNMERGE_MESSAGES[err.code];
+  return mergeErrorMessage(err);
+}
 
 /** A message safe to show for a refused merge request. */
 export function mergeErrorMessage(err: unknown): string {

@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { ErrorState, LoadingState } from "../../components/StatePatterns";
 import { briefName, dismissPair, getMergeLog, listDismissals, mergeErrorMessage, REASON_MAX, restoreDismissal, scanDuplicates } from "../../services/patientMergesApi";
-import type { Dismissal, DuplicatePair, DuplicateScan, MergeLogEntry, MergeResult, PatientBrief } from "../../services/patientMergesApi";
+import type { Dismissal, DuplicatePair, DuplicateScan, MergeLogEntry, MergeResult, PatientBrief, UnmergePreview, UnmergeResult } from "../../services/patientMergesApi";
 import { MergeReview } from "./MergeReview";
+import { UnmergeReview } from "./UnmergeReview";
 import "../followups/followups.css";
 
 interface Done { result: MergeResult; source: PatientBrief; survivor: PatientBrief }
@@ -25,6 +26,7 @@ export function PatientMergePage() {
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [pair, setPair] = useState<{ sourceId: string; survivorId: string } | null>(null);
+  const [undoing, setUndoing] = useState<string | null>(null);
   const [done, setDone] = useState<Done | null>(null);
 
   const load = useCallback((signal?: AbortSignal) => {
@@ -72,7 +74,13 @@ export function PatientMergePage() {
         </div>
       )}
 
-      {pair ? (
+      {undoing ? (
+        <UnmergeReview
+          mergeId={undoing}
+          onCancel={() => setUndoing(null)}
+          onDone={(result: UnmergeResult, preview: UnmergePreview) => { setUndoing(null); setNotice(`Undid the merge of ${briefName(preview.source)} into ${briefName(preview.survivor)}: ${result.rowsMovedBack} rows moved back, and ${briefName(preview.source)} is active again.`); load(); }}
+        />
+      ) : pair ? (
         <MergeReview
           sourceId={pair.sourceId}
           survivorId={pair.survivorId}
@@ -134,7 +142,7 @@ export function PatientMergePage() {
           {log.length === 0 ? <p>No records have been merged yet.</p> : (
             <table className="alv-fu-table">
               <caption className="alv-fu-sr">Merges made</caption>
-              <thead><tr><th scope="col">When</th><th scope="col">Merged away</th><th scope="col">Into</th><th scope="col">By</th><th scope="col">Reason</th><th scope="col">Rows moved</th><th scope="col">Stayed behind</th></tr></thead>
+              <thead><tr><th scope="col">When</th><th scope="col">Merged away</th><th scope="col">Into</th><th scope="col">By</th><th scope="col">Reason</th><th scope="col">Rows moved</th><th scope="col">Stayed behind</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
               <tbody>
                 {log.map((m) => (
                   <tr key={m.mergeId}>
@@ -145,6 +153,8 @@ export function PatientMergePage() {
                     <td>{m.reason}</td>
                     <td>{m.rowsMoved}</td>
                     <td>{m.recordsLeftBehind}</td>
+                    <td>{m.undoneAtUtc ? `Undone ${new Date(m.undoneAtUtc).toLocaleDateString()} by ${m.undoneByName || "an administrator"}` : "In force"}</td>
+                    <td className="alv-fu-actions">{m.canUndo && <Button type="button" onClick={() => { setUndoing(m.mergeId); setNotice(null); setError(null); }} aria-label={`Undo the merge of ${briefName(m.source)} into ${briefName(m.survivor)}`}>Undo</Button>}</td>
                   </tr>
                 ))}
               </tbody>

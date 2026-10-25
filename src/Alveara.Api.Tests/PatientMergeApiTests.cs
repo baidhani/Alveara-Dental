@@ -51,7 +51,7 @@ public class PatientMergeApiTests : IAsyncLifetime
               sourceRowVersion = Str(preview, "sourceRowVersion"), survivorRowVersion = Str(preview, "survivorRowVersion"), fieldChoices = choices, confirmed, confirmIdentityDifference = identity };
 
     [Fact]
-    public async Task Only_the_administrator_may_use_any_of_the_seven_endpoints_and_an_anonymous_caller_sees_nothing()
+    public async Task Only_the_administrator_may_use_any_of_the_nine_endpoints_and_an_anonymous_caller_sees_nothing()
     {
         var preview = await PreviewAsync(_ann, _anne);
         var calls = new (HttpMethod Method, string Url, object? Body)[]
@@ -63,6 +63,8 @@ public class PatientMergeApiTests : IAsyncLifetime
             (HttpMethod.Get, "/api/patient-merges/dismissals", null),
             (HttpMethod.Post, "/api/patient-merges/dismissals", new { firstPatientId = _ann, secondPatientId = _anne, reason = "Twins" }),
             (HttpMethod.Post, $"/api/patient-merges/dismissals/{Guid.NewGuid()}/restore", null),
+            (HttpMethod.Get, $"/api/patient-merges/{Guid.NewGuid()}/unmerge-preview", null),
+            (HttpMethod.Post, $"/api/patient-merges/{Guid.NewGuid()}/unmerge", new { reason = "x", confirmed = true }),
         };
         foreach (var (role, session) in _others)
             foreach (var call in calls)
@@ -242,6 +244,42 @@ public class PatientMergeApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.NotFound, (await frontDesk.SendAsync(HttpMethod.Get, $"/api/patients/{Guid.NewGuid()}/merge-history")).Status);
         using var anonymous = _api.Factory.CreateClient();
         Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync($"/api/patients/{_ann}/merge-history")).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_log_says_so()
+    {
+        var preview = await PreviewAsync(_ann, _anne);
+        var merged = await _admin.SendAsync(HttpMethod.Post, "/api/patient-merges", Body(preview, "Registered twice"), "undo-flow-merge");
+        var mergeId = Str(merged.Body, "mergeId");
+        var log = (await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/log")).Body.EnumerateArray().Single();
+        Assert.True(log.GetProperty("canUndo").GetBoolean()); Assert.Equal(JsonValueKind.Null, log.GetProperty("undoneAtUtc").ValueKind);
+
+        var undoPreview = await _admin.SendAsync(HttpMethod.Get, $"/api/patient-merges/{mergeId}/unmerge-preview");
+        Assert.Equal(HttpStatusCode.OK, undoPreview.Status);
+        Assert.True(undoPreview.Body.GetProperty("canUndo").GetBoolean()); Assert.Empty(undoPreview.Body.GetProperty("blockers").EnumerateArray());
+        Assert.Equal(HttpStatusCode.NotFound, (await _admin.SendAsync(HttpMethod.Get, $"/api/patient-merges/{Guid.NewGuid()}/unmerge-preview")).Status);
+
+        object Request(bool? confirmed = true, string reason = "They are different people") => new { reason, confirmed, sourceRowVersion = Str(undoPreview.Body, "sourceRowVersion"), survivorRowVersion = Str(undoPreview.Body, "survivorRowVersion") };
+        Assert.NotEqual(HttpStatusCode.OK, (await _admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request(), "u0", csrf: false)).Status);
+        Assert.Equal((HttpStatusCode.BadRequest, "idempotency_key_invalid"), await Both(_admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request())));
+        Assert.Equal((HttpStatusCode.BadRequest, "confirmation_required"), await Both(_admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request(confirmed: null), "u1")));
+        Assert.Equal((HttpStatusCode.BadRequest, "reason_invalid"), await Both(_admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request(reason: " "), "u2")));
+        Assert.Equal(1, await CountAsync("SELECT COUNT(*) AS [Value] FROM [Patients] WHERE [MergedAtUtc] IS NOT NULL"));              // nothing was undone
+
+        var done = await _admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request(), "u3");
+        Assert.Equal(HttpStatusCode.OK, done.Status);
+        Assert.Equal((_admin.UserId.ToString(), "They are different people", false), (Str(done.Body, "unmergedByUserId"), Str(done.Body, "reason"), done.Body.GetProperty("replayed").GetBoolean()));
+        Assert.Equal(0, await CountAsync("SELECT COUNT(*) AS [Value] FROM [Patients] WHERE [MergedAtUtc] IS NOT NULL"));
+        Assert.Equal(2, await CountAsync("SELECT COUNT(*) AS [Value] FROM [AuditLogEntries] WHERE [EventType] = 'PatientUnmerged' AND [PerformedByUserAccountId] IS NOT NULL"));
+
+        Assert.True((await _admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request(), "u3")).Body.GetProperty("replayed").GetBoolean());
+        Assert.Equal((HttpStatusCode.Conflict, "already_unmerged"), await Both(_admin.SendAsync(HttpMethod.Post, $"/api/patient-merges/{mergeId}/unmerge", Request(), "u4")));
+        var after = (await _admin.SendAsync(HttpMethod.Get, "/api/patient-merges/log")).Body.EnumerateArray().Single();
+        Assert.False(after.GetProperty("canUndo").GetBoolean()); Assert.NotEqual(JsonValueKind.Null, after.GetProperty("undoneAtUtc").ValueKind);
+        Assert.False(string.IsNullOrWhiteSpace(Str(after, "undoneByName")));
+        var history = (await _others["FrontDesk"].SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/merge-history")).Body;
+        Assert.Equal(JsonValueKind.Null, history.GetProperty("mergedInto").ValueKind);                                              // the page no longer says merged
     }
 
     [Fact]
