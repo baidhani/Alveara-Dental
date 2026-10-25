@@ -1,0 +1,23 @@
+Database AlveraWalk_playwright_external_cases_config_01b07066 created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.external-cases.config.ts ...
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › e2e\external-cases-real-backend.spec.ts:127:1 › SETUP: a patient with a radiograph already in the document library (170ms)
+  ok 2 [chromium] › e2e\external-cases-real-backend.spec.ts:134:1 › PARTIES: the office manager adds a referral provider and a lab vendor; a dentist cannot (2.3s)
+  ok 3 [chromium] › e2e\external-cases-real-backend.spec.ts:155:1 › REFERRAL: the dentist starts it (the form is checked first), sends it with a past date and links the radiograph (1.8s)
+  ok 4 [chromium] › e2e\external-cases-real-backend.spec.ts:190:1 › CHASE: within seconds the system makes an unassigned task; the front desk finds it in the work queue and follows it to the case (20.1s)
+  ok 5 [chromium] › e2e\external-cases-real-backend.spec.ts:207:1 › COMPLETE: recording the report and completing the case closes the chase task by itself (12.4s)
+  ok 6 [chromium] › e2e\external-cases-real-backend.spec.ts:226:1 › LAB: a lab case goes out and back and is sent back for a remake (which needs a note); a change by someone else is explained (2.0s)
+  ok 7 [chromium] › e2e\external-cases-real-backend.spec.ts:270:1 › BROKEN LINK: a document whose file goes missing stays in the case, flagged (500ms)
+  ok 8 [chromium] › e2e\external-cases-real-backend.spec.ts:280:1 › ROLES: a role that only reads sees no buttons, and billing sees nothing (4.5s)
+  ok 9 [chromium] › e2e\external-cases-real-backend.spec.ts:297:1 › AUDIT: the audit trail names every action and holds no reason or note (121ms)
+
+  9 passed (50.5s)
+Database AlveraWalk_playwright_external_cases_config_01b07066 dropped (its files went with it).
+Output kept in C:/tmp/alv009c02/stage2/walkthroughs/playwright.external-cases.config.ts

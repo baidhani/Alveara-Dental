@@ -1522,3 +1522,9 @@
   - What changed: `.alveara/handoffs/ALV-009-C02/R01.md` and `R01-evidence/` (test results, acceptance evidence for 4 of 4, parent and dependency regression, demo, changed files, next-story impact, artifacts, the negative-control record, the identity derivation, the frozen Stage 2 contract with its baseline, 117 expected new ids and evaluator validation 9 of 9), BUILD_STATE and EXECUTION_STATUS (ALV-009-C02 AWAITING_REVIEW, implementation 36f817e).
   - Verification: focused backend 1,606 of 1,606, every `*ApiTests` class 872 of 872, 117 new ids (derived from git diff and cross-checked against `--list-tests`: 117 in the assembly = 117 in the runs), 33 of 33 negative controls killed, Vitest 1,647, mocked Playwright 140, six real-backend walkthroughs passed (9, 8, 8, 10, 7, 8); no full backend run (Stage 2 pending).
   - Notes: the story is not COMPLETE; review pending. One empty scratch test database (AlveraTest_76fbf02b...) was found on the machine after the runs and is disclosed in the handoff, not removed. Not pushed.
+- [x] ALV-009-C02 attempt R01: Stage 2 run once and recorded (qualifies)
+  - Date: 2026-10-24
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-009-C02/R01-regression.md` and `R01-regression-evidence/` (evaluator output, comparison, gates, walkthroughs, trx, csv, leak counts), EXECUTION_STATUS (`fullRegression: PASSED`, AWAITING_REVIEW), BUILD_STATE. No source or test file changed.
+  - Verification: frozen evaluator 26 of 26 criteria passed: backend 5,023 passed / 0 failed / 0 skipped (4,906 baseline ids unchanged plus exactly the 117 allowlisted), template 3,810 clones with no fallback, artifact counts unchanged, Vitest 1,647 in 103 files, tsc, build, lint, mocked Playwright 140, repository checks 13, walkthroughs 9, 8, 8, 10, 7, 8.
+  - Notes: backend 63.8 min, not a criterion. The pre-existing scratch test database remains and is disclosed. Not pushed; final review pending.

@@ -1,0 +1,30 @@
+PASS  run commit is the Stage 1 closure commit                                                                                         8dbaca55f9137861bc4a9e19cc662d4d0b595c07
+PASS  working tree clean before and after                                                                                              
+PASS  no src/ file differs between the implementation and the run commit                                                               0 files
+PASS  the template mode switch is not set                                                                                              
+PASS  backend run exit code 0                                                                                                          
+PASS  discovered and passed are exactly the expected count, none failed or skipped                                                     {'Passed': 5023} (expected Passed 5023)
+PASS  same existing test ids and outcomes as the ALV-009-C01 R02 Stage 2 baseline; exactly the 117 listed new ids (no more, no fewer)  COMPARISON PASS
+PASS  the run built exactly one template and it was not rebuilt                                                                        built 1
+PASS  zero fallback to create-and-migrate by the run's own template                                                                    0 fallback events
+PASS  no template build failure                                                                                                        
+PASS  the template was really used (at least 3000 clones)                                                                              3810 clones
+PASS  only the named real-path classes bypass the template (at most 60 fixtures)                                                       32 real-migration fixtures
+PASS  Storage, Temp, Database, Backup and Keys entries, databases, SQL logins and template backups unchanged                           before {'databases_total': 2, 'AlveraTest': 1, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 2, 'folder_Temp': 1, 'template_backups_in_Temp': 0} after {'databases_total': 2, 'AlveraTest': 1, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 2, 'folder_Temp': 1, 'template_backups_in_Temp': 0}
+PASS  no AlveraTemplate database or backup left                                                                                        
+PASS  gate tsc                                                                                                                         exit 0
+PASS  gate vitest                                                                                                                      exit 0
+PASS  gate build                                                                                                                       exit 0
+PASS  gate lint                                                                                                                        exit 0
+PASS  gate playwright_mocked                                                                                                           exit 0
+PASS  gate repo_checks                                                                                                                 exit 0
+PASS  walkthrough walk_playwright.external-cases.config.ts: 9 passed, none failed                                                      
+PASS  walkthrough walk_playwright.work-queue.config.ts: 8 passed, none failed                                                          
+PASS  walkthrough walk_playwright.follow-ups.config.ts: 8 passed, none failed                                                          
+PASS  walkthrough walk_playwright.notifications.config.ts: 10 passed, none failed                                                      
+PASS  walkthrough walk_playwright.permission-policy.config.ts: 7 passed, none failed                                                   
+PASS  walkthrough walk_playwright.permission-policy-admin.config.ts: 8 passed, none failed                                             
+
+INFO  backend elapsed (operational evidence, not a criterion): 3830s = 63.8 min
+
+STAGE 2 QUALIFIES

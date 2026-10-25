@@ -1,0 +1,64 @@
+{
+  "axe": {
+    "follow-ups-with-form-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "follow-ups-with-form-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "follow-ups-all-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "follow-ups-all-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "my-follow-ups-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "my-follow-ups-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1792900011918,
+  "create": {
+    "createdThroughTheScreen": true,
+    "validationBeforeSending": true
+  },
+  "reminder": {
+    "secondsUntilTheReminderWasVisible": 2.9,
+    "carriesNoTitleOrNote": true,
+    "openedThePatientsFollowUps": true
+  },
+  "complete": {
+    "recallCreated": true,
+    "recallDueInDays": 90,
+    "historyEntries": 4
+  },
+  "stale": {
+    "explained": true,
+    "stored": "nothing",
+    "reloadShowsTheCurrentTitle": true
+  },
+  "roles": {
+    "billingDenied": true,
+    "revokeAppliedOnTheNextRequest": true,
+    "readOnlyScreenShown": true,
+    "revertedToDefault": true
+  },
+  "fallback": {
+    "deliveredToTheOfficeManager": true,
+    "outcome": "Fallback"
+  },
+  "audit": {
+    "FollowUpChanged": "2",
+    "FollowUpCompleted": "1",
+    "FollowUpCreated": "4",
+    "FollowUpReminderSent": "2"
+  }
+}
