@@ -6,16 +6,17 @@ namespace Alveara.Api.Architecture.Patients.Merge;
 /// </summary>
 internal static class PatientMergeFields
 {
-    internal sealed record Field(string Name, Func<Patient, string?> Get, Action<Patient, string> Set, bool Required);
+    /// <summary><see cref="Clear"/> empties an optional field again (an undo puts back a field the retired record had filled in); a required field has none.</summary>
+    internal sealed record Field(string Name, Func<Patient, string?> Get, Action<Patient, string> Set, bool Required, Action<Patient>? Clear = null);
 
     public static readonly IReadOnlyList<Field> All =
     [
-        new("MiddleName", p => p.MiddleName, (p, v) => p.MiddleName = v, false),
-        new("Sex", p => p.Sex, (p, v) => p.Sex = v, false),
+        new("MiddleName", p => p.MiddleName, (p, v) => p.MiddleName = v, false, p => p.MiddleName = null),
+        new("Sex", p => p.Sex, (p, v) => p.Sex = v, false, p => p.Sex = null),
         new("Phone", p => p.Phone, (p, v) => p.Phone = v, true),
-        new("Email", p => p.Email, (p, v) => p.Email = v, false),
+        new("Email", p => p.Email, (p, v) => p.Email = v, false, p => p.Email = null),
         new("AddressLine1", p => p.AddressLine1, (p, v) => p.AddressLine1 = v, true),
-        new("AddressLine2", p => p.AddressLine2, (p, v) => p.AddressLine2 = v, false),
+        new("AddressLine2", p => p.AddressLine2, (p, v) => p.AddressLine2 = v, false, p => p.AddressLine2 = null),
         new("City", p => p.City, (p, v) => p.City = v, true),
         new("State", p => p.State, (p, v) => p.State = v, true),
         new("PostalCode", p => p.PostalCode, (p, v) => p.PostalCode = v, true),

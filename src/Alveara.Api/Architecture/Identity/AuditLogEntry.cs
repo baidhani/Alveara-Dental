@@ -48,6 +48,7 @@ public static class AuditEventTypes
 
     // STORY-017: a patient record merged into another (one entry for each of the two records, sharing the lineage id as the correlation id).
     public const string PatientMerged = "PatientMerged";
+    public const string PatientUnmerged = "PatientUnmerged";
 
     // ALV-017-C01: a suggested pair dismissed as not a duplicate, and restored (one entry for each of the two records, sharing the dismissal id as the correlation id).
     public const string PatientDuplicateDismissed = "PatientDuplicateDismissed";

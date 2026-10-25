@@ -48,7 +48,8 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
     public async Task<PatientMergeHistory> HistoryAsync(Guid patientId, CancellationToken ct)
     {
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new PatientException("patient_not_found", "The patient was not found.", 404);
-        var merges = await db.PatientMerges.AsNoTracking().Where(m => m.SourcePatientId == patientId || m.SurvivorPatientId == patientId).OrderByDescending(m => m.MergedAtUtc).ThenBy(m => m.Id).ToListAsync(ct);
+        var merges = await db.PatientMerges.AsNoTracking().Where(m => (m.SourcePatientId == patientId || m.SurvivorPatientId == patientId) && !db.PatientUnmerges.Any(u => u.MergeId == m.Id))      // an undone merge is history, not the current state
+            .OrderByDescending(m => m.MergedAtUtc).ThenBy(m => m.Id).ToListAsync(ct);
         var ids = merges.SelectMany(m => new[] { m.SourcePatientId, m.SurvivorPatientId }).Where(i => i != patientId).Distinct().ToList();
         var people = await db.Patients.AsNoTracking().Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => PatientMergeViewsName(p), ct);
         var userIds = merges.Select(m => m.MergedByUserId).Distinct().ToList();
@@ -72,10 +73,11 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         var left = await db.PatientMergeResolutions.AsNoTracking().Where(x => ids.Contains(x.MergeId) && x.Kind == PatientMergeResolutionKinds.Record).GroupBy(x => x.MergeId).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count, ct);
         var patientIds = merges.SelectMany(m => new[] { m.SourcePatientId, m.SurvivorPatientId }).Distinct().ToList();
         var patients = await db.Patients.AsNoTracking().Where(p => patientIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);
-        var userIds = merges.Select(m => m.MergedByUserId).Distinct().ToList();
+        var undone = await db.PatientUnmerges.AsNoTracking().Where(u => ids.Contains(u.MergeId)).ToDictionaryAsync(u => u.MergeId, ct);
+        var userIds = merges.Select(m => m.MergedByUserId).Concat(undone.Values.Select(u => u.UnmergedByUserId)).Distinct().ToList();
         var users = await db.UserAccounts.AsNoTracking().Where(u => userIds.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.Username, ct);
         return merges.Select(m => new MergeLogEntry(m.Id, Brief(patients[m.SourcePatientId]), Brief(patients[m.SurvivorPatientId]), m.MergedByUserId, users.GetValueOrDefault(m.MergedByUserId, ""), m.MergedAtUtc, m.Reason,
-            moved.GetValueOrDefault(m.Id), left.GetValueOrDefault(m.Id))).ToList();
+            moved.GetValueOrDefault(m.Id), left.GetValueOrDefault(m.Id), undone.TryGetValue(m.Id, out var u) ? u.UnmergedAtUtc : null, u is null ? null : users.GetValueOrDefault(u.UnmergedByUserId, ""), m.HasLedger && u is null)).ToList();
     }
 
     // ---------- merge ----------
@@ -297,6 +299,12 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
     public static string CleanReason(string? reason) => Reason(reason);
 
     public static PatientBrief BriefOf(Patient p) => Brief(p);
+
+    /// <summary>An Idempotency-Key as the merge and the undo both need it.</summary>
+    public static string CleanKey(string? key) => Key(key);
+
+    /// <summary>The check that the version the caller reviewed is the version in the database, shared with the undo.</summary>
+    internal static void RequireVersionOf(Patient patient, string? supplied, string which) => RequireVersion(patient, supplied, which);
 
     private static string Reason(string? reason)
     {

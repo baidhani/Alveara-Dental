@@ -24,13 +24,23 @@ public sealed record MergeRequest(Guid? SourcePatientId, Guid? SurvivorPatientId
     bool? Confirmed = null, bool? ConfirmIdentityDifference = null);
 
 /// <summary>One line of the merge log: who merged which record into which, when and why, and how much moved or stayed.</summary>
-public sealed record MergeLogEntry(Guid MergeId, PatientBrief Source, PatientBrief Survivor, Guid MergedByUserId, string MergedByName, DateTimeOffset MergedAtUtc, string Reason, int RowsMoved, int RecordsLeftBehind);
+public sealed record MergeLogEntry(Guid MergeId, PatientBrief Source, PatientBrief Survivor, Guid MergedByUserId, string MergedByName, DateTimeOffset MergedAtUtc, string Reason, int RowsMoved, int RecordsLeftBehind,
+    DateTimeOffset? UndoneAtUtc = null, string? UndoneByName = null, bool CanUndo = false);
 
 /// <summary>The other side of one merge as a patient's own page shows it: the record, when, by whom and why.</summary>
 public sealed record MergeLinkView(Guid MergeId, Guid PatientId, string PatientName, DateTimeOffset MergedAtUtc, string Reason, string MergedByName);
 
 /// <summary>A patient's place in the merge lineage: the record this one was merged into (when it was retired), and the records merged into this one (when it carries on).</summary>
 public sealed record PatientMergeHistory(MergeLinkView? MergedInto, IReadOnlyList<MergeLinkView> Absorbed);
+
+/// <summary>What undoing a merge would do, found by really doing it inside a transaction that is rolled back: the rows that would go back, the field values that would be restored and the ones kept because they were edited since, and what stops it.</summary>
+public sealed record UnmergePreview(Guid MergeId, PatientBrief Source, PatientBrief Survivor, bool CanUndo, IReadOnlyList<MergeBlocker> Blockers, IReadOnlyList<MergeMoveCount> Moves,
+    IReadOnlyList<string> FieldsToRestore, IReadOnlyList<string> FieldsKept, string SourceRowVersion, string SurvivorRowVersion);
+
+public sealed record UnmergeRequest(Guid? MergeId, string? Reason, string? SourceRowVersion, string? SurvivorRowVersion, bool? Confirmed = null);
+
+public sealed record UnmergeResult(Guid UnmergeId, Guid MergeId, Guid SourcePatientId, Guid SurvivorPatientId, Guid UnmergedByUserId, DateTimeOffset UnmergedAtUtc, string Reason, int RowsMovedBack,
+    IReadOnlyList<string> FieldsRestored, IReadOnlyList<string> FieldsKept, bool Replayed);
 
 public sealed record MergeResolutionView(string Kind, string Subject, string Choice, string? ReplacedValue);
 
