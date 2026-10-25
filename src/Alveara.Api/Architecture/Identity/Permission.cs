@@ -119,4 +119,8 @@ public enum Permission
     ViewExternalCases,
     ManageExternalCases,
     ManageExternalParties,
+
+    // STORY-017: finding possible duplicate patient records and merging two of them. Held by the administrator alone by default (REQ-018's owner is the system administrator); not protected, so an
+    // administrator may deliberately grant it to a working role. Appended last so existing ordinals are undisturbed.
+    MergePatients,
 }

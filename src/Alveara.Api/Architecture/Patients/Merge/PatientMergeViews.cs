@@ -21,6 +21,9 @@ public sealed record MergePreview(PatientBrief Source, PatientBrief Survivor, IR
 /// <summary><see cref="FieldChoices"/> maps each conflicting field to <c>Survivor</c> (keep the surviving record's value) or <c>Source</c> (take the retired record's); every conflict needs an answer.</summary>
 public sealed record MergeRequest(Guid? SourcePatientId, Guid? SurvivorPatientId, string? Reason, string? SourceRowVersion, string? SurvivorRowVersion, IReadOnlyDictionary<string, string>? FieldChoices);
 
+/// <summary>One line of the merge log: who merged which record into which, when and why, and how much moved or stayed.</summary>
+public sealed record MergeLogEntry(Guid MergeId, PatientBrief Source, PatientBrief Survivor, Guid MergedByUserId, DateTimeOffset MergedAtUtc, string Reason, int RowsMoved, int RecordsLeftBehind);
+
 public sealed record MergeResolutionView(string Kind, string Subject, string Choice, string? ReplacedValue);
 
 public sealed record MergeResult(Guid MergeId, Guid SourcePatientId, Guid SurvivorPatientId, Guid MergedByUserId, DateTimeOffset MergedAtUtc, string Reason,

@@ -36,6 +36,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "admin-users", label: "Security Administration", path: "/admin/users", anyPermission: ["ManageUsers", "ManageAccountStatus", "RevokeSessions"] },
   { id: "recall-settings", label: "Recall settings", path: "/admin/recall", requiredPermission: "ManageRecallSettings" },
   { id: "external-parties", label: "Outside parties", path: "/admin/external-parties", requiredPermission: "ManageExternalParties" },
+  { id: "patient-merge", label: "Duplicate patients", path: "/admin/patient-merge", requiredPermission: "MergePatients" },
   { id: "admin-permissions", label: "Permission Matrix", path: "/admin/permissions", requiredPermission: "ViewPermissionMatrix" },
   { id: "audit-log", label: "Audit Log", path: "/admin/audit-log", requiredPermission: "ViewAuditLog" },
   { id: "practice-config", label: "Practice Configuration", path: "/admin/configuration", requiredPermission: "ManagePracticeConfiguration" },

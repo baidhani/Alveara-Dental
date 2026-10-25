@@ -64,6 +64,8 @@ builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
 builder.Services.AddScoped<SchedulingConfiguration>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientDuplicateDetector>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Merge.PatientDuplicateScanner>();       // STORY-017
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Merge.PatientMergeService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRelationshipService>();

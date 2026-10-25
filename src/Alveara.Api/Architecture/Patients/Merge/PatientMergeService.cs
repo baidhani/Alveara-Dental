@@ -32,6 +32,22 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
             Convert.ToBase64String(source.RowVersion), Convert.ToBase64String(survivor.RowVersion));
     }
 
+    // ---------- the log ----------
+
+    /// <summary>The most recent merges, newest first, for the administrator's review: who, when, why, between which records, and how much moved or stayed.</summary>
+    public async Task<IReadOnlyList<MergeLogEntry>> LogAsync(int take, CancellationToken ct)
+    {
+        take = Math.Clamp(take, 1, 200);
+        var merges = await db.PatientMerges.AsNoTracking().OrderByDescending(m => m.MergedAtUtc).ThenBy(m => m.Id).Take(take).ToListAsync(ct);
+        var ids = merges.Select(m => m.Id).ToList();
+        var moved = await db.PatientMergeMoves.AsNoTracking().Where(m => ids.Contains(m.MergeId)).GroupBy(m => m.MergeId).Select(g => new { g.Key, Rows = g.Sum(m => m.RowsMoved) }).ToDictionaryAsync(x => x.Key, x => x.Rows, ct);
+        var left = await db.PatientMergeResolutions.AsNoTracking().Where(x => ids.Contains(x.MergeId) && x.Kind == PatientMergeResolutionKinds.Record).GroupBy(x => x.MergeId).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(x => x.Key, x => x.Count, ct);
+        var patientIds = merges.SelectMany(m => new[] { m.SourcePatientId, m.SurvivorPatientId }).Distinct().ToList();
+        var patients = await db.Patients.AsNoTracking().Where(p => patientIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);
+        return merges.Select(m => new MergeLogEntry(m.Id, Brief(patients[m.SourcePatientId]), Brief(patients[m.SurvivorPatientId]), m.MergedByUserId, m.MergedAtUtc, m.Reason,
+            moved.GetValueOrDefault(m.Id), left.GetValueOrDefault(m.Id))).ToList();
+    }
+
     // ---------- merge ----------
 
     public async Task<MergeResult> MergeAsync(Guid actor, MergeRequest r, string? idempotencyKey, CancellationToken ct)
