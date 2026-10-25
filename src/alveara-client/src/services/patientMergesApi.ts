@@ -15,7 +15,12 @@ export interface PatientBrief {
 export interface DuplicatePair {
   first: PatientBrief; second: PatientBrief; score: number; reasons: string[]; suggestedSurvivorId: string; suggestionReason: string; sameHousehold: boolean;
 }
-export interface DuplicateScan { pairs: DuplicatePair[]; truncated: boolean; patientsConsidered: number }
+export interface DuplicateScan {
+  pairs: DuplicatePair[]; truncated: boolean; patientsConsidered: number;
+  /** Suggested pairs left out because an administrator dismissed them as not a duplicate. */
+  dismissed: number;
+}
+export interface Dismissal { id: string; first: PatientBrief; second: PatientBrief; reason: string; dismissedByUserId: string; dismissedByName: string; dismissedAtUtc: string; replayed: boolean }
 
 export interface MergeFieldConflict { field: string; survivorValue: string | null; sourceValue: string | null }
 export interface MergeAutoFill { field: string; sourceValue: string }
@@ -52,6 +57,16 @@ export const previewMerge = (sourceId: string, survivorId: string, signal?: Abor
   request<MergePreview>(`/api/patient-merges/preview?sourceId=${encodeURIComponent(sourceId)}&survivorId=${encodeURIComponent(survivorId)}`, { signal });
 export const getMergeLog = (signal?: AbortSignal) => request<MergeLogEntry[]>("/api/patient-merges/log", { signal });
 
+export const listDismissals = (signal?: AbortSignal) => request<Dismissal[]>("/api/patient-merges/dismissals", { signal });
+export async function dismissPair(firstPatientId: string, secondPatientId: string, reason: string): Promise<Dismissal> {
+  const csrf = await fetchCsrfToken();
+  return request<Dismissal>("/api/patient-merges/dismissals", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf }, body: JSON.stringify({ firstPatientId, secondPatientId, reason }) });
+}
+export async function restoreDismissal(id: string): Promise<Dismissal> {
+  const csrf = await fetchCsrfToken();
+  return request<Dismissal>(`/api/patient-merges/dismissals/${encodeURIComponent(id)}/restore`, { method: "POST", headers: { "X-CSRF-Token": csrf } });
+}
+
 export async function mergePatients(input: MergeInput, key: string): Promise<MergeResult> {
   const csrf = await fetchCsrfToken();
   return request<MergeResult>("/api/patient-merges", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf, "Idempotency-Key": key }, body: JSON.stringify(input) });
@@ -60,6 +75,9 @@ export async function mergePatients(input: MergeInput, key: string): Promise<Mer
 const MESSAGES: Record<string, string> = {
   confirmation_required: "A merge needs your explicit confirmation. Tick the confirmation and try again. Nothing was merged.",
   identity_conflict: "These records look like different people (their date of birth or name differ). Confirm that they are the same person to merge them. Nothing was merged.",
+  dismissal_not_found: "That dismissal was not found. Reload the list.",
+  first_required: "Choose the pair first.",
+  second_required: "Choose the pair first.",
   choice_required: "Every field that differs needs an answer: keep the surviving record's value or take the retired record's.",
   choice_invalid: "One of the answers is not valid. Reload the review and choose again.",
   patient_changed: "One of the records changed after you reviewed it. Nothing was merged. Reload the review and check both records again.",

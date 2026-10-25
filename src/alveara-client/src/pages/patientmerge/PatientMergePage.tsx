@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { ErrorState, LoadingState } from "../../components/StatePatterns";
-import { briefName, getMergeLog, scanDuplicates } from "../../services/patientMergesApi";
-import type { DuplicatePair, DuplicateScan, MergeLogEntry, MergeResult, PatientBrief } from "../../services/patientMergesApi";
+import { briefName, dismissPair, getMergeLog, listDismissals, mergeErrorMessage, REASON_MAX, restoreDismissal, scanDuplicates } from "../../services/patientMergesApi";
+import type { Dismissal, DuplicatePair, DuplicateScan, MergeLogEntry, MergeResult, PatientBrief } from "../../services/patientMergesApi";
 import { MergeReview } from "./MergeReview";
 import "../followups/followups.css";
 
@@ -17,12 +17,18 @@ interface Done { result: MergeResult; source: PatientBrief; survivor: PatientBri
 export function PatientMergePage() {
   const [scan, setScan] = useState<DuplicateScan | null>(null);
   const [log, setLog] = useState<MergeLogEntry[] | null>(null);
+  const [dismissals, setDismissals] = useState<Dismissal[] | null>(null);
+  const [dismissing, setDismissing] = useState<string | null>(null);
+  const [dismissReason, setDismissReason] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [pair, setPair] = useState<{ sourceId: string; survivorId: string } | null>(null);
   const [done, setDone] = useState<Done | null>(null);
 
   const load = useCallback((signal?: AbortSignal) => {
-    Promise.all([scanDuplicates(signal), getMergeLog(signal)]).then(([s, l]) => { setScan(s); setLog(l); setFailed(false); }).catch(() => { if (!signal?.aborted) setFailed(true); });
+    Promise.all([scanDuplicates(signal), getMergeLog(signal), listDismissals(signal)]).then(([s, l, d]) => { setScan(s); setLog(l); setDismissals(d); setFailed(false); }).catch(() => { if (!signal?.aborted) setFailed(true); });
   }, []);
   useEffect(() => { const controller = new AbortController(); load(controller.signal); return () => controller.abort(); }, [load]);
 
@@ -33,12 +39,31 @@ export function PatientMergePage() {
   };
 
   if (failed && scan === null) return <ErrorState title="Could not load the duplicate review" description="Check your connection and reload the page." />;
-  if (scan === null || log === null) return <LoadingState label="Looking for possible duplicates…" />;
+  const pairKey = (p: DuplicatePair) => `${p.first.id}-${p.second.id}`;
+
+  async function dismiss(p: DuplicatePair) {
+    const reason = dismissReason.trim();
+    if (reason === "" || reason.length > REASON_MAX) { setError(`Write why these are different people (up to ${REASON_MAX} characters).`); return; }
+    setBusy(true); setError(null); setNotice(null);
+    try { await dismissPair(p.first.id, p.second.id, reason); setDismissing(null); setDismissReason(""); setNotice(`${briefName(p.first)} and ${briefName(p.second)} are no longer suggested.`); load(); }
+    catch (err) { setError(mergeErrorMessage(err)); } finally { setBusy(false); }
+  }
+
+  async function restore(d: Dismissal) {
+    setBusy(true); setError(null); setNotice(null);
+    try { await restoreDismissal(d.id); setNotice(`${briefName(d.first)} and ${briefName(d.second)} are suggested again.`); load(); }
+    catch (err) { setError(mergeErrorMessage(err)); } finally { setBusy(false); }
+  }
+
+  if (scan === null || log === null || dismissals === null) return <LoadingState label="Looking for possible duplicates…" />;
 
   return (
     <section className="alv-clinical alv-fu" aria-labelledby="alv-merge-page-title">
       <h1 id="alv-merge-page-title" className="alv-workspace__section-title">Duplicate patient records</h1>
       <p className="alv-clinical__meta">Pairs of patients who may be the same person: they share a date of birth and a name, phone number or email. Review a pair to merge the two records. A merged record is never deleted.</p>
+
+      <p className="alv-clinical__status" role="status" aria-live="polite">{notice ?? ""}</p>
+      {error && <p role="alert" className="alv-fu-error">{error}</p>}
 
       {done && (
         <div role="status" className="alv-clinical__status">
@@ -64,12 +89,41 @@ export function PatientMergePage() {
               <thead><tr><th scope="col">Patients</th><th scope="col">Date of birth</th><th scope="col">Why</th><th scope="col">Match</th><th scope="col">Actions</th></tr></thead>
               <tbody>
                 {scan.pairs.map((p) => (
-                  <tr key={`${p.first.id}-${p.second.id}`}>
+                  <tr key={pairKey(p)}>
                     <td><strong>{briefName(p.first)}</strong> and <strong>{briefName(p.second)}</strong>{p.sameHousehold && <div className="alv-clinical__meta">Same household: could be twins or relatives.</div>}</td>
                     <td>{p.first.dateOfBirth}</td>
                     <td>{p.reasons.join("; ")}</td>
                     <td>{p.score}%</td>
-                    <td className="alv-fu-actions"><Button type="button" onClick={() => review(p)} aria-label={`Review ${briefName(p.first)} and ${briefName(p.second)}`}>Review</Button></td>
+                    <td className="alv-fu-actions">
+                      <Button type="button" onClick={() => review(p)} aria-label={`Review ${briefName(p.first)} and ${briefName(p.second)}`}>Review</Button>
+                      {dismissing === pairKey(p) ? (
+                        <>
+                          <label className="alv-fu-sr" htmlFor={`why-${pairKey(p)}`}>Why {briefName(p.first)} and {briefName(p.second)} are different people</label>
+                          <input id={`why-${pairKey(p)}`} className="alv-form-field__input" value={dismissReason} maxLength={REASON_MAX} onChange={(e) => setDismissReason(e.target.value)} autoComplete="off" />
+                          <Button type="button" variant="primary" disabled={busy} onClick={() => dismiss(p)} aria-label={`Confirm: ${briefName(p.first)} and ${briefName(p.second)} are not duplicates`}>Confirm</Button>
+                          <Button type="button" onClick={() => { setDismissing(null); setDismissReason(""); setError(null); }}>Cancel</Button>
+                        </>
+                      ) : (
+                        <Button type="button" onClick={() => { setDismissing(pairKey(p)); setDismissReason(""); setError(null); setNotice(null); }} aria-label={`${briefName(p.first)} and ${briefName(p.second)} are not duplicates`}>Not a duplicate</Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <h2>Dismissed as not a duplicate ({dismissals.length})</h2>
+          {dismissals.length === 0 ? <p>No pairs have been dismissed.</p> : (
+            <table className="alv-fu-table">
+              <caption className="alv-fu-sr">Pairs dismissed as not a duplicate</caption>
+              <thead><tr><th scope="col">Patients</th><th scope="col">Why</th><th scope="col">By</th><th scope="col">When</th><th scope="col">Actions</th></tr></thead>
+              <tbody>
+                {dismissals.map((d) => (
+                  <tr key={d.id}>
+                    <td><strong>{briefName(d.first)}</strong> and <strong>{briefName(d.second)}</strong></td>
+                    <td>{d.reason}</td><td>{d.dismissedByName || d.dismissedByUserId}</td><td>{new Date(d.dismissedAtUtc).toLocaleString()}</td>
+                    <td className="alv-fu-actions"><Button type="button" disabled={busy} onClick={() => restore(d)} aria-label={`Suggest ${briefName(d.first)} and ${briefName(d.second)} again`}>Suggest again</Button></td>
                   </tr>
                 ))}
               </tbody>

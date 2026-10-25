@@ -31,10 +31,11 @@ let calls: Call[];
 let reply: (c: Call) => Response | null;
 let pairs: unknown[];
 let log: unknown[];
+let dismissals: Record<string, unknown>[];
 let current: ReturnType<typeof preview>;
 
 beforeEach(() => {
-  calls = []; reply = () => null; pairs = [pair]; log = []; current = preview();
+  calls = []; reply = () => null; pairs = [pair]; log = []; dismissals = []; current = preview();
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
     const u = String(url); const method = init?.method ?? "GET";
     const body = init?.body ? JSON.parse(String(init.body)) : undefined;
@@ -43,7 +44,10 @@ beforeEach(() => {
     calls.push(call);
     const custom = reply(call);
     if (custom) return Promise.resolve(custom);
-    if (u.includes("/api/patient-merges/duplicates")) return Promise.resolve(json({ pairs, truncated: false, patientsConsidered: 2 }));
+    if (u.includes("/api/patient-merges/dismissals") && u.endsWith("/restore") && method === "POST") { const id = u.split("/").at(-2); dismissals = dismissals.filter((d) => d.id !== id); pairs = [pair]; return Promise.resolve(json({ id, replayed: false })); }
+    if (u.includes("/api/patient-merges/dismissals") && method === "POST") { dismissals = [{ id: "d1", first: ann, second: anne, reason: body.reason, dismissedByUserId: "u1", dismissedByName: "admin-hana", dismissedAtUtc: "2026-10-25T12:00:00Z", replayed: false }]; pairs = []; return Promise.resolve(json(dismissals[0])); }
+    if (u.includes("/api/patient-merges/dismissals")) return Promise.resolve(json(dismissals));
+    if (u.includes("/api/patient-merges/duplicates")) return Promise.resolve(json({ pairs, truncated: false, patientsConsidered: 2, dismissed: dismissals.length }));
     if (u.includes("/api/patient-merges/log")) return Promise.resolve(json(log));
     if (u.includes("/api/patient-merges/preview")) return Promise.resolve(json(current));
     if (u.endsWith("/api/patient-merges") && method === "POST") return Promise.resolve(json(mergeResult()));
@@ -87,6 +91,54 @@ describe("the duplicate list", () => {
   });
 });
 
+describe("pairs dismissed as not a duplicate", () => {
+  it("asks why, sends the pair and the reason, says the pair is no longer suggested and lists it with who and why", async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Ann Lee and Anne Lee are not duplicates" }));
+    await userEvent.type(screen.getByLabelText(/Why Ann Lee and Anne Lee are different people/), "They are twins");
+    await userEvent.click(screen.getByRole("button", { name: /Confirm: Ann Lee and Anne Lee are not duplicates/ }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Ann Lee and Anne Lee are no longer suggested.");
+    const post = posts().find((c) => c.url.endsWith("/api/patient-merges/dismissals"))!;
+    expect(post.body).toEqual({ firstPatientId: "a", secondPatientId: "b", reason: "They are twins" });
+    const table = await screen.findByRole("table", { name: "Pairs dismissed as not a duplicate" });
+    expect(within(table).getByText("They are twins")).toBeInTheDocument();
+    expect(within(table).getByText("admin-hana")).toBeInTheDocument();
+    expect(screen.getByText(/No possible duplicates found/)).toBeInTheDocument();
+  });
+
+  it("will not dismiss without a reason, and cancelling changes nothing", async () => {
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Ann Lee and Anne Lee are not duplicates" }));
+    await userEvent.click(screen.getByRole("button", { name: /Confirm: Ann Lee and Anne Lee are not duplicates/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Write why these are different people");
+    expect(posts()).toHaveLength(0);
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ann Lee and Anne Lee are not duplicates" })).toBeInTheDocument();
+    expect(posts()).toHaveLength(0);
+  });
+
+  it("suggests a dismissed pair again on request", async () => {
+    pairs = [];
+    dismissals = [{ id: "d9", first: ann, second: anne, reason: "Twins", dismissedByUserId: "u1", dismissedByName: "admin-hana", dismissedAtUtc: "2026-10-25T12:00:00Z", replayed: false }];
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Suggest Ann Lee and Anne Lee again" }));
+    expect(await screen.findByRole("status")).toHaveTextContent("Ann Lee and Anne Lee are suggested again.");
+    expect(posts().some((c) => c.url.endsWith("/api/patient-merges/dismissals/d9/restore"))).toBe(true);
+    expect(await screen.findByRole("button", { name: "Review Ann Lee and Anne Lee" })).toBeInTheDocument();
+  });
+
+  it("explains a refused dismissal and keeps the pair on the list", async () => {
+    reply = (c) => (c.method === "POST" && c.url.endsWith("/api/patient-merges/dismissals") ? err(409, "already_merged") : null);
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Ann Lee and Anne Lee are not duplicates" }));
+    await userEvent.type(screen.getByLabelText(/Why Ann Lee and Anne Lee are different people/), "Twins");
+    await userEvent.click(screen.getByRole("button", { name: /Confirm: Ann Lee and Anne Lee are not duplicates/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("already been merged");
+    expect(screen.getByRole("button", { name: "Review Ann Lee and Anne Lee" })).toBeInTheDocument();
+  });
+});
+
 describe("the review and the merge", () => {
   it("shows the records side by side and keeps the merge button off until every field is answered, the reason is written and the merge is confirmed", async () => {
     await openReview();
@@ -108,7 +160,7 @@ describe("the review and the merge", () => {
     await userEvent.type(screen.getByLabelText(/Reason for the merge/), "Same person");
     await userEvent.click(screen.getByLabelText(/I have compared the two records/));
     await userEvent.click(screen.getByRole("button", { name: "Merge the records" }));
-    const status = await screen.findByRole("status");
+    const status = (await screen.findAllByRole("status")).find((s) => s.textContent?.includes("Merged Anne Lee"))!;
     expect(status).toHaveTextContent("Merged Anne Lee into Ann Lee. 5 rows moved");
     expect(within(status).getByRole("link", { name: "Open the record that carries on" })).toHaveAttribute("href", "/patients/a");
     const post = posts().find((c) => c.url.endsWith("/api/patient-merges"))!;
@@ -138,7 +190,7 @@ describe("the review and the merge", () => {
     await userEvent.click(screen.getByLabelText(/I have compared the two records/));
     const merge = screen.getByRole("button", { name: "Merge the records" });
     expect(merge).toBeDisabled();                                                                   // everything else is done: only the identity confirmation is missing
-    expect(screen.getByRole("status")).toHaveTextContent("Confirm that these are the same person.");
+    expect(screen.getByText("Confirm that these are the same person.")).toBeInTheDocument();
     await userEvent.click(screen.getByLabelText(/I confirm they are the same person despite these differences/));
     expect(merge).toBeEnabled();
     await userEvent.click(merge);
