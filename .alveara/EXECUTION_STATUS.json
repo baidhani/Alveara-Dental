@@ -2572,33 +2572,30 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R01",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R02",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a Stage 1 package. Focused backend 3,076 of 3,076 (every new class plus the merge, scanner, owned-data, migration, permission, architecture, backup/restore, document and audit suites) and the HTTP-level subset 883 of 883; 52 new test ids (identity derived from the source and cross-checked against --list-tests; 1 renamed id retired; expected full total 5,131 = 5,080 - 1 + 52). Client: tsc, build and lint (oxlint) exit 0, Vitest 1,676 of 1,676 in 105 files, mocked Playwright 140 of 140, repository checks 13 of 13. Real-backend walkthrough 9 of 9 for this story; workspace 14, patients 7, permission-policy 7, permission-policy-admin 8 all pass. Negative controls 38 of 38 killed in the final pass (2 survived the first pass; 2 tests added). Full backend regression NOT run: frozen Stage 2 contract in .alveara/handoffs/ALV-017-C01/R01-evidence/stage2/. One scratch test database from an interrupted run is disclosed, not dropped."
+        "summary": "Attempt R02, a Stage 1 resubmission after the R01 CHANGES_REQUIRED review. Final-tree focused run 1,082 of 1,082 (every *ApiTests class, PermissionPolicy and TestDatabase classes, the migration inventory); PermissionPolicy classes 136 of 136 five times in a row; 5 new TestDatabaseInUseTests (a real SQL error 3702 recovered, bounded and reported; the harness and the policy report finish before the database is dropped); 6 negative controls killed; frozen Stage 2 regenerated (57 new ids, 1 retired, expected 5,136; output variable proof before running; evaluator validation 10 of 10). Root cause of the R01 run 2 failure: a background policy report outside the host lifecycle, named by the new holder diagnostic. Full backend regression NOT run: frozen Stage 2 contract in .alveara/handoffs/ALV-017-C01/R02-evidence/stage2/."
       },
       "demo": "real_backend_walkthrough_9_of_9",
       "parentRegression": "verified",
-      "implementationCommit": "5f0efb5a443a30760a267844270c1b5e60c87aa5",
-      "evidenceCommit": "8f90cc1b9025284854ee620a8bd1a75c3523ff40",
-      "handoffPath": ".alveara/handoffs/ALV-017-C01/R01.md",
+      "implementationCommit": "f8d40e945f8aab438c80f72128ee309c05b0a8f5",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-017-C01/R02.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-017-C01/R01.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "5f0efb5a443a30760a267844270c1b5e60c87aa5",
-        "reviewedEvidenceCommit": "8f90cc1b9025284854ee620a8bd1a75c3523ff40",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-017-C01/R01-stage1.md"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-017-C01/R01.md"
       },
-      "blockingIssues": [
-        "ALV-017-C01-R01-01: the frozen Stage 2 runner passed PATIENTS_E2E_OUT but the patients walkthrough reads PATIENT_E2E_OUT, so run 1 (5,131 of 5,131 backend) left screenshots in the repository worktree and failed the clean-worktree criterion. R02 must correct the output variable in the new frozen contract and direct the patients walkthrough output outside the repository worktree.",
-        "ALV-017-C01-R01-02: run 2 failed 1 backend test (PermissionPolicyPipelineTests ... ManageUsers) in TestDatabaseFixture.DisposeAsync because the AlveraTest database was still in use, leaving the database and failing the no-growth check. R02 must establish the concrete failure mode, fix TestDatabaseFixture teardown without suppressing the exception or deleting artifacts after a run, add a focused regression test of the cleanup behaviour, and show the database is removed after the modeled failure. Preserve both R01 runs unchanged; submit a Stage 1 handoff only and do not start another full regression until it is APPROVED_PENDING_REGRESSION."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

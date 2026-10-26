@@ -1688,3 +1688,9 @@
   - Session: CC-20261008-k4q9
   - What changed: `TestDatabaseInUseTests` added to `RealMigrationInventory` (reason: tests the fixture itself) and the group count in `RealMigrationInventoryTests` raised from 4 to 5.
   - Verification: the broad focused run on the previous commit failed exactly one test, `RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory...` ("TestDatabaseInUseTests" not listed); after this change the inventory and `TestDatabaseInUseTests` classes pass 10 of 10.
+- [x] ALV-017-C01: R02 engineering handoff (Stage 1 resubmission), state AWAITING_REVIEW
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-017-C01/R02.md` and `R02-evidence/` (test results, finding-by-finding evidence, regenerated frozen Stage 2 with an output-variable proof, 57-id identity contract, evaluator validation), BUILD_STATE and the item 49 record set to AWAITING_REVIEW for implementation f8d40e9.
+  - Verification: final-tree focused run 1,082 of 1,082; PermissionPolicy 136 of 136 x5; 6 negative controls killed; evaluator validation 10 of 10; runner proof OK and catches the R01 defect; patients 7 and permission-policy 7 walkthroughs with a clean worktree.
+  - Notes: no full backend regression (Stage 1). Two scratch test databases from the R01 Stage 2 runs are disclosed, not dropped. Not pushed.
