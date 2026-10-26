@@ -1746,3 +1746,9 @@
   - What changed: `PatientImportValidator` (checks the whole file and reports every problem), `PatientImportService` (rejected files and refused duplicates are logged; a valid file registers through the existing registration service and its PatientImported audit entry in one transaction; a repeat of the same file returns the same patient), `POST api/patients/import` behind ImportPatientData and a CSRF token; `docs/PATIENT_PORTABILITY.md` brought in line.
   - Verification: the API builds; the import tests are not written yet (next step) and nothing in this entry has been run.
   - Notes: the screens are not built yet. Not pushed.
+- [ ] STORY-018: patient import tests run: export and import 61 of 61 pass - in progress
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: `PatientImportFiles` (test helper), `PatientImportValidatorTests` (28 incorrect-file cases and 5 more), `PatientImportServiceTests` (9), `PatientImportApiTests` (6); no product code changed in this step.
+  - Verification: the four import classes and the two export classes: 61 of 61 passed (37 s). The first run was 59 of 61: two tests asserted the exact exception type while registration throws its subtype PatientRegistrationException; the test helper now accepts the subtype (product behaviour was right).
+  - Notes: covers acceptance criteria 1 to 3 at the API level (portable JSON; incorrect file rejected with every problem listed and a prompt to correct; every export and import action logged with user and time). The screens, the client tests, the walkthrough and the enrichment file are still to do. Not pushed.
