@@ -35,7 +35,7 @@ gate playwright_mocked npx playwright test
 cd "$R" || exit 1
 gate repo_checks node --test tests/*.test.mjs
 cd "$R" || exit 1
-for w in "playwright.patient-merge.config.ts PATIENT_MERGE_E2E_OUT" "playwright.workspace.config.ts WORKSPACE_E2E_OUT" "playwright.patients.config.ts PATIENTS_E2E_OUT" "playwright.permission-policy.config.ts PERMISSION_POLICY_E2E_OUT" "playwright.permission-policy-admin.config.ts PERMISSION_POLICY_ADMIN_E2E_OUT"; do
+for w in "playwright.patient-merge.config.ts PATIENT_MERGE_E2E_OUT" "playwright.workspace.config.ts WORKSPACE_E2E_OUT" "playwright.patients.config.ts PATIENT_E2E_OUT" "playwright.permission-policy.config.ts PERMISSION_POLICY_E2E_OUT" "playwright.permission-policy-admin.config.ts PERMISSION_POLICY_ADMIN_E2E_OUT"; do
   set -- $w; w0=$(date +%s)
   powershell -NoProfile -Command "Set-Location -LiteralPath '$R'; .\scripts\Invoke-RealBackendWalkthrough.ps1 -Config $1 -OutputVariable $2 -OutputDir '$OUT/walkthroughs/$1' -SkipBuild" > "$OUT/gates/walk_$1.txt" 2>&1
   echo "== gate walk_$1 exit=$? elapsed=$(( $(date +%s) - w0 ))s" >> "$OUT/summary.txt"

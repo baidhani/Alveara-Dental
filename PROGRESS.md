@@ -1659,3 +1659,9 @@
   - Session: CC-20261008-k4q9
   - What changed: `evidenceCommit` of the item 49 record in `.alveara/EXECUTION_STATUS.json` set to 8f90cc1b9025284854ee620a8bd1a75c3523ff40 (a committed file cannot hold the SHA of its own commit).
   - Verification: `git diff --stat` shows one line changed; the JSON loads.
+- [x] ALV-017-C01: fix the patients walkthrough output variable in the frozen Stage 2 script
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: `stage2/run_stage2.sh` passed `PATIENTS_E2E_OUT`, but the patients spec reads `PATIENT_E2E_OUT`, so its screenshots landed in `src/alveara-client/patient-e2e-out/` and the first Stage 2 run failed only the criterion "working tree clean before and after".
+  - Verification: first run (closure d7f3892): 25 of 26 criteria passed, 5,131 of 5,131 backend tests, 48 m 41 s, verdict DOES NOT QUALIFY; output kept in C:/tmp/story017/c01-stage2-run1. The second run follows this commit.
+  - Notes: no product, test or src/ file changed; the evaluator and its criteria are unchanged.
