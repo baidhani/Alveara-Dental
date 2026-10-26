@@ -1740,3 +1740,9 @@
   - What changed: the merged-patient export test now creates the acting user as a real account (the merge lineage has a foreign key to it); no product code changed.
   - Verification: `PatientExportServiceTests` 5 and `PatientExportApiTests` 6 plus the format test: 12 of 12 passed (27 s) after the first run found that one arrangement problem in the test itself (11 of 12).
   - Notes: the import is not built yet; no other test class has been run for this story. Not pushed.
+- [ ] STORY-018: patient import, step 4a (the validator, the import service and the endpoint) - in progress
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: `PatientImportValidator` (checks the whole file and reports every problem), `PatientImportService` (rejected files and refused duplicates are logged; a valid file registers through the existing registration service and its PatientImported audit entry in one transaction; a repeat of the same file returns the same patient), `POST api/patients/import` behind ImportPatientData and a CSRF token; `docs/PATIENT_PORTABILITY.md` brought in line.
+  - Verification: the API builds; the import tests are not written yet (next step) and nothing in this entry has been run.
+  - Notes: the screens are not built yet. Not pushed.
