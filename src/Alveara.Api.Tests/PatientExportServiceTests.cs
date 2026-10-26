@@ -28,6 +28,9 @@ public class PatientExportServiceTests : IAsyncLifetime
         await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
+        await using var db = _fixture.CreateContext();
+        db.UserAccounts.Add(new UserAccount { Id = _s.Actor, Username = $"admin-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });         // the acting user is a real account (the merge lineage points at it)
+        await db.SaveChangesAsync();
     }
 
     public Task DisposeAsync() => _fixture.DisposeAsync();

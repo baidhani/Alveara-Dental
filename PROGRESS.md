@@ -1734,3 +1734,9 @@
   - What changed: `PatientExportFormat` (the typed file layout), `PatientExportService` (builds the file, saves the PatientExported audit entry before returning it), `PatientPortabilityController` (`GET api/patients/{id}/export`, ExportPatientData, no-store), service registration; `PatientExportServiceTests` (5) and `PatientExportApiTests` (6).
   - Verification: the API and the test project build; the tests are written and reviewed but not yet run (result recorded in the next entry).
   - Notes: import is not built yet. Not pushed.
+- [ ] STORY-018: patient export tests run: 12 of 12 pass - in progress
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: the merged-patient export test now creates the acting user as a real account (the merge lineage has a foreign key to it); no product code changed.
+  - Verification: `PatientExportServiceTests` 5 and `PatientExportApiTests` 6 plus the format test: 12 of 12 passed (27 s) after the first run found that one arrangement problem in the test itself (11 of 12).
+  - Notes: the import is not built yet; no other test class has been run for this story. Not pushed.
