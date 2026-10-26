@@ -79,7 +79,8 @@ public static class PermissionMatrix
             Permission.SendMessages, Permission.ReceiveDocumentNotifications, // ALV-N015: sends messages; is told when a duplicate document is imported
             Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
             Permission.ManageRecallSettings, // ALV-009-C01: the practice's recall settings
-            Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties), // ALV-009-C02
+            Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties, // ALV-009-C02
+            Permission.ImportPatientData), // STORY-018: brings a patient in from a file (exporting one stays with the administrator)
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

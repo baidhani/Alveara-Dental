@@ -50,6 +50,11 @@ public static class AuditEventTypes
     public const string PatientMerged = "PatientMerged";
     public const string PatientUnmerged = "PatientUnmerged";
 
+    // STORY-018: a patient's record exported to a file, imported from one, and an import file that was rejected or refused. Details carry ids, counts and codes, never names or contact data.
+    public const string PatientExported = "PatientExported";
+    public const string PatientImported = "PatientImported";
+    public const string PatientImportRejected = "PatientImportRejected";
+
     // ALV-017-C01: a suggested pair dismissed as not a duplicate, and restored (one entry for each of the two records, sharing the dismissal id as the correlation id).
     public const string PatientDuplicateDismissed = "PatientDuplicateDismissed";
     public const string PatientDuplicateRestored = "PatientDuplicateRestored";

@@ -188,6 +188,14 @@
     {
       "name": "MergePatients",
       "status": "Active"
+    },
+    {
+      "name": "ExportPatientData",
+      "status": "Active"
+    },
+    {
+      "name": "ImportPatientData",
+      "status": "Active"
     }
   ]
 }

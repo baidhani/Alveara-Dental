@@ -123,4 +123,9 @@ public enum Permission
     // STORY-017: finding possible duplicate patient records and merging two of them. Held by the administrator alone by default (REQ-018's owner is the system administrator); not protected, so an
     // administrator may deliberately grant it to a working role. Appended last so existing ordinals are undisturbed.
     MergePatients,
+
+    // STORY-018: taking one patient's record out of the system as a file, and bringing one in from a file. Export is held by the administrator alone by default; import by the administrator and the office
+    // manager. Neither is protected, so an administrator may deliberately grant them to another role. Appended last so existing ordinals are undisturbed.
+    ExportPatientData,
+    ImportPatientData,
 }

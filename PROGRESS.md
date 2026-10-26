@@ -1722,3 +1722,9 @@
   - What changed: `.alveara/handoffs/ALV-017-C01/R03-regression.md` and `R03-regression-evidence/` (evaluator result, console, summary, comparison, gates, walkthroughs, trx, leak counts); the item 49 record set to AWAITING_REVIEW with fullRegression PASSED; BUILD_STATE wording.
   - Verification: the frozen evaluator: STAGE 2 QUALIFIES, 26 of 26 criteria; backend 5,136 passed, 0 failed, 0 skipped in 52.2 min (run once on closure commit 8119ef6, clean tree before and after, src/ identical to f8d40e9); gates exit 0; walkthroughs 9, 14, 7, 7, 8; artifact counts unchanged.
   - Notes: three scratch test databases from earlier failed runs remain on the machine (disclosed, not dropped). Not pushed.
+- [ ] STORY-018: patient export and import, steps 1 and 2 (the format and the permissions) - in progress
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: `docs/PATIENT_PORTABILITY.md` (the export file format `alveara.patient-export` v1, the import rules and the log); new permissions `ExportPatientData` (Administrator only) and `ImportPatientData` (Administrator and Office Manager), both not protected, registered in `PermissionRegistry.json` and `PermissionMatrix.cs`; audit event names `PatientExported`, `PatientImported`, `PatientImportRejected`.
+  - Verification: `dotnet build` of the API succeeds; no test has been run (the owner reviews code before any test run).
+  - Notes: decisions with the owner on 2026-10-26: export Admin only, import Admin and Office Manager, both grantable later. The export and import themselves are not built yet. Not pushed.
