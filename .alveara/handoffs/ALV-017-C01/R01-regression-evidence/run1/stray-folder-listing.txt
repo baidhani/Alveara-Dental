@@ -1,0 +1,6 @@
+01-empty-form.png
+02-required-field-prompts.png
+03-registered.png
+04-duplicate-refused.png
+05-audit-log.png
+patient-registration-e2e.json

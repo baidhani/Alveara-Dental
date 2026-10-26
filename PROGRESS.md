@@ -1665,3 +1665,9 @@
   - What changed: `stage2/run_stage2.sh` passed `PATIENTS_E2E_OUT`, but the patients spec reads `PATIENT_E2E_OUT`, so its screenshots landed in `src/alveara-client/patient-e2e-out/` and the first Stage 2 run failed only the criterion "working tree clean before and after".
   - Verification: first run (closure d7f3892): 25 of 26 criteria passed, 5,131 of 5,131 backend tests, 48 m 41 s, verdict DOES NOT QUALIFY; output kept in C:/tmp/story017/c01-stage2-run1. The second run follows this commit.
   - Notes: no product, test or src/ file changed; the evaluator and its criteria are unchanged.
+- [x] ALV-017-C01: Stage 2 regression evidence recorded (two runs, neither qualifies)
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-017-C01/R01-regression.md` and `R01-regression-evidence/{run1,run2}` (evaluator results, summaries, trx, gates, walkthroughs, leak counts).
+  - Verification: run 1 (d7f3892) backend 5,131 of 5,131, 24 of 25 criteria (tree not clean: wrong output variable in my script); run 2 (4916013) backend 5,130 of 5,131, 21 of 25 criteria (fixture could not drop its database in an existing permission-policy test). Both reported as they came out.
+  - Notes: not pushed; two scratch test databases disclosed, not dropped.
