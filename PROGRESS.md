@@ -1776,3 +1776,9 @@
   - What changed: `.alveara/EXECUTION_STATUS.json` item 50 (STORY-018) set to COMPLETE with the portal as the external verification; `.alveara/BUILD_STATE.md` says so. No product code changed.
   - Verification: portal sync 4827aac shows STORY-018 verified: 3 of 3 criteria, 80 points, verified 2026-10-26T19:49:14.476Z against commit f158a5f; the progress totals now read 19 of 19 stories verified and 59 of 59 criteria.
   - Notes: the last broad regression record in BUILD_STATE is left as it was, because the full serial backend suite was not rerun for this story. Not pushed.
+- [ ] ALV-018-C01 slice 1 (in progress): export domain catalog and completeness guard
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: `ExportDomainCatalog` names every database table once, as part of one of 19 export domains (with the practice-wide lookup tables each refers to) or one of 5 excluded groups with a written reason (accounts and credentials, access policy, audit log, practice configuration, system operations); `ExportDomainCatalogTests` compares it with the model.
+  - Verification: ExportDomainCatalogTests 5 of 5. The first run failed on three table names (two singular, one missing: ProcedureEvents), which is what the guard is for; fixed.
+  - Notes: partial work for ALV-018-C01, not a finished story. Decided with the owner: the audit log is excluded from the package; staff are shown by display name only.
