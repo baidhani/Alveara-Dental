@@ -100,6 +100,23 @@ public class PatientImportValidatorTests
     }
 
     [Fact]
+    public void A_missing_or_mistyped_member_does_not_hide_a_field_mistake_and_is_not_reported_twice()
+    {
+        var check = Check(PatientImportFiles.Changed(f =>
+        {
+            f["patient"]!.AsObject().Remove("city");                                                    // a member missing
+            f["patient"]!.AsObject()["postalCode"] = 78701;                                             // a member of the wrong type
+            f["patient"]!.AsObject()["phone"] = "12";                                                   // and a field the rules refuse
+        }));
+
+        var found = check.Problems.Select(p => (p.Code, p.Path)).ToList();
+        Assert.Contains(("missing_member", "patient.city"), found);
+        Assert.Contains(("wrong_type", "patient.postalCode"), found);
+        Assert.Contains(("field_invalid", "patient.phone"), found);                                     // not hidden by the two above
+        Assert.DoesNotContain(found, p => p.Code == "field_invalid" && p.Path is "patient.city" or "patient.postalCode");   // a structural mistake is one problem, not two
+    }
+
+    [Fact]
     public void A_field_the_practice_requires_is_required_in_the_file_too()
     {
         var file = PatientImportFiles.Bytes(PatientImportFiles.Valid());                                // no email, a sex given

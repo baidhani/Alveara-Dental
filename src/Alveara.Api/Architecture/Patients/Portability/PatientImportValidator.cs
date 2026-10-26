@@ -100,33 +100,31 @@ public static class PatientImportValidator
             PatientFields? fields = null;
             if (top.TryGetValue("patient", out var patient))
             {
-                var before = problems.Count;
                 var patientMembers = Members(patient, "patient", "'patient'", PatientMembers, problems);
                 if (patientMembers is not null)
                 {
+                    // A member that is missing or of the wrong type is already a problem of its own; the field rules must not report it a second time, but they MUST still check every other field, so one
+                    // structural mistake never hides a field mistake (the person fixes the whole file in one go).
+                    var structural = new HashSet<string>(PatientMembers.Where(n => !patientMembers.ContainsKey(n)), StringComparer.Ordinal);
                     string? Text(string name)
                     {
                         if (!patientMembers.TryGetValue(name, out var value) || value.ValueKind == JsonValueKind.Null) return null;
                         if (value.ValueKind == JsonValueKind.String) return value.GetString();
                         problems.Add(new("wrong_type", $"patient.{name}", $"'patient.{name}' must be text or null."));
+                        structural.Add(name);
                         return null;
                     }
 
-                    var candidate = new PatientFields(Text("firstName"), Text("middleName"), Text("lastName"), Text("dateOfBirth"), Text("sex"), Text("phone"), Text("email"),
+                    fields = new PatientFields(Text("firstName"), Text("middleName"), Text("lastName"), Text("dateOfBirth"), Text("sex"), Text("phone"), Text("email"),
                         Text("addressLine1"), Text("addressLine2"), Text("city"), Text("state"), Text("postalCode"));
-                    if (problems.Count == before) fields = candidate;                                     // the field rules run only once the shape of 'patient' is right
-                }
-            }
-
-            if (fields is not null)
-            {
-                try
-                {
-                    PatientInput.Validate(fields, clock, requirements);
-                }
-                catch (PatientException ex)
-                {
-                    foreach (var (field, message) in ex.FieldErrors) problems.Add(new("field_invalid", $"patient.{field}", message));
+                    try
+                    {
+                        PatientInput.Validate(fields, clock, requirements);
+                    }
+                    catch (PatientException ex)
+                    {
+                        foreach (var (field, message) in ex.FieldErrors.Where(e => !structural.Contains(e.Key))) problems.Add(new("field_invalid", $"patient.{field}", message));
+                    }
                 }
             }
 
