@@ -1728,3 +1728,9 @@
   - What changed: `docs/PATIENT_PORTABILITY.md` (the export file format `alveara.patient-export` v1, the import rules and the log); new permissions `ExportPatientData` (Administrator only) and `ImportPatientData` (Administrator and Office Manager), both not protected, registered in `PermissionRegistry.json` and `PermissionMatrix.cs`; audit event names `PatientExported`, `PatientImported`, `PatientImportRejected`.
   - Verification: `dotnet build` of the API succeeds; no test has been run (the owner reviews code before any test run).
   - Notes: decisions with the owner on 2026-10-26: export Admin only, import Admin and Office Manager, both grantable later. The export and import themselves are not built yet. Not pushed.
+- [ ] STORY-018: patient export, step 3 (the export service, endpoint and tests) - in progress
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: `PatientExportFormat` (the typed file layout), `PatientExportService` (builds the file, saves the PatientExported audit entry before returning it), `PatientPortabilityController` (`GET api/patients/{id}/export`, ExportPatientData, no-store), service registration; `PatientExportServiceTests` (5) and `PatientExportApiTests` (6).
+  - Verification: the API and the test project build; the tests are written and reviewed but not yet run (result recorded in the next entry).
+  - Notes: import is not built yet. Not pushed.

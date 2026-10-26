@@ -72,6 +72,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistration
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRelationshipService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientDirectory>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.PatientExportService>();      // STORY-018
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();
