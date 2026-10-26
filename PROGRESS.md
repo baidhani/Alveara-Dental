@@ -1671,3 +1671,9 @@
   - What changed: `.alveara/handoffs/ALV-017-C01/R01-regression.md` and `R01-regression-evidence/{run1,run2}` (evaluator results, summaries, trx, gates, walkthroughs, leak counts).
   - Verification: run 1 (d7f3892) backend 5,131 of 5,131, 24 of 25 criteria (tree not clean: wrong output variable in my script); run 2 (4916013) backend 5,130 of 5,131, 21 of 25 criteria (fixture could not drop its database in an existing permission-policy test). Both reported as they came out.
   - Notes: not pushed; two scratch test databases disclosed, not dropped.
+- [x] ALV-017-C01: record R01 final review (CHANGES_REQUIRED)
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: the review stored unchanged at `.alveara/reviews/ALV-017-C01/R01.md`; the item 49 record set to CHANGES_REQUIRED with two blocking issues (Stage 2 runner output variable; TestDatabaseFixture teardown leaving a database in use); BUILD_STATE wording.
+  - Verification: JSON loads; `git diff --stat` shows only the review file, the item 49 record and one BUILD_STATE line.
+  - Notes: R02 not started; per the owner's rule no tests are run before the code is reviewed.

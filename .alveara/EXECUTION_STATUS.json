@@ -2572,7 +2572,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {
         "total": 6,
@@ -2588,14 +2588,17 @@
       "evidenceCommit": "8f90cc1b9025284854ee620a8bd1a75c3523ff40",
       "handoffPath": ".alveara/handoffs/ALV-017-C01/R01.md",
       "review": {
-        "decision": "APPROVED_PENDING_REGRESSION",
-        "decisionArtifact": ".alveara/reviews/ALV-017-C01/R01-stage1.md",
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-017-C01/R01.md",
         "approvedAttempt": null,
         "reviewedImplementationCommit": "5f0efb5a443a30760a267844270c1b5e60c87aa5",
         "reviewedEvidenceCommit": "8f90cc1b9025284854ee620a8bd1a75c3523ff40",
         "stage1DecisionArtifact": ".alveara/reviews/ALV-017-C01/R01-stage1.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-017-C01-R01-01: the frozen Stage 2 runner passed PATIENTS_E2E_OUT but the patients walkthrough reads PATIENT_E2E_OUT, so run 1 (5,131 of 5,131 backend) left screenshots in the repository worktree and failed the clean-worktree criterion. R02 must correct the output variable in the new frozen contract and direct the patients walkthrough output outside the repository worktree.",
+        "ALV-017-C01-R01-02: run 2 failed 1 backend test (PermissionPolicyPipelineTests ... ManageUsers) in TestDatabaseFixture.DisposeAsync because the AlveraTest database was still in use, leaving the database and failing the no-growth check. R02 must establish the concrete failure mode, fix TestDatabaseFixture teardown without suppressing the exception or deleting artifacts after a run, add a focused regression test of the cleanup behaviour, and show the database is removed after the modeled failure. Preserve both R01 runs unchanged; submit a Stage 1 handoff only and do not start another full regression until it is APPROVED_PENDING_REGRESSION."
+      ],
       "revalidation": {
         "required": false,
         "reason": null
