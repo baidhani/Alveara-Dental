@@ -1694,3 +1694,8 @@
   - What changed: `.alveara/handoffs/ALV-017-C01/R02.md` and `R02-evidence/` (test results, finding-by-finding evidence, regenerated frozen Stage 2 with an output-variable proof, 57-id identity contract, evaluator validation), BUILD_STATE and the item 49 record set to AWAITING_REVIEW for implementation f8d40e9.
   - Verification: final-tree focused run 1,082 of 1,082; PermissionPolicy 136 of 136 x5; 6 negative controls killed; evaluator validation 10 of 10; runner proof OK and catches the R01 defect; patients 7 and permission-policy 7 walkthroughs with a clean worktree.
   - Notes: no full backend regression (Stage 1). Two scratch test databases from the R01 Stage 2 runs are disclosed, not dropped. Not pushed.
+- [x] ALV-017-C01: record the R02 evidence commit in the item 49 status record
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: `evidenceCommit` of the item 49 record set to cbc84abd824e7e953444912c0a017ce9c6756533.
+  - Verification: `git diff --stat` shows one line; the JSON loads.
