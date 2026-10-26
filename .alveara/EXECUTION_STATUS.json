@@ -2623,26 +2623,26 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
+      "status": "COMPLETE",
       "attempt": null,
       "acceptance": {
-        "total": null,
-        "passed": null
+        "total": 3,
+        "passed": 3
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Export and import backend tests 62 of 62 (PatientExportServiceTests 5, PatientExportApiTests 6, PatientImportValidatorTests, PatientImportServiceTests 9, PatientImportApiTests 6); portability screens and affected client tests 73 of 73; real-backend walkthrough 7 of 7 (it found and fixed a validator defect that hid field problems behind a missing member); client gates on the final tree: tsc, build and lint exit 0, vitest 1,691 of 1,691 in 106 files, mocked Playwright 140, repository checks 13. The full serial backend suite was NOT rerun for this story."
       },
       "demo": "n/a_course_verified_separately",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "f158a5f3d86ed39526b2992ba1faf0c92abd849d",
       "evidenceCommit": null,
       "handoffPath": null,
       "review": {
-        "decision": "pending",
+        "decision": "n/a_course_verified_by_portal",
         "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
+        "reviewedImplementationCommit": "f158a5f3d86ed39526b2992ba1faf0c92abd849d",
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
@@ -2650,8 +2650,9 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null,
-      "externalVerification": "course_portal"
+      "completedAt": "2026-10-26T19:49:14.476Z",
+      "externalVerification": "course_portal",
+      "externalVerificationDetail": "Verified by the Colaberry portal sync at commit f158a5f3d86ed39526b2992ba1faf0c92abd849d - see .colaberry/progress.json (STORY-018.verification.state == \"verified\", 3/3 criteria, 80 points awarded, verified_at 2026-10-26T19:49:14.476Z; portal sync commit 4827aac). The final product code is 398a1ba; f158a5f also records the criteria, files, tests and the enrichment file."
     },
     {
       "schemaVersion": "2",
