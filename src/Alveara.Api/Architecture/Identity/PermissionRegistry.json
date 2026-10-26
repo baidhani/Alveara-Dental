@@ -196,6 +196,14 @@
     {
       "name": "ImportPatientData",
       "status": "Active"
+    },
+    {
+      "name": "ExportAllPatientData",
+      "status": "Active"
+    },
+    {
+      "name": "ExportPatientReadableRecord",
+      "status": "Active"
     }
   ]
 }

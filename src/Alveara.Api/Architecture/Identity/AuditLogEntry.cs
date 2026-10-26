@@ -55,6 +55,12 @@ public static class AuditEventTypes
     public const string PatientImported = "PatientImported";
     public const string PatientImportRejected = "PatientImportRejected";
 
+    // ALV-018-C01: an export package for one patient or for all patients, a readable record on its own, and an export that failed. Details carry ids, counts, sizes and codes, never a name, a contact detail or a value from a record.
+    public const string PatientDataPackageExported = "PatientDataPackageExported";
+    public const string AllPatientDataPackageExported = "AllPatientDataPackageExported";
+    public const string PatientReadableRecordExported = "PatientReadableRecordExported";
+    public const string DataExportFailed = "DataExportFailed";
+
     // ALV-017-C01: a suggested pair dismissed as not a duplicate, and restored (one entry for each of the two records, sharing the dismissal id as the correlation id).
     public const string PatientDuplicateDismissed = "PatientDuplicateDismissed";
     public const string PatientDuplicateRestored = "PatientDuplicateRestored";

@@ -5671,6 +5671,97 @@ namespace Alveara.Api.Migrations
                     b.ToTable("PatientRegistrationSettings");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ExportId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("FileCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("FinishedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IncludesDocumentFiles")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("PatientCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProblemCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("RequestedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RequestedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Sha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("nchar(64)")
+                        .IsFixedLength();
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("SubjectRecordId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExportId")
+                        .IsUnique();
+
+                    b.HasIndex("RequestedAtUtc");
+
+                    b.HasIndex("RequestedByUserId");
+
+                    b.ToTable("DataExportHistory", null, t =>
+                        {
+                            t.HasTrigger("TR_DataExportHistory_Guard");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Finished", "([Result] = 'Started' AND [FinishedAtUtc] IS NULL) OR ([Result] <> 'Started' AND [FinishedAtUtc] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Hash", "[Sha256] IS NULL OR (LEN([Sha256]) = 64 AND [Sha256] NOT LIKE '%[^0-9a-f]%' COLLATE Latin1_General_BIN2)");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Kind", "[Kind] IN ('Package', 'ReadableRecord')");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_ReadableRecord", "[Kind] <> 'ReadableRecord' OR ([Scope] = 'OnePatient' AND [IncludesDocumentFiles] = 0)");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Result", "[Result] IN ('Started', 'Complete', 'Partial', 'Failed')");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Scope", "[Scope] IN ('OnePatient', 'AllPatients')");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Subject", "([Scope] = 'OnePatient' AND [SubjectRecordId] IS NOT NULL) OR ([Scope] = 'AllPatients' AND [SubjectRecordId] IS NULL)");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Times", "[RequestedAtUtc] >= '2000-01-01' AND [RequestedAtUtc] < '2200-01-01' AND ([FinishedAtUtc] IS NULL OR ([FinishedAtUtc] >= [RequestedAtUtc] AND [FinishedAtUtc] < '2200-01-01'))");
+
+                            t.HasCheckConstraint("CK_DataExportHistory_Totals", "[PatientCount] >= 0 AND [FileCount] >= 0 AND [SizeBytes] >= 0 AND [ProblemCount] >= 0");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Periodontal.PerioExam", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9197,6 +9288,15 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
                         .WithMany()
                         .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("RequestedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

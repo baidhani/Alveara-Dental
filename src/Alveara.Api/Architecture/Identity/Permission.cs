@@ -128,4 +128,10 @@ public enum Permission
     // manager. Neither is protected, so an administrator may deliberately grant them to another role. Appended last so existing ordinals are undisturbed.
     ExportPatientData,
     ImportPatientData,
+
+    // ALV-018-C01: the export package. ExportAllPatientData takes every patient out at once (a bulk export); ExportPatientReadableRecord downloads one patient's readable record on its own, with no documents and no
+    // data files. Both are held by the administrator alone by default and neither is protected, so an administrator may deliberately grant them to another role. A one-patient package needs ExportPatientData.
+    // Appended last so existing ordinals are undisturbed.
+    ExportAllPatientData,
+    ExportPatientReadableRecord,
 }

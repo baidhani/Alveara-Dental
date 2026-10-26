@@ -54,7 +54,7 @@ public static class ExportDomainCatalog
             ["RolePermissionOverrides", "RolePermissionHistories", "PermissionDelegations", "PermissionPolicyState"]),
         new("audit_log",
             "The audit log is the practice's system-wide security record of who did what and names staff and other patients' events; the practice keeps it. Disclosures of this patient are reported by the export history, not copied into the package.",
-            ["AuditLogEntries"]),
+            ["AuditLogEntries", "DataExportHistory"]),
         new("practice_configuration",
             "Practice-wide settings and schedules that belong to the practice and not to a patient.",
             ["PracticeSettings", "PatientRegistrationSettings", "RecallSettings", "DocumentSettings", "BlockedFileExtensions", "ProviderWeeklyAvailabilities", "ProviderBlockedTimes", "ConditionTypeEvents", "ProcedureEvents"]),

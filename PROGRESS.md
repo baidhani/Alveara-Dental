@@ -1782,3 +1782,9 @@
   - What changed: `ExportDomainCatalog` names every database table once, as part of one of 19 export domains (with the practice-wide lookup tables each refers to) or one of 5 excluded groups with a written reason (accounts and credentials, access policy, audit log, practice configuration, system operations); `ExportDomainCatalogTests` compares it with the model.
   - Verification: ExportDomainCatalogTests 5 of 5. The first run failed on three table names (two singular, one missing: ProcedureEvents), which is what the guard is for; fixed.
   - Notes: partial work for ALV-018-C01, not a finished story. Decided with the owner: the audit log is excluded from the package; staff are shown by display name only.
+- [ ] ALV-018-C01 slice 2 (in progress): export history table, the two new permissions and the audit event names
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: migration `AddDataExportHistory` adds `DataExportHistory` (one row per export: who, when, package or readable record, one patient or all, result, totals, file hash; no patient content) with check constraints and a trigger that refuses deleting a row, changing what it recorded and changing a finished row (errors 51250 to 51253); permissions `ExportAllPatientData` and `ExportPatientReadableRecord` (Admin only by default, grantable); four audit event names; the table is listed in the catalog's audit_log exclusion.
+  - Verification: new `DataExportHistorySchemaTests` and `ExportPackagePermissionTests` plus the catalog, patient-owned-data, permission registry, policy snapshot, patient export API and migration inventory tests: 85 of 85 passed.
+  - Notes: partial work for ALV-018-C01. The rollback guard (51253) is not exercised by a test. Nothing writes the new audit events yet (slice 3).
