@@ -28,6 +28,7 @@ import { PatientFormView } from "./forms/PatientFormView";
 import { PatientFormsPanel } from "./forms/PatientFormsPanel";
 import { PatientHistoryPanel } from "./PatientHistoryPanel";
 import { MergeHistoryBanner } from "./patientmerge/MergeHistoryBanner";
+import { ExportPatientButton } from "./portability/ExportPatientButton";
 import "./PatientWorkspace.css";
 
 interface WorkspaceOutlet {
@@ -79,7 +80,11 @@ export function PatientWorkspacePage() {
 
   return (
     <div key={patient.id}>
-      <PageHeader title="Patient workspace" description="Everything about this patient in one place. The patient shown above stays selected while you move between sections." />
+      <PageHeader
+        title="Patient workspace"
+        description="Everything about this patient in one place. The patient shown above stays selected while you move between sections."
+        actions={hasPermission("ExportPatientData") && !patient.mergedAtUtc ? <ExportPatientButton patientId={patient.id} /> : undefined}
+      />
       <MergeHistoryBanner patientId={patient.id} />
       <nav className="alv-workspace__tabs" aria-label="Patient workspace sections">
         {tabs.map((tab) => (

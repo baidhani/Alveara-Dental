@@ -296,3 +296,39 @@ describe("patient search", () => {
     expect(screen.queryByRole("link", { name: "Register new patient" })).not.toBeInTheDocument();
   });
 });
+
+describe("exporting and importing a patient (STORY-018)", () => {
+  it("offers Export patient file only with the ExportPatientData permission", async () => {
+    server.permissions = ["ViewPatientRecords", "ExportPatientData"];
+    open(`/patients/${A}`);
+    expect(await screen.findByRole("button", { name: "Export patient file" })).toBeInTheDocument();
+  });
+
+  it("does not offer Export patient file to someone without that permission", async () => {
+    server.permissions = ["ViewPatientRecords", "RegisterPatients", "EditPatients"];
+    open(`/patients/${A}`);
+    await screen.findByRole("heading", { name: "Patient workspace" });
+    expect(screen.queryByRole("button", { name: "Export patient file" })).not.toBeInTheDocument();
+  });
+
+  it("does not offer Export patient file on a record that was merged into another, even to someone who may export", async () => {
+    const M = "dddddddd-0000-0000-0000-000000000004";
+    server.add(makePatient({ id: M, firstName: "Anne", lastName: "Lee", isActive: false, mergedAtUtc: "2026-10-25T10:00:00Z" } as never));
+    server.permissions = ["ViewPatientRecords", "ExportPatientData"];
+    open(`/patients/${M}`);
+    await screen.findByRole("heading", { name: "Patient workspace" });
+    expect(screen.queryByRole("button", { name: "Export patient file" })).not.toBeInTheDocument();
+  });
+
+  it("shows the Import a patient menu entry only with the ImportPatientData permission", async () => {
+    server.permissions = ["ViewPatientRecords", "ImportPatientData"];
+    const { unmount } = open("/patients");
+    expect(await screen.findByRole("link", { name: "Import a patient" })).toHaveAttribute("href", "/admin/patient-import");
+    unmount();
+
+    server.permissions = ["ViewPatientRecords", "RegisterPatients"];
+    open("/patients");
+    await screen.findByRole("table");
+    expect(screen.queryByRole("link", { name: "Import a patient" })).not.toBeInTheDocument();
+  });
+});

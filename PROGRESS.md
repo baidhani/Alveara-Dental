@@ -1752,3 +1752,9 @@
   - What changed: `PatientImportFiles` (test helper), `PatientImportValidatorTests` (28 incorrect-file cases and 5 more), `PatientImportServiceTests` (9), `PatientImportApiTests` (6); no product code changed in this step.
   - Verification: the four import classes and the two export classes: 61 of 61 passed (37 s). The first run was 59 of 61: two tests asserted the exact exception type while registration throws its subtype PatientRegistrationException; the test helper now accepts the subtype (product behaviour was right).
   - Notes: covers acceptance criteria 1 to 3 at the API level (portable JSON; incorrect file rejected with every problem listed and a prompt to correct; every export and import action logged with user and time). The screens, the client tests, the walkthrough and the enrichment file are still to do. Not pushed.
+- [ ] STORY-018: patient export and import screens (step 5) and their tests - in progress
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: client `patientPortabilityApi.ts`; `ExportPatientButton` (in the patient workspace header, only with ExportPatientData and not on a merged-away record); the "Import a patient" page (admin menu, `/admin/patient-import`, ImportPatientData) listing every problem of a rejected file with its place in the file; `PatientPortabilityScreens.test.tsx` (11) and four tests added to `PatientWorkspace.test.tsx`.
+  - Verification: `tsc --noEmit` and `npm run lint` clean; `vitest` on the portability screens, the patient workspace, the app routes and the app shell: 73 of 73 passed (the first run was 72 of 73: one assertion repeated an older wording of a message; the test was corrected).
+  - Notes: the real-backend walkthrough, the whole-suite gates, `.colaberry/progress.json` and the enrichment file are still to do. Not pushed.
