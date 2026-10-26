@@ -1683,3 +1683,8 @@
   - What changed: a hosted service `PolicyReportDrain` lets a stopping host finish the background invalid-row report of `PermissionPolicyStore` (the holder named by the new teardown diagnostic: an in-process EF connection); `SchedulingApiHarness` stops its hosts and waits before disposing; `TestDatabaseFixture` logs safe holder metadata on error 3702 and retries it within the existing 4 attempts; 5 new tests in `TestDatabaseInUseTests`.
   - Verification: 5 negative controls on the fixture and harness killed; the new report test fails without the drain registered; PermissionPolicy classes 136 of 136 five times in a row; teardown, template and remediation classes pass; broad run of every ApiTests class on the pre-fix tree reproduced the failure (1 of 969) and the post-fix tree passed 1,076 of 1,077 (the 1 was a race in the new test's own assertion, since fixed).
   - Notes: the review required not suppressing the teardown exception: it is still thrown when 3702 persists for 4 attempts (tested). Not pushed.
+- [x] ALV-017-C01 R02: name the new teardown test class in the real-migration inventory
+  - Date: 2026-10-25
+  - Session: CC-20261008-k4q9
+  - What changed: `TestDatabaseInUseTests` added to `RealMigrationInventory` (reason: tests the fixture itself) and the group count in `RealMigrationInventoryTests` raised from 4 to 5.
+  - Verification: the broad focused run on the previous commit failed exactly one test, `RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory...` ("TestDatabaseInUseTests" not listed); after this change the inventory and `TestDatabaseInUseTests` classes pass 10 of 10.

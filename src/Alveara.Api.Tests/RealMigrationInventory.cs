@@ -39,6 +39,7 @@ public static class RealMigrationInventory
         new(typeof(TestDatabaseInitFailureCleanupTests), RealMigrationReason.TestsTheFixtureItself, false),
         new(typeof(TestDatabaseLocationTests), RealMigrationReason.TestsTheFixtureItself, false),
         new(typeof(TestDatabaseTeardownTests), RealMigrationReason.TestsTheFixtureItself, false),
+        new(typeof(TestDatabaseInUseTests), RealMigrationReason.TestsTheFixtureItself, false),
         new(typeof(TestDatabaseTransientRetryTests), RealMigrationReason.TestsTheFixtureItself, false),
 
         // Starts from a clone; calls IMigrator.MigrateAsync with an earlier target and then Database.MigrateAsync: the real Down and Up migrations.
