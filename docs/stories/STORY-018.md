@@ -27,8 +27,8 @@ the same criteria out of `.colaberry/progress.json`, which Claude Code keeps in
 step (see the managed block in CLAUDE.md). Ticking something you have not
 actually met only misleads you.
 
-- [ ] Given a patient record, when exported, then the system provides a portable data format.
-- [ ] Given an incorrect import file, when processed, then the system rejects it and prompts for correction.
-- [ ] Trust: All export and import actions are logged with user ID and timestamp.
+- [x] Given a patient record, when exported, then the system provides a portable data format.
+- [x] Given an incorrect import file, when processed, then the system rejects it and prompts for correction.
+- [x] Trust: All export and import actions are logged with user ID and timestamp.
 
 When every box above is ticked, stop and show the demo.

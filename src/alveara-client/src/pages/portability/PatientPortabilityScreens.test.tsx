@@ -107,8 +107,9 @@ describe("the import page", () => {
     expect(screen.getByRole("link", { name: "Open the patient" })).toHaveAttribute("href", "/patients/p9");
     const [call] = importCalls();
     expect(call.method).toBe("POST");
-    expect(call.init?.body).toBe(file);
-    expect((call.init?.headers as Record<string, string>)["X-CSRF-Token"]).toBe("t");
+    const init = call.init as RequestInit;
+    expect(init.body).toBe(file);
+    expect((init.headers as Record<string, string>)["X-CSRF-Token"]).toBe("t");
   });
 
   it("says when a file was imported before and nothing new was created", async () => {

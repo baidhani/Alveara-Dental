@@ -1,6 +1,6 @@
 # Patient data portability (STORY-018)
 
-**Status: the export (`GET api/patients/{id}/export`) and the import (`POST api/patients/import`) are built; the screens are not built yet.**
+**Status: built and verified for STORY-018.** The export (`GET api/patients/{id}/export`, the "Export patient file" button on a patient's page) and the import (`POST api/patients/import`, the "Import a patient" page under the admin menu) are in the system; the walkthrough screenshots are in `docs/testing/patient-portability-walkthrough/`.
 
 A practice must be able to take one patient's record out of Alveara in a format other systems and people can read, and to bring such a record in, without silently accepting a bad file. This slice covers one patient's registration data. The whole-chart export package (clinical, financial and document data, with a manifest and file checks) is a later companion story (ALV-018-C01), and bulk import with a migration workbench is another (ALV-018-C02).
 

@@ -1164,20 +1164,51 @@
       "criteria": [
         {
           "text": "Given a patient record, when exported, then the system provides a portable data format.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Given an incorrect import file, when processed, then the system rejects it and prompts for correction.",
-          "passed": false
+          "passed": true
         },
         {
           "text": "Trust: All export and import actions are logged with user ID and timestamp.",
-          "passed": false
+          "passed": true
         }
       ],
-      "files_touched": [],
-      "tests_added": [],
-      "notes": null,
+      "files_touched": [
+    "src/Alveara.Api/Architecture/Identity/AuditLogEntry.cs",
+    "src/Alveara.Api/Architecture/Identity/Permission.cs",
+    "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs",
+    "src/Alveara.Api/Architecture/Identity/PermissionRegistry.json",
+    "src/Alveara.Api/Architecture/Patients/Portability/PatientExportFormat.cs",
+    "src/Alveara.Api/Architecture/Patients/Portability/PatientExportService.cs",
+    "src/Alveara.Api/Architecture/Patients/Portability/PatientImportService.cs",
+    "src/Alveara.Api/Architecture/Patients/Portability/PatientImportValidator.cs",
+    "src/Alveara.Api/Controllers/PatientPortabilityController.cs",
+    "src/Alveara.Api/Program.cs",
+    "src/alveara-client/playwright.config.ts",
+    "src/alveara-client/playwright.patient-portability.config.ts",
+    "src/alveara-client/src/App.tsx",
+    "src/alveara-client/src/app/moduleRegistry.ts",
+    "src/alveara-client/src/pages/PatientWorkspacePage.tsx",
+    "src/alveara-client/src/pages/portability/ExportPatientButton.tsx",
+    "src/alveara-client/src/pages/portability/PatientImportPage.tsx",
+    "src/alveara-client/src/services/patientPortabilityApi.ts",
+    "docs/PATIENT_PORTABILITY.md",
+    ".colaberry/enrichment/STORY-018.json"
+  ],
+      "tests_added": [
+    "src/Alveara.Api.Tests/PatientExportApiTests.cs",
+    "src/Alveara.Api.Tests/PatientExportServiceTests.cs",
+    "src/Alveara.Api.Tests/PatientImportApiTests.cs",
+    "src/Alveara.Api.Tests/PatientImportServiceTests.cs",
+    "src/Alveara.Api.Tests/PatientImportValidatorTests.cs",
+    "src/alveara-client/e2e/patient-portability-real-backend.spec.ts",
+    "src/alveara-client/src/PatientWorkspace.test.tsx",
+    "src/alveara-client/src/pages/portability/PatientPortabilityScreens.test.tsx",
+    "src/Alveara.Api.Tests/PatientImportFiles.cs"
+  ],
+      "notes": "Patient export and import. The administrator (new ExportPatientData) downloads one patient's registration data as a documented JSON file (alveara.patient-export, version 1); the administrator and the office manager (new ImportPatientData) import such a file. Both permissions are grantable to other roles. An import checks the whole file first and lists every problem with its place in the file and a message, storing nothing; a valid file registers the patient through the existing registration service (a repeat of the same file returns the same patient; an existing or possible duplicate is refused with the record or the candidates); every export and import action, including rejected files and refusals, is logged with the user and the time in the same save as the action, and the action fails if the log cannot be written. Verified: export and import tests 62 of 62, screens 73 of 73, real-backend walkthrough 7 of 7 (it found and fixed a validator defect that hid field problems behind a missing member), client gates green (vitest 1691 of 1691, mocked Playwright 140, repo checks 13, tsc, build, lint exit 0). LIMITS: one patient per file and registration data only (no clinical, financial or document data, no household links), no update of an existing patient from a file, a possible duplicate cannot be acknowledged from a file, the file is not signed or encrypted. The full serial backend suite was not rerun for this story; portal verification had not yet happened when this was written.",
       "updated_at": null,
       "verification": {
         "state": "in_progress",

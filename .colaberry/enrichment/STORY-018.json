@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "1",
+  "projectId": "ab38eaaa-75f8-4c0d-b954-f1acfc090d4c",
+  "storyId": "STORY-018",
+  "projectTruthBaseRevision": 1,
+  "observedAt": "2026-10-26T20:30:00Z",
+  "sourceCommitSha": "398a1bac47824bab5cb7a3b73dba52f883123452",
+  "factProposals": [
+    {
+      "dimension": "actors",
+      "value": "Only the administrator holds ExportPatientData and downloads a patient's file; the administrator and the office manager hold ImportPatientData and bring a patient in from a file. Neither permission is protected, so an administrator can grant either to another role through the permission policy screens. Front desk, dentist, hygienist, assistant and billing are refused (403) on both endpoints and an anonymous caller is refused (401).",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "dimension": "outputs",
+      "value": "An export is one UTF-8 JSON file named alveara-patient-<export id>.json: format alveara.patient-export, format version 1, an export id, the export time in UTC, where it came from and one patient's registration fields (name, date of birth, sex, phone, email, address). It is sent as a download that no cache may keep.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Portability/PatientExportFormat.cs"
+    },
+    {
+      "dimension": "inputs",
+      "value": "An import reads one such file of up to 256 KB sent as the request body, with a CSRF token. The whole file is checked before anything is stored: the format name and version, the export id and time, the exact set of members at every level and every patient field under the same rules the registration form uses, including the practice's own required fields.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Portability/PatientImportValidator.cs"
+    },
+    {
+      "dimension": "data",
+      "value": "An export holds registration data only. Household and guarantor links, clinical, financial and document data, files and user account data are deliberately not in the file, and a patient who was merged away is not exported (the answer names the record that carries on).",
+      "evidence": "docs/PATIENT_PORTABILITY.md"
+    },
+    {
+      "dimension": "exceptions",
+      "value": "A file with any problem stores nothing and comes back with every problem listed (a stable code, the place in the file and a plain message): empty, oversized, not JSON, wrong format or version, bad export id or time, a member missing, unknown, repeated or of the wrong type, or an invalid patient field. A patient who is already registered (same name and date of birth) is refused with a pointer to the record; a possible duplicate is refused with the candidates. Importing the same file again returns the patient the first import created.",
+      "evidence": "src/Alveara.Api.Tests/PatientImportValidatorTests.cs"
+    },
+    {
+      "dimension": "security_context",
+      "value": "Every export and import action is logged with the acting user and the time, in the same save as the action: PatientExported, PatientImported and PatientImportRejected (rejected files and refused duplicates are logged too, and a repeat of the same file). The log text carries ids, counts and codes, never a name or a contact detail. If the log entry cannot be saved the action fails: no file leaves on an export and no patient is created by an import.",
+      "evidence": "src/Alveara.Api.Tests/PatientImportServiceTests.cs"
+    }
+  ],
+  "decisions": [
+    {
+      "statement": "Export is held by the administrator alone and import by the administrator and the office manager, both as ordinary grantable permissions rather than a new Data Manager role.",
+      "rationale": "Decided with the owner on 2026-10-26: a full patient export is sensitive and an import is a bulk way of creating patients, stronger than the single-patient registration that front desk holds; the access-control guardrail fixes the roles, so an administrator grants the permissions to others instead.",
+      "evidence": "src/Alveara.Api/Architecture/Identity/PermissionMatrix.cs"
+    },
+    {
+      "statement": "An import registers the patient through the existing registration service, with a key derived from the file's export id, and writes its own log entry in the same database transaction.",
+      "rationale": "It reuses registration's field rules, duplicate protection and audit instead of copying them, makes importing the same file twice create one patient, and means a patient can never exist without its import log entry.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Portability/PatientImportService.cs"
+    },
+    {
+      "statement": "The file is JSON in Alveara's own documented layout, not a health-data standard such as FHIR.",
+      "rationale": "It is the smallest portable format that satisfies this story; the later versioned export package story can offer a standard format alongside it.",
+      "evidence": "docs/PATIENT_PORTABILITY.md"
+    }
+  ],
+  "limitations": [
+    {
+      "statement": "One patient per file and registration data only: no clinical, financial or document data, no household or guarantor links, and no update of an existing patient from a file (an import only creates).",
+      "evidence": "docs/PATIENT_PORTABILITY.md"
+    },
+    {
+      "statement": "A possible duplicate cannot be acknowledged from a file: the import refuses it with the candidates and the patient is registered from the registration form instead.",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Portability/PatientImportService.cs"
+    },
+    {
+      "statement": "The file is plain JSON holding personal details: it is not signed or encrypted, so whoever holds it can read and edit it (an edited file is still checked in full on import).",
+      "evidence": "src/Alveara.Api/Architecture/Patients/Portability/PatientExportFormat.cs"
+    }
+  ],
+  "demonstrationEvidence": [
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientExportServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientExportApiTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientImportValidatorTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientImportServiceTests.cs" },
+    { "kind": "test", "ref": "src/Alveara.Api.Tests/PatientImportApiTests.cs" },
+    { "kind": "test", "ref": "src/alveara-client/src/pages/portability/PatientPortabilityScreens.test.tsx" },
+    { "kind": "walkthrough", "ref": "src/alveara-client/e2e/patient-portability-real-backend.spec.ts" },
+    { "kind": "walkthrough", "ref": "docs/testing/patient-portability-walkthrough/02-rejected-file.png" },
+    { "kind": "walkthrough", "ref": "docs/testing/patient-portability-walkthrough/07-audit-log.png" },
+    { "kind": "document", "ref": "docs/PATIENT_PORTABILITY.md" }
+  ],
+  "measurementEvents": []
+}
