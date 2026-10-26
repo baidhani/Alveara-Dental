@@ -1,0 +1,26 @@
+run commit: 8119ef64037a604213ede9fff7be81ee609eb139
+implementation commit: f8d40e945f8aab438c80f72128ee309c05b0a8f5
+working tree before: 0 changed paths (0 = clean)
+env: ALVERA_TEST_TEMPLATE=[]
+start: 2026-10-26T07:03:31-05:00
+backend command: cd src/Alveara.Api.Tests && dotnet test --nologo --logger "trx;LogFileName=full_serial.trx" --results-directory C:/tmp/story017/c01-r03-stage2/trx
+== backend exit=0 elapsed=3133s
+  Alveara.Api.Tests -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\tmp\story017\c01-r03-stage2\trx\full_serial.trx
+
+Passed!  - Failed:     0, Passed:  5136, Skipped:     0, Total:  5136, Duration: 51 m 52 s - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=8s
+== gate vitest exit=0 elapsed=180s
+== gate build exit=0 elapsed=8s
+== gate lint exit=0 elapsed=0s
+== gate playwright_mocked exit=0 elapsed=19s
+== gate repo_checks exit=0 elapsed=1s
+== gate walk_playwright.patient-merge.config.ts exit=0 elapsed=28s
+== gate walk_playwright.workspace.config.ts exit=0 elapsed=43s
+== gate walk_playwright.patients.config.ts exit=0 elapsed=21s
+== gate walk_playwright.permission-policy.config.ts exit=0 elapsed=24s
+== gate walk_playwright.permission-policy-admin.config.ts exit=0 elapsed=57s
+end: 2026-10-26T08:02:16-05:00
+working tree after: 0 changed paths

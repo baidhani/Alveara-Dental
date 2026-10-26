@@ -2572,7 +2572,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R03",
       "acceptance": {
         "total": 6,
@@ -2580,7 +2580,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R03, a Stage 1 package: the R02 implementation (f8d40e9) unchanged, with a corrected canonical manifest after the R02 review. Final-tree focused run 1,082 of 1,082 (every *ApiTests class, PermissionPolicy and TestDatabase classes, the migration inventory); PermissionPolicy classes 136 of 136 five times in a row; 5 new TestDatabaseInUseTests; 6 negative controls killed; frozen Stage 2 regenerated at R03 paths (57 new ids, 1 retired, expected 5,136 passed, 0 failed, 0 skipped; output variable proof before running; evaluator validation 10 of 10). The package builder now asserts the manifest against the packaged evidence. Full backend regression NOT run: frozen Stage 2 contract in .alveara/handoffs/ALV-017-C01/R03-evidence/stage2/."
+        "summary": "Attempt R03, a Stage 1 package: the R02 implementation (f8d40e9) unchanged, with a corrected canonical manifest after the R02 review. Final-tree focused run 1,082 of 1,082 (every *ApiTests class, PermissionPolicy and TestDatabase classes, the migration inventory); PermissionPolicy classes 136 of 136 five times in a row; 5 new TestDatabaseInUseTests; 6 negative controls killed; frozen Stage 2 regenerated at R03 paths (57 new ids, 1 retired, expected 5,136 passed, 0 failed, 0 skipped; output variable proof before running; evaluator validation 10 of 10). The package builder now asserts the manifest against the packaged evidence. Full backend regression NOT run: frozen Stage 2 contract in .alveara/handoffs/ALV-017-C01/R03-evidence/stage2/. Stage 2 (run once on the Stage 1 closure commit 8119ef6, clean tree, src/ identical to the implementation): STAGE 2 QUALIFIES, 26 of 26 criteria; backend 5,136 passed, 0 failed, 0 skipped in 52.2 min, vitest 1,676 in 105 files, mocked Playwright 140, repository checks 13, walkthroughs 9, 14, 7, 7 and 8, artifact counts unchanged; addendum .alveara/handoffs/ALV-017-C01/R03-regression.md."
       },
       "demo": "real_backend_walkthrough_9_of_9",
       "parentRegression": "verified",
@@ -2601,7 +2601,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",

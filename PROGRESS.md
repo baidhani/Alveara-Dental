@@ -1716,3 +1716,9 @@
   - Session: CC-20261008-k4q9
   - What changed: evidenceCommit of the item 49 record set to 2bd12badd73f761353275530578cce4d5c0bd01e.
   - Verification: git diff --stat shows one line; the JSON loads.
+- [x] ALV-017-C01: R03 Stage 2 regression evidence recorded (Stage 2 qualifies)
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: `.alveara/handoffs/ALV-017-C01/R03-regression.md` and `R03-regression-evidence/` (evaluator result, console, summary, comparison, gates, walkthroughs, trx, leak counts); the item 49 record set to AWAITING_REVIEW with fullRegression PASSED; BUILD_STATE wording.
+  - Verification: the frozen evaluator: STAGE 2 QUALIFIES, 26 of 26 criteria; backend 5,136 passed, 0 failed, 0 skipped in 52.2 min (run once on closure commit 8119ef6, clean tree before and after, src/ identical to f8d40e9); gates exit 0; walkthroughs 9, 14, 7, 7, 8; artifact counts unchanged.
+  - Notes: three scratch test databases from earlier failed runs remain on the machine (disclosed, not dropped). Not pushed.
