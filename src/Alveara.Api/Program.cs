@@ -112,6 +112,7 @@ builder.Services.TryAddSingleton(TimeProvider.System);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.IPolicyDataSource, Alveara.Api.Architecture.Permissions.SqlPolicyDataSource>();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.PermissionPolicyStore>();
+builder.Services.AddHostedService<Alveara.Api.Architecture.Permissions.PolicyReportDrain>();                         // ALV-017-C01 R02: a stopping host waits for the invalid-row report in flight
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.IEffectivePermissions, Alveara.Api.Architecture.Permissions.EffectivePermissionService>();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Permissions.IPolicyObserver, Alveara.Api.Architecture.Permissions.AuditingPolicyObserver>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Permissions.PolicyAdminService>();

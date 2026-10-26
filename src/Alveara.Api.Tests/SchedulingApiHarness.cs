@@ -1,8 +1,11 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Alveara.Api.Controllers;
 
 namespace Alveara.Api.Tests;
@@ -11,9 +14,20 @@ namespace Alveara.Api.Tests;
 /// A real API (real SQL Server, real cookie sessions) with one signed-in session per role, for the HTTP tests of the visit workflow. The older scheduling API
 /// tests carry their own private copies of this; new tests use this one so the boilerplate exists once.
 /// </summary>
-public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposable
+public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposable, IAsyncDisposable
 {
+    /// <summary>How long a host gets to stop its background services when the harness is disposed.</summary>
+    internal static readonly TimeSpan HostShutdownLimit = TimeSpan.FromSeconds(30);
+
     private WebApplicationFactory<Program>? _factory;
+    private readonly ConcurrentBag<IHost> _hosts = [];
+
+    /// <summary>Hands every host this harness starts (the first and any derived through WithWebHostBuilder) to the harness, so disposing it can stop them first.</summary>
+    private sealed class HostHandle(IHost host, ConcurrentBag<IHost> hosts) : IHostedService
+    {
+        public Task StartAsync(CancellationToken cancellationToken) { hosts.Add(host); return Task.CompletedTask; }
+        public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    }
     private Session? _admin;
 
     public sealed record Session(HttpClient Client, string Csrf, Guid UserId = default)
@@ -32,6 +46,9 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
 
     /// <summary>Set before the first request to see what the API logs (a test that asserts a structured log event); left null, logging is as the host configures it.</summary>
     public Action<Microsoft.Extensions.Logging.ILoggingBuilder>? ConfigureLogging { get; set; }
+
+    /// <summary>Set before the first request to replace or add services of the host (a test that needs a slow or recording collaborator); left null, the host's services are as the application registers them.</summary>
+    public Action<IServiceCollection>? ConfigureServices { get; set; }
 
     private string? _storageRoot;
     private bool _ownsStorageRoot;
@@ -53,6 +70,8 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
     public WebApplicationFactory<Program> Factory => _factory ??= new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
     {
         if (ConfigureLogging is not null) builder.ConfigureLogging(ConfigureLogging);
+        builder.ConfigureServices(services => services.AddSingleton<IHostedService>(sp => new HostHandle(sp.GetRequiredService<IHost>(), _hosts)));
+        if (ConfigureServices is not null) builder.ConfigureServices(ConfigureServices);
         builder.UseSetting("ConnectionStrings:Alveara", fixture.ConnectionString);
         builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
         builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
@@ -87,10 +106,40 @@ public sealed class SchedulingApiHarness(TestDatabaseFixture fixture) : IDisposa
         return new Session(client, await CsrfAsync(client), id);
     }
 
-    public void Dispose()
+    /// <summary>The synchronous form waits for <see cref="DisposeAsync"/>: callers that cannot await still get a harness whose hosts have stopped when it returns.</summary>
+    public void Dispose() => DisposeAsync().AsTask().GetAwaiter().GetResult();
+
+    /// <summary>
+    /// ALV-017-C01 R02: stops every host and WAITS for its background services before the host is disposed. Disposing a generic host disposes its services but does not wait for a background service that is still
+    /// running, so such a service could still be connected to the test database when the fixture dropped it (the cause suspected of the one cleanup failure of the R01 Stage 2 run 2; the diagnostics added
+    /// to TestDatabaseFixture identify any holder that remains). A host that has not stopped within <see cref="HostShutdownLimit"/> is reported and then disposed anyway; any other failure of a host to stop
+    /// is thrown after the factory has been disposed, so nothing is left running and the failure is not hidden.
+    /// </summary>
+    public async ValueTask DisposeAsync()
     {
-        _factory?.Dispose();
+        var factory = _factory;
         _factory = null;
-        if (_ownsStorageRoot && _storageRoot is not null) TestStorageCleanup.Delete(_storageRoot);
+        try
+        {
+            foreach (var host in _hosts)
+            {
+                using var limit = new CancellationTokenSource(HostShutdownLimit);
+                try
+                {
+                    await host.StopAsync(limit.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    Console.Error.WriteLine($"[SchedulingApiHarness] a host did not stop its background services within {HostShutdownLimit.TotalSeconds:0} s; disposing it anyway.");
+                }
+            }
+
+            _hosts.Clear();
+        }
+        finally
+        {
+            if (factory is not null) await factory.DisposeAsync();
+            if (_ownsStorageRoot && _storageRoot is not null) TestStorageCleanup.Delete(_storageRoot);
+        }
     }
 }
