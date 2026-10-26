@@ -44,7 +44,7 @@ public class PatientDataPackageServiceTests : MergeChartTestBase
         var services = new ServiceCollection().AddScoped(_ => Fixture.CreateContext()).BuildServiceProvider();
         var db = Fixture.CreateContext();
         var options = Options.Create(new DataExportOptions { TempDirectory = _temp });
-        var builder = new PatientDataPackageBuilder(db, Clock, options, NullLogger<PatientDataPackageBuilder>.Instance);
+        var builder = new PatientDataPackageBuilder(db, Clock, options, new ReadableRecordLoader(db, Clock), NullLogger<PatientDataPackageBuilder>.Instance);
         return new PatientDataPackageService(db, builder, Clock, services.GetRequiredService<IServiceScopeFactory>(), NullLogger<PatientDataPackageService>.Instance).ExportPatientAsync(patient, S.Actor, default);
     }
 
@@ -74,7 +74,7 @@ public class PatientDataPackageServiceTests : MergeChartTestBase
 
         var (entries, manifest) = await ExportedAsync(Ann);
 
-        var expected = new[] { "README.txt", "manifest.json" }.Concat(ExportDomainCatalog.Domains.Select(d => $"data/{d.Key}.json")).Order().ToArray();
+        var expected = new[] { "README.txt", "manifest.json", "readable-record.html" }.Concat(ExportDomainCatalog.Domains.Select(d => $"data/{d.Key}.json")).Order().ToArray();
         Assert.Equal(expected, entries.Keys.Order().ToArray());
         Assert.Equal(("alveara.patient-data-package", 1), (manifest.GetProperty("package").GetProperty("name").GetString(), manifest.GetProperty("package").GetProperty("version").GetInt32()));
         Assert.Equal("Complete", manifest.GetProperty("result").GetString());
@@ -84,9 +84,27 @@ public class PatientDataPackageServiceTests : MergeChartTestBase
         Assert.Equal(ExportDomainCatalog.Excluded.Select(g => g.Key).Order(), manifest.GetProperty("excluded").EnumerateArray().Select(g => g.GetProperty("key").GetString()!).Order());
         Assert.All(manifest.GetProperty("excluded").EnumerateArray(), g => Assert.False(string.IsNullOrWhiteSpace(g.GetProperty("reason").GetString())));
         Assert.Equal(0, manifest.GetProperty("problems").GetArrayLength());
+        Assert.Equal("readable-record.html", manifest.GetProperty("readableRecord").GetString());
         Assert.Equal(JsonValueKind.Null, manifest.GetProperty("fhir").ValueKind);                       // reserved, never written today
         Assert.False(string.IsNullOrWhiteSpace(manifest.GetProperty("schemaVersion").GetString()));
         Assert.False(string.IsNullOrWhiteSpace(manifest.GetProperty("appVersion").GetString()));
+    }
+
+    [Fact]
+    public async Task The_package_carries_the_readable_record_of_the_patient_as_a_page_that_says_it_is_inside_the_package()
+    {
+        await GiveRetiringChartAsync(); await GiveSurvivingChartAsync();
+        var ann = await WithDb(db => db.Patients.AsNoTracking().SingleAsync(p => p.Id == Ann));
+        var bo = await WithDb(db => db.Patients.AsNoTracking().SingleAsync(p => p.Id == Bo));
+
+        var (entries, manifest) = await ExportedAsync(Ann);
+
+        var page = System.Text.Encoding.UTF8.GetString(entries["readable-record.html"]);
+        Assert.Contains($"<h1>{ann.FirstName} {ann.LastName}</h1>", page);
+        Assert.Contains("Treatment plans", page);
+        Assert.Contains("package's <em>documents</em> folder", page);
+        Assert.Contains(manifest.GetProperty("exportId").GetGuid().ToString(), page);                            // the page and the manifest name the same export
+        Assert.DoesNotContain($"{bo.FirstName} {bo.LastName}", page);                                            // not the other patient
     }
 
     [Fact]

@@ -32,7 +32,7 @@ public sealed class BuiltPackage(Stream content, string result, int fileCount, i
 /// or cancellation deletes them and rethrows. Failure modes handled: a domain whose tables cannot be reached by any rule or whose read fails (Unavailable), a cancelled request, a full disk. Not handled: a change made to
 /// the data by someone else while the export reads (each table is read at one moment; the manifest time says when the package was started), and document files (a later slice).
 /// </summary>
-public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock clock, IOptions<DataExportOptions> options, ILogger<PatientDataPackageBuilder> log)
+public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock clock, IOptions<DataExportOptions> options, ReadableRecordLoader readable, ILogger<PatientDataPackageBuilder> log)
 {
     private readonly DataExportOptions _options = options.Value;
 
@@ -51,7 +51,15 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
             var domains = new List<ManifestDomain>();
             using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
             {
+                var generatedAt = clock.UtcNow.UtcDateTime.ToString(PatientExportFormat.TimestampFormat);
                 files.Add(await AddBytesAsync(zip, DataPackageFormat.ReadmePath, Encoding.UTF8.GetBytes(Readme(exportId)), ct));
+                string? readablePath = null;
+                if (scope.SubjectRecordId is { } subject)
+                {
+                    var page = await RenderReadableRecordAsync(subject, exportId, ct);
+                    if (page is null) problems.Add(new("readable_record_unavailable", "readable-record", "The readable record could not be made, so it is not in this package."));
+                    else { files.Add(await AddBytesAsync(zip, DataPackageFormat.ReadableRecordPath, page, ct)); readablePath = DataPackageFormat.ReadableRecordPath; }
+                }
                 foreach (var domain in ExportDomainCatalog.Domains)
                 {
                     ct.ThrowIfCancellationRequested();
@@ -73,8 +81,8 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
                 var result = problems.Count == 0 ? DataExportResult.Complete : DataExportResult.Partial;
                 var manifest = new DataPackageManifest(
                     new(DataPackageFormat.FormatName, DataPackageFormat.CurrentVersion), await SchemaVersionAsync(ct), AppVersion(), exportId,
-                    clock.UtcNow.UtcDateTime.ToString(PatientExportFormat.TimestampFormat), actor, new(scope.Kind, scope.PatientCount, scope.SubjectRecordId), result,
-                    domains, ExportDomainCatalog.Excluded.Select(g => new ManifestExcluded(g.Key, g.Reason, g.Tables)).ToList(), files, problems, Fhir: null);
+                    generatedAt, actor, new(scope.Kind, scope.PatientCount, scope.SubjectRecordId), result,
+                    domains, ExportDomainCatalog.Excluded.Select(g => new ManifestExcluded(g.Key, g.Reason, g.Tables)).ToList(), files, readablePath, problems, Fhir: null);
                 await AddBytesAsync(zip, DataPackageFormat.ManifestPath, JsonSerializer.SerializeToUtf8Bytes(manifest, DataPackageFormat.JsonOptions), ct);
                 log.LogInformation("{Event} export={ExportId} outcome={Outcome} domains={Domains} problems={Problems}", "data_package_built", exportId, result, domains.Count, problems.Count);
             }
@@ -140,6 +148,21 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
         return new ManifestTable(table, rows);
     }
 
+    /// <summary>The readable record of one patient as the bytes of the page, or null when it could not be made (logged with its error class, never silently).</summary>
+    private async Task<byte[]?> RenderReadableRecordAsync(Guid patientId, Guid exportId, CancellationToken ct)
+    {
+        try
+        {
+            var record = await readable.LoadAsync(patientId, ct);
+            return Encoding.UTF8.GetBytes(ReadableRecordHtml.Render(record, new ReadableRecordContext(exportId, PracticeTimeText.Moment(clock, clock.UtcNow), clock.PracticeTimeZone.Id, InsidePackage: true)));
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            log.LogError("{Event} export={ExportId} error_class={ErrorClass}", "readable_record_failed", exportId, ex.GetType().Name);
+            return null;
+        }
+    }
+
     private static async Task<ManifestFile> AddBytesAsync(ZipArchive zip, string path, byte[] content, CancellationToken ct)
     {
         var entry = zip.CreateEntry(path, CompressionLevel.Optimal);
@@ -169,6 +192,8 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
                             Read this first. If "result" is "Partial", the "problems" list says what is missing.
           data/<domain>.json  One file per part of the record (registration, appointments, billing, ...).
                             Each holds the rows of its tables exactly as the system stores them.
+          readable-record.html  The patient's record as a person reads it: open it in a web browser, or print it.
+                            It lists documents by name; the data files are the complete machine-readable copy.
           README.txt        This file.
 
         WHAT IS NOT IN IT

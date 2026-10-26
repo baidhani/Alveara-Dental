@@ -15,6 +15,7 @@ public static class DataPackageFormat
     public const int CurrentVersion = 1;
     public const string ManifestPath = "manifest.json";
     public const string ReadmePath = "README.txt";
+    public const string ReadableRecordPath = "readable-record.html";
     public const string DataFolder = "data/";
     public const string ReservedFhirFolder = "fhir/";
 
@@ -62,5 +63,6 @@ public sealed record DataPackageManifest(
     IReadOnlyList<ManifestDomain> Domains,
     IReadOnlyList<ManifestExcluded> Excluded,
     IReadOnlyList<ManifestFile> Files,
+    string? ReadableRecord,
     IReadOnlyList<ManifestProblem> Problems,
     string? Fhir);
