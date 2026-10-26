@@ -2572,33 +2572,30 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "CHANGES_REQUIRED",
-      "attempt": "R02",
+      "status": "AWAITING_REVIEW",
+      "attempt": "R03",
       "acceptance": {
         "total": 6,
         "passed": 6
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R02, a Stage 1 resubmission after the R01 CHANGES_REQUIRED review. Final-tree focused run 1,082 of 1,082 (every *ApiTests class, PermissionPolicy and TestDatabase classes, the migration inventory); PermissionPolicy classes 136 of 136 five times in a row; 5 new TestDatabaseInUseTests (a real SQL error 3702 recovered, bounded and reported; the harness and the policy report finish before the database is dropped); 6 negative controls killed; frozen Stage 2 regenerated (57 new ids, 1 retired, expected 5,136; output variable proof before running; evaluator validation 10 of 10). Root cause of the R01 run 2 failure: a background policy report outside the host lifecycle, named by the new holder diagnostic. Full backend regression NOT run: frozen Stage 2 contract in .alveara/handoffs/ALV-017-C01/R02-evidence/stage2/."
+        "summary": "Attempt R03, a Stage 1 package: the R02 implementation (f8d40e9) unchanged, with a corrected canonical manifest after the R02 review. Final-tree focused run 1,082 of 1,082 (every *ApiTests class, PermissionPolicy and TestDatabase classes, the migration inventory); PermissionPolicy classes 136 of 136 five times in a row; 5 new TestDatabaseInUseTests; 6 negative controls killed; frozen Stage 2 regenerated at R03 paths (57 new ids, 1 retired, expected 5,136 passed, 0 failed, 0 skipped; output variable proof before running; evaluator validation 10 of 10). The package builder now asserts the manifest against the packaged evidence. Full backend regression NOT run: frozen Stage 2 contract in .alveara/handoffs/ALV-017-C01/R03-evidence/stage2/."
       },
       "demo": "real_backend_walkthrough_9_of_9",
       "parentRegression": "verified",
       "implementationCommit": "f8d40e945f8aab438c80f72128ee309c05b0a8f5",
-      "evidenceCommit": "cbc84abd824e7e953444912c0a017ce9c6756533",
-      "handoffPath": ".alveara/handoffs/ALV-017-C01/R02.md",
+      "evidenceCommit": null,
+      "handoffPath": ".alveara/handoffs/ALV-017-C01/R03.md",
       "review": {
-        "decision": "CHANGES_REQUIRED",
-        "decisionArtifact": ".alveara/reviews/ALV-017-C01/R02-stage1.md",
+        "decision": "pending",
+        "decisionArtifact": null,
         "approvedAttempt": null,
-        "reviewedImplementationCommit": "f8d40e945f8aab438c80f72128ee309c05b0a8f5",
-        "reviewedEvidenceCommit": "cbc84abd824e7e953444912c0a017ce9c6756533",
-        "stage1DecisionArtifact": ".alveara/reviews/ALV-017-C01/R02-stage1.md",
-        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-017-C01/R01.md"
+        "reviewedImplementationCommit": null,
+        "reviewedEvidenceCommit": null,
+        "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-017-C01/R02-stage1.md"
       },
-      "blockingIssues": [
-        "ALV-017-C01-R02-01: the canonical MANIFEST.json of the R02 package states the stale R01 test summary (focused backend 3,076/3,076, *ApiTests 883/883, 52 new ids, expected Stage 2 total 5,131) instead of the R02 evidence (focused final-tree 1,082/1,082, 57 new ids and 1 retired, expected 5,136 passed, 0 failed, 0 skipped, the repeat, runner-preflight, negative-control and real-backend evidence). R03 must be a new immutable Stage 1 package with a corrected manifest; no source change and no full regression are required; preserve the rejected R02 package."
-      ],
+      "blockingIssues": [],
       "revalidation": {
         "required": false,
         "reason": null

@@ -1,0 +1,1 @@
+Alveara.Api.Tests.PatientMergeApiTests.Only_the_administrator_may_use_any_of_the_four_endpoints_and_an_anonymous_caller_sees_nothing

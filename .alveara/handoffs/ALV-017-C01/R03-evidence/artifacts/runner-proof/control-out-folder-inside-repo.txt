@@ -1,0 +1,7 @@
+OK    playwright.patient-merge.config.ts: runner passes PATIENT_MERGE_E2E_OUT; patient-merge-real-backend.spec.ts reads PATIENT_MERGE_E2E_OUT
+OK    playwright.workspace.config.ts: runner passes WORKSPACE_E2E_OUT; patient-workspace-real-backend.spec.ts reads WORKSPACE_E2E_OUT
+OK    playwright.patients.config.ts: runner passes PATIENT_E2E_OUT; patient-registration-real-backend.spec.ts reads PATIENT_E2E_OUT
+OK    playwright.permission-policy.config.ts: runner passes PERMISSION_POLICY_E2E_OUT; permission-policy-real-backend.spec.ts reads PERMISSION_POLICY_E2E_OUT
+OK    playwright.permission-policy-admin.config.ts: runner passes PERMISSION_POLICY_ADMIN_E2E_OUT; permission-policy-admin-real-backend.spec.ts reads PERMISSION_POLICY_ADMIN_E2E_OUT
+PROBLEM the out-folder C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\.alveara\x is inside the repository C:\Users\firas\Documents\AI-Project-[Alveara-Dental]
+1 problem(s)
