@@ -2572,7 +2572,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -2588,14 +2588,17 @@
       "evidenceCommit": "cbc84abd824e7e953444912c0a017ce9c6756533",
       "handoffPath": ".alveara/handoffs/ALV-017-C01/R02.md",
       "review": {
-        "decision": "pending",
-        "decisionArtifact": null,
+        "decision": "CHANGES_REQUIRED",
+        "decisionArtifact": ".alveara/reviews/ALV-017-C01/R02-stage1.md",
         "approvedAttempt": null,
-        "reviewedImplementationCommit": null,
-        "reviewedEvidenceCommit": null,
+        "reviewedImplementationCommit": "f8d40e945f8aab438c80f72128ee309c05b0a8f5",
+        "reviewedEvidenceCommit": "cbc84abd824e7e953444912c0a017ce9c6756533",
+        "stage1DecisionArtifact": ".alveara/reviews/ALV-017-C01/R02-stage1.md",
         "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-017-C01/R01.md"
       },
-      "blockingIssues": [],
+      "blockingIssues": [
+        "ALV-017-C01-R02-01: the canonical MANIFEST.json of the R02 package states the stale R01 test summary (focused backend 3,076/3,076, *ApiTests 883/883, 52 new ids, expected Stage 2 total 5,131) instead of the R02 evidence (focused final-tree 1,082/1,082, 57 new ids and 1 retired, expected 5,136 passed, 0 failed, 0 skipped, the repeat, runner-preflight, negative-control and real-backend evidence). R03 must be a new immutable Stage 1 package with a corrected manifest; no source change and no full regression are required; preserve the rejected R02 package."
+      ],
       "revalidation": {
         "required": false,
         "reason": null

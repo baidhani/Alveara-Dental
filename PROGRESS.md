@@ -1699,3 +1699,9 @@
   - Session: CC-20261008-k4q9
   - What changed: `evidenceCommit` of the item 49 record set to cbc84abd824e7e953444912c0a017ce9c6756533.
   - Verification: `git diff --stat` shows one line; the JSON loads.
+- [x] ALV-017-C01: record R02 Stage 1 review (CHANGES_REQUIRED)
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: the review stored unchanged at `.alveara/reviews/ALV-017-C01/R02-stage1.md`; the item 49 record set to CHANGES_REQUIRED with the blocking issue (the R02 MANIFEST.json carried the stale R01 test summary); BUILD_STATE wording.
+  - Verification: JSON loads; `git diff --stat` shows the review file, the item 49 record and one BUILD_STATE line.
+  - Notes: cause was mine: the manifest summary substitution in my ZIP builder did not apply and the build did not check it. R03 will assert the manifest against the evidence before writing the ZIP. No source change.
