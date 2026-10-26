@@ -1711,3 +1711,8 @@
   - What changed: `.alveara/handoffs/ALV-017-C01/R03.md` and `R03-evidence/` (the R02 evidence re-pointed at R03, the frozen Stage 2 contract at R03 paths, evaluator validation and runner proof regenerated), BUILD_STATE and the item 49 record set to AWAITING_REVIEW for the unchanged implementation f8d40e9. The package builder now asserts the manifest against the packaged evidence before writing the ZIP.
   - Verification: evaluator validation 10 of 10 scenarios; runner proof OK and the R01 defect reported as a problem; focused final-tree run 1,082 of 1,082 (R02 evidence, unchanged source).
   - Notes: no source change and no full regression (Stage 1). Not pushed.
+- [x] ALV-017-C01: record the R03 evidence commit in the item 49 status record
+  - Date: 2026-10-26
+  - Session: CC-20261008-k4q9
+  - What changed: evidenceCommit of the item 49 record set to 2bd12badd73f761353275530578cce4d5c0bd01e.
+  - Verification: git diff --stat shows one line; the JSON loads.
