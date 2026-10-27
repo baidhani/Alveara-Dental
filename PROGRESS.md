@@ -1871,3 +1871,9 @@
   - Session: CC-20261008-k4q9
   - What changed: EXECUTION_STATUS.json for ALV-018-C01 now names the evidence commit e926c94.
   - Verification: the record reads AWAITING_REVIEW, attempt R01, implementation 1de9de5, evidence e926c94.
+- [x] ALV-018-C01: repair the holder diagnostic test that failed the R01 Stage 2, attempt R02 (Stage 1)
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: TestDatabaseFixture logs one numbered "holder check N of 4: K session(s)" marker per failed drop attempt; TestDatabaseInUseTests asserts four markers and that every reported session is named (it no longer assumes one session per attempt); new test with two real holder sessions. The failed R01 Stage 2 evidence (89 files) and the reviewer's ruling are preserved in .alveara/reviews/ALV-018-C01/. R02 handoff, evidence and a new frozen Stage 2 contract (5,334 tests, 198 new ids) added. Test infrastructure only; no product code changed.
+  - Verification: the two tests 2 of 2 on the first run and on 10 sequential repeats (10 of 10 runs, 2 of 2 each); all 59 TestDatabase* tests pass (7 m 38 s); evaluator validation 10 of 10; runner proof OK; the test project builds with 0 errors.
+  - Notes: R01 Stage 2 ran 5,333 tests, 5,332 passed, 1 failed (Expected 4, Actual 5 on the count of holder-session lines). No negative control was run for the repair. The full backend regression is Stage 2, pending the reviewer's Stage 1 approval of R02.

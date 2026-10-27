@@ -7,3 +7,4 @@
 - Scan before copying (2026-10-27): no secret values (the only keyword hit is the table name `PasswordResetTokens` in an excluded-tables list); no real personal data. Every record is synthetic: patient names carry a timestamp suffix, phones are 555-xxx, the only email is `ann@example.test`, the document files are 86 and 87 bytes of test content. Both generated ZIP packages were extracted and scanned as well.
 - `INVENTORY.sha256` lists the SHA-256 of every other file in this folder (paths relative to the folder).
 - This is a failed attempt's record. It is not a pass and must not be reused as one.
+- Line endings: the repository normalises text files on commit, so a text file checked out later may differ byte for byte from the original (CRLF against LF); `INVENTORY.sha256` holds the hashes of the originals as they were copied. Binary files (PNG, ZIP) are identical.

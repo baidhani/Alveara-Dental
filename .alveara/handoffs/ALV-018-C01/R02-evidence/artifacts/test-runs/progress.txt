@@ -1,0 +1,14 @@
+start 11:45:26
+first run done 11:48:23: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 1 done 11:51:18: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 2 done 11:54:13: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 3 done 11:57:09: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 4 done 12:00:04: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 5 done 12:02:59: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 6 done 12:05:56: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 7 done 12:08:51: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 8 done 12:11:46: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 9 done 12:14:41: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+repeat 10 done 12:17:37: Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 m 52 s - Alveara.Api.Tests.dll (net10.0)
+teardown suite done 12:25:18: Passed!  - Failed:     0, Passed:    59, Skipped:     0, Total:    59, Duration: 7 m 38 s - Alveara.Api.Tests.dll (net10.0)
+ALL DONE

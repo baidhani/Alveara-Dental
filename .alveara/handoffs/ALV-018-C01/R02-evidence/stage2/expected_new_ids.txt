@@ -1,0 +1,198 @@
+Alveara.Api.Tests.AllPatientsPackageTests.A_cancelled_export_leaves_nothing_behind_and_does_not_block_the_next
+Alveara.Api.Tests.AllPatientsPackageTests.A_package_over_the_size_limit_is_refused_not_cut_short_and_nothing_is_left_behind
+Alveara.Api.Tests.AllPatientsPackageTests.A_patient_merged_away_is_not_in_the_package
+Alveara.Api.Tests.AllPatientsPackageTests.A_permission_withdrawn_just_before_delivery_stops_the_export_and_delivers_nothing
+Alveara.Api.Tests.AllPatientsPackageTests.A_permission_withdrawn_part_way_stops_the_export_and_delivers_nothing
+Alveara.Api.Tests.AllPatientsPackageTests.A_second_all_patients_export_is_refused_while_the_first_is_running_and_the_first_still_completes
+Alveara.Api.Tests.AllPatientsPackageTests.Documents_are_grouped_by_patient_and_each_file_comes_back_byte_for_byte
+Alveara.Api.Tests.AllPatientsPackageTests.Every_patient_not_merged_away_is_in_the_package_with_a_page_and_a_folder_of_their_own_and_nobody_else
+Alveara.Api.Tests.AllPatientsPackageTests.Folders_follow_the_naming_choice_for_every_patient_and_the_page_paths_follow_the_folders
+Alveara.Api.Tests.AllPatientsPackageTests.Over_the_patient_limit_is_refused_nothing_is_left_behind_and_the_next_export_is_not_blocked
+Alveara.Api.Tests.AllPatientsPackageTests.The_history_row_and_the_audit_entry_count_the_patients_and_hold_no_patient_detail
+Alveara.Api.Tests.AllPatientsPackageTests.The_real_recheck_reads_the_account_and_the_policy_afresh
+Alveara.Api.Tests.AllPatientsPackageTests.Without_snapshot_isolation_the_export_reads_table_by_table_and_says_so_and_with_it_reads_one_moment
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_row_is_never_deleted_and_a_finished_row_never_changes_again
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_started_row_is_finished_once_with_its_totals_and_the_file_hash
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a finish time before the request&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_10(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a finished row with no finish time&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_9(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a hash that is not 64 lower-case hex characters&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_11(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a hash that is too short&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_12(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a negative patient count&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_14(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a negative size&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_13(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a one-patient export with no patient&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_4(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a readable record for all patients&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_6(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a readable record with document files&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_7(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a request time outside the supported range&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_15(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;a started row with a finish time&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_8(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;an all-patients export that names a patient&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_5(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;an unknown kind&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_1(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;an unknown result&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_3(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.A_state_outside_the_model_is_refused_by_the_database(name: &quot;an unknown scope&quot;, change: Action`1 { Method = Void &lt;StatesOutsideTheModel&gt;b__15_2(Alveara.Api.Architecture.Patients.Portability.Package.DataExportHistory), Target = &lt;&gt;c { } })
+Alveara.Api.Tests.DataExportHistorySchemaTests.The_export_id_is_unique_so_a_file_found_later_traces_to_exactly_one_row
+Alveara.Api.Tests.DataExportHistorySchemaTests.What_a_row_recorded_never_changes_even_while_it_is_started
+Alveara.Api.Tests.ExportDomainCatalogTests.A_table_that_holds_credentials_or_keys_is_never_in_a_domain_the_package_carries
+Alveara.Api.Tests.ExportDomainCatalogTests.Every_exclusion_has_a_reason_and_every_domain_a_stable_key_and_a_title
+Alveara.Api.Tests.ExportDomainCatalogTests.Every_table_of_the_model_is_named_in_the_catalog_exactly_once
+Alveara.Api.Tests.ExportDomainCatalogTests.Every_table_that_holds_a_patient_id_is_in_a_domain_the_package_carries
+Alveara.Api.Tests.ExportDomainCatalogTests.The_catalog_names_the_domains_and_exclusion_groups_the_manifest_will_report_today
+Alveara.Api.Tests.ExportHistoryServiceTests.A_line_names_no_patient_and_carries_the_patient_as_an_id_only
+Alveara.Api.Tests.ExportHistoryServiceTests.A_row_started_long_ago_is_shown_as_interrupted_a_recent_one_is_not_and_no_row_is_rewritten
+Alveara.Api.Tests.ExportHistoryServiceTests.The_list_is_newest_first_and_a_cursor_and_a_limit_page_through_it
+Alveara.Api.Tests.ExportHistoryServiceTests.The_overview_says_what_a_package_holds_and_leaves_out_the_limits_the_counts_and_how_it_would_read
+Alveara.Api.Tests.ExportHistoryServiceTests.The_person_is_a_staff_display_name_and_unknown_when_there_is_no_profile
+Alveara.Api.Tests.ExportHistoryServiceTests.Without_the_bulk_permission_a_person_sees_only_their_own_exports
+Alveara.Api.Tests.ExportPackagePermissionTests.Both_are_registered_as_active_and_a_one_patient_package_needs_neither_of_them
+Alveara.Api.Tests.ExportPackagePermissionTests.Both_can_be_granted_to_another_role_because_neither_is_a_protected_permission
+Alveara.Api.Tests.ExportPackagePermissionTests.The_bulk_export_and_the_readable_record_are_held_by_the_administrator_alone_by_default
+Alveara.Api.Tests.ExportPackagePermissionTests.The_new_audit_event_names_are_distinct_and_none_repeats_an_existing_event
+Alveara.Api.Tests.ExportTableFiltersTests.A_child_table_with_no_patient_id_is_selected_through_its_parent_and_a_referred_to_table_through_the_rows_that_refer_to_it
+Alveara.Api.Tests.ExportTableFiltersTests.A_scope_for_all_patients_changes_only_the_scope_text
+Alveara.Api.Tests.ExportTableFiltersTests.Every_condition_is_built_from_model_names_and_the_scope_alone
+Alveara.Api.Tests.ExportTableFiltersTests.Every_table_the_package_carries_is_reached_by_a_rule
+Alveara.Api.Tests.ExportTableFiltersTests.Rows_are_ordered_by_the_key_of_their_table_so_the_same_data_gives_the_same_file
+Alveara.Api.Tests.ExportTableFiltersTests.The_patient_table_and_the_tables_that_hold_a_patient_id_are_selected_by_that_id
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;  spaced name .png  &quot;, expected: &quot;spaced name .png&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;&quot;, expected: &quot;file&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;...&quot;, expected: &quot;file&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;..\\..\\evil.exe&quot;, expected: &quot;evil.exe&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;.hidden&quot;, expected: &quot;hidden&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;C:\\Users\\x\\scan.pdf&quot;, expected: &quot;scan.pdf&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;CON.png&quot;, expected: &quot;_CON.png&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;a/b/c.txt&quot;, expected: &quot;c.txt&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;bitewing.png&quot;, expected: &quot;bitewing.png&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;lpt1&quot;, expected: &quot;_lpt1&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;müller röntgen.png&quot;, expected: &quot;müller röntgen.png&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;report.pdf.&quot;, expected: &quot;report.pdf&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_file_name_is_cleaned_but_stays_recognisable(original: &quot;scan?.pdf&quot;, expected: &quot;scan.pdf&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_document_path_groups_by_patient_and_is_unique_by_document
+Alveara.Api.Tests.PackagePathsTests.A_long_name_is_capped_and_two_patients_with_the_same_name_still_get_different_folders
+Alveara.Api.Tests.PackagePathsTests.A_name_is_reduced_to_letters_digits_and_single_hyphens(first: &quot;  Eli  &quot;, last: &quot;..\\..\\Moss/&quot;, expectedName: &quot;Moss-Eli&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_name_is_reduced_to_letters_digits_and_single_hyphens(first: &quot;E:li*&quot;, last: &quot;Mo?ss&lt;&gt;|\&quot;&quot;, expectedName: &quot;Moss-Eli&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_name_is_reduced_to_letters_digits_and_single_hyphens(first: &quot;Eli&quot;, last: &quot;O'Brien&quot;, expectedName: &quot;OBrien-Eli&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_name_is_reduced_to_letters_digits_and_single_hyphens(first: &quot;José&quot;, last: &quot;Müller&quot;, expectedName: &quot;Müller-José&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_name_is_reduced_to_letters_digits_and_single_hyphens(first: &quot;Mary Ann&quot;, last: &quot;van der Berg&quot;, expectedName: &quot;van-der-Berg-Mary-Ann&quot;)
+Alveara.Api.Tests.PackagePathsTests.A_null_file_name_becomes_file_and_a_long_one_is_cut_but_keeps_its_extension
+Alveara.Api.Tests.PackagePathsTests.A_patient_without_a_usable_name_gets_the_id_alone
+Alveara.Api.Tests.PackagePathsTests.An_unknown_naming_mode_is_refused_not_replaced_by_a_default
+Alveara.Api.Tests.PackagePathsTests.The_id_only_folder_is_the_id_and_nothing_about_the_patient
+Alveara.Api.Tests.PackagePathsTests.The_name_and_id_folder_is_last_name_first_name_then_the_id
+Alveara.Api.Tests.PackagePathsTests.The_same_input_always_gives_the_same_folder_and_whatever_is_typed_the_folder_is_one_safe_path_segment
+Alveara.Api.Tests.PatientDataPackageDocumentTests.A_file_missing_from_storage_is_marked_missing_has_no_entry_and_makes_the_package_partial
+Alveara.Api.Tests.PatientDataPackageDocumentTests.A_file_name_a_user_typed_cannot_leave_its_folder_and_two_files_with_one_name_both_survive
+Alveara.Api.Tests.PatientDataPackageDocumentTests.A_file_that_no_longer_matches_its_recorded_hash_is_included_as_found_marked_and_makes_the_package_partial
+Alveara.Api.Tests.PatientDataPackageDocumentTests.A_manifest_only_export_lists_every_document_reads_no_file_and_is_still_complete
+Alveara.Api.Tests.PatientDataPackageDocumentTests.Document_files_over_the_package_limit_are_refused_the_row_is_failed_and_nothing_is_left_on_disk
+Alveara.Api.Tests.PatientDataPackageDocumentTests.Each_document_file_is_in_the_package_under_its_patient_byte_for_byte_with_the_hash_the_manifest_gives
+Alveara.Api.Tests.PatientDataPackageDocumentTests.Folders_are_named_by_name_and_id_when_asked_and_the_manifest_maps_the_patient_to_it
+Alveara.Api.Tests.PatientDataPackageDocumentTests.No_temporary_file_is_left_after_a_package_with_documents_is_closed_or_when_a_file_is_missing
+Alveara.Api.Tests.PatientDataPackageDocumentTests.The_practice_default_decides_the_naming_when_the_export_does_not_ask_and_a_misspelt_choice_is_refused
+Alveara.Api.Tests.PatientDataPackageServiceTests.A_domain_that_cannot_be_read_makes_the_package_partial_and_the_manifest_says_so
+Alveara.Api.Tests.PatientDataPackageServiceTests.A_real_chart_exports_as_a_package_with_a_readme_a_data_file_for_every_domain_and_a_manifest_that_says_what_it_holds
+Alveara.Api.Tests.PatientDataPackageServiceTests.An_unknown_patient_and_a_merged_away_patient_are_refused_with_no_history_row_and_no_file
+Alveara.Api.Tests.PatientDataPackageServiceTests.Closing_the_package_deletes_its_temporary_file
+Alveara.Api.Tests.PatientDataPackageServiceTests.Every_file_matches_the_hash_and_size_the_manifest_gives
+Alveara.Api.Tests.PatientDataPackageServiceTests.Exporting_the_same_data_twice_gives_two_exports_with_the_same_data_files_and_each_has_its_own_row
+Alveara.Api.Tests.PatientDataPackageServiceTests.Nothing_secret_and_no_account_is_in_the_package
+Alveara.Api.Tests.PatientDataPackageServiceTests.Relationships_across_domains_still_resolve_inside_the_package
+Alveara.Api.Tests.PatientDataPackageServiceTests.The_export_is_recorded_before_it_leaves_with_its_totals_and_hash_and_logged_with_no_patient_detail
+Alveara.Api.Tests.PatientDataPackageServiceTests.The_package_carries_the_readable_record_of_the_patient_as_a_page_that_says_it_is_inside_the_package
+Alveara.Api.Tests.PatientDataPackageServiceTests.The_rows_of_each_table_are_exactly_the_patients_and_the_counts_agree_with_the_database_and_the_manifest
+Alveara.Api.Tests.PatientDataPackageServiceTests.When_the_log_entry_cannot_be_saved_no_package_is_returned_the_row_is_failed_and_no_temporary_file_is_left
+Alveara.Api.Tests.PatientExportApiTests.An_administrator_can_grant_the_export_to_another_role_and_take_it_back_without_any_code_change
+Alveara.Api.Tests.PatientExportApiTests.An_unknown_patient_is_404_and_a_patient_merged_into_another_is_409_and_neither_is_logged
+Alveara.Api.Tests.PatientExportApiTests.Every_export_is_logged_with_the_signed_in_user_and_the_time
+Alveara.Api.Tests.PatientExportApiTests.Export_is_held_by_the_administrator_alone_and_import_by_the_administrator_and_the_office_manager_by_default
+Alveara.Api.Tests.PatientExportApiTests.Only_the_administrator_may_export_and_an_anonymous_caller_sees_nothing_and_no_refused_call_is_logged
+Alveara.Api.Tests.PatientExportApiTests.The_administrator_downloads_a_json_file_in_the_documented_layout_that_no_cache_may_keep
+Alveara.Api.Tests.PatientExportServiceTests.An_export_writes_one_audit_entry_with_the_user_and_the_time_and_no_personal_details
+Alveara.Api.Tests.PatientExportServiceTests.An_unknown_patient_and_a_patient_merged_away_are_refused_with_no_file_and_no_log_entry
+Alveara.Api.Tests.PatientExportServiceTests.Exporting_twice_is_two_actions_each_with_its_own_export_id_and_its_own_log_entry
+Alveara.Api.Tests.PatientExportServiceTests.The_file_holds_the_documented_layout_and_the_patients_registration_fields_and_nothing_else
+Alveara.Api.Tests.PatientExportServiceTests.The_format_name_version_and_size_limit_are_the_documented_ones
+Alveara.Api.Tests.PatientExportServiceTests.When_the_audit_entry_cannot_be_saved_no_file_is_returned_and_the_same_export_works_once_the_fault_is_gone
+Alveara.Api.Tests.PatientExportsApiTests.A_download_without_the_csrf_token_is_refused_and_nothing_is_recorded
+Alveara.Api.Tests.PatientExportsApiTests.An_unknown_patient_is_404_and_a_patient_merged_away_is_409_and_neither_is_recorded
+Alveara.Api.Tests.PatientExportsApiTests.Every_download_and_both_reads_are_refused_to_an_anonymous_caller_and_to_every_role_without_the_permission
+Alveara.Api.Tests.PatientExportsApiTests.The_administrator_downloads_a_package_that_no_cache_may_keep_and_the_bytes_match_the_hash_and_the_history
+Alveara.Api.Tests.PatientExportsApiTests.The_administrator_downloads_every_patients_package
+Alveara.Api.Tests.PatientExportsApiTests.The_history_shows_a_person_only_their_own_exports_unless_they_hold_the_bulk_permission_and_has_no_patient_detail
+Alveara.Api.Tests.PatientExportsApiTests.The_overview_explains_the_package_before_it_is_started
+Alveara.Api.Tests.PatientExportsApiTests.The_readable_record_is_an_attachment_the_page_cannot_script_and_it_is_recorded_as_a_readable_record
+Alveara.Api.Tests.PatientExportsApiTests.The_request_may_leave_out_the_document_files_and_choose_the_folder_naming_and_a_bad_choice_is_400
+Alveara.Api.Tests.PatientExportsApiTests.The_three_permissions_are_separate_and_an_administrator_can_grant_one_without_a_code_change
+Alveara.Api.Tests.PatientExportsApiTests.When_the_audit_store_is_down_nothing_is_sent_the_answer_is_a_stable_code_and_the_row_is_failed
+Alveara.Api.Tests.PatientImportApiTests.A_file_that_is_not_JSON_and_a_body_over_the_size_limit_are_both_rejected
+Alveara.Api.Tests.PatientImportApiTests.A_patient_already_registered_is_409_with_a_pointer_to_the_record_and_is_not_created_again
+Alveara.Api.Tests.PatientImportApiTests.An_exported_file_imports_as_another_person_through_the_API
+Alveara.Api.Tests.PatientImportApiTests.An_incorrect_file_is_400_with_every_problem_listed_and_a_prompt_to_correct_it_and_nothing_is_stored
+Alveara.Api.Tests.PatientImportApiTests.Every_import_action_is_logged_with_the_signed_in_user_and_the_time
+Alveara.Api.Tests.PatientImportApiTests.Every_other_role_is_refused_an_anonymous_caller_sees_nothing_a_missing_csrf_token_is_refused_and_nothing_is_created_or_logged
+Alveara.Api.Tests.PatientImportApiTests.The_administrator_and_the_office_manager_import_a_valid_file_and_a_repeat_creates_nothing_new
+Alveara.Api.Tests.PatientImportServiceTests.A_file_that_is_not_even_JSON_is_rejected_and_logged_too
+Alveara.Api.Tests.PatientImportServiceTests.A_file_with_problems_stores_nothing_lists_every_problem_and_is_logged_as_rejected_without_its_values
+Alveara.Api.Tests.PatientImportServiceTests.A_patient_who_is_already_registered_is_refused_with_a_pointer_to_the_record_and_the_refusal_is_logged
+Alveara.Api.Tests.PatientImportServiceTests.A_patient_who_may_be_someone_already_registered_is_refused_with_the_candidates_and_is_not_created
+Alveara.Api.Tests.PatientImportServiceTests.A_valid_file_creates_the_patient_and_one_log_entry_with_the_user_and_the_time_and_no_personal_details
+Alveara.Api.Tests.PatientImportServiceTests.An_exported_file_imported_as_another_person_comes_back_out_with_the_same_fields
+Alveara.Api.Tests.PatientImportServiceTests.Importing_the_same_file_again_returns_the_patient_it_created_and_creates_nothing_new
+Alveara.Api.Tests.PatientImportServiceTests.When_the_import_log_entry_cannot_be_saved_the_patient_is_not_created_either_and_the_same_file_imports_once_the_fault_is_gone
+Alveara.Api.Tests.PatientImportServiceTests.When_the_rejection_cannot_be_logged_the_call_fails_instead_of_passing_silently
+Alveara.Api.Tests.PatientImportValidatorTests.A_field_the_practice_requires_is_required_in_the_file_too
+Alveara.Api.Tests.PatientImportValidatorTests.A_file_in_the_documented_layout_passes_and_gives_back_the_export_id_and_the_fields
+Alveara.Api.Tests.PatientImportValidatorTests.A_message_never_repeats_what_the_file_said
+Alveara.Api.Tests.PatientImportValidatorTests.A_missing_or_mistyped_member_does_not_hide_a_field_mistake_and_is_not_reported_twice
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;JSON that is not an object&quot;, bytes: [91, 49, 44, 32, 50, ···], code: &quot;wrong_type&quot;, path: &quot;$&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;JSON with a trailing comma&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;not_json&quot;, path: &quot;$&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a date of birth in another form&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;field_invalid&quot;, path: &quot;patient.dateOfBirth&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a date of birth in the future&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;field_invalid&quot;, path: &quot;patient.dateOfBirth&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a file over the size limit&quot;, bytes: [0, 0, 0, 0, 0, ···], code: &quot;file_too_large&quot;, path: &quot;$&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a format that is not text&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;wrong_format&quot;, path: &quot;format&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a member written twice&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;duplicate_member&quot;, path: &quot;formatVersion&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a missing patient member&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;missing_member&quot;, path: &quot;patient.city&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a missing top-level member&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;missing_member&quot;, path: &quot;source&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a name over the length limit&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;field_invalid&quot;, path: &quot;patient.lastName&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a newer version&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;unsupported_version&quot;, path: &quot;formatVersion&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a patient member that is a number&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;wrong_type&quot;, path: &quot;patient.postalCode&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a phone number with too few digits&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;field_invalid&quot;, path: &quot;patient.phone&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a required field that is null&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;field_invalid&quot;, path: &quot;patient.firstName&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a source id that is not a GUID&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;source_patient_id_invalid&quot;, path: &quot;source.sourcePatientId&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a source system that is not text&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;wrong_type&quot;, path: &quot;source.system&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a time without the Z&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;exported_at_invalid&quot;, path: &quot;exportedAtUtc&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a top-level member of the wrong type&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;wrong_type&quot;, path: &quot;patient&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a version that is not a whole number&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;unsupported_version&quot;, path: &quot;formatVersion&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;a version written as text&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;unsupported_version&quot;, path: &quot;formatVersion&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an email that is not an email&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;field_invalid&quot;, path: &quot;patient.email&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an empty GUID as the export id&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;export_id_invalid&quot;, path: &quot;exportId&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an empty file&quot;, bytes: [], code: &quot;file_empty&quot;, path: &quot;$&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an export id that is not a GUID&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;export_id_invalid&quot;, path: &quot;exportId&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an export time that is not a UTC time&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;exported_at_invalid&quot;, path: &quot;exportedAtUtc&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an unknown patient member&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;unknown_member&quot;, path: &quot;patient.socialSecurityNumber&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;an unknown top-level member&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;unknown_member&quot;, path: &quot;notes&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;another format name&quot;, bytes: [123, 34, 102, 111, 114, ···], code: &quot;wrong_format&quot;, path: &quot;format&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.An_incorrect_file_is_rejected_with_the_right_code_at_the_right_place_and_gives_back_no_fields(name: &quot;text that is not JSON&quot;, bytes: [116, 104, 105, 115, 32, ···], code: &quot;not_json&quot;, path: &quot;$&quot;)
+Alveara.Api.Tests.PatientImportValidatorTests.Several_mistakes_are_all_reported_together_so_they_can_be_fixed_in_one_go
+Alveara.Api.Tests.PatientReadableRecordServiceTests.An_unknown_and_a_merged_away_patient_are_refused_with_nothing_recorded
+Alveara.Api.Tests.PatientReadableRecordServiceTests.Doing_it_twice_makes_two_separate_exports_each_with_its_own_row
+Alveara.Api.Tests.PatientReadableRecordServiceTests.The_history_row_and_the_audit_entry_record_a_readable_record_for_one_patient_with_no_detail
+Alveara.Api.Tests.PatientReadableRecordServiceTests.The_page_is_the_patients_record_and_says_it_stands_alone_with_documents_listed_but_not_included
+Alveara.Api.Tests.PatientReadableRecordServiceTests.When_the_audit_entry_cannot_be_saved_nothing_is_returned_the_row_is_failed_and_the_failure_is_logged
+Alveara.Api.Tests.PracticeTimeTextTests.A_practice_in_UTC_is_written_with_a_zero_offset_and_an_offset_given_in_another_zone_changes_nothing
+Alveara.Api.Tests.PracticeTimeTextTests.An_instant_is_written_in_the_practice_time_zone_with_its_offset_in_winter_and_in_summer
+Alveara.Api.Tests.PracticeTimeTextTests.Either_side_of_a_clock_change_is_unambiguous_because_the_offset_is_shown
+Alveara.Api.Tests.PracticeTimeTextTests.The_date_of_an_instant_is_the_practice_local_date_so_a_late_evening_visit_does_not_move_to_the_next_day
+Alveara.Api.Tests.ReadableRecordHtmlTests.A_package_made_without_the_document_files_says_so_instead_of_pointing_at_a_folder_that_is_not_there
+Alveara.Api.Tests.ReadableRecordHtmlTests.A_section_with_no_rows_says_none_recorded_instead_of_disappearing
+Alveara.Api.Tests.ReadableRecordHtmlTests.Line_breaks_in_a_note_are_kept_and_the_same_record_always_gives_the_same_page
+Alveara.Api.Tests.ReadableRecordHtmlTests.Nothing_in_a_record_can_become_markup
+Alveara.Api.Tests.ReadableRecordHtmlTests.The_page_is_self_contained_and_forbids_everything_it_does_not_use
+Alveara.Api.Tests.ReadableRecordHtmlTests.The_page_says_what_it_is_and_what_it_leaves_out_depending_on_where_it_is_found
+Alveara.Api.Tests.ReadableRecordHtmlTests.The_page_shows_the_patient_the_summary_each_section_with_its_rows_and_a_link_to_every_section
+Alveara.Api.Tests.ReadableRecordLoaderTests.A_real_chart_gives_every_section_with_rows_that_agree_with_the_database
+Alveara.Api.Tests.ReadableRecordLoaderTests.Billing_is_shown_as_totals_by_kind_and_never_as_a_balance
+Alveara.Api.Tests.ReadableRecordLoaderTests.Documents_are_listed_with_their_hash_and_the_section_says_the_files_are_not_in_it
+Alveara.Api.Tests.ReadableRecordLoaderTests.Loading_the_record_writes_nothing_and_an_unknown_patient_is_refused
+Alveara.Api.Tests.ReadableRecordLoaderTests.Names_and_codes_are_spelled_out_for_a_person
+Alveara.Api.Tests.ReadableRecordLoaderTests.No_account_or_secret_is_in_the_record
+Alveara.Api.Tests.ReadableRecordLoaderTests.The_summary_names_the_patient_and_only_this_patients_rows_are_read
+Alveara.Api.Tests.ReadableRecordLoaderTests.Times_are_written_in_the_practice_time_zone_with_their_offset_not_in_UTC
+Alveara.Api.Tests.TestDatabaseInUseTests.Several_holders_are_each_named_and_the_diagnostic_is_still_one_check_for_each_failed_attempt
