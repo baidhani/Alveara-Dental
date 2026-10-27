@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Time;
@@ -31,16 +30,12 @@ public sealed class DataPackageFile(BuiltPackage built, Guid exportId, string fi
 /// withdrawn (403 <c>permission_revoked</c>), a domain that cannot be read (the package is Partial and says so), a missing or changed document file (Partial), an unknown folder-naming choice (400), a failing history or
 /// audit store (no file), cancellation. No external service is called; each database read has a time limit.
 /// </summary>
-public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBuilder builder, IExportAuthorization authorization, IPracticeClock clock, IServiceScopeFactory scopes, ILogger<PatientDataPackageService> log)
+public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBuilder builder, IExportAuthorization authorization, IPracticeClock clock, ExportFailureRecorder failures)
 {
     public async Task<DataPackageFile> ExportPatientAsync(Guid patientId, Guid actor, CancellationToken ct, PackageChoices? choices = null)
     {
         choices = ValidChoices(choices);
-        var patient = await db.Patients.AsNoTracking().Select(p => new { p.Id, p.MergedAtUtc }).SingleOrDefaultAsync(p => p.Id == patientId, ct)
-            ?? throw new PatientException("patient_not_found", "That patient was not found.", 404);
-        if (patient.MergedAtUtc is not null)
-            throw new PatientException("patient_merged", "That record was merged into another patient record and is no longer exported; export the record it was merged into.", 409);
-
+        await PatientExportSubject.RequireAsync(db, patientId, ct);
         var scope = new PackageScope(DataExportScope.OnePatient, $"SELECT CONVERT(uniqueidentifier, '{patientId:D}')", 1, patientId, choices);
         return await RunAsync(scope, patientId, actor, ct, recheckPermission: false, AuditEventTypes.PatientDataPackageExported, nameof(Patient), patientId);
     }
@@ -94,29 +89,8 @@ public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBui
         catch (Exception ex)
         {
             if (built is not null) await built.DisposeAsync();
-            await RecordFailureAsync(history.Id, exportId, auditEntity, auditEntityId, actor, ex);
+            await failures.RecordAsync(history.Id, exportId, "Patient data package", auditEntity, auditEntityId, actor, ex);
             throw;
-        }
-    }
-
-    /// <summary>Marks the export Failed and logs it, on a fresh scope (the failed save may have left the original context unusable). If even this cannot be saved it is logged with its error class and the original error still reaches the caller.</summary>
-    private async Task RecordFailureAsync(Guid historyId, Guid exportId, string auditEntity, Guid auditEntityId, Guid actor, Exception cause)
-    {
-        using var limit = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-        try
-        {
-            await using var scope = scopes.CreateAsyncScope();
-            var other = scope.ServiceProvider.GetRequiredService<AlveraDbContext>();
-            var finished = clock.UtcNow;
-            await other.DataExportHistory.Where(h => h.Id == historyId && h.Result == DataExportResult.Started)
-                .ExecuteUpdateAsync(s => s.SetProperty(h => h.Result, DataExportResult.Failed).SetProperty(h => h.FinishedAtUtc, finished), limit.Token);
-            AuditService.Record(other, AuditEventTypes.DataExportFailed, auditEntity, auditEntityId, actor,
-                $"Patient data package export failed (export {exportId}, error class {cause.GetType().Name}).", null, exportId);
-            await other.SaveChangesAsync(limit.Token);
-        }
-        catch (Exception ex)
-        {
-            log.LogError("{Event} export={ExportId} error_class={ErrorClass} cause={Cause}", "data_export_failure_not_recorded", exportId, ex.GetType().Name, cause.GetType().Name);
         }
     }
 }

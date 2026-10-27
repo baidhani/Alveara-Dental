@@ -20,6 +20,9 @@ public sealed class DataExportOptions
     /// <summary>How long one database read of a table may take, in seconds. No read waits without a limit.</summary>
     public int ReadTimeoutSeconds { get; set; } = 120;
 
+    /// <summary>An export still marked Started this many minutes after it began is shown as interrupted in the history (the row itself is never rewritten).</summary>
+    public int InterruptedAfterMinutes { get; set; } = 240;
+
     /// <summary>The practice's default for naming each patient's folder in a package: <c>IdOnly</c> (the default, nothing about the patient shows in a file listing) or <c>NameAndId</c>. An export may choose the other one for itself.</summary>
     public string DefaultFolderNaming { get; set; } = FolderNaming.IdOnly;
 

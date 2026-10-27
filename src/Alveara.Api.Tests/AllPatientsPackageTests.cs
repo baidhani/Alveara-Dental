@@ -62,7 +62,7 @@ public class AllPatientsPackageTests : MergeChartTestBase
         var documents = new PackageDocumentWriter(db, _blobs, options, NullLogger<PackageDocumentWriter>.Instance);
         var builder = new PatientDataPackageBuilder(db, Clock, options, new ReadableRecordLoader(db, Clock), documents, NullLogger<PatientDataPackageBuilder>.Instance);
         var factory = services.GetRequiredService<IServiceScopeFactory>();
-        return new PatientDataPackageService(db, builder, authorization ?? AllowAll, Clock, factory, NullLogger<PatientDataPackageService>.Instance)
+        return new PatientDataPackageService(db, builder, authorization ?? AllowAll, Clock, new ExportFailureRecorder(factory, Clock, NullLogger<ExportFailureRecorder>.Instance))
             .ExportAllAsync(S.Actor, ct, choices ?? new PackageChoices(IncludeDocumentFiles: false));
     }
 
