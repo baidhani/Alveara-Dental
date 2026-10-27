@@ -2676,7 +2676,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R02",
       "acceptance": {
         "total": 6,
@@ -2684,7 +2684,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R02, a Stage 1 package repairing the one failure of the R01 frozen Stage 2 (5,332 of 5,333 passed; TestDatabaseInUseTests.A_holder_that_never_leaves_... Expected 4, Actual 5 on a count of holder-session lines). Test infrastructure only (the test-database fixture and its tests; no product code). The fixture logs one numbered holder check per failed drop attempt and the test asserts that; a new test holds the database with two real sessions. Focused evidence: the two tests 2 of 2 on the first run and on 10 sequential repeats (10 of 10 runs); all 59 TestDatabase* tests passed (7 m 38 s); evaluator validation 10 of 10; runner proof OK. No negative control was run for the repair. Full backend regression PENDING: the new frozen Stage 2 (.alveara/handoffs/ALV-018-C01/R02-evidence/stage2/) expects 5,334 backend tests (the 5,136 baseline plus exactly the 198 listed new ids) with no time limit. No full run made for R02."
+        "summary": "Attempt R02, a Stage 1 package repairing the one failure of the R01 frozen Stage 2 (5,332 of 5,333 passed; TestDatabaseInUseTests.A_holder_that_never_leaves_... Expected 4, Actual 5 on a count of holder-session lines). Test infrastructure only (the test-database fixture and its tests; no product code). The fixture logs one numbered holder check per failed drop attempt and the test asserts that; a new test holds the database with two real sessions. Focused evidence: the two tests 2 of 2 on the first run and on 10 sequential repeats (10 of 10 runs); all 59 TestDatabase* tests passed (7 m 38 s); evaluator validation 10 of 10; runner proof OK. No negative control was run for the repair. Full backend regression PENDING: the new frozen Stage 2 (.alveara/handoffs/ALV-018-C01/R02-evidence/stage2/) expects 5,334 backend tests (the 5,136 baseline plus exactly the 198 listed new ids) with no time limit. No full run made for R02. Stage 2 (run once on the Stage 1 closure commit 426257b, clean tree, src/ identical to the implementation): STAGE 2 QUALIFIES, 28 of 28 criteria; backend 5,334 passed, 0 failed, 0 skipped in 80.9 min, vitest 1,742 in 110 files, mocked Playwright 138 passed and 2 skipped, repository checks 13, walkthroughs 10, 7, 9, 14, 7, 7 and 8, artifact counts unchanged; addendum .alveara/handoffs/ALV-018-C01/R02-regression.md."
       },
       "demo": "real_backend_walkthrough_10_of_10",
       "parentRegression": "verified",
@@ -2705,7 +2705,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",

@@ -1,0 +1,8 @@
+OK    playwright.patient-export-package.config.ts: runner passes PATIENT_EXPORT_PACKAGE_E2E_OUT; patient-export-package-real-backend.spec.ts reads PATIENT_EXPORT_PACKAGE_E2E_OUT
+OK    playwright.patient-portability.config.ts: runner passes PATIENT_PORTABILITY_E2E_OUT; patient-portability-real-backend.spec.ts reads PATIENT_PORTABILITY_E2E_OUT
+OK    playwright.patient-merge.config.ts: runner passes PATIENT_MERGE_E2E_OUT; patient-merge-real-backend.spec.ts reads PATIENT_MERGE_E2E_OUT
+OK    playwright.workspace.config.ts: runner passes WORKSPACE_E2E_OUT; patient-workspace-real-backend.spec.ts reads WORKSPACE_E2E_OUT
+OK    playwright.patients.config.ts: runner passes PATIENT_E2E_OUT; patient-registration-real-backend.spec.ts reads PATIENT_E2E_OUT
+OK    playwright.permission-policy.config.ts: runner passes PERMISSION_POLICY_E2E_OUT; permission-policy-real-backend.spec.ts reads PERMISSION_POLICY_E2E_OUT
+OK    playwright.permission-policy-admin.config.ts: runner passes PERMISSION_POLICY_ADMIN_E2E_OUT; permission-policy-admin-real-backend.spec.ts reads PERMISSION_POLICY_ADMIN_E2E_OUT
+every walkthrough output goes to the runner folder
