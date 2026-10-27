@@ -1866,3 +1866,8 @@
   - What changed: .alveara/handoffs/ALV-018-C01/R01.md and R01-evidence (test results, acceptance evidence, parent regression, demo, changed files, next-story impact, artifacts, the frozen Stage 2 scripts and evaluator validation); BUILD_STATE.md section and header; EXECUTION_STATUS.json set to AWAITING_REVIEW with attempt R01.
   - Verification: Stage 1 sweep on the final tree: 197 of 197 new-class backend tests, 907 of 907 ApiTests, Vitest 1,742, mocked Playwright 138 passed and 2 skipped, seven real-backend walkthroughs passed, 5 of 5 negative controls, evaluator validation 10 of 10, runner proof OK.
   - Notes: the full backend regression is Stage 2 (pending the reviewer). The evidence commit SHA is recorded in the next commit, as a committed file cannot hold its own commit's SHA.
+- [x] ALV-018-C01: record the evidence commit in the execution status
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: EXECUTION_STATUS.json for ALV-018-C01 now names the evidence commit e926c94.
+  - Verification: the record reads AWAITING_REVIEW, attempt R01, implementation 1de9de5, evidence e926c94.
