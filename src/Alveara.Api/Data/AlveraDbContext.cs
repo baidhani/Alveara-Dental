@@ -151,6 +151,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Patients.Merge.PatientMergeMovedRow> PatientMergeMovedRows => Set<Architecture.Patients.Merge.PatientMergeMovedRow>();
     public DbSet<Architecture.Patients.Merge.PatientUnmerge> PatientUnmerges => Set<Architecture.Patients.Merge.PatientUnmerge>();
     public DbSet<Architecture.Patients.Portability.Package.DataExportHistory> DataExportHistory => Set<Architecture.Patients.Portability.Package.DataExportHistory>();
+    public DbSet<Architecture.Imports.ImportBatch> ImportBatches => Set<Architecture.Imports.ImportBatch>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
@@ -560,6 +561,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         ExternalCaseModel.Configure(modelBuilder);
         PatientDuplicateDismissalModel.Configure(modelBuilder);
         DataExportHistoryModel.Configure(modelBuilder);
+        ImportBatchModel.Configure(modelBuilder);
         PatientMergeModel.Configure(modelBuilder);          // last: it declares a trigger on every table the registry lists, so every other table must be configured first
 
         modelBuilder.Entity<BackgroundJob>(e =>

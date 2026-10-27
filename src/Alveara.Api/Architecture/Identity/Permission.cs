@@ -134,4 +134,8 @@ public enum Permission
     // Appended last so existing ordinals are undisturbed.
     ExportAllPatientData,
     ExportPatientReadableRecord,
+
+    // ALV-018-C02: bulk import and migration (CSV files of patients, appointments and opening balances). Held by the administrator alone by default and not protected, so an administrator may deliberately grant it
+    // to another role. It is separate from ImportPatientData, which brings one patient in from a STORY-018 export file. Appended last so existing ordinals are undisturbed.
+    BulkImportData,
 }

@@ -57,6 +57,7 @@ builder.Services.AddSingleton<IPracticeClock>(
 var storageRoot = builder.Configuration["StorageRoot"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "blobs");
 builder.Services.AddSingleton<IBlobStorage>(_ => new LocalDiskBlobStorage(storageRoot));
+builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.Imports.ImportFileStorage(Path.Combine(storageRoot, "imports")));      // ALV-018-C02: import files, in a folder the document orphan scan does not look inside
 
 // ALV-N003: practice/staff/provider/operatory/appointment-type/availability configuration, and
 // the read model scheduling consumes.
@@ -83,6 +84,8 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.Package
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.Package.PatientReadableRecordService>();      // ALV-018-C01
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.Package.ExportHistoryService>();      // ALV-018-C01
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.Package.PatientDataPackageService>();
+builder.Services.Configure<Alveara.Api.Architecture.Imports.ImportOptions>(builder.Configuration.GetSection(Alveara.Api.Architecture.Imports.ImportOptions.SectionName));      // ALV-018-C02
+builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportIntakeService>();      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();

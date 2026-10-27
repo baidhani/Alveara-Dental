@@ -204,6 +204,10 @@
     {
       "name": "ExportPatientReadableRecord",
       "status": "Active"
+    },
+    {
+      "name": "BulkImportData",
+      "status": "Active"
     }
   ]
 }

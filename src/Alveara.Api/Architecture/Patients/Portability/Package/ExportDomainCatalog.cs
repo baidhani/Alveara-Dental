@@ -60,7 +60,7 @@ public static class ExportDomainCatalog
             ["PracticeSettings", "PatientRegistrationSettings", "RecallSettings", "DocumentSettings", "BlockedFileExtensions", "ProviderWeeklyAvailabilities", "ProviderBlockedTimes", "ConditionTypeEvents", "ProcedureEvents"]),
         new("system_operations",
             "Technical bookkeeping of the running system (job queue, replay protection, backups, measurements, counters, per-user cursors) with no clinical or administrative content about a patient.",
-            ["BackgroundJobs", "BackgroundJobEffectReceipts", "MeasurementEvents", "IdempotencyReceipts", "BackupSettings", "BackupRecords", "RestoreDrills", "BackupNotifications", "DeploymentInvariants", "DocumentEventCounter", "NotificationCursors"]),
+            ["ImportBatches", "BackgroundJobs", "BackgroundJobEffectReceipts", "MeasurementEvents", "IdempotencyReceipts", "BackupSettings", "BackupRecords", "RestoreDrills", "BackupNotifications", "DeploymentInvariants", "DocumentEventCounter", "NotificationCursors"]),
     ];
 
     public static IEnumerable<string> IncludedTables => Domains.SelectMany(d => d.Tables);

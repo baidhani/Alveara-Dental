@@ -4456,6 +4456,119 @@ namespace Alveara.Api.Migrations
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Imports.ImportBatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AcceptedRows")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AttemptedRows")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ColumnCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ColumnNamesJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FileBlobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileSha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nchar(64)")
+                        .IsFixedLength();
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Policy")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("RejectedRows")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RowCount")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<int>("SkippedRows")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SourceKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("SourceLabel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UnresolvedRows")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("SourceKind", "FileSha256")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ImportBatches_OpenFile")
+                        .HasFilter("[Status] IN ('Uploaded', 'DryRunComplete', 'Committing')");
+
+                    b.ToTable("ImportBatches", null, t =>
+                        {
+                            t.HasTrigger("TR_ImportBatches_Guard");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Counters", "[AttemptedRows] >= 0 AND [AcceptedRows] >= 0 AND [RejectedRows] >= 0 AND [SkippedRows] >= 0 AND [UnresolvedRows] >= 0 AND [AcceptedRows] + [RejectedRows] + [SkippedRows] + [UnresolvedRows] <= [AttemptedRows] AND [AttemptedRows] <= [RowCount]");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Hash", "LEN([FileSha256]) = 64 AND [FileSha256] NOT LIKE '%[^0-9a-f]%' COLLATE Latin1_General_BIN2");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Kind", "[SourceKind] IN ('Patients', 'Appointments', 'OpeningBalances')");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Label", "LEN(LTRIM(RTRIM([SourceLabel]))) > 0");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Policy", "[Policy] IN ('AllOrNothing', 'CommitValidRows')");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Sizes", "[FileSizeBytes] > 0 AND [RowCount] > 0 AND [ColumnCount] > 0");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Status", "[Status] IN ('Uploaded', 'DryRunComplete', 'Committing', 'Committed', 'Failed', 'Cancelled')");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Times", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND ([UpdatedAtUtc] IS NULL OR ([UpdatedAtUtc] >= [CreatedAtUtc] AND [UpdatedAtUtc] < '2200-01-01'))");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Measurement.MeasurementEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9069,6 +9182,15 @@ namespace Alveara.Api.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("UserAccount");
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Imports.ImportBatch", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Message", b =>
