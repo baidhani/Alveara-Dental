@@ -60,7 +60,7 @@ $exitCode = 1
 try {
     $mdf = (Join-Path $TestDbDir "$Database.mdf").Replace("'", "''")
     $ldf = (Join-Path $TestDbDir "${Database}_log.ldf").Replace("'", "''")
-    Invoke-DevSql "CREATE DATABASE [$Database] ON (NAME = N'${Database}_data', FILENAME = N'$mdf') LOG ON (NAME = N'${Database}_log', FILENAME = N'$ldf'); ALTER DATABASE [$Database] SET READ_COMMITTED_SNAPSHOT ON;" | Out-Null     # RCSI on, as EF Core's creator sets it
+    Invoke-DevSql "CREATE DATABASE [$Database] ON (NAME = N'${Database}_data', FILENAME = N'$mdf') LOG ON (NAME = N'${Database}_log', FILENAME = N'$ldf'); ALTER DATABASE [$Database] SET READ_COMMITTED_SNAPSHOT ON; ALTER DATABASE [$Database] SET ALLOW_SNAPSHOT_ISOLATION ON;" | Out-Null     # RCSI on, as EF Core's creator sets it; snapshot isolation on, as a production database has it (ALV-018-C01: the all-patients export reads one snapshot)
     Write-Host "Database $Database created in $TestDbDir"
 
     $connection = "Server=$SqlServer;Database=$Database;Trusted_Connection=True;TrustServerCertificate=True"
