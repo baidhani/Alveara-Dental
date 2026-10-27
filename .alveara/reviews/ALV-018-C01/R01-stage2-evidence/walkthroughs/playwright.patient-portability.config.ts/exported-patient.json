@@ -1,0 +1,24 @@
+{
+  "format": "alveara.patient-export",
+  "formatVersion": 1,
+  "exportId": "4c285412-4304-48b5-b1ed-77fef6e74024",
+  "exportedAtUtc": "2026-10-27T16:15:32Z",
+  "source": {
+    "system": "Alveara Dental",
+    "sourcePatientId": "766f813c-6994-4d26-8eef-970ac1f982e7"
+  },
+  "patient": {
+    "firstName": "Cy",
+    "middleName": null,
+    "lastName": "Moss1793117727440",
+    "dateOfBirth": "1979-06-02",
+    "sex": "Male",
+    "phone": "555-010-0311",
+    "email": null,
+    "addressLine1": "4 Pine St",
+    "addressLine2": null,
+    "city": "Austin",
+    "state": "TX",
+    "postalCode": "78701"
+  }
+}

@@ -1,0 +1,28 @@
+run commit: b2870675a5e84913fbcbfc6340b931e042c44d0f
+implementation commit: 1de9de5f08b903fe6b3d1776ffd3b22cddc282d6
+working tree before: 0 changed paths (0 = clean)
+env: ALVERA_TEST_TEMPLATE=[]
+start: 2026-10-27T09:54:06-05:00
+backend command: cd src/Alveara.Api.Tests && dotnet test --nologo --logger "trx;LogFileName=full_serial.trx" --results-directory C:/tmp/stage2-ALV-018-C01/trx
+== backend exit=1 elapsed=4564s
+  Stack Trace:
+     at Alveara.Api.Tests.TestDatabaseInUseTests.A_holder_that_never_leaves_is_a_failure_after_the_bounded_attempts_with_the_first_3702_unchanged() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TestDatabaseInUseTests.cs:line 142
+--- End of stack trace from previous location ---
+Results File: C:\tmp\stage2-ALV-018-C01\trx\full_serial.trx
+
+Failed!  - Failed:     1, Passed:  5332, Skipped:     0, Total:  5333, Duration: 1 h 15 m - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=5s
+== gate vitest exit=0 elapsed=183s
+== gate build exit=0 elapsed=9s
+== gate lint exit=0 elapsed=2s
+== gate playwright_mocked exit=0 elapsed=28s
+== gate repo_checks exit=0 elapsed=13s
+== gate walk_playwright.patient-export-package.config.ts exit=0 elapsed=48s
+== gate walk_playwright.patient-portability.config.ts exit=0 elapsed=37s
+== gate walk_playwright.patient-merge.config.ts exit=0 elapsed=39s
+== gate walk_playwright.workspace.config.ts exit=0 elapsed=55s
+== gate walk_playwright.patients.config.ts exit=0 elapsed=27s
+== gate walk_playwright.permission-policy.config.ts exit=0 elapsed=29s
+== gate walk_playwright.permission-policy-admin.config.ts exit=0 elapsed=67s
+end: 2026-10-27T11:19:19-05:00
+working tree after: 0 changed paths
