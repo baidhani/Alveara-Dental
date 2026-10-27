@@ -142,6 +142,7 @@ public class ExportHistoryServiceTests : MergeChartTestBase
         Assert.Equal((patients, bytes), (overview.PatientCount, overview.DocumentBytes));
         Assert.Equal("TableByTable", overview.AllPatientsReadMode);                                                    // snapshot isolation is off in a fresh database
         Assert.True(overview.AllPatientsWithinLimits);
+        Assert.Equal(Clock.PracticeTimeZone.Id, overview.PracticeTimeZone);
         Assert.False((await Service(new DataExportOptions { MaxPatients = 1 }).OverviewAsync(default)).AllPatientsWithinLimits);
     }
 }

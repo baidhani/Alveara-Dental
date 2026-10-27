@@ -29,9 +29,9 @@ export const MAX_IMPORT_BYTES = 256 * 1024;
 
 const FALLBACK_FILE_NAME = "alveara-patient.json";
 
-function fileNameFrom(disposition: string | null): string {
+export function fileNameFrom(disposition: string | null, fallback: string = FALLBACK_FILE_NAME): string {
   const match = disposition?.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
-  return match ? decodeURIComponent(match[1]) : FALLBACK_FILE_NAME;
+  return match ? decodeURIComponent(match[1]) : fallback;
 }
 
 export async function exportPatientFile(patientId: string, signal?: AbortSignal): Promise<ExportedFile> {

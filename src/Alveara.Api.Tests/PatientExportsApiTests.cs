@@ -276,6 +276,7 @@ public class PatientExportsApiTests : IAsyncLifetime
         Assert.Equal("TableByTable", overview.Body.GetProperty("allPatientsReadMode").GetString());
         Assert.True(overview.Body.GetProperty("patientCount").GetInt32() >= 1);
         Assert.True(overview.Body.GetProperty("allPatientsWithinLimits").GetBoolean());
+        Assert.False(string.IsNullOrWhiteSpace(overview.Body.GetProperty("practiceTimeZone").GetString()));
     }
 
     private async Task GrantAsync(string role, Permission permission)

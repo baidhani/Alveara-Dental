@@ -17,10 +17,10 @@ public sealed record OverviewDomain(string Key, string Title);
 
 public sealed record OverviewExcluded(string Key, string Reason);
 
-/// <summary>Everything the Export screen needs to explain an export before it is started: what a package holds and what it deliberately leaves out, the limits, how many patients and how many bytes of documents there are now, and how an all-patients export would read the database.</summary>
+/// <summary>Everything the Export screen needs to explain an export before it is started: what a package holds and what it deliberately leaves out, the limits, how many patients and how many bytes of documents there are now, how an all-patients export would read the database, and the practice time zone the screen shows times in.</summary>
 public sealed record ExportOverview(
     IReadOnlyList<OverviewDomain> Domains, IReadOnlyList<OverviewExcluded> Excluded, int MaxPatients, long MaxPackageBytes, string DefaultFolderNaming,
-    string AllPatientsReadMode, int PatientCount, long DocumentBytes, bool AllPatientsWithinLimits);
+    string AllPatientsReadMode, int PatientCount, long DocumentBytes, bool AllPatientsWithinLimits, string PracticeTimeZone);
 
 /// <summary>
 /// ALV-018-C01: reads of the export history and the overview for the Export screen. They write nothing and show no patient content. A person who may only export one patient sees only their own exports; a person who
@@ -53,6 +53,6 @@ public class ExportHistoryService(AlveraDbContext db, IPracticeClock clock, IOpt
         return new ExportOverview(
             ExportDomainCatalog.Domains.Select(d => new OverviewDomain(d.Key, d.Title)).ToList(), ExportDomainCatalog.Excluded.Select(g => new OverviewExcluded(g.Key, g.Reason)).ToList(),
             _options.MaxPatients, _options.MaxPackageBytes, _options.DefaultFolderNaming, snapshot == 1 ? ReadMode.Snapshot : ReadMode.TableByTable,
-            patients, documentBytes, patients <= _options.MaxPatients && documentBytes <= _options.MaxPackageBytes);
+            patients, documentBytes, patients <= _options.MaxPatients && documentBytes <= _options.MaxPackageBytes, clock.PracticeTimeZone.Id);
     }
 }

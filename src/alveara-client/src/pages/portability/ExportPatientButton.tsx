@@ -1,18 +1,7 @@
 import { useState } from "react";
 import { Button } from "../../components/Button";
 import { exportPatientFile, portabilityErrorMessage } from "../../services/patientPortabilityApi";
-
-/** Saves a file the browser has downloaded into memory, through a short-lived link, and tidies up after itself. */
-function saveFile(fileName: string, blob: Blob) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
+import { saveFile } from "../../services/saveFile";
 
 /**
  * STORY-018: "Export patient file" on a patient's page. It downloads the patient's registration data as a portable JSON file; the server logs the export (who and when) before it sends the file. Shown only to people who

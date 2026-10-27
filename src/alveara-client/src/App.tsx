@@ -36,6 +36,7 @@ import { ExternalCaseDetailPage } from "./pages/externalcases/ExternalCaseDetail
 import { ExternalPartiesPage } from "./pages/externalcases/ExternalPartiesPage";
 import { PatientMergePage } from "./pages/patientmerge/PatientMergePage";
 import { PatientImportPage } from "./pages/portability/PatientImportPage";
+import { ExportCenterPage } from "./pages/exports/ExportCenterPage";
 import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
 import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -255,6 +256,14 @@ function createAppRouter() {
           <Route path="/external-cases/:route/:id" element={<RequirePermission permission="ViewExternalCases"><ExternalCaseDetailPage /></RequirePermission>} />
           <Route path="/admin/patient-merge" element={<RequirePermission permission="MergePatients"><PatientMergePage /></RequirePermission>} />
           <Route path="/admin/patient-import" element={<RequirePermission permission="ImportPatientData"><PatientImportPage /></RequirePermission>} />
+          <Route
+            path="/admin/exports"
+            element={
+              <RequireAnyPermission permissions={["ExportPatientData", "ExportAllPatientData", "ExportPatientReadableRecord"]} shown="ExportPatientData">
+                <ExportCenterPage />
+              </RequireAnyPermission>
+            }
+          />
           <Route path="/admin/external-parties" element={<RequirePermission permission="ManageExternalParties"><ExternalPartiesPage /></RequirePermission>} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/messages" element={<MessagesPage />} />

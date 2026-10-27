@@ -1,0 +1,78 @@
+/* ALV-018-C01: the export screen. Colours come from the shared tokens only; every state is said in words as well as shown in colour. */
+.alv-export__form {
+  max-width: 52rem;
+}
+
+.alv-export__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.alv-export__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.alv-export__facts p {
+  margin: var(--space-2) 0;
+}
+
+.alv-export__details {
+  margin: var(--space-3) 0;
+}
+
+.alv-export__details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.alv-export__warning,
+.alv-export__partial {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-bg);
+  color: var(--color-text);
+}
+
+.alv-export__partial {
+  max-width: 52rem;
+}
+
+.alv-export__history {
+  margin-top: var(--space-5);
+}
+
+.alv-export__badge {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  font-weight: 600;
+}
+
+.alv-export__badge--ok {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: var(--color-success);
+}
+
+.alv-export__badge--warn,
+.alv-export__badge--wait {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-color: var(--color-warning);
+}
+
+.alv-export__badge--bad {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
