@@ -10,7 +10,7 @@ import {
 import type { DownloadedExport, ExportOverview, FolderNaming, PackageOptions } from "../../services/patientExportsApi";
 import type { PatientSummary } from "../../services/patientsApi";
 import { saveFile } from "../../services/saveFile";
-import { formatBytes } from "../backup/backupMessages";
+import { formatSize } from "./exportFormat";
 import { ExportHistoryTable } from "./ExportHistoryTable";
 import { ExportOverviewPanel } from "./ExportOverviewPanel";
 import { useExportHistory } from "./useExportHistory";
@@ -123,7 +123,7 @@ export function ExportCenterPage() {
 
           {scope === "all" && (
             <div className="alv-export__facts">
-              <p>{overview.patientCount} patients, with {formatBytes(overview.documentBytes)} of document files. One export may carry up to {overview.maxPatients} patients and {formatBytes(overview.maxPackageBytes)}.</p>
+              <p>{overview.patientCount} patients, with {formatSize(overview.documentBytes)} of document files. One export may carry up to {overview.maxPatients} patients and {formatSize(overview.maxPackageBytes)}.</p>
               <p>{overview.allPatientsReadMode === "Snapshot"
                 ? "The export reads the whole database as it was at one moment."
                 : "The export reads the database one table after another, so a change made while it runs may be only partly included. Run it at a quiet time."}</p>

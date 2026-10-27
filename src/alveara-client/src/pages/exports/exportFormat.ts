@@ -11,6 +11,14 @@ export function formatMoment(iso: string, timeZone: string | null): string {
   }
 }
 
+/** A size in words, up to gigabytes (the limits of a package are gigabytes; the shared formatter stops at megabytes). */
+export function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+}
+
 export type ResultTone = "ok" | "warn" | "bad" | "wait";
 
 /** How an export is described in words: a row still Started long after it began is Interrupted, a recent one is In progress. */

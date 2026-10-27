@@ -1,7 +1,6 @@
 import { SafeLink } from "../../components/SafeLink";
 import type { ExportHistoryItem } from "../../services/patientExportsApi";
-import { formatBytes } from "../backup/backupMessages";
-import { formatMoment, resultOf } from "./exportFormat";
+import { formatMoment, formatSize, resultOf } from "./exportFormat";
 
 interface Props { items: ExportHistoryItem[]; timeZone: string | null; canOpenPatients: boolean }
 
@@ -34,7 +33,7 @@ export function ExportHistoryTable({ items, timeZone, canOpenPatients }: Props) 
                 <span className={`alv-export__badge alv-export__badge--${result.tone}`}>{result.label}</span>
                 {item.problemCount > 0 && <span> {item.problemCount} {item.problemCount === 1 ? "problem" : "problems"}</span>}
               </td>
-              <td>{delivered ? formatBytes(item.sizeBytes) : "-"}</td>
+              <td>{delivered ? formatSize(item.sizeBytes) : "-"}</td>
               <td>{item.sha256 ? <code title={item.sha256}>{item.sha256.slice(0, 12)}</code> : "-"}</td>
             </tr>
           );
