@@ -59,6 +59,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     private readonly Func<int, string?>? _dropStatementForTest;
     private readonly Func<TimeSpan, Task> _delay;
     private readonly TextWriter _log;
+    private int _holderChecks;                                                                    // how many failed-drop holder checks this fixture has logged (one per failed attempt)
 
     public string ConnectionString { get; private set; } = string.Empty;
 
@@ -254,12 +255,18 @@ public class TestDatabaseFixture : IAsyncLifetime
     }
 
     /// <summary>
-    /// ALV-017-C01 R02: after a drop failed because the database is in use, writes one log line for each session that holds it: session id, program name, host name, host process id and status. Nothing else is
+    /// ALV-017-C01 R02, corrected by ALV-018-C01 R02: after a drop failed because the database is in use, writes ONE marker line for that failed attempt ("holder check N of M: K session(s)", or the class of the
+    /// failure if the holders could not be read) followed by one line for each session that holds it: session id, program name, host name, host process id and status. The marker is the per-failure record: a
+    /// failed attempt can see any number of holder sessions (SQL Server may report several for one drop), so the number of session lines says nothing about the number of attempts. Nothing else is
     /// read or written (no connection string, no statement text, no request or patient data), the values are stripped of control characters and cut to 128 characters, and the method never throws: a failing
     /// diagnostic is itself logged by class and must not replace the drop failure it is explaining.
     /// </summary>
     private async Task LogDatabaseHoldersAsync()
     {
+        var check = Interlocked.Increment(ref _holderChecks);
+        var prefix = $"[TestDatabaseFixture] drop of {_databaseName} (SQL {DatabaseInUseErrorNumber})";
+        var sessions = new List<string>();
+        string? failure = null;
         try
         {
             await using var connection = new SqlConnection(MasterConnectionString);
@@ -269,19 +276,21 @@ public class TestDatabaseFixture : IAsyncLifetime
             command.CommandText = "SELECT session_id, program_name, host_name, host_process_id, status FROM sys.dm_exec_sessions WHERE database_id = DB_ID(@name) AND session_id <> @@SPID ORDER BY session_id";
             command.Parameters.AddWithValue("@name", _databaseName);
             await using var reader = await command.ExecuteReaderAsync();
-            var holders = 0;
             while (await reader.ReadAsync())
             {
-                holders++;
-                _log.WriteLine($"[TestDatabaseFixture] drop of {_databaseName} (SQL {DatabaseInUseErrorNumber}): session {reader.GetInt16(0)} holds it; program '{Safe(reader, 1)}', host '{Safe(reader, 2)}', host process {(reader.IsDBNull(3) ? 0 : reader.GetInt32(3))}, status {Safe(reader, 4)}.");
+                sessions.Add($"{prefix}: session {reader.GetInt16(0)} holds it; program '{Safe(reader, 1)}', host '{Safe(reader, 2)}', host process {(reader.IsDBNull(3) ? 0 : reader.GetInt32(3))}, status {Safe(reader, 4)}.");
             }
-
-            if (holders == 0) _log.WriteLine($"[TestDatabaseFixture] drop of {_databaseName} (SQL {DatabaseInUseErrorNumber}): no session holds it any more (the holder had gone again).");
         }
         catch (Exception ex)
         {
-            _log.WriteLine($"[TestDatabaseFixture] drop of {_databaseName} (SQL {DatabaseInUseErrorNumber}): reading the holders failed ({ex.GetType().Name}).");
+            failure = ex.GetType().Name;
         }
+
+        _log.WriteLine(failure is null
+            ? $"{prefix}: holder check {check} of {MaxDropAttempts}: {sessions.Count} session(s)."
+            : $"{prefix}: holder check {check} of {MaxDropAttempts}: reading the holders failed ({failure}).");
+        foreach (var line in sessions) _log.WriteLine(line);
+        if (failure is null && sessions.Count == 0) _log.WriteLine($"{prefix}: no session holds it any more (the holder had gone again).");
 
         static string Safe(SqlDataReader reader, int column)
         {

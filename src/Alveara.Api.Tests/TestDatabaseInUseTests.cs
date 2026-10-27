@@ -139,7 +139,63 @@ public class TestDatabaseInUseTests
         Assert.False(await ExistsAsync(database));
         var text = log.ToString();
         Assert.Contains($"giving up after {TestDatabaseFixture.MaxDropAttempts} attempts", text);
-        Assert.Equal(TestDatabaseFixture.MaxDropAttempts, text.Split("holds it;").Length - 1);   // the holder was named on every failure including the last
+        AssertHolderCheckPerAttempt(text, database, minimumSessionsPerCheck: 1);                // the holder was checked and named on every failure including the last
+        AssertNothingSensitiveLogged(text, fixture);
+    }
+
+    /// <summary>
+    /// ALV-018-C01 R02: the per-failure diagnostic is the numbered marker line, not the number of session lines. Asserts exactly one marker for each attempt (1..MaxDropAttempts, in order, each "of" the maximum),
+    /// that each marker reports at least the expected number of sessions (SQL Server may report more), and that exactly the reported number of session lines is logged.
+    /// </summary>
+    private static void AssertHolderCheckPerAttempt(string text, string database, int minimumSessionsPerCheck)
+    {
+        var prefix = $"drop of {database} (SQL 3702): ";
+        var lines = text.Split((char)10).Select(l => l.TrimEnd((char)13)).Where(l => l.Contains(prefix)).ToList();
+        var markers = lines.Where(l => l.Contains("holder check ")).ToList();
+        Assert.Equal(TestDatabaseFixture.MaxDropAttempts, markers.Count);                        // one diagnostic for each failed attempt, no more, no fewer
+        var reported = 0;
+        for (var i = 0; i < markers.Count; i++)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(markers[i], @"holder check (\d+) of (\d+): (\d+) session\(s\)\.$");
+            Assert.True(match.Success, $"not a holder check marker: {markers[i]}");
+            Assert.Equal(i + 1, int.Parse(match.Groups[1].Value));                               // numbered 1..MaxDropAttempts, in order
+            Assert.Equal(TestDatabaseFixture.MaxDropAttempts, int.Parse(match.Groups[2].Value));
+            var sessions = int.Parse(match.Groups[3].Value);
+            Assert.True(sessions >= minimumSessionsPerCheck, $"check {i + 1} saw {sessions} session(s), expected at least {minimumSessionsPerCheck}");   // SQL Server may report more than the test's own holders
+            reported += sessions;
+        }
+
+        Assert.Equal(reported, lines.Count(l => l.Contains("holds it;")));                       // every reported session is named, however many there were
+    }
+
+    [Fact]
+    public async Task Several_holders_are_each_named_and_the_diagnostic_is_still_one_check_for_each_failed_attempt()
+    {
+        var log = new StringWriter();
+        TestDatabaseFixture? fixture = null;
+        fixture = new TestDatabaseFixture(logForTest: log, delayForTest: _ => Task.CompletedTask,
+            dropStatementForTest: _ => $"DROP DATABASE [{DatabaseOf(fixture!)}];");              // every attempt is refused
+        await fixture.InitializeAsync();
+        var database = DatabaseOf(fixture);
+        var first = await HoldAsync(fixture);
+        var second = await HoldAsync(fixture);                                                  // two sessions hold the database at once
+        try
+        {
+            var failure = await Assert.ThrowsAsync<SqlException>(() => fixture.DisposeAsync());
+            Assert.Equal(TestDatabaseFixture.DatabaseInUseErrorNumber, failure.Number);          // the original error is still the one reported
+            Assert.True(await ExistsAsync(database));                                            // the database remains until explicit cleanup
+        }
+        finally
+        {
+            await second.DisposeAsync();
+            await first.DisposeAsync();
+            await ForceDropAsync(database);
+        }
+
+        Assert.False(await ExistsAsync(database));
+        var text = log.ToString();
+        Assert.Contains($"giving up after {TestDatabaseFixture.MaxDropAttempts} attempts", text);
+        AssertHolderCheckPerAttempt(text, database, minimumSessionsPerCheck: 2);               // 4 checks, each seeing at least both holders
         AssertNothingSensitiveLogged(text, fixture);
     }
 
