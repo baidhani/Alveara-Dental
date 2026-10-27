@@ -11,9 +11,10 @@ namespace Alveara.Api.Architecture.Patients.Portability.Package;
 /// </summary>
 public static class ExportRowWriter
 {
-    public static async Task<int> WriteTableAsync(DbConnection connection, Utf8JsonWriter json, string table, string where, IReadOnlyList<string> orderBy, int timeoutSeconds, CancellationToken ct)
+    public static async Task<int> WriteTableAsync(DbConnection connection, Utf8JsonWriter json, string table, string where, IReadOnlyList<string> orderBy, int timeoutSeconds, DbTransaction? transaction, CancellationToken ct)
     {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;                                                                 // the export's snapshot transaction, when it has one
         command.CommandText = $"SELECT * FROM [{table}] WHERE {where}" + (orderBy.Count == 0 ? "" : " ORDER BY " + string.Join(", ", orderBy.Select(c => $"[{c}]")));
         command.CommandTimeout = timeoutSeconds;
         await using var reader = await command.ExecuteReaderAsync(ct);

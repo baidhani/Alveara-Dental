@@ -16,7 +16,8 @@ public sealed partial class ReadableRecordLoader(AlveraDbContext db, IPracticeCl
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    public async Task<ReadableRecord> LoadAsync(Guid patientId, CancellationToken ct)
+    /// <summary>One patient's record. <paramref name="providers"/> is the display names of the providers (<see cref="ProviderNamesAsync"/>); a caller making many records reads them once and passes them in.</summary>
+    public async Task<ReadableRecord> LoadAsync(Guid patientId, CancellationToken ct, Dictionary<Guid, string>? providers = null)
     {
         var patient = await db.Patients.AsNoTracking().SingleOrDefaultAsync(p => p.Id == patientId, ct)
             ?? throw new PatientException("patient_not_found", "That patient was not found.", 404);
@@ -35,7 +36,7 @@ public sealed partial class ReadableRecordLoader(AlveraDbContext db, IPracticeCl
             new("Registered", Day(patient.CreatedAtUtc)),
         };
 
-        var providers = await ProviderNamesAsync(ct);
+        providers ??= await ProviderNamesAsync(ct);
         var sections = new List<ReadableSection>();
         sections.AddRange(await ClinicalSectionsAsync(patientId, ct));
         sections.AddRange(await PlanAndWorkSectionsAsync(patientId, providers, ct));
@@ -43,7 +44,7 @@ public sealed partial class ReadableRecordLoader(AlveraDbContext db, IPracticeCl
         return new ReadableRecord(patientId, name, summary, sections);
     }
 
-    private async Task<Dictionary<Guid, string>> ProviderNamesAsync(CancellationToken ct) =>
+    public async Task<Dictionary<Guid, string>> ProviderNamesAsync(CancellationToken ct) =>
         await db.ProviderProfiles.AsNoTracking().Select(p => new { p.Id, p.StaffProfile!.DisplayName }).ToDictionaryAsync(p => p.Id, p => p.DisplayName, ct);
 
     private static string Provider(Dictionary<Guid, string> names, Guid? id) => id is not null && names.TryGetValue(id.Value, out var n) ? n : "";

@@ -65,7 +65,7 @@ public class PatientDataPackageDocumentTests : MergeChartTestBase
         var options = Options.Create(new DataExportOptions { TempDirectory = _temp, MaxPackageBytes = maxBytes ?? new DataExportOptions().MaxPackageBytes });
         var documents = new PackageDocumentWriter(db, _blobs, options, NullLogger<PackageDocumentWriter>.Instance);
         var builder = new PatientDataPackageBuilder(db, Clock, options, new ReadableRecordLoader(db, Clock), documents, NullLogger<PatientDataPackageBuilder>.Instance);
-        return new PatientDataPackageService(db, builder, Clock, services.GetRequiredService<IServiceScopeFactory>(), NullLogger<PatientDataPackageService>.Instance).ExportPatientAsync(patient, S.Actor, default, choices);
+        return new PatientDataPackageService(db, builder, new ExportAuthorization(services.GetRequiredService<IServiceScopeFactory>()), Clock, services.GetRequiredService<IServiceScopeFactory>(), NullLogger<PatientDataPackageService>.Instance).ExportPatientAsync(patient, S.Actor, default, choices);
     }
 
     private static Dictionary<string, byte[]> Entries(Stream zip)

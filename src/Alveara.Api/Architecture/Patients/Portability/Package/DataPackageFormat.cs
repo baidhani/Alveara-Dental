@@ -18,9 +18,13 @@ public static class DataPackageFormat
     public const string ReadableRecordPath = "readable-record.html";
     public const string DataFolder = "data/";
     public const string DocumentsFolder = "documents/";
+    public const string ReadableRecordsFolder = "readable-records/";
     public const string ReservedFhirFolder = "fhir/";
 
     public static string DataPath(string domainKey) => $"{DataFolder}{domainKey}.json";
+
+    /// <summary>An all-patients package holds one readable record per patient: <c>readable-records/&lt;patient folder&gt;.html</c>.</summary>
+    public static string ReadableRecordPathFor(string patientFolder) => $"{ReadableRecordsFolder}{patientFolder}.html";
 
     /// <summary><c>documents/&lt;patient folder&gt;/&lt;document id&gt;/&lt;file name&gt;</c>: grouped by patient, unique by document id, recognisable by the original file name (cleaned by <see cref="PackagePaths.DocumentFileName"/>).</summary>
     public static string DocumentPath(string patientFolder, Guid documentId, string fileName) => $"{DocumentsFolder}{patientFolder}/{documentId:D}/{fileName}";
@@ -38,6 +42,16 @@ public static class DomainStatus
     public const string Included = "Included";
     public const string Unavailable = "Unavailable";
 }
+
+/// <summary>How the tables of a package were read: all inside one database snapshot (one consistent moment), or one table after another (a change made while the export ran may show in some tables and not others; the manifest time says when it started).</summary>
+public static class ReadMode
+{
+    public const string Snapshot = "Snapshot";
+    public const string TableByTable = "TableByTable";
+}
+
+/// <summary>Where a patient's readable record is in the package.</summary>
+public sealed record ManifestReadableRecord(Guid PatientId, string Path);
 
 /// <summary>What became of one document's file: in the package and matching its recorded hash, in the package but not matching (included as found), missing from storage, unreadable just now, or left out because the export was asked for the manifest only.</summary>
 public static class DocumentFileStatus
@@ -89,4 +103,6 @@ public sealed record DataPackageManifest(
     string FolderNaming,
     bool DocumentFilesIncluded,
     IReadOnlyList<ManifestPatientFolder> PatientFolders,
-    IReadOnlyList<ManifestDocument> Documents);
+    IReadOnlyList<ManifestDocument> Documents,
+    string ReadConsistency,
+    IReadOnlyList<ManifestReadableRecord> ReadableRecords);
