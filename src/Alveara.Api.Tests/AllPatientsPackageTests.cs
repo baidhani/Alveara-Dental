@@ -253,6 +253,7 @@ public class AllPatientsPackageTests : MergeChartTestBase
         var counting = new ScriptedAuthorization((_, _) => Task.CompletedTask);
         await using (await ExportAllAsync(counting)) { }
         var lastCall = counting.Calls;                                                                                       // the check before delivery is the last one
+        Assert.Equal(1 + ExportDomainCatalog.Domains.Count + 1, lastCall);                                                    // one before reading, one after each domain (a few patients: none while the pages are made), and the one before delivery: without that last one the check below would silently pick the previous call
         var authorization = new ScriptedAuthorization((call, _) => call == lastCall ? throw Revoked() : Task.CompletedTask);
 
         var stopped = await Assert.ThrowsAsync<PatientException>(() => ExportAllAsync(authorization));

@@ -1842,3 +1842,9 @@
   - What changed: new "The export package" section in docs/PATIENT_PORTABILITY.md; walkthrough section in docs/testing/REAL_BACKEND_E2E.md; walkthrough evidence (screenshots, saved ZIPs, readable pages, verification JSON) in docs/testing/patient-export-package-walkthrough/; the size shown in GB ("2 GB", not "2048.0 MB") and no empty bordered status line on the Export screen.
   - Verification: type-check clean; client tests for pages/exports and patientExportsApi 51 of 51 passed (4 files); lint: warnings only in files not touched by this change.
   - Notes: partial work for ALV-018-C01; not marked done.
+- [ ] ALV-018-C01 slice 9c: negative controls and a stronger last-permission-check test
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: five rules broken one at a time and restored byte-identical (results in docs/testing/patient-export-package-walkthrough/negative-controls.txt); the "permission withdrawn just before delivery" test now asserts the expected number of checks, because the first run showed removing the last check was not caught.
+  - Verification: hash check 1 test failed; last permission check 1 failed (after the fix; 0 before); merged filter 1 failed; file-name cleaner 3 failed; CSRF 1 failed; AllPatientsPackageTests 13 of 13 pass on the real code.
+  - Notes: partial work for ALV-018-C01; not marked done.
