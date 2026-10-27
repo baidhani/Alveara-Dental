@@ -20,5 +20,13 @@ public sealed class DataExportOptions
     /// <summary>How long one database read of a table may take, in seconds. No read waits without a limit.</summary>
     public int ReadTimeoutSeconds { get; set; } = 120;
 
+    /// <summary>The practice's default for naming each patient's folder in a package: <c>IdOnly</c> (the default, nothing about the patient shows in a file listing) or <c>NameAndId</c>. An export may choose the other one for itself.</summary>
+    public string DefaultFolderNaming { get; set; } = FolderNaming.IdOnly;
+
     public string ResolveTempDirectory() => string.IsNullOrWhiteSpace(TempDirectory) ? Path.GetTempPath() : TempDirectory;
+
+    /// <summary>A new temporary file in <see cref="ResolveTempDirectory"/> that is deleted when it is closed, so patient data is never left on disk.</summary>
+    public FileStream OpenTempFile(Guid exportId, string name) =>
+        new(Path.Combine(ResolveTempDirectory(), $"alveara-export-{exportId:N}-{name}-{Guid.NewGuid():N}.tmp"), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 81920,
+            FileOptions.DeleteOnClose | FileOptions.Asynchronous | FileOptions.SequentialScan);
 }

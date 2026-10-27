@@ -20,9 +20,11 @@ public static class ReadableRecordHtml
         html.Append("<header>\n<h1>").Append(E(record.PatientName)).Append("</h1>\n");
         html.Append("<p class=\"meta\">Patient record copy. Made ").Append(E(context.GeneratedAt)).Append(", export ").Append(E(context.ExportId.ToString())).Append(". All times are in the practice time zone (").Append(E(context.TimeZoneId)).Append(").</p>\n");
         html.Append("<p class=\"notice\">This page holds personal health information. Keep it where only people allowed to see it can reach it, and delete it when it is no longer needed. ");
-        html.Append(context.InsidePackage
-            ? "Document files (scans, images, letters) are listed here and are included in the package's <em>documents</em> folder when the export was made with files."
-            : "This page lists documents by name only. The document files, and the full data behind this page, are in the complete export package, not here.");
+        html.Append(!context.InsidePackage
+            ? "This page lists documents by name only. The document files, and the full data behind this page, are in the complete export package, not here."
+            : context.DocumentFilesIncluded
+                ? "Document files (scans, images, letters) are listed here and are in the package's <em>documents</em> folder, in this patient's own folder. manifest.json says whether each one could be included."
+                : "This package was made without the document files. Documents are listed here and in manifest.json only.");
         html.Append("</p>\n</header>\n<main>\n");
 
         html.Append("<section aria-labelledby=\"s-summary\">\n<h2 id=\"s-summary\">Patient</h2>\n<dl>\n");

@@ -84,6 +84,16 @@ public class ReadableRecordHtmlTests
     }
 
     [Fact]
+    public void A_package_made_without_the_document_files_says_so_instead_of_pointing_at_a_folder_that_is_not_there()
+    {
+        var without = ReadableRecordHtml.Render(Record(), Package with { DocumentFilesIncluded = false });
+
+        Assert.Contains("made without the document files", without);
+        Assert.DoesNotContain("<em>documents</em> folder", without);
+        Assert.Contains("in this patient's own folder", ReadableRecordHtml.Render(Record(), Package));
+    }
+
+    [Fact]
     public void Line_breaks_in_a_note_are_kept_and_the_same_record_always_gives_the_same_page()
     {
         var record = Record(Section("visits", "Visits", ["2026-10-01", "Subjective: sore\r\nObjective: swelling\nPlan: review"]));

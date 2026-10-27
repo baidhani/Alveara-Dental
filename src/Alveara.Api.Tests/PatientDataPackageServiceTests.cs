@@ -10,6 +10,7 @@ using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Patients;
 using Alveara.Api.Architecture.Patients.Merge;
 using Alveara.Api.Architecture.Patients.Portability.Package;
+using Alveara.Api.Architecture.Storage;
 using Alveara.Api.Data;
 using static Alveara.Api.Tests.SchedulingTestSupport;
 
@@ -39,13 +40,15 @@ public class PatientDataPackageServiceTests : MergeChartTestBase
         if (Directory.Exists(_temp)) Directory.Delete(_temp, recursive: true);
     }
 
+    // The chart's document has no file on disk, so these tests ask for the manifest only; the document files themselves are tested in PatientDataPackageDocumentTests.
     private Task<DataPackageFile> ExportAsync(Guid patient)
     {
         var services = new ServiceCollection().AddScoped(_ => Fixture.CreateContext()).BuildServiceProvider();
         var db = Fixture.CreateContext();
         var options = Options.Create(new DataExportOptions { TempDirectory = _temp });
-        var builder = new PatientDataPackageBuilder(db, Clock, options, new ReadableRecordLoader(db, Clock), NullLogger<PatientDataPackageBuilder>.Instance);
-        return new PatientDataPackageService(db, builder, Clock, services.GetRequiredService<IServiceScopeFactory>(), NullLogger<PatientDataPackageService>.Instance).ExportPatientAsync(patient, S.Actor, default);
+        var documents = new PackageDocumentWriter(db, new LocalDiskBlobStorage(Path.Combine(_temp, "blobs")), options, NullLogger<PackageDocumentWriter>.Instance);
+        var builder = new PatientDataPackageBuilder(db, Clock, options, new ReadableRecordLoader(db, Clock), documents, NullLogger<PatientDataPackageBuilder>.Instance);
+        return new PatientDataPackageService(db, builder, Clock, services.GetRequiredService<IServiceScopeFactory>(), NullLogger<PatientDataPackageService>.Instance).ExportPatientAsync(patient, S.Actor, default, new PackageChoices(IncludeDocumentFiles: false));
     }
 
     private static Dictionary<string, byte[]> Entries(Stream zip)
@@ -102,7 +105,7 @@ public class PatientDataPackageServiceTests : MergeChartTestBase
         var page = System.Text.Encoding.UTF8.GetString(entries["readable-record.html"]);
         Assert.Contains($"<h1>{ann.FirstName} {ann.LastName}</h1>", page);
         Assert.Contains("Treatment plans", page);
-        Assert.Contains("package's <em>documents</em> folder", page);
+        Assert.Contains("made without the document files", page);                                                // this helper exports the manifest only; the page with files is checked in PatientDataPackageDocumentTests
         Assert.Contains(manifest.GetProperty("exportId").GetGuid().ToString(), page);                            // the page and the manifest name the same export
         Assert.DoesNotContain($"{bo.FirstName} {bo.LastName}", page);                                            // not the other patient
     }

@@ -25,12 +25,16 @@ public sealed class DataPackageFile(BuiltPackage built, Guid exportId) : IAsyncD
 /// and the audit entry (the user and the time, the patient, the export id and counts, never a name or a value from a record) is saved in the SAME save; only then is the package handed back, so a package can never leave
 /// the system without its history row and its log entry. If building or that save fails, the temporary package is deleted, the history row is marked Failed and a DataExportFailed entry is logged, and the original
 /// error goes to the caller: no file is returned. Failure modes handled: an unknown patient (404 <c>patient_not_found</c>), a patient merged away (409 <c>patient_merged</c>), a domain that cannot be read (the package is
-/// Partial and says so), a failing history or audit store (no file), cancellation. Not handled: all patients (a later slice), document files (a later slice). No external service is called; each database read has a time limit.
+/// Partial and says so), a missing or changed document file (Partial, listed in the manifest), document files over the package limit (413 <c>package_too_large</c>, history row Failed), an unknown folder-naming
+/// choice (400), a failing history or audit store (no file), cancellation. Not handled: all patients (a later slice). No external service is called; each database read has a time limit.
 /// </summary>
 public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBuilder builder, IPracticeClock clock, IServiceScopeFactory scopes, ILogger<PatientDataPackageService> log)
 {
-    public async Task<DataPackageFile> ExportPatientAsync(Guid patientId, Guid actor, CancellationToken ct)
+    public async Task<DataPackageFile> ExportPatientAsync(Guid patientId, Guid actor, CancellationToken ct, PackageChoices? choices = null)
     {
+        choices ??= PackageChoices.Default;
+        if (choices.FolderNaming is not null && !FolderNaming.IsValid(choices.FolderNaming))
+            throw new PatientException("invalid_folder_naming", $"Folder naming must be '{FolderNaming.IdOnly}' or '{FolderNaming.NameAndId}'.", 400);
         var patient = await db.Patients.AsNoTracking().Select(p => new { p.Id, p.MergedAtUtc }).SingleOrDefaultAsync(p => p.Id == patientId, ct)
             ?? throw new PatientException("patient_not_found", "That patient was not found.", 404);
         if (patient.MergedAtUtc is not null)
@@ -40,7 +44,7 @@ public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBui
         var history = new DataExportHistory
         {
             Id = Guid.NewGuid(), ExportId = exportId, Kind = DataExportKind.Package, Scope = DataExportScope.OnePatient, SubjectRecordId = patientId,
-            IncludesDocumentFiles = false, RequestedByUserId = actor, RequestedAtUtc = clock.UtcNow, Result = DataExportResult.Started,
+            IncludesDocumentFiles = choices.IncludeDocumentFiles, RequestedByUserId = actor, RequestedAtUtc = clock.UtcNow, Result = DataExportResult.Started,
         };
         db.DataExportHistory.Add(history);
         await db.SaveChangesAsync(ct);                                                                  // recorded as Started before any data is read
@@ -48,7 +52,7 @@ public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBui
         BuiltPackage? built = null;
         try
         {
-            var scope = new PackageScope(DataExportScope.OnePatient, $"SELECT CONVERT(uniqueidentifier, '{patientId:D}')", 1, patientId);
+            var scope = new PackageScope(DataExportScope.OnePatient, $"SELECT CONVERT(uniqueidentifier, '{patientId:D}')", 1, patientId, choices);
             built = await builder.BuildAsync(exportId, actor, scope, ct);
 
             history.Result = built.Result;

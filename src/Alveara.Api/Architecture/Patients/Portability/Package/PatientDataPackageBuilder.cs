@@ -11,7 +11,13 @@ using Alveara.Api.Data;
 namespace Alveara.Api.Architecture.Patients.Portability.Package;
 
 /// <summary>Who and what a package is for: the patients in scope as a SQL fragment built from GUIDs and constants (see <see cref="ExportTableFilters"/>), how many they are, and the single patient for a one-patient export.</summary>
-public sealed record PackageScope(string Kind, string PatientIdsSql, int PatientCount, Guid? SubjectRecordId);
+public sealed record PackageScope(string Kind, string PatientIdsSql, int PatientCount, Guid? SubjectRecordId, PackageChoices? Choices = null);
+
+/// <summary>What the person exporting asked for: whether the document files travel in the package (default yes; false lists the documents in the manifest only) and how patient folders are named (null means the practice default from <see cref="DataExportOptions"/>).</summary>
+public sealed record PackageChoices(bool IncludeDocumentFiles = true, string? FolderNaming = null)
+{
+    public static PackageChoices Default { get; } = new();
+}
 
 /// <summary>A finished package: the ZIP, open at its start in a temporary file that is deleted when the stream is closed, and what the manifest says about it.</summary>
 public sealed class BuiltPackage(Stream content, string result, int fileCount, int problemCount, string sha256) : IAsyncDisposable
@@ -30,16 +36,22 @@ public sealed class BuiltPackage(Stream content, string result, int fileCount, i
 /// own temporary file first, so a domain that fails half way is dropped whole and never leaves a broken data file in the package; a failed domain is listed in the manifest as Unavailable with the error class and the package is
 /// Partial, not Complete. The manifest is written last and carries a SHA-256 of every other file. Everything is assembled in temporary files that are deleted when closed, so patient data is never left on disk, and a failure
 /// or cancellation deletes them and rethrows. Failure modes handled: a domain whose tables cannot be reached by any rule or whose read fails (Unavailable), a cancelled request, a full disk. Not handled: a change made to
-/// the data by someone else while the export reads (each table is read at one moment; the manifest time says when the package was started), and document files (a later slice).
+/// the data by someone else while the export reads (each table is read at one moment; the manifest time says when the package was started). The patients' document files are added by
+/// <see cref="PackageDocumentWriter"/> (each checked against its recorded hash; a missing or changed file makes the package Partial) unless the export asked for the manifest only; the size of all of them is checked
+/// against the package limit BEFORE anything is assembled, so an over-limit export is refused rather than cut short.
 /// </summary>
-public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock clock, IOptions<DataExportOptions> options, ReadableRecordLoader readable, ILogger<PatientDataPackageBuilder> log)
+public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock clock, IOptions<DataExportOptions> options, ReadableRecordLoader readable, PackageDocumentWriter documents, ILogger<PatientDataPackageBuilder> log)
 {
     private readonly DataExportOptions _options = options.Value;
 
     public async Task<BuiltPackage> BuildAsync(Guid exportId, Guid actor, PackageScope scope, CancellationToken ct)
     {
+        var choices = scope.Choices ?? PackageChoices.Default;
+        var naming = FolderNaming.Require(choices.FolderNaming ?? _options.DefaultFolderNaming);
         Directory.CreateDirectory(_options.ResolveTempDirectory());
-        var zipStream = NewTempFile(exportId, "package");
+        var plan = await documents.PlanAsync(scope.PatientIdsSql, naming, ct);
+        if (choices.IncludeDocumentFiles) documents.EnsureFits(plan);                                      // refused before any file is made
+        var zipStream = _options.OpenTempFile(exportId, "package");
         try
         {
             var filters = new ExportTableFilters(db.Model, scope.PatientIdsSql);
@@ -52,11 +64,11 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
             using (var zip = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true))
             {
                 var generatedAt = clock.UtcNow.UtcDateTime.ToString(PatientExportFormat.TimestampFormat);
-                files.Add(await AddBytesAsync(zip, DataPackageFormat.ReadmePath, Encoding.UTF8.GetBytes(Readme(exportId)), ct));
+                files.Add(await AddBytesAsync(zip, DataPackageFormat.ReadmePath, Encoding.UTF8.GetBytes(Readme(exportId, naming, choices.IncludeDocumentFiles)), ct));
                 string? readablePath = null;
                 if (scope.SubjectRecordId is { } subject)
                 {
-                    var page = await RenderReadableRecordAsync(subject, exportId, ct);
+                    var page = await RenderReadableRecordAsync(subject, exportId, choices.IncludeDocumentFiles, ct);
                     if (page is null) problems.Add(new("readable_record_unavailable", "readable-record", "The readable record could not be made, so it is not in this package."));
                     else { files.Add(await AddBytesAsync(zip, DataPackageFormat.ReadableRecordPath, page, ct)); readablePath = DataPackageFormat.ReadableRecordPath; }
                 }
@@ -78,11 +90,13 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
                     files.Add(new(DataPackageFormat.DataPath(domain.Key), entry.Bytes!.Value, entry.Sha256!));
                 }
 
+                var listedDocuments = await documents.WriteAsync(zip, plan, choices.IncludeDocumentFiles, exportId, files, problems, ct);
                 var result = problems.Count == 0 ? DataExportResult.Complete : DataExportResult.Partial;
                 var manifest = new DataPackageManifest(
                     new(DataPackageFormat.FormatName, DataPackageFormat.CurrentVersion), await SchemaVersionAsync(ct), AppVersion(), exportId,
                     generatedAt, actor, new(scope.Kind, scope.PatientCount, scope.SubjectRecordId), result,
-                    domains, ExportDomainCatalog.Excluded.Select(g => new ManifestExcluded(g.Key, g.Reason, g.Tables)).ToList(), files, readablePath, problems, Fhir: null);
+                    domains, ExportDomainCatalog.Excluded.Select(g => new ManifestExcluded(g.Key, g.Reason, g.Tables)).ToList(), files, readablePath, problems, Fhir: null,
+                    naming, choices.IncludeDocumentFiles, plan.Folders, listedDocuments);
                 await AddBytesAsync(zip, DataPackageFormat.ManifestPath, JsonSerializer.SerializeToUtf8Bytes(manifest, DataPackageFormat.JsonOptions), ct);
                 log.LogInformation("{Event} export={ExportId} outcome={Outcome} domains={Domains} problems={Problems}", "data_package_built", exportId, result, domains.Count, problems.Count);
             }
@@ -103,7 +117,7 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
     /// <summary>Reads every table of one domain into a temporary file. On any failure but cancellation the domain is reported Unavailable and the partly written file is deleted.</summary>
     private async Task<(ManifestDomain Entry, FileStream? File)> ReadDomainAsync(ExportDomain domain, ExportTableFilters filters, System.Data.Common.DbConnection connection, Guid exportId, CancellationToken ct)
     {
-        var file = NewTempFile(exportId, domain.Key);
+        var file = _options.OpenTempFile(exportId, domain.Key);
         try
         {
             var tables = new List<ManifestTable>();
@@ -149,12 +163,12 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
     }
 
     /// <summary>The readable record of one patient as the bytes of the page, or null when it could not be made (logged with its error class, never silently).</summary>
-    private async Task<byte[]?> RenderReadableRecordAsync(Guid patientId, Guid exportId, CancellationToken ct)
+    private async Task<byte[]?> RenderReadableRecordAsync(Guid patientId, Guid exportId, bool documentFilesIncluded, CancellationToken ct)
     {
         try
         {
             var record = await readable.LoadAsync(patientId, ct);
-            return Encoding.UTF8.GetBytes(ReadableRecordHtml.Render(record, new ReadableRecordContext(exportId, PracticeTimeText.Moment(clock, clock.UtcNow), clock.PracticeTimeZone.Id, InsidePackage: true)));
+            return Encoding.UTF8.GetBytes(ReadableRecordHtml.Render(record, new ReadableRecordContext(exportId, PracticeTimeText.Moment(clock, clock.UtcNow), clock.PracticeTimeZone.Id, InsidePackage: true, DocumentFilesIncluded: documentFilesIncluded)));
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -170,15 +184,11 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
         return new ManifestFile(path, content.Length, Convert.ToHexStringLower(SHA256.HashData(content)));
     }
 
-    private FileStream NewTempFile(Guid exportId, string name) =>
-        new(Path.Combine(_options.ResolveTempDirectory(), $"alveara-export-{exportId:N}-{name}-{Guid.NewGuid():N}.tmp"), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, 81920,
-            FileOptions.DeleteOnClose | FileOptions.Asynchronous | FileOptions.SequentialScan);
-
     private async Task<string> SchemaVersionAsync(CancellationToken ct) => (await db.Database.GetAppliedMigrationsAsync(ct)).LastOrDefault() ?? "unknown";
 
     private static string AppVersion() => (Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown").Split('+')[0];
 
-    private static string Readme(Guid exportId) => $"""
+    private static string Readme(Guid exportId, string folderNaming, bool documentFilesIncluded) => $"""
         ALVEARA DENTAL - PATIENT DATA PACKAGE
         Export id: {exportId}
 
@@ -193,7 +203,12 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
           data/<domain>.json  One file per part of the record (registration, appointments, billing, ...).
                             Each holds the rows of its tables exactly as the system stores them.
           readable-record.html  The patient's record as a person reads it: open it in a web browser, or print it.
-                            It lists documents by name; the data files are the complete machine-readable copy.
+                            It lists the documents; the data files are the complete machine-readable copy.
+          documents/<patient folder>/<document id>/<file>
+                            The patient's document files (scans, images, letters), when the export included them.
+                            {(documentFilesIncluded ? "This package includes them." : "This package was made WITHOUT the document files: they are listed in manifest.json only.")}
+                            Patient folders are named by {(folderNaming == FolderNaming.IdOnly ? "the patient's id" : "the patient's name and id")};
+                            manifest.json gives the folder of every patient, so no one has to read it from the name.
           README.txt        This file.
 
         WHAT IS NOT IN IT
@@ -202,6 +217,9 @@ public sealed class PatientDataPackageBuilder(AlveraDbContext db, IPracticeClock
 
         CHECKING IT
           Each file's SHA-256 hash is in manifest.json. A file whose hash differs has been changed or damaged.
+          For every document, manifest.json gives the hash recorded when it was imported and the hash found
+          at export, and a status: Included, HashMismatch (the file differs from what was imported; it is
+          included as found, do not rely on it), Missing, Unreadable or NotIncluded.
 
         This package is in Alveara's own layout (format alveara.patient-data-package, version {DataPackageFormat.CurrentVersion}).
         It cannot yet be imported back into Alveara. A standard-format (FHIR) copy is not included.

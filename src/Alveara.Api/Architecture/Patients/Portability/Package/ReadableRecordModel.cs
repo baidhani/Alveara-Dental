@@ -12,5 +12,5 @@ public sealed record ReadableFact(string Label, string Value);
 /// </summary>
 public sealed record ReadableRecord(Guid PatientId, string PatientName, IReadOnlyList<ReadableFact> Summary, IReadOnlyList<ReadableSection> Sections);
 
-/// <summary>What the page says about itself: when it was made (already written in the practice's time zone, which is named) and by which export, and whether the document files travel with it. These words are what stop a readable record from looking more complete than it is.</summary>
-public sealed record ReadableRecordContext(Guid ExportId, string GeneratedAt, string TimeZoneId, bool InsidePackage);
+/// <summary>What the page says about itself: when it was made (already written in the practice's time zone, which is named) and by which export, whether it sits inside a package, and, inside one, whether that package carries the document files (false for a manifest-only export). These words are what stop a readable record from looking more complete than it is.</summary>
+public sealed record ReadableRecordContext(Guid ExportId, string GeneratedAt, string TimeZoneId, bool InsidePackage, bool DocumentFilesIncluded = true);
