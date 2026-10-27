@@ -221,7 +221,8 @@ test.describe("Project Management: portal stories and engineering stories", () =
     const rows = page.locator("#pm-panel table tbody tr");
     await expect(page.locator("#pm-panel tr[data-expand]")).toHaveCount(plan.stories.length);
     await expect(rows).toHaveCount(plan.stories.length); // none expanded yet
-    const verified = progress.stories.filter((s) => s.verification?.state === "verified").length;
+    const planIds = new Set(plan.stories.map((s) => s.id));   // the portal can add a story to progress.json before it is in plan.json (STORY-000 did); the panel counts the plan's stories
+    const verified = progress.stories.filter((s) => planIds.has(s.id) && s.verification?.state === "verified").length;
     await expect(page.locator("#pm-panel")).toContainText(String(verified));
     await expect(page.locator("#pm-panel")).not.toContainText("ALV-"); // engineering stories are not mixed into the portal view
     for (const s of plan.stories) await expect(rows.filter({ hasText: s.id }).first()).toBeVisible();
