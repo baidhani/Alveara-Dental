@@ -1,0 +1,108 @@
+{
+  "axe": {
+    "export-screen-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "export-screen-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "downloads": {
+    "onePatientPackage": {
+      "file": "one-patient-package.zip",
+      "sha256": "d0504e3267f1c8e1690c9386d04e2249dc6ac50971e6594b3c8d6b954025ff3b"
+    },
+    "readableRecords": [
+      {
+        "file": "readable-record-from-patient-page.html",
+        "sha256": "a650137def3a1a981516faaa338dac8ea2854d1e8614c124eac23600ef412425"
+      },
+      {
+        "file": "readable-record-from-screen.html",
+        "sha256": "37cc360c4b866d53de918c636b8a02e0ff89dd6e9b4056c8b08d78991f7d2e74"
+      }
+    ],
+    "allPatientsPackage": {
+      "file": "all-patients-package.zip",
+      "sha256": "4863d844df61cc1718ce946eab55587521c40934ac05a22c7a02480c07ad8ca0",
+      "screenMilliseconds": 701
+    }
+  },
+  "timing": {
+    "patients": 202,
+    "runs": [
+      {
+        "attempt": 1,
+        "onePatientPackage": {
+          "status": 200,
+          "milliseconds": 442,
+          "bytes": 13794,
+          "result": "Complete"
+        },
+        "allPatientsPackage": {
+          "status": 200,
+          "milliseconds": 1998,
+          "bytes": 465638,
+          "result": "Complete"
+        }
+      },
+      {
+        "attempt": 2,
+        "onePatientPackage": {
+          "status": 200,
+          "milliseconds": 386,
+          "bytes": 13791,
+          "result": "Complete"
+        },
+        "allPatientsPackage": {
+          "status": 200,
+          "milliseconds": 1528,
+          "bytes": 465562,
+          "result": "Complete"
+        }
+      }
+    ]
+  },
+  "stamp": 1793109658537,
+  "access": {
+    "dentistRefused": {
+      "/api/patient-exports/patients/a77f60a7-826f-4304-9c2c-448add4942ac/package": 403,
+      "/api/patient-exports/all-patients/package": 403,
+      "/api/patient-exports/patients/a77f60a7-826f-4304-9c2c-448add4942ac/readable-record": 403,
+      "/api/patient-exports/history": 403,
+      "/api/patient-exports/overview": 403
+    },
+    "anonymous": [
+      401,
+      401,
+      401,
+      401,
+      401
+    ]
+  },
+  "permissions": {
+    "dentistAllPatients": 403,
+    "dentistPackage": 403,
+    "dentistOwnHistoryRows": 1
+  },
+  "history": {
+    "lines": 5,
+    "auditEvents": 5
+  },
+  "ids": {
+    "dentistUser": "0fdd3e38-6d56-46ae-978a-eeb90e560507",
+    "ann": "a77f60a7-826f-4304-9c2c-448add4942ac",
+    "bo": "6a7125dc-80d3-47ec-a2ac-c61880afc6fe",
+    "cy": "46371c87-ca3d-45fe-aa03-9365eec62141"
+  },
+  "saved": {
+    "onePatientPackage": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\.alveara\\handoffs\\ALV-018-C01\\R01-evidence\\artifacts\\walkthroughs\\playwright.patient-export-package.config.ts\\one-patient-package.zip",
+    "readableFromPatientPage": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\.alveara\\handoffs\\ALV-018-C01\\R01-evidence\\artifacts\\walkthroughs\\playwright.patient-export-package.config.ts\\readable-record-from-patient-page.html",
+    "readableFromScreen": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\.alveara\\handoffs\\ALV-018-C01\\R01-evidence\\artifacts\\walkthroughs\\playwright.patient-export-package.config.ts\\readable-record-from-screen.html",
+    "allPatientsPackage": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\.alveara\\handoffs\\ALV-018-C01\\R01-evidence\\artifacts\\walkthroughs\\playwright.patient-export-package.config.ts\\all-patients-package.zip",
+    "dentistReadable": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\.alveara\\handoffs\\ALV-018-C01\\R01-evidence\\artifacts\\walkthroughs\\playwright.patient-export-package.config.ts\\readable-record-by-dentist.html",
+    "original": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\.alveara\\handoffs\\ALV-018-C01\\R01-evidence\\artifacts\\walkthroughs\\playwright.patient-export-package.config.ts\\original-story-018-export.json"
+  }
+}

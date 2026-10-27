@@ -1860,3 +1860,9 @@
   - What changed: playwright.config.ts now ignores patient-export-package-real-backend.spec.ts, as it does every other real-backend spec; e2e/command-center.spec.ts counts verified stories only among those in plan.json, because the portal's sync added STORY-000 to progress.json without adding it to plan.json (the screen shows 18, the test expected 19).
   - Verification: the full mocked Playwright suite on the final tree: 138 passed, 2 skipped, 0 failed (before: 4 failed, 136 passed). The 2 skipped are the data-driven test in architecture-map.spec.ts, which skips itself because every planned portal story now shows progress.
   - Notes: found by the Stage 1 sweep. The first failure was this story's own mistake (the new spec was not excluded). The command-center failure is not caused by this story: it came with the portal sync commits f158a5f and 4827aac. The platform-owned .colaberry files were not touched.
+- [x] ALV-018-C01: engineering handoff, attempt R01 (Stage 1), and the frozen Stage 2 contract
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: .alveara/handoffs/ALV-018-C01/R01.md and R01-evidence (test results, acceptance evidence, parent regression, demo, changed files, next-story impact, artifacts, the frozen Stage 2 scripts and evaluator validation); BUILD_STATE.md section and header; EXECUTION_STATUS.json set to AWAITING_REVIEW with attempt R01.
+  - Verification: Stage 1 sweep on the final tree: 197 of 197 new-class backend tests, 907 of 907 ApiTests, Vitest 1,742, mocked Playwright 138 passed and 2 skipped, seven real-backend walkthroughs passed, 5 of 5 negative controls, evaluator validation 10 of 10, runner proof OK.
+  - Notes: the full backend regression is Stage 2 (pending the reviewer). The evidence commit SHA is recorded in the next commit, as a committed file cannot hold its own commit's SHA.

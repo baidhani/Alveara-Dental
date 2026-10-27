@@ -1,0 +1,30 @@
+# ALV-018-C01 R01 - Test results (Stage 1)
+
+Stage 1 under the two-stage policy: focused evidence only. **Full backend regression: PENDING** (frozen contract below). No full backend run was made.
+
+## Backend
+- **Focused run** (the 19 test classes new since the last full run, `ALV-017-C01` R03): `AllPatientsPackageTests`, `DataExportHistorySchemaTests`, `ExportDomainCatalogTests`, `ExportHistoryServiceTests`, `ExportPackagePermissionTests`, `ExportTableFiltersTests`, `PackagePathsTests`, `PatientDataPackageDocumentTests`, `PatientDataPackageServiceTests`, `PatientExportApiTests`, `PatientExportServiceTests`, `PatientExportsApiTests`, `PatientImportApiTests`, `PatientImportServiceTests`, `PatientImportValidatorTests`, `PatientReadableRecordServiceTests`, `PracticeTimeTextTests`, `ReadableRecordHtmlTests`, `ReadableRecordLoaderTests`: **197 passed, 0 failed, 0 skipped** in 3 m 7 s (`artifacts/test-runs/backend-focused.txt`, `.trx`). All 197 ids are new (none in the 5,136-id baseline); they are the allowlist in `stage2/expected_new_ids.txt`. They include the STORY-018 export and import tests (`PatientExport*`, `PatientImport*`) and this story's.
+- **HTTP-level integration subset** (every `*ApiTests` class, 907 tests across every module through the seam): **907 passed, 0 failed, 0 skipped** in 18 m 6 s on the final backend tree (`artifacts/apitests/apitests-final-tree.txt`, `.trx`). 24 of the 907 are new ids; the other 883 are baseline ids and passed.
+- An earlier focused run of 12 export classes (128 tests) passed before the last two slices were committed; it is superseded by the run above and not relied on.
+- The commit `1de9de5` changed only `playwright.config.ts` and `e2e/command-center.spec.ts`; no backend or client source changed after `4504f25`, so the backend runs above are on the final backend tree.
+
+## Negative controls (5 of 5 caught; `artifacts/negative-controls.txt`)
+Each rule was broken in turn, the focused class run, the file restored byte-identical (SHA-256 compared) and `git status` checked: the document hash check always passing (1 test fails of 9); the permission recheck before delivery removed (**not caught on the first run**, 13 of 13 passed; the test was then pinned to the expected number of checks and the control is caught, 1 of 13 fails); merged-away patients no longer filtered out (1 of 13 fails); the file-name cleaner no longer dropping the folder part (3 of 26 fail); CSRF removed from the all-patients route (1 of 11 fails).
+
+## Client and repository gates (final tree; raw logs in `artifacts/gates/`)
+`tsc` exit 0; Vitest **110 files, 1,742 tests passed**; build exit 0; lint exit 0 (oxlint, 41 warnings, none in the export files); mocked Playwright **138 passed, 2 skipped, 0 failed** (the skips are a data-driven test in `architecture-map.spec.ts` that skips itself when every planned portal story already shows progress; the first run found 4 failures, fixed in `1de9de5`, see the handoff); repository checks (`node --test tests/*.test.mjs`) **13 passed**. The earlier Vitest, tsc, build, lint and repository-check logs were taken on the tree before `1de9de5`, which changed no client source.
+
+## Real-backend walkthroughs on fresh databases (`artifacts/walkthroughs/`, logs `artifacts/gates/walk_*.txt`)
+`playwright.patient-export-package.config.ts` **10 passed** (this story); `playwright.patient-portability.config.ts` **7 passed** (STORY-018); `playwright.patient-merge.config.ts` **9 passed**; `playwright.workspace.config.ts` **14 passed**; `playwright.patients.config.ts` **7 passed**; `playwright.permission-policy.config.ts` **7 passed**; `playwright.permission-policy-admin.config.ts` **8 passed**. The independent check of the saved packages (`package-verification.json`, `artifacts/walkthroughs/playwright.patient-export-package.config.ts/`): verdict PASS (every file hash and size against the manifest, every document byte for byte against its recorded hash, all 19 domains `Included`, no merged-away patient, no secret field name, readable pages self-contained). Timing with 202 patients: one-patient package 330 to 356 ms (13.8 KB), all-patients 1.98 to 2.47 s (466 KB).
+
+## Artifact counts
+`artifacts/leak-counts-before.txt` and `leak-counts-after.txt` (around the Stage 1 sweep): AlveraTest 0, AlveraRestore 0, `alveara_` 0, SQL logins 0, unchanged. Only the `AlveraDev` database exists. The Stage 2 counts use the frozen `stage2/leak_counts.sh`.
+
+## Evaluator validation (`stage2/validate_evaluator.py`, output `stage2/evaluator-validation.txt`)
+10 of 10 scenarios behave as required (an 80-minute run meeting every criterion is accepted, a 3-minute one too; a failed or skipped test, a missing baseline id with or without a replacement, a changed outcome, an allowlisted id that did not run, an extra id and a wrong runner output variable are each rejected). Runner proof (`stage2/runner-proof.txt`): every walkthrough in the runner passes the output variable its spec reads.
+
+## Frozen Stage 2 contract
+Run once on the Stage 1 review-closure commit (equivalence rule of HANDOFF_SCHEMA section 4), clean tree, nothing else running:
+`sh .alveara/handoffs/ALV-018-C01/R01-evidence/stage2/run_stage2.sh <implementation-sha> <out-folder>` (the out-folder outside the repository).
+It runs the full serial backend suite with trx, tsc, full Vitest, build, lint, mocked Playwright, repository checks and the seven real-backend walkthroughs above, with artifact counts before and after; `evaluate_stage2.py` decides.
+Expectations: backend exactly **5,333 passed, 0 failed, 0 skipped**; the same ids and outcomes as the 5,136-test `ALV-017-C01` R03 baseline (no retired id) plus **exactly the 197 ids in `stage2/expected_new_ids.txt`**; template used (zero fallbacks, at least 3,000 clones, one template, counts unchanged); Vitest 1,742 in 110 files; mocked Playwright 138 passed and 2 skipped; repository checks 13; walkthroughs 10, 7, 9, 14, 7, 7 and 8 passed. **There is no backend time limit**; the elapsed time is reported as operational evidence. No performance-evidence test is in the contract (this story adds none).

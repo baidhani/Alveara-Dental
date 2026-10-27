@@ -1,0 +1,93 @@
+{
+  "packages": {
+    "one-patient-package.zip": {
+      "members": 24,
+      "result": "Complete",
+      "scope": {
+        "kind": "OnePatient",
+        "patientCount": 1,
+        "subjectRecordId": "a77f60a7-826f-4304-9c2c-448add4942ac"
+      },
+      "schemaVersion": "20261026223451_AddDataExportHistory",
+      "readConsistency": "TableByTable",
+      "folderNaming": "IdOnly",
+      "filesChecked": 23,
+      "domains": 19,
+      "excludedGroups": [
+        "accounts_and_credentials",
+        "access_policy",
+        "audit_log",
+        "practice_configuration",
+        "system_operations"
+      ],
+      "documents": {
+        "listed": 2,
+        "included": 2,
+        "hashRoundTrip": "every included file equals its recorded and found hash"
+      },
+      "problems": []
+    },
+    "all-patients-package.zip": {
+      "members": 26,
+      "result": "Complete",
+      "scope": {
+        "kind": "AllPatients",
+        "patientCount": 2,
+        "subjectRecordId": null
+      },
+      "schemaVersion": "20261026223451_AddDataExportHistory",
+      "readConsistency": "Snapshot",
+      "folderNaming": "IdOnly",
+      "filesChecked": 25,
+      "domains": 19,
+      "excludedGroups": [
+        "accounts_and_credentials",
+        "access_policy",
+        "audit_log",
+        "practice_configuration",
+        "system_operations"
+      ],
+      "documents": {
+        "listed": 3,
+        "included": 3,
+        "hashRoundTrip": "every included file equals its recorded and found hash"
+      },
+      "patients": 2,
+      "problems": []
+    }
+  },
+  "pages": {
+    "readable-record-by-dentist.html": {
+      "bytes": 6523,
+      "hasCsp": true,
+      "scripts": 0,
+      "outsideReferences": 0
+    },
+    "readable-record-from-patient-page.html": {
+      "bytes": 6523,
+      "hasCsp": true,
+      "scripts": 0,
+      "outsideReferences": 0
+    },
+    "readable-record-from-screen.html": {
+      "bytes": 6298,
+      "hasCsp": true,
+      "scripts": 0,
+      "outsideReferences": 0
+    }
+  },
+  "failures": [],
+  "story018Export": {
+    "format": "alveara.patient-export",
+    "formatVersion": 1,
+    "keys": [
+      "exportId",
+      "exportedAtUtc",
+      "format",
+      "formatVersion",
+      "patient",
+      "source"
+    ]
+  },
+  "verdict": "PASS"
+}

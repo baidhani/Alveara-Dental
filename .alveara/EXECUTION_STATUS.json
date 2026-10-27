@@ -2676,21 +2676,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 6,
-        "passed": 0
+        "passed": 6
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, a Stage 1 package. The 19 backend test classes new since the last full run (STORY-018 and this story) 197 of 197 (all 197 ids are new against the 5,136-id ALV-017-C01 R03 baseline; none retired); every *ApiTests class 907 of 907; negative controls 5 of 5 caught (the first run missed the last permission check before delivery; the test was pinned to the expected number of checks and the control is now caught); tsc 0, Vitest 1,742 of 1,742 (110 files), build 0, lint 0, mocked Playwright 138 passed and 2 skipped (a data-driven test skips itself), repository checks 13; real-backend walkthroughs on fresh databases: export package 10 of 10, STORY-018 portability 7 of 7, patient merge 9, workspace 14, patients 7, permission policy 7 and 8; independent check of the saved packages PASS; evaluator validation 10 of 10. Timing with 202 patients: one-patient package 330 to 356 ms, all-patients package 1.98 to 2.47 s. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-018-C01/R01-evidence/stage2/) expects 5,333 backend tests (the 5,136 baseline plus exactly the 197 listed new ids) with no time limit. No full run made."
       },
-      "demo": "not_started",
-      "parentRegression": "not_started",
-      "implementationCommit": null,
+      "demo": "real_backend_walkthrough_10_of_10",
+      "parentRegression": "verified",
+      "implementationCommit": "1de9de5f08b903fe6b3d1776ffd3b22cddc282d6",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-018-C01/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,

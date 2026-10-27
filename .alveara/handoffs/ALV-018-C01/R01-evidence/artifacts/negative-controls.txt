@@ -1,0 +1,7 @@
+1 document hash check: exit 1; Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 22 s - Alveara.Api.Tests.dll (net10.0);  restored byte-identical: True
+2 permission recheck before delivery (PatientDataPackageService.cs: last check removed): first run NOT caught (13 of 13 passed); test then pinned to the expected number of checks; second run CAUGHT, AllPatientsPackageTests Failed 1, Passed 12, Total 13; restored byte-identical: True
+3 merged patients left out: exit 1; Failed!  - Failed:     1, Passed:    12, Skipped:     0, Total:    13, Duration: 58 s - Alveara.Api.Tests.dll (net10.0);  restored byte-identical: True
+5 CSRF on all-patients route: exit 1; Failed!  - Failed:     1, Passed:    10, Skipped:     0, Total:    11, Duration: 39 s - Alveara.Api.Tests.dll (net10.0);  restored byte-identical: True
+4 file name cleaner (PackagePaths.cs: folder part no longer removed): CAUGHT, PackagePathsTests Failed 3, Passed 23, Total 26; restored byte-identical: True
+
+RESULT: all 5 rules are now pinned by a failing test (1 hash check, 2 last permission check, 3 merged filter, 4 file-name cleaner, 5 CSRF). Control 2 was missed at first because the test found the last check by counting calls; AllPatientsPackageTests now asserts 1 + domains + 1 checks, and with the fix 13 of 13 pass on the real code.
