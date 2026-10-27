@@ -61,6 +61,15 @@ if ($rcsi -ne '1') {
     Write-Host "Turned READ_COMMITTED_SNAPSHOT on for $DevDatabaseName (connections to it were reset)."
 }
 
+# ALLOW_SNAPSHOT_ISOLATION ON lets the all-patients export (ALV-018-C01) read every table at one moment, so the package cannot show a half-finished change. Nothing else uses it,
+# and the export checks the setting and falls back to reading table by table when it is off, so this is an improvement, not a requirement. It adds no behaviour to ordinary
+# queries and, with READ_COMMITTED_SNAPSHOT already on, almost no cost. Idempotent; it waits for open transactions rather than resetting connections.
+$snapshot = (Invoke-DevSql "SET NOCOUNT ON; SELECT snapshot_isolation_state FROM sys.databases WHERE name = N'$DevDatabaseName'" | Select-Object -First 1).Trim()
+if ($snapshot -ne '1') {
+    Invoke-DevSql "ALTER DATABASE [$DevDatabaseName] SET ALLOW_SNAPSHOT_ISOLATION ON;" | Out-Null
+    Write-Host "Turned ALLOW_SNAPSHOT_ISOLATION on for $DevDatabaseName."
+}
+
 $apiProject = Join-Path $RepoRoot 'src\Alveara.Api'
 Push-Location -LiteralPath $apiProject
 try {
