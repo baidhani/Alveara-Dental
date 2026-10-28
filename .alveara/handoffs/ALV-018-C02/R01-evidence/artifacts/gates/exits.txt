@@ -1,0 +1,6 @@
+tsc exit 0
+vitest exit 0
+build exit 0
+lint exit 0
+playwright_mocked exit 0
+repo_checks exit 0

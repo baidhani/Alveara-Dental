@@ -1,0 +1,21 @@
+Database AlveraWalk_playwright_patient_portability_config_2cb8dd0d created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.patient-portability.config.ts ...
+
+Running 7 tests using 1 worker
+
+  ok 1 [chromium] › e2e\patient-portability-real-backend.spec.ts:102:1 › SETUP: the front desk registers a patient (273ms)
+  ok 2 [chromium] › e2e\patient-portability-real-backend.spec.ts:110:1 › WHO MAY: only the administrator is offered the export; the administrator and the office manager are offered the import; the API refuses everyone else (957ms)
+  ok 3 [chromium] › e2e\patient-portability-real-backend.spec.ts:136:1 › EXPORT: the administrator downloads the patient's file in the documented JSON layout (2.5s)
+  ok 4 [chromium] › e2e\patient-portability-real-backend.spec.ts:154:1 › INCORRECT FILE: the office manager's import of a broken file is rejected with every problem listed and nothing is stored (2.2s)
+  ok 5 [chromium] › e2e\patient-portability-real-backend.spec.ts:179:1 › CORRECTED FILE: the same file, correct and as another person, imports and links to the new record; the same file again creates nothing (1.2s)
+  ok 6 [chromium] › e2e\patient-portability-real-backend.spec.ts:205:1 › ALREADY REGISTERED: a file for a patient who is already in the system is refused with a link to the record (435ms)
+  ok 7 [chromium] › e2e\patient-portability-real-backend.spec.ts:220:1 › THE LOG: the audit log shows every export and import action with the user and the time (2.2s)
+
+  7 passed (16.4s)
+Database AlveraWalk_playwright_patient_portability_config_2cb8dd0d dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\c--Users-firas-Documents-AI-Project--Alveara-Dental-\0fb1f2d0-f5ec-401a-994f-3c38dcda070f\scratchpad\sweep\walk$1

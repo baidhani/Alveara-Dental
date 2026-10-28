@@ -1,0 +1,113 @@
+ALV-018-C02 R01 - negative controls (Stage 1)
+
+Method: for each rule the file's SHA-256 is recorded, one mutation is applied, only the tests that should notice it are run, the original bytes are written back and compared (SHA-256 and git status), and the result is logged.
+A control is "caught" when at least one test fails. A mutant that passes every test is a survivor and the test is fixed before the control is repeated.
+
+RESULT: 6 of 6 caught (control 3 only after a test was added for it).
+
+=== Control 1: A balance is only ever the first entry on a ledger ===
+Mutation: BillingService.OpeningBalance.cs: the account_not_empty guard removed
+Result: Caught: 2 of 14 fail (ImportBalanceCommitTests: history after the dry-run; the billing-rule test)
+--- raw log ---
+c1: mutated src/Alveara.Api/Architecture/Billing/BillingService.OpeningBalance.cs
+  sha256 before: 61cfb7540f4fb67ddb913f7d279f2b7fb36627f54a9423003fa6e4822836a874
+  sha256 mutated: bf53bc13409774c98802b27960f06c9971ed2940870306ca93028264266af224
+  Failed Alveara.Api.Tests.ImportBalanceCommitTests.A_patient_who_gains_history_after_the_dry_run_is_rejected_and_the_b
+alance_is_never_added_to_it [597 ms]
+  Failed Alveara.Api.Tests.ImportBalanceCommitTests.The_billing_rule_refuses_a_second_balance_a_reused_key_with_another
+_amount_a_bad_amount_and_an_unknown_patient [177 ms]
+Failed!  - Failed:     2, Passed:    12, Skipped:     0, Total:    14, Duration: 22 s - Alveara.Api.Tests.dll (net10.0)
+c1: restored src/Alveara.Api/Architecture/Billing/BillingService.OpeningBalance.cs
+  sha256 restored: 61cfb7540f4fb67ddb913f7d279f2b7fb36627f54a9423003fa6e4822836a874  identical to the original: True
+  git status of the file: clean
+
+=== Control 2: A retry only runs when no job of the round is waiting or running ===
+Mutation: ImportRetryService.cs IsStuckAsync: the job check bypassed (true ||)
+Result: Caught: 1 of 9 fails (the stuck-commit retry test)
+--- raw log ---
+c2: mutated src/Alveara.Api/Architecture/Imports/ImportRetryService.cs
+  sha256 before: 84664b96be1ec05d71a0cad0257f924827811396aafb2585a7ea6ce46f3dfd73
+  sha256 mutated: 3fb1d260c1adbd59355ea5aaa1faf41774954ca07e8b831659d5cad2192f4eb8
+  Failed Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_stuck_commit_is_offered_a_retry_which_finishes_the_batch_w
+ithout_repeating_a_row_done_before [888 ms]
+Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 24 s - Alveara.Api.Tests.dll (net10.0)
+c2: restored src/Alveara.Api/Architecture/Imports/ImportRetryService.cs
+  sha256 restored: 84664b96be1ec05d71a0cad0257f924827811396aafb2585a7ea6ce46f3dfd73  identical to the original: True
+  git status of the file: clean
+
+=== Control 3: The reconciliation compares the ledger total with the batch total ===
+Mutation: ImportReportService.cs: the amount_mismatch check removed
+Result: SURVIVED the first run: 10 of 10 pass. Fixed: new test A_ledger_that_holds_more_for_the_batch_than_the_batch_recorded_is_reported_as_a_named_amount_mismatch; the real code passes 8 of 8; the mutant now fails 1 of 11 (see the retest below)
+--- raw log ---
+c3: mutated src/Alveara.Api/Architecture/Imports/ImportReportService.cs
+  sha256 before: e34f819aa5d152b3e290ace68cd714617df83d31cbf4b98b1875665caac27386
+  sha256 mutated: 81b5ac8ee3dba66365a201153774cb24f13286b070211a7349bef38582258a79
+Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 23 s - Alveara.Api.Tests.dll (net10.0)
+c3: restored src/Alveara.Api/Architecture/Imports/ImportReportService.cs
+  sha256 restored: e34f819aa5d152b3e290ace68cd714617df83d31cbf4b98b1875665caac27386  identical to the original: True
+  git status of the file: clean
+
+=== Control 4: The sweep never removes a batch's own file ===
+Mutation: ImportFileSweepService.cs: the "a batch refers to it" tests dropped from the keep condition
+Result: Caught: 1 of 9 fails (the sweep test)
+--- raw log ---
+c4: mutated src/Alveara.Api/Architecture/Imports/ImportFileSweepService.cs
+  sha256 before: 7b1cb48911f7f792e06b518197bed68353029bee4db233c2f14fc1e5ecb83c83
+  sha256 mutated: eee8e5294929f3c384e1460d26d8c207aa488a06d35dc9349f3697612653a2c6
+  Failed Alveara.Api.Tests.ImportReportsRetryAndSweepTests.The_sweep_removes_an_old_unreferenced_file_keeps_the_rest_re
+ports_a_missing_file_and_is_safe_to_repeat [81 ms]
+Failed!  - Failed:     1, Passed:     8, Skipped:     0, Total:     9, Duration: 25 s - Alveara.Api.Tests.dll (net10.0)
+c4: restored src/Alveara.Api/Architecture/Imports/ImportFileSweepService.cs
+  sha256 restored: 7b1cb48911f7f792e06b518197bed68353029bee4db233c2f14fc1e5ecb83c83  identical to the original: True
+  git status of the file: clean
+
+=== Control 5: Opening balances also need Manage billing ===
+Mutation: ImportCommitService.cs: the billing_permission_required refusal removed
+Result: Caught: 3 of 29 fail (ImportBalanceCommitTests, ImportBalanceDryRunTests, ImportCommitTests)
+--- raw log ---
+c5: mutated src/Alveara.Api/Architecture/Imports/ImportCommitService.cs
+  sha256 before: 15796953794943dd8b7778913607111e88a4aa50cce61eb3e06ba450c6c2d36f
+  sha256 mutated: df65380fa1b11f4c013a55bebca6d7a900a95c8b02106ecc5b91b2f807c75f0f
+  Failed Alveara.Api.Tests.ImportBalanceDryRunTests.A_batch_of_balances_is_refused_to_a_caller_without_manage_billing_b
+efore_anything_changes [154 ms]
+  Failed Alveara.Api.Tests.ImportBalanceCommitTests.All_or_nothing_is_refused_and_a_caller_without_manage_billing_is_re
+fused_before_anything_changes [177 ms]
+  Failed Alveara.Api.Tests.ImportCommitTests.The_confirmation_is_checked_before_anything_is_written [153 ms]
+Failed!  - Failed:     3, Passed:    26, Skipped:     0, Total:    29, Duration: 31 s - Alveara.Api.Tests.dll (net10.0)
+c5: restored src/Alveara.Api/Architecture/Imports/ImportCommitService.cs
+  sha256 restored: 15796953794943dd8b7778913607111e88a4aa50cce61eb3e06ba450c6c2d36f  identical to the original: True
+  git status of the file: clean
+
+=== Control 6: A refused commit clears the confirmation (client) ===
+Mutation: CommitStep.tsx: setConfirmed(false) removed from the finally block
+Result: Caught: 1 of 41 fails (ImportBatchPage: reloads the batch and explains when the results changed)
+--- raw log ---
+c6: mutated src/alveara-client/src/pages/imports/CommitStep.tsx
+  sha256 before: ba80ae197199accfb849712f3d20fc2d768604edaef69f88cd0fbfdbe4ca639d
+  sha256 mutated: 6dcd9b6d9c38c2b5d6ae719107473b221be1d8c16e2891b17c4a74560d154eba
+   src/pages/imports/ImportBatchPage.test.tsx (30 tests | 1 failed) 1697ms
+       reloads the batch and explains when the results changed since they were looked at, committing nothing 143ms
+  Failed Tests 1
+ FAIL  src/pages/imports/ImportBatchPage.test.tsx > the commit > reloads the batch and explains when the results
+changed since they were looked at, committing nothing
+Error: expect(element).not.toBeChecked()
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 40 passed (41)
+   Duration  3.28s (tests 42%, transform 28%, environment 18%, import 6%, setup 6%)
+c6: restored src/alveara-client/src/pages/imports/CommitStep.tsx
+  sha256 restored: ba80ae197199accfb849712f3d20fc2d768604edaef69f88cd0fbfdbe4ca639d  identical to the original: True
+  git status of the file: clean
+
+=== Control 3 retest (after the new test was added) ===
+== control 3 retest, step 1: the new test against the real (restored) code ==
+Passed!  - Failed:     0, Passed:     8, Skipped:     0, Total:     8, Duration: 23 s - Alveara.Api.Tests.dll (net10.0)
+== step 2: control 3 mutation reapplied ==
+c3: mutated src/Alveara.Api/Architecture/Imports/ImportReportService.cs
+  sha256 before: e34f819aa5d152b3e290ace68cd714617df83d31cbf4b98b1875665caac27386
+  sha256 mutated: 81b5ac8ee3dba66365a201153774cb24f13286b070211a7349bef38582258a79
+  Failed Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_ledger_that_holds_more_for_the_batch_than_the_batch_record
+ed_is_reported_as_a_named_amount_mismatch [439 ms]
+Failed!  - Failed:     1, Passed:    10, Skipped:     0, Total:    11, Duration: 26 s - Alveara.Api.Tests.dll (net10.0)
+c3: restored src/Alveara.Api/Architecture/Imports/ImportReportService.cs
+  sha256 restored: e34f819aa5d152b3e290ace68cd714617df83d31cbf4b98b1875665caac27386  identical to the original: True
+  git status of the file: clean

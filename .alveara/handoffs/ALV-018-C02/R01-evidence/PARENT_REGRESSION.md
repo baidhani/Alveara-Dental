@@ -1,0 +1,9 @@
+# ALV-018-C02 R01 - Parent regression (STORY-018)
+
+The parent is the course story `STORY-018` (portal-verified 2026-10-26, completion `f158a5f`); its completion contract is immutable. The companion `ALV-018-C01` (the export package) is also a dependency and is unchanged. Evidence that both still pass on the final tree:
+- Backend: `PatientImportValidatorTests`, `PatientImportServiceTests`, `PatientImportApiTests`, `PatientExportServiceTests` and `PatientExportApiTests` **62 passed, 0 failed, 0 skipped** (`artifacts/test-runs/parent-story018.txt`, `.trx`) and again inside the 928-test `*ApiTests` run. No STORY-018 or ALV-018-C01 test file was modified (`git diff --name-status cb0bcd0 HEAD -- src/Alveara.Api.Tests` shows only added files), and no STORY-018 import or export service file was changed. The one change near them is `ExportDomainCatalog.cs`, which places the two new import tables (`ImportBatches`, `ImportBatchRows`) in the technical-bookkeeping exclusion, so a patient package does not carry import batches (a completeness test fails when a table is not placed); `ExportDomainCatalogTests` passes.
+- Real backend: the STORY-018 walkthrough (`playwright.patient-portability.config.ts`) **7 of 7 passed** on a fresh database; the export-package walkthrough **10 of 10**.
+- Client: Vitest 1,790 of 1,790 in 114 files, including the STORY-018 export and import button and screen tests. No STORY-018 client file was changed.
+- The original malformed-import rejection (criterion 1) is unchanged: STORY-018's single-patient import and the new bulk import are separate code paths; the bulk import reuses only the front desk's validation and duplicate comparison, which were refactored without changing behaviour (see the handoff, "Findings in shared components").
+
+Result: pass. A full backend regression is Stage 2.
