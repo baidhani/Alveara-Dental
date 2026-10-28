@@ -5,7 +5,7 @@ using Alveara.Api.Architecture.Imports;
 namespace Alveara.Api.Data;
 
 /// <summary>
-/// ALV-018-C02: the model for import batches (see <see cref="ImportBatch"/>). As elsewhere, the database refuses by itself what the rules refuse. Triggers (created in the migration; errors 51260 to 51263): a batch is
+/// ALV-018-C02: the model for import batches and their row results (see <see cref="ImportBatch"/>, <see cref="ImportBatchRow"/>; the rows' triggers are errors 51264 to 51266, created in AddImportBatchRows). As elsewhere, the database refuses by itself what the rules refuse. Triggers (created in the migration; errors 51260 to 51263): a batch is
 /// never deleted (51260); it keeps what it recorded about its file and its maker (kind, file, size, rows, columns, who, when) (51261); a finished batch (Committed, Failed or Cancelled) never changes (51262); the migration
 /// refuses to roll back while any batch exists (51263). The filtered unique index allows one open batch for the same file of the same kind.
 /// </summary>
@@ -44,6 +44,25 @@ internal static class ImportBatchModel
                 t.HasCheckConstraint("CK_ImportBatches_Counters",
                     "[AttemptedRows] >= 0 AND [AcceptedRows] >= 0 AND [RejectedRows] >= 0 AND [SkippedRows] >= 0 AND [UnresolvedRows] >= 0 AND [AcceptedRows] + [RejectedRows] + [SkippedRows] + [UnresolvedRows] <= [AttemptedRows] AND [AttemptedRows] <= [RowCount]");
                 t.HasCheckConstraint("CK_ImportBatches_Times", $"[CreatedAtUtc] >= {Utc} AND [CreatedAtUtc] < {Never} AND ([UpdatedAtUtc] IS NULL OR ([UpdatedAtUtc] >= [CreatedAtUtc] AND [UpdatedAtUtc] < {Never}))");
+            });
+        });
+
+        modelBuilder.Entity<ImportBatchRow>(e =>
+        {
+            e.ToTable("ImportBatchRows");
+            e.Property(x => x.Status).HasMaxLength(20);
+            e.Property(x => x.Reason).HasMaxLength(40);
+            e.Property(x => x.ErrorsJson).HasMaxLength(4000);
+            e.Property(x => x.MatchedPatientIdsJson).HasMaxLength(600);
+            e.HasOne<ImportBatch>().WithMany().HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.BatchId, x.RowNumber }).IsUnique().HasDatabaseName("UX_ImportBatchRows_Row");
+            e.HasIndex(x => new { x.BatchId, x.Status });
+            e.ToTable(t =>
+            {
+                t.HasTrigger("TR_ImportBatchRows_Guard");
+                t.HasCheckConstraint("CK_ImportBatchRows_Status", InList("Status", ImportRowStatus.All));
+                t.HasCheckConstraint("CK_ImportBatchRows_Number", "[RowNumber] >= 2");
+                t.HasCheckConstraint("CK_ImportBatchRows_Repeat", "[DuplicateOfRow] IS NULL OR ([DuplicateOfRow] >= 2 AND [DuplicateOfRow] < [RowNumber])");
             });
         });
     }

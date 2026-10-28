@@ -28,10 +28,7 @@ public class PatientDuplicateDetector(AlveraDbContext db)
 
     public async Task<IReadOnlyList<DuplicateCandidate>> FindAsync(CleanPatient input, Guid? excludePatientId, CancellationToken ct)
     {
-        var inputLast = Patient.NormalizeName(input.LastName);
-        var inputFirst = Patient.NormalizeName(input.FirstName);
-        var inputPhone = PatientInput.DigitsOf(input.Phone);
-        var email = input.Email;
+        var probe = DuplicateProbe.From(input);
 
         var pool = await db.Patients.AsNoTracking()
             .Where(p => p.DateOfBirth == input.DateOfBirth && (excludePatientId == null || p.Id != excludePatientId))
@@ -41,20 +38,7 @@ public class PatientDuplicateDetector(AlveraDbContext db)
         var found = new List<DuplicateCandidate>();
         foreach (var p in pool)
         {
-            var reasons = new List<string>();
-            var pLast = Patient.NormalizeName(p.LastName);
-            var pFirst = Patient.NormalizeName(p.FirstName);
-            var samePhone = inputPhone.Length >= 7 && PatientInput.DigitsOf(p.Phone) == inputPhone;
-            var exact = pLast == inputLast && pFirst == inputFirst;
-
-            if (exact) reasons.Add("Same name and date of birth");
-            else
-            {
-                if (pLast == inputLast) reasons.Add("Same last name and date of birth");
-                if (pFirst == inputFirst && EditDistance(pLast, inputLast) is > 0 and <= 2) reasons.Add("Same first name and date of birth, similar last name");
-                if (samePhone) reasons.Add("Same phone number and date of birth");
-                if (email is not null && string.Equals(p.Email, email, StringComparison.OrdinalIgnoreCase)) reasons.Add("Same email and date of birth");
-            }
+            var (exact, reasons) = Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email);
             if (reasons.Count == 0) continue;
 
             found.Add(new DuplicateCandidate(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd"), p.Phone, p.Email, p.City, p.State, p.IsActive, reasons, exact));
@@ -62,6 +46,30 @@ public class PatientDuplicateDetector(AlveraDbContext db)
 
         return found.OrderByDescending(c => c.Exact).ThenByDescending(c => c.Reasons.Count).ThenBy(c => c.LastName, StringComparer.OrdinalIgnoreCase)
             .ThenBy(c => c.FirstName, StringComparer.OrdinalIgnoreCase).Take(MaxReturned).ToList();
+    }
+
+    /// <summary>
+    /// The deterministic comparison of one person being registered against one registered person who has the same birth date (the caller selects by birth date). It is a pure function of the values, so the
+    /// front desk's check (<see cref="FindAsync"/>) and the bulk import's dry-run (ALV-018-C02, which compares thousands of rows without a query each) apply exactly the same rules. No reason means no match.
+    /// </summary>
+    internal static (bool Exact, List<string> Reasons) Compare(DuplicateProbe probe, string existingFirst, string existingLast, string existingPhone, string? existingEmail)
+    {
+        var reasons = new List<string>();
+        var pLast = Patient.NormalizeName(existingLast);
+        var pFirst = Patient.NormalizeName(existingFirst);
+        var samePhone = probe.PhoneDigits.Length >= 7 && PatientInput.DigitsOf(existingPhone) == probe.PhoneDigits;
+        var exact = pLast == probe.Last && pFirst == probe.First;
+
+        if (exact) reasons.Add("Same name and date of birth");
+        else
+        {
+            if (pLast == probe.Last) reasons.Add("Same last name and date of birth");
+            if (pFirst == probe.First && EditDistance(pLast, probe.Last) is > 0 and <= 2) reasons.Add("Same first name and date of birth, similar last name");
+            if (samePhone) reasons.Add("Same phone number and date of birth");
+            if (probe.Email is not null && string.Equals(existingEmail, probe.Email, StringComparison.OrdinalIgnoreCase)) reasons.Add("Same email and date of birth");
+        }
+
+        return (exact, reasons);
     }
 
     /// <summary>Levenshtein distance between two already-normalized names.</summary>
@@ -78,4 +86,10 @@ public class PatientDuplicateDetector(AlveraDbContext db)
         }
         return prev[b.Length];
     }
+}
+
+/// <summary>The person being compared, with the values the comparison needs already normalized.</summary>
+internal sealed record DuplicateProbe(string Last, string First, string PhoneDigits, string? Email)
+{
+    public static DuplicateProbe From(CleanPatient input) => new(Patient.NormalizeName(input.LastName), Patient.NormalizeName(input.FirstName), PatientInput.DigitsOf(input.Phone), input.Email);
 }

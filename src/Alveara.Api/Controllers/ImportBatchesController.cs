@@ -7,6 +7,9 @@ using Alveara.Api.Architecture.Imports;
 
 namespace Alveara.Api.Controllers;
 
+/// <summary>The body of a mapping save: column name to patient field key (an empty target ignores the column).</summary>
+public sealed record SaveMappingRequest(Dictionary<string, string?>? Mapping);
+
 /// <summary>
 /// ALV-018-C02: bulk import batches. Everything here needs <see cref="Permission.BulkImportData"/>. The upload is a POST with a CSRF token whose body is the CSV file itself, with the kind and the operator's label in
 /// the query string (a file can be large, so it is read up to one byte past the limit and an oversized file is refused without reading it all). Responses are <c>no-store</c> because a batch describes a file of personal
@@ -16,7 +19,7 @@ namespace Alveara.Api.Controllers;
 [Route("api/import-batches")]
 [Authorize]
 [RequirePermission(Permission.BulkImportData)]
-public class ImportBatchesController(ImportIntakeService intake, IOptions<ImportOptions> options) : ControllerBase
+public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, IOptions<ImportOptions> options) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -54,6 +57,40 @@ public class ImportBatchesController(ImportIntakeService intake, IOptions<Import
         Response.Headers.CacheControl = "no-store";
         var batch = await intake.GetAsync(id, ct);
         return batch is null ? NotFound(new { error = "batch_not_found", message = "There is no import batch with that id." }) : Ok(batch);
+    }
+
+    [HttpGet("{id:guid}/mapping-suggestion")]
+    public Task<IActionResult> MappingSuggestion(Guid id, CancellationToken ct) => GuardedAsync(async () => Ok(await mappings.GetSuggestionAsync(id, ct)));
+
+    [HttpPut("{id:guid}/mapping")]
+    [RequireCsrfToken]
+    public Task<IActionResult> SaveMapping(Guid id, [FromBody] SaveMappingRequest? request, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await mappings.SaveAsync(id, request?.Mapping, Actor, ct)));
+
+    [HttpPost("{id:guid}/dry-run")]
+    [RequireCsrfToken]
+    public Task<IActionResult> DryRun(Guid id, CancellationToken ct) => GuardedAsync(async () => Ok(await dryRuns.RunAsync(id, Actor, ct)));
+
+    [HttpGet("{id:guid}/rows")]
+    public Task<IActionResult> Rows(Guid id, [FromQuery] string? status, [FromQuery] int? limit, [FromQuery] int? after, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await dryRuns.ListRowsAsync(id, status, limit ?? 0, after ?? 1, ct)));
+
+    /// <summary>Runs one of the mapping and dry-run calls: no-store, and a refusal becomes its stable <c>error</c> code (a rejected mapping lists its problems).</summary>
+    private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
+    {
+        Response.Headers.CacheControl = "no-store";
+        try
+        {
+            return await action();
+        }
+        catch (ImportMappingRejectedException ex)
+        {
+            return BadRequest(new { error = "mapping_invalid", message = ex.Message, problems = ex.Problems });
+        }
+        catch (ImportException ex)
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message });
+        }
     }
 
     /// <summary>Reads the request body up to one byte past the file limit, so a file over the limit is detected without reading all of it; the parser then refuses it as too large.</summary>

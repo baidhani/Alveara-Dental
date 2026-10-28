@@ -64,6 +64,8 @@ public static class AuditEventTypes
     // ALV-018-C02: a bulk import file accepted into a batch, and one refused. Details carry ids, counts, sizes, hashes and codes, never a value from the file.
     public const string ImportBatchCreated = "ImportBatchCreated";
     public const string ImportFileRejected = "ImportFileRejected";
+    public const string ImportMappingSaved = "ImportMappingSaved";
+    public const string ImportDryRunCompleted = "ImportDryRunCompleted";
 
     // ALV-017-C01: a suggested pair dismissed as not a duplicate, and restored (one entry for each of the two records, sharing the dismissal id as the correlation id).
     public const string PatientDuplicateDismissed = "PatientDuplicateDismissed";

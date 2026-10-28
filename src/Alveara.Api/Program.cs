@@ -86,6 +86,8 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.Package
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Portability.Package.PatientDataPackageService>();
 builder.Services.Configure<Alveara.Api.Architecture.Imports.ImportOptions>(builder.Configuration.GetSection(Alveara.Api.Architecture.Imports.ImportOptions.SectionName));      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportIntakeService>();      // ALV-018-C02
+builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportMappingService>();      // ALV-018-C02
+builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportDryRunService>();      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();

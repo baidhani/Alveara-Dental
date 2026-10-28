@@ -4481,6 +4481,9 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("DryRunAtUtc")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<Guid>("FileBlobId")
                         .HasColumnType("uniqueidentifier");
 
@@ -4492,6 +4495,9 @@ namespace Alveara.Api.Migrations
 
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("MappingJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Policy")
                         .IsRequired()
@@ -4564,6 +4570,63 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_ImportBatches_Status", "[Status] IN ('Uploaded', 'DryRunComplete', 'Committing', 'Committed', 'Failed', 'Cancelled')");
 
                             t.HasCheckConstraint("CK_ImportBatches_Times", "[CreatedAtUtc] >= '2000-01-01' AND [CreatedAtUtc] < '2200-01-01' AND ([UpdatedAtUtc] IS NULL OR ([UpdatedAtUtc] >= [CreatedAtUtc] AND [UpdatedAtUtc] < '2200-01-01'))");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Imports.ImportBatchRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("DuplicateOfRow")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ErrorsJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("MatchedPatientIdsJson")
+                        .HasMaxLength(600)
+                        .HasColumnType("nvarchar(600)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<int>("RowNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId", "RowNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UX_ImportBatchRows_Row");
+
+                    b.HasIndex("BatchId", "Status");
+
+                    b.ToTable("ImportBatchRows", null, t =>
+                        {
+                            t.HasTrigger("TR_ImportBatchRows_Guard");
+
+                            t.HasCheckConstraint("CK_ImportBatchRows_Number", "[RowNumber] >= 2");
+
+                            t.HasCheckConstraint("CK_ImportBatchRows_Repeat", "[DuplicateOfRow] IS NULL OR ([DuplicateOfRow] >= 2 AND [DuplicateOfRow] < [RowNumber])");
+
+                            t.HasCheckConstraint("CK_ImportBatchRows_Status", "[Status] IN ('Valid', 'Rejected', 'Unresolved', 'Skipped', 'Accepted')");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -9189,6 +9252,15 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Imports.ImportBatchRow", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Imports.ImportBatch", null)
+                        .WithMany()
+                        .HasForeignKey("BatchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

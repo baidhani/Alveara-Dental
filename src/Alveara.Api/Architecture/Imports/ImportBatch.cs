@@ -64,6 +64,10 @@ public class ImportBatch
     public int RejectedRows { get; set; }
     public int SkippedRows { get; set; }
     public int UnresolvedRows { get; set; }
+    /// <summary>ALV-018-C02 slice 2: which column fills which field, as a JSON object of column name to field name; null until the operator has confirmed a mapping.</summary>
+    public string? MappingJson { get; set; }
+    /// <summary>When the last dry-run finished; null if none has, or if the mapping changed since (the results are then stale and a new dry-run is needed).</summary>
+    public DateTimeOffset? DryRunAtUtc { get; set; }
     public Guid CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset? UpdatedAtUtc { get; set; }
