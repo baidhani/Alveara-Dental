@@ -79,17 +79,5 @@ public class ImportCommitService(AlveraDbContext db, IBackgroundJobQueue queue, 
     }
 
     /// <summary>Puts the round's jobs on the queue: the rows jobs first, then the finish job. Every key is unique for the work, so doing this twice leaves one of each.</summary>
-    private async Task EnqueueAsync(ImportBatch batch, CancellationToken ct)
-    {
-        var last = batch.RowCount + 1;                                                   // the rows are numbered 2 to RowCount + 1
-        var size = batch.Policy == ImportBatchPolicy.AllOrNothing ? last : Math.Max(1, _options.CommitChunkRows);
-        for (var from = 2; from <= last; from += size)
-        {
-            var job = new ImportCommitJob(batch.Id, batch.CommitRound, ImportCommitJobs.RowsStep, from, Math.Min(from + size - 1, last), 0);
-            await queue.EnqueueAsync(ImportCommitJobs.RowsKey(batch.Id, batch.CommitRound, from), ImportCommitJobs.JobType, ImportCommitJobs.Payload(job), ct);
-        }
-
-        var finish = new ImportCommitJob(batch.Id, batch.CommitRound, ImportCommitJobs.FinishStep, 0, 0, 0);
-        await queue.EnqueueAsync(ImportCommitJobs.FinishKey(batch.Id, batch.CommitRound, 0), ImportCommitJobs.JobType, ImportCommitJobs.Payload(finish), ct);
-    }
+    private Task EnqueueAsync(ImportBatch batch, CancellationToken ct) => ImportCommitJobs.EnqueueRoundAsync(queue, batch, _options.CommitChunkRows, ct);
 }

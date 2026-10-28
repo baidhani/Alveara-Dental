@@ -34,4 +34,7 @@ public sealed class ImportOptions
 
     /// <summary>How many rows (of the file, valid or not) one commit job covers when only the valid rows are committed: each job is one transaction.</summary>
     public int CommitChunkRows { get; set; } = 500;
+
+    /// <summary>How old, in hours, a file in the import folder that no batch refers to must be before the sweep removes it: a file is stored a moment before its batch is saved, so a younger one may belong to an upload in progress.</summary>
+    public int OrphanFileGraceHours { get; set; } = 24;
 }

@@ -26,7 +26,7 @@ public sealed record CommitRequest(string? Policy, int? ExpectedValidRows);
 [Route("api/import-batches")]
 [Authorize]
 [RequirePermission(Permission.BulkImportData)]
-public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, ImportDecisionService decisions, ImportCommitService commits, IEffectivePermissions permissions, IOptions<ImportOptions> options) : ControllerBase
+public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, ImportDecisionService decisions, ImportCommitService commits, ImportRetryService retries, ImportReportService reports, ImportFileSweepService sweeps, IEffectivePermissions permissions, IOptions<ImportOptions> options) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -93,10 +93,32 @@ public class ImportBatchesController(ImportIntakeService intake, ImportMappingSe
     public Task<IActionResult> Commit(Guid id, [FromBody] CommitRequest? request, CancellationToken ct) =>
         GuardedAsync(async () =>
         {
-            // a balance batch writes to patients' ledgers, so it also needs ManageBilling (the service refuses it before anything changes); an unreadable policy is a 503, never a guess
-            var canManageBilling = Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ManageBilling, ct);
-            return Accepted(await commits.CommitAsync(id, request?.Policy, request?.ExpectedValidRows, Actor, ct, canManageBilling));
+            // a balance batch writes to patients' ledgers, so it also needs ManageBilling (the service refuses it before anything changes)
+            return Accepted(await commits.CommitAsync(id, request?.Policy, request?.ExpectedValidRows, Actor, ct, await CanManageBillingAsync(ct)));
         });
+
+    /// <summary>Starts a stuck commit again (a new round of jobs; rows already done are never repeated). 409 not_stuck unless the batch is Committing with no job running.</summary>
+    [HttpPost("{id:guid}/retry")]
+    [RequireCsrfToken]
+    public Task<IActionResult> Retry(Guid id, CancellationToken ct) =>
+        GuardedAsync(async () => Accepted(await retries.RetryAsync(id, Actor, await CanManageBillingAsync(ct), ct)));
+
+    [HttpGet("{id:guid}/reconciliation")]
+    public Task<IActionResult> Reconciliation(Guid id, CancellationToken ct) => GuardedAsync(async () => Ok(await reports.ReconcileAsync(id, ct)));
+
+    /// <summary>The row-level error report as a CSV download: every rejected, unresolved and skipped row with its fixed message, never a value from the file.</summary>
+    [HttpGet("{id:guid}/error-report")]
+    public Task<IActionResult> ErrorReport(Guid id, CancellationToken ct) =>
+        GuardedAsync(async () => File(await reports.ErrorReportAsync(id, ct), "text/csv; charset=utf-8", $"import-{id:N}-errors.csv"));
+
+    /// <summary>Removes the files in the import folder that no batch refers to and that are past the grace period. Safe to repeat.</summary>
+    [HttpPost("orphan-sweep")]
+    [RequireCsrfToken]
+    public Task<IActionResult> OrphanSweep(CancellationToken ct) => GuardedAsync(async () => Ok(await sweeps.SweepAsync(Actor, ct)));
+
+    /// <summary>Whether the caller also holds ManageBilling, which loading opening balances needs on top of BulkImportData; an unreadable policy is a 503, never a guess.</summary>
+    private async Task<bool> CanManageBillingAsync(CancellationToken ct) =>
+        Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ManageBilling, ct);
 
     /// <summary>Runs one of the mapping, dry-run, decision and commit calls: no-store, and a refusal becomes its stable <c>error</c> code (a rejected mapping lists its problems).</summary>
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)

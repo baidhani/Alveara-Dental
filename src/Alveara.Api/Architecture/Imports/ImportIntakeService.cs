@@ -30,7 +30,7 @@ public sealed record ImportBatchView(
     Guid Id, string SourceKind, string SourceLabel, string Status, string Policy, string FileSha256, long FileSizeBytes, int RowCount, IReadOnlyList<string> ColumnNames,
     int AttemptedRows, int AcceptedRows, int RejectedRows, int SkippedRows, int UnresolvedRows, string CreatedBy, DateTimeOffset CreatedAtUtc,
     string? CommitOutcome = null, DateTimeOffset? CommitStartedAtUtc = null, DateTimeOffset? CommittedAtUtc = null, int CommitRound = 0, bool MappingConfirmed = false, DateTimeOffset? DryRunAtUtc = null,
-    decimal ValidAmount = 0, decimal AcceptedAmount = 0);
+    decimal ValidAmount = 0, decimal AcceptedAmount = 0, bool CanRetry = false);
 
 /// <summary>What an upload gives back: the batch, and whether this call made it (false when the same file of the same kind was already waiting, which is returned instead of a second batch).</summary>
 public sealed record ImportUploadResult(ImportBatchView Batch, bool Created);
@@ -116,15 +116,21 @@ public class ImportIntakeService(AlveraDbContext db, ImportFileStorage files, IO
     public async Task<ImportBatchView?> GetAsync(Guid id, CancellationToken ct)
     {
         var row = await QueryRows().Where(x => x.Batch.Id == id).SingleOrDefaultAsync(ct);
-        return row is null ? null : ToView(row.Batch, row.Name);
+        return row is null ? null : await WithRetryAsync(ToView(row.Batch, row.Name), row.Batch, ct);
     }
+
+    /// <summary>Marks a Committing batch whose commit has stopped (see <see cref="ImportRetryService"/>) so the screen can offer the retry. Only a Committing batch costs a query.</summary>
+    private async Task<ImportBatchView> WithRetryAsync(ImportBatchView view, ImportBatch batch, CancellationToken ct) =>
+        batch.Status == ImportBatchStatus.Committing && await ImportRetryService.IsStuckAsync(db, batch, ct) ? view with { CanRetry = true } : view;
 
     public async Task<IReadOnlyList<ImportBatchView>> ListAsync(int limit, DateTimeOffset? before, CancellationToken ct)
     {
         var q = QueryRows();
         if (before is { } cursor) q = q.Where(x => x.Batch.CreatedAtUtc < cursor);
         var rows = await q.OrderByDescending(x => x.Batch.CreatedAtUtc).ThenByDescending(x => x.Batch.Id).Take(Math.Clamp(limit, 1, MaxLimit)).ToListAsync(ct);
-        return rows.Select(r => ToView(r.Batch, r.Name)).ToList();
+        var views = new List<ImportBatchView>(rows.Count);
+        foreach (var r in rows) views.Add(await WithRetryAsync(ToView(r.Batch, r.Name), r.Batch, ct));
+        return views;
     }
 
     private IQueryable<BatchRow> QueryRows() =>

@@ -19,7 +19,26 @@ public static class ImportCommitJobs
     public static string RowsKey(Guid batchId, int round, int fromRow) => $"import-commit:{batchId:N}:{round}:{fromRow}";
     public static string RowsKeyPrefix(Guid batchId, int round) => $"import-commit:{batchId:N}:{round}:";
     public static string FinishKey(Guid batchId, int round, int wait) => $"import-commit-finish:{batchId:N}:{round}:{wait}";
+    public static string FinishKeyPrefix(Guid batchId, int round) => $"import-commit-finish:{batchId:N}:{round}:";
     public static string Payload(ImportCommitJob job) => JsonSerializer.Serialize(job);
+
+    /// <summary>
+    /// Puts a round's jobs on the queue: the rows jobs first, then the finish job. With all-or-nothing the whole file is one window, otherwise each window is <paramref name="chunkRows"/> rows. Every key names the batch, the round
+    /// and the window, so doing this twice for the same round leaves one of each (a repeated confirmation, a crash between the batch update and the queue).
+    /// </summary>
+    public static async Task EnqueueRoundAsync(IBackgroundJobQueue queue, ImportBatch batch, int chunkRows, CancellationToken ct)
+    {
+        var last = batch.RowCount + 1;                                                   // the rows are numbered 2 to RowCount + 1
+        var size = batch.Policy == ImportBatchPolicy.AllOrNothing ? last : Math.Max(1, chunkRows);
+        for (var from = 2; from <= last; from += size)
+        {
+            var job = new ImportCommitJob(batch.Id, batch.CommitRound, RowsStep, from, Math.Min(from + size - 1, last), 0);
+            await queue.EnqueueAsync(RowsKey(batch.Id, batch.CommitRound, from), JobType, Payload(job), ct);
+        }
+
+        var finish = new ImportCommitJob(batch.Id, batch.CommitRound, FinishStep, 0, 0, 0);
+        await queue.EnqueueAsync(FinishKey(batch.Id, batch.CommitRound, 0), JobType, Payload(finish), ct);
+    }
 }
 
 /// <summary>
