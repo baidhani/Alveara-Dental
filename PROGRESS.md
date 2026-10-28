@@ -1970,3 +1970,9 @@
   - Session: CC-20261008-k4q9
   - What changed: evidenceCommit set to the handoff commit 7d501ac (the committed handoff cannot hold its own commit's SHA).
   - Verification: git diff shows the one line changed.
+- [x] ALV-018-C02 R01: Stage 1 review closure recorded
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: .alveara/reviews/ALV-018-C02/R01-stage1.md (APPROVED_PENDING_REGRESSION) added; EXECUTION_STATUS.json set to AWAITING_REGRESSION; BUILD_STATE.md updated. No source, test or frozen Stage 2 file changed.
+  - Verification: git diff shows only those three files; the reviewer's package identity (ZIP SHA-256, three commit SHAs) matches the ones I produced.
+  - Notes: the one frozen Stage 2 run (about 80 minutes, nothing else running) is next; it needs the owner's go.
