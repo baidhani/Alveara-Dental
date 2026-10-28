@@ -4,7 +4,7 @@ import { importErrorMessage, runDryRun } from "../../services/bulkImportApi";
 import type { ImportBatch } from "../../services/bulkImportApi";
 import { ErrorReportButton } from "./ErrorReportButton";
 import { ImportRowsTable } from "./ImportRowsTable";
-import { money, validRows } from "./importFormat";
+import { money, plural, validRows } from "./importFormat";
 
 /**
  * Step 3: the dry-run. It checks every row exactly as the commit will, writes nothing, and says how many rows are valid, rejected, skipped and unresolved (for balances, also the total to check against the old
@@ -33,7 +33,7 @@ export function DryRunStep({ batch, onChanged }: { batch: ImportBatch; onChanged
       {done && (
         <>
           <p role="status" aria-live="polite" className="alv-import__summary">
-            {batch.rowCount} rows: <strong>{validRows(batch)} valid</strong>, {batch.rejectedRows} rejected, {batch.skippedRows} skipped, {batch.unresolvedRows} waiting for a decision.
+            {plural(batch.rowCount, "row")}: <strong>{validRows(batch)} valid</strong>, {batch.rejectedRows} rejected, {batch.skippedRows} skipped, {batch.unresolvedRows} waiting for a decision.
             {batch.sourceKind === "OpeningBalances" && <> Total of the valid balances: <strong>{money(batch.validAmount)}</strong>. Check this against the old system before committing.</>}
           </p>
           <ImportRowsTable key={`${batch.dryRunAtUtc}|${batch.unresolvedRows}|${batch.status}|${batch.acceptedRows}`} batchId={batch.id} />

@@ -7,7 +7,7 @@ import { formatMoment, formatSize } from "../exports/exportFormat";
 import { CommitStep } from "./CommitStep";
 import { DecisionQueue } from "./DecisionQueue";
 import { DryRunStep } from "./DryRunStep";
-import { kindLabel, statusOf } from "./importFormat";
+import { kindLabel, plural, statusOf } from "./importFormat";
 import { MappingStep } from "./MappingStep";
 import { ReconciliationPanel } from "./ReconciliationPanel";
 import { useImportBatch } from "./useImportBatch";
@@ -39,7 +39,7 @@ export function ImportBatchPage() {
         <h2 id="import-file">Step 1: the file</h2>
         <p>
           <span className={`alv-import__badge alv-import__badge--${state.tone}`}>{state.label}</span>{" "}
-          Sent {formatMoment(batch.createdAtUtc, null)} by {batch.createdBy}. {batch.rowCount} rows, {batch.columnNames.length} columns, {formatSize(batch.fileSizeBytes)}.
+          Sent {formatMoment(batch.createdAtUtc, null)} by {batch.createdBy}. {plural(batch.rowCount, "row")}, {plural(batch.columnNames.length, "column")}, {formatSize(batch.fileSizeBytes)}.
         </p>
         <p>Columns: {batch.columnNames.join(", ")}. <span className="alv-import__note">Fingerprint <code title={batch.fileSha256}>{batch.fileSha256.slice(0, 12)}</code></span></p>
       </section>

@@ -1883,3 +1883,56 @@
   - What changed: .alveara/handoffs/ALV-018-C01/R02-regression.md and R02-regression-evidence/ (the evaluator's result, compare, gate logs, trx, backend-tests.csv, walkthrough outputs, leak counts, telemetry); EXECUTION_STATUS.json set to AWAITING_REVIEW with fullRegression PASSED; BUILD_STATE.md updated.
   - Verification: the frozen Stage 2 (run once on closure commit 426257b, clean tree, src/ identical to implementation 94e1347): STAGE 2 QUALIFIES, 28 of 28 criteria; backend 5,334 passed, 0 failed, 0 skipped in 80.9 minutes; template 1 built, 0 fallbacks, 4,023 clones; tsc, Vitest 1,742 in 110 files, build, lint, mocked Playwright 138 passed and 2 skipped, repository checks 13; walkthroughs 10, 7, 9, 14, 7, 7 and 8 passed; artifact counts unchanged.
   - Notes: R01's failed Stage 2 is preserved separately and was not reused. The story stays AWAITING_REVIEW; it is not marked complete.
+- [x] ALV-018-C02 slice 1: import batches, CSV intake and validation
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: ImportBatches table (migration AddImportBatches, database triggers 51260-51262), own strict CSV parser, intake service (whole file checked first, hash, one open batch per file, file kept in its own imports folder), ImportBatchesController, new permission BulkImportData (Administrator only, grantable). (local wip commit adb0c89, not pushed)
+  - Verification: 42 new tests pass (27 s); 1,596 collateral tests pass (27 m 49 s).
+  - Notes: Rollback guard 51263 is untested. The imports folder is swept into backups with the rest of the storage root; a restore containing import files is untested.
+- [x] ALV-018-C02 slice 2: patient mapping and dry-run
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: ImportBatchRows table (migration AddImportBatchRows, triggers 51264-51266), column mapping with suggestion and server-side checks, bulk patient dry-run (Valid, Rejected, Unresolved, Skipped). PatientDuplicateDetector.Compare became a pure internal function shared with the dry-run; behaviour unchanged. (local wip commit e236fdf, not pushed)
+  - Verification: 73 import tests pass; 1,818 collateral tests pass; a 50,000-row dry-run took 5.9 s.
+  - Notes: Rollback guard 51267 is untested.
+- [x] ALV-018-C02 slice 3: patient commit and the unresolved queue
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: Commit confirmation (policy, expected valid rows) and import.commit jobs on the durable queue (windows of 500, all-or-nothing as one window capped at 10,000), a finish job, row decisions (RegisterAsNew, Skip), patients registered through PatientRegistrationService under key import-{batch}-{row}, rows re-judged at commit time. Migration AddImportCommit. (local wip commit 5919ef6, not pushed)
+  - Verification: 23 new tests; 101 import and catalog tests pass.
+  - Notes: Rollback guard 51268 is untested.
+- [x] ALV-018-C02 slice 4a: appointment mapping and dry-run
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: Appointment fields and dry-run: future appointments only, patient by first name, last name and date of birth, provider, operatory and type by name; the scheduler's own refusal codes are the reasons; an identical existing appointment is Skipped. (local wip commit 5955f02, not pushed)
+  - Verification: 14 new tests; 115 import tests pass; 2,077 collateral tests pass; a 50,000-row dry-run took 9.9 s.
+- [x] ALV-018-C02 slice 4b: appointment commit
+  - Date: 2026-10-27
+  - Session: CC-20261008-k4q9
+  - What changed: ImportAppointmentCommit schedules each valid row through AppointmentScheduler in its own scope under key import-appt-{batch}-{row}; all-or-nothing refused for appointments; ResultRecordId generalised (migration GeneralizeImportRowResult; no foreign key). (local wip commit 39e6492, not pushed)
+  - Verification: 126 import tests pass; 2,088 collateral tests pass.
+  - Notes: Deviation from the staging-on-the-runner-transaction rule: the scheduler opens its own transaction and locks, so each row commits by itself (documented in docs/BULK_IMPORT.md). The slice's commit message has a cosmetic typo.
+- [x] ALV-018-C02 slice 5a: opening-balance mapping and dry-run
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: Opening-balance fields and dry-run (amount more than zero in dollars and cents, optional as-of date and USD currency, one balance per patient, the patient's ledger must be empty); batch total of valid balances (migration AddImportBatchAmounts); ImportPatientLookup shared with the appointment resolver. (local wip commit c107585, not pushed)
+  - Verification: 8 new tests; collateral 2,588 passed, 0 failed (36 m 58 s).
+  - Notes: The as-of date is validated but never stored on the ledger entry.
+- [x] ALV-018-C02 slice 5b: opening-balance commit
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: BillingService.RecordOpeningBalanceAsync appends the migrated balance as the first Adjustment on an empty ledger (correlation id = batch id, fixed reason, key import-bal-{batch}-{row}); ImportBalanceCommit; the batch's loaded total is the ledger sum for the batch; committing needs ManageBilling as well as BulkImportData. (local wip commit a9ecc89, not pushed)
+  - Verification: 7 new tests (15 balance tests with 5a); collateral 2,595 tests, 1 stale slice-3 assertion corrected, then the 30 affected tests pass.
+  - Notes: Deviation from the first decision (a provenance table): provenance is the ledger entry's correlation id plus the fixed reason; the owner agreed when the slice was scoped. A conflict or 503 leaving a row Valid, and a non-Administrator holding BulkImportData without ManageBilling over HTTP, are untested.
+- [x] ALV-018-C02 slice 6: retry, reconciliation, error report, stray-file sweep
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: Retry of a stuck commit (new round, never repeats a done row), reconciliation report (rows and the records the batch made, ledger total), row-level error report as CSV, sweep of import files no batch refers to (24 h grace, on request); ImportBatchView.CanRetry. No migration. (local wip commit aa9157b, not pushed)
+  - Verification: 10 new tests; collateral 2,714 passed, 0 failed (38 m 49 s). A test found that the error report had no byte-order mark; fixed.
+  - Notes: A half-done retry is simulated with a pre-made ledger entry; the sweep runs only when called.
+- [x] ALV-018-C02 slice 7: data import client screens
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: /admin/data-import and /admin/data-import/:batchId (BulkImportData): upload, mapping, dry-run with row results, duplicate queue, commit with confirmation, bounded progress polling and retry, reconciliation, error-report download, stray-file sweep. (local wip commit 907d7a2, not pushed)
+  - Verification: 48 new client tests; full client suite 1,790 passed in 114 files; tsc -b and oxlint exit 0. A test found that the confirmation stayed ticked after a refused commit; fixed.
+  - Notes: Not yet run in a real browser against the real API (the walkthrough is the next step). The story is not complete: Stage 1 evidence and review are pending.

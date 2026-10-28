@@ -3,6 +3,22 @@
   max-width: 64rem;
 }
 
+/* A link outside a table has no colour of its own here, and the browser's default blue fails contrast on the dark theme; the table links already use this token. */
+.alv-import a {
+  color: var(--color-info);
+}
+
+/* The upload form's labels and inputs sit on their own lines, so a label never runs into the next control. */
+.alv-import .alv-fu-form > label {
+  display: block;
+  margin-top: var(--space-3);
+}
+
+.alv-import .alv-fu-form > label + input {
+  display: block;
+  margin-top: var(--space-1);
+}
+
 .alv-import__group {
   display: flex;
   flex-direction: column;

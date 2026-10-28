@@ -8,6 +8,9 @@ export const kindLabel = (kind: string) => KIND_LABEL[kind as ImportKind] ?? kin
 /** What the last dry-run found valid: every row that is not otherwise settled (the server keeps these counters up to date as rows are decided and committed). */
 export const validRows = (b: ImportBatch) => Math.max(0, b.rowCount - b.acceptedRows - b.rejectedRows - b.skippedRows - b.unresolvedRows);
 
+/** "1 row", "2 rows". */
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
 export const money = (amount: number) => amount.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
 /** The state of a batch in words (the colour only repeats what the words say). */

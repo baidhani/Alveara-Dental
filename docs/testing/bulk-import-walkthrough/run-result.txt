@@ -1,0 +1,19 @@
+started 2026-10-28T14:50:58
+Database AlveraWalk_playwright_bulk_import_config_409d92e1 created in C:\.alvera-data\Test-Data\Database
+  ok  1 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:168:1  Q% SETUP: the practice is configured and three patients are registered (906ms)
+  ok  2 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:185:1  Q% PERMISSION: a dentist has no menu entry, is refused the page by address, and every call is refused (466ms)
+  ok  3 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:197:1  Q% FILE: a malformed file is refused whole with its place in the file, and no batch is made (2.0s)
+  ok  4 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:213:1  Q% PATIENTS: mapping, a dry-run that writes nothing, a duplicate decided by a person, the commit, the reconciliation and the error report (22.1s)
+  ok  5 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:266:1  Q% PATIENTS AGAIN: the same file sent a second time registers nobody (718ms)
+  ok  6 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:286:1  Q% APPOINTMENTS: valid rows go through the real scheduler; a clash, an unknown provider and a past date are rejected; nothing is double-booked (22.3s)
+  ok  7 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:320:1  Q% BALANCES: valid rows become the first ledger entries and the real ledger agrees with the batch; a credit and an unknown patient are rejected (12.6s)
+  ok  8 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:353:1  Q% BALANCES AGAIN: a second balance for a patient who now has a ledger entry is refused, never added (828ms)
+  ok  9 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:365:1  Q% PERMISSION GATE: a front-desk user granted only BulkImportData prepares a balance batch but cannot commit it, on the screen or by the API (1.1s)
+  ok 10 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:385:1  Q% RETRY: a commit that stopped is shown as stopped and finishes when retried from the screen (15.9s)
+  ok 11 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:407:1  Q% SWEEP: the sweep keeps every batch's file and, when it can reach the storage folder, removes only an old file no batch refers to (2.6s)
+  ok 12 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:435:1  Q% AUDIT: the log names who and when for every import step and carries no patient, no date of birth and no file value (358ms)
+  ok 13 [chromium]  Q% e2e\bulk-import-real-backend.spec.ts:453:1  Q% INDEPENDENT CHECK: the database itself agrees with everything the screens showed (810ms)
+  13 passed (1.5m)
+Database AlveraWalk_playwright_bulk_import_config_409d92e1 dropped (its files went with it).
+walk-exit 0
+finished 2026-10-28T14:52:41

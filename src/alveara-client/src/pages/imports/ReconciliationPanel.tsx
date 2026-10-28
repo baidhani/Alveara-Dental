@@ -3,7 +3,7 @@ import { ErrorState, LoadingState } from "../../components/StatePatterns";
 import { getReconciliation, wasCancelled } from "../../services/bulkImportApi";
 import type { ImportBatch, Reconciliation } from "../../services/bulkImportApi";
 import { ErrorReportButton } from "./ErrorReportButton";
-import { money, reasonText } from "./importFormat";
+import { money, plural, reasonText } from "./importFormat";
 
 /**
  * What the commit did, counted from the database and not from the screen: rows by status, the records the batch really made against the rows it says it accepted, for balances the ledger total against the batch's own
@@ -36,7 +36,7 @@ export function ReconciliationPanel({ batch }: { batch: ImportBatch }) {
             <thead><tr><th scope="col">Rows in the file</th><th scope="col">Accepted</th><th scope="col">Rejected</th><th scope="col">Skipped</th><th scope="col">Waiting for a decision</th><th scope="col">Not committed</th></tr></thead>
             <tbody><tr><td>{report.rowCount}</td><td>{report.accepted}</td><td>{report.rejected}</td><td>{report.skipped}</td><td>{report.unresolved}</td><td>{report.notCommitted}</td></tr></tbody>
           </table>
-          <p>{report.accepted} rows were accepted; {report.recordsFound} of them point at a record that exists, and {report.recordsMadeByBatch} records carry this batch's mark.</p>
+          <p>{plural(report.accepted, "row")} {report.accepted === 1 ? "was" : "were"} accepted; {report.recordsFound} of them {report.recordsFound === 1 ? "points" : "point"} at a record that exists, and {plural(report.recordsMadeByBatch, "record")} {report.recordsMadeByBatch === 1 ? "carries" : "carry"} this batch's mark.</p>
           {report.ledgerTotal !== null && (
             <p>Balances: valid at the dry-run <strong>{money(report.validAmount ?? 0)}</strong>, loaded <strong>{money(report.acceptedAmount ?? 0)}</strong>, held on the ledgers for this batch <strong>{money(report.ledgerTotal)}</strong>.</p>
           )}
