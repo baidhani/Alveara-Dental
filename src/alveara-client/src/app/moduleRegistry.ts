@@ -38,6 +38,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "external-parties", label: "Outside parties", path: "/admin/external-parties", requiredPermission: "ManageExternalParties" },
   { id: "patient-merge", label: "Duplicate patients", path: "/admin/patient-merge", requiredPermission: "MergePatients" },
   { id: "patient-import", label: "Import a patient", path: "/admin/patient-import", requiredPermission: "ImportPatientData" },
+  { id: "data-import", label: "Data import", path: "/admin/data-import", requiredPermission: "BulkImportData" },
   { id: "patient-exports", label: "Export patient data", path: "/admin/exports", anyPermission: ["ExportPatientData", "ExportAllPatientData", "ExportPatientReadableRecord"] },
   { id: "admin-permissions", label: "Permission Matrix", path: "/admin/permissions", requiredPermission: "ViewPermissionMatrix" },
   { id: "audit-log", label: "Audit Log", path: "/admin/audit-log", requiredPermission: "ViewAuditLog" },

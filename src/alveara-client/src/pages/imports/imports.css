@@ -1,0 +1,86 @@
+/* ALV-018-C02: data import. Colours come from the shared tokens only; every state is said in words as well as shown in colour. */
+.alv-import__step {
+  max-width: 64rem;
+}
+
+.alv-import__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.alv-import__hint,
+.alv-import__note {
+  color: var(--color-text-muted, var(--color-text));
+  margin: var(--space-1) 0;
+}
+
+.alv-import__summary {
+  margin: var(--space-3) 0;
+}
+
+.alv-import__warning {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-bg);
+  color: var(--color-text);
+}
+
+.alv-import__problems {
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-bg);
+}
+
+.alv-import__decision {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.alv-import__sweep {
+  margin-top: var(--space-5);
+}
+
+.alv-import > .alv-clinical__status:empty,
+.alv-import__sweep > .alv-clinical__status:empty {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+}
+
+.alv-import__badge {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-strong);
+  font-weight: 600;
+}
+
+.alv-import__badge--ok {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-color: var(--color-success);
+}
+
+.alv-import__badge--warn,
+.alv-import__badge--wait {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border-color: var(--color-warning);
+}
+
+.alv-import__badge--bad {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}

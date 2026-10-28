@@ -37,6 +37,8 @@ import { ExternalPartiesPage } from "./pages/externalcases/ExternalPartiesPage";
 import { PatientMergePage } from "./pages/patientmerge/PatientMergePage";
 import { PatientImportPage } from "./pages/portability/PatientImportPage";
 import { ExportCenterPage } from "./pages/exports/ExportCenterPage";
+import { ImportBatchPage } from "./pages/imports/ImportBatchPage";
+import { ImportBatchesPage } from "./pages/imports/ImportBatchesPage";
 import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
 import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -264,6 +266,8 @@ function createAppRouter() {
               </RequireAnyPermission>
             }
           />
+          <Route path="/admin/data-import" element={<RequirePermission permission="BulkImportData"><ImportBatchesPage /></RequirePermission>} />
+          <Route path="/admin/data-import/:batchId" element={<RequirePermission permission="BulkImportData"><ImportBatchPage /></RequirePermission>} />
           <Route path="/admin/external-parties" element={<RequirePermission permission="ManageExternalParties"><ExternalPartiesPage /></RequirePermission>} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/messages" element={<MessagesPage />} />
