@@ -1965,3 +1965,8 @@
   - What changed: .alveara/handoffs/ALV-018-C02/R01.md and R01-evidence/ (acceptance, parent regression, demo, changed files, next-story impact, test results, artifacts, and the frozen Stage 2 contract expecting 5,481 backend tests); BUILD_STATE.md and EXECUTION_STATUS.json set the story to AWAITING_REVIEW with fullRegression PENDING. No product code.
   - Verification: stage2/validate_evaluator.py 10 of 10 scenarios behave as stated; stage2/runner-proof.txt every walkthrough output goes to the runner folder; the Stage 1 sweep results are in the slice 8d entry above.
   - Notes: Stage 2 is not run; the owner pushes. Open questions for the reviewer are in R01.md (provenance deviation, the runner storage-folder line, three small shared-component refactors).
+- [x] ALV-018-C02 R01: evidence commit recorded in EXECUTION_STATUS.json
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: evidenceCommit set to the handoff commit 7d501ac (the committed handoff cannot hold its own commit's SHA).
+  - Verification: git diff shows the one line changed.
