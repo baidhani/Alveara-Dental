@@ -1947,3 +1947,15 @@
   - Session: CC-20261008-k4q9
   - What changed: six rules were broken one at a time and restored byte-identical (SHA-256 compared, git status clean); one survived, so ImportReportsRetryAndSweepTests gained A_ledger_that_holds_more_for_the_batch_than_the_batch_recorded_is_reported_as_a_named_amount_mismatch.
   - Verification: caught 2 of 14, 1 of 9, 1 of 9, 3 of 29 and 1 of 41 tests; the survivor (reconciliation amount check, 10 of 10 passed) is now caught by the new test (the real code passes 8 of 8, the mutant fails 1 of 11). The full log is negative-controls.txt in the handoff evidence.
+- [x] ALV-018-C02 slice 8d: Stage 1 evidence sweep
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: no product code; the sweep of the final tree (3442b37) whose logs, trx files and counts are in .alveara/handoffs/ALV-018-C02/R01-evidence/artifacts/.
+  - Verification: focused backend (22 new classes) 147 passed, 0 failed, 0 skipped (1 m 44 s); every *ApiTests class 928 passed, 0 failed (18 m 46 s); tsc, build and lint exit 0 (oxlint, 41 warnings, none in the import files); Vitest 1,790 passed in 114 files; mocked Playwright 138 passed, 2 skipped, 0 failed; repository checks 13 of 13; real-backend walkthroughs on fresh databases: bulk-import 13, patient-portability 7, export-package 10, patient-merge 9, workspace 14, patients 7, permission-policy 7, permission-policy-admin 8; artifact counts before and after identical (only AlveraDev exists).
+  - Notes: the full backend regression is Stage 2 (PENDING, frozen contract: 5,481 tests = the 5,334 of ALV-018-C01 R02 plus the 147 new ids). The comparison script now compares test names unescaped, because the ALV-018-C01 R02 baseline file holds quotes where the results file holds &quot;.
+- [x] ALV-018-C02: validated bulk import and migration workbench (story, Stage 1)
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: CSV import of patients, appointments and opening balances with mapping, dry-run, row-level errors, duplicate-patient review, scheduling-conflict checks, migration-origin ledger entries, a visible batch policy, restart-safe retry, reconciliation, error report and audit; permission BulkImportData; screens at /admin/data-import; docs/BULK_IMPORT.md. Built in 11 local wip commits (adb0c89 through 3442b37) plus this closing commit.
+  - Verification: see slice 8d above; 6 of 6 negative controls caught; STORY-018 import and export tests and walkthrough pass unchanged.
+  - Notes: package for review at AWAITING_REVIEW; not COMPLETE until the final review. Disclosures are in .alveara/handoffs/ALV-018-C02/R01.md.
