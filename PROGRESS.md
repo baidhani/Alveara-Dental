@@ -1936,3 +1936,14 @@
   - What changed: /admin/data-import and /admin/data-import/:batchId (BulkImportData): upload, mapping, dry-run with row results, duplicate queue, commit with confirmation, bounded progress polling and retry, reconciliation, error-report download, stray-file sweep. (local wip commit 907d7a2, not pushed)
   - Verification: 48 new client tests; full client suite 1,790 passed in 114 files; tsc -b and oxlint exit 0. A test found that the confirmation stayed ticked after a refused commit; fixed.
   - Notes: Not yet run in a real browser against the real API (the walkthrough is the next step). The story is not complete: Stage 1 evidence and review are pending.
+- [x] ALV-018-C02 slice 8a and 8b: docs, progress record and the real-backend walkthrough
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: docs/BULK_IMPORT.md; pointers and three corrected statements in docs/PATIENT_PORTABILITY.md; a section in docs/testing/REAL_BACKEND_E2E.md; e2e/bulk-import-real-backend.spec.ts with playwright.bulk-import.config.ts (also excluded from the mocked suite in playwright.config.ts); evidence in docs/testing/bulk-import-walkthrough/; client fixes the walkthrough found (dark-theme link colour, "1 row" wording, upload form layout) (local wip commit 4ea3c0f, not pushed)
+  - Verification: the walkthrough 13 of 13 passed on a fresh database (exit 0, 1.5 minutes), 8 axe scans with no critical or serious violation, an independent SQL check of the results, leftover walkthrough databases 0; client imports tests 48 of 48; tsc and oxlint exit 0; repository checks 13 of 13.
+  - Notes: stray-file removal on a real disk is not exercised by the walkthrough (the runner does not pass the storage folder; the spec supports E2E_STORAGE_ROOT); the owner has not decided whether to add that one line to the runner.
+- [x] ALV-018-C02 slice 8c: negative controls
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: six rules were broken one at a time and restored byte-identical (SHA-256 compared, git status clean); one survived, so ImportReportsRetryAndSweepTests gained A_ledger_that_holds_more_for_the_batch_than_the_batch_recorded_is_reported_as_a_named_amount_mismatch.
+  - Verification: caught 2 of 14, 1 of 9, 1 of 9, 3 of 29 and 1 of 41 tests; the survivor (reconciliation amount check, 10 of 10 passed) is now caught by the new test (the real code passes 8 of 8, the mutant fails 1 of 11). The full log is negative-controls.txt in the handoff evidence.

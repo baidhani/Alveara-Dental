@@ -185,6 +185,35 @@ public class ImportReportsRetryAndSweepTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task A_ledger_that_holds_more_for_the_batch_than_the_batch_recorded_is_reported_as_a_named_amount_mismatch()
+    {
+        var ann = await RegisterAsync("Ann", "Rivera", "1950-01-10", "555-100-1000");
+        await RegisterAsync("Bo", "Moss", "1962-03-04", "555-300-3000");
+        var batch = await DryRunAsync(ImportSourceKind.OpeningBalances, TwoBalances());
+        await Commit().CommitAsync(batch, ImportBatchPolicy.CommitValidRows, 2, _actor, default, true);
+        await DrainAsync();
+        Assert.True((await new ImportReportService(_fixture.CreateContext()).ReconcileAsync(batch, default)).Reconciled);        // clean before the stray entry
+
+        await using (var db = _fixture.CreateContext())                                                                       // an entry that carries the batch's id appears that the batch never recorded
+        {
+            var account = await db.BillingAccounts.SingleAsync(a => a.PatientId == ann);
+            db.BillingEntries.Add(new BillingEntry
+            {
+                Id = Guid.NewGuid(), AccountId = account.Id, PatientId = ann, EntryNumber = 2, Kind = BillingKinds.Adjustment, Amount = 5m, Reason = "Stray entry", CorrelationId = batch,
+                IdempotencyKey = "stray-1", RecordedAtUtc = DateTimeOffset.UtcNow, RecordedByUserId = _actor,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var report = await new ImportReportService(_fixture.CreateContext()).ReconcileAsync(batch, default);
+
+        Assert.False(report.Reconciled);
+        Assert.Equal((165.50m, 170.50m), (report.AcceptedAmount, report.LedgerTotal));
+        Assert.Contains("amount_mismatch", report.Problems.Select(p => p.Code));
+        Assert.Contains("unexplained_records", report.Problems.Select(p => p.Code));
+    }
+
+    [Fact]
     public async Task The_error_report_lists_every_rejected_skipped_and_unresolved_row_with_fixed_messages_and_no_values()
     {
         await RegisterAsync("Cy", "Lee", "1980-05-05", "555-500-5000");
