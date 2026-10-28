@@ -21,7 +21,7 @@ namespace Alveara.Api.Architecture.Imports;
 /// (Interrupted) and keeps what was registered. A job of an old round, or for a batch that is no longer committing, does nothing. Failure modes handled: a stale dry-run, a duplicate registered meanwhile, a replayed job, a refused
 /// all-or-nothing, a failed job. Not handled: the stored file changing during a commit (the job throws, is retried, and ends Failed, which the finish step reports as Interrupted). The audit entries carry ids and counts, never a value.
 /// </summary>
-public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage files, IOptions<ImportOptions> options, IPracticeClock clock)
+public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage files, IOptions<ImportOptions> options, IPracticeClock clock, IImportWorkScopeFactory? scopes = null)
 {
     private const int MaxMatched = 10, MaxFinishWaits = 20_000;
     private readonly ImportOptions _options = options.Value;
@@ -42,6 +42,12 @@ public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage fil
     {
         var batch = await CommittingBatchAsync(job, ct);
         if (batch is null) return;                                                       // refused, finished or an older round: nothing to do
+        if (batch.SourceKind == ImportSourceKind.Appointments)                           // slice 4b: each appointment is scheduled in its own scope, see ImportAppointmentCommit
+        {
+            await new ImportAppointmentCommit(scopes ?? throw new InvalidOperationException("An appointment commit needs a factory of independent scopes of work."), files, options, clock).RowsAsync(job, batch, ct);
+            return;
+        }
+
         var rows = await db.ImportBatchRows.Where(r => r.BatchId == batch.Id && r.RowNumber >= job.FromRow && r.RowNumber <= job.ToRow && r.Status == ImportRowStatus.Valid).OrderBy(r => r.RowNumber).ToListAsync(ct);
         if (rows.Count == 0) return;                                                     // already done (a replay) or nothing valid in this window
 

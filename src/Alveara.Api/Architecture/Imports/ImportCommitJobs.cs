@@ -26,7 +26,7 @@ public static class ImportCommitJobs
 /// ALV-018-C02 slice 3: runs one commit job on the durable background queue. The runner owns the transaction: whatever the engine stages on the context (patients, their audit entries, row and batch changes) commits together
 /// with the job's receipt, or not at all, and a job that fails is retried a bounded number of times and then marked Failed (see <see cref="BackgroundJobRunner"/>); the finish job then reports the batch as Interrupted.
 /// </summary>
-public sealed class ImportCommitJobHandler(ImportFileStorage files, IOptions<ImportOptions> options, IPracticeClock clock) : IBackgroundJobHandler
+public sealed class ImportCommitJobHandler(ImportFileStorage files, IOptions<ImportOptions> options, IPracticeClock clock, IImportWorkScopeFactory? scopes = null) : IBackgroundJobHandler
 {
     public string JobType => ImportCommitJobs.JobType;
 
@@ -34,6 +34,6 @@ public sealed class ImportCommitJobHandler(ImportFileStorage files, IOptions<Imp
     {
         var payload = JsonSerializer.Deserialize<ImportCommitJob>(job.PayloadJson ?? throw new InvalidOperationException("An import commit job carries its work."))
             ?? throw new InvalidOperationException("An import commit job carries its work.");
-        await new ImportCommitEngine(transactionalDb, files, options, clock).ExecuteAsync(payload, cancellationToken);
+        await new ImportCommitEngine(transactionalDb, files, options, clock, scopes).ExecuteAsync(payload, cancellationToken);
     }
 }

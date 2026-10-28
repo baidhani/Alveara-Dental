@@ -54,7 +54,7 @@ public class ImportBatchRow
     public string? MatchedPatientIdsJson { get; set; }
     /// <summary>The earlier row of the same file this row repeats; null otherwise.</summary>
     public int? DuplicateOfRow { get; set; }
-    /// <summary>The patient this row registered (an Accepted row); null otherwise. Deliberately not named PatientId: like the export history, this is a record of what an import did, not patient data, so it is not carried in a patient's export package.</summary>
+    /// <summary>The record this row produced (an Accepted row): the patient it registered for a patient file, the appointment it scheduled for an appointment file; null otherwise. Deliberately not named PatientId and without a foreign key: like the export history, this is a record of what an import did, not patient data, so it is not carried in a patient's export package.</summary>
     public Guid? ResultRecordId { get; set; }
     /// <summary>Who decided a likely duplicate (see <see cref="ImportRowReason.ReviewedNewPerson"/>) and when; null for a row nobody has decided.</summary>
     public Guid? DecisionByUserId { get; set; }

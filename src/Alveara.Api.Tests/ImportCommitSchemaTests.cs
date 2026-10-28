@@ -7,7 +7,7 @@ using Alveara.Api.Architecture.Imports;
 namespace Alveara.Api.Tests;
 
 /// <summary>
-/// ALV-018-C02 slice 3, the commit columns against a real SQL Server, independently of any application code: an Accepted row must name the patient it registered (and that patient must exist); a decision is a person and
+/// ALV-018-C02 slice 3, the commit columns against a real SQL Server, independently of any application code: an Accepted row must name the record it produced (a patient or an appointment, so there is no foreign key); a decision is a person and
 /// a time together or neither; a batch's commit outcome is one of the four known ones and its round is never negative; and the guards of the earlier slices still hold for a batch that has been through a commit (the
 /// rows of a finished batch never change).
 /// </summary>
@@ -64,14 +64,14 @@ public class ImportCommitSchemaTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task An_accepted_row_names_the_patient_it_registered_and_that_patient_must_exist()
+    public async Task An_accepted_row_names_the_record_it_produced_a_patient_or_an_appointment()
     {
-        Assert.Equal(547, (await RefusedAsync(() => AddAsync(Row(r => r.Status = ImportRowStatus.Accepted)))).Number);                          // no patient named
-        Assert.Equal(547, (await RefusedAsync(() => AddAsync(Row(r => { r.Status = ImportRowStatus.Accepted; r.ResultRecordId = Guid.NewGuid(); }, 3)))).Number);   // no such patient
+        Assert.Equal(547, (await RefusedAsync(() => AddAsync(Row(r => r.Status = ImportRowStatus.Accepted)))).Number);                          // no record named
 
         await AddAsync(Row(r => { r.Status = ImportRowStatus.Accepted; r.ResultRecordId = _patient; }, 4));
+        await AddAsync(Row(r => { r.Status = ImportRowStatus.Accepted; r.ResultRecordId = Guid.NewGuid(); }, 5));                              // the record may be an appointment: no foreign key to patients
         await using var db = _fixture.CreateContext();
-        Assert.Equal(1, await db.ImportBatchRows.CountAsync());
+        Assert.Equal(2, await db.ImportBatchRows.CountAsync());
     }
 
     [Fact]

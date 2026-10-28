@@ -90,6 +90,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportMappingService
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportDryRunService>();      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportDecisionService>();      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportCommitService>();      // ALV-018-C02
+builder.Services.AddSingleton<Alveara.Api.Architecture.Imports.IImportWorkScopeFactory, Alveara.Api.Architecture.Imports.ImportWorkScopeFactory>();      // ALV-018-C02: an independent scope for each appointment the commit schedules
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Imports.ImportCommitJobHandler>();      // ALV-018-C02: the commit runs on the durable job queue
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>();

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Imports;
-using Alveara.Api.Architecture.Patients;
 
 namespace Alveara.Api.Data;
 
@@ -60,7 +59,7 @@ internal static class ImportBatchModel
             e.Property(x => x.ErrorsJson).HasMaxLength(4000);
             e.Property(x => x.MatchedPatientIdsJson).HasMaxLength(600);
             e.HasOne<ImportBatch>().WithMany().HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne<Patient>().WithMany().HasForeignKey(x => x.ResultRecordId).OnDelete(DeleteBehavior.Restrict);
+            // ResultRecordId names the record a row produced: a patient for a patient file, an appointment for an appointment file. It is a record of what the import did, so it has no foreign key (as with the export history).
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.DecisionByUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.ResultRecordId);
             e.HasIndex(x => new { x.BatchId, x.RowNumber }).IsUnique().HasDatabaseName("UX_ImportBatchRows_Row");

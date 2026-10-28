@@ -9312,11 +9312,6 @@ namespace Alveara.Api.Migrations
                         .WithMany()
                         .HasForeignKey("DecisionByUserId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
-                        .WithMany()
-                        .HasForeignKey("ResultRecordId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Message", b =>

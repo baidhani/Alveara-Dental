@@ -155,7 +155,7 @@ public class ImportCommitTests : IAsyncLifetime
         var uploadedOnly = (await Services().Intake.UploadAsync(ImportSourceKind.Patients, "Source", ThreeValid, _actor, default)).Batch.Id;
         var batch = await DryRunBatchAsync(Csv(Row("Ann", "Rivera", "1950-01-10"), Row("Bo", "Moss", "1962-03-04", "555-300-3000"), Row("", "Lee", "1980-05-05", "555-500-5000")));
         var allInvalid = await DryRunBatchAsync(Csv(Row("", "Rivera", "1950-01-10", "555-111-1111"), Row("", "Park", "1971-02-02", "555-222-2222")));
-        var appointments = (await Services().Intake.UploadAsync(ImportSourceKind.Appointments, "Source", ThreeValid, _actor, default)).Batch.Id;
+        var appointments = (await Services().Intake.UploadAsync(ImportSourceKind.OpeningBalances, "Source", ThreeValid, _actor, default)).Batch.Id;
 
         Assert.Equal("batch_not_found", await CodeAsync(() => CommitAsync(Guid.NewGuid(), ImportBatchPolicy.CommitValidRows, 1)));
         Assert.Equal("kind_not_supported_yet", await CodeAsync(() => CommitAsync(appointments, ImportBatchPolicy.CommitValidRows, 1)));
