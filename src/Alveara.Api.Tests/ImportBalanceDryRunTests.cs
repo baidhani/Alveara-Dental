@@ -242,7 +242,7 @@ public class ImportBalanceDryRunTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task A_batch_of_balances_cannot_be_committed_yet()
+    public async Task A_batch_of_balances_is_refused_to_a_caller_without_manage_billing_before_anything_changes()
     {
         await RegisterAsync("Ann", "Rivera", "1950-01-10", "555-100-1000");
         var batch = await DryRunBatchAsync(Csv(Bal("Ann", "Rivera", "1950-01-10", "10.00")));
@@ -252,6 +252,6 @@ public class ImportBalanceDryRunTests : IAsyncLifetime
 
         var ex = await Assert.ThrowsAsync<ImportException>(() => service.CommitAsync(batch, ImportBatchPolicy.CommitValidRows, 1, _actor, default));
 
-        Assert.Equal("kind_not_supported_yet", ex.Code);
+        Assert.Equal(("billing_permission_required", 403), (ex.Code, ex.StatusCode));
     }
 }

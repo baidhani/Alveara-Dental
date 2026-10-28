@@ -24,10 +24,13 @@ public class ImportCommitService(AlveraDbContext db, IBackgroundJobQueue queue, 
 {
     private readonly ImportOptions _options = options.Value;
 
-    public async Task<ImportBatchView> CommitAsync(Guid batchId, string? policy, int? expectedValidRows, Guid actor, CancellationToken ct)
+    /// <param name="canManageBilling">Whether the caller also holds <c>ManageBilling</c>: loading opening balances writes to patients' ledgers, which <c>BulkImportData</c> alone does not allow (403 billing_permission_required, checked before anything changes).</param>
+    public async Task<ImportBatchView> CommitAsync(Guid batchId, string? policy, int? expectedValidRows, Guid actor, CancellationToken ct, bool canManageBilling = false)
     {
         var batch = await db.ImportBatches.SingleOrDefaultAsync(b => b.Id == batchId, ct) ?? throw new ImportException("batch_not_found", "There is no import batch with that id.", 404);
-        if (batch.SourceKind is not (ImportSourceKind.Patients or ImportSourceKind.Appointments)) throw new ImportException("kind_not_supported_yet", $"Committing is not available for {batch.SourceKind} files yet.", 409);
+        if (batch.SourceKind is not (ImportSourceKind.Patients or ImportSourceKind.Appointments or ImportSourceKind.OpeningBalances)) throw new ImportException("kind_not_supported_yet", $"Committing is not available for {batch.SourceKind} files yet.", 409);
+        if (batch.SourceKind == ImportSourceKind.OpeningBalances && !canManageBilling)
+            throw new ImportException("billing_permission_required", "Loading opening balances writes to patients' billing ledgers, which needs the Manage billing permission as well.", 403);
 
         if (batch.Status == ImportBatchStatus.Committing)                                // a repeated confirmation: make sure the jobs are on the queue and say where things are
         {
@@ -38,8 +41,8 @@ public class ImportCommitService(AlveraDbContext db, IBackgroundJobQueue queue, 
         if (batch.Status == ImportBatchStatus.Uploaded) throw new ImportException("dry_run_required", "Run the dry-run before committing.", 409);
         if (batch.Status != ImportBatchStatus.DryRunComplete) throw new ImportException("batch_not_open", $"This batch is {batch.Status} and cannot be committed.", 409);
         if (policy is null || !ImportBatchPolicy.All.Contains(policy)) throw new ImportException("invalid_policy", $"The policy must be one of {string.Join(", ", ImportBatchPolicy.All)}.", 400);
-        if (batch.SourceKind == ImportSourceKind.Appointments && policy == ImportBatchPolicy.AllOrNothing)
-            throw new ImportException("policy_not_supported", "Appointments are scheduled one at a time, each in its own transaction, so all-or-nothing is not available for them. Commit the valid rows only.", 409);
+        if (batch.SourceKind is ImportSourceKind.Appointments or ImportSourceKind.OpeningBalances && policy == ImportBatchPolicy.AllOrNothing)
+            throw new ImportException("policy_not_supported", $"{batch.SourceKind} are recorded one at a time, each in its own transaction, so all-or-nothing is not available for them. Commit the valid rows only.", 409);
         if (expectedValidRows is null) throw new ImportException("expected_valid_rows_required", "Send the number of valid rows you were shown, to confirm the commit.", 400);
 
         var valid = await db.ImportBatchRows.AsNoTracking().CountAsync(r => r.BatchId == batchId && r.Status == ImportRowStatus.Valid, ct);

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Architecture.BackgroundWork;
+using Alveara.Api.Architecture.Billing;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Patients;
 using Alveara.Api.Architecture.Time;
@@ -45,6 +46,12 @@ public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage fil
         if (batch.SourceKind == ImportSourceKind.Appointments)                           // slice 4b: each appointment is scheduled in its own scope, see ImportAppointmentCommit
         {
             await new ImportAppointmentCommit(scopes ?? throw new InvalidOperationException("An appointment commit needs a factory of independent scopes of work."), files, options, clock).RowsAsync(job, batch, ct);
+            return;
+        }
+
+        if (batch.SourceKind == ImportSourceKind.OpeningBalances)                        // slice 5b: each balance is recorded in its own scope, see ImportBalanceCommit
+        {
+            await new ImportBalanceCommit(scopes ?? throw new InvalidOperationException("An opening-balance commit needs a factory of independent scopes of work."), files, options, clock).RowsAsync(job, batch, ct);
             return;
         }
 
@@ -186,8 +193,15 @@ public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage fil
             batch.CommitOutcome = leftOver == 0 ? ImportCommitOutcome.Completed : ImportCommitOutcome.CompletedWithExceptions;
         }
 
+        var amountText = "";
+        if (batch.SourceKind == ImportSourceKind.OpeningBalances)                         // the figure the operator reconciles is what the ledger holds for this batch, not what the file said
+        {
+            batch.AcceptedAmount = await db.BillingEntries.AsNoTracking().Where(e => e.CorrelationId == batch.Id && e.Kind == BillingKinds.Adjustment).SumAsync(e => (decimal?)e.Amount, ct) ?? 0m;
+            amountText = $" Ledger total loaded {batch.AcceptedAmount:F2} of {batch.ValidAmount:F2} valid.";
+        }
+
         batch.UpdatedAtUtc = now;
         AuditService.Record(db, AuditEventTypes.ImportCommitCompleted, nameof(ImportBatch), batch.Id, batch.CommitConfirmedByUserId,
-            $"Import commit ended ({batch.CommitOutcome}): {batch.AttemptedRows} row(s), {batch.AcceptedRows} accepted, {batch.RejectedRows} rejected, {batch.SkippedRows} skipped, {batch.UnresolvedRows} unresolved, {Count(ImportRowStatus.Valid)} not committed.", null, batch.Id);
+            $"Import commit ended ({batch.CommitOutcome}): {batch.AttemptedRows} row(s), {batch.AcceptedRows} accepted, {batch.RejectedRows} rejected, {batch.SkippedRows} skipped, {batch.UnresolvedRows} unresolved, {Count(ImportRowStatus.Valid)} not committed.{amountText}", null, batch.Id);
     }
 }

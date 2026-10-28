@@ -68,6 +68,24 @@ internal sealed class ImportBalanceEvaluator(AlveraDbContext db, IPracticeClock 
         return new BalanceEvaluation(outcomes, total);
     }
 
+    /// <summary>One row read for the commit: the patient and the amount, or the fixed messages saying why the row no longer reads (the repeat and ledger checks are the commit's own, through the save key and the billing rules).</summary>
+    public sealed record ResolvedBalance(int RowNumber, Guid? PatientId, decimal Amount, Dictionary<string, string> Errors);
+
+    public async Task<List<ResolvedBalance>> ResolveRowsAsync(CsvTable table, IReadOnlyDictionary<string, string> mapping, IReadOnlySet<int> rowNumbers, CancellationToken ct)
+    {
+        var index = ImportPatientRows.FieldIndex(table, mapping);
+        var parsed = rowNumbers.Order().Where(n => n >= 2 && n - 2 < table.Rows.Count).Select(n => Parse(n, table.Rows[n - 2], index)).ToList();
+        var patients = await ImportPatientLookup.LoadAsync(db, parsed.Where(p => p.Dob != default).Select(p => p.Dob).Distinct().ToList(), ct);
+        var result = new List<ResolvedBalance>(parsed.Count);
+        foreach (var row in parsed)
+        {
+            var patient = row.Errors.Count > 0 ? null : ImportPatientLookup.Resolve(row.First, row.Last, row.Dob, patients, row.Errors);
+            result.Add(new ResolvedBalance(row.RowNumber, patient?.Id, row.Amount, row.Errors));
+        }
+
+        return result;
+    }
+
     private static ImportRowOutcome Reject(int row, string reason, Dictionary<string, string> errors, int? duplicateOfRow = null) =>
         new(row, ImportRowStatus.Rejected, reason, errors, null, duplicateOfRow);
 

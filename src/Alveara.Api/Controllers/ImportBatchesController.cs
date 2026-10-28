@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Imports;
+using Alveara.Api.Architecture.Permissions;
 
 namespace Alveara.Api.Controllers;
 
@@ -25,7 +26,7 @@ public sealed record CommitRequest(string? Policy, int? ExpectedValidRows);
 [Route("api/import-batches")]
 [Authorize]
 [RequirePermission(Permission.BulkImportData)]
-public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, ImportDecisionService decisions, ImportCommitService commits, IOptions<ImportOptions> options) : ControllerBase
+public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, ImportDecisionService decisions, ImportCommitService commits, IEffectivePermissions permissions, IOptions<ImportOptions> options) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -90,7 +91,12 @@ public class ImportBatchesController(ImportIntakeService intake, ImportMappingSe
     [HttpPost("{id:guid}/commit")]
     [RequireCsrfToken]
     public Task<IActionResult> Commit(Guid id, [FromBody] CommitRequest? request, CancellationToken ct) =>
-        GuardedAsync(async () => Accepted(await commits.CommitAsync(id, request?.Policy, request?.ExpectedValidRows, Actor, ct)));
+        GuardedAsync(async () =>
+        {
+            // a balance batch writes to patients' ledgers, so it also needs ManageBilling (the service refuses it before anything changes); an unreadable policy is a 503, never a guess
+            var canManageBilling = Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ManageBilling, ct);
+            return Accepted(await commits.CommitAsync(id, request?.Policy, request?.ExpectedValidRows, Actor, ct, canManageBilling));
+        });
 
     /// <summary>Runs one of the mapping, dry-run, decision and commit calls: no-store, and a refusal becomes its stable <c>error</c> code (a rejected mapping lists its problems).</summary>
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
