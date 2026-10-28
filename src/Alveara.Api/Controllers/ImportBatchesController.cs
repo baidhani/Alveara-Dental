@@ -10,6 +10,12 @@ namespace Alveara.Api.Controllers;
 /// <summary>The body of a mapping save: column name to patient field key (an empty target ignores the column).</summary>
 public sealed record SaveMappingRequest(Dictionary<string, string?>? Mapping);
 
+/// <summary>A person's decision about one likely duplicate: RegisterAsNew or Skip.</summary>
+public sealed record DecideRowRequest(string? Decision);
+
+/// <summary>The confirmation of a commit: the policy (AllOrNothing or CommitValidRows) and the number of valid rows the operator was shown.</summary>
+public sealed record CommitRequest(string? Policy, int? ExpectedValidRows);
+
 /// <summary>
 /// ALV-018-C02: bulk import batches. Everything here needs <see cref="Permission.BulkImportData"/>. The upload is a POST with a CSRF token whose body is the CSV file itself, with the kind and the operator's label in
 /// the query string (a file can be large, so it is read up to one byte past the limit and an oversized file is refused without reading it all). Responses are <c>no-store</c> because a batch describes a file of personal
@@ -19,7 +25,7 @@ public sealed record SaveMappingRequest(Dictionary<string, string?>? Mapping);
 [Route("api/import-batches")]
 [Authorize]
 [RequirePermission(Permission.BulkImportData)]
-public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, IOptions<ImportOptions> options) : ControllerBase
+public class ImportBatchesController(ImportIntakeService intake, ImportMappingService mappings, ImportDryRunService dryRuns, ImportDecisionService decisions, ImportCommitService commits, IOptions<ImportOptions> options) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -75,7 +81,18 @@ public class ImportBatchesController(ImportIntakeService intake, ImportMappingSe
     public Task<IActionResult> Rows(Guid id, [FromQuery] string? status, [FromQuery] int? limit, [FromQuery] int? after, CancellationToken ct) =>
         GuardedAsync(async () => Ok(await dryRuns.ListRowsAsync(id, status, limit ?? 0, after ?? 1, ct)));
 
-    /// <summary>Runs one of the mapping and dry-run calls: no-store, and a refusal becomes its stable <c>error</c> code (a rejected mapping lists its problems).</summary>
+    [HttpPost("{id:guid}/rows/{rowNumber:int}/decision")]
+    [RequireCsrfToken]
+    public Task<IActionResult> DecideRow(Guid id, int rowNumber, [FromBody] DecideRowRequest? request, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await decisions.DecideAsync(id, rowNumber, request?.Decision, Actor, ct)));
+
+    /// <summary>Confirms a commit. The work runs on the background queue, so the answer is 202 with the batch as it now stands (Committing); its counters and outcome settle when the jobs have run.</summary>
+    [HttpPost("{id:guid}/commit")]
+    [RequireCsrfToken]
+    public Task<IActionResult> Commit(Guid id, [FromBody] CommitRequest? request, CancellationToken ct) =>
+        GuardedAsync(async () => Accepted(await commits.CommitAsync(id, request?.Policy, request?.ExpectedValidRows, Actor, ct)));
+
+    /// <summary>Runs one of the mapping, dry-run, decision and commit calls: no-store, and a refusal becomes its stable <c>error</c> code (a rejected mapping lists its problems).</summary>
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
     {
         Response.Headers.CacheControl = "no-store";

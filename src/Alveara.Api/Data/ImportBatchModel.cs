@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Imports;
+using Alveara.Api.Architecture.Patients;
 
 namespace Alveara.Api.Data;
 
@@ -28,7 +29,9 @@ internal static class ImportBatchModel
             e.Property(x => x.FileSha256).HasMaxLength(64).IsFixedLength();
             e.Property(x => x.ColumnNamesJson);
             e.Property(x => x.RowVersion).IsRowVersion();
+            e.Property(x => x.CommitOutcome).HasMaxLength(24);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.CommitConfirmedByUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.CreatedAtUtc);
             e.HasIndex(x => x.CreatedByUserId);
             e.HasIndex(x => new { x.SourceKind, x.FileSha256 }).IsUnique().HasFilter("[Status] IN ('Uploaded', 'DryRunComplete', 'Committing')").HasDatabaseName("UX_ImportBatches_OpenFile");
@@ -38,6 +41,8 @@ internal static class ImportBatchModel
                 t.HasCheckConstraint("CK_ImportBatches_Kind", InList("SourceKind", ImportSourceKind.All));
                 t.HasCheckConstraint("CK_ImportBatches_Status", InList("Status", ImportBatchStatus.All));
                 t.HasCheckConstraint("CK_ImportBatches_Policy", InList("Policy", ImportBatchPolicy.All));
+                t.HasCheckConstraint("CK_ImportBatches_CommitOutcome", "[CommitOutcome] IS NULL OR " + InList("CommitOutcome", ImportCommitOutcome.All));
+                t.HasCheckConstraint("CK_ImportBatches_CommitRound", "[CommitRound] >= 0");
                 t.HasCheckConstraint("CK_ImportBatches_Label", "LEN(LTRIM(RTRIM([SourceLabel]))) > 0");
                 t.HasCheckConstraint("CK_ImportBatches_Hash", "LEN([FileSha256]) = 64 AND [FileSha256] NOT LIKE '%[^0-9a-f]%' COLLATE Latin1_General_BIN2");
                 t.HasCheckConstraint("CK_ImportBatches_Sizes", "[FileSizeBytes] > 0 AND [RowCount] > 0 AND [ColumnCount] > 0");
@@ -55,6 +60,9 @@ internal static class ImportBatchModel
             e.Property(x => x.ErrorsJson).HasMaxLength(4000);
             e.Property(x => x.MatchedPatientIdsJson).HasMaxLength(600);
             e.HasOne<ImportBatch>().WithMany().HasForeignKey(x => x.BatchId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Patient>().WithMany().HasForeignKey(x => x.ResultRecordId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.DecisionByUserId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.ResultRecordId);
             e.HasIndex(x => new { x.BatchId, x.RowNumber }).IsUnique().HasDatabaseName("UX_ImportBatchRows_Row");
             e.HasIndex(x => new { x.BatchId, x.Status });
             e.ToTable(t =>
@@ -62,6 +70,8 @@ internal static class ImportBatchModel
                 t.HasTrigger("TR_ImportBatchRows_Guard");
                 t.HasCheckConstraint("CK_ImportBatchRows_Status", InList("Status", ImportRowStatus.All));
                 t.HasCheckConstraint("CK_ImportBatchRows_Number", "[RowNumber] >= 2");
+                t.HasCheckConstraint("CK_ImportBatchRows_Accepted", "[Status] <> 'Accepted' OR [ResultRecordId] IS NOT NULL");
+                t.HasCheckConstraint("CK_ImportBatchRows_Decision", "([DecisionByUserId] IS NULL AND [DecidedAtUtc] IS NULL) OR ([DecisionByUserId] IS NOT NULL AND [DecidedAtUtc] IS NOT NULL)");
                 t.HasCheckConstraint("CK_ImportBatchRows_Repeat", "[DuplicateOfRow] IS NULL OR ([DuplicateOfRow] >= 2 AND [DuplicateOfRow] < [RowNumber])");
             });
         });

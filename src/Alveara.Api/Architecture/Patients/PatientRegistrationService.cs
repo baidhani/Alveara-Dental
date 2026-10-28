@@ -99,21 +99,7 @@ public class PatientRegistrationService(
                 "These patients may be the same person. Review them, then register anyway only if this is a different person.", 409, candidates: candidates);
         }
 
-        var patient = new Patient
-        {
-            Id = Guid.NewGuid(),
-            FirstName = clean.FirstName, MiddleName = clean.MiddleName, LastName = clean.LastName,
-            DateOfBirth = clean.DateOfBirth, Sex = clean.Sex,
-            Phone = clean.Phone, Email = clean.Email,
-            AddressLine1 = clean.AddressLine1, AddressLine2 = clean.AddressLine2,
-            City = clean.City, State = clean.State, PostalCode = clean.PostalCode,
-            DuplicateKey = duplicateKey,
-            RegistrationKey = key,
-            CreatedByUserId = actor,
-            CreatedAtUtc = clock.UtcNow,
-        };
-        db.Patients.Add(patient);
-        AuditService.Record(db, PatientAuditEvents.Registered, nameof(Patient), patient.Id, actor, overridden ? "Patient registered after reviewing possible duplicates." : "Patient registered.");
+        var patient = StagePatient(clean, key, actor, overridden ? "Patient registered after reviewing possible duplicates." : "Patient registered.");
 
         try
         {
@@ -131,6 +117,31 @@ public class PatientRegistrationService(
 
         if (overridden) await RecordDuplicateEventAsync("likely_overridden", candidates.Count, ct);
         return new PatientRegistrationResult(patient, Created: true);
+    }
+
+    /// <summary>
+    /// Builds a patient and its registration audit entry in the context WITHOUT saving: the caller saves, so the patient and its audit entry commit together (or, for the bulk import's background job, together with the
+    /// job's own receipt). This is the one place a patient row is made from validated fields; <see cref="RegisterAsync"/> and the import both use it. The audit details must never hold patient values; the optional correlation id ties the entry to
+    /// the operation that made it (an import batch).
+    /// </summary>
+    internal Patient StagePatient(CleanPatient clean, string registrationKey, Guid actor, string auditDetails, Guid? correlationId = null)
+    {
+        var patient = new Patient
+        {
+            Id = Guid.NewGuid(),
+            FirstName = clean.FirstName, MiddleName = clean.MiddleName, LastName = clean.LastName,
+            DateOfBirth = clean.DateOfBirth, Sex = clean.Sex,
+            Phone = clean.Phone, Email = clean.Email,
+            AddressLine1 = clean.AddressLine1, AddressLine2 = clean.AddressLine2,
+            City = clean.City, State = clean.State, PostalCode = clean.PostalCode,
+            DuplicateKey = Patient.BuildDuplicateKey(clean.FirstName, clean.LastName, clean.DateOfBirth),
+            RegistrationKey = registrationKey,
+            CreatedByUserId = actor,
+            CreatedAtUtc = clock.UtcNow,
+        };
+        db.Patients.Add(patient);
+        AuditService.Record(db, PatientAuditEvents.Registered, nameof(Patient), patient.Id, actor, auditDetails, null, correlationId);
+        return patient;
     }
 
     /// <summary>The shared field rules throw <see cref="PatientException"/>; registration keeps raising its own subtype, as STORY-003's callers expect.</summary>

@@ -21,6 +21,10 @@ public static class ImportRowReason
     public const string AlreadyRegistered = "already_registered";
     public const string DuplicateInFile = "duplicate_in_file";
     public const string PossibleDuplicate = "possible_duplicate";
+    /// <summary>A person looked at the likely matches and decided this row is a different person: it will be registered.</summary>
+    public const string ReviewedNewPerson = "reviewed_new_person";
+    /// <summary>A person looked at the likely matches and decided this row is the same person as a registered one: it will not be registered.</summary>
+    public const string ReviewedSamePerson = "reviewed_same_person";
 }
 
 /// <summary>
@@ -42,5 +46,10 @@ public class ImportBatchRow
     public string? MatchedPatientIdsJson { get; set; }
     /// <summary>The earlier row of the same file this row repeats; null otherwise.</summary>
     public int? DuplicateOfRow { get; set; }
+    /// <summary>The patient this row registered (an Accepted row); null otherwise. Deliberately not named PatientId: like the export history, this is a record of what an import did, not patient data, so it is not carried in a patient's export package.</summary>
+    public Guid? ResultRecordId { get; set; }
+    /// <summary>Who decided a likely duplicate (see <see cref="ImportRowReason.ReviewedNewPerson"/>) and when; null for a row nobody has decided.</summary>
+    public Guid? DecisionByUserId { get; set; }
+    public DateTimeOffset? DecidedAtUtc { get; set; }
     public DateTimeOffset UpdatedAtUtc { get; set; }
 }

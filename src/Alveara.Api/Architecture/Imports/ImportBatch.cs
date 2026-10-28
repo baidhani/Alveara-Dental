@@ -26,6 +26,18 @@ public static class ImportBatchStatus
     public static readonly IReadOnlyList<string> Open = [Uploaded, DryRunComplete, Committing];
 }
 
+/// <summary>How a commit ended. <see cref="Completed"/>: every valid row was registered and no row is left over. <see cref="CompletedWithExceptions"/>: the valid rows were registered; some rows were rejected, skipped or left unresolved
+/// (the counters say how many). <see cref="Refused"/>: an all-or-nothing commit found that a row was no longer valid at commit time, so nothing was registered and a new dry-run is needed. <see cref="Interrupted"/>: a part of the commit could not be
+/// finished (its job failed); the rows already registered stay registered and the commit can be confirmed again.</summary>
+public static class ImportCommitOutcome
+{
+    public const string Completed = "Completed";
+    public const string CompletedWithExceptions = "CompletedWithExceptions";
+    public const string Refused = "Refused";
+    public const string Interrupted = "Interrupted";
+    public static readonly IReadOnlyList<string> All = [Completed, CompletedWithExceptions, Refused, Interrupted];
+}
+
 /// <summary>What happens to the other rows when some rows of a batch cannot be imported. The operator sees the choice before committing.</summary>
 public static class ImportBatchPolicy
 {
@@ -68,6 +80,14 @@ public class ImportBatch
     public string? MappingJson { get; set; }
     /// <summary>When the last dry-run finished; null if none has, or if the mapping changed since (the results are then stale and a new dry-run is needed).</summary>
     public DateTimeOffset? DryRunAtUtc { get; set; }
+    /// <summary>ALV-018-C02 slice 3: how many times a commit has been confirmed for this batch (0 before the first). Part of every commit job's key, so a later commit after an interruption is a new set of jobs.</summary>
+    public int CommitRound { get; set; }
+    public DateTimeOffset? CommitStartedAtUtc { get; set; }
+    public DateTimeOffset? CommittedAtUtc { get; set; }
+    /// <summary>The operator who confirmed the commit; the patients it registers are recorded as created by this person.</summary>
+    public Guid? CommitConfirmedByUserId { get; set; }
+    /// <summary>One of <see cref="ImportCommitOutcome.All"/>; null until a commit has ended.</summary>
+    public string? CommitOutcome { get; set; }
     public Guid CreatedByUserId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset? UpdatedAtUtc { get; set; }

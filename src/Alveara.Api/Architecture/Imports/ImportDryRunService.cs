@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ namespace Alveara.Api.Architecture.Imports;
 public sealed record ImportDryRunResult(ImportBatchView Batch, int Valid, int Rejected, int Skipped, int Unresolved);
 
 /// <summary>One row's outcome as the screens show it: no value from the file, only what to correct (the front desk's own field messages) or whom it matches.</summary>
-public sealed record ImportRowView(int RowNumber, string Status, string? Reason, IReadOnlyDictionary<string, string>? Errors, IReadOnlyList<Guid> MatchedPatientIds, int? DuplicateOfRow);
+public sealed record ImportRowView(int RowNumber, string Status, string? Reason, IReadOnlyDictionary<string, string>? Errors, IReadOnlyList<Guid> MatchedPatientIds, int? DuplicateOfRow, Guid? ResultPatientId, bool Decided);
 
 /// <summary>
 /// ALV-018-C02 slice 2: the dry-run of a patient file. It does every material check that registration would do, and writes no patient: only the batch's row results and one audit entry, in ONE transaction, so a
@@ -22,20 +21,20 @@ public sealed record ImportRowView(int RowNumber, string Status, string? Reason,
 /// 1. the batch must be open, hold patients and have a confirmed mapping; the stored file is read back and its SHA-256 must equal the one recorded at upload (a changed or missing file is refused, never guessed at);
 /// 2. every row is judged by the front desk's own rules (<see cref="PatientInput"/>, with the practice's requirements): all of a row's problems are reported at once, as the same messages, never a value;
 /// 3. a valid row is compared with the registered patients and the rows before it, with the same deterministic rules as registration's duplicate check (<see cref="PatientDuplicateDetector.Compare"/>), in bulk (one
-///    query per group of birth dates, not one per row): the same name and birth date is Skipped (already registered, or a repeat of an earlier row), a likely match is Unresolved (a person decides, a later slice),
-///    nothing is ever merged; otherwise the row is Valid. Rows that repeat an earlier row are compared with the earlier rows that could still register, so only the first of a group can be Valid.
-/// Running it again gives the same results for the same file, mapping and registered patients. Failure modes handled: no such batch, an unsupported kind, a finished batch, no mapping, a changed or missing
-/// stored file, a concurrent change (409 batch_changed) or a concurrent dry-run (409 dry_run_in_progress); nothing partial is ever saved. Not handled: a patient registered by someone else between the dry-run and
-/// the commit (the commit checks again, a later slice). No external call is made; the waits are the database and the disk, bounded by the request's cancellation token.
+///    query per group of birth dates, not one per row): the same name and birth date is Skipped (already registered, or a repeat of an earlier row), a likely match is Unresolved (a person decides, see
+///    <see cref="ImportDecisionService"/>), nothing is ever merged; otherwise the row is Valid. Rows that repeat an earlier row are compared with the earlier rows that could still register, so only the first of a group can be Valid.
+/// 4. (slice 3) a decision a person already made about a likely duplicate is kept when the row is still a likely duplicate (a reviewed new person is Valid, a reviewed same person is Skipped); a row that is no longer a
+///    likely duplicate (it is now an exact match, or invalid) loses its decision. Saving a mapping clears every decision, see <see cref="ImportMappingService"/>.
+/// Running it again gives the same results for the same file, mapping, decisions and registered patients. Failure modes handled: no such batch, an unsupported kind, a finished or committing batch, no mapping, a
+/// changed or missing stored file, a concurrent change (409 batch_changed) or a concurrent dry-run (409 dry_run_in_progress); nothing partial is ever saved. Not handled: a patient registered by someone else between
+/// the dry-run and the commit (the commit checks again, see <see cref="ImportCommitEngine"/>). No external call is made; the waits are the database and the disk, bounded by the request's cancellation token.
 /// </summary>
 public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IOptions<ImportOptions> options, IPracticeClock clock, ImportMappingService mappings, ImportIntakeService intake)
 {
-    private const int ChunkSize = 1_000, PoolCap = 500, MaxMatched = 10, DefaultLimit = 100, MaxLimit = 500;
+    private const int ChunkSize = 1_000, MaxMatched = 10, DefaultLimit = 100, MaxLimit = 500;
     private readonly ImportOptions _options = options.Value;
 
-    private sealed record Outcome(int RowNumber, string Status, string? Reason, IReadOnlyDictionary<string, string>? Errors, IReadOnlyList<Guid>? Matched, int? DuplicateOfRow);
-
-    private sealed record Existing(Guid Id, DateOnly DateOfBirth, string FirstName, string LastName, string Phone, string? Email);
+    private sealed record Outcome(int RowNumber, string Status, string? Reason, IReadOnlyDictionary<string, string>? Errors, IReadOnlyList<Guid>? Matched, int? DuplicateOfRow, bool KeepDecision = false);
 
     private sealed record EarlierRow(int RowNumber, DuplicateProbe Probe);
 
@@ -44,10 +43,11 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         var batch = await mappings.RequireBatchAsync(batchId, tracked: true, ct);
         if (batch.MappingJson is null) throw new ImportException("mapping_required", "Confirm the column mapping before the dry-run.", 409);
         var mapping = JsonSerializer.Deserialize<Dictionary<string, string>>(batch.MappingJson) ?? [];
-        var table = await ReadTableAsync(batch, ct);
+        var table = await ImportPatientRows.ReadTableAsync(files, batch, _options, ct);
         var requirements = await PatientRegistrationSettingsService.LoadRequirementsAsync(db, ct);
 
         var outcomes = await EvaluateAsync(table, mapping, requirements, ct);
+        await KeepDecisionsAsync(batch.Id, outcomes, ct);
         await SaveAsync(batch, outcomes, actor, ct);
 
         var counts = outcomes.GroupBy(o => o.Status).ToDictionary(g => g.Key, g => g.Count());
@@ -66,45 +66,20 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         var rows = await query.OrderBy(r => r.RowNumber).Take(Math.Clamp(limit <= 0 ? DefaultLimit : limit, 1, MaxLimit)).ToListAsync(ct);
         return rows.Select(r => new ImportRowView(
             r.RowNumber, r.Status, r.Reason, r.ErrorsJson is null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(r.ErrorsJson),
-            r.MatchedPatientIdsJson is null ? [] : JsonSerializer.Deserialize<List<Guid>>(r.MatchedPatientIdsJson) ?? [], r.DuplicateOfRow)).ToList();
-    }
-
-    /// <summary>Reads the stored file back and proves it is the file that was uploaded: same bytes (SHA-256), still a sound table.</summary>
-    private async Task<CsvTable> ReadTableAsync(ImportBatch batch, CancellationToken ct)
-    {
-        byte[] content;
-        try
-        {
-            await using var stream = await files.Blobs.OpenReadAsync(batch.FileBlobId, ct);
-            using var copy = new MemoryStream();
-            await stream.CopyToAsync(copy, ct);
-            content = copy.ToArray();
-        }
-        catch (FileNotFoundException)
-        {
-            throw new ImportException("import_file_missing", "The stored import file cannot be found.", 409);
-        }
-
-        if (Convert.ToHexStringLower(SHA256.HashData(content)) != batch.FileSha256) throw new ImportException("import_file_changed", "The stored import file no longer matches the file that was uploaded.", 409);
-        return CsvParser.Parse(content, _options).Table ?? throw new ImportException("import_file_changed", "The stored import file is no longer a sound table.", 409);
+            r.MatchedPatientIdsJson is null ? [] : JsonSerializer.Deserialize<List<Guid>>(r.MatchedPatientIdsJson) ?? [], r.DuplicateOfRow, r.ResultRecordId, r.DecisionByUserId is not null)).ToList();
     }
 
     private async Task<List<Outcome>> EvaluateAsync(CsvTable table, IReadOnlyDictionary<string, string> mapping, PatientRequirements requirements, CancellationToken ct)
     {
-        var index = mapping.ToDictionary(kv => kv.Value, kv => table.Headers.ToList().IndexOf(kv.Key));
-        string? Cell(string[] row, string field) => index.TryGetValue(field, out var i) && i >= 0 ? row[i] : null;
-
+        var index = ImportPatientRows.FieldIndex(table, mapping);
         var outcomes = new List<Outcome>(table.Rows.Count);
         var valid = new List<(int RowNumber, CleanPatient Clean)>();
         for (var i = 0; i < table.Rows.Count; i++)
         {
-            var row = table.Rows[i];
             var number = i + 2;                                                           // the header is row 1
-            var fields = new PatientFields(Cell(row, "firstName"), Cell(row, "middleName"), Cell(row, "lastName"), Cell(row, "dateOfBirth"), Cell(row, "sex"), Cell(row, "phone"), Cell(row, "email"),
-                Cell(row, "addressLine1"), Cell(row, "addressLine2"), Cell(row, "city"), Cell(row, "state"), Cell(row, "postalCode"));
             try
             {
-                valid.Add((number, PatientInput.Validate(fields, clock, requirements)));
+                valid.Add((number, PatientInput.Validate(ImportPatientRows.FieldsOf(table.Rows[i], index), clock, requirements)));
             }
             catch (PatientException ex) when (ex.Code == "validation_failed")
             {
@@ -112,7 +87,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             }
         }
 
-        var pools = await LoadPoolsAsync(valid.Select(v => v.Clean.DateOfBirth).Distinct().ToList(), ct);
+        var pools = await ImportPatientRows.LoadPoolsAsync(db, valid.Select(v => v.Clean.DateOfBirth).Distinct().ToList(), ct);
         var earlier = new Dictionary<DateOnly, List<EarlierRow>>();                       // rows before this one, by birth date, that could still register
         foreach (var (number, clean) in valid)
         {
@@ -152,20 +127,18 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         return outcomes.OrderBy(o => o.RowNumber).ToList();
     }
 
-    // An earlier row is compared through its probe: its names are already normalized and its phone is digits only, which the comparison normalizes again harmlessly.
-
-    /// <summary>The registered patients for a set of birth dates, in groups (one query per group of dates), at most <see cref="PoolCap"/> for each date as in the front desk's check.</summary>
-    private async Task<Dictionary<DateOnly, List<Existing>>> LoadPoolsAsync(IReadOnlyList<DateOnly> dates, CancellationToken ct)
+    /// <summary>A person's decision about a likely duplicate survives a new dry-run while the row is still a likely duplicate: a reviewed new person comes back Valid and a reviewed same person Skipped.</summary>
+    private async Task KeepDecisionsAsync(Guid batchId, List<Outcome> outcomes, CancellationToken ct)
     {
-        var pools = new Dictionary<DateOnly, List<Existing>>();
-        foreach (var chunk in dates.Chunk(ChunkSize))
+        var decided = await db.ImportBatchRows.AsNoTracking().Where(r => r.BatchId == batchId && r.DecisionByUserId != null).ToDictionaryAsync(r => r.RowNumber, r => r.Reason, ct);
+        if (decided.Count == 0) return;
+        for (var i = 0; i < outcomes.Count; i++)
         {
-            var found = await db.Patients.AsNoTracking().Where(p => chunk.Contains(p.DateOfBirth)).OrderBy(p => p.Id)
-                .Select(p => new Existing(p.Id, p.DateOfBirth, p.FirstName, p.LastName, p.Phone, p.Email)).ToListAsync(ct);
-            foreach (var group in found.GroupBy(p => p.DateOfBirth)) pools[group.Key] = group.Take(PoolCap).ToList();
+            var o = outcomes[i];
+            if (o.Status != ImportRowStatus.Unresolved || !decided.TryGetValue(o.RowNumber, out var reason)) continue;
+            outcomes[i] = reason == ImportRowReason.ReviewedNewPerson ? o with { Status = ImportRowStatus.Valid, Reason = reason, KeepDecision = true }
+                : reason == ImportRowReason.ReviewedSamePerson ? o with { Status = ImportRowStatus.Skipped, Reason = reason, KeepDecision = true } : o;
         }
-
-        return pools;
     }
 
     private async Task SaveAsync(ImportBatch batch, IReadOnlyList<Outcome> outcomes, Guid actor, CancellationToken ct)
@@ -191,6 +164,8 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
                     row.ErrorsJson = o.Errors is null ? null : JsonSerializer.Serialize(o.Errors);
                     row.MatchedPatientIdsJson = o.Matched is { Count: > 0 } ? JsonSerializer.Serialize(o.Matched) : null;
                     row.DuplicateOfRow = o.DuplicateOfRow;
+                    row.ResultRecordId = null;                                           // nothing is committed by a dry-run
+                    if (!o.KeepDecision) { row.DecisionByUserId = null; row.DecidedAtUtc = null; }
                     row.UpdatedAtUtc = now;
                 }
 
@@ -206,6 +181,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             batch.UnresolvedRows = Count(ImportRowStatus.Unresolved);
             batch.Status = ImportBatchStatus.DryRunComplete;
             batch.DryRunAtUtc = now;
+            batch.CommitOutcome = null;                                                   // a refused commit is answered by this fresh dry-run
             batch.UpdatedAtUtc = now;
             AuditService.Record(db, AuditEventTypes.ImportDryRunCompleted, nameof(ImportBatch), batch.Id, actor,
                 $"Import dry-run completed ({batch.SourceKind}): {outcomes.Count} row(s), {Count(ImportRowStatus.Valid)} valid, {batch.RejectedRows} rejected, {batch.SkippedRows} skipped, {batch.UnresolvedRows} unresolved.", null, batch.Id);
@@ -216,9 +192,20 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         {
             throw new ImportException("batch_changed", "Someone else changed this batch. Reload it and try again.", 409);
         }
-        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: 2601 or 2627 or 1205 })        // a row seen twice by two dry-runs, or the loser of a deadlock between them
+        catch (Exception ex) when (IsLostRace(ex))
         {
             throw new ImportException("dry_run_in_progress", "A dry-run of this batch is already running. Wait for it and look at its results.", 409);
         }
+    }
+
+    /// <summary>
+    /// A row seen twice by two dry-runs (unique index 2601 or 2627), or the loser of a deadlock between them (1205). EF may hand the error back wrapped (a <see cref="DbUpdateException"/>, itself inside the
+    /// "transient failure" <see cref="InvalidOperationException"/> of its execution strategy), so the whole chain of inner exceptions is looked at, not only the first.
+    /// </summary>
+    private static bool IsLostRace(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+            if (e is SqlException { Number: 2601 or 2627 or 1205 }) return true;
+        return false;
     }
 }

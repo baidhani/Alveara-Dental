@@ -48,12 +48,15 @@ public class ImportMappingService(AlveraDbContext db, IPracticeClock clock)
 
         var clean = mapping.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).ToDictionary(kv => kv.Key, kv => kv.Value!.Trim());
         var now = clock.UtcNow;
+        var staleDecisions = false;
         batch.MappingJson = JsonSerializer.Serialize(clean);
         if (batch.Status == ImportBatchStatus.DryRunComplete)                            // the results were for another mapping: a new dry-run is needed
         {
             batch.Status = ImportBatchStatus.Uploaded;
             batch.DryRunAtUtc = null;
             batch.AttemptedRows = batch.AcceptedRows = batch.RejectedRows = batch.SkippedRows = batch.UnresolvedRows = 0;
+            batch.CommitOutcome = null;
+            staleDecisions = true;
         }
 
         batch.UpdatedAtUtc = now;
@@ -67,6 +70,9 @@ public class ImportMappingService(AlveraDbContext db, IPracticeClock clock)
             throw new ImportException("batch_changed", "Someone else changed this batch. Reload it and try again.", 409);
         }
 
+        if (staleDecisions)                                                              // a decision was about a row as the old mapping read it
+            await db.ImportBatchRows.Where(r => r.BatchId == batch.Id && r.DecisionByUserId != null)
+                .ExecuteUpdateAsync(s => s.SetProperty(r => r.DecisionByUserId, (Guid?)null).SetProperty(r => r.DecidedAtUtc, (DateTimeOffset?)null), ct);
         return await BuildAsync(batch, ct);
     }
 

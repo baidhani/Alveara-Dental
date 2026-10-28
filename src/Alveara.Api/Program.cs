@@ -88,6 +88,9 @@ builder.Services.Configure<Alveara.Api.Architecture.Imports.ImportOptions>(build
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportIntakeService>();      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportMappingService>();      // ALV-018-C02
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportDryRunService>();      // ALV-018-C02
+builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportDecisionService>();      // ALV-018-C02
+builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportCommitService>();      // ALV-018-C02
+builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Imports.ImportCommitJobHandler>();      // ALV-018-C02: the commit runs on the durable job queue
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.FormTemplateService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Forms.PatientFormService>();

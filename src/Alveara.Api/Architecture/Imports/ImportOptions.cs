@@ -28,4 +28,10 @@ public sealed class ImportOptions
 
     /// <summary>The longest value one cell may hold, in characters.</summary>
     public int MaxCellChars { get; set; } = 2_000;
+
+    /// <summary>The most valid rows an all-or-nothing commit may carry: it is one database transaction, so it is bounded. A larger batch must be committed as valid rows only.</summary>
+    public int MaxAllOrNothingRows { get; set; } = 10_000;
+
+    /// <summary>How many rows (of the file, valid or not) one commit job covers when only the valid rows are committed: each job is one transaction.</summary>
+    public int CommitChunkRows { get; set; } = 500;
 }

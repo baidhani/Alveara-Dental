@@ -4475,6 +4475,22 @@ namespace Alveara.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("CommitConfirmedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CommitOutcome")
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<int>("CommitRound")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("CommitStartedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("CommittedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -4542,6 +4558,8 @@ namespace Alveara.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CommitConfirmedByUserId");
+
                     b.HasIndex("CreatedAtUtc");
 
                     b.HasIndex("CreatedByUserId");
@@ -4554,6 +4572,10 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ImportBatches", null, t =>
                         {
                             t.HasTrigger("TR_ImportBatches_Guard");
+
+                            t.HasCheckConstraint("CK_ImportBatches_CommitOutcome", "[CommitOutcome] IS NULL OR [CommitOutcome] IN ('Completed', 'CompletedWithExceptions', 'Refused', 'Interrupted')");
+
+                            t.HasCheckConstraint("CK_ImportBatches_CommitRound", "[CommitRound] >= 0");
 
                             t.HasCheckConstraint("CK_ImportBatches_Counters", "[AttemptedRows] >= 0 AND [AcceptedRows] >= 0 AND [RejectedRows] >= 0 AND [SkippedRows] >= 0 AND [UnresolvedRows] >= 0 AND [AcceptedRows] + [RejectedRows] + [SkippedRows] + [UnresolvedRows] <= [AttemptedRows] AND [AttemptedRows] <= [RowCount]");
 
@@ -4584,6 +4606,12 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("BatchId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset?>("DecidedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("DecisionByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int?>("DuplicateOfRow")
                         .HasColumnType("int");
 
@@ -4599,6 +4627,9 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.Property<Guid?>("ResultRecordId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("RowNumber")
                         .HasColumnType("int");
 
@@ -4612,6 +4643,10 @@ namespace Alveara.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DecisionByUserId");
+
+                    b.HasIndex("ResultRecordId");
+
                     b.HasIndex("BatchId", "RowNumber")
                         .IsUnique()
                         .HasDatabaseName("UX_ImportBatchRows_Row");
@@ -4621,6 +4656,10 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ImportBatchRows", null, t =>
                         {
                             t.HasTrigger("TR_ImportBatchRows_Guard");
+
+                            t.HasCheckConstraint("CK_ImportBatchRows_Accepted", "[Status] <> 'Accepted' OR [ResultRecordId] IS NOT NULL");
+
+                            t.HasCheckConstraint("CK_ImportBatchRows_Decision", "([DecisionByUserId] IS NULL AND [DecidedAtUtc] IS NULL) OR ([DecisionByUserId] IS NOT NULL AND [DecidedAtUtc] IS NOT NULL)");
 
                             t.HasCheckConstraint("CK_ImportBatchRows_Number", "[RowNumber] >= 2");
 
@@ -9251,6 +9290,11 @@ namespace Alveara.Api.Migrations
                 {
                     b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
                         .WithMany()
+                        .HasForeignKey("CommitConfirmedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -9263,6 +9307,16 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("BatchId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("DecisionByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
+                        .WithMany()
+                        .HasForeignKey("ResultRecordId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Notifications.Message", b =>

@@ -66,6 +66,10 @@ public static class AuditEventTypes
     public const string ImportFileRejected = "ImportFileRejected";
     public const string ImportMappingSaved = "ImportMappingSaved";
     public const string ImportDryRunCompleted = "ImportDryRunCompleted";
+    public const string ImportRowDecided = "ImportRowDecided";
+    public const string ImportCommitStarted = "ImportCommitStarted";
+    public const string ImportCommitCompleted = "ImportCommitCompleted";
+    public const string ImportCommitRefused = "ImportCommitRefused";
 
     // ALV-017-C01: a suggested pair dismissed as not a duplicate, and restored (one entry for each of the two records, sharing the dismissal id as the correlation id).
     public const string PatientDuplicateDismissed = "PatientDuplicateDismissed";

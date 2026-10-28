@@ -28,7 +28,8 @@ public sealed class ImportFileRejectedException(IReadOnlyList<ImportProblem> pro
 /// <summary>One batch as the screens show it. No value from the file: the file is a hash and a size, its columns are names, its rows are counts.</summary>
 public sealed record ImportBatchView(
     Guid Id, string SourceKind, string SourceLabel, string Status, string Policy, string FileSha256, long FileSizeBytes, int RowCount, IReadOnlyList<string> ColumnNames,
-    int AttemptedRows, int AcceptedRows, int RejectedRows, int SkippedRows, int UnresolvedRows, string CreatedBy, DateTimeOffset CreatedAtUtc);
+    int AttemptedRows, int AcceptedRows, int RejectedRows, int SkippedRows, int UnresolvedRows, string CreatedBy, DateTimeOffset CreatedAtUtc,
+    string? CommitOutcome = null, DateTimeOffset? CommitStartedAtUtc = null, DateTimeOffset? CommittedAtUtc = null, int CommitRound = 0, bool MappingConfirmed = false, DateTimeOffset? DryRunAtUtc = null);
 
 /// <summary>What an upload gives back: the batch, and whether this call made it (false when the same file of the same kind was already waiting, which is returned instead of a second batch).</summary>
 public sealed record ImportUploadResult(ImportBatchView Batch, bool Created);
@@ -95,7 +96,7 @@ public class ImportIntakeService(AlveraDbContext db, ImportFileStorage files, IO
         {
             await db.SaveChangesAsync(ct);
         }
-        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        catch (Exception ex) when (IsUniqueViolation(ex))
         {
             db.ChangeTracker.Clear();                                                   // another request saved the same file first: use its batch
             await DeleteStoredAsync(blobId);
@@ -136,7 +137,8 @@ public class ImportIntakeService(AlveraDbContext db, ImportFileStorage files, IO
 
     private static ImportBatchView ToView(ImportBatch b, string? name) => new(
         b.Id, b.SourceKind, b.SourceLabel, b.Status, b.Policy, b.FileSha256, b.FileSizeBytes, b.RowCount, JsonSerializer.Deserialize<List<string>>(b.ColumnNamesJson) ?? [],
-        b.AttemptedRows, b.AcceptedRows, b.RejectedRows, b.SkippedRows, b.UnresolvedRows, name ?? "Unknown staff member", b.CreatedAtUtc);
+        b.AttemptedRows, b.AcceptedRows, b.RejectedRows, b.SkippedRows, b.UnresolvedRows, name ?? "Unknown staff member", b.CreatedAtUtc,
+        b.CommitOutcome, b.CommitStartedAtUtc, b.CommittedAtUtc, b.CommitRound, b.MappingJson is not null, b.DryRunAtUtc);
 
     private async Task<ImportBatchView?> FindOpenAsync(string kind, string sha, CancellationToken ct)
     {
@@ -153,7 +155,13 @@ public class ImportIntakeService(AlveraDbContext db, ImportFileStorage files, IO
         return text;
     }
 
-    private static bool IsUniqueViolation(DbUpdateException ex) => ex.InnerException is SqlException { Number: 2601 or 2627 };
+    /// <summary>A unique-index violation (2601 or 2627) anywhere in the chain of inner exceptions: EF may hand the error back wrapped by its execution strategy.</summary>
+    private static bool IsUniqueViolation(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+            if (e is SqlException { Number: 2601 or 2627 }) return true;
+        return false;
+    }
 
     /// <summary>Deletes a file stored for a batch that was not saved. A deletion that fails is logged by class and id (never swallowed) and leaves the file for the clean-up slice; it never replaces the error being handled.</summary>
     private async Task DeleteStoredAsync(Guid blobId)
