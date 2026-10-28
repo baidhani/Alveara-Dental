@@ -4462,6 +4462,10 @@ namespace Alveara.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("AcceptedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("AcceptedRows")
                         .HasColumnType("int");
 
@@ -4556,6 +4560,10 @@ namespace Alveara.Api.Migrations
                     b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<decimal>("ValidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CommitConfirmedByUserId");
@@ -4572,6 +4580,8 @@ namespace Alveara.Api.Migrations
                     b.ToTable("ImportBatches", null, t =>
                         {
                             t.HasTrigger("TR_ImportBatches_Guard");
+
+                            t.HasCheckConstraint("CK_ImportBatches_Amounts", "[ValidAmount] >= 0 AND [AcceptedAmount] >= 0");
 
                             t.HasCheckConstraint("CK_ImportBatches_CommitOutcome", "[CommitOutcome] IS NULL OR [CommitOutcome] IN ('Completed', 'CompletedWithExceptions', 'Refused', 'Interrupted')");
 

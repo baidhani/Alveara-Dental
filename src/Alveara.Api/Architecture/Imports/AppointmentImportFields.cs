@@ -32,12 +32,24 @@ public static class AppointmentImportFields
 /// <summary>The fields of each kind of file and how a mapping is checked, so the mapping step works for every kind through one door.</summary>
 public static class ImportFields
 {
-    public static IReadOnlyList<ImportField> For(string kind, PatientRequirements requirements) =>
-        kind == ImportSourceKind.Appointments ? AppointmentImportFields.All : PatientImportFields.For(requirements);
+    public static IReadOnlyList<ImportField> For(string kind, PatientRequirements requirements) => kind switch
+    {
+        ImportSourceKind.Appointments => AppointmentImportFields.All,
+        ImportSourceKind.OpeningBalances => OpeningBalanceImportFields.All,
+        _ => PatientImportFields.For(requirements),
+    };
 
-    public static IReadOnlyDictionary<string, string> Suggest(string kind, IReadOnlyList<string> columns) =>
-        kind == ImportSourceKind.Appointments ? AppointmentImportFields.Suggest(columns) : PatientImportFields.Suggest(columns);
+    public static IReadOnlyDictionary<string, string> Suggest(string kind, IReadOnlyList<string> columns) => kind switch
+    {
+        ImportSourceKind.Appointments => AppointmentImportFields.Suggest(columns),
+        ImportSourceKind.OpeningBalances => OpeningBalanceImportFields.Suggest(columns),
+        _ => PatientImportFields.Suggest(columns),
+    };
 
-    public static IReadOnlyList<ImportProblem> CheckMapping(string kind, IReadOnlyDictionary<string, string?> mapping, IReadOnlyList<string> columns, PatientRequirements requirements) =>
-        kind == ImportSourceKind.Appointments ? AppointmentImportFields.CheckMapping(mapping, columns) : PatientImportFields.CheckMapping(mapping, columns, requirements);
+    public static IReadOnlyList<ImportProblem> CheckMapping(string kind, IReadOnlyDictionary<string, string?> mapping, IReadOnlyList<string> columns, PatientRequirements requirements) => kind switch
+    {
+        ImportSourceKind.Appointments => AppointmentImportFields.CheckMapping(mapping, columns),
+        ImportSourceKind.OpeningBalances => OpeningBalanceImportFields.CheckMapping(mapping, columns),
+        _ => PatientImportFields.CheckMapping(mapping, columns, requirements),
+    };
 }

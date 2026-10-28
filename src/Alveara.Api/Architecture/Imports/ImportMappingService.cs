@@ -55,6 +55,7 @@ public class ImportMappingService(AlveraDbContext db, IPracticeClock clock)
             batch.Status = ImportBatchStatus.Uploaded;
             batch.DryRunAtUtc = null;
             batch.AttemptedRows = batch.AcceptedRows = batch.RejectedRows = batch.SkippedRows = batch.UnresolvedRows = 0;
+            batch.ValidAmount = batch.AcceptedAmount = 0;
             batch.CommitOutcome = null;
             staleDecisions = true;
         }
@@ -95,7 +96,6 @@ public class ImportMappingService(AlveraDbContext db, IPracticeClock clock)
     {
         var query = tracked ? db.ImportBatches : db.ImportBatches.AsNoTracking();
         var batch = await query.SingleOrDefaultAsync(b => b.Id == id, ct) ?? throw new ImportException("batch_not_found", "There is no import batch with that id.", 404);
-        if (batch.SourceKind is not (ImportSourceKind.Patients or ImportSourceKind.Appointments)) throw new ImportException("kind_not_supported_yet", $"Mapping and dry-run are not available for {batch.SourceKind} files yet.", 409);
         if (batch.Status is not (ImportBatchStatus.Uploaded or ImportBatchStatus.DryRunComplete)) throw new ImportException("batch_not_open", $"This batch is {batch.Status} and can no longer be changed.", 409);
         return batch;
     }

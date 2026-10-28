@@ -76,6 +76,10 @@ public class ImportBatch
     public int RejectedRows { get; set; }
     public int SkippedRows { get; set; }
     public int UnresolvedRows { get; set; }
+    /// <summary>ALV-018-C02 slice 5a: opening balances only (0 for the other kinds): the total, in dollars, of the rows the last dry-run found valid, so the operator can check it against the old system before committing.</summary>
+    public decimal ValidAmount { get; set; }
+    /// <summary>ALV-018-C02 slice 5: opening balances only: the total of the balances a commit has loaded so far. It must equal the sum of the ledger entries the batch made.</summary>
+    public decimal AcceptedAmount { get; set; }
     /// <summary>ALV-018-C02 slice 2: which column fills which field, as a JSON object of column name to field name; null until the operator has confirmed a mapping.</summary>
     public string? MappingJson { get; set; }
     /// <summary>When the last dry-run finished; null if none has, or if the mapping changed since (the results are then stale and a new dry-run is needed).</summary>

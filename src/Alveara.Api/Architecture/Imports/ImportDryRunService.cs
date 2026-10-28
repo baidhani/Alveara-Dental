@@ -43,9 +43,15 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         var mapping = JsonSerializer.Deserialize<Dictionary<string, string>>(batch.MappingJson) ?? [];
         var table = await ImportPatientRows.ReadTableAsync(files, batch, _options, ct);
         List<ImportRowOutcome> outcomes;
+        var validAmount = 0m;
         if (batch.SourceKind == ImportSourceKind.Appointments)
         {
             outcomes = await new ImportAppointmentEvaluator(db, clock).EvaluateAsync(table, mapping, ct);                  // slice 4a: no queue of likely duplicates, so no decisions to keep
+        }
+        else if (batch.SourceKind == ImportSourceKind.OpeningBalances)
+        {
+            var evaluation = await new ImportBalanceEvaluator(db, clock).EvaluateAsync(table, mapping, ct);                // slice 5a: no decisions either; the total is what the operator reconciles
+            (outcomes, validAmount) = (evaluation.Outcomes, evaluation.ValidAmount);
         }
         else
         {
@@ -54,7 +60,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             await KeepDecisionsAsync(batch.Id, outcomes, ct);
         }
 
-        await SaveAsync(batch, outcomes, actor, ct);
+        await SaveAsync(batch, outcomes, validAmount, actor, ct);
 
         var counts = outcomes.GroupBy(o => o.Status).ToDictionary(g => g.Key, g => g.Count());
         int Count(string status) => counts.GetValueOrDefault(status);
@@ -147,7 +153,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         }
     }
 
-    private async Task SaveAsync(ImportBatch batch, IReadOnlyList<ImportRowOutcome> outcomes, Guid actor, CancellationToken ct)
+    private async Task SaveAsync(ImportBatch batch, IReadOnlyList<ImportRowOutcome> outcomes, decimal validAmount, Guid actor, CancellationToken ct)
     {
         var now = clock.UtcNow;
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
@@ -182,6 +188,8 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             int Count(string status) => outcomes.Count(o => o.Status == status);
             batch.AttemptedRows = outcomes.Count;
             batch.AcceptedRows = 0;                                                       // nothing is committed by a dry-run
+            batch.ValidAmount = validAmount;
+            batch.AcceptedAmount = 0;
             batch.RejectedRows = Count(ImportRowStatus.Rejected);
             batch.SkippedRows = Count(ImportRowStatus.Skipped);
             batch.UnresolvedRows = Count(ImportRowStatus.Unresolved);
@@ -190,7 +198,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             batch.CommitOutcome = null;                                                   // a refused commit is answered by this fresh dry-run
             batch.UpdatedAtUtc = now;
             AuditService.Record(db, AuditEventTypes.ImportDryRunCompleted, nameof(ImportBatch), batch.Id, actor,
-                $"Import dry-run completed ({batch.SourceKind}): {outcomes.Count} row(s), {Count(ImportRowStatus.Valid)} valid, {batch.RejectedRows} rejected, {batch.SkippedRows} skipped, {batch.UnresolvedRows} unresolved.", null, batch.Id);
+                $"Import dry-run completed ({batch.SourceKind}): {outcomes.Count} row(s), {Count(ImportRowStatus.Valid)} valid, {batch.RejectedRows} rejected, {batch.SkippedRows} skipped, {batch.UnresolvedRows} unresolved{(batch.SourceKind == ImportSourceKind.OpeningBalances ? $", {validAmount:F2} total of valid balances" : "")}.", null, batch.Id);
             await db.SaveChangesAsync(ct);
             await transaction.CommitAsync(ct);
         }

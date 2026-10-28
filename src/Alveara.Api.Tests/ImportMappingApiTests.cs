@@ -146,7 +146,7 @@ public class ImportMappingApiTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task The_stable_codes_for_an_unknown_batch_a_missing_mapping_a_missing_dry_run_a_bad_status_and_a_kind_not_supported_yet()
+    public async Task The_stable_codes_for_an_unknown_batch_a_missing_mapping_a_missing_dry_run_and_a_bad_status()
     {
         var unknown = Guid.NewGuid();
         foreach (var (method, suffix) in new[] { (HttpMethod.Get, "mapping-suggestion"), (HttpMethod.Post, "dry-run"), (HttpMethod.Get, "rows") })
@@ -159,12 +159,9 @@ public class ImportMappingApiTests : IAsyncLifetime
         var noMapping = await SendAsync(_admin, HttpMethod.Post, $"{BatchesUrl}/{id}/dry-run");
         var noDryRun = await SendAsync(_admin, HttpMethod.Get, $"{BatchesUrl}/{id}/rows");
         var badStatus = await SendAsync(_admin, HttpMethod.Get, $"{BatchesUrl}/{id}/rows?status=Weird");
-        var appointments = await UploadAsync("OpeningBalances");
-        var unsupported = await SendAsync(_admin, HttpMethod.Get, $"{BatchesUrl}/{appointments}/mapping-suggestion");
 
         Assert.Equal((HttpStatusCode.Conflict, "mapping_required"), (noMapping.Status, noMapping.Error));
         Assert.Equal((HttpStatusCode.Conflict, "dry_run_required"), (noDryRun.Status, noDryRun.Error));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_status"), (badStatus.Status, badStatus.Error));
-        Assert.Equal((HttpStatusCode.Conflict, "kind_not_supported_yet"), (unsupported.Status, unsupported.Error));
     }
 }

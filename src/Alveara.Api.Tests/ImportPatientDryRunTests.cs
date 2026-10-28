@@ -304,7 +304,7 @@ public class ImportPatientDryRunTests(ITestOutputHelper output) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Only_an_open_batch_of_patients_can_be_mapped_or_dry_run_and_an_unknown_batch_is_not_found()
+    public async Task Only_an_open_batch_can_be_mapped_or_dry_run_and_an_unknown_batch_is_not_found()
     {
         var finished = await PrepareAsync(Csv(Row("Ann", "Rivera", "1950-01-10")));
         await using (var db = _fixture.CreateContext())
@@ -314,13 +314,10 @@ public class ImportPatientDryRunTests(ITestOutputHelper output) : IAsyncLifetime
             await db.SaveChangesAsync();
         }
 
-        var appointments = await PrepareAsync(Csv(Row("Bo", "Moss", "1962-03-04")), map: false, kind: ImportSourceKind.OpeningBalances);          // appointments have their own dry-run now (slice 4a); balances come later
         var s = Services();
 
         Assert.Equal("batch_not_open", await CodeAsync(() => s.DryRun.RunAsync(finished, _actor, default)));
         Assert.Equal("batch_not_open", await CodeAsync(() => s.Mapping.GetSuggestionAsync(finished, default)));
-        Assert.Equal("kind_not_supported_yet", await CodeAsync(() => s.DryRun.RunAsync(appointments, _actor, default)));
-        Assert.Equal("kind_not_supported_yet", await CodeAsync(() => s.Mapping.GetSuggestionAsync(appointments, default)));
         Assert.Equal("batch_not_found", await CodeAsync(() => s.DryRun.RunAsync(Guid.NewGuid(), _actor, default)));
         Assert.Equal("batch_not_found", await CodeAsync(() => s.Mapping.SaveAsync(Guid.NewGuid(), new Dictionary<string, string?> { ["x"] = "city" }, _actor, default)));
     }

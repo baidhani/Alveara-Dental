@@ -29,7 +29,8 @@ public sealed class ImportFileRejectedException(IReadOnlyList<ImportProblem> pro
 public sealed record ImportBatchView(
     Guid Id, string SourceKind, string SourceLabel, string Status, string Policy, string FileSha256, long FileSizeBytes, int RowCount, IReadOnlyList<string> ColumnNames,
     int AttemptedRows, int AcceptedRows, int RejectedRows, int SkippedRows, int UnresolvedRows, string CreatedBy, DateTimeOffset CreatedAtUtc,
-    string? CommitOutcome = null, DateTimeOffset? CommitStartedAtUtc = null, DateTimeOffset? CommittedAtUtc = null, int CommitRound = 0, bool MappingConfirmed = false, DateTimeOffset? DryRunAtUtc = null);
+    string? CommitOutcome = null, DateTimeOffset? CommitStartedAtUtc = null, DateTimeOffset? CommittedAtUtc = null, int CommitRound = 0, bool MappingConfirmed = false, DateTimeOffset? DryRunAtUtc = null,
+    decimal ValidAmount = 0, decimal AcceptedAmount = 0);
 
 /// <summary>What an upload gives back: the batch, and whether this call made it (false when the same file of the same kind was already waiting, which is returned instead of a second batch).</summary>
 public sealed record ImportUploadResult(ImportBatchView Batch, bool Created);
@@ -138,7 +139,7 @@ public class ImportIntakeService(AlveraDbContext db, ImportFileStorage files, IO
     private static ImportBatchView ToView(ImportBatch b, string? name) => new(
         b.Id, b.SourceKind, b.SourceLabel, b.Status, b.Policy, b.FileSha256, b.FileSizeBytes, b.RowCount, JsonSerializer.Deserialize<List<string>>(b.ColumnNamesJson) ?? [],
         b.AttemptedRows, b.AcceptedRows, b.RejectedRows, b.SkippedRows, b.UnresolvedRows, name ?? "Unknown staff member", b.CreatedAtUtc,
-        b.CommitOutcome, b.CommitStartedAtUtc, b.CommittedAtUtc, b.CommitRound, b.MappingJson is not null, b.DryRunAtUtc);
+        b.CommitOutcome, b.CommitStartedAtUtc, b.CommittedAtUtc, b.CommitRound, b.MappingJson is not null, b.DryRunAtUtc, b.ValidAmount, b.AcceptedAmount);
 
     private async Task<ImportBatchView?> FindOpenAsync(string kind, string sha, CancellationToken ct)
     {

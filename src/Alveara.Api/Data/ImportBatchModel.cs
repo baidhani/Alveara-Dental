@@ -29,6 +29,8 @@ internal static class ImportBatchModel
             e.Property(x => x.ColumnNamesJson);
             e.Property(x => x.RowVersion).IsRowVersion();
             e.Property(x => x.CommitOutcome).HasMaxLength(24);
+            e.Property(x => x.ValidAmount).HasPrecision(18, 2);
+            e.Property(x => x.AcceptedAmount).HasPrecision(18, 2);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.CreatedByUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<UserAccount>().WithMany().HasForeignKey(x => x.CommitConfirmedByUserId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.CreatedAtUtc);
@@ -42,6 +44,7 @@ internal static class ImportBatchModel
                 t.HasCheckConstraint("CK_ImportBatches_Policy", InList("Policy", ImportBatchPolicy.All));
                 t.HasCheckConstraint("CK_ImportBatches_CommitOutcome", "[CommitOutcome] IS NULL OR " + InList("CommitOutcome", ImportCommitOutcome.All));
                 t.HasCheckConstraint("CK_ImportBatches_CommitRound", "[CommitRound] >= 0");
+                t.HasCheckConstraint("CK_ImportBatches_Amounts", "[ValidAmount] >= 0 AND [AcceptedAmount] >= 0");
                 t.HasCheckConstraint("CK_ImportBatches_Label", "LEN(LTRIM(RTRIM([SourceLabel]))) > 0");
                 t.HasCheckConstraint("CK_ImportBatches_Hash", "LEN([FileSha256]) = 64 AND [FileSha256] NOT LIKE '%[^0-9a-f]%' COLLATE Latin1_General_BIN2");
                 t.HasCheckConstraint("CK_ImportBatches_Sizes", "[FileSizeBytes] > 0 AND [RowCount] > 0 AND [ColumnCount] > 0");

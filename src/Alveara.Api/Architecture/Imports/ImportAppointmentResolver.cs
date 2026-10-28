@@ -1,7 +1,6 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Configuration;
-using Alveara.Api.Architecture.Patients;
 using Alveara.Api.Architecture.Scheduling;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
@@ -26,12 +25,9 @@ internal sealed record ResolutionOutcome(int RowNumber, ResolvedAppointment? Res
 /// </summary>
 internal sealed class ImportAppointmentResolver(AlveraDbContext db, IPracticeClock clock)
 {
-    private const int ChunkSize = 1_000;
     private static readonly string[] StartFormats = ["yyyy-MM-dd HH:mm", "yyyy-MM-dd'T'HH:mm"];
 
     private sealed record Named(Guid Id, string Name, bool Active, int DefaultMinutes = 0);
-
-    private sealed record PatientRef(Guid Id, bool Active, bool Merged);
 
     private sealed record Parsed(int RowNumber, string FirstName, string LastName, DateOnly Dob, string Provider, string Operatory, string Type, DateTime Start, int? Duration, Dictionary<string, string> Errors);
 
@@ -46,7 +42,7 @@ internal sealed class ImportAppointmentResolver(AlveraDbContext db, IPracticeClo
         var providers = await LoadAsync(db.ProviderProfiles.AsNoTracking().Select(p => new Named(p.Id, p.StaffProfile!.DisplayName, p.IsActive && p.StaffProfile!.IsActive)), ct);
         var operatories = await LoadAsync(db.Operatories.AsNoTracking().Select(o => new Named(o.Id, o.Name, o.IsActive && (o.Location == null || o.Location.IsActive))), ct);
         var types = await LoadAsync(db.AppointmentTypes.AsNoTracking().Select(t => new Named(t.Id, t.Name, t.IsActive, t.DefaultDurationMinutes)), ct);
-        var patients = await LoadPatientsAsync(parsed.Where(p => p.Dob != default).Select(p => p.Dob).Distinct().ToList(), ct);
+        var patients = await ImportPatientLookup.LoadAsync(db, parsed.Where(p => p.Dob != default).Select(p => p.Dob).Distinct().ToList(), ct);
 
         var outcomes = new List<ResolutionOutcome>(parsed.Count);
         foreach (var row in parsed)
@@ -55,7 +51,7 @@ internal sealed class ImportAppointmentResolver(AlveraDbContext db, IPracticeClo
             var provider = Resolve(row.Provider, providers, errors, "provider", "provider");
             var operatory = Resolve(row.Operatory, operatories, errors, "operatory", "operatory");
             var type = Resolve(row.Type, types, errors, "appointmentType", "appointment type");
-            var patient = row.Dob == default || row.FirstName.Length == 0 || row.LastName.Length == 0 ? null : ResolvePatient(row, patients, errors);
+            var patient = row.Dob == default || row.FirstName.Length == 0 || row.LastName.Length == 0 ? null : ImportPatientLookup.Resolve(row.FirstName, row.LastName, row.Dob, patients, errors);
             if (errors.Count > 0) { outcomes.Add(Reject(row.RowNumber, ImportRowReason.InvalidFields, errors)); continue; }
 
             DateTimeOffset startUtc;
@@ -139,26 +135,4 @@ internal sealed class ImportAppointmentResolver(AlveraDbContext db, IPracticeClo
         return found[0];
     }
 
-    private static PatientRef? ResolvePatient(Parsed row, ILookup<string, PatientRef> patients, Dictionary<string, string> errors)
-    {
-        if (errors.ContainsKey("patientFirstName") || errors.ContainsKey("patientLastName") || errors.ContainsKey("patientDateOfBirth")) return null;
-        var found = patients[Patient.BuildDuplicateKey(row.FirstName, row.LastName, row.Dob)].ToList();
-        if (found.Count == 0) { errors["patient"] = "No registered patient has this name and date of birth. Import or register the patient first."; return null; }
-        if (found.Count > 1) { errors["patient"] = "More than one registered patient has this name and date of birth."; return null; }
-        if (found[0].Merged) { errors["patient"] = "This patient's record was merged into another one."; return null; }
-        if (!found[0].Active) { errors["patient"] = "This patient is inactive."; return null; }
-        return found[0];
-    }
-
-    private async Task<ILookup<string, PatientRef>> LoadPatientsAsync(IReadOnlyList<DateOnly> dates, CancellationToken ct)
-    {
-        var all = new List<(string Key, PatientRef Ref)>();
-        foreach (var chunk in dates.Chunk(ChunkSize))
-        {
-            var found = await db.Patients.AsNoTracking().Where(p => chunk.Contains(p.DateOfBirth)).Select(p => new { p.Id, p.FirstName, p.LastName, p.DateOfBirth, p.IsActive, Merged = p.MergedAtUtc != null }).ToListAsync(ct);
-            all.AddRange(found.Select(p => (Patient.BuildDuplicateKey(p.FirstName, p.LastName, p.DateOfBirth), new PatientRef(p.Id, p.IsActive, p.Merged))));
-        }
-
-        return all.ToLookup(p => p.Key, p => p.Ref);
-    }
 }

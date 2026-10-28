@@ -33,6 +33,10 @@ public static class ImportRowReason
     public const string ProviderDoubleBooked = "provider_double_booked";
     public const string OperatoryConflict = "operatory_conflict";
     public const string PatientDoubleBooked = "patient_double_booked";
+    /// <summary>Opening balances (slice 5a): an earlier row of the file already carries a balance for this patient.</summary>
+    public const string PatientRepeatedInFile = "patient_repeated_in_file";
+    /// <summary>Opening balances (slice 5a): the patient's ledger already has entries, so an opening balance cannot be added.</summary>
+    public const string AccountNotEmpty = "account_not_empty";
 }
 
 /// <summary>
