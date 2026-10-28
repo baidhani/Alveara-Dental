@@ -314,7 +314,7 @@ public class ImportPatientDryRunTests(ITestOutputHelper output) : IAsyncLifetime
             await db.SaveChangesAsync();
         }
 
-        var appointments = await PrepareAsync(Csv(Row("Bo", "Moss", "1962-03-04")), map: false, kind: ImportSourceKind.Appointments);
+        var appointments = await PrepareAsync(Csv(Row("Bo", "Moss", "1962-03-04")), map: false, kind: ImportSourceKind.OpeningBalances);          // appointments have their own dry-run now (slice 4a); balances come later
         var s = Services();
 
         Assert.Equal("batch_not_open", await CodeAsync(() => s.DryRun.RunAsync(finished, _actor, default)));

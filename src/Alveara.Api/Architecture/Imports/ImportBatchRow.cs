@@ -25,6 +25,14 @@ public static class ImportRowReason
     public const string ReviewedNewPerson = "reviewed_new_person";
     /// <summary>A person looked at the likely matches and decided this row is the same person as a registered one: it will not be registered.</summary>
     public const string ReviewedSamePerson = "reviewed_same_person";
+    /// <summary>Appointments (slice 4a): the appointment is already on the schedule exactly as the row says.</summary>
+    public const string AlreadyScheduled = "already_scheduled";
+    // Appointments: a row the scheduling rules refuse carries the scheduler's own code as its reason.
+    public const string StartInPast = "start_in_past";
+    public const string ProviderUnavailable = "provider_unavailable";
+    public const string ProviderDoubleBooked = "provider_double_booked";
+    public const string OperatoryConflict = "operatory_conflict";
+    public const string PatientDoubleBooked = "patient_double_booked";
 }
 
 /// <summary>

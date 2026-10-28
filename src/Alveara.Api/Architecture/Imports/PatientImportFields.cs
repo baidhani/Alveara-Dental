@@ -32,17 +32,36 @@ public static class PatientImportFields
         Catalog.Select(f => new ImportField(f.Key, f.Label, f.Always || (f.IfEmail && requirements.RequireEmail) || (f.IfSex && requirements.RequireSex))).ToList();
 
     /// <summary>Header names lower-cased with everything but letters and digits removed.</summary>
-    public static string Normalize(string name) => new(name.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+    public static string Normalize(string name) => ImportFieldMatching.Normalize(name);
 
     /// <summary>The suggested field for each column that has an obvious match; each field is suggested for at most one column (the first that matches), and a column with no match is left out.</summary>
-    public static IReadOnlyDictionary<string, string> Suggest(IReadOnlyList<string> columns)
+    public static IReadOnlyDictionary<string, string> Suggest(IReadOnlyList<string> columns) => ImportFieldMatching.Suggest(Catalog.Select(f => (f.Key, f.Names)), columns);
+
+    /// <summary>
+    /// Checks a mapping of column name to field key (an empty or missing target means the column is ignored). Returns the problems, none for a sound mapping: a column the file does not have
+    /// (<c>unknown_column</c>), a field that does not exist (<c>unknown_field</c>), a field filled by two columns (<c>field_mapped_twice</c>) and a required field no column fills (<c>required_field_unmapped</c>).
+    /// </summary>
+    public static IReadOnlyList<ImportProblem> CheckMapping(IReadOnlyDictionary<string, string?> mapping, IReadOnlyList<string> columns, PatientRequirements requirements) =>
+        ImportFieldMatching.Check(For(requirements), mapping, columns);
+}
+
+/// <summary>
+/// ALV-018-C02: the matching of a file's header names to a kind's fields and the checking of a mapping, shared by every kind of import (patients, appointments). A header is matched ignoring capitals, spaces and punctuation
+/// against a short list of common names; a field is suggested for at most one column; a mapping is checked against the file's own header and the kind's fields.
+/// </summary>
+internal static class ImportFieldMatching
+{
+    public static string Normalize(string name) => new(name.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+
+    public static IReadOnlyDictionary<string, string> Suggest(IEnumerable<(string Key, string[] Names)> catalog, IReadOnlyList<string> columns)
     {
+        var fields = catalog.ToList();
         var suggestion = new Dictionary<string, string>();
         var taken = new HashSet<string>();
         foreach (var column in columns)
         {
             var normalized = Normalize(column);
-            var match = Catalog.FirstOrDefault(f => !taken.Contains(f.Key) && f.Names.Contains(normalized));
+            var match = fields.FirstOrDefault(f => !taken.Contains(f.Key) && f.Names.Contains(normalized));
             if (match.Key is null) continue;
             suggestion[column] = match.Key;
             taken.Add(match.Key);
@@ -51,21 +70,16 @@ public static class PatientImportFields
         return suggestion;
     }
 
-    /// <summary>
-    /// Checks a mapping of column name to field key (an empty or missing target means the column is ignored). Returns the problems, none for a sound mapping: a column the file does not have
-    /// (<c>unknown_column</c>), a field that does not exist (<c>unknown_field</c>), a field filled by two columns (<c>field_mapped_twice</c>) and a required field no column fills (<c>required_field_unmapped</c>).
-    /// </summary>
-    public static IReadOnlyList<ImportProblem> CheckMapping(IReadOnlyDictionary<string, string?> mapping, IReadOnlyList<string> columns, PatientRequirements requirements)
+    public static IReadOnlyList<ImportProblem> Check(IReadOnlyList<ImportField> fields, IReadOnlyDictionary<string, string?> mapping, IReadOnlyList<string> columns)
     {
         var problems = new List<ImportProblem>();
-        var fields = For(requirements);
         var known = fields.Select(f => f.Key).ToHashSet();
         var used = new Dictionary<string, string>();
         foreach (var (column, target) in mapping)
         {
             if (!columns.Contains(column)) { problems.Add(new ImportProblem("unknown_column", null, column, "The file has no column with this name.")); continue; }
             if (string.IsNullOrWhiteSpace(target)) continue;
-            if (!known.Contains(target)) { problems.Add(new ImportProblem("unknown_field", null, column, $"\"{target}\" is not a patient field.")); continue; }
+            if (!known.Contains(target)) { problems.Add(new ImportProblem("unknown_field", null, column, $"\"{target}\" is not a field of this kind of file.")); continue; }
             if (used.TryGetValue(target, out var first)) problems.Add(new ImportProblem("field_mapped_twice", null, column, $"The field \"{target}\" is already filled by the column \"{first}\"."));
             else used[target] = column;
         }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
 
@@ -54,10 +55,10 @@ public class SchedulingConfiguration(AlveraDbContext db, IPracticeClock clock)
     /// A slot is available only if the provider is active, the whole slot sits inside ONE weekly
     /// window on a single practice-local day, and it does not overlap any blocked time.
     /// </summary>
-    public async Task<AvailabilityCheck> CheckProviderAvailabilityAsync(Guid providerId, DateTimeOffset startUtc, int durationMinutes, CancellationToken ct)
+    public async Task<AvailabilityCheck> CheckProviderAvailabilityAsync(Guid providerId, DateTimeOffset startUtc, int durationMinutes, CancellationToken ct, AvailabilityLookups? lookups = null)
     {
         PracticeConfigurationService.ValidateDuration(durationMinutes);
-        var provider = await db.ProviderProfiles.AsNoTracking().Include(p => p.StaffProfile).SingleOrDefaultAsync(p => p.Id == providerId, ct)
+        var provider = (lookups is null ? await db.ProviderProfiles.AsNoTracking().Include(p => p.StaffProfile).SingleOrDefaultAsync(p => p.Id == providerId, ct) : await lookups.ProviderAsync(db, providerId, ct))
             ?? throw PracticeConfigurationService.NotFound("Provider profile");
         if (!provider.IsActive || provider.StaffProfile is { IsActive: false })
             return new AvailabilityCheck(false, "provider_inactive");
@@ -84,13 +85,48 @@ public class SchedulingConfiguration(AlveraDbContext db, IPracticeClock clock)
 
         var startTime = TimeOnly.FromTimeSpan(localStart.TimeOfDay);
         var endTime = localEnd.TimeOfDay == TimeSpan.Zero ? TimeOnly.MaxValue : TimeOnly.FromTimeSpan(localEnd.TimeOfDay);
-        var windows = await db.ProviderWeeklyAvailabilities.AsNoTracking()
-            .Where(a => a.ProviderProfileId == providerId && a.DayOfWeek == localStart.DayOfWeek).ToListAsync(ct);
+        var windows = lookups is null
+            ? await db.ProviderWeeklyAvailabilities.AsNoTracking().Where(a => a.ProviderProfileId == providerId && a.DayOfWeek == localStart.DayOfWeek).ToListAsync(ct)
+            : await lookups.WindowsAsync(db, providerId, localStart.DayOfWeek, ct);
         if (!windows.Any(w => w.StartLocal <= startTime && endTime <= w.EndLocal))
             return new AvailabilityCheck(false, "outside_working_hours");
 
-        var blocked = await db.ProviderBlockedTimes.AsNoTracking()
-            .AnyAsync(b => b.ProviderProfileId == providerId && b.StartUtc < endUtc && startUtc < b.EndUtc, ct);
+        var blocked = lookups is null
+            ? await db.ProviderBlockedTimes.AsNoTracking().AnyAsync(b => b.ProviderProfileId == providerId && b.StartUtc < endUtc && startUtc < b.EndUtc, ct)
+            : await lookups.IsBlockedAsync(db, providerId, startUtc, endUtc, ct);
         return blocked ? new AvailabilityCheck(false, "blocked_time") : new AvailabilityCheck(true, null);
+    }
+}
+
+/// <summary>
+/// ALV-018-C02: what a bulk caller (the appointment import's dry-run) may pass to <see cref="SchedulingConfiguration.CheckProviderAvailabilityAsync"/> so that checking thousands of slots does not query the database
+/// three times for each one: a provider, each of their weekly windows by day and all of their blocked times are read once and kept for the life of this object (one file). The RULES stay in the one method; this only
+/// changes where its data comes from. Hold one only for a short, single operation: nothing here is refreshed.
+/// </summary>
+public sealed class AvailabilityLookups
+{
+    private readonly Dictionary<Guid, ProviderProfile?> _providers = [];
+    private readonly Dictionary<(Guid, DayOfWeek), List<ProviderWeeklyAvailability>> _windows = [];
+    private readonly Dictionary<Guid, List<ProviderBlockedTime>> _blocked = [];
+
+    internal async Task<ProviderProfile?> ProviderAsync(AlveraDbContext db, Guid providerId, CancellationToken ct)
+    {
+        if (!_providers.TryGetValue(providerId, out var provider))
+            _providers[providerId] = provider = await db.ProviderProfiles.AsNoTracking().Include(p => p.StaffProfile).SingleOrDefaultAsync(p => p.Id == providerId, ct);
+        return provider;
+    }
+
+    internal async Task<List<ProviderWeeklyAvailability>> WindowsAsync(AlveraDbContext db, Guid providerId, DayOfWeek day, CancellationToken ct)
+    {
+        if (!_windows.TryGetValue((providerId, day), out var windows))
+            _windows[(providerId, day)] = windows = await db.ProviderWeeklyAvailabilities.AsNoTracking().Where(a => a.ProviderProfileId == providerId && a.DayOfWeek == day).ToListAsync(ct);
+        return windows;
+    }
+
+    internal async Task<bool> IsBlockedAsync(AlveraDbContext db, Guid providerId, DateTimeOffset startUtc, DateTimeOffset endUtc, CancellationToken ct)
+    {
+        if (!_blocked.TryGetValue(providerId, out var blocked))
+            _blocked[providerId] = blocked = await db.ProviderBlockedTimes.AsNoTracking().Where(b => b.ProviderProfileId == providerId).ToListAsync(ct);
+        return blocked.Any(b => b.StartUtc < endUtc && startUtc < b.EndUtc);
     }
 }

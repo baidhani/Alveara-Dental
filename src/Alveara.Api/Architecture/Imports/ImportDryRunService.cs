@@ -34,8 +34,6 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
     private const int ChunkSize = 1_000, MaxMatched = 10, DefaultLimit = 100, MaxLimit = 500;
     private readonly ImportOptions _options = options.Value;
 
-    private sealed record Outcome(int RowNumber, string Status, string? Reason, IReadOnlyDictionary<string, string>? Errors, IReadOnlyList<Guid>? Matched, int? DuplicateOfRow, bool KeepDecision = false);
-
     private sealed record EarlierRow(int RowNumber, DuplicateProbe Probe);
 
     public async Task<ImportDryRunResult> RunAsync(Guid batchId, Guid actor, CancellationToken ct)
@@ -44,10 +42,18 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         if (batch.MappingJson is null) throw new ImportException("mapping_required", "Confirm the column mapping before the dry-run.", 409);
         var mapping = JsonSerializer.Deserialize<Dictionary<string, string>>(batch.MappingJson) ?? [];
         var table = await ImportPatientRows.ReadTableAsync(files, batch, _options, ct);
-        var requirements = await PatientRegistrationSettingsService.LoadRequirementsAsync(db, ct);
+        List<ImportRowOutcome> outcomes;
+        if (batch.SourceKind == ImportSourceKind.Appointments)
+        {
+            outcomes = await new ImportAppointmentEvaluator(db, clock).EvaluateAsync(table, mapping, ct);                  // slice 4a: no queue of likely duplicates, so no decisions to keep
+        }
+        else
+        {
+            var requirements = await PatientRegistrationSettingsService.LoadRequirementsAsync(db, ct);
+            outcomes = await EvaluateAsync(table, mapping, requirements, ct);
+            await KeepDecisionsAsync(batch.Id, outcomes, ct);
+        }
 
-        var outcomes = await EvaluateAsync(table, mapping, requirements, ct);
-        await KeepDecisionsAsync(batch.Id, outcomes, ct);
         await SaveAsync(batch, outcomes, actor, ct);
 
         var counts = outcomes.GroupBy(o => o.Status).ToDictionary(g => g.Key, g => g.Count());
@@ -69,10 +75,10 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             r.MatchedPatientIdsJson is null ? [] : JsonSerializer.Deserialize<List<Guid>>(r.MatchedPatientIdsJson) ?? [], r.DuplicateOfRow, r.ResultRecordId, r.DecisionByUserId is not null)).ToList();
     }
 
-    private async Task<List<Outcome>> EvaluateAsync(CsvTable table, IReadOnlyDictionary<string, string> mapping, PatientRequirements requirements, CancellationToken ct)
+    private async Task<List<ImportRowOutcome>> EvaluateAsync(CsvTable table, IReadOnlyDictionary<string, string> mapping, PatientRequirements requirements, CancellationToken ct)
     {
         var index = ImportPatientRows.FieldIndex(table, mapping);
-        var outcomes = new List<Outcome>(table.Rows.Count);
+        var outcomes = new List<ImportRowOutcome>(table.Rows.Count);
         var valid = new List<(int RowNumber, CleanPatient Clean)>();
         for (var i = 0; i < table.Rows.Count; i++)
         {
@@ -83,7 +89,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             }
             catch (PatientException ex) when (ex.Code == "validation_failed")
             {
-                outcomes.Add(new Outcome(number, ImportRowStatus.Rejected, ImportRowReason.InvalidFields, ex.FieldErrors, null, null));
+                outcomes.Add(new ImportRowOutcome(number, ImportRowStatus.Rejected, ImportRowReason.InvalidFields, ex.FieldErrors, null, null));
             }
         }
 
@@ -99,13 +105,13 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
 
             if (matches.Any(m => m.Match.Exact))
             {
-                outcomes.Add(new Outcome(number, ImportRowStatus.Skipped, ImportRowReason.AlreadyRegistered, null, matches.Where(m => m.Match.Exact).Select(m => m.Person.Id).Take(MaxMatched).ToList(), null));
+                outcomes.Add(new ImportRowOutcome(number, ImportRowStatus.Skipped, ImportRowReason.AlreadyRegistered, null, matches.Where(m => m.Match.Exact).Select(m => m.Person.Id).Take(MaxMatched).ToList(), null));
                 continue;
             }
 
             if (fileMatches.FirstOrDefault(m => m.Match.Exact) is { Row: not null } repeat)
             {
-                outcomes.Add(new Outcome(number, ImportRowStatus.Skipped, ImportRowReason.DuplicateInFile, null, null, repeat.Row.RowNumber));
+                outcomes.Add(new ImportRowOutcome(number, ImportRowStatus.Skipped, ImportRowReason.DuplicateInFile, null, null, repeat.Row.RowNumber));
                 continue;
             }
 
@@ -113,11 +119,11 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
             {
                 var ids = matches.OrderByDescending(m => m.Match.Reasons.Count).ThenBy(m => m.Person.LastName, StringComparer.OrdinalIgnoreCase).ThenBy(m => m.Person.FirstName, StringComparer.OrdinalIgnoreCase)
                     .Select(m => m.Person.Id).Take(MaxMatched).ToList();
-                outcomes.Add(new Outcome(number, ImportRowStatus.Unresolved, ImportRowReason.PossibleDuplicate, null, ids, fileMatches.Count > 0 ? fileMatches[0].Row.RowNumber : null));
+                outcomes.Add(new ImportRowOutcome(number, ImportRowStatus.Unresolved, ImportRowReason.PossibleDuplicate, null, ids, fileMatches.Count > 0 ? fileMatches[0].Row.RowNumber : null));
             }
             else
             {
-                outcomes.Add(new Outcome(number, ImportRowStatus.Valid, null, null, null, null));
+                outcomes.Add(new ImportRowOutcome(number, ImportRowStatus.Valid, null, null, null, null));
             }
 
             if (!earlier.TryGetValue(clean.DateOfBirth, out var list)) earlier[clean.DateOfBirth] = list = [];
@@ -128,7 +134,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
     }
 
     /// <summary>A person's decision about a likely duplicate survives a new dry-run while the row is still a likely duplicate: a reviewed new person comes back Valid and a reviewed same person Skipped.</summary>
-    private async Task KeepDecisionsAsync(Guid batchId, List<Outcome> outcomes, CancellationToken ct)
+    private async Task KeepDecisionsAsync(Guid batchId, List<ImportRowOutcome> outcomes, CancellationToken ct)
     {
         var decided = await db.ImportBatchRows.AsNoTracking().Where(r => r.BatchId == batchId && r.DecisionByUserId != null).ToDictionaryAsync(r => r.RowNumber, r => r.Reason, ct);
         if (decided.Count == 0) return;
@@ -141,7 +147,7 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         }
     }
 
-    private async Task SaveAsync(ImportBatch batch, IReadOnlyList<Outcome> outcomes, Guid actor, CancellationToken ct)
+    private async Task SaveAsync(ImportBatch batch, IReadOnlyList<ImportRowOutcome> outcomes, Guid actor, CancellationToken ct)
     {
         var now = clock.UtcNow;
         await using var transaction = await db.Database.BeginTransactionAsync(ct);

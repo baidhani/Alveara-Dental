@@ -159,7 +159,7 @@ public class ImportMappingApiTests : IAsyncLifetime
         var noMapping = await SendAsync(_admin, HttpMethod.Post, $"{BatchesUrl}/{id}/dry-run");
         var noDryRun = await SendAsync(_admin, HttpMethod.Get, $"{BatchesUrl}/{id}/rows");
         var badStatus = await SendAsync(_admin, HttpMethod.Get, $"{BatchesUrl}/{id}/rows?status=Weird");
-        var appointments = await UploadAsync("Appointments");
+        var appointments = await UploadAsync("OpeningBalances");
         var unsupported = await SendAsync(_admin, HttpMethod.Get, $"{BatchesUrl}/{appointments}/mapping-suggestion");
 
         Assert.Equal((HttpStatusCode.Conflict, "mapping_required"), (noMapping.Status, noMapping.Error));
