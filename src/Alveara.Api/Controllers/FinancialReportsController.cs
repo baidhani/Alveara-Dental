@@ -16,7 +16,7 @@ namespace Alveara.Api.Controllers;
 [Route("api/reports")]
 [Authorize]
 [RequirePermission(Permission.ViewFinancialReports)]
-public class FinancialReportsController(ReportFilterResolver filters, ProductionReportService production, CollectionsReportService collections, FinancialDrillService drill, BalancesReportService balances, BalancesDrillService balanceDrill) : ControllerBase
+public class FinancialReportsController(ReportFilterResolver filters, ProductionReportService production, CollectionsReportService collections, FinancialDrillService drill, BalancesReportService balances, BalancesDrillService balanceDrill, ReportExportService export) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -46,6 +46,27 @@ public class FinancialReportsController(ReportFilterResolver filters, Production
     public Task<IActionResult> CollectionsEntries([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
         [FromQuery] string? line, [FromQuery] string? method, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterRecordedAtUtc, [FromQuery] Guid? afterId, CancellationToken ct) =>
         GuardedAsync(async () => Ok(await drill.EntriesAsync(ReportIds.Collections, await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(line, method, null, limit, afterRecordedAtUtc, afterId), Actor, ct)));
+
+    /// <summary>The same report as <c>production</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("production/export")]
+    public Task<IActionResult> ProductionExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(production.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct), ct));
+
+    /// <summary>The same report as <c>collections</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("collections/export")]
+    public Task<IActionResult> CollectionsExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(collections.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct), ct));
+
+    /// <summary>The same report as <c>balances</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("balances/export")]
+    public Task<IActionResult> BalancesExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(balances.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct), ct));
+
+    private async Task<IActionResult> CsvAsync<T>(Task<ReportResult<T>> run, CancellationToken ct)
+    {
+        var file = await export.CsvAsync(await run, Actor, ct);
+        return File(file.Bytes, "text/csv; charset=utf-8", file.FileName);
+    }
 
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
     {

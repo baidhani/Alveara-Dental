@@ -12,6 +12,7 @@ import { CompletedProceduresView } from "./CompletedProceduresView";
 import { FollowUpsView } from "./FollowUpsView";
 import { MeasurementView } from "./MeasurementView";
 import { PatientFlowView } from "./PatientFlowView";
+import { ReportActions } from "./ReportActions";
 import { ProductionView } from "./ProductionView";
 import { ProviderActivityView } from "./ProviderActivityView";
 import { ReportFilterBar } from "./ReportFilterBar";
@@ -85,6 +86,7 @@ export function ReportsHubPage() {
             <>
               <h2 className="alv-rep__title">{current.label}</h2>
               <ReportFilterBar key={queryKey(query) + current.id} report={current} query={query} providers={providers} locations={locations} onApply={(q) => setSearch(searchFromQuery(q))} />
+              <ReportActions key={current.id + queryKey(query)} path={current.id === "measurement" ? "measurement/metrics" : current.id} query={query} csvLabel={current.id === "measurement" ? "Download metrics CSV" : "Download CSV"} />
               <div key={current.id + queryKey(query)}>{VIEWS[current.id]({ query })}</div>
             </>
           )}

@@ -3,7 +3,7 @@
  * meaningful, booked providers and a location; a filter a report cannot honestly apply is refused by the server (`filter_not_supported`) and the screens never send it. Every number can be listed: a drill-down
  * returns the supporting records (ids, times and statuses, never a name or a note). Every refusal has a stable `error` code (see `reportErrorMessage`).
  */
-import { ApiError, fetchCsrfToken, request } from "./authApi";
+import { ApiError, fetchCsrfToken, reportUnauthorized, request } from "./authApi";
 
 export interface ReportQuery {
   from: string;
@@ -225,6 +225,29 @@ export const listBaselines = (signal?: AbortSignal) => request<Baseline[]>(`${BA
 export const getComparison = (q: ReportQuery, baselineId?: string, signal?: AbortSignal) => request<ReportEnvelope<ComparisonData>>(`${BASE}/measurement/comparison?${params(q, { baselineId })}`, { signal });
 
 /**
+ * Asks the server for a report as a CSV (the same filter as the screen) and returns the file with the name the server gave it. A refusal comes back as the same stable error codes as the report itself, so a person is
+ * told why in words and no file is saved. The browser would show a JSON error as a download, so the body is read here and only a successful CSV is returned.
+ */
+export async function exportCsv(path: string, query: ReportQuery, extra: Record<string, string | null | undefined> = {}, signal?: AbortSignal): Promise<{ fileName: string; blob: Blob }> {
+  const res = await fetch(`${BASE}/${path}/export?${params(query, extra)}`, { credentials: "include", signal });
+  if (!res.ok) {
+    if (res.status === 401) reportUnauthorized();
+    let code = "";
+    let message = `Request failed with status ${res.status}.`;
+    try {
+      const body = (await res.json()) as { error?: string; message?: string };
+      code = body.error ?? "";
+      message = body.message ?? message;
+    } catch {
+      // The body was not JSON (a proxy page, for example): the status alone is what can be said.
+    }
+    throw new ApiError(res.status, code, message);
+  }
+  const named = /filename="?([^";]+)"?/i.exec(res.headers.get("Content-Disposition") ?? "");
+  return { fileName: named?.[1] ?? `${path.replace("/", "-")}.csv`, blob: await res.blob() };
+}
+
+/**
  * Sets a baseline. The caller makes one idempotency key when the person starts filling the form and reuses it for every retry of that same baseline, so a dropped connection followed by another press returns the
  * baseline already made instead of making a second.
  */
@@ -247,7 +270,7 @@ const MESSAGES: Record<string, string> = {
   unknown_location: "The chosen location no longer exists.",
   filter_not_supported: "This report cannot use one of the filters that is set. Clear it, or choose another report.",
   report_too_large: "That range holds too many records for one report. Choose a shorter range or fewer providers.",
-  audit_unavailable: "The report could not be recorded, so it was not produced. Try again in a moment.",
+  audit_unavailable: "The report could not be recorded, so it was not produced or exported. Try again in a moment.",
   invalid_limit: "The page size is not valid.",
   invalid_cursor: "The page position is not valid. Reload the list.",
   invalid_line: "That part of the ledger does not belong to this report.",
@@ -261,6 +284,7 @@ const MESSAGES: Record<string, string> = {
   period_not_complete: "A baseline must be a period that is already over. Choose days before today.",
   key_reused: "That save was already used for a different baseline. Reload the page and try again.",
   save_failed: "The baseline could not be saved. Nothing was stored. Try again.",
+  export_too_large: "That report has too many lines for one file. Choose a shorter range.",
   baseline_not_found: "That baseline no longer exists.",
 };
 

@@ -22,6 +22,9 @@ public sealed class ReportOptions
     /// <summary>The fewest records each denominator must hold for a metric to be compared with a baseline: below it a percentage would say more than the numbers can support.</summary>
     public int MinimumComparisonSample { get; set; } = 30;
 
+    /// <summary>The most data lines (summary lines plus table rows) one exported file may hold. Over it the export is refused (413 <c>export_too_large</c>), never cut short.</summary>
+    public int MaxExportRows { get; set; } = 50_000;
+
     public int DefaultDrillRows { get; set; } = 100;
     public int MaxDrillRows { get; set; } = 500;
 }

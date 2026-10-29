@@ -76,6 +76,9 @@ public static class AuditEventTypes
     // ALV-N006: a report was run or its supporting records were listed. Details carry the report id, the length of the range and counts, never a patient or a filter value other than ids.
     public const string ReportViewed = "ReportViewed";
 
+    // ALV-N006 slice 7: a report was taken away as a CSV file. Details carry the report id, the length of the range and the number of lines, never a value.
+    public const string ReportExported = "ReportExported";
+
     // ALV-N006 slice 5b: a baseline period was measured and stored. Details carry the period and the number of metrics, never the baseline's name.
     public const string ReportBaselineSet = "ReportBaselineSet";
 

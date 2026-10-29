@@ -3,6 +3,7 @@ import { Button } from "../../components/Button";
 import { ErrorState, LoadingState } from "../../components/StatePatterns";
 import { getComparison } from "../../services/reportsApi";
 import type { Baseline, MetricComparison, MetricSide, ReportQuery } from "../../services/reportsApi";
+import { ReportActions } from "./ReportActions";
 import { percent, queryKey } from "./reportFormat";
 import { useReport } from "./useReport";
 import type { Outcome } from "./useReport";
@@ -38,6 +39,7 @@ export function ComparisonSection({ query, baselines, refresh }: { query: Report
           </select>
         </label>
       )}
+      <ReportActions path="measurement/comparison" query={query} extra={{ baselineId }} csvLabel="Download comparison CSV" showPrint={false} />
       {outcome === null && <LoadingState label="Comparing…" />}
       {outcome && !outcome.ok && <ErrorState title="The comparison could not be shown" description={outcome.message} action={<Button onClick={again}>Try again</Button>} />}
       {outcome?.ok && (() => {

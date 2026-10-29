@@ -177,3 +177,40 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ALV-N006 slice 7: the buttons that take a report away, and the paper copy: the report alone, in black on white, without the menu, the filter bar or the buttons. */
+.alv-rep__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+@media print {
+  .alv-shell__sidebar,
+  .alv-rep__nav,
+  .alv-rep__filters,
+  .alv-rep__noprint,
+  .skip-link {
+    display: none !important;
+  }
+
+  .alv-rep__layout {
+    display: block;
+  }
+
+  .alv-rep,
+  .alv-rep a {
+    color: #000;
+    background: #fff;
+  }
+
+  .alv-rep__table {
+    break-inside: auto;
+  }
+
+  .alv-rep__table tr {
+    break-inside: avoid;
+  }
+}

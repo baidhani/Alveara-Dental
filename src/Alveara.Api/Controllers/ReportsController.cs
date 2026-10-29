@@ -18,7 +18,7 @@ namespace Alveara.Api.Controllers;
 [Authorize]
 [RequirePermission(Permission.ViewOperationalReports)]
 public class ReportsController(ReportFilterResolver filters, ScheduleReportService schedule, PatientFlowReportService patientFlow, ReportDrillService drill,
-    FollowUpReportService followUps, FollowUpDrillService followUpDrill, CancellationReportService cancellations, CancellationDrillService cancellationDrill) : ControllerBase
+    FollowUpReportService followUps, FollowUpDrillService followUpDrill, CancellationReportService cancellations, CancellationDrillService cancellationDrill, ReportExportService export) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -57,6 +57,32 @@ public class ReportsController(ReportFilterResolver filters, ScheduleReportServi
     public Task<IActionResult> CancellationAppointments([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
         [FromQuery] string? measure, [FromQuery] Guid? providerId, [FromQuery] Guid? appointmentTypeId, [FromQuery] string? leadTime, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterStart, [FromQuery] Guid? afterId, CancellationToken ct) =>
         GuardedAsync(async () => Ok(await cancellationDrill.AppointmentsAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(measure, providerId, appointmentTypeId, leadTime, limit, afterStart, afterId), Actor, ct)));
+
+    /// <summary>The same report as <c>schedule</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("schedule/export")]
+    public Task<IActionResult> ScheduleExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(schedule.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct), ct));
+
+    /// <summary>The same report as <c>patient-flow</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("patient-flow/export")]
+    public Task<IActionResult> PatientFlowExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(patientFlow.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct), ct));
+
+    /// <summary>The same report as <c>follow-ups</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("follow-ups/export")]
+    public Task<IActionResult> FollowUpsExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, [FromQuery] DateTimeOffset? asOf, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(followUps.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct, asOf), ct));
+
+    /// <summary>The same report as <c>cancellations</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("cancellations/export")]
+    public Task<IActionResult> CancellationsExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(cancellations.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct), ct));
+
+    private async Task<IActionResult> CsvAsync<T>(Task<ReportResult<T>> run, CancellationToken ct)
+    {
+        var file = await export.CsvAsync(await run, Actor, ct);
+        return File(file.Bytes, "text/csv; charset=utf-8", file.FileName);
+    }
 
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
     {

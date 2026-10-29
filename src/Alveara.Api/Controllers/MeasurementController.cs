@@ -15,7 +15,7 @@ namespace Alveara.Api.Controllers;
 [Route("api/reports/measurement")]
 [Authorize]
 [RequirePermission(Permission.ViewMeasurementReports)]
-public class MeasurementController(ReportFilterResolver filters, MetricsService metrics, MeasurementBaselineService baselines, MeasurementComparisonService comparison) : ControllerBase
+public class MeasurementController(ReportFilterResolver filters, MetricsService metrics, MeasurementBaselineService baselines, MeasurementComparisonService comparison, ReportExportService export) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -33,6 +33,22 @@ public class MeasurementController(ReportFilterResolver filters, MetricsService 
     [HttpGet("comparison")]
     public Task<IActionResult> Comparison([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, [FromQuery] Guid? baselineId, [FromQuery] DateTimeOffset? asOf, CancellationToken ct) =>
         GuardedAsync(async () => Ok(await comparison.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), baselineId, Actor, ct, asOf)));
+
+    /// <summary>The same report as <c>metrics</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("metrics/export")]
+    public Task<IActionResult> MetricsExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, [FromQuery] DateTimeOffset? asOf, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(metrics.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct, asOf), ct));
+
+    /// <summary>The same report as <c>comparison</c>, handed over as a CSV (recorded as an export).</summary>
+    [HttpGet("comparison/export")]
+    public Task<IActionResult> ComparisonExport([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, [FromQuery] Guid? baselineId, [FromQuery] DateTimeOffset? asOf, CancellationToken ct) =>
+        GuardedAsync(async () => await CsvAsync(comparison.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), baselineId, Actor, ct, asOf), ct));
+
+    private async Task<IActionResult> CsvAsync<T>(Task<ReportResult<T>> run, CancellationToken ct)
+    {
+        var file = await export.CsvAsync(await run, Actor, ct);
+        return File(file.Bytes, "text/csv; charset=utf-8", file.FileName);
+    }
 
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
     {
