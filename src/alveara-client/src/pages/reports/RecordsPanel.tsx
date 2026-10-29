@@ -24,7 +24,7 @@ interface PanelProps<R, C> {
  * The records behind a number. The first page arrives with the total (the number that was pressed), and "Show more" adds the next page after the last record shown, so a record is never repeated or skipped. The list
  * shows ids, times and statuses, never a name or a note; a patient is a link to the record for a person who may open patient records. The caller gives this a new key for each number, so a new question starts fresh.
  */
-function RecordsPanel<R, C>({ title, load, columns, rowKey, onClose }: PanelProps<R, C>) {
+export function RecordsPanel<R, C>({ title, load, columns, rowKey, onClose }: PanelProps<R, C>) {
   const { outcome, again } = useReport((signal) => load(null, signal), title);
   const [more, setMore] = useState<{ rows: R[]; next: C | null } | null>(null);
   const [moreError, setMoreError] = useState<string | null>(null);
@@ -69,7 +69,7 @@ function RecordsPanel<R, C>({ title, load, columns, rowKey, onClose }: PanelProp
   );
 }
 
-function PatientLink({ id }: { id: string }) {
+export function PatientLink({ id }: { id: string }) {
   const { hasPermission } = useAuth();
   return hasPermission("ViewPatientRecords") ? <SafeLink to={`/patients/${id}`}>Open patient record</SafeLink> : <span>Patient record (you cannot open it)</span>;
 }

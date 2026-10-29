@@ -5,11 +5,17 @@ import { PageHeader } from "../../components/PageHeader";
 import { useAuth } from "../../contexts/AuthContext";
 import { listLocations, listProviders } from "../../services/configApi";
 import type { LocationRecord, ProviderRecord } from "../../services/configApi";
+import { BalancesView } from "./BalancesView";
 import { CancellationsView } from "./CancellationsView";
+import { CollectionsView } from "./CollectionsView";
+import { CompletedProceduresView } from "./CompletedProceduresView";
 import { FollowUpsView } from "./FollowUpsView";
 import { PatientFlowView } from "./PatientFlowView";
+import { ProductionView } from "./ProductionView";
+import { ProviderActivityView } from "./ProviderActivityView";
 import { ReportFilterBar } from "./ReportFilterBar";
 import { ScheduleView } from "./ScheduleView";
+import { TreatmentPlansView } from "./TreatmentPlansView";
 import { GROUPS, REPORTS } from "./reportCatalog";
 import { queryFromSearch, queryKey, searchFromQuery } from "./reportFormat";
 import type { ReportQuery } from "../../services/reportsApi";
@@ -20,6 +26,12 @@ const VIEWS: Record<string, (props: { query: ReportQuery }) => React.ReactNode> 
   "patient-flow": (p) => <PatientFlowView {...p} />,
   "follow-ups": (p) => <FollowUpsView {...p} />,
   cancellations: (p) => <CancellationsView {...p} />,
+  production: (p) => <ProductionView {...p} />,
+  collections: (p) => <CollectionsView {...p} />,
+  balances: (p) => <BalancesView {...p} />,
+  "treatment-plans": (p) => <TreatmentPlansView {...p} />,
+  "completed-procedures": (p) => <CompletedProceduresView {...p} />,
+  "provider-activity": (p) => <ProviderActivityView {...p} />,
 };
 
 /**

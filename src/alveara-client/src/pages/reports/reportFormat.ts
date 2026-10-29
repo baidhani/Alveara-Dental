@@ -46,7 +46,24 @@ export const PRESETS: { label: string; range: () => { from: string; to: string }
 /** A rate is a fraction of the records counted; null is "not available" (nothing was counted), never zero. */
 export const percent = (rate: number | null) => (rate === null ? "Not available" : `${(rate * 100).toFixed(1)}%`);
 
+/** Dollars and cents, with a minus sign for a negative amount (a payment's effect on what is owed). */
+export const money = (amount: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+
 export const hoursAndMinutes = (minutes: number) => `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
 
 /** "CheckedIn" -> "Checked in". */
 export const words = (s: string) => s.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (c) => c.toUpperCase()).replace(/ ([A-Z])/g, (m) => m.toLowerCase());
+
+/** The ledger lines in words, for the financial reports. */
+export const LINE_LABELS: Record<string, string> = {
+  Charges: "Charges",
+  ChargeReversals: "Charges reversed",
+  Payments: "Payments received",
+  PaymentReversals: "Payments reversed",
+  Refunds: "Refunds",
+  RefundReversals: "Refunds reversed",
+  Adjustments: "Adjustments",
+  AdjustmentReversals: "Adjustments reversed",
+  OpeningBalances: "Opening balances loaded by an import",
+  Unclassified: "Not classified",
+};
