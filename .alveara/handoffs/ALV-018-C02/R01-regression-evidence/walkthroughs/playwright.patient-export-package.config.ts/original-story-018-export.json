@@ -1,0 +1,24 @@
+{
+  "format": "alveara.patient-export",
+  "formatVersion": 1,
+  "exportId": "51bd3024-e01e-4e7b-8153-09e6fcfaf65b",
+  "exportedAtUtc": "2026-10-29T01:13:32Z",
+  "source": {
+    "system": "Alveara Dental",
+    "sourcePatientId": "d0fefc07-e466-446f-8da8-718d19f412c3"
+  },
+  "patient": {
+    "firstName": "Ann",
+    "middleName": null,
+    "lastName": "Rivera1793236393247",
+    "dateOfBirth": "1950-01-10",
+    "sex": "Female",
+    "phone": "555-100-1000",
+    "email": null,
+    "addressLine1": "4 Pine St",
+    "addressLine2": null,
+    "city": "Austin",
+    "state": "TX",
+    "postalCode": "78701"
+  }
+}

@@ -1976,3 +1976,9 @@
   - What changed: .alveara/reviews/ALV-018-C02/R01-stage1.md (APPROVED_PENDING_REGRESSION) added; EXECUTION_STATUS.json set to AWAITING_REGRESSION; BUILD_STATE.md updated. No source, test or frozen Stage 2 file changed.
   - Verification: git diff shows only those three files; the reviewer's package identity (ZIP SHA-256, three commit SHAs) matches the ones I produced.
   - Notes: the one frozen Stage 2 run (about 80 minutes, nothing else running) is next; it needs the owner's go.
+- [x] ALV-018-C02 R01: Stage 2 regression evidence recorded
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: .alveara/handoffs/ALV-018-C02/R01-regression.md and R01-regression-evidence/ (the frozen evaluator's verdict, backend-tests.csv, gate and walkthrough logs and screenshots, leak counts); EXECUTION_STATUS.json set to AWAITING_REVIEW with fullRegression PASSED; BUILD_STATE.md updated. No source or test change.
+  - Verification: the frozen Stage 2, run once on bf6a19e: STAGE 2 QUALIFIES, 29 of 29 criteria; backend 5,481 passed, 0 failed, 0 skipped in 85.3 min; all eight walkthroughs passed; artifact counts unchanged.
+  - Notes: the 9 MB trx and the two export-package ZIPs are deliberately not in git (they are in the regression ZIP); the reviewer may ask for them to be added.

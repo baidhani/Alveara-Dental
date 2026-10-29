@@ -1,0 +1,156 @@
+baseline ids: 5334; result ids: 5481; new ids: 147 (expected 147)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+    Alveara.Api.Tests.AppointmentImportFieldsTests.A_sound_mapping_has_no_problems_and_each_kind_of_bad_mapping_is_named -> Passed
+    Alveara.Api.Tests.AppointmentImportFieldsTests.Headers_are_matched_ignoring_capitals_spaces_and_punctuation_and_a_column_with_no_match_is_left_out -> Passed
+    Alveara.Api.Tests.AppointmentImportFieldsTests.The_mapping_step_reaches_the_right_catalog_for_each_kind_of_file -> Passed
+    Alveara.Api.Tests.AppointmentImportFieldsTests.The_patient_the_provider_the_place_the_type_and_the_start_are_required_and_the_duration_and_notes_are_not -> Passed
+    Alveara.Api.Tests.BulkImportPermissionTests.Bulk_import_is_held_by_the_administrator_alone_by_default -> Passed
+    Alveara.Api.Tests.BulkImportPermissionTests.It_can_be_granted_to_another_role_because_it_is_not_a_protected_permission -> Passed
+    Alveara.Api.Tests.BulkImportPermissionTests.It_is_registered_as_active_and_is_not_the_one_patient_import_permission -> Passed
+    Alveara.Api.Tests.BulkImportPermissionTests.The_new_audit_event_names_are_distinct_and_none_repeats_an_existing_event -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_bad_header_is_refused_with_the_column_it_names_duplicates_ignoring_capitals -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_control_character_is_refused_once_for_each_row_but_a_tab_is_allowed -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_file_that_is_not_valid_utf8_is_refused_and_so_is_one_over_the_size_limit -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_hopeless_file_lists_at_most_the_cap_of_problems_and_counts_all_of_them -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_problem_never_repeats_a_value_from_the_file -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_quote_that_is_never_closed_or_that_appears_where_it_does_not_belong_is_refused -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_quoted_value_may_hold_commas_line_breaks_tabs_and_doubled_quotes_and_an_empty_value_is_kept -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_short_or_long_row_refuses_the_whole_file_rather_than_shifting_a_value_into_the_wrong_column -> Passed
+    Alveara.Api.Tests.CsvParserTests.A_sound_file_is_read_exactly_with_or_without_a_byte_order_mark_and_with_either_line_ending -> Passed
+    Alveara.Api.Tests.CsvParserTests.An_empty_file_a_blank_file_and_a_header_with_no_rows_are_refused -> Passed
+    Alveara.Api.Tests.CsvParserTests.Header_names_are_trimmed_but_values_are_kept_as_sent -> Passed
+    Alveara.Api.Tests.CsvParserTests.The_row_limit_is_exact_and_the_column_and_cell_limits_are_exact -> Passed
+    Alveara.Api.Tests.CsvParserTests.The_same_bytes_give_the_same_answer_every_time -> Passed
+    Alveara.Api.Tests.ImportAppointmentApiTests.All_or_nothing_is_refused_for_appointments_over_the_api_with_its_stable_code -> Passed
+    Alveara.Api.Tests.ImportAppointmentApiTests.The_administrator_uploads_maps_dry_runs_and_commits_appointments_end_to_end_and_the_clashing_row_is_not_booked -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.A_clash_created_after_the_dry_run_rejects_the_row_and_nothing_is_double_booked -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.A_job_recovered_after_a_crash_finishes_the_commit_without_booking_anything_twice -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.A_job_that_fails_for_good_leaves_the_batch_interrupted_and_a_new_commit_schedules_only_what_is_left -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.A_reference_that_changed_since_the_dry_run_rejects_the_row_and_the_others_are_scheduled -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.A_row_already_scheduled_under_its_key_is_its_result_and_confirming_again_or_replaying_books_nothing_twice -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.All_or_nothing_is_not_available_for_appointments_and_nothing_changes -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.An_identical_appointment_booked_meanwhile_makes_the_row_skipped_not_rejected -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.Committing_valid_appointments_schedules_each_through_the_scheduler_and_reconciles_the_counters -> Passed
+    Alveara.Api.Tests.ImportAppointmentCommitTests.Rows_rejected_or_skipped_at_the_dry_run_stay_as_they_are_and_the_counters_reconcile -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.A_large_file_is_dry_run_in_bulk_and_the_time_is_reported -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.A_period_held_by_an_earlier_row_of_the_file_is_refused_naming_that_row_and_an_exact_repeat_is_skipped -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.A_period_held_by_an_existing_appointment_is_refused_provider_then_operatory_then_patient_and_back_to_back_is_fine -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.A_start_in_the_past_in_a_daylight_saving_gap_or_fold_or_outside_the_providers_hours_is_refused_for_the_schedulers_own_reason -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.An_inactive_patient_provider_or_operatory_is_refused_and_a_name_is_matched_ignoring_capitals_and_spacing -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.Commit_and_decisions_are_not_available_for_appointment_files_until_their_slice -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.Every_problem_with_a_rows_values_is_reported_at_once_as_a_fixed_message_and_never_a_value_from_the_file -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.Running_the_dry_run_again_gives_the_same_results_and_a_rejected_row_holds_no_time -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.The_suggested_mapping_names_the_obvious_columns_and_an_appointment_batch_is_mapped_like_a_patient_batch -> Passed
+    Alveara.Api.Tests.ImportAppointmentDryRunTests.Valid_rows_are_valid_and_a_dry_run_schedules_nothing_and_writes_no_scheduling_audit_entry -> Passed
+    Alveara.Api.Tests.ImportAppointmentReconciliationTests.A_committed_appointment_batch_reconciles -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitApiTests.The_administrator_confirms_a_balance_commit_and_all_or_nothing_is_refused -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitTests.A_patient_made_inactive_after_the_dry_run_is_rejected_and_no_entry_is_made -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitTests.A_patient_who_gains_history_after_the_dry_run_is_rejected_and_the_balance_is_never_added_to_it -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitTests.All_or_nothing_is_refused_and_a_caller_without_manage_billing_is_refused_before_anything_changes -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitTests.An_entry_already_under_the_rows_key_is_the_rows_result_and_nothing_is_added_twice -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitTests.Each_valid_row_becomes_the_first_ledger_entry_and_the_batch_reports_the_ledger_total -> Passed
+    Alveara.Api.Tests.ImportBalanceCommitTests.The_billing_rule_refuses_a_second_balance_a_reused_key_with_another_amount_a_bad_amount_and_an_unknown_patient -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.A_batch_of_balances_is_refused_to_a_caller_without_manage_billing_before_anything_changes -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.A_patient_whose_ledger_already_has_an_entry_is_refused_and_a_patient_without_one_is_not -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.A_second_row_for_the_same_patient_is_refused_and_names_the_first_row -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.Every_problem_with_a_rows_values_is_reported_at_once_as_a_fixed_message_and_never_echoes_the_file -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.The_dry_run_is_repeatable_and_a_new_mapping_makes_the_results_and_the_total_stale -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.The_patient_must_be_exactly_one_registered_active_patient_and_the_reason_is_a_fixed_message -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.The_suggested_mapping_names_the_obvious_columns_and_the_optional_ones_may_be_left_out -> Passed
+    Alveara.Api.Tests.ImportBalanceDryRunTests.Valid_rows_are_valid_the_batch_records_their_total_and_nothing_is_written_to_a_ledger -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.A_row_is_never_deleted_and_keeps_its_batch_and_its_row_number -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.A_row_is_updated_in_place_while_its_batch_is_open -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.A_row_number_exists_once_for_a_batch_but_another_batch_may_use_it -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.The_rows_of_a_finished_batch_never_change(finished: "Cancelled") -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.The_rows_of_a_finished_batch_never_change(finished: "Committed") -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.The_rows_of_a_finished_batch_never_change(finished: "Failed") -> Passed
+    Alveara.Api.Tests.ImportBatchRowSchemaTests.The_states_outside_the_model_are_refused -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.A_batch_is_never_deleted -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.A_batch_moves_from_uploaded_to_dry_run_complete_with_its_counters -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.A_finished_batch_never_changes_again(finished: "Cancelled") -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.A_finished_batch_never_changes_again(finished: "Committed") -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.A_finished_batch_never_changes_again(finished: "Failed") -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.Only_one_open_batch_may_exist_for_the_same_file_of_the_same_kind -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.The_states_outside_the_model_are_refused -> Passed
+    Alveara.Api.Tests.ImportBatchSchemaTests.What_a_batch_recorded_about_its_file_and_its_maker_never_changes -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.A_bad_kind_or_a_bad_label_is_400_with_a_stable_code_and_creates_nothing -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.A_file_over_the_size_limit_is_refused_the_same_way_and_a_file_exactly_at_the_limit_is_not_refused_for_its_size -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.A_refused_file_is_400_with_its_problems_and_without_any_value_from_the_file_and_nothing_is_stored -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.An_upload_without_the_csrf_token_is_refused_and_creates_nothing -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.Every_call_is_refused_to_an_anonymous_caller_and_to_every_role_without_the_permission_and_creates_nothing -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.The_administrator_uploads_a_file_and_the_same_file_again_returns_the_same_batch -> Passed
+    Alveara.Api.Tests.ImportBatchesApiTests.The_list_and_one_batch_show_counts_hash_and_columns_and_an_unknown_batch_is_404 -> Passed
+    Alveara.Api.Tests.ImportCommitApiTests.A_likely_duplicate_is_decided_over_the_api_and_the_decision_moves_the_row -> Passed
+    Alveara.Api.Tests.ImportCommitApiTests.Deciding_and_committing_need_the_csrf_token_and_are_refused_to_anonymous_callers_and_to_every_role_without_the_permission -> Passed
+    Alveara.Api.Tests.ImportCommitApiTests.The_administrator_decides_and_commits_end_to_end_and_the_batch_settles_to_committed -> Passed
+    Alveara.Api.Tests.ImportCommitApiTests.The_confirmations_refusals_have_stable_codes_and_register_nothing -> Passed
+    Alveara.Api.Tests.ImportCommitSchemaTests.A_batchs_commit_outcome_is_one_of_the_known_ones_and_its_round_is_never_negative -> Passed
+    Alveara.Api.Tests.ImportCommitSchemaTests.A_decision_is_a_person_and_a_time_together_or_neither -> Passed
+    Alveara.Api.Tests.ImportCommitSchemaTests.An_accepted_row_names_the_record_it_produced_a_patient_or_an_appointment -> Passed
+    Alveara.Api.Tests.ImportCommitSchemaTests.The_rows_of_a_batch_that_has_been_committed_never_change -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_decision_can_be_changed_while_the_batch_waits_and_the_counters_follow -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_decision_needs_a_dry_run_and_a_batch_that_is_still_waiting_for_its_commit -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_decision_survives_a_new_dry_run_while_the_row_is_still_a_likely_duplicate_and_a_new_mapping_clears_every_decision -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_job_recovered_after_a_crash_finishes_the_commit_without_registering_anyone_twice -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_job_that_fails_for_good_leaves_the_batch_interrupted_with_what_was_registered_kept -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_new_commit_after_an_interruption_registers_only_the_rows_that_are_left -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_person_decides_a_likely_duplicate_and_the_commit_honours_the_decision_without_ever_merging -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_row_is_judged_again_at_commit_time_so_a_person_registered_since_the_dry_run_is_never_duplicated -> Passed
+    Alveara.Api.Tests.ImportCommitTests.All_or_nothing_registers_nothing_when_a_row_is_no_longer_valid_and_asks_for_a_new_dry_run -> Passed
+    Alveara.Api.Tests.ImportCommitTests.All_or_nothing_registers_the_whole_file_in_one_job_and_skipped_rows_do_not_stop_it -> Passed
+    Alveara.Api.Tests.ImportCommitTests.Committing_the_valid_rows_registers_each_patient_under_its_key_audits_it_without_a_value_and_reconciles_the_counters -> Passed
+    Alveara.Api.Tests.ImportCommitTests.Confirming_again_replaying_a_job_or_meeting_a_patient_already_under_the_rows_key_registers_nothing_twice -> Passed
+    Alveara.Api.Tests.ImportCommitTests.The_confirmation_is_checked_before_anything_is_written -> Passed
+    Alveara.Api.Tests.ImportCommitTests.The_valid_rows_are_committed_in_windows_and_a_finish_job_settles_the_batch_once_they_are_all_over -> Passed
+    Alveara.Api.Tests.ImportCommitTests.Valid_rows_only_leaves_the_rejected_skipped_and_unresolved_rows_where_they_are_and_says_so -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.A_malformed_file_is_refused_with_its_problems_logged_by_codes_only_and_stored_nowhere -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.A_save_that_fails_deletes_the_stored_file_and_leaves_no_batch -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.A_sound_file_becomes_an_uploaded_batch_with_its_hash_counts_and_columns_and_is_stored_byte_for_byte -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.An_unknown_kind_or_a_missing_or_bad_label_is_refused_and_nothing_is_stored -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.No_value_from_a_file_ever_reaches_the_audit_log -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.Sending_the_same_file_again_returns_the_same_batch_and_stores_and_logs_nothing_new -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.The_label_limit_is_exact_and_the_kind_is_matched_after_trimming -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.The_list_is_newest_first_with_a_cursor_and_names_the_maker_or_says_unknown -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.The_same_file_as_another_kind_is_its_own_batch_and_a_finished_batch_does_not_block_a_new_one -> Passed
+    Alveara.Api.Tests.ImportIntakeServiceTests.Two_requests_with_the_same_file_at_once_make_one_batch_and_leave_one_stored_file -> Passed
+    Alveara.Api.Tests.ImportMappingApiTests.A_bad_mapping_is_400_with_its_problems_and_nothing_is_saved -> Passed
+    Alveara.Api.Tests.ImportMappingApiTests.Every_new_call_is_refused_to_an_anonymous_caller_and_to_every_role_without_the_permission -> Passed
+    Alveara.Api.Tests.ImportMappingApiTests.Saving_a_mapping_and_running_the_dry_run_need_the_csrf_token_and_a_refused_call_changes_nothing -> Passed
+    Alveara.Api.Tests.ImportMappingApiTests.The_administrator_maps_dry_runs_and_reads_the_row_results_end_to_end_and_no_patient_is_registered -> Passed
+    Alveara.Api.Tests.ImportMappingApiTests.The_stable_codes_for_an_unknown_batch_a_missing_mapping_a_missing_dry_run_and_a_bad_status -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.A_bad_or_missing_mapping_is_refused_with_its_problems_and_a_dry_run_needs_a_confirmed_one -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.A_changed_or_missing_stored_file_is_refused_and_nothing_is_changed -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.A_large_file_is_dry_run_in_bulk_and_the_time_is_reported -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.A_registered_person_is_skipped_a_likely_match_is_unresolved_and_only_the_first_of_a_repeated_group_is_valid -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.A_row_is_judged_exactly_as_the_front_desks_duplicate_check_judges_it -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.An_invalid_row_is_rejected_with_the_front_desks_own_messages_at_once_and_never_a_value_from_the_file -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.Every_valid_row_is_valid_the_batch_is_dry_run_and_nothing_is_registered -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.Only_an_open_batch_can_be_mapped_or_dry_run_and_an_unknown_batch_is_not_found -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.Running_the_dry_run_again_gives_the_same_results_without_duplicating_a_row_and_changing_the_mapping_makes_them_stale -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.The_rows_are_listed_by_status_with_a_cursor_and_a_limit_and_only_after_a_dry_run -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.The_suggested_mapping_names_the_obvious_columns_reports_the_rest_and_a_saved_mapping_is_what_the_dry_run_uses -> Passed
+    Alveara.Api.Tests.ImportPatientDryRunTests.Two_dry_runs_at_once_leave_one_consistent_set_of_results_and_any_refusal_is_a_stable_code -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_cell_a_spreadsheet_could_read_as_a_formula_is_neutralised_and_special_characters_are_quoted -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_committed_balance_batch_and_a_committed_patient_batch_reconcile -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_ledger_that_holds_more_for_the_batch_than_the_batch_recorded_is_reported_as_a_named_amount_mismatch -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_row_that_points_at_no_record_is_reported_as_a_named_problem -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.A_stuck_commit_is_offered_a_retry_which_finishes_the_batch_without_repeating_a_row_done_before -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.The_error_report_lists_every_rejected_skipped_and_unresolved_row_with_fixed_messages_and_no_values -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.The_reports_need_a_dry_run_and_an_existing_batch -> Passed
+    Alveara.Api.Tests.ImportReportsRetryAndSweepTests.The_sweep_removes_an_old_unreferenced_file_keeps_the_rest_reports_a_missing_file_and_is_safe_to_repeat -> Passed
+    Alveara.Api.Tests.ImportSlice6ApiTests.The_administrator_downloads_the_error_report_reads_the_reconciliation_and_runs_the_sweep -> Passed
+    Alveara.Api.Tests.ImportSlice6ApiTests.The_four_new_calls_are_refused_to_anonymous_callers_and_to_roles_without_the_permission -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.A_field_is_suggested_for_at_most_one_column_the_first_that_matches -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.A_problem_message_never_repeats_anything_but_the_names_the_operator_sent -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.A_sound_mapping_has_no_problems_and_an_empty_target_ignores_the_column -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.An_unmapped_required_field_is_named_and_email_becomes_required_when_the_practice_says_so -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.Each_kind_of_bad_mapping_is_reported_with_its_stable_code -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.Headers_are_matched_ignoring_capitals_spaces_and_punctuation -> Passed
+    Alveara.Api.Tests.PatientImportFieldsTests.The_front_desks_required_fields_are_required_and_email_and_sex_only_when_the_practice_requires_them -> Passed
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 0
+EXPECTED new ids that did not appear: 0
+COMPARISON PASS

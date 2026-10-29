@@ -1,0 +1,33 @@
+PASS  run commit is the Stage 1 closure commit                                                                                                          bf6a19e9d16ce92fea95f5f20fdf5a747ad14596
+PASS  working tree clean before and after                                                                                                               
+PASS  no src/ file differs between the implementation and the run commit                                                                                0 files
+PASS  the template mode switch is not set                                                                                                               
+PASS  backend run exit code 0                                                                                                                           
+PASS  discovered and passed are exactly the expected count, none failed or skipped                                                                      {'Passed': 5481} (expected Passed 5481)
+PASS  same existing test ids and outcomes as the ALV-018-C01 R02 full-run baseline (no retired id); exactly the 147 listed new ids (no more, no fewer)  COMPARISON PASS
+PASS  the run built exactly one template and it was not rebuilt                                                                                         built 1
+PASS  zero fallback to create-and-migrate by the run's own template                                                                                     0 fallback events
+PASS  no template build failure                                                                                                                         
+PASS  the template was really used (at least 3000 clones)                                                                                               4142 clones
+PASS  only the named real-path classes bypass the template (at most 60 fixtures)                                                                        37 real-migration fixtures
+PASS  runner proof: every walkthrough output goes to the out-folder outside the repository                                                              every walkthrough output goes to the runner folder
+PASS  Storage, Temp, Database, Backup and Keys entries, databases, SQL logins and template backups unchanged                                            before {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 0, 'folder_Temp': 1, 'template_backups_in_Temp': 0} after {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 0, 'folder_Temp': 1, 'template_backups_in_Temp': 0}
+PASS  no AlveraTemplate database or backup left                                                                                                         
+PASS  gate tsc                                                                                                                                          exit 0
+PASS  gate vitest                                                                                                                                       exit 0
+PASS  gate build                                                                                                                                        exit 0
+PASS  gate lint                                                                                                                                         exit 0
+PASS  gate playwright_mocked                                                                                                                            exit 0
+PASS  gate repo_checks                                                                                                                                  exit 0
+PASS  walkthrough walk_playwright.bulk-import.config.ts: 13 passed, none failed                                                                         
+PASS  walkthrough walk_playwright.patient-export-package.config.ts: 10 passed, none failed                                                              
+PASS  walkthrough walk_playwright.patient-portability.config.ts: 7 passed, none failed                                                                  
+PASS  walkthrough walk_playwright.patient-merge.config.ts: 9 passed, none failed                                                                        
+PASS  walkthrough walk_playwright.workspace.config.ts: 14 passed, none failed                                                                           
+PASS  walkthrough walk_playwright.patients.config.ts: 7 passed, none failed                                                                             
+PASS  walkthrough walk_playwright.permission-policy.config.ts: 7 passed, none failed                                                                    
+PASS  walkthrough walk_playwright.permission-policy-admin.config.ts: 8 passed, none failed                                                              
+
+INFO  backend elapsed (operational evidence, not a criterion): 5119s = 85.3 min
+
+STAGE 2 QUALIFIES

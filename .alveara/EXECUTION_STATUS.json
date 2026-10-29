@@ -2732,7 +2732,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R01",
       "acceptance": {
         "total": 8,
@@ -2740,7 +2740,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a Stage 1 package. The 22 backend test classes new since the last full run (this story) 147 of 147 (all 147 ids are new against the 5,334-id ALV-018-C01 R02 baseline; none retired); every *ApiTests class 928 of 928 (21 new ids); the 62 STORY-018 import and export tests 62 of 62; 6 of 6 negative controls caught (one survived the first run and a test was added); tsc, build and lint (oxlint) exit 0; Vitest 1,790 in 114 files; mocked Playwright 138 passed and 2 skipped; repository checks 13; eight real-backend walkthroughs passed (bulk import 13, STORY-018 portability 7, export package 10, patient merge 9, workspace 14, patients 7, permission policy 7 and 8); artifact counts unchanged. Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-018-C02/R01-evidence/stage2/) expects 5,481 backend tests (the 5,334 baseline plus exactly the 147 listed new ids) with no time limit. No full run made for R01."
+        "summary": "Attempt R01, a Stage 1 package. The 22 backend test classes new since the last full run (this story) 147 of 147 (all 147 ids are new against the 5,334-id ALV-018-C01 R02 baseline; none retired); every *ApiTests class 928 of 928 (21 new ids); the 62 STORY-018 import and export tests 62 of 62; 6 of 6 negative controls caught (one survived the first run and a test was added); tsc, build and lint (oxlint) exit 0; Vitest 1,790 in 114 files; mocked Playwright 138 passed and 2 skipped; repository checks 13; eight real-backend walkthroughs passed (bulk import 13, STORY-018 portability 7, export package 10, patient merge 9, workspace 14, patients 7, permission policy 7 and 8); artifact counts unchanged. Stage 2 (run once on the Stage 1 closure commit bf6a19e, clean tree, src/ identical to the implementation): STAGE 2 QUALIFIES, 29 of 29 criteria; backend 5,481 passed, 0 failed, 0 skipped in 85.3 min (the 5,334 baseline ids unchanged plus exactly the 147 listed new ids), template built once with 0 fallbacks and 4,142 clones, artifact counts unchanged, tsc, Vitest 1,790/114, build, lint, mocked Playwright 138 passed and 2 skipped and repository checks 13 exit 0, walkthroughs bulk import 13, export package 10, STORY-018 portability 7, patient merge 9, workspace 14, patients 7, permission policy 7 and 8; addendum .alveara/handoffs/ALV-018-C02/R01-regression.md. The raw trx is not committed (it is in the regression ZIP)."
       },
       "demo": "real_backend_walkthrough_13_of_13",
       "parentRegression": "verified",
@@ -2760,7 +2760,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",
