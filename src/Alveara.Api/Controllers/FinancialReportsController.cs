@@ -8,7 +8,7 @@ using Alveara.Api.Architecture.Reporting;
 namespace Alveara.Api.Controllers;
 
 /// <summary>
-/// ALV-N006 slice 2: the financial reports (production and charges, collections and payments). Everything here needs <see cref="Permission.ViewFinancialReports"/>, which the operational reports' permission does not
+/// ALV-N006 slice 2: the financial reports (production and charges, collections and payments, balances). Everything here needs <see cref="Permission.ViewFinancialReports"/>, which the operational reports' permission does not
 /// include. Same conventions as <see cref="ReportsController"/>: reads only, <c>no-store</c>, <c>from</c> and <c>to</c> required, stable error codes, every run and drill-down audited (counts and ids only). A filter a
 /// report cannot honestly apply is refused with <c>filter_not_supported</c> rather than ignored.
 /// </summary>
@@ -16,7 +16,7 @@ namespace Alveara.Api.Controllers;
 [Route("api/reports")]
 [Authorize]
 [RequirePermission(Permission.ViewFinancialReports)]
-public class FinancialReportsController(ReportFilterResolver filters, ProductionReportService production, CollectionsReportService collections, FinancialDrillService drill) : ControllerBase
+public class FinancialReportsController(ReportFilterResolver filters, ProductionReportService production, CollectionsReportService collections, FinancialDrillService drill, BalancesReportService balances, BalancesDrillService balanceDrill) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -27,6 +27,15 @@ public class FinancialReportsController(ReportFilterResolver filters, Production
     [HttpGet("collections")]
     public Task<IActionResult> Collections([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
         GuardedAsync(async () => Ok(await collections.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct)));
+
+    [HttpGet("balances")]
+    public Task<IActionResult> Balances([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await balances.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct)));
+
+    [HttpGet("balances/accounts")]
+    public Task<IActionResult> BalanceAccounts([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
+        [FromQuery] string? side, [FromQuery] int? limit, [FromQuery] decimal? afterBalance, [FromQuery] Guid? afterAccountId, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await balanceDrill.AccountsAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(side, limit, afterBalance, afterAccountId), Actor, ct)));
 
     [HttpGet("production/entries")]
     public Task<IActionResult> ProductionEntries([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,

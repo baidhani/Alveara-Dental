@@ -8,7 +8,7 @@ using static Alveara.Api.Tests.SchedulingApiHarness;
 namespace Alveara.Api.Tests;
 
 /// <summary>
-/// ALV-N006 slice 2a over the real API: the four financial routes are refused to an anonymous caller (401) and to every role that does not hold ViewFinancialReports (403), and answered for the administrator, the office
+/// ALV-N006 slice 2 over the real API: the six financial routes are refused to an anonymous caller (401) and to every role that does not hold ViewFinancialReports (403), and answered for the administrator, the office
 /// manager and billing; the operational and the financial permissions are separate (billing cannot read the schedule reports, the front desk cannot read the financial ones); a report is <c>no-store</c> with its envelope; a
 /// filter the report cannot honestly apply gets <c>filter_not_supported</c>; and the permission is registered, grantable and its audit event is not shared.
 /// </summary>
@@ -31,7 +31,7 @@ public class FinancialReportsApiTests : IAsyncLifetime
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
-    private static string[] Urls => [$"/api/reports/production?{Range}", $"/api/reports/collections?{Range}", $"/api/reports/production/entries?{Range}", $"/api/reports/collections/entries?{Range}"];
+    private static string[] Urls => [$"/api/reports/production?{Range}", $"/api/reports/collections?{Range}", $"/api/reports/production/entries?{Range}", $"/api/reports/collections/entries?{Range}", $"/api/reports/balances?{Range}", $"/api/reports/balances/accounts?{Range}"];
 
     [Fact]
     public async Task Every_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission()
@@ -87,6 +87,8 @@ public class FinancialReportsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.BadRequest, "filter_not_supported"), await CallAsync($"/api/reports/collections?{Range}&providerIds={_s.ProviderA}"));
         Assert.Equal((HttpStatusCode.OK, null), await CallAsync($"/api/reports/production?{Range}&providerIds={_s.ProviderA}"));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_line"), await CallAsync($"/api/reports/production/entries?{Range}&line=Payments"));
+        Assert.Equal((HttpStatusCode.BadRequest, "filter_not_supported"), await CallAsync($"/api/reports/balances?{Range}&providerIds={_s.ProviderA}"));
+        Assert.Equal((HttpStatusCode.BadRequest, "invalid_side"), await CallAsync($"/api/reports/balances/accounts?{Range}&side=Both"));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_limit"), await CallAsync($"/api/reports/collections/entries?{Range}&limit=501"));
         Assert.Equal((HttpStatusCode.BadRequest, "dates_required"), await CallAsync("/api/reports/collections"));
         Assert.Equal((HttpStatusCode.BadRequest, "range_too_large"), await CallAsync("/api/reports/production?from=2028-01-01&to=2029-01-01"));

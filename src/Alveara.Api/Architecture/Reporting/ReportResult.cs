@@ -25,6 +25,7 @@ public static class ReportIds
     public const string PatientFlow = "patient-flow";
     public const string Production = "production";
     public const string Collections = "collections";
+    public const string Balances = "balances";
 }
 
 public static class ReportReadModes
