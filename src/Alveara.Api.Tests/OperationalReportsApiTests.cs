@@ -17,6 +17,7 @@ public class OperationalReportsApiTests : IAsyncLifetime
     private const string Range = "from=2030-01-14&to=2030-01-16";
     private readonly TestDatabaseFixture _fixture = new();
     private SchedulingApiHarness _api = null!;
+    private SchedulingTestSupport _s = null!;
     private readonly Dictionary<string, Session> _sessions = new();
 
     public async Task InitializeAsync()
@@ -24,6 +25,7 @@ public class OperationalReportsApiTests : IAsyncLifetime
         await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture);
         var s = new SchedulingTestSupport(_fixture);
+        _s = s;
         await s.ArrangeAsync();
         await s.ScheduleAsync(s.Request(await s.PatientAsync("Zed", "Qwerty"), SchedulingTestSupport.At(9)));
         foreach (var role in new[] { "Admin", "OfficeManager", "FrontDesk", "Dentist", "Hygienist", "Assistant", "Billing" }) _sessions[role] = await _api.SessionAsync(role);
@@ -31,7 +33,7 @@ public class OperationalReportsApiTests : IAsyncLifetime
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
-    private static string[] Urls => [$"/api/reports/schedule?{Range}", $"/api/reports/patient-flow?{Range}", $"/api/reports/schedule/appointments?{Range}", $"/api/reports/patient-flow/appointments?{Range}"];
+    private static string[] Urls => [$"/api/reports/schedule?{Range}", $"/api/reports/patient-flow?{Range}", $"/api/reports/schedule/appointments?{Range}", $"/api/reports/patient-flow/appointments?{Range}", $"/api/reports/follow-ups?{Range}", $"/api/reports/follow-ups/tasks?{Range}", $"/api/reports/cancellations?{Range}", $"/api/reports/cancellations/appointments?{Range}&measure=Booked"];
 
     [Fact]
     public async Task Every_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission()
@@ -92,6 +94,10 @@ public class OperationalReportsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.BadRequest, "unknown_provider"), await CallAsync($"{Range}&providerIds={Guid.NewGuid()}"));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_status"), await CallAsync($"{Range}&status=Done", "schedule/appointments"));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_limit"), await CallAsync($"{Range}&limit=0", "patient-flow/appointments"));
+        Assert.Equal((HttpStatusCode.BadRequest, "filter_not_supported"), await CallAsync($"{Range}&locationId={_s.LocationId}", "follow-ups"));
+        Assert.Equal((HttpStatusCode.OK, null), await CallAsync($"{Range}&locationId={_s.LocationId}", "cancellations"));
+        Assert.Equal((HttpStatusCode.BadRequest, "invalid_measure"), await CallAsync(Range, "cancellations/appointments"));
+        Assert.Equal((HttpStatusCode.BadRequest, "invalid_outcome"), await CallAsync($"{Range}&outcome=Lost", "follow-ups/tasks"));
         Assert.Equal(HttpStatusCode.BadRequest, (await CallAsync($"{Range}&providerIds=not-an-id")).Status);
     }
 

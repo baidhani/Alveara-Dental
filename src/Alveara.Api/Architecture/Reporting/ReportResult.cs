@@ -29,6 +29,8 @@ public static class ReportIds
     public const string TreatmentPlans = "treatment-plans";
     public const string CompletedProcedures = "completed-procedures";
     public const string ProviderActivity = "provider-activity";
+    public const string FollowUps = "follow-ups";
+    public const string Cancellations = "cancellations";
 }
 
 public static class ReportReadModes

@@ -17,7 +17,8 @@ namespace Alveara.Api.Controllers;
 [Route("api/reports")]
 [Authorize]
 [RequirePermission(Permission.ViewOperationalReports)]
-public class ReportsController(ReportFilterResolver filters, ScheduleReportService schedule, PatientFlowReportService patientFlow, ReportDrillService drill) : ControllerBase
+public class ReportsController(ReportFilterResolver filters, ScheduleReportService schedule, PatientFlowReportService patientFlow, ReportDrillService drill,
+    FollowUpReportService followUps, FollowUpDrillService followUpDrill, CancellationReportService cancellations, CancellationDrillService cancellationDrill) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -38,6 +39,24 @@ public class ReportsController(ReportFilterResolver filters, ScheduleReportServi
     public Task<IActionResult> PatientFlowAppointments([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
         [FromQuery] string? status, [FromQuery] string? flowState, [FromQuery] Guid? providerId, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterStart, [FromQuery] Guid? afterId, CancellationToken ct) =>
         GuardedAsync(async () => Ok(await drill.AppointmentsAsync(ReportIds.PatientFlow, await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(status, flowState, null, providerId, limit, afterStart, afterId), Actor, ct)));
+
+    [HttpGet("follow-ups")]
+    public Task<IActionResult> FollowUps([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, [FromQuery] DateTimeOffset? asOf, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await followUps.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct, asOf)));
+
+    [HttpGet("follow-ups/tasks")]
+    public Task<IActionResult> FollowUpTasks([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
+        [FromQuery] string? kind, [FromQuery] string? outcome, [FromQuery] DateTimeOffset? asOf, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterDueAtUtc, [FromQuery] Guid? afterId, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await followUpDrill.TasksAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(kind, outcome, asOf, limit, afterDueAtUtc, afterId), Actor, ct)));
+
+    [HttpGet("cancellations")]
+    public Task<IActionResult> Cancellations([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await cancellations.RunAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), Actor, ct)));
+
+    [HttpGet("cancellations/appointments")]
+    public Task<IActionResult> CancellationAppointments([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
+        [FromQuery] string? measure, [FromQuery] Guid? providerId, [FromQuery] Guid? appointmentTypeId, [FromQuery] string? leadTime, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterStart, [FromQuery] Guid? afterId, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await cancellationDrill.AppointmentsAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(measure, providerId, appointmentTypeId, leadTime, limit, afterStart, afterId), Actor, ct)));
 
     private async Task<IActionResult> GuardedAsync(Func<Task<IActionResult>> action)
     {
