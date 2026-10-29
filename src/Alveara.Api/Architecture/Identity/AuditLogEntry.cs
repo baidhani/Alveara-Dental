@@ -76,6 +76,9 @@ public static class AuditEventTypes
     // ALV-N006: a report was run or its supporting records were listed. Details carry the report id, the length of the range and counts, never a patient or a filter value other than ids.
     public const string ReportViewed = "ReportViewed";
 
+    // ALV-N006 slice 5b: a baseline period was measured and stored. Details carry the period and the number of metrics, never the baseline's name.
+    public const string ReportBaselineSet = "ReportBaselineSet";
+
     // ALV-017-C01: a suggested pair dismissed as not a duplicate, and restored (one entry for each of the two records, sharing the dismissal id as the correlation id).
     public const string PatientDuplicateDismissed = "PatientDuplicateDismissed";
     public const string PatientDuplicateRestored = "PatientDuplicateRestored";

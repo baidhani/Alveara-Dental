@@ -151,4 +151,7 @@ public enum Permission
 
     // ALV-N006 slice 5: the measurement panel (measured metrics, baselines and comparisons). A management view: held by the administrator and the office manager by default; grantable.
     ViewMeasurementReports,
+
+    // ALV-N006 slice 5b: setting a baseline period. Held by the administrator and the office manager by default; grantable.
+    ManageMeasurementBaselines,
 }

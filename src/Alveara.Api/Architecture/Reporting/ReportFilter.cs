@@ -19,6 +19,9 @@ public sealed class ReportOptions
     /// <summary>The most source rows one report may read. Over it the run is refused (413 <c>report_too_large</c>) so a huge range cannot exhaust memory and a number is never computed from a cut-off set.</summary>
     public int MaxSourceRows { get; set; } = 200_000;
 
+    /// <summary>The fewest records each denominator must hold for a metric to be compared with a baseline: below it a percentage would say more than the numbers can support.</summary>
+    public int MinimumComparisonSample { get; set; } = 30;
+
     public int DefaultDrillRows { get; set; } = 100;
     public int MaxDrillRows { get; set; } = 500;
 }

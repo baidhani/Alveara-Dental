@@ -78,6 +78,72 @@ public class MeasurementApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Setting_a_baseline_needs_its_own_permission_a_key_and_a_token_and_a_repeat_returns_the_same_baseline()
+    {
+        const string url = "/api/reports/measurement/baselines";
+        var body = new { name = "March 2025", from = "2025-03-01", to = "2025-03-31" };
+        using var anonymous = _api.Factory.CreateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anonymous.GetAsync(url)).StatusCode);
+        foreach (var role in new[] { "FrontDesk", "Billing", "Dentist", "Hygienist", "Assistant" })
+        {
+            Assert.Equal(HttpStatusCode.Forbidden, (await _sessions[role].SendAsync(HttpMethod.Post, url, body, "k-" + role)).Status);
+            Assert.Equal(HttpStatusCode.Forbidden, (await _sessions[role].Client.GetAsync(url)).StatusCode);
+        }
+
+        var manager = _sessions["OfficeManager"];
+        Assert.Equal("idempotency_key_required", (await manager.SendAsync(HttpMethod.Post, url, body)).Body.GetProperty("error").GetString());
+        Assert.NotEqual(HttpStatusCode.Created, (await manager.SendAsync(HttpMethod.Post, url, body, "no-token", csrf: false)).Status);
+        Assert.Equal("period_not_complete", (await manager.SendAsync(HttpMethod.Post, url, new { name = "Future", from = "2099-01-01", to = "2099-01-31" }, "future")).Body.GetProperty("error").GetString());
+        Assert.Equal("name_required", (await manager.SendAsync(HttpMethod.Post, url, new { name = " ", from = "2025-03-01", to = "2025-03-31" }, "blank")).Body.GetProperty("error").GetString());
+
+        var created = await manager.SendAsync(HttpMethod.Post, url, body, "api-key-1");
+        Assert.Equal(HttpStatusCode.Created, created.Status);
+        var id = created.Body.GetProperty("id").GetGuid();
+        Assert.Equal(7, created.Body.GetProperty("metrics").GetArrayLength());
+        var repeat = await manager.SendAsync(HttpMethod.Post, url, body, "api-key-1");
+        Assert.Equal((HttpStatusCode.OK, id), (repeat.Status, repeat.Body.GetProperty("id").GetGuid()));
+        var reused = await manager.SendAsync(HttpMethod.Post, url, new { name = "March 2025", from = "2025-03-01", to = "2025-03-30" }, "api-key-1");
+        Assert.Equal((HttpStatusCode.Conflict, "key_reused"), (reused.Status, reused.Body.GetProperty("error").GetString()));
+
+        var list = await manager.SendAsync(HttpMethod.Get, url, csrf: false);
+        Assert.Equal(1, list.Body.GetArrayLength());
+        Assert.Equal(id, (await manager.SendAsync(HttpMethod.Get, $"{url}/{id}", csrf: false)).Body.GetProperty("id").GetGuid());
+        Assert.Equal(HttpStatusCode.NotFound, (await manager.SendAsync(HttpMethod.Get, $"{url}/{Guid.NewGuid()}", csrf: false)).Status);
+    }
+
+    [Fact]
+    public async Task The_comparison_names_its_baseline_and_refuses_an_unknown_one_and_a_provider_filter()
+    {
+        var manager = _sessions["OfficeManager"];
+        Assert.Equal(HttpStatusCode.Created, (await manager.SendAsync(HttpMethod.Post, "/api/reports/measurement/baselines", new { name = "March 2025", from = "2025-03-01", to = "2025-03-31" }, "cmp-1")).Status);
+
+        var result = await manager.SendAsync(HttpMethod.Get, "/api/reports/measurement/comparison?from=2025-04-01&to=2025-04-30", csrf: false);
+        Assert.Equal(HttpStatusCode.OK, result.Status);
+        Assert.Equal("measurement-comparison", result.Body.GetProperty("reportId").GetString());
+        Assert.Equal("March 2025", result.Body.GetProperty("data").GetProperty("baseline").GetProperty("name").GetString());
+        Assert.Equal(30, result.Body.GetProperty("data").GetProperty("minimumSample").GetInt32());
+        Assert.All(result.Body.GetProperty("data").GetProperty("comparisons").EnumerateArray(), c =>
+        {
+            Assert.NotEqual("comparable", c.GetProperty("status").GetString());        // nothing in this practice reaches a sample of 30
+            Assert.Equal(JsonValueKind.Null, c.GetProperty("movement").ValueKind);
+            Assert.Equal(JsonValueKind.Null, c.GetProperty("relativeChange").ValueKind);
+        });
+        Assert.Equal("baseline_not_found", (await manager.SendAsync(HttpMethod.Get, $"/api/reports/measurement/comparison?from=2025-04-01&to=2025-04-30&baselineId={Guid.NewGuid()}", csrf: false)).Body.GetProperty("error").GetString());
+        Assert.Equal("filter_not_supported", (await manager.SendAsync(HttpMethod.Get, $"/api/reports/measurement/comparison?from=2025-04-01&to=2025-04-30&locationId={_s.LocationId}", csrf: false)).Body.GetProperty("error").GetString());
+        Assert.Equal(HttpStatusCode.Forbidden, (await _sessions["Dentist"].Client.GetAsync("/api/reports/measurement/comparison?from=2025-04-01&to=2025-04-30")).StatusCode);
+    }
+
+    [Fact]
+    public void Setting_a_baseline_is_held_by_the_administrator_and_the_office_manager_and_can_be_granted()
+    {
+        foreach (var role in Enum.GetValues<Role>().Where(r => r != Role.Unassigned))
+            Assert.Equal(role is Role.Admin or Role.OfficeManager, PermissionMatrix.RoleHas(role, Permission.ManageMeasurementBaselines));
+        Assert.True(PermissionProtection.IsGrantable(Permission.ManageMeasurementBaselines));
+        Assert.True(PermissionRegistry.IsActive(nameof(Permission.ManageMeasurementBaselines)));
+        Assert.NotEqual(Permission.ViewMeasurementReports, Permission.ManageMeasurementBaselines);
+    }
+
+    [Fact]
     public void The_permission_is_held_by_the_administrator_and_the_office_manager_and_can_be_granted()
     {
         foreach (var role in Enum.GetValues<Role>().Where(r => r != Role.Unassigned))

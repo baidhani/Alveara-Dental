@@ -7342,6 +7342,119 @@ namespace Alveara.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Reporting.ReportBaseline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AsOfUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTimeOffset>("PeriodEndUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("PeriodFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("PeriodStartUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateOnly>("PeriodTo")
+                        .HasColumnType("date");
+
+                    b.Property<DateTimeOffset>("SetAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("SetByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("SetAtUtc");
+
+                    b.HasIndex("SetByUserId");
+
+                    b.ToTable("ReportBaselines", null, t =>
+                        {
+                            t.HasTrigger("TR_ReportBaselines_Guard");
+
+                            t.HasCheckConstraint("CK_ReportBaselines_Key", "LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0");
+
+                            t.HasCheckConstraint("CK_ReportBaselines_Name", "LEN(LTRIM(RTRIM([Name]))) > 0");
+
+                            t.HasCheckConstraint("CK_ReportBaselines_Period", "[PeriodFrom] <= [PeriodTo] AND [PeriodStartUtc] < [PeriodEndUtc] AND [PeriodEndUtc] <= [AsOfUtc]");
+
+                            t.HasCheckConstraint("CK_ReportBaselines_Times", "[SetAtUtc] >= '2000-01-01' AND [SetAtUtc] < '2200-01-01' AND [AsOfUtc] >= '2000-01-01' AND [AsOfUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Reporting.ReportBaselineMetric", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BaselineId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DefinitionVersion")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DenominatorCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MetricKey")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<int>("NumeratorCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Rate")
+                        .HasPrecision(9, 4)
+                        .HasColumnType("decimal(9,4)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BaselineId", "MetricKey")
+                        .IsUnique();
+
+                    b.ToTable("ReportBaselineMetrics", null, t =>
+                        {
+                            t.HasTrigger("TR_ReportBaselineMetrics_Guard");
+
+                            t.HasCheckConstraint("CK_ReportBaselineMetrics_Counts", "[NumeratorCount] >= 0 AND [DenominatorCount] >= 0 AND [DefinitionVersion] >= 1");
+
+                            t.HasCheckConstraint("CK_ReportBaselineMetrics_Key", "LEN(LTRIM(RTRIM([MetricKey]))) > 0");
+
+                            t.HasCheckConstraint("CK_ReportBaselineMetrics_Rate", "([DenominatorCount] = 0 AND [Rate] IS NULL) OR ([DenominatorCount] > 0 AND [Rate] IS NOT NULL AND [Rate] >= 0)");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Safety.Clearance", b =>
                 {
                     b.Property<Guid>("Id")
@@ -9780,6 +9893,24 @@ namespace Alveara.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Reporting.ReportBaseline", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("SetByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Reporting.ReportBaselineMetric", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Reporting.ReportBaseline", null)
+                        .WithMany("Metrics")
+                        .HasForeignKey("BaselineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Safety.Clearance", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
@@ -9982,6 +10113,11 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("RevisionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Reporting.ReportBaseline", b =>
+                {
+                    b.Navigation("Metrics");
                 });
 #pragma warning restore 612, 618
         }

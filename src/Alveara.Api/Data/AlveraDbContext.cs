@@ -153,6 +153,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Patients.Portability.Package.DataExportHistory> DataExportHistory => Set<Architecture.Patients.Portability.Package.DataExportHistory>();
     public DbSet<Architecture.Imports.ImportBatch> ImportBatches => Set<Architecture.Imports.ImportBatch>();
     public DbSet<Architecture.Imports.ImportBatchRow> ImportBatchRows => Set<Architecture.Imports.ImportBatchRow>();
+    public DbSet<Architecture.Reporting.ReportBaseline> ReportBaselines => Set<Architecture.Reporting.ReportBaseline>();      // ALV-N006 slice 5b
+    public DbSet<Architecture.Reporting.ReportBaselineMetric> ReportBaselineMetrics => Set<Architecture.Reporting.ReportBaselineMetric>();
     public DbSet<Architecture.Permissions.PermissionPolicyState> PermissionPolicyStates => Set<Architecture.Permissions.PermissionPolicyState>();
     public DbSet<Architecture.Clinical.DiagnosisVersion> DiagnosisVersions => Set<Architecture.Clinical.DiagnosisVersion>();
 
@@ -563,6 +565,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         PatientDuplicateDismissalModel.Configure(modelBuilder);
         DataExportHistoryModel.Configure(modelBuilder);
         ImportBatchModel.Configure(modelBuilder);
+        ReportBaselineModel.Configure(modelBuilder);
         PatientMergeModel.Configure(modelBuilder);          // last: it declares a trigger on every table the registry lists, so every other table must be configured first
 
         modelBuilder.Entity<BackgroundJob>(e =>

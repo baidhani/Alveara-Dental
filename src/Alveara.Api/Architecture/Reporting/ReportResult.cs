@@ -32,6 +32,7 @@ public static class ReportIds
     public const string FollowUps = "follow-ups";
     public const string Cancellations = "cancellations";
     public const string Measurement = "measurement";
+    public const string MeasurementComparison = "measurement-comparison";
 }
 
 public static class ReportReadModes

@@ -85,7 +85,7 @@ public static class PermissionMatrix
             Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties, // ALV-009-C02
             Permission.ImportPatientData, // STORY-018: brings a patient in from a file (exporting one stays with the administrator)
             Permission.ViewOperationalReports, Permission.ViewFinancialReports, Permission.ViewClinicalReports, // ALV-N006
-            Permission.ViewMeasurementReports), // ALV-N006 slice 5: measured metrics, baselines and comparisons
+            Permission.ViewMeasurementReports, Permission.ManageMeasurementBaselines), // ALV-N006 slice 5: measured metrics and comparisons; setting a baseline
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

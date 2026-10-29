@@ -113,6 +113,8 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.FollowUpDrillServi
 builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.CancellationReportService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.CancellationDrillService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.MetricsService>();      // ALV-N006 slice 5a: measured metrics
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.MeasurementBaselineService>();      // ALV-N006 slice 5b: baselines and comparison
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.MeasurementComparisonService>();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Imports.IImportWorkScopeFactory, Alveara.Api.Architecture.Imports.ImportWorkScopeFactory>();      // ALV-018-C02: an independent scope for each appointment the commit schedules
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Imports.ImportCommitJobHandler>();      // ALV-018-C02: the commit runs on the durable job queue
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();
