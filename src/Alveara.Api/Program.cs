@@ -93,6 +93,11 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportCommitService>
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportRetryService>();      // ALV-018-C02 slice 6: restart a stuck commit
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportReportService>();      // ALV-018-C02 slice 6: reconciliation and the error report
 builder.Services.AddScoped<Alveara.Api.Architecture.Imports.ImportFileSweepService>();      // ALV-018-C02 slice 6: remove import files no batch refers to
+builder.Services.Configure<Alveara.Api.Architecture.Reporting.ReportOptions>(builder.Configuration.GetSection(Alveara.Api.Architecture.Reporting.ReportOptions.SectionName));      // ALV-N006
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ReportFilterResolver>();      // ALV-N006 slice 1: the operational reports
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ScheduleReportService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.PatientFlowReportService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ReportDrillService>();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Imports.IImportWorkScopeFactory, Alveara.Api.Architecture.Imports.ImportWorkScopeFactory>();      // ALV-018-C02: an independent scope for each appointment the commit schedules
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Imports.ImportCommitJobHandler>();      // ALV-018-C02: the commit runs on the durable job queue
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();

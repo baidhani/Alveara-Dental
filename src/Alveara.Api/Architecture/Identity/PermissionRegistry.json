@@ -208,6 +208,10 @@
     {
       "name": "BulkImportData",
       "status": "Active"
+    },
+    {
+      "name": "ViewOperationalReports",
+      "status": "Active"
     }
   ]
 }

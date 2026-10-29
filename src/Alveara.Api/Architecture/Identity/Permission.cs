@@ -138,4 +138,8 @@ public enum Permission
     // ALV-018-C02: bulk import and migration (CSV files of patients, appointments and opening balances). Held by the administrator alone by default and not protected, so an administrator may deliberately grant it
     // to another role. It is separate from ImportPatientData, which brings one patient in from a STORY-018 export file. Appended last so existing ordinals are undisturbed.
     BulkImportData,
+
+    // ALV-N006: the operational reports (schedule and patient flow here; later slices add the financial and clinical ones as their own permissions). Counts of appointments and visits, never clinical or financial detail.
+    // Held by the administrator, the office manager and the front desk by default; grantable (not protected). Appended last so existing ordinals are undisturbed.
+    ViewOperationalReports,
 }
