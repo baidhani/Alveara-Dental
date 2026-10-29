@@ -1,0 +1,179 @@
+/* ALV-N006: the reporting hub. Colours come from the shared tokens only; every state is said in words as well as shown in colour. */
+.alv-rep__layout {
+  display: grid;
+  grid-template-columns: 14rem 1fr;
+  gap: var(--space-5);
+}
+
+@media (max-width: 52rem) {
+  .alv-rep__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.alv-rep a {
+  color: var(--color-info);
+}
+
+.alv-rep__nav h2 {
+  font-size: var(--font-size-sm);
+  margin: var(--space-3) 0 var(--space-1);
+}
+
+.alv-rep__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.alv-rep__nav a {
+  display: block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+
+.alv-rep__nav a[aria-current="page"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.alv-rep__title {
+  margin-top: 0;
+}
+
+.alv-rep__filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.alv-rep__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.alv-rep__dates label,
+.alv-rep__filters > label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.alv-rep__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alv-rep__providers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-height: 10rem;
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+}
+
+.alv-rep__hint {
+  color: var(--color-text-secondary);
+  margin: var(--space-2) 0;
+}
+
+.alv-rep__problem {
+  color: var(--color-danger);
+  margin: var(--space-2) 0;
+}
+
+.alv-rep__meta {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.alv-rep__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  list-style: none;
+  margin: var(--space-3) 0;
+  padding: 0;
+}
+
+.alv-rep__cards li {
+  display: flex;
+  flex-direction: column;
+  min-width: 9rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.alv-rep__cards strong {
+  font-size: var(--font-size-xl, 1.5rem);
+}
+
+.alv-rep__cards small {
+  color: var(--color-text-secondary);
+}
+
+.alv-rep__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+.alv-rep__table th,
+.alv-rep__table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-2);
+  text-align: left;
+}
+
+.alv-rep__number {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-info);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.alv-rep__number[aria-pressed="true"] {
+  font-weight: 700;
+}
+
+.alv-rep__records {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.alv-rep__records-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alv-rep__records-head h3 {
+  margin: 0;
+}
+
+.alv-rep__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

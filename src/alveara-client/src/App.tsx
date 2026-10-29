@@ -39,6 +39,7 @@ import { PatientImportPage } from "./pages/portability/PatientImportPage";
 import { ExportCenterPage } from "./pages/exports/ExportCenterPage";
 import { ImportBatchPage } from "./pages/imports/ImportBatchPage";
 import { ImportBatchesPage } from "./pages/imports/ImportBatchesPage";
+import { ReportsHubPage } from "./pages/reports/ReportsHubPage";
 import { MessagesPage, MessageDetailPage } from "./pages/notifications/MessagesPage";
 import { AdminNotificationsPage } from "./pages/notifications/AdminNotificationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -263,6 +264,14 @@ function createAppRouter() {
             element={
               <RequireAnyPermission permissions={["ExportPatientData", "ExportAllPatientData", "ExportPatientReadableRecord"]} shown="ExportPatientData">
                 <ExportCenterPage />
+              </RequireAnyPermission>
+            }
+          />
+          <Route
+            path="/reports/:reportId?"
+            element={
+              <RequireAnyPermission permissions={["ViewOperationalReports", "ViewFinancialReports", "ViewClinicalReports", "ViewMeasurementReports"]} shown="ViewOperationalReports">
+                <ReportsHubPage />
               </RequireAnyPermission>
             }
           />
