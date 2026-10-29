@@ -51,13 +51,14 @@ public class MetricsTests : CompletionTestBase
             await db.Appointments.Where(a => a.Id == ids[2]).ExecuteUpdateAsync(s => s.SetProperty(a => a.Status, AppointmentStatuses.NoShow));
         }
 
-        // the ledger: on Cy's account two adjustments and a payment, and the second adjustment reversed
+        // the ledger: on Cy's account two adjustments and a payment, the second adjustment and the payment reversed
         var account = await NewAccountAsync(patients[0]);
         var first1 = AdjustmentRow(account, 100m, 1, "a-1");
         var second = AdjustmentRow(account, 50m, 2, "a-2");
         var payment = PaymentRow(account, -30m, 3, "p-1");
         await AddRowsAsync(first1, second, payment);
         await AddRowsAsync(ReversalRow(account, second, 4, "r-1"));
+        await AddRowsAsync(ReversalRow(account, payment, 5, "r-2"));                  // and the payment reversed: every kind of reversal that counts is pinned, so dropping one from the numerator changes a pinned value
 
         // measurement events: six bookings, six refusals (four are conflicts, one is not, one is not valid JSON), and one event outside the range
         var events = new List<MeasurementEvent>();
@@ -104,7 +105,7 @@ public class MetricsTests : CompletionTestBase
 
         var m = result.Data.Metrics.ToDictionary(x => x.Key);
         Assert.Equal((4, 12, 0.3333m), (m[MetricKeys.SchedulingConflicts].NumeratorCount, m[MetricKeys.SchedulingConflicts].DenominatorCount, m[MetricKeys.SchedulingConflicts].Rate));
-        Assert.Equal((1, 3, 0.3333m), (m[MetricKeys.BillingCorrections].NumeratorCount, m[MetricKeys.BillingCorrections].DenominatorCount, m[MetricKeys.BillingCorrections].Rate));
+        Assert.Equal((2, 3, 0.6667m), (m[MetricKeys.BillingCorrections].NumeratorCount, m[MetricKeys.BillingCorrections].DenominatorCount, m[MetricKeys.BillingCorrections].Rate));
         Assert.Equal((1, 7, 0.1429m), (m[MetricKeys.DuplicateMerges].NumeratorCount, m[MetricKeys.DuplicateMerges].DenominatorCount, m[MetricKeys.DuplicateMerges].Rate));
         Assert.Equal((2, 3, 0.6667m), (m[MetricKeys.UnfinalizedNotes].NumeratorCount, m[MetricKeys.UnfinalizedNotes].DenominatorCount, m[MetricKeys.UnfinalizedNotes].Rate));
         Assert.Equal((2, 4, 0.5m), (m[MetricKeys.LateFollowUps].NumeratorCount, m[MetricKeys.LateFollowUps].DenominatorCount, m[MetricKeys.LateFollowUps].Rate));

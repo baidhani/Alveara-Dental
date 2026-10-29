@@ -5,7 +5,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { axe } from "jest-axe";
 import { AuthProvider } from "../../contexts/AuthContext";
 import { ReportsHubPage } from "./ReportsHubPage";
-import { FakeReportServer, baselineRecord, comparisonData, refusal } from "./reportTestServer";
+import { FakeReportServer, baselineRecord, comparable, comparisonData, refusal, side } from "./reportTestServer";
 
 // ALV-N006 slice 6c: the measurement panel (metrics, baselines, comparison), against the small in-memory server.
 
@@ -100,6 +100,24 @@ describe("the comparison", () => {
     expect(within(table).getByRole("row", { name: /Follow-ups not done on time 25.0% \(1 of 4\) 75.0% \(3 of 4\) Higher by 50.0 percentage points \(200% of the baseline rate\)/ })).toBeInTheDocument();
     expect(document.body.textContent).not.toMatch(/improv|better|worse/i);
     expect(screen.getByText("A difference between two periods shows that the numbers differ. It does not show what caused the difference.")).toBeInTheDocument();
+  });
+
+  it("states a fall as Lower and a rise as Higher, and the same rate as the same, in plain words and never as an improvement or a decline", async () => {
+    server.baselines = [baselineRecord(1, { name: "Spring" })];
+    server.comparison = comparisonData({
+      comparisons: [
+        comparable("scheduling_conflicts", "Scheduling conflicts", side(8, 40), side(4, 40)),
+        comparable("cancellation_rate", "Cancellations", side(4, 40), side(4, 40)),
+        comparable("late_follow_ups", "Follow-ups not done on time", side(1, 4), side(3, 4)),
+      ],
+    });
+    renderPanel();
+    const table = await screen.findByRole("table", { name: "Each metric in this period against the baseline" });
+
+    expect(within(table).getByRole("row", { name: /Scheduling conflicts/ })).toHaveTextContent("Lower by 10.0 percentage points (50% of the baseline rate)");
+    expect(within(table).getByRole("row", { name: /Cancellations/ })).toHaveTextContent("The same");
+    expect(within(table).getByRole("row", { name: /Follow-ups not done on time/ })).toHaveTextContent("Higher by 50.0 percentage points (200% of the baseline rate)");
+    expect(table.textContent).not.toMatch(/(improv\w*|better|worse|decline\w*|success\w*)/i);
   });
 
   it("shows no change and gives the reason for a metric that cannot honestly be compared", async () => {

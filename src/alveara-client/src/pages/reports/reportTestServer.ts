@@ -140,9 +140,9 @@ export const baselineRecord = (n: number, over: Partial<Baseline> = {}): Baselin
   metrics: [{ metricKey: "scheduling_conflicts", definitionVersion: 1, numeratorCount: 2, denominatorCount: 10, rate: 0.2 }], ...over,
 });
 
-const side = (num: number, den: number, version = 1): MetricSide => ({ definitionVersion: version, numeratorCount: num, denominatorCount: den, rate: den === 0 ? null : Math.round((num / den) * 10000) / 10000 });
+export const side = (num: number, den: number, version = 1): MetricSide => ({ definitionVersion: version, numeratorCount: num, denominatorCount: den, rate: den === 0 ? null : Math.round((num / den) * 10000) / 10000 });
 
-const comparable = (key: string, name: string, base: MetricSide, now: MetricSide): MetricComparison => {
+export const comparable = (key: string, name: string, base: MetricSide, now: MetricSide): MetricComparison => {
   const absolute = Math.round((now.rate! - base.rate!) * 10000) / 10000;
   return { key, name, lowerIsBetter: true, status: "comparable", message: "The two periods can be compared.", baseline: base, current: now, absoluteChange: absolute, relativeChange: base.rate === 0 ? null : Math.round((absolute / base.rate!) * 10000) / 10000, movement: absolute < 0 ? "Lower" : absolute > 0 ? "Higher" : "Same" };
 };
