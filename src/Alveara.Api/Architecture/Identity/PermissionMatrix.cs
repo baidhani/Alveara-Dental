@@ -84,7 +84,8 @@ public static class PermissionMatrix
             Permission.ManageRecallSettings, // ALV-009-C01: the practice's recall settings
             Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties, // ALV-009-C02
             Permission.ImportPatientData, // STORY-018: brings a patient in from a file (exporting one stays with the administrator)
-            Permission.ViewOperationalReports, Permission.ViewFinancialReports, Permission.ViewClinicalReports), // ALV-N006
+            Permission.ViewOperationalReports, Permission.ViewFinancialReports, Permission.ViewClinicalReports, // ALV-N006
+            Permission.ViewMeasurementReports), // ALV-N006 slice 5: measured metrics, baselines and comparisons
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

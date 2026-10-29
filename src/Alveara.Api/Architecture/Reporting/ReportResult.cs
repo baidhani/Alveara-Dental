@@ -31,6 +31,7 @@ public static class ReportIds
     public const string ProviderActivity = "provider-activity";
     public const string FollowUps = "follow-ups";
     public const string Cancellations = "cancellations";
+    public const string Measurement = "measurement";
 }
 
 public static class ReportReadModes

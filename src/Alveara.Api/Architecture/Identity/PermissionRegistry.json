@@ -220,6 +220,10 @@
     {
       "name": "ViewClinicalReports",
       "status": "Active"
+    },
+    {
+      "name": "ViewMeasurementReports",
+      "status": "Active"
     }
   ]
 }
