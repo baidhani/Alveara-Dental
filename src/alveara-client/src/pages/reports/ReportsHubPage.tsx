@@ -79,18 +79,18 @@ export function ReportsHubPage() {
             );
           })}
         </nav>
-        <main className="alv-rep__main">
+        <div className="alv-rep__main">
           {current === null ? (
             <EmptyState title="That report is not available to you" description="Choose one from the list." />
           ) : (
             <>
               <h2 className="alv-rep__title">{current.label}</h2>
               <ReportFilterBar key={queryKey(query) + current.id} report={current} query={query} providers={providers} locations={locations} onApply={(q) => setSearch(searchFromQuery(q))} />
-              <ReportActions key={current.id + queryKey(query)} path={current.id === "measurement" ? "measurement/metrics" : current.id} query={query} csvLabel={current.id === "measurement" ? "Download metrics CSV" : "Download CSV"} />
+              <ReportActions key={`actions-${current.id}-${queryKey(query)}`} path={current.id === "measurement" ? "measurement/metrics" : current.id} query={query} csvLabel={current.id === "measurement" ? "Download metrics CSV" : "Download CSV"} />
               <div key={current.id + queryKey(query)}>{VIEWS[current.id]({ query })}</div>
             </>
           )}
-        </main>
+        </div>
       </div>
     </div>
   );

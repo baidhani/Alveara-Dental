@@ -200,6 +200,24 @@
     display: block;
   }
 
+  /* The app prints one region at a time (the treatment-plan copy, a billing statement and a prescription do the same): everything is hidden and the report is shown again at the top of the page. */
+  body * {
+    visibility: hidden;
+  }
+
+  .alv-rep,
+  .alv-rep * {
+    visibility: visible;
+  }
+
+  .alv-rep {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+  }
+
   .alv-rep,
   .alv-rep a {
     color: #000;

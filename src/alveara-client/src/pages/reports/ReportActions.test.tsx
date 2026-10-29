@@ -104,6 +104,17 @@ describe("downloading a report", () => {
   });
 });
 
+describe("the page around the actions", () => {
+  it("renders without React warning about repeated keys or anything else", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    renderAt("/reports/production?from=2025-04-01&to=2025-04-30");
+    await screen.findByRole("button", { name: "Download CSV" });
+    await screen.findByRole("list", { name: "Summary" });
+    expect(errors.mock.calls.map((c) => String(c[0]))).toEqual([]);
+    expect(screen.queryByRole("main")).toBeNull();                      // the app shell owns the one main landmark; the hub must not nest a second
+  });
+});
+
 describe("printing a report", () => {
   it("opens the browser's print dialog and asks the server for nothing", async () => {
     const user = userEvent.setup();
