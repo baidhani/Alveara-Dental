@@ -142,4 +142,7 @@ public enum Permission
     // ALV-N006: the operational reports (schedule and patient flow here; later slices add the financial and clinical ones as their own permissions). Counts of appointments and visits, never clinical or financial detail.
     // Held by the administrator, the office manager and the front desk by default; grantable (not protected). Appended last so existing ordinals are undisturbed.
     ViewOperationalReports,
+
+    // ALV-N006 slice 2: the financial reports (production and charges, collections and payments, and the ledger entries behind them). Held by the administrator, the office manager and billing by default; grantable.
+    ViewFinancialReports,
 }

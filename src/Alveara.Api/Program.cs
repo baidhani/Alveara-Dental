@@ -98,6 +98,9 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ReportFilterResolv
 builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ScheduleReportService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.PatientFlowReportService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ReportDrillService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.ProductionReportService>();      // ALV-N006 slice 2: the financial reports
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.CollectionsReportService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Reporting.FinancialDrillService>();
 builder.Services.AddSingleton<Alveara.Api.Architecture.Imports.IImportWorkScopeFactory, Alveara.Api.Architecture.Imports.ImportWorkScopeFactory>();      // ALV-018-C02: an independent scope for each appointment the commit schedules
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Imports.ImportCommitJobHandler>();      // ALV-018-C02: the commit runs on the durable job queue
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientRegistrationSettingsService>();

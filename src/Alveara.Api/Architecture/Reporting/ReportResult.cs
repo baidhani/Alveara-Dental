@@ -23,6 +23,8 @@ public static class ReportIds
 {
     public const string Schedule = "schedule";
     public const string PatientFlow = "patient-flow";
+    public const string Production = "production";
+    public const string Collections = "collections";
 }
 
 public static class ReportReadModes

@@ -212,6 +212,10 @@
     {
       "name": "ViewOperationalReports",
       "status": "Active"
+    },
+    {
+      "name": "ViewFinancialReports",
+      "status": "Active"
     }
   ]
 }

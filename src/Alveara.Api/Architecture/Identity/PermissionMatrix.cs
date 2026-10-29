@@ -66,7 +66,8 @@ public static class PermissionMatrix
             Permission.ViewBilling, Permission.ManageBilling, Permission.ViewPatientRecords,
             Permission.ViewSignedForms, // ALV-N010: read-only (financial forms)
             Permission.ViewDocuments, // STORY-010
-            Permission.SendMessages), // ALV-N015
+            Permission.SendMessages, // ALV-N015
+            Permission.ViewFinancialReports), // ALV-N006 slice 2: production and collections
 
         [Role.OfficeManager] = Set(
             Permission.ViewPatientRecords, Permission.ManageAppointments, Permission.ViewSchedule,
@@ -82,7 +83,7 @@ public static class PermissionMatrix
             Permission.ManageRecallSettings, // ALV-009-C01: the practice's recall settings
             Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties, // ALV-009-C02
             Permission.ImportPatientData, // STORY-018: brings a patient in from a file (exporting one stays with the administrator)
-            Permission.ViewOperationalReports), // ALV-N006
+            Permission.ViewOperationalReports, Permission.ViewFinancialReports), // ALV-N006
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };
