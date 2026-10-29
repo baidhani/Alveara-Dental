@@ -8,7 +8,7 @@ using static Alveara.Api.Tests.SchedulingApiHarness;
 namespace Alveara.Api.Tests;
 
 /// <summary>
-/// ALV-N006 slice 3a over the real API: the four clinical routes are refused to an anonymous caller (401) and to every role that does not hold ViewClinicalReports (403), and answered for the administrator, the office manager
+/// ALV-N006 slice 3a over the real API: the seven clinical routes are refused to an anonymous caller (401) and to every role that does not hold ViewClinicalReports (403), and answered for the administrator, the office manager
 /// and the dentist; the three report permissions are separate from one another; a report is <c>no-store</c> with its envelope; a filter a report cannot honestly apply gets <c>filter_not_supported</c>; and the permission is
 /// registered, grantable and held by the right roles.
 /// </summary>
@@ -31,7 +31,7 @@ public class ClinicalReportsApiTests : IAsyncLifetime
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
-    private static string[] Urls => [$"/api/reports/treatment-plans?{Range}", $"/api/reports/completed-procedures?{Range}", $"/api/reports/treatment-plans/items?{Range}", $"/api/reports/completed-procedures/procedures?{Range}"];
+    private static string[] Urls => [$"/api/reports/treatment-plans?{Range}", $"/api/reports/completed-procedures?{Range}", $"/api/reports/treatment-plans/items?{Range}", $"/api/reports/completed-procedures/procedures?{Range}", $"/api/reports/provider-activity?{Range}", $"/api/reports/provider-activity/appointments?{Range}&measure=Booked", $"/api/reports/provider-activity/procedures?{Range}"];
 
     [Fact]
     public async Task Every_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission()
@@ -88,6 +88,9 @@ public class ClinicalReportsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.BadRequest, "filter_not_supported"), await CallAsync($"/api/reports/completed-procedures?{Range}&locationId={_s.LocationId}"));
         Assert.Equal((HttpStatusCode.OK, null), await CallAsync($"/api/reports/completed-procedures?{Range}&providerIds={_s.ProviderA}"));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_cell"), await CallAsync($"/api/reports/treatment-plans/items?{Range}&cell=Done"));
+        Assert.Equal((HttpStatusCode.BadRequest, "filter_not_supported"), await CallAsync($"/api/reports/provider-activity?{Range}&locationId={_s.LocationId}"));
+        Assert.Equal((HttpStatusCode.OK, null), await CallAsync($"/api/reports/provider-activity?{Range}&providerIds={_s.ProviderA}"));
+        Assert.Equal((HttpStatusCode.BadRequest, "invalid_measure"), await CallAsync($"/api/reports/provider-activity/appointments?{Range}"));
         Assert.Equal((HttpStatusCode.BadRequest, "invalid_code"), await CallAsync($"/api/reports/completed-procedures/procedures?{Range}&code=D0120"));
         Assert.Equal((HttpStatusCode.BadRequest, "dates_required"), await CallAsync("/api/reports/treatment-plans"));
         Assert.Equal((HttpStatusCode.BadRequest, "range_too_large"), await CallAsync("/api/reports/completed-procedures?from=2028-01-01&to=2029-01-01"));

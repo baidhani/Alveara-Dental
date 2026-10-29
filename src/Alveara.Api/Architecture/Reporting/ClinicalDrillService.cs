@@ -61,7 +61,8 @@ public class ClinicalDrillService(AlveraDbContext db, ReportFilterResolver resol
         return new ClinicalPage<PlanItemDrillRow>(ReportIds.TreatmentPlans, ReportSupport.View(filter), total, fee, rows, more ? new ClinicalCursor(null, rows[^1].ItemId) : null);
     }
 
-    public async Task<ClinicalPage<ProcedureDrillRow>> ProceduresAsync(ReportFilter filter, ProcedureDrillCriteria criteria, Guid actor, CancellationToken ct)
+    /// <summary>The completed procedures behind a number of the completed-procedures report, or (with <paramref name="reportId"/>) of the provider-activity report, which counts the same procedures.</summary>
+    public async Task<ClinicalPage<ProcedureDrillRow>> ProceduresAsync(ReportFilter filter, ProcedureDrillCriteria criteria, Guid actor, CancellationToken ct, string reportId = ReportIds.CompletedProcedures)
     {
         if (filter.LocationId is not null) throw new ReportException("filter_not_supported", "That filter is not available for completed procedures.", 400);
         var limit = Limit(criteria.Limit);
@@ -94,7 +95,7 @@ public class ClinicalDrillService(AlveraDbContext db, ReportFilterResolver resol
 
         var more = rows.Count > limit;
         if (more) rows.RemoveAt(rows.Count - 1);
-        await ReportSupport.AuditAsync(db, log, ReportIds.CompletedProcedures, true, filter, rows.Count, actor, ct);
-        return new ClinicalPage<ProcedureDrillRow>(ReportIds.CompletedProcedures, ReportSupport.View(filter), total, fee, rows, more ? new ClinicalCursor(rows[^1].PerformedAtUtc, rows[^1].Id) : null);
+        await ReportSupport.AuditAsync(db, log, reportId, true, filter, rows.Count, actor, ct);
+        return new ClinicalPage<ProcedureDrillRow>(reportId, ReportSupport.View(filter), total, fee, rows, more ? new ClinicalCursor(rows[^1].PerformedAtUtc, rows[^1].Id) : null);
     }
 }

@@ -28,6 +28,7 @@ public static class ReportIds
     public const string Balances = "balances";
     public const string TreatmentPlans = "treatment-plans";
     public const string CompletedProcedures = "completed-procedures";
+    public const string ProviderActivity = "provider-activity";
 }
 
 public static class ReportReadModes
