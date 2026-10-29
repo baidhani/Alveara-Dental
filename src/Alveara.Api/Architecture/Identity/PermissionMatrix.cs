@@ -25,7 +25,8 @@ public static class PermissionMatrix
             Permission.ViewDocuments, // STORY-010: reads the library
             Permission.SendMessages, // ALV-N015
             Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
-            Permission.ViewExternalCases, Permission.ManageExternalCases), // ALV-009-C02: refers and orders lab work
+            Permission.ViewExternalCases, Permission.ManageExternalCases, // ALV-009-C02: refers and orders lab work
+            Permission.ViewClinicalReports), // ALV-N006 slice 3: treatment-plan status, completed procedures
 
         [Role.Hygienist] = Set(
             Permission.ViewPatientRecords, Permission.ManageClinicalNotes,
@@ -83,7 +84,7 @@ public static class PermissionMatrix
             Permission.ManageRecallSettings, // ALV-009-C01: the practice's recall settings
             Permission.ViewExternalCases, Permission.ManageExternalCases, Permission.ManageExternalParties, // ALV-009-C02
             Permission.ImportPatientData, // STORY-018: brings a patient in from a file (exporting one stays with the administrator)
-            Permission.ViewOperationalReports, Permission.ViewFinancialReports), // ALV-N006
+            Permission.ViewOperationalReports, Permission.ViewFinancialReports, Permission.ViewClinicalReports), // ALV-N006
 
         [Role.Unassigned] = Set(), // self-registered, not-yet-provisioned accounts hold no permissions at all
     };

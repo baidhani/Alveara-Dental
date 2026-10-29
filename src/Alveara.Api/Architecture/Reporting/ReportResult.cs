@@ -26,6 +26,8 @@ public static class ReportIds
     public const string Production = "production";
     public const string Collections = "collections";
     public const string Balances = "balances";
+    public const string TreatmentPlans = "treatment-plans";
+    public const string CompletedProcedures = "completed-procedures";
 }
 
 public static class ReportReadModes

@@ -145,4 +145,7 @@ public enum Permission
 
     // ALV-N006 slice 2: the financial reports (production and charges, collections and payments, and the ledger entries behind them). Held by the administrator, the office manager and billing by default; grantable.
     ViewFinancialReports,
+
+    // ALV-N006 slice 3: the clinical reports (treatment-plan status, completed procedures, provider activity). Held by the administrator, the office manager and the dentist by default; grantable.
+    ViewClinicalReports,
 }
