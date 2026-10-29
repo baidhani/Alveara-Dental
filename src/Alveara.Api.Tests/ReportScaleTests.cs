@@ -37,11 +37,19 @@ public sealed class ReportScaleFixture : IAsyncLifetime
                 b.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
             },
         };
-        Support = new SchedulingTestSupport(Database);
-        await Support.ArrangeAsync();
-        Admin = await Api.SessionAsync("Admin");
-        await SeedAppointmentsAsync();
-        await SeedLedgerAsync();
+        try
+        {
+            Support = new SchedulingTestSupport(Database);
+            await Support.ArrangeAsync();
+            Admin = await Api.SessionAsync("Admin");
+            await SeedAppointmentsAsync();
+            await SeedLedgerAsync();
+        }
+        catch
+        {
+            await DisposeAsync();                                               // xUnit does not dispose a fixture whose setup threw: without this a failed seed leaves its test database behind
+            throw;
+        }
     }
 
     public Task DisposeAsync() { Api.Dispose(); return Database.DisposeAsync(); }
