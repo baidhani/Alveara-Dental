@@ -1,0 +1,68 @@
+{
+  "axe": {
+    "export-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "export-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "rejected-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "rejected-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "audit-log-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "audit-log-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1793290462008,
+  "access": {
+    "dentist": [
+      403,
+      403
+    ],
+    "frontDesk": [
+      403,
+      403
+    ],
+    "officeManagerExport": 403,
+    "anonymous": [
+      401,
+      401
+    ]
+  },
+  "export": {
+    "fileName": "alveara-patient-f47be74da0e54f51a16edbb647720a2f.json",
+    "format": "alveara.patient-export",
+    "formatVersion": 1,
+    "members": 12
+  },
+  "rejected": {
+    "problems": 3,
+    "patientsBefore": 1,
+    "patientsAfter": 1
+  },
+  "imported": {
+    "patientsAfterFirstImport": 2,
+    "patientsAfterRepeat": 2
+  },
+  "log": {
+    "entries": [
+      "PatientExported:admin",
+      "PatientImportRejected:officeManager",
+      "PatientImportRejected:officeManager",
+      "PatientImported:officeManager",
+      "PatientImported:officeManager"
+    ]
+  }
+}

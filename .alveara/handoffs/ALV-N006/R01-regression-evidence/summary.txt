@@ -1,0 +1,33 @@
+run commit: f3372c3a0a6c58ffadc55effaf767ee3443fbae3
+implementation commit: 4a7d6f48d98333152272bd470bcbb40ab9e3aa5e
+working tree before: 0 changed paths (0 = clean)
+env: ALVERA_TEST_TEMPLATE=[]
+start: 2026-10-29T09:40:30-05:00
+backend command: cd src/Alveara.Api.Tests && dotnet test --nologo --logger "trx;LogFileName=full_serial.trx" --results-directory C:/tmp/stage2-ALV-N006-R01/trx
+== backend exit=0 elapsed=4979s
+  Alveara.Api.Tests -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\tmp\stage2-ALV-N006-R01\trx\full_serial.trx
+
+Passed!  - Failed:     0, Passed:  5612, Skipped:     0, Total:  5612, Duration: 1 h 22 m - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=1s
+== gate vitest exit=0 elapsed=162s
+== gate build exit=0 elapsed=9s
+== gate lint exit=0 elapsed=4s
+== gate playwright_mocked exit=0 elapsed=26s
+== gate repo_checks exit=0 elapsed=14s
+== gate walk_playwright.reports.config.ts exit=0 elapsed=37s
+== gate walk_playwright.follow-ups.config.ts exit=0 elapsed=47s
+== gate walk_playwright.flow.config.ts exit=0 elapsed=36s
+== gate walk_playwright.notifications.config.ts exit=0 elapsed=58s
+== gate walk_playwright.permission-policy.config.ts exit=0 elapsed=34s
+== gate walk_playwright.permission-policy-admin.config.ts exit=0 elapsed=74s
+== gate walk_playwright.workspace.config.ts exit=0 elapsed=61s
+== gate walk_playwright.patient-export-package.config.ts exit=0 elapsed=55s
+== gate walk_playwright.patient-portability.config.ts exit=0 elapsed=46s
+== gate walk_playwright.patient-merge.config.ts exit=0 elapsed=44s
+== gate walk_playwright.bulk-import.config.ts exit=0 elapsed=106s
+== gate walk_playwright.patients.config.ts exit=0 elapsed=31s
+end: 2026-10-29T11:17:41-05:00
+working tree after: 0 changed paths

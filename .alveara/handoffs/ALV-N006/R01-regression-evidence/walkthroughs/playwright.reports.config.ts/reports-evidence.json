@@ -1,0 +1,52 @@
+{
+  "axe": {
+    "schedule-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "schedule-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "collections-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "collections-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "measurement-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "measurement-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "sql": {
+    "appointments": "5",
+    "cancelled": "2",
+    "paymentsReceived": "40.00"
+  },
+  "screen": {
+    "schedule": {
+      "appointments": 5,
+      "cancelled": 2,
+      "scheduled": 3
+    },
+    "collections": {
+      "received": 40
+    },
+    "measurement": {
+      "cancellations": "2 of 5",
+      "baselines": 1,
+      "metricsStored": 7
+    }
+  },
+  "stamp": 1793290047439,
+  "audit": {
+    "exportDetails": "Report schedule exported as CSV: 1 day(s), 8 line(s)."
+  }
+}

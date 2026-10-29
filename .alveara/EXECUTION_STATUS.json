@@ -2786,7 +2786,7 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "AWAITING_REGRESSION",
+      "status": "AWAITING_REVIEW",
       "attempt": "R01",
       "acceptance": {
         "total": 7,
@@ -2794,7 +2794,7 @@
       },
       "tests": {
         "status": "passed",
-        "summary": "Attempt R01, a Stage 1 package. The 16 backend test classes new in this story hold exactly 131 new test ids against the 5,481-id ALV-018-C02 R01 baseline (none retired, no existing test file modified); focused run 1,682 of 1,682 (the new classes plus the permission, audit, export-catalog, schema and measurement collateral); every *ApiTests class 964 of 964 (36 new ids); 10 of 10 negative controls caught (two survived the first run and each got a new test); performance smoke over a year of 4,380 appointments and 5,000 ledger entries, slowest report 0.116 s; tsc, build and lint (oxlint) exit 0; Vitest 1,879 in 120 files (89 new); mocked Playwright 138 passed and 2 skipped; repository checks 13; real-backend walkthroughs passed: reports 7 (axe light and dark, 0 critical or serious), follow-ups 8, patient flow 10, notifications 10, permission policy 7 and 8, workspace 14, patient export package 10, patient portability 7; the billing-ledger walkthrough fails its test 8 (7 passed, 1 failed, 3 did not run) and fails the same way on the last pushed commit 6899818, so it predates this story and is recorded, not fixed; artifact counts unchanged by the sweep (five AlveraTest databases left by an earlier run of mine were dropped afterwards and the fixture fixed). Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N006/R01-evidence/stage2/) expects 5,612 backend tests (the 5,481 baseline plus exactly the 131 listed new ids) with no time limit. No full run made for R01."
+        "summary": "Attempt R01, a Stage 1 package. The 16 backend test classes new in this story hold exactly 131 new test ids against the 5,481-id ALV-018-C02 R01 baseline (none retired, no existing test file modified); focused run 1,682 of 1,682 (the new classes plus the permission, audit, export-catalog, schema and measurement collateral); every *ApiTests class 964 of 964 (36 new ids); 10 of 10 negative controls caught (two survived the first run and each got a new test); performance smoke over a year of 4,380 appointments and 5,000 ledger entries, slowest report 0.116 s; tsc, build and lint (oxlint) exit 0; Vitest 1,879 in 120 files (89 new); mocked Playwright 138 passed and 2 skipped; repository checks 13; real-backend walkthroughs passed: reports 7 (axe light and dark, 0 critical or serious), follow-ups 8, patient flow 10, notifications 10, permission policy 7 and 8, workspace 14, patient export package 10, patient portability 7; the billing-ledger walkthrough fails its test 8 (7 passed, 1 failed, 3 did not run) and fails the same way on the last pushed commit 6899818, so it predates this story and is recorded, not fixed; artifact counts unchanged by the sweep (five AlveraTest databases left by an earlier run of mine were dropped afterwards and the fixture fixed). Stage 2 (run once on the Stage 1 closure commit f3372c3, clean tree, src/ identical to the implementation): STAGE 2 QUALIFIES, 33 of 33 criteria; backend 5,612 passed, 0 failed, 0 skipped in 83.0 min (the 5,481 baseline ids unchanged plus exactly the 131 listed new ids, none retired), template built once with 0 fallbacks and 4,269 clones, artifact counts unchanged, tsc, Vitest 1,879/120, build, lint, mocked Playwright 138 passed and 2 skipped and repository checks 13 exit 0, twelve walkthroughs passed (reports 7, follow-ups 8, patient flow 10, notifications 10, permission policy 7 and 8, workspace 14, patient export package 10, patient portability 7, patient merge 9, bulk import 13, patients 7); the billing-ledger walkthrough was excluded as the review requires and remains known test debt; addendum .alveara/handoffs/ALV-N006/R01-regression.md. The raw trx is not committed (it is in the regression ZIP)."
       },
       "demo": "real_backend_walkthrough_7_of_7",
       "parentRegression": "n/a",
@@ -2815,7 +2815,7 @@
         "reason": null
       },
       "completedAt": null,
-      "fullRegression": "REQUIRED"
+      "fullRegression": "PASSED"
     },
     {
       "schemaVersion": "2",

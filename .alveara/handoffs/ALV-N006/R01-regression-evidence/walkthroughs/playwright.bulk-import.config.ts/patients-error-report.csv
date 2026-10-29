@@ -1,0 +1,4 @@
+﻿row,status,reason,field,message,duplicate_of_row
+4,Rejected,invalid_fields,firstName,First name is required.,
+5,Skipped,already_registered,,A registered patient is exactly this person.,
+6,Unresolved,possible_duplicate,,This may be a registered patient; a person must decide.,

@@ -1,0 +1,24 @@
+Database AlveraWalk_playwright_patient_export_package_config_6ce459bb created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.patient-export-package.config.ts ...
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] › e2e\patient-export-package-real-backend.spec.ts:128:1 › SETUP: three patients, real document files, and one record merged into another (2.8s)
+  ok  2 [chromium] › e2e\patient-export-package-real-backend.spec.ts:143:1 › WHO MAY: the API refuses an anonymous caller and a dentist on every export route, and the dentist has no menu entry and no screen (1.3s)
+  ok  3 [chromium] › e2e\patient-export-package-real-backend.spec.ts:168:1 › SCREEN: the administrator sees what a package holds and leaves out, the limits, how the database is read and the empty history (3.0s)
+  ok  4 [chromium] › e2e\patient-export-package-real-backend.spec.ts:188:1 › ONE PATIENT: the administrator creates a package from the screen; it is saved, logged and listed in the history (2.3s)
+  ok  5 [chromium] › e2e\patient-export-package-real-backend.spec.ts:205:1 › READABLE RECORD: from the patient's page and from the screen; the saved page opens in the browser, runs no script and makes no outside request (2.7s)
+  ok  6 [chromium] › e2e\patient-export-package-real-backend.spec.ts:244:1 › ALL PATIENTS: the administrator creates every patient's package from the screen and the time it took is recorded (2.7s)
+  ok  7 [chromium] › e2e\patient-export-package-real-backend.spec.ts:265:1 › PERMISSIONS: granting the dentist only the readable-record permission gives the dentist exactly that and nothing more (2.4s)
+  ok  8 [chromium] › e2e\patient-export-package-real-backend.spec.ts:293:1 › HISTORY AND AUDIT: every export names who and when and no patient, and the audit log holds the three kinds of event (550ms)
+  ok  9 [chromium] › e2e\patient-export-package-real-backend.spec.ts:310:1 › STORY-018 STILL WORKS: the original Export patient file button downloads the JSON file in the documented layout (2.0s)
+  ok 10 [chromium] › e2e\patient-export-package-real-backend.spec.ts:322:1 › TIMING: 200 patients are registered and the real time of a one-patient and an all-patients package is recorded (6.5s)
+
+  10 passed (33.0s)
+Database AlveraWalk_playwright_patient_export_package_config_6ce459bb dropped (its files went with it).
+Output kept in C:/tmp/stage2-ALV-N006-R01/walkthroughs/playwright.patient-export-package.config.ts

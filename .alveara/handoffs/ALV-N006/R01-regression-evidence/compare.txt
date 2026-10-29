@@ -1,0 +1,140 @@
+baseline ids: 5481; result ids: 5612; new ids: 131 (expected 131)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+    Alveara.Api.Tests.BalancesReportTests.A_later_range_shows_the_same_balances_with_no_change -> Passed
+    Alveara.Api.Tests.BalancesReportTests.A_location_filter_is_refused_for_the_report_and_for_its_accounts -> Passed
+    Alveara.Api.Tests.BalancesReportTests.A_run_is_recorded_a_failed_audit_save_refuses_it_and_too_many_accounts_are_refused -> Passed
+    Alveara.Api.Tests.BalancesReportTests.An_empty_ledger_says_there_is_no_data_and_still_reconciles -> Passed
+    Alveara.Api.Tests.BalancesReportTests.Bad_account_criteria_get_stable_codes_and_record_nothing -> Passed
+    Alveara.Api.Tests.BalancesReportTests.Pages_never_repeat_or_skip_an_account_and_each_page_is_recorded -> Passed
+    Alveara.Api.Tests.BalancesReportTests.The_accounts_behind_each_side_equal_the_cell_and_come_largest_first -> Passed
+    Alveara.Api.Tests.BalancesReportTests.The_snapshots_at_the_start_and_the_end_and_the_change_between_them_reconcile_to_the_ledger -> Passed
+    Alveara.Api.Tests.CancellationReportTests.A_rate_is_unavailable_when_nothing_was_booked_and_never_zero -> Passed
+    Alveara.Api.Tests.CancellationReportTests.Counts_and_rates_add_up_by_provider_and_by_type_and_the_cancellations_are_cut_by_how_early_they_were_made -> Passed
+    Alveara.Api.Tests.CancellationReportTests.Each_run_is_recorded_and_a_failed_audit_save_refuses_the_report -> Passed
+    Alveara.Api.Tests.CancellationReportTests.Every_drill_down_total_equals_its_cell_and_the_cancel_reason_is_never_returned -> Passed
+    Alveara.Api.Tests.CancellationReportTests.Pages_never_repeat_or_skip_and_bad_criteria_get_stable_codes -> Passed
+    Alveara.Api.Tests.CancellationReportTests.The_provider_and_location_filters_narrow_the_report -> Passed
+    Alveara.Api.Tests.ClinicalReportsApiTests.A_clinical_report_is_no_store_carries_its_envelope_and_says_when_it_has_no_data -> Passed
+    Alveara.Api.Tests.ClinicalReportsApiTests.A_filter_the_report_cannot_honestly_apply_is_refused_and_other_errors_have_stable_codes -> Passed
+    Alveara.Api.Tests.ClinicalReportsApiTests.Every_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission -> Passed
+    Alveara.Api.Tests.ClinicalReportsApiTests.The_permission_is_held_by_the_administrator_the_office_manager_and_the_dentist_and_can_be_granted -> Passed
+    Alveara.Api.Tests.ClinicalReportsApiTests.The_three_report_permissions_are_separate_from_one_another -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.An_amendment_moves_a_procedure_to_its_corrected_day_and_provider -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Bad_drill_criteria_get_stable_codes_and_a_run_over_the_limit_is_refused -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Completed_procedures_are_counted_by_day_provider_and_code_and_each_cut_adds_up -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Each_run_is_recorded_without_any_name_and_a_failed_audit_save_refuses_the_report -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Every_plan_item_drill_total_and_fee_equals_its_cell_and_pages_never_repeat -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Every_procedure_drill_total_and_fee_equals_the_cell_it_came_from -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Plan_items_are_counted_in_exactly_one_state_and_the_counts_reconcile -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Plan_status_refuses_a_provider_or_location_filter_and_records_nothing -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.Plans_created_outside_the_range_are_not_in_the_report_and_an_empty_range_says_so -> Passed
+    Alveara.Api.Tests.ClinicalReportsTests.The_provider_filter_narrows_every_view_and_a_location_filter_is_refused -> Passed
+    Alveara.Api.Tests.FinancialReportsApiTests.A_filter_the_report_cannot_honestly_apply_is_refused_and_other_errors_have_stable_codes -> Passed
+    Alveara.Api.Tests.FinancialReportsApiTests.A_financial_report_is_no_store_carries_its_envelope_and_says_when_it_has_no_data -> Passed
+    Alveara.Api.Tests.FinancialReportsApiTests.Every_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission -> Passed
+    Alveara.Api.Tests.FinancialReportsApiTests.The_operational_and_the_financial_permissions_are_separate -> Passed
+    Alveara.Api.Tests.FinancialReportsApiTests.The_permission_is_held_by_the_administrator_the_office_manager_and_billing_and_can_be_granted -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.A_provider_amendment_moves_the_production_to_the_provider_now_credited -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.A_range_over_the_row_limit_is_refused_and_nothing_is_recorded -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.A_range_with_nothing_recorded_says_so_and_the_entries_are_dated_by_when_they_were_recorded -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Bad_drill_criteria_get_stable_codes -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Collections_are_in_money_by_method_and_net_of_reversals_and_refunds -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Collections_refuse_a_provider_or_location_filter_rather_than_ignore_it -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Each_run_is_recorded_without_any_name_and_a_failed_audit_save_refuses_the_report -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Every_drill_down_total_and_amount_equals_the_cell_it_came_from -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Pages_never_repeat_or_skip_an_entry_and_each_page_is_recorded -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.Production_is_gross_charges_less_reversals_split_by_the_provider_credited_and_by_procedure_code -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.The_lines_add_up_to_the_ledger_and_the_opening_balance_is_its_own_line -> Passed
+    Alveara.Api.Tests.FinancialReportsTests.The_provider_filter_narrows_production_and_the_proof_covers_that_production_alone -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.A_provider_or_location_filter_is_refused_and_nothing_is_recorded -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.A_range_with_no_task_due_says_so_and_still_reconciles -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.Each_run_is_recorded_and_a_failed_audit_save_refuses_it_and_too_many_tasks_are_refused -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.Each_task_due_in_the_range_is_in_exactly_one_outcome_and_the_outcomes_add_up -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.Every_drill_down_total_equals_its_cell_and_a_task_title_is_never_returned -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.Judging_at_a_later_moment_turns_tasks_not_yet_due_into_overdue_ones_and_nothing_else_changes -> Passed
+    Alveara.Api.Tests.FollowUpReportTests.Pages_never_repeat_or_skip_a_task_and_bad_criteria_get_stable_codes -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.A_filter_the_report_cannot_apply_is_refused_and_a_bad_request_has_a_stable_code -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.Setting_a_baseline_is_held_by_the_administrator_and_the_office_manager_and_can_be_granted -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.Setting_a_baseline_needs_its_own_permission_a_key_and_a_token_and_a_repeat_returns_the_same_baseline -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.The_answer_is_no_store_and_carries_the_metrics_the_unmeasurable_things_and_the_no_causation_note -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.The_comparison_names_its_baseline_and_refuses_an_unknown_one_and_a_provider_filter -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.The_permission_is_held_by_the_administrator_and_the_office_manager_and_can_be_granted -> Passed
+    Alveara.Api.Tests.MeasurementApiTests.The_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_baseline_rate_of_zero_gives_no_relative_change_but_still_the_absolute_one -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_baseline_stores_every_metric_of_a_completed_period_with_its_definition_version_and_is_audited_without_its_name -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_comparison_is_recorded_a_provider_filter_is_refused_and_a_failed_audit_save_refuses_it -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_failed_audit_save_refuses_the_baseline_and_stores_nothing -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_metric_that_cannot_honestly_be_compared_gives_its_reason_and_no_change_at_all -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_period_that_is_not_over_a_missing_key_or_a_bad_name_or_range_is_refused_and_nothing_is_stored -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_small_current_sample_a_changed_definition_and_an_overlapping_period_each_refuse_the_comparison_for_their_own_reason -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.A_valid_comparison_shows_lower_or_higher_and_the_change_and_never_the_word_improved -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.The_database_refuses_to_change_or_delete_a_baseline_or_a_stored_metric -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.The_same_key_and_request_returns_the_same_baseline_a_different_request_is_refused_and_two_at_once_make_one -> Passed
+    Alveara.Api.Tests.MeasurementBaselineTests.With_no_baseline_every_metric_says_so_and_shows_no_change -> Passed
+    Alveara.Api.Tests.MetricsTests.A_metric_with_nothing_in_its_denominator_has_no_rate_and_never_zero -> Passed
+    Alveara.Api.Tests.MetricsTests.A_provider_or_location_filter_is_refused_and_nothing_is_recorded -> Passed
+    Alveara.Api.Tests.MetricsTests.Each_run_is_recorded_a_failed_audit_save_refuses_it_and_too_many_refusal_events_are_refused -> Passed
+    Alveara.Api.Tests.MetricsTests.Every_metric_has_the_value_that_can_be_checked_by_hand_and_these_are_pinned_to_the_definition_versions -> Passed
+    Alveara.Api.Tests.MetricsTests.Metrics_judged_at_a_moment_change_with_that_moment_and_the_others_do_not -> Passed
+    Alveara.Api.Tests.MetricsTests.The_definitions_are_complete_the_keys_are_unique_and_the_unmeasurable_things_have_no_number -> Passed
+    Alveara.Api.Tests.OperationalReportsApiTests.A_bad_request_gets_a_stable_code_and_a_malformed_id_is_a_plain_400 -> Passed
+    Alveara.Api.Tests.OperationalReportsApiTests.A_report_is_no_store_carries_its_envelope_and_names_no_patient -> Passed
+    Alveara.Api.Tests.OperationalReportsApiTests.Every_route_is_refused_to_anonymous_callers_and_to_roles_without_the_permission -> Passed
+    Alveara.Api.Tests.OperationalReportsApiTests.The_permission_is_held_by_the_administrator_the_office_manager_and_the_front_desk_and_can_be_granted_to_another_role -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.A_bad_range_is_refused_with_a_stable_code_and_the_limit_is_exact -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.A_day_is_a_practice_local_day_and_the_filters_narrow_every_view_the_same_way -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.A_range_becomes_whole_practice_local_days_and_a_daylight_saving_day_is_23_or_25_hours_long -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.A_range_holding_too_many_records_is_refused_and_nothing_is_recorded -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.A_range_with_nothing_in_it_says_so_and_still_lists_every_day_as_zeros -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.A_visit_whose_time_has_passed_without_being_completed_is_counted_apart -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.Bad_drill_criteria_get_stable_codes_and_record_nothing -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.Every_drill_down_total_equals_the_cell_it_came_from -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.Pages_never_repeat_or_skip_an_appointment_and_each_page_is_recorded -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.Reschedules_are_counted_only_for_appointments_in_the_range -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.Running_again_gives_the_same_numbers_and_each_run_is_recorded_without_naming_a_patient -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.The_totals_the_days_and_the_providers_all_add_up_to_one_independent_count_of_the_appointments -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.Visits_are_counted_by_state_with_every_state_a_row_and_the_counts_reconcile -> Passed
+    Alveara.Api.Tests.OperationalReportsTests.When_the_audit_entry_cannot_be_saved_the_report_is_not_delivered -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.A_range_with_nothing_in_it_says_so_and_a_range_over_the_limit_is_refused -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.A_visit_booked_with_one_provider_and_seen_by_another_is_in_the_second_providers_visits_only -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.Bad_drill_criteria_get_stable_codes_and_each_run_is_recorded_or_the_report_refused -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.Each_provider_has_booked_cancelled_no_show_visit_and_procedure_counts_and_every_column_adds_up -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.Every_appointment_drill_total_equals_the_cell_it_came_from -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.Every_procedure_drill_total_equals_the_cell_and_pages_never_repeat_or_skip -> Passed
+    Alveara.Api.Tests.ProviderActivityTests.The_provider_filter_keeps_only_the_chosen_provider_in_every_measure_and_a_location_filter_is_refused -> Passed
+    Alveara.Api.Tests.ReportCsvTests.A_number_is_written_as_a_number_but_text_that_could_run_as_a_formula_is_neutralised -> Passed
+    Alveara.Api.Tests.ReportCsvTests.A_value_with_a_comma_a_quote_or_a_line_break_is_quoted_and_a_quote_is_doubled -> Passed
+    Alveara.Api.Tests.ReportCsvTests.An_empty_list_says_so_and_a_report_read_table_by_table_and_with_nothing_matching_says_that -> Passed
+    Alveara.Api.Tests.ReportCsvTests.An_export_is_handed_over_only_after_it_is_recorded_and_the_name_says_what_it_holds -> Passed
+    Alveara.Api.Tests.ReportCsvTests.Names_are_made_readable(name: "Name", expected: "Name") -> Passed
+    Alveara.Api.Tests.ReportCsvTests.Names_are_made_readable(name: "ledger.linesTotal", expected: "Ledger lines total") -> Passed
+    Alveara.Api.Tests.ReportCsvTests.Names_are_made_readable(name: "netProduction", expected: "Net production") -> Passed
+    Alveara.Api.Tests.ReportCsvTests.The_file_says_what_it_covers_then_the_summary_then_one_table_per_list -> Passed
+    Alveara.Api.Tests.ReportCsvTests.When_the_export_cannot_be_recorded_nothing_is_handed_over_and_a_file_over_the_limit_is_refused -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.A_bad_request_gets_the_reports_own_stable_code_not_a_file -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.A_run_and_an_export_are_two_audit_entries_and_a_refused_export_leaves_neither -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_a_no_store_csv_named_for_what_it_holds_and_carries_the_numbers_the_report_shows -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "balances") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "cancellations") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "collections") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "completed-procedures") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "follow-ups") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "measurement/comparison") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "measurement/metrics") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "patient-flow") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "production") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "provider-activity") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "schedule") -> Passed
+    Alveara.Api.Tests.ReportExportApiTests.An_export_is_allowed_to_exactly_the_roles_that_may_read_the_report_it_exports(report: "treatment-plans") -> Passed
+    Alveara.Api.Tests.ReportScaleTests.A_full_year_reconciles_with_the_data_that_was_put_in -> Passed
+    Alveara.Api.Tests.ReportScaleTests.A_range_over_the_limit_is_refused_by_its_code_and_records_nothing -> Passed
+    Alveara.Api.Tests.ReportScaleTests.Every_report_over_a_year_answers_with_a_small_fixed_number_of_database_commands -> Passed
+    Alveara.Api.Tests.ReportScaleTests.No_report_over_a_year_takes_a_minute_and_with_evidence_requested_each_stays_inside_ten_seconds -> Passed
+    Alveara.Api.Tests.ReportScaleTests.The_csv_of_a_year_holds_exactly_the_numbers_of_the_report -> Passed
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 0
+EXPECTED new ids that did not appear: 0
+COMPARISON PASS
