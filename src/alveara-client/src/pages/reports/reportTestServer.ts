@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import type {
-  AppointmentRecord, BalanceAccountRecord, BalancesData, CancellationsData, CollectionsData, CompletedProceduresData, FollowUpRecord, FollowUpsData, LedgerEntryRecord, LedgerProof, PatientFlowData,
+  AppointmentRecord, BalanceAccountRecord, BalancesData, Baseline, CancellationsData, CollectionsData, CompletedProceduresData, ComparisonData, FollowUpRecord, FollowUpsData, LedgerEntryRecord, LedgerProof, MeasurementData, MetricComparison, MetricSide, MetricValue, PatientFlowData,
   PlanItemRecord, PlanStatusData, ProcedureRecord, ProductionData, ProviderActivityData, ScheduleData,
 } from "../../services/reportsApi";
 
@@ -10,7 +10,7 @@ import type {
  */
 export const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 export const refusal = (status: number, error: string) => json({ error, message: "Server words." }, status);
-export type Call = { method: string; url: string; path: string; params: URLSearchParams };
+export type Call = { method: string; url: string; path: string; params: URLSearchParams; headers: Headers; body: Record<string, unknown> | undefined };
 
 const counts = (appointments: number, scheduled: number, cancelled: number, noShow: number, bookedMinutes: number) => ({ appointments, scheduled, cancelled, noShow, bookedMinutes });
 
@@ -112,6 +112,55 @@ export const procedureRecord = (n: number, over: Partial<ProcedureRecord> = {}):
   id: `c${n}`, patientId: `p${n}`, planItemId: `i${n}`, providerProfileId: "pa", performedAtUtc: `2030-01-15T${String(14 + n).padStart(2, "0")}:00:00+00:00`, codeSystem: "LOCAL", code: "LOCAL-500", estimatedFee: 100, ...over,
 });
 
+
+const metric = (key: string, name: string, num: number, den: number): MetricValue => ({
+  key, name, definitionVersion: 1, numerator: `things counted for ${name}`, denominator: `all things for ${name}`, source: "the records", lowerIsBetter: true, supportingRoute: null,
+  numeratorCount: num, denominatorCount: den, rate: den === 0 ? null : Math.round((num / den) * 10000) / 10000,
+});
+
+export const NOT_MEASURABLE = [
+  { key: "duplicate_entry_time", name: "Time spent entering the same information twice", reason: "The application cannot tell that two entries were the same information or how long either took." },
+  { key: "administrative_time", name: "Time staff spend on nonclinical administrative work", reason: "The application does not record how long a task takes or who was waiting while it was done." },
+  { key: "nonclinical_overhead_reduction", name: "Reduction in nonclinical overhead", reason: "This is a product target (a 20 to 30 percent reduction), not a measurement. It becomes a result only if a valid baseline and comparison of a measurable time metric exist." },
+];
+
+export const NO_CAUSATION = "A difference between two periods shows that the numbers differ. It does not show what caused the difference.";
+
+export const measurementData = (over: Partial<MeasurementData> = {}): MeasurementData => ({
+  asOfUtc: "2030-02-01T00:00:00+00:00",
+  metrics: [
+    metric("scheduling_conflicts", "Scheduling conflicts", 4, 12), metric("billing_corrections", "Billing corrections", 1, 3), metric("duplicate_merges", "Duplicate patient merges", 1, 7),
+    metric("unfinalized_notes", "Clinical notes not finalized", 2, 3), metric("late_follow_ups", "Follow-ups not done on time", 2, 4), metric("cancellation_rate", "Cancellations", 2, 5), metric("no_show_rate", "No-shows", 0, 0),
+  ],
+  notMeasurable: NOT_MEASURABLE, note: NO_CAUSATION, ...over,
+});
+
+export const baselineRecord = (n: number, over: Partial<Baseline> = {}): Baseline => ({
+  id: `b${n}`, name: `Spring ${n}`, from: "2025-03-01", to: "2025-03-31", timeZoneId: "America/Chicago", asOfUtc: "2025-04-02T12:00:00+00:00", setAtUtc: "2025-04-02T12:00:00+00:00", setByUserId: "u1",
+  metrics: [{ metricKey: "scheduling_conflicts", definitionVersion: 1, numeratorCount: 2, denominatorCount: 10, rate: 0.2 }], ...over,
+});
+
+const side = (num: number, den: number, version = 1): MetricSide => ({ definitionVersion: version, numeratorCount: num, denominatorCount: den, rate: den === 0 ? null : Math.round((num / den) * 10000) / 10000 });
+
+const comparable = (key: string, name: string, base: MetricSide, now: MetricSide): MetricComparison => {
+  const absolute = Math.round((now.rate! - base.rate!) * 10000) / 10000;
+  return { key, name, lowerIsBetter: true, status: "comparable", message: "The two periods can be compared.", baseline: base, current: now, absoluteChange: absolute, relativeChange: base.rate === 0 ? null : Math.round((absolute / base.rate!) * 10000) / 10000, movement: absolute < 0 ? "Lower" : absolute > 0 ? "Higher" : "Same" };
+};
+
+const refused = (key: string, name: string, status: string, message: string, base: MetricSide | null, now: MetricSide): MetricComparison =>
+  ({ key, name, lowerIsBetter: true, status, message, baseline: base, current: now, absoluteChange: null, relativeChange: null, movement: null });
+
+export const comparisonData = (over: Partial<ComparisonData> = {}): ComparisonData => ({
+  baseline: baselineRecord(1), minimumSample: 30, note: NO_CAUSATION, notMeasurable: NOT_MEASURABLE,
+  comparisons: [
+    comparable("scheduling_conflicts", "Scheduling conflicts", side(2, 40), side(4, 40)),
+    comparable("late_follow_ups", "Follow-ups not done on time", side(1, 4), side(3, 4)),
+    refused("billing_corrections", "Billing corrections", "baseline_sample_too_small", "The baseline has too few records to compare with.", side(0, 0), side(1, 3)),
+    refused("duplicate_merges", "Duplicate patient merges", "definition_changed", "The metric is defined differently now than when the baseline was taken, so the two numbers do not measure the same thing.", side(1, 40, 2), side(1, 7)),
+  ],
+  ...over,
+});
+
 export const account = (n: number, balance: number): BalanceAccountRecord => ({ accountId: `acc${n}`, patientId: `p${n}`, balance });
 
 export class FakeReportServer {
@@ -129,6 +178,11 @@ export class FakeReportServer {
   plans = planStatusData();
   procedures = proceduresData();
   activity = activityData();
+  measurement = measurementData();
+  baselines: Baseline[] = [];
+  comparison = comparisonData();
+  /** The baselines saved so far by idempotency key, so a repeat of the same save returns the same baseline. */
+  private saved = new Map<string, Baseline>();
   /** The records a drill-down returns, in pages of `pageSize`. */
   appointments: AppointmentRecord[] = [appointment(1), appointment(2), appointment(3)];
   tasks: FollowUpRecord[] = [task(1), task(2)];
@@ -141,16 +195,18 @@ export class FakeReportServer {
   reply: (call: Call) => Response | Promise<Response> | null = () => null;
 
   install() {
-    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => {
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
       const u = new URL(String(url), "http://x");
       if (u.pathname === "/api/auth/permissions") return Promise.resolve(json({ username: "manager", role: "OfficeManager", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
-      const call = { method: "GET", url: String(url), path: u.pathname, params: u.searchParams };
+      if (u.pathname === "/api/auth/csrf-token") return Promise.resolve(json({ token: "t" }));
+      const call: Call = { method: init?.method ?? "GET", url: String(url), path: u.pathname, params: u.searchParams, headers: new Headers(init?.headers), body: init?.body ? JSON.parse(String(init.body)) : undefined };
       this.calls.push(call);
       return Promise.resolve(this.reply(call) ?? this.answer(call));
     }));
   }
 
-  reports(path: string) { return this.calls.filter((c) => c.path === path); }
+  reports(path: string) { return this.calls.filter((c) => c.path === path && c.method === "GET"); }
+  posts(path: string) { return this.calls.filter((c) => c.path === path && c.method === "POST"); }
 
   private envelope(c: Call, reportId: string, data: unknown): Response {
     const from = c.params.get("from") ?? "";
@@ -168,6 +224,17 @@ export class FakeReportServer {
     return json({ reportId: "x", filter: {}, total: rows.length, rows: slice, next: more ? cursorOf(slice[slice.length - 1]) : null, asOfUtc: c.params.get("asOf") ?? undefined, ...extra });
   }
 
+  private saveBaseline(c: Call): Response {
+    const key = c.headers.get("Idempotency-Key") ?? "";
+    const repeat = this.saved.get(key);
+    if (repeat) return json(repeat, 200);
+    const body = c.body as { name: string; from: string; to: string };
+    const made = baselineRecord(this.baselines.length + 10, { id: `made${this.baselines.length + 1}`, name: body.name, from: body.from, to: body.to });
+    this.saved.set(key, made);
+    this.baselines = [made, ...this.baselines];
+    return json(made, 201);
+  }
+
   private answer(c: Call): Response {
     switch (c.path) {
       case "/api/config/providers": return json(this.providers);
@@ -182,6 +249,9 @@ export class FakeReportServer {
       case "/api/reports/treatment-plans": return this.envelope(c, "treatment-plans", this.plans);
       case "/api/reports/completed-procedures": return this.envelope(c, "completed-procedures", this.procedures);
       case "/api/reports/provider-activity": return this.envelope(c, "provider-activity", this.activity);
+      case "/api/reports/measurement/metrics": return this.envelope(c, "measurement", this.measurement);
+      case "/api/reports/measurement/comparison": return this.envelope(c, "measurement-comparison", { ...this.comparison, baseline: this.baselines.find((b) => b.id === c.params.get("baselineId")) ?? this.comparison.baseline });
+      case "/api/reports/measurement/baselines": return c.method === "POST" ? this.saveBaseline(c) : json(this.baselines);
       case "/api/reports/schedule/appointments":
       case "/api/reports/patient-flow/appointments":
       case "/api/reports/cancellations/appointments":

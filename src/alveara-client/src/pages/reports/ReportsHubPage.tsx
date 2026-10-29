@@ -10,6 +10,7 @@ import { CancellationsView } from "./CancellationsView";
 import { CollectionsView } from "./CollectionsView";
 import { CompletedProceduresView } from "./CompletedProceduresView";
 import { FollowUpsView } from "./FollowUpsView";
+import { MeasurementView } from "./MeasurementView";
 import { PatientFlowView } from "./PatientFlowView";
 import { ProductionView } from "./ProductionView";
 import { ProviderActivityView } from "./ProviderActivityView";
@@ -32,6 +33,7 @@ const VIEWS: Record<string, (props: { query: ReportQuery }) => React.ReactNode> 
   "treatment-plans": (p) => <TreatmentPlansView {...p} />,
   "completed-procedures": (p) => <CompletedProceduresView {...p} />,
   "provider-activity": (p) => <ProviderActivityView {...p} />,
+  measurement: (p) => <MeasurementView {...p} />,
 };
 
 /**

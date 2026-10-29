@@ -42,4 +42,6 @@ export const REPORTS: ReportDef[] = [
     description: "Procedures performed in the period, by day, by the provider credited and by procedure code." },
   { id: "provider-activity", label: "Provider activity", group: "Clinical", permission: "ViewClinicalReports", providerFilter: true, locationFilter: false,
     description: "For each provider: appointments booked, visits finished and procedures completed. A visit seen by another provider counts for the one who saw the patient." },
+  { id: "measurement", label: "Measurement and baselines", group: "Measurement", permission: "ViewMeasurementReports", providerFilter: false, locationFilter: false,
+    description: "Measured workflow metrics for a period, the baselines set to compare against, and a comparison that shows a change only when the two periods can honestly be compared." },
 ];

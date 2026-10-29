@@ -3,7 +3,7 @@
  * meaningful, booked providers and a location; a filter a report cannot honestly apply is refused by the server (`filter_not_supported`) and the screens never send it. Every number can be listed: a drill-down
  * returns the supporting records (ids, times and statuses, never a name or a note). Every refusal has a stable `error` code (see `reportErrorMessage`).
  */
-import { ApiError, request } from "./authApi";
+import { ApiError, fetchCsrfToken, request } from "./authApi";
 
 export interface ReportQuery {
   from: string;
@@ -132,6 +132,28 @@ export interface ClinicalCursor { afterTime: string | null; afterId: string }
 export type PlanItemPage = Page<PlanItemRecord, ClinicalCursor> & { totalEstimatedFee: number };
 export type ProcedurePage = Page<ProcedureRecord, ClinicalCursor> & { totalEstimatedFee: number };
 
+// ---------- measurement ----------
+
+/** One measured metric for the period: what is counted, out of what (the denominator is the sample size), and the rate (null, never zero, when nothing was counted). */
+export interface MetricValue {
+  key: string; name: string; definitionVersion: number; numerator: string; denominator: string; source: string; lowerIsBetter: boolean; supportingRoute: string | null;
+  numeratorCount: number; denominatorCount: number; rate: number | null;
+}
+export interface NotMeasurable { key: string; name: string; reason: string }
+export interface MeasurementData { asOfUtc: string; metrics: MetricValue[]; notMeasurable: NotMeasurable[]; note: string }
+
+export interface BaselineMetric { metricKey: string; definitionVersion: number; numeratorCount: number; denominatorCount: number; rate: number | null }
+/** A period the practice chose to compare against, measured and stored once when it was set. */
+export interface Baseline { id: string; name: string; from: string; to: string; timeZoneId: string; asOfUtc: string; setAtUtc: string; setByUserId: string; metrics: BaselineMetric[] }
+
+export interface MetricSide { definitionVersion: number; numeratorCount: number; denominatorCount: number; rate: number | null }
+/** A comparison. The three change fields are present ONLY when `status` is `comparable`; otherwise they are all null and `message` says why. */
+export interface MetricComparison {
+  key: string; name: string; lowerIsBetter: boolean; status: string; message: string; baseline: MetricSide | null; current: MetricSide;
+  absoluteChange: number | null; relativeChange: number | null; movement: "Lower" | "Higher" | "Same" | null;
+}
+export interface ComparisonData { baseline: Baseline | null; minimumSample: number; comparisons: MetricComparison[]; notMeasurable: NotMeasurable[]; note: string }
+
 // ---------- calls ----------
 
 const BASE = "/api/reports";
@@ -197,6 +219,22 @@ export function getProcedures(q: ReportQuery, drill: ProcedureDrill, signal?: Ab
   return request<ProcedurePage>(`${BASE}/${route}?${params(q, { ...criteria, afterPerformedAtUtc: after?.afterTime, afterId: after?.afterId })}`, { signal });
 }
 
+
+export const getMeasurement = (q: ReportQuery, asOf?: string, signal?: AbortSignal) => request<ReportEnvelope<MeasurementData>>(`${BASE}/measurement/metrics?${params(q, { asOf })}`, { signal });
+export const listBaselines = (signal?: AbortSignal) => request<Baseline[]>(`${BASE}/measurement/baselines`, { signal });
+export const getComparison = (q: ReportQuery, baselineId?: string, signal?: AbortSignal) => request<ReportEnvelope<ComparisonData>>(`${BASE}/measurement/comparison?${params(q, { baselineId })}`, { signal });
+
+/**
+ * Sets a baseline. The caller makes one idempotency key when the person starts filling the form and reuses it for every retry of that same baseline, so a dropped connection followed by another press returns the
+ * baseline already made instead of making a second.
+ */
+export async function setBaseline(input: { name: string; from: string; to: string }, idempotencyKey: string): Promise<Baseline> {
+  const csrf = await fetchCsrfToken();
+  return request<Baseline>(`${BASE}/measurement/baselines`, {
+    method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf, "Idempotency-Key": idempotencyKey }, body: JSON.stringify(input),
+  });
+}
+
 // ---------- words ----------
 
 const MESSAGES: Record<string, string> = {
@@ -216,6 +254,14 @@ const MESSAGES: Record<string, string> = {
   invalid_cell: "That group of plan items does not exist.",
   invalid_measure: "That measure does not exist.",
   invalid_side: "The side must be owing or credit.",
+  idempotency_key_required: "The baseline could not be saved because the request had no key. Reload the page and try again.",
+  idempotency_key_too_long: "The baseline could not be saved because the request key was not valid. Reload the page and try again.",
+  name_required: "Give the baseline a name.",
+  name_too_long: "The name is too long. Use at most 100 characters.",
+  period_not_complete: "A baseline must be a period that is already over. Choose days before today.",
+  key_reused: "That save was already used for a different baseline. Reload the page and try again.",
+  save_failed: "The baseline could not be saved. Nothing was stored. Try again.",
+  baseline_not_found: "That baseline no longer exists.",
 };
 
 export function reportErrorMessage(e: unknown): string {
