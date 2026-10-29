@@ -1988,3 +1988,9 @@
   - What changed: .alveara/reviews/ALV-018-C02/R01.md (APPROVED) added; EXECUTION_STATUS.json set to COMPLETE with the review and regression-evidence commits; BUILD_STATE.md updated. No source, test or evidence change.
   - Verification: the reviewer's identity list (Stage 2 ZIP SHA-256, implementation, closure and regression-evidence commits) matches what I produced; git diff shows only those files.
   - Notes: the closure is local; pushing needs the owner's say-so. Item 53 (ALV-N006) is authorized after the push and is not started.
+- [x] ALV-N006 item 0: the walkthrough runner sets E2E_STORAGE_ROOT
+  - Date: 2026-10-28
+  - Session: CC-20261008-k4q9
+  - What changed: scripts/Invoke-RealBackendWalkthrough.ps1 sets E2E_STORAGE_ROOT to the API's storage folder for the run and clears it afterwards; docs/testing/REAL_BACKEND_E2E.md now says the stray-file removal is exercised. It closes the gap disclosed in the ALV-018-C02 handoff. A separate small change, not part of ALV-N006's own scope.
+  - Verification: the bulk-import walkthrough 13 of 13 passed with strayFileRemovalExercised true (an old stray file removed, a young one kept); the patients walkthrough 7 of 7 passed; no leftover database; Test-Data Storage count unchanged (3,920).
+  - Notes: only the bulk-import spec reads the variable.

@@ -106,6 +106,7 @@ try {
     $env:E2E_DB_NAME = $Database
     $env:E2E_BOOTSTRAP_SECRET = $secret
     $env:ALVERA_SQL_SERVER = $SqlServer
+    $env:E2E_STORAGE_ROOT = $runFolders[0]   # the API's storage folder, so a spec can place and check real files on disk (the bulk-import sweep spec does)
     if ($OutputVariable) { Set-Item -Path "Env:$OutputVariable" -Value $OutputDir }
     Push-Location -LiteralPath $clientDir
     try {
@@ -117,7 +118,7 @@ try {
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:E2E_STORAGE_ROOT -ErrorAction SilentlyContinue
     if ($OutputVariable) { Remove-Item "Env:$OutputVariable" -ErrorAction SilentlyContinue }
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }

@@ -632,4 +632,4 @@ Saved evidence is in `docs/testing/bulk-import-walkthrough/` (18 screenshots, `b
 
 What running it found (all fixed, then the whole walkthrough was run again): a link with too little contrast on the dark theme (a unit test cannot see this), the singular "1 rows", and an upload form whose labels ran into their inputs.
 
-Not exercised on a real disk: the removal of a stray file. The sweep step proves the sweep keeps every batch's own file; removing an old unreferenced file is proven by the backend tests (`ImportReportsRetryAndSweepTests`). The spec removes and keeps real stray files when `E2E_STORAGE_ROOT` names the API's storage folder; the runner does not set it, so it is not exercised by the standard command.
+The removal of a stray file is exercised on a real disk: the runner sets `E2E_STORAGE_ROOT` to the API's storage folder for every walkthrough, and the sweep step places an old and a young unreferenced file in the `imports` folder, runs the sweep from the screen, and checks that only the old one is gone. The rules themselves are also proven by the backend tests (`ImportReportsRetryAndSweepTests`).
