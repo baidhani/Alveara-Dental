@@ -1,0 +1,25 @@
+run commit: 96036889cd79b1483a771514f6105a9fcf246643
+working tree before: 0 changed paths (0 = clean)
+start: 2026-10-29T07:44:07-05:00
+== leak counts before taken
+== backend build exit=0
+== backend focused exit=0 elapsed=1410s: Passed!  - Failed:     0, Passed:  1682, Skipped:     0, Total:  1682, Duration: 23 m 21 s - Alveara.Api.Tests.dll (net10.0)
+== backend ApiTests exit=0 elapsed=1150s: Passed!  - Failed:     0, Passed:   964, Skipped:     0, Total:   964, Duration: 19 m 6 s - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=1s: 
+== gate vitest exit=0 elapsed=162s:  Test Files  120 passed (120)       Tests  1879 passed (1879) 
+== gate build exit=0 elapsed=8s: [32m✓ built in 1.06s[39m 
+== gate lint exit=0 elapsed=3s: 
+== gate playwright_mocked exit=0 elapsed=26s:   138 passed (23.4s) 
+== gate repo_checks exit=0 elapsed=13s: 
+== walkthrough playwright.reports.config.ts exit=0 elapsed=35s:   7 passed (19.8s) 
+== walkthrough playwright.billing-ledger.config.ts exit=1 elapsed=40s:   1 failed   7 passed (23.1s) 
+== walkthrough playwright.follow-ups.config.ts exit=0 elapsed=45s:   8 passed (28.1s) 
+== walkthrough playwright.flow.config.ts exit=0 elapsed=31s:   10 passed (16.2s) 
+== walkthrough playwright.permission-policy.config.ts exit=0 elapsed=30s:   7 passed (15.0s) 
+== walkthrough playwright.permission-policy-admin.config.ts exit=0 elapsed=68s:   8 passed (52.0s) 
+== walkthrough playwright.workspace.config.ts exit=0 elapsed=54s:   14 passed (38.6s) 
+== walkthrough playwright.notifications.config.ts exit=0 elapsed=57s:   10 passed (39.7s) 
+== leak counts after taken
+end: 2026-10-29T08:37:05-05:00
+working tree after: 0 changed paths
+== SWEEP DONE

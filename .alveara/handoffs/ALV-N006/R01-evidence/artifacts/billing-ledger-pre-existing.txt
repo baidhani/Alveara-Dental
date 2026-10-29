@@ -1,0 +1,24 @@
+Billing-ledger walkthrough on a clean checkout of 6899818 (the last pushed commit, ALV-018-C02 review approval).
+The checkout has no reporting code (reports-files-present: False), so a failure here predates ALV-N006.
+Command: scripts/Invoke-RealBackendWalkthrough.ps1 -Config playwright.billing-ledger.config.ts, run from the checkout.
+Result: 7 passed, 1 failed (test 8), 3 did not run; the same selector error as on the ALV-N006 tree (see gates/walk_playwright.billing-ledger.config.ts.txt).
+
+Junction created for C:\wtb\src\alveara-client\node_modules <<===>> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules
+cwd: C:\wtb  commit: 6899818  reports-files-present: False
+  ok  1 [chromium] › e2e\billing-ledger-real-backend.spec.ts:150:1 › SETUP: Ann has two completed procedures (PERIO-1 
+  ok  2 [chromium] › e2e\billing-ledger-real-backend.spec.ts:180:1 › PAYMENT ALLOCATION: a payment is applied to the 
+  ok  3 [chromium] › e2e\billing-ledger-real-backend.spec.ts:203:1 › APPLYING THE REST: what a payment still holds 
+  ok  4 [chromium] › e2e\billing-ledger-real-backend.spec.ts:219:1 › REVERSAL: a payment is reversed by a new entry, 
+  ok  5 [chromium] › e2e\billing-ledger-real-backend.spec.ts:237:1 › A charge that payments are applied to cannot be 
+  ok  6 [chromium] › e2e\billing-ledger-real-backend.spec.ts:264:1 › RESPONSIBILITY: a registered guarantor is 
+  ok  7 [chromium] › e2e\billing-ledger-real-backend.spec.ts:300:1 › PAYMENT METHODS: billing adds a named method, 
+  x   8 [chromium] › e2e\billing-ledger-real-backend.spec.ts:322:1 › a payment made from an out-of-date second screen 
+  -   9 [chromium] › e2e\billing-ledger-real-backend.spec.ts:340:1 › FAILURE PATH: when the log cannot be written 
+  -  10 [chromium] › e2e\billing-ledger-real-backend.spec.ts:370:1 › a dentist reads the ledger with what each entry 
+  -  11 [chromium] › e2e\billing-ledger-real-backend.spec.ts:388:1 › the API refuses what the screen does not offer: a 
+    Error: expect(locator).toContainText(expected) failed
+    Expected substring: "Payment 9 reversed. Balance owed is now $59.00."
+    Error: strict mode violation: locator('p.alv-clinical__status') resolved to 3 elements:
+  1 failed
+  7 passed (21.9s)
+Database AlveraWalk_playwright_billing_ledger_config_2e98fd93 dropped (its files went with it).

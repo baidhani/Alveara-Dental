@@ -1,0 +1,20 @@
+ALV-N006 negative controls (slice 8c, session CC-20261008-k4q9)
+
+Each break was applied alone to the product code, only the test class that should catch it was run, and the file was restored with `git checkout` straight afterwards. A control passes when a named test fails. Nothing here was committed.
+
+ 1. Financial controller without its permission check                      CAUGHT  FinancialReportsApiTests (3 tests: routes refused to anonymous and wrong roles; operational and financial permissions separate; ...)
+ 2. Export handed over although its audit entry could not be saved          CAUGHT  ReportCsvTests.When_the_export_cannot_be_recorded_nothing_is_handed_over_and_a_file_over_the_limit_is_refused
+ 3. Text that begins like a formula is no longer neutralised                CAUGHT  ReportCsvTests.A_number_is_written_as_a_number_but_text_that_could_run_as_a_formula_is_neutralised
+ 4. Comparison ignores the minimum sample                                   CAUGHT  MeasurementBaselineTests.A_metric_that_cannot_honestly_be_compared_gives_its_reason_and_no_change_at_all
+ 5. A metric's numerator changed without raising its definition version     CAUGHT (after a new pin) MetricsTests.Every_metric_has_the_value_that_can_be_checked_by_hand_and_these_are_pinned_to_the_definition_versions
+ 6. Payment reversals counted on the charge-reversal line                   CAUGHT  FinancialReportsTests (6 tests, including the collections-by-method and amendment tests)
+ 7. Provider filter ignored on production                                   CAUGHT  FinancialReportsTests.The_provider_filter_narrows_production_and_the_proof_covers_that_production_alone
+ 8. Range cap removed                                                       CAUGHT  OperationalReportsApiTests, OperationalReportsTests.A_bad_range_is_refused_with_a_stable_code_and_the_limit_is_exact, ReportScaleTests.A_range_over_the_limit_is_refused_by_its_code_and_records_nothing
+ 9. A change is worded as an improvement                                    CAUGHT (after a new test) MeasurementView.test.tsx "states a fall as Lower and a rise as Higher ..."
+10. Actions row shares a key again and the hub nests a second main          CAUGHT  ReportActions.test.tsx "renders without React warning about repeated keys or anything else" (the duplicate key fails first; the second-main check is in the same test and the walkthrough counts main landmarks)
+
+Two controls were NOT caught on the first run and each needed a new test:
+ - 5: the metrics fixture reversed only an adjustment, so dropping payment reversals from the numerator changed no pinned value. The fixture now also reverses a payment (corrections 2 of 3, 0.6667).
+ - 9: the comparison tests only had rows that rose, so wording a fall as "Improved" went unnoticed. A new test has a fall, an equal rate and a rise.
+
+Not covered by a control, on purpose: the baseline append-only and rollback triggers (breaking them needs a migration) and the print layout (checked by the real-backend walkthrough, which found the blank-print defect in slice 8b).

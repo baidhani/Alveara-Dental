@@ -2786,21 +2786,21 @@
       "qualityGateContribution": [
         "Gate E"
       ],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {
         "total": 7,
-        "passed": 0
+        "passed": 7
       },
       "tests": {
-        "status": "not_started",
-        "summary": null
+        "status": "passed",
+        "summary": "Attempt R01, a Stage 1 package. The 16 backend test classes new in this story hold exactly 131 new test ids against the 5,481-id ALV-018-C02 R01 baseline (none retired, no existing test file modified); focused run 1,682 of 1,682 (the new classes plus the permission, audit, export-catalog, schema and measurement collateral); every *ApiTests class 964 of 964 (36 new ids); 10 of 10 negative controls caught (two survived the first run and each got a new test); performance smoke over a year of 4,380 appointments and 5,000 ledger entries, slowest report 0.116 s; tsc, build and lint (oxlint) exit 0; Vitest 1,879 in 120 files (89 new); mocked Playwright 138 passed and 2 skipped; repository checks 13; real-backend walkthroughs passed: reports 7 (axe light and dark, 0 critical or serious), follow-ups 8, patient flow 10, notifications 10, permission policy 7 and 8, workspace 14, patient export package 10, patient portability 7; the billing-ledger walkthrough fails its test 8 (7 passed, 1 failed, 3 did not run) and fails the same way on the last pushed commit 6899818, so it predates this story and is recorded, not fixed; artifact counts unchanged by the sweep (five AlveraTest databases left by an earlier run of mine were dropped afterwards and the fixture fixed). Full backend regression PENDING: the frozen Stage 2 (.alveara/handoffs/ALV-N006/R01-evidence/stage2/) expects 5,612 backend tests (the 5,481 baseline plus exactly the 131 listed new ids) with no time limit. No full run made for R01."
       },
-      "demo": "not_started",
+      "demo": "real_backend_walkthrough_7_of_7",
       "parentRegression": "n/a",
-      "implementationCommit": null,
+      "implementationCommit": "4a7d6f48d98333152272bd470bcbb40ab9e3aa5e",
       "evidenceCommit": null,
-      "handoffPath": null,
+      "handoffPath": ".alveara/handoffs/ALV-N006/R01.md",
       "review": {
         "decision": "pending",
         "decisionArtifact": null,
@@ -2813,7 +2813,8 @@
         "required": false,
         "reason": null
       },
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "PENDING"
     },
     {
       "schemaVersion": "2",

@@ -1,0 +1,20 @@
+{
+  "appointments": 4380,
+  "ledgerEntries": 5000,
+  "budgetSeconds": 10,
+  "worstOfThreeSeconds": {
+    "schedule": 0.013,
+    "patient-flow": 0.049,
+    "cancellations": 0.008,
+    "follow-ups": 0.024,
+    "production": 0.041,
+    "collections": 0.012,
+    "balances": 0.019,
+    "treatment-plans": 0.05,
+    "completed-procedures": 0.061,
+    "provider-activity": 0.063,
+    "measurement/metrics": 0.064,
+    "schedule/export": 0.116,
+    "collections/export": 0.022
+  }
+}
