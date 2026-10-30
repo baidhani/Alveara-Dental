@@ -1,0 +1,68 @@
+{
+  "axe": {
+    "editable-matrix-with-editor-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "editable-matrix-with-editor-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "document-import-card-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "document-import-card-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "account-list-holder-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "account-list-holder-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1793331524204,
+  "edit": {
+    "grantApplied": "next request",
+    "revokeApplied": "next request",
+    "revertApplied": "next request",
+    "reasonAndConfirmationRequired": true
+  },
+  "protectedAndTyped": {
+    "protectedLocked": 5,
+    "adminColumnLocked": true,
+    "typedConfirmation": true
+  },
+  "accountList": {
+    "holderSeesAdmin": false,
+    "holderSeesDentist": false,
+    "otherRoleRefusal": "permission_denied ManageUsers"
+  },
+  "stale": {
+    "status": 409,
+    "stored": 0,
+    "reloadOffered": true
+  },
+  "delegation": {
+    "allowed": "applied next request",
+    "stopped": "applied next request",
+    "refusedOutsideDelegation": 6,
+    "delegatedHistoryRows": 2
+  },
+  "health": {
+    "shown": true,
+    "repairedOnScreen": true,
+    "roleRestored": true
+  },
+  "refresh": {
+    "seenWithoutReload": true,
+    "measuredElapsedMs": 25377,
+    "requirementMs": 30000,
+    "pollIntervalMs": 25000,
+    "writeAtWorstPhase": true
+  }
+}

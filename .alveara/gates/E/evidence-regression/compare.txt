@@ -1,0 +1,9 @@
+baseline ids: 5612; result ids: 5612; new ids: 0 (expected 0)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 0
+EXPECTED new ids that did not appear: 0
+COMPARISON PASS

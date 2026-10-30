@@ -1,0 +1,27 @@
+Database AlveraWalk_playwright_bulk_import_config_2a964995 created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.bulk-import.config.ts ...
+
+Running 13 tests using 1 worker
+
+  ok  1 [chromium] › e2e\bulk-import-real-backend.spec.ts:168:1 › SETUP: the practice is configured and three patients are registered (879ms)
+  ok  2 [chromium] › e2e\bulk-import-real-backend.spec.ts:185:1 › PERMISSION: a dentist has no menu entry, is refused the page by address, and every call is refused (549ms)
+  ok  3 [chromium] › e2e\bulk-import-real-backend.spec.ts:197:1 › FILE: a malformed file is refused whole with its place in the file, and no batch is made (2.0s)
+  ok  4 [chromium] › e2e\bulk-import-real-backend.spec.ts:213:1 › PATIENTS: mapping, a dry-run that writes nothing, a duplicate decided by a person, the commit, the reconciliation and the error report (22.0s)
+  ok  5 [chromium] › e2e\bulk-import-real-backend.spec.ts:266:1 › PATIENTS AGAIN: the same file sent a second time registers nobody (799ms)
+  ok  6 [chromium] › e2e\bulk-import-real-backend.spec.ts:286:1 › APPOINTMENTS: valid rows go through the real scheduler; a clash, an unknown provider and a past date are rejected; nothing is double-booked (10.2s)
+  ok  7 [chromium] › e2e\bulk-import-real-backend.spec.ts:320:1 › BALANCES: valid rows become the first ledger entries and the real ledger agrees with the batch; a credit and an unknown patient are rejected (12.7s)
+  ok  8 [chromium] › e2e\bulk-import-real-backend.spec.ts:353:1 › BALANCES AGAIN: a second balance for a patient who now has a ledger entry is refused, never added (835ms)
+  ok  9 [chromium] › e2e\bulk-import-real-backend.spec.ts:365:1 › PERMISSION GATE: a front-desk user granted only BulkImportData prepares a balance batch but cannot commit it, on the screen or by the API (996ms)
+  ok 10 [chromium] › e2e\bulk-import-real-backend.spec.ts:385:1 › RETRY: a commit that stopped is shown as stopped and finishes when retried from the screen (6.5s)
+  ok 11 [chromium] › e2e\bulk-import-real-backend.spec.ts:407:1 › SWEEP: the sweep keeps every batch's file and, when it can reach the storage folder, removes only an old file no batch refers to (2.5s)
+  ok 12 [chromium] › e2e\bulk-import-real-backend.spec.ts:435:1 › AUDIT: the log names who and when for every import step and carries no patient, no date of birth and no file value (414ms)
+  ok 13 [chromium] › e2e\bulk-import-real-backend.spec.ts:453:1 › INDEPENDENT CHECK: the database itself agrees with everything the screens showed (720ms)
+
+  13 passed (1.1m)
+Database AlveraWalk_playwright_bulk_import_config_2a964995 dropped (its files went with it).
+Output kept in C:/tmp/gate-e-stage2-c3d56e3/walkthroughs/playwright.bulk-import.config.ts
