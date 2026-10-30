@@ -11,7 +11,7 @@ An additive addendum to `.alveara/gates/E/GATE_E_REPORT.md`. The Stage 1 package
 - Equivalence: no `src/` file differs between `173051d` and the run commit (0 files) and **no file outside `.alveara/` and `PROGRESS.md` differs** (0 other files), both checked by the evaluator; the working tree was clean before and after (0 changed paths).
 - Machine condition, disclosed: the machine held no other work of mine. My editor's helper processes (node, a web view) and the SQL Server service were running, as in the earlier Gate E runs; I did not close them. During the run I made one read-only check at about 22:29 (the clock, the tail of the summary, a directory listing and the tail of one walkthrough log, the port listener and a process count) after a monitor reached its 30-minute limit; two earlier monitors had also polled the run's summary file every 20 seconds. Nothing was started, stopped or edited.
 
-## Verdict of the frozen evaluator: STAGE 2 QUALIFIES (all 40 criteria PASS, 0 FAIL)
+## Verdict of the frozen evaluator: STAGE 2 QUALIFIES (all 39 criteria PASS, 0 FAIL)
 
 Full results: `.alveara/gates/E/evidence-regression/RESULT_GATE_E.txt` (with `compare.txt`, `runner_proof.txt`, `gates/`, `summary.txt`, `telemetry.jsonl`, leak counts and `backend-tests.csv`).
 
