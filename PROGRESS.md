@@ -2115,25 +2115,25 @@
   - Verification: the Stage 2 ZIP on disk hashes to the value in the review; the frozen evaluator qualified 33 of 33 (5,612 backend tests passed, 0 failed, 0 skipped; 131 new ids; twelve walkthroughs).
   - Notes: the billing-ledger walkthrough failure (test 8, identical on 6899818) is carried as known test debt; Gate E must retain it and must not say that walkthrough passes until a separately reviewed test-only repair resolves it. Gate E is the next authorized action; it is not started. Nothing is pushed yet.
 - [x] Gate E prep: billing-ledger walkthrough locator scoped to the billing section
-  - Date: 2026-10-30
+  - Date: 2026-10-29
   - Session: CC-20261008-q7m2
   - What changed: src/alveara-client/e2e/billing-ledger-real-backend.spec.ts only. The status-line locator is now scoped to section.alv-bill, and the stale-screen test uses it instead of an unscoped p.alv-clinical__status. Cause of the earlier failure: the workspace header's export buttons (ExportPatientButton, commit 344ed89; DownloadReadableRecordButton, commit 912312a; STORY-018 and ALV-018-C01, 2026-10-26) each render an always-present empty p.alv-clinical__status, which only an administrator session sees, so the locator matched three paragraphs after Gate D. No product code changed.
   - Verification: before, the walkthrough failed test 8 on 22f66e9 (strict mode violation, 3 elements: two empty, one "Reloaded."; 7 passed, 1 failed, 3 did not run); after, playwright.billing-ledger.config.ts passed 11 of 11 (28.3 s) on a fresh database; tsc -b exit 0; npm run lint exit 0 (warnings only).
   - Notes: test-only repair awaiting independent review; do not describe the walkthrough as passing in Gate E until that review approves it. The assertion text and timeouts are unchanged. Not run: any other walkthrough, Vitest, the backend suite. Output folder of the two runs is kept under C:\.alvera-data\Test-Data\Temp\walkthrough-output (the runner's evidence).
 - [x] Gate E Step 1: criteria reconciled (E9 row added, stale labels fixed) and the report skeleton drafted
-  - Date: 2026-10-30
+  - Date: 2026-10-29
   - Session: CC-20261008-q7m2
   - What changed: .alveara/QUALITY_GATES.md (Gate E header label corrected to item 53 / item 54 onward; row E9 added from the plan's Gate E evidence bullet 2, states left NOT YET EVALUABLE) and a draft .alveara/gates/E/GATE_E_REPORT.md (every result PENDING). No code changed.
   - Verification: E9 thresholds checked against ALV-N015 R02 acceptance evidence criteria 3-7; E1/E2/E4/E6 assertions read; git diff of the two files reviewed by the owner before this commit.
-  - Notes: E9 is an alignment to the plan (thresholdsChanged false), the owner's interpretation, recorded 2026-10-30; "recoverable" = consumer recovery. Nothing evaluated yet. Nothing pushed.
+  - Notes: E9 is an alignment to the plan (thresholdsChanged false), the owner's interpretation, recorded 2026-10-29; "recoverable" = consumer recovery. Nothing evaluated yet. Nothing pushed.
 - [x] Gate E Stage 1: evidence run recorded, evaluation report written, awaiting independent review
-  - Date: 2026-10-30
+  - Date: 2026-10-29
   - Session: CC-20261008-q7m2
   - What changed: .alveara/gates/E/evidence/ (sweep log, focused backend results by class and compressed trx, client and repository gate logs, twelve walkthrough outputs and evidence JSON, leak counts, REPOSITORY_STATE.md), .alveara/gates/E/GATE_E_REPORT.md (criterion results, disclosures), .alveara/gates/E/reviews/README.md, QUALITY_GATES.md rows E1-E9 set to "PASS (Stage 1), awaiting review", BUILD_STATE.md. No product or test code changed.
   - Verification: evidence run on 173051d, clean tree before and after: focused backend 1,546 of 1,546 (E1-E9 classes, 25 m 52 s); tsc -b, build, lint exit 0; Vitest 1,879 in 120 files; mocked Playwright 138; repository checks 13 of 13; walkthroughs documents 14, documents-library 12, follow-ups 8, work-queue 8, external-cases 9, patient-merge 9, patient-export-package 10, patient-portability 7, bulk-import 13, reports 7, notifications 10, billing-ledger 11 (with the repair 2be1d73); artifact counts identical before and after; E8 copy review re-run at the head.
   - Notes: Gate E is NOT passed. Not run: the fresh full serial backend regression (Stage 2, required, to be frozen and run once after the Stage 1 review), the all-ApiTests run. The billing-ledger repair is submitted for review and is not counted as passing until approved. E9 is a row added to align with the plan (thresholdsChanged false; owner's interpretation); "recoverable" for notifications means consumer recovery only. The frozen Stage 2 plan and its evaluator are not yet in the package. Nothing is pushed.
 - [x] Gate E Stage 1: frozen Stage 2 contract and evaluator written and validated
-  - Date: 2026-10-30
+  - Date: 2026-10-29
   - Session: CC-20261008-q7m2
   - What changed: .alveara/gates/E/stage2/ (run_stage2.sh, evaluate_stage2.py, validate_evaluator.py, verify_runner_outputs.py, compare_outcomes.py, leak_counts.sh, empty expected/retired id files, README, evaluator-validation.txt, runner-proof.txt), .alveara/gates/E/billing-ledger-repair.diff (the reviewed repair 2be1d73 as a diff), report and reviews README now name evidence commit c3d56e3 and describe the frozen Stage 2. No product or test code changed.
   - Verification: evaluator validation 11 of 11 synthetic scenarios behaved as stated (stage2/evaluator-validation.txt); runner proof: all 17 walkthrough output variables match their specs (stage2/runner-proof.txt); run_stage2.sh passes sh -n; the Python files compile. No test suite was run for this entry.
