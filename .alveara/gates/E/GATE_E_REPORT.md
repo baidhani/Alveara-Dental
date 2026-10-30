@@ -2,7 +2,7 @@
 
 **Stage 1 decision: all nine criteria PASS on the Stage 1 evidence, subject to independent review. Gate E is NOT passed:** the fresh full serial backend regression (Stage 2) has not been run and is required before the final decision. Thresholds, methods and environments are the predeclared E1-E8 rows in `.alveara/QUALITY_GATES.md` plus row E9, added on 2026-10-29 to align the table with the plan's Gate E prompt (Disclosure 1).
 
-Date: 2026-10-29/30 (America/Chicago). Evidence run on `173051da01b1eababfb9bf10773283cfa3a6f74d` (clean tree before and after; product code identical to `22f66e9` plus the test-only repair `2be1d73`). Evidence commit: `c3d56e3` (evidence short sha `c3d56e3`; it adds only the files under `.alveara/gates/E/evidence/`).
+Date: 2026-10-29 (America/Chicago). Evidence run on `173051da01b1eababfb9bf10773283cfa3a6f74d` (clean tree before and after; product code identical to `22f66e9` plus the test-only repair `2be1d73`). Evidence commit: `c3d56e3` (evidence short sha `c3d56e3`; it adds only the files under `.alveara/gates/E/evidence/`).
 
 ## Preconditions
 
