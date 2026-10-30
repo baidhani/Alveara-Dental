@@ -1,0 +1,27 @@
+commit 2be1d7367c503a1c1ce9658e53040fcfc897847f
+wip: Gate E prep - scope the billing-ledger walkthrough status locator to the billing section
+
+
+diff --git a/src/alveara-client/e2e/billing-ledger-real-backend.spec.ts b/src/alveara-client/e2e/billing-ledger-real-backend.spec.ts
+index 835e6b6..4527c61 100644
+--- a/src/alveara-client/e2e/billing-ledger-real-backend.spec.ts
++++ b/src/alveara-client/e2e/billing-ledger-real-backend.spec.ts
+@@ -81,7 +81,8 @@ function sql(statement: string) {
+   execFileSync("sqlcmd", ["-S", sqlServer, "-d", db, "-I", "-b", "-Q", statement], { stdio: "pipe" });
+ }
+ 
+-const statusLine = (page: Page) => page.locator("p.alv-clinical__status");
++// Scoped to the billing section: the workspace header's export buttons (an administrator sees them) each carry their own, empty, status paragraph with this class.
++const statusLine = (page: Page) => page.locator("section.alv-bill p.alv-clinical__status");
+ const paymentForm = (page: Page) => page.getByRole("form", { name: "Record a payment" });
+ const ledger = (page: Page) => page.getByRole("table", { name: "Account history" });
+ const row = (page: Page, n: number) => ledger(page).getByRole("row").nth(n);
+@@ -334,7 +335,7 @@ test("a payment made from an out-of-date second screen is a conflict that record
+   expect((await account(billing)).entries).toHaveLength(10);
+   await stale.getByRole("button", { name: /reload/i }).click();
+   await reverse(stale, 9, "Venmo payment returned");
+-  await expect(stale.locator("p.alv-clinical__status")).toContainText("Payment 9 reversed. Balance owed is now $59.00.");
++  await expect(statusLine(stale)).toContainText("Payment 9 reversed. Balance owed is now $59.00.");
+ });
+ 
+ test("FAILURE PATH: when the log cannot be written nothing is recorded and billing is told so, then the same reversal works", async () => {

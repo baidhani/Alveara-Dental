@@ -2,7 +2,7 @@
 
 **Stage 1 decision: all nine criteria PASS on the Stage 1 evidence, subject to independent review. Gate E is NOT passed:** the fresh full serial backend regression (Stage 2) has not been run and is required before the final decision. Thresholds, methods and environments are the predeclared E1-E8 rows in `.alveara/QUALITY_GATES.md` plus row E9, added on 2026-10-30 to align the table with the plan's Gate E prompt (Disclosure 1).
 
-Date: 2026-10-29/30 (America/Chicago). Evidence run on `173051da01b1eababfb9bf10773283cfa3a6f74d` (clean tree before and after; product code identical to `22f66e9` plus the test-only repair `2be1d73`). Evidence commit: PENDING (set when recorded).
+Date: 2026-10-29/30 (America/Chicago). Evidence run on `173051da01b1eababfb9bf10773283cfa3a6f74d` (clean tree before and after; product code identical to `22f66e9` plus the test-only repair `2be1d73`). Evidence commit: `c3d56e3` (evidence short sha `c3d56e3`; it adds only the files under `.alveara/gates/E/evidence/`).
 
 ## Preconditions
 
@@ -40,9 +40,14 @@ Date: 2026-10-29/30 (America/Chicago). Evidence run on `173051da01b1eababfb9bf10
 | Real-backend walkthroughs (12, each on a fresh database) | documents 14, documents-library 12, follow-ups 8, work-queue 8, external-cases 9, patient-merge 9, patient-export-package 10, patient-portability 7, bulk-import 13, reports 7, notifications 10, billing-ledger 11 (with the repair): all pass | `gates/walk_*.txt`, `walkthroughs/` |
 | Artifact leak counts | identical before and after (SQL holds only AlveraDev; no AlveraTest/Template/Restore database; 0 SQL logins) | `leak_before.txt`, `leak_after.txt` |
 
-## Stage 2 (frozen after the Stage 1 review; NOT run)
+## Stage 2 (frozen contract; NOT run)
 
-A fresh full serial backend run (the 5,612 tests of the ALV-N006 Stage 2 plus nothing new expected), the same client and repository gates, and the walkthroughs above, run once on the Stage 1 closure commit with the machine idle. Its plan and evaluator are frozen before the review (`stage2/`, PENDING).
+The contract is frozen in `.alveara/gates/E/stage2/` and is run once, only after the Stage 1 review, on the Stage 1 closure commit, with the machine idle:
+
+- `run_stage2.sh <173051da01b1eababfb9bf10773283cfa3a6f74d> <out-folder>` runs the fresh full serial backend suite (`dotnet test`, template database as in ALV-N006), `tsc -b`, Vitest, build, lint, mocked Playwright, the repository checks and 17 real-backend walkthroughs (documents 14, documents-library 12, follow-ups 8, work-queue 8, external-cases 9, patient-merge 9, patient-export-package 10, patient-portability 7, bulk-import 13, reports 7, notifications 10, billing-ledger 11, flow 10, permission-policy 7, permission-policy-admin 8, workspace 14, patients 7), each on a fresh database, with leak counts before and after.
+- `evaluate_stage2.py` decides every criterion with no judgement: exactly 5,612 backend tests passed, 0 failed, 0 skipped; the same ids and outcomes as the ALV-N006 Stage 2 baseline (`.alveara/handoffs/ALV-N006/R01-regression-evidence/backend-tests.csv`); no new and no retired id (no product code has changed since); the template built once with zero fallbacks and at least 3,000 clones; artifact counts unchanged; each client gate and walkthrough at its count; a clean tree before and after; and **only `.alveara/` files and `PROGRESS.md` differ between the Stage 1 evidence run commit and the run commit** (`src/` identical). The backend duration is reported, not a criterion.
+- `validate_evaluator.py` proves the evaluator on 11 synthetic scenarios (accepts a good run at 80 and at 3 minutes; rejects a failed or skipped test, a missing or changed baseline id, an id outside the baseline, an extra id, a wrong runner output variable, and a run whose `src/` differs): 11 of 11 behave as stated (`stage2/evaluator-validation.txt`). `stage2/runner-proof.txt` proves all 17 walkthroughs write their output where the runner expects.
+- The full run is long (about 83-97 minutes in ALV-N006); it will be started only after the owner agrees, with monitors, and the repository must not change while it runs.
 
 ## Disclosures
 
@@ -57,4 +62,4 @@ A fresh full serial backend run (the 5,612 tests of the ALV-N006 Stage 2 plus no
 
 ## Reproduce / Repository state and next action
 
-PENDING (set when the evidence is recorded). Next action after this stage: the Stage 1 review; then Stage 2 once; then the final gate decision. Item 54 is not authorized until Gate E is PASS and durably closed.
+Evidence recorded at `c3d56e3`; report at the Stage 1 closure head. Next action after this stage: the Stage 1 review; then Stage 2 once; then the final gate decision. Item 54 is not authorized until Gate E is PASS and durably closed.
