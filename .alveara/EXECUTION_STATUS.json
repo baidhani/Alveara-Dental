@@ -2840,7 +2840,7 @@
       "qualityGateContribution": [
         "Gate F"
       ],
-      "status": "PLANNED",
+      "status": "DEFERRED",
       "attempt": null,
       "acceptance": {
         "total": 5,
@@ -2863,6 +2863,12 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
+      "deferral": {
+        "authorizedBy": "product_owner",
+        "authorizedAt": "2026-10-29T00:00:00Z",
+        "reason": "Optional AI release branch deferred after Gate E; prioritize deployment readiness of the completed non-AI core.",
+        "releaseImpact": "No required non-AI core workflow depends on ALV-N007. AI-assisted clinical documentation, dictation/transcription, and AI safety/completeness assistance are excluded from this release. The core clinical-documentation workflow remains fully supported without AI."
+      },
       "revalidation": {
         "required": false,
         "reason": null
@@ -2891,7 +2897,7 @@
       "qualityGateContribution": [
         "Gate F"
       ],
-      "status": "PLANNED",
+      "status": "DEFERRED",
       "attempt": null,
       "acceptance": {
         "total": 6,
@@ -2914,6 +2920,12 @@
         "reviewedEvidenceCommit": null
       },
       "blockingIssues": [],
+      "deferral": {
+        "authorizedBy": "product_owner",
+        "authorizedAt": "2026-10-29T00:00:00Z",
+        "reason": "Optional AI release branch deferred after Gate E; prioritize deployment readiness of the completed non-AI core.",
+        "releaseImpact": "No required non-AI core workflow depends on ALV-N012. AI-assisted authorized chart questions, source-linked summaries, patient-friendly plan explanation drafts, and administrative follow-up drafts are excluded from this release."
+      },
       "revalidation": {
         "required": false,
         "reason": null
