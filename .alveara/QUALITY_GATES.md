@@ -81,7 +81,7 @@ Format per criterion: **Method** (test/measurement) · **Environment/Dataset** �
 
 ## Gate E — Operations, Documents, and Data Ready
 
-*Stop point after item 48 (`ALV-N006`). Resolve before optional AI / release engineering (items 49+).*
+*Stop point after item 53 (`ALV-N006`). Resolve before the optional AI branch and release engineering (item 54, `ALV-N007`, onward).*
 
 | # | Criterion | Method | Environment/Dataset | Threshold/Rubric | Current State | Evidence | Date | Notes |
 |---|---|---|---|---|---|---|---|---|
@@ -93,6 +93,7 @@ Format per criterion: **Method** (test/measurement) · **Environment/Dataset** �
 | E6 | Import/migration dry-runs first, respects duplicate/scheduling/ledger rules, and reports errors without silent loss | Automated dry-run + committed-import test with intentional conflicts | Local dev build, dataset with seeded conflicts | Dry-run reports every conflict before commit; committed import applies same rules as normal entry | NOT YET EVALUABLE | — | — | Depends on `ALV-018-C02` |
 | E7 | Reporting reconciles to source records | Automated report-vs-source-table reconciliation | Local dev build, seeded dataset with known totals | Report totals match source-table totals exactly | NOT YET EVALUABLE | — | — | Depends on `ALV-N006` |
 | E8 | Baseline/outcome metrics never claim improvement without valid comparable data | Manual review of reporting copy/claims | Local dev build | No "% improvement" claim without a stored baseline measurement | NOT YET EVALUABLE | — | — | Depends on `ALV-N006` |
+| E9 | Per-person notification delivery is privacy-safe, idempotent and recoverable; operational-message access, including break-glass audit access, obeys its authorization and immutable-audit boundary | Automated notification, permission and schema tests plus the notifications walkthrough | Local dev build, synthetic data | No subject, body, patient name or raw patient id in list payloads, audit entries or logs; the same key creates one message; a replay after a lost consumer cursor creates no second notification; the history is metadata only and, with break-glass, the administrators' alone (content only through a reason-required, audited break-glass; a refused or unauditable break-glass returns no content); every break-glass attempt (success, refusal, unknown message) is audited; a stored message cannot be updated or deleted, even by direct SQL | NOT YET EVALUABLE | — | — | Row added 2026-10-30 to align this table with the plan's Gate E prompt (evidence bullet 2); wording from the plan, thresholds drawn from the ALV-N015 acceptance evidence; owner's interpretation: "recoverable" means consumer recovery, not message backup/restore. Depends on `ALV-N015` |
 
 ---
 
