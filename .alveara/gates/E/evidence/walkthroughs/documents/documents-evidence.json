@@ -1,0 +1,100 @@
+{
+  "axe": {
+    "empty-library-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "empty-library-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "settings-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "settings-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1793323553416,
+  "imported": [
+    {
+      "title": "notes.txt",
+      "category": "Correspondence",
+      "type": "other",
+      "bytes": 50
+    },
+    {
+      "title": "referral.pdf",
+      "category": "Referral letter",
+      "type": "pdf",
+      "bytes": 70
+    },
+    {
+      "title": "bitewing.png",
+      "category": "Radiograph",
+      "type": "png",
+      "bytes": 71
+    }
+  ],
+  "serving": {
+    "png": "inline+sandbox",
+    "pdf": "inline+sandbox",
+    "txt": "attachment",
+    "tiffAndOthers": "download only (backend tests)"
+  },
+  "duplicate": {
+    "warned": true,
+    "cancelledImportedNothing": true,
+    "recordedAsDuplicate": true
+  },
+  "refusals": [
+    "a blocked type",
+    "a web page",
+    "a program under a harmless name",
+    "a PNG named .pdf",
+    "an empty file"
+  ],
+  "edit": {
+    "history": [
+      "Imported",
+      "Opened",
+      "Categorized",
+      "MetadataEdited"
+    ],
+    "staleRefused": true
+  },
+  "signedForm": {
+    "listedReadOnly": true,
+    "hashUnchangedAfterTemplateEdit": true
+  },
+  "permissions": {
+    "dentistImport": 403,
+    "frontDeskImport": 403,
+    "officeManagerSettings": 403,
+    "missingCsrf": 400
+  },
+  "settings": {
+    "categoryAdded": true,
+    "limitChecked": true,
+    "blockedAndUnblocked": true,
+    "builtInsLocked": 15
+  },
+  "failurePath": {
+    "importedWhileDown": 0,
+    "importedAfterRecovery": 1
+  },
+  "trust": {
+    "auditEntries": 12,
+    "eventNumbers": 13,
+    "gapFree": true,
+    "nameOrPatientInLog": false
+  },
+  "immutability": {
+    "updateFile": "refused",
+    "deleteFile": "refused",
+    "history": "refused",
+    "builtInBlocked": "refused"
+  }
+}

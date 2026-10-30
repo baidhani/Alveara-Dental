@@ -1,0 +1,25 @@
+Database AlveraWalk_playwright_billing_ledger_config_4c3868b6 created in C:\.alvera-data\Test-Data\Database
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.billing-ledger.config.ts ...
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] › e2e\billing-ledger-real-backend.spec.ts:151:1 › SETUP: Ann has two completed procedures (PERIO-1 at 120 and SCALE-1 at 70) and Bo is a second patient (2.2s)
+  ok  2 [chromium] › e2e\billing-ledger-real-backend.spec.ts:181:1 › PAYMENT ALLOCATION: a payment is applied to the charge chosen and the rest stays unapplied; an over-allocation is refused beside its charge (4.1s)
+  ok  3 [chromium] › e2e\billing-ledger-real-backend.spec.ts:204:1 › APPLYING THE REST: what a payment still holds goes to the oldest open charge, and nothing already recorded changes (620ms)
+  ok  4 [chromium] › e2e\billing-ledger-real-backend.spec.ts:220:1 › REVERSAL: a payment is reversed by a new entry, its allocations are released, and the original stays in the history marked as reversed (2.3s)
+  ok  5 [chromium] › e2e\billing-ledger-real-backend.spec.ts:238:1 › A charge that payments are applied to cannot be reversed until they are; then the history is verified from the preserved entries (1.2s)
+  ok  6 [chromium] › e2e\billing-ledger-real-backend.spec.ts:265:1 › RESPONSIBILITY: a registered guarantor is followed until billing records one; the two stay independent; the guarantor sees the account and can be recorded as the payer (3.9s)
+  ok  7 [chromium] › e2e\billing-ledger-real-backend.spec.ts:301:1 › PAYMENT METHODS: billing adds a named method, uses it, then stops using it; the old payment keeps showing it (984ms)
+  ok  8 [chromium] › e2e\billing-ledger-real-backend.spec.ts:323:1 › a payment made from an out-of-date second screen is a conflict that records nothing (969ms)
+  ok  9 [chromium] › e2e\billing-ledger-real-backend.spec.ts:341:1 › FAILURE PATH: when the log cannot be written nothing is recorded and billing is told so, then the same reversal works (3.0s)
+  ok 10 [chromium] › e2e\billing-ledger-real-backend.spec.ts:371:1 › a dentist reads the ledger with what each entry stands for but is offered no way to change it; a hygienist has no billing tab (643ms)
+  ok 11 [chromium] › e2e\billing-ledger-real-backend.spec.ts:389:1 › the API refuses what the screen does not offer: a missing CSRF token, reversing a reversal or twice, and a payment applied for more than it holds (40ms)
+
+  11 passed (26.9s)
+Database AlveraWalk_playwright_billing_ledger_config_4c3868b6 dropped (its files went with it).
+Output kept in C:/Users/firas/AppData/Local/Temp/claude/c--Users-firas-Documents-AI-Project--Alveara-Dental-/b77e3b07-5179-44fb-8085-a45449d8984e/scratchpad/gate_e_stage1/walkthroughs/billing-ledger

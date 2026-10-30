@@ -1,0 +1,28 @@
+run commit: 173051da01b1eababfb9bf10773283cfa3a6f74d
+working tree before: 0 changed paths (0 = clean)
+start: 2026-10-29T19:54:42-05:00
+== leak counts before taken
+== backend build exit=0
+== backend focused (E1-E9 classes) exit=0 elapsed=1561s: Passed!  - Failed:     0, Passed:  1546, Skipped:     0, Total:  1546, Duration: 25 m 52 s - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=7s: 
+== gate vitest exit=0 elapsed=200s:  Test Files  120 passed (120)       Tests  1879 passed (1879) 
+== gate build exit=0 elapsed=9s: [32m✓ built in 1.12s[39m 
+== gate lint exit=0 elapsed=3s: 
+== gate playwright_mocked exit=0 elapsed=25s:   138 passed (22.9s) 
+== gate repo_checks exit=0 elapsed=12s: 
+== walkthrough documents exit=0 elapsed=32s:   14 passed (18.2s) 
+== walkthrough documents-library exit=0 elapsed=37s:   12 passed (20.8s) 
+== walkthrough follow-ups exit=0 elapsed=42s:   8 passed (28.4s) 
+== walkthrough work-queue exit=0 elapsed=61s:   8 passed (45.8s) 
+== walkthrough external-cases exit=0 elapsed=65s:   9 passed (50.0s) 
+== walkthrough patient-merge exit=0 elapsed=38s:   9 passed (21.8s) 
+== walkthrough patient-export-package exit=0 elapsed=51s:   10 passed (30.8s) 
+== walkthrough patient-portability exit=0 elapsed=42s:   7 passed (15.3s) 
+== walkthrough bulk-import exit=0 elapsed=93s:   13 passed (1.3m) 
+== walkthrough reports exit=0 elapsed=35s:   7 passed (18.7s) 
+== walkthrough notifications exit=0 elapsed=57s:   10 passed (40.0s) 
+== walkthrough billing-ledger exit=0 elapsed=44s:   11 passed (26.9s) 
+== leak counts after taken
+end: 2026-10-29T20:35:41-05:00
+working tree after: 0 changed paths
+== SWEEP DONE

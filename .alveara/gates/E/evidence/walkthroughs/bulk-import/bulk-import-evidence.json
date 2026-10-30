@@ -1,0 +1,131 @@
+{
+  "axe": {
+    "list-with-problems-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-with-problems-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patients-batch-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "patients-batch-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "balances-reconciled-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "balances-reconciled-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-with-batches-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-with-batches-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "summaries": {
+    "patientsDryRun": "5 rows: 2 valid, 1 rejected, 1 skipped, 1 waiting for a decision.",
+    "patientsAgain": "5 rows: 0 valid, 1 rejected, 4 skipped, 0 waiting for a decision.",
+    "appointmentsDryRun": "5 rows: 2 valid, 3 rejected, 0 skipped, 0 waiting for a decision.",
+    "balancesDryRun": "4 rows: 2 valid, 2 rejected, 0 skipped, 0 waiting for a decision. Total of the valid balances: $165.50. Check this against the old system before committing.",
+    "balancesAgain": "1 row: 0 valid, 1 rejected, 0 skipped, 0 waiting for a decision. Total of the valid balances: $0.00. Check this against the old system before committing."
+  },
+  "verification": {
+    "importedPatients": 3,
+    "importedAppointments": 2,
+    "importedLedgerEntries": 3,
+    "importedLedgerTotal": 175.5,
+    "entryNumberOnePerAccount": 3,
+    "entriesWithoutBatchMark": 0,
+    "batchesCommitted": 4,
+    "batchesOpen": 2,
+    "acceptedRowsInAllBatches": 8,
+    "acceptedRowsWithoutResult": 0,
+    "patientsNamedQuinn": 0,
+    "jobsStillPending": 0
+  },
+  "stamp": 1793323930434,
+  "dentist": {
+    "menuEntry": false,
+    "page": "permission denied",
+    "apiList": 403,
+    "apiSweep": 403
+  },
+  "malformedFile": {
+    "refused": true,
+    "batchesAfter": 0
+  },
+  "patients": {
+    "registered": [
+      "Di",
+      "Ed",
+      "Anna"
+    ],
+    "rejected": "Quinn",
+    "skippedExact": "Ann",
+    "status": "Committed",
+    "outcome": "CompletedWithExceptions"
+  },
+  "appointments": {
+    "accepted": 2,
+    "rejected": 3,
+    "directBookingOnTopOfImported": [
+      409,
+      409
+    ]
+  },
+  "balances": {
+    "ann": 125.5,
+    "bo": 40,
+    "cyHasAccount": false,
+    "ledgerVerification": "consistent"
+  },
+  "permissionGate": {
+    "screenBlocked": true,
+    "apiStatus": 403,
+    "apiError": "billing_permission_required"
+  },
+  "retry": {
+    "statusAfter": "Committed",
+    "round": 2,
+    "cyBalance": 10
+  },
+  "sweep": {
+    "batchFiles": 6,
+    "strayFileRemovalExercised": true
+  },
+  "audit": {
+    "ImportBatchCreated": 6,
+    "ImportFileRejected": 1,
+    "ImportDryRunCompleted": 6,
+    "ImportRowDecided": 1,
+    "ImportCommitStarted": 3,
+    "ImportCommitRetried": 1,
+    "BillingOpeningBalanceRecorded": 3
+  },
+  "ids": {
+    "op1": "9d6112e6-2d98-4bb8-85dc-44d6289fa177",
+    "op2": "eba8e6ae-5632-4013-91cf-eed07bb8ca72",
+    "exam": "441c0a10-46ec-49a6-b61d-a17d3f73facf",
+    "provider": "46f37e5a-6620-4e84-b041-513e1332444e",
+    "ann": "e2b98331-14a7-42c7-bdac-58bb4fc95080",
+    "bo": "75c19b8f-5a54-40d8-bc63-6bb0c3c07859",
+    "cy": "3df89bde-008d-4fd2-8a2e-bf6148e5a4f0",
+    "patientBatch": "3d2676f3-8df9-44d3-b7f3-0748a8e40a3a",
+    "patientRepeat": "381a4a50-1bbe-4671-85f3-fc8163d03181",
+    "apptBatch": "58a1a2fb-0cd9-4fa3-a43e-805dab0c46b8",
+    "balanceBatch": "d42cc030-7ce2-4e8b-b649-8b91768fee1d",
+    "balanceRepeat": "bf47c17a-86eb-4bc1-9b1c-b5cd6b717e21",
+    "stuckBatch": "d60acd38-8777-4445-8743-7262a57353da"
+  }
+}

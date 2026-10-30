@@ -1,0 +1,108 @@
+{
+  "axe": {
+    "export-screen-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "export-screen-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "downloads": {
+    "onePatientPackage": {
+      "file": "one-patient-package.zip",
+      "sha256": "2a92c6b0652fd01852c5422de90667994469ee4923d8db4465bd1142b38be9cb"
+    },
+    "readableRecords": [
+      {
+        "file": "readable-record-from-patient-page.html",
+        "sha256": "c0a326abc050f0c51674843a916ebfb9cc30a569889f306ec00816034c515dd1"
+      },
+      {
+        "file": "readable-record-from-screen.html",
+        "sha256": "844ac95346bf54b876a613707c3a4d46fed1d0869749534eff079eacb7325330"
+      }
+    ],
+    "allPatientsPackage": {
+      "file": "all-patients-package.zip",
+      "sha256": "8cd538edf7584ca1d2680801678b53adc4ac397dd4318238a9d53b84d074988f",
+      "screenMilliseconds": 699
+    }
+  },
+  "timing": {
+    "patients": 202,
+    "runs": [
+      {
+        "attempt": 1,
+        "onePatientPackage": {
+          "status": 200,
+          "milliseconds": 418,
+          "bytes": 13819,
+          "result": "Complete"
+        },
+        "allPatientsPackage": {
+          "status": 200,
+          "milliseconds": 2778,
+          "bytes": 465977,
+          "result": "Complete"
+        }
+      },
+      {
+        "attempt": 2,
+        "onePatientPackage": {
+          "status": 200,
+          "milliseconds": 406,
+          "bytes": 13820,
+          "result": "Complete"
+        },
+        "allPatientsPackage": {
+          "status": 200,
+          "milliseconds": 1670,
+          "bytes": 465806,
+          "result": "Complete"
+        }
+      }
+    ]
+  },
+  "stamp": 1793323832064,
+  "access": {
+    "dentistRefused": {
+      "/api/patient-exports/patients/a8f12b69-3b31-45dd-90a7-8f86d8a602d1/package": 403,
+      "/api/patient-exports/all-patients/package": 403,
+      "/api/patient-exports/patients/a8f12b69-3b31-45dd-90a7-8f86d8a602d1/readable-record": 403,
+      "/api/patient-exports/history": 403,
+      "/api/patient-exports/overview": 403
+    },
+    "anonymous": [
+      401,
+      401,
+      401,
+      401,
+      401
+    ]
+  },
+  "permissions": {
+    "dentistAllPatients": 403,
+    "dentistPackage": 403,
+    "dentistOwnHistoryRows": 1
+  },
+  "history": {
+    "lines": 5,
+    "auditEvents": 5
+  },
+  "ids": {
+    "dentistUser": "7d763479-af38-470d-b498-c38da241921a",
+    "ann": "a8f12b69-3b31-45dd-90a7-8f86d8a602d1",
+    "bo": "4252879d-1385-4b98-988e-e30abef5781e",
+    "cy": "167a40b4-7b8b-4bd7-aa3e-7691299eccb2"
+  },
+  "saved": {
+    "onePatientPackage": "C:\\Users\\firas\\AppData\\Local\\Temp\\claude\\c--Users-firas-Documents-AI-Project--Alveara-Dental-\\b77e3b07-5179-44fb-8085-a45449d8984e\\scratchpad\\gate_e_stage1\\walkthroughs\\patient-export-package\\one-patient-package.zip",
+    "readableFromPatientPage": "C:\\Users\\firas\\AppData\\Local\\Temp\\claude\\c--Users-firas-Documents-AI-Project--Alveara-Dental-\\b77e3b07-5179-44fb-8085-a45449d8984e\\scratchpad\\gate_e_stage1\\walkthroughs\\patient-export-package\\readable-record-from-patient-page.html",
+    "readableFromScreen": "C:\\Users\\firas\\AppData\\Local\\Temp\\claude\\c--Users-firas-Documents-AI-Project--Alveara-Dental-\\b77e3b07-5179-44fb-8085-a45449d8984e\\scratchpad\\gate_e_stage1\\walkthroughs\\patient-export-package\\readable-record-from-screen.html",
+    "allPatientsPackage": "C:\\Users\\firas\\AppData\\Local\\Temp\\claude\\c--Users-firas-Documents-AI-Project--Alveara-Dental-\\b77e3b07-5179-44fb-8085-a45449d8984e\\scratchpad\\gate_e_stage1\\walkthroughs\\patient-export-package\\all-patients-package.zip",
+    "dentistReadable": "C:\\Users\\firas\\AppData\\Local\\Temp\\claude\\c--Users-firas-Documents-AI-Project--Alveara-Dental-\\b77e3b07-5179-44fb-8085-a45449d8984e\\scratchpad\\gate_e_stage1\\walkthroughs\\patient-export-package\\readable-record-by-dentist.html",
+    "original": "C:\\Users\\firas\\AppData\\Local\\Temp\\claude\\c--Users-firas-Documents-AI-Project--Alveara-Dental-\\b77e3b07-5179-44fb-8085-a45449d8984e\\scratchpad\\gate_e_stage1\\walkthroughs\\patient-export-package\\original-story-018-export.json"
+  }
+}
