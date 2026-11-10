@@ -4,7 +4,7 @@
 
 ## COURSE INITIALIZATION — COMPLETE BEFORE ITEM 1
 
-This initialization is performed by the course workflow and is **not** part of the 55 numbered Alveara/course execution items. Follow the current course/portal instructions when their generated commands differ from the descriptive sequence below.
+This initialization is performed by the course workflow and is **not** part of the numbered Alveara/course execution items. Follow the current course/portal instructions when their generated commands differ from the descriptive sequence below.
 
 ### A. Scaffold the local course workspace
 
@@ -73,7 +73,7 @@ EXECUTION-CONTROL BOOTSTRAP
 You are initializing the repository-side execution controls for Alveara Dental.
 
 This is the mandatory Alveara production-control bootstrap AFTER verified STORY-000.
-It is not a course story and not one of the 53 numbered first-release execution items.
+It is not a course story and not one of the initially defined 53 numbered first-release execution items.
 DO NOT implement application functionality.
 DO NOT begin item 2 — ALV-N001.
 STORY-000 must already be genuinely verified by the course portal before this bootstrap begins.
@@ -112,7 +112,7 @@ CREATE
 └── reviews/
 
 1. EXECUTION_STATUS.json
-- Create exactly 53 active first-release records matching the numbered first-release items in the Execution Plan.
+- At bootstrap, create exactly 53 active first-release records matching the then-numbered first-release items in the Execution Plan. Later approved plan amendments may add records only through a deliberate execution-control update.
 - Include all 19 STORY-* items and all 34 first-release ALV items exactly once.
 - Record story ID, type, parent when applicable, dependencies, status, attempt/review/evidence fields, blockers, revalidation state, and completion metadata needed by the workflow.
 - Course records must declare externalVerification = "course_portal".
@@ -144,6 +144,10 @@ Persist the Standard Production Prompt Rules from the Engineering & Product Refe
 Every story must run its acceptance, parent-course, material failure/security/concurrency, and changed-subsystem integration tests before packaging. For up to three consecutive low/medium-risk stories, full backend, frontend, repository-check, and mocked-browser regression may be batched; it is mandatory with the third eligible story handoff. Run the full regression before each high-risk story handoff and whenever an individual prompt requires it. High-risk includes migrations/schema; authentication/authorization, audit, transaction, idempotency, or concurrency primitives; money/billing; backup/restore; encryption; shared middleware/runtime configuration; production build/deployment configuration; and test infrastructure. At every quality gate, release, or declared milestone, run the full regression plus required real-backend walkthroughs and gate-specific evidence. Story-level requirements are stricter and override this cadence. Every `TEST_RESULTS.md` must record classification, exact commands/results, and, when broad regression is deferred, batch position and the next due broad-regression story.
 
 **Binding two-stage review timing:** For every story, milestone, release, and gate beginning after `ALV-010-C01` that requires broad regression, submit focused Stage 1 evidence and a frozen broad-verification plan before the expensive run. Only after independent `APPROVED_PENDING_REGRESSION` may the coding agent run the exact Stage 2 contract on code-equivalent approved work. The full regression remains mandatory and must pass final review before `COMPLETE` or a gate/release PASS decision. A product/test Stage 2 failure requires a new attempt or responsible-work correction; an environment-only inconclusive run is `BLOCKED` and may rerun unchanged. Current work already running broad regression keeps its existing flow. A reviewer may require single-stage evidence only when broad regression is itself necessary to assess a specific acceptance criterion before implementation review, and must document that reason. `.alveara/HANDOFF_SCHEMA.md` v3 defines the binding package, status, equivalence, and closure rules.
+
+**Binding pre-implementation briefing:** Before changing code, tests, schema, configuration, UI, documentation, or runtime assets for every newly authorized ALV stabilization or release story, create `docs/design/<ALV-ID>_PRE_IMPLEMENTATION_BRIEF.md` and stop for independent review. The briefing must state: the intended user-visible and technical result; every planned creation, change, removal, redesign, migration, and compatibility impact; the observed problem and proposed root cause for a fix; all affected permissions, audit/history, data, integration, accessibility, recovery, performance, and test implications; the exact acceptance/evidence plan; and the focused Stage 1 and frozen Stage 2 plan when broad regression applies. It must list every relevant finding/question/observation identifier and reproduce the full corresponding raw-log entry from the approved Manual E2E source, including the source heading and observed-result detail. A summary, paraphrase, or identifier-only list is insufficient. Do not begin implementation or an expensive regression until this briefing has been independently approved. This briefing is planning evidence, not a handoff attempt.
+
+**Binding product identity decision (2026-11-09):** The product's public-facing name is **DentalKeep**. New and changed user-visible application copy, release/install/operator documentation, screenshots, product metadata, and public-facing test expectations must use DentalKeep. Historical evidence, immutable handoffs/reviews, course artifacts, `ALV-*` identifiers, and existing `Alveara_Handoff_*` control-package naming remain unchanged. Do not rename database names, schemas, namespaces, assembly names, persisted keys, or compatibility-sensitive paths merely by search-and-replace. `ALV-N019` must first inventory every proposed brand change and classify it as public-facing, historical/control, or compatibility-sensitive; only the reviewed inventory authorizes its implementation.
 
 3. BUILD_STATE.md
 - Record current implemented truth only.
@@ -183,7 +187,7 @@ VALIDATE BEFORE COMMITTING
 Verify all of the following:
 - required .alveara files/directories exist;
 - EXECUTION_STATUS.json parses as valid JSON;
-- exactly 53 active first-release records exist;
+- the initial 53-record baseline exists, or later approved execution-control amendments are accurately reflected with no duplicate IDs or item numbers;
 - exactly 19 are course STORY-* records;
 - exactly 34 are first-release ALV records;
 - every numbered first-release ID in the Execution Plan appears exactly once;
@@ -295,7 +299,7 @@ After successful bootstrap implementation and validation:
 7. Reopen/list the generated ZIP and validate:
    - every mandatory member exists exactly where required;
    - MANIFEST.json parses;
-   - packaged EXECUTION_STATUS.json parses and still contains exactly 53 active first-release records: 19 course + 34 ALV;
+   - packaged EXECUTION_STATUS.json parses and reflects the approved execution order with no duplicate IDs or item numbers; the original bootstrap baseline was 53 records: 19 course + 34 ALV;
    - manifest SHAs match the actual implementation/evidence commits;
    - packaged control files match the evidence-commit snapshots;
    - no forbidden/sensitive content is included;
@@ -3521,7 +3525,7 @@ Return the gate decision, criterion-by-criterion results, evidence references, r
 **OPTIONAL AI BRANCH — DECIDE HERE:**
 
 - **Include AI in this release:** execute `ALV-N007` now. After it is reviewed and closed `COMPLETE`, continue to item 52 — `ALV-N012`.
-- **Defer AI from this release:** set **both** `ALV-N007` and `ALV-N012` to `DEFERRED` in `.alveara/EXECUTION_STATUS.json`, record the product-owner reason and release impact for each, verify the required non-AI core has no dependency on either story, and jump directly to **item 56 — ALV-N013**. Do not execute item 51 when `ALV-N007` is deferred.
+- **Defer AI from this release:** set **both** `ALV-N007` and `ALV-N012` to `DEFERRED` in `.alveara/EXECUTION_STATUS.json`, record the product-owner reason and release impact for each, verify the required non-AI core has no dependency on either story, and jump directly to **item 56 — ALV-N019**. Do not execute item 51 when `ALV-N007` is deferred.
 
 **Type:** New Production
 **Dependencies:** ALV-005-C01, ALV-006-C01, ALV-013-C01, ALV-N011
@@ -3607,7 +3611,7 @@ No course parent. This is production work omitted by the generated course backlo
 `ALV-N012` depends on `ALV-N007`. Do **not** execute this story if `ALV-N007` was deferred.
 
 - If `ALV-N007` is `COMPLETE`, you may execute `ALV-N012` now.
-- If you completed `ALV-N007` but choose to defer only this second AI enhancement, set `ALV-N012` to `DEFERRED`, record the product-owner reason and release impact, verify no required core workflow depends on it, and continue directly to **item 56 — ALV-N013**.
+- If you completed `ALV-N007` but choose to defer only this second AI enhancement, set `ALV-N012` to `DEFERRED`, record the product-owner reason and release impact, verify no required core workflow depends on it, and continue directly to **item 56 — ALV-N019**.
 - If `ALV-N007` was deferred, `ALV-N012` must already have been marked `DEFERRED`; jump to item 52.
 
 **Type:** New Production — Optional first-release enhancement
@@ -3690,9 +3694,147 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 56 — ALV-N013** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 56 — ALV-N019** below.
 
-# 56 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
+# Post-Gate-E Stabilization Program — Approved 2026-11-09
+
+The product owner approved the ten-package consolidation of `18-STABILIZATION-PLAN-R05.md`, independently reviewed in `docs/design/MANUAL_E2E_STABILIZATION_PLAN_R05_REVIEW.md`. This program replaces the prior immediate transition to release engineering. It is a stabilization and automated accumulated-state E2E program, not a waiver of release work.
+
+Release engineering (`ALV-N013`, `ALV-N014`, `ALV-N008`) remains planned and may not begin until: all selected packages below have closed through two-stage review; `ALV-N028` proves the complete uninterrupted automated chain with no release-blocking tracked exception; any owner-selected additional features have been implemented and covered; the owner chooses the timing of one final manual E2E, completes it, and explicitly clears the release transition.
+
+The underlying R05 source plan and its raw-log mapping remain the detailed acceptance source. The ten packages below consolidate review turns only; they do not retire a finding, question, decision, or browser-level coverage obligation. Every package begins with the binding pre-implementation briefing.
+
+## 56 — ALV-N019 — DentalKeep Brand Migration, Stabilization Foundation, and Automated Chain Harness
+
+**Type:** New Production  
+**Dependencies:** Gate E PASS, ALV-N006, ALV-N015, ALV-018-C02
+
+**Scope:** Create the controlled test-chain foundation from R05 PKG-01 and PKG-15, and deliver the reviewed DentalKeep public-identity migration. The pre-implementation briefing must include a complete brand inventory before any rename. It must preserve the historical/control and compatibility-sensitive boundaries defined above.
+
+**Acceptance:** A throw-away chain environment owns its database, document storage, configuration, injected test clock, communication stubs, evidence directory, schema version, run id, and implementation SHA; it refuses development data; tracked exceptions have an owner and exit condition; disposition completeness is mechanically checked. DentalKeep replaces Alveara Dental in approved public-facing surfaces. Dependency advisories and environment hygiene are investigated before any upgrade; upgrades require their own reviewed decision. No historical evidence or compatibility-sensitive identifier is silently rewritten.
+
+**Required coverage:** R05 stage 0, every mapped F-201/disposition obligation, brand-inventory tests or repository checks, and focused safety tests for the isolated runner. This is test infrastructure and identity work: use the binding two-stage review policy.
+
+**NEXT:** After final approval and closure, continue to item 57.
+
+## 57 — ALV-N020 — Identity, Session, and Staff Lifecycle Integrity
+
+**Type:** New Production  
+**Dependencies:** ALV-N019
+
+**Scope:** Consolidates R05 PKG-02 and PKG-03: patient-context isolation, sign-out/expiry/outage behavior, authentication presentation, and the staff account/login lifecycle.
+
+**Acceptance:** Fix and evidence every mapped identity/session finding, including F-037 patient-context isolation and F-021 staff deactivation. Preserve genuine 401 behavior while distinguishing server/network failure; prove disabled/revoked-session behavior, identity-scoped cache clearing, and safe recovery. Include all R05 stage 1 and minimum stage 2 coverage assigned to these packages, including the required real-browser Back, expiry, revocation, and form-guard cases.
+
+**Required coverage:** R05 PKG-02/03 findings, decisions PD-01 and optional PD-36 boundary, cases 1.01-1.12 and mapped raw-log entries. This is authentication/privacy work and requires two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 58.
+
+## 58 — ALV-N021 — Date, Scheduling, and Visit-Transition Integrity
+
+**Type:** New Production  
+**Dependencies:** ALV-N020
+
+**Scope:** Consolidates R05 PKG-04 and PKG-05: date-only/time correctness, scheduling, visit transitions, role enforcement, and appointment history/usability.
+
+**Acceptance:** Resolve the mapped date defects including F-107/F-118, then enforce the owner-approved visit-transition matrix and scheduling invariants server-side and in the UI. Completion, check-in, overlap, blocked-time, provider/operatory, role, history, and concurrency behavior must agree across calendar and board.
+
+**Required coverage:** R05 stage 3 and stage 4, cases 3.01-3.14, mapped role/appointment findings and decisions PD-05/PD-06. Include actual two-context browser coverage where R05 requires it. This package includes permission, audit and concurrency risk; use two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 59.
+
+## 59 — ALV-N022 — Clinical Safety, Record Integrity, Finalization, and Addenda
+
+**Type:** New Production  
+**Dependencies:** ALV-N021
+
+**Scope:** Consolidates R05 PKG-06 and PKG-07: safety context, clinical record/charting integrity, allergy-class check, finalized encounters, and addenda.
+
+**Acceptance:** Resolve the mapped clinical and safety findings, including stale safety presentation, missing-tooth invariants, allergy semantics, and finalized-encounter completion. Define and enforce the owner/clinical-lead decisions PD-09, PD-10, and PD-12 before dependent behavior is built. A finalized record changes only through the approved addendum/amendment route.
+
+**Required coverage:** R05 stages 5, 6 and relevant stage 8 cases; direct persistence/invariant tests, permission tests, and real-browser clinical workflows. This is clinical integrity work and requires two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 60.
+
+## 60 — ALV-N023 — Treatment-Plan, Scheduling, Follow-Up, and Revision Integrity
+
+**Type:** New Production  
+**Dependencies:** ALV-N022
+
+**Scope:** R05 PKG-08: treatment-plan scheduling/follow-up integrity, plan state, completion, historical references, and revisions.
+
+**Acceptance:** A treatment-plan item closes unscheduled follow-up only through a genuine linked appointment or the approved terminal state; scheduled, completed, withdrawn, declined, revised, and adopted states preserve truth and history. Resolve PD-14 and PD-15 before dependent implementation.
+
+**Required coverage:** R05 stage 7, cases 6.01-6.06 and mapped treatment-plan findings, including browser and concurrency obligations. This package affects completed-procedure and billing boundaries; use two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 61.
+
+## 61 — ALV-N024 — Financial Issuance and Reconciliation Integrity
+
+**Type:** New Production  
+**Dependencies:** ALV-N023
+
+**Scope:** R05 PKG-09: financial issuance, statements, receipts, payments, payer responsibility, corrections, and reconciliation.
+
+**Acceptance:** Preserve immutable ledger history and exact reconciliation; correct the mapped receipt, statement, payer, payment, adjustment, reversal, and report issues. Resolve PD-17 and PD-18 before dependent behavior is built.
+
+**Required coverage:** R05 stage 9, cases 7.01-7.12 and all mapped financial findings, including two-context browser/payment behavior. This is money and transaction work and requires two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 62.
+
+## 62 — ALV-N025 — Access, Audit, Patient Identity, Import, and Merge Integrity
+
+**Type:** New Production  
+**Dependencies:** ALV-N024
+
+**Scope:** Consolidates R05 PKG-10 and PKG-11: permission/audit readability and observability, patient-access audit design, duplicate detection, import/export usability, merge behavior, value lists, and patient number.
+
+**Acceptance:** Permission Matrix behavior equals actual API/UI access; audit views are useful without disclosing protected content; patient identity/import/merge behavior preserves data and records the actor/reason. Resolve PD-20 and PD-21 before dependent work. Include Q-5cl's matrix/document scenario in coordination with ALV-N026 and retain PD-24 as its visibility dependency.
+
+**Required coverage:** R05 stages 2 and 13, cases 1.07-1.09, 1.15, 2.01-2.15, 11.01-11.12, 12.04, 13.01-13.02, Q-5cl's access portion, and mapped findings. This is authorization/audit/concurrency work and requires two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 63.
+
+## 63 — ALV-N026 — Documents, Prescriptions, Printing, and Backup/Restore Integrity
+
+**Type:** New Production  
+**Dependencies:** ALV-N025
+
+**Scope:** R05 PKG-12: document storage, prescription printing/lifecycle, forms, backup/restore, and operator-visible recovery behavior.
+
+**Acceptance:** Documents and signed forms retain integrity and appropriate visibility; print output is accurate and privacy-safe; prescriptions retain their lifecycle truth; backup/restore and missing-file paths communicate safely. Resolve PD-11, PD-24, and PD-25 before dependent work.
+
+**Required coverage:** R05 stages 8, 10 and 14, cases 6.07-6.09, 8.01-8.12, 13.03-13.06, Q-5cl's document portion, and required real-browser missing-file/print coverage. This is document, backup/recovery, and clinical-data work and requires two-stage review.
+
+**NEXT:** After final approval and closure, continue to item 64.
+
+## 64 — ALV-N027 — Messaging, Follow-Ups, Reports, Navigation, Configuration, and Onboarding
+
+**Type:** New Production  
+**Dependencies:** ALV-N026
+
+**Scope:** Consolidates R05 PKG-13 and PKG-14: messaging/notifications/follow-up, reports/measurement, navigation and visual consistency, practice configuration, onboarding, menu visibility, and date-format preference.
+
+**Acceptance:** Complete all mapped operational communication, follow-up, report, configuration, accessibility, and usability corrections without turning messages into clinical documentation. Resolve PD-04, PD-31, PD-34, and PD-37 before dependent behavior. DentalKeep public-facing identity must remain consistent throughout these surfaces.
+
+**Required coverage:** R05 stages 11 and 12 plus cross-cutting accessibility/usability checks, cases 9.01-10.05 and 12.01-12.03, and every mapped PKG-13/14 finding. Use two-stage review when the selected change risk requires broad regression.
+
+**NEXT:** After final approval and closure, continue to item 65.
+
+## 65 — ALV-N028 — Complete Automated Accumulated-State Chain and Stabilization Exit Evidence
+
+**Type:** New Production  
+**Dependencies:** ALV-N019, ALV-N020, ALV-N021, ALV-N022, ALV-N023, ALV-N024, ALV-N025, ALV-N026, ALV-N027
+
+**Scope:** R05 PKG-16. Run the complete chain once from an empty controlled environment with no resume, verify the tracked-exception register has no release-blocking entry, and package exit evidence.
+
+**Acceptance:** The chain covers the R05 source-map stages 0 through 14 with preserved run id, database/document/configuration state, schema version, implementation SHA, and clock configuration. A resumed run is diagnostic evidence only and cannot satisfy this item. All applicable focused tests, real-backend walkthroughs, change-impact selection, and quality evidence pass.
+
+**Required coverage:** Full uninterrupted R05 chain and register-agreement self-test. This is an integrated milestone and requires Stage 1 approval before one frozen Stage 2 run.
+
+**NEXT:** The owner may select additional features for a separate approved package. When no selected additional work remains, the owner chooses the timing of one final manual E2E. Only the owner's explicit clear-to-go after that manual E2E authorizes item 66.
+
+# 66 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
 
 **Type:** New Production
 **Dependencies:** ALV-N004, ALV-018-C01, ALV-N002
@@ -3775,9 +3917,9 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 57 — ALV-N014** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 67 — ALV-N014** below.
 
-# 57 — ALV-N014 — Security and Privacy Engineering Readiness
+# 67 — ALV-N014 — Security and Privacy Engineering Readiness
 
 **Type:** New Production
 **Dependencies:** ALV-001-C01, ALV-002-C01, ALV-N004, ALV-010-C01, ALV-018-C01, ALV-018-C02, ALV-N013
@@ -3861,9 +4003,9 @@ No course parent. This is production work omitted by the generated course backlo
 - Never include secrets, credentials, tokens, password hashes, encryption/recovery keys, real PHI/patient data, or real-data backups in the package. Do not copy the entire repository by default.
 - In the final response, return the ZIP path, attempt ID, implementation SHA, handoff/evidence SHA, concise implementation/test summary, parent-regression result when applicable, blockers/limitations, and state `AWAITING_REVIEW`. Tell the user to upload the single ZIP to the reviewing ChatGPT conversation. Do not mark `COMPLETE`; after approval, perform only the review-closure protocol before any next story. **Working method** Work in small reversible steps. Before editing, read `.alveara/BUILD_STATE.md`, `.alveara/EXECUTION_STATUS.json`, `.alveara/HANDOFF_SCHEMA.md`, and the handoffs named by this story's dependencies when they exist, then inspect current code/tests. Code/tests are authoritative if they conflict with planning or packaged prose. Reuse existing services/components rather than rebuilding adjacent stories. If this story affects a defined success metric, use the shared privacy-safe measurement-event convention. If a required architectural change would invalidate a verified course criterion, stop and explain the conflict. When implementation is ready, demonstrate the visible workflow where applicable, map evidence to every acceptance item, package the validated attempt ZIP, and stop for review. Preserve prior attempts; after approval, record the review-closure commit before any next story.
 
-**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 58 — ALV-N008** below.
+**NEXT:** Do not continue until this story has been reviewed and, when approved, the review-closure commit has recorded it `COMPLETE`. Then continue directly to **item 68 — ALV-N008** below.
 
-# 58 — ALV-N008 — Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification
+# 68 — ALV-N008 — Production-Candidate Gate: End-to-End Recovery, Accessibility, Performance, and Release Verification
 
 **Type:** New Production
 **Dependencies:** ALV-N004, ALV-N006, ALV-N013, ALV-N014, ALV-018-C01, ALV-018-C02, ALV-007-C02
