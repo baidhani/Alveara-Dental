@@ -1,5 +1,8 @@
 import { execFileSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
+import path from "node:path";
 import { test, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { sqlServer } from "../e2e/support/sqlServer";
 
 // ALV-N019 stage 0 of the accumulated chain (R05 PKG-01, raw-log step 109 / S-09, owner decision "option B").
@@ -44,10 +47,38 @@ test("S-09c a second bootstrap is refused with 409 bootstrap_already_used and th
   expect(userCount()).toBe(1);
 });
 
-test("S-09d the administrator signs in through the browser and reaches the dashboard", async ({ page }) => {
+async function signIn(page: Page): Promise<void> {
   await page.goto("/login");
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+}
+
+/** Where the captured screenshots go: the run's evidence folder (CHAIN_OUT), or the test's own output folder when run by hand. */
+function capturePath(name: string): string {
+  const dir = process.env.CHAIN_OUT ? path.join(process.env.CHAIN_OUT, "brand") : test.info().outputDir;
+  mkdirSync(dir, { recursive: true });
+  return path.join(dir, name);
+}
+
+test("S-09d the administrator signs in through the browser and reaches the dashboard", async ({ page }) => {
+  await signIn(page);
+});
+
+// Review correction 06 (ALV-N019 R02): the DentalKeep identity is asserted in the real product, in a real browser, with captures.
+test("B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured)", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page).toHaveTitle("DentalKeep");
+  await expect(page.getByText("Enter your username and password to access DentalKeep.")).toBeVisible();
+  await expect(page.getByText("Alveara")).toHaveCount(0);
+  await page.screenshot({ path: capturePath("brand-sign-in.png"), fullPage: true });
+});
+
+test("B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured)", async ({ page }) => {
+  await signIn(page);
+  await expect(page).toHaveTitle("DentalKeep");
+  await expect(page.locator(".alv-shell__brand-text")).toContainText("DentalKeep");
+  await expect(page.locator(".alv-shell__brand-text")).not.toContainText("Alveara");
+  await page.screenshot({ path: capturePath("brand-signed-in.png"), fullPage: true });
 });

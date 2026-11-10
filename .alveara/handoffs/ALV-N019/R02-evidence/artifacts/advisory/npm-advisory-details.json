@@ -1,0 +1,549 @@
+[
+ {
+  "package": "@vitest/mocker",
+  "id": "GHSA-qxg6-89mg-rqv8",
+  "cve": "CVE-2026-112949",
+  "severity": "medium",
+  "cvss": 4.7,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N",
+  "summary": "Vitest: Code injection via unauthenticated manual mock registration",
+  "cwes": [
+   "CWE-94",
+   "CWE-116",
+   "CWE-306"
+  ],
+  "published": "2026-10-21T19:54:26Z",
+  "vulnerable": [
+   [
+    "@vitest/mocker",
+    ">= 2.1.0-beta.7, < 4.1.12",
+    "4.1.12"
+   ],
+   [
+    "@vitest/mocker",
+    ">= 5.0.0-beta.1, < 5.0.3",
+    "5.0.3"
+   ]
+  ],
+  "description": "### Summary\n\n`@vitest/mocker`'s `interceptorPlugin` accepts mock registrations on Vite's dev-server WebSocket with no authentication, and interpolates the mock's `url` into generated module source without escaping. A client that can reach the dev server can make it serve arbitrary JavaScript in place of any project module, which then runs in the developer's browser on the dev-server origin.\n\nSame handler and same unauthenticated caller as GHSA-82fw-gwwq-j7x9; that fix (`8ff9b9a9efca7c6cfd5243569440de8d7a33aec4`, PR #10972) hardened only the `redirect` branch and left the `manual` branch reaching the unescaped generator.\n\n### Patches\n\nFixed in `@vitest/mocker` 5.0.3, released on 2026-09-30 (PR #11377), and backported to 4.1.12. `createManualModuleSource` now serializes the module URL and the export names with `JSON.stringify`, so a registered mock cannot change the generated code.\n\nProjects that call `mockerPlugin()` or `interceptorPlugin()` directly need `@vitest/mocker` 4.1.12 or 5.0.3.\n\n### Details\n\n`packages/mocker/src/utils.ts:6-9` builds module source by string interpolation:\n\n```ts\nexport function createManualModuleSource(moduleUrl: string, exports: string[], globalAccessor = '\"__vitest_mocker__\"'): string {\n  const source = `\nconst __factoryModule__ = await globalThis[${globalAccessor}].getFactoryModule(\"${moduleUrl}\");\n`\n```\n\n`moduleUrl` lands inside a double-quoted JavaScript string with no escaping or validation.\n\n`packages/mocker/src/node/interceptorPlugin.ts:66-93"
+ },
+ {
+  "package": "@vitest/mocker",
+  "id": "GHSA-xp26-3454-mjgp",
+  "cve": "CVE-2026-112950",
+  "severity": "medium",
+  "cvss": 5.9,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+  "summary": "Vitest: Windows backslash traversal bypasses the @vitest/mocker redirect allowlist fix",
+  "cwes": [
+   "CWE-22"
+  ],
+  "published": "2026-10-21T19:48:38Z",
+  "vulnerable": [
+   [
+    "@vitest/mocker",
+    ">= 4.1.11, < 4.1.12",
+    "4.1.12"
+   ],
+   [
+    "@vitest/mocker",
+    ">= 5.0.0-rc.2, < 5.0.3",
+    "5.0.3"
+   ]
+  ],
+  "description": "## Summary\n\nThe path traversal fix released for [GHSA-82fw-gwwq-j7x9](https://github.com/vitest-dev/vitest/security/advisories/GHSA-82fw-gwwq-j7x9) can be bypassed on Windows by using a backslash in the redirect URL pathname.\n\nThe fixed code joins an attacker-controlled URL pathname with the Vite root using `node:path/posix`, then passes that string to Vite's file allowlist check. On Windows, a value such as `C:/project/root/..\\secret.txt` retains `..\\` during the POSIX join and begins with the allowed root, so the allowlist accepts it. The later `readFile()` call uses Windows filesystem semantics, where the backslash is a path separator, and reads the sibling file outside the configured root.\n\nI reproduced the issue with the published `@vitest/mocker` packages in both fixed release lines:\n\n- `@vitest/mocker@4.1.11`\n- `@vitest/mocker@5.0.0`\n\nThe current `main` source at commit `2ce29d5fa758046e5453bd92b8ed6c9da9709bb5` has the same behavior.\n\n## Patches\n\nFixed in `@vitest/mocker` 5.0.3, released on 2026-09-30 (PR #11377), and backported to 4.1.12. The redirect registration now converts backslashes in the URL pathname to forward slashes before it joins the pathname with the root, so `..\\` resolves the same as `../` and the allowlist check rejects it.\n\n## Relationship to GHSA-82fw-gwwq-j7x9\n\nThis is a bypass of the accepted fix, not a separate unrelated path. It uses the same `vitest:interceptor:register` redirect registration and the same file-reading sink as the original advi"
+ },
+ {
+  "package": "source-map-js",
+  "id": "GHSA-68fv-2mgg-jv7q",
+  "cve": "CVE-2026-93749",
+  "severity": "high",
+  "cvss": 7.5,
+  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+  "summary": "source-map-js allows event-loop denial of service through indexed source-map section offsets",
+  "cwes": [
+   "CWE-1284"
+  ],
+  "published": "2026-09-18T18:31:44Z",
+  "vulnerable": [
+   [
+    "source-map-js",
+    ">= 1.0.0, < 1.2.2",
+    "1.2.2"
+   ]
+  ],
+  "description": "source-map-js through 1.2.1 fails to validate the per-section offset line value in indexed source maps, allowing attackers to specify arbitrary numeric values. Attackers can supply extremely large offset line values that cause synchronous event loop blocking for extended periods, preventing the service from handling other requests."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-4qv8-2p9j-2685",
+  "cve": "CVE-2026-109924",
+  "severity": "medium",
+  "cvss": 5.9,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+  "summary": "undici vulnerable to Denial of Service via unbounded memory in the EventSource parser",
+  "cwes": [
+   "CWE-770"
+  ],
+  "published": "2026-10-23T22:13:29Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 6.5.0, < 6.29.1",
+    "6.29.1"
+   ],
+   [
+    "undici",
+    ">= 7.0.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "### Impact\n\nundici's `EventSource` client can be driven to exhaust process memory by a malicious or compromised Server-Sent Events peer. By sending millions of tiny completed `data:` fields with no blank event separator, or a single unfinished line split across many chunks, the parser retains a growing amount of per-field and per-chunk state. The byte-based `maxEventSize` and `maxResponseSize` limits do not bound that retained state, and `maxResponseSize` is enforced on the compressed body before decompression, so a small compressed response can expand into enough retained memory to terminate the process. The application only needs to maintain an `EventSource` connection to an untrusted peer, which controls only the response. Availability is the only impact.\n\n### Patches\n\nUpgrade to `6.29.1`, `7.30.1`, or `8.12.2`, which bound the retained EventSource parser state (the number of `data` fields and buffered chunks, the unfinished-line length, and per-field byte totals) independently of the byte limits.\n\n### Workarounds\n\nNone."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-f72v-6w45-q472",
+  "cve": "CVE-2026-109841",
+  "severity": "medium",
+  "cvss": 5.9,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:H/A:N",
+  "summary": "undici vulnerable to Subresource Integrity bypass via non-lowercase algorithm tokens",
+  "cwes": [
+   "CWE-178"
+  ],
+  "published": "2026-10-23T22:12:57Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 7.15.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "### Impact\n\nundici's `fetch()` verifies Subresource Integrity (SRI) metadata by looking up the algorithm token in a lowercase-only set, but the SRI specification defines a valid token by its ASCII-lowercase form. A correct but non-lowercase token such as `SHA256-...` or `Sha256-...` is therefore treated as unknown and skipped. When no recognized algorithm remains, undici treats the integrity list as empty and accepts the response, so a server that returns a body different from the pinned digest passes the check.\n\nAn application that pins a response with a valid uppercase or mixed-case SRI token receives attacker-controlled bytes with no integrity error. The attacker needs only to control the response body, not the application's integrity metadata. The issue affects response integrity only. The regression was introduced in undici 7.15.0; releases 7.14.0 and earlier lowercase the token and are not affected.\n\n### Patches\n\nUpgrade to `7.30.1` or `8.12.2`. undici now normalizes the algorithm token to ASCII lowercase before validating it and before selecting the strongest algorithm, so case variants of SHA-256, SHA-384, and SHA-512 are verified correctly.\n\n### Workarounds\n\nUse lowercase algorithm tokens (`sha256`, `sha384`, `sha512`) in `integrity` metadata."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-xjj6-f33q-929c",
+  "cve": "CVE-2026-109869",
+  "severity": "high",
+  "cvss": 7.5,
+  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+  "summary": "undici vulnerable to Denial of Service via unhandled error on excessive content-encodings",
+  "cwes": [
+   "CWE-248",
+   "CWE-459"
+  ],
+  "published": "2026-10-23T22:14:31Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 6.23.0, < 6.29.1",
+    "6.29.1"
+   ],
+   [
+    "undici",
+    ">= 7.18.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "### Impact\n\nundici's `fetch()` crashes the Node.js process when a malicious server returns a response with more than five content codings and closes the connection before sending the body. undici rejects such responses (a content-encoding limit), but it created the internal response stream before that check and returned without attaching an error listener or aborting the request. The early close then surfaces a content-length mismatch on that orphaned internal stream, which Node.js treats as an unhandled `error` and terminates the process. A remote, unauthenticated server can trigger this with a single response, even when the application correctly catches the `fetch()` rejection. undici 6.x, 7.x, and 8.x are affected.\n\n### Patches\n\nUpgrade to `6.29.1`, `7.30.1`, or `8.12.2`. undici now validates the content-encoding chain before creating the internal body stream and aborts the response when the limit is exceeded, so no error can surface on an orphaned stream.\n\n### Workarounds\n\nNone."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-4w7w-5xrc-9h26",
+  "cve": "CVE-2026-109829",
+  "severity": "high",
+  "cvss": 7.4,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+  "summary": "undici vulnerable to cache poisoning and cross-user disclosure via cross-origin redirects",
+  "cwes": [
+   "CWE-346",
+   "CWE-524"
+  ],
+  "published": "2026-10-27T19:02:31Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 7.0.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "### Impact\n\nWhen an originless `Agent` composes the redirect and cache interceptors as `compose(redirect(), cache())` with a shared cache (`type: 'shared'`), the cache builds its key from the original request URL before the redirect handler changes the origin. The response produced after a redirect is then stored under the original key, even when the redirect crossed to a different origin.\n\nAn attacker who controls the target of a redirect from a trusted URL can have their response cached under that trusted URL. A later caller requesting the trusted URL receives the attacker's body from the shared cache without either origin being contacted, allowing persistent cache poisoning. The same key confusion also discloses private data: when an authenticated request returns a `private, no-store` redirect to a user-specific resource, the final response is stored under the original URL and can be served to a later unauthenticated caller.\n\nThe cache interceptor was introduced in undici 7.0.0, and all 7.x and 8.x releases before the patched versions are affected. Applications are affected only when an originless `Agent`, a shared `MemoryCacheStore` or `SqliteCacheStore`, and the composition `compose(redirect(), cache())` are all used. Origin-bound `Client` and `Pool` dispatchers, and the reverse composition `compose(cache(), redirect())`, are not affected.\n\n### Patches\n\nUpgrade to `7.30.1` or `8.12.2`. Before storing a response, undici now verifies that the origin that produced it still "
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-2m5v-pch6-74hx",
+  "cve": "CVE-2026-109383",
+  "severity": "high",
+  "cvss": 7.4,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+  "summary": "undici vulnerable to TLS certificate validation bypass via dropped tls options in Agent",
+  "cwes": [
+   "CWE-295"
+  ],
+  "published": "2026-10-27T19:02:26Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 4.0.0, < 6.29.1",
+    "6.29.1"
+   ],
+   [
+    "undici",
+    ">= 7.0.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "### Impact\n\nundici's `Agent` passes its constructor options through a JSON-based deep clone (`JSON.parse(JSON.stringify(...))`) before forwarding them to each per-origin `Pool`. JSON cannot represent functions, so a caller-supplied `tls` option containing a `checkServerIdentity` callback is silently dropped before it reaches the TLS layer. As a result, a TLS peer whose certificate a custom `checkServerIdentity` was written to reject, but which passes Node's default hostname and chain checks, is silently accepted when the request is made through `Agent`. Because `Agent` is the default dispatcher behind `request`, `fetch`, and `setGlobalDispatcher`, this is the path most applications use. `EnvHttpProxyAgent` is also affected on its direct and `NO_PROXY` routes, which delegate to an internal `Agent`.\n\nOnly applications that pass a function-valued `tls` option (such as a custom `checkServerIdentity` for certificate or public-key pinning) are affected. Passing the same options through `connect` is not affected. This is the `Agent` counterpart of the `BalancedPool` certificate validation bypass fixed in CVE-2026-84961.\n\n### Patches\n\nUpgrade to undici `6.29.1`, `7.30.1`, or `8.12.2`. `Agent` now preserves the `tls` option outside the JSON clone, so custom TLS verification callbacks are forwarded to each origin unchanged.\n\n### Workarounds\n\nPass the TLS options through `connect` instead of `tls`. For proxied `EnvHttpProxyAgent` destinations, use `requestTls` / `proxyTls`."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-qrxm-fqhp-jwvm",
+  "cve": "CVE-2026-87018",
+  "severity": "high",
+  "cvss": 7.5,
+  "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+  "summary": "undici vulnerable to Denial of Service via TLS 1.2 certificate-changing renegotiation",
+  "cwes": [
+   "CWE-248",
+   "CWE-617"
+  ],
+  "published": "2026-10-27T19:02:21Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 4.2.1, < 6.29.1",
+    "6.29.1"
+   ],
+   [
+    "undici",
+    ">= 7.0.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "## Impact\n\nundici crashes the client process when a TLS 1.2 server renegotiates after the connection is established and presents a different, CA-trusted certificate whose hostname does not match the requested host. Node.js re-runs hostname verification on the renegotiated handshake and destroys the socket with `ERR_TLS_CERT_ALTNAME_INVALID`. undici's established socket error handler asserted that this error code could never occur, so the peer-controlled error became an uncaught `AssertionError` that terminates the Node.js process. Both the HTTP/1.1 and HTTP/2 paths are affected.\n\nA malicious or compromised HTTPS endpoint reached through undici or the global `fetch()` can crash the client with a single server-initiated renegotiation, taking down all in-flight requests and background work in the process. Only TLS 1.2 is affected, because TLS 1.3 does not support renegotiation. Exploitation does not require a CA compromise: the attacker controls the endpoint and can present two ordinary valid certificates, the first matching the requested URL and the second intentionally not matching it.\n\n## Patches\n\nUpgrade to undici 6.29.1, 7.30.1, or 8.12.2.\n\n## Workarounds\n\nRestrict outbound connections to TLS 1.3, for example by setting `connect: { minVersion: 'TLSv1.3', maxVersion: 'TLSv1.3' }` on the client or agent, so that renegotiation cannot occur, when the target endpoints support TLS 1.3."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-9fm3-97px-rjf6",
+  "cve": "CVE-2026-109932",
+  "severity": "medium",
+  "cvss": 5.9,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+  "summary": "undici WebSocket client vulnerable to Denial of Service via unbounded automatic PONG buffering",
+  "cwes": [
+   "CWE-400",
+   "CWE-405",
+   "CWE-770"
+  ],
+  "published": "2026-10-27T19:02:15Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 5.15.0, < 6.29.1",
+    "6.29.1"
+   ],
+   [
+    "undici",
+    ">= 7.0.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "### Impact\n\nundici's WebSocket client (including Node.js's bundled `globalThis.WebSocket`) can be driven to exhaust process memory by a malicious or compromised WebSocket server. For every PING frame received, the receiver automatically writes a PONG response to the socket and ignores the `false` return value from `socket.write()`, which is a backpressure signal, so a server that streams small PING frames while never reading the client's PONGs makes the outbound write queue and heap grow without bound until the Node.js process runs out of memory and terminates. The attack is remote and unauthenticated, needs only a normal WebSocket connection, and is asymmetric: small inbound PINGs produce a much larger retained outbound queue. Availability is the only impact. undici 5.x, 6.x, 7.x, and 8.x are affected; the WebSocket client was introduced in 5.15.0.\n\n### Patches\n\nUpgrade to `6.29.1`, `7.30.1`, or `8.12.2`, which pause WebSocket frame parsing when the automatic PONG response hits socket backpressure and resume on drain, bounding the outbound queue.\n\n### Workarounds\n\nNone."
+ },
+ {
+  "package": "undici",
+  "id": "GHSA-55wc-3pg8-jfw6",
+  "cve": "CVE-2026-87029",
+  "severity": "medium",
+  "cvss": 5.9,
+  "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+  "summary": "undici vulnerable to Denial of Service via unhandled exception in the decompress interceptor",
+  "cwes": [
+   "CWE-248"
+  ],
+  "published": "2026-10-27T19:02:10Z",
+  "vulnerable": [
+   [
+    "undici",
+    ">= 7.15.0, < 7.30.1",
+    "7.30.1"
+   ],
+   [
+    "undici",
+    ">= 8.0.0, < 8.12.2",
+    "8.12.2"
+   ]
+  ],
+  "description": "## Impact\n\nundici's `decompress` interceptor forwards decompressed response data to the downstream handler from zlib stream event callbacks without catching exceptions those callbacks may throw. undici's engine converts a synchronous throw from a downstream handler into a per-request failure, but that protection is not in place when the throw happens asynchronously from a zlib callback. As a result, a downstream handler that throws by design, for example the built-in `dump` interceptor which throws when a response exceeds its `maxSize`, escapes as an uncaught exception and terminates the Node.js process.\n\nA malicious or compromised HTTP server can crash any client that composes the `decompress` interceptor with `dump` (or another response handler that throws), by returning a small compressed body that decompresses to more than the configured limit. The compressed bytes on the wire are tiny, so only the decompressed size matters. If the application keeps the process alive with a global uncaught-exception handler, the affected request instead hangs until the body timeout.\n\n## Patches\n\nUpgrade to undici 7.30.1 or 8.12.2.\n\n## Workarounds\n\nAvoid composing the `decompress` interceptor with a response handler that throws during response processing (such as `dump` with a `maxSize`) until upgrading."
+ },
+ {
+  "package": "vite",
+  "id": "GHSA-698v-4r3x-3vcv",
+  "cve": "CVE-2026-112943",
+  "severity": "medium",
+  "cvss": null,
+  "vector": null,
+  "summary": "launch-editor: escapeCmdArgs() omits % escaping on Windows",
+  "cwes": [
+   "CWE-78"
+  ],
+  "published": "2026-10-20T18:30:24Z",
+  "vulnerable": [
+   [
+    "vite",
+    ">= 8.3.0, <= 8.3.2",
+    "8.3.3"
+   ],
+   [
+    "vite",
+    ">= 8.2.0, <= 8.2.3",
+    "8.2.4"
+   ],
+   [
+    "vite",
+    ">= 8.0.0, <= 8.1.5",
+    "8.1.6"
+   ],
+   [
+    "vite",
+    ">= 7.0.0, <= 7.3.6",
+    "7.3.7"
+   ],
+   [
+    "vite",
+    "<= 6.4.3",
+    "6.4.4"
+   ]
+  ],
+  "description": "### Summary\n\n`launch-editor` did not escape `%` on Windows when passing an argument to `cmd`. When an environment variable contained a malicious value, it was possible that that content to be executed.\n\n### Impact\n\nOnly apps that match all of the following conditions are affected:\n\n- The user uses Windows\n- An attacker can place a file with the malicious filename containing `&` or `%`\n- Either of\n  - An attacker can inject an environment variable with a malicious value\n  - An attacker can add a NTFS alternate data stream to the file placed\n\n### Details\n\nUnlike `.sh` files, `.bat` / `.cmd` files on Windows cannot be called directly using [`child_process.spawn`](https://nodejs.org/docs/latest-v24.x/api/child_process.html#child_processspawncommand-args-options) and requires passing them as an argument of `cmd.exe`. To do so, launch-editor escapes the arguments passed to `cmd.exe`. But `launch-editor` did not escape `%` which is used for environment variables.\n\nBecause `launch-editor` checks if the argument matches an existing filename, the attack requires the attacker to be able to place a file.\n\n- If the attacker can inject an environment variable as well, they can include the subcommand in the env variable (e.g. set ` &calc.exe ` to `%ENV%`) and call `launchEditor` with `something%ENV%`.\n- If the attacker can place a NTFS alternate data stream to the file (e.g. a NTFS alternate data stream named `~-38%calc.exe`), they can call `launchEditor` with `something %CMDCMDLINE:~-38%ca"
+ },
+ {
+  "package": "vite",
+  "id": "GHSA-r825-w8mm-5pxw",
+  "cve": "CVE-2026-112944",
+  "severity": "medium",
+  "cvss": null,
+  "vector": null,
+  "summary": "launch-editor: Editor CLI flag misinterpretation causing arbitrary command execution for some editors",
+  "cwes": [
+   "CWE-88"
+  ],
+  "published": "2026-10-20T19:51:52Z",
+  "vulnerable": [
+   [
+    "vite",
+    ">= 8.3.0, <= 8.3.2",
+    "8.3.3"
+   ],
+   [
+    "vite",
+    ">= 8.2.0, <= 8.2.3",
+    "8.2.4"
+   ],
+   [
+    "vite",
+    ">= 8.0.0, <= 8.1.5",
+    "8.1.6"
+   ],
+   [
+    "vite",
+    ">= 7.0.0, <= 7.3.6",
+    "7.3.7"
+   ],
+   [
+    "vite",
+    "<= 6.4.3",
+    "6.4.4"
+   ]
+  ],
+  "description": "### Summary\n\n`launch-editor` forwarded file paths directly to editors without sanitization. If a path resembles a CLI flag, editors like Vim may interpret it as a command, potentially causing unintended file overwrites or command execution.\n\n### Impact\n\n#### Direct `launch-editor` users\n\nOnly apps that match all of the following conditions are affected:\n\n- The attacker is able to create a file system entry (e.g. a file or directory) starting with `+` or `-` in the working directory\n- The user uses or the app specifies any of the following editors:\n  - Vim (including gVim)\n  - MacVim\n  - Emacs (including Emacsclient)\n  - Notepad++ (only if using a plugin exposing dangerous operations via plugin messages)\n- The first argument of `launchEditor` can start with `+` or `-` or the user is using WSL\n\n#### `launch-editor-middleware` users\n\nOnly apps that match the following conditions are affected:\n\n- The attacker is able to create a file system entry (e.g. a file or directory) starting with `+` or `-` in the working directory\n- The user uses or the app specifies any of the following editors:\n  - Vim (including gVim)\n  - MacVim\n  - Emacs (including Emacsclient)\n  - Notepad++ (only if using a plugin exposing dangerous operations via plugin messages)\n- launch-editor older than v2.2.0 is used, or the user is using WSL\n\n#### Vite users\n\nOnly apps that match the following conditions are affected:\n\n- The attacker is able to create a file system entry (e.g. a file or directory) starting with"
+ },
+ {
+  "package": "vite",
+  "id": "GHSA-587h-7wmj-h5pm",
+  "cve": "CVE-2026-112942",
+  "severity": "high",
+  "cvss": null,
+  "vector": null,
+  "summary": "launch-editor: `fs.existsSync()` existence check can be bypassed on Windows",
+  "cwes": [
+   "CWE-77"
+  ],
+  "published": "2026-10-20T19:48:25Z",
+  "vulnerable": [
+   [
+    "vite",
+    ">= 8.3.0, <= 8.3.2",
+    "8.3.3"
+   ],
+   [
+    "vite",
+    ">= 8.2.0, <= 8.2.3",
+    "8.2.4"
+   ],
+   [
+    "vite",
+    ">= 8.0.0, <= 8.1.5",
+    "8.1.6"
+   ],
+   [
+    "vite",
+    ">= 7.0.0, <= 7.3.6",
+    "7.3.7"
+   ],
+   [
+    "vite",
+    "<= 6.4.3",
+    "6.4.4"
+   ]
+  ],
+  "description": "### Summary\n\n`launch-editor` checked `fs.existsSync(fileName)` before passing a supplied path to an editor command. On Windows, an attacker can bypass this check with a crafted path ending in `\\\\..:line:column`. This removes the requirement that the attacker be able to place a file with a malicious filename.\n\nCombined with the `%` escaping issue described in [GHSA-698v-4r3x-3vcv](https://github.com/vitejs/launch-editor/security/advisories/GHSA-698v-4r3x-3vcv), this bypass can lead to OS command injection when an attacker controls the file argument.\n\n### Impact\n\nOnly apps that runs on Windows is affected.\n\n### Details\n\nThe earlier advisory assumed that `fs.existsSync()` required an attacker-controlled filename to exist. This advisory covers a bypass of that requirement.\n\nA crafted value ending in `\\\\..:1:1` is interpreted differently by `launch-editor-middleware`, `launch-editor`, and Windows:\n\n1. `launch-editor-middleware` calls `path.resolve()` while the final path component is `..:1:1`, so it is not treated as a parent-directory component.\n2. `launch-editor` treats `:1:1` as a line-and-column suffix and removes it, leaving a path ending in `\\\\..`.\n3. On Windows, `fs.existsSync()` accepts the resulting path as the existing parent directory even though the attacker-controlled preceding component does not exist.\n4. Because the existence check passes, the crafted filename reaches the Windows shell command."
+ },
+ {
+  "package": "vite",
+  "id": "GHSA-9jrq-w75r-8gcw",
+  "cve": "CVE-2026-112945",
+  "severity": "low",
+  "cvss": null,
+  "vector": null,
+  "summary": "Vite: Cross origin script execution through Vite custom middleware",
+  "cwes": [
+   "CWE-80"
+  ],
+  "published": "2026-10-21T16:48:14Z",
+  "vulnerable": [
+   [
+    "vite",
+    ">= 8.3.0, <= 8.3.2",
+    "8.3.3"
+   ],
+   [
+    "vite",
+    ">= 8.2.0, <= 8.2.3",
+    "8.2.4"
+   ],
+   [
+    "vite",
+    ">= 8.0.0, <= 8.1.5",
+    "8.1.6"
+   ],
+   [
+    "vite",
+    ">= 7.0.0, <= 7.3.6",
+    "7.3.7"
+   ],
+   [
+    "vite",
+    "<= 6.4.3",
+    "6.4.4"
+   ]
+  ],
+  "description": "### Summary\n\nWhen accessing a malicious site while a dev server using Vite is running, that site was able to load scripts in a page served by the dev server.\n\n### Impact\n\nOnly apps that match the following conditions are affected:\n\n- the dev server passes an unchanged browser request URL to `server.transformIndexHtml`: this is normally used for `server.middlewareMode: true` or `appType: 'custom'`. The internal call for `appType: 'spa'` and `appType: 'mpa'` does not match this.\n- the transformed HTML contains an inline module script\n- from the script in the page served by the dev server, the app stores sensitive values in the location accessible or allows critical actions\n\n### Details\n\n[Vite's SSR guide for 8.2.1](https://github.com/vitejs/vite/blob/421615865dad3ed39137d17281814fc78a41246c/docs/guide/ssr.md#L119-L131) documents the affected setup. The application embeds Vite in middleware mode, reads trusted HTML, and passes the browser's unchanged request URL to the transform:\n\n```js\nconst url = req.originalUrl\ntemplate = await vite.transformIndexHtml(url, template)\n```\n\nFor a development server at `http://localhost:5173`, an attacker can send this URL:\n\n```text\nhttp://localhost:5173//evil.example/payload.js?/../../package.json\n```\n\nIn Vite 8.2.1, [`createDevHtmlTransformFn` and `getHtmlFilename` in `indexHtml.ts`](https://github.com/vitejs/vite/blob/421615865dad3ed39137d17281814fc78a41246c/packages/vite/src/node/server/middlewares/indexHtml.ts#L99-L115) use the request URL a"
+ },
+ {
+  "package": "vite",
+  "id": "GHSA-rq7h-c2jc-7f22",
+  "cve": "CVE-2026-112946",
+  "severity": "medium",
+  "cvss": null,
+  "vector": null,
+  "summary": "Vite: Files outside `server.fs.allow` could be served when project paths match system paths on non-Windows machine",
+  "cwes": [
+   "CWE-22",
+   "CWE-284"
+  ],
+  "published": "2026-10-21T16:47:42Z",
+  "vulnerable": [
+   [
+    "vite",
+    ">= 8.3.0, <= 8.3.2",
+    "8.3.3"
+   ],
+   [
+    "vite",
+    ">= 8.2.0, <= 8.2.3",
+    "8.2.4"
+   ],
+   [
+    "vite",
+    ">= 8.0.0, <= 8.1.5",
+    "8.1.6"
+   ],
+   [
+    "vite",
+    ">= 7.0.0, <= 7.3.6",
+    "7.3.7"
+   ],
+   [
+    "vite",
+    "<= 6.4.3",
+    "6.4.4"
+   ]
+  ],
+  "description": "### Summary\n\nThe content of files outside `server.fs` setting can be returned to the browser if the project imports a file path concatenated with the `root`. For example, if the project references `<path-to-project-root>/etc/hosts`, the content of `/etc/hosts` was possible to be returned.\n\nThe content of files outside the `server.fs.allow` option can be returned to the browser when a project imports a file whose root-relative path matches an absolute path on the host. For example, referencing `<project-root>/etc/hosts` could make Vite return the host's `/etc/hosts` file.\n\n### Impact\n\nOnly apps that meet all of the following conditions are affected:\n\n- explicitly expose the Vite dev server to the network (using `--host` or the [`server.host` option](https://vite.dev/config/server-options#server-host))\n- contain an imported file whose root-relative browser URL is also the absolute path of a readable file on the host\n- The sensitive file is not matched by [`server.fs.deny`](https://vite.dev/config/server-options#server-fs-deny)\n- the dev server is not running on Windows\n\n### Details\n\nWhen Vite analyzes an in-root import, it rewrites the resolved module ID to a browser URL such as `/etc/hostname`. In affected versions, Vite converts that URL with `fsPathFromUrl` and adds the result to `safeModulePaths`. Because `fsPathFromUrl` ensures a leading slash without resolving the URL against the project root, the project URL `/etc/hostname` is recorded as if it were the absolute filesyst"
+ },
+ {
+  "package": "vite",
+  "id": "GHSA-vfpm-58rq-9qcg",
+  "cve": "CVE-2026-112947",
+  "severity": "medium",
+  "cvss": null,
+  "vector": null,
+  "summary": "Vite: First 4 bytes of files outside of `server.fs` setting is exposed by `?vite-wasm-instance`",
+  "cwes": [
+   "CWE-22",
+   "CWE-200",
+   "CWE-209"
+  ],
+  "published": "2026-10-21T16:47:15Z",
+  "vulnerable": [
+   [
+    "vite",
+    ">= 8.3.0, <= 8.3.2",
+    "8.3.3"
+   ],
+   [
+    "vite",
+    ">= 8.2.0, <= 8.2.3",
+    "8.2.4"
+   ]
+  ],
+  "description": "### Summary\n\nThe first 4 bytes of files outside of `server.fs` setting can be returned to the browser by a request containing `?vite-wasm-instance`.\n\n### Impact\n\n Only apps that match one of the following conditions are affected:\n\n- explicitly expose the Vite dev server to the network using `--host` or the [`server.host`](https://vite.dev/config/server-options#server-host) option\n- there's a file that has a sensitive information in **the first 4 bytes**\n- uses Node.js or Deno to run Vite (if Bun is used, it is not affected)\n\n### Details\nRequests containing the `?vite-wasm-instance` query are handled by the internal Wasm plugin's `load` hook. The hook removes the query and reads the resulting path directly from disk, but the `server.fs` checks were not applied.\n\nAfter reading the file, Vite attempts to parse it as WebAssembly. When that parse fails, Node and deno throws an error that contains the first 4 bytes of the file.\n\n### PoC\n\nCreate a denied file and start an affected Vite dev server:\n\n```bash\necho 'SECRET_KEY=abc123\\n' > .env\nnpm run dev\ncurl 'http://localhost:5173/.env?vite-wasm-instance'\n```\n\nThis will show\n```\nFailed to parse WASM file \"<root>/.env\": WebAssembly.compile(): expected magic word 00 61 73 6d, found 53 45 43 52 @+0\n```"
+ }
+]
