@@ -30,7 +30,7 @@
       "demo": "stage0_chain_runs_9_pass_both_clock_modes_with_browser_screenshots",
       "parentRegression": "n/a",
       "implementationCommit": "54806a36fdac52894d5907687e8f5e6a02040800",
-      "evidenceCommit": null,
+      "evidenceCommit": "6840b7fa7c84e4c22737f6400442f700c1d4ef8f",
       "handoffPath": ".alveara/handoffs/ALV-N019/R02.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R01.md"},
       "blockingIssues": ["F-001: System.Security.Cryptography.Pkcs 9.0.18 (transitive via Microsoft.Data.SqlClient 7.1.0) stays in the restore graph; the vulnerable binary is not deployed with the application and the framework's copy is used, but closing needs PD-26 (a reviewed update or pin to 9.0.21 or later, or explicit product-owner risk acceptance). See docs/design/ALV-N019_DEPENDENCY_ADVISORY_REPORT.md."],
