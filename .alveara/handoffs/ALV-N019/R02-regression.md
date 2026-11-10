@@ -1,0 +1,33 @@
+# ALV-N019 R02 - Stage 2 regression addendum: STAGE 2 QUALIFIES
+
+## Identity
+- Story `ALV-N019`, attempt `R02` (an additive addendum; the R02 Stage 1 handoff, evidence, ZIP and review are unchanged, and R01 is untouched).
+- R02 implementation commit: `54806a36fdac52894d5907687e8f5e6a02040800`. Approved snapshot named by the review: that commit plus the catalog data of `45706516294e7f66ca25da8e343a739c39ed2e2d`.
+- Stage 1 review: `.alveara/reviews/ALV-N019/R02.md`, `APPROVED_PENDING_REGRESSION`; closure commit `4b30a7e` (`4b30a7e` records the review; `e7e3419` freezes the contract). **Run commit: `e7e3419011e9e0200fbf869b569ca37900a1bf06`.**
+- Run exactly once: `sh .alveara/handoffs/ALV-N019/R02-evidence/stage2/run_stage2.sh 45706516294e7f66ca25da8e343a739c39ed2e2d C:/tmp/stage2-ALV-N019-R02` (2026-11-10, 15:46:55 to 17:27:03 -06:00). It was not rerun, and no file was changed during or after it.
+- Equivalence: the evaluator found **0** product, test, script, configuration, solution, package or catalog files differing between the approved snapshot and the run commit (only `.alveara/` records and `PROGRESS.md` differ: the review closure and the frozen contract). No tracked file changed before or after the run, and the untracked listing (the 12 unrelated design drafts, which are not part of ALV-N019) is identical before and after (`tree_before.txt`, `tree_after.txt`).
+
+## Disclosures
+- **Harness rehearsal, before the run:** to avoid wasting the one run on a harness bug, I rehearsed the contract once beforehand on the same tree with the backend step replaced by synthetic results (every baseline and expected id marked Passed). It executed vitest, build, lint, `tsc -b`, the mocked Playwright suite, the repository checks, the five walkthroughs and the chain once and the evaluator reported all criteria PASS (`C:/tmp/stage2-rehearsal`, outside the repository, not part of the evidence). It was a test of the tooling, not a Stage 2 run; the verdict below is from the single real run only. The rehearsal also tests nothing about the backend.
+- **Contract built after approval:** the review approved Stage 1 without a frozen runner, so I built and froze the runner and evaluator (adapted from ALV-N006's, with the reviewer's section 12.2 steps; `evaluator-validation.txt`: 20 of 20 scenarios behave as stated; `runner-proof.txt`) and committed them as `e7e3419` before the run. They add only `.alveara/` files. Template telemetry and the backend elapsed time are information only (they are not in the reviewer's list); the clean-tree criterion allows the unrelated untracked drafts but requires the untracked listing to be identical before and after.
+- **Machine condition:** nothing of mine other than the run was running, apart from my progress timers: read-only checks of `summary.txt` every 9 minutes or less, one process listing before the run, and at about the 91 minute mark one process listing, a file listing of the output folder and one database count. The machine also had idle IDE and Codex helper processes (0 CPU) running, as it did for the Stage 1 sweeps and the rehearsal.
+
+## Verdict of the frozen evaluator: STAGE 2 QUALIFIES (25 of 25 criteria passed, 0 failed)
+Full results: `R02-regression-evidence/RESULT_ALV-N019_R02.txt` (with `console.txt`, `compare.txt`, `runner_proof.txt`, `summary.txt`, `gates/`, `walkthroughs/`, `chain_evidence/`, `backend-tests.csv`, `telemetry.jsonl`, `leak_before.txt`, `leak_after.txt`).
+- **Backend `dotnet test src/Alveara.Api.Tests`: exit 0; 5,697 passed, 0 failed, 0 skipped** (exactly the expected count) in 90.8 minutes (1 h 29 m by the test runner; no limit applies). All 5,612 baseline ids of the ALV-N006 R01 Stage 2 run are present with the same outcome, none retired; the new ids are exactly the 85 allowlisted ones (BackupRecoveryHardeningTests 2, ChainClockSeamTests 6, ImportCommitTests 1, PatientImportValidatorTests 3, PatientMergeHostileInputTests 67, PatientMergeSqlBoundaryTests 6): 0 missing, 0 unexpected, 0 changed outcome.
+- Information only: the template was built once and used for 4,343 clones with 0 fallbacks (37 real-migration fixtures).
+- **Artifact counts identical before and after** (`leak_before.txt`, `leak_after.txt`): 1 database, `AlveraTest` 0, `AlveraTemplate` 0, `AlveraRestore` 0, no SQL login, no template backup; Storage 3,920, Keys 1, Backup 2, Database 0, Temp 2 entries, unchanged. (The chain's own evidence folder was moved into the out-folder, so `Temp` did not grow.)
+- **Client and repository gates, all exit 0:** `npx vitest run` (1,879 tests in 120 files), `npm run build`, `npm run lint`, `npx tsc -b`, `npx playwright test` (138 passed, 2 skipped, none failed), `node --test tests/*.test.mjs` (49 tests, none failed).
+- **Real-backend walkthroughs on fresh databases, each exit 0, none failed:** auth **12**, patient portability **7**, patient export package **10**, patient merge **9**, bulk import **13**.
+- **Stage-0 chain with the injected-clock host:** runner exit 0; the host reported the injected clock (`Clock mode: injected`); nine PASS records and none else, each stamped `clockMode: injected` (`chain_evidence/evidence.json`, `clock-mode.json`, `e10-before.json`, `e10-after.json`, the two brand screenshots).
+- The evidence folder was scanned before it was committed: no secret pattern; the only email address is the synthetic `ann@example.test`.
+
+## Not part of this verdict
+- **F-001 and PD-26:** `System.Security.Cryptography.Pkcs` 9.0.18 stays in the restore graph; this run changes nothing about it. The product owner's PD-26 decision, recorded 2026-11-10, is **update (remediate)**. It is not applied here: the reviewer required this run on the unchanged approved snapshot, so the update must be a separately reviewed change after Stage 2. **Final closure of ALV-N019 stays blocked until that reviewed remediation (or explicit risk acceptance) is done.**
+- Items disclosed as partly met in the Stage 1 package (S-03, S-04, S-05, S-07, S-08, F-004) are unchanged.
+
+## What is not in git, and why
+**The raw results file `full_serial.trx` (about 9.5 MB) and the two generated export-package ZIPs of the export-package walkthrough (`all-patients-package.zip`, `one-patient-package.zip`) are deliberately not committed.** Nothing reads them from the repository. `backend-tests.csv` is derived from the trx (5,697 ids with outcome and duration) and is the baseline for the next story. The trx is in the regression ZIP.
+
+## State
+The story is `AWAITING_REVIEW` for the final review with this addendum, not `COMPLETE`, and `ALV-N020` is not started. Nothing is pushed.

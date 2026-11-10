@@ -1,0 +1,94 @@
+baseline ids: 5612; result ids: 5697; new ids: 85 (expected 85)
+MISSING from the results: 0
+OUTCOME CHANGED: 0
+NOT PASSED in the results: 0
+new ids:
+    Alveara.Api.Tests.BackupRecoveryHardeningTests.A_file_that_is_not_a_backup_fails_the_archive_is_a_backup_check_by_its_stable_code_not_by_its_wording -> Passed
+    Alveara.Api.Tests.BackupRecoveryHardeningTests.An_archive_made_before_the_rename_under_its_old_alveara_file_name_is_still_listed_and_preflights -> Passed
+    Alveara.Api.Tests.ChainClockSeamTests.Reading_the_clock_from_many_threads_while_advancing_it_never_goes_backwards -> Passed
+    Alveara.Api.Tests.ChainClockSeamTests.The_chain_host_still_serves_the_real_application -> Passed
+    Alveara.Api.Tests.ChainClockSeamTests.The_chain_host_uses_only_its_injected_clock_and_reports_the_mode_it_really_has -> Passed
+    Alveara.Api.Tests.ChainClockSeamTests.The_injected_clock_keeps_a_fixed_now_that_only_advance_moves_and_never_runs_backwards -> Passed
+    Alveara.Api.Tests.ChainClockSeamTests.The_injected_clock_leaves_every_time_zone_conversion_to_the_real_practice_clock -> Passed
+    Alveara.Api.Tests.ChainClockSeamTests.The_production_host_registers_the_real_practice_clock_and_serves_no_chain_report -> Passed
+    Alveara.Api.Tests.ImportCommitTests.A_patient_with_no_registration_key_is_still_matched_and_never_breaks_the_commit_planning -> Passed
+    Alveara.Api.Tests.PatientImportValidatorTests.A_file_whose_source_system_is_the_new_or_the_old_product_name_passes(systemName: "Alveara Dental") -> Passed
+    Alveara.Api.Tests.PatientImportValidatorTests.A_file_whose_source_system_is_the_new_or_the_old_product_name_passes(systemName: "DentalKeep") -> Passed
+    Alveara.Api.Tests.PatientImportValidatorTests.A_new_export_names_the_product_DentalKeep -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_key_is_never_used_as_a_column_name_and_changes_nothing(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_field_choice_value_is_refused_and_changes_nothing(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_for_an_undo_on_one_line_is_stored_as_data_and_replays_as_the_same_undo(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_idempotency_key_on_one_line_is_stored_as_data_and_replays_as_the_same_merge(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_for_an_undo_is_stored_as_plain_text_and_nothing_else_happens(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_reason_is_stored_as_plain_text_character_for_character_and_nothing_else_happens(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_for_an_undo_is_refused_and_changes_nothing(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "%s%s%n {0} {1} ${jndi:ldap://x}") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "' OR 1=1 --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "'; DROP TABLE [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "<script>alert(1)</script>") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "Robert'); DROP TABLE PatientMerges;--") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "\"; EXEC xp_cmdshell 'dir'; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_hostile_row_version_is_refused_as_not_valid_and_changes_nothing(hostile: "x]]; DELETE FROM [Patients]; --") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_reason_over_500_characters_is_refused_even_when_it_is_all_injection_text_and_changes_nothing -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.A_well_formed_but_wrong_row_version_is_refused_as_changed_and_changes_nothing -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_idempotency_key_is_refused_and_changes_nothing(key: "") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_idempotency_key_is_refused_and_changes_nothing(key: "line\nbreak") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_reason_is_refused_with_its_stable_code_and_changes_nothing(reason: "   ") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_reason_is_refused_with_its_stable_code_and_changes_nothing(reason: "") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_reason_is_refused_with_its_stable_code_and_changes_nothing(reason: "tab\there") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_reason_is_refused_with_its_stable_code_and_changes_nothing(reason: "two\nlines") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_undo_reason_is_refused_and_changes_nothing(reason: "") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_undo_reason_is_refused_and_changes_nothing(reason: "two\nlines") -> Passed
+    Alveara.Api.Tests.PatientMergeHostileInputTests.Every_hostile_input_together_cannot_reach_the_interpolated_identifiers -> Passed
+    Alveara.Api.Tests.PatientMergeSqlBoundaryTests.Every_table_and_column_the_merge_interpolates_is_a_plain_identifier -> Passed
+    Alveara.Api.Tests.PatientMergeSqlBoundaryTests.Quoting_an_identifier_doubles_every_closing_bracket_so_it_cannot_be_ended_early(identifier: "", expected: "[]") -> Passed
+    Alveara.Api.Tests.PatientMergeSqlBoundaryTests.Quoting_an_identifier_doubles_every_closing_bracket_so_it_cannot_be_ended_early(identifier: "Patients", expected: "[Patients]") -> Passed
+    Alveara.Api.Tests.PatientMergeSqlBoundaryTests.Quoting_an_identifier_doubles_every_closing_bracket_so_it_cannot_be_ended_early(identifier: "a]b", expected: "[a]]b]") -> Passed
+    Alveara.Api.Tests.PatientMergeSqlBoundaryTests.Quoting_an_identifier_doubles_every_closing_bracket_so_it_cannot_be_ended_early(identifier: "x]; DROP TABLE Patients; --", expected: "[x]]; DROP TABLE Patients; --]") -> Passed
+    Alveara.Api.Tests.PatientMergeSqlBoundaryTests.The_session_flag_that_is_interpolated_is_a_fixed_plain_constant -> Passed
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 0
+EXPECTED new ids that did not appear: 0
+COMPARISON PASS
