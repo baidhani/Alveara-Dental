@@ -78,3 +78,12 @@ function Remove-RunOwnedTree([string]$Path, [string]$RunRoot, [string]$DataRoot,
     else { $full = Assert-RunOwnedPath $Path $RunRoot $DataRoot }
     if (Test-Path -LiteralPath $full) { Remove-Item -LiteralPath $full -Recurse -Force }
 }
+
+# The commit a run is stamped with. A tree with any uncommitted or untracked change is labelled, so the evidence never claims a commit it did not run.
+function Get-ChainImplementationSha([string]$RepoRoot) {
+    $sha = (& git -C $RepoRoot rev-parse HEAD)
+    if ($LASTEXITCODE -ne 0 -or "$sha".Trim() -notmatch '^[0-9a-f]{40}$') { throw "Cannot read the implementation commit of '$RepoRoot'." }
+    $sha = "$sha".Trim()
+    if (@(& git -C $RepoRoot status --porcelain).Count -gt 0) { return "$sha+uncommitted-changes" }
+    return $sha
+}

@@ -26,14 +26,17 @@
 [CmdletBinding()]
 param(
     [ValidateSet(0)][int]$Stage = 0,
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    # Self-test hooks (tests/stabilization/chain-runner-resilience.test.mjs). Normal runs use neither.
+    [ValidatePattern('^[0-9a-f]{32}$')][string]$RunId,
+    [ValidateSet('None', 'KillApiAfterStart')][string]$InjectFault = 'None'
 )
 
 $ErrorActionPreference = 'Stop'
 . ([WildcardPattern]::Escape("$PSScriptRoot\DevEnvironment.ps1"))
 . ([WildcardPattern]::Escape("$PSScriptRoot\chain\ChainSafety.ps1"))
 
-$runId       = New-ChainRunId
+$runId       = if ($RunId) { $RunId } else { New-ChainRunId }
 $Database    = Get-ChainDatabaseName $runId
 $runRoot     = Get-ChainRunRoot $DataRoot $runId
 $evidenceDir = Assert-EvidencePath (Join-Path (Join-Path (Join-Path (Join-Path $DataRoot 'Test-Data') 'Temp') 'chain-output') $runId) $DataRoot $runId
@@ -51,11 +54,31 @@ $schemaVersion = 'unknown'
 foreach ($port in 5072, 5173) {
     if (Test-PortInUse $port) { Write-Host "Port $port is already in use: stop the dev app first; a chain run needs both ports."; exit 2 }
 }
+
+# A run owns only what it creates. If the database or the run folder already exists it is somebody else's (or a leftover): refuse before creating anything, and never drop or delete it.
+try { $existing = (Invoke-DevSql "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.databases WHERE name = N'$Database'" | Select-Object -First 1).Trim() }
+catch { Write-Host "Cannot check whether $Database exists, so the run is refused: $_"; exit 2 }
+if ($existing -ne '0') { Write-Host "Refusing: the database $Database already exists. A chain run only uses a database it created itself and never drops one it did not create."; exit 2 }
+if (Test-Path -LiteralPath $runRoot) { Write-Host "Refusing: the run folder $runRoot already exists. A chain run only deletes a folder it created itself."; exit 2 }
+
 foreach ($dir in $dbDir, $storageDir, $keysDir, $backupDir) { [void](Assert-RunOwnedPath $dir $runRoot $DataRoot); New-Item -ItemType Directory -Force -Path $dir | Out-Null }
 New-Item -ItemType Directory -Force -Path $evidenceDir | Out-Null
+$ownsRunFolder = $true
+$created = $false
 
-$sha = (& git -C $RepoRoot rev-parse HEAD).Trim()
-if ((& git -C $RepoRoot status --porcelain)) { $sha = "$sha+uncommitted-changes" }
+$sha = Get-ChainImplementationSha $RepoRoot
+
+# One snapshot of the chain database for the E10 invariant (scripts\chain\E10Invariant.mjs decides): rows per table, the differential base (from sys.master_files; it stays NULL until a non-COPY_ONLY full backup sets it) and the restores recorded for it.
+function Get-ChainSnapshot([string]$Db) {
+    Assert-ChainDatabase $Db $runId
+    $tables = [ordered]@{}
+    foreach ($r in (Invoke-DevSql "SET NOCOUNT ON; SELECT t.name + '|' + CAST(SUM(p.rows) AS varchar(20)) FROM sys.tables t JOIN sys.partitions p ON p.object_id = t.object_id AND p.index_id IN (0, 1) GROUP BY t.name ORDER BY t.name" $Db)) {
+        if ("$r".Trim() -match '^(.+)\|(\d+)$') { $tables[$Matches[1]] = [int64]$Matches[2] }
+    }
+    $lsn = (Invoke-DevSql "SET NOCOUNT ON; SELECT ISNULL(CAST(MAX(differential_base_lsn) AS varchar(40)), 'null') FROM sys.master_files WHERE database_id = DB_ID(N'$Db') AND type = 0" | Select-Object -First 1).Trim()
+    $restores = [int]((Invoke-DevSql "SET NOCOUNT ON; SELECT COUNT(*) FROM msdb.dbo.restorehistory WHERE destination_database_name = N'$Db'" | Select-Object -First 1).Trim())
+    return [ordered]@{ tables = $tables; differentialBaseLsn = $(if ($lsn -eq 'null') { $null } else { $lsn }); restoreCount = $restores }
+}
 
 $api = $null
 try {
@@ -63,6 +86,7 @@ try {
     $mdf = (Assert-RunOwnedPath (Join-Path $dbDir "$Database.mdf") $runRoot $DataRoot).Replace("'", "''")
     $ldf = (Assert-RunOwnedPath (Join-Path $dbDir "${Database}_log.ldf") $runRoot $DataRoot).Replace("'", "''")
     Invoke-DevSql "CREATE DATABASE [$Database] ON (NAME = N'${Database}_data', FILENAME = N'$mdf') LOG ON (NAME = N'${Database}_log', FILENAME = N'$ldf'); ALTER DATABASE [$Database] SET READ_COMMITTED_SNAPSHOT ON; ALTER DATABASE [$Database] SET ALLOW_SNAPSHOT_ISOLATION ON;" | Out-Null
+    $created = $true
     Write-Host "Chain run ${runId}: database $Database created in $dbDir"
 
     $connection = "Server=$SqlServer;Database=$Database;Trusted_Connection=True;TrustServerCertificate=True"
@@ -102,6 +126,11 @@ try {
     }
     if (-not $healthy) { throw 'The API did not become healthy in time.' }
     Write-Host "API healthy on $ApiUrl; running stage $Stage ..."
+    if ($InjectFault -eq 'KillApiAfterStart') {
+        Stop-Process -Id $api.Id -Force
+        [void]$api.WaitForExit(15000)
+        Write-Host 'INJECTED FAULT: the API was killed right after start-up (self-test); the cleanup below must still remove everything this run created.'
+    }
 
     $env:E2E_DB_NAME = $Database
     $env:E2E_BOOTSTRAP_SECRET = $secret
@@ -116,13 +145,22 @@ try {
     finally { $ErrorActionPreference = 'Stop'; Pop-Location }
 
     # E10: one COPY_ONLY checkpoint (does not disturb the backup chain), kept inside the run folder, verified, removed with the run. Never an automatic reset.
+    # The invariant: the file exists and is COPY_ONLY, no restore is recorded, and the live database (rows per table, differential base) is unchanged.
     $bak = Assert-RunOwnedPath (Join-Path $backupDir 'checkpoint-stage0.bak') $runRoot $DataRoot
+    $e10Title = 'E10 COPY_ONLY checkpoint: file exists, no restore invoked, live database unchanged'
     try {
+        $beforeSnap = Get-ChainSnapshot $Database
         Invoke-DevSql "BACKUP DATABASE [$Database] TO DISK = N'$($bak.Replace("'", "''"))' WITH COPY_ONLY, INIT, CHECKSUM" | Out-Null
         Invoke-DevSql "RESTORE VERIFYONLY FROM DISK = N'$($bak.Replace("'", "''"))' WITH CHECKSUM" | Out-Null
-        [void]$runnerSteps.Add(@{ stepId = 'E10'; title = 'E10 COPY_ONLY checkpoint backup is written and verifies'; passed = $true; detail = '' })
+        $afterSnap = Get-ChainSnapshot $Database
+        $copyOnly = (Invoke-DevSql "SET NOCOUNT ON; SELECT TOP 1 CAST(is_copy_only AS int) FROM msdb.dbo.backupset WHERE database_name = N'$Database' ORDER BY backup_finish_date DESC" | Select-Object -First 1).Trim()
+        $afterSnap['backup'] = [ordered]@{ exists = (Test-Path -LiteralPath $bak); bytes = $(if (Test-Path -LiteralPath $bak) { (Get-Item -LiteralPath $bak).Length } else { 0 }); copyOnly = ($copyOnly -eq '1') }
+        ConvertTo-Json -InputObject $beforeSnap -Depth 5 | Set-Content -LiteralPath (Join-Path $evidenceDir 'e10-before.json') -Encoding utf8
+        ConvertTo-Json -InputObject $afterSnap -Depth 5 | Set-Content -LiteralPath (Join-Path $evidenceDir 'e10-after.json') -Encoding utf8
+        $verdict = & node (Join-Path $PSScriptRoot 'chain\E10Invariant.mjs') --before (Join-Path $evidenceDir 'e10-before.json') --after (Join-Path $evidenceDir 'e10-after.json')
+        [void]$runnerSteps.Add(@{ stepId = 'E10'; title = $e10Title; passed = ($LASTEXITCODE -eq 0); detail = ($verdict -join ' | ') })
     }
-    catch { [void]$runnerSteps.Add(@{ stepId = 'E10'; title = 'E10 COPY_ONLY checkpoint backup is written and verifies'; passed = $false; detail = "$_" }) }
+    catch { [void]$runnerSteps.Add(@{ stepId = 'E10'; title = $e10Title; passed = $false; detail = "$_" }) }
 }
 catch {
     Write-Host "The chain runner could not complete its setup: $_"
@@ -135,7 +173,7 @@ finally {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }
         [void]$api.WaitForExit(15000)
     }
-    $dropped = $false
+    $dropped = -not $created      # nothing to drop when this run never created the database
     for ($i = 1; $i -le 5 -and -not $dropped; $i++) {
         try {
             Assert-ChainDatabase $Database $runId
@@ -144,9 +182,9 @@ finally {
         }
         catch { Start-Sleep -Seconds 2 }
     }
-    if ($dropped) { Write-Host "Database $Database dropped (its files went with it)." }
-    else { Write-Warning "Could not drop $Database; remove it by hand: DROP DATABASE [$Database]" }
-    try { Remove-RunOwnedTree $runRoot $runRoot $DataRoot -AllowRunRoot }
+    if ($dropped -and $created) { Write-Host "Database $Database dropped (its files went with it)." }
+    elseif (-not $dropped) { Write-Warning "Could not drop $Database; remove it by hand: DROP DATABASE [$Database]" }
+    try { if ($ownsRunFolder) { Remove-RunOwnedTree $runRoot $runRoot $DataRoot -AllowRunRoot } }
     catch { Write-Warning "Could not remove the run folder ${runRoot}: $_" }
     [void]$runnerSteps.Add(@{ stepId = 'CLEAN'; title = 'CLEAN the database is dropped and the run folder is removed'; passed = ($dropped -and -not (Test-Path -LiteralPath $runRoot)); detail = '' })
 }
