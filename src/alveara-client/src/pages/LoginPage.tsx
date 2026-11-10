@@ -78,7 +78,7 @@ export function LoginPage() {
 
   return (
     <div className="alv-login">
-      <PageHeader title="Sign in" description="Enter your username and password to access Alveara Dental." />
+      <PageHeader title="Sign in" description="Enter your username and password to access DentalKeep." />
 
       {sessionExpired && (
         <div className="alv-login__banner alv-login__banner--warning" role="alert">

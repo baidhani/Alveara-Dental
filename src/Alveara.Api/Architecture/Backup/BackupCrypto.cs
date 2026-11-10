@@ -172,11 +172,11 @@ public static class BackupCrypto
         {
             var first = factory.NextPgpObject();
             return first as PgpEncryptedDataList ?? factory.NextPgpObject() as PgpEncryptedDataList
-                ?? throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
+                ?? throw new BackupCryptoException("not_a_backup", "This file is not a DentalKeep backup.");
         }
         catch (Exception ex) when (ex is IOException or PgpException or InvalidCastException or ArgumentException)
         {
-            throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
+            throw new BackupCryptoException("not_a_backup", "This file is not a DentalKeep backup.");
         }
     }
 
@@ -186,7 +186,7 @@ public static class BackupCrypto
         {
             var list = ReadEncryptedList(new PgpObjectFactory(PgpUtilities.GetDecoderStream(input)));
             var recipient = list.GetEncryptedDataObjects().Cast<PgpEncryptedData>().OfType<PgpPublicKeyEncryptedData>().FirstOrDefault()
-                ?? throw new BackupCryptoException("not_a_backup", "This file is not an Alveara backup.");
+                ?? throw new BackupCryptoException("not_a_backup", "This file is not a DentalKeep backup.");
             return recipient.KeyId.ToString("X16");
         }, cancellationToken);
 

@@ -1,0 +1,53 @@
+import { execFileSync } from "node:child_process";
+import { test, expect } from "@playwright/test";
+import { sqlServer } from "../e2e/support/sqlServer";
+
+// ALV-N019 stage 0 of the accumulated chain (R05 PKG-01, raw-log step 109 / S-09, owner decision "option B").
+// Runs only through scripts/Invoke-AccumulatedChain.ps1, which gives it a fresh AlveraChain_<run id> database and a real API
+// started with the bootstrap secret in E2E_BOOTSTRAP_SECRET. These checks use only the existing bootstrap endpoint and the sign-in page:
+// nothing here changes production code. Step titles start with their source id; the evidence builder reads it.
+
+test.describe.configure({ mode: "serial" });
+
+const database = process.env.E2E_DB_NAME ?? "";
+const goodSecret = process.env.E2E_BOOTSTRAP_SECRET ?? "";
+const password = "stage0-admin-password-1!";
+const username = "stage0-admin";
+
+function userCount(): number {
+  if (!/^AlveraChain_[0-9a-f]{32}$/.test(database)) throw new Error(`Refusing to query '${database}': not a chain database.`);
+  const out = execFileSync("sqlcmd", ["-S", sqlServer, "-d", database, "-E", "-b", "-h", "-1", "-W", "-Q", "SET NOCOUNT ON; SELECT COUNT(*) FROM UserAccounts"], { encoding: "utf8" });
+  return Number(out.trim().split(/\r?\n/)[0]);
+}
+
+test.beforeAll(() => {
+  expect(database, "E2E_DB_NAME must be the chain database").toMatch(/^AlveraChain_[0-9a-f]{32}$/);
+  expect(goodSecret, "E2E_BOOTSTRAP_SECRET must be set by the runner").not.toBe("");
+});
+
+test("S-09a a wrong bootstrap secret is refused with 401 and creates nothing", async ({ request }) => {
+  const response = await request.post("/api/auth/bootstrap-admin", { data: { username, password, secret: `${goodSecret}-wrong` } });
+  expect(response.status()).toBe(401);
+  expect(userCount()).toBe(0);
+});
+
+test("S-09b the right bootstrap secret creates exactly one administrator (201)", async ({ request }) => {
+  const response = await request.post("/api/auth/bootstrap-admin", { data: { username, password, secret: goodSecret } });
+  expect(response.status()).toBe(201);
+  expect(userCount()).toBe(1);
+});
+
+test("S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1", async ({ request }) => {
+  const response = await request.post("/api/auth/bootstrap-admin", { data: { username, password, secret: goodSecret } });
+  expect(response.status()).toBe(409);
+  expect((await response.json()).error).toBe("bootstrap_already_used");
+  expect(userCount()).toBe(1);
+});
+
+test("S-09d the administrator signs in through the browser and reaches the dashboard", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Username").fill(username);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+});

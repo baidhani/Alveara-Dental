@@ -45,7 +45,7 @@ public class PatientReadableRecordServiceTests : MergeChartTestBase
         Assert.DoesNotContain("<em>documents</em> folder", page);
         Assert.DoesNotContain($"{bo.FirstName} {bo.LastName}", page);
         Assert.Contains(file.ExportId.ToString(), page);
-        Assert.Matches(@"^alveara-readable-record-[0-9a-f]{32}\.html$", file.FileName);
+        Assert.Matches(@"^dentalkeep-readable-record-[0-9a-f]{32}\.html$", file.FileName);
     }
 
     [Fact]

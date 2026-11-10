@@ -70,7 +70,7 @@ export function AppShell() {
         <div className="alv-shell__brand">
           <div className="alv-shell__brand-mark">AD</div>
           <div className="alv-shell__brand-text">
-            Alveara Dental
+            DentalKeep
             <small>Application</small>
           </div>
         </div>

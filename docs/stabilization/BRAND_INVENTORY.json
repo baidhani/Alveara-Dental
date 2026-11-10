@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "purpose": "ALV-N019 DentalKeep brand migration. newName is what users see. retained lists identifiers and paths that deliberately keep the Alveara spelling because renaming them would break existing data, files, deployments or the course material; each is pinned by its own file and literal, so a change to one fails its own entry and an unrelated edit to the same file does not. allowedMentions lists the only live product-source lines that may still contain the standalone word Alveara or an old file-name prefix. Historical areas (.alveara, GPT Docs, PROGRESS.md, .colaberry, docs/design, docs/testing, handoffs and reviews) are not scanned.",
+  "newName": "DentalKeep",
+  "scanRoots": [
+    "src/Alveara.Api",
+    "src/alveara-client/src",
+    "src/alveara-client/index.html"
+  ],
+  "retained": [
+    {
+      "id": "connection-string-name",
+      "file": "src/Alveara.Api/Program.cs",
+      "literal": "GetConnectionString(\"Alveara\")",
+      "reason": "configuration key ConnectionStrings__Alveara read by every deployment"
+    },
+    {
+      "id": "csrf-cookie-name",
+      "file": "src/Alveara.Api/Program.cs",
+      "literal": "\"Alveara-CSRF\"",
+      "reason": "browser cookie name; renaming signs everyone out and breaks the client header"
+    },
+    {
+      "id": "theme-storage-key",
+      "file": "src/alveara-client/src/app/AppShell.tsx",
+      "literal": "\"alveara-theme\"",
+      "reason": "localStorage key; renaming resets every user's theme"
+    },
+    {
+      "id": "dom-event-patient-requirements",
+      "file": "src/alveara-client/src/contexts/PatientRequirementsContext.tsx",
+      "literal": "alveara:patient-requirements-changed",
+      "reason": "DOM event name shared by two modules"
+    },
+    {
+      "id": "dom-event-safety",
+      "file": "src/alveara-client/src/services/safetyApi.ts",
+      "literal": "alveara:safety-changed",
+      "reason": "DOM event name shared by two modules"
+    },
+    {
+      "id": "export-format-id",
+      "file": "src/Alveara.Api/Architecture/Patients/Portability/PatientExportFormat.cs",
+      "literal": "\"alveara.patient-export\"",
+      "reason": "wire-format id; files already exported carry it and import checks it"
+    },
+    {
+      "id": "data-package-format-id",
+      "file": "src/Alveara.Api/Architecture/Patients/Portability/Package/DataPackageFormat.cs",
+      "literal": "\"alveara.patient-data-package\"",
+      "reason": "wire-format id written into every package manifest"
+    },
+    {
+      "id": "signed-form-mime",
+      "file": "src/Alveara.Api/Architecture/Forms/PatientFormViews.cs",
+      "literal": "application/vnd.alveara.signed-form+json",
+      "reason": "stored and served content type"
+    },
+    {
+      "id": "backup-db-component-path",
+      "file": "src/Alveara.Api/Architecture/Backup/BackupSupport.cs",
+      "literal": "database/alveara.bak",
+      "reason": "path inside every existing backup archive; restore looks for it"
+    },
+    {
+      "id": "backup-recovery-key-user-id",
+      "file": "src/Alveara.Api/Architecture/Backup/BackupCrypto.cs",
+      "literal": "Alveara backup recovery key",
+      "reason": "user id embedded in existing recovery keys"
+    },
+    {
+      "id": "mfa-secret-purpose",
+      "file": "src/Alveara.Api/Architecture/Identity/AccountService.cs",
+      "literal": "Alveara.MfaSecret.v1",
+      "reason": "data-protection purpose; renaming makes stored MFA secrets unreadable"
+    },
+    {
+      "id": "mfa-challenge-purpose",
+      "file": "src/Alveara.Api/Architecture/Identity/AccountService.cs",
+      "literal": "Alveara.MfaChallenge.v1",
+      "reason": "data-protection purpose for challenge tokens"
+    },
+    {
+      "id": "permission-registry-resource",
+      "file": "src/Alveara.Api/Architecture/Identity/PermissionRegistry.cs",
+      "literal": "Alveara.Api.PermissionRegistry.json",
+      "reason": "embedded resource name"
+    },
+    {
+      "id": "merge-session-flag",
+      "file": "src/Alveara.Api/Architecture/Patients/Merge/PatientOwnedData.cs",
+      "literal": "alveara.patient_merge",
+      "reason": "SQL session-context key read by database triggers"
+    },
+    {
+      "id": "unmerge-session-flag",
+      "file": "src/Alveara.Api/Architecture/Patients/Merge/PatientUnmergeService.cs",
+      "literal": "alveara.patient_unmerge",
+      "reason": "SQL session-context key read by database triggers"
+    },
+    {
+      "id": "admin-availability-lock",
+      "file": "src/Alveara.Api/Architecture/Identity/AccountSafety.cs",
+      "literal": "alveara.admin-availability",
+      "reason": "SQL application lock resource"
+    },
+    {
+      "id": "policy-version-key",
+      "file": "src/Alveara.Api/Architecture/Permissions/EffectivePermissions.cs",
+      "literal": "alveara.policy-version",
+      "reason": "SQL session-context key"
+    },
+    {
+      "id": "bulk-export-lock",
+      "file": "src/Alveara.Api/Architecture/Patients/Portability/Package/ExportReadSession.cs",
+      "literal": "alveara-bulk-patient-export",
+      "reason": "SQL application lock name"
+    },
+    {
+      "id": "dev-sql-server-variable",
+      "file": "scripts/DevEnvironment.ps1",
+      "literal": "ALVERA_SQL_SERVER",
+      "reason": "operator environment variable"
+    },
+    {
+      "id": "dev-data-root-variable",
+      "file": "scripts/DevEnvironment.ps1",
+      "literal": "ALVERA_DATA_ROOT",
+      "reason": "operator environment variable"
+    },
+    {
+      "id": "dev-data-root-default",
+      "file": "scripts/DevEnvironment.ps1",
+      "literal": "C:\\.alvera-data",
+      "reason": "default data folder on existing machines"
+    },
+    {
+      "id": "dev-database-name",
+      "file": "scripts/DevEnvironment.ps1",
+      "literal": "'AlveraDev'",
+      "reason": "the database name every dev machine already has"
+    },
+    {
+      "id": "walkthrough-database-prefix",
+      "file": "scripts/Invoke-RealBackendWalkthrough.ps1",
+      "literal": "AlveraWalk_",
+      "reason": "throw-away database prefix"
+    },
+    {
+      "id": "chain-database-prefix",
+      "file": "scripts/chain/ChainSafety.ps1",
+      "literal": "AlveraChain_",
+      "reason": "throw-away chain database prefix; the safety gate matches it"
+    },
+    {
+      "id": "db-context-class",
+      "file": "src/Alveara.Api/Data/AlveraDbContext.cs",
+      "literal": "class AlveraDbContext",
+      "reason": "code identifier; migrations and every service reference it"
+    },
+    {
+      "id": "api-project",
+      "file": "src/Alveara.Api/Alveara.Api.csproj",
+      "literal": "<Nullable>",
+      "reason": "project path (file exists); folder and project names are not renamed"
+    },
+    {
+      "id": "test-project",
+      "file": "src/Alveara.Api.Tests/Alveara.Api.Tests.csproj",
+      "literal": "<",
+      "reason": "project path (file exists)"
+    },
+    {
+      "id": "client-package",
+      "file": "src/alveara-client/package.json",
+      "literal": "\"name\"",
+      "reason": "client folder and package name are not renamed"
+    },
+    {
+      "id": "course-command-center",
+      "file": "index.html",
+      "literal": "Alveara Dental — Command Center",
+      "reason": "course Command Center keeps its wording (reviewer decision O-4)"
+    },
+    {
+      "id": "course-claude-md",
+      "file": "CLAUDE.md",
+      "literal": "Alveara",
+      "reason": "course/agent rules file keeps its wording (O-4)"
+    }
+  ],
+  "allowedMentions": [
+    {
+      "file": "src/Alveara.Api/Architecture/Backup/BackupCrypto.cs",
+      "contains": "Alveara backup recovery key",
+      "reason": "retained: id embedded in existing recovery keys"
+    },
+    {
+      "file": "src/Alveara.Api/Program.cs",
+      "contains": "GetConnectionString(\"Alveara\")",
+      "reason": "retained: configuration key"
+    },
+    {
+      "file": "src/Alveara.Api/Data/AlveraDbContext.cs",
+      "contains": "The single EF Core DbContext for Alveara",
+      "reason": "developer comment on the retained class name"
+    }
+  ]
+}

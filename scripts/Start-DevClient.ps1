@@ -12,9 +12,7 @@ param()
 $ErrorActionPreference = 'Stop'
 . ([WildcardPattern]::Escape("$PSScriptRoot\DevEnvironment.ps1"))
 
-if (Test-PortInUse 5173) {
-    throw 'Port 5173 is already in use: a client is already running. Stop it (Ctrl+C in its terminal) and try again.'
-}
+if (Test-PortInUse 5173) { Stop-DevScript 'Port 5173 is already in use: a client is already running. Stop it (Ctrl+C in its terminal) and try again.' }
 
 Push-Location -LiteralPath (Join-Path $RepoRoot 'src\alveara-client')
 try {

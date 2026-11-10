@@ -10,7 +10,7 @@ namespace Alveara.Api.Architecture.Patients.Portability.Package;
 /// <summary>A readable record ready to hand to the caller: the page as bytes, the name to save it under and its hash. Small enough to hold in memory (one patient, no documents).</summary>
 public sealed record ReadableRecordFile(Guid ExportId, byte[] Content, string Sha256)
 {
-    public string FileName => $"alveara-readable-record-{ExportId:N}.html";
+    public string FileName => $"dentalkeep-readable-record-{ExportId:N}.html";
     public long SizeBytes => Content.Length;
 }
 

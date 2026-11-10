@@ -6,7 +6,7 @@ using Alveara.Api.Data;
 namespace Alveara.Api.Architecture.Imports;
 
 /// <summary>A registered patient, with only what the duplicate comparison needs.</summary>
-internal sealed record ImportExisting(Guid Id, DateOnly DateOfBirth, string FirstName, string LastName, string Phone, string? Email, string RegistrationKey);
+internal sealed record ImportExisting(Guid Id, DateOnly DateOfBirth, string FirstName, string LastName, string Phone, string? Email, string? RegistrationKey);
 
 /// <summary>
 /// ALV-018-C02: what the dry-run and the commit share when they read a patient file: the stored file read back and proved to be the uploaded one, a row's cells turned into the front desk's fields through the

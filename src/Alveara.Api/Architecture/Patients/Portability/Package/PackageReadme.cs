@@ -15,7 +15,7 @@ public static class PackageReadme
         ALVEARA DENTAL - PATIENT DATA PACKAGE
         Export id: {exportId}
 
-        This ZIP file is a copy of {(allPatients ? "the records of every patient" : "a patient's record")} taken out of Alveara Dental. It holds personal health
+        This ZIP file is a copy of {(allPatients ? "the records of every patient" : "a patient's record")} taken out of DentalKeep. It holds personal health
         information. Keep it where only people allowed to see these records can reach it, and delete it
         when it is no longer needed.
 
@@ -47,8 +47,8 @@ public static class PackageReadme
           at export, and a status: Included, HashMismatch (the file differs from what was imported; it is
           included as found, do not rely on it), Missing, Unreadable or NotIncluded.
 
-        This package is in Alveara's own layout (format alveara.patient-data-package, version {DataPackageFormat.CurrentVersion}).
-        It cannot yet be imported back into Alveara. A standard-format (FHIR) copy is not included.
+        This package is in DentalKeep's own layout (format alveara.patient-data-package, version {DataPackageFormat.CurrentVersion}).
+        It cannot yet be imported back into DentalKeep. A standard-format (FHIR) copy is not included.
         """.Replace("\r\n", "\n");
     }
 }

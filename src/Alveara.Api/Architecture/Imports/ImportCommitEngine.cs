@@ -126,7 +126,7 @@ public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage fil
         }
 
         var keys = valid.Select(v => ImportPatientRows.RegistrationKey(batch.Id, v.Row.RowNumber)).ToList();
-        var already = await db.Patients.AsNoTracking().Where(p => keys.Contains(p.RegistrationKey)).Select(p => new { p.RegistrationKey, p.Id }).ToDictionaryAsync(p => p.RegistrationKey, p => p.Id, ct);
+        var already = await db.Patients.AsNoTracking().Where(p => p.RegistrationKey != null && keys.Contains(p.RegistrationKey)).Select(p => new { RegistrationKey = p.RegistrationKey!, p.Id }).ToDictionaryAsync(p => p.RegistrationKey, p => p.Id, ct);   // a patient registered at the desk has no key: it can never match a row's key
         var pools = await ImportPatientRows.LoadPoolsAsync(db, valid.Select(v => v.Clean.DateOfBirth).Distinct().ToList(), ct);
         foreach (var (row, clean) in valid)
         {

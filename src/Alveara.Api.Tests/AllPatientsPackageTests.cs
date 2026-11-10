@@ -159,7 +159,7 @@ public class AllPatientsPackageTests : MergeChartTestBase
         Assert.Equal((S.Actor, file.ExportId), (entry.PerformedByUserAccountId, entry.CorrelationId));
         Assert.Contains($"{count} patients", entry.Details);
         Assert.DoesNotContain(ann.FirstName, entry.Details);
-        Assert.StartsWith("alveara-all-patients-package-", file.FileName);
+        Assert.StartsWith("dentalkeep-all-patients-package-", file.FileName);
     }
 
     [Fact]

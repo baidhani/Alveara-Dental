@@ -13,7 +13,7 @@ interface Refusal { message: string; existingPatientId: string | null }
 const placeOf = (path: string) => (path === "$" ? "The whole file" : path);
 
 /**
- * STORY-018: "Import a patient". The person chooses a patient file exported from Alveara and sends it. The server checks the WHOLE file first: if anything is wrong nothing is stored and every problem is shown
+ * STORY-018: "Import a patient". The person chooses a patient file exported from DentalKeep and sends it. The server checks the WHOLE file first: if anything is wrong nothing is stored and every problem is shown
  * here with the place in the file and what to do, so the file can be corrected and chosen again. A valid file creates the patient (or, for a file that was imported before, returns the same patient) and the page
  * links to the record; a patient who is already registered is refused with a link to the existing record. Every attempt is logged on the server with the user and the time. Shown only to people who hold the
  * import permission (the administrator and the office manager by default).
@@ -51,7 +51,7 @@ export function PatientImportPage() {
 
   return (
     <div>
-      <PageHeader title="Import a patient" description="Bring one patient in from a file exported from Alveara. The whole file is checked first; nothing is stored unless it is correct." />
+      <PageHeader title="Import a patient" description="Bring one patient in from a file exported from DentalKeep. The whole file is checked first; nothing is stored unless it is correct." />
       <section aria-labelledby="import-choose" className="alv-fu-form">
         <h2 id="import-choose">Choose the file</h2>
         <label htmlFor="import-file">Patient file (.json, up to 256 KB)</label>

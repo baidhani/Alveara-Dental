@@ -15,7 +15,7 @@ Both are ordinary (not protected) permissions, so an Administrator can grant the
 
 ## The export file
 
-One UTF-8 JSON document, `application/json`, downloaded as `alveara-patient-<exportId>.json`:
+One UTF-8 JSON document, `application/json`, downloaded as `dentalkeep-patient-<exportId>.json`:
 
 ```json
 {
@@ -23,7 +23,7 @@ One UTF-8 JSON document, `application/json`, downloaded as `alveara-patient-<exp
   "formatVersion": 1,
   "exportId": "3f0c2b3e-8d5a-4a49-9a77-0e3f1f6a7b10",
   "exportedAtUtc": "2026-10-26T14:05:11Z",
-  "source": { "system": "Alveara Dental", "sourcePatientId": "b2c1f4a0-0e1d-4a9e-8f3b-52d6a1c9e7aa" },
+  "source": { "system": "DentalKeep", "sourcePatientId": "b2c1f4a0-0e1d-4a9e-8f3b-52d6a1c9e7aa" },
   "patient": {
     "firstName": "Ann",
     "middleName": null,
@@ -105,9 +105,9 @@ Every download is a `POST` with a CSRF token (every export writes a history row 
 
 | Route | Permission | Answer |
 |---|---|---|
-| `POST api/patient-exports/patients/{id}/package` | `ExportPatientData` | `alveara-patient-package-<exportId>.zip` |
-| `POST api/patient-exports/all-patients/package` | `ExportAllPatientData` | `alveara-all-patients-package-<exportId>.zip` |
-| `POST api/patient-exports/patients/{id}/readable-record` | `ExportPatientReadableRecord` | `alveara-readable-record-<exportId>.html` |
+| `POST api/patient-exports/patients/{id}/package` | `ExportPatientData` | `dentalkeep-patient-package-<exportId>.zip` |
+| `POST api/patient-exports/all-patients/package` | `ExportAllPatientData` | `dentalkeep-all-patients-package-<exportId>.zip` |
+| `POST api/patient-exports/patients/{id}/readable-record` | `ExportPatientReadableRecord` | `dentalkeep-readable-record-<exportId>.html` |
 | `GET api/patient-exports/history?limit=&before=` | any of the three | the history, newest first (limit 1 to 200, default 50) |
 | `GET api/patient-exports/overview` | any of the three | what the screen needs before an export starts |
 

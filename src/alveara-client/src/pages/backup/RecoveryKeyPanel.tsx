@@ -66,7 +66,7 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
       const url = URL.createObjectURL(new Blob([recoveryKey], { type: "application/pgp-keys" }));
       const link = document.createElement("a");
       link.href = url;
-      link.download = `alveara-recovery-key-${fingerprint.slice(0, 8)}.asc`;
+      link.download = `dentalkeep-recovery-key-${fingerprint.slice(0, 8)}.asc`;
       link.click();
       URL.revokeObjectURL(url);
     } catch {

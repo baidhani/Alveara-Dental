@@ -117,7 +117,10 @@ public class PatientUnmergeService(AlveraDbContext db, IPracticeClock clock)
             var parameters = new[] { ("@surv", (object)survivor.Id), ("@mid", mergeId), ("@tn", column.Table), ("@cn", column.Column) };
             var present = await PatientMergeCatalog.CountAsync(db, $"SELECT COUNT(*) FROM {table} t WHERE {where}", ct, parameters);
             if (present != count) throw new PatientException("unmerge_inconsistent", $"{column.Table} does not hold the {count} rows the merge moved (it holds {present}). Nothing was undone.", 500);
+            // EF1002 (F-003, ALV-N019): {name} and {table} are quoted by PatientMergeCatalog.Q and {where} is built from KeyExpr, all from the EF model / PatientOwnedData; ids go through SqlParameter.
+#pragma warning disable EF1002
             await db.Database.ExecuteSqlRawAsync($"UPDATE t SET {name} = @src FROM {table} t WHERE {where}", [new SqlParameter("@src", source.Id), .. parameters.Select(p => new SqlParameter(p.Item1, p.Item2))], ct);
+#pragma warning restore EF1002
             moves.Add(new MergeMoveCount(column.Table, column.Column, count));
         }
         await db.Database.ExecuteSqlRawAsync($"EXEC sp_set_session_context N'{MergeFlag}', NULL", ct);

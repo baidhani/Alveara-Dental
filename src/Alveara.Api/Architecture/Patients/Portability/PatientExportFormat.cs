@@ -17,7 +17,7 @@ public static class PatientExportFormat
     public const int CurrentVersion = 1;
 
     /// <summary>The system name written in <c>source.system</c> (informational).</summary>
-    public const string SystemName = "Alveara Dental";
+    public const string SystemName = "DentalKeep";
 
     /// <summary>The largest file an import reads (a single patient is a few hundred bytes; this bounds what is parsed).</summary>
     public const int MaxFileBytes = 256 * 1024;

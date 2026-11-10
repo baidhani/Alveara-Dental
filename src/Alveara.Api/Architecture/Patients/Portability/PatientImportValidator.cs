@@ -34,12 +34,12 @@ public static class PatientImportValidator
 
         if (content.Length == 0)
         {
-            problems.Add(new("file_empty", "$", "The file is empty. Choose a file exported from Alveara."));
+            problems.Add(new("file_empty", "$", "The file is empty. Choose a file exported from DentalKeep."));
             return Rejected();
         }
         if (content.Length > PatientExportFormat.MaxFileBytes)
         {
-            problems.Add(new("file_too_large", "$", $"The file is larger than {PatientExportFormat.MaxFileBytes / 1024} KB, which is more than one patient export can be. Choose a file exported from Alveara."));
+            problems.Add(new("file_too_large", "$", $"The file is larger than {PatientExportFormat.MaxFileBytes / 1024} KB, which is more than one patient export can be. Choose a file exported from DentalKeep."));
             return Rejected();
         }
 
@@ -50,7 +50,7 @@ public static class PatientImportValidator
         }
         catch (JsonException)
         {
-            problems.Add(new("not_json", "$", "The file is not valid UTF-8 JSON. Choose a file exported from Alveara and do not edit it in a program that changes its format."));
+            problems.Add(new("not_json", "$", "The file is not valid UTF-8 JSON. Choose a file exported from DentalKeep and do not edit it in a program that changes its format."));
             return Rejected();
         }
 

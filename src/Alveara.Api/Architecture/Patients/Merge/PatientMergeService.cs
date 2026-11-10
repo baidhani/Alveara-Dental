@@ -151,6 +151,9 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
 
     // ---------- the moves ----------
 
+    // EF1002 (F-003, ALV-N019): the pieces interpolated into the SQL below are the session-context flag (a constant), identifiers quoted by PatientMergeCatalog.Q and key expressions built by
+    // PatientMergeCatalog.KeyExpr, all read from the EF model / PatientOwnedData, plus @-placeholder names. No request text is ever interpolated: patient ids and the merge id go through SqlParameter.
+#pragma warning disable EF1002
     private async Task MoveAsync(PatientMergeCatalog catalog, MergePlan plan, Guid source, Guid survivor, Guid mergeId, CancellationToken ct)
     {
         await db.Database.ExecuteSqlRawAsync("CREATE TABLE #MergeLeft ([Tbl] nvarchar(100) NOT NULL, [RowKey] nvarchar(400) NOT NULL, PRIMARY KEY ([Tbl], [RowKey]))", ct);
@@ -179,6 +182,7 @@ public class PatientMergeService(AlveraDbContext db, IPracticeClock clock)
         await db.Database.ExecuteSqlRawAsync($"EXEC sp_set_session_context N'{Flag}', NULL", ct);
         await db.Database.ExecuteSqlRawAsync("DROP TABLE #MergeLeft", ct);
     }
+#pragma warning restore EF1002
 
     /// <summary>Nothing of the retired patient is left but what was meant to stay, and every row that points at another row of the same chart still agrees with it about whose chart it is.</summary>
     internal async Task VerifyAsync(PatientMergeCatalog catalog, MergePlan plan, Guid source, Guid survivor, CancellationToken ct)

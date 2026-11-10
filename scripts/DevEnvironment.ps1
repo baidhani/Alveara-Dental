@@ -43,6 +43,12 @@ function Test-PortInUse([int]$Port) {
     return [bool](Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)
 }
 
+# A refusal is an expected stop, not a crash: print ONE plain line and exit with code 1. (`throw` prints the line followed by a PowerShell stack block that reads like a failure: F-011.)
+function Stop-DevScript([string]$Message) {
+    [Console]::Error.WriteLine($Message)
+    exit 1
+}
+
 function Invoke-DevSql([string]$Sql, [string]$Database = 'master') {
     # -E = Windows authentication, -b = stop with a non-zero exit code on a SQL error. The statement text never contains user input.
     $ErrorActionPreference = 'Continue'    # the exit code decides, not text on the error stream

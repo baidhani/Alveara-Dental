@@ -21,7 +21,7 @@ type Scope = "one" | "all";
 type Format = "package" | "record";
 
 /**
- * ALV-018-C01: "Export patient data". Takes one patient's records or every patient's out of Alveara as a package (one ZIP: a manifest, the data, a readable page per patient and, when chosen, the document files) or
+ * ALV-018-C01: "Export patient data". Takes one patient's records or every patient's out of DentalKeep as a package (one ZIP: a manifest, the data, a readable page per patient and, when chosen, the document files) or
  * one patient's readable record alone (one HTML page). Each choice is offered only to people who hold its permission. Before anything is created the screen says what a package holds and leaves out, whether the
  * current data fits the limits (the button is disabled with the reason when it does not), how an all-patients export reads the database, and, if folder names will carry patient names, that they will show in file
  * listings. While it runs the person can cancel; afterwards it says what was saved, that the export was logged, and, for an incomplete package, that it is incomplete and where to look. Every export, failed or not,
@@ -90,7 +90,7 @@ export function ExportCenterPage() {
 
   return (
     <div className="alv-export">
-      <PageHeader title="Export patient data" description="Take patient records out of Alveara as a file you can keep or move. Every export is logged with who made it and when." />
+      <PageHeader title="Export patient data" description="Take patient records out of DentalKeep as a file you can keep or move. Every export is logged with who made it and when." />
 
       {overviewFailed && <ErrorState title="Could not load the export details" description="Reload the page to try again." />}
       {!overview && !overviewFailed && <LoadingState label="Loading the export details…" />}

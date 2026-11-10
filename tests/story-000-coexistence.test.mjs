@@ -51,7 +51,7 @@ test("the production app did not replace or rename the root Command Center", () 
     path.join(repoRoot, "src", "alveara-client", "index.html"),
     "utf-8"
   );
-  assert.match(clientIndex, /Alveara Dental/, "the product shell has its own separate index.html under src/alveara-client");
+  assert.match(clientIndex, /DentalKeep/, "the product shell has its own separate index.html under src/alveara-client");
   assert.notEqual(
     rootIndex,
     clientIndex,

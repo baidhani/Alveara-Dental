@@ -98,7 +98,7 @@ async function chooseScreenPatient(page: Page, lastName: string) {
 }
 
 const historyRows = (page: Page) => page.getByRole("table", { name: "Export history, newest first" }).getByRole("row");
-const savedLine = (what: string) => new RegExp(`^Saved alveara-${what}-[0-9a-f]{32}\\.(zip|html)\\. The export was logged \\(export [0-9a-f-]{36}\\)\\.$`);
+const savedLine = (what: string) => new RegExp(`^Saved dentalkeep-${what}-[0-9a-f]{32}\\.(zip|html)\\. The export was logged \\(export [0-9a-f-]{36}\\)\\.$`);
 
 test.beforeAll(async ({ browser }: { browser: Browser }) => {
   stamp = Date.now();
@@ -189,7 +189,7 @@ test("ONE PATIENT: the administrator creates a package from the screen; it is sa
   await admin.goto("/admin/exports");
   await chooseScreenPatient(admin, `Rivera${stamp}`);
   const [download] = await Promise.all([admin.waitForEvent("download"), admin.getByRole("button", { name: "Create package", exact: true }).click()]);
-  expect(download.suggestedFilename()).toMatch(/^alveara-patient-package-[0-9a-f]{32}\.zip$/);
+  expect(download.suggestedFilename()).toMatch(/^dentalkeep-patient-package-[0-9a-f]{32}\.zip$/);
   saved.onePatientPackage = path.join(OUT, "one-patient-package.zip");
   await download.saveAs(saved.onePatientPackage);
   await expect(admin.getByText(savedLine("patient-package"))).toBeVisible();
@@ -206,10 +206,10 @@ test("READABLE RECORD: from the patient's page and from the screen; the saved pa
   await admin.goto(`/patients/${ids.ann}`);
   await expect(admin.getByRole("button", { name: "Export patient file" })).toBeVisible();               // STORY-018's button is still there
   const [download] = await Promise.all([admin.waitForEvent("download"), admin.getByRole("button", { name: "Download readable record" }).click()]);
-  expect(download.suggestedFilename()).toMatch(/^alveara-readable-record-[0-9a-f]{32}\.html$/);
+  expect(download.suggestedFilename()).toMatch(/^dentalkeep-readable-record-[0-9a-f]{32}\.html$/);
   saved.readableFromPatientPage = path.join(OUT, "readable-record-from-patient-page.html");
   await download.saveAs(saved.readableFromPatientPage);
-  await expect(admin.getByText(/^Saved alveara-readable-record-[0-9a-f]{32}\.html\. The export was logged\.$/)).toBeVisible();
+  await expect(admin.getByText(/^Saved dentalkeep-readable-record-[0-9a-f]{32}\.html\. The export was logged\.$/)).toBeVisible();
   await shot(admin, "04-patient-page-readable-record-button.png");
 
   const viewer = await adminContext.newPage();
@@ -248,7 +248,7 @@ test("ALL PATIENTS: the administrator creates every patient's package from the s
   const started = Date.now();
   const [download] = await Promise.all([admin.waitForEvent("download"), admin.getByRole("button", { name: "Create package for all patients" }).click()]);
   const elapsed = Date.now() - started;
-  expect(download.suggestedFilename()).toMatch(/^alveara-all-patients-package-[0-9a-f]{32}\.zip$/);
+  expect(download.suggestedFilename()).toMatch(/^dentalkeep-all-patients-package-[0-9a-f]{32}\.zip$/);
   saved.allPatientsPackage = path.join(OUT, "all-patients-package.zip");
   await download.saveAs(saved.allPatientsPackage);
   await expect(admin.getByText(savedLine("all-patients-package"))).toBeVisible();
@@ -310,7 +310,7 @@ test("HISTORY AND AUDIT: every export names who and when and no patient, and the
 test("STORY-018 STILL WORKS: the original Export patient file button downloads the JSON file in the documented layout", async () => {
   await admin.goto(`/patients/${ids.ann}`);
   const [download] = await Promise.all([admin.waitForEvent("download"), admin.getByRole("button", { name: "Export patient file" }).click()]);
-  expect(download.suggestedFilename()).toMatch(/^alveara-patient-[0-9a-f]{32}\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^dentalkeep-patient-[0-9a-f]{32}\.json$/);
   saved.original = path.join(OUT, "original-story-018-export.json");
   await download.saveAs(saved.original);
   const file = JSON.parse(readFileSync(saved.original, "utf8"));

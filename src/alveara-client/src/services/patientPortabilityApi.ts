@@ -27,7 +27,7 @@ export class ImportRejectedError extends Error {
 /** The most the server reads (256 KB); a bigger file is refused before it is sent. */
 export const MAX_IMPORT_BYTES = 256 * 1024;
 
-const FALLBACK_FILE_NAME = "alveara-patient.json";
+const FALLBACK_FILE_NAME = "dentalkeep-patient.json";
 
 export function fileNameFrom(disposition: string | null, fallback: string = FALLBACK_FILE_NAME): string {
   const match = disposition?.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
@@ -45,7 +45,7 @@ export async function exportPatientFile(patientId: string, signal?: AbortSignal)
 }
 
 export async function importPatientFile(file: File, signal?: AbortSignal): Promise<ImportResult> {
-  if (file.size > MAX_IMPORT_BYTES) throw new ImportRejectedError("The file was not imported. Correct the problems listed and send it again.", [{ code: "file_too_large", path: "$", message: `The file is larger than ${MAX_IMPORT_BYTES / 1024} KB, which is more than one patient export can be. Choose a file exported from Alveara.` }]);
+  if (file.size > MAX_IMPORT_BYTES) throw new ImportRejectedError("The file was not imported. Correct the problems listed and send it again.", [{ code: "file_too_large", path: "$", message: `The file is larger than ${MAX_IMPORT_BYTES / 1024} KB, which is more than one patient export can be. Choose a file exported from DentalKeep.` }]);
   const csrfToken = await fetchCsrfToken();
   try {
     return await request<ImportResult>("/api/patients/import", { method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }, body: file, signal });

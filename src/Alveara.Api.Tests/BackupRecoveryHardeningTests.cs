@@ -80,6 +80,40 @@ public class BackupRecoveryHardeningTests : IClassFixture<TestDatabaseFixture>, 
         return $"import:{record.FileName}";
     }
 
+    [Fact]
+    public async Task A_file_that_is_not_a_backup_fails_the_archive_is_a_backup_check_by_its_stable_code_not_by_its_wording()
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        Directory.CreateDirectory(_env.ImportRoot);
+        File.WriteAllText(Path.Combine(_env.ImportRoot, "junk.abk"), "this is not a backup");
+
+        await using var db = _env.NewDb();
+        var preflight = await _env.NewRestoreService(db).PreflightArchiveAsync("import:junk.abk", _env.Key.EncryptedPrivateKeyPem, BackupTestEnvironment.Passphrase, default);
+
+        Assert.False(preflight.CanRestore);
+        Assert.False(preflight.Checks.Single(c => c.Name == "archive_is_a_backup").Passed);
+    }
+
+    [Fact]
+    public async Task An_archive_made_before_the_rename_under_its_old_alveara_file_name_is_still_listed_and_preflights()   // O-5: old files must keep working
+    {
+        await _env.ConfigureRecoveryKeyAsync();
+        await SeedLoginAccountAsync();
+        var record = await BackupAsync();
+        await ImportArchiveAndLoseHistoryAsync(record);
+        const string legacyName = "alveara-backup-20260101T000000Z-legacy01.abk";
+        File.Move(Path.Combine(_env.ImportRoot, record.FileName!), Path.Combine(_env.ImportRoot, legacyName));
+
+        await using var db = _env.NewDb();
+        var service = _env.NewRestoreService(db);
+        var listed = Assert.Single(await service.ListArchivesAsync(default));
+        Assert.Equal((legacyName, true), (listed.FileName, listed.Readable));
+
+        var preflight = await service.PreflightArchiveAsync($"import:{legacyName}", _env.Key.EncryptedPrivateKeyPem, BackupTestEnvironment.Passphrase, default);
+        Assert.True(preflight.CanRestore, string.Join("; ", preflight.Checks.Where(c => !c.Passed).Select(c => c.Detail)));
+        Assert.True(preflight.Checks.Single(c => c.Name == "archive_is_a_backup").Passed);
+    }
+
     // ---------- R01-01: recovery with NO backup history ----------
 
     [Fact]

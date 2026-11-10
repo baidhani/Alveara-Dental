@@ -199,6 +199,22 @@ public class ImportCommitTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task A_patient_with_no_registration_key_is_still_matched_and_never_breaks_the_commit_planning()   // F-002: a patient registered at the desk has no import key
+    {
+        var batch = await DryRunBatchAsync(ThreeValid);
+        var bo = await RegisterAsync("Bo", "Moss", "1962-03-04", "555-300-3000");
+        await using (var db = _fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("UPDATE [Patients] SET [RegistrationKey] = NULL WHERE [Id] = {0}", bo);
+
+        await CommitAsync(batch, ImportBatchPolicy.CommitValidRows, 3);
+        await DrainAsync();
+
+        var rows = await RowsAsync(batch);
+        Assert.Equal((ImportRowStatus.Accepted, ImportRowStatus.Skipped, ImportRowStatus.Accepted), (rows[2].Status, rows[3].Status, rows[4].Status));
+        Assert.Equal([bo], System.Text.Json.JsonSerializer.Deserialize<List<Guid>>(rows[3].MatchedPatientIdsJson!));
+        Assert.Equal(3, await CountAsync(db => db.Patients));                                       // the one without a key and the two new ones
+    }
+
+    [Fact]
     public async Task A_row_is_judged_again_at_commit_time_so_a_person_registered_since_the_dry_run_is_never_duplicated()
     {
         var batch = await DryRunBatchAsync(ThreeValid);

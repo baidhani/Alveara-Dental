@@ -136,10 +136,10 @@ test("WHO MAY: only the administrator is offered the export; the administrator a
 test("EXPORT: the administrator downloads the patient's file in the documented JSON layout", async () => {
   await admin.goto(`/patients/${ids.cy}`);
   const [download] = await Promise.all([admin.waitForEvent("download"), admin.getByRole("button", { name: "Export patient file" }).click()]);
-  expect(download.suggestedFilename()).toMatch(/^alveara-patient-[0-9a-f]{32}\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^dentalkeep-patient-[0-9a-f]{32}\.json$/);
   exportedPath = path.join(OUT, "exported-patient.json");
   await download.saveAs(exportedPath);
-  await expect(admin.getByText(/^Saved alveara-patient-[0-9a-f]{32}\.json\. The export was logged\.$/)).toBeVisible();
+  await expect(admin.getByText(/^Saved dentalkeep-patient-[0-9a-f]{32}\.json\. The export was logged\.$/)).toBeVisible();
   const file = JSON.parse(readFileSync(exportedPath, "utf8"));
   expect(Object.keys(file).sort()).toEqual(["exportId", "exportedAtUtc", "format", "formatVersion", "patient", "source"]);
   expect(file.format).toBe("alveara.patient-export");

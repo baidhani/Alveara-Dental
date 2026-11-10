@@ -67,7 +67,7 @@ describe("downloads", () => {
 
     expect(calls[0].url).toBe("/api/patient-exports/patients/p1/readable-record");
     expect(calls[0].init?.body).toBeUndefined();
-    expect(file.fileName).toBe("alveara-readable-record.html");
+    expect(file.fileName).toBe("dentalkeep-readable-record.html");
     expect(file.result).toBe("Complete");
   });
 

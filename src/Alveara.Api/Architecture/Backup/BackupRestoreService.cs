@@ -124,7 +124,7 @@ public class BackupRestoreService(
             {
                 var hashOk = await FileTreeAssetSource.HashFileAsync(path!, ct) == record.Sha256;
                 checks.Add(new("file_hash_matches", hashOk, hashOk ? "The file matches the hash recorded at creation." : "The file does not match its recorded hash: it is corrupt or has been altered."));
-                checks.Add(await CheckRecoveryMaterialAsync(path!, privateKeyPem, passphrase, ct));
+                checks.Add((await CheckRecoveryMaterialAsync(path!, privateKeyPem, passphrase, ct)).Check);
             }
         }
         return new PreflightResult(checks.All(c => c.Passed || !c.Blocking), checks);
@@ -139,29 +139,30 @@ public class BackupRestoreService(
     {
         var source = await ArchiveSourceAsync(archiveRef, ct);
         var checks = new List<ValidationCheck> { new("archive_present", true, "The backup file is present.") };
-        var material = await CheckRecoveryMaterialAsync(source.Path, privateKeyPem, passphrase, ct);
-        checks.Add(new("archive_is_a_backup", material.Name != "recovery_material_matches" || material.Passed || !material.Detail.Contains("not an Alveara backup"), "The file is an Alveara backup."));
+        var (material, failureCode) = await CheckRecoveryMaterialAsync(source.Path, privateKeyPem, passphrase, ct);
+        checks.Add(new("archive_is_a_backup", failureCode != "not_a_backup", "The file is a DentalKeep backup."));   // matched on the stable code, never on the wording of the message
         checks.Add(material);
         checks.Add(new("integrity_verified_on_decryption", true, "There is no recorded hash for a retained archive; its contents are verified by authenticated decryption and the manifest when you restore.", Blocking: false));
         return new PreflightResult(checks.All(c => c.Passed || !c.Blocking), checks);
     }
 
-    private static async Task<ValidationCheck> CheckRecoveryMaterialAsync(string path, string privateKeyPem, string passphrase, CancellationToken ct)
+    /// <summary>The recovery-material check, and the stable code of the crypto failure behind it (null when there was none) so a caller never has to read the message text.</summary>
+    private static async Task<(ValidationCheck Check, string? FailureCode)> CheckRecoveryMaterialAsync(string path, string privateKeyPem, string passphrase, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(privateKeyPem) || string.IsNullOrEmpty(passphrase))
-            return new ValidationCheck("recovery_material_present", false, "The recovery key file and its passphrase are required.");
+            return (new ValidationCheck("recovery_material_present", false, "The recovery key file and its passphrase are required."), null);
         try
         {
             await using var stream = File.OpenRead(path);
             var recipient = await BackupCrypto.ReadRecipientKeyIdAsync(stream, ct);
             if (BackupCrypto.EncryptionKeyIdOfSecretKey(privateKeyPem) != recipient)
-                return new ValidationCheck("recovery_material_matches", false, "This recovery key does not belong to this backup.");
+                return (new ValidationCheck("recovery_material_matches", false, "This recovery key does not belong to this backup."), null);
             BackupCrypto.EnsurePassphraseUnlocks(privateKeyPem, passphrase);
-            return new ValidationCheck("recovery_material_matches", true, "The recovery key and passphrase match this backup.");
+            return (new ValidationCheck("recovery_material_matches", true, "The recovery key and passphrase match this backup."), null);
         }
         catch (BackupCryptoException ex)
         {
-            return new ValidationCheck("recovery_material_matches", false, ex.Message);
+            return (new ValidationCheck("recovery_material_matches", false, ex.Message), ex.Code);
         }
     }
 

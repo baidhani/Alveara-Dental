@@ -30,6 +30,21 @@ public class PatientImportValidatorTests
         Assert.Null(check.Parsed.Fields.MiddleName);
     }
 
+    [Theory]
+    [InlineData("DentalKeep")]
+    [InlineData("Alveara Dental")]
+    public void A_file_whose_source_system_is_the_new_or_the_old_product_name_passes(string systemName)   // O-6: files exported before the rename must still import
+    {
+        var file = PatientImportFiles.Valid();
+        file["source"]!["system"] = systemName;
+
+        Assert.Empty(Check(PatientImportFiles.Bytes(file)).Problems);
+    }
+
+    [Fact]
+    public void A_new_export_names_the_product_DentalKeep()
+        => Assert.Equal("DentalKeep", PatientExportFormat.SystemName);
+
     public static IEnumerable<object[]> IncorrectFiles()
     {
         static object[] Case(string name, byte[] bytes, string code, string path) => [name, bytes, code, path];

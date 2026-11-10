@@ -37,6 +37,6 @@ public class PatientExportService(AlveraDbContext db, IPracticeClock clock)
             $"Patient record exported to a file (format {PatientExportFormat.FormatName}, version {PatientExportFormat.CurrentVersion}, export {exportId}).", null, exportId);
         await db.SaveChangesAsync(ct);                                                                  // the log entry is saved before the file leaves
 
-        return new PatientExportFile(exportId, $"alveara-patient-{exportId:N}.json", content);
+        return new PatientExportFile(exportId, $"dentalkeep-patient-{exportId:N}.json", content);
     }
 }

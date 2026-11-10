@@ -325,7 +325,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     // Disaster recovery: the retained file is discoverable and restorable WITHOUT using the backup history at all.
     const archivePanel = page.getByRole("region", { name: "Recover from a retained backup file" });
     await expect(archivePanel).toContainText(".abk");
-    await archivePanel.getByRole("button", { name: /Restore from alveara-backup-/ }).first().click();
+    await archivePanel.getByRole("button", { name: /Restore from dentalkeep-backup-/ }).first().click();
     const archiveWizard = page.getByRole("dialog", { name: "Restore wizard" });
     await expect(archiveWizard).toContainText("retained backup file");
     await archiveWizard.getByLabel("Or paste the key file contents").fill(recoveryKey);

@@ -265,7 +265,7 @@ public class BackupService(
             var zipPath = Path.Combine(work, "set.zip");
             ZipFile.CreateFromDirectory(content, zipPath, CompressionLevel.Optimal, includeBaseDirectory: false);
 
-            var fileName = $"alveara-backup-{DateTimeOffset.UtcNow:yyyyMMddTHHmmss}Z-{recordId.ToString("N")[..8]}.abk";
+            var fileName = $"dentalkeep-backup-{DateTimeOffset.UtcNow:yyyyMMddTHHmmss}Z-{recordId.ToString("N")[..8]}.abk";
             var finalPath = Path.Combine(destination, fileName);
             partialPath = finalPath + ".partial";
             await using (var zipStream = File.OpenRead(zipPath))

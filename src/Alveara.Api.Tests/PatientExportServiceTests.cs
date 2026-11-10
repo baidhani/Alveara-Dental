@@ -57,7 +57,7 @@ public class PatientExportServiceTests : IAsyncLifetime
         Assert.Equal(PatientExportFormat.FormatName, root.GetProperty("format").GetString());
         Assert.Equal(PatientExportFormat.CurrentVersion, root.GetProperty("formatVersion").GetInt32());
         Assert.Equal(file.ExportId, root.GetProperty("exportId").GetGuid());
-        Assert.Equal($"alveara-patient-{file.ExportId:N}.json", file.FileName);
+        Assert.Equal($"dentalkeep-patient-{file.ExportId:N}.json", file.FileName);
         var exportedAt = DateTimeOffset.Parse(root.GetProperty("exportedAtUtc").GetString()!);
         Assert.True(Math.Abs((exportedAt - SchedulingTestSupport.Clock.UtcNow).TotalMinutes) < 5);
         Assert.EndsWith("Z", root.GetProperty("exportedAtUtc").GetString());                            // always UTC, to the second

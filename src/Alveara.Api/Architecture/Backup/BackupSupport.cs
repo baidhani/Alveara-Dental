@@ -51,7 +51,7 @@ public sealed class FileDropBackupNotifier(BackupPaths paths) : IBackupNotifier
     {
         Directory.CreateDirectory(paths.NotificationDirectory);
         var name = $"{DateTimeOffset.UtcNow:yyyyMMddTHHmmssfff}-{notification.Kind}-{Guid.NewGuid():N}.txt";
-        var body = $"Alveara backup notification{Environment.NewLine}Kind: {notification.Kind}{Environment.NewLine}"
+        var body = $"DentalKeep backup notification{Environment.NewLine}Kind: {notification.Kind}{Environment.NewLine}"
                  + $"Backup: {notification.BackupRecordId?.ToString("N") ?? "n/a"}{Environment.NewLine}"
                  + $"Time (UTC): {DateTimeOffset.UtcNow:O}{Environment.NewLine}{Environment.NewLine}{notification.Message}{Environment.NewLine}";
         await File.WriteAllTextAsync(Path.Combine(paths.NotificationDirectory, name), body, cancellationToken);

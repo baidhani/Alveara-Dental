@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Known defects the accumulated chain must report as TRACKED_EXCEPTION instead of green (R05 section 6.6). The runner reads this file. A blocking OPEN entry keeps the run red; ALV-N028 requires none. Playwright test.fail() is never used for this.",
+  "ownerRule": "owner is the owning ALV-N0xx story id (reviewer decision O-3, 2026-11-09). exitCondition is the home story's approved acceptance evidence. A missing owner or exit condition is a hard runner failure.",
+  "seededFrom": "R05 section 6.6 release-blocking set at the time of writing: F-021, F-037, F-107, F-118, F-103, F-185/F-188/F-221, F-114, F-155/F-014, F-053/F-061/F-071, F-059/F-063/F-065, F-078/F-086, F-084/F-085/F-111.",
+  "entries": [
+    {
+      "findingId": "F-021",
+      "package": "PKG-03",
+      "owner": "ALV-N020",
+      "exitCondition": "ALV-N020 is closed by independent review with its approved acceptance evidence for F-021, and every chain step tagged F-021 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-037",
+      "package": "PKG-02",
+      "owner": "ALV-N020",
+      "exitCondition": "ALV-N020 is closed by independent review with its approved acceptance evidence for F-037, and every chain step tagged F-037 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-107",
+      "package": "PKG-04",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-107, and every chain step tagged F-107 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-118",
+      "package": "PKG-04",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-118, and every chain step tagged F-118 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-103",
+      "package": "PKG-07",
+      "owner": "ALV-N022",
+      "exitCondition": "ALV-N022 is closed by independent review with its approved acceptance evidence for F-103, and every chain step tagged F-103 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-185",
+      "package": "PKG-08",
+      "owner": "ALV-N023",
+      "exitCondition": "ALV-N023 is closed by independent review with its approved acceptance evidence for F-185, and every chain step tagged F-185 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-188",
+      "package": "PKG-08",
+      "owner": "ALV-N023",
+      "exitCondition": "ALV-N023 is closed by independent review with its approved acceptance evidence for F-188, and every chain step tagged F-188 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-221",
+      "package": "PKG-08",
+      "owner": "ALV-N023",
+      "exitCondition": "ALV-N023 is closed by independent review with its approved acceptance evidence for F-221, and every chain step tagged F-221 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-114",
+      "package": "PKG-09",
+      "owner": "ALV-N024",
+      "exitCondition": "ALV-N024 is closed by independent review with its approved acceptance evidence for F-114, and every chain step tagged F-114 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-155",
+      "package": "PKG-02",
+      "owner": "ALV-N020",
+      "exitCondition": "ALV-N020 is closed by independent review with its approved acceptance evidence for F-155, and every chain step tagged F-155 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-014",
+      "package": "PKG-02",
+      "owner": "ALV-N020",
+      "exitCondition": "ALV-N020 is closed by independent review with its approved acceptance evidence for F-014, and every chain step tagged F-014 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-053",
+      "package": "PKG-05",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-053, and every chain step tagged F-053 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-061",
+      "package": "PKG-05",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-061, and every chain step tagged F-061 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-071",
+      "package": "PKG-05",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-071, and every chain step tagged F-071 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-059",
+      "package": "PKG-05",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-059, and every chain step tagged F-059 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-063",
+      "package": "PKG-05",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-063, and every chain step tagged F-063 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-065",
+      "package": "PKG-05",
+      "owner": "ALV-N021",
+      "exitCondition": "ALV-N021 is closed by independent review with its approved acceptance evidence for F-065, and every chain step tagged F-065 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-078",
+      "package": "PKG-06",
+      "owner": "ALV-N022",
+      "exitCondition": "ALV-N022 is closed by independent review with its approved acceptance evidence for F-078, and every chain step tagged F-078 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-086",
+      "package": "PKG-06",
+      "owner": "ALV-N022",
+      "exitCondition": "ALV-N022 is closed by independent review with its approved acceptance evidence for F-086, and every chain step tagged F-086 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-084",
+      "package": "PKG-06",
+      "owner": "ALV-N022",
+      "exitCondition": "ALV-N022 is closed by independent review with its approved acceptance evidence for F-084, and every chain step tagged F-084 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-085",
+      "package": "PKG-06",
+      "owner": "ALV-N022",
+      "exitCondition": "ALV-N022 is closed by independent review with its approved acceptance evidence for F-085, and every chain step tagged F-085 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    },
+    {
+      "findingId": "F-111",
+      "package": "PKG-06",
+      "owner": "ALV-N022",
+      "exitCondition": "ALV-N022 is closed by independent review with its approved acceptance evidence for F-111, and every chain step tagged F-111 passes without a TRACKED_EXCEPTION outcome.",
+      "blocking": true,
+      "status": "OPEN"
+    }
+  ]
+}

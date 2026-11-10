@@ -19,12 +19,10 @@ param(
 $ErrorActionPreference = 'Stop'
 . ([WildcardPattern]::Escape("$PSScriptRoot\DevEnvironment.ps1"))
 
-if (Test-PortInUse 5072) {
-    throw 'Port 5072 is already in use: an API is already running. Stop it (Ctrl+C in its terminal) and try again.'
-}
+if (Test-PortInUse 5072) { Stop-DevScript 'Port 5072 is already in use: an API is already running. Stop it (Ctrl+C in its terminal) and try again.' }
 
 $exists = (Invoke-DevSql "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.databases WHERE name = N'$DevDatabaseName'" | Select-Object -First 1).Trim() -eq '1'
-if (-not $exists) { throw "$DevDatabaseName does not exist on $SqlServer. Run .\scripts\Initialize-DevDatabase.ps1 first." }
+if (-not $exists) { Stop-DevScript "$DevDatabaseName does not exist on $SqlServer. Run .\scripts\Initialize-DevDatabase.ps1 first." }
 
 foreach ($dir in $DevStorageDir, $DevKeysDir, $DevBackupDir) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
 

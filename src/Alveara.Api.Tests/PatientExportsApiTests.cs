@@ -73,7 +73,7 @@ public class PatientExportsApiTests : IAsyncLifetime
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/zip", response.Content.Headers.ContentType?.MediaType);
-        Assert.Matches(@"^alveara-patient-package-[0-9a-f]{32}\.zip$", response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
+        Assert.Matches(@"^dentalkeep-patient-package-[0-9a-f]{32}\.zip$", response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
         Assert.Contains("no-store", response.Headers.CacheControl?.ToString());
         Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
         var exportId = Guid.Parse(response.Headers.GetValues("X-Export-Id").Single());
@@ -113,7 +113,7 @@ public class PatientExportsApiTests : IAsyncLifetime
         var bytes = await response.Content.ReadAsByteArrayAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.StartsWith("alveara-all-patients-package-", response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
+        Assert.StartsWith("dentalkeep-all-patients-package-", response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
         var entries = Unzip(bytes);
         var manifest = JsonDocument.Parse(entries["manifest.json"]).RootElement;
         Assert.Equal("AllPatients", manifest.GetProperty("scope").GetProperty("kind").GetString());
@@ -131,7 +131,7 @@ public class PatientExportsApiTests : IAsyncLifetime
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("text/html", response.Content.Headers.ContentType?.MediaType);
-        Assert.Matches(@"^alveara-readable-record-[0-9a-f]{32}\.html$", response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
+        Assert.Matches(@"^dentalkeep-readable-record-[0-9a-f]{32}\.html$", response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
         Assert.Equal("attachment", response.Content.Headers.ContentDisposition?.DispositionType);
         Assert.Contains("no-store", response.Headers.CacheControl?.ToString());
         Assert.Contains("sandbox", response.Headers.GetValues("Content-Security-Policy").Single());

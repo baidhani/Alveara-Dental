@@ -49,7 +49,7 @@ public class PatientExportApiTests : IAsyncLifetime
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
-        Assert.Matches(new Regex(@"^alveara-patient-[0-9a-f]{32}\.json$"), response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
+        Assert.Matches(new Regex(@"^dentalkeep-patient-[0-9a-f]{32}\.json$"), response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"'));
         Assert.Contains("no-store", response.Headers.CacheControl?.ToString());                         // personal details: never cached
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = json.RootElement;

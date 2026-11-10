@@ -30,7 +30,7 @@ const MESSAGES: Record<string, string> = {
   backup_file_unknown: "This backup has no recorded file.",
   backup_not_available: "Only a successful, retained backup can be used.",
   corrupt_or_tampered: "The backup failed authentication: it is corrupt or has been altered.",
-  not_a_backup: "This file is not an Alveara backup.",
+  not_a_backup: "This file is not a DentalKeep backup.",
   unsupported_version: "This backup was written in a format this version cannot read.",
   incompatible_backup: "This backup is from an incompatible schema or format and cannot be restored by this version.",
   documents_complete: "Documents listed in the backup are missing from the backup set.",

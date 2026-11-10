@@ -5,7 +5,7 @@ from the **Backup & recovery** admin page (`/admin/backup`); the API and automat
 
 ## What a backup contains
 
-One file, `alveara-backup-<UTC time>-<id>.abk`, holding every **persistent asset class the application
+One file, `dentalkeep-backup-<UTC time>-<id>.abk` (files made before the product was renamed are called `alveara-backup-...abk`; they work exactly the same and are found by their `.abk` ending), holding every **persistent asset class the application
 currently manages** (the registry is `ManagedAssetClasses`; a later story that adds a new on-disk store must
 register an `IBackupAssetSource` and add its class there, which makes older backups visibly incomplete):
 
@@ -36,7 +36,7 @@ app version, table row counts around the snapshot).
   the developers - can recover them.
 - Replacing the key affects only **future** backups; keep the old key and passphrase for old backups.
 - **Restoring without Alveara (last resort).** Backups decrypt with stock tooling:
-  `gpg --import alveara-recovery-key.asc`, then `gpg --output backup.zip --decrypt alveara-backup-....abk`
+  `gpg --import dentalkeep-recovery-key.asc`, then `gpg --output backup.zip --decrypt dentalkeep-backup-....abk`
   (enter the passphrase). The result is a ZIP containing `manifest.json`, `database/alveara.bak` (a SQL Server
   backup), `documents/`, `dataProtectionKeys/` and `deploymentConfiguration/deployment-settings.json`.
 - **Backups made by the first (rejected) revision of this story used a custom container and are not readable by
@@ -172,7 +172,7 @@ archive file**, not from a history row.
 
 1. Install the application and an empty-ready SQL Server on the replacement server, run it (migrations create an
    empty database), and create the first administrator. Keep the damaged system aside; delete nothing yet.
-2. Copy a retained `alveara-backup-....abk` from your off-server copy into the **import folder**
+2. Copy a retained `dentalkeep-backup-....abk` (or an older `alveara-backup-....abk`) from your off-server copy into the **import folder**
    (`Backup:ImportDirectory`).
 3. **Backup & recovery -> Recover from a retained backup file.** The file is listed without any history. Choose
    **Restore from this file**, provide the recovery key file, its passphrase and your current password, and run

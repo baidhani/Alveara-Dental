@@ -1,4 +1,4 @@
-# Running Alveara Dental on your own machine
+# Running DentalKeep on your own machine
 
 How to start the whole application from a completely switched-off state with a brand-new empty database, and how to stop it, restart it, reset it and clean up after the tests. Written for the project owner. Every command here was run on the development machine (Windows 11, Windows PowerShell 5.1, SQL Server 2025 Express).
 
@@ -87,7 +87,7 @@ It asks you to confirm and then drops `AlveraDev` **and its files**: every user,
 .\scripts\Initialize-DevDatabase.ps1
 ```
 
-It creates `AlveraDev` with its files in `C:\.alvera-data\Dev-Data\Database` (if it does not exist yet), makes sure the database option `READ_COMMITTED_SNAPSHOT` is on (what EF Core's own database creator sets; the application's concurrency depends on it, and an existing database without it is repaired, which resets its connections), makes sure `ALLOW_SNAPSHOT_ISOLATION` is on (lets the all-patients export read one consistent moment; see `docs/operations/DATABASE_OPTIONS.md`), builds the API, and applies every migration (93 tables, 42 migrations at the time of writing). It ends with `AlveraDev is ready on .\SQLEXPRESS.` Running it again changes nothing.
+It creates `AlveraDev` with its files in `C:\.alvera-data\Dev-Data\Database` (if it does not exist yet), makes sure the database option `READ_COMMITTED_SNAPSHOT` is on (what EF Core's own database creator sets; the application's concurrency depends on it, and an existing database without it is repaired, which resets its connections), makes sure `ALLOW_SNAPSHOT_ISOLATION` is on (lets the all-patients export read one consistent moment; see `docs/operations/DATABASE_OPTIONS.md`), builds the API, and applies every migration. It ends with `AlveraDev is ready on .\SQLEXPRESS.` Running it again changes nothing.
 
 ## 5. Start the API (window A)
 
@@ -176,6 +176,7 @@ Repeat steps **2, 3, 4, 5, 6, 7** in order.
 | `invalid_bootstrap_secret` | The secret differs from the one the API was started with. The two scripts share a default; pass the same `-BootstrapSecret` to both if you change it. |
 | Sign-in refused with "too many attempts" | The sign-in rate limit. `Start-DevApi.ps1` raises it to 500; an API started another way allows 10 a minute. |
 | Backend tests with a SQL login fail | Mixed mode is off. See "One setting the backend tests need" above. |
+| `Failed to determine the https port for redirect` in the API window | Harmless in development. The API listens on `http://localhost:5072` only here (the `http` launch profile), so there is no https port to redirect to. Production HTTPS is set up separately and is not affected by this warning. |
 | Port 5173 busy | An old client is running. Step 2. |
 | Blank page after an update | Stop the client, run `npm install` in `src\alveara-client`, start it again. |
 

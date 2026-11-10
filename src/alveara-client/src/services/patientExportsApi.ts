@@ -95,13 +95,13 @@ async function download(url: string, body: unknown, timeoutMs: number, fallbackN
 const bodyOf = (options: PackageOptions) => ({ includeDocumentFiles: options.includeDocumentFiles, folderNaming: options.folderNaming });
 
 export const downloadPatientPackage = (patientId: string, options: PackageOptions, signal?: AbortSignal) =>
-  download(`${BASE}/patients/${encodeURIComponent(patientId)}/package`, bodyOf(options), PACKAGE_TIMEOUT_MS, "alveara-patient-package.zip", signal);
+  download(`${BASE}/patients/${encodeURIComponent(patientId)}/package`, bodyOf(options), PACKAGE_TIMEOUT_MS, "dentalkeep-patient-package.zip", signal);
 
 export const downloadAllPatientsPackage = (options: PackageOptions, signal?: AbortSignal) =>
-  download(`${BASE}/all-patients/package`, bodyOf(options), ALL_PATIENTS_TIMEOUT_MS, "alveara-all-patients-package.zip", signal);
+  download(`${BASE}/all-patients/package`, bodyOf(options), ALL_PATIENTS_TIMEOUT_MS, "dentalkeep-all-patients-package.zip", signal);
 
 export const downloadReadableRecord = (patientId: string, signal?: AbortSignal) =>
-  download(`${BASE}/patients/${encodeURIComponent(patientId)}/readable-record`, undefined, PACKAGE_TIMEOUT_MS, "alveara-readable-record.html", signal);
+  download(`${BASE}/patients/${encodeURIComponent(patientId)}/readable-record`, undefined, PACKAGE_TIMEOUT_MS, "dentalkeep-readable-record.html", signal);
 
 export const fetchExportOverview = (signal?: AbortSignal) => request<ExportOverview>(`${BASE}/overview`, { signal });
 

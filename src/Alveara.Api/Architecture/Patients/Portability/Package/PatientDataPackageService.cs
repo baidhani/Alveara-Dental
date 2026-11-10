@@ -84,7 +84,7 @@ public class PatientDataPackageService(AlveraDbContext db, PatientDataPackageBui
                 $"Patient data package exported (export {exportId}, {built.PatientCount} patients, result {built.Result}, {built.FileCount} files, {built.SizeBytes} bytes, {built.ProblemCount} problems).", null, exportId);
             await db.SaveChangesAsync(ct);                                                              // finished and logged before the package leaves
 
-            return new DataPackageFile(built, exportId, $"alveara-{(scope.Kind == DataExportScope.AllPatients ? "all-patients" : "patient")}-package-{exportId:N}.zip");
+            return new DataPackageFile(built, exportId, $"dentalkeep-{(scope.Kind == DataExportScope.AllPatients ? "all-patients" : "patient")}-package-{exportId:N}.zip");
         }
         catch (Exception ex)
         {
