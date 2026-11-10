@@ -2174,3 +2174,9 @@
   - What changed: the owner's ten-story consolidation committed on its own (4097d2a); ALV-N019 record in .alveara/EXECUTION_STATUS.json moved READY to AWAITING_REVIEW (attempt R01, acceptance 4 of 5, implementation 6b083cd, handoff .alveara/handoffs/ALV-N019/R01.md, one blocking issue F-001); BUILD_STATE.md carries a 2026-11-10 status paragraph.
   - Verification: git diff of EXECUTION_STATUS.json is 8 lines inside the ALV-N019 record only; the file still parses as JSON; evidence in .alveara/handoffs/ALV-N019/R01-evidence/.
   - Notes: acceptance is counted 4 of 5 because the first acceptance sentence (throw-away environment with injected clock and communication stubs) is only partly met: the clock and stubs were not built. The story is not complete until the reviewer approves; the ZIP and the evidence SHA in the record (evidenceCommit null until the next commit) follow.
+- [x] ALV-N019 R01 review recorded: CHANGES_REQUIRED
+  - Date: 2026-11-10
+  - Session: CC-20261109-8w3d
+  - What changed: the independent Stage 1 review is stored unchanged at .alveara/reviews/ALV-N019/R01.md; the ALV-N019 record in EXECUTION_STATUS.json moved to CHANGES_REQUIRED with the review block and eight blocking issues (the reviewer's seven corrections plus F-001); BUILD_STATE.md carries a 2026-11-10 review paragraph.
+  - Verification: closure only: git diff touches no src/, test or script file; EXECUTION_STATUS.json still parses and its diff is confined to the ALV-N019 record.
+  - Notes: the reviewer's control ruling says the story "remains AWAITING_REVIEW"; the record uses CHANGES_REQUIRED like every earlier correction round (stated in BUILD_STATE.md). Correction 4 is right: the merge and unmerge requests do carry free text (Reason, FieldChoices, row versions); my R01 claim that only Guids were user-controlled was wrong. R02 work follows.
