@@ -23,7 +23,7 @@
       "dependencies": ["ALV-N006", "ALV-N015", "ALV-018-C02"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "AWAITING_REGRESSION",
       "attempt": "R02",
       "acceptance": {"total": 5, "passed": 5},
       "tests": {"status": "passed", "summary": "Attempt R02, a Stage 1 package answering the seven corrections of the R01 review (CHANGES_REQUIRED). Sweep on 4570651 (R02 implementation commit 54806a3 plus a data-only catalog commit): repository checks 126 tests, 125 passed, 0 failed, 1 skipped; tsc, build and lint (oxlint) exit 0; Vitest 1,879 in 120 files; mocked Playwright 138 passed, 2 skipped, 0 failed; focused backend 197 of 197; every *ApiTests class 964 of 964; real-backend walkthroughs passed on the first run: auth 12, patient portability 7, patient export package 10, patient merge 9, bulk import 13; stage-0 chain exit 0 with nine PASS records in both clock modes (injected: the chain host, run cba2d2fc; real: the production API, run cbb98644) with the measured clock mode on every record; 7 of 7 negative controls caught. New in R02: the chain host with the injected PracticeClock (ChainClockSeamTests 6), runner self-tests (8), the E10 invariant (9, and in every chain run), hostile-input tests for merge and undo (67), real-browser brand steps B-01 and B-02 with screenshots, the rewritten advisory report. Not run: the full backend suite and the frozen Stage 2 contract (not frozen, per the review). Still partly met and disclosed: S-03/S-04/S-05/S-07/S-08 without separate tests, F-004, communication stubs not built (none exist to stub)."},
@@ -32,11 +32,12 @@
       "implementationCommit": "54806a36fdac52894d5907687e8f5e6a02040800",
       "evidenceCommit": "6840b7fa7c84e4c22737f6400442f700c1d4ef8f",
       "handoffPath": ".alveara/handoffs/ALV-N019/R02.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R01.md"},
+      "review": {"decision": "APPROVED_PENDING_REGRESSION", "decisionArtifact": ".alveara/reviews/ALV-N019/R02.md", "approvedAttempt": null, "reviewedImplementationCommit": "54806a36fdac52894d5907687e8f5e6a02040800", "reviewedEvidenceCommit": "6840b7fa7c84e4c22737f6400442f700c1d4ef8f", "stage1DecisionArtifact": ".alveara/reviews/ALV-N019/R02.md", "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R01.md"},
       "blockingIssues": ["F-001: System.Security.Cryptography.Pkcs 9.0.18 (transitive via Microsoft.Data.SqlClient 7.1.0) stays in the restore graph; the vulnerable binary is not deployed with the application and the framework's copy is used, but closing needs PD-26 (a reviewed update or pin to 9.0.21 or later, or explicit product-owner risk acceptance). See docs/design/ALV-N019_DEPENDENCY_ADVISORY_REPORT.md."],
       "controlNotes": "Approved 2026-11-09 stabilization program. Pre-implementation briefing is mandatory. Inventory DentalKeep branding before any change; preserve historical/control and compatibility-sensitive identifiers.",
       "revalidation": {"required": false, "reason": null},
-      "completedAt": null
+      "completedAt": null,
+      "fullRegression": "REQUIRED"
     },
     {
       "schemaVersion": "2",
