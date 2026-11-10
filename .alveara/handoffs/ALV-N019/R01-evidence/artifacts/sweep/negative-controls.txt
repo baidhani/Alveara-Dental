@@ -1,0 +1,79 @@
+ALV-N019 negative controls on 448d2b3ba1b47f860cdf9cf065a2e7ff913b113f - each control breaks ONE rule, runs only the class that should catch it, restores the file and compares its SHA-256
+
+== C1 a disposition row is removed
+file: docs\stabilization\DISPOSITION_REGISTER.json
+rule broken: every raw id has a row (completeness)
+run exit code: 1 -> CAUGHT (the test failed as it should)
+✔ failure: a raw id in the log with no row is named (0.0767ms)
+✔ failure: an orphan row whose raw id is not in the log is named (0.0694ms)
+✔ failure: two rows with one canonical key (0.1062ms)
+✔ failure: a disposition outside the vocabulary for its kind (0.1002ms)
+✔ failure: a DUPLICATE must link to a row that exists and is not itself (0.1211ms)
+✔ failure: malformed rawId, home package and line number are reported (0.0857ms)
+restored: sha256 before=70AA1DBEBB0E711DDE26D841120724A72416EE7B937481CB935120D89CE06FB9 after=70AA1DBEBB0E711DDE26D841120724A72416EE7B937481CB935120D89CE06FB9 identical=True
+
+== C2 a tracked exception has no owner
+file: docs\stabilization\TRACKED_EXCEPTIONS.json
+rule broken: owner is the owning ALV-N0xx story id (O-3)
+run exit code: 1 -> CAUGHT (the test failed as it should)
+✔ failure: a missing or malformed owner is a hard failure (reviewer decision O-3) (0.1709ms)
+✔ failure: a missing or trivially short exit condition is a hard failure (0.0865ms)
+✔ failure: duplicates, bad ids, unknown findings, bad flags and an unevidenced CLOSED entry are reported (0.4252ms)
+✔ resolveOutcome: a failing step covered by an OPEN entry is TRACKED_EXCEPTION, never PASS (0.1366ms)
+✔ resolveOutcome: a failing step with no entry is FAIL; a passing step is PASS (0.0782ms)
+✔ resolveOutcome: a step that now passes although its entry is OPEN is PASS and names the stale entry (0.0853ms)
+restored: sha256 before=1AEC42DB3604C9899EE3E1CEAF1A19E169BB54C91FD95F58DF997C1A199A9D58 after=1AEC42DB3604C9899EE3E1CEAF1A19E169BB54C91FD95F58DF997C1A199A9D58 identical=True
+
+== C3 the chain safety gate becomes case-insensitive again
+file: scripts\chain\ChainSafety.ps1
+rule broken: an upper-case run id is refused
+run exit code: 1 -> CAUGHT (the test failed as it should)
+ℹ pass 4
+ℹ fail 1
+✖ failing tests:
+restored: sha256 before=9D5AE135255B58FCA238648C5D86875A3F4962CACA66058935EF530717E119D2 after=9D5AE135255B58FCA238648C5D86875A3F4962CACA66058935EF530717E119D2 identical=True
+
+== C4 the old product name returns to a user-facing file
+file: src\alveara-client\src\pages\LoginPage.tsx
+rule broken: no live source says Alveara to a user
+run exit code: 1 -> CAUGHT (the test failed as it should)
+ℹ pass 35
+ℹ fail 1
+✖ failing tests:
+restored: sha256 before=E030928D03FAF105F7C58A938F2A26F106ED8C9ACD9CF80CB3B1411B97A24B61 after=E030928D03FAF105F7C58A938F2A26F106ED8C9ACD9CF80CB3B1411B97A24B61 identical=True
+
+== C5 a retained identifier is renamed (the CSRF cookie)
+file: src\Alveara.Api\Program.cs
+rule broken: retained identifier csrf-cookie-name is pinned
+run exit code: 1 -> CAUGHT (the test failed as it should)
+ℹ pass 35
+ℹ fail 1
+✖ failing tests:
+restored: sha256 before=CCC3D3021F27D833219A427D9822A11D7F63A3EFB4DBB4A21E670DEF32195060 after=CCC3D3021F27D833219A427D9822A11D7F63A3EFB4DBB4A21E670DEF32195060 identical=True
+
+== C6 the start script throws again instead of a one-line refusal
+file: scripts\Start-DevClient.ps1
+rule broken: F-011 one line, exit 1, no stack block
+run exit code: 1 -> CAUGHT (the test failed as it should)
+ℹ pass 3
+ℹ fail 2
+✖ failing tests:
+restored: sha256 before=2B98A812500781F9C64603AC7E2F073D44DA19627E87AC3985F191D3C5128F2F after=2B98A812500781F9C64603AC7E2F073D44DA19627E87AC3985F191D3C5128F2F identical=True
+
+== C7 the archive check goes back to reading the message wording
+file: src\Alveara.Api\Architecture\Backup\BackupRestoreService.cs
+rule broken: the archive_is_a_backup check uses the stable code
+run exit code: 1 -> CAUGHT (the test failed as it should)
+dotnet : [xUnit.net 00:00:15.90]     Alveara.Api.Tests.BackupRecoveryHardeningTests.A_file_that_is_not_a_backup_fails_t
+he_archive_is_a_backup_check_by_its_stable_code_not_by_its_wording [FAIL]
+    + CategoryInfo          : NotSpecified: ([xUnit.net 00:0..._wording [FAIL]:String) [], RemoteException
+  Failed Alveara.Api.Tests.BackupRecoveryHardeningTests.A_file_that_is_not_a_backup_fails_the_archive_is_a_backup_check_by_its_stable_code_not_by_its_wording [2 s]
+   Assert.False() Failure
+     at Alveara.Api.Tests.BackupRecoveryHardeningTests.A_file_that_is_not_a_backup_fails_the_archive_is_a_backup_check_by_its_stable_code_not_by_its_wording() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BackupRecoveryHardeningTests.cs:line 94
+restored: sha256 before=9F2B30369B8D3E469F0633E591D7BACD6C0B8D1011EC288C3C364F55CB7774E0 after=9F2B30369B8D3E469F0633E591D7BACD6C0B8D1011EC288C3C364F55CB7774E0 identical=True
+
+rebuilt after the last control: exit 0
+tracked files differing from HEAD after all controls (expect none): 0
+
+
+CONTROLS DONE

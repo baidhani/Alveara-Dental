@@ -1,0 +1,88 @@
+node.exe : [WebServer] (node:11188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 40 tests using 12 workers
+
+(node:88292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59012) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:76832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:101524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39868) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:107504) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:71404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:8328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:89676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:104:3 ΓÇ║ Architecture Map tab ΓÇ║ labels exactly the statuses HANDOFF_SCHEMA.md allows, and every status in the ledger is one of them (52ms)
+  ok  2 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:69:3 ΓÇ║ the story catalog ΓÇ║ describes every ledger story exactly once, with no orphans, and every story ends up with a title (69ms)
+  ok 13 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:79:3 ΓÇ║ the story catalog ΓÇ║ never duplicates a title the portal's plan already owns (6ms)
+  ok 10 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:69:3 ΓÇ║ the story catalog ΓÇ║ describes every ledger story exactly once, with no orphans, and every story ends up with a title (41ms)
+  ok 15 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:79:3 ΓÇ║ the story catalog ΓÇ║ never duplicates a title the portal's plan already owns (2ms)
+(node:49444) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 17 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:104:3 ΓÇ║ Architecture Map tab ΓÇ║ labels exactly the statuses HANDOFF_SCHEMA.md allows, and every status in the ledger is one of them (24ms)
+  ok  7 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:85:3 ΓÇ║ Architecture Map tab ΓÇ║ sits directly below Project Management in the navigation (3.4s)
+  ok  6 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:85:3 ΓÇ║ Architecture Map tab ΓÇ║ sits directly below Project Management in the navigation (3.4s)
+  ok 16 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:142:3 ΓÇ║ Architecture Map tab ΓÇ║ shows each story's delivery state as a word, taken from the ledger, and the gate from the ledger (3.5s)
+  ok 11 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:142:3 ΓÇ║ Architecture Map tab ΓÇ║ shows each story's delivery state as a word, taken from the ledger, and the gate from the ledger (3.5s)
+  ok 14 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:253:3 ΓÇ║ Architecture Map tab ΓÇ║ follows the data: when the ledger says a story moved, the card, the counts and the state filter move with it, with no change to the page (3.5s)
+  ok  4 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:228:3 ΓÇ║ Architecture Map tab ΓÇ║ a legend key can be used from the keyboard (3.7s)
+  ok 12 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:279:3 ΓÇ║ Architecture Map tab ΓÇ║ the architecture overview opens and closes (3.5s)
+  ok  3 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in light mode (3.8s)
+  ok  5 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:169:3 ΓÇ║ Architecture Map tab ΓÇ║ filters change what is shown and reset restores it, keeping keyboard focus on the filter (3.8s)
+  -  23 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:263:3 ΓÇ║ Architecture Map tab ΓÇ║ a portal story whose criteria have started to pass shows as in progress with the count from the progress file
+  ok 18 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:113:3 ΓÇ║ Architecture Map tab ΓÇ║ every allowed status shows as its label on the cards, in the legend, in the state filter and in the story dialog (3.0s)
+  ok  9 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:113:3 ΓÇ║ Architecture Map tab ΓÇ║ every allowed status shows as its label on the cards, in the legend, in the state filter and in the story dialog (4.0s)
+  ok 19 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:91:3 ΓÇ║ Architecture Map tab ΓÇ║ draws one card per ledger story, in the ledger's phases, with titles from the plan or the catalog (709ms)
+  ok 20 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:91:3 ΓÇ║ Architecture Map tab ΓÇ║ draws one card per ledger story, in the ledger's phases, with titles from the plan or the catalog (664ms)
+(node:45892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 25 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:288:3 ΓÇ║ Architecture Map tab ΓÇ║ when the catalog cannot be read the map says so and still draws every ledger story (525ms)
+  ok 24 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:237:3 ΓÇ║ Architecture Map tab ΓÇ║ a story opens a dialog with its details from the ledger, closes with Escape and returns focus to the card (576ms)
+  ok 26 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in dark mode (566ms)
+  ok 27 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:184:3 ΓÇ║ Architecture Map tab ΓÇ║ the legend lists exactly the states and story types in the data, and each key filters the map and clears on a second press (648ms)
+  ok 28 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in light mode (552ms)
+(node:50652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 29 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:253:3 ΓÇ║ Architecture Map tab ΓÇ║ follows the data: when the ledger says a story moved, the card, the counts and the state filter move with it, with no change to the page (589ms)
+(node:46160) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:85328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  32 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:263:3 ΓÇ║ Architecture Map tab ΓÇ║ a portal story whose criteria have started to pass shows as in progress with the count from the progress file
+  ok 30 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in dark mode (675ms)
+  ok 31 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:169:3 ΓÇ║ Architecture Map tab ΓÇ║ filters change what is shown and reset restores it, keeping keyboard focus on the filter (841ms)
+  ok 21 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:154:3 ΓÇ║ Architecture Map tab ΓÇ║ every card ends with its delivery state on a row of its own, below the subsystem, gate and criteria badges (2.0s)
+  ok  8 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in light mode, with the dialog open (5.6s)
+  ok 22 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:154:3 ΓÇ║ Architecture Map tab ΓÇ║ every card ends with its delivery state on a row of its own, below the subsystem, gate and criteria badges (2.0s)
+  ok 33 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:228:3 ΓÇ║ Architecture Map tab ΓÇ║ a legend key can be used from the keyboard (889ms)
+  ok 36 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:184:3 ΓÇ║ Architecture Map tab ΓÇ║ the legend lists exactly the states and story types in the data, and each key filters the map and clears on a second press (926ms)
+  ok 34 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:279:3 ΓÇ║ Architecture Map tab ΓÇ║ the architecture overview opens and closes (1.0s)
+  ok 38 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:237:3 ΓÇ║ Architecture Map tab ΓÇ║ a story opens a dialog with its details from the ledger, closes with Escape and returns focus to the card (1.0s)
+  ok 39 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:288:3 ΓÇ║ Architecture Map tab ΓÇ║ when the catalog cannot be read the map says so and still draws every ledger story (990ms)
+  ok 35 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in light mode, with the dialog open (3.2s)
+  ok 37 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in dark mode, with the dialog open (3.3s)
+  ok 40 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in dark mode, with the dialog open (4.4s)
+
+  2 skipped
+  38 passed (17.1s)

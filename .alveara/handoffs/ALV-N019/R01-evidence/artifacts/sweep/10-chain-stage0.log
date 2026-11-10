@@ -1,0 +1,51 @@
+Chain run d89d7d7da572466db7cc408bd64cee5f: database AlveraChain_d89d7d7da572466db7cc408bd64cee5f created in 
+C:\.alvera-data\Test-Data\Chain\d89d7d7da572466db7cc408bd64cee5f\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-AccumulatedChain.ps1:73 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running stage 0 ...
+node.exe : [WebServer] (node:82352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:29972) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] ΓÇ║ chain\stage-0.spec.ts:28:1 ΓÇ║ S-09a a wrong bootstrap secret is refused with 401 and creates nothing (178ms)
+  ok 2 [chromium] ΓÇ║ chain\stage-0.spec.ts:34:1 ΓÇ║ S-09b the right bootstrap secret creates exactly one administrator (201) (305ms)
+  ok 3 [chromium] ΓÇ║ chain\stage-0.spec.ts:40:1 ΓÇ║ S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1 (167ms)
+  ok 4 [chromium] ΓÇ║ chain\stage-0.spec.ts:47:1 ΓÇ║ S-09d the administrator signs in through the browser and reaches the dashboard (770ms)
+
+  4 passed (3.2s)
+Playwright exit code 0 (the verdict comes from the evidence builder).
+Database AlveraChain_d89d7d7da572466db7cc408bd64cee5f dropped (its files went with it).
+PASS              S-09a  S-09a a wrong bootstrap secret is refused with 401 and creates nothing
+PASS              S-09b  S-09b the right bootstrap secret creates exactly one administrator (201)
+PASS              S-09c  S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1
+PASS              S-09d  S-09d the administrator signs in through the browser and reaches the dashboard
+PASS              E10  E10 COPY_ONLY checkpoint backup is written and verifies
+PASS              CLEAN  CLEAN the database is dropped and the run folder is removed
+FRESH run d89d7d7da572466db7cc408bd64cee5f stage 0: PASS 6, FAIL 0, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 0
+Evidence kept in C:\.alvera-data\Test-Data\Temp\chain-output\d89d7d7da572466db7cc408bd64cee5f

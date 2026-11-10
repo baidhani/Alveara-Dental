@@ -1,0 +1,50 @@
+09:24:15 sweep on 448d2b3ba1b47f860cdf9cf065a2e7ff913b113f
+09:24:16 leaks-before.txt -> databases 0, Test-Data folders 3931, files 4973
+09:24:16 START 01-node-tests
+09:24:18 END   01-node-tests exit=0 (2s)
+09:24:18 START 02-tsc
+09:24:25 END   02-tsc exit=0 (7s)
+09:24:25 START 03-lint
+09:24:28 END   03-lint exit=0 (2s)
+09:24:28 START 04-vitest
+09:27:09 END   04-vitest exit=0 (162s)
+09:27:09 START 05-build
+09:27:20 END   05-build exit=0 (11s)
+09:27:20 START 06-mocked-playwright
+09:27:47 END   06-mocked-playwright exit=1 (27s)
+09:27:47 START 07-backend-build
+09:28:40 END   07-backend-build exit=0 (53s)
+09:28:40 START 08-backend-apitests
+09:48:44 END   08-backend-apitests exit=0 (1204s)
+09:48:44 START 09-walk-auth
+09:48:44 END   09-walk-auth exit=0 (0s)
+09:48:44 START 09-walk-patient-portability
+09:48:44 END   09-walk-patient-portability exit=0 (0s)
+09:48:44 START 09-walk-patient-export-package
+09:48:44 END   09-walk-patient-export-package exit=0 (0s)
+09:48:44 START 09-walk-patient-merge
+09:48:44 END   09-walk-patient-merge exit=0 (0s)
+09:48:44 START 09-walk-bulk-import
+09:48:44 END   09-walk-bulk-import exit=0 (0s)
+09:48:44 START 10-chain-stage0
+09:48:44 END   10-chain-stage0 exit=0 (0s)
+09:48:45 leaks-after.txt -> databases 0, Test-Data folders 3931, files 4973
+09:48:45 SWEEP DONE
+10:38:08 rerun of steps 09-10 on 448d2b3ba1b47f860cdf9cf065a2e7ff913b113f
+10:38:08 RERUN START 09-walk-auth
+10:38:54 RERUN END   09-walk-auth exit=0 (46s)
+10:38:54 RERUN START 09-walk-patient-portability
+10:39:24 RERUN END   09-walk-patient-portability exit=0 (30s)
+10:39:24 RERUN START 09-walk-patient-export-package
+10:40:24 RERUN END   09-walk-patient-export-package exit=1 (60s)
+10:40:24 RERUN START 09-walk-patient-merge
+10:41:04 RERUN END   09-walk-patient-merge exit=0 (41s)
+10:41:04 RERUN START 09-walk-bulk-import
+10:42:47 RERUN END   09-walk-bulk-import exit=0 (102s)
+10:42:47 RERUN START 10-chain-stage0
+10:43:07 RERUN END   10-chain-stage0 exit=0 (21s)
+10:43:07 RERUN START 11-architecture-map-on-committed-status
+10:43:26 RERUN END   11-architecture-map-on-committed-status exit=0 (19s)
+10:43:26 status file restored: sha256 before=41890EE031959A49789D031AE1333E0388F584BF6A869A2B1FA71A00AC85C121 after=41890EE031959A49789D031AE1333E0388F584BF6A869A2B1FA71A00AC85C121 identical=True
+10:43:49 leaks-after-rerun.txt -> databases 0, Test-Data folders 3931, files 4978
+10:43:49 RERUN DONE

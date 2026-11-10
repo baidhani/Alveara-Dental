@@ -1,0 +1,10 @@
+Project 'Alveara.Api' has the following dependency graph(s) for 
+'System.Security.Cryptography.Pkcs':
+
+  [net10.0]                                                                     
+  ├── Microsoft.Data.SqlClient (v7.1.0)                                         
+  │   └── System.Security.Cryptography.Pkcs (v9.0.18)                           
+  └── Microsoft.EntityFrameworkCore.SqlServer (v10.0.12)                        
+      └── Microsoft.Data.SqlClient (v7.1.0)                                     
+          └── System.Security.Cryptography.Pkcs (v9.0.18)                       
+

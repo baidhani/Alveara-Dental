@@ -1,0 +1,266 @@
+===== playwright.auth.config.ts 8:51:15 AM
+Database AlveraWalk_playwright_auth_config_3d330df6 created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.auth.config.ts ...
+node.exe : [WebServer] (node:78716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:62288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\auth-real-backend.spec.ts:42:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (1.4s)
+  ok  2 [chromium] › e2e\auth-real-backend.spec.ts:51:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (553ms)
+  ok  3 [chromium] › e2e\auth-real-backend.spec.ts:65:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (1.8s)
+  ok  4 [chromium] › e2e\auth-real-backend.spec.ts:96:3 › Real backend — first-admin bootstrap, login, MFA, security administration › replaying the exact same successful MFA challenge submission is rejected, not accepted twice (65ms)
+  x   5 [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout (249ms)
+  -   6 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role
+  -   7 [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin
+  -   8 [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log
+  -   9 [chromium] › e2e\auth-real-backend.spec.ts:242:3 › Real backend — first-admin bootstrap, login, MFA, security administration › unsaved configuration edits survive an attempt to leave through the main navigation
+  -  10 [chromium] › e2e\auth-real-backend.spec.ts:266:3 › Real backend — first-admin bootstrap, login, MFA, security administration › backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target
+  -  11 [chromium] › e2e\auth-real-backend.spec.ts:357:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API
+  -  12 [chromium] › e2e\auth-real-backend.spec.ts:411:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again
+
+
+  1) [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('admin-1794322290104')
+    Expected: visible
+    Error: strict mode violation: getByText('admin-1794322290104') resolved to 2 elements:
+        1) <span class="alv-shell__account-username">admin-1794322290104</span> aka getByLabel('Account').getByText('admin-')
+        2) <td>admin-1794322290104</td> aka getByRole('cell', { name: 'admin-' })
+
+    Call log:
+      - Expect "toBeVisible" getByText('admin-1794322290104') with timeout 5000ms
+      - waiting for getByText('admin-1794322290104')
+
+
+      124 |     await page.goto("/admin/users");
+      125 |     await expect(page.getByRole("heading", { name: "Security administration" })).toBeVisible();
+    > 126 |     await expect(page.getByText(adminUsername)).toBeVisible();
+          |                                                 ^
+      127 |
+      128 |     await page.getByRole("link", { name: "View" }).first().click();
+      129 |     await expect(page.getByRole("heading", { name: "User details" })).toBeVisible();
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\auth-real-backend.spec.ts:126:49
+
+    Error Context: test-results\auth-real-backend-Real-bac-736ab-ge-role-set-session-timeout-chromium\error-context.md
+
+    Error Context: test-results\auth-real-backend-Real-bac-736ab-ge-role-set-session-timeout-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\auth-real-backend.spec.ts:123:3 › Real backend — first-admin bootstrap, login, MFA, security administration › security administration: list users, view detail, change role, set session timeout 
+  7 did not run
+  4 passed (7.2s)
+Database AlveraWalk_playwright_auth_config_3d330df6 dropped (its files went with it).
+The run produced no output files.
+===== playwright.auth.config.ts exit=1
+===== playwright.patient-portability.config.ts 8:51:35 AM
+Database AlveraWalk_playwright_patient_portability_config_4a662cf1 created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.patient-portability.config.ts ...
+node.exe : [WebServer] (node:68556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:84208) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\patient-portability-real-backend.spec.ts:102:1 › SETUP: the front desk registers a patient (280ms)
+  ok 2 [chromium] › e2e\patient-portability-real-backend.spec.ts:110:1 › WHO MAY: only the administrator is offered the export; the administrator and the office manager are offered the import; the API refuses everyone else (1.5s)
+  ok 3 [chromium] › e2e\patient-portability-real-backend.spec.ts:136:1 › EXPORT: the administrator downloads the patient's file in the documented JSON layout (2.6s)
+  ok 4 [chromium] › e2e\patient-portability-real-backend.spec.ts:154:1 › INCORRECT FILE: the office manager's import of a broken file is rejected with every problem listed and nothing is stored (2.1s)
+  ok 5 [chromium] › e2e\patient-portability-real-backend.spec.ts:179:1 › CORRECTED FILE: the same file, correct and as another person, imports and links to the new record; the same file again creates nothing (1.0s)
+  ok 6 [chromium] › e2e\patient-portability-real-backend.spec.ts:205:1 › ALREADY REGISTERED: a file for a patient who is already in the system is refused with a link to the record (370ms)
+  ok 7 [chromium] › e2e\patient-portability-real-backend.spec.ts:220:1 › THE LOG: the audit log shows every export and import action with the user and the time (2.4s)
+
+  7 passed (18.1s)
+Database AlveraWalk_playwright_patient_portability_config_4a662cf1 dropped (its files went with it).
+The run produced no output files.
+===== playwright.patient-portability.config.ts exit=0
+===== playwright.patient-export-package.config.ts 8:52:10 AM
+Database AlveraWalk_playwright_patient_export_package_config_15e447d3 created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.patient-export-package.config.ts ...
+node.exe : [WebServer] (node:52832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:98780) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\patient-export-package-real-backend.spec.ts:128:1 › SETUP: three patients, real document files, and one record merged into another (2.8s)
+  ok  2 [chromium] › e2e\patient-export-package-real-backend.spec.ts:143:1 › WHO MAY: the API refuses an anonymous caller and a dentist on every export route, and the dentist has no menu entry and no screen (859ms)
+  ok  3 [chromium] › e2e\patient-export-package-real-backend.spec.ts:168:1 › SCREEN: the administrator sees what a package holds and leaves out, the limits, how the database is read and the empty history (2.4s)
+  x   4 [chromium] › e2e\patient-export-package-real-backend.spec.ts:188:1 › ONE PATIENT: the administrator creates a package from the screen; it is saved, logged and listed in the history (6.5s)
+  -   5 [chromium] › e2e\patient-export-package-real-backend.spec.ts:205:1 › READABLE RECORD: from the patient's page and from the screen; the saved page opens in the browser, runs no script and makes no outside request
+  -   6 [chromium] › e2e\patient-export-package-real-backend.spec.ts:244:1 › ALL PATIENTS: the administrator creates every patient's package from the screen and the time it took is recorded
+  -   7 [chromium] › e2e\patient-export-package-real-backend.spec.ts:265:1 › PERMISSIONS: granting the dentist only the readable-record permission gives the dentist exactly that and nothing more
+  -   8 [chromium] › e2e\patient-export-package-real-backend.spec.ts:293:1 › HISTORY AND AUDIT: every export names who and when and no patient, and the audit log holds the three kinds of event
+  -   9 [chromium] › e2e\patient-export-package-real-backend.spec.ts:310:1 › STORY-018 STILL WORKS: the original Export patient file button downloads the JSON file in the documented layout
+  -  10 [chromium] › e2e\patient-export-package-real-backend.spec.ts:322:1 › TIMING: 200 patients are registered and the real time of a one-patient and an all-patients package is recorded
+
+
+  1) [chromium] › e2e\patient-export-package-real-backend.spec.ts:188:1 › ONE PATIENT: the administrator creates a package from the screen; it is saved, logged and listed in the history 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/^Saved alveara-patient-package-[0-9a-f]{32}\.(zip|html)\. The export was logged \(export [0-9a-f-]{36}\)\.$/)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText(/^Saved alveara-patient-package-[0-9a-f]{32}\.(zip|html)\. The export was logged \(export [0-9a-f-]{36}\)\.$/) with timeout 5000ms
+      - waiting for getByText(/^Saved alveara-patient-package-[0-9a-f]{32}\.(zip|html)\. The export was logged \(export [0-9a-f-]{36}\)\.$/)
+
+
+      193 |   saved.onePatientPackage = path.join(OUT, "one-patient-package.zip");
+      194 |   await download.saveAs(saved.onePatientPackage);
+    > 195 |   await expect(admin.getByText(savedLine("patient-package"))).toBeVisible();
+          |                                                               ^
+      196 |   const rows = historyRows(admin);
+      197 |   await expect(rows).toHaveCount(2);                                                                    // the heading row and the export
+      198 |   await expect(rows.nth(1)).toContainText("Complete");
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\patient-export-package-real-backend.spec.ts:195:63
+
+    Error Context: test-results\patient-export-package-rea-9dd42-d-and-listed-in-the-history-chromium\error-context.md
+
+    Error Context: test-results\patient-export-package-rea-9dd42-d-and-listed-in-the-history-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\patient-export-package-real-backend.spec.ts:188:1 › ONE PATIENT: the administrator creates a package from the screen; it is saved, logged and listed in the history 
+  6 did not run
+  3 passed (18.3s)
+Database AlveraWalk_playwright_patient_export_package_config_15e447d3 dropped (its files went with it).
+The run produced no output files.
+===== playwright.patient-export-package.config.ts exit=1
+===== chain 8:52:45 AM
+Chain run bee631d6efa04cf8985b1e49d33066e9: database AlveraChain_bee631d6efa04cf8985b1e49d33066e9 created in 
+C:\.alvera-data\Test-Data\Chain\bee631d6efa04cf8985b1e49d33066e9\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-AccumulatedChain.ps1:73 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running stage 0 ...
+node.exe : [WebServer] (node:81056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 4 tests using 1 worker
+
+(node:94740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › chain\stage-0.spec.ts:28:1 › S-09a a wrong bootstrap secret is refused with 401 and creates nothing (159ms)
+  ok 2 [chromium] › chain\stage-0.spec.ts:34:1 › S-09b the right bootstrap secret creates exactly one administrator (201) (272ms)
+  ok 3 [chromium] › chain\stage-0.spec.ts:40:1 › S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1 (86ms)
+  ok 4 [chromium] › chain\stage-0.spec.ts:47:1 › S-09d the administrator signs in through the browser and reaches the dashboard (644ms)
+
+  4 passed (2.8s)
+Playwright exit code 0 (the verdict comes from the evidence builder).
+Database AlveraChain_bee631d6efa04cf8985b1e49d33066e9 dropped (its files went with it).
+PASS              S-09a  S-09a a wrong bootstrap secret is refused with 401 and creates nothing
+PASS              S-09b  S-09b the right bootstrap secret creates exactly one administrator (201)
+PASS              S-09c  S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1
+PASS              S-09d  S-09d the administrator signs in through the browser and reaches the dashboard
+PASS              E10  E10 COPY_ONLY checkpoint backup is written and verifies
+PASS              CLEAN  CLEAN the database is dropped and the run folder is removed
+FRESH run bee631d6efa04cf8985b1e49d33066e9 stage 0: PASS 6, FAIL 0, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 0
+Evidence kept in C:\.alvera-data\Test-Data\Temp\chain-output\bee631d6efa04cf8985b1e49d33066e9
+===== chain exit=0
+ALLDONE

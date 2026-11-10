@@ -1,0 +1,132 @@
+===== playwright.patient-export-package.config.ts
+Database AlveraWalk_playwright_patient_export_package_config_c7912e6c created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.patient-export-package.config.ts ...
+node.exe : [WebServer] (node:86224) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 10 tests using 1 worker
+
+(node:25664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\patient-export-package-real-backend.spec.ts:128:1 › SETUP: three patients, real document files, and one record merged into another (3.3s)
+  ok  2 [chromium] › e2e\patient-export-package-real-backend.spec.ts:143:1 › WHO MAY: the API refuses an anonymous caller and a dentist on every export route, and the dentist has no menu entry and no screen (946ms)
+  ok  3 [chromium] › e2e\patient-export-package-real-backend.spec.ts:168:1 › SCREEN: the administrator sees what a package holds and leaves out, the limits, how the database is read and the empty history (2.5s)
+  ok  4 [chromium] › e2e\patient-export-package-real-backend.spec.ts:188:1 › ONE PATIENT: the administrator creates a package from the screen; it is saved, logged and listed in the history (1.7s)
+  ok  5 [chromium] › e2e\patient-export-package-real-backend.spec.ts:205:1 › READABLE RECORD: from the patient's page and from the screen; the saved page opens in the browser, runs no script and makes no outside request (2.9s)
+  ok  6 [chromium] › e2e\patient-export-package-real-backend.spec.ts:244:1 › ALL PATIENTS: the administrator creates every patient's package from the screen and the time it took is recorded (3.3s)
+  ok  7 [chromium] › e2e\patient-export-package-real-backend.spec.ts:265:1 › PERMISSIONS: granting the dentist only the readable-record permission gives the dentist exactly that and nothing more (3.3s)
+  ok  8 [chromium] › e2e\patient-export-package-real-backend.spec.ts:293:1 › HISTORY AND AUDIT: every export names who and when and no patient, and the audit log holds the three kinds of event (437ms)
+  ok  9 [chromium] › e2e\patient-export-package-real-backend.spec.ts:310:1 › STORY-018 STILL WORKS: the original Export patient file button downloads the JSON file in the documented layout (2.5s)
+  ok 10 [chromium] › e2e\patient-export-package-real-backend.spec.ts:322:1 › TIMING: 200 patients are registered and the real time of a one-patient and an all-patients package is recorded (6.2s)
+
+  10 passed (35.4s)
+Database AlveraWalk_playwright_patient_export_package_config_c7912e6c dropped (its files went with it).
+The run produced no output files.
+===== playwright.patient-export-package.config.ts exit=0
+===== playwright.auth-scratch.config.ts
+Database AlveraWalk_playwright_auth_scratch_config_19d545ad created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.auth-scratch.config.ts ...
+node.exe : [WebServer] (node:34072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:77668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\auth-real-backend.spec.ts:42:3 › Real backend — first-admin bootstrap, login, MFA, security administration › an unauthenticated caller cannot select a role at registration (1.5s)
+  ok  2 [chromium] › e2e\auth-real-backend.spec.ts:51:3 › Real backend — first-admin bootstrap, login, MFA, security administration › bootstraps the first admin via the real API and signs in (694ms)
+  ok  3 [chromium] › e2e\auth-real-backend.spec.ts:65:3 › Real backend — first-admin bootstrap, login, MFA, security administration › enrolls a real TOTP factor and completes an MFA challenge end to end (2.0s)
+  ok  4 [chromium] › e2e\auth-real-backend.spec.ts:96:3 › Real backend — first-admin bootstrap, login, MFA, security administration › replaying the exact same successful MFA challenge submission is rejected, not accepted twice (150ms)
+  ok  5 [chromium] › e2e\auth-real-backend.spec.ts:137:3 › Real backend — first-admin bootstrap, login, MFA, security administration › permission matrix is visible to the admin and shows every role (494ms)
+  x   6 [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin (5.2s)
+  -   7 [chromium] › e2e\auth-real-backend.spec.ts:164:3 › Real backend — first-admin bootstrap, login, MFA, security administration › practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log
+  -   8 [chromium] › e2e\auth-real-backend.spec.ts:242:3 › Real backend — first-admin bootstrap, login, MFA, security administration › unsaved configuration edits survive an attempt to leave through the main navigation
+  -   9 [chromium] › e2e\auth-real-backend.spec.ts:266:3 › Real backend — first-admin bootstrap, login, MFA, security administration › backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target
+  -  10 [chromium] › e2e\auth-real-backend.spec.ts:357:3 › Real backend — first-admin bootstrap, login, MFA, security administration › a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API
+  -  11 [chromium] › e2e\auth-real-backend.spec.ts:411:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again
+
+
+  1) [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('SessionTimeoutChanged')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('SessionTimeoutChanged') with timeout 5000ms
+      - waiting for getByText('SessionTimeoutChanged')
+
+
+      150 |     await page.goto("/admin/audit-log");
+      151 |     await expect(page.getByRole("heading", { name: "Audit log" })).toBeVisible();
+    > 152 |     await expect(page.getByText("SessionTimeoutChanged")).toBeVisible(); // from the previous test
+          |                                                           ^
+      153 |     await expect(page.getByText("LoginSucceeded").first()).toBeVisible(); // from this very session's own sign-ins
+      154 |     // ALV-002-C01 R03 (review finding R02-01): the shared entity metadata must actually reach the
+      155 |     // viewer. The SessionTimeoutChanged row was written through the shared AuditService with
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\auth-real-backend.spec.ts:152:59
+
+    Error Context: test-results\auth-real-backend-Real-bac-7fbf2-ssion-produced-as-the-admin-chromium\error-context.md
+
+    Error Context: test-results\auth-real-backend-Real-bac-7fbf2-ssion-produced-as-the-admin-chromium\error-context.md
+
+  1 failed
+    [chromium] › e2e\auth-real-backend.spec.ts:149:3 › Real backend — first-admin bootstrap, login, MFA, security administration › the audit log page shows real audit entries this session produced, as the admin 
+  5 did not run
+  5 passed (13.1s)
+Database AlveraWalk_playwright_auth_scratch_config_19d545ad dropped (its files went with it).
+The run produced no output files.
+===== playwright.auth-scratch.config.ts exit=1

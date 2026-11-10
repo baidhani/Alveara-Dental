@@ -1,0 +1,50 @@
+Database AlveraWalk_playwright_auth_config_f43d3672 created in C:\.alvera-data\Test-Data\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-RealBackendWalkthrough.ps1:72 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+API healthy on http://localhost:5072; running playwright.auth.config.ts ...
+node.exe : [WebServer] (node:14944) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:83988) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:42:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ an unauthenticated caller cannot select a role at registration (5.3s)
+  ok  2 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:51:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ bootstraps the first admin via the real API and signs in (548ms)
+  ok  3 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:65:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ enrolls a real TOTP factor and completes an MFA challenge end to end (1.2s)
+  ok  4 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:96:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ replaying the exact same successful MFA challenge submission is rejected, not accepted twice (64ms)
+  ok  5 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:123:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ security administration: list users, view detail, change role, set session timeout (439ms)
+  ok  6 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:137:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ permission matrix is visible to the admin and shows every role (427ms)
+  ok  7 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:149:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ the audit log page shows real audit entries this session produced, as the admin (195ms)
+  ok  8 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:164:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ practice configuration: set up the practice end to end, see it in the scheduling preview, and find it in the audit log (2.9s)
+  ok  9 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:242:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ unsaved configuration edits survive an attempt to leave through the main navigation (417ms)
+  ok 10 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:266:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ backup & recovery: set up the recovery key, run a real backup, and restore it into an isolated target (14.1s)
+  ok 11 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:357:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ a caller without ManageUsers/ViewPermissionMatrix never sees those nav links and is denied the pages directly, against the real API (1.6s)
+  ok 12 [chromium] ΓÇ║ e2e\auth-real-backend.spec.ts:411:3 ΓÇ║ Real backend ΓÇö first-admin bootstrap, login, MFA, security administration ΓÇ║ the account menu shows the signed-in identity, and sign-out clears the session so protected routes are denied again (457ms)
+
+  12 passed (32.5s)
+Database AlveraWalk_playwright_auth_config_f43d3672 dropped (its files went with it).
+The run produced no output files.
