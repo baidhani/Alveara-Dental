@@ -1,0 +1,402 @@
+node.exe : [WebServer] (node:70752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 140 tests using 12 workers
+
+(node:7580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:91740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:68836) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:25832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:66480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63644) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:84420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   3 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:69:3 ΓÇ║ the story catalog ΓÇ║ describes every ledger story exactly once, with no orphans, and every story ends up with a title (34ms)
+  ok  11 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:79:3 ΓÇ║ the story catalog ΓÇ║ never duplicates a title the portal's plan already owns (3ms)
+  ok  12 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:104:3 ΓÇ║ Architecture Map tab ΓÇ║ labels exactly the statuses HANDOFF_SCHEMA.md allows, and every status in the ledger is one of them (31ms)
+[WebServer] 2:01:38 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:38 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:38 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:38 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:38 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:38 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok   9 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:85:3 ΓÇ║ Architecture Map tab ΓÇ║ sits directly below Project Management in the navigation (650ms)
+  ok   1 [desktop] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Component Showcase has no critical/serious axe violations in light mode (1.0s)
+  ok  14 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:169:3 ΓÇ║ Architecture Map tab ΓÇ║ filters change what is shown and reset restores it, keeping keyboard focus on the filter (645ms)
+  ok   4 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:142:3 ΓÇ║ Architecture Map tab ΓÇ║ shows each story's delivery state as a word, taken from the ledger, and the gate from the ledger (788ms)
+  ok  13 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:228:3 ΓÇ║ Architecture Map tab ΓÇ║ a legend key can be used from the keyboard (768ms)
+  ok   5 [desktop] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Not Found has no critical/serious axe violations in light mode (970ms)
+  ok   2 [desktop] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Dashboard has no critical/serious axe violations in dark mode (1.1s)
+  ok   8 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in light mode (857ms)
+  ok   6 [desktop] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Dashboard has no critical/serious axe violations in light mode (1.1s)
+  ok  10 [desktop] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Not Found has no critical/serious axe violations in dark mode (1.1s)
+  ok  15 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:113:3 ΓÇ║ Architecture Map tab ΓÇ║ every allowed status shows as its label on the cards, in the legend, in the state filter and in the story dialog (974ms)
+  ok   7 [desktop] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Component Showcase has no critical/serious axe violations in dark mode (1.1s)
+[WebServer] 2:01:39 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:39 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  16 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:91:3 ΓÇ║ Architecture Map tab ΓÇ║ draws one card per ledger story, in the ledger's phases, with titles from the plan or the catalog (598ms)
+  ok  18 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:253:3 ΓÇ║ Architecture Map tab ΓÇ║ follows the data: when the ledger says a story moved, the card, the counts and the state filter move with it, with no change to the page (617ms)
+  ok  20 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:237:3 ΓÇ║ Architecture Map tab ΓÇ║ a story opens a dialog with its details from the ledger, closes with Escape and returns focus to the card (596ms)
+  -   29 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:263:3 ΓÇ║ Architecture Map tab ΓÇ║ a portal story whose criteria have started to pass shows as in progress with the count from the progress file
+  ok  17 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:184:3 ΓÇ║ Architecture Map tab ΓÇ║ the legend lists exactly the states and story types in the data, and each key filters the map and clears on a second press (727ms)
+  ok  21 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:279:3 ΓÇ║ Architecture Map tab ΓÇ║ the architecture overview opens and closes (596ms)
+  ok  23 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in dark mode (573ms)
+  ok  26 [desktop] ΓÇ║ e2e\command-center.spec.ts:65:3 ΓÇ║ the logo ΓÇ║ shows in the sidebar in place of the old text mark, loads at a usable size, and is decorative because the name sits beside it (416ms)
+  ok  27 [desktop] ΓÇ║ e2e\command-center.spec.ts:85:3 ΓÇ║ the logo ΓÇ║ the browser-tab icon is declared and each icon file is served as an image (416ms)
+  ok  28 [desktop] ΓÇ║ e2e\command-center.spec.ts:115:3 ΓÇ║ real data only ΓÇ║ with no synced data the page says so and points to the portal, instead of offering sample data (408ms)
+  ok  31 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:288:3 ΓÇ║ Architecture Map tab ΓÇ║ when the catalog cannot be read the map says so and still draws every ledger story (475ms)
+  ok  25 [desktop] ΓÇ║ e2e\backup-warning-contrast.spec.ts:41:3 ΓÇ║ the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode (907ms)
+  ok  24 [desktop] ΓÇ║ e2e\backup-warning-contrast.spec.ts:41:3 ΓÇ║ the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in dark mode (909ms)
+  ok  33 [desktop] ΓÇ║ e2e\command-center.spec.ts:181:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ the expansion works from the keyboard and keeps focus on the story that was toggled (485ms)
+  ok  30 [desktop] ΓÇ║ e2e\command-center.spec.ts:136:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ clicking a story expands it in place with its own facts and each attached engineering story and its status; clicking again collapses it (535ms)
+  ok  35 [desktop] ΓÇ║ e2e\command-center.spec.ts:78:3 ΓÇ║ the logo ΓÇ║ stays visible in the dark theme (440ms)
+  ok  32 [desktop] ΓÇ║ e2e\command-center.spec.ts:214:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ has two views; Portal stories is the default and shows every portal story with the verified count from progress.json (530ms)
+  ok  34 [desktop] ΓÇ║ e2e\command-center.spec.ts:254:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ an engineering story opens in a pop-up from the keyboard, shows its review and tests, closes with Escape and returns focus to its id (549ms)
+  ok  37 [desktop] ΓÇ║ e2e\command-center.spec.ts:125:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ every portal story's row says how many engineering stories are attached, computed from the ledger (501ms)
+  ok  36 [desktop] ΓÇ║ e2e\command-center.spec.ts:98:3 ΓÇ║ real data only ΓÇ║ there is no sample/real switch, no sample label on any tab, and no sample data is ever requested (880ms)
+  ok  43 [desktop] ΓÇ║ e2e\login-banner-contrast.spec.ts:24:3 ΓÇ║ the expired-session banner passes the colour-contrast rule in light mode (469ms)
+  ok  42 [desktop] ΓÇ║ e2e\command-center.spec.ts:303:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ the views can be switched from the keyboard (467ms)
+  ok  40 [desktop] ΓÇ║ e2e\command-center.spec.ts:169:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ several stories can be open at once, and a story with nothing attached says so (530ms)
+  ok  39 [desktop] ΓÇ║ e2e\command-center.spec.ts:194:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ an attached engineering story can be opened from the expansion and shows its full details in the Engineering view (566ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  19 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:154:3 ΓÇ║ Architecture Map tab ΓÇ║ every card ends with its delivery state on a row of its own, below the subsystem, gate and criteria badges (2.0s)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  46 [desktop] ΓÇ║ e2e\login-banner-contrast.spec.ts:32:3 ΓÇ║ the sign-in-failure banner passes the colour-contrast rule in light mode (589ms)
+  ok  44 [desktop] ΓÇ║ e2e\command-center.spec.ts:231:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ Engineering stories lists every companion and new-production story from the ledger with its real status (951ms)
+  ok  47 [desktop] ΓÇ║ e2e\login-banner-contrast.spec.ts:24:3 ΓÇ║ the expired-session banner passes the colour-contrast rule in dark mode (536ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  52 [desktop] ΓÇ║ e2e\shell.spec.ts:36:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ dashboard loads with an honest empty state, no horizontal overflow (221ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  22 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in light mode, with the dialog open (2.2s)
+  ok  38 [desktop] ΓÇ║ e2e\command-center.spec.ts:273:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ the engineering story pop-up has no critical or serious accessibility violations (dark) (1.1s)
+  ok  49 [desktop] ΓÇ║ e2e\command-center.spec.ts:313:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ if the engineering ledger cannot be read, that view says so and the portal view still works (568ms)
+  ok  45 [desktop] ΓÇ║ e2e\command-center.spec.ts:273:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ the engineering story pop-up has no critical or serious accessibility violations (light) (1.0s)
+  ok  48 [desktop] ΓÇ║ e2e\login-banner-contrast.spec.ts:32:3 ΓÇ║ the sign-in-failure banner passes the colour-contrast rule in dark mode (633ms)
+  ok  53 [desktop] ΓÇ║ e2e\shell.spec.ts:47:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ navigation reaches the showcase page and it renders every control (307ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  55 [desktop] ΓÇ║ e2e\shell.spec.ts:91:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ unknown route shows a truthful not-found page with a working, single-control return action (294ms)
+  ok  56 [desktop] ΓÇ║ e2e\shell.spec.ts:102:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ form validation appears on blur and clears when corrected (267ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  54 [desktop] ΓÇ║ e2e\shell.spec.ts:70:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ keyboard-only path: skip link, tab into navigation, activate with Enter (311ms)
+  ok  61 [desktop] ΓÇ║ e2e\shell.spec.ts:140:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ does not show the disconnected banner while the API is healthy (200ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  59 [desktop] ΓÇ║ e2e\shell.spec.ts:117:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ notification toasts appear for each tone (293ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  60 [desktop] ΓÇ║ e2e\shell.spec.ts:128:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ shows the disconnected banner when the API is unreachable, and clears it once healthy again (269ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  62 [desktop] ΓÇ║ e2e\shell.spec.ts:146:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ theme toggle switches and persists between light and dark (337ms)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:41 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  63 [desktop] ΓÇ║ e2e\shell.spec.ts:162:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ layout has no unintended horizontal overflow at this viewport (233ms)
+[WebServer] 2:01:42 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  66 [desktop] ΓÇ║ e2e\system-status.spec.ts:25:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ shows truthful reachable status for every field when the API reports healthy (246ms)
+[WebServer] 2:01:42 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:42 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  67 [desktop] ΓÇ║ e2e\system-status.spec.ts:46:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ shows the database as unreachable while the rest of the page still renders (284ms)
+  ok  68 [desktop] ΓÇ║ e2e\system-status.spec.ts:66:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ distinguishes local-server-unavailable from public-internet state when the API cannot be reached at all (287ms)
+[WebServer] 2:01:42 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  69 [desktop] ΓÇ║ e2e\system-status.spec.ts:75:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ is reachable from the sidebar navigation (258ms)
+  ok  58 [desktop] ΓÇ║ e2e\command-center.spec.ts:284:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ an engineering story drills down to its details, and the views switch back and forth (720ms)
+  ok  65 [desktop] ΓÇ║ e2e\system-status-stale-contrast.spec.ts:17:3 ΓÇ║ the stale-data banner passes the colour-contrast rule in dark mode (586ms)
+  ok  50 [desktop] ΓÇ║ e2e\notification-contrast.spec.ts:21:3 ΓÇ║ all four notification variants pass the colour-contrast rule in light mode (1.4s)
+  ok  64 [desktop] ΓÇ║ e2e\system-status-stale-contrast.spec.ts:17:3 ΓÇ║ the stale-data banner passes the colour-contrast rule in light mode (616ms)
+  ok  51 [desktop] ΓÇ║ e2e\notification-contrast.spec.ts:21:3 ΓÇ║ all four notification variants pass the colour-contrast rule in dark mode (1.4s)
+(node:75824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:45172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:82156) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:69052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:83336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  41 [desktop] ΓÇ║ e2e\command-center.spec.ts:325:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ both views have no critical or serious accessibility violations (light) (2.5s)
+(node:29288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:67544) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:11424) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  78 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:69:3 ΓÇ║ the story catalog ΓÇ║ describes every ledger story exactly once, with no orphans, and every story ends up with a title (43ms)
+  ok  81 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:79:3 ΓÇ║ the story catalog ΓÇ║ never duplicates a title the portal's plan already owns (3ms)
+  ok  80 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:104:3 ΓÇ║ Architecture Map tab ΓÇ║ labels exactly the statuses HANDOFF_SCHEMA.md allows, and every status in the ledger is one of them (34ms)
+[WebServer] 2:01:43 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:43 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  57 [desktop] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in dark mode, with the dialog open (2.5s)
+[WebServer] 2:01:44 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:44 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:44 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:44 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  70 [tablet] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Dashboard has no critical/serious axe violations in light mode (1.3s)
+  ok  77 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:85:3 ΓÇ║ Architecture Map tab ΓÇ║ sits directly below Project Management in the navigation (936ms)
+  ok  71 [tablet] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Dashboard has no critical/serious axe violations in dark mode (1.5s)
+  ok  79 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:142:3 ΓÇ║ Architecture Map tab ΓÇ║ shows each story's delivery state as a word, taken from the ledger, and the gate from the ledger (1.1s)
+  ok  75 [tablet] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Not Found has no critical/serious axe violations in light mode (1.4s)
+  ok  82 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:169:3 ΓÇ║ Architecture Map tab ΓÇ║ filters change what is shown and reset restores it, keeping keyboard focus on the filter (1.1s)
+  ok  73 [tablet] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Component Showcase has no critical/serious axe violations in light mode (1.4s)
+  ok  74 [tablet] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Component Showcase has no critical/serious axe violations in dark mode (1.5s)
+  ok  76 [tablet] ΓÇ║ e2e\accessibility.spec.ts:45:5 ΓÇ║ Not Found has no critical/serious axe violations in dark mode (1.4s)
+(node:38984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  83 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:113:3 ΓÇ║ Architecture Map tab ΓÇ║ every allowed status shows as its label on the cards, in the legend, in the state filter and in the story dialog (1.3s)
+  ok  84 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:228:3 ΓÇ║ Architecture Map tab ΓÇ║ a legend key can be used from the keyboard (886ms)
+  ok  85 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:91:3 ΓÇ║ Architecture Map tab ΓÇ║ draws one card per ledger story, in the ledger's phases, with titles from the plan or the catalog (915ms)
+[WebServer] 2:01:45 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:45 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  86 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:253:3 ΓÇ║ Architecture Map tab ΓÇ║ follows the data: when the ledger says a story moved, the card, the counts and the state filter move with it, with no change to the page (1.1s)
+  ok  88 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:184:3 ΓÇ║ Architecture Map tab ΓÇ║ the legend lists exactly the states and story types in the data, and each key filters the map and clears on a second press (1.1s)
+  ok  72 [desktop] ΓÇ║ e2e\command-center.spec.ts:325:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ both views have no critical or serious accessibility violations (dark) (3.2s)
+  ok  89 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:279:3 ΓÇ║ Architecture Map tab ΓÇ║ the architecture overview opens and closes (1.1s)
+  ok  93 [tablet] ΓÇ║ e2e\command-center.spec.ts:65:3 ΓÇ║ the logo ΓÇ║ shows in the sidebar in place of the old text mark, loads at a usable size, and is decorative because the name sits beside it (969ms)
+  -   97 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:263:3 ΓÇ║ Architecture Map tab ΓÇ║ a portal story whose criteria have started to pass shows as in progress with the count from the progress file
+  ok  94 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:237:3 ΓÇ║ Architecture Map tab ΓÇ║ a story opens a dialog with its details from the ledger, closes with Escape and returns focus to the card (1.1s)
+  ok  96 [tablet] ΓÇ║ e2e\command-center.spec.ts:85:3 ΓÇ║ the logo ΓÇ║ the browser-tab icon is declared and each icon file is served as an image (998ms)
+  ok  98 [tablet] ΓÇ║ e2e\command-center.spec.ts:115:3 ΓÇ║ real data only ΓÇ║ with no synced data the page says so and points to the portal, instead of offering sample data (963ms)
+  ok  87 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:154:3 ΓÇ║ Architecture Map tab ΓÇ║ every card ends with its delivery state on a row of its own, below the subsystem, gate and criteria badges (2.3s)
+(node:32352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 100 [tablet] ΓÇ║ e2e\command-center.spec.ts:78:3 ΓÇ║ the logo ΓÇ║ stays visible in the dark theme (986ms)
+  ok  91 [tablet] ΓÇ║ e2e\backup-warning-contrast.spec.ts:41:3 ΓÇ║ the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in light mode (2.1s)
+  ok  92 [tablet] ΓÇ║ e2e\backup-warning-contrast.spec.ts:41:3 ΓÇ║ the backup warning alerts and the warning/blocking check lines pass the colour-contrast rule in dark mode (2.2s)
+  ok  99 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:288:3 ΓÇ║ Architecture Map tab ΓÇ║ when the catalog cannot be read the map says so and still draws every ledger story (1.1s)
+  ok 101 [tablet] ΓÇ║ e2e\command-center.spec.ts:181:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ the expansion works from the keyboard and keeps focus on the story that was toggled (1.1s)
+  ok  95 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in light mode (1.5s)
+  ok 102 [tablet] ΓÇ║ e2e\command-center.spec.ts:214:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ has two views; Portal stories is the default and shows every portal story with the verified count from progress.json (1.1s)
+  ok 104 [tablet] ΓÇ║ e2e\command-center.spec.ts:125:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ every portal story's row says how many engineering stories are attached, computed from the ledger (1.0s)
+  ok 103 [tablet] ΓÇ║ e2e\command-center.spec.ts:98:3 ΓÇ║ real data only ΓÇ║ there is no sample/real switch, no sample label on any tab, and no sample data is ever requested (1.4s)
+  ok 108 [tablet] ΓÇ║ e2e\command-center.spec.ts:303:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ the views can be switched from the keyboard (1.0s)
+  ok 106 [tablet] ΓÇ║ e2e\command-center.spec.ts:254:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ an engineering story opens in a pop-up from the keyboard, shows its review and tests, closes with Escape and returns focus to its id (1.1s)
+  ok  90 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in light mode, with the dialog open (3.4s)
+  ok 107 [tablet] ΓÇ║ e2e\login-banner-contrast.spec.ts:24:3 ΓÇ║ the expired-session banner passes the colour-contrast rule in light mode (1.2s)
+  ok 110 [tablet] ΓÇ║ e2e\command-center.spec.ts:194:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ an attached engineering story can be opened from the expansion and shows its full details in the Engineering view (1.2s)
+  ok 112 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:211:5 ΓÇ║ Architecture Map tab ΓÇ║ each story type has its own icon and colour, with the type also written as a word, in dark mode (1.1s)
+  ok 113 [tablet] ΓÇ║ e2e\command-center.spec.ts:231:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ Engineering stories lists every companion and new-production story from the ledger with its real status (1.3s)
+  ok 105 [tablet] ΓÇ║ e2e\command-center.spec.ts:273:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ the engineering story pop-up has no critical or serious accessibility violations (dark) (1.9s)
+  ok 116 [tablet] ΓÇ║ e2e\command-center.spec.ts:313:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ if the engineering ledger cannot be read, that view says so and the portal view still works (1.1s)
+  ok 115 [tablet] ΓÇ║ e2e\login-banner-contrast.spec.ts:24:3 ΓÇ║ the expired-session banner passes the colour-contrast rule in dark mode (1.4s)
+[WebServer] 2:01:49 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:49 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 114 [tablet] ΓÇ║ e2e\login-banner-contrast.spec.ts:32:3 ΓÇ║ the sign-in-failure banner passes the colour-contrast rule in light mode (1.5s)
+  ok 111 [tablet] ΓÇ║ e2e\command-center.spec.ts:136:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ clicking a story expands it in place with its own facts and each attached engineering story and its status; clicking again collapses it (1.5s)
+[WebServer] 2:01:49 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 122 [tablet] ΓÇ║ e2e\shell.spec.ts:36:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ dashboard loads with an honest empty state, no horizontal overflow (753ms)
+  ok 119 [tablet] ΓÇ║ e2e\login-banner-contrast.spec.ts:32:3 ΓÇ║ the sign-in-failure banner passes the colour-contrast rule in dark mode (1.4s)
+[WebServer] 2:01:50 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:50 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:50 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 117 [tablet] ΓÇ║ e2e\command-center.spec.ts:273:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ the engineering story pop-up has no critical or serious accessibility violations (light) (2.0s)
+  ok 124 [tablet] ΓÇ║ e2e\shell.spec.ts:47:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ navigation reaches the showcase page and it renders every control (954ms)
+  ok 126 [tablet] ΓÇ║ e2e\shell.spec.ts:91:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ unknown route shows a truthful not-found page with a working, single-control return action (785ms)
+  ok 125 [tablet] ΓÇ║ e2e\shell.spec.ts:70:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ keyboard-only path: skip link, tab into navigation, activate with Enter (892ms)
+  ok 123 [tablet] ΓÇ║ e2e\command-center.spec.ts:284:3 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ an engineering story drills down to its details, and the views switch back and forth (1.3s)
+[WebServer] 2:01:50 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:50 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 128 [tablet] ΓÇ║ e2e\shell.spec.ts:102:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ form validation appears on blur and clears when corrected (823ms)
+  ok 129 [tablet] ΓÇ║ e2e\shell.spec.ts:117:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ notification toasts appear for each tone (822ms)
+  ok 127 [tablet] ΓÇ║ e2e\command-center.spec.ts:169:3 ΓÇ║ expanding a portal story shows its attached engineering stories ΓÇ║ several stories can be open at once, and a story with nothing attached says so (1.1s)
+  ok 109 [tablet] ΓÇ║ e2e\command-center.spec.ts:325:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ both views have no critical or serious accessibility violations (light) (3.5s)
+  ok 120 [tablet] ΓÇ║ e2e\notification-contrast.spec.ts:21:3 ΓÇ║ all four notification variants pass the colour-contrast rule in light mode (2.2s)
+  ok 121 [tablet] ΓÇ║ e2e\notification-contrast.spec.ts:21:3 ΓÇ║ all four notification variants pass the colour-contrast rule in dark mode (2.4s)
+  ok 130 [tablet] ΓÇ║ e2e\shell.spec.ts:140:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ does not show the disconnected banner while the API is healthy (877ms)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 132 [tablet] ΓÇ║ e2e\shell.spec.ts:162:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ layout has no unintended horizontal overflow at this viewport (965ms)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 118 [tablet] ΓÇ║ e2e\architecture-map.spec.ts:297:5 ΓÇ║ Architecture Map tab ΓÇ║ has no serious or critical accessibility violations in dark mode, with the dialog open (3.3s)
+  ok 133 [tablet] ΓÇ║ e2e\shell.spec.ts:128:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ shows the disconnected banner when the API is unreachable, and clears it once healthy again (1.2s)
+  ok 131 [tablet] ΓÇ║ e2e\shell.spec.ts:146:3 ΓÇ║ Application shell ΓÇö real browser walkthrough ΓÇ║ theme toggle switches and persists between light and dark (1.3s)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 136 [tablet] ΓÇ║ e2e\system-status.spec.ts:25:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ shows truthful reachable status for every field when the API reports healthy (984ms)
+  ok 138 [tablet] ΓÇ║ e2e\system-status.spec.ts:46:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ shows the database as unreachable while the rest of the page still renders (941ms)
+  ok 139 [tablet] ΓÇ║ e2e\system-status.spec.ts:66:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ distinguishes local-server-unavailable from public-internet state when the API cannot be reached at all (835ms)
+[WebServer] 2:01:51 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 140 [tablet] ΓÇ║ e2e\system-status.spec.ts:75:3 ΓÇ║ System Status page ΓÇö real browser ΓÇ║ is reachable from the sidebar navigation (832ms)
+  ok 134 [tablet] ΓÇ║ e2e\system-status-stale-contrast.spec.ts:17:3 ΓÇ║ the stale-data banner passes the colour-contrast rule in light mode (1.6s)
+  ok 135 [tablet] ΓÇ║ e2e\system-status-stale-contrast.spec.ts:17:3 ΓÇ║ the stale-data banner passes the colour-contrast rule in dark mode (1.5s)
+  ok 137 [tablet] ΓÇ║ e2e\command-center.spec.ts:325:5 ΓÇ║ Project Management: portal stories and engineering stories ΓÇ║ both views have no critical or serious accessibility violations (dark) (3.5s)
+
+  2 skipped
+  138 passed (19.9s)

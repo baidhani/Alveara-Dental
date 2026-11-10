@@ -1,0 +1,58 @@
+Chain run cba2d2fc01564eaa8dabb4ef1f329854: database AlveraChain_cba2d2fc01564eaa8dabb4ef1f329854 created in 
+C:\.alvera-data\Test-Data\Chain\cba2d2fc01564eaa8dabb4ef1f329854\Database
+dotnet.exe : C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: 
+Package 'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+At C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\scripts\Invoke-AccumulatedChain.ps1:103 char:9
++         & dotnet ef database update --no-build --connection $connecti ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\firas\...-2fmv-rv2c-59x7:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1902: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known moderate severity vulnerability, 
+https://github.com/advisories/GHSA-2fmv-rv2c-59x7
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj : warning NU1903: Package 
+'System.Security.Cryptography.Pkcs' 9.0.18 has a known high severity vulnerability, 
+https://github.com/advisories/GHSA-846f-f764-76mx
+Done.
+Host healthy on http://localhost:5072; running stage 0 ...
+Clock mode: injected
+node.exe : [WebServer] (node:43288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 7 tests using 1 worker
+
+(node:31344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] ΓÇ║ chain\stage-0.spec.ts:31:1 ΓÇ║ S-09a a wrong bootstrap secret is refused with 401 and creates nothing (248ms)
+  ok 2 [chromium] ΓÇ║ chain\stage-0.spec.ts:37:1 ΓÇ║ S-09b the right bootstrap secret creates exactly one administrator (201) (214ms)
+  ok 3 [chromium] ΓÇ║ chain\stage-0.spec.ts:43:1 ΓÇ║ S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1 (88ms)
+  ok 4 [chromium] ΓÇ║ chain\stage-0.spec.ts:51:1 ΓÇ║ C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report (11ms)
+  ok 5 [chromium] ΓÇ║ chain\stage-0.spec.ts:82:1 ΓÇ║ S-09d the administrator signs in through the browser and reaches the dashboard (1.1s)
+  ok 6 [chromium] ΓÇ║ chain\stage-0.spec.ts:87:1 ΓÇ║ B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured) (445ms)
+  ok 7 [chromium] ΓÇ║ chain\stage-0.spec.ts:95:1 ΓÇ║ B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured) (529ms)
+
+  7 passed (4.3s)
+Playwright exit code 0 (the verdict comes from the evidence builder).
+Database AlveraChain_cba2d2fc01564eaa8dabb4ef1f329854 dropped (its files went with it).
+PASS              S-09a  S-09a a wrong bootstrap secret is refused with 401 and creates nothing
+PASS              S-09b  S-09b the right bootstrap secret creates exactly one administrator (201)
+PASS              S-09c  S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1
+PASS              C-01  C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report
+PASS              S-09d  S-09d the administrator signs in through the browser and reaches the dashboard
+PASS              B-01  B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured)
+PASS              B-02  B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured)
+PASS              E10  E10 COPY_ONLY checkpoint: file exists, no restore invoked, live database unchanged
+PASS              CLEAN  CLEAN the database is dropped and the run folder is removed
+FRESH run cba2d2fc01564eaa8dabb4ef1f329854 stage 0: PASS 9, FAIL 0, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 0
+Evidence kept in C:\.alvera-data\Test-Data\Temp\chain-output\cba2d2fc01564eaa8dabb4ef1f329854

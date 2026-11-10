@@ -1,0 +1,36 @@
+13:58:00 sweep R02 on 45706516294e7f66ca25da8e343a739c39ed2e2d
+13:58:00 leaks-before.txt -> databases 0, Test-Data folders 3931, files 5031
+13:58:00 START 01-node-tests
+13:58:31 END   01-node-tests exit=0 (31s)
+13:58:31 START 02-tsc
+13:58:39 END   02-tsc exit=0 (8s)
+13:58:39 START 03-lint
+13:58:41 END   03-lint exit=0 (2s)
+13:58:41 START 04-vitest
+14:01:24 END   04-vitest exit=0 (162s)
+14:01:24 START 05-build
+14:01:32 END   05-build exit=0 (8s)
+14:01:32 START 06-mocked-playwright
+14:01:56 END   06-mocked-playwright exit=0 (23s)
+14:01:56 START 07-backend-build
+14:02:37 END   07-backend-build exit=0 (42s)
+14:02:37 START 08-backend-focused
+14:13:01 END   08-backend-focused exit=0 (624s)
+14:13:01 START 09-backend-apitests
+14:33:00 END   09-backend-apitests exit=0 (1199s)
+14:33:00 START 10-walk-auth
+14:33:43 END   10-walk-auth exit=0 (43s)
+14:33:43 START 10-walk-patient-portability
+14:34:15 END   10-walk-patient-portability exit=0 (32s)
+14:34:15 START 10-walk-patient-export-package
+14:35:18 END   10-walk-patient-export-package exit=0 (63s)
+14:35:18 START 10-walk-patient-merge
+14:36:16 END   10-walk-patient-merge exit=0 (58s)
+14:36:16 START 10-walk-bulk-import
+14:37:48 END   10-walk-bulk-import exit=0 (92s)
+14:37:48 START 11-chain-injected
+14:38:12 END   11-chain-injected exit=0 (24s)
+14:38:12 START 12-chain-real
+14:38:34 END   12-chain-real exit=0 (22s)
+14:38:35 leaks-after.txt -> databases 0, Test-Data folders 3931, files 5051
+14:38:35 SWEEP DONE

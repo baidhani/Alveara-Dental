@@ -1,0 +1,75 @@
+ALV-N019 R02 negative controls on 45706516294e7f66ca25da8e343a739c39ed2e2d - each control breaks ONE rule, runs only the test that should catch it, restores the file and compares its SHA-256
+
+== D1 the injected clock may run backwards
+file: src\Alveara.Api.ChainHost\ChainPracticeClock.cs
+rule broken: the chain clock only moves forward
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  Failed Alveara.Api.Tests.ChainClockSeamTests.The_injected_clock_keeps_a_fixed_now_that_only_advance_moves_and_never_runs_backwards [3 ms]
+   Assert.Throws() Failure: No exception was thrown
+Failed!  - Failed:     1, Passed:     5, Skipped:     0, Total:     6, Duration: 15 s - Alveara.Api.Tests.dll (net10.0)
+restored: sha256 before=D027D955231C888A6DEB5FF1913F051B30FB7C5C839CA0AB2BBB88D6850B4A26 after=D027D955231C888A6DEB5FF1913F051B30FB7C5C839CA0AB2BBB88D6850B4A26 identical=True
+
+== D2 the chain host stops replacing the real clock
+file: src\Alveara.Api.ChainHost\ChainHostFactory.cs
+rule broken: the real clock registration is replaced, not added to
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  Failed Alveara.Api.Tests.ChainClockSeamTests.The_chain_host_uses_only_its_injected_clock_and_reports_the_mode_it_really_has [169 ms]
+   Assert.Single() Failure: The collection contained 2 items
+Failed!  - Failed:     1, Passed:     5, Skipped:     0, Total:     6, Duration: 15 s - Alveara.Api.Tests.dll (net10.0)
+restored: sha256 before=E8D3E4EA33A7F334AA870101B467D579116EDF9D0B9D29087C5838EA15D2801E after=E8D3E4EA33A7F334AA870101B467D579116EDF9D0B9D29087C5838EA15D2801E identical=True
+
+== D3 production Program.cs gains a chain reference
+file: src\Alveara.Api\Program.cs
+rule broken: production never references the chain host
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /ChainHost|ChainPracticeClock|clock-mode|CHAIN_/i. Input:
+    code: 'ERR_ASSERTION',
+  AssertionError [ERR_ASSERTION]: production source refers to the chain host
+    code: 'ERR_ASSERTION',
+restored: sha256 before=CCC3D3021F27D833219A427D9822A11D7F63A3EFB4DBB4A21E670DEF32195060 after=CCC3D3021F27D833219A427D9822A11D7F63A3EFB4DBB4A21E670DEF32195060 identical=True
+
+== D4 the E10 check stops comparing row counts
+file: scripts\chain\E10Invariant.mjs
+rule broken: live data unchanged by the checkpoint
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+    code: 'ERR_ASSERTION',
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    code: 'ERR_ASSERTION',
+restored: sha256 before=67E4692383699789151AF6424E8B5D9A7962DC0D361039E24757F3439144C6D3 after=67E4692383699789151AF6424E8B5D9A7962DC0D361039E24757F3439144C6D3 identical=True
+
+== D5 the runner no longer refuses an existing database
+file: scripts\Invoke-AccumulatedChain.ps1
+rule broken: an existing database is refused, not reused or dropped
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  AssertionError [ERR_ASSERTION]: The chain runner could not complete its setup: SQL failed on .\SQLEXPRESS : Msg 1801, Level 16, State 3, Server Feercy-Legion7i\SQLEXPRESS, Line 1 Database 'AlveraChain_89b23e0d1102ad9a79f655a17ead6626' already exists. Choose a different database name.
+    code: 'ERR_ASSERTION',
+restored: sha256 before=459539EE43F78B86682D3DA5E37284372B47806E1E3750FB88A105FB737F399B after=459539EE43F78B86682D3DA5E37284372B47806E1E3750FB88A105FB737F399B identical=True
+
+== D6 the dirty-tree label is removed
+file: scripts\chain\ChainSafety.ps1
+rule broken: uncommitted changes are labelled
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    code: 'ERR_ASSERTION',
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+    code: 'ERR_ASSERTION',
+restored: sha256 before=1DAC6C3C629685E0E3D5869E12AFEC001BC88CAEEDFC175565ED98456EE53198 after=1DAC6C3C629685E0E3D5869E12AFEC001BC88CAEEDFC175565ED98456EE53198 identical=True
+
+== D7 the merge reason check stops refusing control characters
+file: src\Alveara.Api\Architecture\Patients\Merge\PatientMergeService.cs
+rule broken: a multi-line reason is refused with reason_invalid
+run exit code: 1 -> CAUGHT (the test failed as it should)
+  Failed Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_undo_reason_is_refused_and_changes_nothing(reason: "two\nlines") [5 s]
+   Assert.Throws() Failure: Exception type was not an exact match
+  Failed Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_reason_is_refused_with_its_stable_code_and_changes_nothing(reason: "tab\there") [2 s]
+   Assert.Throws() Failure: Exception type was not an exact match
+  Failed Alveara.Api.Tests.PatientMergeHostileInputTests.An_empty_or_multi_line_reason_is_refused_with_its_stable_code_and_changes_nothing(reason: "two\nlines") [2 s]
+   Assert.Throws() Failure: Exception type was not an exact match
+restored: sha256 before=77238E1FAD61D6849DB97095B97BEF110902A933DC7226A7944D0A188C1C67A1 after=77238E1FAD61D6849DB97095B97BEF110902A933DC7226A7944D0A188C1C67A1 identical=True
+
+rebuilt after the last control: exit 0
+tracked files differing from HEAD after all controls (expect none): 0
+
+
+CONTROLS DONE
