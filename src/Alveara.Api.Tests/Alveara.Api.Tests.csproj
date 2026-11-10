@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Alveara.Api\Alveara.Api.csproj" />
+    <ProjectReference Include="..\Alveara.Api.ChainHost\Alveara.Api.ChainHost.csproj" />
   </ItemGroup>
 
   <ItemGroup>

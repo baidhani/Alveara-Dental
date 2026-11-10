@@ -47,6 +47,23 @@ test("S-09c a second bootstrap is refused with 409 bootstrap_already_used and th
   expect(userCount()).toBe(1);
 });
 
+// PD-32 (ALV-N019 R02): the host reports the clock it really uses. The runner passes the mode it measured in CHAIN_CLOCK_MODE.
+test("C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report", async ({ request }) => {
+  const mode = process.env.CHAIN_CLOCK_MODE;
+  expect(["injected", "real"], "CHAIN_CLOCK_MODE must be set by the runner").toContain(mode);
+  const response = await request.get("/api/chain/clock-mode");
+  if (mode === "injected") {
+    expect(response.status()).toBe(200);
+    const report = await response.json();
+    expect(report.mode).toBe("injected");
+    expect(report.clockType).toBe("ChainPracticeClock");
+    expect(report.utcNow).toMatch(/^2026-01-15T15:00:00/);       // the fixed instant the chain host was started with
+  } else {
+    // the production application serves no chain report: an unknown GET gets its client page (HTML) or a 404, never JSON
+    expect(response.headers()["content-type"] ?? "").not.toContain("application/json");
+  }
+});
+
 async function signIn(page: Page): Promise<void> {
   await page.goto("/login");
   await page.getByLabel("Username").fill(username);

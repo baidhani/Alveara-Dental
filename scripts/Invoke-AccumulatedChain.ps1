@@ -27,6 +27,8 @@
 param(
     [ValidateSet(0)][int]$Stage = 0,
     [switch]$SkipBuild,
+    # injected (default): the chain host, which runs the unchanged production application with an injected test clock (PD-32). real: the production API itself with the real clock.
+    [ValidateSet('injected', 'real')][string]$ClockMode = 'injected',
     # Self-test hooks (tests/stabilization/chain-runner-resilience.test.mjs). Normal runs use neither.
     [ValidatePattern('^[0-9a-f]{32}$')][string]$RunId,
     [ValidateSet('None', 'KillApiAfterStart')][string]$InjectFault = 'None'
@@ -50,6 +52,7 @@ $clientDir   = Join-Path $RepoRoot 'src\alveara-client'
 $exitCode    = 2
 $runnerSteps = New-Object System.Collections.ArrayList
 $schemaVersion = 'unknown'
+$clockModeSeen = 'unknown'      # what the running host reports, never what was asked for
 
 foreach ($port in 5072, 5173) {
     if (Test-PortInUse $port) { Write-Host "Port $port is already in use: stop the dev app first; a chain run needs both ports."; exit 2 }
@@ -93,7 +96,10 @@ try {
     Push-Location -LiteralPath $apiProject
     try {
         $ErrorActionPreference = 'Continue'
-        if (-not $SkipBuild) { & dotnet build --nologo -v q; if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed.' } }
+        if (-not $SkipBuild) {
+            if ($ClockMode -eq 'injected') { & dotnet build (Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\Alveara.Api.ChainHost.csproj') --nologo -v q } else { & dotnet build --nologo -v q }
+            if ($LASTEXITCODE -ne 0) { throw 'dotnet build failed.' }
+        }
         & dotnet ef database update --no-build --connection $connection
         if ($LASTEXITCODE -ne 0) { throw 'dotnet ef database update failed.' }
     }
@@ -101,16 +107,17 @@ try {
 
     $schemaVersion = (Invoke-DevSql "SET NOCOUNT ON; SELECT TOP 1 MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC" $Database | Select-Object -First 1).Trim()
 
-    $dll = Join-Path $apiProject 'bin\Debug\net10.0\Alveara.Api.dll'
-    if (-not (Test-Path -LiteralPath $dll)) { throw "The built API was not found at $dll." }
+    $dll = if ($ClockMode -eq 'injected') { Join-Path $RepoRoot 'src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll' } else { Join-Path $apiProject 'bin\Debug\net10.0\Alveara.Api.dll' }
+    if (-not (Test-Path -LiteralPath $dll)) { throw "The built host was not found at $dll." }
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = 'dotnet'
     $psi.Arguments = '"' + $dll + '"'
-    $psi.WorkingDirectory = $apiProject
+    $psi.WorkingDirectory = $(if ($ClockMode -eq 'injected') { Split-Path -Parent $dll } else { $apiProject })
     $psi.UseShellExecute = $false
     $psi.CreateNoWindow = $true
     $psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Development'
     $psi.EnvironmentVariables['ASPNETCORE_URLS'] = $ApiUrl
+    $psi.EnvironmentVariables['CHAIN_URL'] = $ApiUrl
     $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $connection
     $psi.EnvironmentVariables['AdminBootstrapSecret'] = $secret
     $psi.EnvironmentVariables['AuthAttemptRateLimit__PermitLimit'] = '500'
@@ -125,7 +132,20 @@ try {
         try { $healthy = (Invoke-WebRequest "$ApiUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
     }
     if (-not $healthy) { throw 'The API did not become healthy in time.' }
-    Write-Host "API healthy on $ApiUrl; running stage $Stage ..."
+    Write-Host "Host healthy on $ApiUrl; running stage $Stage ..."
+    # The clock mode is measured from the running host: the chain host answers /api/chain/clock-mode with a JSON report. The production API serves no such report: it answers an unknown route with its
+    # client page (HTML, status 200) or a 404, so only a JSON body with a 'mode' counts as the chain's report.
+    $report = $null
+    try {
+        $reply = Invoke-WebRequest "$ApiUrl/api/chain/clock-mode" -UseBasicParsing -TimeoutSec 5
+        if ("$($reply.Headers['Content-Type'])" -like 'application/json*') { $parsed = $reply.Content | ConvertFrom-Json; if ($parsed.PSObject.Properties.Name -contains 'mode') { $report = $parsed } }
+    }
+    catch { if (-not ($_.Exception.Response -and [int]$_.Exception.Response.StatusCode -eq 404)) { throw "Could not read the clock mode from the host: $_" } }
+    $clockModeSeen = if ($report) { $report.mode } else { 'real' }
+    if ($clockModeSeen -ne $ClockMode) { throw "The host reports clock mode '$clockModeSeen' but '$ClockMode' was requested." }
+    ConvertTo-Json -InputObject @{ requested = $ClockMode; reported = $clockModeSeen; report = $report } -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDir 'clock-mode.json') -Encoding utf8
+    Write-Host "Clock mode: $clockModeSeen"
+    $env:CHAIN_CLOCK_MODE = $clockModeSeen
     if ($InjectFault -eq 'KillApiAfterStart') {
         Stop-Process -Id $api.Id -Force
         [void]$api.WaitForExit(15000)
@@ -168,7 +188,7 @@ catch {
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE -ErrorAction SilentlyContinue
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }
         [void]$api.WaitForExit(15000)
@@ -193,7 +213,7 @@ finally {
 $reportFile = Join-Path $evidenceDir 'playwright-report.json'
 if (-not (Test-Path -LiteralPath $reportFile)) { Set-Content -LiteralPath $reportFile -Value '{ "suites": [] }' -Encoding utf8; [void]$runnerSteps.Add(@{ stepId = 'PW'; title = 'PW the stage-0 spec produced a report'; passed = $false; detail = 'no playwright-report.json' }) }
 ConvertTo-Json -InputObject @($runnerSteps) -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDir 'runner-steps.json') -Encoding utf8
-@{ runId = $runId; stage = $Stage; implementationSha = $sha; schemaVersion = $schemaVersion; resumed = $false; clockMode = 'real' } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidenceDir 'meta.json') -Encoding utf8
+@{ runId = $runId; stage = $Stage; implementationSha = $sha; schemaVersion = $schemaVersion; resumed = $false; clockMode = $clockModeSeen } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidenceDir 'meta.json') -Encoding utf8
 & node (Join-Path $PSScriptRoot 'chain\Build-ChainEvidence.mjs') --playwright $reportFile --runner (Join-Path $evidenceDir 'runner-steps.json') --meta (Join-Path $evidenceDir 'meta.json') --out (Join-Path $evidenceDir 'evidence.json')
 $exitCode = $LASTEXITCODE
 Write-Host "Evidence kept in $evidenceDir"

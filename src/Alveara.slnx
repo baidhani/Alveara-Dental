@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Alveara.Api.Tests/Alveara.Api.Tests.csproj" />
+  <Project Path="Alveara.Api.ChainHost/Alveara.Api.ChainHost.csproj" />
   <Project Path="Alveara.Api/Alveara.Api.csproj" />
 </Solution>
