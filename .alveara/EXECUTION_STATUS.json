@@ -30,7 +30,7 @@
       "demo": "stage0_chain_run_exit_0_no_screenshots",
       "parentRegression": "n/a",
       "implementationCommit": "6b083cde28d7e133b033190f6ac5a68467cd43d6",
-      "evidenceCommit": null,
+      "evidenceCommit": "0c672b8ec7c28f8789980a10e588ba7a07bcf344",
       "handoffPath": ".alveara/handoffs/ALV-N019/R01.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
       "blockingIssues": ["F-001: System.Security.Cryptography.Pkcs 9.0.18 (transitive via Microsoft.Data.SqlClient 7.1.0) is a vulnerable shipped dependency; closing needs PD-26 (update, pin, or explicit product-owner risk acceptance). See docs/design/ALV-N019_DEPENDENCY_ADVISORY_REPORT.md."],
