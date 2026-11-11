@@ -30,7 +30,7 @@
       "demo": "dependency_scanner_clean_chain_9_pass_both_clock_modes",
       "parentRegression": "n/a",
       "implementationCommit": "56b05c02d5e447a8286e1dcd2f3750560f34f3cb",
-      "evidenceCommit": null,
+      "evidenceCommit": "05af2e55bae5fb82951bed7f0abd096cb9887b8e",
       "handoffPath": ".alveara/handoffs/ALV-N019/R03.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R02-stage2.md", "scopeRulingArtifact": ".alveara/reviews/ALV-N019/R03-remediation-scope.md"},
       "blockingIssues": [],
