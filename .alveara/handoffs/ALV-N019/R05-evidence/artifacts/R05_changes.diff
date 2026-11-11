@@ -1,0 +1,53 @@
+diff --git a/src/Alveara.Api.Tests/LeastPrivilegeLoginCleanupTests.cs b/src/Alveara.Api.Tests/LeastPrivilegeLoginCleanupTests.cs
+index 29c6c39..cf4fe5c 100644
+--- a/src/Alveara.Api.Tests/LeastPrivilegeLoginCleanupTests.cs
++++ b/src/Alveara.Api.Tests/LeastPrivilegeLoginCleanupTests.cs
+@@ -109,7 +109,13 @@ public class LeastPrivilegeLoginCleanupTests
+             var held = new SqlConnection(new SqlConnectionStringBuilder(subject.RestrictedConnectionString) { Pooling = false }.ConnectionString);
+             await held.OpenAsync();
+             var waits = 0;
+-            subject.DelayForTest = async _ => { waits++; await held.DisposeAsync(); };               // the session closes exactly while the cleanup waits
++            subject.DelayForTest = async _ =>
++            {
++                waits++;
++                await held.DisposeAsync();
++                // Closing the client connection ends the server session a moment later; wait (bounded, 10 s) until the server reports it gone, so the retry does not race the server's own session teardown.
++                for (var i = 0; i < 200 && await ScalarAsync("SELECT COUNT(*) FROM sys.dm_exec_sessions WHERE login_name = @n", subject.LoginName) > 0; i++) await Task.Delay(50);
++            };                                                                                      // the session closes exactly while the cleanup waits
+ 
+             await subject.DisposeAsync();                                                            // first attempt fails with 15434, the wait releases the session, the retry succeeds
+ 
+diff --git a/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs b/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs
+index 0830908..e9ff599 100644
+--- a/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs
++++ b/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs
+@@ -45,7 +45,7 @@ public class RealMigrationInventoryTests
+     private static readonly HashSet<string> Infrastructure =
+     [
+         nameof(TestDatabaseFixture), nameof(RealMigrationTestDatabaseFixture), nameof(TestDatabaseTemplate), nameof(TestDatabaseTemplateTests), nameof(RealMigrationInventory),
+-        nameof(RealMigrationInventoryTests), nameof(RealMigrationsAttribute), nameof(SafetyTestBase),
++        nameof(RealMigrationInventoryTests), nameof(RealMigrationsAttribute), nameof(SafetyTestBase), nameof(FixtureForcedPruningTests),
+     ];
+ 
+     // The internal hook constructor (new TestDatabaseFixture(afterMigrateForTest: ...)) never uses a template unless a template is passed to it, so a class that builds fixtures through it is on the real path.
+@@ -85,7 +85,7 @@ public class RealMigrationInventoryTests
+     [Fact]
+     public void An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group()
+     {
+-        var classes = Classes().ToDictionary(c => c.Name);
++        var classes = Classes().GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.First());     // a partial class (TestDatabaseFixture) has one entry per file
+         foreach (var entry in RealMigrationInventory.All)
+         {
+             var source = classes[entry.TestClass.Name];
+diff --git a/src/alveara-client/e2e/architecture-map.spec.ts b/src/alveara-client/e2e/architecture-map.spec.ts
+index e4ca5af..2570334 100644
+--- a/src/alveara-client/e2e/architecture-map.spec.ts
++++ b/src/alveara-client/e2e/architecture-map.spec.ts
+@@ -84,6 +84,7 @@ test.describe("the story catalog", () => {
+ test.describe("Architecture Map tab", () => {
+   test("sits directly below Project Management in the navigation", async ({ page }) => {
+     await page.goto(base + "/index.html");
++    await page.locator('#tabs-nav button[data-tab="map"]').waitFor();      // the tabs are drawn by script after load; evaluateAll does not wait for them
+     const tabs = await page.locator("#tabs-nav button").evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.tab));
+     expect(tabs[tabs.indexOf("pm") + 1]).toBe("map");
+   });

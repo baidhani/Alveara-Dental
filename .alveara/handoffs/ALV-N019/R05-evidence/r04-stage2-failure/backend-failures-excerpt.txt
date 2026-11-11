@@ -1,0 +1,19 @@
+15:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\CompletionAdoptionSchemaTests.cs(36,9): warning CS8631: The type 'string?' cannot be used as type parameter 'T' in the generic type or method 'Assert.Equal<T>(ReadOnlySpan<T>, T[])'. Nullability of type argument 'string?' 
+17:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\CompletionApiTests.cs(356,9): warning xUnit2029: Do not use Assert.Empty to check if a value does not exist in a collection. Use Assert.DoesNotContain instead. (https://xunit.net/xunit.analyzers/rules/xUnit2029) [C:\Users\
+18:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\CompletionApiTests.cs(371,9): warning xUnit2029: Do not use Assert.Empty to check if a value does not exist in a collection. Use Assert.DoesNotContain instead. (https://xunit.net/xunit.analyzers/rules/xUnit2029) [C:\Users\
+21:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\DocumentContextServiceTests.cs(264,9): warning xUnit2013: Do not use Assert.Equal() to check for collection size. Use Assert.Single instead. (https://xunit.net/xunit.analyzers/rules/xUnit2013) [C:\Users\firas\Documents\AI-
+27:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\MetricsTests.cs(131,9): warning xUnit2029: Do not use Assert.Empty to check if a value does not exist in a collection. Use Assert.DoesNotContain instead. (https://xunit.net/xunit.analyzers/rules/xUnit2029) [C:\Users\firas\
+34:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\PatientUnmergeSchemaTests.cs(82,22): warning xUnit2031: Do not use a Where clause to filter before calling Assert.Single. Use the overload of Assert.Single that accepts a filtering function. (https://xunit.net/xunit.analyz
+36:C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\RecallJobTests.cs(171,9): warning xUnit2013: Do not use Assert.Equal() to check for collection size. Use Assert.Single instead. (https://xunit.net/xunit.analyzers/rules/xUnit2013) [C:\Users\firas\Documents\AI-Project-[Alve
+42:  Failed Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group [54 ms]
+43:  Error Message:
+44:   System.ArgumentException : An item with the same key has already been added. Key: TestDatabaseFixture
+46:  Failed Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it [65 ms]
+47:  Error Message:
+48:   Use the real path but are not listed as doing so: FixtureForcedPruningTests
+51:  Failed Alveara.Api.Tests.LeastPrivilegeLoginCleanupTests.A_session_that_is_still_closing_is_waited_for_and_the_second_attempt_succeeds [3 s]
+52:  Error Message:
+53:   Assert.Equal() Failure: Values differ
+54:Expected: 1
+55:Actual:   2
+60:Failed!  - Failed:     3, Passed:  5712, Skipped:     0, Total:  5715, Duration: 1 h 31 m - Alveara.Api.Tests.dll (net10.0)

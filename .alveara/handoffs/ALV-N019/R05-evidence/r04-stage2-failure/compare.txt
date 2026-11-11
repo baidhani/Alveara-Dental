@@ -1,0 +1,33 @@
+baseline ids: 5697; result ids: 5715; new ids: 18 (expected 18)
+MISSING from the results: 0
+OUTCOME CHANGED: 3
+    Alveara.Api.Tests.LeastPrivilegeLoginCleanupTests.A_session_that_is_still_closing_is_waited_for_and_the_second_attempt_succeeds
+    Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group
+    Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it
+NOT PASSED in the results: 3
+    Alveara.Api.Tests.LeastPrivilegeLoginCleanupTests.A_session_that_is_still_closing_is_waited_for_and_the_second_attempt_succeeds
+    Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group
+    Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it
+new ids:
+    Alveara.Api.Tests.FixtureForcedPruningTests.Control_arm_without_the_warm_up_reaches_the_real_first_open_timeout_when_the_preflight_demands_it -> Passed
+    Alveara.Api.Tests.FixtureForcedPruningTests.The_real_pruning_mechanism_is_found_in_the_installed_SqlClient -> Passed
+    Alveara.Api.Tests.FixtureForcedPruningTests.Treatment_arm_with_the_warm_up_succeeds_at_every_first_open_and_leaves_nothing_after_every_iteration -> Passed
+    Alveara.Api.Tests.FixtureOwnerCleanupTests.A_SafetyTestBase_owner_whose_setup_fails_leaves_no_database_and_no_files_and_the_original_exception_propagates -> Passed
+    Alveara.Api.Tests.FixtureOwnerCleanupTests.A_direct_owner_whose_setup_fails_after_the_fixture_is_ready_leaves_no_database_and_no_files_and_the_original_exception_propagates -> Passed
+    Alveara.Api.Tests.FixtureOwnerCleanupTests.A_failing_owner_cleanup_is_logged_on_its_own_line_and_never_replaces_the_original_exception -> Passed
+    Alveara.Api.Tests.FixtureOwnerCleanupTests.A_successful_owner_setup_is_left_alone -> Passed
+    Alveara.Api.Tests.FixtureOwnerCleanupTests.The_owner_setup_is_never_retried_even_when_it_fails_with_the_pool_timeout_text -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.No_test_class_runs_setup_after_the_fixture_without_the_owner_wrapper -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_shared_SafetyTestBase_and_the_named_failing_paths_use_the_owner_wrapper -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_an_arbitrary_SQL_error -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "assertion") -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "io") -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "marker-with-pool-text") -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "other-invalid-operation") -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "product") -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "timeout") -> Passed
+    Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_recovers_from_the_pool_timeout_and_is_bounded_and_rethrows_the_first_exception -> Passed
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 0
+EXPECTED new ids that did not appear: 0
+COMPARISON FAIL
