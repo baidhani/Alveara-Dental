@@ -30,7 +30,7 @@
       "demo": "r04_stage2_no_pool_timeout_and_four_test_failures_repaired",
       "parentRegression": "n/a",
       "implementationCommit": "c94ca0b5f721eda9401a0876228257a1945dd8b5",
-      "evidenceCommit": null,
+      "evidenceCommit": "dccd61fe49810989ad16b3730b87fffb9d190a80",
       "handoffPath": ".alveara/handoffs/ALV-N019/R05.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R04-stage1.md", "scopeRulingArtifacts": [".alveara/reviews/ALV-N019/R04-fixture-preflight-scope.md", ".alveara/reviews/ALV-N019/R04-briefing-review.md", ".alveara/reviews/ALV-N019/R04-briefing-approval.md"]},
       "blockingIssues": [],
