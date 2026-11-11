@@ -23,7 +23,7 @@
       "dependencies": ["ALV-N006", "ALV-N015", "ALV-018-C02"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "AWAITING_REGRESSION",
       "attempt": "R03",
       "acceptance": {"total": 5, "passed": 5},
       "tests": {"status": "passed", "summary": "Attempt R03, a focused Stage 1 package for the PD-26 remediation of F-001 required by the R02 Stage 2 review (the R02 Stage 2 qualified, 25 of 25, and is accepted as valid evidence for the old package graph). The change: one PackageReference pinning System.Security.Cryptography.Pkcs to 9.0.21 in src/Alveara.Api/Alveara.Api.csproj (+2 lines), a repository guard test (tests/stabilization/dependency-pin.test.mjs, 4 tests, outside the backend and tests/*.test.mjs counts) and the advisory report moved to fixed. Proof: dotnet nuget why shows 9.0.21 on every path; dotnet list package --vulnerable --include-transitive reports no vulnerable packages for Alveara.Api, Alveara.Api.Tests and Alveara.Api.ChainHost; with the pin reverted the guard fails and the scanner reports F-001 again (negative control, file restored byte for byte); build exit 0; focused backend 109 of 109 passed (ChainClockSeamTests, BackupRecoveryHardeningTests, PatientMergeHostileInputTests, AccountServiceBootstrapTests); the stage-0 chain passed with nine PASS records in the injected and the real clock mode. Not run: the broad regression. The new frozen Stage 2 contract (same shape as R02; baseline the R02 backend-tests.csv, 5,697 ids, no new id) is prepared in .alveara/handoffs/ALV-N019/R03-evidence/stage2/ and is NOT run: it needs your Stage 1 approval and the product owner's explicit go."},
@@ -32,12 +32,12 @@
       "implementationCommit": "56b05c02d5e447a8286e1dcd2f3750560f34f3cb",
       "evidenceCommit": "05af2e55bae5fb82951bed7f0abd096cb9887b8e",
       "handoffPath": ".alveara/handoffs/ALV-N019/R03.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R02-stage2.md", "scopeRulingArtifact": ".alveara/reviews/ALV-N019/R03-remediation-scope.md"},
+      "review": {"decision": "APPROVED_PENDING_REGRESSION", "decisionArtifact": ".alveara/reviews/ALV-N019/R03-stage1.md", "approvedAttempt": null, "reviewedImplementationCommit": "56b05c02d5e447a8286e1dcd2f3750560f34f3cb", "reviewedEvidenceCommit": "05af2e55bae5fb82951bed7f0abd096cb9887b8e", "stage1DecisionArtifact": ".alveara/reviews/ALV-N019/R03-stage1.md", "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R02-stage2.md", "scopeRulingArtifact": ".alveara/reviews/ALV-N019/R03-remediation-scope.md"},
       "blockingIssues": [],
       "controlNotes": "Approved 2026-11-09 stabilization program. Pre-implementation briefing is mandatory. Inventory DentalKeep branding before any change; preserve historical/control and compatibility-sensitive identifiers.",
       "revalidation": {"required": false, "reason": null},
       "completedAt": null,
-      "fullRegression": "PENDING"
+      "fullRegression": "REQUIRED"
     },
     {
       "schemaVersion": "2",
