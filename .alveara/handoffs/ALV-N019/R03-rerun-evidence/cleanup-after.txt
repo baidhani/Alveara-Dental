@@ -1,0 +1,13 @@
+Cleanup record, AFTER (2026-11-10, on the product owner's explicit approval and the reviewer's authorization in .alveara/reviews/ALV-N019/R03-stage2-inconclusive.md)
+
+Verified before dropping: the target name was exactly AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8 (pattern ^AlveraTest_[0-9a-f]{32}$), the database existed, and sys.master_files listed exactly its two files, both under C:\.alvera-data\Test-Data\Database:
+  C:\.alvera-data\Test-Data\Database\AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8.mdf
+  C:\.alvera-data\Test-Data\Database\AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8_log.ldf
+Action: ALTER DATABASE [AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8];  (exit 0; the drop removes the database's own files)
+
+After:
+  non-system databases on .\SQLEXPRESS: AlveraDev only
+  AlveraTest_*, AlveraTemplate_* or AlveraRestore_* databases remaining: 0
+  files remaining in C:\.alvera-data\Test-Data\Database: 0
+  AlveraDev: intact (1 database named AlveraDev)
+Nothing else was deleted: no other database, no template, no data folder.
