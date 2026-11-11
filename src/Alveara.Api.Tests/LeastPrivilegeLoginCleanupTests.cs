@@ -109,7 +109,13 @@ public class LeastPrivilegeLoginCleanupTests
             var held = new SqlConnection(new SqlConnectionStringBuilder(subject.RestrictedConnectionString) { Pooling = false }.ConnectionString);
             await held.OpenAsync();
             var waits = 0;
-            subject.DelayForTest = async _ => { waits++; await held.DisposeAsync(); };               // the session closes exactly while the cleanup waits
+            subject.DelayForTest = async _ =>
+            {
+                waits++;
+                await held.DisposeAsync();
+                // Closing the client connection ends the server session a moment later; wait (bounded, 10 s) until the server reports it gone, so the retry does not race the server's own session teardown.
+                for (var i = 0; i < 200 && await ScalarAsync("SELECT COUNT(*) FROM sys.dm_exec_sessions WHERE login_name = @n", subject.LoginName) > 0; i++) await Task.Delay(50);
+            };                                                                                      // the session closes exactly while the cleanup waits
 
             await subject.DisposeAsync();                                                            // first attempt fails with 15434, the wait releases the session, the retry succeeds
 

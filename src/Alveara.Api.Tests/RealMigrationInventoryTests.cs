@@ -45,7 +45,7 @@ public class RealMigrationInventoryTests
     private static readonly HashSet<string> Infrastructure =
     [
         nameof(TestDatabaseFixture), nameof(RealMigrationTestDatabaseFixture), nameof(TestDatabaseTemplate), nameof(TestDatabaseTemplateTests), nameof(RealMigrationInventory),
-        nameof(RealMigrationInventoryTests), nameof(RealMigrationsAttribute), nameof(SafetyTestBase),
+        nameof(RealMigrationInventoryTests), nameof(RealMigrationsAttribute), nameof(SafetyTestBase), nameof(FixtureForcedPruningTests),
     ];
 
     // The internal hook constructor (new TestDatabaseFixture(afterMigrateForTest: ...)) never uses a template unless a template is passed to it, so a class that builds fixtures through it is on the real path.
@@ -85,7 +85,7 @@ public class RealMigrationInventoryTests
     [Fact]
     public void An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group()
     {
-        var classes = Classes().ToDictionary(c => c.Name);
+        var classes = Classes().GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.First());     // a partial class (TestDatabaseFixture) has one entry per file
         foreach (var entry in RealMigrationInventory.All)
         {
             var source = classes[entry.TestClass.Name];

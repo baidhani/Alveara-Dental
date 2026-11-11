@@ -84,6 +84,7 @@ test.describe("the story catalog", () => {
 test.describe("Architecture Map tab", () => {
   test("sits directly below Project Management in the navigation", async ({ page }) => {
     await page.goto(base + "/index.html");
+    await page.locator('#tabs-nav button[data-tab="map"]').waitFor();      // the tabs are drawn by script after load; evaluateAll does not wait for them
     const tabs = await page.locator("#tabs-nav button").evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.tab));
     expect(tabs[tabs.indexOf("pm") + 1]).toBe("map");
   });
