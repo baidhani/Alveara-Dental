@@ -1,0 +1,12 @@
+Γ£ö Alveara.Api.csproj pins System.Security.Cryptography.Pkcs directly, at the first fixed version or later (0.5662ms)
+Γ£ö the pin is within the 9.0 line the SQL client's dependency was resolved in (no jump to another major line) (0.4344ms)
+Γ£ö the checker itself: older and malformed pins are rejected, the fixed and newer ones accepted (0.6302ms)
+Γ£ö idempotent: reading the project twice gives the same pin (0.2352ms)
+Γä╣ tests 4
+Γä╣ suites 0
+Γä╣ pass 4
+Γä╣ fail 0
+Γä╣ cancelled 0
+Γä╣ skipped 0
+Γä╣ todo 0
+Γä╣ duration_ms 63.373

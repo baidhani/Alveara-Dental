@@ -1,0 +1,30 @@
+Γ£û Alveara.Api.csproj pins System.Security.Cryptography.Pkcs directly, at the first fixed version or later (0.7128ms)
+Γ£ö the pin is within the 9.0 line the SQL client's dependency was resolved in (no jump to another major line) (0.396ms)
+Γ£ö the checker itself: older and malformed pins are rejected, the fixed and newer ones accepted (0.7777ms)
+Γ£ö idempotent: reading the project twice gives the same pin (0.1842ms)
+Γä╣ tests 4
+Γä╣ suites 0
+Γä╣ pass 3
+Γä╣ fail 1
+Γä╣ cancelled 0
+Γä╣ skipped 0
+Γä╣ todo 0
+Γä╣ duration_ms 54.5542
+
+Γ£û failing tests:
+
+test at tests\stabilization\dependency-pin.test.mjs:22:1
+Γ£û Alveara.Api.csproj pins System.Security.Cryptography.Pkcs directly, at the first fixed version or later (0.7128ms)
+  AssertionError [ERR_ASSERTION]: Pkcs is pinned to 9.0.18, below the fixed 9.0.21
+      at TestContext.<anonymous> (file:///C:/Users/firas/Documents/AI-Project-%5BAlveara-Dental%5D/tests/stabilization/dependency-pin.test.mjs:25:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

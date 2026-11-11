@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.ChainHost\Alveara.Api.ChainHost.csproj (in 171 ms).
+  1 of 2 projects are up-to-date for restore.
+
+The following sources were used:
+   https://api.nuget.org/v3/index.json
+   C:\Program Files (x86)\Microsoft SDKs\NuGetPackages\
+
+The given project `Alveara.Api.ChainHost` has no vulnerable packages given the current sources.

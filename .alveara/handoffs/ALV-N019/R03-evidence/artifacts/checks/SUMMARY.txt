@@ -1,0 +1,29 @@
+17:55:59 R03 focused checks on 068d454ef5223df0db3f5e8e17705d9670cdc42a with the Pkcs pin in the working tree
+17:55:59 START 01-pin-guard
+17:55:59 END   01-pin-guard exit=0 (0s)
+17:55:59 START 02-control-guard-fails-on-old-pin
+17:55:59 END   02-control-guard-fails-on-old-pin exit=1 (0s)
+17:55:59 START 03-control-restore-old
+17:56:01 END   03-control-restore-old exit=0 (2s)
+17:56:01 START 04-control-vulnerable-with-old-pin
+17:56:30 END   04-control-vulnerable-with-old-pin exit=0 (29s)
+17:56:30 control: csproj restored sha256 before=9CA6AA1C2237E630E564AE718AA2D16F8C48CE655578DE983837BFDA8567520E after=9CA6AA1C2237E630E564AE718AA2D16F8C48CE655578DE983837BFDA8567520E identical=True
+17:56:30 START 05-restore
+17:56:46 END   05-restore exit=0 (16s)
+17:56:46 START 06-nuget-why-pkcs
+17:56:59 END   06-nuget-why-pkcs exit=0 (13s)
+17:56:59 START 07-after-vulnerable-api
+17:57:41 END   07-after-vulnerable-api exit=0 (42s)
+17:57:41 START 07-after-vulnerable-tests
+17:57:45 END   07-after-vulnerable-tests exit=0 (4s)
+17:57:45 START 07-after-vulnerable-chainhost
+17:57:48 END   07-after-vulnerable-chainhost exit=0 (3s)
+17:57:48 START 08-build
+17:58:41 END   08-build exit=0 (53s)
+17:58:41 START 09-focused-backend
+18:05:26 END   09-focused-backend exit=0 (406s)
+18:05:26 START 10-chain-injected
+18:05:48 END   10-chain-injected exit=0 (21s)
+18:05:48 START 11-chain-real
+18:06:07 END   11-chain-real exit=0 (20s)
+18:06:07 R03 CHECKS DONE

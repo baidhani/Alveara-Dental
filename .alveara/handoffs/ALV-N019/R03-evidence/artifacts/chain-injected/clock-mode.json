@@ -1,0 +1,9 @@
+{
+    "reported":  "injected",
+    "report":  {
+                   "mode":  "injected",
+                   "clockType":  "ChainPracticeClock",
+                   "utcNow":  "2026-01-15T15:00:00+00:00"
+               },
+    "requested":  "injected"
+}

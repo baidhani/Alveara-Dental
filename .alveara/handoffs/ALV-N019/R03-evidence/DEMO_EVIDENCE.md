@@ -1,0 +1,3 @@
+# ALV-N019 R03: demo evidence
+
+No user-visible change. The demonstrable result is the dependency scanner: with the pin, `dotnet list package --vulnerable --include-transitive` prints "has no vulnerable packages" for the three projects and the NU1902 and NU1903 build warnings stop (`artifacts/advisory/07-after-vulnerable-*.log`); with the pin reverted, the same command reports `System.Security.Cryptography.Pkcs 9.0.18` with both advisories (`artifacts/advisory/04-control-vulnerable-with-old-pin.log`). The stage-0 chain still runs in both clock modes (nine PASS each: `artifacts/chain-injected/`, `artifacts/chain-real/`). No screenshots.
