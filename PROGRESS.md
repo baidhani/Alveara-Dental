@@ -2276,3 +2276,9 @@
   - What changed: the independent review and the R04 preflight addendum are stored unchanged under .alveara/reviews/ALV-N019/; the ALV-N019 record: status BLOCKED, review CHANGES_REQUIRED, the R04 requirements as blocking issues; BUILD_STATE.md ruling paragraph; .alveara/handoffs/ALV-N019/R03-rerun-evidence/cleanup2-record.txt.
   - Verification: closure only (no src/test/script/package change). Cleanup: the name matched ^AlveraTest_[0-9a-f]{32}$, the database owned exactly two files under Test-Data\Database, drop exit 0; after: AlveraDev only, 0 files in Test-Data\Database.
   - Notes: no run started. Next: the R04 pre-implementation briefing, then implementation only on the owner's Go. ALV-N019 is not COMPLETE; ALV-N020 is not started; nothing pushed.
+- [x] ALV-N019 R04 pre-implementation briefing written (no code)
+  - Date: 2026-11-11
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N019/R04-briefing.md: the fixture-hardening design (warm-up before release with the existing narrow retry; owner-side cleanup when post-fixture setup fails), the proof plan including the 50+ iteration forced-race preflight and per-iteration cleanup checks, failure-first answers, risks.
+  - Verification: document only; no src/test/script change; awaiting the owner's Go.
+  - Notes: ALV-N019 is not COMPLETE; ALV-N020 is not started; nothing pushed; no full run authorized.
