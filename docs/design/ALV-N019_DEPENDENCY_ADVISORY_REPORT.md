@@ -1,4 +1,4 @@
-# ALV-N019 dependency advisory report (R05 F-001, F-005), revision for attempt R02
+# ALV-N019 dependency advisory report (R05 F-001, F-005), revision for attempt R03 (F-001 fixed; the analysis below is the R02 text)
 
 Session CC-20261109-8w3d. Queries run 2026-11-10. Read-only: no package, lock file or project file was changed and `npm audit fix` was not run (reviewer decision O-7: no update without the separate PD-26 decision). This revision answers review correction 05 of `.alveara/reviews/ALV-N019/R01.md`: it reads the advisory text, states a disposition and a reachability analysis for each advisory, proves the shipped-artifact boundary, and keeps `System.Security.Cryptography.Pkcs` an OPEN blocker.
 
@@ -25,8 +25,13 @@ Raw evidence (in `.alveara/handoffs/ALV-N019/R02-evidence/artifacts/advisory/`):
 - **No attacker-controlled input path:** the API does not accept CMS or PKCS#7 data from clients; neither affected method is called by anything I could find. The application connects to SQL Server with Windows authentication and no Always Encrypted setting (`Column Encryption`, `ColumnEncryptionSetting`, attestation settings: no matches in `src`, `scripts`, `docs/operations`).
 - **Disposition (evidence-backed):** *not reachable from application code and the vulnerable package binary is not deployed;* exposure exists only if the host runs an ASP.NET Core 10.0 runtime older than 10.0.13. This does not remove the scanner finding: the restore graph still resolves 9.0.18, so `NU1902` and `NU1903` still print on every build.
 
-### Status and decision needed (PD-26)
-**OPEN BLOCKER, retained.** The vulnerable resolved version remains in the restore graph and the dependency scanner will keep reporting it. Final closure still needs PD-26: either remediation (a reviewed change so the graph resolves 9.0.21 or later, by an update of the SQL client chain or a reviewed pin of the transitive package) or explicit product-owner risk acceptance, which can now cite the analysis above. Whatever is chosen, release engineering (ALV-N013) should state the minimum ASP.NET Core runtime patch level (10.0.13 or later) for deployments. Nothing was changed in this attempt.
+### Status (PD-26): FIXED in attempt R03 (product-owner decision: update)
+The R02 revision of this report left F-001 an OPEN blocker pending PD-26. The product owner decided **update (remediate)** on 2026-11-10 and the Stage 2 review (`.alveara/reviews/ALV-N019/R02-stage2.md`) required it as attempt R03. **Disposition: `fixed`**, proven below.
+
+- **The exact change:** one added `PackageReference` in `src/Alveara.Api/Alveara.Api.csproj`: `System.Security.Cryptography.Pkcs` version `9.0.21`, with a comment naming the two advisories. It is a direct pin of the transitive package that `Microsoft.Data.SqlClient` 7.1.0 requires (`>= 9.0.18`); a direct reference wins over the transitive one, so the graph resolves 9.0.21. No other project, package, lock file or source file changes (the repository has no `packages.lock.json`).
+- **Why this is the narrowest compatible remediation:** 9.0.21 is the first version the advisories name as fixed for the 9.0 line the graph already used (GHSA-846f-f764-76mx and GHSA-2fmv-rv2c-59x7: fixed in 9.0.21); it satisfies the SQL client's minimum; it needs no change to `Microsoft.Data.SqlClient` or `Microsoft.EntityFrameworkCore.SqlServer`, whose own versions stay at 7.1.0 and 10.0.12. Newer 9.0.x versions (9.0.22, 9.0.23) and the 10.0.13+ line exist; none was chosen, to keep the change minimal and inside one major line.
+- **Proof the graph no longer resolves a vulnerable version:** `dotnet nuget why Alveara.Api.csproj System.Security.Cryptography.Pkcs` shows 9.0.21 on every path (directly and through `Microsoft.Data.SqlClient` and `Microsoft.EntityFrameworkCore.SqlServer`); `dotnet list package --vulnerable --include-transitive` reports **no vulnerable packages** for `Alveara.Api`, `Alveara.Api.Tests` and `Alveara.Api.ChainHost` (raw output in the R03 evidence, `artifacts/advisory/after-*.txt`; the before state is in the R02 evidence). A repository check, `tests/stabilization/dependency-pin.test.mjs`, keeps the pin from regressing.
+- **Residual notes:** the application output still does not deploy the package binary (the framework's copy is used), so the runtime exposure analysis above is unchanged; the minimum ASP.NET Core 10.0 runtime patch level for deployments (10.0.13 or later) is still a requirement for release engineering (ALV-N013). The client's dev-only npm findings are not part of this remediation (no unrelated npm or dev-dependency update is made).
 
 ## 2. Development dependencies: the client (npm)
 
@@ -64,6 +69,6 @@ All 17 npm advisories (5 packages) are development-only: absent from the product
 - No audit of every Vitest test's network use beyond the URL search above.
 
 ## 4. Decisions needed
-1. **PD-26 for F-001:** remediate (update or pin so the graph resolves Pkcs 9.0.21 or later) or have the product owner accept the risk with the facts in section 1.
+1. **PD-26 for F-001:** decided (update, 2026-11-10) and **fixed in R03** with the pin described in section 1.
 2. **Client dev dependencies:** accept as dev-only (with the Vite caveat) or update them under PD-26.
 3. **Release engineering (ALV-N013):** record the minimum ASP.NET Core runtime patch level (10.0.13 or later).
