@@ -1,0 +1,27 @@
+run commit: faa651b34b9eb03164fb4ac1f566606d9e51e266
+approved snapshot: 56b05c02d5e447a8286e1dcd2f3750560f34f3cb
+tracked changes before: 0 (0 = none); untracked paths before: 12 (the unrelated design drafts, which the run must neither add to nor remove)
+env: ALVERA_TEST_TEMPLATE=[]
+start: 2026-11-10T20:15:28-06:00
+backend command: cd src/Alveara.Api.Tests && dotnet test --nologo --logger "trx;LogFileName=full_serial.trx" --results-directory C:/tmp/stage2-ALV-N019-R03-rerun/trx
+== backend exit=1 elapsed=5360s
+   at Alveara.Api.Tests.SchedulingTestSupport.ArrangeAsync() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SchedulingTestSupport.cs:line 37
+   at Alveara.Api.Tests.SchedulingTestSupport.ArrangeAsync() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SchedulingTestSupport.cs:line 43
+   at Alveara.Api.Tests.SafetyTestBase.InitializeAsync() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\SafetyTestBase.cs:line 34
+Results File: C:\tmp\stage2-ALV-N019-R03-rerun\trx\full_serial.trx
+
+Failed!  - Failed:     1, Passed:  5696, Skipped:     0, Total:  5697, Duration: 1 h 28 m - Alveara.Api.Tests.dll (net10.0)
+== gate vitest exit=0 elapsed=164s
+== gate build exit=0 elapsed=10s
+== gate lint exit=0 elapsed=7s
+== gate tsc exit=0 elapsed=8s
+== gate playwright_mocked exit=0 elapsed=31s
+== gate repo_checks exit=0 elapsed=15s
+== gate walk_playwright.auth.config.ts exit=0 elapsed=49s
+== gate walk_playwright.patient-portability.config.ts exit=0 elapsed=35s
+== gate walk_playwright.patient-export-package.config.ts exit=0 elapsed=52s
+== gate walk_playwright.patient-merge.config.ts exit=0 elapsed=50s
+== gate walk_playwright.bulk-import.config.ts exit=0 elapsed=105s
+== gate chain_stage0 exit=0 elapsed=24s
+end: 2026-11-10T21:54:05-06:00
+tracked changes after: 0

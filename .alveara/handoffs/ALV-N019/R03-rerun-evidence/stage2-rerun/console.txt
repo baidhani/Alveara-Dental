@@ -1,0 +1,30 @@
+PASS  the run commit is recorded                                                                                                                                                       faa651b34b9eb03164fb4ac1f566606d9e51e266
+PASS  no tracked file changed before or after the run, and the run added or removed no file (the untracked listing is identical before and after)                                      identical listings
+PASS  no product, test, script, configuration, solution, package or catalog file differs between the approved snapshot and the run commit (only .alveara records and PROGRESS.md may)  0 files
+PASS  the template mode switch is not set                                                                                                                                              
+FAIL  backend run exit code 0                                                                                                                                                          
+FAIL  discovered and passed are exactly the expected count, none failed or skipped                                                                                                     {'Passed': 5696, 'Failed': 1} (expected Passed 5697)
+FAIL  same existing test ids and outcomes as the ALV-N019 R02 Stage 2 baseline (no retired id); no new id (R03 adds no backend test)                                                   COMPARISON FAIL
+PASS  runner proof: every walkthrough output goes to the out-folder outside the repository                                                                                             every walkthrough output goes to the runner folder
+FAIL  Storage, Temp, Database, Backup and Keys entries, databases, SQL logins and template backups unchanged                                                                           before {'databases_total': 1, 'AlveraTest': 0, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 0, 'folder_Temp': 2, 'template_backups_in_Temp': 0} after {'databases_total': 2, 'AlveraTest': 1, 'AlveraTemplate': 0, 'AlveraRestore': 0, 'sql_logins': 0, 'folder_Storage': 3920, 'folder_Keys': 1, 'folder_Backup': 2, 'folder_Database': 2, 'folder_Temp': 2, 'template_backups_in_Temp': 0}
+PASS  no AlveraTemplate database or backup left                                                                                                                                        
+PASS  gate vitest                                                                                                                                                                      exit 0
+PASS  gate build                                                                                                                                                                       exit 0
+PASS  gate lint                                                                                                                                                                        exit 0
+PASS  gate tsc                                                                                                                                                                         exit 0
+PASS  gate playwright_mocked                                                                                                                                                           exit 0
+PASS  gate repo_checks                                                                                                                                                                 exit 0
+PASS  walkthrough walk_playwright.auth.config.ts: 12 passed, none failed, exit 0                                                                                                       
+PASS  walkthrough walk_playwright.patient-portability.config.ts: 7 passed, none failed, exit 0                                                                                         
+PASS  walkthrough walk_playwright.patient-export-package.config.ts: 10 passed, none failed, exit 0                                                                                     
+PASS  walkthrough walk_playwright.patient-merge.config.ts: 9 passed, none failed, exit 0                                                                                               
+PASS  walkthrough walk_playwright.bulk-import.config.ts: 13 passed, none failed, exit 0                                                                                                
+PASS  chain stage 0: runner exit 0                                                                                                                                                     exit 0
+PASS  chain stage 0: the host reported the injected clock                                                                                                                              
+PASS  chain stage 0: nine records PASS, none FAIL, TRACKED_EXCEPTION or SKIPPED_BLOCKED                                                                                                
+PASS  chain stage 0: the evidence has nine PASS records, each stamped clockMode injected                                                                                               9 records
+
+INFO  backend elapsed (operational evidence, not a criterion): 5360s = 89.3 min
+INFO  template telemetry (information only): 1 template built; clones 4343, fallbacks 0, real-migration fixtures 37
+
+STAGE 2 DOES NOT QUALIFY

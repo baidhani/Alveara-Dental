@@ -1,0 +1,21 @@
+ALV-N019 R03 Stage 2 rerun: failure diagnosis (read-only; no test or full run executed for it), 2026-11-11
+
+Failures
+  Initial run 2026-11-10 18:35:00: ImportIntakeServiceTests (first SaveChangesAsync) - pool-acquisition timeout.
+  Rerun     2026-11-10 21:39:20: PrescriptionWorkflowSchemaTests.The_database_refuses_an_incorrect_detail_by_itself - same message, in SafetyTestBase.InitializeAsync -> SchedulingTestSupport.ArrangeAsync (first pooled open after the fixture finished).
+
+Machine / server checks
+  SQL Server error log: no "taking longer than 15 seconds" I/O messages anywhere on 2026-11-10; at both failure times only normal template restores (~0.5 s each).
+  Windows System/Application logs: nothing at 18:35; at 21:39 only .NET Runtime event 1000 warnings from 21:43:48 on (after the failure, from later steps).
+  Conclusion: no evidence of a disk, SQL Server or OS stall.
+
+Code facts
+  R02 -> R03 source difference: src/Alveara.Api/Alveara.Api.csproj, +2 lines (the Pkcs 9.0.21 pin). SqlClient is 7.1.0 in both. The pin does not touch pooling.
+  Known, previously investigated cause (PROGRESS.md TESTSPEED-P2 entry; TestDatabaseFixture.IsPoolAcquisitionTimeout): SqlClient's pool-pruning timer shuts down an EMPTY pool while a caller is acquiring a connection, surfacing as "Timeout expired ... obtaining a connection from the pool" (reproduced 15/15 and 18/18 by forcing the tick).
+  Existing protection: TestDatabaseFixture retries that error (bounded) in InitializeAsync and in the drop.
+  Gap: the first pooled open of a restored clone often happens in test code AFTER InitializeAsync (SchedulingTestSupport.ArrangeAsync, first SaveChangesAsync in a test). That open has no retry. Both R03 failures are exactly such opens.
+  Why R02 passed and R03 failed twice: the race is a timing chance per fixture (about 4,300 clones per run), not a function of the pin. Unproven, but consistent with all evidence.
+
+Not done / not claimed
+  The pin as a cause is not proven or excluded by a controlled experiment; the race as the cause is strongly indicated, not proven for these two exact failures.
+  Candidate fix (needs a new attempt, not allowed on snapshot 56b05c0): warm the clone's pool before the fixture returns, or retry the first open; with a test that forces the pruning tick.
