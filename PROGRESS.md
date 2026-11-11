@@ -2282,3 +2282,9 @@
   - What changed: .alveara/handoffs/ALV-N019/R04-briefing.md: the fixture-hardening design (warm-up before release with the existing narrow retry; owner-side cleanup when post-fixture setup fails), the proof plan including the 50+ iteration forced-race preflight and per-iteration cleanup checks, failure-first answers, risks.
   - Verification: document only; no src/test/script change; awaiting the owner's Go.
   - Notes: ALV-N019 is not COMPLETE; ALV-N020 is not started; nothing pushed; no full run authorized.
+- [x] ALV-N019 R04 briefing revised (revision 2) after the reviewer's CHANGES_REQUIRED; owner inventory added (no code)
+  - Date: 2026-11-11
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N019/R04-briefing-review.md stored unchanged; .alveara/handoffs/ALV-N019/R04-briefing.md revision 2 (real forced pruning mechanism with a control arm and a 60-iteration treatment preflight, complete fixture-owner inventory with per-family coverage, exact owner wrapper with distinct cleanup-failure logging, guard test); .alveara/handoffs/ALV-N019/R04-owner-inventory.md (script-generated: 187 files; A 32, B 16, C 98, D 30, E 2, F 9).
+  - Verification: documents only; no src/test/script change; the inventory is produced by a script over src/Alveara.Api.Tests and is re-verified by the planned guard test.
+  - Notes: awaiting the reviewer's approval of revision 2 and the owner's Go before any code. No run started; ALV-N019 is not COMPLETE; ALV-N020 is not started; nothing pushed.

@@ -1,34 +1,52 @@
-# ALV-N019 R04 — Pre-implementation briefing (fixture hardening)
+# ALV-N019 R04 — Pre-implementation briefing, REVISION 2 (fixture hardening)
 
-Status: proposal for the owner's Go and the reviewer's awareness. No code has been changed. R03 evidence, packages and the PD-26 pin stay untouched.
+Status: revised after `.alveara/reviews/ALV-N019/R04-briefing-review.md` (CHANGES_REQUIRED before implementation authorization) and the preflight addendum. **No code has been changed.** R03 evidence, packages and the PD-26 pin (9.0.21) stay untouched. Revision 1 is in git history (`e3d2a6a`).
 
 ## 1. Problem, as evidenced
-Two R03 Stage 2 runs each lost one test to `Timeout expired ... obtaining a connection from the pool` at the first pooled open of a freshly restored clone, in test code AFTER `TestDatabaseFixture.InitializeAsync` returned (`SchedulingTestSupport.ArrangeAsync`, first `SaveChangesAsync`). Cause (indicated, not proven for these two events): SqlClient's pool-pruning timer shuts down the still-empty pool of the clone's connection string while a caller acquires from it. Existing protection (`RunWithTransientRetryAsync` + `IsPoolAcquisitionTimeout`) covers creation and drop only.
-Second defect: when the OWNER of a fixture throws in its own `InitializeAsync` after `Fixture.InitializeAsync()` succeeded (e.g. `SafetyTestBase`), xUnit never calls `DisposeAsync`, so the clone and its two files leak. The fixture's own failed-init cleanup (`CleanUpFailedInitializationAsync`) does not apply, because the fixture had already succeeded.
+Two R03 Stage 2 runs each lost one test to `Timeout expired ... obtaining a connection from the pool` at the first pooled open of a restored clone, in owner code AFTER `TestDatabaseFixture.InitializeAsync` returned: run 1 in `ImportIntakeServiceTests` (first `SaveChangesAsync`), run 2 in `SafetyTestBase` (`SchedulingTestSupport.ArrangeAsync`). Indicated cause: SqlClient's pool-pruning timer shuts down the still-empty pool of the clone's connection string while a caller acquires from it (documented, TESTSPEED-P2). The existing narrow retry covers creation and drop only.
+Second defect: when an owner throws in its own `InitializeAsync` after the fixture succeeded, xUnit never calls `DisposeAsync`, so the clone and its two files leak. Both observed failure paths (direct owner and SafetyTestBase) leaked.
 
-## 2. Design (small, test-infrastructure only; no src/ change)
-A. **Warm-up before release (reviewer option "deterministic warm-up").** At the end of `TestDatabaseFixture.InitializeAsync`, still inside the existing bounded retry, open and close one pooled connection through the same pool EF uses (`CreateContext()` then `Database.OpenConnectionAsync`). The pool then holds an idle connection (pruning removes only empty pools), and a pruning race at that open is retried by the existing narrow classifier (`IsPoolAcquisitionTimeout`, at most 3 attempts, first exception rethrown unchanged). No other exception type is retried.
-B. **Cleanup on owner failure.** `SafetyTestBase.InitializeAsync` (the shared base that failed in R03) wraps its post-fixture setup: on ANY exception it calls `Fixture.DisposeAsync()` (best effort, logged) and rethrows the original. A small static helper (`TestDatabaseFixture.InitializeOwnedAsync(Func<Task>)` or equivalent) lets other owners do the same; I will list, in the Stage 1 handoff, every base class with this pattern and convert the shared ones, rather than editing 137 test files.
-C. **No change** to pool settings, timeouts, SqlClient version, the Pkcs pin, product code, or the frozen Stage 2 contract mechanics (a new frozen R04 contract is generated from the R03 shape; baseline = R02/R03 ids; expected new ids = the R04 tests listed below).
+## 2. Design (test infrastructure only; no src/ change)
+**A. Warm-up before release.** At the end of `TestDatabaseFixture.InitializeAsync`, inside the existing bounded retry, open and close one pooled connection through the pool EF uses for the clone's string. The pool then holds an idle connection (pruning removes only empty pools). A race at that open is retried by the existing classifier `IsPoolAcquisitionTimeout` only (3 attempts total, zero delay, first exception rethrown unchanged). The classifier is NOT widened.
+**B. Owner wrapper (exact, observable).** New `TestDatabaseFixture.InitializeOwnerAsync(Func<Task> setupAfterFixture)`: runs the fixture initialisation, then the owner's setup; if the setup throws, it calls the fixture's own `DisposeAsync()` (best effort; it removes only THIS fixture's clone and its two files), then rethrows the ORIGINAL exception object unchanged. A cleanup failure is logged distinctly (`[TestDatabaseFixture] owner-failure cleanup of <db> failed (<class>)`, class only, no message, path or connection string) and never replaces or hides the original; the log line also records that the cleanup ran. 
+**C. Size rule.** `TestDatabaseFixture.cs` is already large; the change first extracts the retry helpers (`RunWithTransientRetryAsync` and the classifiers) into their own file, then adds A and B.
+**D. Not changed:** pool settings, timeouts, SqlClient version, the 9.0.21 pin, any other package, product code, the classifier's breadth, the Stage 2 contract mechanics.
 
-## 3. Proof plan (Stage 1; all cheap, minutes not hours)
-1. **Forced race, deterministic.** A test hook forces the pruning tick (the same reflection on `PruneConnectionPoolGroups` used in the earlier TESTSPEED-P2 reproduction, or an injected fault that throws the exact pool-timeout exception at the first pooled open) so no lucky timing is needed. Proves: without the warm-up the failure reproduces; with it, recovery happens.
-2. **Preflight (reviewer addendum):** a script runs the forced-race check 50+ consecutive iterations (I will run 60), every one must pass; after EVERY iteration a read-only check lists `AlveraTest_*` databases and files in Test-Data\Database and requires zero. Raw per-iteration outcomes, cleanup checks and the forcing mechanism go in the R04 package.
-3. **Induced failure after create:** a test fails the owner's setup after the fixture created its database; asserts the database and its two files are gone (both the fixture-internal path and the owner path of B).
-4. **Narrow classification:** tests that a product exception, an arbitrary `SqlException`, an `InvalidOperationException` with a different message, and an assertion failure are NOT retried and propagate unchanged (extends `TestDatabaseTransientRetryTests`).
-5. **Negative controls:** removing the warm-up, and removing the owner cleanup, each make a named test fail (then restored).
-6. Existing fixture test classes (`TestDatabase*Tests`, `SafetyTestBase` consumers sampled) pass; `tsc`/client untouched, so no client gates change; PD-26 guard test and the dependency-pin check still pass.
+## 3. Complete owner inventory and how each family is covered
+Full per-file list: `.alveara/handoffs/ALV-N019/R04-owner-inventory.md` (generated by a script from `src/Alveara.Api.Tests/*.cs`; heuristic; re-verified by the guard test below). 187 files reference the fixture or `SafetyTestBase`:
 
-## 4. Failure-first answers
-- If the warm-up fails after 3 attempts: first exception rethrown unchanged; the fixture's existing cleanup removes the clone.
+| Family | Files | Coverage |
+|---|---|---|
+| A. derive `SafetyTestBase` | 32 | one change in `SafetyTestBase.InitializeAsync` (uses B); covers all 32 (includes the run-2 failure path) |
+| B. `IClassFixture<TestDatabaseFixture>` | 16 | xUnit owns the lifetime and disposes the fixture itself; the warm-up (A) applies; no owner wrapper needed (stated, tested in the guard) |
+| C. direct owner, setup AFTER fixture init | 98 | mechanical conversion to `InitializeOwnerAsync` (B) in every file, no deferral; includes `ImportIntakeServiceTests` (the run-1 failure path) |
+| D. direct owner, nothing after fixture init | 30 | nothing to leak after the fixture succeeds; the fixture's own failed-init cleanup already applies; guard test pins that they stay that way |
+| E. inline in test methods | 2 (`LeastPrivilegeLoginCleanupTests`, `RealMigrationInventoryTests`) | already `try/finally` around the fixture; reviewed individually in the handoff |
+| F. support/indirect types | 9 | not owners (helpers that receive a fixture); listed for completeness |
+
+The conversion is a scripted, reviewable rewrite of the one shape every C owner shares (`public async Task InitializeAsync() { await _fixture.InitializeAsync(); <setup> }` becomes `public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () => { <setup> });`), done per file with a diff check; any file that does not fit the shape is converted by hand and listed. **Guard test (enforcement, not trust):** a repository test scans the test project and fails if any class that creates a `TestDatabaseFixture` runs setup after `_fixture.InitializeAsync()` outside `InitializeOwnerAsync` (new owners cannot reintroduce the gap).
+
+## 4. Proof plan (Stage 1; minutes, no full run)
+1. **Real forced pruning mechanism (not an injected exception).** The same mechanism as the TESTSPEED-P2 reproduction: read SqlClient's internal pool-pruning timer callback (`PruneConnectionPoolGroups`) by reflection and invoke it every 20 ms from a background task while a clone is created and its first pooled open is made. Honest property of the mechanism (from that investigation): it is statistical per cycle (about 2%: 15 failures in 798 cycles), not certain per cycle. Therefore:
+   - **Control arm (warm-up disabled by a test-only switch):** at least 800 cycles; the proof REQUIRES at least one real `Timeout expired ... obtaining a connection from the pool` at the first pooled open (shown: without the warm-up the real condition reaches the known timeout).
+   - **Treatment arm (warm-up on, existing bounded retry):** the **60-iteration preflight**, each iteration 15 forced-tick cycles (900 cycles total) whose first owner/test setup open must succeed; every iteration must pass.
+2. **Per-iteration cleanup check:** after EVERY iteration a read-only query lists `AlveraTest_*` databases and the files in Test-Data\Database; the iteration passes only at zero. Raw per-iteration output (start, cycles, retries recovered, pass/fail, database count, file count), the forcing mechanism's source and the control arm's raw output go into the R04 Stage 1 package.
+3. **Induced failure after creation, both observed paths:** (a) a direct owner (`ImportIntakeServiceTests` shape) whose setup throws after the fixture created its database; (b) a `SafetyTestBase` derivative whose setup throws. Each proves: the ORIGINAL exception propagates unchanged (same object), the database and its two files are gone, and a forced cleanup failure is logged distinctly without replacing the original.
+4. **Narrow classification:** product exceptions, arbitrary `SqlException`s, `InvalidOperationException`s with other messages and assertion failures are NOT retried and propagate unchanged (extends `TestDatabaseTransientRetryTests`). The injected pool-timeout exception may appear ONLY here as an extra classification test, never as the proof of the warm-up.
+5. **Negative controls:** removing the warm-up is caught (the control arm shows the failure); removing the owner cleanup is caught (a named test fails); widening the classifier is caught. Each restored afterwards.
+6. Existing fixture classes (`TestDatabase*Tests`), the guard test, a sample of each owner family, the PD-26 pin guard and the repository checks pass. Client gates are untouched (no client change).
+
+## 5. Failure-first answers
+- If the warm-up fails after 3 attempts: the first exception is rethrown unchanged and the fixture's existing cleanup removes the clone.
 - Retry: bounded (3 attempts total, zero delay, as for creation); only the pool-acquisition timeout.
-- Recovery if exhausted: the test fails loudly with cleanup done (no leak), logged by class.
-- Not handled: genuine pool exhaustion that persists (same message; it fails again and the first exception is rethrown); machine-level stalls.
+- Recovery if exhausted: the test fails loudly with cleanup done (no leak) and a class-only log line.
+- Not handled: genuine persistent pool exhaustion (same message; fails again, first exception rethrown) and machine-level stalls.
 
-## 5. Risks and limits stated up front
-- The warm-up reduces but cannot mathematically eliminate the race for connections opened much later in a long test (idle connections are trimmed after minutes; tests are seconds). The preflight proves recovery, not that no future timeout can occur anywhere. The only proof of the whole system is the final full Stage 2, which remains required (about 91 min) and starts only on the owner's explicit approval after Stage 1 approval.
-- Files touched (estimate): `TestDatabaseFixture.cs`, `SafetyTestBase.cs`, one new test class for the preflight, extended retry tests, a preflight script under `scripts/`, the R04 handoff/evidence, a new frozen contract. Size rules: `TestDatabaseFixture.cs` is already large; the next change must split before adding (I will extract the retry helpers into their own file as part of the change).
+## 6. Risks and limits stated up front
+- **If the preflight fails** (the warm-up does not protect the real first open in the treatment arm), I do NOT proceed to Stage 2. I would return to you and the reviewer with the evidence and the fallback the first briefing named: a bounded narrow retry at the first pooled open.
+- The warm-up reduces but cannot prove away the race for connections opened much later in a long test (idle connections are trimmed after minutes; these tests run seconds). The preflight proves protection of the real first-open path; only the final full Stage 2 (about 91 minutes) proves the whole system, and it runs only after Stage 1 approval.
+- The 98-file mechanical conversion is a large diff with low per-file risk; it is reviewed by the guard test plus a sample run of every family, not by the full suite.
+- Files touched (estimate): `TestDatabaseFixture.cs`, a new retry-helpers file, `SafetyTestBase.cs`, ~98 owner test files (mechanical), new preflight and guard tests, extended retry tests, a preflight script under `scripts/`, the R04 handoff/evidence, a new frozen R04 contract. No `src/Alveara.Api` change.
 
-## 6. Decisions needed
-- Owner: Go to implement A and B as above and run the cheap proofs (no full run).
-- Reviewer (information only): the design chooses the warm-up option and the owner-side cleanup helper; shout if you require the retry-at-first-open option instead.
+## 7. Process (per the review)
+This revised briefing must be approved before code changes. Then Stage 1 focused evidence including the preflight is reviewed; only after Stage 1 approval does one new frozen full Stage 2 run occur. No further owner approval is required beyond the normal Stage 1 authorization, but I will still tell you before the 91-minute run starts. ALV-N020 remains unauthorized.
