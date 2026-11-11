@@ -1,0 +1,73 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.20]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:01.40]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:01.41]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T15:03:22.7803065+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":61,"migrate_ms":6786,"total_ms":10199,"backup_bytes":8048640}}
+[xUnit.net 00:00:13.01]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:13.01]       Expected: Tuple (0, 0)
+[xUnit.net 00:00:13.01]       Actual:   Tuple (1, 2)
+[xUnit.net 00:00:13.01]       Stack Trace:
+[xUnit.net 00:00:13.01]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs(75,0): at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_SafetyTestBase_owner_whose_setup_fails_leaves_no_database_and_no_files_and_the_original_exception_propagates()
+[xUnit.net 00:00:13.01]         --- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.FixtureOwnerCleanupTests.A_SafetyTestBase_owner_whose_setup_fails_leaves_no_database_and_no_files_and_the_original_exception_propagates [11 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple (0, 0)
+Actual:   Tuple (1, 2)
+  Stack Trace:
+     at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_SafetyTestBase_owner_whose_setup_fails_leaves_no_database_and_no_files_and_the_original_exception_propagates() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs:line 75
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:13.34]       Assert.False() Failure
+[xUnit.net 00:00:13.34]       Expected: False
+[xUnit.net 00:00:13.34]       Actual:   True
+[xUnit.net 00:00:13.34]       Stack Trace:
+[xUnit.net 00:00:13.34]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs(58,0): at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_direct_owner_whose_setup_fails_after_the_fixture_is_ready_leaves_no_database_and_no_files_and_the_original_exception_propagates()
+[xUnit.net 00:00:13.34]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:13.63]       Assert.False() Failure
+[xUnit.net 00:00:13.63]       Expected: False
+[xUnit.net 00:00:13.63]       Actual:   True
+[xUnit.net 00:00:13.63]       Stack Trace:
+[xUnit.net 00:00:13.63]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs(133,0): at Alveara.Api.Tests.FixtureOwnerCleanupTests.The_owner_setup_is_never_retried_even_when_it_fails_with_the_pool_timeout_text()
+[xUnit.net 00:00:13.63]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:14.23]       Assert.Contains() Failure: Sub-string not found
+[xUnit.net 00:00:14.23]       String:    ""
+[xUnit.net 00:00:14.23]       Not found: "owner-failure cleanup of"
+[xUnit.net 00:00:14.23]       Stack Trace:
+[xUnit.net 00:00:14.23]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs(90,0): at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_failing_owner_cleanup_is_logged_on_its_own_line_and_never_replaces_the_original_exception()
+[xUnit.net 00:00:14.23]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs(98,0): at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_failing_owner_cleanup_is_logged_on_its_own_line_and_never_replaces_the_original_exception()
+[xUnit.net 00:00:14.23]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:14.24]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T15:03:24.4845205+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":5,"fallbacks":0,"real_migration_fixtures":0,"build_ms":10199,"restore_ms_total":1382}}
+  Failed Alveara.Api.Tests.FixtureOwnerCleanupTests.A_direct_owner_whose_setup_fails_after_the_fixture_is_ready_leaves_no_database_and_no_files_and_the_original_exception_propagates [314 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_direct_owner_whose_setup_fails_after_the_fixture_is_ready_leaves_no_database_and_no_files_and_the_original_exception_propagates() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs:line 58
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.FixtureOwnerCleanupTests.The_owner_setup_is_never_retried_even_when_it_fails_with_the_pool_timeout_text [286 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at Alveara.Api.Tests.FixtureOwnerCleanupTests.The_owner_setup_is_never_retried_even_when_it_fails_with_the_pool_timeout_text() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs:line 133
+--- End of stack trace from previous location ---
+  Passed Alveara.Api.Tests.FixtureOwnerCleanupTests.A_successful_owner_setup_is_left_alone [308 ms]
+  Failed Alveara.Api.Tests.FixtureOwnerCleanupTests.A_failing_owner_cleanup_is_logged_on_its_own_line_and_never_replaces_the_original_exception [292 ms]
+  Error Message:
+   Assert.Contains() Failure: Sub-string not found
+String:    ""
+Not found: "owner-failure cleanup of"
+  Stack Trace:
+     at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_failing_owner_cleanup_is_logged_on_its_own_line_and_never_replaces_the_original_exception() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs:line 90
+   at Alveara.Api.Tests.FixtureOwnerCleanupTests.A_failing_owner_cleanup_is_logged_on_its_own_line_and_never_replaces_the_original_exception() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerCleanupTests.cs:line 98
+--- End of stack trace from previous location ---
+
+Total tests: 5
+     Passed: 1
+     Failed: 4
+ Total time: 16.1944 Seconds

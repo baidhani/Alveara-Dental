@@ -1,0 +1,78 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.32]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:01.64]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:01.66]   Starting:    Alveara.Api.Tests
+[xUnit.net 00:00:01.70]       Assert.False() Failure
+[xUnit.net 00:00:01.70]       Expected: False
+[xUnit.net 00:00:01.70]       Actual:   True
+[xUnit.net 00:00:01.70]       Stack Trace:
+[xUnit.net 00:00:01.71]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TestDatabaseTransientRetryTests.cs(150,0): at Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_drop_retries_the_deadlock_and_the_pool_timeout_and_nothing_else()
+[xUnit.net 00:00:01.71]            at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+[xUnit.net 00:00:01.71]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.71]            at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:00:01.71]       Assert.False() Failure
+[xUnit.net 00:00:01.71]       Expected: False
+[xUnit.net 00:00:01.71]       Actual:   True
+[xUnit.net 00:00:01.71]       Stack Trace:
+[xUnit.net 00:00:01.71]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TestDatabaseTransientRetryTests.cs(140,0): at Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_pool_acquisition_classifier_matches_only_the_SqlClient_pool_timeout_message()
+[xUnit.net 00:00:01.71]            at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+[xUnit.net 00:00:01.71]            at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+[xUnit.net 00:00:01.71]            at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_drop_retries_the_deadlock_and_the_pool_timeout_and_nothing_else [2 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_drop_retries_the_deadlock_and_the_pool_timeout_and_nothing_else() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TestDatabaseTransientRetryTests.cs:line 150
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_pool_acquisition_classifier_matches_only_the_SqlClient_pool_timeout_message [< 1 ms]
+  Error Message:
+   Assert.False() Failure
+Expected: False
+Actual:   True
+  Stack Trace:
+     at Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_pool_acquisition_classifier_matches_only_the_SqlClient_pool_timeout_message() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TestDatabaseTransientRetryTests.cs:line 140
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.A_real_SQL_Server_deadlock_is_classified_as_1205_retried_once_and_then_succeeds [13 s]
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.A_failure_the_predicate_does_not_accept_is_not_retried [4 ms]
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.One_retryable_failure_then_success_retries_once_with_the_first_delay [1 ms]
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.Three_retryable_failures_then_success_uses_all_three_delays [2 ms]
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.The_deadlock_predicate_accepts_only_SQL_error_1205 [4 s]
+[xUnit.net 00:00:19.47]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:19.47]       Expected: 1
+[xUnit.net 00:00:19.47]       Actual:   3
+[xUnit.net 00:00:19.47]       Stack Trace:
+[xUnit.net 00:00:19.47]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerGuardTests.cs(116,0): at Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(String kind)
+[xUnit.net 00:00:19.47]         --- End of stack trace from previous location ---
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.Success_on_the_first_attempt_logs_nothing_and_waits_for_nothing [1 ms]
+  Passed Alveara.Api.Tests.TestDatabaseTransientRetryTests.Exhaustion_stops_at_exactly_four_attempts_and_rethrows_the_first_exception_unchanged [1 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "io") [3 ms]
+  Failed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "other-invalid-operation") [1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 1
+Actual:   3
+  Stack Trace:
+     at Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(String kind) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureOwnerGuardTests.cs:line 116
+--- End of stack trace from previous location ---
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "timeout") [< 1 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "marker-with-pool-text") [< 1 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "assertion") [< 1 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_product_sql_invalid_operation_or_assertion_failures(kind: "product") [< 1 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_shared_SafetyTestBase_and_the_named_failing_paths_use_the_owner_wrapper [10 ms]
+[xUnit.net 00:00:19.55]   Finished:    Alveara.Api.Tests
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_does_not_retry_an_arbitrary_SQL_error [3 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.No_test_class_runs_setup_after_the_fixture_without_the_owner_wrapper [52 ms]
+  Passed Alveara.Api.Tests.FixtureOwnerGuardTests.The_warm_up_retry_recovers_from_the_pool_timeout_and_is_bounded_and_rethrows_the_first_exception [1 ms]
+
+Total tests: 19
+     Passed: 16
+     Failed: 3
+ Total time: 21.6918 Seconds

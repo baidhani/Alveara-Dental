@@ -1,0 +1,35 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.33]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:01.55]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:01.56]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T15:02:27.6404022+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":61,"migrate_ms":7514,"total_ms":10862,"backup_bytes":8048640}}
+[xUnit.net 00:00:34.91]       iteration 1: ok 14 of 15, first-open timeouts 1, initialisation failures 0, databases left 0, files left 0
+[xUnit.net 00:00:34.91]       Stack Trace:
+[xUnit.net 00:00:34.91]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureForcedPruningTests.cs(60,0): at Alveara.Api.Tests.FixtureForcedPruningTests.Treatment_arm_with_the_warm_up_succeeds_at_every_first_open_and_leaves_nothing_after_every_iteration()
+[xUnit.net 00:00:34.91]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:34.91]       Output:
+[xUnit.net 00:00:34.91]         treatment iteration 1/4: cycles 15, ok 14, first-open timeouts 1, init failures 0, fixture databases left 0, files left 0
+[xUnit.net 00:00:34.91]         treatment iteration 2/4: cycles 15, ok 14, first-open timeouts 1, init failures 0, fixture databases left 0, files left 0
+[xUnit.net 00:00:34.91]         treatment iteration 3/4: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+[xUnit.net 00:00:34.91]         treatment iteration 4/4: cycles 15, ok 13, first-open timeouts 2, init failures 0, fixture databases left 0, files left 0
+[xUnit.net 00:00:34.92]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T15:02:49.185926+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":60,"fallbacks":0,"real_migration_fixtures":0,"build_ms":10862,"restore_ms_total":19526}}
+  Failed Alveara.Api.Tests.FixtureForcedPruningTests.Treatment_arm_with_the_warm_up_succeeds_at_every_first_open_and_leaves_nothing_after_every_iteration [33 s]
+  Error Message:
+   iteration 1: ok 14 of 15, first-open timeouts 1, initialisation failures 0, databases left 0, files left 0
+  Stack Trace:
+     at Alveara.Api.Tests.FixtureForcedPruningTests.Treatment_arm_with_the_warm_up_succeeds_at_every_first_open_and_leaves_nothing_after_every_iteration() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\FixtureForcedPruningTests.cs:line 60
+--- End of stack trace from previous location ---
+  Standard Output Messages:
+ treatment iteration 1/4: cycles 15, ok 14, first-open timeouts 1, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 2/4: cycles 15, ok 14, first-open timeouts 1, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 3/4: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 4/4: cycles 15, ok 13, first-open timeouts 2, init failures 0, fixture databases left 0, files left 0
+
+
+
+Total tests: 1
+     Failed: 1
+ Total time: 37.0328 Seconds

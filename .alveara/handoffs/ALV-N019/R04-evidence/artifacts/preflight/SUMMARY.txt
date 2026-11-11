@@ -1,0 +1,5 @@
+﻿ALV-N019 R04 fixture preflight: PASS
+started 2026-11-11T08:51:39, ended 2026-11-11T09:01:26
+control arm (warm-up OFF): 800 forced cycles, 154 authentic first-open pool-acquisition timeouts (required: at least 1 in at least 800 cycles)
+treatment arm (warm-up ON): 60 iterations x 15 cycles = 900 forced cycles; first-open successes 900; warm-up races recovered by the bounded retry: 39
+per-iteration cleanup check: fixture databases left 0, files left 0 (summed over all iterations; required 0)

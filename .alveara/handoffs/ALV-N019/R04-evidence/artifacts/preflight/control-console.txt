@@ -1,0 +1,21 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.28]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:01.38]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:01.40]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T14:51:54.9034614+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":61,"migrate_ms":8289,"total_ms":11604,"backup_bytes":8048640}}
+[xUnit.net 00:04:26.43]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T14:56:07.3597678+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":800,"fallbacks":0,"real_migration_fixtures":0,"build_ms":11604,"restore_ms_total":229017}}
+  Passed Alveara.Api.Tests.FixtureForcedPruningTests.Control_arm_without_the_warm_up_reaches_the_real_first_open_timeout_when_the_preflight_demands_it [4 m 24 s]
+  Standard Output Messages:
+ control iteration 1/1: cycles 800, ok 646, first-open timeouts 154, init failures 0, fixture databases left 0, files left 0
+ control arm: 800 cycles, 154 authentic first-open pool-acquisition timeouts
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 4.4496 Minutes

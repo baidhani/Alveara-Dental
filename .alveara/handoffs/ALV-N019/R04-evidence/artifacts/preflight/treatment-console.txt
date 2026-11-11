@@ -1,0 +1,79 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.18]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:01.17]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:01.18]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T14:56:21.8742526+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":61,"migrate_ms":7774,"total_ms":11094,"backup_bytes":8048640}}
+[xUnit.net 00:05:17.38]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-11T15:01:26.1476965+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":900,"fallbacks":0,"real_migration_fixtures":0,"build_ms":11094,"restore_ms_total":277182}}
+  Passed Alveara.Api.Tests.FixtureForcedPruningTests.Treatment_arm_with_the_warm_up_succeeds_at_every_first_open_and_leaves_nothing_after_every_iteration [5 m 16 s]
+  Standard Output Messages:
+ treatment iteration 1/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 2/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 3/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 4/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 5/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 6/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 7/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 8/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 9/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 10/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 11/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 12/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 13/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 14/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 15/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 16/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 17/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 18/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 19/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 20/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 21/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 22/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 23/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 24/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 25/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 26/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 27/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 28/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 29/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 30/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 31/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 32/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 33/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 34/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 35/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 36/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 37/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 38/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 39/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 40/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 41/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 42/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 43/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 44/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 45/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 46/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 47/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 48/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 49/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 50/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 51/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 52/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 53/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 54/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 55/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 56/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 57/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 58/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 59/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+ treatment iteration 60/60: cycles 15, ok 15, first-open timeouts 0, init failures 0, fixture databases left 0, files left 0
+
+
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 5.2980 Minutes
