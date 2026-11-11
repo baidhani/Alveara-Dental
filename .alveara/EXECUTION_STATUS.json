@@ -30,7 +30,7 @@
       "demo": "fixture_preflight_800_cycle_control_and_60x15_treatment",
       "parentRegression": "n/a",
       "implementationCommit": "115821d9d9c1632a82e4131602472e46a0e215c2",
-      "evidenceCommit": null,
+      "evidenceCommit": "f4268b88d0126618009ca19368e9939d7daa0d71",
       "handoffPath": ".alveara/handoffs/ALV-N019/R04.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R03-stage2-rerun.md", "scopeRulingArtifacts": [".alveara/reviews/ALV-N019/R04-fixture-preflight-scope.md", ".alveara/reviews/ALV-N019/R04-briefing-review.md", ".alveara/reviews/ALV-N019/R04-briefing-approval.md"]},
       "blockingIssues": [],
