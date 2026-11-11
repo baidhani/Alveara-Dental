@@ -30,7 +30,7 @@
       "demo": "none_test_code_only",
       "parentRegression": "n/a",
       "implementationCommit": "3cf91fa9833ff1a683d566a1edef432c4e520399",
-      "evidenceCommit": null,
+      "evidenceCommit": "86ff5027b5da0e5266e946996e276ef7b966c6fa",
       "handoffPath": ".alveara/handoffs/ALV-N019/R06.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R05.md", "scopeRulingArtifacts": [".alveara/reviews/ALV-N019/R04-fixture-preflight-scope.md", ".alveara/reviews/ALV-N019/R04-briefing-review.md", ".alveara/reviews/ALV-N019/R04-briefing-approval.md"]},
       "blockingIssues": [],
