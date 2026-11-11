@@ -18,15 +18,14 @@ public class PatientImportServiceTests : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private SchedulingTestSupport _s = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _s.Actor, Username = $"admin-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });         // the acting user is a real account
         await db.SaveChangesAsync();
-    }
+    });
 
     public Task DisposeAsync() => _fixture.DisposeAsync();
 

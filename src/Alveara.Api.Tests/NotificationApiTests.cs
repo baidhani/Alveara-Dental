@@ -23,13 +23,12 @@ public class NotificationApiTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private readonly CapturingLoggerProvider _logs = new();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture) { ConfigureLogging = b => b.AddProvider(_logs) };
         await _s.ArrangeAsync();
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private static string Str(JsonElement e, string name) => e.GetProperty(name).GetString()!;

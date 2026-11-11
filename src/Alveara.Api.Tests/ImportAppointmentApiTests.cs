@@ -29,16 +29,15 @@ public class ImportAppointmentApiTests : IAsyncLifetime
         "Ann,Rivera,1950-01-10,Dr. Rivera,Op 1,Exam,2030-01-14 09:00,,first visit\r\n" +
         "Ann,Rivera,1950-01-10,Dr. Patel,Op 2,Quick check,2030-01-14 09:30,,overlaps the first\r\n");
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
         _admin = await _api.SessionAsync("Admin");
         await new PatientRegistrationService(_fixture.CreateContext(), SchedulingTestSupport.Clock)
             .RegisterAsync(new RegisterPatientRequest("Ann", null, "Rivera", "1950-01-10", "Female", "555-100-1000", null, "1 Main St", null, "Austin", "TX", "78701"), "api-test-ann", _admin.UserId, default);
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

@@ -41,15 +41,14 @@ public class ImportBalanceCommitTests : IAsyncLifetime
         }
     }
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _files = new ImportFileStorage(_folder);
         _actor = Guid.NewGuid();
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"admin-{Guid.NewGuid():N}", Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public async Task DisposeAsync()
     {
@@ -262,9 +261,8 @@ public class ImportBalanceCommitApiTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private Session _admin = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture);
         await new SchedulingTestSupport(_fixture).ArrangeAsync();
         _admin = await _api.SessionAsync("Admin");
@@ -272,7 +270,7 @@ public class ImportBalanceCommitApiTests : IAsyncLifetime
         var registration = new PatientRegistrationService(db, SchedulingTestSupport.Clock);
         var actor = (await db.UserAccounts.AsNoTracking().FirstAsync()).Id;
         await registration.RegisterAsync(new RegisterPatientRequest("Ann", null, "Rivera", "1950-01-10", "Female", "555-100-1000", null, "1 Main St", null, "Austin", "TX", "78701"), $"test-{Guid.NewGuid():N}", actor, default);
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

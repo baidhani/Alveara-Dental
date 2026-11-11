@@ -27,12 +27,12 @@ public class PermissionPolicyTwoHostTests : IAsyncLifetime
     private SchedulingApiHarness _a = null!;
     private SchedulingApiHarness _b = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() =>
     {
-        await _fixture.InitializeAsync();
         _a = new SchedulingApiHarness(_fixture);
         _b = new SchedulingApiHarness(_fixture);
-    }
+        return Task.CompletedTask;
+    });
 
     public Task DisposeAsync() { _a.Dispose(); _b.Dispose(); return _fixture.DisposeAsync(); }
 

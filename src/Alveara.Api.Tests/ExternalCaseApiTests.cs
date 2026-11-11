@@ -28,9 +28,8 @@ public class ExternalCaseApiTests : IAsyncLifetime
 
     private static DateOnly Today => DateOnly.FromDateTime(PatientTestSupport.Clock.ToPracticeLocal(DateTimeOffset.UtcNow).Date);
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -43,7 +42,7 @@ public class ExternalCaseApiTests : IAsyncLifetime
         _frontDesk = await _api.SessionAsync("FrontDesk");
         _billing = await _api.SessionAsync("Billing");
         _manager = await _api.SessionAsync("OfficeManager");
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

@@ -20,9 +20,8 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
     private Guid _ann, _bo, _annEncounter, _boEncounter;
     private int _codes;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -30,7 +29,7 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
         _bo = await _s.PatientAsync("Bo", "Kim");
         _annEncounter = await EncounterAsync(_ann);
         _boEncounter = await EncounterAsync(_bo);
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private async Task<Guid> EncounterAsync(Guid patient)

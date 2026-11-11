@@ -20,16 +20,15 @@ public class VisitsApiTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private Guid _ann, _bo, _cy;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
         _bo = await _s.PatientAsync("Bo", "Kim");
         _cy = await _s.PatientAsync("Cy", "Poe");
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private async Task<JsonElement> BookAsync(Session by, Guid patient, DateTime start, Guid? provider = null, Guid? operatory = null)

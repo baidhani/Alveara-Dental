@@ -13,14 +13,13 @@ public class VisitOccupancyTests : IAsyncLifetime
     private SchedulingTestSupport _s = null!;
     private Guid _ann, _bo;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
         _bo = await _s.PatientAsync("Bo", "Kim");
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     // two appointments in the SAME operatory at different hours (booking allows that), so only the visit-occupancy rule can stop them sharing the room

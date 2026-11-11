@@ -26,9 +26,8 @@ public class DiagnosisStructureSchemaTests : IAsyncLifetime
     private static readonly Guid User = Guid.NewGuid();
     private int _findings;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
@@ -38,7 +37,7 @@ public class DiagnosisStructureSchemaTests : IAsyncLifetime
         db.Encounters.Add(e);
         await db.SaveChangesAsync();
         _annEncounter = e.Id;
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private static async Task<SqlException> RefusedAsync(Func<Task> write)

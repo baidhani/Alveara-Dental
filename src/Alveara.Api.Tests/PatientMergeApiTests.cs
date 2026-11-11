@@ -20,9 +20,8 @@ public class PatientMergeApiTests : IAsyncLifetime
     private Session _admin = null!;
     private readonly Dictionary<string, Session> _others = new();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -31,7 +30,7 @@ public class PatientMergeApiTests : IAsyncLifetime
         await using (var db = _fixture.CreateContext()) await db.Database.ExecuteSqlRawAsync("UPDATE [Patients] SET [DateOfBirth] = (SELECT [DateOfBirth] FROM [Patients] WHERE [Id] = {0}) WHERE [Id] = {1}", _ann, _anne);
         _admin = await _api.SessionAsync("Admin");
         foreach (var role in new[] { "Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager" }) _others[role] = await _api.SessionAsync(role);
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

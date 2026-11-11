@@ -18,15 +18,14 @@ public class ImportBatchRowSchemaTests : IAsyncLifetime
     private Guid _batch;
     private static readonly DateTimeOffset At = new(2030, 1, 14, 15, 0, 0, TimeSpan.Zero);
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _actor = Guid.NewGuid();
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"u-{Guid.NewGuid():N}", Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
         _batch = await NewBatchAsync();
-    }
+    });
 
     public Task DisposeAsync() => _fixture.DisposeAsync();
 

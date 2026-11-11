@@ -22,11 +22,11 @@ public class PermissionPolicyHealthTests : IAsyncLifetime
     private readonly CapturingLoggerProvider _logs = new();
     private SchedulingApiHarness _api = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture) { ConfigureLogging = b => b.AddProvider(_logs) };
-    }
+        return Task.CompletedTask;
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

@@ -16,15 +16,14 @@ public class VisitWorkflowTests : IAsyncLifetime
     private SchedulingTestSupport _s = null!;
     private Guid _ann, _bo, _cy;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
         _bo = await _s.PatientAsync("Bo", "Kim");
         _cy = await _s.PatientAsync("Cy", "Poe");
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private async Task<AppointmentView> BookAsync(Guid patient, int hour, Guid? provider = null, Guid? operatory = null) =>

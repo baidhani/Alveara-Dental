@@ -13,18 +13,9 @@ namespace Alveara.Api.Tests;
 /// which does not enforce unique indexes, foreign keys, or real transaction semantics the same
 /// way and would not actually prove ALV-N002's migration/transaction acceptance items.
 /// </summary>
-public class TestDatabaseFixture : IAsyncLifetime
+public partial class TestDatabaseFixture : IAsyncLifetime
 {
     private static string MasterConnectionString => AlveraTestEnvironment.MasterConnectionString;
-
-    /// <summary>SQL Server "chosen as the deadlock victim".</summary>
-    internal const int DeadlockErrorNumber = 1205;
-
-    /// <summary>
-    /// ALV-017-C01 R02: SQL Server "Cannot drop database ... because it is currently in use". The drop batch is ALTER DATABASE ... SET SINGLE_USER WITH ROLLBACK IMMEDIATE followed by DROP DATABASE; a session
-    /// that connects in the instant between the two takes the one single-user slot and the DROP fails with this number. Seen once in a full run (R01 Stage 2, run 2).
-    /// </summary>
-    internal const int DatabaseInUseErrorNumber = 3702;
 
     /// <summary>TESTSPEED-P2: at most this many attempts in total (the first try plus three retries) for the drop.</summary>
     internal const int MaxDropAttempts = 4;
@@ -37,9 +28,6 @@ public class TestDatabaseFixture : IAsyncLifetime
 
     /// <summary>Waits before initialisation retry 1 and 2: none, because the cleanup that runs first takes longer than the race it recovers from.</summary>
     internal static readonly TimeSpan[] InitializationRetryDelays = [TimeSpan.Zero, TimeSpan.Zero];
-
-    /// <summary>The start of the message SqlClient uses for its pool-acquisition timeout (whitespace normalised before comparing).</summary>
-    private const string PoolAcquisitionTimeoutPrefix = "Timeout expired. The timeout period elapsed prior to obtaining a connection from the pool.";
 
     private readonly string _databaseName = $"AlveraTest_{Guid.NewGuid():N}";
 
@@ -58,6 +46,7 @@ public class TestDatabaseFixture : IAsyncLifetime
     private readonly Func<Task>? _beforeMasterOpenForTest;
     private readonly Func<int, string?>? _dropStatementForTest;
     private readonly Func<TimeSpan, Task> _delay;
+    private readonly bool _warmUp = true;                                                         // ALV-N019 R04: test-only switch (the control arm of the forced-pruning proof turns it off)
     private readonly TextWriter _log;
     private int _holderChecks;                                                                    // how many failed-drop holder checks this fixture has logged (one per failed attempt)
 
@@ -79,8 +68,9 @@ public class TestDatabaseFixture : IAsyncLifetime
     /// </summary>
     internal TestDatabaseFixture(Func<Task>? beforeCreateForTest = null, Func<Task>? afterMigrateForTest = null, Func<string, Task>? cleanupDropForTest = null, TextWriter? logForTest = null,
         Func<Task>? beforeMasterOpenForTest = null, Func<TimeSpan, Task>? delayForTest = null, TestDatabaseTemplate? templateForTest = null, Func<Task>? afterRestoreForTest = null,
-        Func<int, string?>? dropStatementForTest = null)
+        Func<int, string?>? dropStatementForTest = null, bool warmUp = true)
     {
+        _warmUp = warmUp;
         _dropStatementForTest = dropStatementForTest;
         _beforeCreateForTest = beforeCreateForTest;
         _afterMigrateForTest = afterMigrateForTest;
@@ -129,6 +119,11 @@ public class TestDatabaseFixture : IAsyncLifetime
 
                 if (_afterMigrateForTest is not null) await _afterMigrateForTest();
             }, IsPoolAcquisitionTimeout, "initialisation", _databaseName, MaxInitializationAttempts, InitializationRetryDelays, _delay, _log, CleanUpFailedInitializationAsync);
+
+            // ALV-N019 R04: warm the pool of the clone's own connection string BEFORE the fixture is released. SqlClient's pruning timer removes only EMPTY pools, so one idle pooled connection keeps the
+            // pool alive for the first pooled open the owner's setup makes next (the open that failed in the two R03 Stage 2 runs). A pruning race at this open is retried by the same narrow classifier
+            // (pool-acquisition timeout only, bounded; the first exception is rethrown unchanged); nothing else is retried here.
+            if (_warmUp) await RunWithTransientRetryAsync(WarmPoolAsync, IsPoolAcquisitionTimeout, "pool warm-up", _databaseName, MaxInitializationAttempts, InitializationRetryDelays, _delay, _log, beforeRetry: null);
         }
         catch
         {
@@ -200,28 +195,6 @@ public class TestDatabaseFixture : IAsyncLifetime
             .Options;
         return new AlveraDbContext(options);
     }
-
-    /// <summary>TESTSPEED-P2: true only for SQL Server error 1205 (this session was chosen as a deadlock victim; the whole batch was rolled back and may be run again).</summary>
-    internal static bool IsDeadlock(Exception exception) => exception is SqlException { Number: DeadlockErrorNumber };
-
-    /// <summary>
-    /// TESTSPEED-P2: true for the <see cref="InvalidOperationException"/> SqlClient throws when a connection cannot be obtained from a pool ("Timeout expired. The timeout period elapsed prior to
-    /// obtaining a connection from the pool ..."). Investigated cause: SqlClient 7.0.0's pool-pruning timer shuts down an empty pool while a caller is acquiring a connection from it, and the
-    /// caller gets this same message at once ("Pool is shutting down; abandoning wait"). LIMIT: the message is shared with genuine pool exhaustion, so this classifier can also match that; a
-    /// bounded retry of a real exhaustion fails again and the first exception is then rethrown, so nothing is hidden.
-    /// </summary>
-    internal static bool IsPoolAcquisitionTimeout(Exception exception) =>
-        exception is InvalidOperationException && string.Join(' ', exception.Message.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).StartsWith(PoolAcquisitionTimeoutPrefix, StringComparison.Ordinal);
-
-    /// <summary>True only for SQL Server error 3702 (see <see cref="DatabaseInUseErrorNumber"/>).</summary>
-    internal static bool IsDatabaseInUse(Exception exception) => exception is SqlException { Number: DatabaseInUseErrorNumber };
-
-    /// <summary>
-    /// What the drop retries: the deadlock of the Gate 2 root-cause evidence, the pool-acquisition timeout (the drop opens a connection to master first, which can hit the same pool race), and (ALV-017-C01 R02) the
-    /// database being in use. For the last, every retry runs the whole ALTER ... ROLLBACK IMMEDIATE again, which removes whoever took the single-user slot; the attempts are bounded by <see cref="MaxDropAttempts"/>
-    /// and when they run out the FIRST exception is rethrown unchanged, so a holder that keeps coming back still fails the test (with the holder's safe metadata in the log, see <see cref="LogDatabaseHoldersAsync"/>).
-    /// </summary>
-    internal static bool IsTransientDropFailure(Exception exception) => IsDeadlock(exception) || IsPoolAcquisitionTimeout(exception) || IsDatabaseInUse(exception);
 
     /// <summary>
     /// The drop (<c>ALTER DATABASE ... SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE ...</c>), retried as a WHOLE (opening the master connection included) on the failures of
@@ -300,38 +273,48 @@ public class TestDatabaseFixture : IAsyncLifetime
         }
     }
 
-    /// <summary>
-    /// The bounded retry loop: at most <paramref name="maxAttempts"/> attempts in total, waiting <paramref name="delays"/> between them (a zero wait is not slept), <paramref name="beforeRetry"/> (if any)
-    /// run after each failed attempt and before the next one, every retry logged (operation, database name, attempt numbers and a safe failure classification only; never a connection string).
-    /// When the last attempt also fails with a retryable error, the FIRST (original) exception is rethrown unchanged (same object), so the failure looks exactly as it did before the retry
-    /// existed. A failure <paramref name="isRetryable"/> does not accept propagates at once.
-    /// </summary>
-    internal static async Task RunWithTransientRetryAsync(Func<Task> operation, Func<Exception, bool> isRetryable, string operationName, string database, int maxAttempts, TimeSpan[] delays,
-        Func<TimeSpan, Task> delay, TextWriter log, Func<Task>? beforeRetry)
+    /// <summary>Opens and closes one pooled connection through the pool EF uses for this fixture's database, leaving one idle connection in that pool.</summary>
+    private async Task WarmPoolAsync()
     {
-        ExceptionDispatchInfo? original = null;
-        for (var attempt = 1; ; attempt++)
-        {
-            try
-            {
-                await operation();
-                return;
-            }
-            catch (Exception ex) when (isRetryable(ex))
-            {
-                original ??= ExceptionDispatchInfo.Capture(ex);
-                var code = ex is SqlException sql ? $"SQL {sql.Number}" : IsPoolAcquisitionTimeout(ex) ? "pool acquisition timeout" : ex.GetType().Name;
-                if (attempt >= maxAttempts)
-                {
-                    log.WriteLine($"[TestDatabaseFixture] {operationName} of {database} hit {code} (attempt {attempt} of {maxAttempts}); giving up after {maxAttempts} attempts.");
-                    original.Throw();
-                }
+        await using var context = CreateContext();
+        await context.Database.OpenConnectionAsync();
+        await context.Database.CloseConnectionAsync();
+    }
 
-                var wait = delays[attempt - 1];
-                log.WriteLine($"[TestDatabaseFixture] {operationName} of {database} hit {code} (attempt {attempt} of {maxAttempts}); retrying in {wait.TotalMilliseconds:0} ms.");
-                if (beforeRetry is not null) await beforeRetry();
-                if (wait > TimeSpan.Zero) await delay(wait);
-            }
+    /// <summary>
+    /// ALV-N019 R04: the initialisation an OWNER of a fixture (a test class, <see cref="SafetyTestBase"/>) uses when it has setup of its own after the fixture is ready. xUnit never calls DisposeAsync when
+    /// InitializeAsync throws, so a failure of that setup would leak this fixture's database and its two files. Here the owner's setup runs after the fixture initialisation; on ANY exception the fixture
+    /// removes ONLY its own clone (best effort) and the ORIGINAL exception is rethrown unchanged (same object). A cleanup failure is logged on its own line (class only) and never replaces the original.
+    /// </summary>
+    public async Task InitializeOwnerAsync(Func<Task> setupAfterFixture)
+    {
+        await InitializeAsync();
+        try
+        {
+            await setupAfterFixture();
+        }
+        catch
+        {
+            await CleanUpFailedOwnerSetupAsync();
+            throw;
+        }
+    }
+
+    /// <summary>Never throws: removes this fixture's own clone after its owner's setup failed; a failure of the cleanup itself is logged distinctly (class only) and must not hide the setup failure.</summary>
+    private async Task CleanUpFailedOwnerSetupAsync()
+    {
+        try { ReleasePooledConnections(); }
+        catch (Exception ex) { _log.WriteLine($"[TestDatabaseFixture] owner-failure cleanup of {_databaseName}: releasing pooled connections failed ({ex.GetType().Name})."); }
+
+        try
+        {
+            if (_cleanupDropForTest is not null) await _cleanupDropForTest(_databaseName);
+            else await DropDatabaseAsync(onlyIfExists: true);
+            _log.WriteLine($"[TestDatabaseFixture] owner setup of {_databaseName} failed; its database and files were removed.");
+        }
+        catch (Exception ex)
+        {
+            _log.WriteLine($"[TestDatabaseFixture] owner-failure cleanup of {_databaseName} FAILED ({ex.GetType().Name}); the database and its files may remain.");
         }
     }
 

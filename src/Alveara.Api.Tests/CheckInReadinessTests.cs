@@ -15,12 +15,11 @@ public class CheckInReadinessTests : IAsyncLifetime
     private FormTestSupport _s = null!;
     private Guid _ann;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new FormTestSupport(_fixture);
         _ann = await _s.PatientAsync();
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private async Task<TemplateDetail> RequireAsync(TemplateDetail t, bool required = true)

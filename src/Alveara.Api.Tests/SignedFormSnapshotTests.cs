@@ -16,14 +16,13 @@ public class SignedFormSnapshotTests : IAsyncLifetime
     private Guid _patient;
     private PatientFormDetail _signed = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new FormTestSupport(_fixture);
         _template = await _s.CreateTemplateAsync();
         _patient = await _s.PatientAsync();
         _signed = (await _s.SignAsync(await _s.ReadyAsync(_patient, _template.Template.Id))).Detail;
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     [Fact]

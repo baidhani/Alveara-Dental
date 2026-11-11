@@ -18,14 +18,13 @@ public class PrescriptionWorkflowApiTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private string _patient = "";
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
         _patient = (await _s.PatientAsync()).ToString();
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private static string Error(JsonElement e) => e.GetProperty("error").GetString()!;

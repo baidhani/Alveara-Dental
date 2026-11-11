@@ -23,9 +23,8 @@ public class WorkQueueApiTests : IAsyncLifetime
     private int _keys;
     private Session _admin = null!, _dentist = null!, _hygienist = null!, _frontDesk = null!, _billing = null!, _manager = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -37,7 +36,7 @@ public class WorkQueueApiTests : IAsyncLifetime
         _frontDesk = await _api.SessionAsync("FrontDesk");
         _billing = await _api.SessionAsync("Billing");
         _manager = await _api.SessionAsync("OfficeManager");
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

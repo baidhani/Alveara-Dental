@@ -21,13 +21,12 @@ public class PerioSessionSchemaTests : IAsyncLifetime
     private static readonly DateTimeOffset At = new(2030, 1, 14, 15, 0, 0, TimeSpan.Zero);
     private static readonly Guid User = Guid.NewGuid();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private static async Task<SqlException> RefusedAsync(Func<Task> write)

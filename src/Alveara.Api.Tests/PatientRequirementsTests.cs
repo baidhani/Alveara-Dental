@@ -17,7 +17,7 @@ public class PatientRequirementsTests : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private PatientTestSupport _s = null!;
 
-    public async Task InitializeAsync() { await _fixture.InitializeAsync(); _s = new PatientTestSupport(_fixture); }
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() => { _s = new PatientTestSupport(_fixture); return Task.CompletedTask; });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private PatientRegistrationSettingsService Settings(Alveara.Api.Data.AlveraDbContext db) => new(db, PatientTestSupport.Clock);

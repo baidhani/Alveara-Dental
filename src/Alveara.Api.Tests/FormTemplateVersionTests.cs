@@ -13,7 +13,7 @@ public class FormTemplateVersionTests : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private FormTestSupport _s = null!;
 
-    public async Task InitializeAsync() { await _fixture.InitializeAsync(); _s = new FormTestSupport(_fixture); }
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() => { _s = new FormTestSupport(_fixture); return Task.CompletedTask; });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private async Task<TemplateDetail> PublishAsync(TemplateDetail t, TemplateContent content, string? version = null)

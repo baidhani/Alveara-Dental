@@ -11,7 +11,7 @@ public class PatientDirectoryTests : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private PatientTestSupport _s = null!;
 
-    public async Task InitializeAsync() { await _fixture.InitializeAsync(); _s = new PatientTestSupport(_fixture); }
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() => { _s = new PatientTestSupport(_fixture); return Task.CompletedTask; });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private async Task<string[]> SearchAsync(string? q, bool includeInactive = false, int take = 25)

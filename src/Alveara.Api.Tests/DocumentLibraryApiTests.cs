@@ -23,9 +23,8 @@ public class DocumentLibraryApiTests : IAsyncLifetime
     private Guid _otherEncounter;
     private static readonly Guid Radiograph = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.Radiograph;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -37,7 +36,7 @@ public class DocumentLibraryApiTests : IAsyncLifetime
         db.Encounters.AddRange(mine, theirs);
         await db.SaveChangesAsync();
         (_encounter, _otherEncounter) = (mine.Id, theirs.Id);
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private static byte[] Png(int extra = 100, byte fill = 7) => [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, .. Enumerable.Repeat(fill, extra)];

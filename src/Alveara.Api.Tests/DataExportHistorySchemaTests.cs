@@ -19,9 +19,8 @@ public class DataExportHistorySchemaTests : IAsyncLifetime
     private Guid _patient;
     private static readonly DateTimeOffset At = new(2030, 1, 14, 15, 0, 0, TimeSpan.Zero);
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         var s = new SchedulingTestSupport(_fixture);
         await s.ArrangeAsync();
         _actor = s.Actor;
@@ -29,7 +28,7 @@ public class DataExportHistorySchemaTests : IAsyncLifetime
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"admin-{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public Task DisposeAsync() => _fixture.DisposeAsync();
 

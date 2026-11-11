@@ -21,9 +21,8 @@ public class BillingChargeSourceApiTests : IAsyncLifetime
     private Guid _ann, _bo, _annEncounter;
     private int _codes;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -34,7 +33,7 @@ public class BillingChargeSourceApiTests : IAsyncLifetime
         db.Encounters.Add(e);
         await db.SaveChangesAsync();
         _annEncounter = e.Id;
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private static string Id(JsonElement e) => e.GetProperty("id").GetString()!;

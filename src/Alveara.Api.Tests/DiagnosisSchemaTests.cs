@@ -24,16 +24,15 @@ public class DiagnosisSchemaTests : IAsyncLifetime
     private static readonly DateTimeOffset At = new(2030, 1, 14, 15, 0, 0, TimeSpan.Zero);
     private static readonly Guid User = Guid.NewGuid();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
         _bo = await _s.PatientAsync("Bo", "Kim");
         _annEncounter = await EncounterAsync(_ann);
         _boEncounter = await EncounterAsync(_bo);
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private async Task<Guid> EncounterAsync(Guid patient)

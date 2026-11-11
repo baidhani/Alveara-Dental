@@ -24,9 +24,8 @@ public class ImportIntakeServiceTests : IAsyncLifetime
     private ImportFileStorage _files = null!;
     private Guid _actor;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _files = new ImportFileStorage(_folder);
         _actor = Guid.NewGuid();
         await using var db = _fixture.CreateContext();
@@ -34,7 +33,7 @@ public class ImportIntakeServiceTests : IAsyncLifetime
         await db.SaveChangesAsync();
         db.StaffProfiles.Add(new StaffProfile { Id = Guid.NewGuid(), UserAccountId = _actor, DisplayName = "Dr. Import", CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public async Task DisposeAsync()
     {

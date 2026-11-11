@@ -30,15 +30,14 @@ public class ImportCommitTests : IAsyncLifetime
     private ImportFileStorage _files = null!;
     private Guid _actor;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _files = new ImportFileStorage(_folder);
         _actor = Guid.NewGuid();
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"admin-{Guid.NewGuid():N}", Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public async Task DisposeAsync()
     {

@@ -27,9 +27,8 @@ public class FollowUpApiTests : IAsyncLifetime
     private Session _billing = null!;
     private Session _admin = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
@@ -40,7 +39,7 @@ public class FollowUpApiTests : IAsyncLifetime
         _hygienist = await _api.SessionAsync("Hygienist");
         _frontDesk = await _api.SessionAsync("FrontDesk");
         _billing = await _api.SessionAsync("Billing");
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

@@ -42,15 +42,14 @@ public class ImportReportsRetryAndSweepTests : IAsyncLifetime
         }
     }
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _files = new ImportFileStorage(_folder);
         _actor = Guid.NewGuid();
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"admin-{Guid.NewGuid():N}", Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public async Task DisposeAsync()
     {
@@ -309,9 +308,8 @@ public class ImportAppointmentReconciliationTests : IAsyncLifetime
         }
     }
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _files = new ImportFileStorage(_folder);
@@ -319,7 +317,7 @@ public class ImportAppointmentReconciliationTests : IAsyncLifetime
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"admin-{Guid.NewGuid():N}", Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public async Task DisposeAsync()
     {
@@ -366,14 +364,13 @@ public class ImportSlice6ApiTests : IAsyncLifetime
     private Session _admin = null!;
     private readonly Dictionary<string, Session> _others = new();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture);
         await new SchedulingTestSupport(_fixture).ArrangeAsync();
         _admin = await _api.SessionAsync("Admin");
         foreach (var role in new[] { "Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager" }) _others[role] = await _api.SessionAsync(role);
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

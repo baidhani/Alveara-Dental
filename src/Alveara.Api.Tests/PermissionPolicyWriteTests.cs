@@ -20,11 +20,11 @@ public class PermissionPolicyWriteTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private int _keys;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture);
-    }
+        return Task.CompletedTask;
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

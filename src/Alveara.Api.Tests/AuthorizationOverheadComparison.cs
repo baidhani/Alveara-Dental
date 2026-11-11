@@ -16,11 +16,11 @@ public class AuthorizationOverheadComparison : IAsyncLifetime
     private readonly TestDatabaseFixture _fixture = new();
     private SchedulingApiHarness _api = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture);
-    }
+        return Task.CompletedTask;
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

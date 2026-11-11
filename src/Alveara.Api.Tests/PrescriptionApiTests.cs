@@ -19,15 +19,14 @@ public class PrescriptionApiTests : IAsyncLifetime
     private Guid _ann;
     private string _patient = "";
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
         _patient = _ann.ToString();
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private static string Error(JsonElement e) => e.GetProperty("error").GetString()!;

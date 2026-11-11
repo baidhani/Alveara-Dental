@@ -20,15 +20,14 @@ public class DocumentStorageApiTests : IAsyncLifetime
     private string _storage = "";
     private static readonly Guid Radiograph = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.Radiograph;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _storage = Path.Combine(AlveraTestEnvironment.StorageFolder, $"storage-api-{Guid.NewGuid():N}");
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture) { StorageRoot = _storage };
         await _s.ArrangeAsync();
         _patient = await _s.PatientAsync();
-    }
+    });
     public async Task DisposeAsync() { _api.Dispose(); await _fixture.DisposeAsync(); if (_storage.Length > 0) TestStorageCleanup.Delete(_storage); }
 
     private static byte[] Png(int extra = 100, byte fill = 7) => [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, .. Enumerable.Repeat(fill, extra)];

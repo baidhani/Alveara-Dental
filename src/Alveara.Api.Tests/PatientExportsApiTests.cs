@@ -30,16 +30,15 @@ public class PatientExportsApiTests : IAsyncLifetime
     private Session _admin = null!;
     private readonly Dictionary<string, Session> _others = new();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
         _patient = await _s.PatientAsync("Ann", "Rivera");
         _admin = await _api.SessionAsync("Admin");
         foreach (var role in new[] { "Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager" }) _others[role] = await _api.SessionAsync(role);
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

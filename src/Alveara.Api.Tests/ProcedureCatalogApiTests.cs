@@ -17,13 +17,12 @@ public class ProcedureCatalogApiTests : IAsyncLifetime
     private SchedulingTestSupport _s = null!;
     private SchedulingApiHarness _api = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private const string Url = "/api/procedures";

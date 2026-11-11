@@ -32,9 +32,8 @@ public class ImportAppointmentDryRunTests(ITestOutputHelper output) : IAsyncLife
     private ImportFileStorage _files = null!;
     private Guid _actor;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _files = new ImportFileStorage(_folder);
@@ -42,7 +41,7 @@ public class ImportAppointmentDryRunTests(ITestOutputHelper output) : IAsyncLife
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"admin-{Guid.NewGuid():N}", Role = Role.Admin, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public async Task DisposeAsync()
     {

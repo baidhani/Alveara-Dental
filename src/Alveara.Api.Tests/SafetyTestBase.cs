@@ -27,9 +27,12 @@ public abstract class SafetyTestBase : IAsyncLifetime
         Fixture = GetType().IsDefined(typeof(RealMigrationsAttribute), inherit: true) ? new RealMigrationTestDatabaseFixture() : new TestDatabaseFixture();
     }
 
-    public virtual async Task InitializeAsync()
+    /// <summary>ALV-N019 R04, test-only: runs first in the owner setup so a test can make that setup fail and prove the fixture clone is removed. Null in every ordinary test.</summary>
+    internal Func<Task>? SetupFailureForTest;
+
+    public virtual Task InitializeAsync() => Fixture.InitializeOwnerAsync(async () =>
     {
-        await Fixture.InitializeAsync();
+        if (SetupFailureForTest is not null) await SetupFailureForTest();
         S = new SchedulingTestSupport(Fixture);
         await S.ArrangeAsync();
         Ann = await S.PatientAsync();
@@ -41,7 +44,7 @@ public abstract class SafetyTestBase : IAsyncLifetime
         var people = new StaffProviderService(db, Clock);
         await people.CreateStaffAsync("Dr. Okafor", null, S.Actor, S.Actor, default);
         await people.CreateStaffAsync("Hana Hygienist", null, Other, S.Actor, default);
-    }
+    });
 
     public virtual Task DisposeAsync() => Fixture.DisposeAsync();
 

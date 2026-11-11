@@ -20,9 +20,8 @@ public class ClinicalRecordServiceTests : IAsyncLifetime
     private Guid _ann;
     private readonly Guid _other = Guid.NewGuid();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
@@ -33,7 +32,7 @@ public class ClinicalRecordServiceTests : IAsyncLifetime
         var people = new StaffProviderService(db, Clock);
         await people.CreateStaffAsync("Dr. Okafor", null, _s.Actor, _s.Actor, default);
         await people.CreateStaffAsync("Hana Hygienist", null, _other, _s.Actor, default);
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private async Task<T> RunAsync<T>(Func<ClinicalRecordService, Task<T>> action)

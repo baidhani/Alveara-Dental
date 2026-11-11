@@ -20,16 +20,15 @@ public class OperationalReportsApiTests : IAsyncLifetime
     private SchedulingTestSupport _s = null!;
     private readonly Dictionary<string, Session> _sessions = new();
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture);
         var s = new SchedulingTestSupport(_fixture);
         _s = s;
         await s.ArrangeAsync();
         await s.ScheduleAsync(s.Request(await s.PatientAsync("Zed", "Qwerty"), SchedulingTestSupport.At(9)));
         foreach (var role in new[] { "Admin", "OfficeManager", "FrontDesk", "Dentist", "Hygienist", "Assistant", "Billing" }) _sessions[role] = await _api.SessionAsync(role);
-    }
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 

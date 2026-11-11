@@ -17,13 +17,12 @@ public class EncounterServiceTests : IAsyncLifetime
     private SchedulingTestSupport _s = null!;
     private Guid _ann;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
-    }
+    });
     public Task DisposeAsync() => _fixture.DisposeAsync();
 
     private EncounterService Svc(Alveara.Api.Data.AlveraDbContext db) => new(db, Clock);

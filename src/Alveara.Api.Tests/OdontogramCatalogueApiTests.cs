@@ -18,14 +18,13 @@ public class OdontogramCatalogueApiTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private Guid _ann;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         _api = new SchedulingApiHarness(_fixture);
         await _s.ArrangeAsync();
         _ann = await _s.PatientAsync();
-    }
+    });
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
     private static string Error(JsonElement e) => e.GetProperty("error").GetString()!;

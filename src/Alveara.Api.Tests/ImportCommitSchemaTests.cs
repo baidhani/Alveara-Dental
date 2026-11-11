@@ -19,9 +19,8 @@ public class ImportCommitSchemaTests : IAsyncLifetime
     private Guid _batch;
     private static readonly DateTimeOffset At = new(2030, 1, 14, 15, 0, 0, TimeSpan.Zero);
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         var s = new SchedulingTestSupport(_fixture);
         await s.ArrangeAsync();
         _actor = s.Actor;
@@ -36,7 +35,7 @@ public class ImportCommitSchemaTests : IAsyncLifetime
         db.ImportBatches.Add(batch);
         await db.SaveChangesAsync();
         _batch = batch.Id;
-    }
+    });
 
     public Task DisposeAsync() => _fixture.DisposeAsync();
 

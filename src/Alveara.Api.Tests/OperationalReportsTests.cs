@@ -28,16 +28,15 @@ public class OperationalReportsTests : IAsyncLifetime
     private Guid _a1, _a2, _a3, _a4, _a5;
     private Guid _patientA;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
-        await _fixture.InitializeAsync();
         _s = new SchedulingTestSupport(_fixture);
         await _s.ArrangeAsync();
         _actor = Guid.NewGuid();
         await using var db = _fixture.CreateContext();
         db.UserAccounts.Add(new UserAccount { Id = _actor, Username = $"manager-{Guid.NewGuid():N}", Role = Role.OfficeManager, CreatedAtUtc = DateTimeOffset.UtcNow });
         await db.SaveChangesAsync();
-    }
+    });
 
     public Task DisposeAsync() => _fixture.DisposeAsync();
 

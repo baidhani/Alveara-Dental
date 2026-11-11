@@ -24,9 +24,8 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
     private readonly CapturingLoggerProvider _logs = new();
     private SchedulingApiHarness _api = null!;
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _fixture.InitializeOwnerAsync(() =>
     {
-        await _fixture.InitializeAsync();
         _api = new SchedulingApiHarness(_fixture)
         {
             ConfigureLogging = b =>
@@ -35,7 +34,8 @@ public class PermissionPolicyPerformanceTests : IAsyncLifetime
                 b.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
             },
         };
-    }
+        return Task.CompletedTask;
+    });
 
     public Task DisposeAsync() { _api.Dispose(); return _fixture.DisposeAsync(); }
 
