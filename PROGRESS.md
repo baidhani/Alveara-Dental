@@ -2312,3 +2312,9 @@
   - What changed: .alveara/handoffs/ALV-N019/R05.md and R05-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, PARENT_REGRESSION, DEMO_EVIDENCE, CHANGED_FILES, NEXT_STORY_IMPACT, r04-stage2-failure/ raw files, artifacts/ sweep and diff, prepared Stage 2 contract in stage2/); the reviewer's R04 Stage 1 decision is stored unchanged; the ALV-N019 record moved to attempt R05 (implementation c94ca0b, fullRegression PENDING); BUILD_STATE.md carries a 2026-11-11 R05 paragraph.
   - Verification: inventory test 5 of 5; login-cleanup test 12 of 12 (1 in 8 failed on the R03 code); architecture-map spec 8 of 8 (1 in 3 failed before); tsc and lint ok; sweep 375 of 375 over the 26 source-scanning classes plus the TestDatabase and new fixture classes; evaluator self-validation and runner proof ok.
   - Notes: NO second Stage 2 run was started and none will be without the owner's explicit approval after the Stage 1 approval. R04 Stage 2 itself: 5,712 of 5,715 backend, no pool timeout, no leak, 4,354 clones. ALV-N019 is not COMPLETE; ALV-N020 is not started; nothing pushed.
+- [x] ALV-N019 R06 fix: deterministic composed source for partial classes in RealMigrationInventoryTests (R05 review CHANGES_REQUIRED)
+  - Date: 2026-11-11
+  - Session: CC-20261109-8w3d
+  - What changed: RealMigrationInventoryTests.ComposedClasses() joins ALL fragments of a partial class in ordinal file-name order (replaces GroupBy(...).First()); the migrator test asserts TestDatabaseFixture has at least two fragments and that every fragment of every class is inside its composed source. No new test id (still 5,715).
+  - Verification: build 0 errors, the same 32 warnings. NO test was run, on the product owner's explicit instruction; the five inventory tests and the source-scanning sweep the reviewer asked for were not rerun.
+  - Notes: ALV-N019 not COMPLETE; nothing pushed.
