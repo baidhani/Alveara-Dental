@@ -1,0 +1,11 @@
+baseline ids: 5697; result ids: 5697; new ids: 0 (expected 0)
+MISSING from the results: 0
+OUTCOME CHANGED: 1
+    Alveara.Api.Tests.ImportIntakeServiceTests.A_malformed_file_is_refused_with_its_problems_logged_by_codes_only_and_stored_nowhere
+NOT PASSED in the results: 1
+    Alveara.Api.Tests.ImportIntakeServiceTests.A_malformed_file_is_refused_with_its_problems_logged_by_codes_only_and_stored_nowhere
+new ids:
+RETIRED ids declared: 0; not in the baseline: 0; still in the results: 0
+NEW ids that were not expected: 0
+EXPECTED new ids that did not appear: 0
+COMPARISON FAIL

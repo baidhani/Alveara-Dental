@@ -1,0 +1,20 @@
+Focused diagnosis of the single failed backend test (run after the frozen Stage 2 finished; read-only on the Stage 2 results; no code, test, package or script changed)
+
+Failed test: Alveara.Api.Tests.ImportIntakeServiceTests.A_malformed_file_is_refused_with_its_problems_logged_by_codes_only_and_stored_nowhere
+When: startTime 2026-11-10T18:35:00.594-06:00, about 16 minutes into the backend run (the run started 18:19:05).
+Error (test setup, InitializeAsync, ImportIntakeServiceTests.cs line 34, first SaveChangesAsync): System.InvalidOperationException: Timeout expired. The timeout period elapsed prior to obtaining a connection from the pool. This may have occurred because all pooled connections were in use and max pool size was reached.
+Nature: a connection-pool timeout in the fixture's setup, not an assertion and not product code. The failure is not in a test body.
+
+Why four evaluator criteria failed from one cause:
+  - backend exit code 1, 5,696 passed and 1 failed, and the id comparison: the one failed test.
+  - artifact counts: the fixture created its database at 18:35:00.610 (AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8) and then failed before its cleanup could run, so that database (2 files in Test-Data\Database) was left behind: databases_total 1 -> 2, AlveraTest 0 -> 1, folder_Database 0 -> 2 (leak_before.txt, leak_after.txt). It is still present at the time of writing and is NOT deleted (left for the owner's agreement).
+
+Everything else passed in the same run: vitest 1,879, build, lint, tsc -b, the mocked Playwright suite, repository checks, the five walkthroughs (auth, patient portability, patient export package, patient merge, bulk import) and the injected-clock chain; 5,696 of the 5,697 backend ids Passed.
+
+Focused reruns of the failed test's whole class afterwards (dotnet test --no-build --filter FullyQualifiedName~ImportIntakeServiceTests, same binaries, same machine, 10 tests each):
+  run 1: Passed!  - Failed: 0, Passed: 10, Skipped: 0, Total: 10, Duration: 17 s
+  run 2: Passed!  - Failed: 0, Passed: 10, Skipped: 0, Total: 10, Duration: 19 s
+  run 3: Passed!  - Failed: 0, Passed: 10, Skipped: 0, Total: 10, Duration: 19 s
+The same test passed in the accepted R02 Stage 2 run (R02-regression-evidence) and in every Stage 1 sweep, which used the same Microsoft.Data.SqlClient 7.1.0 and EF Core versions; only the System.Security.Cryptography.Pkcs pin differs in R03.
+
+Assessment (belief, not proof): a transient connection-pool exhaustion in one test setup under load, environmental and unrelated to the Pkcs pin (the package is used by the SQL client only for certificate and encryption features, not pooling). It is not proven that no relation exists; only a repeat of the full run could prove the run clean.

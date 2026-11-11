@@ -1,0 +1,108 @@
+{
+  "axe": {
+    "export-screen-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "export-screen-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "downloads": {
+    "onePatientPackage": {
+      "file": "one-patient-package.zip",
+      "sha256": "d6c905838e3e8975907e6d4dd008c208a9533e9e7d096fb927521a47b061df64"
+    },
+    "readableRecords": [
+      {
+        "file": "readable-record-from-patient-page.html",
+        "sha256": "b9ea1c88e02c11406e071e9cf852fec91a943268dad333d5c8c9b2464e7de5cf"
+      },
+      {
+        "file": "readable-record-from-screen.html",
+        "sha256": "1d1404f2dbf213b815866f9d315172a6a5dd90d924a8d1c6374429b7637465dc"
+      }
+    ],
+    "allPatientsPackage": {
+      "file": "all-patients-package.zip",
+      "sha256": "522eaf43da8b9bd1a28407b05e212ec33696925a56d530ac13064d5c2ad443b8",
+      "screenMilliseconds": 644
+    }
+  },
+  "timing": {
+    "patients": 202,
+    "runs": [
+      {
+        "attempt": 1,
+        "onePatientPackage": {
+          "status": 200,
+          "milliseconds": 279,
+          "bytes": 13818,
+          "result": "Complete"
+        },
+        "allPatientsPackage": {
+          "status": 200,
+          "milliseconds": 1808,
+          "bytes": 465350,
+          "result": "Complete"
+        }
+      },
+      {
+        "attempt": 2,
+        "onePatientPackage": {
+          "status": 200,
+          "milliseconds": 287,
+          "bytes": 13819,
+          "result": "Complete"
+        },
+        "allPatientsPackage": {
+          "status": 200,
+          "milliseconds": 1458,
+          "bytes": 465490,
+          "result": "Complete"
+        }
+      }
+    ]
+  },
+  "stamp": 1794362183428,
+  "access": {
+    "dentistRefused": {
+      "/api/patient-exports/patients/1e3c9ba0-fa1c-41c2-b13f-948d27c5092b/package": 403,
+      "/api/patient-exports/all-patients/package": 403,
+      "/api/patient-exports/patients/1e3c9ba0-fa1c-41c2-b13f-948d27c5092b/readable-record": 403,
+      "/api/patient-exports/history": 403,
+      "/api/patient-exports/overview": 403
+    },
+    "anonymous": [
+      401,
+      401,
+      401,
+      401,
+      401
+    ]
+  },
+  "permissions": {
+    "dentistAllPatients": 403,
+    "dentistPackage": 403,
+    "dentistOwnHistoryRows": 1
+  },
+  "history": {
+    "lines": 5,
+    "auditEvents": 5
+  },
+  "ids": {
+    "dentistUser": "58229cea-5be7-44b8-9f9c-6ccd2c7fb572",
+    "ann": "1e3c9ba0-fa1c-41c2-b13f-948d27c5092b",
+    "bo": "a2c494fe-f769-487a-b072-acc4acf53cd9",
+    "cy": "656ae58d-7236-41a8-81f1-22d87baa1ce8"
+  },
+  "saved": {
+    "onePatientPackage": "C:\\tmp\\stage2-ALV-N019-R03\\walkthroughs\\playwright.patient-export-package.config.ts\\one-patient-package.zip",
+    "readableFromPatientPage": "C:\\tmp\\stage2-ALV-N019-R03\\walkthroughs\\playwright.patient-export-package.config.ts\\readable-record-from-patient-page.html",
+    "readableFromScreen": "C:\\tmp\\stage2-ALV-N019-R03\\walkthroughs\\playwright.patient-export-package.config.ts\\readable-record-from-screen.html",
+    "allPatientsPackage": "C:\\tmp\\stage2-ALV-N019-R03\\walkthroughs\\playwright.patient-export-package.config.ts\\all-patients-package.zip",
+    "dentistReadable": "C:\\tmp\\stage2-ALV-N019-R03\\walkthroughs\\playwright.patient-export-package.config.ts\\readable-record-by-dentist.html",
+    "original": "C:\\tmp\\stage2-ALV-N019-R03\\walkthroughs\\playwright.patient-export-package.config.ts\\original-story-018-export.json"
+  }
+}
