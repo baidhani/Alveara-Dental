@@ -1,0 +1,11 @@
+Cleanup record, BEFORE (read-only checks, 2026-11-10 after the initial R03 Stage 2 run; nothing deleted yet)
+
+Databases matching AlveraTest_%, AlveraTemplate_% or AlveraRestore_% (sys.databases joined to sys.master_files):
+  AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8  created 2026-11-10 18:35:00.610  (the creation time equals the failed test's start time, 18:35:00.594)
+    LOG   C:\.alvera-data\Test-Data\Database\AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8_log.ldf  8 MB
+    ROWS  C:\.alvera-data\Test-Data\Database\AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8.mdf      8 MB
+All non-system databases on .\SQLEXPRESS: AlveraDev, AlveraTest_72e0ccf142994bd19eafa80c0a7c81a8 (no template, restore or other test database).
+Files in C:\.alvera-data\Test-Data\Database: exactly those two files (8,388,608 bytes each, last written 6:35:01 PM), nothing else.
+Equivalence before any rerun: files differing from implementation 56b05c02d5e447a8286e1dcd2f3750560f34f3cb outside .alveara/ and PROGRESS.md: 0; tracked changes in the working tree: 0.
+
+The target named by the reviewer exists, is the isolated test database created by the failed fixture, and owns exactly these two files. AlveraDev is not touched by any step.
