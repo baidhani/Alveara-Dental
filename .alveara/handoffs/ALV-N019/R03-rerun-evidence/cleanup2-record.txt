@@ -1,0 +1,7 @@
+Second cleanup record (2026-11-11, on the product owner's explicit approval and the reviewer's requirement in .alveara/reviews/ALV-N019/R03-stage2-rerun.md)
+
+Before (read-only): non-system databases were AlveraDev and AlveraTest_a606d345a5f246ea8ceba3cf37fd2932 (created 2026-11-10 21:39:20.817, the failed rerun test's start time). The target matched ^AlveraTest_[0-9a-f]{32}$ (case-sensitive) and owned exactly two files, both under C:\.alvera-data\Test-Data\Database:
+  AlveraTest_a606d345a5f246ea8ceba3cf37fd2932.mdf
+  AlveraTest_a606d345a5f246ea8ceba3cf37fd2932_log.ldf
+Action: ALTER DATABASE [AlveraTest_a606d345a5f246ea8ceba3cf37fd2932] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [AlveraTest_a606d345a5f246ea8ceba3cf37fd2932];  (exit 0)
+After: non-system databases: AlveraDev only; files in C:\.alvera-data\Test-Data\Database: 0; AlveraDev intact. Nothing else was deleted.
