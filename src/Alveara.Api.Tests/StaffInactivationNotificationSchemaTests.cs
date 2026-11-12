@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Alveara.Api.Architecture.Configuration;
+using Alveara.Api.Architecture.Documents;
 using Alveara.Api.Architecture.Notifications;
 using Xunit;
 
@@ -75,6 +76,26 @@ public class StaffInactivationNotificationSchemaTests : SafetyTestBase
             CreatedAtUtc = DateTimeOffset.UtcNow, IdempotencyKey = $"k-{Guid.NewGuid():N}", RequestHash = new string('a', 64),
         }, new MessageRecipient { MessageId = id, RecipientUserId = Other });
         ShapeRefused(await Refusal(() => AddAsync(Alert(n => n.MessageId = id))));
+        Assert.Equal(0, await AlertCountAsync());
+    }
+
+    /// <summary>R02 (review R01 item 3): either document-link field filled in is refused by the database itself, with a real document of a real patient.</summary>
+    [Theory]
+    [InlineData("RelatedDocumentId")]
+    [InlineData("RelatedOtherDocumentId")]
+    public async Task The_new_kind_is_refused_with_a_document_link(string field)
+    {
+        var doc = new PatientDocument
+        {
+            Id = Guid.NewGuid(), PatientId = Ann, CategoryId = DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2026, 10, 1), Description = "Bitewing.", OriginalFileName = "bitewing.png",
+            DetectedType = "png", ContentType = "image/png", SizeBytes = 2048, Sha256 = new string('a', 64), BlobId = Guid.NewGuid(), ImportedByUserId = S.Actor, ImportedAtUtc = DateTimeOffset.UtcNow,
+            IdempotencyKey = $"doc-{Guid.NewGuid():N}", RequestHash = new string('a', 64),
+        };
+        await AddAsync(doc);
+        ShapeRefused(await Refusal(() => AddAsync(Alert(n =>
+        {
+            if (field == "RelatedDocumentId") n.RelatedDocumentId = doc.Id; else n.RelatedOtherDocumentId = doc.Id;
+        }))));
         Assert.Equal(0, await AlertCountAsync());
     }
 
