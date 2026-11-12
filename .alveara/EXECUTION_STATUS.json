@@ -3,9 +3,9 @@
   "generatedBy": "ALV-CONTROL bootstrap R02",
   "generatedAt": "2026-09-27T22:17:54.318Z",
   "counts": {
-    "totalActiveFirstReleaseRecords": 69,
+    "totalActiveFirstReleaseRecords": 71,
     "courseRecords": 19,
-    "alvRecords": 50
+    "alvRecords": 52
   },
   "records": [
     {
@@ -57,6 +57,27 @@
       "review": {"decision": "APPROVED", "decisionArtifact": ".alveara/reviews/ALV-N020/R02.md", "approvedAttempt": "R02", "reviewedImplementationCommit": "e28282f67e70478529d2c6774e7c83693578a387", "reviewedEvidenceCommit": "82f9a945ba9170ea5b5a5cf1868f5db28d54b70d", "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N020/R01.md", "scopeRulingArtifacts": ["docs/design/ALV-N020_PRE_IMPLEMENTATION_BRIEF_REVIEW.md", "docs/design/ALV-N020_MIGRATION_DECISION.md"]},
       "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": "2026-11-12T11:07:01-06:00",
       "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {"masterPlanVersion": "3.3", "executionIndexVersion": "1.3", "handoffSchemaVersion": "3"},
+      "num": 57.1,
+      "planItem": "57a",
+      "phase": "Post-Gate-E Stabilization",
+      "storyId": "ALV-N020-C01",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": ["ALV-N020"],
+      "optional": false,
+      "qualityGateContribution": ["Gate F"],
+      "status": "PLANNED",
+      "attempt": null,
+      "acceptance": {"total": 7, "passed": 0},
+      "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
+      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
+      "blockingIssues": [],
+      "controlNotes": "Owner-approved stabilization companion (plan item 57a, amendment of 2026-11-12): DentalKeep login presentation, curated manual theme, configurable plain-text footer notice. Pre-implementation briefing is mandatory. Manual theme selection only; automatic rotation is ALV-N029. Falls within the post-Gate-E deferred-regression exception: focused evidence, broad regression DEFERRED_TO_ALV-N028.",
+      "revalidation": {"required": false, "reason": null}, "completedAt": null
     },
     {
       "schemaVersion": "2",
@@ -187,12 +208,33 @@
     {
       "schemaVersion": "2",
       "controlSet": {"masterPlanVersion": "3.3", "executionIndexVersion": "1.3", "handoffSchemaVersion": "3"},
+      "num": 65.1,
+      "planItem": "65a",
+      "phase": "Post-Gate-E Stabilization",
+      "storyId": "ALV-N029",
+      "storyType": "new_production",
+      "parentCourseStory": null,
+      "dependencies": ["ALV-N020-C01", "ALV-N027"],
+      "optional": false,
+      "qualityGateContribution": ["Gate F"],
+      "status": "DEFERRED",
+      "attempt": null,
+      "acceptance": {"total": 5, "passed": 0},
+      "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
+      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
+      "blockingIssues": [],
+      "controlNotes": "Owner-approved, deliberately deferred (plan item 65a, amendment of 2026-11-12): scheduled login-theme rotation. Do not begin before ALV-N027 closes; it runs immediately before ALV-N028 so the final integrated certification covers it. Reason for deferral: the manual theme (ALV-N020-C01) ships first; rotation is an enhancement after stabilization.",
+      "revalidation": {"required": false, "reason": null}, "completedAt": null
+    },
+    {
+      "schemaVersion": "2",
+      "controlSet": {"masterPlanVersion": "3.3", "executionIndexVersion": "1.3", "handoffSchemaVersion": "3"},
       "num": 65,
       "phase": "Post-Gate-E Stabilization",
       "storyId": "ALV-N028",
       "storyType": "new_production",
       "parentCourseStory": null,
-      "dependencies": ["ALV-N019", "ALV-N020", "ALV-N021", "ALV-N022", "ALV-N023", "ALV-N024", "ALV-N025", "ALV-N026", "ALV-N027"],
+      "dependencies": ["ALV-N019", "ALV-N020", "ALV-N020-C01", "ALV-N021", "ALV-N022", "ALV-N023", "ALV-N024", "ALV-N025", "ALV-N026", "ALV-N027", "ALV-N029"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
       "status": "PLANNED",

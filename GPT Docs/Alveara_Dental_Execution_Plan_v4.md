@@ -3730,7 +3730,22 @@ The underlying R05 source plan and its raw-log mapping remain the detailed accep
 
 **Required coverage:** R05 PKG-02/03 findings, decisions PD-01 and optional PD-36 boundary, cases 1.01-1.12 and mapped raw-log entries. This is authentication/privacy work and requires two-stage review.
 
-**NEXT:** After final approval and closure, continue to item 58.
+**NEXT:** After final approval and closure, continue to the owner-approved companion item `ALV-N020-C01` below. Then continue to item 58.
+
+## 57a — ALV-N020-C01 — DentalKeep Login Presentation, Curated Manual Theme, and Configurable Footer Notice
+
+**Type:** New Production — owner-approved stabilization companion
+**Dependencies:** ALV-N020
+
+**Scope:** Replace the scaffold-like login presentation with the owner-supplied DentalKeep logo and a polished, accessible login surface. Bundle a curated catalog of local, repeatable background-tile assets. The first release of this capability is **manual selection only**: an authorized administrator selects one approved bundled theme; neither remote image loading nor automatic rotation is included in this item. Add controlled login-footer notice configuration: the initially deployed country-appropriate notice is the default, an authorized administrator may replace its text, and an explicit `Show footer notice on login screen` setting may suppress its display.
+
+**Acceptance:** The login page uses a repeating local tile background and the approved logo without stretching, remote retrieval, tracking, or user-uploaded assets. It remains usable at supported desktop and narrow viewport sizes: the form, visible focus state, error state, loading state, and server-unavailable state meet accessibility contrast and keyboard requirements, and the background cannot impair reading or operation. The theme catalog is a fixed allow-list of bundled asset identifiers, with a safe visual fallback if an asset is unavailable. Manual theme selection and login-footer notice configuration require the existing least-privilege configuration authority, are server-validated, concurrency-safe, and audited with actor, time, prior/new theme identifier or notice-display state, without recording credentials or unnecessarily duplicating notice text in audit detail. Footer text is stored and rendered as plain text only—no HTML, scripts, external URLs, or arbitrary markup—and has length/whitespace validation. The default notice is deployer-editable during or after deployment; disabled means it is not rendered on the login page, not merely visually hidden. Authentication, account-enumeration resistance, lockout, CSRF, session-expiry/revocation, sign-out, and N020 outage behavior remain unchanged.
+
+**Required coverage:** A pre-implementation briefing must inventory the owner-provided logo and each tile asset, their licensing/source status, dimensions, and accessible fallback. Demonstrate each approved manual theme, configuration authorization/denial, audit history, text validation/escaping, enabled/disabled footer rendering, responsive keyboard-only sign-in, and unchanged login/session security behaviors. Use targeted UI, API, persistence, accessibility, and authorization tests. This companion falls within the post-Gate-E stabilization regression exception: package-focused evidence is required; broad regression is deferred to `ALV-N028`.
+
+**Explicit exclusions:** Do not add self-registration, password recovery, "remember me", external/remote asset URLs, user-uploaded tiles, rich-text footer markup, country-detection, or automatic theme rotation. The separate approved automatic-rotation item is `ALV-N029` below.
+
+**NEXT:** After final approval and closure, continue to item 58 — ALV-N021.
 
 ## 58 — ALV-N021 — Date, Scheduling, and Visit-Transition Integrity
 
@@ -3826,7 +3841,7 @@ The underlying R05 source plan and its raw-log mapping remain the detailed accep
 ## 65 — ALV-N028 — Complete Automated Accumulated-State Chain and Stabilization Exit Evidence
 
 **Type:** New Production  
-**Dependencies:** ALV-N019, ALV-N020, ALV-N021, ALV-N022, ALV-N023, ALV-N024, ALV-N025, ALV-N026, ALV-N027
+**Dependencies:** ALV-N019, ALV-N020, ALV-N020-C01, ALV-N021, ALV-N022, ALV-N023, ALV-N024, ALV-N025, ALV-N026, ALV-N027, ALV-N029
 
 **Scope:** R05 PKG-16. Run the complete chain once from an empty controlled environment with no resume, verify the tracked-exception register has no release-blocking entry, and package exit evidence.
 
@@ -3834,7 +3849,20 @@ The underlying R05 source plan and its raw-log mapping remain the detailed accep
 
 **Required coverage:** Full uninterrupted R05 chain and register-agreement self-test. This is an integrated milestone and requires Stage 1 approval before one frozen Stage 2 run.
 
-**NEXT:** The owner may select additional features for a separate approved package. When no selected additional work remains, the owner chooses the timing of one final manual E2E. Only the owner's explicit clear-to-go after that manual E2E authorizes item 66.
+**NEXT:** After `ALV-N029` has closed, run this final integrated certification. When it passes, the owner may select further features only through a separate approved package and must then re-establish an integrated release candidate. When no selected additional work remains, the owner chooses the timing of one final manual E2E. Only the owner's explicit clear-to-go after that manual E2E authorizes item 66.
+
+## 65a — ALV-N029 — DentalKeep Scheduled Login Theme Rotation
+
+**Type:** New Production — owner-approved deferred enhancement
+**Dependencies:** ALV-N020-C01, ALV-N027
+
+**Scope:** Add the deliberately deferred automatic scheduling mode for the curated local DentalKeep login-theme catalog after the existing stabilization work is complete. Manual selection remains available. The scheduling mode changes only which already-approved bundled theme is active; it does not introduce external content, user uploads, or a new authentication path.
+
+**Acceptance:** An authorized administrator can choose manual mode or a deterministic weekly rotation schedule based on server time and the approved catalog. The selection is consistent for all users at a given server time, predictable across restart, time-zone/DST boundaries, and empty/missing catalog recovery. Schedule and mode changes are validated, concurrency-safe, and auditable. The active theme remains a fixed bundled allow-list identifier with a safe fallback. No PHI, credential, browser identity, or client-specific fingerprint influences theme selection.
+
+**Required coverage:** Cover manual-to-scheduled and scheduled-to-manual transitions, deterministic weekly boundary behavior including DST/time-zone cases, restart persistence, invalid configuration rejection, missing-asset fallback, authorization denial, audit evidence, and unchanged login security/accessibility behavior. This item is deliberately placed immediately before `ALV-N028` so the one final accumulated-state chain and release-candidate regression include its implementation.
+
+**NEXT:** Continue to item 65 — ALV-N028.
 
 # 66 — ALV-N013 — Windows Installation, Upgrade, Schema Migration, and Rollback
 

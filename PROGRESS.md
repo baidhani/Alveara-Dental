@@ -2432,3 +2432,9 @@
   - What changed: docs/stabilization/DISPOSITION_REGISTER.json F-075 note: Practice configuration > Staff "Show inactive" reloads with no busy indicator (ConfigEntityPanel.tsx, shared by every configuration tab, reloads without a loading state); to be covered by F-075's shared progress pattern (PKG-14 Group C, ALV-N027). The owner's other note is already F-018 (PKG-14 Group A, ALV-N027).
   - Verification: node --test tests/stabilization/disposition-completeness.test.mjs 16 pass, 0 fail, 1 skipped (real-log case needs DISPOSITION_RAW_LOG); register parses.
   - Notes: no id, disposition, package or scope changed, so no reviewer decision was needed; nothing pushed.
+- [x] Control: record the owner-approved plan items ALV-N020-C01 (next) and ALV-N029 (deferred)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: GPT Docs/Alveara_Dental_Execution_Plan_v4.md (the owner's amendment, committed as supplied); EXECUTION_STATUS.json new records ALV-N020-C01 (num 57.1, planItem 57a, PLANNED, depends on ALV-N020, acceptance 7) and ALV-N029 (num 65.1, planItem 65a, DEFERRED with reason, depends on ALV-N020-C01 and ALV-N027, acceptance 5), ALV-N028 dependencies extended, counts 71/52; story_catalog.json two entries; HANDOFF_SCHEMA.md and the ledger header name both items under the deferred-regression exception; BUILD_STATE.md line.
+  - Verification: both JSON files parse; 71 unique records with the new ones next to ALV-N020 and before ALV-N028; git diff removes only the two counts and ALV-N028's dependency line (no completed record changed). No tests run (owner instruction).
+  - Notes: assumptions - num 57.1/65.1 because the Command Center sorts num numerically (a "57a" string would not sort); acceptance totals count the sentences of each item's Acceptance paragraph (7 and 5). Nothing pushed.

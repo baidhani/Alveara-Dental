@@ -290,6 +290,11 @@
       "subsystem": "Platform & Release"
     },
     {
+      "storyId": "ALV-N020-C01",
+      "title": "DentalKeep Login Presentation, Curated Manual Theme, and Configurable Footer Notice",
+      "subsystem": "Platform & Release"
+    },
+    {
       "storyId": "ALV-N021",
       "title": "Date, Scheduling, and Visit-Transition Integrity",
       "subsystem": "Platform & Release"
@@ -322,6 +327,11 @@
     {
       "storyId": "ALV-N027",
       "title": "Messaging, Follow-Ups, Reports, Navigation, Configuration, and Onboarding",
+      "subsystem": "Platform & Release"
+    },
+    {
+      "storyId": "ALV-N029",
+      "title": "DentalKeep Scheduled Login Theme Rotation",
       "subsystem": "Platform & Release"
     },
     {
