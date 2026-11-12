@@ -1,4 +1,4 @@
-# ALV-N020-C01 Pre-Implementation Briefing (revision 2)
+# ALV-N020-C01 Pre-Implementation Briefing (revision 3)
 
 **DentalKeep Login Presentation, Managed Local Background Catalog, and Configurable Footer Notice**
 
@@ -6,14 +6,14 @@
 - **Governing decisions:** `docs/design/ALV-N020-C01_SCOPE_CHANGE_REQUEST.md` (owner's request) and `docs/design/ALV-N020-C01_SCOPE_CHANGE_REVIEW.md` (APPROVED WITH REQUIRED DESIGN CORRECTIONS, option A)
 - **Depends on:** ALV-N020 (COMPLETE, closure `4ada83a`)
 - **Session:** CC-20261109-8w3d
-- **Revision 1** (`3e1a3d2`) proposed a fixed bundled catalog; it is superseded by this revision.
-- **Status:** briefing only. No application code, schema, configuration, asset, dependency or test has been changed, and no test has been run. Implementation waits for independent approval of this revision.
+- **Revision 1** (`3e1a3d2`) proposed a fixed bundled catalog. **Revision 2** (`d92f6ef`, `ae0852b`, `19135f1`) was reviewed in `.alveara/reviews/ALV-N020-C01/BRIEFING-R02.md` (CHANGES_REQUIRED, four corrections). This revision 3 answers those four: no inferred permission holder on an existing installation (section 4.1), raw-entry identifiers removed (section 0), the test-permission statement (section 8), and the tile-readiness gate (section 2.3).
+- **Status:** briefing only. No application code, schema, configuration, asset, dependency or test has been changed, and no test has been run. Implementation waits for independent approval of this revision. This revision contains no implementation or test-run evidence.
 - **Regression route:** post-Gate-E deferred-regression exception: focused API, persistence, security, browser, accessibility and recovery evidence for this package; broad regression `DEFERRED_TO_ALV-N028`.
 - **Not in this item:** automatic rotation (`ALV-N029`, deferred); the configuration busy-state finding F-075 (stays with `ALV-N027`).
 
 ## 0. Raw source entries
 
-No manual-E2E finding asks for this work; it comes from the owner's plan amendment and scope change. Related raw entries, for preservation: F-156 (sign-in page did not read the saved theme; fixed in ALV-N020), F-012 (server-down banner on the sign-in page; fixed in ALV-N020), F-013 / PD-01 (offline wording; signed-in wording unchanged, owner decision open). The owner's own entries for this item, quoted:
+No Manual E2E raw entry drives this item, so none is named here; the item comes from the owner's plan amendment and scope change. (Earlier sign-in-page findings were closed by ALV-N020 and are only preserved, not changed, by this item: sections 1.2 and 6 list the behaviors that stay unchanged.) The raw source entries for this item are the owner's and the reviewer's own records, quoted:
 
 | # | Date | Owner's words / decision |
 |---|---|---|
@@ -26,8 +26,9 @@ No manual-E2E finding asks for this work; it comes from the owner's plan amendme
 | O-7 | 2026-11-12 | "the admin can click a add back ground image, select the image from desk, added it to the collection, specify the display mode to tile, streach, fill." |
 | O-8 | 2026-11-12 | Transparent logo: `C:/Users/firas/Desktop/Epic/dentalKeep logo.png`; permission to create a cleaned copy with a 'v2' suffix in the same folder for review. |
 | O-10 | 2026-11-12 | "v2 approved" (the cleaned logo L3). |
-| O-9 | 2026-11-12 | Initial presentation administrator: "the first admin account going to be created during deployment" (and, on the existing installation, the owner's admin account). |
+| O-9 | 2026-11-12 | Initial presentation administrator: "add it to my admin account if you asking for the current available accounts. if you asking for the future during deployment then it would be the first admin account going to be created during deployment." |
 | R-1 | 2026-11-12 | Reviewer: option A approved with seven binding corrections; default = the teal doodle tile; labels stay "Username" and "Sign in"; the logo artwork is approved; notice up to 1,000 characters. |
+| R-2 | 2026-11-12 | Reviewer (`BRIEFING-R02.md`): CHANGES_REQUIRED: never infer the holder on an existing installation; reproduce full raw entries or remove the identifiers; every test group needs the owner's explicit permission unless the owner adopts a separate written standing rule; close tile readiness with tiled browser screenshots before packaging assets. The cleaned logo v2, Tile/Stretch/Fill, the teal default and the wording are accepted. |
 
 ## 1. Intended result
 
@@ -53,9 +54,9 @@ No manual-E2E finding asks for this work; it comes from the owner's plan amendme
 | L3 | `dentalKeep logo v2.png` | **Logo to use: approved by the owner (O-10)** | 1774 x 887, RGBA | 121,992 B | `ac8142697e5fe31773b9ad75008e7474e6b1bf4e5f71de3338a918a259b7b9c3` | Cleaned copy made with the owner's permission (L2 untouched): the 10 solid letter shapes kept, isolated specks removed, anti-aliased edge pixels within 2 px kept and recoloured to their letter's colour (teal (87, 173, 177), coral (201, 111, 86)). Script recorded for the handoff |
 | T1 | `ChatGPT Image Nov 10, 2026, 10_41_23 AM.png` | Background "Teal doodle" - **deployment default** (R-1) | 1254 x 1254 | 1,676,595 B | `5dd15d6b763f67e9946bd722d7280fdbd99023f7f0ad4e62580fd501a9627699` | edges seamless (2.1 / 2.8 vs baseline 1.8) |
 | T2 | `ChatGPT Image Nov 10, 2026, 04_00_35 PM.png` | "Blue doodle" | 1254 x 1254 | 1,946,848 B | `78f9a1f8b53b609e3adc25dd3fd2cd9bb1fe644cdfee98a360d4ddf6de1ddd43` | seamless (5.3 / 4.2 vs 5.9) |
-| T3 | `ChatGPT Image Nov 10, 2026, 04_01_00 PM.png` | "Blue operatory" | 1254 x 1254 | 1,527,257 B | `33084e9d07bc05721b18036ad1e59d6641a24a81e19eb8caa7e57879e6c1bace` | left/right seamless; top/bottom 8.9 vs 2.0: check visually |
+| T3 | `ChatGPT Image Nov 10, 2026, 04_01_00 PM.png` | "Blue operatory" | 1254 x 1254 | 1,527,257 B | `33084e9d07bc05721b18036ad1e59d6641a24a81e19eb8caa7e57879e6c1bace` | left/right seamless; top/bottom 8.9 vs 2.0: **open, tile-readiness gate (2.3)** |
 | T4 | `ChatGPT Image Nov 10, 2026, 04_01_13 PM.png` | "Violet operatory" | 1254 x 1254 | 1,538,167 B | `17c73a7a5754d0e78e451b9fed29002b1ab3fd7d06d979ef66dbfc3ed18da321` | seamless (1.5 / 4.5 vs 12.7) |
-| T5 | `ChatGPT Image Nov 12, 2026, 01_05_55 PM.png` | "Neon doodle" | 1254 x 1254 | 1,374,863 B | `3c7f151e002ef17efad928dd4a3013d2dfcb2d66ac1b7339ea510399819b32b7` | top/bottom seamless (2.4 vs 2.4); left/right 5.9 vs 2.4: check visually |
+| T5 | `ChatGPT Image Nov 12, 2026, 01_05_55 PM.png` | "Neon doodle" | 1254 x 1254 | 1,374,863 B | `3c7f151e002ef17efad928dd4a3013d2dfcb2d66ac1b7339ea510399819b32b7` | top/bottom seamless (2.4 vs 2.4); left/right 5.9 vs 2.4: **open, tile-readiness gate (2.3)** |
 
 Edge numbers: mean absolute RGB difference between opposite edges, against the image's own neighbouring-column difference (measured with Python/PIL).
 
@@ -75,6 +76,15 @@ Edge numbers: mean absolute RGB difference between opposite edges, against the i
 
 **At implementation:** add only these packages with exact versions; record `dotnet list package --include-transitive` and `dotnet list package --vulnerable` output in the handoff; no floating versions. Decoding is restricted to PNG and JPEG by our own content check before Skia sees the bytes (Skia's WebP/GIF decoders are never reached).
 
+### 2.3 Tile-readiness gate (review R-2, correction 4)
+Edge measurements only flag a possible seam; they do not prove a tile is acceptable. Before any bundled asset is packaged, every one of the five bundled backgrounds (T1-T5, not only T3 and T5) passes this gate, and the result is recorded in the handoff:
+1. Prepare the bundled derivative (section 2.1, "Bundled form").
+2. Render it in a real browser on the sign-in page in **Tile** mode at three representative viewports: 1920 x 1080, 1280 x 800 and 375 x 812, light app theme; capture full-page screenshots (with the owner's explicit permission for the run, section 8).
+3. Inspect the repeat boundaries in each screenshot (the screenshots, the boundary positions and the verdict are stored with the evidence).
+4. Verdict per asset: **Tile ready** (no objectionable seam), **Reprocessed** (a seam was fixed by cropping or re-tiling the repeat unit, then steps 2-3 repeated on the new derivative), or **Tile not offered** (the asset keeps Stretch and Fill only; the catalog records `tileAllowed = false` for it and the server refuses Tile for it).
+5. The default T1 must end **Tile ready**; if it cannot, the owner is asked before packaging.
+Until the gate passes, no bundled asset is committed. The catalog carries `tileAllowed` per bundled image; added images allow all three modes (the administrator sees a live preview before saving).
+
 ## 3. Current state (repository at `6a7d8c0`)
 - `LoginPage.tsx` / `LoginPage.css`: `PageHeader` "Sign in" with "Enter your username and password to access DentalKeep.", status banners, the form. No logo, background or footer. `MfaChallengePage.tsx` and `ResetPasswordPage.tsx` are the other sign-in-flow pages.
 - `App.tsx` `RootLayout`: sign-in variant of `DisconnectedBanner` on those pages; the saved app theme applies there (ALV-N020).
@@ -88,7 +98,11 @@ Edge numbers: mean absolute RGB difference between opposite edges, against the i
 
 ### 4.1 Permission `ManageLoginPresentation` (correction 7)
 - A new **account-scoped** permission: it is not in any role's defaults, cannot be granted to a role by a policy override (the override writer refuses it), and is **excluded from the Admin role's "every permission"** set. It is held by named accounts listed in a new table `AccountPermissionGrants` (account id, permission, granted by, granted at; unique per account and permission).
-- **Initial assignment (owner decision O-9):** the holder is **the first administrator account created in the deployment**. On a new installation that is the account made by the existing one-time administrator bootstrap: the bootstrap grants it the permission in the same transaction and audits `LoginPresentationPermissionGranted` (reason "initial holder: first administrator"). On an installation that already exists (such as the owner's), a one-time start-up step runs only while no grant for this permission has ever existed (checked against the audit history): it grants it to the earliest-created account with the Admin role that is enabled, and audits it the same way; if there is none, nothing is granted and a warning is logged. No username is configured and nothing is guessed from names. It is not a hidden account, preset secret, bypass or recovery mechanism: the holder is an ordinary named account that signs in with its own password (and MFA if enrolled).
+- **Initial assignment (owner decision O-9, review R-2):**
+  - **New deployment:** the first administrator account created by the existing one-time administrator bootstrap receives the permission **in the same transaction**, audited `LoginPresentationPermissionGranted` (reason "initial holder: first administrator created by the installation bootstrap"). The installer is told explicitly: the bootstrap response and the installer's completion step state "This administrator account is also the sign-in presentation administrator (ManageLoginPresentation)." The ALV-N013 installation documentation records it.
+  - **Existing installation (such as the owner's):** nothing is granted automatically. The permission stays unassigned until a deployment operator explicitly selects a named, enabled account through the ordinary audited path (Security administration -> the account -> "Presentation administrator", by a `ManageUsers` holder). The system never infers the holder from creation time, display name, username or role. On the owner's installation the owner's instruction is to grant it to the owner's `admin` account; that grant is made through this path after implementation, by the operator, and audited.
+  - Until a holder exists, the sign-in page keeps working with the deployment default background and notice; nobody can change them.
+  - It is not a hidden account, preset secret, recovery bypass or super-admin: the holder is an ordinary named account that signs in with its own password (and MFA if enrolled).
 - **Transfer:** through Security administration -> the account's detail page -> "Presentation administrator" grant/revoke, by an account holding `ManageUsers` (the ordinary named-account authorization path), CSRF-protected, audited `LoginPresentationPermissionGranted` / `...Revoked` with actor, target and time. A grant to a disabled or Unassigned account is refused. Revoking the last holder is allowed (presentation simply becomes unmanageable until someone is granted it; the sign-in page keeps working).
 - **Checks:** every presentation operation requires this permission (account-scoped check by the signed-in account id) and CSRF. `/api/auth/permissions` reports it for the holder, so the client shows the Sign-in screen tab only to holders.
 - **Compatibility:** tests and UI that assume "Admin has every permission" are updated to "every role-assignable permission"; the permission matrix page does not list account-scoped permissions as a role column (it notes them separately).
@@ -107,7 +121,7 @@ Order of checks; any failure refuses with a specific code, saves nothing and lea
 10. Audit `LoginBackgroundAdded`: image id, display name, derivative hash, type, size, dimensions, actor. Never the bytes, never the user-supplied file name.
 
 ### 4.3 Catalog, selection and inactivation (correction 3)
-- Catalog entries: the five bundled images (fixed keys `teal-doodle`, `blue-doodle`, `blue-operatory`, `violet-operatory`, `neon-doodle`; cannot be inactivated) and added images (id, display name, hash, type, dimensions, suggested display mode, added by/at, active, row version).
+- Catalog entries: the five bundled images (fixed keys `teal-doodle`, `blue-doodle`, `blue-operatory`, `violet-operatory`, `neon-doodle`; cannot be inactivated; each with `tileAllowed` from the gate in 2.3, and Tile is refused for an image without it) and added images (id, display name, hash, type, dimensions, suggested display mode, added by/at, active, row version).
 - Selection (singleton `LoginPresentationSettings`): background reference (bundled key or added-image id), display mode (Tile / Stretch / Fill), notice text, show-notice flag, row version. Seeded: `teal-doodle`, Tile, no custom text, show = true.
 - **Inactivating the selected image is refused** (409 `background_in_use`: "Choose another background first"). Inactivation and selection run under the settings row's concurrency token in one transaction, so a concurrent change cannot leave the selection pointing at an inactive image.
 - Added images are inactivated and reactivated, never deleted (a database trigger refuses deletes, as elsewhere in the system).
@@ -172,17 +186,19 @@ New managed asset class `loginBackgrounds` registered with an `IBackupAssetSourc
 ## 7. Permission, audit, data, backup, recovery, accessibility implications
 | Area | Implication |
 |---|---|
-| Permission | new account-scoped `ManageLoginPresentation`; grant/revoke by `ManageUsers` holders; initial holder = the first administrator account (bootstrap, or the earliest enabled Admin on an existing installation) |
+| Permission | new account-scoped `ManageLoginPresentation`; grant/revoke by `ManageUsers` holders; initial holder = the first administrator created by the bootstrap on a new deployment (explicit to the installer, audited); on an existing installation unassigned until an operator grants it to a named account through the audited path |
 | Audit | events in 4.10; no bytes, names of uploaded files or credentials |
 | Data | derivatives on disk under server names; catalog and settings rows; no PHI expected (warning + audit) |
 | Backup | new asset class and restore check (4.8) |
 | Recovery | missing/unreadable derivative -> default background; restore re-checks files; lost holder -> a `ManageUsers` administrator grants the permission to another named account (audited) |
 | Accessibility | solid panel, visible labels, contrast per background in light and dark app themes, keyboard-only sign-in and configuration, 200 % zoom, forced colours, Stretch/Fill notes as text |
 
-## 8. Focused acceptance evidence (implementation phase; runs within the owner's 5-minute rule or with explicit permission above it)
+## 8. Focused acceptance evidence (implementation phase)
+
+**Run permission:** every executable test group (unit, API, browser, the tile-readiness screenshots, the chain and the walkthrough) requires the product owner's explicit permission before it starts, regardless of its estimated duration, unless the owner adopts a separate written standing rule. The chain and walkthrough evidence below is not run before that permission.
 | Requirement | Tests |
 |---|---|
-| Initial owner-only assignment | bootstrap grants it to the first administrator in the same transaction; on an existing database the one-time step grants it to the earliest enabled Admin only while no grant ever existed; a second Admin created later does not get it; not inherited by the Admin role; no Admin -> no grant + warning; second start does nothing |
+| Initial owner-only assignment | bootstrap grants it to the first administrator in the same transaction and audits it; the bootstrap response states it; a second Admin created later does not get it; not inherited by the Admin role; an existing database (migrated, no bootstrap) has **no** holder after start-up, and an operator grant through the audited path then works; restarting never grants anything |
 | Authorization / transfer / CSRF | holder 200; Admin without grant 403; FrontDesk etc. 403; anonymous 401; missing CSRF refused; `ManageUsers` grant/revoke audited; grant to disabled/Unassigned refused; role override for the permission refused |
 | Type refusal by content | SVG, GIF, WebP, BMP, text renamed `.png`, PNG renamed `.jpg` (mismatch) |
 | Malformed / unsupported / animated | truncated PNG, corrupt JPEG, APNG with 2 frames |
@@ -214,7 +230,7 @@ New managed asset class `loginBackgrounds` registered with an `IBackupAssetSourc
 | # | Item | Who |
 |---|---|---|
 | Q-1 | Resolved (O-8, O-10): L3, the cleaned copy, is the approved logo | - |
-| Q-2 | Resolved (O-9): the first administrator account | - |
+| Q-2 | Resolved (O-9, R-2): new deployment = the bootstrap's first administrator; existing installation = explicit operator grant (owner: `admin`) | - |
 | Q-3 | Transfer path: grant/revoke by `ManageUsers` holders (proposed) | reviewer |
 | Q-4 | Inactivating the selected image: refuse (proposed) rather than atomically reset to the default | reviewer |
 | Q-5 | Limits: 30 active added images, 2,560 px derivative cap, 10 line breaks in the notice (proposed) | reviewer |

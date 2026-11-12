@@ -2474,3 +2474,9 @@
   - What changed: docs/design/ALV-N020-C01_PRE_IMPLEMENTATION_BRIEF.md - raw entry O-10 "v2 approved"; L3 marked as the approved logo; Q-1 and the logo risk closed.
   - Verification: owner statement. Document only; no test run.
   - Notes: nothing pushed (owner: "don't push yet").
+- [x] ALV-N020-C01 briefing revision 3 answering review BRIEFING-R02 (document only)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N020-C01/BRIEFING-R02.md stored unchanged (CHANGES_REQUIRED, four corrections); docs/design/ALV-N020-C01_PRE_IMPLEMENTATION_BRIEF.md revision 3: (1) no inferred permission holder on an existing installation - new deployment = bootstrap's first administrator, stated to the installer and audited; existing = unassigned until an operator grants a named account through the audited path (owner: `admin`); (2) F-156/F-012/F-013/PD-01 identifiers removed (no raw entry drives the item); owner/reviewer raw entries kept, O-9 quoted in full, R-2 added; (3) section 8 states that every test group needs the owner's explicit permission unless the owner adopts a separate written standing rule; (4) tile-readiness gate 2.3 for all five bundled images (tiled browser screenshots at three viewports, verdict Tile ready / Reprocessed / Tile not offered, tileAllowed per bundled image).
+  - Verification: document only; no implementation or test-run evidence; no test run.
+  - Notes: the reviewer does not accept the owner's 5-minute rule unless it is written down as a standing rule; raised with the owner. Nothing pushed.
