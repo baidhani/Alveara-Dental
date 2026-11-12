@@ -57,7 +57,11 @@ builder.Services.AddSingleton<IPracticeClock>(
 var storageRoot = builder.Configuration["StorageRoot"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "blobs");
 builder.Services.AddSingleton<IBlobStorage>(_ => new LocalDiskBlobStorage(storageRoot));
-builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.Imports.ImportFileStorage(Path.Combine(storageRoot, "imports")));      // ALV-018-C02: import files, in a folder the document orphan scan does not look inside
+builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.Imports.ImportFileStorage(Path.Combine(storageRoot, "imports")));
+// ALV-N020-C01: the sign-in background derivatives, in their own folder and their own backup asset class (excluded from the documents class below).
+var loginBackgroundsRoot = Path.Combine(storageRoot, Alveara.Api.Architecture.LoginPresentation.LoginBackgroundStore.FolderName);
+builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.LoginPresentation.LoginBackgroundStore(loginBackgroundsRoot));
+builder.Services.AddScoped<Alveara.Api.Architecture.LoginPresentation.LoginPresentationService>();      // ALV-018-C02: import files, in a folder the document orphan scan does not look inside
 
 // ALV-N003: practice/staff/provider/operatory/appointment-type/availability configuration, and
 // the read model scheduling consumes.
@@ -218,6 +222,7 @@ builder.Services.AddHostedService<BackgroundJobHostedService>();
 // LAN-only app. The default challenge/forbid behavior redirects to a login *page*, which makes
 // no sense for a JSON API, so both are overridden to return plain status codes instead.
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<AccountPermissionService>();                                              // ALV-N020-C01: account-scoped permissions
 
 // Data Protection backs both the MFA-secret-at-rest protector and the short-lived MFA challenge
 // token. Keys are persisted to disk (not the default in-memory/user-profile location) so a
@@ -255,7 +260,10 @@ builder.Services.AddSingleton<IBackupAssetSource, DeploymentConfigurationSource>
 // One source per persistent asset class except the database (handled with SQL Server's own BACKUP).
 // A later story that adds a new on-disk store registers another IBackupAssetSource and adds its
 // class to ManagedAssetClasses.
-builder.Services.AddSingleton<IBackupAssetSource>(_ => new FileTreeAssetSource(ManagedAssetClasses.Documents, storageRoot, relative => relative.Contains(".tmp-", StringComparison.Ordinal)));
+builder.Services.AddSingleton<IBackupAssetSource>(_ => new FileTreeAssetSource(ManagedAssetClasses.Documents, storageRoot, relative => relative.Contains(".tmp-", StringComparison.Ordinal)
+    || relative.StartsWith(Alveara.Api.Architecture.LoginPresentation.LoginBackgroundStore.FolderName + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+    || relative.StartsWith(Alveara.Api.Architecture.LoginPresentation.LoginBackgroundStore.FolderName + '/', StringComparison.Ordinal)));
+builder.Services.AddSingleton<IBackupAssetSource>(_ => new FileTreeAssetSource(ManagedAssetClasses.LoginBackgrounds, loginBackgroundsRoot, relative => relative.Contains(".tmp-", StringComparison.Ordinal)));
 builder.Services.AddSingleton<IBackupAssetSource>(_ => new FileTreeAssetSource(ManagedAssetClasses.DataProtectionKeys, dataProtectionKeysPath));
 builder.Services.AddScoped<BackupService>();
 builder.Services.AddScoped<BackupRestoreService>();
@@ -350,6 +358,10 @@ builder.Services.AddRateLimiter(options =>
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         return ValueTask.CompletedTask;
     };
+    // ALV-N020-C01: the two anonymous sign-in presentation reads; generous for real use, a ceiling against load from one address.
+    options.AddPolicy(Alveara.Api.Controllers.LoginPresentationController.ReadRateLimitPolicy, httpContext => RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        factory: _ => new FixedWindowRateLimiterOptions { PermitLimit = 120, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.AddPolicy("AuthAttempts", httpContext => RateLimitPartition.GetSlidingWindowLimiter(
         partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
         factory: _ => new SlidingWindowRateLimiterOptions

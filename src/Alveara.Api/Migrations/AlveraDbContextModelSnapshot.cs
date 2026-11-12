@@ -4176,6 +4176,41 @@ namespace Alveara.Api.Migrations
                     b.ToTable("IdempotencyReceipts");
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Identity.AccountPermissionGrant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("GrantedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("GrantedByUserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Permission")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<Guid>("UserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GrantedByUserAccountId");
+
+                    b.HasIndex("UserAccountId", "Permission")
+                        .IsUnique();
+
+                    b.ToTable("AccountPermissionGrants", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_AccountPermissionGrants_Permission", "[Permission] COLLATE Latin1_General_CS_AS IN ('ManageLoginPresentation')");
+
+                            t.HasCheckConstraint("CK_AccountPermissionGrants_Time", "[GrantedAtUtc] >= '2000-01-01' AND [GrantedAtUtc] < '2200-01-01'");
+                        });
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Identity.AuditLogEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4679,6 +4714,181 @@ namespace Alveara.Api.Migrations
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.LoginPresentation.LoginBackgroundImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("AddedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("AddedByUserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("nvarchar(4)");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nchar(64)")
+                        .IsFixedLength();
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StorageName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("SuggestedDisplayMode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddedByUserAccountId");
+
+                    b.HasIndex("Sha256")
+                        .IsUnique();
+
+                    b.HasIndex("StorageName")
+                        .IsUnique();
+
+                    b.ToTable("LoginBackgroundImages", null, t =>
+                        {
+                            t.HasTrigger("TR_LoginBackgroundImages_Guard");
+
+                            t.HasTrigger("TR_LoginBackgroundImages_NoDelete");
+
+                            t.HasCheckConstraint("CK_LoginBackgroundImages_Hash", "[Sha256] COLLATE Latin1_General_BIN2 NOT LIKE '%[^0-9a-f]%'");
+
+                            t.HasCheckConstraint("CK_LoginBackgroundImages_Mode", "[SuggestedDisplayMode] COLLATE Latin1_General_CS_AS IN ('Tile','Stretch','Fill')");
+
+                            t.HasCheckConstraint("CK_LoginBackgroundImages_Name", "LEN(LTRIM(RTRIM([DisplayName]))) > 0");
+
+                            t.HasCheckConstraint("CK_LoginBackgroundImages_Size", "[Width] BETWEEN 1 AND 2560 AND [Height] BETWEEN 1 AND 2560 AND [SizeBytes] > 0");
+
+                            t.HasCheckConstraint("CK_LoginBackgroundImages_Time", "[AddedAtUtc] >= '2000-01-01' AND [AddedAtUtc] < '2200-01-01'");
+
+                            t.HasCheckConstraint("CK_LoginBackgroundImages_Type", "([ContentType] = 'image/png' AND [Extension] = 'png') OR ([ContentType] = 'image/jpeg' AND [Extension] = 'jpg')");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.LoginPresentation.LoginPresentationSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AddedImageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BackgroundKind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("BundledKey")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("DisplayMode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("FooterNoticeText")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<bool>("ShowFooterNotice")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedByUserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddedImageId");
+
+                    b.HasIndex("UpdatedByUserAccountId");
+
+                    b.ToTable("LoginPresentationSettings", null, t =>
+                        {
+                            t.HasTrigger("TR_LoginPresentationSettings_Links");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_BundledKey", "[BundledKey] IS NULL OR [BundledKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^a-z0-9-]%'");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_Kind", "[BackgroundKind] COLLATE Latin1_General_CS_AS IN ('Bundled','Added')");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_Mode", "[DisplayMode] COLLATE Latin1_General_CS_AS IN ('Tile','Stretch','Fill')");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_Notice", "[FooterNoticeText] IS NULL OR LEN(LTRIM(RTRIM([FooterNoticeText]))) > 0");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_Shape", "([BackgroundKind] = 'Bundled' AND [BundledKey] IS NOT NULL AND [AddedImageId] IS NULL) OR ([BackgroundKind] = 'Added' AND [AddedImageId] IS NOT NULL AND [BundledKey] IS NULL)");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_Singleton", "[Id] = '00000000-0000-0000-0000-00000000c01a'");
+
+                            t.HasCheckConstraint("CK_LoginPresentationSettings_Time", "[UpdatedAtUtc] >= '2000-01-01' AND [UpdatedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0000-00000000c01a"),
+                            BackgroundKind = "Bundled",
+                            BundledKey = "teal-doodle",
+                            DisplayMode = "Tile",
+                            RowVersion = new byte[0],
+                            ShowFooterNotice = true,
+                            UpdatedAtUtc = new DateTimeOffset(new DateTime(2026, 11, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        });
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Measurement.MeasurementEvent", b =>
@@ -9388,6 +9598,20 @@ namespace Alveara.Api.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Identity.AccountPermissionGrant", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("GrantedByUserAccountId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UserAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.Identity.ProviderProfile", b =>
                 {
                     b.HasOne("Alveara.Api.Architecture.Identity.StaffProfile", "StaffProfile")
@@ -9434,6 +9658,28 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("DecisionByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.LoginPresentation.LoginBackgroundImage", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("AddedByUserAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.LoginPresentation.LoginPresentationSettings", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.LoginPresentation.LoginBackgroundImage", null)
+                        .WithMany()
+                        .HasForeignKey("AddedImageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("UpdatedByUserAccountId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 

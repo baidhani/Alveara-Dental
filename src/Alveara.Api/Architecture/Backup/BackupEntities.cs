@@ -233,8 +233,11 @@ public static class ManagedAssetClasses
     public const string Documents = "documents";
     public const string DataProtectionKeys = "dataProtectionKeys";
 
+    /// <summary>ALV-N020-C01: the administrator-added sign-in background derivatives (StorageRoot/login-backgrounds).</summary>
+    public const string LoginBackgrounds = "loginBackgrounds";
+
     /// <summary>The non-secret deployment settings (practice time zone, Data Protection application name) without which restored data is misinterpreted or unreadable.</summary>
     public const string DeploymentConfiguration = "deploymentConfiguration";
 
-    public static readonly IReadOnlyList<string> All = [Database, Documents, DataProtectionKeys, DeploymentConfiguration];
+    public static readonly IReadOnlyList<string> All = [Database, Documents, DataProtectionKeys, DeploymentConfiguration, LoginBackgrounds];
 }

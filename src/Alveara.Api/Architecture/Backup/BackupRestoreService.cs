@@ -491,6 +491,7 @@ public class BackupRestoreService(
 
         checks.Add(await RestoredDeploymentRecordAsync(extracted, connectionString, ct));
         checks.Add(await RestoredDocumentsHaveFilesAsync(extracted, restoredDb, ct));
+        checks.Add(await Alveara.Api.Architecture.LoginPresentation.LoginBackgroundRestoreCheck.RunAsync(extracted.Manifest.Components, restoredDb, ct));   // ALV-N020-C01
 
         var keysDirectory = Path.Combine(extracted.Root, ManagedAssetClasses.DataProtectionKeys);
         var secrets = await restoredDb.UserAccounts.AsNoTracking().Where(u => u.MfaSecretProtected != null).Select(u => u.MfaSecretProtected!).Take(5).ToListAsync(ct);

@@ -28,6 +28,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<BootstrapState> BootstrapStates => Set<BootstrapState>();
     public DbSet<MfaChallenge> MfaChallenges => Set<MfaChallenge>();
+    // ALV-N020-C01: account-scoped permissions and the sign-in presentation (model in LoginPresentationModel).
+    public DbSet<AccountPermissionGrant> AccountPermissionGrants => Set<AccountPermissionGrant>();
+    public DbSet<Alveara.Api.Architecture.LoginPresentation.LoginPresentationSettings> LoginPresentationSettings => Set<Alveara.Api.Architecture.LoginPresentation.LoginPresentationSettings>();
+    public DbSet<Alveara.Api.Architecture.LoginPresentation.LoginBackgroundImage> LoginBackgroundImages => Set<Alveara.Api.Architecture.LoginPresentation.LoginBackgroundImage>();
 
     public DbSet<BackgroundJob> BackgroundJobs => Set<BackgroundJob>();
     public DbSet<BackgroundJobEffectReceipt> BackgroundJobEffectReceipts => Set<BackgroundJobEffectReceipt>();
@@ -559,6 +563,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         DocumentModel.Configure(modelBuilder);
         NotificationModel.Configure(modelBuilder);
         PermissionPolicyModel.Configure(modelBuilder);
+        LoginPresentationModel.Configure(modelBuilder);
         FollowUpModel.Configure(modelBuilder);
         RecallModel.Configure(modelBuilder);
         ExternalCaseModel.Configure(modelBuilder);

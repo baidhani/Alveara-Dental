@@ -192,6 +192,8 @@ public class AuthController(AccountService accountService, IConfiguration config
             username = User.FindFirstValue(ClaimTypes.Name),
             role = role.ToString(),
             permissions = (await permissions.PermissionsForAsync(role, HttpContext.RequestAborted)).Select(p => p.ToString()).OrderBy(p => p),
+            // ALV-N020-C01: permissions held by this ACCOUNT (never by its role), e.g. ManageLoginPresentation.
+            accountPermissions = await HttpContext.RequestServices.GetRequiredService<AccountPermissionService>().ForAccountAsync(Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), HttpContext.RequestAborted),
             sessionExpiresAtUtc = authenticateResult.Properties?.ExpiresUtc,
         });
     }

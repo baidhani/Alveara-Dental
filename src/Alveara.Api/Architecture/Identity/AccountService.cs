@@ -155,6 +155,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             db.UserAccounts.Add(account);
             AddAudit(AuditEventTypes.AccountRegistered, account.Id, null,
                 $"First administrator '{username}' provisioned via one-time bootstrap.");
+            AccountPermissionService.StageBootstrapHolder(db, account.Id, username);              // ALV-N020-C01: a NEW installation's first administrator is the presentation administrator
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
             return account;
