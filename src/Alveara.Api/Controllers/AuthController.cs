@@ -77,7 +77,9 @@ public class AuthController(AccountService accountService, IConfiguration config
         try
         {
             var account = await accountService.BootstrapFirstAdminAsync(request.Username, request.Password, request.Secret, configuredSecret, cancellationToken);
-            return StatusCode(StatusCodes.Status201Created, new AccountResponse(account.Id, account.Username, account.Role.ToString()));
+            // ALV-N020-C01: the installer is told that this first administrator is also the sign-in presentation administrator (extra fields; existing readers keep working).
+            return StatusCode(StatusCodes.Status201Created, new { id = account.Id, username = account.Username, role = account.Role.ToString(), presentationAdministrator = true,
+                notice = "This administrator account is also the sign-in presentation administrator (ManageLoginPresentation): it can change the sign-in screen background and footer notice." });
         }
         catch (InvalidBootstrapSecretException)
         {

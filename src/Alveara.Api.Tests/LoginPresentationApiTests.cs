@@ -46,7 +46,12 @@ public class LoginPresentationApiTests : IAsyncLifetime
     {
         var client = factory.CreateClient();
         var username = $"owner-{Guid.NewGuid():N}";
-        Assert.Equal(HttpStatusCode.Created, (await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret))).StatusCode);
+        var created = await client.PostAsJsonAsync("/api/auth/bootstrap-admin", new BootstrapAdminRequest(username, "admin-password", IdentityTestHelpers.TestBootstrapSecret));
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var body = await created.Content.ReadFromJsonAsync<JsonElement>();                                 // the installer is told explicitly
+        Assert.True(body.GetProperty("presentationAdministrator").GetBoolean());
+        Assert.Contains("sign-in presentation administrator", body.GetProperty("notice").GetString());
+        Assert.Equal(username, body.GetProperty("username").GetString());
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "admin-password"));
         return (client, await CsrfAsync(client));
     }
