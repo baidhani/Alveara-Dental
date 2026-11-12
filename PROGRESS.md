@@ -2468,3 +2468,9 @@
   - What changed: docs/design/ALV-N020-C01_PRE_IMPLEMENTATION_BRIEF.md - raw entries O-8/O-9; logo L2 (owner's transparent file) and L3 (cleaned copy "dentalKeep logo v2.png" made in the owner's folder with permission; hashes recorded); initial ManageLoginPresentation holder = the first administrator account (bootstrap on a new installation; earliest enabled Admin on an existing one), no configured username; Q-1/Q-2 resolved.
   - Verification: L3 checked visually against L2 with transparency honoured and ignored (specks gone, letters intact; L2 unchanged, hash identical); on AlveraDev the earliest enabled Admin is `admin` (created 2026-10-30). No repository code, schema, configuration, asset, dependency or test changed; no test run.
   - Notes: the cleaned logo lives only in the owner's Desktop folder for review; nothing copied into the repository. Nothing pushed.
+- [x] ALV-N020-C01 briefing: the owner approved the cleaned logo v2 (document only)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: docs/design/ALV-N020-C01_PRE_IMPLEMENTATION_BRIEF.md - raw entry O-10 "v2 approved"; L3 marked as the approved logo; Q-1 and the logo risk closed.
+  - Verification: owner statement. Document only; no test run.
+  - Notes: nothing pushed (owner: "don't push yet").

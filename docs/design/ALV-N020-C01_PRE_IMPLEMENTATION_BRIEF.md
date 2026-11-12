@@ -25,6 +25,7 @@ No manual-E2E finding asks for this work; it comes from the owner's plan amendme
 | O-6 | 2026-11-12 | "I just added a fifth tile ... and I might add more ... make sure that the system is able to scan and find the new added images." |
 | O-7 | 2026-11-12 | "the admin can click a add back ground image, select the image from desk, added it to the collection, specify the display mode to tile, streach, fill." |
 | O-8 | 2026-11-12 | Transparent logo: `C:/Users/firas/Desktop/Epic/dentalKeep logo.png`; permission to create a cleaned copy with a 'v2' suffix in the same folder for review. |
+| O-10 | 2026-11-12 | "v2 approved" (the cleaned logo L3). |
 | O-9 | 2026-11-12 | Initial presentation administrator: "the first admin account going to be created during deployment" (and, on the existing installation, the owner's admin account). |
 | R-1 | 2026-11-12 | Reviewer: option A approved with seven binding corrections; default = the teal doodle tile; labels stay "Username" and "Sign in"; the logo artwork is approved; notice up to 1,000 characters. |
 
@@ -49,7 +50,7 @@ No manual-E2E finding asks for this work; it comes from the owner's plan amendme
 |---|---|---|---|---|---|---|
 | L1 | `dental-keep-v01.png` | Logo, original | 1774 x 887, fully opaque, light grey #F7F6F6 background | 423,886 B | `acfaecd34fb9558f1ccb87a6dec42bc6d2593dd370071fc301ca7e94d86e3638` | Reads "KEEP dental" (two tooth outlines form "EE"); approved artwork (O-2, R-1) |
 | L2 | `dentalKeep logo.png` | Logo, transparent original (O-2, O-8) | 1774 x 887, RGBA | 598,071 B | `99b36e687c8cc67b9529af5e8db9982e715daa67e404e239b79f77e7e18d93ce` | Background removed by the owner; about 32,600 faint pixels with saturated cyan/red colour values remained around the letters (visible as specks in viewers that ignore transparency) |
-| L3 | `dentalKeep logo v2.png` | **Logo to use, pending the owner's look** | 1774 x 887, RGBA | 121,992 B | `ac8142697e5fe31773b9ad75008e7474e6b1bf4e5f71de3338a918a259b7b9c3` | Cleaned copy made with the owner's permission (L2 untouched): the 10 solid letter shapes kept, isolated specks removed, anti-aliased edge pixels within 2 px kept and recoloured to their letter's colour (teal (87, 173, 177), coral (201, 111, 86)). Script recorded for the handoff |
+| L3 | `dentalKeep logo v2.png` | **Logo to use: approved by the owner (O-10)** | 1774 x 887, RGBA | 121,992 B | `ac8142697e5fe31773b9ad75008e7474e6b1bf4e5f71de3338a918a259b7b9c3` | Cleaned copy made with the owner's permission (L2 untouched): the 10 solid letter shapes kept, isolated specks removed, anti-aliased edge pixels within 2 px kept and recoloured to their letter's colour (teal (87, 173, 177), coral (201, 111, 86)). Script recorded for the handoff |
 | T1 | `ChatGPT Image Nov 10, 2026, 10_41_23 AM.png` | Background "Teal doodle" - **deployment default** (R-1) | 1254 x 1254 | 1,676,595 B | `5dd15d6b763f67e9946bd722d7280fdbd99023f7f0ad4e62580fd501a9627699` | edges seamless (2.1 / 2.8 vs baseline 1.8) |
 | T2 | `ChatGPT Image Nov 10, 2026, 04_00_35 PM.png` | "Blue doodle" | 1254 x 1254 | 1,946,848 B | `78f9a1f8b53b609e3adc25dd3fd2cd9bb1fe644cdfee98a360d4ddf6de1ddd43` | seamless (5.3 / 4.2 vs 5.9) |
 | T3 | `ChatGPT Image Nov 10, 2026, 04_01_00 PM.png` | "Blue operatory" | 1254 x 1254 | 1,527,257 B | `33084e9d07bc05721b18036ad1e59d6641a24a81e19eb8caa7e57879e6c1bace` | left/right seamless; top/bottom 8.9 vs 2.0: check visually |
@@ -206,13 +207,13 @@ New managed asset class `loginBackgrounds` registered with an `IBackupAssetSourc
 | An unsuitable public image | warning with acknowledgement, audit, quick inactivation |
 | Account-scoped permission breaks "Admin has everything" assumptions | explicit exclusion, matrix/policy tests updated, architecture test that no role set contains it |
 | Heavier sign-in page | bundled derivatives under 250 KB; added images capped at 2,560 px long side; sign-in never waits |
-| Logo artefacts (L2) | cleaned copy L3; L1 on the light panel as the fallback choice |
+| Logo artefacts (L2) | resolved: the owner approved the cleaned copy L3 |
 | Larger story | the focused test set above; broad regression stays with ALV-N028 |
 
 ## 10. Open items
 | # | Item | Who |
 |---|---|---|
-| Q-1 | Resolved (O-8): L2 located; cleaned copy L3 made for the owner's look; L3 is used if the owner accepts it, otherwise L1 on the light panel | owner (look at L3) |
+| Q-1 | Resolved (O-8, O-10): L3, the cleaned copy, is the approved logo | - |
 | Q-2 | Resolved (O-9): the first administrator account | - |
 | Q-3 | Transfer path: grant/revoke by `ManageUsers` holders (proposed) | reviewer |
 | Q-4 | Inactivating the selected image: refuse (proposed) rather than atomically reset to the default | reviewer |
