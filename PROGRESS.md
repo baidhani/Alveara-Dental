@@ -2486,3 +2486,9 @@
   - What changed: GPT Docs/Alveara_Dental_Execution_Plan_v4.md (owner's binding test-execution permission paragraph, committed as supplied); .alveara/reviews/ALV-N020-C01/BRIEFING-R02-OWNER-TEST-PERMISSION-AMENDMENT.md stored unchanged (withdraws review correction 3); briefing section 8 now states the plan policy (standing permission for focused groups expected <= 5 min from documented history; explicit permission for unknown/longer groups, the ~6.5-min chain, walkthroughs over 5 min and any broad regression; stop at a safe boundary if an estimate is exceeded; record route and expected/actual duration); R-2 entry notes the withdrawal.
   - Verification: document only; no test run.
   - Notes: nothing pushed.
+- [x] ALV-N020-C01: store the briefing approval (BRIEFING-R03, APPROVED FOR IMPLEMENTATION)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N020-C01/BRIEFING-R03.md stored unchanged: revision 3 approved; Q-3 (ManageUsers holders grant/revoke, CSRF, audited), Q-4 (refuse inactivating the selected image, 409 background_in_use, keep the read-time fallback) and Q-5 (30 active added images, 2,560 px derivative cap, 10 line breaks) approved as proposed.
+  - Verification: reviewer decision file. Document only; no test run.
+  - Notes: implementation not started (waiting for the owner's go); scope limits: no ALV-N029, no F-075, no special account, no remote assets or other formats. Nothing pushed.
