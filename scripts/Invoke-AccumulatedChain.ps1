@@ -213,8 +213,14 @@ try {
     try {
         $ErrorActionPreference = 'Continue'
         # Playwright runs as a child process so the runner can answer the control channel while it runs (it was a blocking call before ALV-N020 R02).
-        $pw = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', 'npx playwright test --config=playwright.chain.config.ts' -NoNewWindow -PassThru
-        $null = $pw.Handle                                                  # keeps the exit code readable after the process ends
+        # Started through .NET with an explicit working folder: Start-Process resolves the current location as a wildcard pattern, and the repository path
+        # contains '[' and ']' (found by the first R02 chain run). The child shares this console, so its output appears as before.
+        $pwInfo = New-Object System.Diagnostics.ProcessStartInfo
+        $pwInfo.FileName = 'cmd.exe'
+        $pwInfo.Arguments = '/c npx playwright test --config=playwright.chain.config.ts'
+        $pwInfo.WorkingDirectory = $clientDir
+        $pwInfo.UseShellExecute = $false
+        $pw = [System.Diagnostics.Process]::Start($pwInfo)
         while (-not $pw.HasExited) { Invoke-ApiControl; Start-Sleep -Milliseconds 250 }
         $pw.WaitForExit()
         Invoke-ApiControl                                                   # a request written just before the end is still answered and recorded
