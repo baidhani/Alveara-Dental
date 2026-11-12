@@ -63,6 +63,7 @@ export const ASSET_CLASS_LABELS: Record<string, string> = {
   documents: "Documents",
   dataProtectionKeys: "Encryption keys",
   deploymentConfiguration: "Deployment settings",
+  loginBackgrounds: "Sign-in backgrounds", // ALV-N020-C01
 };
 
 export const assetLabel = (cls: string) => ASSET_CLASS_LABELS[cls] ?? cls;

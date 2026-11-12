@@ -62,6 +62,8 @@ public sealed class BackupTestEnvironment : IDisposable
     public string SetsDirectory => Path.Combine(Root, "sets");
     public string BlobRoot => Path.Combine(Root, "blobs");
     public string KeysRoot => Path.Combine(Root, "keys");
+    /// <summary>ALV-N020-C01: the added sign-in background derivatives (their own asset class, as in production).</summary>
+    public string LoginBackgroundsRoot => Path.Combine(Root, "login-backgrounds");
     public BackupPaths Paths { get; }
     public TestDatabaseFixture Fixture { get; }
     public TogglableNotifier Notifier { get; } = new();
@@ -73,7 +75,7 @@ public sealed class BackupTestEnvironment : IDisposable
     public BackupTestEnvironment(TestDatabaseFixture fixture)
     {
         Fixture = fixture;
-        foreach (var d in new[] { SetsDirectory, BlobRoot, KeysRoot }) Directory.CreateDirectory(d);
+        foreach (var d in new[] { SetsDirectory, BlobRoot, KeysRoot, LoginBackgroundsRoot }) Directory.CreateDirectory(d);
         var databaseName = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(fixture.ConnectionString).InitialCatalog;
         Paths = new BackupPaths(SetsDirectory, Path.Combine(Root, "staging"), Path.Combine(Root, "restore"), Path.Combine(Root, "notifications"), fixture.ConnectionString, databaseName, ImportRoot);
         RestoreProvider = new SqlServerRestoreProvider(fixture.ConnectionString);
@@ -81,6 +83,7 @@ public sealed class BackupTestEnvironment : IDisposable
         [
             new FileTreeAssetSource(ManagedAssetClasses.Documents, BlobRoot, rel => rel.Contains(".tmp-", StringComparison.Ordinal)),
             new FileTreeAssetSource(ManagedAssetClasses.DataProtectionKeys, KeysRoot),
+            new FileTreeAssetSource(ManagedAssetClasses.LoginBackgrounds, LoginBackgroundsRoot, rel => rel.Contains(".tmp-", StringComparison.Ordinal)),
             new DeploymentConfigurationSource(Deployment),
         ];
         DataProtection = DataProtectionProvider.Create(new DirectoryInfo(KeysRoot), o => o.SetApplicationName(DataProtectionApplicationName));

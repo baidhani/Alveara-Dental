@@ -453,6 +453,6 @@ public class BackupServiceTests : IClassFixture<TestDatabaseFixture>, IDisposabl
         await db.BackupRecords.Where(r => r.Id == record.Id).ExecuteUpdateAsync(s2 => s2.SetProperty(r => r.IncludedAssetClasses, "database,documents"));
         var incomplete = await service.GetStatusAsync(default);
         Assert.False(incomplete.LastSuccessCoversAllAssetClasses);
-        Assert.Equal(new[] { ManagedAssetClasses.DataProtectionKeys, ManagedAssetClasses.DeploymentConfiguration }, incomplete.MissingAssetClasses);
+        Assert.Equal(new[] { ManagedAssetClasses.DataProtectionKeys, ManagedAssetClasses.DeploymentConfiguration, ManagedAssetClasses.LoginBackgrounds }, incomplete.MissingAssetClasses);   // ALV-N020-C01 added loginBackgrounds
     }
 }
