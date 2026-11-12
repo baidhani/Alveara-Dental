@@ -23,7 +23,7 @@
       "dependencies": ["ALV-N006", "ALV-N015", "ALV-018-C02"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R07",
       "acceptance": {"total": 5, "passed": 5},
       "tests": {"status": "passed", "summary": "Attempt R07, the focused stability proof required by .alveara/reviews/ALV-N019/R06.md and docs/design/ALV-N019_R06_FOCUSED_STABILITY_PROOF_NOTICE.md, on the unchanged R06 implementation 3cf91fa9833ff1a683d566a1edef432c4e520399 (deterministic composite source of every partial-class fragment in RealMigrationInventoryTests, with an omission proof). Proof (2026-11-11, product owner's explicit permission): test-project build 0 errors; all 5 RealMigrationInventoryTests in 20 independent runs, 20 of 20 passed; source-scanning/TestDatabase sweep 375 of 375 in 15 m 29 s; leftover counts identical before and after. fullRegression DEFERRED_TO_ALV-N028 under the 2026-11-11 program-level policy; not release-certified; obligations recorded in .alveara/PROGRAM_REGRESSION_LEDGER.md. All four R04 Stage 2 failures are fixed (R05/R06) and focused-proven."},
@@ -32,12 +32,12 @@
       "implementationCommit": "3cf91fa9833ff1a683d566a1edef432c4e520399",
       "evidenceCommit": "5ec2c2f43c1e891d07ed801d053a2fbc3c36cc30",
       "handoffPath": ".alveara/handoffs/ALV-N019/R07.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null, "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R06.md", "scopeRulingArtifacts": [".alveara/reviews/ALV-N019/R04-fixture-preflight-scope.md", ".alveara/reviews/ALV-N019/R04-briefing-review.md", ".alveara/reviews/ALV-N019/R04-briefing-approval.md"]},
+      "review": {"decision": "APPROVED", "decisionArtifact": ".alveara/reviews/ALV-N019/R07.md", "approvedAttempt": "R07", "reviewedImplementationCommit": "3cf91fa9833ff1a683d566a1edef432c4e520399", "reviewedEvidenceCommit": "5ec2c2f43c1e891d07ed801d053a2fbc3c36cc30", "priorAttemptDecisionArtifact": ".alveara/reviews/ALV-N019/R06.md", "scopeRulingArtifacts": [".alveara/reviews/ALV-N019/R04-fixture-preflight-scope.md", ".alveara/reviews/ALV-N019/R04-briefing-review.md", ".alveara/reviews/ALV-N019/R04-briefing-approval.md", "docs/design/ALV-N019_R06_FOCUSED_STABILITY_PROOF_NOTICE.md"]},
       "blockingIssues": [],
       "controlNotes": "Approved 2026-11-09 stabilization program. Pre-implementation briefing is mandatory. Inventory DentalKeep branding before any change; preserve historical/control and compatibility-sensitive identifiers.",
       "revalidation": {"required": false, "reason": null},
-      "completedAt": null,
-      "fullRegression": "DEFERRED_TO_ALV-N028"
+      "completedAt": "2026-11-11T19:14:06-06:00",
+      "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
       "schemaVersion": "2",
