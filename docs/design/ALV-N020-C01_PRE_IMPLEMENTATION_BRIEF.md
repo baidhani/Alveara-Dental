@@ -24,6 +24,8 @@ No manual-E2E finding asks for this work; it comes from the owner's plan amendme
 | O-5 | 2026-11-12 | Mockup: background fills the page; a full-height light centre panel holds the logo, the fields, the button and the footer notice at its bottom. |
 | O-6 | 2026-11-12 | "I just added a fifth tile ... and I might add more ... make sure that the system is able to scan and find the new added images." |
 | O-7 | 2026-11-12 | "the admin can click a add back ground image, select the image from desk, added it to the collection, specify the display mode to tile, streach, fill." |
+| O-8 | 2026-11-12 | Transparent logo: `C:/Users/firas/Desktop/Epic/dentalKeep logo.png`; permission to create a cleaned copy with a 'v2' suffix in the same folder for review. |
+| O-9 | 2026-11-12 | Initial presentation administrator: "the first admin account going to be created during deployment" (and, on the existing installation, the owner's admin account). |
 | R-1 | 2026-11-12 | Reviewer: option A approved with seven binding corrections; default = the teal doodle tile; labels stay "Username" and "Sign in"; the logo artwork is approved; notice up to 1,000 characters. |
 
 ## 1. Intended result
@@ -46,7 +48,8 @@ No manual-E2E finding asks for this work; it comes from the owner's plan amendme
 | # | File | Role | Pixels | Size | SHA-256 | Notes |
 |---|---|---|---|---|---|---|
 | L1 | `dental-keep-v01.png` | Logo, original | 1774 x 887, fully opaque, light grey #F7F6F6 background | 423,886 B | `acfaecd34fb9558f1ccb87a6dec42bc6d2593dd370071fc301ca7e94d86e3638` | Reads "KEEP dental" (two tooth outlines form "EE"); approved artwork (O-2, R-1) |
-| L2 | transparent-background version | Logo, to use (O-2) | 1774 x 887 (as sent) | - | - | **File location still needed** (sent in the conversation, not found on disk). Visible removal artefacts (small cyan/red specks inside the teeth outlines and around "dental") must be cleaned, or L1 is used on the light panel |
+| L2 | `dentalKeep logo.png` | Logo, transparent original (O-2, O-8) | 1774 x 887, RGBA | 598,071 B | `99b36e687c8cc67b9529af5e8db9982e715daa67e404e239b79f77e7e18d93ce` | Background removed by the owner; about 32,600 faint pixels with saturated cyan/red colour values remained around the letters (visible as specks in viewers that ignore transparency) |
+| L3 | `dentalKeep logo v2.png` | **Logo to use, pending the owner's look** | 1774 x 887, RGBA | 121,992 B | `ac8142697e5fe31773b9ad75008e7474e6b1bf4e5f71de3338a918a259b7b9c3` | Cleaned copy made with the owner's permission (L2 untouched): the 10 solid letter shapes kept, isolated specks removed, anti-aliased edge pixels within 2 px kept and recoloured to their letter's colour (teal (87, 173, 177), coral (201, 111, 86)). Script recorded for the handoff |
 | T1 | `ChatGPT Image Nov 10, 2026, 10_41_23 AM.png` | Background "Teal doodle" - **deployment default** (R-1) | 1254 x 1254 | 1,676,595 B | `5dd15d6b763f67e9946bd722d7280fdbd99023f7f0ad4e62580fd501a9627699` | edges seamless (2.1 / 2.8 vs baseline 1.8) |
 | T2 | `ChatGPT Image Nov 10, 2026, 04_00_35 PM.png` | "Blue doodle" | 1254 x 1254 | 1,946,848 B | `78f9a1f8b53b609e3adc25dd3fd2cd9bb1fe644cdfee98a360d4ddf6de1ddd43` | seamless (5.3 / 4.2 vs 5.9) |
 | T3 | `ChatGPT Image Nov 10, 2026, 04_01_00 PM.png` | "Blue operatory" | 1254 x 1254 | 1,527,257 B | `33084e9d07bc05721b18036ad1e59d6641a24a81e19eb8caa7e57879e6c1bace` | left/right seamless; top/bottom 8.9 vs 2.0: check visually |
@@ -84,7 +87,7 @@ Edge numbers: mean absolute RGB difference between opposite edges, against the i
 
 ### 4.1 Permission `ManageLoginPresentation` (correction 7)
 - A new **account-scoped** permission: it is not in any role's defaults, cannot be granted to a role by a policy override (the override writer refuses it), and is **excluded from the Admin role's "every permission"** set. It is held by named accounts listed in a new table `AccountPermissionGrants` (account id, permission, granted by, granted at; unique per account and permission).
-- **Initial assignment:** the deployment setting `LoginPresentation:InitialHolderUsername` names the owner-designated account. At start-up, only while no grant for this permission has ever existed (checked against the audit history), the server grants it to that account if the account exists and is enabled, and audits `LoginPresentationPermissionGranted` with actor "deployment configuration". If the account does not exist yet, nothing is granted and a warning is logged; the check repeats at the next start. It is not a hidden account, preset secret, bypass or recovery mechanism: it only names an existing account, which still signs in with its own password (and MFA if enrolled).
+- **Initial assignment (owner decision O-9):** the holder is **the first administrator account created in the deployment**. On a new installation that is the account made by the existing one-time administrator bootstrap: the bootstrap grants it the permission in the same transaction and audits `LoginPresentationPermissionGranted` (reason "initial holder: first administrator"). On an installation that already exists (such as the owner's), a one-time start-up step runs only while no grant for this permission has ever existed (checked against the audit history): it grants it to the earliest-created account with the Admin role that is enabled, and audits it the same way; if there is none, nothing is granted and a warning is logged. No username is configured and nothing is guessed from names. It is not a hidden account, preset secret, bypass or recovery mechanism: the holder is an ordinary named account that signs in with its own password (and MFA if enrolled).
 - **Transfer:** through Security administration -> the account's detail page -> "Presentation administrator" grant/revoke, by an account holding `ManageUsers` (the ordinary named-account authorization path), CSRF-protected, audited `LoginPresentationPermissionGranted` / `...Revoked` with actor, target and time. A grant to a disabled or Unassigned account is refused. Revoking the last holder is allowed (presentation simply becomes unmanageable until someone is granted it; the sign-in page keeps working).
 - **Checks:** every presentation operation requires this permission (account-scoped check by the signed-in account id) and CSRF. `/api/auth/permissions` reports it for the holder, so the client shows the Sign-in screen tab only to holders.
 - **Compatibility:** tests and UI that assume "Admin has every permission" are updated to "every role-assignable permission"; the permission matrix page does not list account-scoped permissions as a role column (it notes them separately).
@@ -161,14 +164,14 @@ New managed asset class `loginBackgrounds` registered with an `IBackupAssetSourc
 - **One migration**: tables `LoginPresentationSettings` (singleton, seeded), `LoginBackgroundImages` (no-delete trigger, unique hash), `AccountPermissionGrants` (unique account+permission). Down on empty/seeded tables drops them; down with added images or grants is refused (immutable history), stated and tested.
 - New enum value `Permission.ManageLoginPresentation`, excluded from role sets; permission-matrix and policy code updated so it is never role-assignable; existing role behavior otherwise unchanged.
 - New backup asset class `loginBackgrounds` (older backups report it missing, as designed).
-- New deployment settings `LoginPresentation:InitialHolderUsername`, `LoginPresentation:DefaultFooterNotice` (documented for the ALV-N013 installer).
+- New deployment setting `LoginPresentation:DefaultFooterNotice` (documented for the ALV-N013 installer). The initial permission holder needs no setting (first administrator, section 4.1).
 - New package `SkiaSharp` 4.156.0 (section 2.2).
 - No change to `AuthController` sign-in, `AccountService`, `AuthContext`, `RouteGuards`, CSRF, lockout or session code.
 
 ## 7. Permission, audit, data, backup, recovery, accessibility implications
 | Area | Implication |
 |---|---|
-| Permission | new account-scoped `ManageLoginPresentation`; grant/revoke by `ManageUsers` holders; initial holder from deployment setting |
+| Permission | new account-scoped `ManageLoginPresentation`; grant/revoke by `ManageUsers` holders; initial holder = the first administrator account (bootstrap, or the earliest enabled Admin on an existing installation) |
 | Audit | events in 4.10; no bytes, names of uploaded files or credentials |
 | Data | derivatives on disk under server names; catalog and settings rows; no PHI expected (warning + audit) |
 | Backup | new asset class and restore check (4.8) |
@@ -178,7 +181,7 @@ New managed asset class `loginBackgrounds` registered with an `IBackupAssetSourc
 ## 8. Focused acceptance evidence (implementation phase; runs within the owner's 5-minute rule or with explicit permission above it)
 | Requirement | Tests |
 |---|---|
-| Initial owner-only assignment | start-up grant to the configured account only while no grant ever existed; not to Admin by role; missing account -> no grant + warning; second start does nothing |
+| Initial owner-only assignment | bootstrap grants it to the first administrator in the same transaction; on an existing database the one-time step grants it to the earliest enabled Admin only while no grant ever existed; a second Admin created later does not get it; not inherited by the Admin role; no Admin -> no grant + warning; second start does nothing |
 | Authorization / transfer / CSRF | holder 200; Admin without grant 403; FrontDesk etc. 403; anonymous 401; missing CSRF refused; `ManageUsers` grant/revoke audited; grant to disabled/Unassigned refused; role override for the permission refused |
 | Type refusal by content | SVG, GIF, WebP, BMP, text renamed `.png`, PNG renamed `.jpg` (mismatch) |
 | Malformed / unsupported / animated | truncated PNG, corrupt JPEG, APNG with 2 frames |
@@ -203,17 +206,17 @@ New managed asset class `loginBackgrounds` registered with an `IBackupAssetSourc
 | An unsuitable public image | warning with acknowledgement, audit, quick inactivation |
 | Account-scoped permission breaks "Admin has everything" assumptions | explicit exclusion, matrix/policy tests updated, architecture test that no role set contains it |
 | Heavier sign-in page | bundled derivatives under 250 KB; added images capped at 2,560 px long side; sign-in never waits |
-| Logo artefacts (L2) | clean the transparent version or use L1 on the light panel |
+| Logo artefacts (L2) | cleaned copy L3; L1 on the light panel as the fallback choice |
 | Larger story | the focused test set above; broad regression stays with ALV-N028 |
 
 ## 10. Open items
 | # | Item | Who |
 |---|---|---|
-| Q-1 | Location of the transparent-background logo file (L2), and whether its specks may be cleaned or L1 should be used meanwhile | owner |
-| Q-2 | The username of the owner-designated account for `LoginPresentation:InitialHolderUsername` | owner |
+| Q-1 | Resolved (O-8): L2 located; cleaned copy L3 made for the owner's look; L3 is used if the owner accepts it, otherwise L1 on the light panel | owner (look at L3) |
+| Q-2 | Resolved (O-9): the first administrator account | - |
 | Q-3 | Transfer path: grant/revoke by `ManageUsers` holders (proposed) | reviewer |
 | Q-4 | Inactivating the selected image: refuse (proposed) rather than atomically reset to the default | reviewer |
 | Q-5 | Limits: 30 active added images, 2,560 px derivative cap, 10 line breaks in the notice (proposed) | reviewer |
 
 ## 11. Method and limits
-Read-only: the amended plan, the scope-change request and review, the current login, permission, configuration, document-storage and backup code, the six image files (dimensions, alpha, edge seams, SHA-256 with Python/PIL; images viewed), and public package metadata (NuGet specifications for licences and versions; the GitHub advisory database for advisories). No file was copied into the repository; no code, schema, configuration, asset, dependency or test was changed; no test was run.
+Read-only: the amended plan, the scope-change request and review, the current login, permission, configuration, document-storage and backup code, the image files (dimensions, alpha, edge seams, SHA-256 with Python/PIL; images viewed), and public package metadata (NuGet specifications for licences and versions; the GitHub advisory database for advisories). No file was copied into the repository; no code, schema, configuration, asset, dependency or test was changed; no test was run.
