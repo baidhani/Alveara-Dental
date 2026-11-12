@@ -1,0 +1,26 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed Alveara.Api.Tests.LoginBackgroundPipelineTests.JPEG_metadata_EXIF_XMP_and_IPTC_is_not_in_the_derivative [15 ms]
+  Error Message:
+   Assert.DoesNotContain() Failure: Item found in collection
+             â†“ (pos 0)
+Collection: [225, 225, 237, 224, 219, Â·Â·Â·]
+Found:      225
+  Stack Trace:
+     at Alveara.Api.Tests.LoginBackgroundPipelineTests.JPEG_metadata_EXIF_XMP_and_IPTC_is_not_in_the_derivative() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginBackgroundPipelineTests.cs:line 103
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Alveara.Api.Tests.LoginBackgroundPipelineTests.PNG_text_and_eXIf_chunks_are_not_in_the_derivative [12 ms]
+  Error Message:
+   Assert.DoesNotContain() Failure: Item found in collection
+                                  â†“ (pos 3)
+Collection: [Â·Â·Â·, "eXIf", "iTXt", "tEXt", "sBIT", "IDAT", Â·Â·Â·]
+Found:      "tEXt"
+  Stack Trace:
+     at Alveara.Api.Tests.LoginBackgroundPipelineTests.PNG_text_and_eXIf_chunks_are_not_in_the_derivative() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginBackgroundPipelineTests.cs:line 119
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     2, Passed:    21, Skipped:     0, Total:    23, Duration: 561 ms - Alveara.Api.Tests.dll (net10.0)

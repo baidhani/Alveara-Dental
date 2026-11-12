@@ -1,0 +1,35 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/login/LoginLayout.test.tsx (12 tests | 1 failed) 255ms
+   ❯ LoginLayout (ALV-N020-C01) (10)
+     × renders the footer notice as plain text, markup and all, keeping its line breaks 18ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  15:51:54
+   Duration  3.19s (environment 67%, setup 19%, tests 8%, transform 5%, import 1%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/login/LoginLayout.test.tsx > LoginLayout (ALV-N020-C01) > renders the footer notice as plain text, markup and all, keeping its line breaks
+AssertionError: expected 'Authorized use only.\nalert(1)' to be 'Authorized use only.\n<img src=x oner…' // Object.is equality
+
+- Expected
++ Received
+
+  Authorized use only.
+- <img src=x onerror=alert(1)><script>alert(1)</script>
++ alert(1)
+
+ ❯ src/pages/login/LoginLayout.test.tsx:71:32
+     69|     const { container } = renderLayout();
+     70|     const footer = await screen.findByRole("contentinfo");
+     71|     expect(footer.textContent).toBe(notice);
+       |                                ^
+     72|     expect(container.querySelector("script")).toBeNull();
+     73|     expect(footer.querySelector("img")).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

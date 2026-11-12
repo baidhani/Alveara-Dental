@@ -1,0 +1,22 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed Alveara.Api.Tests.LoginPresentationApiTests.Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   OK
+  Stack Trace:
+     at Alveara.Api.Tests.LoginPresentationApiTests.Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginPresentationApiTests.cs:line 142
+   at Alveara.Api.Tests.LoginPresentationApiTests.Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginPresentationApiTests.cs:line 159
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.LoginPresentationApiTests.The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not [442 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Forbidden
+Actual:   OK
+  Stack Trace:
+     at Alveara.Api.Tests.LoginPresentationApiTests.The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginPresentationApiTests.cs:line 128
+   at Alveara.Api.Tests.LoginPresentationApiTests.The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginPresentationApiTests.cs:line 129
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     2, Passed:     5, Skipped:     0, Total:     7, Duration: 22 s - Alveara.Api.Tests.dll (net10.0)

@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="05259a61-3707-4ff1-bcac-1ac9b88eec19" name="firas@FEERCY-LEGION7I 2026-11-12 15:11:50" runUser="FEERCY-LEGION7I\firas" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-12T15:11:50.6317262-06:00" queuing="2026-11-12T15:11:50.6317266-06:00" start="2026-11-12T15:11:30.8238999-06:00" finish="2026-11-12T15:11:55.7575278-06:00" />
+  <TestSettings name="default" id="3d32dc48-31d1-4f70-918c-bf733c5429bf">
+    <Deployment runDeploymentRoot="firas_FEERCY-LEGION7I_2026-11-12_15_11_50" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="90feb346-8ea5-456d-99af-f825bf0ec198" testId="444cd24b-fbe4-500f-66c4-ed1ed975f0c2" testName="Alveara.Api.Tests.LoginPresentationApiTests.At_most_30_added_backgrounds_are_available_at_once" computerName="FEERCY-LEGION7I" duration="00:00:00.6943676" startTime="2026-11-12T15:11:53.2724045-06:00" endTime="2026-11-12T15:11:54.2765408-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="90feb346-8ea5-456d-99af-f825bf0ec198" />
+    <UnitTestResult executionId="268ae9b7-709b-4c79-90ae-e1f11236ad38" testId="0de89c89-331a-56ee-79b3-7e862f153a61" testName="Alveara.Api.Tests.LoginPresentationApiTests.An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers" computerName="FEERCY-LEGION7I" duration="00:00:01.5225064" startTime="2026-11-12T15:11:35.0276630-06:00" endTime="2026-11-12T15:11:50.5941307-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="268ae9b7-709b-4c79-90ae-e1f11236ad38" />
+    <UnitTestResult executionId="987a9175-1ab6-477c-8ff4-c71946629ca8" testId="0d3068c6-9139-cb1b-7086-6a91d1e68adc" testName="Alveara.Api.Tests.LoginPresentationApiTests.Settings_are_validated_concurrency_checked_and_audited_without_the_notice_text_and_a_disabled_notice_is_not_sent" computerName="FEERCY-LEGION7I" duration="00:00:00.3954169" startTime="2026-11-12T15:11:52.5734715-06:00" endTime="2026-11-12T15:11:53.2719446-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="987a9175-1ab6-477c-8ff4-c71946629ca8" />
+    <UnitTestResult executionId="2ef1c789-77bf-4fc6-87b5-e40bcff75a2d" testId="52b13daa-a5bf-1087-00ef-5ff2d67545a7" testName="Alveara.Api.Tests.LoginPresentationApiTests.A_selected_background_whose_file_is_missing_falls_back_to_the_bundled_default" computerName="FEERCY-LEGION7I" duration="00:00:00.3895419" startTime="2026-11-12T15:11:51.8345060-06:00" endTime="2026-11-12T15:11:52.5730644-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2ef1c789-77bf-4fc6-87b5-e40bcff75a2d" />
+    <UnitTestResult executionId="e12a2fc0-bc5c-438a-abf1-663ca7018f49" testId="50f03eef-f4a0-01a7-2083-bb9f706280fa" testName="Alveara.Api.Tests.LoginPresentationApiTests.The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not" computerName="FEERCY-LEGION7I" duration="00:00:00.4630593" startTime="2026-11-12T15:11:54.7611635-06:00" endTime="2026-11-12T15:11:55.5982751-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e12a2fc0-bc5c-438a-abf1-663ca7018f49" />
+    <UnitTestResult executionId="789c24f8-f5b6-4a18-849a-95faa01e5c86" testId="230a279b-9774-c6ea-dfca-ff72bfac7f4a" testName="Alveara.Api.Tests.LoginPresentationApiTests.The_anonymous_presentation_is_the_teal_tile_default_with_the_USA_notice_and_is_never_cached" computerName="FEERCY-LEGION7I" duration="00:00:00.1486952" startTime="2026-11-12T15:11:54.2771041-06:00" endTime="2026-11-12T15:11:54.7607587-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="789c24f8-f5b6-4a18-849a-95faa01e5c86" />
+    <UnitTestResult executionId="66794e9c-3f81-447f-b2cb-14af36e3517e" testId="88f39cac-073c-40f2-5464-bf9e1c9f1d71" testName="Alveara.Api.Tests.LoginPresentationApiTests.Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited" computerName="FEERCY-LEGION7I" duration="00:00:00.8737676" startTime="2026-11-12T15:11:50.6137431-06:00" endTime="2026-11-12T15:11:51.8328679-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="66794e9c-3f81-447f-b2cb-14af36e3517e" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.At_most_30_added_backgrounds_are_available_at_once" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="444cd24b-fbe4-500f-66c4-ed1ed975f0c2">
+      <Execution id="90feb346-8ea5-456d-99af-f825bf0ec198" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="At_most_30_added_backgrounds_are_available_at_once" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.A_selected_background_whose_file_is_missing_falls_back_to_the_bundled_default" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="52b13daa-a5bf-1087-00ef-5ff2d67545a7">
+      <Execution id="2ef1c789-77bf-4fc6-87b5-e40bcff75a2d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="A_selected_background_whose_file_is_missing_falls_back_to_the_bundled_default" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.Settings_are_validated_concurrency_checked_and_audited_without_the_notice_text_and_a_disabled_notice_is_not_sent" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="0d3068c6-9139-cb1b-7086-6a91d1e68adc">
+      <Execution id="987a9175-1ab6-477c-8ff4-c71946629ca8" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="Settings_are_validated_concurrency_checked_and_audited_without_the_notice_text_and_a_disabled_notice_is_not_sent" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="88f39cac-073c-40f2-5464-bf9e1c9f1d71">
+      <Execution id="66794e9c-3f81-447f-b2cb-14af36e3517e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="0de89c89-331a-56ee-79b3-7e862f153a61">
+      <Execution id="268ae9b7-709b-4c79-90ae-e1f11236ad38" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.The_anonymous_presentation_is_the_teal_tile_default_with_the_USA_notice_and_is_never_cached" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="230a279b-9774-c6ea-dfca-ff72bfac7f4a">
+      <Execution id="789c24f8-f5b6-4a18-849a-95faa01e5c86" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="The_anonymous_presentation_is_the_teal_tile_default_with_the_USA_notice_and_is_never_cached" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginPresentationApiTests.The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="50f03eef-f4a0-01a7-2083-bb9f706280fa">
+      <Execution id="e12a2fc0-bc5c-438a-abf1-663ca7018f49" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginPresentationApiTests" name="The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="444cd24b-fbe4-500f-66c4-ed1ed975f0c2" executionId="90feb346-8ea5-456d-99af-f825bf0ec198" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0de89c89-331a-56ee-79b3-7e862f153a61" executionId="268ae9b7-709b-4c79-90ae-e1f11236ad38" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0d3068c6-9139-cb1b-7086-6a91d1e68adc" executionId="987a9175-1ab6-477c-8ff4-c71946629ca8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="52b13daa-a5bf-1087-00ef-5ff2d67545a7" executionId="2ef1c789-77bf-4fc6-87b5-e40bcff75a2d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="50f03eef-f4a0-01a7-2083-bb9f706280fa" executionId="e12a2fc0-bc5c-438a-abf1-663ca7018f49" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="230a279b-9774-c6ea-dfca-ff72bfac7f4a" executionId="789c24f8-f5b6-4a18-849a-95faa01e5c86" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="88f39cac-073c-40f2-5464-bf9e1c9f1d71" executionId="66794e9c-3f81-447f-b2cb-14af36e3517e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="7" executed="7" passed="7" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.37]   Discovering: Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:01.73]   Discovered:  Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:01.74]   Starting:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-12T21:11:48.5796457+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":63,"migrate_ms":9303,"total_ms":12602,"backup_bytes":8310784}}&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Alveara.Api.Architecture.LoginPresentation.LoginPresentationService[0]&#xD;
+      login_background_fallback reason=missing_file image=1e442971-c92e-4c68-ab6d-0661408f3c79&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Routing.EndpointRoutingMiddleware[9]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpMaxRequestBodySizeFeature.&#xD;
+warn: Microsoft.AspNetCore.Mvc.Filters.RequestSizeLimitFilter[1]&#xD;
+      A request body size limit could not be applied. This server does not support the IHttpRequestBodySizeFeature.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+fail: Microsoft.Extensions.Hosting.Internal.Host[9]&#xD;
+      BackgroundService failed&#xD;
+      Microsoft.Data.SqlClient.SqlException (0x80131904): A severe error occurred on the current command.  The results, if any, should be discarded.&#xD;
+      Operation cancelled by user.&#xD;
+         at Microsoft.Data.SqlClient.SqlCommand.&lt;&gt;c.&lt;ExecuteDbDataReaderAsync&gt;b__270_0(Task`1 result)&#xD;
+         at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()&#xD;
+         at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)&#xD;
+      --- End of stack trace from previous location ---&#xD;
+         at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)&#xD;
+         at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task&amp; currentTaskSlot, Thread threadPoolThread)&#xD;
+      --- End of stack trace from previous location ---&#xD;
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()&#xD;
+         at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)&#xD;
+         at Alveara.Api.Architecture.ExternalCases.ExternalCaseTaskScheduler.EnqueueAsync(CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\ExternalCases\ExternalCaseTaskJobs.cs:line 31&#xD;
+         at Alveara.Api.Architecture.Recall.FollowUpWorkHostedService.ExecuteAsync(CancellationToken stoppingToken) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\FollowUpWorkHostedService.cs:line 25&#xD;
+         at Alveara.Api.Architecture.Recall.FollowUpWorkHostedService.ExecuteAsync(CancellationToken stoppingToken) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\FollowUpWorkHostedService.cs:line 28&#xD;
+         at Microsoft.Extensions.Hosting.Internal.Host.TryExecuteBackgroundServiceAsync(BackgroundService backgroundService)&#xD;
+      ClientConnectionId:f1e26a4e-e7bf-44ce-a5ca-913f82136629&#xD;
+crit: Microsoft.Extensions.Hosting.Internal.Host[10]&#xD;
+      The HostOptions.BackgroundServiceExceptionBehavior is configured to StopHost. A BackgroundService has thrown an unhandled exception, and the IHost instance is stopping. To avoid this behavior, configure this to Ignore; however the BackgroundService will not be restarted.&#xD;
+      Microsoft.Data.SqlClient.SqlException (0x80131904): A severe error occurred on the current command.  The results, if any, should be discarded.&#xD;
+      Operation cancelled by user.&#xD;
+         at Microsoft.Data.SqlClient.SqlCommand.&lt;&gt;c.&lt;ExecuteDbDataReaderAsync&gt;b__270_0(Task`1 result)&#xD;
+         at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()&#xD;
+         at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)&#xD;
+      --- End of stack trace from previous location ---&#xD;
+         at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)&#xD;
+         at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task&amp; currentTaskSlot, Thread threadPoolThread)&#xD;
+      --- End of stack trace from previous location ---&#xD;
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()&#xD;
+         at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)&#xD;
+         at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)&#xD;
+         at Alveara.Api.Architecture.ExternalCases.ExternalCaseTaskScheduler.EnqueueAsync(CancellationToken ct) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\ExternalCases\ExternalCaseTaskJobs.cs:line 31&#xD;
+         at Alveara.Api.Architecture.Recall.FollowUpWorkHostedService.ExecuteAsync(CancellationToken stoppingToken) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\FollowUpWorkHostedService.cs:line 25&#xD;
+         at Alveara.Api.Architecture.Recall.FollowUpWorkHostedService.ExecuteAsync(CancellationToken stoppingToken) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\FollowUpWorkHostedService.cs:line 28&#xD;
+         at Microsoft.Extensions.Hosting.Internal.Host.TryExecuteBackgroundServiceAsync(BackgroundService backgroundService)&#xD;
+      ClientConnectionId:f1e26a4e-e7bf-44ce-a5ca-913f82136629&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+[xUnit.net 00:00:22.36]   Finished:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-12T21:11:55.6347253+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":7,"fallbacks":0,"real_migration_fixtures":0,"build_ms":12602,"restore_ms_total":2054}}&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

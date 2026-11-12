@@ -1,0 +1,9 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  15:54:49
+   Duration  2.10s (environment 59%, tests 17%, setup 16%, transform 5%, import 1%, worker 1%)
+

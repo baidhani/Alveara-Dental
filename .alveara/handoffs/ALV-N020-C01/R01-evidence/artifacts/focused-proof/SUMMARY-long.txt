@@ -1,0 +1,17 @@
+== negative controls exit=0 elapsed=216s (expected ~7 min)
+NC-1 notice rendered as HTML (expect FAIL) -> exit 1 ['× renders the footer notice as plain text, markup and all, keeping its line breaks 18ms', 'Tests  1 failed | 11 passed (12)']
+NC-2 disabled notice still sent (expect FAIL) -> exit 1 ['Failed Alveara.Api.Tests.LoginPresentationApiTests.Settings_are_validated_concurrency_checked_and_audited_without_the_notice_text_and_a_disabled_notice_is_not_sent [402 ms]', 'Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 21 s - Alveara.Api.Tests.dll (net10.0)']
+NC-3 permission check removed (expect FAIL) -> exit 1 ['Failed Alveara.Api.Tests.LoginPresentationApiTests.Configuration_needs_the_account_permission_and_CSRF_and_ManageUsers_grants_and_revokes_it_audited [1 s]', 'Failed Alveara.Api.Tests.LoginPresentationApiTests.The_bootstrap_administrator_holds_the_permission_and_a_later_Admin_does_not [442 ms]', 'Failed!  - Failed:     2, Passed:     5, Skipped:     0, Total:     7, Duration: 22 s - Alveara.Api.Tests.dll (net10.0)']
+NC-4 input bytes stored instead of the clean derivative (expect FAIL) -> exit 1 ['Failed Alveara.Api.Tests.LoginBackgroundPipelineTests.JPEG_metadata_EXIF_XMP_and_IPTC_is_not_in_the_derivative [15 ms]', 'Failed Alveara.Api.Tests.LoginBackgroundPipelineTests.PNG_text_and_eXIf_chunks_are_not_in_the_derivative [12 ms]', 'Failed!  - Failed:     2, Passed:    21, Skipped:     0, Total:    23, Duration: 561 ms - Alveara.Api.Tests.dll (net10.0)']
+NC-5 a non-selected image served (expect FAIL) -> exit 1 ['Failed Alveara.Api.Tests.LoginPresentationApiTests.An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers [1 s]', 'Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 20 s - Alveara.Api.Tests.dll (net10.0)']
+restored client (expect pass) -> exit 0 ['Tests  12 passed (12)']
+restored server (expect pass) -> exit 0 ['Passed!  - Failed:     0, Passed:    30, Skipped:     0, Total:    30, Duration: 23 s - Alveara.Api.Tests.dll (net10.0)']
+files restored byte for byte: True
+== chain exit=0 elapsed=377s (expected ~6.5 min) ::  20 passed (5.9m) 
+API control: stop -> stopped owned API process 59640; port 5072 free
+API control: start -> started owned API process 50760 with the same settings; healthy
+FRESH run bdfe4ff950944046b817de3eb4cbcb0b stage 0: PASS 24, FAIL 0, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 0
+== chain evidence copied (bdfe4ff950944046b817de3eb4cbcb0b)
+== auth walkthrough exit=1 elapsed=47s (expected ~2 min) ::  1 failed  9 passed (24.6s) 
+== leftovers: none
+== LONG RUNS done

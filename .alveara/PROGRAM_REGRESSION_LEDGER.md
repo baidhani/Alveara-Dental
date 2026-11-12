@@ -21,6 +21,13 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Real-backend walkthroughs: auth 12, workspace 14, permission-policy-admin 8, plus notifications (new notification kind) | ALV-N020 | first three focused (R01 G4); notifications walkthrough not run |
 | Accumulated chain now includes stage 1 + minimal stage 2 (`chain/stage-1.spec.ts`, about 6-7 min, real 5-minute session in 1.12) and step 13.05 with a real owned-API stop/restart (runner control channel, API-STOP/API-START records) | ALV-N020 | R02 re-run: 20 of 20, builder 24 PASS / 0 FAIL / 0 tracked; runner self-test 8 of 8 |
 | Migration `20261112140957_AddStaffInactivationFailedNotification`: upgrade from the pre-ALV-N020 schema on a copy of a populated database; the empty-table down path; the bell and list with a `staff.inactivation_failed` notification present | ALV-N020 | focused only: schema/migration tests on a clone (R01 G9-G10) |
+| Full backend suite: also the new ALV-N020-C01 classes `LoginBackgroundPipelineTests`, `LoginNoticeRulesTests`, `LoginPresentationApiTests`, `LoginPresentationSchemaTests`, `LoginBackgroundBackupRestoreTests`, `LoginBackgroundCatalogTests` and the changed `BackupServiceTests`, `RealMigrationInventoryTests` (inventory 24) | ALV-N020-C01 | focused only (R01: 34, 7, 11, 51/20, 3, 103, 29); never in a broad run |
+| Client vitest/build/lint/`tsc -b`: new `LoginLayout.test`, `SignInScreenTab.test`, `accountPermissionGating.test`; changed `App.tsx`, `AuthContext`, `authApi`, configuration hub, admin user page, backup labels | ALV-N020-C01 | focused only: 18 of 18 new, 125 of 125 affected; lint 41 (unchanged) |
+| Mocked Playwright: the whole suite, now including `e2e/login-presentation.spec.ts` (every sign-in page renders inside `LoginLayout`) | ALV-N020-C01 | focused only: login-presentation 12 of 12, shell + login-banner 28 of 28 |
+| Real-backend walkthroughs: auth 12 (backup history now lists "Sign-in backgrounds"), workspace, permission-policy-admin, plus every walkthrough that signs in (new layout) | ALV-N020-C01 | auth 12 of 12 only |
+| Accumulated chain stage 0 + stage 1 on the new sign-in page | ALV-N020-C01 | R01: 20 of 20, 24 PASS on `94bcee0`; not re-run after the additive bootstrap-response commit `65c234b` |
+| Migration `20261112210440_AddLoginPresentation`: upgrade from the post-ALV-N020 schema on a copy of a populated database; triggers 51276-51279; the down path refused once a grant or added image exists; a real backup and restore of the `loginBackgrounds` asset class with an added image | ALV-N020-C01 | focused only: schema tests on a clone, backup/restore drill on a test database |
+| SkiaSharp 4.156.0 native assets on the deployment targets (Windows installer, ALV-N013) | ALV-N020-C01 | dependency audit clean; only the development machine exercised |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -37,4 +44,12 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Focused proof (R01):** see `.alveara/handoffs/ALV-N020/R01-evidence/TEST_RESULTS.md`: vitest 150 of 150 + later groups; xUnit 97 of 97, 24 of 24, 13 of 13; mocked Playwright 28 of 28; walkthroughs 34 of 34; chain run 3 20 of 20 (22 PASS); negative controls NC-1 to NC-5 effective, files restored byte for byte; leftover counts identical in every server run.
 - **R02 focused proof:** lint 41 warnings (no new one); client 64 of 64; notification schema 8 of 8 (document-link refusals added); AuthorizationArchitectureTests 5 of 5; chain 20 of 20 with 13.05 through the real owned-API stop/restart and 1.12 on a dirty form; runner self-test 8 of 8; leftover counts identical. Changed subsystems in R02: the chain runner (`scripts/Invoke-AccumulatedChain.ps1`), the chain stage-1 spec, the auth context module split, one schema test class.
 - **Deferred to ALV-N028:** the ALV-N020 rows in the table above, plus every ALV-N019 row (unchanged).
+- **Not release-certified.**
+
+## ALV-N020-C01 (item 57a): DentalKeep login presentation, managed background catalog, footer notice
+
+- **Implementation SHA (R01):** `65c234bf89b2318878c407f1ad057d04e2bedcda` (base `d446184`, briefing revision 3 approved).
+- **Changed subsystems:** a new account-scoped permission type (`AccountPermission`, `AccountPermissionGrants`, `RequireAccountPermission`, bootstrap grant, `/api/auth/permissions`), the login-presentation module (catalog, SkiaSharp re-encoding pipeline, derivative store, public anonymous endpoints with a rate policy, notice rules), one migration with four triggers, a new backup asset class with a restore check, the sign-in layout on three client routes, the configuration hub tab and the account page control.
+- **Focused proof (R01):** `.alveara/handoffs/ALV-N020-C01/R01-evidence/TEST_RESULTS.md`: xUnit 34, 7, 11, 51 (then 20), 3, 103, 29; vitest 18 + 125; mocked Playwright 12 + 28; negative controls NC-1 to NC-5 effective, restored byte for byte; chain 20 of 20 (24 PASS); auth walkthrough 12 of 12; leftover counts identical in every server run.
+- **Deferred to ALV-N028:** the ALV-N020-C01 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**

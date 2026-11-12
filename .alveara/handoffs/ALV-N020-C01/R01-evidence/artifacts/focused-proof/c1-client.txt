@@ -1,0 +1,289 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/configuration/SignInScreenTab.test.tsx (6 tests | 1 failed) 1455ms
+   ❯ SignInScreenTab (ALV-N020-C01) (4)
+     × refuses Tile for a bundled background that cannot be tiled 85ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/configuration/SignInScreenTab.test.tsx > SignInScreenTab (ALV-N020-C01) > refuses Tile for a bundled background that cannot be tiled
+TestingLibraryElementError: Found multiple elements with the role "radio" and name `/Fill/`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<input[39m
+  [33mname[39m=[32m"display-mode"[39m
+  [33mtype[39m=[32m"radio"[39m
+  [33mvalue[39m=[32m"Stretch"[39m
+[36m/>[39m
+
+Ignored nodes: comments, script, style
+[36m<input[39m
+  [33mchecked[39m=[32m""[39m
+  [33mname[39m=[32m"display-mode"[39m
+  [33mtype[39m=[32m"radio"[39m
+  [33mvalue[39m=[32m"Fill"[39m
+[36m/>[39m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"signin-config-heading"[39m
+      [33mclass[39m=[32m"alv-signin-config"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mid[39m=[32m"signin-config-heading"[39m
+      [36m>[39m
+        [0mSign-in screen[0m
+      [36m</h2>[39m
+      [36m<fieldset>[39m
+        [36m<legend>[39m
+          [0mBackground[0m
+        [36m</legend>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Background"[39m
+          [33mclass[39m=[32m"alv-signin-config__grid"[39m
+          [33mrole[39m=[32m"radiogroup"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-signin-config__choice"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mname[39m=[32m"background"[39m
+              [33mtype[39m=[32m"radio"[39m
+            [36m/>[39m
+            [36m<img[39m
+              [33malt[39m=[32m""[39m
+              [33mheight[39m=[32m"96"[39m
+              [33msrc[39m=[32m"/src/assets/login/tile-teal-doodle.jpg"[39m
+              [33mwidth[39m=[32m"96"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mTeal doodle[0m
+              [0m [0m
+              [36m<small>[39m
+                [0m(built in)[0m
+              [36m</small>[39m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-signin-config__choice"[39m
+          [36m>[39m
+            [36m<input[39m
+              [33mname[39m=[32m"background"[39m
+              [33mtype[39m=[32m"radio"[39m
+            [36m/>[39m
+            [36m<img[39m
+              [33malt[39m=[32m""[39m
+              [33mheight[39m=[32m"96"[39m
+              [33msrc[39m=[32m"/src/assets/login/tile-blue-operatory.jpg"[39m
+              [33mwidth[39m=[32m"96"[39m
+            [36m/>[39m
+            [36m<span>[39m
+              [0mBlue operatory[0m
+              [0m [0m
+              [36m<small>[39m
+                [0m(built in)[0m
+              [36m</small>[39m
+            [36m</span>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-signin-config__added"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-signin-config__choice"[39m
+            [36m>[39m
+              [36m<input[39m
+                [33mchecked[39m=[32m""[39m
+                [33mname[39m=[32m"background"[39m
+                [33mtype[39m=[32m"radio"[39m
+              [36m/>[39m
+              [36m<img[39m
+                [33malt[39m=[32m""[39m
+                [33mheight[39m=[32m"96"[39m
+                [33msrc[39m=[32m"/api/config/login-presentation/backgrounds/img-1/image"[39m
+                [33mwidth[39m=[32m"96"[39m
+              [36m/>[39m
+              [36m<span>[39m
+                [0mWaiting room[0m
+              [36m</span>[39m
+            [36m</label>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Make Waiting room unavailable"[39m
+              [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+              [33mdisabled[39m=[32m""[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mMake unavailable[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-signin-config__hint"[39m
+        [36m>[39m
+          [0mThe background shown now cannot be made unavailable; choose another one and save first. [0m
+          [0m1[0m
+          [0m of [0m
+          [0m30[0m
+          [0m added backgrounds available.[0m
+        [36m</p>[39m
+        [36m<ul[39m
+          [33maria-label[39m=[32m"Unavailable backgrounds"[39m
+          [33mclass[39m=[32m"alv-signin-config__inactive"[39m
+        [36m>[39m
+          [36m<li>[39m
+            [0mOld lobby[0m
+            [0m [0m
+            [36m<button[39m
+              [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mMake available[0m
+            [36m</button>[39m
+          [36m</li>[39m
+        [36m</ul>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-signin-config__warning"[39m
+          [33mrole[39m=[32m"note"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mPublic image.[0m
+          [36m</strong>[39m
+          [0m [0m
+          [0mThis image is public. Anyone who opens the sign-in page sees it before signing in. Never use an image that contains patient information, faces, clinical documents, screenshots of this application or of patient data, or any other protected or confidential information.[0m
+        [36m</p>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mAdd background image[0m
+        [36m</button>[39m
+      [36m</fieldset>[39m
+      [36m<fieldset>[39m
+        [36m<legend>[39m
+          [0mDisplay mode[0m
+        [36m</legend>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"alv-signin-config__mode"[39m
+        [36m>[39m
+          [36m<input[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mname[39m=[32m"display-mode"[39m
+            [33mtype[39m=[32m"radio"[39m
+            [33mvalue[39m=[32m"Tile"[39m
+          [36m/>[39m
+          [36m<span>[39m
+            [36m<strong>[39m
+              [0mTile[0m
+            [36m</strong>[39m
+            [0m — [0m
+            [0mThis background cannot be tiled.[0m
+          [36m</span>[39m
+        [36m</label>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"alv-signin-config__mode"[39m
+        [36m>[39m
+          [36m<input[39m
+            [33mname[39m=[32m"display-mode"[39m
+            [33mtype[39m=[32m"radio"[39m
+            [33mvalue[39m=[32m"Stretch"[39m
+          [36m/>[39m
+          [36m<span>[39m
+            [36m<strong>[39m
+              [0mStretch[0m
+            [36m</strong>[39m
+            [0m — [0m
+            [0mFills the page exactly. May distort the image.[0m
+          [36m</span>[39m
+        [36m</label>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"alv-signin-config__mode"[39m
+        [36m>[39m
+          [36m<input[39m
+            [33mchecked[39m=[32m""[39m
+            [33mname[39m=[32m"display-mode"[39m
+            [33mtype[39m=[32m"radio"[39m
+            [33mvalue[39m=[32m"Fill"[39m
+          [36m/>[39m
+          [36m<span>[39m
+            [36m<strong>[39m
+              [0mFill[0m
+            [36m</strong>[39m
+            [0m — [0m
+            [0mKeeps proportions; edges may be cropped. Recommended for photographs.[0m
+          [36m</span>[39m
+        [36m</label>[39m
+      [36m</fieldset>[39m
+      [36m<fieldset>[39m
+        [36m<legend>[39m
+          [0mFooter notice[0m
+        [36m</legend>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"alv-signin-config__mode"[39m
+        [36m>[39m
+          [36m<input[39m
+            [33mchecked[39m=[32m""[39m
+            [33mtype[39m=[32m"checkbox"[39m
+          [36m/>[39m
+          [0mShow footer notice on login screen[0m
+        [36m</label>[39m
+        [36m<p>[39m
+          [0mUsing the deployment default:[0m
+        [36m</p>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-signin-config__preview"[39m
+        [36m>[39m
+          [0mPlease ensure you have taken appropriate precautions.[0m
+        [36m</p>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mWrite a custom notice[0m
+        [36m</button>[39m
+      [36m</fieldset>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-signin-config__actions"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mSave[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--secondary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mDiscard changes[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/configuration/SignInScreenTab.test.tsx:53:20
+     51|     await userEvent.setup().click(await screen.findByRole("radio", { n…
+     52|     expect((screen.getByRole("radio", { name: /Tile/ }) as HTMLInputEl…
+     53|     expect((screen.getByRole("radio", { name: /Fill/ }) as HTMLInputEl…
+       |                    ^
+     54|   });
+     55|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 17 passed (18)
+   Start at  15:27:09
+   Duration  6.72s (environment 57%, setup 21%, tests 16%, transform 3%, import 3%)
+

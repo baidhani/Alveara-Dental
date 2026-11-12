@@ -1,0 +1,443 @@
+
+Running 12 tests using 12 workers
+
+  ok  8 [desktop] › e2e\login-presentation.spec.ts:109:1 › a disabled notice is not on the page at all (767ms)
+  ok  5 [desktop] › e2e\login-presentation.spec.ts:94:1 › keyboard-only: Tab reaches Username, Password and Sign in in order; the notice is plain text and not focusable (1.0s)
+  ok  3 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: neon-doodle in Tile mode at 1920x1080, 1280x800 and 375x812 (1.3s)
+  ok 10 [desktop] › e2e\login-presentation.spec.ts:62:1 › each display mode renders as specified (Stretch fills exactly, Fill covers and centres) (1.3s)
+  ok  1 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: teal-doodle in Tile mode at 1920x1080, 1280x800 and 375x812 (1.3s)
+  ok  9 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: blue-operatory in Tile mode at 1920x1080, 1280x800 and 375x812 (1.2s)
+  ok  6 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: violet-operatory in Tile mode at 1920x1080, 1280x800 and 375x812 (1.3s)
+  x   2 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 1280px, with the notice shown (1.4s)
+  x  12 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 375px, with the notice shown (1.4s)
+  ok  7 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: blue-doodle in Tile mode at 1920x1080, 1280x800 and 375x812 (1.6s)
+  x   4 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 375px, with the notice shown (1.5s)
+  x  11 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 1280px, with the notice shown (1.5s)
+
+
+  1) [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 1280px, with the notice shown 
+
+    Error: teal-doodle light 1280px: [["region",[["img"],[".alv-form-field:nth-child(1)"],[".alv-form-field:nth-child(2)"]]]]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 83
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure all page content is contained by landmarks",
+    +     "help": "All page content should be contained by landmarks",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/region?application=playwright",
+    +     "id": "region",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<img class=\"alv-signin__logo\" alt=\"DentalKeep\" width=\"280\" height=\"126\" src=\"/assets/dentalkeep-logo-BPIcl96w.png\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "img",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_0_\" class=\"alv-form-field__label\">Username</label><input id=\"_r_0_\" class=\"alv-form-field__input\" autocomplete=\"username\" required=\"\" value=\"\" name=\"username\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_1_\" class=\"alv-form-field__label\">Password</label><input id=\"_r_1_\" class=\"alv-form-field__input\" autocomplete=\"current-password\" required=\"\" type=\"password\" value=\"\" name=\"password\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(2)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "best-practice",
+    +       "RGAAv4",
+    +       "RGAA-9.2.1",
+    +     ],
+    +   },
+    + ]
+
+      85 |         await expect(page.getByRole("contentinfo")).toBeVisible();
+      86 |         const results = await new AxeBuilder({ page }).analyze();
+    > 87 |         expect(results.violations, `${key} ${theme} ${width}px: ` + JSON.stringify(results.violations.map((v) => [v.id, v.nodes.map((n) => n.target)]))).toEqual([]);
+         |                                                                                                                                                          ^
+      88 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);   // no horizontal scroll
+      89 |       }
+      90 |     });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\login-presentation.spec.ts:87:154
+
+    Error Context: test-results\login-presentation-accessi-147f0-280px-with-the-notice-shown-desktop\error-context.md
+
+  2) [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 375px, with the notice shown 
+
+    Error: teal-doodle light 375px: [["region",[["img"],[".alv-form-field:nth-child(1)"],[".alv-form-field:nth-child(2)"]]]]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 83
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure all page content is contained by landmarks",
+    +     "help": "All page content should be contained by landmarks",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/region?application=playwright",
+    +     "id": "region",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<img class=\"alv-signin__logo\" alt=\"DentalKeep\" width=\"280\" height=\"126\" src=\"/assets/dentalkeep-logo-BPIcl96w.png\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "img",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_0_\" class=\"alv-form-field__label\">Username</label><input id=\"_r_0_\" class=\"alv-form-field__input\" autocomplete=\"username\" required=\"\" value=\"\" name=\"username\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_1_\" class=\"alv-form-field__label\">Password</label><input id=\"_r_1_\" class=\"alv-form-field__input\" autocomplete=\"current-password\" required=\"\" type=\"password\" value=\"\" name=\"password\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(2)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "best-practice",
+    +       "RGAAv4",
+    +       "RGAA-9.2.1",
+    +     ],
+    +   },
+    + ]
+
+      85 |         await expect(page.getByRole("contentinfo")).toBeVisible();
+      86 |         const results = await new AxeBuilder({ page }).analyze();
+    > 87 |         expect(results.violations, `${key} ${theme} ${width}px: ` + JSON.stringify(results.violations.map((v) => [v.id, v.nodes.map((n) => n.target)]))).toEqual([]);
+         |                                                                                                                                                          ^
+      88 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);   // no horizontal scroll
+      89 |       }
+      90 |     });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\login-presentation.spec.ts:87:154
+
+    Error Context: test-results\login-presentation-accessi-efd94-375px-with-the-notice-shown-desktop\error-context.md
+
+  3) [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 1280px, with the notice shown 
+
+    Error: teal-doodle dark 1280px: [["region",[["img"],[".alv-form-field:nth-child(1)"],[".alv-form-field:nth-child(2)"]]]]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 83
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure all page content is contained by landmarks",
+    +     "help": "All page content should be contained by landmarks",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/region?application=playwright",
+    +     "id": "region",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<img class=\"alv-signin__logo\" alt=\"DentalKeep\" width=\"280\" height=\"126\" src=\"/assets/dentalkeep-logo-BPIcl96w.png\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "img",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_0_\" class=\"alv-form-field__label\">Username</label><input id=\"_r_0_\" class=\"alv-form-field__input\" autocomplete=\"username\" required=\"\" value=\"\" name=\"username\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_1_\" class=\"alv-form-field__label\">Password</label><input id=\"_r_1_\" class=\"alv-form-field__input\" autocomplete=\"current-password\" required=\"\" type=\"password\" value=\"\" name=\"password\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(2)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "best-practice",
+    +       "RGAAv4",
+    +       "RGAA-9.2.1",
+    +     ],
+    +   },
+    + ]
+
+      85 |         await expect(page.getByRole("contentinfo")).toBeVisible();
+      86 |         const results = await new AxeBuilder({ page }).analyze();
+    > 87 |         expect(results.violations, `${key} ${theme} ${width}px: ` + JSON.stringify(results.violations.map((v) => [v.id, v.nodes.map((n) => n.target)]))).toEqual([]);
+         |                                                                                                                                                          ^
+      88 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);   // no horizontal scroll
+      89 |       }
+      90 |     });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\login-presentation.spec.ts:87:154
+
+    Error Context: test-results\login-presentation-accessi-991eb-280px-with-the-notice-shown-desktop\error-context.md
+
+  4) [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 375px, with the notice shown 
+
+    Error: teal-doodle dark 375px: [["region",[["img"],[".alv-form-field:nth-child(1)"],[".alv-form-field:nth-child(2)"]]]]
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 83
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure all page content is contained by landmarks",
+    +     "help": "All page content should be contained by landmarks",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/region?application=playwright",
+    +     "id": "region",
+    +     "impact": "moderate",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<img class=\"alv-signin__logo\" alt=\"DentalKeep\" width=\"280\" height=\"126\" src=\"/assets/dentalkeep-logo-BPIcl96w.png\">",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           "img",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_0_\" class=\"alv-form-field__label\">Username</label><input id=\"_r_0_\" class=\"alv-form-field__input\" autocomplete=\"username\" required=\"\" value=\"\" name=\"username\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(1)",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "isIframe": false,
+    +             },
+    +             "id": "region",
+    +             "impact": "moderate",
+    +             "message": "Some page content is not contained by landmarks",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Some page content is not contained by landmarks",
+    +         "html": "<div class=\"alv-form-field\"><label for=\"_r_1_\" class=\"alv-form-field__label\">Password</label><input id=\"_r_1_\" class=\"alv-form-field__input\" autocomplete=\"current-password\" required=\"\" type=\"password\" value=\"\" name=\"password\"></div>",
+    +         "impact": "moderate",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".alv-form-field:nth-child(2)",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.keyboard",
+    +       "best-practice",
+    +       "RGAAv4",
+    +       "RGAA-9.2.1",
+    +     ],
+    +   },
+    + ]
+
+      85 |         await expect(page.getByRole("contentinfo")).toBeVisible();
+      86 |         const results = await new AxeBuilder({ page }).analyze();
+    > 87 |         expect(results.violations, `${key} ${theme} ${width}px: ` + JSON.stringify(results.violations.map((v) => [v.id, v.nodes.map((n) => n.target)]))).toEqual([]);
+         |                                                                                                                                                          ^
+      88 |         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);   // no horizontal scroll
+      89 |       }
+      90 |     });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\login-presentation.spec.ts:87:154
+
+    Error Context: test-results\login-presentation-accessi-337ef-375px-with-the-notice-shown-desktop\error-context.md
+
+  4 failed
+    [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 1280px, with the notice shown 
+    [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 375px, with the notice shown 
+    [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 1280px, with the notice shown 
+    [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 375px, with the notice shown 
+  8 passed (6.9s)

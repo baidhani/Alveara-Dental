@@ -1,0 +1,13 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed Alveara.Api.Tests.LoginPresentationApiTests.An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers [1 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: NotFound
+Actual:   OK
+  Stack Trace:
+     at Alveara.Api.Tests.LoginPresentationApiTests.An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginPresentationApiTests.cs:line 230
+   at Alveara.Api.Tests.LoginPresentationApiTests.An_added_background_is_stored_only_as_its_derivative_and_served_only_while_selected_with_strict_headers() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\LoginPresentationApiTests.cs:line 241
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 20 s - Alveara.Api.Tests.dll (net10.0)

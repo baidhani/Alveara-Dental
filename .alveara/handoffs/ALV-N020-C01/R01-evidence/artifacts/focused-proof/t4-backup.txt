@@ -1,0 +1,17 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:01:39.17]     Alveara.Api.Tests.BackupServiceTests.Status_reports_probation_trust_verification_age_and_whether_the_last_backup_covers_every_asset_class [FAIL]
+  Failed Alveara.Api.Tests.BackupServiceTests.Status_reports_probation_trust_verification_age_and_whether_the_last_backup_covers_every_asset_class [1 s]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+Expected: string[]     ["dataProtectionKeys", "deploymentConfiguration"]
+Actual:   List<string> ["dataProtectionKeys", "deploymentConfiguration", "loginBackgrounds"]
+                                                                         ↑ (pos 2)
+  Stack Trace:
+     at Alveara.Api.Tests.BackupServiceTests.Status_reports_probation_trust_verification_age_and_whether_the_last_backup_covers_every_asset_class() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BackupServiceTests.cs:line 456
+   at Alveara.Api.Tests.BackupServiceTests.Status_reports_probation_trust_verification_age_and_whether_the_last_backup_covers_every_asset_class() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BackupServiceTests.cs:line 456
+   at Alveara.Api.Tests.BackupServiceTests.Status_reports_probation_trust_verification_age_and_whether_the_last_backup_covers_every_asset_class() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BackupServiceTests.cs:line 456
+--- End of stack trace from previous location ---
+Results File: C:\tmp\n020c01\t4.trx
+
+Failed!  - Failed:     1, Passed:    50, Skipped:     0, Total:    51, Duration: 2 m 47 s - Alveara.Api.Tests.dll (net10.0)
