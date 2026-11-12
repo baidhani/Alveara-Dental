@@ -1,0 +1,10 @@
+== chain exit=0 elapsed=390s ::  20 passed (5.8m) 
+API control: stop -> stopped owned API process 44012; port 5072 free
+API control: start -> started owned API process 23468 with the same settings; healthy
+PASS              API-STOP  API-STOP the runner stopped its own API when the 13.05 step asked
+PASS              API-START  API-START the runner restarted its own API when the 13.05 step asked
+FRESH run b46044d2ae1f4dab85d69ab97e88bbcc stage 0: PASS 24, FAIL 0, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 0
+== evidence copied (b46044d2ae1f4dab85d69ab97e88bbcc)
+== runner self-test exit=0 elapsed=37s :: 
+== leftovers: none
+== R02 RUNS done

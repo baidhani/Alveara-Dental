@@ -1,0 +1,63 @@
+{
+  "evidenceSchemaVersion": 1,
+  "runId": "2a0d1a4ce3bf423789b818b53b35be9d",
+  "stage": 0,
+  "label": "FRESH",
+  "counts": {
+    "PASS": 1,
+    "FAIL": 2,
+    "TRACKED_EXCEPTION": 0,
+    "SKIPPED_BLOCKED": 0
+  },
+  "exitCode": 1,
+  "records": [
+    {
+      "runId": "2a0d1a4ce3bf423789b818b53b35be9d",
+      "stage": 0,
+      "stepId": "RUN",
+      "title": "RUN the runner completed its own setup",
+      "outcome": "FAIL",
+      "evidencePath": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\2a0d1a4ce3bf423789b818b53b35be9d",
+      "implementationSha": "6e53928e0eb23bed9213b242b931e65fc95131ef+uncommitted-changes",
+      "schemaVersion": "20261112140957_AddStaffInactivationFailedNotification",
+      "resumed": false,
+      "clockMode": "injected",
+      "findingIds": [],
+      "entries": [],
+      "staleEntries": [],
+      "detail": "The specified wildcard character pattern is not valid: AI-Project-[Alveara-Dental]"
+    },
+    {
+      "runId": "2a0d1a4ce3bf423789b818b53b35be9d",
+      "stage": 0,
+      "stepId": "CLEAN",
+      "title": "CLEAN the database is dropped and the run folder is removed",
+      "outcome": "PASS",
+      "evidencePath": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\2a0d1a4ce3bf423789b818b53b35be9d",
+      "implementationSha": "6e53928e0eb23bed9213b242b931e65fc95131ef+uncommitted-changes",
+      "schemaVersion": "20261112140957_AddStaffInactivationFailedNotification",
+      "resumed": false,
+      "clockMode": "injected",
+      "findingIds": [],
+      "entries": [],
+      "staleEntries": [],
+      "detail": ""
+    },
+    {
+      "runId": "2a0d1a4ce3bf423789b818b53b35be9d",
+      "stage": 0,
+      "stepId": "PW",
+      "title": "PW the stage-0 spec produced a report",
+      "outcome": "FAIL",
+      "evidencePath": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\2a0d1a4ce3bf423789b818b53b35be9d",
+      "implementationSha": "6e53928e0eb23bed9213b242b931e65fc95131ef+uncommitted-changes",
+      "schemaVersion": "20261112140957_AddStaffInactivationFailedNotification",
+      "resumed": false,
+      "clockMode": "injected",
+      "findingIds": [],
+      "entries": [],
+      "staleEntries": [],
+      "detail": "no playwright-report.json"
+    }
+  ]
+}

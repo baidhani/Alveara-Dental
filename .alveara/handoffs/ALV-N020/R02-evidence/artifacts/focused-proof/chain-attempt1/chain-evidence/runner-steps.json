@@ -1,0 +1,20 @@
+﻿[
+    {
+        "detail":  "The specified wildcard character pattern is not valid: AI-Project-[Alveara-Dental]",
+        "title":  "RUN the runner completed its own setup",
+        "stepId":  "RUN",
+        "passed":  false
+    },
+    {
+        "detail":  "",
+        "title":  "CLEAN the database is dropped and the run folder is removed",
+        "stepId":  "CLEAN",
+        "passed":  true
+    },
+    {
+        "detail":  "no playwright-report.json",
+        "title":  "PW the stage-0 spec produced a report",
+        "stepId":  "PW",
+        "passed":  false
+    }
+]

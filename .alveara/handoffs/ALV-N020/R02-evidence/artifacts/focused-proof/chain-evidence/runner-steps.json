@@ -1,0 +1,26 @@
+﻿[
+    {
+        "detail":  "stopped owned API process 44012; port 5072 free",
+        "title":  "API-STOP the runner stopped its own API when the 13.05 step asked",
+        "stepId":  "API-STOP",
+        "passed":  true
+    },
+    {
+        "detail":  "started owned API process 23468 with the same settings; healthy",
+        "title":  "API-START the runner restarted its own API when the 13.05 step asked",
+        "stepId":  "API-START",
+        "passed":  true
+    },
+    {
+        "detail":  "OK the checkpoint left 130 tables (164 rows) unchanged, the differential base unchanged, no restore recorded, and a non-empty COPY_ONLY backup (9752576 bytes)",
+        "title":  "E10 COPY_ONLY checkpoint: file exists, no restore invoked, live database unchanged",
+        "stepId":  "E10",
+        "passed":  true
+    },
+    {
+        "detail":  "",
+        "title":  "CLEAN the database is dropped and the run folder is removed",
+        "stepId":  "CLEAN",
+        "passed":  true
+    }
+]

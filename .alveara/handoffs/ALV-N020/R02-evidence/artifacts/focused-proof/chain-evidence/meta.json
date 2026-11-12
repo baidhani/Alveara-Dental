@@ -1,0 +1,8 @@
+﻿{
+    "clockMode":  "injected",
+    "stage":  0,
+    "runId":  "b46044d2ae1f4dab85d69ab97e88bbcc",
+    "resumed":  false,
+    "implementationSha":  "e28282f67e70478529d2c6774e7c83693578a387+uncommitted-changes",
+    "schemaVersion":  "20261112140957_AddStaffInactivationFailedNotification"
+}

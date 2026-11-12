@@ -1,0 +1,8 @@
+== chain exit=1 elapsed=61s :: 
+FAIL              RUN  RUN the runner completed its own setup
+FAIL              PW  PW the stage-0 spec produced a report
+FRESH run 2a0d1a4ce3bf423789b818b53b35be9d stage 0: PASS 1, FAIL 2, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 1
+== evidence copied (2a0d1a4ce3bf423789b818b53b35be9d)
+== runner self-test exit=0 elapsed=28s :: 
+== leftovers: none
+== R02 RUNS done

@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="037631cd-a675-431b-9e49-9efcd685d2c4" name="firas@FEERCY-LEGION7I 2026-11-12 10:11:02" runUser="FEERCY-LEGION7I\firas" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-12T10:11:02.5650877-06:00" queuing="2026-11-12T10:11:02.5650878-06:00" start="2026-11-12T10:10:43.5874783-06:00" finish="2026-11-12T10:11:07.2723009-06:00" />
+  <TestSettings name="default" id="151d0de3-4593-4e76-8aa0-83aa92411e96">
+    <Deployment runDeploymentRoot="firas_FEERCY-LEGION7I_2026-11-12_10_11_02" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b3b1d734-042b-4c7c-801e-9ff4f4f93831" testId="4cdcc5b3-8fe6-dcee-99d6-2d54eeb0cae8" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_accepted_with_only_a_source_key" computerName="FEERCY-LEGION7I" duration="00:00:00.0840613" startTime="2026-11-12T10:11:04.2854344-06:00" endTime="2026-11-12T10:11:04.9158636-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b3b1d734-042b-4c7c-801e-9ff4f4f93831" />
+    <UnitTestResult executionId="18b58572-87c7-4878-b630-28bae6975fcc" testId="224e8ec2-e4dc-40da-253e-33dd488e23a9" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_patient_link" computerName="FEERCY-LEGION7I" duration="00:00:00.0248506" startTime="2026-11-12T10:11:06.5247549-06:00" endTime="2026-11-12T10:11:07.1211183-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="18b58572-87c7-4878-b630-28bae6975fcc" />
+    <UnitTestResult executionId="1b2d66a7-7e8f-4cdb-8500-4b47bef3b1f9" testId="b5a8433e-34bc-2b11-5467-f146e7270523" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_migration_rolls_back_and_forward_on_an_empty_table_and_refuses_to_roll_back_over_an_alert" computerName="FEERCY-LEGION7I" duration="00:00:00.4662457" startTime="2026-11-12T10:11:05.5061140-06:00" endTime="2026-11-12T10:11:06.5244810-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1b2d66a7-7e8f-4cdb-8500-4b47bef3b1f9" />
+    <UnitTestResult executionId="4d04a8dc-a636-41e5-b740-02c7e46c1651" testId="5539a371-8249-a5ac-e6f1-266ac6fbe272" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_message_link" computerName="FEERCY-LEGION7I" duration="00:00:00.0935544" startTime="2026-11-12T10:11:03.6789529-06:00" endTime="2026-11-12T10:11:04.2850218-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4d04a8dc-a636-41e5-b740-02c7e46c1651" />
+    <UnitTestResult executionId="6a872e88-2338-41f0-ab56-f3fd6832e698" testId="d08ec3e9-cb0f-4ed1-0088-dbf3db47dc9a" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_without_a_source_key" computerName="FEERCY-LEGION7I" duration="00:00:00.0207904" startTime="2026-11-12T10:11:04.9161825-06:00" endTime="2026-11-12T10:11:05.5058204-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6a872e88-2338-41f0-ab56-f3fd6832e698" />
+    <UnitTestResult executionId="e89eb822-f627-4282-9cdb-c4e7ac74b8c0" testId="5435089a-76e7-7e00-b6a0-d65e1caa281d" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.An_unknown_kind_is_still_refused" computerName="FEERCY-LEGION7I" duration="00:00:00.0202829" startTime="2026-11-12T10:11:03.0832497-06:00" endTime="2026-11-12T10:11:03.6782518-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e89eb822-f627-4282-9cdb-c4e7ac74b8c0" />
+    <UnitTestResult executionId="26a7f72f-0b41-4596-98c1-f01b5f36160a" testId="96c05b54-575d-d5f0-14b7-7711358e1c22" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_document_link(field: &quot;RelatedOtherDocumentId&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.2278632" startTime="2026-11-12T10:10:46.9539297-06:00" endTime="2026-11-12T10:11:02.5257152-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="26a7f72f-0b41-4596-98c1-f01b5f36160a" />
+    <UnitTestResult executionId="4225f578-4950-4b5a-b79a-832f97f3f4d2" testId="eac04041-0657-e533-d938-87dd54720c15" testName="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_document_link(field: &quot;RelatedDocumentId&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0598445" startTime="2026-11-12T10:11:02.5489356-06:00" endTime="2026-11-12T10:11:03.0796402-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4225f578-4950-4b5a-b79a-832f97f3f4d2" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_accepted_with_only_a_source_key" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="4cdcc5b3-8fe6-dcee-99d6-2d54eeb0cae8">
+      <Execution id="b3b1d734-042b-4c7c-801e-9ff4f4f93831" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_new_kind_is_accepted_with_only_a_source_key" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.An_unknown_kind_is_still_refused" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="5435089a-76e7-7e00-b6a0-d65e1caa281d">
+      <Execution id="e89eb822-f627-4282-9cdb-c4e7ac74b8c0" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="An_unknown_kind_is_still_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_document_link(field: &quot;RelatedDocumentId&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="eac04041-0657-e533-d938-87dd54720c15">
+      <Execution id="4225f578-4950-4b5a-b79a-832f97f3f4d2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_new_kind_is_refused_with_a_document_link" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_document_link(field: &quot;RelatedOtherDocumentId&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="96c05b54-575d-d5f0-14b7-7711358e1c22">
+      <Execution id="26a7f72f-0b41-4596-98c1-f01b5f36160a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_new_kind_is_refused_with_a_document_link" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_migration_rolls_back_and_forward_on_an_empty_table_and_refuses_to_roll_back_over_an_alert" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b5a8433e-34bc-2b11-5467-f146e7270523">
+      <Execution id="1b2d66a7-7e8f-4cdb-8500-4b47bef3b1f9" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_migration_rolls_back_and_forward_on_an_empty_table_and_refuses_to_roll_back_over_an_alert" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_patient_link" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="224e8ec2-e4dc-40da-253e-33dd488e23a9">
+      <Execution id="18b58572-87c7-4878-b630-28bae6975fcc" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_new_kind_is_refused_with_a_patient_link" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_with_a_message_link" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="5539a371-8249-a5ac-e6f1-266ac6fbe272">
+      <Execution id="4d04a8dc-a636-41e5-b740-02c7e46c1651" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_new_kind_is_refused_with_a_message_link" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_refused_without_a_source_key" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="d08ec3e9-cb0f-4ed1-0088-dbf3db47dc9a">
+      <Execution id="6a872e88-2338-41f0-ab56-f3fd6832e698" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.StaffInactivationNotificationSchemaTests" name="The_new_kind_is_refused_without_a_source_key" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="4cdcc5b3-8fe6-dcee-99d6-2d54eeb0cae8" executionId="b3b1d734-042b-4c7c-801e-9ff4f4f93831" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="224e8ec2-e4dc-40da-253e-33dd488e23a9" executionId="18b58572-87c7-4878-b630-28bae6975fcc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b5a8433e-34bc-2b11-5467-f146e7270523" executionId="1b2d66a7-7e8f-4cdb-8500-4b47bef3b1f9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5539a371-8249-a5ac-e6f1-266ac6fbe272" executionId="4d04a8dc-a636-41e5-b740-02c7e46c1651" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d08ec3e9-cb0f-4ed1-0088-dbf3db47dc9a" executionId="6a872e88-2338-41f0-ab56-f3fd6832e698" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5435089a-76e7-7e00-b6a0-d65e1caa281d" executionId="e89eb822-f627-4282-9cdb-c4e7ac74b8c0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="96c05b54-575d-d5f0-14b7-7711358e1c22" executionId="26a7f72f-0b41-4596-98c1-f01b5f36160a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eac04041-0657-e533-d938-87dd54720c15" executionId="4225f578-4950-4b5a-b79a-832f97f3f4d2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="8" executed="8" passed="8" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.75]   Discovering: Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.04]   Discovered:  Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.05]   Starting:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-12T16:11:00.5264876+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":62,"migrate_ms":9274,"total_ms":12690,"backup_bytes":8048640}}&#xD;
+[xUnit.net 00:00:22.26]   Finished:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-12T16:11:07.1522063+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":8,"fallbacks":0,"real_migration_fixtures":0,"build_ms":12690,"restore_ms_total":2711}}&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

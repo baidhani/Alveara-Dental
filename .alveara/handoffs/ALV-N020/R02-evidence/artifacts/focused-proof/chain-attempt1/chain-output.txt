@@ -1,0 +1,17 @@
+Chain run 2a0d1a4ce3bf423789b818b53b35be9d: database AlveraChain_2a0d1a4ce3bf423789b818b53b35be9d created in C:\.alvera-data\Test-Data\Chain\2a0d1a4ce3bf423789b818b53b35be9d\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:27.10
+Done.
+Host healthy on http://localhost:5072; running stage 0 ...
+Clock mode: injected
+The chain runner could not complete its setup: The specified wildcard character pattern is not valid: AI-Project-[Alveara-Dental]
+Database AlveraChain_2a0d1a4ce3bf423789b818b53b35be9d dropped (its files went with it).
+FAIL              RUN  RUN the runner completed its own setup
+PASS              CLEAN  CLEAN the database is dropped and the run folder is removed
+FAIL              PW  PW the stage-0 spec produced a report
+FRESH run 2a0d1a4ce3bf423789b818b53b35be9d stage 0: PASS 1, FAIL 2, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 1
+Evidence kept in C:\.alvera-data\Test-Data\Temp\chain-output\2a0d1a4ce3bf423789b818b53b35be9d

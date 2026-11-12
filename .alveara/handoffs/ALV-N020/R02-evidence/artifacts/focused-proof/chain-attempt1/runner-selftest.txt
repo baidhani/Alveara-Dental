@@ -1,0 +1,16 @@
+✔ a clean tree is stamped with its exact commit and no label (953.3977ms)
+✔ a modified tracked file labels the commit +uncommitted-changes (872.6707ms)
+✔ an untracked file also labels the commit +uncommitted-changes (996.0752ms)
+✔ a folder that is not a repository is refused, never stamped with an invented commit (1180.1293ms)
+✔ an existing database with the run's name is refused and is NOT dropped (2487.8843ms)
+✔ an existing run folder is refused and is NOT deleted, and no database is created (1686.8242ms)
+✔ a run id that is not 32 lower-case hex characters is refused by the runner itself (841.1477ms)
+✔ the API is killed right after start-up: the run fails, its evidence says so, and the owned database and run folder are removed (16958.4999ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 27787.8134

@@ -19,7 +19,7 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Client vitest/build/lint/`tsc -b` over the changed session, sign-in, patient-context, configuration and notification files | ALV-N020 | focused only (R01 re-run B 150 of 150, G9, G11, G12); lint 42 warnings (one new) |
 | Mocked Playwright: the whole suite (ALV-N020 changed `e2e/auth-real-backend.spec.ts` and the shell/login behavior) | ALV-N020 | focused only: shell + login-banner 28 of 28 (R01 G3) |
 | Real-backend walkthroughs: auth 12, workspace 14, permission-policy-admin 8, plus notifications (new notification kind) | ALV-N020 | first three focused (R01 G4); notifications walkthrough not run |
-| Accumulated chain now includes stage 1 + minimal stage 2 (`chain/stage-1.spec.ts`, about 6-7 min, real 5-minute session in 1.12) and the browser-level outage step 13.05 | ALV-N020 | R01 G5 run 3: 20 of 20, builder 22 PASS / 0 FAIL / 0 tracked |
+| Accumulated chain now includes stage 1 + minimal stage 2 (`chain/stage-1.spec.ts`, about 6-7 min, real 5-minute session in 1.12) and step 13.05 with a real owned-API stop/restart (runner control channel, API-STOP/API-START records) | ALV-N020 | R02 re-run: 20 of 20, builder 24 PASS / 0 FAIL / 0 tracked; runner self-test 8 of 8 |
 | Migration `20261112140957_AddStaffInactivationFailedNotification`: upgrade from the pre-ALV-N020 schema on a copy of a populated database; the empty-table down path; the bell and list with a `staff.inactivation_failed` notification present | ALV-N020 | focused only: schema/migration tests on a clone (R01 G9-G10) |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
@@ -32,8 +32,9 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 
 ## ALV-N020 (item 57): PKG-02, PKG-03 (identity, session, staff lifecycle)
 
-- **Implementation SHA:** `17a47758b2064de381698abf65d6d003f45b9c92` (R01).
+- **Implementation SHA:** `e28282f67e70478529d2c6774e7c83693578a387` (R02; R01 was `17a47758`, returned CHANGES_REQUIRED for four items).
 - **Changed subsystems:** client session/auth state (`AuthContext`, `RouteGuards`, `LoginPage`, `loginOutcome`, `MfaChallengePage`, `AppShell`, `PatientContext`, `DisconnectedBanner`, `useConnectionStatus`, theme hook), sign-in API client (timeout, unreachable mapping), username normalization in `AccountService`, staff inactivation and unlink (`StaffInactivationService`, `StaffProviderService`, `ConfigurationController`), notifications (new kind, `InAppStaffInactivationAlert`, `NotificationsPage` label), one migration (two check constraints), chain stage 1.
 - **Focused proof (R01):** see `.alveara/handoffs/ALV-N020/R01-evidence/TEST_RESULTS.md`: vitest 150 of 150 + later groups; xUnit 97 of 97, 24 of 24, 13 of 13; mocked Playwright 28 of 28; walkthroughs 34 of 34; chain run 3 20 of 20 (22 PASS); negative controls NC-1 to NC-5 effective, files restored byte for byte; leftover counts identical in every server run.
+- **R02 focused proof:** lint 41 warnings (no new one); client 64 of 64; notification schema 8 of 8 (document-link refusals added); AuthorizationArchitectureTests 5 of 5; chain 20 of 20 with 13.05 through the real owned-API stop/restart and 1.12 on a dirty form; runner self-test 8 of 8; leftover counts identical. Changed subsystems in R02: the chain runner (`scripts/Invoke-AccumulatedChain.ps1`), the chain stage-1 spec, the auth context module split, one schema test class.
 - **Deferred to ALV-N028:** the ALV-N020 rows in the table above, plus every ALV-N019 row (unchanged).
 - **Not release-certified.**
