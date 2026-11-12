@@ -925,7 +925,7 @@
       "homePackage": "PKG-14",
       "rawLine": 291,
       "excerpt": "changing a filter (and, per the tester, many other actions across the app) gives NO busy or progress indicator. There is a short delay, the ...",
-      "note": "observed in the manual pass; verify in code first",
+      "note": "observed in the manual pass; verify in code first. Further instance (owner, 2026-11-12, after the pass): Practice configuration > Staff, ticking 'Show inactive' reloads the list with no busy indicator; the old rows stay until the new list arrives. Code: src/components/ConfigEntityPanel.tsx (shared by every configuration tab) reloads on the checkbox without a loading state. Not a new raw id; the shared progress pattern for F-075 (PKG-14 Group C, ALV-N027) must cover it.",
       "canonicalOf": null
     },
     {

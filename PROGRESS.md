@@ -2426,3 +2426,9 @@
   - What changed: .alveara/reviews/ALV-N020/R02.md stored unchanged; EXECUTION_STATUS.json ALV-N020 set COMPLETE with the R02 approval (approvedAttempt R02, reviewed commits e28282f/82f9a94, completedAt), fullRegression DEFERRED_TO_ALV-N028, releaseCertified false; BUILD_STATE.md closure line.
   - Verification: reviewer decision APPROVED (.alveara/reviews/ALV-N020/R02.md); EXECUTION_STATUS.json parses; closure touches no code, test, configuration, dependency or package file.
   - Notes: ledger and all R01/R02 evidence retained; broad regression owned by ALV-N028; ALV-N021 not started; nothing pushed.
+- [x] Record the owner's new observation as a further instance of F-075 (no new raw id)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: docs/stabilization/DISPOSITION_REGISTER.json F-075 note: Practice configuration > Staff "Show inactive" reloads with no busy indicator (ConfigEntityPanel.tsx, shared by every configuration tab, reloads without a loading state); to be covered by F-075's shared progress pattern (PKG-14 Group C, ALV-N027). The owner's other note is already F-018 (PKG-14 Group A, ALV-N027).
+  - Verification: node --test tests/stabilization/disposition-completeness.test.mjs 16 pass, 0 fail, 1 skipped (real-log case needs DISPOSITION_RAW_LOG); register parses.
+  - Notes: no id, disposition, package or scope changed, so no reviewer decision was needed; nothing pushed.
