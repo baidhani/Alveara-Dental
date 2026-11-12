@@ -64,7 +64,7 @@ builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.Imports.ImportFi
 builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
 builder.Services.AddScoped<StaffInactivationService>();                                              // ALV-N020 (F-021): inactivation also disables the linked login
-builder.Services.AddSingleton<IStaffInactivationAlert, LogOnlyStaffInactivationAlert>();
+builder.Services.AddScoped<IStaffInactivationAlert, InAppStaffInactivationAlert>();                 // ALV-N020: Urgent in-app alert (migration decision Option A)
 builder.Services.AddScoped<SchedulingConfiguration>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientDuplicateDetector>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Merge.PatientDuplicateScanner>();       // STORY-017

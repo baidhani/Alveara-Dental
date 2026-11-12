@@ -100,12 +100,14 @@ internal static class NotificationModel
                 t.HasCheckConstraint("CK_Notifications_Priority", $"[Priority] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(NotificationPriorities.All)})");
                 t.HasCheckConstraint("CK_Notifications_Kind", $"[Kind] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(NotificationKinds.All)})");
                 // a message notification names its message and has no source key; a document-duplicate notification names its event, its patient and both documents and has no message;
-                // a follow-up reminder (STORY-009) names its patient and its source key (the task and its due time) and has no message and no document
+                // a follow-up reminder (STORY-009) names its patient and its source key (the task and its due time) and has no message and no document;
+                // a staff-inactivation failure alert (ALV-N020) names only its source key (the failure audit entry): no message, patient or document
                 t.HasCheckConstraint("CK_Notifications_Shape",
                     $"([Kind] = '{NotificationKinds.MessageReceived}' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) " +
                     $"OR ([Kind] = '{NotificationKinds.DocumentDuplicateAdded}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL " +
                     "AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId]) " +
-                    $"OR ([Kind] = '{NotificationKinds.FollowUpDue}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
+                    $"OR ([Kind] = '{NotificationKinds.FollowUpDue}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) " +
+                    $"OR ([Kind] = '{NotificationKinds.StaffInactivationFailed}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
                 t.HasCheckConstraint("CK_Notifications_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._-]%')");
                 // an entry is read before it is deleted; both times are real times
                 t.HasCheckConstraint("CK_Notifications_Times",

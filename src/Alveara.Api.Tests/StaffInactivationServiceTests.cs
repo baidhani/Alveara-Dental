@@ -173,6 +173,10 @@ public class StaffInactivationServiceTests : IAsyncLifetime
         var failure = Assert.Single(alert.Sent);
         Assert.Equal(nameof(LastAdminException), failure.ErrorClass);
         Assert.Equal(admin.Id, failure.LinkedAccountId);
+        await using var check = _fixture.CreateContext();                                            // record before notify: the alert names the stored failure record
+        var recordId = await check.AuditLogEntries.AsNoTracking()
+            .Where(a => a.TargetUserAccountId == profile.Id && a.EventType == ConfigurationAuditEvents.StaffInactivationFailed).Select(a => a.Id).SingleAsync();
+        Assert.Equal(recordId, failure.FailureRecordId);
     }
 
     [Fact]

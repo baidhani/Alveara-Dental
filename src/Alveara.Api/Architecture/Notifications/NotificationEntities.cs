@@ -18,7 +18,10 @@ public static class NotificationKinds
     public const string MessageReceived = "message.received";
     /// <summary>STORY-009: a follow-up task is due. Carries the patient and a source key naming the task and its due time; never the task's title or note.</summary>
     public const string FollowUpDue = "followup.due";
-    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue];
+    /// <summary>ALV-N020 (F-021): a staff inactivation could not disable the linked login, so nothing changed. Sent Urgent to enabled Admin and OfficeManager accounts,
+    /// only after the durable failure audit entry exists; its source key names that entry. No patient, message or document.</summary>
+    public const string StaffInactivationFailed = "staff.inactivation_failed";
+    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue, StaffInactivationFailed];
 }
 
 /// <summary>The producers whose immutable, ordered event history the consumer reads. One cursor row per source.</summary>

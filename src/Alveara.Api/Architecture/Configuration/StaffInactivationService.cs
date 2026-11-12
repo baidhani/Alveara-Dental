@@ -12,8 +12,9 @@ public interface IStaffInactivationAlert
     Task SendAsync(StaffInactivationFailure failure, CancellationToken ct);
 }
 
-/// <summary>What the alert and the failure record carry: ids, the error class and the correlation id; never a message text from the exception.</summary>
-public record StaffInactivationFailure(Guid StaffProfileId, string StaffDisplayName, Guid? LinkedAccountId, Guid ActorId, string ErrorClass, string? CorrelationId);
+/// <summary>What the alert carries: ids, the error class, the correlation id and the id of the durable failure audit entry (the alert exists only after that entry
+/// does); never a message text from the exception.</summary>
+public record StaffInactivationFailure(Guid StaffProfileId, string StaffDisplayName, Guid? LinkedAccountId, Guid ActorId, string ErrorClass, string CorrelationId, Guid FailureRecordId);
 
 /// <summary>
 /// ALV-N020 (F-021, PKG-03): inactivating a staff profile also disables its linked login and ends every session of it, in ONE transaction, so a person who has left
@@ -24,8 +25,10 @@ public record StaffInactivationFailure(Guid StaffProfileId, string StaffDisplayN
 /// <item>Ordinary refusals of the profile change (not found, stale version, active provider profile) roll back and return as before; they are not failures.</item>
 /// <item>The login could not be disabled (last administrator, administrator guard busy, target rules, or any unexpected error): everything is rolled back, a
 /// <see cref="ConfigurationAuditEvents.StaffInactivationFailed"/> entry is written afterwards in its own short transaction (it never claims the inactivation happened),
-/// the alert is attempted, and the caller gets a clear refusal (or, for an unexpected error, the original exception, which the error middleware answers with 500
-/// and the correlation id).</item>
+/// and only then is the alert attempted (record before notify). The caller gets a clear refusal (or, for an unexpected error, the original exception, which the
+/// error middleware answers with 500 and the correlation id).</item>
+/// <item>The failure record itself cannot be written (an infrastructure fault): no alert is created, because it would then be the only evidence. The fault is
+/// logged with the correlation id, and the refusal tells the caller the failure could not be recorded and gives that id as the reference.</item>
 /// </list>
 /// Failure modes not handled here: a crash between the rollback and the failure record (the inactivation is then simply not applied, and the person can retry).
 /// No retry: the operation is a single user action; a retry is the user's. Idempotent: inactivating an inactive profile changes nothing.
@@ -70,38 +73,50 @@ public class StaffInactivationService(AlveraDbContext db, StaffProviderService s
         {
             await transaction.RollbackAsync(CancellationToken.None);
             db.ChangeTracker.Clear();
-            var failure = new StaffInactivationFailure(staffProfileId, profile.DisplayName, profile.UserAccountId, actor, ex.GetType().Name, Activity.Current?.Id);
-            await RecordFailureAsync(failure);
-            await TryAlertAsync(failure);
-            throw Translate(ex);
+            var errorClass = ex.GetType().Name;
+            var correlation = Activity.Current?.Id ?? Guid.NewGuid().ToString("N");                     // always a reference, even outside a request
+            var recordId = await RecordFailureAsync(staffProfileId, actor, errorClass, correlation);
+            if (recordId is { } id)
+                await TryAlertAsync(new StaffInactivationFailure(staffProfileId, profile.DisplayName, profile.UserAccountId, actor, errorClass, correlation, id));
+            throw Translate(ex, recordId is null ? correlation : null);
         }
     }
 
-    private static Exception Translate(Exception ex) => ex switch
+    private static Exception Translate(Exception ex, string? unrecordedReference)
     {
-        LastAdminException => new ConfigurationException("staff_login_last_admin",
-            "This staff member's login is the last enabled administrator. Enable another administrator first. Nothing was changed.", 409),
-        AdminGuardBusyException => new ConfigurationException("staff_login_busy",
-            "Another administrator change is in progress. Try again in a moment. Nothing was changed.", 409),
-        AccountTargetNotAllowedException => new ConfigurationException("staff_login_not_allowed",
-            "You may not disable this staff member's login, so the profile was not inactivated. Nothing was changed.", 403),
-        _ => ex,
-    };
+        var notRecorded = unrecordedReference is null ? "" : $" The failure could not be recorded; give this reference to your administrator: {unrecordedReference}.";
+        return ex switch
+        {
+            LastAdminException => new ConfigurationException("staff_login_last_admin",
+                "This staff member's login is the last enabled administrator. Enable another administrator first. Nothing was changed." + notRecorded, 409),
+            AdminGuardBusyException => new ConfigurationException("staff_login_busy",
+                "Another administrator change is in progress. Try again in a moment. Nothing was changed." + notRecorded, 409),
+            AccountTargetNotAllowedException => new ConfigurationException("staff_login_not_allowed",
+                "You may not disable this staff member's login, so the profile was not inactivated. Nothing was changed." + notRecorded, 403),
+            _ => ex,                                                                                    // 500 with the correlation id from the error middleware
+        };
+    }
 
-    /// <summary>The durable record of the failure, in its own short transaction after the rollback. A failure here is logged, never thrown over the original.</summary>
-    private async Task RecordFailureAsync(StaffInactivationFailure failure)
+    /// <summary>
+    /// The durable record of the failure, in its own short transaction after the rollback; returns its audit entry id, or null when it could not be written. A failure
+    /// here is logged with the correlation id (an infrastructure fault, distinct from the inactivation failure), never thrown over the original.
+    /// </summary>
+    private async Task<Guid?> RecordFailureAsync(Guid staffProfileId, Guid actor, string errorClass, string correlation)
     {
         try
         {
-            ConfigurationWrite.Audit(db, ConfigurationAuditEvents.StaffInactivationFailed, nameof(StaffProfile), failure.StaffProfileId, failure.ActorId,
-                $"Staff profile was NOT inactivated: its linked login could not be disabled ({failure.ErrorClass}). Correlation {failure.CorrelationId ?? "none"}.");
+            ConfigurationWrite.Audit(db, ConfigurationAuditEvents.StaffInactivationFailed, nameof(StaffProfile), staffProfileId, actor,
+                $"Staff profile was NOT inactivated: its linked login could not be disabled ({errorClass}). Correlation {correlation}.");
+            var entry = db.ChangeTracker.Entries<AuditLogEntry>().Single(e => e.State == EntityState.Added).Entity;   // the tracker was cleared after the rollback
             await db.SaveChangesAsync(CancellationToken.None);
+            return entry.Id;
         }
         catch (Exception recordError)
         {
             db.ChangeTracker.Clear();
-            log.LogError("staff_inactivation_failure_record_failed staff={StaffProfileId} error_class={ErrorClass} original_error_class={OriginalErrorClass} correlation={CorrelationId}",
-                failure.StaffProfileId, recordError.GetType().Name, failure.ErrorClass, failure.CorrelationId);
+            log.LogError("staff_inactivation_failure_not_recorded staff={StaffProfileId} error_class={ErrorClass} original_error_class={OriginalErrorClass} correlation={CorrelationId} alert=not_created",
+                staffProfileId, recordError.GetType().Name, errorClass, correlation);
+            return null;
         }
     }
 

@@ -122,4 +122,14 @@ describe("ALV-N015 notifications list", () => {
     expect(screen.getByText(/Reader Rita/)).toBeTruthy();
     expect(screen.queryByText(/Unread Ula/)).toBeNull();
   });
+
+  it("shows a staff-inactivation failure as an Urgent label with no patient or message button (ALV-N020, F-021)", async () => {
+    const alert = { id: "s1", kind: "staff.inactivation_failed", priority: "Urgent", createdAtUtc: "2026-11-12T10:00:00Z", readAtUtc: null, messageId: null, senderName: null, hasPatientLink: false };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ items: [alert], total: 1, page: 1, pageSize: 25 })));
+    render(<MemoryRouter><NotificationsPage /></MemoryRouter>);
+    expect(await screen.findByText("Urgent: A staff inactivation failed; the login was not disabled")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Open patient" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open message" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Mark read" })).toBeTruthy();
+  });
 });
