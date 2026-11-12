@@ -296,7 +296,7 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
     const historyRow = page.getByRole("row").filter({ hasText: "Manual" }).first();
     await expect(historyRow).toContainText("Succeeded");
     await expect(historyRow).toContainText("File hash verified only"); // backed up != proven restorable
-    await expect(historyRow).toContainText("Database, Deployment settings, Documents, Encryption keys");
+    await expect(historyRow).toContainText("Database, Deployment settings, Documents, Sign-in backgrounds, Encryption keys");   // ALV-N020-C01 added the loginBackgrounds class
     await expect(page.getByLabel("Asset coverage")).toContainText("includes every managed asset class");
 
     // The restore wizard: explicit recovery material, compatibility checks, then an ISOLATED restore.
