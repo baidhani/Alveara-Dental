@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
+import { StrictMode } from "react";
 import { useConnectionStatus } from "./useConnectionStatus";
 
 function jsonResponse(body: unknown, init?: ResponseInit) {
@@ -100,5 +101,16 @@ describe("useConnectionStatus", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("useConnectionStatus under React's development double-run (ALV-N020, F-012)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("shows the outage at once in StrictMode, not only at the next 15 s poll", async () => {
+    // The API is down: the dev proxy answers each health check with a 502 a moment later.
+    vi.stubGlobal("fetch", vi.fn().mockImplementation(() => new Promise<Response>((resolve) => setTimeout(() => resolve(new Response("Bad gateway", { status: 502 })), 50))));
+    const { result } = renderHook(() => useConnectionStatus(), { wrapper: StrictMode });
+    await waitFor(() => expect(result.current).toBe("disconnected"), { timeout: 2_000 });
   });
 });

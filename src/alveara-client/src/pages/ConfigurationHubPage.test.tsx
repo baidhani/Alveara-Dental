@@ -6,6 +6,7 @@ import { ConfigurationHubPage } from "./ConfigurationHubPage";
 import { validateWindows } from "./configuration/availabilityRules";
 import type { WindowRow } from "./configuration/availabilityRules";
 import { NotificationProvider } from "../components/Notification";
+import { AuthProvider } from "../contexts/AuthContext";  // ALV-N020: the staff tab reads the signed-in permissions, as in the app
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -46,7 +47,9 @@ function stubApi(overrides: Record<string, (init?: RequestInit) => Response> = {
 function renderHub() {
   return render(
     <NotificationProvider>
-      <ConfigurationHubPage />
+      <AuthProvider>
+        <ConfigurationHubPage />
+      </AuthProvider>
     </NotificationProvider>
   );
 }

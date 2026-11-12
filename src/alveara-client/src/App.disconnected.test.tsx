@@ -14,6 +14,8 @@ describe("Application shell — disconnected/local-server-unavailable state", ()
       const alerts = screen.getAllByRole("alert");
       expect(alerts.some((el) => /local server unavailable/i.test(el.textContent ?? ""))).toBe(true);
     });
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument());   // the failed session check has settled on the sign-in page
+    await waitFor(() => expect(screen.queryByText(/changes cannot be saved/i)).not.toBeInTheDocument());
     expect(screen.queryByText(/your session expired/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/changes cannot be saved/i)).not.toBeInTheDocument();
   });

@@ -72,6 +72,9 @@ export function useConnectionStatus(): ConnectionStatus {
     return () => {
       cancelled = true;
       clearInterval(interval);
+      // ALV-N020 (F-012): the abandoned check's result is ignored (cancelled), so it must not also block the next effect's immediate check. Without this,
+      // React's development double-run of effects left the flag set, skipped the first real check and showed the outage banner only at the next poll (~15 s).
+      checkInFlight.current = false;
     };
   }, []);
 

@@ -128,6 +128,7 @@ test("F-037 after the front desk signs out on a patient page, the next person la
   const shared = await browserRef.newContext();                                                           // one browser window used by two people
   const page = await shared.newPage();
   await signIn(page, "chain-front", PASSWORD);
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();                       // the sign-in has finished before the patient page opens
   await page.goto(`/patients/${patients.brian}`);
   await expect(page.getByText("Brian Baker").first()).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
