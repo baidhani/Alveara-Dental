@@ -19,6 +19,18 @@ interface AuthContextValue {
    *  window - lets the shell show a "your session will expire soon" notice before the user is
    *  suddenly signed out. Always false while loading/signed-out. */
   sessionExpiringSoon: boolean;
+  /** ALV-N020 (F-155): the last session check could not reach the server or got an error that is not an authentication decision (network, timeout, any
+   *  5xx). The signed-in shell, and every unsaved form in it, stays as it is; the check is retried until it gets an answer. Only a 401 ends the session. */
+  connectionLost: boolean;
+  /** ALV-N020 (F-007): why the session in THIS page lifetime ended - "expired" (a 401, expiry or revocation discovered by the server) or "signed-out" (the
+   *  person signed out). null when no session has ended here (a first visit), so the sign-in page can stay neutral. */
+  endedReason: "expired" | "signed-out" | null;
+  /** ALV-N020 (F-037): the username of the session that EXPIRED here, kept only in memory, so a same-user return after expiry can go back to the page they
+   *  were on. Cleared by an explicit sign-out and replaced by any other identity. */
+  expiredUsername: string | null;
+  /** ALV-N020 (F-037): increases whenever the signed-in identity ends or changes (sign-out, 401, a different user found by revalidation). Anything that holds
+   *  identity-scoped state (the patient in context) clears itself when it changes. */
+  identityEpoch: number;
 }
 
 /** How long before the real session expiry to start warning - matches the shortest
@@ -30,6 +42,8 @@ const SESSION_EXPIRY_CHECK_INTERVAL_MS = 15 * 1000;
  *  change made elsewhere (another admin session) without waiting on an unrelated API call to
  *  happen to 401. Also backs the focus/visibility revalidation below. */
 const SESSION_REVALIDATION_INTERVAL_MS = 30 * 1000;
+/** ALV-N020 (F-155): how often the session check is retried while the server cannot be reached. */
+export const CONNECTION_RETRY_INTERVAL_MS = 5 * 1000;
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
@@ -43,6 +57,26 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ kind: "loading" });
   const [sessionExpiringSoon, setSessionExpiringSoon] = useState(false);
+  const [connectionLost, setConnectionLost] = useState(false);
+  const [endedReason, setEndedReason] = useState<"expired" | "signed-out" | null>(null);
+  const [expiredUsername, setExpiredUsername] = useState<string | null>(null);
+  const [identityEpoch, setIdentityEpoch] = useState(0);
+  // The identity currently signed in, read synchronously by the handlers below (state updates are asynchronous).
+  const currentUserRef = useRef<string | null>(null);
+
+  /** The session ended (expired/revoked/signed out): clear the identity and say why. */
+  const endSession = useCallback((reason: "expired" | "signed-out") => {
+    const previous = currentUserRef.current;
+    currentUserRef.current = null;
+    setSessionExpiringSoon(false);
+    setConnectionLost(false);
+    if (previous !== null) {
+      setEndedReason(reason);
+      setExpiredUsername(reason === "expired" ? previous : null);
+      setIdentityEpoch((e) => e + 1);
+    }
+    setState({ kind: "signed-out" });
+  }, []);
 
   // ALV-N009 R03 (review finding ALV-N009-R02-02): poll, focus, visibility, and the expiry
   // boundary can all trigger refresh() concurrently, and logout()/the reactive-401 handler can
@@ -63,25 +97,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // this call started - that decision is authoritative, this now-stale response is not.
       if (seq !== requestSeqRef.current) return;
       setSessionExpiringSoon(false);
-      setState(
-        result
-          ? {
-              kind: "signed-in",
-              username: result.username,
-              role: result.role,
-              permissions: result.permissions,
-              sessionExpiresAtUtc: result.sessionExpiresAtUtc,
-            }
-          : { kind: "signed-out" }
-      );
+      setConnectionLost(false);
+      if (!result) {
+        // The server's own answer: no valid session (401). If one was active here, it expired or was revoked.
+        endSession("expired");
+        return;
+      }
+      if (currentUserRef.current !== null && currentUserRef.current !== result.username) setIdentityEpoch((e) => e + 1);   // another person signed in (another tab)
+      currentUserRef.current = result.username;
+      setState({
+        kind: "signed-in",
+        username: result.username,
+        role: result.role,
+        permissions: result.permissions,
+        sessionExpiresAtUtc: result.sessionExpiresAtUtc,
+      });
     } catch {
       if (seq !== requestSeqRef.current) return;
-      // Network failure, not an auth decision from the server (that's ApiError 401, already
-      // handled inside getMyPermissions) — the DisconnectedBanner already communicates "can't
-      // reach the server" separately, so this just falls back to signed-out rather than crashing.
-      setState({ kind: "signed-out" });
+      // ALV-N020 (F-155): not an authentication decision (network, timeout, 502/503/504, even a 500). A signed-in session is KEPT: the shell and any unsaved
+      // form stay, the connection-lost state shows, and the check is retried. With no session known yet (first load during an outage) the page shows the
+      // neutral sign-in page and keeps retrying, so a valid cookie signs straight back in when the server returns.
+      setConnectionLost(true);
+      if (currentUserRef.current === null) setState({ kind: "signed-out" });
     }
-  }, []);
+  }, [endSession]);
 
   useEffect(() => {
     refresh();
@@ -99,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isSignedIn = state.kind === "signed-in";
   useEffect(() => {
     if (!isSignedIn) return;
-    const interval = setInterval(refresh, SESSION_REVALIDATION_INTERVAL_MS);
+    const interval = setInterval(refresh, connectionLost ? CONNECTION_RETRY_INTERVAL_MS : SESSION_REVALIDATION_INTERVAL_MS);
     const onFocusOrVisible = () => {
       if (document.visibilityState === "visible") refresh();
     };
@@ -110,7 +149,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("focus", onFocusOrVisible);
       document.removeEventListener("visibilitychange", onFocusOrVisible);
     };
-  }, [isSignedIn, refresh]);
+  }, [isSignedIn, connectionLost, refresh]);
+
+  // ALV-N020 (F-155): signed out only because the first check could not reach the server - keep asking, so a still-valid session comes back by itself.
+  useEffect(() => {
+    if (isSignedIn || !connectionLost) return;
+    const interval = setInterval(refresh, CONNECTION_RETRY_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [isSignedIn, connectionLost, refresh]);
 
   // ALV-N009: react to a 401 from ANY authenticated call, not just the permissions check -
   // transitions straight to signed-out without another round-trip, since the 401 already proves
@@ -120,11 +166,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Bump the sequence first: any refresh() already in flight when this 401 arrived must not
       // be allowed to overwrite the signed-out state this is about to set, however it resolves.
       requestSeqRef.current += 1;
-      setSessionExpiringSoon(false);
-      setState({ kind: "signed-out" });
+      endSession("expired");
     });
     return () => setUnauthorizedHandler(null);
-  }, []);
+  }, [endSession]);
 
   // ALV-N009: proactively warn before the real server-issued expiry arrives, rather than only
   // reacting after a request already failed. Polls a plain wall-clock comparison - no separate
@@ -169,15 +214,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Same reasoning as the reactive-401 handler above: invalidate any refresh() already in
     // flight so it cannot restore a signed-in state after the caller explicitly signed out.
     requestSeqRef.current += 1;
-    setSessionExpiringSoon(false);
-    setState({ kind: "signed-out" });
-  }, []);
+    endSession("signed-out");
+  }, [endSession]);
 
   return (
-    <AuthContext.Provider value={{ state, refresh, hasPermission, logout, sessionExpiringSoon }}>
+    <AuthContext.Provider value={{ state, refresh, hasPermission, logout, sessionExpiringSoon, connectionLost, endedReason, expiredUsername, identityEpoch }}>
       {children}
     </AuthContext.Provider>
   );
+}
+
+/** ALV-N020 (F-037): the identity counter for identity-scoped state. Outside an AuthProvider (an isolated component test) it is a constant 0. */
+export function useIdentityEpoch(): number {
+  return useContext(AuthContext)?.identityEpoch ?? 0;
 }
 
 export function useAuth() {

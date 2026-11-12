@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ConfirmStaffInactivation, UnlinkLoginAction } from "./StaffLoginDialogs";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNotifications } from "../../components/Notification";
 import { ConfigEntityPanel } from "../../components/ConfigEntityPanel";
 import type { ConfigField } from "../../components/ConfigEntityPanel";
 import {
@@ -50,7 +53,32 @@ export function StaffTab({ onDirtyChange }: TabProps) {
     [accounts]
   );
 
+  // ALV-N020 (F-021): inactivating a profile with a login asks first (the login will be disabled); the panel waits for the answer.
+  // Inactivation and unlinking also need ManageUsers (review decision 1); the server enforces it, the screen says so first.
+  const { hasPermission } = useAuth();
+  const { notify } = useNotifications();
+  const canManageUsers = hasPermission("ManageUsers");
+  const [pending, setPending] = useState<{ row: StaffRecord; resolve: (ok: boolean) => void } | null>(null);
+  const beforeSetActive = useCallback(
+    (row: StaffRecord, active: boolean) => {
+      if (active) return Promise.resolve(true);
+      if (!canManageUsers) {
+        notify("warning", "Inactivating a staff member also disables their login, which needs the Manage users permission.");
+        return Promise.resolve(false);
+      }
+      return row.userAccountId ? new Promise<boolean>((resolve) => setPending({ row, resolve })) : Promise.resolve(true);
+    },
+    [canManageUsers, notify]
+  );
+  const answer = (ok: boolean) => {
+    pending?.resolve(ok);
+    setPending(null);
+    if (ok) setAccountsKey((k) => k + 1);
+  };
+
   return (
+    <>
+    {pending && <ConfirmStaffInactivation row={pending.row} loginLabel={accountLabel(pending.row.userAccountId)} onAnswer={answer} />}
     <ConfigEntityPanel<StaffRecord>
       noun="staff profile"
       nounPlural="staff profiles"
@@ -80,7 +108,10 @@ export function StaffTab({ onDirtyChange }: TabProps) {
       setActive={(row, active) => setStaffActive(row.id, active, row.rowVersion)}
       toValues={(r) => ({ displayName: r.displayName, jobTitle: r.jobTitle ?? "", userAccountId: r.userAccountId ?? "" })}
       searchText={(r) => r.displayName}
+      beforeSetActive={beforeSetActive}
+      rowActions={(row, reload) => canManageUsers && <UnlinkLoginAction row={row} onDone={async () => { setAccountsKey((k) => k + 1); await reload(); }} />}
     />
+    </>
   );
 }
 

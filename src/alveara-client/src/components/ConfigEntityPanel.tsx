@@ -45,6 +45,10 @@ interface ConfigEntityPanelProps<T extends ConfigRecord> {
   createDisabledReason?: string;
   /** Bump to force a reload when something this panel depends on changed elsewhere. */
   refreshKey?: number;
+  /** ALV-N020: asked before an inactivate/reactivate is sent; resolve false to cancel (e.g. an in-app confirmation that the login will be disabled). */
+  beforeSetActive?: (row: T, active: boolean) => Promise<boolean>;
+  /** ALV-N020: extra actions shown in a row after Edit and Inactivate/Reactivate (e.g. unlink a login from an inactive staff profile). */
+  rowActions?: (row: T, reload: () => Promise<void>) => ReactNode;
 }
 
 type LoadState<T> = { kind: "loading" } | { kind: "denied" } | { kind: "error" } | { kind: "loaded"; rows: T[] };
@@ -57,7 +61,7 @@ type LoadState<T> = { kind: "loading" } | { kind: "denied" } | { kind: "error" }
  * server error messages, and inactivate/reactivate instead of delete.
  */
 export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPanelProps<T>) {
-  const { noun, nounPlural, fields, columns, load, create, update, setActive, toValues, searchText, permission, onDirtyChange, createDisabledReason, refreshKey } = props;
+  const { noun, nounPlural, fields, columns, load, create, update, setActive, toValues, searchText, permission, onDirtyChange, createDisabledReason, refreshKey, beforeSetActive, rowActions } = props;
   const { notify } = useNotifications();
 
   const [state, setState] = useState<LoadState<T>>({ kind: "loading" });
@@ -213,6 +217,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
   }
 
   async function toggleActive(row: T) {
+    if (beforeSetActive && !(await beforeSetActive(row, !row.isActive))) return;
     try {
       await setActive(row, !row.isActive);
       notify("success", row.isActive ? `Inactivated the ${noun}.` : `Reactivated the ${noun}.`);
@@ -310,6 +315,7 @@ export function ConfigEntityPanel<T extends ConfigRecord>(props: ConfigEntityPan
                       <Button onClick={() => toggleActive(row)} aria-label={`${row.isActive ? "Inactivate" : "Reactivate"} ${searchText(row)}`}>
                         {row.isActive ? "Inactivate" : "Reactivate"}
                       </Button>
+                      {rowActions?.(row, async () => { await refresh(); })}
                     </td>
                   </tr>
                 ))}

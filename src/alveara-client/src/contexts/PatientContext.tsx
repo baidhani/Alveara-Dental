@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { ApiError } from "../services/authApi";
 import { getPatient } from "../services/patientsApi";
+import { useIdentityEpoch } from "./AuthContext";
 import { PatientContext } from "./patientContextStore";
 import type { PatientContextState } from "./patientContextStore";
 
@@ -70,6 +71,16 @@ export function PatientContextProvider({ children }: { children: ReactNode }) {
     },
     []
   );
+
+  // ALV-N020 (F-037): the patient in context belongs to the person who chose it. When the signed-in identity ends or changes, it is dropped at once, so the
+  // next person never sees (or acts on) the previous person's patient.
+  const identityEpoch = useIdentityEpoch();
+  const epochSeen = useRef(identityEpoch);
+  useEffect(() => {
+    if (epochSeen.current === identityEpoch) return;
+    epochSeen.current = identityEpoch;
+    clearPatient();
+  }, [identityEpoch, clearPatient]);
 
   const value = useMemo(() => ({ state, selectPatient, clearPatient, reload }), [state, selectPatient, clearPatient, reload]);
   return <PatientContext.Provider value={value}>{children}</PatientContext.Provider>;

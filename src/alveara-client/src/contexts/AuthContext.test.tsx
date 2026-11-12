@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
-import { AuthProvider, useAuth } from "./AuthContext";
+import { AuthProvider, CONNECTION_RETRY_INTERVAL_MS, useAuth } from "./AuthContext";
 import { ApiError, listUsers } from "../services/authApi";
 
 function jsonResponse(body: unknown, status = 200) {
@@ -390,5 +390,134 @@ describe("ApiError", () => {
     expect(err.status).toBe(401);
     expect(err.code).toBe("unauthorized");
     expect(err.body).toEqual({ foo: "bar" });
+  });
+});
+
+// ---------- ALV-N020: only an authentication decision ends a session (F-155), and why it ended is known (F-007, F-037) ----------
+
+function SessionProbe() {
+  const { state, connectionLost, endedReason, expiredUsername, identityEpoch, logout } = useAuth();
+  return (
+    <div>
+      <span data-testid="kind">{state.kind}</span>
+      <span data-testid="user">{state.kind === "signed-in" ? state.username : ""}</span>
+      <span data-testid="lost">{String(connectionLost)}</span>
+      <span data-testid="ended">{String(endedReason)}</span>
+      <span data-testid="expired-user">{String(expiredUsername)}</span>
+      <span data-testid="epoch">{identityEpoch}</span>
+      <button onClick={() => void logout()}>out</button>
+    </div>
+  );
+}
+
+const signedInAs = (username: string) =>
+  jsonResponse({ username, role: "Admin", permissions: [], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() });
+
+/** Answers the permissions check from `next()`; everything else (csrf, logout) succeeds. */
+function stubPermissions(next: () => Response | Promise<Response>) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockImplementation((url: RequestInfo | URL) => {
+      const u = String(url);
+      if (u.includes("/api/auth/permissions")) return Promise.resolve(next());
+      if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "t" }));
+      return Promise.resolve(jsonResponse({}));
+    })
+  );
+}
+
+async function revalidate() {
+  await act(async () => {
+    window.dispatchEvent(new Event("focus"));
+  });
+}
+
+describe("AuthContext session and outage states (ALV-N020)", () => {
+  it.each([
+    ["a 502 from the dev proxy", () => new Response("Bad gateway", { status: 502 })],
+    ["a 503", () => jsonResponse({ error: "unavailable" }, 503)],
+    ["a 500 from the API itself", () => jsonResponse({ error: "internal_error" }, 500)],
+    ["no connection at all", () => Promise.reject(new TypeError("Failed to fetch"))],
+  ])("keeps a signed-in session through %s, flags the lost connection, and clears the flag when the server answers again", async (_label, failure) => {
+    let mode: "ok" | "fail" = "ok";
+    stubPermissions(() => (mode === "ok" ? signedInAs("dentist1") : (failure() as Response)));
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-in"));
+
+    mode = "fail";
+    await revalidate();
+    await waitFor(() => expect(screen.getByTestId("lost")).toHaveTextContent("true"));
+    expect(screen.getByTestId("kind")).toHaveTextContent("signed-in");                                // the shell (and any unsaved form) stays
+    expect(screen.getByTestId("ended")).toHaveTextContent("null");
+
+    mode = "ok";
+    await revalidate();
+    await waitFor(() => expect(screen.getByTestId("lost")).toHaveTextContent("false"));
+    expect(screen.getByTestId("user")).toHaveTextContent("dentist1");
+  });
+
+  it("a 401 on revalidation ends the session as expired and remembers whose it was", async () => {
+    let session = true;
+    stubPermissions(() => (session ? signedInAs("dentist1") : jsonResponse({ error: "unauthorized" }, 401)));
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-in"));
+    const epoch = Number(screen.getByTestId("epoch").textContent);
+
+    session = false;
+    await revalidate();
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+    expect(screen.getByTestId("ended")).toHaveTextContent("expired");
+    expect(screen.getByTestId("expired-user")).toHaveTextContent("dentist1");
+    expect(Number(screen.getByTestId("epoch").textContent)).toBe(epoch + 1);
+  });
+
+  it("an explicit sign-out ends the session as signed-out and keeps no identity to return to", async () => {
+    stubPermissions(() => signedInAs("frontdesk1"));
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-in"));
+
+    await act(async () => {
+      screen.getByText("out").click();
+    });
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+    expect(screen.getByTestId("ended")).toHaveTextContent("signed-out");
+    expect(screen.getByTestId("expired-user")).toHaveTextContent("null");
+  });
+
+  it("a first visit with no session is neutral: no ended reason", async () => {
+    stubPermissions(() => jsonResponse({ error: "unauthorized" }, 401));
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+    expect(screen.getByTestId("ended")).toHaveTextContent("null");
+  });
+
+  it("a first load during an outage is neutral and signs straight in when the server returns with a still-valid session", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    let up = false;
+    stubPermissions(() => (up ? signedInAs("admin") : new Response("Bad gateway", { status: 502 })));
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-out"));
+    expect(screen.getByTestId("lost")).toHaveTextContent("true");
+    expect(screen.getByTestId("ended")).toHaveTextContent("null");
+
+    up = true;
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CONNECTION_RETRY_INTERVAL_MS);
+    });
+    await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextContent("signed-in"));
+    expect(screen.getByTestId("lost")).toHaveTextContent("false");
+  });
+
+  it("a different person found by revalidation (a sign-in in another tab) advances the identity counter", async () => {
+    let who = "frontdesk1";
+    stubPermissions(() => signedInAs(who));
+    render(<AuthProvider><SessionProbe /></AuthProvider>);
+    await waitFor(() => expect(screen.getByTestId("user")).toHaveTextContent("frontdesk1"));
+    const epoch = Number(screen.getByTestId("epoch").textContent);
+
+    who = "admin";
+    await revalidate();
+    await waitFor(() => expect(screen.getByTestId("user")).toHaveTextContent("admin"));
+    expect(Number(screen.getByTestId("epoch").textContent)).toBe(epoch + 1);
   });
 });

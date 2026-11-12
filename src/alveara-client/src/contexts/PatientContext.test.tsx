@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { StrictMode, useEffect, useLayoutEffect } from "react";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { PatientContextProvider } from "./PatientContext";
+import { AuthProvider } from "./AuthContext";
 import { usePatientContext } from "./patientContextStore";
 
 /** ALV-003-C01: the patient-in-context state machine, in isolation: a switch drops the old patient at once and a late answer never resurrects it. */
@@ -146,5 +147,53 @@ describe("PatientContextProvider", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<Probe />)).toThrow(/PatientContextProvider/);
     spy.mockRestore();
+  });
+});
+
+describe("PatientContextProvider and the signed-in identity (ALV-N020, F-037)", () => {
+  function stubSession(answer: () => Response) {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions")) return Promise.resolve(answer());
+        if (u.includes("/api/patients/")) return Promise.resolve(json(200, detail("brian", "Brian")));
+        return Promise.resolve(json(200, {}));
+      })
+    );
+  }
+  const signedIn = (username: string) => json(200, { username, role: "FrontDesk", permissions: [], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() });
+
+  it.each([
+    ["the session ends (401)", () => json(401, { error: "unauthorized" })],
+    ["another person is now signed in", () => signedIn("admin")],
+  ])("drops the patient in context the moment %s", async (_label, next) => {
+    let answer = () => signedIn("frontdesk1");
+    stubSession(() => answer());
+    render(<AuthProvider><PatientContextProvider><Probe /></PatientContextProvider></AuthProvider>);
+    await act(async () => {});
+
+    act(() => holder.current!.selectPatient("brian"));
+    await waitFor(() => expect(state()).toBe("loaded:Brian"));
+
+    answer = next;
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));                                                       // the session check runs again
+    });
+    await waitFor(() => expect(state()).toBe("none"));
+  });
+
+  it("keeps the patient while the same person stays signed in", async () => {
+    stubSession(() => signedIn("frontdesk1"));
+    render(<AuthProvider><PatientContextProvider><Probe /></PatientContextProvider></AuthProvider>);
+    await act(async () => {});
+    act(() => holder.current!.selectPatient("brian"));
+    await waitFor(() => expect(state()).toBe("loaded:Brian"));
+
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(state()).toBe("loaded:Brian");
   });
 });

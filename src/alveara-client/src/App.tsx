@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider, useLocation } from "react-router-dom";
 import { AppShell } from "./app/AppShell";
 import { NavigationGuard } from "./app/NavigationGuard";
 import { RequireAnyPermission, RequireAuth, RequirePermission } from "./app/RouteGuards";
@@ -48,6 +48,10 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { UnsavedChangesProvider } from "./contexts/UnsavedChangesContext";
 import { DisconnectedBanner } from "./components/DisconnectedBanner";
 import { useConnectionStatus } from "./hooks/useConnectionStatus";
+import { ConnectionStatusContext } from "./contexts/connectionStatusContext";
+import { applyStoredTheme } from "./app/useAppTheme";
+
+const SIGN_IN_PATHS = ["/login", "/mfa-challenge", "/reset-password"];
 
 /**
  * ALV-N009: rendered above every route (auth pages included, not just the signed-in shell) -
@@ -62,12 +66,15 @@ import { useConnectionStatus } from "./hooks/useConnectionStatus";
  */
 function RootLayout() {
   const connectionStatus = useConnectionStatus();
+  const { pathname } = useLocation();
+  // ALV-N020 (F-156): the saved theme applies before any page renders, the sign-in page included (the shell keeps its own toggle).
+  useState(applyStoredTheme);
   return (
-    <>
-      {connectionStatus === "disconnected" && <DisconnectedBanner />}
+    <ConnectionStatusContext.Provider value={connectionStatus}>
+      {connectionStatus === "disconnected" && <DisconnectedBanner variant={SIGN_IN_PATHS.includes(pathname) ? "sign-in" : "app"} />}
       <NavigationGuard />
       <Outlet />
-    </>
+    </ConnectionStatusContext.Provider>
   );
 }
 

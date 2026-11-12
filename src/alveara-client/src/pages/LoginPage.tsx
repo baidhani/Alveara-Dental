@@ -1,21 +1,15 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { FormField } from "../components/FormField";
 import { Button } from "../components/Button";
-import { ApiError, login } from "../services/authApi";
+import { login } from "../services/authApi";
+import { classifyLoginFailure, destinationAfterSignIn } from "./loginOutcome";
+import type { LoginFormState } from "./loginOutcome";
 import { useAuth } from "../contexts/AuthContext";
+import { useServerConnection } from "../contexts/connectionStatusContext";
 import "./LoginPage.css";
-
-type LoginFormState =
-  | { kind: "idle" }
-  | { kind: "submitting" }
-  | { kind: "invalid-credentials" }
-  | { kind: "account-disabled" }
-  | { kind: "locked-out"; lockedUntilUtc?: string }
-  | { kind: "rate-limited" }
-  | { kind: "unexpected-error" };
 
 /**
  * ALV-001-C01's login, lockout, and expired-session screens combined into one page: lockout and
@@ -31,16 +25,17 @@ export function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { refresh } = useAuth();
+  const { refresh, state: authState, connectionLost } = useAuth();
+  const server = useServerConnection();
 
-  // ALV-N009: RequireAuth records where a direct/deep-link caller was denied (see
-  // RouteGuards.tsx) so a successful sign-in returns them there instead of always to "/" -
-  // `state.from` is only ever a location object this app itself set, never attacker-controlled
-  // input, so using it directly to navigate is safe.
-  const from = (location.state as { from?: { pathname: string; search: string } } | null)?.from;
-  const redirectTo = from ? `${from.pathname}${from.search}` : "/";
+  // ALV-N009 / ALV-N020: RequireAuth records where an EXPIRED session was (and whose it was); a successful sign-in returns there only for that same user.
+  // `state.from` is only ever a location object this app itself set, never attacker-controlled input.
+  const navState = location.state as { from?: { pathname: string; search: string }; fromUser?: string } | null;
+  const from = navState?.from;
+  const fromUser = navState?.fromUser;
 
-  const sessionExpired = searchParams.get("reason") === "expired";
+  // ALV-N020 (F-012): the expiry notice is never shown while the server cannot be reached (that is not an expiry).
+  const sessionExpired = searchParams.get("reason") === "expired" && server !== "disconnected" && !connectionLost;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -49,32 +44,21 @@ export function LoginPage() {
     try {
       const result = await login(username, password);
       if ("mfaRequired" in result) {
-        // ALV-N009 R02: carry the validated redirect destination through to the MFA challenge so
-        // a deep-link caller who happens to have MFA enabled lands back where they were denied,
-        // not at "/" - the same `from` state RequireAuth set, just passed one hop further.
-        navigate("/mfa-challenge", { state: { challengeToken: result.challengeToken, redirectTo } });
+        // ALV-N009 R02: carry the recorded destination (and whose it was) through to the MFA challenge; the challenge page applies the same same-user rule.
+        navigate("/mfa-challenge", { state: { challengeToken: result.challengeToken, from, fromUser } });
         return;
       }
       await refresh();
-      navigate(redirectTo, { replace: true });
+      navigate(destinationAfterSignIn(result.username, from, fromUser), { replace: true });
     } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 429) {
-          setFormState({ kind: "rate-limited" });
-        } else if (err.code === "account_disabled") {
-          setFormState({ kind: "account-disabled" });
-        } else if (err.code === "account_locked") {
-          setFormState({ kind: "locked-out", lockedUntilUtc: err.body.lockedUntilUtc as string | undefined });
-        } else {
-          setFormState({ kind: "invalid-credentials" });
-        }
-      } else {
-        setFormState({ kind: "unexpected-error" });
-      }
+      setFormState(classifyLoginFailure(err));
     }
   }
 
   const submitting = formState.kind === "submitting";
+
+  // ALV-N020: a signed-in person who opens the sign-in page goes to the dashboard (not while this page is completing its own sign-in).
+  if (authState.kind === "signed-in" && !submitting) return <Navigate to="/" replace />;
 
   return (
     <div className="alv-login">
@@ -105,6 +89,16 @@ export function LoginPage() {
       {formState.kind === "rate-limited" && (
         <div className="alv-login__banner alv-login__banner--danger" role="alert">
           Too many attempts from this device. Please wait a moment and try again.
+        </div>
+      )}
+      {formState.kind === "server-unavailable" && (
+        <div className="alv-login__banner alv-login__banner--danger" role="alert">
+          The server cannot be reached, so you cannot sign in right now. Try again when it is back.
+        </div>
+      )}
+      {formState.kind === "server-problem" && (
+        <div className="alv-login__banner alv-login__banner--danger" role="alert">
+          The server had a problem and could not sign you in. Try again; if it keeps happening, contact your administrator.
         </div>
       )}
       {formState.kind === "unexpected-error" && (

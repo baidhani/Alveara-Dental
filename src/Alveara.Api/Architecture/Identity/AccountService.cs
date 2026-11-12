@@ -10,6 +10,8 @@ using Alveara.Api.Data;
 namespace Alveara.Api.Architecture.Identity;
 
 public class UsernameAlreadyRegisteredException(string username) : Exception($"Username '{username}' is already registered.");
+/// <summary>ALV-N020: a username that is empty once its surrounding white space is removed.</summary>
+public class UsernameRequiredException() : Exception("A username is required.");
 public class InvalidLoginException() : Exception("Invalid username or password.");
 
 public class AccountLockedOutException(DateTimeOffset lockedOutUntilUtc)
@@ -68,6 +70,10 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     internal Func<Task>? TestHook_AfterRecoveryCodeVerifiedBeforeConsumption { get; set; }
     internal Func<Task>? TestHook_AfterRecoveryCodeConsumedBeforeCommit { get; set; }
 
+    /// <summary>ALV-N020 (F-151, F-166): surrounding white space in a typed username is never part of the name. SQL Server's
+    /// equality ignores trailing spaces, so ' dentist1 ' used to sign in as dentist1 and be audited with the spaces.</summary>
+    internal static string NormalizeUsername(string? username) => (username ?? string.Empty).Trim();
+
     // ---------- Registration (self-service, no role/privilege) ----------
 
     /// <summary>
@@ -77,6 +83,8 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// </summary>
     public async Task<UserAccount> RegisterAsync(string username, string password, CancellationToken cancellationToken = default)
     {
+        username = NormalizeUsername(username);
+        if (username.Length == 0) throw new UsernameRequiredException();
         var account = new UserAccount
         {
             Id = Guid.NewGuid(),
@@ -116,11 +124,13 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// </summary>
     public async Task<UserAccount> BootstrapFirstAdminAsync(string username, string password, string suppliedSecret, string configuredSecret, CancellationToken cancellationToken = default)
     {
+        username = NormalizeUsername(username);
         if (string.IsNullOrEmpty(configuredSecret) ||
             !System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(suppliedSecret ?? ""), Encoding.UTF8.GetBytes(configuredSecret)))
         {
             throw new InvalidBootstrapSecretException();
         }
+        if (username.Length == 0) throw new UsernameRequiredException();
 
         var account = new UserAccount
         {
@@ -189,6 +199,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
     /// </summary>
     public async Task<UserAccount> LoginAsync(string username, string password, CancellationToken cancellationToken = default)
     {
+        username = NormalizeUsername(username);                                                     // ALV-N020 F-151/F-166: ' dentist1 ' signs in and is audited as 'dentist1'
         var account = await db.UserAccounts.AsNoTracking().SingleOrDefaultAsync(u => u.Username == username, cancellationToken);
         if (account is null)
         {
@@ -267,7 +278,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             throw new MfaChallengeRequiredException(challengeToken);
         }
 
-        AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{username}'.");
+        AddAudit(AuditEventTypes.LoginSucceeded, account.Id, account.Id, $"Successful login for '{account.Username}'.");
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return refreshed;
@@ -700,6 +711,30 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             await RefuseAsync(transaction, performedByUserAccountId, targetUserAccountId, RuleOf(ex), cancellationToken);
             throw;
         }
+    }
+
+    /// <summary>
+    /// ALV-N020 (F-021): disables the login linked to a staff profile that is being inactivated, inside the CALLER's open transaction (it neither commits nor rolls
+    /// back), so the profile change and the account change persist together or not at all. It applies every existing account-disable protection: the administrator
+    /// availability lock, the row lock, the target rules for a non-administrator actor, the last-administrator guard, the security-stamp rotation that ends every
+    /// session, and the <c>AccountDisabled</c> audit entry. Returns false when the account was already disabled (nothing to do). Throws
+    /// <see cref="LastAdminException"/>, <see cref="AdminGuardBusyException"/> or <see cref="AccountTargetNotAllowedException"/> exactly as
+    /// <see cref="SetAccountEnabledAsync"/> does.
+    /// </summary>
+    internal async Task<bool> DisableForStaffInactivationAsync(Guid accountId, Guid performedByUserAccountId, string staffDisplayName, CancellationToken cancellationToken)
+    {
+        if (db.Database.CurrentTransaction is null) throw new InvalidOperationException("The linked login must be disabled inside the staff inactivation's transaction.");
+        await AdminAvailabilityGuard.AcquireAsync(db, cancellationToken);
+        var account = await LoadLockedAsync(accountId, cancellationToken);
+        var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, AccountAction.Disable, cancellationToken);
+        if (account.IsDisabled) return false;
+        if (account.Role == Role.Admin) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
+        account.IsDisabled = true;
+        BumpSecurityStamp(account);
+        AddAudit(AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
+            $"Account '{account.Username}' disabled because its staff profile '{staffDisplayName}' was inactivated.{actorNote}");
+        await db.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     private const int MinSessionTimeoutMinutes = 5;

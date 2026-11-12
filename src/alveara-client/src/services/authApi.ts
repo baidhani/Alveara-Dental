@@ -19,6 +19,9 @@ export interface AdminUserSummary {
   mfaEnabled: boolean;
   sessionTimeoutMinutes: number;
   createdAtUtc: string;
+  /** ALV-N020 (F-021): the staff profile linked to this account, if any, and whether it is active. */
+  linkedStaffDisplayName?: string | null;
+  linkedStaffIsActive?: boolean | null;
 }
 
 export interface MyPermissions {
@@ -138,13 +141,35 @@ export interface MfaRequiredResult {
   challengeToken: string;
 }
 
+/** ALV-N020 (F-014): sign-in never waits forever. */
+export const LOGIN_TIMEOUT_MS = 15_000;
+
+/**
+ * ALV-N020 (F-014, F-155): true when a failure means "the server could not be reached or could not answer", not "the server decided": a network error or
+ * timeout (no response at all), a 502/503/504 from the dev proxy or a gateway, or a 500 whose body is not the API's JSON error shape (what a proxy
+ * returns when the API process is down). A 500 that carries the API's own JSON error is a server problem, reported as such by the caller.
+ */
+export function isServerUnreachable(err: unknown): boolean {
+  if (!(err instanceof ApiError)) return true;
+  if (err.status === 502 || err.status === 503 || err.status === 504) return true;
+  return err.status === 500 && err.code === "unknown_error";
+}
+
 export async function login(username: string, password: string): Promise<AccountResponse | MfaRequiredResult> {
-  const res = await fetch("/api/auth/login", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), LOGIN_TIMEOUT_MS);
+  let res: Response;
+  try {
+    res = await fetch("/api/auth/login", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: username.trim(), password }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (res.status === 202) {
     const body = (await res.json()) as { challengeToken: string };

@@ -23,7 +23,9 @@ public record ChangeRoleRequest(string Role);
 public record SetEnabledRequest(bool Enabled);
 public record CompleteResetRequest(Guid UserId, string Token, string NewPassword);
 public record AccountResponse(Guid Id, string Username, string Role);
-public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDisabled, bool MfaEnabled, int SessionTimeoutMinutes, DateTimeOffset CreatedAtUtc);
+/// <summary>ALV-N020 (F-021): <see cref="LinkedStaffDisplayName"/> and <see cref="LinkedStaffIsActive"/> name the staff profile linked to the account, when there is one.</summary>
+public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDisabled, bool MfaEnabled, int SessionTimeoutMinutes, DateTimeOffset CreatedAtUtc,
+    string? LinkedStaffDisplayName = null, bool? LinkedStaffIsActive = null);
 
 /// <summary>
 /// STORY-001 + ALV-001-C01: registration, first-admin bootstrap, login (with MFA/lockout/disabled
@@ -55,6 +57,10 @@ public class AuthController(AccountService accountService, IConfiguration config
         {
             return Conflict(new { error = "username_taken", message = "That username is already registered." });
         }
+        catch (UsernameRequiredException)
+        {
+            return BadRequest(new { error = "username_required", message = "A username is required." });
+        }
     }
 
     /// <summary>One-time, offline-capable first-admin provisioning. Disabled forever after the first success.</summary>
@@ -84,6 +90,10 @@ public class AuthController(AccountService accountService, IConfiguration config
         catch (UsernameAlreadyRegisteredException)
         {
             return Conflict(new { error = "username_taken" });
+        }
+        catch (UsernameRequiredException)
+        {
+            return BadRequest(new { error = "username_required" });
         }
     }
 
@@ -313,7 +323,9 @@ public class AuthController(AccountService accountService, IConfiguration config
         }
         var users = await query
             .OrderBy(u => u.Username)
-            .Select(u => new AdminUserSummary(u.Id, u.Username, u.Role.ToString(), u.IsDisabled, u.MfaEnabled, u.SessionTimeoutMinutes, u.CreatedAtUtc))
+            .Select(u => new AdminUserSummary(u.Id, u.Username, u.Role.ToString(), u.IsDisabled, u.MfaEnabled, u.SessionTimeoutMinutes, u.CreatedAtUtc,
+                db.StaffProfiles.Where(s => s.UserAccountId == u.Id).Select(s => s.DisplayName).FirstOrDefault(),
+                db.StaffProfiles.Where(s => s.UserAccountId == u.Id).Select(s => (bool?)s.IsActive).FirstOrDefault()))
             .ToListAsync(cancellationToken);
         return Ok(users);
     }

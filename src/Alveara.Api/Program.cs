@@ -63,6 +63,8 @@ builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.Imports.ImportFi
 // the read model scheduling consumes.
 builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
+builder.Services.AddScoped<StaffInactivationService>();                                              // ALV-N020 (F-021): inactivation also disables the linked login
+builder.Services.AddSingleton<IStaffInactivationAlert, LogOnlyStaffInactivationAlert>();
 builder.Services.AddScoped<SchedulingConfiguration>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.PatientDuplicateDetector>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Patients.Merge.PatientDuplicateScanner>();       // STORY-017

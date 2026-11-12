@@ -15,6 +15,7 @@ public record SaveAppointmentTypeRequest(string? Name, int DefaultDurationMinute
 public record SaveStaffRequest(string? DisplayName, string? JobTitle, Guid? UserAccountId, string? RowVersion);
 public record SaveProviderRequest(Guid? StaffProfileId, string? Specialty, string? RowVersion);
 public record SetActiveRequest(bool IsActive, string? RowVersion);
+public record UnlinkStaffAccountRequest(string? Reason, string? RowVersion);
 public record ReplaceAvailabilityRequest(List<AvailabilityWindow>? Windows, int? Revision);
 public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, string? Reason);
 
@@ -32,9 +33,20 @@ public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, stri
 public class ConfigurationController(
     PracticeConfigurationService practice,
     StaffProviderService staffProviders,
-    SchedulingConfiguration scheduling) : ControllerBase
+    SchedulingConfiguration scheduling,
+    StaffInactivationService staffInactivation,
+    Alveara.Api.Architecture.Permissions.IEffectivePermissions permissions) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    /// <summary>ALV-N020 (F-021, review decision 1): inactivating a staff profile disables a login and ends its sessions, and unlinking a login is account
+    /// administration, so both need ManageUsers as well as the configuration permission. Checked before anything changes, with the same refusal shapes the
+    /// permission filter uses (403 <c>permission_denied</c> naming ManageUsers, or the policy-unavailable answers).</summary>
+    private async Task<IActionResult?> RequireManageUsersAsync(CancellationToken ct)
+    {
+        if (!Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role)) return Unauthorized();
+        return Alveara.Api.Architecture.Permissions.PermissionResults.Refusal(await permissions.CheckAsync(role, Permission.ManageUsers, ct), nameof(Permission.ManageUsers));
+    }
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {
@@ -191,7 +203,23 @@ public class ConfigurationController(
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     [RequireCsrfToken]
     public Task<IActionResult> SetStaffActive(Guid id, [FromBody] SetActiveRequest request, CancellationToken ct) =>
-        Run(async () => Ok(StaffDto(await staffProviders.SetStaffActiveAsync(id, request.IsActive, request.RowVersion, Actor, ct))));
+        Run(async () =>
+        {
+            if (request.IsActive) return Ok(StaffDto(await staffProviders.SetStaffActiveAsync(id, true, request.RowVersion, Actor, ct)));   // reactivation never re-enables the login
+            if (await RequireManageUsersAsync(ct) is { } refused) return refused;
+            return Ok(StaffDto(await staffInactivation.InactivateAsync(id, request.RowVersion, Actor, ct)));
+        });
+
+    /// <summary>ALV-N020 (F-021): an administrator removes the login link from an inactive staff profile, with a reason.</summary>
+    [HttpPut("staff/{id:guid}/unlink-account")]
+    [RequirePermission(Permission.ManagePracticeConfiguration)]
+    [RequireCsrfToken]
+    public Task<IActionResult> UnlinkStaffAccount(Guid id, [FromBody] UnlinkStaffAccountRequest request, CancellationToken ct) =>
+        Run(async () =>
+        {
+            if (await RequireManageUsersAsync(ct) is { } refused) return refused;
+            return Ok(StaffDto(await staffProviders.UnlinkAccountFromInactiveStaffAsync(id, request.Reason, request.RowVersion, Actor, ct)));
+        });
 
     // ---------- Providers ----------
 

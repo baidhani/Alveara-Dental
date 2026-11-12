@@ -8,13 +8,13 @@ describe("Application shell — disconnected/local-server-unavailable state", ()
 
     render(<App />);
 
-    // ALV-N009: the same outage that fails the health check also fails the permissions check,
-    // which (correctly) cannot distinguish "genuinely signed out" from "server unreachable" and
-    // lands on the login screen's own session-expired alert too - both alerts are expected
-    // together here; the disconnected banner specifically must be one of them.
+    // ALV-N020 (F-007, F-012, F-013): the outage leaves a first visit on the plain sign-in page - no "session expired" notice - and the banner there is the
+    // sign-in variant, without "Changes cannot be saved".
     await waitFor(() => {
       const alerts = screen.getAllByRole("alert");
       expect(alerts.some((el) => /local server unavailable/i.test(el.textContent ?? ""))).toBe(true);
     });
+    expect(screen.queryByText(/your session expired/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/changes cannot be saved/i)).not.toBeInTheDocument();
   });
 });

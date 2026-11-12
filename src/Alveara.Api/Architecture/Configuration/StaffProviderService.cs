@@ -55,6 +55,10 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
             throw new ConfigurationException("staff_name_taken", "A staff profile with that display name already exists.", 409);
 
         var linkChanged = staff.UserAccountId != userAccountId;
+        // ALV-N020 (F-021): an inactive profile's login link cannot be swapped or removed by an ordinary edit (that freed the old login and took another);
+        // removing it needs an administrator and a reason (UnlinkAccountFromInactiveStaffAsync), and a new link needs the profile reactivated first.
+        if (linkChanged && !staff.IsActive)
+            throw new ConfigurationException("staff_inactive_link", "This staff member is inactive. Reactivate the profile to link a login, or remove the link with a reason.", 409);
         // Only a NEW link is validated: an existing link to an account that was later disabled is
         // kept as-is (the staff member's history still resolves), never silently severed.
         if (linkChanged && userAccountId is not null) await ValidateAccountLinkAsync(userAccountId.Value, id, ct);
@@ -83,6 +87,26 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         staff.IsActive = active;
         ConfigurationWrite.Audit(db, active ? ConfigurationAuditEvents.Reactivated : ConfigurationAuditEvents.Inactivated,
             nameof(StaffProfile), id, actor, active ? "Staff profile reactivated." : "Staff profile inactivated.");
+        await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
+        return staff;
+    }
+
+    /// <summary>
+    /// ALV-N020 (F-021): removes the login link from an INACTIVE staff profile. Needs a reason (kept with the audit entry) and the version the caller read; the
+    /// account itself is not changed (it was disabled when the profile was inactivated, and only an administrator re-enables it in Security Administration).
+    /// </summary>
+    public async Task<StaffProfile> UnlinkAccountFromInactiveStaffAsync(Guid id, string? reason, string? rowVersion, Guid actor, CancellationToken ct)
+    {
+        var why = ConfigurationWrite.OptionalText(reason, "Reason", 500)
+            ?? throw new ConfigurationException("reason_required", "Say why the login is being unlinked. The reason is kept with the record.");
+        var staff = await db.StaffProfiles.SingleOrDefaultAsync(s => s.Id == id, ct) ?? throw PracticeConfigurationService.NotFound("Staff profile");
+        if (staff.IsActive)
+            throw new ConfigurationException("staff_active", "Only an inactive staff member's login can be unlinked here.", 409);
+        if (staff.UserAccountId is null)
+            throw new ConfigurationException("staff_no_link", "This staff member has no linked login.", 409);
+        ConfigurationWrite.ApplyExpectedVersion(db, staff, rowVersion);
+        staff.UserAccountId = null;
+        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.StaffAccountUnlinked, nameof(StaffProfile), id, actor, "Login account link removed from an inactive staff profile.", why);
         await ConfigurationWrite.SaveAsync(db, nameof(StaffProfile), id, ct);
         return staff;
     }

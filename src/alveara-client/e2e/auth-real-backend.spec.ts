@@ -417,8 +417,10 @@ test.describe("Real backend — first-admin bootstrap, login, MFA, security admi
 
     // UI-state clearing: a direct URL to a protected route after sign-out is denied again, not
     // served from any stale client-held state.
+    // ALV-N020 (F-007): a fresh page load after an explicit sign-out has no ended session in it, so the sign-in page is neutral (no "session expired").
     await page.goto("/admin/users");
-    await expect(page.getByText(/your session expired/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+    await expect(page.getByText(/your session expired/i)).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Security administration" })).toHaveCount(0);
   });
 });

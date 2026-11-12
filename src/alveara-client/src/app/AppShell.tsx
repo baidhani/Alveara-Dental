@@ -1,5 +1,7 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
+import { usePersistedTheme } from "./useAppTheme";
+import { useServerConnection } from "../contexts/connectionStatusContext";
 import { moduleRegistry } from "./moduleRegistry";
 import { useAuth } from "../contexts/AuthContext";
 import { useUnsavedChangesRegistry } from "../contexts/unsavedChangesStore";
@@ -10,31 +12,6 @@ import { PatientHeader } from "./PatientHeader";
 import { NotificationBell } from "../components/NotificationBell";
 import "./AppShell.css";
 
-const THEME_KEY = "alveara-theme";
-
-function usePersistedTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    try {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved === "light" || saved === "dark") return saved;
-    } catch {
-      /* localStorage unavailable — fall back to system preference */
-    }
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch {
-      /* non-fatal: theme choice just won't persist */
-    }
-  }, [theme]);
-
-  return { theme, setTheme };
-}
-
 /**
  * The application shell: responsive frame, module-registry-driven navigation (ALV-N009: filtered
  * by the signed-in caller's real permissions), account identity/sign-out menu, session-expiry
@@ -44,10 +21,20 @@ function usePersistedTheme() {
  */
 export function AppShell() {
   const { theme, setTheme } = usePersistedTheme();
-  const { state, hasPermission, logout, sessionExpiringSoon } = useAuth();
+  const { state, hasPermission, logout, sessionExpiringSoon, connectionLost, identityEpoch } = useAuth();
+  const server = useServerConnection();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const unsaved = useUnsavedChangesRegistry();
+
+  // ALV-N020 (F-037): another person is now signed in in this browser (found by revalidation, e.g. a sign-in in another tab): never stay on the previous
+  // person's page. The patient in context clears itself on the same signal (PatientContextProvider).
+  const seenEpoch = useRef(identityEpoch);
+  useEffect(() => {
+    if (seenEpoch.current === identityEpoch) return;
+    seenEpoch.current = identityEpoch;
+    if (state.kind === "signed-in") navigate("/", { replace: true });
+  }, [identityEpoch, state.kind, navigate]);
 
   const visibleModules = moduleRegistry.filter((mod) => (!mod.requiredPermission || hasPermission(mod.requiredPermission)) && (!mod.anyPermission || mod.anyPermission.some((p) => hasPermission(p))));
 
@@ -126,6 +113,13 @@ export function AppShell() {
       </aside>
 
       <div className="alv-shell__main-wrap">
+        {/* ALV-N020 (F-155): the session check is failing with a server error while the server itself answers (the outage banner covers "cannot be
+            reached" with its unchanged wording, PD-01). The screen and unsaved work stay; the check is retried. */}
+        {connectionLost && server !== "disconnected" && (
+          <div className="alv-shell__session-warning" role="status">
+            The server is not answering normally. Your screen and unsaved work are kept, and the connection is being retried.
+          </div>
+        )}
         {sessionExpiringSoon && (
           <div className="alv-shell__session-warning" role="alert">
             Your session will expire soon. Save your work and sign in again to continue.

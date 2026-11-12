@@ -6,13 +6,15 @@ import { FormField } from "../components/FormField";
 import { Button } from "../components/Button";
 import { ApiError, completeMfaChallenge } from "../services/authApi";
 import { useAuth } from "../contexts/AuthContext";
+import { destinationAfterSignIn } from "./loginOutcome";
 import "./LoginPage.css";
 
 interface LocationState {
   challengeToken?: string;
-  /** ALV-N009 R02: the deep-link destination LoginPage was carrying before MFA interrupted it,
-   *  so a successful challenge returns the caller there instead of always to "/". */
-  redirectTo?: string;
+  /** ALV-N009 R02 / ALV-N020: the page of an EXPIRED session LoginPage was carrying, and whose session it was; a successful challenge returns there only for
+   *  that same user (destinationAfterSignIn), otherwise to "/". */
+  from?: { pathname: string; search: string };
+  fromUser?: string;
 }
 
 /**
@@ -27,7 +29,6 @@ export function MfaChallengePage() {
   const { refresh } = useAuth();
   const state = location.state as LocationState | null;
   const challengeToken = state?.challengeToken;
-  const redirectTo = state?.redirectTo ?? "/";
 
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -52,9 +53,9 @@ export function MfaChallengePage() {
     setError(null);
 
     try {
-      await completeMfaChallenge(challengeToken!, code);
+      const account = await completeMfaChallenge(challengeToken!, code);
       await refresh();
-      navigate(redirectTo, { replace: true });
+      navigate(destinationAfterSignIn(account.username, state?.from, state?.fromUser), { replace: true });
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 429)) {
         setError(

@@ -127,6 +127,9 @@ export const updateStaff = (id: string, displayName: string, jobTitle: string, u
   requestWithCsrf<StaffRecord>(`/api/config/staff/${id}`, "PUT", { displayName, jobTitle, userAccountId, rowVersion });
 export const setStaffActive = (id: string, isActive: boolean, rowVersion: string) =>
   requestWithCsrf<StaffRecord>(`/api/config/staff/${id}/active`, "PUT", { isActive, rowVersion });
+/** ALV-N020 (F-021): an administrator removes the login link from an INACTIVE staff profile, with a reason. */
+export const unlinkStaffAccount = (id: string, reason: string, rowVersion: string) =>
+  requestWithCsrf<StaffRecord>(`/api/config/staff/${id}/unlink-account`, "PUT", { reason, rowVersion });
 
 // ---------- Providers ----------
 export const listProviders = (includeInactive: boolean) => request<ProviderRecord[]>(`/api/config/providers${q(includeInactive)}`);

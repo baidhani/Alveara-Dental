@@ -25,6 +25,12 @@ public static class ConfigurationAuditEvents
     public const string Inactivated = "ConfigurationInactivated";
     public const string Reactivated = "ConfigurationReactivated";
     public const string StaffAccountLinkChanged = "StaffAccountLinkChanged";
+    /// <summary>ALV-N020 (F-021): the staff profile was inactivated and its linked login was disabled in the same transaction.</summary>
+    public const string StaffLoginDisabledOnInactivation = "StaffLoginDisabledOnInactivation";
+    /// <summary>ALV-N020 (F-021): the inactivation was NOT applied because the linked login could not be disabled; written after the rollback, in its own transaction.</summary>
+    public const string StaffInactivationFailed = "StaffInactivationFailed";
+    /// <summary>ALV-N020 (F-021): an administrator removed the login link from an inactive staff profile, with a reason.</summary>
+    public const string StaffAccountUnlinked = "StaffAccountUnlinked";
     public const string ProviderAvailabilityReplaced = "ProviderAvailabilityReplaced";
     public const string ProviderBlockedTimeAdded = "ProviderBlockedTimeAdded";
     public const string ProviderBlockedTimeRemoved = "ProviderBlockedTimeRemoved";

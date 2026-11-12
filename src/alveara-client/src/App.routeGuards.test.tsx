@@ -21,13 +21,14 @@ function stubFetch(handlers: { permissions?: () => Response; users?: () => Respo
 }
 
 describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
-  it("denies a direct URL to a protected route when signed out, redirecting to the session-expired login screen", async () => {
+  it("denies a direct URL to a protected route when signed out, showing the plain sign-in page (ALV-N020 F-007: no 'session expired' on a first visit)", async () => {
     stubFetch({ permissions: () => jsonResponse({ error: "unauthorized" }, 401) });
     window.history.pushState({}, "", "/admin/users");
 
     render(<App />);
 
-    await waitFor(() => expect(screen.getByText(/your session expired/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Sign in" })).toBeInTheDocument());
+    expect(screen.queryByText(/your session expired/i)).not.toBeInTheDocument();
     // The protected page's own content must never have mounted - proves the guard denies before
     // any protected data fetch starts, not merely after one fails.
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
@@ -191,7 +192,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns a caller to the page they were denied once they sign in", async () => {
+  it("ALV-N020 (F-037): a first-visit deep link is not carried across sign-in; the person lands on the dashboard", async () => {
     let permissionsCallCount = 0;
     vi.stubGlobal(
       "fetch",
@@ -231,13 +232,13 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     await user.type(screen.getByLabelText("Password"), "correct-password");
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
-    // Landed back on the ORIGINALLY requested page (/admin/permissions), not the default
-    // dashboard - proving RequireAuth's captured `from` location survived the round trip.
-    await waitFor(() => expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument());
+    // ALV-N020 (review guardrail): only a SAME-USER return after an expiry is carried; a first visit has no identity to bind a page to, so it goes to "/".
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument());
+    expect(screen.queryByRole("heading", { name: "Permission matrix" })).not.toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 
-  it("R02: returns a caller to the page they were denied even when reauthentication requires MFA", async () => {
+  it("ALV-N020 (F-037): through MFA too, a first-visit deep link lands on the dashboard", async () => {
     let permissionsCallCount = 0;
     vi.stubGlobal(
       "fetch",
@@ -283,10 +284,60 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     await user.type(screen.getByLabelText("Authentication or recovery code"), "123456");
     await user.click(screen.getByRole("button", { name: "Verify" }));
 
-    // Landed back on the ORIGINALLY requested page (/admin/permissions), not the default
-    // dashboard - the redirect destination survived the extra MFA hop, and the permission it
-    // requires is enforced at that destination too.
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument());
+    expect(screen.queryByRole("heading", { name: "Permission matrix" })).not.toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  /** A session for `who` that expires on the next permissions check (the server answers 401), then a sign-in as `next`. */
+  async function expireThenSignInAs(who: string, next: string) {
+    let session: string | null = who;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions")) {
+          return Promise.resolve(
+            session
+              ? jsonResponse({ username: session, role: "Admin", permissions: ["ViewPermissionMatrix"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+              : jsonResponse({ error: "unauthorized" }, 401)
+          );
+        }
+        if (u.includes("/api/auth/login")) {
+          session = next;
+          return Promise.resolve(jsonResponse({ id: "11111111-1111-1111-1111-111111111111", username: next, role: "Admin" }));
+        }
+        if (u.includes("/api/auth/permission-matrix")) {
+          if (session === who) {
+            session = null;                                                                             // the session ends: this protected call gets 401
+            return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
+          }
+          return Promise.resolve(jsonResponse([]));
+        }
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+    window.history.pushState({}, "", "/admin/permissions");
+    render(<App />);
+    // The page's own protected call got 401: the session expired here, so the sign-in page says so.
+    await waitFor(() => expect(screen.getByText(/your session expired/i)).toBeInTheDocument());
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("Username"), next);
+    await user.type(screen.getByLabelText("Password"), "correct-password");
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+  }
+
+  it("ALV-N020 (F-037): the SAME user signing in again after an expiry returns to the page they were on", async () => {
+    await expireThenSignInAs("admin-1", "admin-1");
     await waitFor(() => expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument());
+    vi.unstubAllGlobals();
+  });
+
+  it("ALV-N020 (F-037): a DIFFERENT user signing in after someone's expiry lands on the dashboard, never on that person's page", async () => {
+    await expireThenSignInAs("frontdesk1", "admin-1");
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument());
+    expect(screen.queryByRole("heading", { name: "Permission matrix" })).not.toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 });

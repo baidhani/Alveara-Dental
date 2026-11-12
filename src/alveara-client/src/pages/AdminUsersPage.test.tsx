@@ -98,3 +98,30 @@ describe("AdminUsersPage", () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe("AdminUsersPage linked staff profile (ALV-N020, F-021)", () => {
+  it("shows the staff profile linked to each account, marking an inactive one", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: string) => {
+        if (String(url).includes("/api/auth/permissions")) return Promise.resolve(jsonResponse({ role: "Admin", permissions: ["ManageUsers"] }));
+        if (String(url).includes("/api/auth/users")) {
+          return Promise.resolve(
+            jsonResponse([
+              { id: "1", username: "dentist1", role: "Dentist", isDisabled: true, mfaEnabled: false, sessionTimeoutMinutes: 30, createdAtUtc: new Date().toISOString(), linkedStaffDisplayName: "Dr. Dana", linkedStaffIsActive: false },
+              { id: "2", username: "billing1", role: "Billing", isDisabled: false, mfaEnabled: false, sessionTimeoutMinutes: 30, createdAtUtc: new Date().toISOString(), linkedStaffDisplayName: null, linkedStaffIsActive: null },
+            ])
+          );
+        }
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Dr. Dana (inactive)")).toBeInTheDocument());
+    expect(screen.getByRole("columnheader", { name: "Staff profile" })).toBeInTheDocument();
+    expect(screen.getByText("None")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+});

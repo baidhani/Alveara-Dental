@@ -276,4 +276,48 @@ public class AccountServiceLoginTests : IAsyncLifetime
             await Assert.ThrowsAsync<AccountLockedOutException>(() => setupService.LoginAsync(username, "right-password"));
         }
     }
+
+    // ---------- ALV-N020 (F-151, F-166): surrounding spaces are not part of a username ----------
+
+    [Fact]
+    public async Task A_username_typed_with_surrounding_spaces_signs_in_and_is_audited_without_them()
+    {
+        await using var db = _fixture.CreateContext();
+        var service = IdentityTestHelpers.CreateAccountService(db);
+        var username = $"user-{Guid.NewGuid():N}";
+        var registered = await IdentityTestHelpers.RegisterEnabledAsync(service, db, username, "right-password", Role.Dentist);
+
+        var loggedIn = await service.LoginAsync($"  {username} ", "right-password");
+
+        Assert.Equal(registered.Id, loggedIn.Id);
+        var auditEntry = db.AuditLogEntries.Single(a => a.TargetUserAccountId == registered.Id && a.EventType == AuditEventTypes.LoginSucceeded);
+        Assert.Equal($"Successful login for '{username}'.", auditEntry.Details);
+    }
+
+    [Fact]
+    public async Task A_failed_sign_in_with_surrounding_spaces_is_audited_with_the_normalized_name()
+    {
+        await using var db = _fixture.CreateContext();
+        var service = IdentityTestHelpers.CreateAccountService(db);
+        var username = $"user-{Guid.NewGuid():N}";
+        var registered = await IdentityTestHelpers.RegisterEnabledAsync(service, db, username, "right-password", Role.Dentist);
+
+        await Assert.ThrowsAsync<InvalidLoginException>(() => service.LoginAsync($"{username}  ", "wrong-password"));
+
+        var auditEntry = db.AuditLogEntries.Single(a => a.TargetUserAccountId == registered.Id && a.EventType == AuditEventTypes.LoginFailed);
+        Assert.DoesNotContain($"{username} ", auditEntry.Details);
+    }
+
+    [Fact]
+    public async Task Registration_stores_the_trimmed_name_and_refuses_a_name_that_is_only_spaces()
+    {
+        await using var db = _fixture.CreateContext();
+        var service = IdentityTestHelpers.CreateAccountService(db);
+        var username = $"user-{Guid.NewGuid():N}";
+
+        var account = await service.RegisterAsync($" {username}  ", "password-1234");
+
+        Assert.Equal(username, account.Username);
+        await Assert.ThrowsAsync<UsernameRequiredException>(() => service.RegisterAsync("   ", "password-1234"));
+    }
 }

@@ -121,6 +121,7 @@ export function AdminUsersPage() {
               <th>Role</th>
               <th>Status</th>
               <th>MFA</th>
+              <th>Staff profile</th>
               <th>Details</th>
               <th>Actions</th>
             </tr>
@@ -153,6 +154,7 @@ export function AdminUsersPage() {
                   </span>
                 </td>
                 <td>{user.mfaEnabled ? "Enabled" : "Not enabled"}</td>
+                <td>{user.linkedStaffDisplayName ? `${user.linkedStaffDisplayName}${user.linkedStaffIsActive === false ? " (inactive)" : ""}` : "None"}</td>
                 <td>
                   <Link to={`/admin/users/${user.id}`} state={{ user }}>
                     View

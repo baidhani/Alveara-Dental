@@ -13,18 +13,20 @@ import { PermissionDenied } from "../components/PermissionDenied";
  * `state.kind === "signed-out"` redirect is exactly the duplication this centralizes).
  */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { state } = useAuth();
+  const { state, endedReason, expiredUsername } = useAuth();
   const location = useLocation();
 
   if (state.kind === "loading") {
     return <LoadingState label="Checking your session…" />;
   }
   if (state.kind === "signed-out") {
-    // Matches the existing `?reason=expired` convention LoginPage already handles (see
-    // MfaSettingsPage's prior ad hoc use of the same query string) - a direct/deep link to a
-    // protected route with no valid session reads the same as a session that expired mid-visit,
-    // since from the caller's perspective the result (denied, sign in again) is identical.
-    return <Navigate to="/login?reason=expired" replace state={{ from: location }} />;
+    // ALV-N020 (F-007, F-037): "Your session expired" only when a session really ended here by expiry or revocation; a first visit (or a deep link with no
+    // session) gets the plain sign-in page. The page the person was on is carried back ONLY for that same person after an expiry, only in this navigation's
+    // in-memory state (never in storage); an explicit sign-out or a first visit carries nothing, so a different person always lands on the dashboard.
+    if (endedReason === "expired" && expiredUsername) {
+      return <Navigate to="/login?reason=expired" replace state={{ from: location, fromUser: expiredUsername }} />;
+    }
+    return <Navigate to="/login" replace />;
   }
   return <>{children}</>;
 }
