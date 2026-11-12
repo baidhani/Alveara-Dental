@@ -2372,3 +2372,9 @@
   - What changed: InAppStaffInactivationAlert.SourceKeyFor now StaffInactivationFailed:<id> (the database rule CK_Notifications_SourceKey refused the hyphens of staff-inactivation-failed:<id>, so no alert was stored; the refusal and failure record stayed correct); StaffInactivationNotificationSchemaTests uses the real key so the database checks its format; RealMigrationInventoryTests rollback-class count 22 -> 23.
   - Verification: owner-approved group 9 run: server 125/130 (the 5 failures are the two causes above); client Notifications.test 9/9; no leftover test databases; NC-4 inconclusive (the alert tests already failed on the key), file restored byte for byte. After the fixes: test project builds, 0 errors, same 32 warnings. Re-run awaiting the owner's permission.
   - Notes: CK_Notifications_SourceKey lists '-' in its character class but refuses it in practice; existing keys never used one. Not changed (out of scope); disclosed. Nothing pushed.
+- [x] ALV-N020 notification migration: focused re-run after the fixes (group 10) and NC-4
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: no code; proof only.
+  - Verification: owner-approved run: StaffInactivationAlertTests + StaffInactivationNotificationSchemaTests + StaffInactivationServiceTests + RealMigrationInventoryTests 24/24 (26 s); no leftover test databases; NC-4 (alert never sent) -> 3 of 13 fail as expected, restored -> 13/13 pass, file restored byte for byte. Evidence C:/tmp/n020-proof/g9 and g10.
+  - Notes: the rest of group 9 (NotificationSchemaTests, FollowUpSchemaTests, MigrationTests, MigrationUpgradeTests, ConfigurationApiTests) passed on the first run and is untouched by the fixes. Nothing pushed.
