@@ -1,164 +1,219 @@
-# ALV-N020-C01 Pre-Implementation Briefing
+# ALV-N020-C01 Pre-Implementation Briefing (revision 2)
 
-**DentalKeep Login Presentation, Curated Manual Theme, and Configurable Footer Notice**
+**DentalKeep Login Presentation, Managed Local Background Catalog, and Configurable Footer Notice**
 
-- **Plan item:** 57a (`GPT Docs/Alveara_Dental_Execution_Plan_v4.md`, owner-approved amendment of 2026-11-12, committed in `db138ec`)
-- **Depends on:** ALV-N020 (COMPLETE, R02 approved, closure `4ada83a`)
+- **Plan item:** 57a, `GPT Docs/Alveara_Dental_Execution_Plan_v4.md` as amended for the managed-catalog design (committed `6a7d8c0`)
+- **Governing decisions:** `docs/design/ALV-N020-C01_SCOPE_CHANGE_REQUEST.md` (owner's request) and `docs/design/ALV-N020-C01_SCOPE_CHANGE_REVIEW.md` (APPROVED WITH REQUIRED DESIGN CORRECTIONS, option A)
+- **Depends on:** ALV-N020 (COMPLETE, closure `4ada83a`)
 - **Session:** CC-20261109-8w3d
-- **Status of this document:** briefing only. No application code, test, configuration, schema or asset has been changed, and no test has been run.
-- **Regression route:** post-Gate-E deferred-regression exception: focused evidence for this package; broad regression `DEFERRED_TO_ALV-N028`.
-- **Out of scope here:** automatic theme rotation (`ALV-N029`, deferred until after `ALV-N027`); the configuration-tab busy-state finding F-075 (stays with `ALV-N027`).
+- **Revision 1** (`3e1a3d2`) proposed a fixed bundled catalog; it is superseded by this revision.
+- **Status:** briefing only. No application code, schema, configuration, asset, dependency or test has been changed, and no test has been run. Implementation waits for independent approval of this revision.
+- **Regression route:** post-Gate-E deferred-regression exception: focused API, persistence, security, browser, accessibility and recovery evidence for this package; broad regression `DEFERRED_TO_ALV-N028`.
+- **Not in this item:** automatic rotation (`ALV-N029`, deferred); the configuration busy-state finding F-075 (stays with `ALV-N027`).
+
+## 0. Raw source entries
+
+No manual-E2E finding asks for this work; it comes from the owner's plan amendment and scope change. Related raw entries, for preservation: F-156 (sign-in page did not read the saved theme; fixed in ALV-N020), F-012 (server-down banner on the sign-in page; fixed in ALV-N020), F-013 / PD-01 (offline wording; signed-in wording unchanged, owner decision open). The owner's own entries for this item, quoted:
+
+| # | Date | Owner's words / decision |
+|---|---|---|
+| O-1 | 2026-11-12 | Plan amendment items 57a and 65a (committed `db138ec`, revised `6a7d8c0`). |
+| O-2 | 2026-11-12 | "D-1 keep the logo as it for now"; later "use the provided logo for now" (the transparent-background version the owner sent). |
+| O-3 | 2026-11-12 | "D-2 i have the rights for them just use them." |
+| O-4 | 2026-11-12 | Default notice "for USA": the 610-character text in section 5.5. |
+| O-5 | 2026-11-12 | Mockup: background fills the page; a full-height light centre panel holds the logo, the fields, the button and the footer notice at its bottom. |
+| O-6 | 2026-11-12 | "I just added a fifth tile ... and I might add more ... make sure that the system is able to scan and find the new added images." |
+| O-7 | 2026-11-12 | "the admin can click a add back ground image, select the image from desk, added it to the collection, specify the display mode to tile, streach, fill." |
+| R-1 | 2026-11-12 | Reviewer: option A approved with seven binding corrections; default = the teal doodle tile; labels stay "Username" and "Sign in"; the logo artwork is approved; notice up to 1,000 characters. |
 
 ## 1. Intended result
 
 ### 1.1 What a person sees
-- The sign-in page shows the DentalKeep logo above a clean sign-in card, over a softly repeating dental-illustration background. The card is solid (not see-through), so the background never affects reading or typing.
-- The page works at desktop and phone widths, by keyboard alone, at 200 % zoom, in light and dark app themes, and in Windows high-contrast mode. Error, loading and "Local server unavailable" states look and read as they do now.
-- Below the card, an optional footer notice (for example a legal or authorized-use notice) is shown as plain text. When it is turned off it is not on the page at all.
-- An administrator (anyone with the existing practice-configuration authority) picks one of four approved backgrounds and edits the footer notice in Practice configuration, sees who changed what in the audit log, and can return the notice to the deployment default.
+- The sign-in page: the chosen background fills the page; a full-height light centre panel (owner mockup) holds the DentalKeep logo, the visible labels **Username** and **Password**, the **Sign in** button and, at the bottom of the panel, the plain-text footer notice when it is turned on. The panel is solid, so the background never sits behind text. Error, loading and "Local server unavailable" states read as they do today.
+- The designated presentation administrator opens **Practice configuration -> Sign-in screen**: picks a background from the catalog (built-in and added images, each with a thumbnail), picks **Tile**, **Stretch** (with the visible note "May distort the image") or **Fill** ("Recommended for photographs"), clicks **Add background image** to add one from their computer, can make an added image unavailable (never delete it), and edits the footer notice and the **Show footer notice on login screen** setting.
+- Everyone else sees no Sign-in screen tab; the server refuses them anyway.
 
 ### 1.2 Technical
-- A fixed, bundled theme catalog (four allow-listed identifiers); no remote images, no uploads, no tracking.
-- One small persisted singleton for the chosen theme and the footer notice, with optimistic concurrency and audit; one anonymous read endpoint that returns only what the sign-in page needs.
-- No change to authentication, CSRF, lockout, account-enumeration resistance, session expiry/revocation, sign-out, or the ALV-N020 outage behavior.
+- A managed local catalog: five bundled images plus administrator-added images that the server decodes and re-encodes into clean, metadata-free derivatives; only derivatives are stored and served.
+- A new narrow permission `ManageLoginPresentation`, held per named account (not per role), initially by the owner-designated account only.
+- One anonymous read endpoint for the presentation and one anonymous image endpoint that serves only the currently selected derivative.
+- A new backup asset class for the derivatives, with a restore check.
+- No change to authentication, account-enumeration resistance, lockout, CSRF, session expiry/revocation, sign-out or the ALV-N020 outage behavior.
 
-## 2. Asset inventory (owner-supplied; read in place, not yet copied into the repository)
+## 2. Asset inventory
 
-All five files are in the owner's folder `C:\Users\firas\Desktop\Epic\`. Nothing has been copied, converted or committed. Hashes and dimensions were read on 2026-11-12.
-
-| # | File | Role (proposed) | Pixels | Size | SHA-256 | What it shows |
+### 2.1 Owner-supplied files (read in place in `C:\Users\firas\Desktop\Epic\`; nothing copied yet)
+| # | File | Role | Pixels | Size | SHA-256 | Notes |
 |---|---|---|---|---|---|---|
-| L1 | `dental-keep-v01.png` | Logo | 1774 x 887, RGBA, fully opaque (alpha 255 everywhere) on a light grey #F7F6F6 background; ink area about x 149-1627, y 156-790 | 423,886 B | `acfaecd34fb9558f1ccb87a6dec42bc6d2593dd370071fc301ca7e94d86e3638` | Teal "K", two tooth outlines forming "EE", teal "P"; coral "dental" below. Reads **"KEEP dental"** |
-| T1 | `ChatGPT Image Nov 10, 2026, 10_41_23 AM.png` | Tile "teal doodle" | 1254 x 1254, RGB | 1,676,595 B | `5dd15d6b763f67e9946bd722d7280fdbd99023f7f0ad4e62580fd501a9627699` | Teal line doodles (smiling teeth, toothbrush, dental chair, braces, floss) on near-black teal; mean colour (4, 43, 48) |
-| T2 | `ChatGPT Image Nov 10, 2026, 04_00_35 PM.png` | Tile "blue doodle" | 1254 x 1254, RGB | 1,946,848 B | `78f9a1f8b53b609e3adc25dd3fd2cd9bb1fe644cdfee98a360d4ddf6de1ddd43` | Light-blue doodles (teeth, balloons, clouds, sun) on navy; mean (13, 49, 78) |
-| T3 | `ChatGPT Image Nov 10, 2026, 04_01_00 PM.png` | Tile "blue operatory" | 1254 x 1254, RGB | 1,527,257 B | `33084e9d07bc05721b18036ad1e59d6641a24a81e19eb8caa7e57879e6c1bace` | Blue line art of a dental operatory (chair, light, X-ray screen, clinician, sink) on navy; mean (11, 42, 80) |
-| T4 | `ChatGPT Image Nov 10, 2026, 04_01_13 PM.png` | Tile "violet operatory" | 1254 x 1254, RGB | 1,538,167 B | `17c73a7a5754d0e78e451b9fed29002b1ab3fd7d06d979ef66dbfc3ed18da321` | The operatory scene in violet on deep purple; mean (45, 31, 82) |
+| L1 | `dental-keep-v01.png` | Logo, original | 1774 x 887, fully opaque, light grey #F7F6F6 background | 423,886 B | `acfaecd34fb9558f1ccb87a6dec42bc6d2593dd370071fc301ca7e94d86e3638` | Reads "KEEP dental" (two tooth outlines form "EE"); approved artwork (O-2, R-1) |
+| L2 | transparent-background version | Logo, to use (O-2) | 1774 x 887 (as sent) | - | - | **File location still needed** (sent in the conversation, not found on disk). Visible removal artefacts (small cyan/red specks inside the teeth outlines and around "dental") must be cleaned, or L1 is used on the light panel |
+| T1 | `ChatGPT Image Nov 10, 2026, 10_41_23 AM.png` | Background "Teal doodle" - **deployment default** (R-1) | 1254 x 1254 | 1,676,595 B | `5dd15d6b763f67e9946bd722d7280fdbd99023f7f0ad4e62580fd501a9627699` | edges seamless (2.1 / 2.8 vs baseline 1.8) |
+| T2 | `ChatGPT Image Nov 10, 2026, 04_00_35 PM.png` | "Blue doodle" | 1254 x 1254 | 1,946,848 B | `78f9a1f8b53b609e3adc25dd3fd2cd9bb1fe644cdfee98a360d4ddf6de1ddd43` | seamless (5.3 / 4.2 vs 5.9) |
+| T3 | `ChatGPT Image Nov 10, 2026, 04_01_00 PM.png` | "Blue operatory" | 1254 x 1254 | 1,527,257 B | `33084e9d07bc05721b18036ad1e59d6641a24a81e19eb8caa7e57879e6c1bace` | left/right seamless; top/bottom 8.9 vs 2.0: check visually |
+| T4 | `ChatGPT Image Nov 10, 2026, 04_01_13 PM.png` | "Violet operatory" | 1254 x 1254 | 1,538,167 B | `17c73a7a5754d0e78e451b9fed29002b1ab3fd7d06d979ef66dbfc3ed18da321` | seamless (1.5 / 4.5 vs 12.7) |
+| T5 | `ChatGPT Image Nov 12, 2026, 01_05_55 PM.png` | "Neon doodle" | 1254 x 1254 | 1,374,863 B | `3c7f151e002ef17efad928dd4a3013d2dfcb2d66ac1b7339ea510399819b32b7` | top/bottom seamless (2.4 vs 2.4); left/right 5.9 vs 2.4: check visually |
 
-**Identification is my inference and needs the owner's confirmation:** the folder also holds two other 1774 x 887 logo-like images (`... 01_12_20 PM.png`, `... 01_15_22 PM.png`) and reference screenshots of other products (Epic screens, a WhatsApp background, a downloaded wallpaper). I chose `dental-keep-v01.png` as the logo (the newest of the three, named for the product) and the four 1254 x 1254 square images as the tiles. None of the third-party reference images is proposed for use.
+Edge numbers: mean absolute RGB difference between opposite edges, against the image's own neighbouring-column difference (measured with Python/PIL).
 
-**Repeatability (measured):** mean absolute RGB difference between opposite edges, compared with the image's own neighbouring-column difference:
+**Source and licence:** AI-generated by the owner with ChatGPT (2026-11-10 and 2026-11-12); the owner confirms the rights (O-3). The third-party reference images in the same folder (Epic screens, a WhatsApp background, a wallpaper download) are not used.
 
-| Tile | Left/right edge | Top/bottom edge | Neighbouring columns (baseline) | Reading |
+**Bundled form:** each bundled background is prepared once with the same pipeline as uploads (section 4.2): re-encoded, metadata-free, tiles reduced to a 627 x 627 repeat unit (target under 250 KB); the logo cropped to its ink area plus margin, about 280 x 140 CSS px at 2x (target under 60 KB). They live in `src/alveara-client/src/assets/login/` (bundled by Vite, same origin, content-hashed names). Originals are not committed; the SHA-256 values above are the provenance record.
+
+**Fallback:** each background has a solid colour equal to its dominant colour (T1 #042B30, T2 #0D314E, T3 #0B2A50, T4 #2D1F52, T5 black #000000, its dominant colour; mean (19, 16, 28)), painted under the image. If the selected image is missing, unreadable, inactive or invalid, the page shows the deployment default T1 (Tile); if even that fails to load, its solid colour. If the logo fails, its alt text "DentalKeep" and the page title remain. In forced-colours mode the browser drops background images; the panel stays readable.
+
+### 2.2 Dependency inventory (new; required by correction 1)
+| Package | Version (pinned) | Licence | Advisories (GitHub, 2026-11-12) | Role |
 |---|---|---|---|---|
-| T1 | 2.1 | 2.8 | 1.8 | seamless |
-| T2 | 5.3 | 4.2 | 5.9 | seamless |
-| T3 | 2.2 | **8.9** | 2.0 | left/right seamless; a faint top/bottom seam is possible: check visually when the asset is prepared |
-| T4 | 1.5 | 4.5 | 12.7 | seamless |
+| `SkiaSharp` | 4.156.0 | MIT | 1 (GHSA-j7hp-h8jx-5ppr, libwebp heap overflow, fixed in 2.88.6; 4.156.0 is not affected) | decode PNG/JPEG, inspect frames, re-encode |
+| `SkiaSharp.NativeAssets.Win32` | 4.156.0 (transitive) | MIT | none listed | native Skia for the Windows deployment (ALV-N013) |
 
-**Source and licence status:** all five are AI-generated images the owner produced with ChatGPT on 2026-11-10 (file names and dates). Under the provider's terms the output belongs to the user, but this briefing cannot verify that. **Owner confirmation required (decision D-2):** the owner holds the rights to use all five in a distributed product, and none was generated from a third-party image as input. The folder's `whatsapp-background.png` (saved 10:08) predates T1 (10:41), and T1's doodle style is similar. If T1 was made from that image, T1 should be dropped or regenerated without it.
+**Why SkiaSharp:** MIT licence, maintained by Microsoft/.NET Foundation, the same Skia engine as Chrome (heavily fuzzed), and `SKCodec` reads dimensions and frame count from the header without decoding the pixels (needed for correction 2). **Rejected:** `SixLabors.ImageSharp` 4.1.3 (Six Labors Split License: commercial use above a revenue threshold needs a paid licence; 15 advisories), `Magick.NET` 15.1.0 (about 100 advisories, very large native decoder surface), `NetVips` 3.2.0 (MIT wrapper, but the native libvips is LGPL with many optional decoders).
 
-**Weight:** the tiles are 1.5-1.9 MB each, too heavy for a sign-in page. Proposed preparation (implementation step, owner-approved assets only): scale each tile to a repeat unit of 627 x 627 (half size, still sharp at 2x density) and encode as WebP and PNG fallback, target under 250 KB each; keep the logo's aspect ratio (2:1), crop to the ink area plus margin, export at 2x of its display size (display about 280 x 140 CSS px), target under 60 KB. No stretching: tiles repeat at their natural size (`background-repeat: repeat`), and the logo keeps `object-fit: contain` with fixed aspect ratio.
+**At implementation:** add only these packages with exact versions; record `dotnet list package --include-transitive` and `dotnet list package --vulnerable` output in the handoff; no floating versions. Decoding is restricted to PNG and JPEG by our own content check before Skia sees the bytes (Skia's WebP/GIF decoders are never reached).
 
-**Location in the repository (proposed):** prepared derivatives in `src/alveara-client/src/assets/login/` (bundled by Vite with content-hashed names, served from the same origin). The original high-resolution files are not committed; their SHA-256 values above are the provenance record, and the preparation commands are recorded in the handoff.
-
-**Safe fallback:** each theme has a solid background colour equal to its tile's dominant colour, applied underneath the image. If the image fails to load, is blocked, or the stored theme id is unknown (for example a theme removed later), the page shows the default theme's solid colour and the card exactly as before. If the logo fails, the card's existing "Sign in" heading and the page title "DentalKeep" remain (the alt text is announced). In Windows high-contrast/forced-colours mode the browser drops background images; the card stays readable.
-
-## 3. Current state (read from the repository at `db138ec`)
-
-- `src/alveara-client/src/pages/LoginPage.tsx` + `LoginPage.css`: a `PageHeader` "Sign in" with description "Enter your username and password to access DentalKeep.", status banners (expired, server unavailable, server problem, invalid credentials, locked, disabled, rate-limited), the form. No logo, no background, no footer.
-- `App.tsx` `RootLayout` renders the sign-in variant of `DisconnectedBanner` on `/login`, `/mfa-challenge`, `/reset-password` (ALV-N020). The saved app theme applies to the sign-in page (ALV-N020, F-156).
-- Practice configuration: `PracticeSettings` singleton (name, phone, address, `RowVersion`), `GET/PUT api/config/practice` behind `[RequirePermission(Permission.ManagePracticeConfiguration)]` and `[RequireCsrfToken]`, audited through `ConfigurationWrite.Audit` (`ConfigurationUpdated`).
-- Anonymous endpoints today: sign-in, CSRF token, health (no class-level `[Authorize]` on `AuthController`). The `AuthAttempts` rate-limit policy covers authentication attempts only.
-- Chain stage 0 asserts the DentalKeep brand on the sign-in page and the signed-in shell (B-01, B-02); stage 1 covers sign-in, lockout-adjacent refusals, expiry, revocation and the outage case. These must stay green.
+## 3. Current state (repository at `6a7d8c0`)
+- `LoginPage.tsx` / `LoginPage.css`: `PageHeader` "Sign in" with "Enter your username and password to access DentalKeep.", status banners, the form. No logo, background or footer. `MfaChallengePage.tsx` and `ResetPasswordPage.tsx` are the other sign-in-flow pages.
+- `App.tsx` `RootLayout`: sign-in variant of `DisconnectedBanner` on those pages; the saved app theme applies there (ALV-N020).
+- Permissions are role-based: `PermissionMatrix` defaults, `RolePermissionOverride` rows (ALV-N017), and **the Admin role always holds every permission** (`Set(Enum.GetValues<Permission>())`). There is no per-account grant today.
+- Configuration: `PracticeSettings` singleton with `RowVersion`, `[RequirePermission]` + `[RequireCsrfToken]`, audit via `ConfigurationWrite.Audit`.
+- Files: `DocumentFileRules.DetectContent` recognizes PNG and JPEG by magic bytes; blob storage under `StorageRoot`; `DocumentsController` serves PNG/JPEG inline under `Content-Security-Policy: sandbox`.
+- Backup: `ManagedAssetClasses` = database, documents, Data Protection keys, deployment configuration. The code requires a new on-disk store to register an `IBackupAssetSource` and its class name.
+- Chain stage 0 asserts the DentalKeep brand on the sign-in page and the shell (B-01, B-02); stage 1 covers sign-in, refusals, expiry, revocation and the outage case.
 
 ## 4. Design
 
-### 4.1 Theme catalog (fixed allow-list)
-A single shared definition of four identifiers, used by the server (validation) and the client (asset map):
+### 4.1 Permission `ManageLoginPresentation` (correction 7)
+- A new **account-scoped** permission: it is not in any role's defaults, cannot be granted to a role by a policy override (the override writer refuses it), and is **excluded from the Admin role's "every permission"** set. It is held by named accounts listed in a new table `AccountPermissionGrants` (account id, permission, granted by, granted at; unique per account and permission).
+- **Initial assignment:** the deployment setting `LoginPresentation:InitialHolderUsername` names the owner-designated account. At start-up, only while no grant for this permission has ever existed (checked against the audit history), the server grants it to that account if the account exists and is enabled, and audits `LoginPresentationPermissionGranted` with actor "deployment configuration". If the account does not exist yet, nothing is granted and a warning is logged; the check repeats at the next start. It is not a hidden account, preset secret, bypass or recovery mechanism: it only names an existing account, which still signs in with its own password (and MFA if enrolled).
+- **Transfer:** through Security administration -> the account's detail page -> "Presentation administrator" grant/revoke, by an account holding `ManageUsers` (the ordinary named-account authorization path), CSRF-protected, audited `LoginPresentationPermissionGranted` / `...Revoked` with actor, target and time. A grant to a disabled or Unassigned account is refused. Revoking the last holder is allowed (presentation simply becomes unmanageable until someone is granted it; the sign-in page keeps working).
+- **Checks:** every presentation operation requires this permission (account-scoped check by the signed-in account id) and CSRF. `/api/auth/permissions` reports it for the holder, so the client shows the Sign-in screen tab only to holders.
+- **Compatibility:** tests and UI that assume "Admin has every permission" are updated to "every role-assignable permission"; the permission matrix page does not list account-scoped permissions as a role column (it notes them separately).
 
-| Id | Asset | Solid fallback | Card style |
-|---|---|---|---|
-| `teal-doodle` | T1 | `#042B30` | light card |
-| `blue-doodle` | T2 | `#0D314E` | light card |
-| `blue-operatory` | T3 | `#0B2A50` | light card |
-| `violet-operatory` | T4 | `#2D1F52` | light card |
+### 4.2 Upload pipeline (corrections 1 and 2)
+Order of checks; any failure refuses with a specific code, saves nothing and leaves no temporary file:
+1. Permission and CSRF; request body at most 5 MB + form overhead (request-size limit on this endpoint only).
+2. Display name: plain text, 1-60 characters, no control characters, no `<` or `>`.
+3. Content detection by magic bytes (`DocumentFileRules.DetectContent`): PNG or JPEG only; the extension must agree. SVG, GIF, WebP, BMP, TIFF and everything else: `background_type_refused`.
+4. Header inspection with `SKCodec` (no pixel decode yet): width and height each 256-4,096 px, total pixels at most 16,777,216 (4,096 x 4,096); frame count exactly 1 (an animated PNG is refused: `background_animated_refused`); malformed or truncated header: `background_unreadable`.
+5. Decode to an RGBA bitmap of exactly the header's size (allocation bounded by step 4), with a decode timeout; any decoder error: `background_unreadable`.
+6. Re-encode a **server-generated derivative**: PNG input -> PNG, JPEG input -> JPEG quality 90; colour converted to sRGB; the derivative is a fresh encode of the decoded pixels only, with no metadata copied from the input (no EXIF, XMP, IPTC, ICC beyond sRGB, or PNG text chunks). This is not assumed from the library: the section 8 tests parse every derivative back and fail on any metadata block. If the long side exceeds 2,560 px it is scaled down proportionally for weight.
+7. Hash the derivative (SHA-256). The same hash already in the catalog (active or inactive): `background_duplicate`.
+8. Active catalog limit: at most 30 active added images: `background_catalog_full`.
+9. Store the derivative under a server-controlled name (`<new guid>.png|.jpg`) in a dedicated folder `StorageRoot/login-backgrounds/`, then insert the catalog row in a transaction; if the insert fails, the file is removed. **The original upload is never written to disk and never kept** (processed from a bounded memory buffer).
+10. Audit `LoginBackgroundAdded`: image id, display name, derivative hash, type, size, dimensions, actor. Never the bytes, never the user-supplied file name.
 
-Default theme (decision D-4): proposed `blue-operatory` (calmest, fewest small shapes). An id not in the catalog is refused by the server (400 `theme_unknown`) and, if found in storage, rendered as the default.
+### 4.3 Catalog, selection and inactivation (correction 3)
+- Catalog entries: the five bundled images (fixed keys `teal-doodle`, `blue-doodle`, `blue-operatory`, `violet-operatory`, `neon-doodle`; cannot be inactivated) and added images (id, display name, hash, type, dimensions, suggested display mode, added by/at, active, row version).
+- Selection (singleton `LoginPresentationSettings`): background reference (bundled key or added-image id), display mode (Tile / Stretch / Fill), notice text, show-notice flag, row version. Seeded: `teal-doodle`, Tile, no custom text, show = true.
+- **Inactivating the selected image is refused** (409 `background_in_use`: "Choose another background first"). Inactivation and selection run under the settings row's concurrency token in one transaction, so a concurrent change cannot leave the selection pointing at an inactive image.
+- Added images are inactivated and reactivated, never deleted (a database trigger refuses deletes, as elsewhere in the system).
+- **Safe fallback at read time:** the presentation endpoint resolves the selection; if the image is inactive, missing from storage, unreadable, or the reference is unknown, it answers with the deployment default `teal-doodle` / Tile (and logs `login_background_fallback` with the reason, once per change).
 
-### 4.2 Persistence (one migration; needs the reviewer's approval of this briefing)
-New singleton table `LoginPresentationSettings`: `Id` (fixed), `ThemeId` nvarchar(40) not null (check: lower-case letters, digits and hyphens), `FooterNoticeText` nvarchar(300) null (null = use the deployment default), `ShowFooterNotice` bit not null default 1, `UpdatedAtUtc`, `RowVersion`. Seeded with the default theme, null text, show = 1. A separate table, not new columns on `PracticeSettings`, so a sign-in-screen change never conflicts with an edit of the practice name (each has its own concurrency token). Down migration on an empty or seeded table drops it; nothing else changes.
+### 4.4 Anonymous endpoints (correction 4)
+- `GET /api/public/login-presentation` -> `{ background: { kind: "bundled", key } | { kind: "added", url: "/api/public/login-background/<sha256>.<png|jpg>" }, displayMode, footerNotice: string | null }`; `Cache-Control: no-store`. `footerNotice` is null when display is off or the effective text is empty (a disabled notice is not sent).
+- `GET /api/public/login-background/{sha256}.{ext}` serves the derivative **only if that hash is the currently selected active added image**; otherwise 404 (no catalog, no listing, no other id, no inactive image, no original). Headers: fixed `Content-Type` (`image/png` or `image/jpeg`), `X-Content-Type-Options: nosniff`, `Cross-Origin-Resource-Policy: same-origin`, `Content-Security-Policy: sandbox`, `Content-Disposition: inline; filename="login-background.<ext>"` (server-controlled), `Cache-Control: public, max-age=31536000, immutable` (content-addressed, so safe to cache). No storage path or user file name in any response.
+- Both endpoints are read-only, identical for every visitor, and rate-limited by a modest per-IP policy of their own; the image is read through a bounded stream.
 
-### 4.3 Deployment-default notice
-The "initially deployed country-appropriate notice" is configuration, not code and not detection: `LoginPresentation:DefaultFooterNotice` in the deployment settings (environment variable `LoginPresentation__DefaultFooterNotice`), validated at start-up with the same rules as an edited notice (an invalid default is logged and treated as empty, never shown raw). The deployer edits it during or after deployment by changing that setting. An administrator's text overrides it; "Use deployment default" clears the override. No country detection (plan exclusion). The default text itself is decision D-5.
+### 4.5 Display modes
+| Mode | CSS on the page background | UI note |
+|---|---|---|
+| Tile | `background-repeat: repeat; background-size: auto` (natural size) | - |
+| Stretch | `background-size: 100% 100%; background-repeat: no-repeat` | "May distort the image." |
+| Fill | `background-size: cover; background-position: center; background-repeat: no-repeat` | "Keeps proportions; edges may be cropped. Recommended for photographs." |
+The logo is never stretched (`object-fit: contain`, fixed aspect ratio).
 
-### 4.4 Server API
-- `GET api/public/login-presentation` (anonymous, no cookie needed, `Cache-Control: no-store`): `{ "themeId": "...", "footerNotice": "..." | null }`. `footerNotice` is null when display is off or the effective text is empty: a disabled notice is not sent, so it cannot be rendered. Returns nothing about users, accounts or the practice. A short-lived in-process cache (for example 30 s) keeps it cheap; it has its own modest rate-limit partition so it cannot be used to load the database.
-- `GET api/config/login-presentation` (configuration authority): the stored values, the effective default, the catalog, and `rowVersion`.
-- `PUT api/config/login-presentation` (configuration authority + CSRF): `{ themeId, footerNoticeText | null, showFooterNotice, rowVersion }`. Stale version -> 409 with the existing conflict shape.
-- Permission: the existing `ManagePracticeConfiguration` (decision D-6 if the reviewer prefers `ManageUsers`-level separation; the plan says "existing least-privilege configuration authority").
-- Request bodies validated by the existing model-validation pattern; malformed input 400 before the service.
+### 4.6 Footer notice
+- Deployment default from `LoginPresentation:DefaultFooterNotice` (deployer-editable during or after deployment; validated at start-up with the same rules; an invalid default is logged and treated as empty). The shipped USA default (O-4), two paragraphs:
+  > Please ensure you have taken appropriate precautions to guard against inappropriate sharing of Protected Health Information (PHI) pursuant to HIPAA, 42 CFR Part 2, and all applicable state laws regarding confidential patient information. Do not share your password with anyone.
+  >
+  > All access to this system will be tracked and monitored by each organization. Inappropriate access may result in reporting to organizational management or law enforcement officials. By utilizing this system, you express consent to monitoring and abiding by federal and state regulatory requirements for patient/consumer information.
+- Custom text overrides it; "Use deployment default" clears the override. Rules: trimmed; 1-1,000 characters; at most 10 line breaks; no other control characters or tabs; `<`, `>` and URL forms (`://`, `www.`, `mailto:`) refused. Rendered as a React text node with `white-space: pre-line`; never `dangerouslySetInnerHTML`, never auto-linked. No country detection.
 
-### 4.5 Notice text rules (server-enforced; the client mirrors them for messages only)
-- Trimmed; empty after trimming = "no custom text" (null).
-- 1-300 characters; at most 3 line breaks; no other control characters; no tabs.
-- Plain text only. Proposed (decision D-7): also refuse `<` and `>` and any URL scheme or address (`://`, `www.`, `mailto:`), so a stored notice can never look like markup or a link. Even if allowed, rendering is a React text node (escaped) with `white-space: pre-line`; never `dangerouslySetInnerHTML`, never auto-linked.
+### 4.7 Upload warning (correction 5)
+Shown prominently above the Add background image control and in its dialog, and the dialog requires ticking it: "This image is public. Anyone who opens the sign-in page sees it before signing in. Never use an image that contains patient information, faces, clinical documents, screenshots of this application or of patient data, or any other protected or confidential information." The warning is guidance, not a control; the controls are the narrow permission, the audit trail, and inactivation.
 
-### 4.6 Audit (existing `ConfigurationWrite.Audit`, actor and time recorded by the audit service)
-- `LoginThemeChanged`: "Sign-in theme changed from `<old id>` to `<new id>`."
-- `LoginFooterNoticeChanged`: display state before and after, and whether the text changed (custom/default, character count). The full notice text is not copied into the audit detail (plan: "without unnecessarily duplicating notice text"); the stored row is the current text.
-- `LoginFooterNoticeReset`: custom text cleared back to the deployment default.
-- No credentials, IP addresses or user-agent data.
+### 4.8 Backup and restore (correction 6)
+New managed asset class `loginBackgrounds` registered with an `IBackupAssetSource` over `StorageRoot/login-backgrounds/` (file-by-file SHA-256, like documents). A new restore check `restored_login_backgrounds_have_their_files`: every active added image row has its derivative with the matching hash. A backup that predates the class is reported incomplete for it (existing behavior for new classes).
 
-### 4.7 Client
-- `LoginPage` (and the MFA-challenge and reset-password pages, which share the layout) gets a `LoginLayout`: full-page background div (decorative: CSS background, `aria-hidden`, no alt), logo `<img alt="DentalKeep">` with fixed aspect ratio, the existing card with its unchanged content, the footer `<footer>` only when `footerNotice` is a non-empty string.
-- The presentation fetch never blocks or delays sign-in: the page renders at once with the default theme and no footer; the fetched theme/notice is applied when it arrives. If the fetch fails (outage), the default theme stays and no footer is shown; the existing "Local server unavailable" sign-in banner is unchanged.
-- Card contrast: the card uses the app's existing light/dark tokens (it follows the saved app theme, F-156); the background never sits behind text. A thin focus ring and the existing banners keep their current contrast. `prefers-reduced-motion`: there is no motion to reduce (no animation added).
-- Narrow widths: the card spans the viewport minus the 16 px gutter; the logo scales down with its aspect ratio; no horizontal scroll.
-- Practice configuration gets a "Sign-in screen" tab: four theme thumbnails as a radio group (keyboard-operable, each labelled), the notice text box with a live character count and the rule messages, the "Show footer notice on login screen" checkbox, "Use deployment default", Save with the existing unsaved-changes guard and conflict message, and a preview of the effective notice as plain text.
+### 4.9 Client
+- `LoginLayout` used by `LoginPage`, `MfaChallengePage` and `ResetPasswordPage`: page background (decorative CSS background, solid fallback colour underneath), full-height light centre panel (owner mockup), logo `<img alt="DentalKeep">`, the existing content with visible labels **Username** / **Password** and the **Sign in** button (R-1), the footer `<footer>` only when `footerNotice` is a non-empty string.
+- The presentation fetch never delays sign-in: the page renders at once with the default background and no footer; the fetched values apply when they arrive; a failed fetch keeps the default and shows no footer; the "Local server unavailable" sign-in banner is unchanged.
+- The panel uses the existing light/dark app tokens; narrow widths: the panel spans the viewport minus the 16 px gutter, the logo scales with its aspect ratio, no horizontal scroll; no animation.
+- Practice configuration -> **Sign-in screen** tab (holders only): catalog grid with thumbnails (radio group, keyboard-operable, labelled), display-mode radio group with the notes, Add background image (file input, name, warning acknowledgement), Make unavailable / Make available, notice text box with character count and rule messages, Show footer notice on login screen, Use deployment default, Save with the existing unsaved-changes guard and conflict message.
 
-### 4.8 What stays exactly as it is
-`AuthController` and `AccountService` sign-in, lockout, the `AuthAttempts` rate limit, the identical refusal for wrong password and unknown user, CSRF handling, session expiry/revocation/sign-out, MFA, the ALV-N020 outage and identity behavior, the page title and visible "DentalKeep" text (chain B-01/B-02). No tracking, analytics, fonts or images from other origins.
+### 4.10 Audit events (all via the audit service: actor and time)
+`LoginPresentationPermissionGranted`, `LoginPresentationPermissionRevoked`, `LoginBackgroundAdded`, `LoginBackgroundInactivated`, `LoginBackgroundReactivated`, `LoginBackgroundSelected` (previous and new reference, previous and new display mode), `LoginFooterNoticeChanged` (display state before/after, custom/default, character count; not the full text), `LoginFooterNoticeReset`. Never credentials, image bytes or user-supplied file names.
 
-## 5. Security and privacy review
-| Concern | Handling |
+## 5. Threat surface (new)
+| Surface | Threat | Control |
+|---|---|---|
+| Upload endpoint (authenticated, privileged) | malicious or malformed files, decoder exploits, decompression bombs | narrow permission + CSRF; 5 MB limit; magic-byte type check before decoding; header dimension, total-pixel and frame checks before decoding; pinned, advisory-checked decoder; decode only PNG/JPEG; bounded decode; derivative re-encode |
+| Upload content | metadata leaks (EXIF/XMP/IPTC/PNG text chunks, GPS), hidden payloads | only the re-encoded pixel data is stored and served; the original is never kept |
+| Upload content | PHI or faces shown publicly | permission limited to one designated account, prominent warning with acknowledgement, audit, inactivation |
+| Anonymous presentation endpoint | enumeration, data exposure, load | two values, identical for everyone, `no-store`, rate-limited, no identifiers beyond the selected image's content hash |
+| Anonymous image endpoint | catalog enumeration, serving inactive/other images, MIME confusion, cross-origin use | serves only the current selection's hash, 404 otherwise; fixed type, `nosniff`, CORP same-origin, CSP sandbox, server-controlled name |
+| Footer notice | stored XSS, phishing links | plain-text storage and rendering, markup and URL refusal, length/control-character limits |
+| Permission model | privilege creep (Admin inherits everything) | account-scoped permission excluded from Admin defaults and from role overrides; grants audited |
+| Storage | path traversal, overwrite | server-generated names only, dedicated folder, no client-supplied path ever used |
+| Availability | a bad image breaks sign-in | fallback to the bundled default; sign-in never waits for presentation data |
+
+## 6. Migration and compatibility
+- **One migration**: tables `LoginPresentationSettings` (singleton, seeded), `LoginBackgroundImages` (no-delete trigger, unique hash), `AccountPermissionGrants` (unique account+permission). Down on empty/seeded tables drops them; down with added images or grants is refused (immutable history), stated and tested.
+- New enum value `Permission.ManageLoginPresentation`, excluded from role sets; permission-matrix and policy code updated so it is never role-assignable; existing role behavior otherwise unchanged.
+- New backup asset class `loginBackgrounds` (older backups report it missing, as designed).
+- New deployment settings `LoginPresentation:InitialHolderUsername`, `LoginPresentation:DefaultFooterNotice` (documented for the ALV-N013 installer).
+- New package `SkiaSharp` 4.156.0 (section 2.2).
+- No change to `AuthController` sign-in, `AccountService`, `AuthContext`, `RouteGuards`, CSRF, lockout or session code.
+
+## 7. Permission, audit, data, backup, recovery, accessibility implications
+| Area | Implication |
 |---|---|
-| New anonymous endpoint | Read-only, returns two values, no identifiers, `no-store`, cached and rate-limited; same response for everyone, so nothing to enumerate |
-| Stored XSS through the notice | Plain-text storage and rendering (escaped text node), markup and URL refusal (D-7), length and control-character limits; tests insert `<script>` and `<img onerror>` payloads and assert they appear as literal text or are refused |
-| Remote content / tracking | Assets bundled and same-origin; no external URL can be configured; theme ids are an allow-list |
-| Uploads | None (plan exclusion) |
-| Privilege | Writes require configuration authority + CSRF; FrontDesk/Dentist etc. get 403; anonymous gets 401 on the config endpoints |
-| Concurrency | `RowVersion` on the new singleton; stale write 409, nothing changed |
-| Audit integrity | Actor and time from the audit service; no credentials; no full notice text duplication |
-| Availability | Presentation fetch failure never blocks sign-in |
+| Permission | new account-scoped `ManageLoginPresentation`; grant/revoke by `ManageUsers` holders; initial holder from deployment setting |
+| Audit | events in 4.10; no bytes, names of uploaded files or credentials |
+| Data | derivatives on disk under server names; catalog and settings rows; no PHI expected (warning + audit) |
+| Backup | new asset class and restore check (4.8) |
+| Recovery | missing/unreadable derivative -> default background; restore re-checks files; lost holder -> a `ManageUsers` administrator grants the permission to another named account (audited) |
+| Accessibility | solid panel, visible labels, contrast per background in light and dark app themes, keyboard-only sign-in and configuration, 200 % zoom, forced colours, Stretch/Fill notes as text |
 
-## 6. Files expected to change (implementation, after approval)
-Server: new `LoginPresentationSettings` entity + model configuration + migration; `LoginPresentationService` (validation, catalog, audit); `LoginPresentationController` (public GET) and two actions in `ConfigurationController` (or a small `LoginPresentationConfigController`); catalog constants; Program.cs registration and the rate-limit partition; deployment setting. Client: `LoginLayout` component and CSS; `LoginPage`, `MfaChallengePage`, reset-password page use it; `loginPresentationApi.ts`; theme catalog map; prepared assets under `src/assets/login/`; Practice configuration "Sign-in screen" tab. Tests listed in section 7. No change to `AuthController`, `AccountService`, `AuthContext`, `RouteGuards`.
-
-## 7. Focused evidence plan (each run within the owner's 5-minute rule, or with explicit permission above it)
-| Area | Tests (planned) |
+## 8. Focused acceptance evidence (implementation phase; runs within the owner's 5-minute rule or with explicit permission above it)
+| Requirement | Tests |
 |---|---|
-| Server unit/service | validation table (empty, spaces only, 300/301 chars, 4 line breaks, tab, control char, `<`, `>`, `http://`, `www.`), unknown theme refused, reset to default, effective-default resolution, invalid deployment default treated as empty, audit entries (theme old/new; notice display/changed flags; no full text) |
-| Server API | anonymous public GET shape and `no-store`; disabled notice absent from the payload; config GET/PUT: anonymous 401, FrontDesk/Dentist 403, OfficeManager and Admin 200; missing CSRF refused; stale version 409 with nothing changed; idempotent re-save |
-| Schema/migration | table, check constraint and seed; up/down on a clone; registered in `RealMigrationInventory` |
-| Client unit | `LoginLayout` per theme (class/background), unknown id -> default, image error -> solid fallback, footer plain text renders `<script>` literally, disabled -> no footer element in the DOM, fetch failure -> default theme and no footer, sign-in not delayed by a slow fetch; config tab: radio group keyboard, validation messages, conflict, unsaved-changes guard |
-| Accessibility | axe on the sign-in page for each theme in light and dark app themes, at 1280 px and 375 px; keyboard-only sign-in (Tab order logo-less: username, password, Sign in, footer has no focusable element); 200 % zoom no horizontal scroll; forced-colours snapshot |
-| Browser (mocked Playwright) | the four themes at desktop and narrow widths with screenshots for the handoff; error, loading and server-unavailable states over each theme |
-| Real backend | `auth` walkthrough unchanged (12); chain stage 0 + stage 1 re-run (B-01/B-02 brand, 1.01-1.12, 13.05) to prove sign-in, refusals, expiry, revocation and outage are unchanged |
-| Negative controls | markup rendered as HTML -> the XSS test fails; disabled notice still sent -> the payload test fails; permission check removed -> the 403 tests fail |
+| Initial owner-only assignment | start-up grant to the configured account only while no grant ever existed; not to Admin by role; missing account -> no grant + warning; second start does nothing |
+| Authorization / transfer / CSRF | holder 200; Admin without grant 403; FrontDesk etc. 403; anonymous 401; missing CSRF refused; `ManageUsers` grant/revoke audited; grant to disabled/Unassigned refused; role override for the permission refused |
+| Type refusal by content | SVG, GIF, WebP, BMP, text renamed `.png`, PNG renamed `.jpg` (mismatch) |
+| Malformed / unsupported / animated | truncated PNG, corrupt JPEG, APNG with 2 frames |
+| Size / dimensions / total pixels / duplicates | 5 MB + 1 byte; 255 px and 4,097 px sides; 4,096 x 4,097; the same image twice (and once after inactivation) |
+| Metadata stripping | JPEG with EXIF GPS, XMP and IPTC; PNG with tEXt/iTXt/eXIf chunks -> the stored derivative has none (parsed back) |
+| Derivative-only storage | only one file per image under a server name; no original on disk after success or failure; temp-file sweep |
+| Public endpoint boundary and headers | presentation payload shape and `no-store`; image endpoint serves only the selected hash, 404 for an inactive, other, unknown or original reference; exact headers |
+| Selection / inactivation | inactivating the selected image -> 409; concurrent select/inactivate -> one wins, never an inactive selection; missing file / inactive / unknown reference -> default |
+| Display modes | each mode renders the expected CSS (unit) and in a browser screenshot |
+| Concurrency and audit history | stale settings write 409, nothing changed; every event in 4.10 with the right fields and no forbidden content |
+| Footer | enabled/disabled rendering (absent from DOM and payload when off); `<script>`/`<img onerror>` shown literally or refused; 1,000/1,001 characters; 10/11 line breaks; deployment default and reset |
+| Sign-in page | keyboard-only sign-in; axe per bundled background in light and dark themes at 1280 px and 375 px; 200 % zoom; forced colours; sign-in not delayed by a slow or failed presentation fetch |
+| Unchanged security | chain stage 0 + stage 1 re-run (B-01/B-02, 1.01-1.12, F-021, F-037, 13.05) and the `auth` walkthrough |
+| Backup / restore | an actual backup and restore of an added derivative: the file returns with the same hash and the restore check passes; a missing file fails the check |
+| Schema | migration up/down on a clone; no-delete trigger; unique hash; registered in `RealMigrationInventory` |
+| Negative controls | markup rendered as HTML; disabled notice still sent; permission check removed; metadata copied through; non-selected image served |
 
-Broad regression: none (deferred to ALV-N028; the ledger gains this package's obligations: full suites, the walkthroughs, the chain).
-
-## 8. Risks
+## 9. Risks
 | Risk | Mitigation |
 |---|---|
-| A busy background hurts readability | Solid card, background never behind text, contrast tested per theme; tiles are dark and low-contrast by nature |
-| Heavy images slow the sign-in page | Prepared derivatives under 250 KB, lazy background, sign-in never waits for them |
-| Brand inconsistency ("KEEP dental" vs "DentalKeep") | Decision D-1 before any asset is committed |
-| Licence uncertainty | Decision D-2; nothing is committed until confirmed |
-| The new anonymous endpoint becomes an attack surface | Read-only, two values, cached, rate-limited, no identifiers |
-| T3 faint top/bottom seam | Visual check at preparation; owner may swap or regenerate |
+| Native decoder vulnerability | pinned SkiaSharp, advisory check recorded, type and header checks before decoding, re-encode, upload limited to one designated account |
+| An unsuitable public image | warning with acknowledgement, audit, quick inactivation |
+| Account-scoped permission breaks "Admin has everything" assumptions | explicit exclusion, matrix/policy tests updated, architecture test that no role set contains it |
+| Heavier sign-in page | bundled derivatives under 250 KB; added images capped at 2,560 px long side; sign-in never waits |
+| Logo artefacts (L2) | clean the transparent version or use L1 on the light panel |
+| Larger story | the focused test set above; broad regression stays with ALV-N028 |
 
-## 9. Decisions needed before implementation
-| # | Decision | Who | Proposal |
-|---|---|---|---|
-| D-1 | The logo reads "KEEP dental"; the product name is "DentalKeep". Use this logo as is, or supply one that reads "DentalKeep"? | owner | owner's call; nothing is changed in the artwork by the agent |
-| D-2 | Confirm the rights to all five images and that none was generated from a third-party image (see the T1 note) | owner | confirm, or drop/regenerate T1 |
-| D-3 | Logo background: show the opaque light-grey logo on a light panel above the card (no edit), or approve a transparent-background derivative | owner | light panel, no edit |
-| D-4 | Default theme | owner | `blue-operatory` |
-| D-5 | The deployment-default notice text (and which country it is written for) | owner | owner supplies the text |
-| D-6 | Permission: existing `ManagePracticeConfiguration` | reviewer | keep the existing authority |
-| D-7 | Refuse `<`, `>` and URLs in the notice text (in addition to plain-text rendering) | reviewer | refuse |
-| D-8 | One migration (new singleton table, section 4.2) | reviewer | approve |
+## 10. Open items
+| # | Item | Who |
+|---|---|---|
+| Q-1 | Location of the transparent-background logo file (L2), and whether its specks may be cleaned or L1 should be used meanwhile | owner |
+| Q-2 | The username of the owner-designated account for `LoginPresentation:InitialHolderUsername` | owner |
+| Q-3 | Transfer path: grant/revoke by `ManageUsers` holders (proposed) | reviewer |
+| Q-4 | Inactivating the selected image: refuse (proposed) rather than atomically reset to the default | reviewer |
+| Q-5 | Limits: 30 active added images, 2,560 px derivative cap, 10 line breaks in the notice (proposed) | reviewer |
 
-## 10. Method and limits of this briefing
-Read-only: the amended plan, the current login, configuration, permission and rate-limit code, and the five image files (dimensions, alpha, edge seams and SHA-256 measured with Python/PIL; images viewed). No file was copied into the repository, no code or test was changed, and no test was run. The asset roles and the licence status are inferences from file names, dates and content until the owner confirms D-1 to D-3.
+## 11. Method and limits
+Read-only: the amended plan, the scope-change request and review, the current login, permission, configuration, document-storage and backup code, the six image files (dimensions, alpha, edge seams, SHA-256 with Python/PIL; images viewed), and public package metadata (NuGet specifications for licences and versions; the GitHub advisory database for advisories). No file was copied into the repository; no code, schema, configuration, asset, dependency or test was changed; no test was run.
