@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
+using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Notifications;
 using Xunit;
 
@@ -35,7 +36,7 @@ public class StaffInactivationNotificationSchemaTests : SafetyTestBase
         var n = new Notification
         {
             Id = Guid.NewGuid(), RecipientUserId = Other, Kind = NotificationKinds.StaffInactivationFailed, Priority = NotificationPriorities.Urgent,
-            SourceKey = $"staff-inactivation-failed:{Guid.NewGuid():N}", CreatedAtUtc = DateTimeOffset.UtcNow,
+            SourceKey = InAppStaffInactivationAlert.SourceKeyFor(Guid.NewGuid()), CreatedAtUtc = DateTimeOffset.UtcNow,   // the real key, so the database checks its format
         };
         change?.Invoke(n);
         return n;

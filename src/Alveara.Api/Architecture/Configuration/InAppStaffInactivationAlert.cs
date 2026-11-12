@@ -23,7 +23,8 @@ namespace Alveara.Api.Architecture.Configuration;
 /// </summary>
 public sealed class InAppStaffInactivationAlert(AlveraDbContext db, IPracticeClock clock, ILogger<InAppStaffInactivationAlert> log) : IStaffInactivationAlert
 {
-    public static string SourceKeyFor(Guid failureRecordId) => $"staff-inactivation-failed:{failureRecordId:N}";
+    /// <summary>Letters, digits and a colon only, like <c>DocumentEvents:42</c>: the database rule CK_Notifications_SourceKey refuses a hyphen.</summary>
+    public static string SourceKeyFor(Guid failureRecordId) => $"StaffInactivationFailed:{failureRecordId:N}";
 
     public async Task SendAsync(StaffInactivationFailure failure, CancellationToken ct)
     {
