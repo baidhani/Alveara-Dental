@@ -12,6 +12,10 @@
     5. ALWAYS, even on failure or interruption: stop the API, drop the database, delete the run folder;
     6. write <root>\Test-Data\Temp\chain-output\<run id>\evidence.json (kept) and exit with its code.
   Every database name and path goes through scripts\chain\ChainSafety.ps1 first. The runner never touches AlveraDev, Dev-Data, real backups or any path outside its run folder.
+  ALV-N020 R02 (case 13.05): while Playwright runs, the runner watches <evidence>\api-control\ for a spec's request to stop or start ITS OWN API process (the one it
+  started, by process id; never another process): 'stop.request' -> stop it, wait until port 5072 is free, write 'stopped.ack'; 'start.request' -> refuse if the port is
+  busy, start the same host with the same settings (same database, key ring and storage, so sessions survive), wait for health, write 'started.ack'. Each action is
+  recorded as a runner step (API-STOP, API-START). The chain spec reaches the folder through CHAIN_API_CONTROL.
   Exit: 0 = every step PASS, 1 = any FAIL, SKIPPED_BLOCKED or blocking TRACKED_EXCEPTION, 2 = the runner could not complete its own setup.
 
 .PARAMETER Stage
@@ -125,6 +129,8 @@ try {
     $psi.EnvironmentVariables['DataProtectionKeysPath'] = $keysDir
     $psi.EnvironmentVariables['Backup__Root'] = $backupDir
     $api = [System.Diagnostics.Process]::Start($psi)
+    $apiPids = New-Object System.Collections.ArrayList       # every API process this run started (ALV-N020 R02: the 13.05 restart starts a second one)
+    [void]$apiPids.Add($api.Id)
 
     $healthy = $false
     for ($i = 0; $i -lt 40 -and -not $healthy; $i++) {
@@ -156,11 +162,63 @@ try {
     $env:E2E_BOOTSTRAP_SECRET = $secret
     $env:ALVERA_SQL_SERVER = $SqlServer
     $env:CHAIN_OUT = $evidenceDir
+    # ALV-N020 R02 (13.05): the owned-API control channel. Only this run's own API process is ever stopped or started; every action is a runner step.
+    $controlDir = Assert-RunOwnedPath (Join-Path $evidenceDir 'api-control') $evidenceDir $DataRoot
+    New-Item -ItemType Directory -Force -Path $controlDir | Out-Null
+    $env:CHAIN_API_CONTROL = $controlDir
+    function Write-ControlAck([string]$Name, [hashtable]$Body) {
+        ConvertTo-Json -InputObject $Body | Set-Content -LiteralPath (Join-Path $controlDir $Name) -Encoding utf8
+    }
+    function Invoke-ApiControl {
+        $stopReq = Join-Path $controlDir 'stop.request'
+        $startReq = Join-Path $controlDir 'start.request'
+        if (Test-Path -LiteralPath $stopReq) {
+            Remove-Item -LiteralPath $stopReq -Force
+            $ok = $false; $detail = ''
+            try {
+                if (-not $apiPids.Contains($script:api.Id)) { throw "process $($script:api.Id) is not one this run started" }
+                if (-not $script:api.HasExited) { Stop-Process -Id $script:api.Id -Force; [void]$script:api.WaitForExit(15000) }
+                for ($i = 0; $i -lt 30 -and (Test-PortInUse 5072); $i++) { Start-Sleep -Milliseconds 500 }
+                if (Test-PortInUse 5072) { throw 'port 5072 is still in use after the owned API stopped' }
+                $ok = $true; $detail = "stopped owned API process $($script:api.Id); port 5072 free"
+            }
+            catch { $detail = "$_" }
+            Write-ControlAck 'stopped.ack' @{ ok = $ok; pid = $script:api.Id; at = (Get-Date).ToString('o'); detail = $detail }
+            [void]$runnerSteps.Add(@{ stepId = 'API-STOP'; title = 'API-STOP the runner stopped its own API when the 13.05 step asked'; passed = $ok; detail = $detail })
+            Write-Host "API control: stop -> $detail"
+        }
+        if (Test-Path -LiteralPath $startReq) {
+            Remove-Item -LiteralPath $startReq -Force
+            $ok = $false; $detail = ''
+            try {
+                if (Test-PortInUse 5072) { throw 'port 5072 is in use by another process: refusing to start a second API' }
+                $script:api = [System.Diagnostics.Process]::Start($psi)
+                [void]$apiPids.Add($script:api.Id)
+                $up = $false
+                for ($i = 0; $i -lt 40 -and -not $up; $i++) {
+                    if ($script:api.HasExited) { throw "the restarted API exited (exit code $($script:api.ExitCode))" }
+                    try { $up = (Invoke-WebRequest "$ApiUrl/api/health" -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200 } catch { Start-Sleep -Seconds 2 }
+                }
+                if (-not $up) { throw 'the restarted API did not become healthy in time' }
+                $ok = $true; $detail = "started owned API process $($script:api.Id) with the same settings; healthy"
+            }
+            catch { $detail = "$_" }
+            Write-ControlAck 'started.ack' @{ ok = $ok; pid = $script:api.Id; at = (Get-Date).ToString('o'); detail = $detail }
+            [void]$runnerSteps.Add(@{ stepId = 'API-START'; title = 'API-START the runner restarted its own API when the 13.05 step asked'; passed = $ok; detail = $detail })
+            Write-Host "API control: start -> $detail"
+        }
+    }
+
     Push-Location -LiteralPath $clientDir
     try {
         $ErrorActionPreference = 'Continue'
-        & npx playwright test "--config=playwright.chain.config.ts"
-        Write-Host "Playwright exit code $LASTEXITCODE (the verdict comes from the evidence builder)."
+        # Playwright runs as a child process so the runner can answer the control channel while it runs (it was a blocking call before ALV-N020 R02).
+        $pw = Start-Process -FilePath 'cmd.exe' -ArgumentList '/c', 'npx playwright test --config=playwright.chain.config.ts' -NoNewWindow -PassThru
+        $null = $pw.Handle                                                  # keeps the exit code readable after the process ends
+        while (-not $pw.HasExited) { Invoke-ApiControl; Start-Sleep -Milliseconds 250 }
+        $pw.WaitForExit()
+        Invoke-ApiControl                                                   # a request written just before the end is still answered and recorded
+        Write-Host "Playwright exit code $($pw.ExitCode) (the verdict comes from the evidence builder)."
     }
     finally { $ErrorActionPreference = 'Stop'; Pop-Location }
 
@@ -188,7 +246,7 @@ catch {
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE, Env:CHAIN_API_CONTROL -ErrorAction SilentlyContinue
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }
         [void]$api.WaitForExit(15000)

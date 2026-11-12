@@ -1,8 +1,10 @@
+import fs from "node:fs";
+import path from "node:path";
 import { test, expect } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 
 // ALV-N020 stage 1 (sign-in, accounts and session) and the minimal part of stage 2 (two patients) of the accumulated chain (R05 PKG-02/PKG-03, cases
-// 1.01-1.06, 1.10-1.12, F-021, F-037, and the browser-level outage case 13.05). Runs only through scripts/Invoke-AccumulatedChain.ps1, after stage 0 created
+// 1.01-1.06, 1.10-1.12, F-021, F-037, and the outage case 13.05: since R02 the runner really stops and restarts its own API on the step's request). Runs only through scripts/Invoke-AccumulatedChain.ps1, after stage 0 created
 // the administrator `stage0-admin` on the run's own throw-away database. Step titles start with their source id; the evidence builder reads it.
 // Cost: case 1.12 waits for a real 5-minute session (the shortest per-user timeout; PD-32: the injected clock never controls sign-in expiry), so this
 // stage takes about 6-7 minutes.
@@ -34,6 +36,18 @@ async function signIn(page: Page, username: string, password: string): Promise<v
   await page.getByLabel("Username").fill(username);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
+}
+
+/** ALV-N020 R02 (13.05): asks the chain runner to stop or start ITS OWN API (scripts/Invoke-AccumulatedChain.ps1 watches this folder) and waits for its answer. */
+async function apiControl(action: "stop" | "start"): Promise<void> {
+  const dir = process.env.CHAIN_API_CONTROL;
+  expect(dir, "CHAIN_API_CONTROL is set by the chain runner; 13.05 runs only through it").toBeTruthy();
+  const ack = path.join(dir!, action === "stop" ? "stopped.ack" : "started.ack");
+  if (fs.existsSync(ack)) fs.rmSync(ack);
+  fs.writeFileSync(path.join(dir!, `${action}.request`), new Date().toISOString());
+  await expect.poll(() => fs.existsSync(ack), { timeout: 120_000, intervals: [250] }).toBe(true);
+  const answer = JSON.parse(fs.readFileSync(ack, "utf8").replace(/^\uFEFF/, "")) as { ok: boolean; detail: string };
+  expect(answer.ok, answer.detail).toBe(true);
 }
 
 async function newSession(username: string, password = PASSWORD): Promise<{ context: BrowserContext; page: Page }> {
@@ -184,33 +198,54 @@ test("1.11 starting MFA enrolment without finishing leaves password sign-in unch
   await context.close();
 });
 
-test("13.05 a server outage keeps the signed-in screen and the typed form, and it recovers without signing in again (F-155, browser-level)", async () => {
+test("13.05 when the runner really stops its own API, the signed-in screen and the dirty form stay; after the restart it recovers without signing in again (F-155)", async () => {
+  test.setTimeout(4 * 60_000);
   const { context, page } = await newSession("chain-front");
   await page.goto("/patients/register");
   await page.getByLabel("First name").fill("Typed During Outage");
 
-  await page.route("**/api/**", (route) => route.fulfill({ status: 502, body: "Bad gateway" }));        // the API stops answering
-  await page.evaluate(() => window.dispatchEvent(new Event("focus")));                                  // the session check runs and fails
-  await page.waitForTimeout(1_000);
+  await apiControl("stop");                                                                              // the runner stopped the API process it owns
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));                                  // the session check now fails (no API)
+  await expect(page.getByText("Local server unavailable.")).toBeVisible({ timeout: 30_000 });           // the reconnecting state (health check)
   await expect(page.getByRole("heading", { name: "Sign in" })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/patients\/register$/);
   await expect(page.getByLabel("First name")).toHaveValue("Typed During Outage");
 
-  await page.unroute("**/api/**");                                                                       // the API is back
+  await apiControl("start");                                                                             // same host, database and key ring: the session cookie is still valid
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(page.getByText("Local server unavailable.")).toHaveCount(0, { timeout: 30_000 });
+  expect((await page.request.get("/api/auth/permissions")).status()).toBe(200);                         // still signed in on the server: no new sign-in
+  await expect(page).toHaveURL(/\/patients\/register$/);
   await expect(page.getByLabel("First name")).toHaveValue("Typed During Outage");
   await expect(page.getByText(/your session expired/i)).toHaveCount(0);
   await context.close();
 });
 
-test("1.12 a short per-user timeout warns first, then signs out with the expiry message (fixed expiry unchanged)", async () => {
+test("1.12 a short per-user timeout: a really dirty form is guarded and kept through the warning, then expiry signs out with the expiry message and clears it (fixed expiry unchanged)", async () => {
   test.setTimeout(9 * 60_000);
   expect((await call(admin, "put", `/api/auth/${ids.front}/session-timeout`, { sessionTimeoutMinutes: 5 })).status).toBe(200);
   const { context, page } = await newSession("chain-front");
   await page.goto("/patients/register");
   await page.getByLabel("First name").fill("Unsaved");
 
-  await expect(page.getByText(/your session will expire soon/i)).toBeVisible({ timeout: 4 * 60_000 });   // about 3 minutes in
-  await expect(page.getByText(/your session expired/i)).toBeVisible({ timeout: 3 * 60_000 });           // at 5 minutes (checked every 15 s)
+  // The form is really dirty: leaving it through the menu asks first (the app's unsaved-changes guard); declining keeps the page and the text.
+  const prompts: string[] = [];
+  page.on("dialog", (dialog) => { prompts.push(dialog.message()); void dialog.dismiss(); });
+  await page.getByRole("link", { name: "Patients" }).click();
+  await expect.poll(() => prompts.length).toBe(1);
+  expect(prompts[0]).toBe("You have unsaved changes. Discard them?");
+  await expect(page).toHaveURL(/\/patients\/register$/);
+  await expect(page.getByLabel("First name")).toHaveValue("Unsaved");
+
+  // The warning comes first, and the unsaved text is still there while it shows.
+  await expect(page.getByRole("alert").filter({ hasText: "Your session will expire soon. Save your work and sign in again to continue." })).toBeVisible({ timeout: 4 * 60_000 });
+  await expect(page.getByLabel("First name")).toHaveValue("Unsaved");
+
+  // At expiry the sign-out goes through at once (no prompt can hold it, ALV-N003 R02) and the protected page, draft included, is gone.
+  await expect(page.getByText(/your session expired/i)).toBeVisible({ timeout: 3 * 60_000 });
   await expect(page).toHaveURL(/\/login\?reason=expired/);
+  expect(prompts).toHaveLength(1);                                                                        // only the one prompt we caused ourselves
+  await expect(page.getByLabel("First name")).toHaveCount(0);
+  await expect(page.getByText("Unsaved", { exact: true })).toHaveCount(0);
   await context.close();
 });
