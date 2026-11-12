@@ -2336,3 +2336,9 @@
   - What changed: .alveara/reviews/ALV-N019/R07.md stored unchanged; EXECUTION_STATUS.json ALV-N019 set COMPLETE with the R07 approval, reviewed commits 3cf91fa/5ec2c2f, completedAt, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false, ledger reference; BUILD_STATE.md closure paragraph. Closure-only: no code, test, configuration, dependency or package change.
   - Verification: reviewer decision APPROVED (.alveara/reviews/ALV-N019/R07.md); EXECUTION_STATUS.json parses.
   - Notes: not release-certified; broad regression owned by ALV-N028; ALV-N020 not started; nothing pushed.
+- [x] ALV-N020 pre-implementation briefing written (document only)
+  - Date: 2026-11-11
+  - Session: CC-20261109-8w3d
+  - What changed: docs/design/ALV-N020_PRE_IMPLEMENTATION_BRIEF.md (R05 PKG-02 and PKG-03: F-037, F-007, F-012, F-013, F-014, F-015, F-017, F-151, F-155, F-156, F-166, F-021; cases 1.01-1.12; PD-01, PD-36), with the complete raw-log entries copied by script.
+  - Verification: the 117 copied raw-log lines match the v6 source byte for byte (script check); no test, build or browser run.
+  - Notes: awaiting independent review; no code changed; ALV-N020 status unchanged (PLANNED); fullRegression planned as DEFERRED_TO_ALV-N028.
