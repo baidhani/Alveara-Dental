@@ -2378,3 +2378,9 @@
   - What changed: no code; proof only.
   - Verification: owner-approved run: StaffInactivationAlertTests + StaffInactivationNotificationSchemaTests + StaffInactivationServiceTests + RealMigrationInventoryTests 24/24 (26 s); no leftover test databases; NC-4 (alert never sent) -> 3 of 13 fail as expected, restored -> 13/13 pass, file restored byte for byte. Evidence C:/tmp/n020-proof/g9 and g10.
   - Notes: the rest of group 9 (NotificationSchemaTests, FollowUpSchemaTests, MigrationTests, MigrationUpgradeTests, ConfigurationApiTests) passed on the first run and is untouched by the fixes. Nothing pushed.
+- [x] ALV-N020 missing acceptance tests found while mapping section 11 (tests only; no product code)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: authApi.loginTimeout.test.ts (F-014: the 15 s abort fires at 15 s, not before, maps to server-unavailable; no timer left after an answer); App.routeGuards.test (+2, F-037 two tabs: a different person found by revalidation sends this tab to the dashboard; the same person stays); StaffInactivationAlertTests (+1, F-021: an unexpected error in the account step rolls back, keeps the stamp, records the class only, alerts, surfaces the original error); ConfigurationApiTests (+1, F-021/decision 1: inactivation and unlink need ManageUsers (403 for a practice manager, nothing changed), unlink needs a reason (400 reason_required), reactivation needs only configuration authority).
+  - Verification: test project builds, 0 errors, same 32 warnings; npx tsc -b clean; lint 42 warnings (unchanged). Tests written, NOT run (awaiting the owner's permission).
+  - Notes: still not covered and disclosed: the 1.12 unsaved-form warning in the chain, 13.05 runner-level API stop/restart, the document-link refusal of the new notification kind. Nothing pushed.

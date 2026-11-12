@@ -230,4 +230,50 @@ public class ConfigurationApiTests : IAsyncLifetime
             Assert.Contains(entries, e => e.GetProperty("entityType").GetString() == entityType && e.GetProperty("eventType").GetString() == "ConfigurationCreated");
         Assert.Contains(entries, e => e.GetProperty("eventType").GetString() == "ProviderAvailabilityReplaced");
     }
+
+    /// <summary>
+    /// ALV-N020 (F-021, approved decision 1): inactivating a staff profile disables its login, so it needs ManageUsers as well as configuration authority; the
+    /// same holds for unlinking a login, which also needs a reason. A practice manager (configuration authority, no ManageUsers) is refused before anything
+    /// changes, and may still reactivate a profile (which never touches the login).
+    /// </summary>
+    [Fact]
+    public async Task Inactivating_staff_and_unlinking_its_login_need_ManageUsers_and_unlinking_needs_a_reason()
+    {
+        await using var factory = CreateFactory();
+        var (admin, csrf) = await AdminAsync(factory);
+        var manager = await UserWithRoleAsync(factory, admin, csrf, "OfficeManager");
+        var managerCsrf = await CsrfAsync(manager);
+
+        var loginId = (await (await admin.PostAsJsonAsync("/api/auth/register", new RegisterRequest($"staffer-{Guid.NewGuid():N}", "password"))).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
+        await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{loginId}/role", csrf, new ChangeRoleRequest("Dentist")));
+        await admin.SendAsync(Req(HttpMethod.Put, $"/api/auth/{loginId}/enabled", csrf, new SetEnabledRequest(true)));
+        var created = await admin.SendAsync(Req(HttpMethod.Post, "/api/config/staff", csrf, new SaveStaffRequest("Dr. Leaving", "Dentist", loginId, null)));
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var staff = await created.Content.ReadFromJsonAsync<JsonElement>();
+        var staffId = staff.GetProperty("id").GetGuid();
+        async Task<JsonElement> CurrentAsync() => await (await admin.GetAsync($"/api/config/staff/{staffId}")).Content.ReadFromJsonAsync<JsonElement>();
+
+        var refused = await manager.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/active", managerCsrf, new SetActiveRequest(false, staff.GetProperty("rowVersion").GetString())));
+        Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
+        Assert.True((await CurrentAsync()).GetProperty("isActive").GetBoolean());                                  // refused before any change
+
+        var inactivated = await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/active", csrf, new SetActiveRequest(false, staff.GetProperty("rowVersion").GetString())));
+        Assert.Equal(HttpStatusCode.OK, inactivated.StatusCode);
+        var version = (await inactivated.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("rowVersion").GetString();
+
+        var managerUnlink = await manager.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/unlink-account", managerCsrf, new UnlinkStaffAccountRequest("Left the practice", version)));
+        Assert.Equal(HttpStatusCode.Forbidden, managerUnlink.StatusCode);
+        var noReason = await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/unlink-account", csrf, new UnlinkStaffAccountRequest("  ", version)));
+        Assert.Equal(HttpStatusCode.BadRequest, noReason.StatusCode);
+        Assert.Equal("reason_required", (await noReason.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("error").GetString());
+        Assert.Equal(loginId, (await CurrentAsync()).GetProperty("userAccountId").GetGuid());                      // still linked after both refusals
+
+        var unlinked = await admin.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/unlink-account", csrf, new UnlinkStaffAccountRequest("Left the practice", version)));
+        Assert.Equal(HttpStatusCode.OK, unlinked.StatusCode);
+        var afterUnlink = await unlinked.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(JsonValueKind.Null, afterUnlink.GetProperty("userAccountId").ValueKind);
+
+        var reactivated = await manager.SendAsync(Req(HttpMethod.Put, $"/api/config/staff/{staffId}/active", managerCsrf, new SetActiveRequest(true, afterUnlink.GetProperty("rowVersion").GetString())));
+        Assert.Equal(HttpStatusCode.OK, reactivated.StatusCode);                                                   // reactivation needs only configuration authority
+    }
 }

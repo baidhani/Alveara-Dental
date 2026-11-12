@@ -340,4 +340,51 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
     expect(screen.queryByRole("heading", { name: "Permission matrix" })).not.toBeInTheDocument();
     vi.unstubAllGlobals();
   });
+
+  it("ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard", async () => {
+    let who = "frontdesk1";                                                                            // the cookie is shared by every tab of the browser
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions"))
+          return Promise.resolve(jsonResponse({ username: who, role: "Admin", permissions: ["ViewPermissionMatrix"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+        if (u.includes("/api/auth/permission-matrix")) return Promise.resolve(jsonResponse([]));
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+    window.history.pushState({}, "", "/admin/permissions");
+    render(<App />);
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument());
+
+    who = "admin-1";                                                                                   // someone signed in as another person in a second tab
+    window.dispatchEvent(new Event("focus"));                                                          // this tab revalidates when it is looked at again
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument());
+    expect(screen.queryByRole("heading", { name: "Permission matrix" })).not.toBeInTheDocument();
+    expect(window.location.pathname).toBe("/");
+    vi.unstubAllGlobals();
+  });
+
+  it("ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation((url: RequestInfo | URL) => {
+        const u = String(url);
+        if (u.includes("/api/auth/permissions"))
+          return Promise.resolve(jsonResponse({ username: "frontdesk1", role: "Admin", permissions: ["ViewPermissionMatrix"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+        if (u.includes("/api/auth/permission-matrix")) return Promise.resolve(jsonResponse([]));
+        if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
+        return Promise.resolve(jsonResponse({}));
+      })
+    );
+    window.history.pushState({}, "", "/admin/permissions");
+    render(<App />);
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument());
+    window.dispatchEvent(new Event("focus"));
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.getByRole("heading", { name: "Permission matrix" })).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/admin/permissions");
+    vi.unstubAllGlobals();
+  });
 });

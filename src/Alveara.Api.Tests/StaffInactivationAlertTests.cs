@@ -37,6 +37,18 @@ public class StaffInactivationAlertTests : IAsyncLifetime
         }
     }
 
+    /// <summary>Makes the account step's save fail with an unexpected error (not a refusal), as if the database timed out while disabling the login.</summary>
+    private sealed class FailTheAccountStep : SaveChangesInterceptor
+    {
+        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            if (eventData.Context!.ChangeTracker.Entries<AuditLogEntry>()
+                .Any(e => e.State == EntityState.Added && e.Entity.EventType == AuditEventTypes.AccountDisabled))
+                throw new TimeoutException("forced: the database did not answer while disabling the login");
+            return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+    }
+
     private static StaffInactivationService ServiceOn(AlveraDbContext db, Microsoft.Extensions.Logging.ILogger<StaffInactivationService>? log = null) =>
         new(db, new StaffProviderService(db, Clock), IdentityTestHelpers.CreateAccountService(db),
             new InAppStaffInactivationAlert(db, Clock, NullLogger<InAppStaffInactivationAlert>.Instance), log ?? NullLogger<StaffInactivationService>.Instance);
@@ -111,6 +123,36 @@ public class StaffInactivationAlertTests : IAsyncLifetime
             await new InAppStaffInactivationAlert(db, Clock, NullLogger<InAppStaffInactivationAlert>.Instance).SendAsync(failure, default);
         }
         Assert.Equal(before, (await AlertsAsync()).Count);
+    }
+
+    [Fact]
+    public async Task An_unexpected_error_in_the_account_step_rolls_everything_back_records_the_failure_alerts_and_surfaces_the_original_error()
+    {
+        StaffProfile profile;
+        UserAccount admin, login;
+        await using (var setup = _fixture.CreateContext())
+        {
+            var accounts = IdentityTestHelpers.CreateAccountService(setup);
+            admin = await IdentityTestHelpers.BootstrapAdminAsync(accounts);
+            login = await IdentityTestHelpers.RegisterEnabledAsync(accounts, setup, $"dr-{Guid.NewGuid():N}", "password-1234", Role.Dentist, admin);
+            profile = await new StaffProviderService(setup, Clock).CreateStaffAsync("Dr. Leaving", "Dentist", login.Id, admin.Id, default);
+        }
+
+        var options = new DbContextOptionsBuilder<AlveraDbContext>().UseSqlServer(_fixture.ConnectionString).AddInterceptors(new FailTheAccountStep()).Options;
+        await using (var db = new AlveraDbContext(options))
+            await Assert.ThrowsAsync<TimeoutException>(() => ServiceOn(db).InactivateAsync(profile.Id, Convert.ToBase64String(profile.RowVersion), admin.Id, default));   // the error middleware answers 500 with the correlation id
+
+        await using var check = _fixture.CreateContext();
+        Assert.True((await check.StaffProfiles.AsNoTracking().SingleAsync(s => s.Id == profile.Id)).IsActive);           // rolled back
+        var account = await check.UserAccounts.AsNoTracking().SingleAsync(a => a.Id == login.Id);
+        Assert.False(account.IsDisabled);
+        Assert.Equal(login.SecurityStamp, account.SecurityStamp);                                                        // no session was ended for a change that did not happen
+        var record = Assert.Single(await FailureRecordsAsync(profile.Id));
+        Assert.Contains("TimeoutException", record.Details);
+        Assert.DoesNotContain("did not answer", record.Details);                                                         // the class only, never the exception's text
+        var alert = Assert.Single(await AlertsAsync());                                                                  // the only enabled Admin/OfficeManager here
+        Assert.Equal(admin.Id, alert.RecipientUserId);
+        Assert.Equal(InAppStaffInactivationAlert.SourceKeyFor(record.Id), alert.SourceKey);
     }
 
     [Fact]
