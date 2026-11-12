@@ -178,6 +178,7 @@ test("1.11 starting MFA enrolment without finishing leaves password sign-in unch
   const { context, page } = await newSession("chain-billing");
   expect((await call(page, "post", "/api/auth/mfa/enroll", { currentPassword: PASSWORD })).status).toBe(200);
   await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();                           // the sign-out has finished before signing in again
   await signIn(page, "chain-billing", PASSWORD);
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();                         // no MFA prompt: enrolment was never confirmed
   await context.close();
