@@ -51,8 +51,11 @@ export function LoginLayout({ children }: { children: ReactNode }) {
     <div className="alv-signin">
       <div className="alv-signin__backdrop" aria-hidden="true" data-testid="signin-backdrop" data-display-mode={effectiveMode} style={style} />
       <div className="alv-signin__panel">
-        <img className="alv-signin__logo" src={logo} alt="DentalKeep" width={280} height={126} />
-        <div className="alv-signin__content">{children}</div>
+        {/* Landmarks: the logo and the page's own content are the main region; the notice is the page footer (contentinfo). */}
+        <main className="alv-signin__main">
+          <img className="alv-signin__logo" src={logo} alt="DentalKeep" width={280} height={126} />
+          <div className="alv-signin__content">{children}</div>
+        </main>
         {presentation.footerNotice && (
           <footer className="alv-signin__notice">
             <p>{presentation.footerNotice}</p>
