@@ -81,7 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         kind: "signed-in",
         username: result.username,
         role: result.role,
-        permissions: result.permissions,
+        // ALV-N020-C01: account-scoped permissions join the role's for showing and hiding UI; the server enforces each one separately.
+        permissions: [...(result.permissions ?? []), ...(result.accountPermissions ?? [])],
         sessionExpiresAtUtc: result.sessionExpiresAtUtc,
       });
     } catch {

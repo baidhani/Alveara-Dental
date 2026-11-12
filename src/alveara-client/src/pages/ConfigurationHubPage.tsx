@@ -6,6 +6,8 @@ import { StaffTab, ProvidersTab } from "./configuration/PeopleTabs";
 import { OperatoriesTab, AppointmentTypesTab } from "./configuration/SimpleTabs";
 import { AvailabilityTab } from "./configuration/AvailabilityTab";
 import { SchedulingPreviewTab } from "./configuration/SchedulingPreviewTab";
+import { SignInScreenTab } from "./configuration/SignInScreenTab";
+import { useAuth } from "../contexts/AuthContext";
 import "./ConfigurationHubPage.css";
 
 const TABS = [
@@ -16,6 +18,8 @@ const TABS = [
   { id: "appointment-types", label: "Appointment types" },
   { id: "availability", label: "Availability" },
   { id: "preview", label: "Scheduling preview" },
+  // ALV-N020-C01: shown only to the holder of the account permission ManageLoginPresentation.
+  { id: "sign-in-screen", label: "Sign-in screen" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -30,6 +34,8 @@ export function ConfigurationHubPage() {
   const [active, setActive] = useState<TabId>("practice");
   const [dirty, setDirty] = useState(false);
   const onDirtyChange = useCallback((value: boolean) => setDirty(value), []);
+  const { hasPermission } = useAuth();
+  const tabs = TABS.filter((t) => t.id !== "sign-in-screen" || hasPermission("ManageLoginPresentation"));
 
   function selectTab(id: TabId) {
     if (id === active) return;
@@ -45,7 +51,7 @@ export function ConfigurationHubPage() {
         description="Set up the practice, its staff and providers, operatories, appointment types, and working hours. Changes are audited; nothing is ever deleted, only inactivated."
       />
       <div role="tablist" aria-label="Configuration sections" className="alv-config-tabs">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
@@ -68,6 +74,7 @@ export function ConfigurationHubPage() {
         {active === "appointment-types" && <AppointmentTypesTab onDirtyChange={onDirtyChange} />}
         {active === "availability" && <AvailabilityTab onDirtyChange={onDirtyChange} />}
         {active === "preview" && <SchedulingPreviewTab />}
+        {active === "sign-in-screen" && hasPermission("ManageLoginPresentation") && <SignInScreenTab onDirtyChange={onDirtyChange} />}
       </div>
     </>
   );

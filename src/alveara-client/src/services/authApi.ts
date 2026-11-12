@@ -28,6 +28,8 @@ export interface MyPermissions {
   username: string;
   role: string;
   permissions: string[];
+  /** ALV-N020-C01: permissions held by this ACCOUNT (never by its role), e.g. ManageLoginPresentation. Absent from older servers. */
+  accountPermissions?: string[];
   /** ISO 8601, or null if the server couldn't determine it - the real cookie expiry, not a
    *  client-computed guess (see AuthController.MyPermissions). */
   sessionExpiresAtUtc: string | null;

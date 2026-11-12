@@ -1,0 +1,107 @@
+/* ALV-N020-C01: Practice configuration -> Sign-in screen. */
+.alv-signin-config fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 6px);
+  padding: var(--space-4, 16px);
+  margin: 0 0 var(--space-4, 16px);
+}
+
+.alv-signin-config legend {
+  font-weight: var(--font-weight-semibold, 600);
+  padding: 0 var(--space-2, 8px);
+}
+
+.alv-signin-config__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3, 12px);
+}
+
+.alv-signin-config__choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1, 4px);
+  cursor: pointer;
+}
+
+.alv-signin-config__choice img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm, 6px);
+}
+
+.alv-signin-config__added {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 4px);
+}
+
+.alv-signin-config__mode,
+.alv-signin-config__ack {
+  display: flex;
+  gap: var(--space-2, 8px);
+  align-items: flex-start;
+  margin: var(--space-2, 8px) 0;
+}
+
+.alv-signin-config__warning {
+  margin: var(--space-3, 12px) 0;
+  padding: var(--space-3, 12px);
+  border: 1px solid var(--color-warning, #b45309);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--color-warning-surface, rgba(217, 119, 6, 0.1));
+  color: var(--color-warning-text);
+}
+
+.alv-signin-config__add {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+  max-width: 520px;
+}
+
+.alv-signin-config__add label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 4px);
+}
+
+.alv-signin-config__add .alv-signin-config__ack {
+  flex-direction: row;
+}
+
+.alv-signin-config__preview {
+  white-space: pre-line;
+  padding: var(--space-3, 12px);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm, 6px);
+}
+
+.alv-signin-config textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.alv-signin-config__hint {
+  font-size: var(--font-size-sm, 0.8125rem);
+  color: var(--color-text-muted);
+}
+
+.alv-signin-config__inactive {
+  list-style: none;
+  padding: 0;
+}
+
+.alv-signin-config__actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+  flex-wrap: wrap;
+}
+
+.alv-signin-config__error,
+.alv-signin-config__message--error {
+  color: var(--color-danger);
+}

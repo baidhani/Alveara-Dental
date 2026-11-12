@@ -9,6 +9,7 @@ import { SystemStatusPage } from "./pages/SystemStatusPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MfaChallengePage } from "./pages/MfaChallengePage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { LoginLayout } from "./pages/login/LoginLayout";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminUserDetailPage } from "./pages/AdminUserDetailPage";
 import { MfaSettingsPage } from "./pages/MfaSettingsPage";
@@ -84,9 +85,10 @@ function createAppRouter() {
       <Route element={<RootLayout />}>
         {/* Unauthenticated auth flows render outside the app shell - there's no signed-in
             identity yet for the shell's nav/patient-context regions to reflect. */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/mfa-challenge" element={<MfaChallengePage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        {/* ALV-N020-C01: the three sign-in pages share the DentalKeep sign-in layout (background, logo, footer notice). */}
+        <Route path="/login" element={<LoginLayout><LoginPage /></LoginLayout>} />
+        <Route path="/mfa-challenge" element={<LoginLayout><MfaChallengePage /></LoginLayout>} />
+        <Route path="/reset-password" element={<LoginLayout><ResetPasswordPage /></LoginLayout>} />
 
         {/* ALV-N009: every route behind the shell requires a real session - RequireAuth denies
             (redirecting to /login) before AppShell or any child route even mounts, so a

@@ -18,6 +18,7 @@ import {
   setSessionTimeout,
 } from "../services/authApi";
 import type { AdminUserSummary } from "../services/authApi";
+import { PresentationAdministratorControl } from "./PresentationAdministratorControl";
 import "./AdminUsersPage.css";
 
 const ROLES = ["Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager", "Admin"];
@@ -211,6 +212,9 @@ export function AdminUserDetailPage() {
               </Button>
             </form>
           )}
+
+          {/* ALV-N020-C01: the ordinary, audited grant/revoke path for the sign-in presentation permission. */}
+          {hasPermission("ManageUsers") && <PresentationAdministratorControl accountId={state.user.id} username={state.user.username} />}
         </div>
       )}
     </>
