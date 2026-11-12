@@ -1,0 +1,64 @@
+Chain run 1ded3027e2764d4b9235c79ef7361285: database AlveraChain_1ded3027e2764d4b9235c79ef7361285 created in C:\.alvera-data\Test-Data\Chain\1ded3027e2764d4b9235c79ef7361285\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:25.93
+Done.
+Host healthy on http://localhost:5072; running stage 0 ...
+Clock mode: injected
+
+Running 20 tests using 1 worker
+
+  ok  1 [chromium] › chain\stage-0.spec.ts:31:1 › S-09a a wrong bootstrap secret is refused with 401 and creates nothing (133ms)
+  ok  2 [chromium] › chain\stage-0.spec.ts:37:1 › S-09b the right bootstrap secret creates exactly one administrator (201) (439ms)
+  ok  3 [chromium] › chain\stage-0.spec.ts:43:1 › S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1 (120ms)
+  ok  4 [chromium] › chain\stage-0.spec.ts:51:1 › C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report (20ms)
+  ok  5 [chromium] › chain\stage-0.spec.ts:82:1 › S-09d the administrator signs in through the browser and reaches the dashboard (813ms)
+  ok  6 [chromium] › chain\stage-0.spec.ts:87:1 › B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured) (490ms)
+  ok  7 [chromium] › chain\stage-0.spec.ts:95:1 › B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured) (561ms)
+  ok  8 [chromium] › chain\stage-1.spec.ts:69:1 › 1.01 a first visit to a protected page shows the plain sign-in page, never 'session expired' (F-007) (360ms)
+  ok  9 [chromium] › chain\stage-1.spec.ts:76:1 › 1.02 a wrong password and an unknown name get the same plain refusal (854ms)
+  ok 10 [chromium] › chain\stage-1.spec.ts:83:1 › 1.03 the administrator signs in (with spaces around the name, F-151) and sees the admin menu (818ms)
+  ok 11 [chromium] › chain\stage-1.spec.ts:93:1 › 1.04 an account that is still disabled cannot sign in (489ms)
+  ok 12 [chromium] › chain\stage-1.spec.ts:98:1 › 1.05 disabling billing1 refuses its sign-in; enabling it again lets it in (825ms)
+  ok 13 [chromium] › chain\stage-1.spec.ts:107:1 › 1.06 revoking a signed-in user's sessions signs that browser out on its next action, with the expiry notice (684ms)
+  ok 14 [chromium] › chain\stage-1.spec.ts:115:1 › 2.01 two synthetic patients are registered by the front desk (minimal stage 2) (868ms)
+  ok 15 [chromium] › chain\stage-1.spec.ts:127:1 › F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown (1.4s)
+  ok 16 [chromium] › chain\stage-1.spec.ts:144:1 › 1.10 after sign-out the browser Back button shows the sign-in page and no patient information (1.2s)
+  ok 17 [chromium] › chain\stage-1.spec.ts:157:1 › F-021 inactivating a staff profile disables its login and ends its session; reactivating the profile does not re-enable it (1.5s)
+  ok 18 [chromium] › chain\stage-1.spec.ts:177:1 › 1.11 starting MFA enrolment without finishing leaves password sign-in unchanged (1.2s)
+  ok 19 [chromium] › chain\stage-1.spec.ts:187:1 › 13.05 a server outage keeps the signed-in screen and the typed form, and it recovers without signing in again (F-155, browser-level) (1.9s)
+  ok 20 [chromium] › chain\stage-1.spec.ts:205:1 › 1.12 a short per-user timeout warns first, then signs out with the expiry message (fixed expiry unchanged) (5.0m)
+
+  Slow test file: [chromium] › chain\stage-1.spec.ts (5.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  20 passed (5.4m)
+Playwright exit code 0 (the verdict comes from the evidence builder).
+Database AlveraChain_1ded3027e2764d4b9235c79ef7361285 dropped (its files went with it).
+PASS              S-09a  S-09a a wrong bootstrap secret is refused with 401 and creates nothing
+PASS              S-09b  S-09b the right bootstrap secret creates exactly one administrator (201)
+PASS              S-09c  S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1
+PASS              C-01  C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report
+PASS              S-09d  S-09d the administrator signs in through the browser and reaches the dashboard
+PASS              B-01  B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured)
+PASS              B-02  B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured)
+PASS              1.01  1.01 a first visit to a protected page shows the plain sign-in page, never 'session expired' (F-007)
+PASS              1.02  1.02 a wrong password and an unknown name get the same plain refusal
+PASS              1.03  1.03 the administrator signs in (with spaces around the name, F-151) and sees the admin menu
+PASS              1.04  1.04 an account that is still disabled cannot sign in
+PASS              1.05  1.05 disabling billing1 refuses its sign-in; enabling it again lets it in
+PASS              1.06  1.06 revoking a signed-in user's sessions signs that browser out on its next action, with the expiry notice
+PASS              2.01  2.01 two synthetic patients are registered by the front desk (minimal stage 2)
+PASS              F-037  F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown   (stale tracked entry: F-037)
+PASS              1.10  1.10 after sign-out the browser Back button shows the sign-in page and no patient information
+PASS              F-021  F-021 inactivating a staff profile disables its login and ends its session; reactivating the profile does not re-enable it   (stale tracked entry: F-021)
+PASS              1.11  1.11 starting MFA enrolment without finishing leaves password sign-in unchanged
+PASS              13.05  13.05 a server outage keeps the signed-in screen and the typed form, and it recovers without signing in again (F-155, browser-level)   (stale tracked entry: F-155)
+PASS              1.12  1.12 a short per-user timeout warns first, then signs out with the expiry message (fixed expiry unchanged)
+PASS              E10  E10 COPY_ONLY checkpoint: file exists, no restore invoked, live database unchanged
+PASS              CLEAN  CLEAN the database is dropped and the run folder is removed
+FRESH run 1ded3027e2764d4b9235c79ef7361285 stage 0: PASS 22, FAIL 0, TRACKED_EXCEPTION 0, SKIPPED_BLOCKED 0; exit 0
+Evidence kept in C:\.alvera-data\Test-Data\Temp\chain-output\1ded3027e2764d4b9235c79ef7361285
+EXIT=0

@@ -1,0 +1,3 @@
+NC-5 two-tab navigation removed (expect FAIL) -> exit 1 ['× ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard 5015ms', '× ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page 92ms', 'Tests  2 failed | 13 passed (15)']
+restored (expect pass) -> exit 1 ['× ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard 5027ms', '× ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page 96ms', 'Tests  2 failed | 13 passed (15)']
+file restored byte for byte: True

@@ -1,0 +1,276 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/loginOutcome.test.ts (16 tests | 2 failed) 8ms
+   ❯ destinationAfterSignIn (ALV-N020, F-037) (3)
+     × sends a different user to the dashboard 3ms
+     × sends anyone to the dashboard when no expired session was recorded 0ms
+ ❯ src/contexts/PatientContext.test.tsx (15 tests | 2 failed) 10147ms
+   ❯ PatientContextProvider and the signed-in identity (ALV-N020, F-037) (3)
+     × drops the patient in context the moment the session ends (401) 5031ms
+     × drops the patient in context the moment another person is now signed in 5022ms
+ ❯ src/App.routeGuards.test.tsx (13 tests | 1 failed) 7495ms
+   ❯ Direct-URL/deep-link route guards (ALV-N009) (13)
+     × ALV-N020 (F-037): a DIFFERENT user signing in after someone's expiry lands on the dashboard, never on that person's page 5538ms
+
+ Test Files  3 failed (3)
+      Tests  5 failed | 39 passed (44)
+   Start at  21:51:00
+   Duration  11.65s (tests 75%, transform 11%, environment 9%, setup 3%, import 2%)
+
+stderr | src/App.routeGuards.test.tsx > Direct-URL/deep-link route guards (ALV-N009) > ALV-N020 (F-037): a DIFFERENT user signing in after someone's expiry lands on the dashboard, never on that person's page
+Error handled by React Router default ErrorBoundary: TypeError: Cannot read properties of undefined (reading 'length')
+    at DocumentImportCard (C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/src/pages/permissions/DocumentImportCard.tsx:48:33)
+    at Object.react_stack_bottom_frame (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:1048:13)
+    at performUnitOfWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18015:11)
+Error handled by React Router default ErrorBoundary: TypeError: Cannot read properties of undefined (reading 'length')
+    at DocumentImportCard (C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/src/pages/permissions/DocumentImportCard.tsx:48:33)
+    at Object.react_stack_bottom_frame (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:1048:13)
+    at performUnitOfWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35)
+TypeError: Cannot read properties of undefined (reading 'length')
+    at DocumentImportCard (C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/src/pages/permissions/DocumentImportCard.tsx:48:33)
+    at Object.react_stack_bottom_frame (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:1048:13)
+    at performUnitOfWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35) {
+  [stack]: [Getter/Setter],
+  [message]: "Cannot read properties of undefined (reading 'length')"
+}
+
+The above error occurred in the <DocumentImportCard> component.
+
+React will try to recreate this component tree from scratch using the error boundary you provided, RenderErrorBoundary.
+
+React Router caught the following error during render TypeError: Cannot read properties of undefined (reading 'length')
+    at DocumentImportCard (C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/src/pages/permissions/DocumentImportCard.tsx:48:33)
+    at Object.react_stack_bottom_frame (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:1048:13)
+    at performUnitOfWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.routeGuards.test.tsx > Direct-URL/deep-link route guards (ALV-N009) > ALV-N020 (F-037): a DIFFERENT user signing in after someone's expiry lands on the dashboard, never on that person's page
+TestingLibraryElementError: Unable to find role="heading" and name "Dashboard"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<h2>[39m
+      [0mUnexpected Application Error![0m
+    [36m</h2>[39m
+    [36m<h3[39m
+      [33mstyle[39m=[32m"font-style: italic;"[39m
+    [36m>[39m
+      [0mCannot read properties of undefined (reading 'length')[0m
+    [36m</h3>[39m
+    [36m<pre[39m
+      [33mstyle[39m=[32m"padding: 0.5rem; background-color: rgba(200, 200, 200, 0.5);"[39m
+    [36m>[39m
+      [0mTypeError: Cannot read properties of undefined (reading 'length')
+    at DocumentImportCard (C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/src/pages/permissions/DocumentImportCard.tsx:48:33)
+    at Object.react_stack_bottom_frame (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:1048:13)
+    at performUnitOfWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35)[0m
+    [36m</pre>[39m
+    [36m<p>[39m
+      [0m💿 Hey developer 👋[0m
+    [36m</p>[39m
+    [36m<p>[39m
+      [0mYou can provide a way better UX than this when your app throws errors by providing your own [0m
+      [36m<code[39m
+        [33mstyle[39m=[32m"padding: 2px 4px; background-color: rgba(200, 200, 200, 0.5);"[39m
+      [36m>[39m
+        [0mErrorBoundary[0m
+      [36m</code>[39m
+      [0m or[0m
+      [0m [0m
+      [36m<code[39m
+        [33mstyle[39m=[32m"padding: 2px 4px; background-color: rgba(200, 200, 200, 0.5);"[39m
+      [36m>[39m
+        [0merrorElement[0m
+      [36m</code>[39m
+      [0m prop on your route.[0m
+    [36m</p>[39m
+    [36m<div[39m
+      [33maria-live[39m=[32m"polite"[39m
+      [33mclass[39m=[32m"alv-notification-region"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m/>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mdata-theme[39m=[32m"light"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<h2>[39m
+        [0mUnexpected Application Error![0m
+      [36m</h2>[39m
+      [36m<h3[39m
+        [33mstyle[39m=[32m"font-style: italic;"[39m
+      [36m>[39m
+        [0mCannot read properties of undefined (reading 'length')[0m
+      [36m</h3>[39m
+      [36m<pre[39m
+        [33mstyle[39m=[32m"padding: 0.5rem; background-color: rgba(200, 200, 200, 0.5);"[39m
+      [36m>[39m
+        [0mTypeError: Cannot read properties of undefined (reading 'length')
+    at DocumentImportCard (C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/src/pages/permissions/DocumentImportCard.tsx:48:33)
+    at Object.react_stack_bottom_frame (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:28571:20)
+    at renderWithHooks (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:8030:22)
+    at updateFunctionComponent (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:10569:19)
+    at beginWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:12205:18)
+    at runWithFiberInDEV (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:1048:13)
+    at performUnitOfWork (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19176:22)
+    at workLoopSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:19004:41)
+    at renderRootSync (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18985:11)
+    at performWorkOnRoot (C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\node_modules\react-dom\cjs\react-dom-client.development.js:18094:35)[0m
+      [36m</pre>[39m
+      [36m<p>[39m
+        [0m💿 Hey developer 👋[0m
+      [36m</p>[39m
+      [36m<p>[39m
+        [0mYou can provide a way better UX than this when your app throws errors by providing your own [0m
+        [36m<code[39m
+          [33mstyle[39m=[32m"padding: 2px 4px; background-color: rgba(200, 200, 200, 0.5);"[39m
+        [36m>[39m
+          [0mErrorBoundary[0m
+        [36m</code>[39m
+        [0m or[0m
+        [0m [0m
+        [36m<code[39m
+          [33mstyle[39m=[32m"padding: 2px 4px; background-color: rgba(200, 200, 200, 0.5);"[39m
+        [36m>[39m
+          [0merrorElement[0m
+        [36m</code>[39m
+        [0m prop on your route.[0m
+      [36m</p>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"alv-notification-region"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m/>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ DocumentImportCard src/pages/permissions/DocumentImportCard.tsx:48:33
+     46|
+     47|   if (failed) return <p role="status">The delegation card could not be…
+     48|   if (!data || data.delegations.length === 0) return null;
+       |                                 ^
+     49|
+     50|   return (
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:28571:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:8030:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10569:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:12205:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1048:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:19176:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:19004:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:18985:11
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/App.routeGuards.test.tsx:339:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/contexts/PatientContext.test.tsx > PatientContextProvider and the signed-in identity (ALV-N020, F-037) > drops the patient in context the moment the session ends (401)
+ FAIL  src/contexts/PatientContext.test.tsx > PatientContextProvider and the signed-in identity (ALV-N020, F-037) > drops the patient in context the moment another person is now signed in
+AssertionError: expected 'loaded:Brian' to be 'none' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<p[39m
+        [33mdata-testid[39m=[32m"state"[39m
+      [36m>[39m
+        [0mloaded:Brian[0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+Expected: "none"
+Received: "loaded:Brian"
+
+ ❯ src/contexts/PatientContext.test.tsx:183:41
+    181|       window.dispatchEvent(new Event("focus"));                       …
+    182|     });
+    183|     await waitFor(() => expect(state()).toBe("none"));
+       |                                         ^
+    184|   });
+    185|
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/pages/loginOutcome.test.ts > destinationAfterSignIn (ALV-N020, F-037) > sends a different user to the dashboard
+AssertionError: expected '/patients/brian?tab=billing' to be '/' // Object.is equality
+
+Expected: "/"
+Received: "/patients/brian?tab=billing"
+
+ ❯ src/pages/loginOutcome.test.ts:36:65
+     34|
+     35|   it("sends a different user to the dashboard", () => {
+     36|     expect(destinationAfterSignIn("admin", from, "frontdesk1")).toBe("…
+       |                                                                 ^
+     37|   });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/pages/loginOutcome.test.ts > destinationAfterSignIn (ALV-N020, F-037) > sends anyone to the dashboard when no expired session was recorded
+AssertionError: expected '/patients/brian?tab=billing' to be '/' // Object.is equality
+
+Expected: "/"
+Received: "/patients/brian?tab=billing"
+
+ ❯ src/pages/loginOutcome.test.ts:40:62
+     38|
+     39|   it("sends anyone to the dashboard when no expired session was record…
+     40|     expect(destinationAfterSignIn("admin", from, undefined)).toBe("/");
+       |                                                              ^
+     41|     expect(destinationAfterSignIn("admin", undefined, undefined)).toBe…
+     42|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+

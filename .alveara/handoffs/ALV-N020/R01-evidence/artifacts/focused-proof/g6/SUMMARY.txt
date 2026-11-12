@@ -1,0 +1,6 @@
+NC-1 F-037 fix removed (expect FAIL) -> exit 1 ['Tests  5 failed | 39 passed (44)']
+NC-2 F-155/F-014 fix removed (expect FAIL) -> exit 1 ['Tests  14 failed | 31 passed (45)']
+NC-3 F-021 fix removed (expect FAIL) -> exit 1 ['Failed!  - Failed:     5, Passed:     5, Skipped:     0, Total:    10, Duration: 17 s - Alveara.Api.Tests.dll (net10.0)']
+restored client (expect pass) -> exit 0 ['Tests  73 passed (73)']
+restored server (expect pass) -> exit 0 ['Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 18 s - Alveara.Api.Tests.dll (net10.0)']
+files restored byte for byte: True

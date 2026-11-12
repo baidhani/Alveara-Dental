@@ -1,0 +1,13 @@
+== server exit=1 elapsed=199s :: Failed! - Failed: 5, Passed: 125, Skipped: 0, Total: 130, Duration: 2 m 26 s - Alveara.Api.Tests.dll (net10.0)
+  Failed Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_new_kind_is_accepted_with_only_a_source_key [17 ms]
+  Failed Alveara.Api.Tests.StaffInactivationNotificationSchemaTests.The_migration_rolls_back_and_forward_on_an_empty_table_and_refuses_to_roll_back_over_an_alert [303 ms]
+  Failed Alveara.Api.Tests.RealMigrationInventoryTests.The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture [1 ms]
+  Failed Alveara.Api.Tests.StaffInactivationAlertTests.Sending_the_alert_again_for_the_same_recorded_failure_creates_nothing_new [348 ms]
+  Failed Alveara.Api.Tests.StaffInactivationAlertTests.A_failed_inactivation_alerts_each_enabled_admin_and_office_manager_once_as_Urgent_keyed_on_the_failure_record [215 ms]
+== leftovers: none
+== client exit=0 elapsed=7s ::  Tests 9 passed (9)
+== nc4 exit=0 elapsed=148s
+NC-4 alert never sent (expect FAIL) -> exit 1 ['Failed Alveara.Api.Tests.StaffInactivationAlertTests.Sending_the_alert_again_for_the_same_recorded_failure_creates_nothing_new [869 ms]', 'Failed Alveara.Api.Tests.StaffInactivationAlertTests.A_failed_inactivation_alerts_each_enabled_admin_and_office_manager_once_as_Urgent_keyed_on_the_failure_record [201 ms]', 'Failed Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted [97 ms]', 'Failed!  - Failed:     3, Passed:    10, Skipped:     0, Total:    13, Duration: 19 s - Alveara.Api.Tests.dll (net10.0)']
+restored (expect pass) -> exit 1 ['Failed Alveara.Api.Tests.StaffInactivationAlertTests.Sending_the_alert_again_for_the_same_recorded_failure_creates_nothing_new [610 ms]', 'Failed Alveara.Api.Tests.StaffInactivationAlertTests.A_failed_inactivation_alerts_each_enabled_admin_and_office_manager_once_as_Urgent_keyed_on_the_failure_record [132 ms]', 'Failed!  - Failed:     2, Passed:    11, Skipped:     0, Total:    13, Duration: 17 s - Alveara.Api.Tests.dll (net10.0)']
+file restored byte for byte: True
+== G9 done

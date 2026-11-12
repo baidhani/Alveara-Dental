@@ -1,0 +1,28 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed Alveara.Api.Tests.StaffInactivationAlertTests.Sending_the_alert_again_for_the_same_recorded_failure_creates_nothing_new [729 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 2
+Actual:   0
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationAlertTests.Sending_the_alert_again_for_the_same_recorded_failure_creates_nothing_new() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationAlertTests.cs:line 105
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.StaffInactivationAlertTests.A_failed_inactivation_alerts_each_enabled_admin_and_office_manager_once_as_Urgent_keyed_on_the_failure_record [173 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+           â†“ (pos 0)
+Expected: [a6e46774-7093-431d-83ca-670715729dd7, fb3a205f-28ed-454a-863c-dede05b18abb]
+Actual:   []
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationAlertTests.A_failed_inactivation_alerts_each_enabled_admin_and_office_manager_once_as_Urgent_keyed_on_the_failure_record() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationAlertTests.cs:line 85
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted [77 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 173
+   at Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 179
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     3, Passed:    10, Skipped:     0, Total:    13, Duration: 16 s - Alveara.Api.Tests.dll (net10.0)

@@ -1,0 +1,61 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/App.disconnected.test.tsx (1 test | 1 failed) 97ms
+   ❯ Application shell — disconnected/local-server-unavailable state (1)
+     × shows a visible disconnected banner when the health check fails, never a silent offline mode 95ms
+ ❯ src/pages/ConfigurationHubPage.test.tsx (24 tests | 1 failed) 9402ms
+   ❯ ConfigurationHubPage (ALV-N003) (7)
+     × asks before discarding unsaved practice edits when switching tabs, and stays put if declined 288ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.disconnected.test.tsx > Application shell — disconnected/local-server-unavailable state > shows a visible disconnected banner when the health check fails, never a silent offline mode
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <div
+  class="alv-disconnected-banner"
+  role="alert"
+>
+  <strong>
+    Local server unavailable.
+  </strong>
+   Changes cannot be saved until the connection is restored. This is not an offline mode — reconnect to continue.
+</div> instead[39m
+ ❯ src/App.disconnected.test.tsx:18:64
+     16|     });
+     17|     expect(screen.queryByText(/your session expired/i)).not.toBeInTheD…
+     18|     expect(screen.queryByText(/changes cannot be saved/i)).not.toBeInT…
+       |                                                                ^
+     19|   });
+     20| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/ConfigurationHubPage.test.tsx > ConfigurationHubPage (ALV-N003) > asks before discarding unsaved practice edits when switching tabs, and stays put if declined
+Error: useAuth must be used within an AuthProvider
+ ❯ useAuth src/contexts/AuthContext.tsx:234:19
+    232| export function useAuth() {
+    233|   const ctx = useContext(AuthContext);
+    234|   if (!ctx) throw new Error("useAuth must be used within an AuthProvid…
+       |                   ^
+    235|   return ctx;
+    236| }
+ ❯ StaffTab src/pages/configuration/PeopleTabs.tsx:58:29
+ ❯ Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:28571:20
+ ❯ renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:8030:22
+ ❯ updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10569:19
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:12205:18
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1048:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:19176:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:19004:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:18985:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 13 passed (15)
+      Tests  2 failed | 141 passed (143)
+   Start at  21:40:00
+   Duration  13.56s (environment 38%, tests 25%, setup 18%, transform 14%, import 4%)
+

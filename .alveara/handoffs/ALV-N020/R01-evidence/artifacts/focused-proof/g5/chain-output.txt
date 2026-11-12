@@ -1,0 +1,101 @@
+Chain run 47436f92b0e34e44ac6c2fba03fdf68a: database AlveraChain_47436f92b0e34e44ac6c2fba03fdf68a created in C:\.alvera-data\Test-Data\Chain\47436f92b0e34e44ac6c2fba03fdf68a\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.92
+Done.
+Host healthy on http://localhost:5072; running stage 0 ...
+Clock mode: injected
+
+Running 20 tests using 1 worker
+
+  ok  1 [chromium] › chain\stage-0.spec.ts:31:1 › S-09a a wrong bootstrap secret is refused with 401 and creates nothing (285ms)
+  ok  2 [chromium] › chain\stage-0.spec.ts:37:1 › S-09b the right bootstrap secret creates exactly one administrator (201) (295ms)
+  ok  3 [chromium] › chain\stage-0.spec.ts:43:1 › S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1 (147ms)
+  ok  4 [chromium] › chain\stage-0.spec.ts:51:1 › C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report (22ms)
+  ok  5 [chromium] › chain\stage-0.spec.ts:82:1 › S-09d the administrator signs in through the browser and reaches the dashboard (864ms)
+  ok  6 [chromium] › chain\stage-0.spec.ts:87:1 › B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured) (474ms)
+  ok  7 [chromium] › chain\stage-0.spec.ts:95:1 › B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured) (632ms)
+  ok  8 [chromium] › chain\stage-1.spec.ts:69:1 › 1.01 a first visit to a protected page shows the plain sign-in page, never 'session expired' (F-007) (346ms)
+  ok  9 [chromium] › chain\stage-1.spec.ts:76:1 › 1.02 a wrong password and an unknown name get the same plain refusal (781ms)
+  ok 10 [chromium] › chain\stage-1.spec.ts:83:1 › 1.03 the administrator signs in (with spaces around the name, F-151) and sees the admin menu (787ms)
+  ok 11 [chromium] › chain\stage-1.spec.ts:93:1 › 1.04 an account that is still disabled cannot sign in (443ms)
+  ok 12 [chromium] › chain\stage-1.spec.ts:98:1 › 1.05 disabling billing1 refuses its sign-in; enabling it again lets it in (798ms)
+  ok 13 [chromium] › chain\stage-1.spec.ts:107:1 › 1.06 revoking a signed-in user's sessions signs that browser out on its next action, with the expiry notice (593ms)
+  ok 14 [chromium] › chain\stage-1.spec.ts:115:1 › 2.01 two synthetic patients are registered by the front desk (minimal stage 2) (799ms)
+  x  15 [chromium] › chain\stage-1.spec.ts:127:1 › F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown (5.7s)
+  -  16 [chromium] › chain\stage-1.spec.ts:143:1 › 1.10 after sign-out the browser Back button shows the sign-in page and no patient information
+  -  17 [chromium] › chain\stage-1.spec.ts:156:1 › F-021 inactivating a staff profile disables its login and ends its session; reactivating the profile does not re-enable it
+  -  18 [chromium] › chain\stage-1.spec.ts:176:1 › 1.11 starting MFA enrolment without finishing leaves password sign-in unchanged
+  -  19 [chromium] › chain\stage-1.spec.ts:185:1 › 13.05 a server outage keeps the signed-in screen and the typed form, and it recovers without signing in again (F-155, browser-level)
+  -  20 [chromium] › chain\stage-1.spec.ts:203:1 › 1.12 a short per-user timeout warns first, then signs out with the expiry message (fixed expiry unchanged)
+
+
+  1) [chromium] › chain\stage-1.spec.ts:127:1 › F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('Brian Baker').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('Brian Baker').first() with timeout 5000ms
+      - waiting for getByText('Brian Baker').first()
+
+
+      130 |   await signIn(page, "chain-front", PASSWORD);
+      131 |   await page.goto(`/patients/${patients.brian}`);
+    > 132 |   await expect(page.getByText("Brian Baker").first()).toBeVisible();
+          |                                                       ^
+      133 |   await page.getByRole("button", { name: "Sign out" }).click();
+      134 |   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+      135 |
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\chain\stage-1.spec.ts:132:55
+
+    Error Context: ..\..\..\..\..\..\.alvera-data\Test-Data\Temp\chain-output\47436f92b0e34e44ac6c2fba03fdf68a\playwright-artifacts\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\error-context.md
+
+    Error Context: ..\..\..\..\..\..\.alvera-data\Test-Data\Temp\chain-output\47436f92b0e34e44ac6c2fba03fdf68a\playwright-artifacts\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ..\..\..\..\..\..\.alvera-data\Test-Data\Temp\chain-output\47436f92b0e34e44ac6c2fba03fdf68a\playwright-artifacts\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace ..\..\..\..\..\..\.alvera-data\Test-Data\Temp\chain-output\47436f92b0e34e44ac6c2fba03fdf68a\playwright-artifacts\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › chain\stage-1.spec.ts:127:1 › F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown 
+  5 did not run
+  14 passed (15.4s)
+Playwright exit code 1 (the verdict comes from the evidence builder).
+Database AlveraChain_47436f92b0e34e44ac6c2fba03fdf68a dropped (its files went with it).
+PASS              S-09a  S-09a a wrong bootstrap secret is refused with 401 and creates nothing
+PASS              S-09b  S-09b the right bootstrap secret creates exactly one administrator (201)
+PASS              S-09c  S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1
+PASS              C-01  C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report
+PASS              S-09d  S-09d the administrator signs in through the browser and reaches the dashboard
+PASS              B-01  B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured)
+PASS              B-02  B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured)
+PASS              1.01  1.01 a first visit to a protected page shows the plain sign-in page, never 'session expired' (F-007)
+PASS              1.02  1.02 a wrong password and an unknown name get the same plain refusal
+PASS              1.03  1.03 the administrator signs in (with spaces around the name, F-151) and sees the admin menu
+PASS              1.04  1.04 an account that is still disabled cannot sign in
+PASS              1.05  1.05 disabling billing1 refuses its sign-in; enabling it again lets it in
+PASS              1.06  1.06 revoking a signed-in user's sessions signs that browser out on its next action, with the expiry notice
+PASS              2.01  2.01 two synthetic patients are registered by the front desk (minimal stage 2)
+TRACKED_EXCEPTION F-037  F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown
+SKIPPED_BLOCKED   1.10  1.10 after sign-out the browser Back button shows the sign-in page and no patient information
+SKIPPED_BLOCKED   F-021  F-021 inactivating a staff profile disables its login and ends its session; reactivating the profile does not re-enable it
+SKIPPED_BLOCKED   1.11  1.11 starting MFA enrolment without finishing leaves password sign-in unchanged
+SKIPPED_BLOCKED   13.05  13.05 a server outage keeps the signed-in screen and the typed form, and it recovers without signing in again (F-155, browser-level)
+SKIPPED_BLOCKED   1.12  1.12 a short per-user timeout warns first, then signs out with the expiry message (fixed expiry unchanged)
+PASS              E10  E10 COPY_ONLY checkpoint: file exists, no restore invoked, live database unchanged
+PASS              CLEAN  CLEAN the database is dropped and the run folder is removed
+FRESH run 47436f92b0e34e44ac6c2fba03fdf68a stage 0: PASS 16, FAIL 0, TRACKED_EXCEPTION 1, SKIPPED_BLOCKED 5; exit 1
+Evidence kept in C:\.alvera-data\Test-Data\Temp\chain-output\47436f92b0e34e44ac6c2fba03fdf68a
+G5 exit=1 elapsed=40s

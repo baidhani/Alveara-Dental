@@ -1,0 +1,411 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/App.routeGuards.test.tsx (15 tests | 1 failed) 7622ms
+   ❯ Direct-URL/deep-link route guards (ALV-N009) (15)
+     × ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard 5033ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  09:10:35
+   Duration  12.39s (tests 62%, transform 24%, environment 7%, import 5%, setup 2%)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.routeGuards.test.tsx > Direct-URL/deep-link route guards (ALV-N009) > ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard
+TestingLibraryElementError: Unable to find role="heading" and name "Dashboard"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"alv-shell"[39m
+    [36m>[39m
+      [36m<a[39m
+        [33mclass[39m=[32m"skip-link"[39m
+        [33mhref[39m=[32m"#alv-main-content"[39m
+      [36m>[39m
+        [0mSkip to main content[0m
+      [36m</a>[39m
+      [36m<aside[39m
+        [33mclass[39m=[32m"alv-shell__sidebar"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-shell__brand"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-shell__brand-mark"[39m
+          [36m>[39m
+            [0mAD[0m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-shell__brand-text"[39m
+          [36m>[39m
+            [0mDentalKeep[0m
+            [36m<small>[39m
+              [0mApplication[0m
+            [36m</small>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<nav[39m
+          [33maria-label[39m=[32m"Primary navigation"[39m
+          [33mclass[39m=[32m"alv-shell__nav"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"alv-shell__nav-link"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/"[39m
+          [36m>[39m
+            [0mDashboard[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"alv-shell__nav-link"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/messages"[39m
+          [36m>[39m
+            [0mMessages[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"alv-shell__nav-link"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/showcase"[39m
+          [36m>[39m
+            [0mComponent Showcase[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"alv-shell__nav-link"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/system-status"[39m
+          [36m>[39m
+            [0mSystem Status[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33mclass[39m=[32m"alv-shell__nav-link alv-shell__nav-link--active"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/admin/users"[39m
+          [36m>[39m
+            [0mSecurity Administration[0m
+          [36m</a>[39m
+          [36m<a[39m
+            [33mclass[39m=[32m"alv-shell__nav-link"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/settings/mfa"[39m
+          [36m>[39m
+            [0mMulti-Factor Authentication[0m
+          [36m</a>[39m
+        [36m</nav>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-shell__sidebar-footer"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33maria-label[39m=[32m"Notifications, undefined unread"[39m
+            [33mclass[39m=[32m"alv-bell"[39m
+            [33mdata-discover[39m=[32m"true"[39m
+            [33mhref[39m=[32m"/notifications"[39m
+          [36m>[39m
+            [36m<span[39m
+              [33maria-hidden[39m=[32m"true"[39m
+            [36m>[39m
+              [0mNotifications[0m
+            [36m</span>[39m
+          [36m</a>[39m
+          [36m<div[39m
+            [33maria-label[39m=[32m"Account"[39m
+            [33mclass[39m=[32m"alv-shell__account"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"alv-shell__account-identity"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-shell__account-username"[39m
+              [36m>[39m
+                [0madmin-1[0m
+              [36m</span>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-shell__account-role"[39m
+              [36m>[39m
+                [0mAdmin[0m
+              [36m</span>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"alv-shell__sign-out"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mSign out[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"false"[39m
+            [33mclass[39m=[32m"alv-shell__theme-toggle"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m☀ Light[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</aside>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-shell__main-wrap"[39m
+      [36m>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"Patient context"[39m
+          [33mclass[39m=[32m"alv-shell__patient-context"[39m
+        [36m>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"alv-patient-header__none"[39m
+          [36m>[39m
+            [0mNo patient selected.[0m
+            [0m [0m
+          [36m</p>[39m
+        [36m</section>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"alv-shell__content"[39m
+          [33mid[39m=[32m"alv-main-content"[39m
+          [33mtabindex[39m=[32m"-1"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"alv-page-header"[39m
+          [36m>[39m
+            [36m<div>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"alv-page-header__title"[39m
+              [36m>[39m
+                [0mSecurity administration[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"alv-page-header__description"[39m
+              [36m>[39m
+                [0mManage user accounts, roles, and sessions.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-state alv-state--empty"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-state__title"[39m
+            [36m>[39m
+              [0mNo users yet[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-state__description"[39m
+            [36m>[39m
+              [0mNo accounts have been created.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+    [36m<div[39m
+      [33maria-live[39m=[32m"polite"[39m
+      [33mclass[39m=[32m"alv-notification-region"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m/>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mdata-theme[39m=[32m"light"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-shell"[39m
+      [36m>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"skip-link"[39m
+          [33mhref[39m=[32m"#alv-main-content"[39m
+        [36m>[39m
+          [0mSkip to main content[0m
+        [36m</a>[39m
+        [36m<aside[39m
+          [33mclass[39m=[32m"alv-shell__sidebar"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-shell__brand"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"alv-shell__brand-mark"[39m
+            [36m>[39m
+              [0mAD[0m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"alv-shell__brand-text"[39m
+            [36m>[39m
+              [0mDentalKeep[0m
+              [36m<small>[39m
+                [0mApplication[0m
+              [36m</small>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<nav[39m
+            [33maria-label[39m=[32m"Primary navigation"[39m
+            [33mclass[39m=[32m"alv-shell__nav"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"alv-shell__nav-link"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/"[39m
+            [36m>[39m
+              [0mDashboard[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"alv-shell__nav-link"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/messages"[39m
+            [36m>[39m
+              [0mMessages[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"alv-shell__nav-link"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/showcase"[39m
+            [36m>[39m
+              [0mComponent Showcase[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"alv-shell__nav-link"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/system-status"[39m
+            [36m>[39m
+              [0mSystem Status[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33maria-current[39m=[32m"page"[39m
+              [33mclass[39m=[32m"alv-shell__nav-link alv-shell__nav-link--active"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/admin/users"[39m
+            [36m>[39m
+              [0mSecurity Administration[0m
+            [36m</a>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"alv-shell__nav-link"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/settings/mfa"[39m
+            [36m>[39m
+              [0mMulti-Factor Authentication[0m
+            [36m</a>[39m
+          [36m</nav>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-shell__sidebar-footer"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Notifications, undefined unread"[39m
+              [33mclass[39m=[32m"alv-bell"[39m
+              [33mdata-discover[39m=[32m"true"[39m
+              [33mhref[39m=[32m"/notifications"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33maria-hidden[39m=[32m"true"[39m
+              [36m>[39m
+                [0mNotifications[0m
+              [36m</span>[39m
+            [36m</a>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Account"[39m
+              [33mclass[39m=[32m"alv-shell__account"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"alv-shell__account-identity"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"alv-shell__account-username"[39m
+                [36m>[39m
+                  [0madmin-1[0m
+                [36m</span>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"alv-shell__account-role"[39m
+                [36m>[39m
+                  [0mAdmin[0m
+                [36m</span>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"alv-shell__sign-out"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mSign out[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-pressed[39m=[32m"false"[39m
+              [33mclass[39m=[32m"alv-shell__theme-toggle"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m☀ Light[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</aside>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-shell__main-wrap"[39m
+        [36m>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"Patient context"[39m
+            [33mclass[39m=[32m"alv-shell__patient-context"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-patient-header__none"[39m
+            [36m>[39m
+              [0mNo patient selected.[0m
+              [0m [0m
+            [36m</p>[39m
+          [36m</section>[39m
+          [36m<main[39m
+            [33mclass[39m=[32m"alv-shell__content"[39m
+            [33mid[39m=[32m"alv-main-content"[39m
+            [33mtabindex[39m=[32m"-1"[39m
+          [36m>[39m
+            [36m<header[39m
+              [33mclass[39m=[32m"alv-page-header"[39m
+            [36m>[39m
+              [36m<div>[39m
+                [36m<h1[39m
+                  [33mclass[39m=[32m"alv-page-header__title"[39m
+                [36m>[39m
+                  [0mSecurity administration[0m
+                [36m</h1>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"alv-page-header__description"[39m
+                [36m>[39m
+                  [0mManage user accounts, roles, and sessions.[0m
+                [36m</p>[39m
+              [36m</div>[39m
+            [36m</header>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"alv-state alv-state--empty"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"alv-state__title"[39m
+              [36m>[39m
+                [0mNo users yet[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"alv-state__description"[39m
+              [36m>[39m
+                [0mNo accounts have been created.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</main>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"alv-notification-region"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m/>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/App.routeGuards.test.tsx:367:11
+    365|     who = "admin-1";                                                  …
+    366|     window.dispatchEvent(new Event("focus"));                         …
+    367|     await waitFor(() => expect(screen.getByRole("heading", { name: "Da…
+       |           ^
+    368|     expect(screen.queryByRole("heading", { name: "Security administrat…
+    369|     expect(window.location.pathname).toBe("/");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

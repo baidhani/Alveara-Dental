@@ -1,0 +1,13 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  09:10:51
+   Duration  7.39s (transform 38%, tests 35%, environment 14%, import 8%, setup 4%)
+
+  Transform  transforming modules took 2.80s · 38% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

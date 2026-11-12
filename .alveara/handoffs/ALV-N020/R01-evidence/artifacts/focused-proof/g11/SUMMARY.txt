@@ -1,0 +1,13 @@
+== client exit=1 elapsed=14s :: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ Tests 2 failed | 15 passed (17)
+     × ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard 5025ms
+     × ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page 90ms
+ FAIL  src/App.routeGuards.test.tsx > Direct-URL/deep-link route guards (ALV-N009) > ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard
+ FAIL  src/App.routeGuards.test.tsx > Direct-URL/deep-link route guards (ALV-N009) > ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page
+== server exit=0 elapsed=81s :: Passed! - Failed: 0, Passed: 13, Skipped: 0, Total: 13, Duration: 25 s - Alveara.Api.Tests.dll (net10.0)
+== leftovers: none
+== nc5 exit=0 elapsed=28s
+NC-5 two-tab navigation removed (expect FAIL) -> exit 1 ['� ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard 5015ms', '� ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page 92ms', 'Tests  2 failed | 13 passed (15)']
+restored (expect pass) -> exit 1 ['� ALV-N020 (F-037, two tabs): when this tab finds that a DIFFERENT person signed in elsewhere, it leaves the page for the dashboard 5027ms', '� ALV-N020 (F-037, two tabs): the SAME person revalidating stays on their page 96ms', 'Tests  2 failed | 13 passed (15)']
+file restored byte for byte: True
+== G11 done

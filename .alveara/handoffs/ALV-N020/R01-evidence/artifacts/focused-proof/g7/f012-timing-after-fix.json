@@ -1,0 +1,28 @@
+{
+  "runs": [
+    {
+      "run": 1,
+      "url": "http://localhost:5173/login",
+      "domLoadedMs": 524,
+      "bannerVisibleMs": 589,
+      "sessionExpiredTextCount": 0,
+      "changesCannotBeSavedCount": 0
+    },
+    {
+      "run": 2,
+      "url": "http://localhost:5173/login",
+      "domLoadedMs": 304,
+      "bannerVisibleMs": 374,
+      "sessionExpiredTextCount": 0,
+      "changesCannotBeSavedCount": 0
+    },
+    {
+      "run": 3,
+      "url": "http://localhost:5173/login",
+      "domLoadedMs": 269,
+      "bannerVisibleMs": 326,
+      "sessionExpiredTextCount": 0,
+      "changesCannotBeSavedCount": 0
+    }
+  ]
+}

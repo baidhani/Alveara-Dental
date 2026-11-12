@@ -1,0 +1,14 @@
+﻿[
+    {
+        "detail":  "OK the checkpoint left 130 tables (159 rows) unchanged, the differential base unchanged, no restore recorded, and a non-empty COPY_ONLY backup (9687040 bytes)",
+        "title":  "E10 COPY_ONLY checkpoint: file exists, no restore invoked, live database unchanged",
+        "stepId":  "E10",
+        "passed":  true
+    },
+    {
+        "detail":  "",
+        "title":  "CLEAN the database is dropped and the run folder is removed",
+        "stepId":  "CLEAN",
+        "passed":  true
+    }
+]

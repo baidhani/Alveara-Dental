@@ -1,0 +1,47 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+  Failed Alveara.Api.Tests.StaffInactivationServiceTests.An_administrator_unlinks_an_inactive_profile_s_login_with_a_reason_and_the_reason_is_kept [701 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationServiceTests.An_administrator_unlinks_an_inactive_profile_s_login_with_a_reason_and_the_reason_is_kept() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 248
+   at Alveara.Api.Tests.StaffInactivationServiceTests.An_administrator_unlinks_an_inactive_profile_s_login_with_a_reason_and_the_reason_is_kept() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 248
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted [84 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(Alveara.Api.Architecture.Configuration.ConfigurationException)
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 163
+   at Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 166
+   at Alveara.Api.Tests.StaffInactivationServiceTests.When_the_login_is_the_last_administrator_nothing_changes_a_failure_is_recorded_and_the_alert_is_attempted() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 175
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.StaffInactivationServiceTests.Reactivating_the_profile_never_re_enables_the_login [120 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationServiceTests.Reactivating_the_profile_never_re_enables_the_login() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 109
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.StaffInactivationServiceTests.Inactivating_a_linked_profile_disables_the_login_rotates_its_stamp_and_records_both_audit_entries [155 ms]
+  Error Message:
+   Assert.True() Failure
+Expected: True
+Actual:   False
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationServiceTests.Inactivating_a_linked_profile_disables_the_login_rotates_its_stamp_and_records_both_audit_entries() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 90
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.StaffInactivationServiceTests.A_failing_alert_does_not_change_the_outcome_or_hide_the_failure_record [73 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(Alveara.Api.Architecture.Configuration.ConfigurationException)
+  Stack Trace:
+     at Alveara.Api.Tests.StaffInactivationServiceTests.A_failing_alert_does_not_change_the_outcome_or_hide_the_failure_record() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 189
+   at Alveara.Api.Tests.StaffInactivationServiceTests.A_failing_alert_does_not_change_the_outcome_or_hide_the_failure_record() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 191
+   at Alveara.Api.Tests.StaffInactivationServiceTests.A_failing_alert_does_not_change_the_outcome_or_hide_the_failure_record() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\StaffInactivationServiceTests.cs:line 192
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     5, Passed:     5, Skipped:     0, Total:    10, Duration: 17 s - Alveara.Api.Tests.dll (net10.0)

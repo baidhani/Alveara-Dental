@@ -1,0 +1,125 @@
+
+Running 28 tests using 12 workers
+
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 10 [desktop] › e2e\shell.spec.ts:140:3 › Application shell — real browser walkthrough › does not show the disconnected banner while the API is healthy (865ms)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok  3 [desktop] › e2e\shell.spec.ts:36:3 › Application shell — real browser walkthrough › dashboard loads with an honest empty state, no horizontal overflow (967ms)
+  ok  6 [desktop] › e2e\shell.spec.ts:91:3 › Application shell — real browser walkthrough › unknown route shows a truthful not-found page with a working, single-control return action (966ms)
+  ok  2 [desktop] › e2e\shell.spec.ts:70:3 › Application shell — real browser walkthrough › keyboard-only path: skip link, tab into navigation, activate with Enter (968ms)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 11 [desktop] › e2e\shell.spec.ts:102:3 › Application shell — real browser walkthrough › form validation appears on blur and clears when corrected (1.0s)
+  ok  4 [desktop] › e2e\shell.spec.ts:128:3 › Application shell — real browser walkthrough › shows the disconnected banner when the API is unreachable, and clears it once healthy again (1.0s)
+  ok  5 [desktop] › e2e\shell.spec.ts:117:3 › Application shell — real browser walkthrough › notification toasts appear for each tone (987ms)
+  ok  9 [desktop] › e2e\shell.spec.ts:47:3 › Application shell — real browser walkthrough › navigation reaches the showcase page and it renders every control (1.0s)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 14 [desktop] › e2e\shell.spec.ts:162:3 › Application shell — real browser walkthrough › layout has no unintended horizontal overflow at this viewport (265ms)
+  ok  1 [desktop] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in light mode (1.2s)
+  ok 12 [desktop] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in dark mode (1.3s)
+[WebServer] 9:41:25 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 13 [desktop] › e2e\shell.spec.ts:146:3 › Application shell — real browser walkthrough › theme toggle switches and persists between light and dark (372ms)
+  ok  8 [desktop] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in dark mode (1.3s)
+  ok  7 [desktop] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in light mode (1.3s)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 15 [tablet] › e2e\shell.spec.ts:36:3 › Application shell — real browser walkthrough › dashboard loads with an honest empty state, no horizontal overflow (690ms)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 17 [tablet] › e2e\shell.spec.ts:47:3 › Application shell — real browser walkthrough › navigation reaches the showcase page and it renders every control (773ms)
+  ok 24 [tablet] › e2e\shell.spec.ts:117:3 › Application shell — real browser walkthrough › notification toasts appear for each tone (581ms)
+  ok 19 [tablet] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in light mode (931ms)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 25 [tablet] › e2e\shell.spec.ts:140:3 › Application shell — real browser walkthrough › does not show the disconnected banner while the API is healthy (708ms)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 28 [tablet] › e2e\shell.spec.ts:162:3 › Application shell — real browser walkthrough › layout has no unintended horizontal overflow at this viewport (447ms)
+  ok 23 [tablet] › e2e\shell.spec.ts:70:3 › Application shell — real browser walkthrough › keyboard-only path: skip link, tab into navigation, activate with Enter (981ms)
+[WebServer] 9:41:27 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 22 [tablet] › e2e\shell.spec.ts:91:3 › Application shell — real browser walkthrough › unknown route shows a truthful not-found page with a working, single-control return action (942ms)
+  ok 26 [tablet] › e2e\shell.spec.ts:128:3 › Application shell — real browser walkthrough › shows the disconnected banner when the API is unreachable, and clears it once healthy again (810ms)
+  ok 16 [tablet] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in light mode (1.3s)
+  ok 21 [tablet] › e2e\shell.spec.ts:102:3 › Application shell — real browser walkthrough › form validation appears on blur and clears when corrected (1.0s)
+[WebServer] 9:41:28 PM [vite] http proxy error: /api/notifications/summary
+[WebServer] AggregateError [ECONNREFUSED]: 
+[WebServer]     at internalConnectMultiple (node:net:1339:18)
+[WebServer]     at afterConnectMultiple (node:net:1942:7)
+  ok 27 [tablet] › e2e\shell.spec.ts:146:3 › Application shell — real browser walkthrough › theme toggle switches and persists between light and dark (701ms)
+  ok 20 [tablet] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in dark mode (1.4s)
+  ok 18 [tablet] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in dark mode (1.5s)
+
+  28 passed (7.6s)

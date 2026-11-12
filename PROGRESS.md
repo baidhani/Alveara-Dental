@@ -2390,3 +2390,15 @@
   - What changed: App.routeGuards.test two-tab tests moved to the Security administration page (shared helper onUsersPageAs); on the permission-matrix page my mock answered the delegation card with {} and the card crashed before the identity check ran (a defect in my test fixture, not in the product).
   - Verification: owner-approved group 11 run: login-timeout tests 2/2; server StaffInactivationAlertTests + ConfigurationApiTests 13/13 (25 s); no leftover test databases; the two two-tab tests failed on the fixture defect, so NC-5 was inconclusive (file restored byte for byte). After the fix: npx tsc -b clean, lint 42 warnings (unchanged). Re-run awaiting the owner's permission.
   - Notes: nothing pushed.
+- [x] ALV-N020 route-guard re-run and NC-5 (group 12)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: no code; proof only.
+  - Verification: owner-approved run: npx vitest run src/App.routeGuards.test.tsx 15/15; NC-5 (two-tab navigation removed from AppShell.tsx) -> the different-person two-tab test fails (1 of 15), restored 15/15, file restored byte for byte. Evidence C:/tmp/n020-proof/g12.
+  - Notes: nothing pushed.
+- [x] ALV-N020 R01 engineering handoff (Stage 1, deferred-regression route)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N020/R01.md and R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, CHANGED_FILES, DEMO_EVIDENCE, PARENT_REGRESSION, NEXT_STORY_IMPACT, artifacts/focused-proof with groups G1-G12 and the run scripts); PROGRAM_REGRESSION_LEDGER.md ALV-N020 obligations and section; EXECUTION_STATUS.json ALV-N020 record (AWAITING_REVIEW, R01, acceptance 4 of 5, implementation 17a4775, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false); BUILD_STATE.md line.
+  - Verification: EXECUTION_STATUS.json parses and only the ALV-N020 record changed (git diff 6+/5-); evidence secret scan: only test titles mention "bootstrap secret", no values.
+  - Notes: disclosed - 1.12 unsaved-form assertion not built; 13.05 browser-level; document-link refusal untested; AuthorizationArchitectureTests not re-run after the alert class (pattern cannot match, by inspection); inactivation/re-enable race not forced. Not release-certified; ALV-N021 not started; nothing pushed.

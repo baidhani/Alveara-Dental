@@ -1,0 +1,1134 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config=playwright.chain.config.ts"
+    ],
+    "configFile": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\playwright.chain.config.ts",
+    "rootDir": "C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/chain",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/.alvera-data/Test-Data/Temp/chain-output/47436f92b0e34e44ac6c2fba03fdf68a/playwright-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client/chain",
+        "testIgnore": [],
+        "testMatch": [
+          "stage-*.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\47436f92b0e34e44ac6c2fba03fdf68a/playwright-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5173",
+      "url": "http://localhost:5173",
+      "reuseExistingServer": false,
+      "timeout": 30000
+    }
+  },
+  "suites": [
+    {
+      "title": "stage-0.spec.ts",
+      "file": "stage-0.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S-09a a wrong bootstrap secret is refused with 401 and creates nothing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 285,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:46.896Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-a6348a8a5c96fcfab47e",
+          "file": "stage-0.spec.ts",
+          "line": 31,
+          "column": 1
+        },
+        {
+          "title": "S-09b the right bootstrap secret creates exactly one administrator (201)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 295,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:47.217Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-4d7423773d12efe7b6e7",
+          "file": "stage-0.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "S-09c a second bootstrap is refused with 409 bootstrap_already_used and the user count stays 1",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 147,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:47.519Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-2ba05dc10726024f7372",
+          "file": "stage-0.spec.ts",
+          "line": 43,
+          "column": 1
+        },
+        {
+          "title": "C-01 the host reports the clock it really uses: the chain host an injected test clock, the production API no chain report",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 22,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:47.675Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-251d29587d429afbed3b",
+          "file": "stage-0.spec.ts",
+          "line": 51,
+          "column": 1
+        },
+        {
+          "title": "S-09d the administrator signs in through the browser and reaches the dashboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 864,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:47.705Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-d521ac800e72628f9550",
+          "file": "stage-0.spec.ts",
+          "line": 82,
+          "column": 1
+        },
+        {
+          "title": "B-01 the sign-in page says DentalKeep in the document title and in its own text (real browser, captured)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 474,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:48.769Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-ece381e09fe7e6fc2550",
+          "file": "stage-0.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "B-02 the signed-in page shows DentalKeep in the header brand and in the document title (real browser, captured)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 632,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:49.252Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-0.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1e9f349bf000ccdd89f8-e05955343e56175f3395",
+          "file": "stage-0.spec.ts",
+          "line": 95,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "stage-1.spec.ts",
+      "file": "stage-1.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "1.01 a first visit to a protected page shows the plain sign-in page, never 'session expired' (F-007)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 346,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:49.914Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-5b057760c1f595885842",
+          "file": "stage-1.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "1.02 a wrong password and an unknown name get the same plain refusal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 781,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:50.331Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-aedff6bd87c25c91a5cc",
+          "file": "stage-1.spec.ts",
+          "line": 76,
+          "column": 1
+        },
+        {
+          "title": "1.03 the administrator signs in (with spaces around the name, F-151) and sees the admin menu",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:51.124Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-15bdef17ae8a730aa4c1",
+          "file": "stage-1.spec.ts",
+          "line": 83,
+          "column": 1
+        },
+        {
+          "title": "1.04 an account that is still disabled cannot sign in",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 443,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:51.926Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-76f5c1925debd168da3f",
+          "file": "stage-1.spec.ts",
+          "line": 93,
+          "column": 1
+        },
+        {
+          "title": "1.05 disabling billing1 refuses its sign-in; enabling it again lets it in",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 798,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:52.384Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-3248efb47b77d3a8d24a",
+          "file": "stage-1.spec.ts",
+          "line": 98,
+          "column": 1
+        },
+        {
+          "title": "1.06 revoking a signed-in user's sessions signs that browser out on its next action, with the expiry notice",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:53.189Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-b6f31c4dc27a377de8ae",
+          "file": "stage-1.spec.ts",
+          "line": 107,
+          "column": 1
+        },
+        {
+          "title": "2.01 two synthetic patients are registered by the front desk (minimal stage 2)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 799,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:53.790Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-2bb4250dd5fc9a2d7ef1",
+          "file": "stage-1.spec.ts",
+          "line": 115,
+          "column": 1
+        },
+        {
+          "title": "F-037 after the front desk signs out on a patient page, the next person lands on the dashboard with no patient shown",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5663,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Brian Baker').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Brian Baker').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Brian Baker').first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Brian Baker').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Brian Baker').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Brian Baker').first()\u001b[22m\n\n    at C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts:132:55",
+                    "location": {
+                      "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                      "column": 55,
+                      "line": 132
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 130 |\u001b[39m   \u001b[36mawait\u001b[39m signIn(page\u001b[33m,\u001b[39m \u001b[32m\"chain-front\"\u001b[39m\u001b[33m,\u001b[39m \u001b[33mPASSWORD\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 131 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/patients/${patients.brian}`\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 132 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m\"Brian Baker\"\u001b[39m)\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 133 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"button\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Sign out\"\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 134 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m\"heading\"\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m\"Sign in\"\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 135 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "column": 55,
+                        "line": 132
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Brian Baker').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Brian Baker').first() with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Brian Baker').first()\u001b[22m\n\n\n  130 |   await signIn(page, \"chain-front\", PASSWORD);\n  131 |   await page.goto(`/patients/${patients.brian}`);\n> 132 |   await expect(page.getByText(\"Brian Baker\").first()).toBeVisible();\n      |                                                       ^\n  133 |   await page.getByRole(\"button\", { name: \"Sign out\" }).click();\n  134 |   await expect(page.getByRole(\"heading\", { name: \"Sign in\" })).toBeVisible();\n  135 |\n    at C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts:132:55"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:47:54.599Z",
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                        "line": 0,
+                        "column": 0
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\47436f92b0e34e44ac6c2fba03fdf68a\\playwright-artifacts\\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\47436f92b0e34e44ac6c2fba03fdf68a\\playwright-artifacts\\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\.alvera-data\\Test-Data\\Temp\\chain-output\\47436f92b0e34e44ac6c2fba03fdf68a\\playwright-artifacts\\stage-1-F-037-after-the-fr-1848b-board-with-no-patient-shown-chromium\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "column": 55,
+                    "line": 132
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "899eaad77487b123a71f-1a9f3e5c709d8c146408",
+          "file": "stage-1.spec.ts",
+          "line": 127,
+          "column": 1
+        },
+        {
+          "title": "1.10 after sign-out the browser Back button shows the sign-in page and no patient information",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:48:00.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "899eaad77487b123a71f-d7e2ba83e03929e4970c",
+          "file": "stage-1.spec.ts",
+          "line": 143,
+          "column": 1
+        },
+        {
+          "title": "F-021 inactivating a staff profile disables its login and ends its session; reactivating the profile does not re-enable it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:48:00.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "899eaad77487b123a71f-b6e12b31b6d73b6e4f98",
+          "file": "stage-1.spec.ts",
+          "line": 156,
+          "column": 1
+        },
+        {
+          "title": "1.11 starting MFA enrolment without finishing leaves password sign-in unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:48:00.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "899eaad77487b123a71f-043238857e1b78133cbe",
+          "file": "stage-1.spec.ts",
+          "line": 176,
+          "column": 1
+        },
+        {
+          "title": "13.05 a server outage keeps the signed-in screen and the typed form, and it recovers without signing in again (F-155, browser-level)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:48:00.627Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "899eaad77487b123a71f-a60c38b8da951567847c",
+          "file": "stage-1.spec.ts",
+          "line": 185,
+          "column": 1
+        },
+        {
+          "title": "1.12 a short per-user timeout warns first, then signs out with the expiry message (fixed expiry unchanged)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "serial",
+                  "location": {
+                    "file": "C:\\Users\\firas\\Documents\\AI-Project-[Alveara-Dental]\\src\\alveara-client\\chain\\stage-1.spec.ts",
+                    "line": 0,
+                    "column": 0
+                  }
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": -1,
+                  "parallelIndex": -1,
+                  "status": "skipped",
+                  "duration": 0,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-12T03:48:00.628Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "899eaad77487b123a71f-545313ed69c1e23ea57f",
+          "file": "stage-1.spec.ts",
+          "line": 203,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-12T03:47:45.393Z",
+    "duration": 15440.976,
+    "expected": 14,
+    "skipped": 5,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

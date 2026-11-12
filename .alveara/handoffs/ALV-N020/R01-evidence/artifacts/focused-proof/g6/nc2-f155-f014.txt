@@ -1,0 +1,528 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/loginOutcome.test.ts (16 tests | 6 failed) 8ms
+   ❯ classifyLoginFailure (ALV-N020, F-014) (13)
+     × a 502 from the proxy (API down) 3ms
+     × a 503 0ms
+     × a 504 0ms
+     × a 500 with no API body (proxy, API down) 0ms
+     × a 500 from the live API 0ms
+     × never reports a server failure as wrong credentials 0ms
+ ❯ src/pages/LoginPage.test.tsx (9 tests | 3 failed) 12344ms
+   ❯ LoginPage server failures and session states (ALV-N020) (6)
+     × F-014: with the API down (proxy 502) it says the server cannot be reached, never 'Invalid username or password' 5353ms
+     × F-014: a 500 from the live API is a server problem, not wrong credentials 5320ms
+     × F-012: hides the expiry notice while the server cannot be reached 77ms
+ ❯ src/contexts/AuthContext.test.tsx (20 tests | 5 failed) 20422ms
+   ❯ AuthContext session and outage states (ALV-N020) (9)
+     × keeps a signed-in session through a 502 from the dev proxy, flags the lost connection, and clears the flag when the server answers again 5023ms
+     × keeps a signed-in session through a 503, flags the lost connection, and clears the flag when the server answers again 5045ms
+     × keeps a signed-in session through a 500 from the API itself, flags the lost connection, and clears the flag when the server answers again 5027ms
+     × keeps a signed-in session through no connection at all, flags the lost connection, and clears the flag when the server answers again 5020ms
+     × a first load during an outage is neutral and signs straight in when the server returns with a still-valid session 29ms
+
+ Test Files  3 failed (3)
+      Tests  14 failed | 31 passed (45)
+   Start at  21:51:15
+   Duration  21.46s (tests 92%, environment 6%, setup 2%)
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext session and outage states (ALV-N020) > keeps a signed-in session through a 502 from the dev proxy, flags the lost connection, and clears the flag when the server answers again
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext session and outage states (ALV-N020) > keeps a signed-in session through a 503, flags the lost connection, and clears the flag when the server answers again
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext session and outage states (ALV-N020) > keeps a signed-in session through a 500 from the API itself, flags the lost connection, and clears the flag when the server answers again
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext session and outage states (ALV-N020) > keeps a signed-in session through no connection at all, flags the lost connection, and clears the flag when the server answers again
+Error: [2mexpect([22m[31melement[39m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  true[39m
+Received:
+[31m  false[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"kind"[39m
+        [36m>[39m
+          [0msigned-out[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"user"[39m
+        [36m/>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"lost"[39m
+        [36m>[39m
+          [0mfalse[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"ended"[39m
+        [36m>[39m
+          [0mexpired[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"expired-user"[39m
+        [36m>[39m
+          [0mdentist1[0m
+        [36m</span>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"epoch"[39m
+        [36m>[39m
+          [0m1[0m
+        [36m</span>[39m
+        [36m<button>[39m
+          [0mout[0m
+        [36m</button>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ src/contexts/AuthContext.test.tsx:449:60
+    447|     mode = "fail";
+    448|     await revalidate();
+    449|     await waitFor(() => expect(screen.getByTestId("lost")).toHaveTextC…
+       |                                                            ^
+    450|     expect(screen.getByTestId("kind")).toHaveTextContent("signed-in");…
+    451|     expect(screen.getByTestId("ended")).toHaveTextContent("null");
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  src/contexts/AuthContext.test.tsx > AuthContext session and outage states (ALV-N020) > a first load during an outage is neutral and signs straight in when the server returns with a still-valid session
+Error: [2mexpect([22m[31melement[39m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  true[39m
+Received:
+[31m  false[39m
+ ❯ src/contexts/AuthContext.test.tsx:500:40
+    498|     render(<AuthProvider><SessionProbe /></AuthProvider>);
+    499|     await waitFor(() => expect(screen.getByTestId("kind")).toHaveTextC…
+    500|     expect(screen.getByTestId("lost")).toHaveTextContent("true");
+       |                                        ^
+    501|     expect(screen.getByTestId("ended")).toHaveTextContent("null");
+    502|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  src/pages/loginOutcome.test.ts > classifyLoginFailure (ALV-N020, F-014) > a 502 from the proxy (API down)
+ FAIL  src/pages/loginOutcome.test.ts > classifyLoginFailure (ALV-N020, F-014) > a 503
+ FAIL  src/pages/loginOutcome.test.ts > classifyLoginFailure (ALV-N020, F-014) > a 504
+ FAIL  src/pages/loginOutcome.test.ts > classifyLoginFailure (ALV-N020, F-014) > a 500 with no API body (proxy, API down)
+AssertionError: expected 'invalid-credentials' to be 'server-unavailable' // Object.is equality
+
+Expected: "server-unavailable"
+Received: "invalid-credentials"
+
+ ❯ src/pages/loginOutcome.test.ts:20:44
+     18|     ["something else", new Error("odd"), "unexpected-error"],
+     19|   ])("%s", (_label, err, kind) => {
+     20|     expect(classifyLoginFailure(err).kind).toBe(kind);
+       |                                            ^
+     21|   });
+     22|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  src/pages/loginOutcome.test.ts > classifyLoginFailure (ALV-N020, F-014) > a 500 from the live API
+AssertionError: expected 'invalid-credentials' to be 'server-problem' // Object.is equality
+
+Expected: "server-problem"
+Received: "invalid-credentials"
+
+ ❯ src/pages/loginOutcome.test.ts:20:44
+     18|     ["something else", new Error("odd"), "unexpected-error"],
+     19|   ])("%s", (_label, err, kind) => {
+     20|     expect(classifyLoginFailure(err).kind).toBe(kind);
+       |                                            ^
+     21|   });
+     22|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  src/pages/loginOutcome.test.ts > classifyLoginFailure (ALV-N020, F-014) > never reports a server failure as wrong credentials
+AssertionError: expected 'invalid-credentials' not to be 'invalid-credentials' // Object.is equality
+ ❯ src/pages/loginOutcome.test.ts:24:130
+     22|
+     23|   it("never reports a server failure as wrong credentials", () => {
+     24|     for (const status of [500, 502, 503, 504]) expect(classifyLoginFai…
+       |                                                                                                                                  ^
+     25|   });
+     26| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  src/pages/LoginPage.test.tsx > LoginPage server failures and session states (ALV-N020) > F-014: with the API down (proxy 502) it says the server cannot be reached, never 'Invalid username or password'
+TestingLibraryElementError: Unable to find an element with the text: /server cannot be reached/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"alv-login"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"alv-page-header"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1[39m
+            [33mclass[39m=[32m"alv-page-header__title"[39m
+          [36m>[39m
+            [0mSign in[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"alv-page-header__description"[39m
+          [36m>[39m
+            [0mEnter your username and password to access DentalKeep.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-login__banner alv-login__banner--danger"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m>[39m
+        [0mInvalid username or password.[0m
+      [36m</div>[39m
+      [36m<form[39m
+        [33mclass[39m=[32m"alv-login__form"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-form-field"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-form-field__label"[39m
+            [33mfor[39m=[32m"_r_6_"[39m
+          [36m>[39m
+            [0mUsername[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"username"[39m
+            [33mclass[39m=[32m"alv-form-field__input"[39m
+            [33mid[39m=[32m"_r_6_"[39m
+            [33mname[39m=[32m"username"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mvalue[39m=[32m"admin"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-form-field"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-form-field__label"[39m
+            [33mfor[39m=[32m"_r_7_"[39m
+          [36m>[39m
+            [0mPassword[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"current-password"[39m
+            [33mclass[39m=[32m"alv-form-field__input"[39m
+            [33mid[39m=[32m"_r_7_"[39m
+            [33mname[39m=[32m"password"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mtype[39m=[32m"password"[39m
+            [33mvalue[39m=[32m"password"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+          [33mtype[39m=[32m"submit"[39m
+        [36m>[39m
+          [0mSign in[0m
+        [36m</button>[39m
+      [36m</form>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-login"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"alv-page-header"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"alv-page-header__title"[39m
+            [36m>[39m
+              [0mSign in[0m
+            [36m</h1>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-page-header__description"[39m
+            [36m>[39m
+              [0mEnter your username and password to access DentalKeep.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-login__banner alv-login__banner--danger"[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [0mInvalid username or password.[0m
+        [36m</div>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"alv-login__form"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_6_"[39m
+            [36m>[39m
+              [0mUsername[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mautocomplete[39m=[32m"username"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_6_"[39m
+              [33mname[39m=[32m"username"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mvalue[39m=[32m"admin"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_7_"[39m
+            [36m>[39m
+              [0mPassword[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mautocomplete[39m=[32m"current-password"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_7_"[39m
+              [33mname[39m=[32m"password"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"password"[39m
+              [33mvalue[39m=[32m"password"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mSign in[0m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/LoginPage.test.tsx:101:11
+     99|     renderLoginPage();
+    100|     await signIn();
+    101|     await waitFor(() => expect(screen.getByText(/server cannot be reac…
+       |           ^
+    102|     expect(screen.queryByText("Invalid username or password.")).not.to…
+    103|     vi.unstubAllGlobals();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  src/pages/LoginPage.test.tsx > LoginPage server failures and session states (ALV-N020) > F-014: a 500 from the live API is a server problem, not wrong credentials
+TestingLibraryElementError: Unable to find an element with the text: /server had a problem/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"alv-login"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"alv-page-header"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1[39m
+            [33mclass[39m=[32m"alv-page-header__title"[39m
+          [36m>[39m
+            [0mSign in[0m
+          [36m</h1>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"alv-page-header__description"[39m
+          [36m>[39m
+            [0mEnter your username and password to access DentalKeep.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</header>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-login__banner alv-login__banner--danger"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m>[39m
+        [0mInvalid username or password.[0m
+      [36m</div>[39m
+      [36m<form[39m
+        [33mclass[39m=[32m"alv-login__form"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-form-field"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-form-field__label"[39m
+            [33mfor[39m=[32m"_r_a_"[39m
+          [36m>[39m
+            [0mUsername[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"username"[39m
+            [33mclass[39m=[32m"alv-form-field__input"[39m
+            [33mid[39m=[32m"_r_a_"[39m
+            [33mname[39m=[32m"username"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mvalue[39m=[32m"admin"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-form-field"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mclass[39m=[32m"alv-form-field__label"[39m
+            [33mfor[39m=[32m"_r_b_"[39m
+          [36m>[39m
+            [0mPassword[0m
+          [36m</label>[39m
+          [36m<input[39m
+            [33mautocomplete[39m=[32m"current-password"[39m
+            [33mclass[39m=[32m"alv-form-field__input"[39m
+            [33mid[39m=[32m"_r_b_"[39m
+            [33mname[39m=[32m"password"[39m
+            [33mrequired[39m=[32m""[39m
+            [33mtype[39m=[32m"password"[39m
+            [33mvalue[39m=[32m"password"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+          [33mtype[39m=[32m"submit"[39m
+        [36m>[39m
+          [0mSign in[0m
+        [36m</button>[39m
+      [36m</form>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"alv-login"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mclass[39m=[32m"alv-page-header"[39m
+        [36m>[39m
+          [36m<div>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"alv-page-header__title"[39m
+            [36m>[39m
+              [0mSign in[0m
+            [36m</h1>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-page-header__description"[39m
+            [36m>[39m
+              [0mEnter your username and password to access DentalKeep.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</header>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-login__banner alv-login__banner--danger"[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [0mInvalid username or password.[0m
+        [36m</div>[39m
+        [36m<form[39m
+          [33mclass[39m=[32m"alv-login__form"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_a_"[39m
+            [36m>[39m
+              [0mUsername[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mautocomplete[39m=[32m"username"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_a_"[39m
+              [33mname[39m=[32m"username"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mvalue[39m=[32m"admin"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-form-field"[39m
+          [36m>[39m
+            [36m<label[39m
+              [33mclass[39m=[32m"alv-form-field__label"[39m
+              [33mfor[39m=[32m"_r_b_"[39m
+            [36m>[39m
+              [0mPassword[0m
+            [36m</label>[39m
+            [36m<input[39m
+              [33mautocomplete[39m=[32m"current-password"[39m
+              [33mclass[39m=[32m"alv-form-field__input"[39m
+              [33mid[39m=[32m"_r_b_"[39m
+              [33mname[39m=[32m"password"[39m
+              [33mrequired[39m=[32m""[39m
+              [33mtype[39m=[32m"password"[39m
+              [33mvalue[39m=[32m"password"[39m
+            [36m/>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"alv-button alv-button--primary"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mSign in[0m
+          [36m</button>[39m
+        [36m</form>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/pages/LoginPage.test.tsx:118:11
+    116|     renderLoginPage();
+    117|     await signIn();
+    118|     await waitFor(() => expect(screen.getByText(/server had a problem/…
+       |           ^
+    119|     expect(screen.queryByText("Invalid username or password.")).not.to…
+    120|     vi.unstubAllGlobals();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  src/pages/LoginPage.test.tsx > LoginPage server failures and session states (ALV-N020) > F-012: hides the expiry notice while the server cannot be reached
+Error: [2mexpect([22m[31melement[39m[2m).not.toBeInTheDocument()[22m
+
+[31mexpected document not to contain element, found <div
+  class="alv-login__banner alv-login__banner--warning"
+  role="alert"
+>
+  Your session expired. Please sign in again.
+</div> instead[39m
+ ❯ src/pages/LoginPage.test.tsx:144:61
+    142|     await waitFor(() => expect(screen.getByRole("heading", { name: "Si…
+    143|     await new Promise((r) => setTimeout(r, 50));                      …
+    144|     expect(screen.queryByText(/your session expired/i)).not.toBeInTheD…
+       |                                                             ^
+    145|     vi.unstubAllGlobals();
+    146|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
