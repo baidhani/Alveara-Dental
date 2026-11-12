@@ -47,8 +47,10 @@ with broad regression correctly deferred to ALV-N028.
 - Preserve all existing account-disable protections: target authorization,
   last-admin protection, security-stamp rotation, account audit behavior, row
   version conflict handling, and reactivation not re-enabling the account.
-- No migration is authorized by this briefing. Stop for review if implementation
-  demonstrates that a migration or persistent-model change is actually needed.
+- No migration was authorized by this briefing initially. The narrowly scoped
+  notification-kind migration is subsequently authorized only by
+  `ALV-N020_MIGRATION_DECISION.md`; any other migration or persistent-model
+  change still requires a new stop-and-review decision.
 
 ## Testing and handoff control
 
