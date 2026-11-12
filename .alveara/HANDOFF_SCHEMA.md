@@ -14,11 +14,16 @@ Two-stage lifecycle, when permitted:
 
 ```
 PLANNED → READY → IN_PROGRESS → AWAITING_REVIEW → AWAITING_REGRESSION → AWAITING_REVIEW → COMPLETE
+
+Post-Gate-E stabilization-program exception only (`ALV-N019`–`ALV-N028`):
+
+PLANNED → READY → IN_PROGRESS → AWAITING_REVIEW → COMPLETE (`fullRegression: "DEFERRED_TO_ALV-N028"`)
 ```
 
 Exceptional states:
 
 - `AWAITING_REGRESSION` — a Stage 1 review accepted the implementation conditionally; the exact broad-regression contract is still required before final review.
+- `COMPLETE` with `fullRegression: "DEFERRED_TO_ALV-N028"` — permitted only for `ALV-N019` through `ALV-N027` after independent approval of the package's focused stability proof. It is not release-ready and may not unlock release engineering, Gate F, deployment, or a release decision; `ALV-N028` owns the one consolidated final regression.
 - `BLOCKED` — cannot proceed because a dependency, requirement, credential, architecture decision, defect, or an inconclusive regression environment blocks truthful completion.
 - `CHANGES_REQUIRED` — implementation ran, review found work that must be corrected before completion.
 - `DEFERRED` — product owner deliberately postponed the story; impact/reason must be recorded.
@@ -77,6 +82,16 @@ Use this flow for every future story, milestone, release, and gate that requires
 4. Update `BUILD_STATE.md` only if approval changes a durable current-state fact.
 5. Make one **closure-only commit** (message: `<ALV-ID>: record review approval`) before the next story begins.
 6. Report the closure commit SHA.
+
+### Post-Gate-E stabilization-program deferred-regression closure
+
+This narrowly scoped route applies only to `ALV-N019` through `ALV-N027`, under the execution-plan exception dated 2026-11-11. It replaces package-level Stage 2 with focused proof and transfers the accumulated broad-regression obligation to `ALV-N028`.
+
+1. The attempt handoff states `fullRegression: "DEFERRED_TO_ALV-N028"`, identifies the exact focused stability proof, and records every changed subsystem and deferred broad suite.
+2. The reviewer may return `APPROVED` only after inspecting that focused proof; otherwise ordinary `CHANGES_REQUIRED` applies.
+3. The closure commit may set the package to `COMPLETE` only with `fullRegression: "DEFERRED_TO_ALV-N028"`, a reference to the pending N028 certification, and no claim that the package is release-certified.
+4. Each later package updates the program regression ledger with its implementation SHA, changed subsystems, focused evidence, and accumulated Stage 2 obligations.
+5. `ALV-N028` must execute and pass the single frozen integrated release-candidate broad regression, then receive final independent approval, before release engineering, Gate F, deployment, or release approval. A failure is repaired and re-proved with targeted tests before a corrected frozen candidate receives its next consolidated run.
 
 ### Changes required
 
