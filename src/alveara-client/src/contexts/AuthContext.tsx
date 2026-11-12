@@ -1,37 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { getMyPermissions, logout as apiLogout, setUnauthorizedHandler } from "../services/authApi";
 import type { MyPermissions } from "../services/authApi";
-
-export type AuthState =
-  | { kind: "loading" }
-  | { kind: "signed-out" }
-  | { kind: "signed-in"; username: string; role: string; permissions: string[]; sessionExpiresAtUtc: string | null };
-
-interface AuthContextValue {
-  state: AuthState;
-  /** Called after a successful login/MFA-challenge completion, so the shell reflects the new
-   *  session immediately rather than waiting on the next permissions poll. */
-  refresh: () => Promise<void>;
-  hasPermission: (permission: string) => boolean;
-  logout: () => Promise<void>;
-  /** ALV-N009: true once a signed-in session's real server-issued expiry is within the warning
-   *  window - lets the shell show a "your session will expire soon" notice before the user is
-   *  suddenly signed out. Always false while loading/signed-out. */
-  sessionExpiringSoon: boolean;
-  /** ALV-N020 (F-155): the last session check could not reach the server or got an error that is not an authentication decision (network, timeout, any
-   *  5xx). The signed-in shell, and every unsaved form in it, stays as it is; the check is retried until it gets an answer. Only a 401 ends the session. */
-  connectionLost: boolean;
-  /** ALV-N020 (F-007): why the session in THIS page lifetime ended - "expired" (a 401, expiry or revocation discovered by the server) or "signed-out" (the
-   *  person signed out). null when no session has ended here (a first visit), so the sign-in page can stay neutral. */
-  endedReason: "expired" | "signed-out" | null;
-  /** ALV-N020 (F-037): the username of the session that EXPIRED here, kept only in memory, so a same-user return after expiry can go back to the page they
-   *  were on. Cleared by an explicit sign-out and replaced by any other identity. */
-  expiredUsername: string | null;
-  /** ALV-N020 (F-037): increases whenever the signed-in identity ends or changes (sign-out, 401, a different user found by revalidation). Anything that holds
-   *  identity-scoped state (the patient in context) clears itself when it changes. */
-  identityEpoch: number;
-}
+// ALV-N020 R02: the context object, its types and useIdentityEpoch live in authContextObject.ts, so this file exports only components and useAuth.
+import { AuthContext } from "./authContextObject";
+import type { AuthState } from "./authContextObject";
+export type { AuthState } from "./authContextObject";
 
 /** How long before the real session expiry to start warning - matches the shortest
  *  admin-configurable session timeout (5 minutes, see AccountService.MinSessionTimeoutMinutes)
@@ -44,8 +18,6 @@ const SESSION_EXPIRY_CHECK_INTERVAL_MS = 15 * 1000;
 const SESSION_REVALIDATION_INTERVAL_MS = 30 * 1000;
 /** ALV-N020 (F-155): how often the session check is retried while the server cannot be reached. */
 export const CONNECTION_RETRY_INTERVAL_MS = 5 * 1000;
-
-const AuthContext = createContext<AuthContextValue | null>(null);
 
 /**
  * ALV-001-C01: the app's single source of truth for "who is signed in and what can they do."
@@ -222,11 +194,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-/** ALV-N020 (F-037): the identity counter for identity-scoped state. Outside an AuthProvider (an isolated component test) it is a constant 0. */
-export function useIdentityEpoch(): number {
-  return useContext(AuthContext)?.identityEpoch ?? 0;
 }
 
 export function useAuth() {

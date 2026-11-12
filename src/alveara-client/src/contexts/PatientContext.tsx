@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { ApiError } from "../services/authApi";
 import { getPatient } from "../services/patientsApi";
-import { useIdentityEpoch } from "./AuthContext";
+import { useIdentityEpoch } from "./authContextObject";
 import { PatientContext } from "./patientContextStore";
 import type { PatientContextState } from "./patientContextStore";
 
