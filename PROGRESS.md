@@ -2324,3 +2324,9 @@
   - What changed: .alveara/handoffs/ALV-N019/R06.md and R06-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, CHANGED_FILES, PARENT_REGRESSION, DEMO_EVIDENCE, NEXT_STORY_IMPACT, stage2/ contract renamed from R05); the reviewer's R05 decision stored unchanged; the ALV-N019 record moved to attempt R06 (implementation 3cf91fa); BUILD_STATE.md R06 paragraph.
   - Verification: build 0 errors (same 32 warnings); no test run, on the product owner's instruction (stated in the handoff).
   - Notes: no Stage 2 started; ALV-N019 not COMPLETE; nothing pushed.
+- [x] ALV-N019 R07 Stage 1 package: focused stability proof on the unchanged R06 implementation, fullRegression DEFERRED_TO_ALV-N028, status AWAITING_REVIEW
+  - Date: 2026-11-11
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N019/R07.md and R07-evidence/ (TEST_RESULTS with exact commands, ACCEPTANCE_EVIDENCE, CHANGED_FILES, PARENT_REGRESSION, DEMO_EVIDENCE, NEXT_STORY_IMPACT, artifacts/focused-proof raw output, the R06 composite-source diff); new .alveara/PROGRAM_REGRESSION_LEDGER.md; the R06 review and the focused-proof notice stored unchanged; the ALV-N019 record moved to attempt R07 (implementation 3cf91fa, fullRegression DEFERRED_TO_ALV-N028); BUILD_STATE.md R07 paragraph.
+  - Verification: build 0 errors; RealMigrationInventoryTests 20 of 20 independent runs (5 of 5 each); source-scanning/TestDatabase sweep 375 of 375 (15 m 29 s); leftover counts identical before and after. Run with the product owner's explicit permission.
+  - Notes: no broad regression run (deferred to ALV-N028); not release-certified; ALV-N019 not COMPLETE; ALV-N020 not started; nothing pushed. The owner's uncommitted HANDOFF_SCHEMA and GPT Docs edits were left uncommitted.

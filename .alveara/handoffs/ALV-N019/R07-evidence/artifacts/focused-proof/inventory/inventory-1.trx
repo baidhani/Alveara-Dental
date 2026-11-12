@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="33bb58bb-7e7d-4722-b0a0-ad8848401a03" name="firas@FEERCY-LEGION7I 2026-11-11 18:10:21" runUser="FEERCY-LEGION7I\firas" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-11T18:10:21.0140460-06:00" queuing="2026-11-11T18:10:21.0140461-06:00" start="2026-11-11T18:10:17.3268778-06:00" finish="2026-11-11T18:10:21.0169930-06:00" />
+  <TestSettings name="default" id="fec4628b-fda6-4995-9327-25b5ccf3a372">
+    <Deployment runDeploymentRoot="firas_FEERCY-LEGION7I_2026-11-11_18_10_21" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="0892e120-8ab9-4257-ae4e-4a95b01bdb4e" testId="b6c7593a-5ac3-4d54-6c4a-c45883b037db" testName="Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it" computerName="FEERCY-LEGION7I" duration="00:00:00.0696806" startTime="2026-11-11T18:10:20.8711679-06:00" endTime="2026-11-11T18:10:20.9409900-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0892e120-8ab9-4257-ae4e-4a95b01bdb4e" />
+    <UnitTestResult executionId="fae97347-b1c5-4821-9f24-20460dbdd8e5" testId="abc5ba7c-6fc9-0b2d-fecd-b4fca9a29b5f" testName="Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group" computerName="FEERCY-LEGION7I" duration="00:00:00.1776972" startTime="2026-11-11T18:10:20.6867834-06:00" endTime="2026-11-11T18:10:20.8646444-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fae97347-b1c5-4821-9f24-20460dbdd8e5" />
+    <UnitTestResult executionId="a785536e-bedd-40be-9061-05e939ac0d8b" testId="a7c21597-6d55-6ff2-fc41-0d4fc1a3b9a3" testName="Alveara.Api.Tests.RealMigrationInventoryTests.No_class_that_calls_the_migrator_is_missing_from_the_inventory" computerName="FEERCY-LEGION7I" duration="00:00:00.1420925" startTime="2026-11-11T18:10:20.5321313-06:00" endTime="2026-11-11T18:10:20.6802321-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a785536e-bedd-40be-9061-05e939ac0d8b" />
+    <UnitTestResult executionId="754bca78-1711-4af8-8f3e-85ebcd41d94e" testId="f731f7d9-0a99-72ed-adf1-ad9b32315a09" testName="Alveara.Api.Tests.RealMigrationInventoryTests.The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture" computerName="FEERCY-LEGION7I" duration="00:00:00.0018945" startTime="2026-11-11T18:10:20.8690572-06:00" endTime="2026-11-11T18:10:20.8710115-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="754bca78-1711-4af8-8f3e-85ebcd41d94e" />
+    <UnitTestResult executionId="6da5cf4d-b41d-4bc3-92d7-29ec6867ff9f" testId="eff1b60a-08c4-bd2c-237d-251d59ea27ff" testName="Alveara.Api.Tests.RealMigrationInventoryTests.A_class_gets_the_fixture_of_its_group_a_real_migration_fixture_or_a_template_clone" computerName="FEERCY-LEGION7I" duration="00:00:00.0037700" startTime="2026-11-11T18:10:20.8651081-06:00" endTime="2026-11-11T18:10:20.8689467-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6da5cf4d-b41d-4bc3-92d7-29ec6867ff9f" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Alveara.Api.Tests.RealMigrationInventoryTests.Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b6c7593a-5ac3-4d54-6c4a-c45883b037db">
+      <Execution id="0892e120-8ab9-4257-ae4e-4a95b01bdb4e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.RealMigrationInventoryTests" name="Every_class_using_the_real_path_is_named_in_the_inventory_and_every_entry_in_that_group_uses_it" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.RealMigrationInventoryTests.An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="abc5ba7c-6fc9-0b2d-fecd-b4fca9a29b5f">
+      <Execution id="fae97347-b1c5-4821-9f24-20460dbdd8e5" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.RealMigrationInventoryTests" name="An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.RealMigrationInventoryTests.No_class_that_calls_the_migrator_is_missing_from_the_inventory" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a7c21597-6d55-6ff2-fc41-0d4fc1a3b9a3">
+      <Execution id="a785536e-bedd-40be-9061-05e939ac0d8b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.RealMigrationInventoryTests" name="No_class_that_calls_the_migrator_is_missing_from_the_inventory" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.RealMigrationInventoryTests.A_class_gets_the_fixture_of_its_group_a_real_migration_fixture_or_a_template_clone" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="eff1b60a-08c4-bd2c-237d-251d59ea27ff">
+      <Execution id="6da5cf4d-b41d-4bc3-92d7-29ec6867ff9f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.RealMigrationInventoryTests" name="A_class_gets_the_fixture_of_its_group_a_real_migration_fixture_or_a_template_clone" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.RealMigrationInventoryTests.The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f731f7d9-0a99-72ed-adf1-ad9b32315a09">
+      <Execution id="754bca78-1711-4af8-8f3e-85ebcd41d94e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.RealMigrationInventoryTests" name="The_inventory_names_all_three_groups_with_the_real_path_kept_for_the_migration_pipeline_and_the_fixture" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="b6c7593a-5ac3-4d54-6c4a-c45883b037db" executionId="0892e120-8ab9-4257-ae4e-4a95b01bdb4e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="abc5ba7c-6fc9-0b2d-fecd-b4fca9a29b5f" executionId="fae97347-b1c5-4821-9f24-20460dbdd8e5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a7c21597-6d55-6ff2-fc41-0d4fc1a3b9a3" executionId="a785536e-bedd-40be-9061-05e939ac0d8b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f731f7d9-0a99-72ed-adf1-ad9b32315a09" executionId="754bca78-1711-4af8-8f3e-85ebcd41d94e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eff1b60a-08c4-bd2c-237d-251d59ea27ff" executionId="6da5cf4d-b41d-4bc3-92d7-29ec6867ff9f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="5" executed="5" passed="5" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.64]   Discovering: Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:01.93]   Discovered:  Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:01.94]   Starting:    Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.38]   Finished:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-12T00:10:20.958243+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":0,"rebuilds":0,"clones":0,"fallbacks":0,"real_migration_fixtures":0,"build_ms":0,"restore_ms_total":0}}&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -1,0 +1,38 @@
+diff --git a/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs b/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs
+index e9ff599..ccef910 100644
+--- a/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs
++++ b/src/Alveara.Api.Tests/RealMigrationInventoryTests.cs
+@@ -42,6 +42,16 @@ public class RealMigrationInventoryTests
+         return all;
+     }
+ 
++    /// <summary>One entry per class name; a partial class's fragments are joined in ordinal file-name order (deterministic on every machine), so every check reads all of its source.</summary>
++    private static IReadOnlyDictionary<string, ClassSource> ComposedClasses() =>
++        Classes().GroupBy(c => c.Name).ToDictionary(
++            g => g.Key,
++            g =>
++            {
++                var ordered = g.OrderBy(c => c.File, StringComparer.Ordinal).ToList();
++                return new ClassSource(g.Key, string.Join(";", ordered.Select(c => c.File)), string.Join("\n", ordered.Select(c => c.Text)));
++            });
++
+     private static readonly HashSet<string> Infrastructure =
+     [
+         nameof(TestDatabaseFixture), nameof(RealMigrationTestDatabaseFixture), nameof(TestDatabaseTemplate), nameof(TestDatabaseTemplateTests), nameof(RealMigrationInventory),
+@@ -85,7 +95,15 @@ public class RealMigrationInventoryTests
+     [Fact]
+     public void An_entry_listed_as_calling_the_migrator_still_does_and_each_entry_uses_the_fixture_of_its_group()
+     {
+-        var classes = Classes().GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.First());     // a partial class (TestDatabaseFixture) has one entry per file
++        var fragments = Classes().GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.ToList());
++        var classes = ComposedClasses();
++
++        // A partial class (TestDatabaseFixture is split over two files) is checked as ONE text made of ALL its fragments, so no fragment's behaviour can hide.
++        Assert.True(fragments[nameof(TestDatabaseFixture)].Select(f => f.File).Distinct().Count() >= 2, "TestDatabaseFixture is expected to be split over at least two files.");
++        foreach (var (name, parts) in fragments)
++            foreach (var part in parts)
++                Assert.True(classes[name].Text.Contains(part.Text, StringComparison.Ordinal), $"The composed source of {name} omits its fragment in {part.File}.");
++
+         foreach (var entry in RealMigrationInventory.All)
+         {
+             var source = classes[entry.TestClass.Name];
