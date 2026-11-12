@@ -2450,3 +2450,9 @@
   - What changed: docs/design/ALV-N020-C01_SCOPE_CHANGE_REQUEST.md - the owner's request (admin adds images from their computer, display mode tile/stretch/fill) against the plan's "fixed allow-list of bundled asset identifiers" and "user-uploaded tiles" exclusion; proposed design (managed catalog, PNG/JPEG content detection, no SVG, size/dimension limits, inactivate-never-delete, same-origin serving of only the selected image, audit, EXIF option), the owner decisions D-1, D-2, D-5 and the mockup, requested plan-text changes, options A/B/C.
   - Verification: document only; facts checked against DocumentFileRules.cs and DocumentsController.cs. No code, test, configuration, schema or asset changed; no test run.
   - Notes: open with the owner - default background, field/button wording, the transparent logo file's location. Nothing pushed.
+- [x] Control/planning: store the ALV-N020-C01 scope-change review and the reviewer's plan amendment (document only)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: docs/design/ALV-N020-C01_SCOPE_CHANGE_REVIEW.md stored unchanged (APPROVED WITH REQUIRED DESIGN CORRECTIONS, option A; implementation not yet authorized); GPT Docs/Alveara_Dental_Execution_Plan_v4.md items 57a and 65a as amended for the managed-catalog design; EXECUTION_STATUS.json ALV-N020-C01 controlNotes and acceptance total (16 sentences) updated; status stays PLANNED.
+  - Verification: EXECUTION_STATUS.json parses; only the ALV-N020-C01 record changed. No code, schema, configuration, asset, test or dependency changed; no test run.
+  - Notes: next - revise the pre-implementation briefing with the seven required corrections, then stop for review. ALV-N029 not started. Nothing pushed.

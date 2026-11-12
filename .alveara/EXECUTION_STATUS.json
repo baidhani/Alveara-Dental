@@ -72,11 +72,11 @@
       "qualityGateContribution": ["Gate F"],
       "status": "PLANNED",
       "attempt": null,
-      "acceptance": {"total": 7, "passed": 0},
+      "acceptance": {"total": 16, "passed": 0},
       "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
       "blockingIssues": [],
-      "controlNotes": "Owner-approved stabilization companion (plan item 57a, amendment of 2026-11-12): DentalKeep login presentation, curated manual theme, configurable plain-text footer notice. Pre-implementation briefing is mandatory. Manual theme selection only; automatic rotation is ALV-N029. Falls within the post-Gate-E deferred-regression exception: focused evidence, broad regression DEFERRED_TO_ALV-N028.",
+      "controlNotes": "Owner-approved stabilization companion (plan item 57a, amendments of 2026-11-12): DentalKeep login presentation, a managed local background catalog (bundled owner images plus administrator-added, re-encoded, metadata-free derivatives; Tile/Stretch/Fill), and a configurable plain-text footer notice, under a new narrow ManageLoginPresentation permission initially held only by the owner-designated named account. Scope change approved with required design corrections (docs/design/ALV-N020-C01_SCOPE_CHANGE_REVIEW.md); a revised pre-implementation briefing must be approved before any implementation. Automatic rotation is ALV-N029. Deferred-regression exception: focused evidence, broad regression DEFERRED_TO_ALV-N028.",
       "revalidation": {"required": false, "reason": null}, "completedAt": null
     },
     {
