@@ -2420,3 +2420,9 @@
   - What changed: .alveara/handoffs/ALV-N020/R02.md and R02-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, CHANGED_FILES, DEMO_EVIDENCE, PARENT_REGRESSION, NEXT_STORY_IMPACT, artifacts/focused-proof); ledger ALV-N020 section (implementation e28282f, R02 proof, chain row); EXECUTION_STATUS.json ALV-N020 (AWAITING_REVIEW, R02, acceptance 5 of 5, implementation e28282f, evidenceCommit null, review pending with the R01 decision as prior artifact, no blocking issues); BUILD_STATE.md line.
   - Verification: AuthorizationArchitectureTests 5/5 (closes R01 disclosure 4); EXECUTION_STATUS.json parses, only the ALV-N020 record changed; evidence scan found no secret values.
   - Notes: R01 files and ZIP untouched; not release-certified; ALV-N021 not started; nothing pushed.
+- [x] ALV-N020 closure: record R02 review approval (COMPLETE, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N020/R02.md stored unchanged; EXECUTION_STATUS.json ALV-N020 set COMPLETE with the R02 approval (approvedAttempt R02, reviewed commits e28282f/82f9a94, completedAt), fullRegression DEFERRED_TO_ALV-N028, releaseCertified false; BUILD_STATE.md closure line.
+  - Verification: reviewer decision APPROVED (.alveara/reviews/ALV-N020/R02.md); EXECUTION_STATUS.json parses; closure touches no code, test, configuration, dependency or package file.
+  - Notes: ledger and all R01/R02 evidence retained; broad regression owned by ALV-N028; ALV-N021 not started; nothing pushed.
