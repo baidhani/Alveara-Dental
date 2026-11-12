@@ -2402,3 +2402,9 @@
   - What changed: .alveara/handoffs/ALV-N020/R01.md and R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, CHANGED_FILES, DEMO_EVIDENCE, PARENT_REGRESSION, NEXT_STORY_IMPACT, artifacts/focused-proof with groups G1-G12 and the run scripts); PROGRAM_REGRESSION_LEDGER.md ALV-N020 obligations and section; EXECUTION_STATUS.json ALV-N020 record (AWAITING_REVIEW, R01, acceptance 4 of 5, implementation 17a4775, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false); BUILD_STATE.md line.
   - Verification: EXECUTION_STATUS.json parses and only the ALV-N020 record changed (git diff 6+/5-); evidence secret scan: only test titles mention "bootstrap secret", no values.
   - Notes: disclosed - 1.12 unsaved-form assertion not built; 13.05 browser-level; document-link refusal untested; AuthorizationArchitectureTests not re-run after the alert class (pattern cannot match, by inspection); inactivation/re-enable race not forced. Not release-certified; ALV-N021 not started; nothing pushed.
+- [x] ALV-N020 record R01 review (CHANGES_REQUIRED)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N020/R01.md stored unchanged; EXECUTION_STATUS.json ALV-N020 status CHANGES_REQUIRED with the review block and four blocking issues (1.12 dirty-form assertion, 13.05 owned-runner stop/restart, document-link database refusal, useIdentityEpoch lint warning); BUILD_STATE.md line.
+  - Verification: EXECUTION_STATUS.json parses; only the ALV-N020 record changed.
+  - Notes: R01 files and ZIP untouched; R02 to follow; ALV-N021 not started; nothing pushed.

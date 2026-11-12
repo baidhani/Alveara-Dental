@@ -50,12 +50,12 @@
       "dependencies": ["ALV-N019"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "CHANGES_REQUIRED",
       "attempt": "R01",
       "acceptance": {"total": 5, "passed": 4},
       "tests": {"status": "passed", "summary": "Attempt R01, focused proof on implementation 17a47758b2064de381698abf65d6d003f45b9c92 (R05 PKG-02/PKG-03; migration AddStaffInactivationFailedNotification authorized by docs/design/ALV-N020_MIGRATION_DECISION.md). All runs with the product owner's explicit permission: vitest 150 of 150 (re-run B) plus later groups (route guards 15 of 15, login timeout 2 of 2, notifications 9 of 9); xUnit 97 of 97, 24 of 24, 13 of 13 (125 of 130 before two fixes); mocked Playwright 28 of 28; walkthroughs auth 12, workspace 14, permission-policy-admin 8; chain stage 0 + stage 1 + minimal stage 2 run 3: 20 of 20, evidence builder 22 PASS, 0 FAIL, 0 tracked; negative controls NC-1 to NC-5 effective, files restored byte for byte; F-012 reproduced (15.4-15.7 s) and fixed (0.3-0.6 s); F-015 not reproduced; leftover counts identical. Acceptance 4 of 5: part 5 partly met (the 1.12 unsaved-form assertion is not built; 13.05 is browser-level). fullRegression DEFERRED_TO_ALV-N028; not release-certified; obligations in .alveara/PROGRAM_REGRESSION_LEDGER.md."}, "demo": "chain_stage1_run3_and_walkthroughs", "parentRegression": "n/a", "implementationCommit": "17a47758b2064de381698abf65d6d003f45b9c92", "evidenceCommit": "da9415c6d0612a3482af22bc86586ee95f1e0f22", "handoffPath": ".alveara/handoffs/ALV-N020/R01.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null,
+      "review": {"decision": "CHANGES_REQUIRED", "decisionArtifact": ".alveara/reviews/ALV-N020/R01.md", "approvedAttempt": null, "reviewedImplementationCommit": "17a47758b2064de381698abf65d6d003f45b9c92", "reviewedEvidenceCommit": "da9415c6d0612a3482af22bc86586ee95f1e0f22"},
+      "blockingIssues": ["1.12: real-browser chain assertion that an actual dirty form is warned/preserved before the expiry navigation to /login?reason=expired", "13.05: owned-runner stop and restart of the chain API (reconnecting state, retained dirty form, recovery without sign-in), or a separately reviewed equally strong alternative", "Migration shape: database negative case for staff.inactivation_failed with either document-link field populated", "Lint: remove the new useIdentityEpoch warning"], "revalidation": {"required": false, "reason": null}, "completedAt": null,
       "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
