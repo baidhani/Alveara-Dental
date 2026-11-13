@@ -1,5 +1,6 @@
 /* ALV-N020-C01: the sign-in layout. The backdrop is fixed behind everything (z-index -1, so the outage banner and the panel always paint above it); the
-   panel is solid and full height (owner mockup), so text never sits on the background. Forced-colours mode drops the background image by itself. */
+   panel is solid and full height (owner mockup), so text never sits on the background. Forced-colours mode does NOT drop a url() background by itself
+   (proven in a real browser, R02), so the media rule at the end of this file removes it and gives the panel a visible edge in place of its shadow. */
 .alv-signin {
   min-height: 100vh;
   display: flex;
@@ -65,5 +66,17 @@
   .alv-signin__panel {
     padding-top: var(--space-4, 16px);
     box-shadow: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .alv-signin__backdrop {
+    background-image: none !important; /* the inline style sets the image; nothing decorative is painted in forced colours */
+    background-color: Canvas;
+  }
+
+  .alv-signin__panel {
+    box-shadow: none;
+    border-inline: 2px solid CanvasText; /* the edge the shadow gave the panel */
   }
 }

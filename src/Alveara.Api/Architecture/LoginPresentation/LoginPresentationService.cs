@@ -109,7 +109,20 @@ public class LoginPresentationService(AlveraDbContext db, LoginBackgroundStore s
             MaxActiveAdded, Convert.ToBase64String(s.RowVersion));
     }
 
-    public async Task<AdminLoginPresentation> SaveAsync(SaveLoginPresentation request, Guid actor, CancellationToken ct)
+    /// <summary>One catalog change at a time (R02): runs <paramref name="work"/> in a transaction that holds the catalog lock; commits only if it returns.</summary>
+    private async Task<T> InCatalogTransactionAsync<T>(Func<Task<T>> work, CancellationToken ct)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+        await LoginBackgroundCatalogGuard.AcquireAsync(db, ct);
+        var result = await work();
+        await transaction.CommitAsync(ct);
+        return result;
+    }
+
+    public Task<AdminLoginPresentation> SaveAsync(SaveLoginPresentation request, Guid actor, CancellationToken ct) =>
+        InCatalogTransactionAsync(() => SaveCoreAsync(request, actor, ct), ct);
+
+    private async Task<AdminLoginPresentation> SaveCoreAsync(SaveLoginPresentation request, Guid actor, CancellationToken ct)
     {
         var mode = request.DisplayMode;
         if (mode is null || !LoginDisplayModes.All.Contains(mode)) throw Bad("display_mode_invalid", "Choose Tile, Stretch or Fill.");
@@ -172,6 +185,20 @@ public class LoginPresentationService(AlveraDbContext db, LoginBackgroundStore s
 
     public async Task<AddedBackgroundView> AddImageAsync(byte[] input, string? fileName, string? displayName, string? suggestedMode, bool publicAcknowledged, Guid actor, CancellationToken ct)
     {
+        var saved = new List<string>();                                                                     // a derivative file written by an attempt that does not commit is removed again
+        try
+        {
+            return await InCatalogTransactionAsync(() => AddImageCoreAsync(input, fileName, displayName, suggestedMode, publicAcknowledged, actor, saved, ct), ct);
+        }
+        catch
+        {
+            foreach (var name in saved) store.DeleteUnreferenced(name);
+            throw;
+        }
+    }
+
+    private async Task<AddedBackgroundView> AddImageCoreAsync(byte[] input, string? fileName, string? displayName, string? suggestedMode, bool publicAcknowledged, Guid actor, List<string> saved, CancellationToken ct)
+    {
         if (!publicAcknowledged)
             throw Bad("public_acknowledgement_required", "Confirm that the image is public and contains no patient or other confidential information.");
         var name = (displayName ?? string.Empty).Trim();
@@ -188,6 +215,7 @@ public class LoginPresentationService(AlveraDbContext db, LoginBackgroundStore s
 
         var storageName = LoginBackgroundStore.NewStorageName(derivative.Extension);
         await store.SaveAsync(storageName, derivative.Bytes, ct);
+        saved.Add(storageName);
         var image = new LoginBackgroundImage
         {
             Id = Guid.NewGuid(), DisplayName = name, Sha256 = derivative.Sha256, ContentType = derivative.ContentType, Extension = derivative.Extension,
@@ -212,7 +240,10 @@ public class LoginPresentationService(AlveraDbContext db, LoginBackgroundStore s
         return new(image.Id, image.DisplayName, image.Width, image.Height, image.SuggestedDisplayMode, true, image.AddedAtUtc, Convert.ToBase64String(image.RowVersion));
     }
 
-    public async Task<AddedBackgroundView> SetImageActiveAsync(Guid id, bool active, string? rowVersion, Guid actor, CancellationToken ct)
+    public Task<AddedBackgroundView> SetImageActiveAsync(Guid id, bool active, string? rowVersion, Guid actor, CancellationToken ct) =>
+        InCatalogTransactionAsync(() => SetImageActiveCoreAsync(id, active, rowVersion, actor, ct), ct);
+
+    private async Task<AddedBackgroundView> SetImageActiveCoreAsync(Guid id, bool active, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var image = await db.LoginBackgroundImages.SingleOrDefaultAsync(i => i.Id == id, ct)
             ?? throw new LoginPresentationException("background_not_found", "That background was not found.", 404);
