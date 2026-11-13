@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import logo from "../../assets/login/dentalkeep-logo.png";
+import logo from "../../assets/login/dentalkeep-logo.svg";
 import { getPublicLoginPresentation, PUBLIC_PRESENTATION_TIMEOUT_MS } from "../../services/loginPresentationApi";
 import type { PublicLoginPresentation } from "../../services/loginPresentationApi";
 import { backgroundCss, bundledBackground, DEFAULT_BACKGROUND } from "./loginBackgrounds";
@@ -53,7 +53,7 @@ export function LoginLayout({ children }: { children: ReactNode }) {
       <div className="alv-signin__panel">
         {/* Landmarks: the logo and the page's own content are the main region; the notice is the page footer (contentinfo). */}
         <main className="alv-signin__main">
-          <img className="alv-signin__logo" src={logo} alt="DentalKeep" width={280} height={126} />
+          <img className="alv-signin__logo" src={logo} alt="DentalKeep" width={280} height={129} />
           <div className="alv-signin__content">{children}</div>
         </main>
         {presentation.footerNotice && (

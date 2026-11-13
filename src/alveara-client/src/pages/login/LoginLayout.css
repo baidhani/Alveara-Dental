@@ -37,9 +37,9 @@
   display: block;
   width: min(280px, 70vw);
   height: auto;
-  aspect-ratio: 280 / 126;
+  aspect-ratio: 1774 / 820;                                  /* the owner-supplied SVG's viewBox: never stretched or cropped */
   object-fit: contain;
-  margin: var(--space-6, 32px) auto var(--space-4, 16px);
+  margin: 48px auto 40px;                                    /* ALV-N020-C02: room above the logo and between it and the form (contracted below where space is short) */
 }
 
 .alv-signin__content {
@@ -47,12 +47,24 @@
   max-width: 420px;
 }
 
+/* ALV-N020-C02: one equal-width column. The shared FormField caps its wrapper at 360 px while the Sign in button fills this 420 px column; inside the sign-in
+   layout only, the fields fill the column. FormField itself is unchanged. */
+.alv-signin__content .alv-form-field {
+  max-width: none;
+}
+
+.alv-signin__content .alv-form-field__input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .alv-signin__notice {
   margin-top: auto;
   padding-top: var(--space-6, 32px);
   width: 100%;
   max-width: 520px;
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--font-size-xs, 0.75rem);                   /* ALV-N020-C02: 12 px, clearly secondary to the 13 px field labels */
+  line-height: 1.5;
   color: var(--color-text-muted, var(--color-text));
 }
 
@@ -66,6 +78,14 @@
   .alv-signin__panel {
     padding-top: var(--space-4, 16px);
     box-shadow: none;
+  }
+}
+
+/* ALV-N020-C02: where space is short (narrow phones, and the 200% zoom viewports, which are at most 600 px high) the logo spacing contracts first, so nothing
+   clips, overlaps or scrolls sideways. */
+@media (max-width: 480px), (max-height: 600px) {
+  .alv-signin__logo {
+    margin: 16px auto 24px;
   }
 }
 
