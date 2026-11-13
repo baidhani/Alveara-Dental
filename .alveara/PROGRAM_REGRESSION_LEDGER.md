@@ -24,6 +24,7 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Full backend suite: also the new ALV-N020-C01 classes `LoginBackgroundPipelineTests`, `LoginNoticeRulesTests`, `LoginPresentationApiTests`, `LoginPresentationSchemaTests`, `LoginBackgroundBackupRestoreTests`, `LoginBackgroundCatalogTests` and the changed `BackupServiceTests`, `RealMigrationInventoryTests` (inventory 24) | ALV-N020-C01 | focused only (R01: 34, 7, 11, 51/20, 3, 103, 29); never in a broad run |
 | Client vitest/build/lint/`tsc -b`: new `LoginLayout.test`, `SignInScreenTab.test`, `accountPermissionGating.test`; changed `App.tsx`, `AuthContext`, `authApi`, configuration hub, admin user page, backup labels | ALV-N020-C01 | focused only: 18 of 18 new, 125 of 125 affected; lint 41 (unchanged) |
 | Mocked Playwright: the whole suite, now including `e2e/login-presentation.spec.ts` (every sign-in page renders inside `LoginLayout`) | ALV-N020-C01 | focused only: login-presentation 12 of 12, shell + login-banner 28 of 28 |
+| Mocked Playwright: the whole suite, now including `e2e/login-layout-polish.spec.ts` (equal-width column, logo spacing, 12 px notice, SVG logo ratio); client unit suite includes `loginLogo.test.ts` | ALV-N020-C02 | focused only: browser group 37 passed (1 capture skipped), client unit suite 1953 of 1953 |
 | Real-backend walkthroughs: auth 12 (backup history now lists "Sign-in backgrounds"), workspace, permission-policy-admin, plus every walkthrough that signs in (new layout) | ALV-N020-C01 | auth 12 of 12 only |
 | Accumulated chain stage 0 + stage 1 on the new sign-in page | ALV-N020-C01 | R01: 20 of 20, 24 PASS on `94bcee0`; not re-run after the additive bootstrap-response commit `65c234b` |
 | Migration `20261112210440_AddLoginPresentation`: upgrade from the post-ALV-N020 schema on a copy of a populated database; triggers 51276-51279; the down path refused once a grant or added image exists; a real backup and restore of the `loginBackgrounds` asset class with an added image | ALV-N020-C01 | focused only: schema tests on a clone, backup/restore drill on a test database |
@@ -53,4 +54,12 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Focused proof (R01):** `.alveara/handoffs/ALV-N020-C01/R01-evidence/TEST_RESULTS.md`: xUnit 34, 7, 11, 51 (then 20), 3, 103, 29; vitest 18 + 125; mocked Playwright 12 + 28; negative controls NC-1 to NC-5 effective, restored byte for byte; chain 20 of 20 (24 PASS); auth walkthrough 12 of 12; leftover counts identical in every server run.
 - **Deferred to ALV-N028:** the ALV-N020-C01 rows in the table above, plus every earlier row (unchanged).
 - **R01 review (CHANGES_REQUIRED) and R02:** R02 (implementation `8d4f3fa67f86c290442568af087debfe17762b7d`) adds a catalog lock for add/reactivate/inactivate/select, forced-colours suppression of the sign-in background, and the tests `LoginBackgroundCatalogConcurrencyTests` (3) and `e2e/login-presentation-access.spec.ts` (6). Owed to ALV-N028 in addition to the R01 rows: the whole mocked Playwright suite now includes `login-presentation-access.spec.ts`; the full backend suite includes `LoginBackgroundCatalogConcurrencyTests`. Focused only: concurrency 3 of 3, browser group 32 of 32, server group 46 of 46.
+
+## ALV-N020-C02 (item 57b): DentalKeep login layout visual polish
+
+- **Implementation SHA (R01):** `a2824487b6c11c5b6f6fe1408d17d06b7b6bf040`. Presentation only (CSS, one image import, the owner-supplied static SVG logo replacing the PNG, two test files); no server, schema, dependency or shared-component change.
+- **Focused proof (R01):** `.alveara/handoffs/ALV-N020-C02/R01-evidence/TEST_RESULTS.md`.
+- **Deferred to ALV-N028:** the ALV-N020-C02 row in the table above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
 - **Not release-certified.**

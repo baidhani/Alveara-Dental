@@ -1,0 +1,90 @@
+
+Running 40 tests using 12 workers
+
+  -   9 [desktop] › e2e\login-layout-polish.spec.ts:131:1 › capture: every bundled background, 1280x800 (plus narrow and 200% for the default), full page
+  ok  2 [desktop] › e2e\login-layout-polish.spec.ts:55:3 › narrow (375x812): equal-width column, logo spacing, 12 px notice, SVG logo ratio, nothing scrolls or is covered (1.3s)
+  ok 12 [desktop] › e2e\login-layout-polish.spec.ts:103:1 › the logo keeps its ratio and the layout stays clean in forced colours (1280 and 375) (1.1s)
+  ok  7 [desktop] › e2e\login-layout-polish.spec.ts:55:3 › 200% of 1280x800 (640x400): equal-width column, logo spacing, 12 px notice, SVG logo ratio, nothing scrolls or is covered (1.2s)
+  ok  6 [desktop] › e2e\login-layout-polish.spec.ts:55:3 › desktop (1280x800): equal-width column, logo spacing, 12 px notice, SVG logo ratio, nothing scrolls or is covered (1.2s)
+  ok  4 [desktop] › e2e\login-layout-polish.spec.ts:55:3 › 200% of 1920x1080 (960x540): equal-width column, logo spacing, 12 px notice, SVG logo ratio, nothing scrolls or is covered (1.2s)
+  ok 10 [desktop] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in light mode (1.4s)
+  ok  5 [desktop] › e2e\login-banner-contrast.spec.ts:24:3 › the expired-session banner passes the colour-contrast rule in dark mode (1.4s)
+  ok  1 [desktop] › e2e\login-layout-polish.spec.ts:120:3 › axe is clean on the polished sign-in screen (dark, 1280x800) (1.5s)
+  ok 11 [desktop] › e2e\login-layout-polish.spec.ts:120:3 › axe is clean on the polished sign-in screen (light, 1280x800) (1.4s)
+  ok  3 [desktop] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in light mode (1.6s)
+  ok  8 [desktop] › e2e\login-banner-contrast.spec.ts:32:3 › the sign-in-failure banner passes the colour-contrast rule in dark mode (1.5s)
+  ok 13 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1280x800, light): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.5s)
+  ok 18 [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (375px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable (693ms)
+  ok 17 [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (1280px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable (714ms)
+  ok 14 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1280x800, dark): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.5s)
+  ok 15 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1920x1080, light): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.5s)
+  ok 16 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1920x1080, dark): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.6s)
+  ok 24 [desktop] › e2e\login-presentation.spec.ts:62:1 › each display mode renders as specified (Stretch fills exactly, Fill covers and centres) (1.8s)
+  ok 29 [desktop] › e2e\login-presentation.spec.ts:94:1 › keyboard-only: Tab reaches Username, Password and Sign in in order; the notice is plain text and not focusable (1.2s)
+  ok 30 [desktop] › e2e\login-presentation.spec.ts:109:1 › a disabled notice is not on the page at all (1.6s)
+  ok 23 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: neon-doodle in Tile mode at 1920x1080, 1280x800 and 375x812 (3.0s)
+  ok 19 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: blue-doodle in Tile mode at 1920x1080, 1280x800 and 375x812 (3.1s)
+  ok 22 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: violet-operatory in Tile mode at 1920x1080, 1280x800 and 375x812 (3.1s)
+  ok 20 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: teal-doodle in Tile mode at 1920x1080, 1280x800 and 375x812 (3.1s)
+  ok 21 [desktop] › e2e\login-presentation.spec.ts:47:3 › tile-readiness gate: blue-operatory in Tile mode at 1920x1080, 1280x800 and 375x812 (3.1s)
+  ok 31 [desktop] › e2e\shell.spec.ts:36:3 › Application shell — real browser walkthrough › dashboard loads with an honest empty state, no horizontal overflow (1.6s)
+  ok 36 [desktop] › e2e\shell.spec.ts:140:3 › Application shell — real browser walkthrough › does not show the disconnected banner while the API is healthy (2.0s)
+  ok 35 [desktop] › e2e\shell.spec.ts:91:3 › Application shell — real browser walkthrough › unknown route shows a truthful not-found page with a working, single-control return action (2.2s)
+  ok 38 [desktop] › e2e\shell.spec.ts:117:3 › Application shell — real browser walkthrough › notification toasts appear for each tone (2.2s)
+  ok 34 [desktop] › e2e\shell.spec.ts:102:3 › Application shell — real browser walkthrough › form validation appears on blur and clears when corrected (2.2s)
+  ok 33 [desktop] › e2e\shell.spec.ts:70:3 › Application shell — real browser walkthrough › keyboard-only path: skip link, tab into navigation, activate with Enter (2.3s)
+  ok 37 [desktop] › e2e\shell.spec.ts:128:3 › Application shell — real browser walkthrough › shows the disconnected banner when the API is unreachable, and clears it once healthy again (2.6s)
+  ok 39 [desktop] › e2e\shell.spec.ts:146:3 › Application shell — real browser walkthrough › theme toggle switches and persists between light and dark (2.2s)
+  ok 26 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 375px, with the notice shown (9.6s)
+  ok 27 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 1280px, with the notice shown (9.6s)
+  ok 25 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 1280px, with the notice shown (9.6s)
+  ok 28 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 375px, with the notice shown (10.1s)
+  x  32 [desktop] › e2e\shell.spec.ts:47:3 › Application shell — real browser walkthrough › navigation reaches the showcase page and it renders every control (30.0s)
+  x  40 [desktop] › e2e\shell.spec.ts:162:3 › Application shell — real browser walkthrough › layout has no unintended horizontal overflow at this viewport (30.0s)
+
+
+  1) [desktop] › e2e\shell.spec.ts:47:3 › Application shell — real browser walkthrough › navigation reaches the showcase page and it renders every control 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Component Showcase' })
+
+
+      49 |     await page.goto("/");
+      50 |
+    > 51 |     await page.getByRole("link", { name: "Component Showcase" }).click();
+         |                                                                  ^
+      52 |     await expect(page.getByRole("heading", { name: "Component Showcase" })).toBeVisible();
+      53 |
+      54 |     const buttonsSection = page.locator("section", { has: page.getByRole("heading", { name: "Buttons" }) });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\shell.spec.ts:51:66
+
+    Error Context: test-results\shell-Application-shell-—--abe2f-nd-it-renders-every-control-desktop\error-context.md
+
+  2) [desktop] › e2e\shell.spec.ts:162:3 › Application shell — real browser walkthrough › layout has no unintended horizontal overflow at this viewport 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('.alv-shell__sidebar')
+
+
+      169 |     // Sidebar layout differs structurally between desktop and tablet per
+      170 |     // AppShell.css's 820px breakpoint; assert the concrete difference.
+    > 171 |     const sidebarBox = await page.locator(".alv-shell__sidebar").boundingBox();
+          |                                                                  ^
+      172 |     const viewport = page.viewportSize()!;
+      173 |     expect(sidebarBox).not.toBeNull();
+      174 |
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\shell.spec.ts:171:66
+
+    Error Context: test-results\shell-Application-shell-—--1fbf0-l-overflow-at-this-viewport-desktop\error-context.md
+
+  2 failed
+    [desktop] › e2e\shell.spec.ts:47:3 › Application shell — real browser walkthrough › navigation reaches the showcase page and it renders every control 
+    [desktop] › e2e\shell.spec.ts:162:3 › Application shell — real browser walkthrough › layout has no unintended horizontal overflow at this viewport 
+  1 skipped
+  37 passed (40.4s)

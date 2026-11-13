@@ -1,0 +1,5 @@
+ ❯ src/pages/login/loginLogo.test.ts (3 tests | 1 failed) 8ms
+     × is byte-identical to the reviewed owner-supplied file 6ms
+ FAIL  src/pages/login/loginLogo.test.ts > dentalkeep-logo.svg > is byte-identical to the reviewed owner-supplied file
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)

@@ -2540,3 +2540,15 @@
   - What changed: .alveara/reviews/ALV-N020-C02/BRIEFING-R01.md stored unchanged (reviewer decision; SVG artwork accepted as supplied, not to be altered).
   - Verification: reviewer decision file present; record only, no code, test or asset change.
   - Notes: implementation not started; waiting for the owner's go; nothing pushed.
+- [x] ALV-N020-C02 R01 implementation: login layout visual polish
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: LoginLayout.css (login-form-only equal-width fields/button by overriding the shared FormField 360 px cap inside .alv-signin__content; logo margins 48/40 px contracting to 16/24 px on narrow or short screens; 12 px notice, line-height 1.5; logo aspect-ratio 1774/820), LoginLayout.tsx (imports the owner-supplied dentalkeep-logo.svg, SHA-256 9CECF4A6...82C0, replacing the PNG), tests e2e/login-layout-polish.spec.ts and src/pages/login/loginLogo.test.ts.
+  - Verification: browser spec 7 passed; negative controls NC1-NC4 and the SVG hash control each fail on their own assertion; login browser group 37 passed; client unit suite 1953/1953; tsc clean; lint 42 (baseline). Details in .alveara/handoffs/ALV-N020-C02/R01-evidence/TEST_RESULTS.md.
+  - Notes: not COMPLETE (independent review pending); no server/schema/dependency change; broad regression DEFERRED_TO_ALV-N028; nothing pushed.
+- [x] ALV-N020-C02 R01 Stage 1 handoff (AWAITING_REVIEW; deferred-regression route)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N020-C02/R01.md + R01-evidence/ (acceptance, test results with routes and expected/actual, demo, parent regression, next-story impact, changed files, before/after screenshots and raw outputs); ledger section; EXECUTION_STATUS ALV-N020-C02 attempt R01; BUILD_STATE line.
+  - Verification: focused proof listed in R01-evidence/TEST_RESULTS.md; EXECUTION_STATUS parses as JSON.
+  - Notes: not COMPLETE; nothing pushed.
