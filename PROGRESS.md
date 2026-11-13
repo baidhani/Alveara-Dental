@@ -2564,3 +2564,9 @@
   - What changed: .alveara/reviews/ALV-N020-C02/R01.md stored unchanged; EXECUTION_STATUS ALV-N020-C02 COMPLETE (approved attempt R01, implementation 7ed42a5, evidence f588cad); BUILD_STATE closure line. Review/control/status/progress records only - no code, tests, assets, dependencies, configuration or migrations.
   - Verification: reviewer decision file (.alveara/reviews/ALV-N020-C02/R01.md, APPROVED); EXECUTION_STATUS parses as JSON.
   - Notes: next executable item is ALV-N021 (not started, needs the owner's go); ALV-N029 deferred; nothing pushed.
+- [x] ALV-N021 pre-implementation briefing drafted (document only)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: docs/design/ALV-N021_PRE_IMPLEMENTATION_BRIEF.md - intended result, scope, code facts read so far (visit state machine with its legal shortcuts, flow service, booking guards, the F-107 root cause in PrintPreview.tsx), finding-by-finding verify-first plan, proposed visit-transition matrix, owner decisions needed (PD-05, PD-06, F-044b, F-050, F-057/F-073), impact, focused proof plan, risks.
+  - Verification: document only; no code changed, no test run.
+  - Notes: ALV-N021 not implemented; awaiting the owner's decisions and independent briefing review; nothing pushed.
