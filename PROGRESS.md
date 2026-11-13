@@ -2558,3 +2558,9 @@
   - What changed: LoginLayout.css text-align: center on the notice; the spec asserts it (NC5); R01 implementation commit is now 7ed42a5082f24249654c5a4523f8f0a0b74755fd; handoff, evidence, ledger and status updated. The earlier 37-passed group result was wrong: the shell specs failed because the dev API was running (preview proxy, 401); re-run with it stopped: 39 passed, 1 skipped. The dev API was restarted afterwards.
   - Verification: spec 7 passed; NC5 fails then restored; login browser group 39 passed (dev API stopped); login unit folder 40 passed; tsc clean.
   - Notes: not COMPLETE; nothing pushed; ZIP rebuilt for the new implementation commit.
+- [x] ALV-N020-C02 closure: R01 review APPROVED (COMPLETE; fullRegression DEFERRED_TO_ALV-N028, not release-certified)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N020-C02/R01.md stored unchanged; EXECUTION_STATUS ALV-N020-C02 COMPLETE (approved attempt R01, implementation 7ed42a5, evidence f588cad); BUILD_STATE closure line. Review/control/status/progress records only - no code, tests, assets, dependencies, configuration or migrations.
+  - Verification: reviewer decision file (.alveara/reviews/ALV-N020-C02/R01.md, APPROVED); EXECUTION_STATUS parses as JSON.
+  - Notes: next executable item is ALV-N021 (not started, needs the owner's go); ALV-N029 deferred; nothing pushed.
