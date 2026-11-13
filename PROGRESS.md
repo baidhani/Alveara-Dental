@@ -2528,3 +2528,9 @@
   - What changed: docs/design/ALV-N020-C01_POST_CLOSURE_VISUAL_POLISH_REQUEST.md - three proposed CSS changes from the owner's dev-stack test (logo spacing, fields and button the same width, smaller footer notice) with causes read from the code, proposed values, focused proof plan and three decisions for the reviewer.
   - Verification: document only; no code changed, no test run.
   - Notes: ALV-N020-C01 stays COMPLETE; nothing pushed; waiting for the reviewer.
+- [x] ALV-N020-C02 control record and pre-implementation brief (document and control files only)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: stored the reviewer ruling docs/design/ALV-N020-C01_POST_CLOSURE_VISUAL_POLISH_REVIEW.md (separate companion story, C01 not reopened); EXECUTION_STATUS record ALV-N020-C02 (PLANNED, plan item 57b); execution plan v4 item 57b; BUILD_STATE line; new docs/design/ALV-N020-C02_PRE_IMPLEMENTATION_BRIEF.md (owner observation, code findings, SVG inventory with recomputed SHA-256, proposed changes, proof plan with negative controls).
+  - Verification: SHA-256 of dentalkeep-logo-v4.svg recomputed and equals the reviewed value; SVG elements audited (no script, handler, external reference); EXECUTION_STATUS parses as JSON.
+  - Notes: no CSS, test, asset or code changed and no test run; awaiting independent approval of the brief; nothing pushed.

@@ -3747,6 +3747,19 @@ The underlying R05 source plan and its raw-log mapping remain the detailed accep
 
 **Explicit exclusions:** Do not add self-registration, password recovery, "remember me", external/remote asset URLs, user uploads by anyone without `ManageLoginPresentation`, scriptable or unapproved image formats, rich-text footer markup, country-detection, or automatic theme rotation. The separate approved automatic-rotation item is `ALV-N029` below.
 
+**NEXT:** After final approval and closure, continue to the owner-approved visual-polish companion `ALV-N020-C02` below. Then continue to item 58 — ALV-N021.
+
+## 57b — ALV-N020-C02 — DentalKeep Login Layout Visual Polish
+
+**Type:** New Production — owner-approved stabilization companion
+**Dependencies:** ALV-N020-C01
+
+**Scope:** Apply only the owner-observed login-layout refinements after the completed `ALV-N020-C01` record: make the Username and Password fields align to the Sign in button’s column width; rebalance logo-to-panel and logo-to-form spacing by using unused panel space above the footer; and reduce the footer notice to a clearly secondary but readable **12 px** presentation. Replace C01's bundled raster logo with the owner-supplied, reviewed static `dentalkeep-logo-v4.svg` (SHA-256 `9CECF4A6C72A91FC7C8CF225805CA7DFD756F61760EE6FE2434F1C2E76ED82C0`) only. Preserve all other C01 background, notice text/behavior, permission, anonymous endpoint, upload pipeline, security, footer enabled/disabled, and accessibility behavior.
+
+**Acceptance:** At ordinary desktop width the Username field, Password field, and Sign in button have one equal-width column, scoped only to the login form. Desktop logo spacing is visually balanced without hiding, covering, or pushing sign-in content or the notice out of reach. The SVG is bundled locally and used through the existing image element with the same accessible `DentalKeep` name; its `1774×820` viewBox ratio is respected by the rendered dimensions and CSS, with no distortion, clipping, or unintended letterboxing at ordinary, narrow, 200%-equivalent, or forced-colours layouts. At narrow widths and approved 200%-equivalent viewports, spacing contracts as necessary with no horizontal scroll and with keyboard-reachable, unobscured form, error, and footer content. The footer notice uses 12 px with an appropriate readable line height and retains compliant contrast in light, dark, and forced-colours modes. No user-visible wording, assets other than this named logo substitution, API route, permission, server behavior, schema, migration, dependency, test infrastructure, or adjacent shared form component changes.
+
+**Required coverage:** Before code changes, prepare and receive approval for `docs/design/ALV-N020-C02_PRE_IMPLEMENTATION_BRIEF.md`, reproducing the exact owner observation from `ALV-N020-C01_POST_CLOSURE_VISUAL_POLISH_REQUEST.md` and inventorying the reviewed SVG source/hash. Targeted real-browser proof must cover desktop, narrow, 200%-equivalent, and forced-colours modes; field/button width equality; responsive spacing; keyboard/reachability/no-overlap; notice-size ordering and contrast; the SVG's undistorted rendered ratio and accessible name; plus existing sign-in layout/browser checks. Capture before/after screenshots of all five bundled backgrounds for owner review. The three CSS assertions and the SVG ratio assertion must have focused negative controls. The binding owner test-permission policy applies. Broad regression is deferred to `ALV-N028`.
+
 **NEXT:** After final approval and closure, continue to item 58 — ALV-N021.
 
 ## 58 — ALV-N021 — Date, Scheduling, and Visit-Transition Integrity
