@@ -8,11 +8,12 @@
 | 2 | after the change: `npx tsc -b`; `npm run build`; `npx playwright test e2e/login-layout-polish.spec.ts --project=desktop`; `npx vitest run src/pages/login` | < 1 min | 40 s | browser 7 passed 1 skipped; unit 4 files 40 tests | (console) |
 | 3 | `... -g capture` with label `after` | < 30 s | ~5 s | pass, 8 PNGs | `screenshots/after/` |
 | 4 | negative controls NC1-NC4 (one rule reverted at a time, rebuild, run the new spec, then restore and run again) | ~2 min | 108 s | NC1 `Username 360 vs Sign in 420`; NC2 `space above the logo` (desktop); NC3 `notice font size`; NC4 `rendered ratio 280x126`; restored 7/7 | summarised below |
-| 5 | `npx playwright test e2e/login-presentation.spec.ts e2e/login-presentation-access.spec.ts e2e/shell.spec.ts e2e/login-banner-contrast.spec.ts e2e/login-layout-polish.spec.ts --project=desktop` | < 1 min | 55 s | 37 passed, 1 skipped (capture) | `browser-all.txt` |
+| 5 | `npx playwright test e2e/login-presentation.spec.ts e2e/login-presentation-access.spec.ts e2e/shell.spec.ts e2e/login-banner-contrast.spec.ts e2e/login-layout-polish.spec.ts --project=desktop` (after centring; **dev API stopped**) | < 1 min | 19 s | 39 passed, 1 skipped (capture). With the dev API running the shell specs fail (2 to 8 of 10) on the unmocked `/api/notifications/summary` 401 through the preview proxy; the same happens on the previous layout. | `browser-all.txt` |
+| 5b | centring: `npx playwright test e2e/login-layout-polish.spec.ts`; negative control NC5 (`text-align: left`, rebuild, run); restore | < 1 min | 29 s; 36 s | 7 passed; NC5 fails `notice text-align`; restored | `nc5.txt` |
 | 6 | `npx vitest run` (whole client unit suite) | ~3 min | 161 s | 128 files, 1953 tests passed | `vitest.txt` |
 | 7 | `npx tsc -b`; `npm run lint` | - | - | tsc clean (empty output); lint 42 warnings (baseline unchanged) | `tsc.txt`, `lint.txt` |
 | 8 | SVG negative control: one byte appended, `npx vitest run src/pages/login/loginLogo.test.ts`, file restored | < 10 s | 3 s | 1 failed (`is byte-identical to the reviewed owner-supplied file`), 2 passed; hash re-checked identical | `nc-svg.txt` |
 
-Negative-control mapping: the width rule is NC1 (the scoped `max-width: none` reverted to 360 px); the spacing rule NC2 (old margins); the 12 px notice NC3 (back to the 13 px token); the SVG ratio NC4 (the old 280/126 slot ratio) and the SVG integrity test row 8.
+Negative-control mapping (NC5, added with the centring: `text-align: left`): the width rule is NC1 (the scoped `max-width: none` reverted to 360 px); the spacing rule NC2 (old margins); the 12 px notice NC3 (back to the 13 px token); the SVG ratio NC4 (the old 280/126 slot ratio) and the SVG integrity test row 8.
 
 Not run: the full backend suite, the chain, walkthroughs and any other broad regression (deferred to ALV-N028).

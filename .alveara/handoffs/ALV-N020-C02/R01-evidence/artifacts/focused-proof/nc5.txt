@@ -1,0 +1,4 @@
+    Error: notice text-align
+    > 89 |     expect(centred.align, "notice text-align").toBe("center");
+    Error: notice text-align
+    > 89 |     expect(centred.align, "notice text-align").toBe("center");

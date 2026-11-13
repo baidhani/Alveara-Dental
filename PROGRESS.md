@@ -2552,3 +2552,9 @@
   - What changed: .alveara/handoffs/ALV-N020-C02/R01.md + R01-evidence/ (acceptance, test results with routes and expected/actual, demo, parent regression, next-story impact, changed files, before/after screenshots and raw outputs); ledger section; EXECUTION_STATUS ALV-N020-C02 attempt R01; BUILD_STATE line.
   - Verification: focused proof listed in R01-evidence/TEST_RESULTS.md; EXECUTION_STATUS parses as JSON.
   - Notes: not COMPLETE; nothing pushed.
+- [x] ALV-N020-C02 R01 amendment: centred footer notice (owner request) before review; evidence corrected
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: LoginLayout.css text-align: center on the notice; the spec asserts it (NC5); R01 implementation commit is now 7ed42a5082f24249654c5a4523f8f0a0b74755fd; handoff, evidence, ledger and status updated. The earlier 37-passed group result was wrong: the shell specs failed because the dev API was running (preview proxy, 401); re-run with it stopped: 39 passed, 1 skipped. The dev API was restarted afterwards.
+  - Verification: spec 7 passed; NC5 fails then restored; login browser group 39 passed (dev API stopped); login unit folder 40 passed; tsc clean.
+  - Notes: not COMPLETE; nothing pushed; ZIP rebuilt for the new implementation commit.
