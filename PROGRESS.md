@@ -2522,3 +2522,9 @@
   - What changed: .alveara/reviews/ALV-N020-C01/R02.md stored unchanged; EXECUTION_STATUS ALV-N020-C01 COMPLETE (approved attempt R02, implementation 8d4f3fa, evidence 2290cee); BUILD_STATE closure line. Review/control/status/progress records only - no code, tests, assets, dependencies, configuration or migrations.
   - Verification: reviewer decision file (.alveara/reviews/ALV-N020-C01/R02.md, APPROVED); EXECUTION_STATUS parses as JSON.
   - Notes: next executable item is ALV-N021 (not started); ALV-N029 deferred; nothing pushed. Owner follow-up: the dev database needs Initialize-DevDatabase.ps1 (migration) and a ManageLoginPresentation grant to `admin` via Security administration.
+- [x] ALV-N020-C01: post-closure visual polish request for the reviewer (document only)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: docs/design/ALV-N020-C01_POST_CLOSURE_VISUAL_POLISH_REQUEST.md - three proposed CSS changes from the owner's dev-stack test (logo spacing, fields and button the same width, smaller footer notice) with causes read from the code, proposed values, focused proof plan and three decisions for the reviewer.
+  - Verification: document only; no code changed, no test run.
+  - Notes: ALV-N020-C01 stays COMPLETE; nothing pushed; waiting for the reviewer.
