@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="1998edbd-c7b9-4b92-92dc-52d6270721d1" name="firas@FEERCY-LEGION7I 2026-11-12 18:22:19" runUser="FEERCY-LEGION7I\firas" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-12T18:22:19.7460439-06:00" queuing="2026-11-12T18:22:19.7460441-06:00" start="2026-11-12T18:22:02.0517823-06:00" finish="2026-11-12T18:22:21.2993220-06:00" />
+  <TestSettings name="default" id="c61f90c3-ae4e-459d-bdf4-99afc64f45d8">
+    <Deployment runDeploymentRoot="firas_FEERCY-LEGION7I_2026-11-12_18_22_19" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="9d908fa6-1bb7-4ec2-8a24-ea0bb00b3d24" testId="8c821c01-4193-88ba-c890-4b155bbbace0" testName="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests.Choosing_an_added_image_races_making_it_unavailable_and_the_selection_never_ends_on_an_unavailable_image" computerName="FEERCY-LEGION7I" duration="00:00:00.3515712" startTime="2026-11-12T18:22:05.1432020-06:00" endTime="2026-11-12T18:22:19.7091506-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9d908fa6-1bb7-4ec2-8a24-ea0bb00b3d24" />
+    <UnitTestResult executionId="0adec212-e00b-4e59-9754-f81e07e8f3ba" testId="664cc76d-a5bc-8202-c088-189258c1caeb" testName="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests.An_upload_races_a_reactivation_at_29_available_images_and_the_total_never_exceeds_30" computerName="FEERCY-LEGION7I" duration="00:00:00.1223258" startTime="2026-11-12T18:22:20.3583910-06:00" endTime="2026-11-12T18:22:21.1377264-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0adec212-e00b-4e59-9754-f81e07e8f3ba" />
+    <UnitTestResult executionId="8fa75a76-548e-4772-840d-47030ad38d47" testId="a05d44bd-5bba-7143-2eb9-30b5c3f9eac4" testName="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests.Two_uploads_at_29_available_images_produce_exactly_one_more_and_leave_no_orphan_file" computerName="FEERCY-LEGION7I" duration="00:00:00.1102734" startTime="2026-11-12T18:22:19.7321534-06:00" endTime="2026-11-12T18:22:20.3571214-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8fa75a76-548e-4772-840d-47030ad38d47" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests.Two_uploads_at_29_available_images_produce_exactly_one_more_and_leave_no_orphan_file" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a05d44bd-5bba-7143-2eb9-30b5c3f9eac4">
+      <Execution id="8fa75a76-548e-4772-840d-47030ad38d47" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests" name="Two_uploads_at_29_available_images_produce_exactly_one_more_and_leave_no_orphan_file" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests.Choosing_an_added_image_races_making_it_unavailable_and_the_selection_never_ends_on_an_unavailable_image" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="8c821c01-4193-88ba-c890-4b155bbbace0">
+      <Execution id="9d908fa6-1bb7-4ec2-8a24-ea0bb00b3d24" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests" name="Choosing_an_added_image_races_making_it_unavailable_and_the_selection_never_ends_on_an_unavailable_image" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests.An_upload_races_a_reactivation_at_29_available_images_and_the_total_never_exceeds_30" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="664cc76d-a5bc-8202-c088-189258c1caeb">
+      <Execution id="0adec212-e00b-4e59-9754-f81e07e8f3ba" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.LoginBackgroundCatalogConcurrencyTests" name="An_upload_races_a_reactivation_at_29_available_images_and_the_total_never_exceeds_30" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="8c821c01-4193-88ba-c890-4b155bbbace0" executionId="9d908fa6-1bb7-4ec2-8a24-ea0bb00b3d24" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="664cc76d-a5bc-8202-c088-189258c1caeb" executionId="0adec212-e00b-4e59-9754-f81e07e8f3ba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a05d44bd-5bba-7143-2eb9-30b5c3f9eac4" executionId="8fa75a76-548e-4772-840d-47030ad38d47" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="3" executed="3" passed="3" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.71]   Discovering: Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.02]   Discovered:  Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.04]   Starting:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-13T00:22:17.8553524+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":63,"migrate_ms":7927,"total_ms":11427,"backup_bytes":8310784}}&#xD;
+[xUnit.net 00:00:18.07]   Finished:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-13T00:22:21.1739539+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":3,"fallbacks":0,"real_migration_fixtures":0,"build_ms":11427,"restore_ms_total":1045}}&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

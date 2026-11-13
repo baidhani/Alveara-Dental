@@ -1,0 +1,51 @@
+
+Running 6 tests using 6 workers
+
+  x  4 [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (375px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable (1.4s)
+  x  6 [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (1280px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable (1.4s)
+  ok 5 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1920x1080, light): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (2.5s)
+  ok 1 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1280x800, light): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (2.5s)
+  ok 2 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1280x800, dark): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (2.5s)
+  ok 3 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1920x1080, dark): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (2.5s)
+
+
+  1) [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (1280px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "none"
+    Received: "url(\"http://localhost:4173/assets/tile-blue-operatory-D-uiB-R3.jpg\")"
+
+      100 |
+      101 |     const backdrop = page.getByTestId("signin-backdrop");                                                                  // the decorative image is not painted
+    > 102 |     expect(await backdrop.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe("none");
+          |                                                                                   ^
+      103 |
+      104 |     const panel = page.locator(".alv-signin__panel");                                                                      // a solid system-colour panel with a visible edge
+      105 |     const p = await panel.evaluate((el) => { const s = getComputedStyle(el); return { bg: s.backgroundColor, color: s.color, edge: s.borderInlineStartStyle !== "none" && parseFloat(s.borderInlineStartWidth) > 0 }; });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\login-presentation-access.spec.ts:102:83
+
+    Error Context: test-results\login-presentation-access--24efd-age-and-focus-stay-readable-desktop\error-context.md
+
+  2) [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (375px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "none"
+    Received: "url(\"http://localhost:4173/assets/tile-blue-operatory-D-uiB-R3.jpg\")"
+
+      100 |
+      101 |     const backdrop = page.getByTestId("signin-backdrop");                                                                  // the decorative image is not painted
+    > 102 |     expect(await backdrop.evaluate((el) => getComputedStyle(el).backgroundImage)).toBe("none");
+          |                                                                                   ^
+      103 |
+      104 |     const panel = page.locator(".alv-signin__panel");                                                                      // a solid system-colour panel with a visible edge
+      105 |     const p = await panel.evaluate((el) => { const s = getComputedStyle(el); return { bg: s.backgroundColor, color: s.color, edge: s.borderInlineStartStyle !== "none" && parseFloat(s.borderInlineStartWidth) > 0 }; });
+        at C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\alveara-client\e2e\login-presentation-access.spec.ts:102:83
+
+    Error Context: test-results\login-presentation-access--457ef-age-and-focus-stay-readable-desktop\error-context.md
+
+  2 failed
+    [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (1280px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable 
+    [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (375px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable 
+  4 passed (8.2s)

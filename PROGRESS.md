@@ -2510,3 +2510,9 @@
   - What changed: C01-3/C01-2 - new LoginBackgroundCatalogGuard (transaction-scoped sp_getapplock) taken by LoginPresentationService for add, reactivate, inactivate and select (InCatalogTransactionAsync), so the 30-image cap and select-versus-inactivate are decided on current data; a refused or failed upload removes its derivative file; triggers 51276-51279 unchanged. C01-1 - LoginLayout.css forced-colours rule (a real browser showed a url() background is NOT dropped by forced colours): image removed, panel gets a visible edge. Tests: LoginBackgroundCatalogConcurrencyTests (3, barrier-released competing contexts) and e2e/login-presentation-access.spec.ts (200% zoom x2 viewports x2 themes, forced colours x2 widths).
   - Verification: concurrency 3/3 (26 s); without the guard the 29-uploads test fails (NC); 200% zoom 4/4 and forced colours 2/2 in a real browser (forced colours failed 2/2 before the CSS rule); browser login group 32/32 (21 s); server login/backup/inventory group 46/46 (51 s); tsc clean; lint 42 with and without these files.
   - Notes: not COMPLETE; no migration; nothing pushed; broad regression remains DEFERRED_TO_ALV-N028.
+- [x] ALV-N020-C01 R02 Stage 1 handoff (AWAITING_REVIEW; deferred-regression route)
+  - Date: 2026-11-12
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N020-C01/R02.md + R02-evidence/ (acceptance, test results with route and expected/actual, demo, parent regression, next-story impact, changed files, focused-proof artifacts); ledger note; EXECUTION_STATUS ALV-N020-C01 attempt R02 on implementation 8d4f3fa; BUILD_STATE line.
+  - Verification: focused proof listed in R02-evidence/TEST_RESULTS.md (concurrency 3/3 + negative control, browser access spec 6/6, browser group 32/32, server group 46/46, tsc clean); EXECUTION_STATUS parses as JSON.
+  - Notes: not COMPLETE; no broad regression; nothing pushed.

@@ -1,0 +1,6 @@
+  ok 17 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 375px, with the notice shown (11.2s)
+  ok 18 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in light theme at 1280px, with the notice shown (11.2s)
+  ok 19 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 375px, with the notice shown (13.0s)
+  ok 21 [desktop] › e2e\login-presentation.spec.ts:78:5 › accessibility: every bundled background passes axe in dark theme at 1280px, with the notice shown (13.0s)
+
+  32 passed (20.9s)

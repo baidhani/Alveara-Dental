@@ -1,0 +1,11 @@
+
+Running 6 tests using 6 workers
+
+  ok 2 [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (375px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable (795ms)
+  ok 6 [desktop] › e2e\login-presentation-access.spec.ts:91:3 › forced colours (1280px): the background is suppressed and the panel, labels, fields, buttons, notice, error message and focus stay readable (744ms)
+  ok 5 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1920x1080, dark): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.3s)
+  ok 3 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1280x800, dark): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.2s)
+  ok 1 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1280x800, light): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.3s)
+  ok 4 [desktop] › e2e\login-presentation-access.spec.ts:58:5 › 200% zoom (200% of 1920x1080, light): no horizontal scroll, keyboard order, Sign in and the notice reachable, failure message visible, axe clean (1.3s)
+
+  6 passed (4.5s)
