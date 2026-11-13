@@ -2570,3 +2570,9 @@
   - What changed: docs/design/ALV-N021_PRE_IMPLEMENTATION_BRIEF.md - intended result, scope, code facts read so far (visit state machine with its legal shortcuts, flow service, booking guards, the F-107 root cause in PrintPreview.tsx), finding-by-finding verify-first plan, proposed visit-transition matrix, owner decisions needed (PD-05, PD-06, F-044b, F-050, F-057/F-073), impact, focused proof plan, risks.
   - Verification: document only; no code changed, no test run.
   - Notes: ALV-N021 not implemented; awaiting the owner's decisions and independent briefing review; nothing pushed.
+- [x] ALV-N021 briefing revision 2 (document only) answering BRIEFING-R01
+  - Date: 2026-11-13
+  - Session: CC-20261109-8w3d
+  - What changed: stored .alveara/reviews/ALV-N021/BRIEFING-R01.md unchanged; rewrote docs/design/ALV-N021_PRE_IMPLEMENTATION_BRIEF.md (owner-confirmed visit workflow, configurable Confirm and Mark ready, complete state x action x role table, new permissions ReassignAppointmentProvider and CompleteOwnStartedVisit, corrections, day rule, migrations M1/M2, proof map); added docs/design/ALV-N021_SOURCE_EVIDENCE_APPENDIX.md (50 raw entries copied by script, raw log SHA-256 715b1f84...1c6a) and docs/design/ALV-N021_PLAN_CHANGE_PROPOSAL.md (ALV-N030 Replace appointment, ALV-N031 confirmation reminders, for the reviewer to enter).
+  - Verification: document only; appendix script asserted the raw-log hash and that each register raw line contains its id; no code changed, no test run.
+  - Notes: awaiting a new briefing review; plan and EXECUTION_STATUS not edited; nothing pushed.
