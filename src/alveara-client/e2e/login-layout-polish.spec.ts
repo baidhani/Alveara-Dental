@@ -80,6 +80,14 @@ for (const lay of LAYOUTS) {
     const label = await page.locator(".alv-form-field__label").first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
     expect(notice, "notice font size").toBe(12);
     expect(notice, "notice smaller than the labels").toBeLessThan(label);
+    const centred = await page.getByRole("contentinfo").evaluate((el) => {                                  // owner request: the notice text is centred in the panel
+      const r = document.createRange(); r.selectNodeContents(el.querySelector("p")!);
+      const lines = Array.from(r.getClientRects()).filter((q) => q.width > 0);
+      const panel = document.querySelector(".alv-signin__panel")!.getBoundingClientRect();
+      return { align: getComputedStyle(el).textAlign, offsets: lines.map((q) => Math.abs((q.left + q.right) / 2 - (panel.left + panel.right) / 2)) };
+    });
+    expect(centred.align, "notice text-align").toBe("center");
+    for (const off of centred.offsets) expect(off, "each notice line is centred on the panel").toBeLessThanOrEqual(2);
 
     // 4. the logo: bundled local SVG, loaded, named, undistorted, not clipped
     const info = await logo.evaluate((el) => { const i = el as HTMLImageElement; return { src: i.currentSrc, loaded: i.complete && i.naturalWidth > 0, natW: i.naturalWidth, natH: i.naturalHeight, alt: i.alt }; });

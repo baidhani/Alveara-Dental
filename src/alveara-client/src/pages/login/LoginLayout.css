@@ -65,6 +65,7 @@
   max-width: 520px;
   font-size: var(--font-size-xs, 0.75rem);                   /* ALV-N020-C02: 12 px, clearly secondary to the 13 px field labels */
   line-height: 1.5;
+  text-align: center;                                       /* owner request (ALV-N020-C02 R01): the notice is centred under the form */
   color: var(--color-text-muted, var(--color-text));
 }
 
