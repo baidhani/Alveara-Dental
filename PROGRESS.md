@@ -2600,3 +2600,9 @@
   - What changed: stored .alveara/reviews/ALV-N021/BRIEFING-R04.md unchanged (APPROVED: A1 may begin; A2 after A1 is approved and closed).
   - Verification: reviewer decision file R04 on package f7514760...2b12 (commit 1ec686e).
   - Notes: ALV-N030/N031/N032 remain proposals; nothing pushed.
+- [x] ALV-N021 A1 decision request 01 (document only): statement aging in UTC days
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: added docs/design/ALV-N021_A1_DECISION_REQUEST_01_AGING_DAYS.md (FinancialDocumentBuilder aging counts UTC days; reprint hash constraint; options A versioned practice days / C keep; A1 read-only findings summary).
+  - Verification: read-only code check (FinancialDocumentBuilder.cs:47, BillingService.Documents.cs reprint hash check); no code changed, no test run.
+  - Notes: owner referred to the reviewer; A1 code not started; nothing pushed.
