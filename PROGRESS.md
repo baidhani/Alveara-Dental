@@ -2612,3 +2612,9 @@
   - What changed: stored .alveara/reviews/ALV-N021/A1-DECISION-01.md unchanged (Option A approved: versioned practice-day aging with frozen basis); brief section 0a records the A1 scope amendment and the F-030 wording correction.
   - Verification: reviewer decision file on package 2f2fccb3...15c7.
   - Notes: A1 code not started; nothing pushed.
+- [x] ALV-N021 A1 step 1: version-1 financial-document baseline captured before any builder change
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: added Alveara.Api.Tests/OriginalFinancialDocumentBuilderV1.cs (verbatim copy of FinancialDocumentBuilder at bc25a94, SHA-256 22e7d40e...94b1), FinancialDocumentV1Baseline.cs (12 cases, env-gated no-overwrite capture) and Fixtures/financial-documents-v1-baseline.json (SHA-256 52448533...95ce) captured from the unchanged builder.
+  - Verification: capture test passed (1 test, 1 min 05 s incl. build, expected <= 5 min); API builder unchanged at capture time.
+  - Notes: owner reviewed the code before the run; nothing pushed.
