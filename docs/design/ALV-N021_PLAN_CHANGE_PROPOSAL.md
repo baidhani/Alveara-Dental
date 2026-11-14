@@ -1,6 +1,6 @@
-# Plan-change proposal: two owner-approved deferred enhancements (ALV-N030, ALV-N031)
+# Plan-change proposal: three owner-approved deferred enhancements (ALV-N030, ALV-N031, ALV-N032)
 
-- **Date:** 2026-11-13. **Session:** CC-20261109-8w3d. **Raised with:** ALV-N021 briefing revision 2.
+- **Date:** 2026-11-13. **Session:** CC-20261109-8w3d. **Raised with:** ALV-N021 briefing revision 2; ALV-N032 added with revision 3. Owner decisions: `docs/design/ALV-N021_OWNER_DECISION_RECORD.md` OD-33 to OD-36.
 - **Status:** **PROPOSED for the reviewer to act on.** The agent has not edited `GPT Docs/Alveara_Dental_Execution_Plan_v4.md` or `.alveara/EXECUTION_STATUS.json`; the plan admits new features only through a separately approved package.
 - **Owner instruction:** place both at the end of the current stabilization sprint, after the existing deferred placeholder ALV-N029 (item 65a) and before the final accumulated chain ALV-N028 (item 65), so the one final chain includes them and does not have to run twice. Any further owner feature later joins the same slot.
 
@@ -45,11 +45,29 @@
 
 **Required coverage:** the above with the injected clock; authorization denial on the settings; a browser check of the pop-up and the confirmed display; no PHI in notification text.
 
+**NEXT:** Continue to item 65d — ALV-N032.
+
+### 65d — ALV-N032 — Late Arrival, Automatic No-Show and No-Show Fee
+
+**Type:** New Production — owner-approved deferred enhancement
+**Dependencies:** ALV-N021 (visit workflow, manual no-show, checkout gate), STORY-015/ALV-008-C02 ledger
+
+**Scope:** A background job watches today's appointments in practice time.
+- **Late:** a Scheduled/Confirmed appointment not checked in by its start plus the late threshold [10 minutes] is flagged "Late" on Calendar and Board, and an **Important** notification goes to the front-desk and office-manager users signed in that day and to the appointment's provider. Check-in stays possible; a late check-in is logged with the minutes late (already in ALV-N021).
+- **Automatic no-show:** if still not checked in at start plus the no-show threshold [30 minutes], the appointment is marked No-show automatically (system actor), freeing the provider and room. The manual "Mark no-show" button remains. A no-show is final; the patient is rebooked as a new appointment (no correction).
+- **No-show fee:** optional practice setting [off; amount when on]. When set, an automatic no-show (and a manual one, if the reviewer agrees) posts one no-show fee charge to the patient's account. This adds a **new non-procedure charge type to the ledger**. A wrong fee is reversed by a `ManageBilling` holder with a reason.
+
+**Settings (Admin/`ManagePracticeConfiguration`, audited):** late threshold, no-show threshold (greater than the late threshold), fee on/off and amount.
+
+**Acceptance:** thresholds evaluated in practice time across DST; exactly one late notification per recipient and appointment and exactly one no-show per appointment on job reruns (idempotency keys); a check-in racing the automatic no-show resolves under the row version with one outcome; the fee is posted at most once per appointment, is idempotent, appears in the ledger, statements and financial reports, and is reversible with a reason; no PHI in notifications; settings validation and authorization denial. The ledger change follows the financial-integrity rules (append-only, verified by the ledger verification).
+
+**Required coverage:** the above with the injected clock; a ledger-verification run after fee posting and reversal; a browser check of the Late flag and notifications.
+
 **NEXT:** Continue to item 65 — ALV-N028.
 
 ## Consequential plan edits for the reviewer
 
-1. Item 65 (ALV-N028) dependencies: add `ALV-N030`, `ALV-N031`.
+1. Item 65 (ALV-N028) dependencies: add `ALV-N030`, `ALV-N031`, `ALV-N032`.
 2. Item 65a (ALV-N029) NEXT: "Continue to item 65b — ALV-N030" instead of item 65.
-3. Item 65 NEXT: "After `ALV-N031` has closed" instead of "After `ALV-N029` has closed".
-4. `.alveara/EXECUTION_STATUS.json`: two PLANNED entries after ALV-N029, entered at closure of this proposal by the review-closure protocol only.
+3. Item 65 NEXT: "After `ALV-N032` has closed" instead of "After `ALV-N029` has closed".
+4. `.alveara/EXECUTION_STATUS.json`: three PLANNED entries after ALV-N029, entered only by the review-closure protocol after the reviewer approves this proposal.

@@ -2576,3 +2576,9 @@
   - What changed: stored .alveara/reviews/ALV-N021/BRIEFING-R01.md unchanged; rewrote docs/design/ALV-N021_PRE_IMPLEMENTATION_BRIEF.md (owner-confirmed visit workflow, configurable Confirm and Mark ready, complete state x action x role table, new permissions ReassignAppointmentProvider and CompleteOwnStartedVisit, corrections, day rule, migrations M1/M2, proof map); added docs/design/ALV-N021_SOURCE_EVIDENCE_APPENDIX.md (50 raw entries copied by script, raw log SHA-256 715b1f84...1c6a) and docs/design/ALV-N021_PLAN_CHANGE_PROPOSAL.md (ALV-N030 Replace appointment, ALV-N031 confirmation reminders, for the reviewer to enter).
   - Verification: document only; appendix script asserted the raw-log hash and that each register raw line contains its id; no code changed, no test run.
   - Notes: awaiting a new briefing review; plan and EXECUTION_STATUS not edited; nothing pushed.
+- [x] ALV-N021 briefing revision 3 and owner decision record (document only) answering BRIEFING-R02 and owner addenda 1-3
+  - Date: 2026-11-13
+  - Session: CC-20261109-8w3d
+  - What changed: stored BRIEFING-R02.md and owner addenda 1-3 unchanged; added docs/design/ALV-N021_OWNER_DECISION_RECORD.md (OD-01..OD-37 with acceptance criteria, owner approval line); rewrote the brief as revision 3 (three attempts A1 PKG-04, A2 workflow, A3 checkout gate; full transition table; CollectPayments; blocked-time option 2; no-show final; migrations M1-M3); plan-change proposal gains ALV-N032 (late/automatic no-show/fee).
+  - Verification: document only; read-only code check of billing permissions, charge-to-visit links, follow-ups, blocked time and no-show recorded in brief section 3; no code changed, no test run.
+  - Notes: awaiting the owner's approval of the decision record and a new briefing review; plan and status ledger not edited; nothing pushed.
