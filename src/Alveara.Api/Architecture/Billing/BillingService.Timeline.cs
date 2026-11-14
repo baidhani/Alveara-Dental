@@ -8,7 +8,7 @@ namespace Alveara.Api.Architecture.Billing;
 /// ALV-007-C02: reading the account as a story and by age. Both are derived from the preserved history on every read and store nothing.
 /// - <b>Timeline</b>: every entry, application, release, change of responsible party and issued document in the order it happened (entries first when several share an instant, so the cause reads before its
 ///   effect), each charge naming the completed procedure it bills and when that was performed.
-/// - <b>Aging</b>: what is open on each charge, aged from the procedure's performed time (as amended, latest first) in whole UTC days, in the buckets 0-30, 31-60, 61-90 and over 90.
+/// - <b>Aging</b>: what is open on each charge, aged from the procedure's performed time (as amended, latest first) in whole practice-local calendar days (ALV-N021 A1-DECISION-01: the as-of and performed instants are each converted to the practice's day at their own offset, the same policy as a new version-2 statement), in the buckets 0-30, 31-60, 61-90 and over 90.
 /// </summary>
 public partial class BillingService
 {

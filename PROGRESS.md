@@ -2654,3 +2654,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A1-R01.md; EXECUTION_STATUS ALV-N021 status CHANGES_REQUIRED with review block and blocking issue; BUILD_STATE paragraph.
   - Verification: EXECUTION_STATUS.json parses; diff limited to the ALV-N021 record; R01 handoff, evidence and ZIP untouched.
   - Notes: nothing pushed.
+- [x] ALV-N021 A1-R02: source-comment correction required by the A1-R01 review
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: BillingService.Timeline.cs class documentation now says live aging counts whole practice-local calendar days (A1-DECISION-01), not whole UTC days. Comment only; no executable change.
+  - Verification: diff is one comment line; no test run (the review forbids one and keeps the R01 evidence applicable).
+  - Notes: original version-1 builder copy untouched; nothing pushed.
