@@ -2678,3 +2678,9 @@
   - What changed: docs/design/ALV-N021_TIME_HANDLING_AUDIT.md: every server and client time-handling site searched and read; four new findings T-1 (client mixes practice and browser zones), T-2 (server date formatting/parsing uses the machine culture, 23 sites), T-3 (calendar/board day start rejects a midnight DST gap), T-4 (statement view, part of T-1); none fixed.
   - Verification: read-only; no code change, no test run.
   - Notes: routing of T-1 to T-4 needs owner and reviewer decision; A1-R02 package unchanged; nothing pushed.
+- [x] ALV-N021: decision request 02 for the reviewer (time handling T-1 to T-4)
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: docs/design/ALV-N021_DECISION_REQUEST_02_TIME_HANDLING.md: owner asks to address T-1 to T-4 within ALV-N021; proposes T-2 and T-3 in A2, T-1/T-4 as attempt A3 (practice-zone time model, option A), contracts, tests and negative controls; A1 closes unchanged.
+  - Verification: document only; no code change, no test run.
+  - Notes: awaiting reviewer; nothing pushed.
