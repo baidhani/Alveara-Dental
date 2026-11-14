@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { formatDateOnly } from "./dateOnly";
+import { formatDateOnly, todayDateOnly } from "./dateOnly";
 import { PrescriptionPrint } from "../pages/prescription/workflow/PrintPreview";
 import type { PrintContent } from "../services/prescriptionWorkflowApi";
 
@@ -37,6 +37,23 @@ describe("formatDateOnly", () => {
     expect(formatDateOnly("")).toBe("");
     expect(formatDateOnly("not a date")).toBe("not a date");
     expect(formatDateOnly("2023-02-29")).toBe("2023-02-29");
+  });
+});
+
+describe("todayDateOnly (date-of-birth limit)", () => {
+  // 2026-11-14 01:30 UTC is still the 13th on a Chicago evening; 2026-11-13 20:30 UTC is already the 14th on a Kiritimati morning
+  it("is the viewer's own day on a Chicago evening, not the UTC day", () => {
+    process.env.TZ = "America/Chicago";
+    const instant = new Date("2026-11-14T01:30:00Z");
+    expect(todayDateOnly(instant)).toBe("2026-11-13");
+    expect(instant.toISOString().slice(0, 10)).toBe("2026-11-14"); // negative control: the old rule gave tomorrow
+  });
+
+  it("is the viewer's own day on a morning east of UTC", () => {
+    process.env.TZ = "Pacific/Kiritimati";
+    const instant = new Date("2026-11-13T20:30:00Z");
+    expect(todayDateOnly(instant)).toBe("2026-11-14");
+    expect(instant.toISOString().slice(0, 10)).toBe("2026-11-13"); // negative control: the old rule gave yesterday
   });
 });
 

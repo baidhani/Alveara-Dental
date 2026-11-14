@@ -3,8 +3,10 @@ import { NO_EXTRA_REQUIREMENTS } from "./patientFields";
 import type { PatientValues } from "./patientFields";
 import type { PatientRequirements } from "../services/patientsApi";
 import "./PatientFieldsForm.css";
+import { todayDateOnly } from "./dateOnly";
 
-const today = () => new Date().toISOString().slice(0, 10);
+// ALV-N021 A1: the latest date of birth allowed is today on the viewer's clock, not the UTC day
+const today = () => todayDateOnly();
 
 interface Props {
   values: PatientValues;

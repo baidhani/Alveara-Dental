@@ -11,3 +11,12 @@ export function formatDateOnly(isoDate: string, options?: Intl.DateTimeFormatOpt
   if (day.getFullYear() !== y || day.getMonth() !== m - 1 || day.getDate() !== d) return isoDate;
   return day.toLocaleDateString(undefined, options);
 }
+
+/**
+ * ALV-N021 A1 (found in the A1 date-site classification, same kind as F-107): today's calendar date on the viewer's own clock, as a date box takes it ("YYYY-MM-DD"). `toISOString()` gives
+ * the UTC day instead, which is tomorrow on a Chicago evening and yesterday on a morning east of UTC.
+ */
+export function todayDateOnly(now: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}

@@ -33,6 +33,20 @@ public class ProcedureCatalogLifecycleTests : ProcedureTestBase
     }
 
     [Fact]
+    public async Task A_new_procedure_records_the_exact_instant_it_was_saved_unshifted_by_the_practice_zone()
+    {
+        // ALV-N021 A1 F-030 (verification of correct behaviour, A1-DECISION-01): the owner added "T9999 Time test" at 8:54:10 PM Chicago (01:54:10 UTC the next day) and its history showed
+        // 8:54:10 PM. The server must store and return that same instant, at offset zero and with its seconds, so the viewer's own formatting shows the clock time, never 5 hours off.
+        var saved = new TestClock(new DateTimeOffset(2030, 10, 31, 1, 54, 10, TimeSpan.Zero));
+        var created = await CreateAsync(Input("T9999"), saved);
+        var read = await With(s => s.GetAsync(created.Summary.Id, null, default));
+
+        Assert.Equal(saved.UtcNow, read.Summary.CreatedAtUtc);
+        Assert.Equal(TimeSpan.Zero, read.Summary.CreatedAtUtc.Offset);
+        Assert.Equal(saved.UtcNow, Assert.Single(read.Versions).CreatedAtUtc);
+    }
+
+    [Fact]
     public async Task The_fee_in_effect_on_a_date_is_answerable_including_dates_before_a_change()
     {
         var v1 = await CreateAsync(Input(fee: 50m, effectiveFrom: Today.AddDays(-100)), Mar15);
