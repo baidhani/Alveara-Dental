@@ -207,6 +207,8 @@ builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentManage
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.AppointmentFlowService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.VisitAssignmentService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.VisitBoardService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.Checkout.CheckoutEvaluator>();   // ALV-N021 A2: checkout readiness (reads only)
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.Checkout.CheckoutRecorder>();
 
 // Measurement events.
 builder.Services.AddScoped<IMeasurementEventSink, MeasurementEventSink>();
