@@ -2660,3 +2660,9 @@
   - What changed: BillingService.Timeline.cs class documentation now says live aging counts whole practice-local calendar days (A1-DECISION-01), not whole UTC days. Comment only; no executable change.
   - Verification: diff is one comment line; no test run (the review forbids one and keeps the R01 evidence applicable).
   - Notes: original version-1 builder copy untouched; nothing pushed.
+- [x] ALV-N021 A1-R02: record engineering handoff (documentation only)
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N021/A1-R02.md and A1-R02-evidence; EXECUTION_STATUS ALV-N021 AWAITING_REVIEW attempt A1-R02 (implementation 807014c unchanged, documentationCommit cd8342c, evidenceCommit null); BUILD_STATE paragraph.
+  - Verification: EXECUTION_STATUS.json parses; diff limited to the ALV-N021 record; no test run (review instruction).
+  - Notes: nothing pushed.
