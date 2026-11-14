@@ -2642,3 +2642,9 @@
   - What changed: .alveara/handoffs/ALV-N021/A1-R01.md and A1-R01-evidence (finding records, A1-DECISION-01 contract checklist, client date-site classification, test results with durations, negative-control logs); EXECUTION_STATUS ALV-N021 record AWAITING_REVIEW attempt A1-R01 (implementation 807014c, evidenceCommit null, fullRegression DEFERRED_TO_ALV-N028); BUILD_STATE paragraph; regression ledger rows and section.
   - Verification: documents only; EXECUTION_STATUS.json parses; diff limited to the ALV-N021 record; every cited test name checked against the source.
   - Notes: raw console output exists only for the negative controls (disclosed); nothing pushed.
+- [x] ALV-N021 A1-R01: record execution status and evidence commit
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: EXECUTION_STATUS ALV-N021 evidenceCommit = a89246739567be36e974f9f33b9ba0d6d525ed34.
+  - Verification: EXECUTION_STATUS.json parses; one-line diff.
+  - Notes: nothing pushed.
