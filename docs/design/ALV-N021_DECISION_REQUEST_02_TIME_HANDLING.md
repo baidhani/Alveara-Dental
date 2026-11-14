@@ -7,9 +7,8 @@ Date: 2026-11-14. Session CC-20261109-8w3d. Prepared for the independent reviewe
 **Evidence:** `docs/design/ALV-N021_TIME_HANDLING_AUDIT.md` (commit `055c506`, read-only audit of every server and client time-handling site). No code has changed and no test has run for these findings.
 
 **State of the story:**
-- A1-R01 was CHANGES_REQUIRED (documentation only).
-- A1-R02 is awaiting review (`Alveara_Handoff_ALV-N021_807014c_A1-R02.zip`).
-- A2 is approved but not started; it may begin only after A1 closes (BRIEFING-R04).
+- A1 is COMPLETE: A1-R02 was approved (`.alveara/reviews/ALV-N021/A1-R02.md`), and the closure is recorded in `d86304e`.
+- A2 is approved (BRIEFING-R04) and may now begin. The owner asks that it not start until this request is decided, so that A2 is built once with its final scope.
 
 ## 1. The findings in short
 
@@ -22,7 +21,7 @@ Date: 2026-11-14. Session CC-20261109-8w3d. Prepared for the independent reviewe
 
 ## 2. Proposed placement (all inside ALV-N021)
 
-A1 is not reopened: its package is under review and its scope is closed by A1-DECISION-01. The four findings go into the remaining attempts.
+A1 is complete and is not reopened. The four findings go into the remaining attempts.
 
 | Finding | Attempt | Why |
 |---|---|---|
@@ -82,4 +81,4 @@ This request authorizes no run. Each attempt follows the standing rules:
 1. Placement: T-2 and T-3 in A2, and T-1/T-4 as attempt A3 of ALV-N021 (recommended); or alternative (i), (ii) or (iii).
 2. T-1 option: A (recommended), B or C.
 3. Approval of the contracts in section 3, or corrections.
-4. Confirmation that A1 closes on the A1-R02 package unchanged, with these findings carried into A2/A3.
+4. Confirmation that A2 waits for this decision, so that its Stage 1 package includes T-2 and T-3 if approved.

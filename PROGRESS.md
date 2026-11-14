@@ -2690,3 +2690,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A1-R02.md; EXECUTION_STATUS ALV-N021: attemptRecords.A1 COMPLETE (approved A1-R02, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false), story status IN_PROGRESS (A2 next), story-level review block back to pending; BUILD_STATE paragraph.
   - Verification: user-supplied review file (APPROVED); EXECUTION_STATUS.json parses; no code change, no test run.
   - Notes: the story is not marked COMPLETE (A2 outstanding), so A1 completion is recorded per attempt; nothing pushed.
+- [x] ALV-N021: decision request 02 updated for A1's closure
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: request states A1 COMPLETE (d86304e) and asks that A2 wait for this decision; decision 4 reworded.
+  - Verification: document only.
+  - Notes: nothing pushed.
