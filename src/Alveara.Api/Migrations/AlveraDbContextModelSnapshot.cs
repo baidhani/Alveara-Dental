@@ -2430,6 +2430,16 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<bool>("ConfirmationRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("MarkReadyRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -5102,11 +5112,11 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_Notifications_NoDelete");
 
-                            t.HasCheckConstraint("CK_Notifications_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('document.duplicate_added','message.received','followup.due','staff.inactivation_failed')");
+                            t.HasCheckConstraint("CK_Notifications_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('document.duplicate_added','message.received','followup.due','staff.inactivation_failed','appointment.provider_reassigned')");
 
                             t.HasCheckConstraint("CK_Notifications_Priority", "[Priority] COLLATE Latin1_General_CS_AS IN ('Normal','Important','Urgent')");
 
-                            t.HasCheckConstraint("CK_Notifications_Shape", "([Kind] = 'message.received' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'document.duplicate_added' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId]) OR ([Kind] = 'followup.due' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'staff.inactivation_failed' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
+                            t.HasCheckConstraint("CK_Notifications_Shape", "([Kind] = 'message.received' AND [MessageId] IS NOT NULL AND [SourceKey] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'document.duplicate_added' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId]) OR ([Kind] = 'followup.due' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'staff.inactivation_failed' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) OR ([Kind] = 'appointment.provider_reassigned' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
 
                             t.HasCheckConstraint("CK_Notifications_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._-]%')");
 
@@ -8063,6 +8073,10 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("AppointmentTypeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CancelCategory")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("CancelReason")
                         .HasMaxLength(400)
                         .HasColumnType("nvarchar(400)");
@@ -8161,6 +8175,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_Appointments_MergeScope");
 
+                            t.HasCheckConstraint("CK_Appointments_CancelCategory", "[CancelCategory] IS NULL OR ([Status] = 'Cancelled' AND [CancelCategory] COLLATE Latin1_General_CS_AS IN ('patient','office','provider','weather','other'))");
+
                             t.HasCheckConstraint("CK_Appointments_FlowNeedsScheduled", "[FlowState] = 'Scheduled' OR [Status] = 'Scheduled'");
 
                             t.HasCheckConstraint("CK_Appointments_FlowState", "[FlowState] COLLATE Latin1_General_CS_AS IN ('Scheduled','Confirmed','CheckedIn','Ready','Seated','InTreatment','CheckedOut','Completed')");
@@ -8183,6 +8199,10 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid>("AppointmentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Detail")
                         .HasMaxLength(400)
                         .HasColumnType("nvarchar(400)");
@@ -8204,11 +8224,104 @@ namespace Alveara.Api.Migrations
                     b.Property<DateTimeOffset?>("PreviousStartUtc")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AppointmentId", "OccurredAtUtc");
 
-                    b.ToTable("AppointmentEvents");
+                    b.ToTable("AppointmentEvents", t =>
+                        {
+                            t.HasCheckConstraint("CK_AppointmentEvents_Reason", "[Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Scheduling.VisitCheckoutOutcome", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ItemCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("LinkedAppointmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("LinkedLedgerEntryNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OutcomeCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("RecordedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<Guid?>("SupersedesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedAppointmentId");
+
+                    b.HasIndex("SupersedesId")
+                        .IsUnique()
+                        .HasFilter("[SupersedesId] IS NOT NULL");
+
+                    b.HasIndex("ActorUserId", "IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("AppointmentId", "ItemCode", "RecordedAtUtc");
+
+                    b.ToTable("VisitCheckoutOutcomes", null, t =>
+                        {
+                            t.HasTrigger("TR_VisitCheckoutOutcomes_Immutable");
+
+                            t.HasTrigger("TR_VisitCheckoutOutcomes_Supersedes");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_Key", "LEN([IdempotencyKey]) > 0");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_Ledger", "([OutcomeCode] IN ('payment_recorded','waived') AND [LinkedLedgerEntryNumber] IS NOT NULL AND [LinkedLedgerEntryNumber] > 0) OR ([OutcomeCode] NOT IN ('payment_recorded','waived') AND [LinkedLedgerEntryNumber] IS NULL)");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_LinkedAppointment", "[LinkedAppointmentId] IS NULL OR ([ItemCode] = 'follow_up' AND [LinkedAppointmentId] <> [AppointmentId])");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_Pair", "[ItemCode] COLLATE Latin1_General_CS_AS IN ('departure','follow_up','financial') AND (([ItemCode] = 'departure' AND [OutcomeCode] COLLATE Latin1_General_CS_AS IN ('patient_left')) OR ([ItemCode] = 'follow_up' AND [OutcomeCode] COLLATE Latin1_General_CS_AS IN ('not_clinically_required','patient_declined','deferred')) OR ([ItemCode] = 'financial' AND [OutcomeCode] COLLATE Latin1_General_CS_AS IN ('payment_recorded','waived','payment_plan','insurance_to_bill','send_statement','waiver_requested')))");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_Reason", "([Reason] IS NULL OR LEN(REPLACE(REPLACE(REPLACE(REPLACE([Reason], N' ', N''), NCHAR(9), N''), NCHAR(10), N''), NCHAR(13), N'')) > 0) AND ([OutcomeCode] NOT IN ('deferred','waiver_requested') OR [Reason] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_Supersedes", "[SupersedesId] IS NULL OR [SupersedesId] <> [Id]");
+
+                            t.HasCheckConstraint("CK_VisitCheckoutOutcomes_Time", "[RecordedAtUtc] >= '2000-01-01' AND [RecordedAtUtc] < '2200-01-01'");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Treatment.DiagnosisPlanResolution", b =>
@@ -10251,6 +10364,31 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("AppointmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Scheduling.VisitCheckoutOutcome", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Identity.UserAccount", null)
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Scheduling.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Scheduling.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("LinkedAppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Scheduling.VisitCheckoutOutcome", null)
+                        .WithMany()
+                        .HasForeignKey("SupersedesId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Treatment.DiagnosisPlanResolution", b =>

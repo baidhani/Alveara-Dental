@@ -60,6 +60,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<PatientRegistrationSettings> PatientRegistrationSettings => Set<PatientRegistrationSettings>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<AppointmentEvent> AppointmentEvents => Set<AppointmentEvent>();
+    public DbSet<VisitCheckoutOutcome> VisitCheckoutOutcomes => Set<VisitCheckoutOutcome>();   // ALV-N021 A2 (M3)
     public DbSet<FormTemplate> FormTemplates => Set<FormTemplate>();
     public DbSet<FormTemplateVersion> FormTemplateVersions => Set<FormTemplateVersion>();
     public DbSet<PatientForm> PatientForms => Set<PatientForm>();
@@ -216,6 +217,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(s => s.Phone).HasMaxLength(40);
             e.Property(s => s.AddressLine).HasMaxLength(200);
             e.Property(s => s.RowVersion).IsRowVersion();
+            // ALV-N021 A2 (M1): both visit settings default to required, for the existing row too
+            e.Property(s => s.ConfirmationRequired).HasDefaultValue(true);
+            e.Property(s => s.MarkReadyRequired).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<PracticeLocation>(e =>
@@ -398,6 +402,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasOne<ProviderProfile>().WithMany().HasForeignKey(a => a.VisitProviderProfileId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<Operatory>().WithMany().HasForeignKey(a => a.VisitOperatoryId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(a => new { a.FlowState, a.StartUtc });
+            // ALV-N021 A2 (M1, OD-19): the cancel category is one of the controlled list (case-sensitive), and only a cancelled appointment may carry one
+            e.Property(a => a.CancelCategory).HasMaxLength(20);
+            e.ToTable(t => t.HasCheckConstraint("CK_Appointments_CancelCategory",
+                $"[CancelCategory] IS NULL OR ([Status] = '{AppointmentStatuses.Cancelled}' AND [CancelCategory] COLLATE Latin1_General_CS_AS IN ({PrescriptionModel.In(AppointmentCancelCategories.All)}))"));
         });
 
         // ALV-004-C01: an appointment's history. Append-only; Restrict like every other relationship.
@@ -405,6 +413,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         {
             e.Property(v => v.EventType).HasMaxLength(20);
             e.Property(v => v.Detail).HasMaxLength(400);
+            // ALV-N021 A2 (M1): the reason and category of a move (reason never blank when given)
+            e.Property(v => v.Reason).HasMaxLength(500);
+            e.Property(v => v.Category).HasMaxLength(20);
+            e.ToTable(t => t.HasCheckConstraint("CK_AppointmentEvents_Reason", "[Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0"));
             e.HasOne<Appointment>().WithMany().HasForeignKey(v => v.AppointmentId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(v => new { v.AppointmentId, v.OccurredAtUtc });
         });
@@ -571,6 +583,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         DataExportHistoryModel.Configure(modelBuilder);
         ImportBatchModel.Configure(modelBuilder);
         ReportBaselineModel.Configure(modelBuilder);
+        VisitCheckoutModel.Configure(modelBuilder);         // ALV-N021 A2 (M3)
         PatientMergeModel.Configure(modelBuilder);          // last: it declares a trigger on every table the registry lists, so every other table must be configured first
 
         modelBuilder.Entity<BackgroundJob>(e =>

@@ -32,6 +32,8 @@ public class Appointment
     public string? Notes { get; set; }
     /// <summary>Why a Cancelled appointment was cancelled (required when cancelling).</summary>
     public string? CancelReason { get; set; }
+    /// <summary>ALV-N021 A2 (OD-19): the controlled reason class of a cancellation (<see cref="AppointmentCancelCategories"/>). Required by the API from A2 on; null on cancellations made before it ("Not categorised").</summary>
+    public string? CancelCategory { get; set; }
     /// <summary>When and by whom the appointment became Cancelled or NoShow.</summary>
     public DateTimeOffset? StatusChangedAtUtc { get; set; }
     public Guid? StatusChangedByUserId { get; set; }
@@ -74,6 +76,21 @@ public class AppointmentEvent
     public Guid? PreviousProviderProfileId { get; set; }
     public Guid? PreviousOperatoryId { get; set; }
     public string? Detail { get; set; }
+    /// <summary>ALV-N021 A2: the reason the actor gave (undo check-in, reassignment, block override, keep despite block, cancellation note). Never PHI by design: staff wording, kept out of the audit log.</summary>
+    public string? Reason { get; set; }
+    /// <summary>ALV-N021 A2: the controlled category of the move where one applies (a cancellation's <see cref="AppointmentCancelCategories"/>).</summary>
+    public string? Category { get; set; }
+}
+
+/// <summary>ALV-N021 A2 (OD-19): why an appointment was cancelled, as a controlled list (the cancellations report counts them).</summary>
+public static class AppointmentCancelCategories
+{
+    public const string Patient = "patient";
+    public const string Office = "office";
+    public const string Provider = "provider";
+    public const string Weather = "weather";
+    public const string Other = "other";
+    public static readonly IReadOnlyList<string> All = [Patient, Office, Provider, Weather, Other];
 }
 
 public static class AppointmentEventTypes

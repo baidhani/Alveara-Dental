@@ -43,6 +43,7 @@ public static class PolicySnapshotBuilder
             if (PermissionProtection.IsFixedRole(role)) { Reject(row, InvalidRowReason.FixedRoleOverride, role); continue; }
             if (row.Effect is not (OverrideEffects.Grant or OverrideEffects.Revoke)) { Reject(row, InvalidRowReason.UnknownEffect, role); continue; }
             if (!PermissionProtection.IsGrantable(permission)) { Reject(row, InvalidRowReason.ProtectedPermissionOverride, role); continue; }
+            if (!PermissionProtection.IsGrantableTo(permission, role)) { Reject(row, InvalidRowReason.RoleLimitedPermissionOverride, role); continue; }
 
             if (row.Effect == OverrideEffects.Grant) effective[role].Add(permission); else effective[role].Remove(permission);
             valid++;

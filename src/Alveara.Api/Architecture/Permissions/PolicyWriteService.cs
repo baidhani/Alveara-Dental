@@ -57,6 +57,7 @@ public class PolicyWriteService(AlveraDbContext db, IEffectivePermissions permis
         if (PermissionProtection.IsFixedRole(role)) throw Bad("role_not_editable", "The administrator and unassigned cells cannot be changed.");
         var permission = ParsePermission(request.Permission);
         if (!PermissionProtection.IsGrantable(permission)) throw Bad("permission_protected", "That permission can never be granted to another role.");
+        if (!PermissionProtection.IsGrantableTo(permission, role)) throw Bad("permission_role_limited", $"{permission} can only be held by {string.Join(" or ", PermissionProtection.RoleLimited[permission].Order())}.");
         var effect = request.Effect is OverrideEffects.Grant or OverrideEffects.Revoke or "Revert" ? request.Effect : throw Bad("invalid_effect", "The effect must be Grant, Revoke or Revert.");
         RequireConfirmation(permission, request.Confirmed, request.TypedConfirmation);
 

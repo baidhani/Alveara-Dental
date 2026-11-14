@@ -228,6 +228,18 @@
     {
       "name": "ManageMeasurementBaselines",
       "status": "Active"
+    },
+    {
+      "name": "CompleteOwnStartedVisit",
+      "status": "Active"
+    },
+    {
+      "name": "ReassignAppointmentProvider",
+      "status": "Active"
+    },
+    {
+      "name": "CollectPayments",
+      "status": "Active"
     }
   ]
 }

@@ -74,7 +74,7 @@ public class PermissionPolicyHealthTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, (await GetAsync(admin, "/api/permissions/health")).Status);
         foreach (var s in new[] { manager, dentist }) Assert.Equal(HttpStatusCode.Forbidden, (await GetAsync(s, "/api/permissions/health")).Status);
 
-        foreach (var p in Enum.GetValues<Permission>().Where(PermissionProtection.IsGrantable).Where(p => !PermissionMatrix.RoleHas(Role.OfficeManager, p)))
+        foreach (var p in Enum.GetValues<Permission>().Where(p => PermissionProtection.IsGrantableTo(p, Role.OfficeManager)).Where(p => !PermissionMatrix.RoleHas(Role.OfficeManager, p)))
             await AddRowAsync("OfficeManager", p.ToString(), "Grant");                                                // everything an office manager can be given
         Assert.Equal(HttpStatusCode.Forbidden, (await GetAsync(manager, "/api/permissions/health")).Status);
         var removal = await manager.SendAsync(HttpMethod.Post, $"/api/permissions/invalid-rows/{Guid.NewGuid()}/remove", new { reason = "x", rowVersion = "AAAA" });
@@ -141,6 +141,19 @@ public class PermissionPolicyHealthTests : IAsyncLifetime
         Assert.Equal(("OfficeManager", "ManageUsers", "Grant", "ProtectedPermissionOverride"), (protectedView.GetProperty("role").GetString(), protectedView.GetProperty("permission").GetString(), protectedView.GetProperty("effect").GetString(), protectedView.GetProperty("reason").GetString()));
         Assert.Equal("UnknownPermission", rows.Single(r => r.GetProperty("id").GetGuid() == unknownPermission).GetProperty("reason").GetString());
         Assert.NotEmpty(protectedView.GetProperty("rowVersion").GetString()!);
+    }
+
+    /// <summary>ALV-N021 A2 (briefing 8, completion authority): a seeded grant of completing a started visit to the assistant is flagged by policy health and the assistant is denied until repaired.</summary>
+    [Fact]
+    public async Task A_seeded_grant_of_completing_a_started_visit_to_the_assistant_is_flagged_and_never_applied()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var bad = await AddRowAsync("Assistant", nameof(Permission.CompleteOwnStartedVisit), OverrideEffects.Grant);
+        var health = (await GetAsync(admin, "/api/permissions/health")).Body;
+        Assert.Equal("RepairRequired", health.GetProperty("status").GetString());
+        Assert.Equal(new[] { "Assistant" }, health.GetProperty("rolesNeedingRepair").EnumerateArray().Select(e => e.GetString()).ToArray());
+        var row = health.GetProperty("invalidRows").EnumerateArray().Single(r => r.GetProperty("id").GetGuid() == bad);
+        Assert.Equal("RoleLimitedPermissionOverride", row.GetProperty("reason").GetString());
     }
 
     [Fact]

@@ -154,4 +154,15 @@ public enum Permission
 
     // ALV-N006 slice 5b: setting a baseline period. Held by the administrator and the office manager by default; grantable.
     ManageMeasurementBaselines,
+
+    // ALV-N021 A2 (OD-09, owner addendum 4): completing a visit the holder STARTED. Default Dentist; may be granted only to the Hygienist (PermissionProtection.RoleLimited) and never delegated.
+    // Holding it is not enough: the server also requires the actor to be a Dentist or Hygienist linked to a provider record who recorded that visit's InTreatment event. Appended last.
+    CompleteOwnStartedVisit,
+
+    // ALV-N021 A2 (OD-13): changing an appointment's booked provider (and optionally room) before treatment starts, with a reason. Default OfficeManager (and Admin); grantable to any working role.
+    ReassignAppointmentProvider,
+
+    // ALV-N021 A2 (OD-27): recording a payment and applying it to open charges, without any other billing write (no charge, reversal, adjustment, waiver, refund or method change).
+    // Default FrontDesk; ManageBilling holders may do the same through ManageBilling. Grantable.
+    CollectPayments,
 }

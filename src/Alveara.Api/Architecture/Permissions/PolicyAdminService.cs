@@ -58,7 +58,7 @@ public class PolicyAdminService(AlveraDbContext db, IEffectivePermissions permis
             {
                 var row = overrides.FirstOrDefault(o => o.Role == role.ToString() && o.Permission == permission.ToString() && IsApplied(snapshot, role, o));
                 var source = row is null ? "default" : row.Effect == OverrideEffects.Grant ? "granted" : "revoked";
-                cells.Add(new EffectiveCell(permission.ToString(), held.Contains(permission), source, PermissionProtection.IsGrantable(permission) && !fixedRole, PermissionProtection.IsDelegable(permission), row?.Reason, row?.ChangedByUserId, row?.ChangedAtUtc, PolicyWriteRules.HighImpact.Contains(permission)));
+                cells.Add(new EffectiveCell(permission.ToString(), held.Contains(permission), source, PermissionProtection.IsGrantableTo(permission, role) && !fixedRole, PermissionProtection.IsDelegable(permission), row?.Reason, row?.ChangedByUserId, row?.ChangedAtUtc, PolicyWriteRules.HighImpact.Contains(permission)));
             }
             roles.Add(new EffectiveRole(role.ToString(), health, cells, enabledByRole.GetValueOrDefault(role)));
         }

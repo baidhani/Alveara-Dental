@@ -21,7 +21,10 @@ public static class NotificationKinds
     /// <summary>ALV-N020 (F-021): a staff inactivation could not disable the linked login, so nothing changed. Sent Urgent to enabled Admin and OfficeManager accounts,
     /// only after the durable failure audit entry exists; its source key names that entry. No patient, message or document.</summary>
     public const string StaffInactivationFailed = "staff.inactivation_failed";
-    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue, StaffInactivationFailed];
+    /// <summary>ALV-N021 A2 (OD-15): an appointment's booked provider was changed. Sent Urgent to the old and the new provider's accounts; PHI-free (time and link only). The source key names the
+    /// appointment and the reassignment event, so a retried reassignment sends nothing new. No patient, message or document.</summary>
+    public const string AppointmentProviderReassigned = "appointment.provider_reassigned";
+    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue, StaffInactivationFailed, AppointmentProviderReassigned];
 }
 
 /// <summary>The producers whose immutable, ordered event history the consumer reads. One cursor row per source.</summary>

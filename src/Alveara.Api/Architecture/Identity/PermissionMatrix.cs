@@ -18,6 +18,7 @@ public static class PermissionMatrix
             Permission.ViewSchedule, Permission.ViewBilling,
             Permission.CompleteForms, Permission.ViewSignedForms, // ALV-N010
             Permission.UpdateChairsideFlow, // ALV-011-C01
+            Permission.CompleteOwnStartedVisit, // ALV-N021 A2 (OD-09): completes a visit they started, once checkout is resolved
             Permission.ViewClinicalDocumentation, // STORY-005
             Permission.ManageClinicalTemplates, // ALV-005-C01
             Permission.ViewSafetyIndicator, // ALV-N011
@@ -57,6 +58,7 @@ public static class PermissionMatrix
             Permission.ViewPatientRecords, // ALV-003-C01: front desk must find and open the patients it registers
             Permission.CompleteForms, Permission.ViewSignedForms, // ALV-N010: forms are completed at the front desk
             Permission.UpdateVisitFlow, // ALV-011-C01: confirm, check in and check out
+            Permission.CollectPayments, // ALV-N021 A2 (OD-27): takes a payment at checkout; no other billing write
             Permission.ViewDocuments, // STORY-010: reads the library, cannot import
             Permission.SendMessages, // ALV-N015
             Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
@@ -76,7 +78,8 @@ public static class PermissionMatrix
             Permission.ManagePracticeConfiguration, // the "practice manager" of ALV-N003
             Permission.ViewBackupStatus, Permission.RegisterPatients, Permission.EditPatients,
             Permission.ManageFormTemplates, Permission.CompleteForms, Permission.ViewSignedForms, Permission.VoidForms, // ALV-N010
-            Permission.UpdateVisitFlow, Permission.UpdateChairsideFlow, // ALV-011-C01: the practice manager covers both teams
+            Permission.UpdateVisitFlow, // ALV-011-C01; ALV-N021 A2 (OD-07): the chairside default is removed (grantable back by an administrator)
+            Permission.ReassignAppointmentProvider, // ALV-N021 A2 (OD-13)
             Permission.ImportDocuments, Permission.ViewDocuments, // STORY-010: imports and categorizes; the settings stay with the administrator
             Permission.ManageDocumentStorage, // ALV-010-C01: checks the stored files and reviews the ones nothing points to
             Permission.SendMessages, Permission.ReceiveDocumentNotifications, // ALV-N015: sends messages; is told when a duplicate document is imported

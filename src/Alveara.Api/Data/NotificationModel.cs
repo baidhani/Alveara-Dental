@@ -107,7 +107,9 @@ internal static class NotificationModel
                     $"OR ([Kind] = '{NotificationKinds.DocumentDuplicateAdded}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NOT NULL " +
                     "AND [RelatedOtherDocumentId] IS NOT NULL AND [RelatedDocumentId] <> [RelatedOtherDocumentId]) " +
                     $"OR ([Kind] = '{NotificationKinds.FollowUpDue}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NOT NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) " +
-                    $"OR ([Kind] = '{NotificationKinds.StaffInactivationFailed}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
+                    $"OR ([Kind] = '{NotificationKinds.StaffInactivationFailed}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL) " +
+                    // ALV-N021 A2 (OD-15): a provider-reassignment alert names only its source key (appointment and event): PHI-free, no message, patient or document
+                    $"OR ([Kind] = '{NotificationKinds.AppointmentProviderReassigned}' AND [MessageId] IS NULL AND [SourceKey] IS NOT NULL AND [RelatedPatientId] IS NULL AND [RelatedDocumentId] IS NULL AND [RelatedOtherDocumentId] IS NULL)");
                 t.HasCheckConstraint("CK_Notifications_SourceKey", "[SourceKey] IS NULL OR (LEN([SourceKey]) > 0 AND [SourceKey] COLLATE Latin1_General_BIN2 NOT LIKE '%[^A-Za-z0-9:._-]%')");
                 // an entry is read before it is deleted; both times are real times
                 t.HasCheckConstraint("CK_Notifications_Times",

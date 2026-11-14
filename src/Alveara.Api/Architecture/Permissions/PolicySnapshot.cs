@@ -27,6 +27,8 @@ public enum InvalidRowReason
     DelegationNotDelegable,
     DelegationBadDelegate,
     DelegationBadTarget,
+    /// <summary>ALV-N021 A2: an override naming a role-limited permission (<c>PermissionProtection.RoleLimited</c>) for a role it may never be given.</summary>
+    RoleLimitedPermissionOverride,
 }
 
 /// <summary>One stored row the engine refused, with its raw values so an administrator can repair it. <see cref="Table"/> is <c>Override</c> or <c>Delegation</c>.</summary>

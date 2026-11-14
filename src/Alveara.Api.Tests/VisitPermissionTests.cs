@@ -9,7 +9,7 @@ public class VisitPermissionTests
 {
     [Theory]
     [InlineData(Role.FrontDesk, true, false)]
-    [InlineData(Role.OfficeManager, true, true)]
+    [InlineData(Role.OfficeManager, true, false)]   // ALV-N021 A2 (OD-07): the office manager's chairside default is removed (an administrator may grant it back)
     [InlineData(Role.Admin, true, true)]
     [InlineData(Role.Dentist, false, true)]
     [InlineData(Role.Hygienist, false, true)]
@@ -29,7 +29,9 @@ public class VisitPermissionTests
         {
             var needed = VisitStateMachine.DutyFor(state) == TransitionDuty.FrontOffice ? Permission.UpdateVisitFlow : Permission.UpdateChairsideFlow;
             Assert.True(PermissionMatrix.RoleHas(Role.Admin, needed), $"Admin cannot move a visit to {state}");
-            Assert.True(PermissionMatrix.RoleHas(Role.OfficeManager, needed), $"The office manager cannot move a visit to {state}");
+            // ALV-N021 A2 (OD-07): front-office moves stay with the office manager; chairside moves belong to the chairside team
+            var team = needed == Permission.UpdateVisitFlow ? Role.OfficeManager : Role.Assistant;
+            Assert.True(PermissionMatrix.RoleHas(team, needed), $"Nobody on the {team} team can move a visit to {state}");
         }
     }
 

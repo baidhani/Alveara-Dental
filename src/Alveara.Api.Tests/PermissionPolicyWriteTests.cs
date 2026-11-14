@@ -143,6 +143,22 @@ public class PermissionPolicyWriteTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, (await PutAsync(admin, "Billing", "ViewBackupStatus", "Grant", v, Key(), reason: new string('r', 500))).Status);   // the limit itself is allowed
     }
 
+    /// <summary>ALV-N021 A2 (owner addendum 4): completing a started visit may be granted to the hygienist only; any other working role is refused and nothing is written.</summary>
+    [Theory]
+    [InlineData("Assistant")]
+    [InlineData("FrontDesk")]
+    [InlineData("Billing")]
+    [InlineData("OfficeManager")]
+    public async Task Completing_a_started_visit_can_be_granted_only_to_the_hygienist(string role)
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var v = await VersionAsync(admin);
+        var r = await PutAsync(admin, role, "CompleteOwnStartedVisit", "Grant", v, Key());
+        Assert.Equal((HttpStatusCode.BadRequest, "permission_role_limited"), (r.Status, Error(r.Body)));
+        Assert.Equal((0, 0, v), await StateAsync());
+        Assert.Equal(HttpStatusCode.OK, (await PutAsync(admin, "Hygienist", "CompleteOwnStartedVisit", "Grant", v, Key())).Status);
+    }
+
     [Theory]
     [InlineData("OfficeManager", "ManageUsers")]
     [InlineData("OfficeManager", "ManageRoles")]

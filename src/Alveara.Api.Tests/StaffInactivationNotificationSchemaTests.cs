@@ -127,7 +127,14 @@ public class StaffInactivationNotificationSchemaTests : SafetyTestBase
         var e = await Refusal(async () => { await using var db = Fixture.CreateContext(); await db.GetInfrastructure().GetRequiredService<IMigrator>().MigrateAsync(BeforeThisMigration); });
         Assert.Equal(51275, e.Number);
         Assert.Equal(1, await AlertCountAsync());                                                          // immutable history is never deleted to make a rollback succeed
+        // ALV-N021 A2: each migration rolls back in its own transaction, so the migrations AFTER this one were undone before this one refused (this test asserted "nothing pending"
+        // and has failed since ALV-N020-C01 added a later migration). What must hold: this migration is still applied, and only the later ones are pending.
         await using (var db = Fixture.CreateContext())
-            Assert.Empty(await db.Database.GetPendingMigrationsAsync());                                   // still on the latest schema
+        {
+            var all = db.Database.GetMigrations().ToList();
+            var pending = (await db.Database.GetPendingMigrationsAsync()).ToList();
+            Assert.DoesNotContain(all.Single(m => m.EndsWith("_AddStaffInactivationFailedNotification")), pending);
+            Assert.Equal(all.SkipWhile(m => !m.EndsWith("_AddStaffInactivationFailedNotification")).Skip(1), pending);
+        }
     }
 }

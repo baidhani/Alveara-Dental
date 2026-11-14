@@ -19,6 +19,10 @@ public class PracticeSettings
     public required string Name { get; set; }
     public string? Phone { get; set; }
     public string? AddressLine { get; set; }
+    /// <summary>ALV-N021 A2 (5.2): when true (the default), a visit is checked in only after it was confirmed; when false, from Scheduled too.</summary>
+    public bool ConfirmationRequired { get; set; } = true;
+    /// <summary>ALV-N021 A2 (5.2): when true (the default), a patient is seated only after the visit was marked ready; when false, straight from checked in too.</summary>
+    public bool MarkReadyRequired { get; set; } = true;
     public DateTimeOffset UpdatedAtUtc { get; set; }
     public byte[] RowVersion { get; set; } = [];
 }

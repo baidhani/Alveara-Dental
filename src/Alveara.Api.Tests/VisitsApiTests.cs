@@ -174,7 +174,7 @@ public class VisitsApiTests : IAsyncLifetime
     [InlineData("Hygienist", "CheckedIn", "Ready", HttpStatusCode.OK)]
     [InlineData("Assistant", "Ready", "Seated", HttpStatusCode.OK)]
     [InlineData("OfficeManager", "Scheduled", "Confirmed", HttpStatusCode.OK)]
-    [InlineData("OfficeManager", "CheckedIn", "Ready", HttpStatusCode.OK)]
+    [InlineData("OfficeManager", "CheckedIn", "Ready", HttpStatusCode.Forbidden)]   // ALV-N021 A2 (OD-07): no chairside default for the office manager
     [InlineData("Admin", "Scheduled", "CheckedIn", HttpStatusCode.OK)]
     [InlineData("Billing", "Scheduled", "CheckedIn", HttpStatusCode.Forbidden)]
     [InlineData("Billing", "CheckedIn", "Ready", HttpStatusCode.Forbidden)]

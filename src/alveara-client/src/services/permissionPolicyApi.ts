@@ -84,6 +84,7 @@ const MESSAGES: Record<string, string> = {
   no_change: "Nothing to change: it is already set that way.",
   policy_needs_repair: "The stored policy for that role needs repair first (see the policy health panel).",
   permission_protected: "That permission can never be granted to another role.",
+  permission_role_limited: "That permission can only be held by the roles it was designed for (for example, completing a started visit: Dentist or Hygienist).",
   role_not_editable: "The administrator and unassigned cells cannot be changed.",
   delegation_not_allowed: "You may not change that permission for that role.",
   policy_write_failed: "The change could not be saved, so nothing was changed. Try again.",
