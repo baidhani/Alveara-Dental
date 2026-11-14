@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,7 @@ public class PatientsController(
     /// <summary>STORY-003's response shape (unchanged keys), plus the new identity-workspace fields.</summary>
     private static object Dto(Patient p) => new
     {
-        p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd"), p.Sex,
+        p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), p.Sex,
         p.Phone, p.Email, p.AddressLine1, p.AddressLine2, p.City, p.State, p.PostalCode, p.CreatedAtUtc,
         p.IsActive, p.MergedAtUtc, rowVersion = Version(p),
     };
@@ -116,7 +117,7 @@ public class PatientsController(
             var p = detail.Patient;
             return Ok(new
             {
-                p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd"), age = detail.Age, p.Sex,
+                p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), age = detail.Age, p.Sex,
                 p.Phone, p.Email, p.AddressLine1, p.AddressLine2, p.City, p.State, p.PostalCode, p.CreatedAtUtc, p.UpdatedAtUtc,
                 p.IsActive, p.MergedAtUtc, rowVersion = Version(p),
                 guarantor = detail.Guarantor, guaranteeFor = detail.GuaranteeFor,

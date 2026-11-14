@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
@@ -49,7 +50,7 @@ public class RecallScheduler(AlveraDbContext db, IBackgroundJobQueue queue, IPra
             due++;
             var dueDate = DateOnly.FromDateTime(clock.ToPracticeLocal(next).Date);
             var key = FollowUpRules.RecallSourceKey(candidate.PatientId, dueDate);
-            await queue.EnqueueAsync(key, JobType, JsonSerializer.Serialize(new RecallJobPayload(candidate.PatientId, dueDate.ToString("yyyy-MM-dd"))), ct);
+            await queue.EnqueueAsync(key, JobType, JsonSerializer.Serialize(new RecallJobPayload(candidate.PatientId, dueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))), ct);
             enqueued++;
         }
         return new RecallPassResult(last.Count, due, enqueued);
@@ -68,7 +69,7 @@ public sealed class RecallTaskJobHandler(IPracticeClock clock) : IBackgroundJobH
     public async Task ExecuteAsync(BackgroundJob job, AlveraDbContext db, CancellationToken ct)
     {
         var payload = JsonSerializer.Deserialize<RecallJobPayload>(job.PayloadJson ?? throw new InvalidOperationException("A recall job carries its patient and due date."))!;
-        var dueDate = DateOnly.ParseExact(payload.DueDate, "yyyy-MM-dd");
+        var dueDate = DateOnly.ParseExact(payload.DueDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         var key = FollowUpRules.RecallSourceKey(payload.PatientId, dueDate);
         if (await db.FollowUpTasks.AsNoTracking().AnyAsync(t => t.SourceKey == key, ct)) return;      // already made (an earlier attempt committed it)
 
@@ -90,6 +91,6 @@ public sealed class RecallTaskJobHandler(IPracticeClock clock) : IBackgroundJobH
         if (DateOnly.FromDateTime(clock.ToPracticeLocal(nextDue).Date) != dueDate) return;
 
         SystemTaskWriter.Create(db, FollowUpKinds.Recall, key, payload.PatientId, "Patient recall: schedule the next visit", nextDue, FollowUpPriorities.Normal, null, now,
-            $"Recall due {dueDate:yyyy-MM-dd} ({decision.IntervalDays} days)");
+            string.Create(CultureInfo.InvariantCulture, $"Recall due {dueDate:yyyy-MM-dd} ({decision.IntervalDays} days)"));
     }
 }

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Data.SqlClient;
@@ -230,7 +231,7 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
     /// <summary>A fingerprint of everything the importer asked for, so the same key with anything different is refused and the same request is a replay.</summary>
     private static string RequestHash(Guid patientId, string sha256, Guid categoryId, DateOnly date, string? description, string fileName, Guid? confirmDuplicateOf, Guid? encounterId, string? toothKey, string? regionKey)
     {
-        var text = string.Join('|', "document-import-v1", patientId.ToString("N"), sha256, categoryId.ToString("N"), date.ToString("yyyy-MM-dd"), description ?? string.Empty, fileName, confirmDuplicateOf?.ToString("N") ?? string.Empty, encounterId?.ToString("N") ?? string.Empty, toothKey ?? string.Empty, regionKey ?? string.Empty);
+        var text = string.Join('|', "document-import-v1", patientId.ToString("N"), sha256, categoryId.ToString("N"), date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), description ?? string.Empty, fileName, confirmDuplicateOf?.ToString("N") ?? string.Empty, encounterId?.ToString("N") ?? string.Empty, toothKey ?? string.Empty, regionKey ?? string.Empty);
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(text)));
     }
 }

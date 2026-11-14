@@ -51,6 +51,18 @@ public class VisitBoardTests : IAsyncLifetime
     private static readonly DateTime Monday = new(2030, 1, 14);
 
     [Fact]
+    public async Task The_board_opens_a_day_whose_midnight_does_not_exist_and_shows_exactly_that_days_visits()
+    {
+        // ALV-N021 A2 (T-3): in PracticeDayBoundaryTests.MidnightZone 14 Jan 2030 begins at 01:00 (UTC-3) = 04:00 UTC and ends at 03:00 UTC on the 15th. The board used to convert midnight
+        // with the reject rule and answer 400 for this day.
+        var inside = await BookAsync(_ann, At(9));                       // 15:00 UTC on the 14th: 12:00 there
+        await BookAsync(_bo, At(9, 0, dayOffset: 1));                    // 15:00 UTC on the 15th: the next day there
+        var board = await BoardAsync(Monday, clock: new PracticeClock(PracticeDayBoundaryTests.MidnightZone));
+        Assert.Equal("2030-01-14", board.Date);
+        Assert.Equal([inside.Id], board.Visits.Select(v => v.Appointment.Id));
+    }
+
+    [Fact]
     public async Task The_board_lists_only_that_days_appointments_in_time_order_with_the_state_chain_and_the_servers_clock()
     {
         var late = await BookAsync(_ann, At(14));

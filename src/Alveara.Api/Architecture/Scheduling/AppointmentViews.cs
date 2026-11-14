@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
@@ -12,7 +13,7 @@ public record AppointmentEventView(
 /// <summary>Builds the read model of an appointment (names resolved, times in both UTC and practice-local), shared by booking and the lifecycle actions.</summary>
 internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock clock)
 {
-    public string Local(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-ddTHH:mm");
+    public string Local(DateTimeOffset utc) => clock.ToPracticeLocal(utc).ToString("yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture);
 
     public async Task<AppointmentView> ViewAsync(Guid id, CancellationToken ct)
     {

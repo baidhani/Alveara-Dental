@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Clinical;
 using AppMoney = Alveara.Api.Architecture.Money.Money;
@@ -35,7 +36,7 @@ public partial class BillingService
         foreach (var e in ledger.Entries)
         {
             var method = e.PaymentMethodId is Guid m && methods.TryGetValue(m, out var n) ? n : e.PaymentMethod;
-            string? source = e.Kind == BillingKinds.Charge && e.PlanItemId is not null ? $"Completed procedure performed {clock.ToPracticeLocal(service[e.EntryNumber]):yyyy-MM-dd}" : null;
+            string? source = e.Kind == BillingKinds.Charge && e.PlanItemId is not null ? string.Create(CultureInfo.InvariantCulture, $"Completed procedure performed {clock.ToPracticeLocal(service[e.EntryNumber]):yyyy-MM-dd}") : null;
             var summary = e.Kind switch
             {
                 BillingKinds.Charge => $"Charge for {e.ProcedureCode} {e.ProcedureDescription}",
@@ -58,7 +59,7 @@ public partial class BillingService
                 ClinicalNames.Name(names, r.ReleasedByUserId)));
         }
         foreach (var r in responsibilities)
-            events.Add(new TimelineEvent(r.SetAtUtc, "Responsibility", r.Sequence, $"{NameOf(people[r.ResponsiblePatientId])} responsible from {r.EffectiveFrom:yyyy-MM-dd}", null, null, ClinicalNames.Name(names, r.SetByUserId)));
+            events.Add(new TimelineEvent(r.SetAtUtc, "Responsibility", r.Sequence, string.Create(CultureInfo.InvariantCulture, $"{NameOf(people[r.ResponsiblePatientId])} responsible from {r.EffectiveFrom:yyyy-MM-dd}"), null, null, ClinicalNames.Name(names, r.SetByUserId)));
         foreach (var d in documents)
             events.Add(new TimelineEvent(d.IssuedAtUtc, d.DocumentType, d.DocumentNumber, $"{d.DocumentType} {d.DocumentNumber} issued", null, null, ClinicalNames.Name(names, d.IssuedByUserId)));
         return events.OrderBy(e => e.AtUtc).ThenBy(e => Rank(e.Type)).ThenBy(e => e.Number).ToList();

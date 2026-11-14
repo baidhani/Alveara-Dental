@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Data;
 
@@ -41,7 +42,7 @@ public class PatientDuplicateDetector(AlveraDbContext db)
             var (exact, reasons) = Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email);
             if (reasons.Count == 0) continue;
 
-            found.Add(new DuplicateCandidate(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd"), p.Phone, p.Email, p.City, p.State, p.IsActive, reasons, exact));
+            found.Add(new DuplicateCandidate(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), p.Phone, p.Email, p.City, p.State, p.IsActive, reasons, exact));
         }
 
         return found.OrderByDescending(c => c.Exact).ThenByDescending(c => c.Reasons.Count).ThenBy(c => c.LastName, StringComparer.OrdinalIgnoreCase)

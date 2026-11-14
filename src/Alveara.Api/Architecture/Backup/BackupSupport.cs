@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.Data.SqlClient;
 
@@ -50,7 +51,7 @@ public sealed class FileDropBackupNotifier(BackupPaths paths) : IBackupNotifier
     public async Task DeliverAsync(BackupNotification notification, CancellationToken cancellationToken)
     {
         Directory.CreateDirectory(paths.NotificationDirectory);
-        var name = $"{DateTimeOffset.UtcNow:yyyyMMddTHHmmssfff}-{notification.Kind}-{Guid.NewGuid():N}.txt";
+        var name = string.Create(CultureInfo.InvariantCulture, $"{DateTimeOffset.UtcNow:yyyyMMddTHHmmssfff}-{notification.Kind}-{Guid.NewGuid():N}.txt");
         var body = $"DentalKeep backup notification{Environment.NewLine}Kind: {notification.Kind}{Environment.NewLine}"
                  + $"Backup: {notification.BackupRecordId?.ToString("N") ?? "n/a"}{Environment.NewLine}"
                  + $"Time (UTC): {DateTimeOffset.UtcNow:O}{Environment.NewLine}{Environment.NewLine}{notification.Message}{Environment.NewLine}";

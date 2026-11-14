@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Alveara.Api.Architecture.Time;
@@ -43,7 +44,7 @@ public class CompletedProceduresReportService(AlveraDbContext db, IPracticeClock
 
             var byDay = rows.GroupBy(r => DateOnly.FromDateTime(clock.ToPracticeLocal(r.PerformedAtUtc).DateTime)).ToDictionary(g => g.Key, g => g.Count());
             var days = new List<ProcedureDayRow>(filter.Days);
-            for (var day = filter.From; day <= filter.To; day = day.AddDays(1)) days.Add(new ProcedureDayRow(day.ToString("yyyy-MM-dd"), byDay.GetValueOrDefault(day)));
+            for (var day = filter.From; day <= filter.To; day = day.AddDays(1)) days.Add(new ProcedureDayRow(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), byDay.GetValueOrDefault(day)));
             var providers = providerIds.Select(id => new ProcedureProviderRow(id, names.GetValueOrDefault(id, "Unknown provider"), rows.Count(r => r.ProviderProfileId == id), rows.Where(r => r.ProviderProfileId == id).Sum(r => r.EstimatedFee)))
                 .OrderBy(p => p.ProviderName, StringComparer.OrdinalIgnoreCase).ThenBy(p => p.ProviderProfileId).ToList();
             var codes = rows.GroupBy(r => (r.CodeSystem, r.Code)).Select(g => new ProcedureCodeRow(g.Key.CodeSystem, g.Key.Code, g.First().Description, g.Count(), g.Sum(r => r.EstimatedFee)))

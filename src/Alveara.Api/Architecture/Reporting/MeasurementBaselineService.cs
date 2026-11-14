@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Alveara.Api.Architecture.Auditing;
@@ -53,7 +54,7 @@ public class MeasurementBaselineService(AlveraDbContext db, ReportFilterResolver
             Metrics = [.. values.Select(v => new ReportBaselineMetric { Id = Guid.NewGuid(), MetricKey = v.Key, DefinitionVersion = v.DefinitionVersion, NumeratorCount = v.NumeratorCount, DenominatorCount = v.DenominatorCount, Rate = v.Rate })],
         };
         db.ReportBaselines.Add(baseline);
-        AuditService.Record(db, AuditEventTypes.ReportBaselineSet, nameof(ReportBaseline), baseline.Id, actor, $"Report baseline set for {filter.From:yyyy-MM-dd} to {filter.To:yyyy-MM-dd}: {baseline.Metrics.Count} metric(s) stored.", null, baseline.Id);
+        AuditService.Record(db, AuditEventTypes.ReportBaselineSet, nameof(ReportBaseline), baseline.Id, actor, string.Create(CultureInfo.InvariantCulture, $"Report baseline set for {filter.From:yyyy-MM-dd} to {filter.To:yyyy-MM-dd}: {baseline.Metrics.Count} metric(s) stored."), null, baseline.Id);
         try
         {
             await db.SaveChangesAsync(ct);
@@ -88,6 +89,6 @@ public class MeasurementBaselineService(AlveraDbContext db, ReportFilterResolver
             : throw new ReportException("key_reused", "That Idempotency-Key was used for a different baseline.", 409);
 
     internal static BaselineView View(ReportBaseline b) =>
-        new(b.Id, b.Name, b.PeriodFrom.ToString("yyyy-MM-dd"), b.PeriodTo.ToString("yyyy-MM-dd"), b.TimeZoneId, b.AsOfUtc, b.SetAtUtc, b.SetByUserId,
+        new(b.Id, b.Name, b.PeriodFrom.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), b.PeriodTo.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), b.TimeZoneId, b.AsOfUtc, b.SetAtUtc, b.SetByUserId,
             [.. b.Metrics.OrderBy(m => m.MetricKey, StringComparer.Ordinal).Select(m => new BaselineMetricView(m.MetricKey, m.DefinitionVersion, m.NumeratorCount, m.DenominatorCount, m.Rate))]);
 }

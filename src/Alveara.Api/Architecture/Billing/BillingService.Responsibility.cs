@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Auditing;
 using Alveara.Api.Architecture.Clinical;
@@ -74,7 +75,7 @@ public partial class BillingService
             {
                 sequence = last.Sequence + 1;
                 if (last.ResponsiblePatientId == responsible!.Id) return await GetResponsibilityAsync(patientId, ct);                    // already the responsible party: nothing to record
-                if (from < last.EffectiveFrom) throw BillingRules.Invalid(new Dictionary<string, string> { ["effectiveFrom"] = $"The date cannot be before the one it replaces ({last.EffectiveFrom:yyyy-MM-dd})." });
+                if (from < last.EffectiveFrom) throw BillingRules.Invalid(new Dictionary<string, string> { ["effectiveFrom"] = string.Create(CultureInfo.InvariantCulture, $"The date cannot be before the one it replaces ({last.EffectiveFrom:yyyy-MM-dd}).") });
             }
             Touch(account, BillingRules.ParseVersion(input.RowVersion), now);
         }

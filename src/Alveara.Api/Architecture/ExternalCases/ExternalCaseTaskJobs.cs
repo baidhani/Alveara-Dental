@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.BackgroundWork;
@@ -43,14 +44,14 @@ public class ExternalCaseTaskScheduler(AlveraDbContext db, IBackgroundJobQueue q
         {
             var key = FollowUpRules.ReferralSourceKey(r.Id, r.DueOn);
             if (have.Contains(key)) continue;
-            await queue.EnqueueAsync(key, CreateJobType, JsonSerializer.Serialize(new ExternalCaseTaskJobPayload(ExternalCaseKinds.Referral, r.Id, r.DueOn.ToString("yyyy-MM-dd"))), ct);
+            await queue.EnqueueAsync(key, CreateJobType, JsonSerializer.Serialize(new ExternalCaseTaskJobPayload(ExternalCaseKinds.Referral, r.Id, r.DueOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))), ct);
             enqueued++;
         }
         foreach (var l in labs)
         {
             var key = FollowUpRules.LabSourceKey(l.Id, l.DueOn);
             if (have.Contains(key)) continue;
-            await queue.EnqueueAsync(key, CreateJobType, JsonSerializer.Serialize(new ExternalCaseTaskJobPayload(ExternalCaseKinds.Lab, l.Id, l.DueOn.ToString("yyyy-MM-dd"))), ct);
+            await queue.EnqueueAsync(key, CreateJobType, JsonSerializer.Serialize(new ExternalCaseTaskJobPayload(ExternalCaseKinds.Lab, l.Id, l.DueOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture))), ct);
             enqueued++;
         }
 
@@ -100,7 +101,7 @@ public sealed class ExternalCaseTaskJobHandler(IPracticeClock clock) : IBackgrou
     public async Task ExecuteAsync(BackgroundJob job, AlveraDbContext db, CancellationToken ct)
     {
         var payload = JsonSerializer.Deserialize<ExternalCaseTaskJobPayload>(job.PayloadJson ?? throw new InvalidOperationException("A case task job carries its case and due date."))!;
-        var dueOn = DateOnly.ParseExact(payload.DueOn, "yyyy-MM-dd");
+        var dueOn = DateOnly.ParseExact(payload.DueOn, "yyyy-MM-dd", CultureInfo.InvariantCulture);
         var lab = payload.Kind == ExternalCaseKinds.Lab;
         var key = lab ? FollowUpRules.LabSourceKey(payload.CaseId, dueOn) : FollowUpRules.ReferralSourceKey(payload.CaseId, dueOn);
         if (await db.FollowUpTasks.AsNoTracking().AnyAsync(t => t.SourceKey == key, ct)) return;      // already made (an earlier attempt committed it)
@@ -113,7 +114,7 @@ public sealed class ExternalCaseTaskJobHandler(IPracticeClock clock) : IBackgrou
         var title = Trim($"{(lab ? "Lab case due" : "Referral to follow up")}: {info.Party}");
         var priority = dueOn < today ? FollowUpPriorities.High : FollowUpPriorities.Normal;
         SystemTaskWriter.Create(db, lab ? FollowUpKinds.LabCaseDue : FollowUpKinds.ReferralFollowUp, key, info.PatientId, title, ExternalCaseRules.TaskDueAt(dueOn, clock), priority, null, clock.UtcNow,
-            $"{(lab ? "Lab case" : "Referral")} {payload.CaseId:N} due {dueOn:yyyy-MM-dd}", lab ? null : payload.CaseId, lab ? payload.CaseId : null);
+            string.Create(CultureInfo.InvariantCulture, $"{(lab ? "Lab case" : "Referral")} {payload.CaseId:N} due {dueOn:yyyy-MM-dd}"), lab ? null : payload.CaseId, lab ? payload.CaseId : null);
     }
 
     private static string Trim(string s) => s.Length <= FollowUpRules.TitleMaxLength ? s : s[..(FollowUpRules.TitleMaxLength - 1)] + "…";

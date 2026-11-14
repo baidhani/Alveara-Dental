@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -153,7 +154,7 @@ public partial class ProcedureCatalogService(AlveraDbContext db, IPracticeClock 
         if (before.Scope != after.Scope || before.Dentition != after.Dentition) changed.Add("where it applies");
         if (before.SourceName != after.SourceName || before.SourceVersion != after.SourceVersion) changed.Add("source");
         if (before.ValidThrough != after.ValidThrough) changed.Add("last valid date");
-        if (before.EffectiveFrom != after.EffectiveFrom) changed.Add($"start date {after.EffectiveFrom:yyyy-MM-dd}");
+        if (before.EffectiveFrom != after.EffectiveFrom) changed.Add(string.Create(CultureInfo.InvariantCulture, $"start date {after.EffectiveFrom:yyyy-MM-dd}"));
         return changed.Count == 0 ? "start date" : string.Join(", ", changed);
     }
 

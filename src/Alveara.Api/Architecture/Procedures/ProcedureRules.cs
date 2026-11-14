@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Alveara.Api.Architecture.Procedures;
@@ -89,9 +90,9 @@ public static class ProcedureRules
         if (system == ProcedureCodeSystems.Local && (sourceName is not null || sourceVersion is not null)) errors["sourceName"] = "A local code has no external source; leave the source empty or choose another code system.";
 
         var effective = input.EffectiveFrom ?? (earliestEffective is { } e && e > today ? e : today);
-        if (effective < EarliestDate) errors["effectiveFrom"] = $"The start date cannot be before {EarliestDate:yyyy-MM-dd}.";
+        if (effective < EarliestDate) errors["effectiveFrom"] = string.Create(CultureInfo.InvariantCulture, $"The start date cannot be before {EarliestDate:yyyy-MM-dd}.");
         else if (effective > today.AddYears(FutureYearsMax)) errors["effectiveFrom"] = $"The start date cannot be more than {FutureYearsMax} years ahead.";
-        else if (earliestEffective is { } earliest && effective < earliest) errors["effectiveFrom"] = $"A change takes effect on {earliest:yyyy-MM-dd} or later; it cannot reach back and change what was already in effect.";
+        else if (earliestEffective is { } earliest && effective < earliest) errors["effectiveFrom"] = string.Create(CultureInfo.InvariantCulture, $"A change takes effect on {earliest:yyyy-MM-dd} or later; it cannot reach back and change what was already in effect.");
         if (input.ValidThrough is { } through && through < effective) errors["validThrough"] = "The last valid date cannot be before the start date.";
 
         if (errors.Count > 0) throw Invalid(errors);

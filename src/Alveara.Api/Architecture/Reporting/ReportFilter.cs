@@ -71,7 +71,7 @@ public sealed class ReportFilterResolver(AlveraDbContext db, IPracticeClock cloc
         if (input.LocationId is { } location && !await db.PracticeLocations.AsNoTracking().AnyAsync(l => l.Id == location, ct))
             throw new ReportException("unknown_location", "The chosen location does not exist.", 400);
 
-        return new ReportFilter(from, to, days, StartOfDayUtc(from), StartOfDayUtc(to.AddDays(1)), providers, input.LocationId, clock.PracticeTimeZone.Id);
+        return new ReportFilter(from, to, days, clock.StartOfPracticeDayUtc(from), clock.StartOfPracticeDayUtc(to.AddDays(1)), providers, input.LocationId, clock.PracticeTimeZone.Id);
     }
 
     /// <summary>Parses <c>yyyy-MM-dd</c> only, within years 1900 to 2200 (so adding a day can never overflow).</summary>
@@ -82,13 +82,6 @@ public sealed class ReportFilterResolver(AlveraDbContext db, IPracticeClock cloc
         return date;
     }
 
-    /// <summary>The UTC instant at which the practice-local day <paramref name="date"/> begins.</summary>
-    public DateTimeOffset StartOfDayUtc(DateOnly date)
-    {
-        var zone = clock.PracticeTimeZone;
-        var local = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
-        while (zone.IsInvalidTime(local)) local = local.AddMinutes(30);      // midnight does not exist (a spring-forward gap): the day starts at the first instant that does
-        var offset = zone.IsAmbiguousTime(local) ? zone.GetAmbiguousTimeOffsets(local).Max() : zone.GetUtcOffset(local);   // the larger offset is the earlier instant
-        return new DateTimeOffset(local, offset).ToUniversalTime();
-    }
+    /// <summary>ALV-N021 A2 (T-3): the practice clock's one day-boundary rule (<see cref="IPracticeClock.StartOfPracticeDayUtc"/>), for the drill-down services that hold the resolver.</summary>
+    public DateTimeOffset StartOfDayUtc(DateOnly date) => clock.StartOfPracticeDayUtc(date);
 }

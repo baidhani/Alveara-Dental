@@ -1,3 +1,4 @@
+using System.Globalization;
 namespace Alveara.Api.Architecture.Patients;
 
 /// <summary>
@@ -68,7 +69,7 @@ public class Patient
     public byte[] RowVersion { get; set; } = [];
 
     public static string BuildDuplicateKey(string firstName, string lastName, DateOnly dateOfBirth) =>
-        $"{NormalizeName(lastName)}|{NormalizeName(firstName)}|{dateOfBirth:yyyy-MM-dd}";
+        string.Create(CultureInfo.InvariantCulture, $"{NormalizeName(lastName)}|{NormalizeName(firstName)}|{dateOfBirth:yyyy-MM-dd}");
 
     /// <summary>Trim, collapse inner whitespace, upper-case - so "  ann  LEE" and "Ann Lee" are the same person.</summary>
     public static string NormalizeName(string value) =>

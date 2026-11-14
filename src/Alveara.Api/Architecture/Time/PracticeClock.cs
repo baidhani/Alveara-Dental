@@ -1,3 +1,4 @@
+using System.Globalization;
 namespace Alveara.Api.Architecture.Time;
 
 /// <summary>
@@ -27,6 +28,28 @@ public interface IPracticeClock
     /// silent guess.
     /// </exception>
     DateTimeOffset FromPracticeLocal(DateTime localTime, LocalTimeAmbiguityPolicy ambiguityPolicy = LocalTimeAmbiguityPolicy.Reject);
+
+    /// <summary>
+    /// ALV-N021 A2 (T-3, decision 02): the UTC instant at which the practice-local calendar day <paramref name="date"/> begins. THE one rule for a practice
+    /// day's boundaries: a day is [StartOfPracticeDayUtc(d), StartOfPracticeDayUtc(d + 1)), half-open. Unlike <see cref="FromPracticeLocal"/> it never refuses:
+    /// when midnight does not exist (a clock change at midnight skips it) the day begins at the first local instant that does exist, and when midnight
+    /// happens twice (a fall-back at midnight) the day begins at the earlier of the two. Every caller (calendar, visit board, reports and their drill-downs)
+    /// uses this; none may convert a practice midnight itself. It is a default member so every clock (production, chain host, tests) shares the same rule.
+    /// </summary>
+    DateTimeOffset StartOfPracticeDayUtc(DateOnly date) => PracticeDayBoundary.StartUtc(PracticeTimeZone, date);
+}
+
+/// <summary>ALV-N021 A2 (T-3): the arithmetic behind <see cref="IPracticeClock.StartOfPracticeDayUtc"/>, kept pure so it is tested on any zone.</summary>
+public static class PracticeDayBoundary
+{
+    public static DateTimeOffset StartUtc(TimeZoneInfo zone, DateOnly date)
+    {
+        var local = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified);
+        var minute = 0;
+        while (zone.IsInvalidTime(local) && minute < 24 * 60) { local = local.AddMinutes(1); minute++; }   // midnight skipped: the first minute that exists
+        var offset = zone.IsAmbiguousTime(local) ? zone.GetAmbiguousTimeOffsets(local).Max() : zone.GetUtcOffset(local);   // repeated: the larger offset is the earlier instant
+        return new DateTimeOffset(local, offset).ToUniversalTime();
+    }
 }
 
 /// <summary>
@@ -72,7 +95,7 @@ public sealed class PracticeClock : IPracticeClock
         if (PracticeTimeZone.IsInvalidTime(unspecified))
         {
             throw new LocalTimeConversionException(
-                $"{localTime:yyyy-MM-dd HH:mm} does not exist in {PracticeTimeZone.Id} (DST spring-forward gap). " +
+                string.Create(CultureInfo.InvariantCulture, $"{localTime:yyyy-MM-dd HH:mm} does not exist in {PracticeTimeZone.Id} (DST spring-forward gap). ") +
                 "Ask the user to pick a valid time.");
         }
 
@@ -84,7 +107,7 @@ public sealed class PracticeClock : IPracticeClock
                 LocalTimeAmbiguityPolicy.EarlierInstant => offsets.Max(), // larger UTC offset = earlier UTC instant
                 LocalTimeAmbiguityPolicy.LaterInstant => offsets.Min(),
                 _ => throw new LocalTimeConversionException(
-                    $"{localTime:yyyy-MM-dd HH:mm} is ambiguous in {PracticeTimeZone.Id} (DST fall-back overlap: " +
+                    string.Create(CultureInfo.InvariantCulture, $"{localTime:yyyy-MM-dd HH:mm} is ambiguous in {PracticeTimeZone.Id} (DST fall-back overlap: ") +
                     "occurs twice). Ask the user to disambiguate rather than guessing."),
             };
             return new DateTimeOffset(unspecified, chosenOffset);

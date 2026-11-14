@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Data;
 
@@ -75,7 +76,7 @@ public class PatientDuplicateScanner(AlveraDbContext db)
         var pairs = new List<DuplicatePair>();
         foreach (var group in rows.GroupBy(r => r.DateOfBirth))
         {
-            var members = group.Take(MaxPerBirthDate).Select(r => new PatientBrief(r.Id, r.FirstName, r.MiddleName, r.LastName, r.DateOfBirth.ToString("yyyy-MM-dd"), r.Phone, r.Email, r.City, r.State, r.IsActive, r.CreatedAtUtc, r.HouseholdId)).ToList();
+            var members = group.Take(MaxPerBirthDate).Select(r => new PatientBrief(r.Id, r.FirstName, r.MiddleName, r.LastName, r.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), r.Phone, r.Email, r.City, r.State, r.IsActive, r.CreatedAtUtc, r.HouseholdId)).ToList();
             for (var i = 0; i < members.Count; i++)
                 for (var j = i + 1; j < members.Count; j++)
                 {

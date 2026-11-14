@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Time;
@@ -46,7 +47,7 @@ public class SchedulingConfiguration(AlveraDbContext db, IPracticeClock clock)
             providers.Select(p => new SchedulableProvider(
                 p.Id, p.StaffProfile!.DisplayName, p.Specialty,
                 availability[p.Id].OrderBy(a => a.DayOfWeek).ThenBy(a => a.StartLocal)
-                    .Select(a => new AvailabilityWindow(a.DayOfWeek, a.StartLocal.ToString("HH:mm"), a.EndLocal.ToString("HH:mm"))).ToList())).ToList(),
+                    .Select(a => new AvailabilityWindow(a.DayOfWeek, a.StartLocal.ToString("HH:mm", CultureInfo.InvariantCulture), a.EndLocal.ToString("HH:mm", CultureInfo.InvariantCulture))).ToList())).ToList(),
             operatories.Select(o => new SchedulableOperatory(o.Id, o.Name)).ToList(),
             types.Select(t => new SchedulableAppointmentType(t.Id, t.Name, t.DefaultDurationMinutes)).ToList());
     }

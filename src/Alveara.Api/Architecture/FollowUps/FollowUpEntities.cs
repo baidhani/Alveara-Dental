@@ -1,3 +1,4 @@
+using System.Globalization;
 namespace Alveara.Api.Architecture.FollowUps;
 
 /// <summary>STORY-009: the states of a follow-up task. An open task is the only one that can change; completed and cancelled are final (the database refuses any change afterwards).</summary>
@@ -77,11 +78,11 @@ public static class FollowUpRules
 {
     /// <summary>The longest key that makes a system task unique (see <see cref="FollowUpTask.SourceKey"/>).</summary>
     public const int SourceKeyMaxLength = 100;
-    public static string RecallSourceKey(Guid patientId, DateOnly dueDate) => $"recall:{patientId:N}:{dueDate:yyyyMMdd}";
+    public static string RecallSourceKey(Guid patientId, DateOnly dueDate) => string.Create(CultureInfo.InvariantCulture, $"recall:{patientId:N}:{dueDate:yyyyMMdd}");
     public static string UnscheduledSourceKey(Guid planItemId, int stateSequence) => $"unscheduled:{planItemId:N}:{stateSequence}";
     /// <summary>ALV-009-C02: one chase task per referral or lab case and due date (a changed due date is a new chase).</summary>
-    public static string ReferralSourceKey(Guid caseId, DateOnly dueOn) => $"referral:{caseId:N}:{dueOn:yyyyMMdd}";
-    public static string LabSourceKey(Guid caseId, DateOnly dueOn) => $"lab:{caseId:N}:{dueOn:yyyyMMdd}";
+    public static string ReferralSourceKey(Guid caseId, DateOnly dueOn) => string.Create(CultureInfo.InvariantCulture, $"referral:{caseId:N}:{dueOn:yyyyMMdd}");
+    public static string LabSourceKey(Guid caseId, DateOnly dueOn) => string.Create(CultureInfo.InvariantCulture, $"lab:{caseId:N}:{dueOn:yyyyMMdd}");
     public const int TitleMaxLength = 120;
     public const int NoteMaxLength = 500;
     public const int DetailMaxLength = 200;

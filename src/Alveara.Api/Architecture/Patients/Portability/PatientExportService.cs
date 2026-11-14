@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Auditing;
@@ -29,7 +30,7 @@ public class PatientExportService(AlveraDbContext db, IPracticeClock clock)
             clock.UtcNow.UtcDateTime.ToString(PatientExportFormat.TimestampFormat),
             new PatientExportSource(PatientExportFormat.SystemName, patient.Id),
             new PatientExportPatient(
-                patient.FirstName, patient.MiddleName, patient.LastName, patient.DateOfBirth.ToString("yyyy-MM-dd"), patient.Sex,
+                patient.FirstName, patient.MiddleName, patient.LastName, patient.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), patient.Sex,
                 patient.Phone, patient.Email, patient.AddressLine1, patient.AddressLine2, patient.City, patient.State, patient.PostalCode));
         var content = JsonSerializer.SerializeToUtf8Bytes(document, PatientExportFormat.JsonOptions);
 

@@ -77,8 +77,8 @@ public class AppointmentsController(AppointmentScheduler scheduler, AppointmentM
             return BadRequest(new { error = "invalid_range", message = $"The range must be 1 to {MaxRangeDays} days, ending on or after it starts." });
         try
         {
-            var fromUtc = clock.FromPracticeLocal(fromDay.ToDateTime(TimeOnly.MinValue));
-            var toUtc = clock.FromPracticeLocal(toDay.AddDays(1).ToDateTime(TimeOnly.MinValue));
+            var fromUtc = clock.StartOfPracticeDayUtc(fromDay);         // ALV-N021 A2 (T-3): the shared rule; a midnight clock change no longer refuses the range
+            var toUtc = clock.StartOfPracticeDayUtc(toDay.AddDays(1));
             // includeAll: the calendar also wants cancelled and no-show appointments (shown distinctly); the plain list is what is still booked
             return Ok(includeAll ? await scheduler.CalendarAsync(fromUtc, toUtc, providerId, operatoryId, ct) : await scheduler.ListAsync(fromUtc, toUtc, providerId, operatoryId, ct));
         }

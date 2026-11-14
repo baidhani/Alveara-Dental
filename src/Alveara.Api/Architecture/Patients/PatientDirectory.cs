@@ -89,7 +89,7 @@ public class PatientDirectory(AlveraDbContext db, IPracticeClock clock)
     }
 
     private PatientSummary ToSummary(Patient p) =>
-        new(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd"), AgeOn(p.DateOfBirth), p.Sex, p.Phone, p.City, p.State, p.IsActive);
+        new(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), AgeOn(p.DateOfBirth), p.Sex, p.Phone, p.City, p.State, p.IsActive);
 
     public static string DisplayName(Patient p) => $"{p.FirstName} {p.LastName}";
 

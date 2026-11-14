@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Time;
 using Alveara.Api.Data;
@@ -30,7 +31,7 @@ public class PatientEditService(AlveraDbContext db, IPracticeClock clock)
         Track("firstName", patient.FirstName, clean.FirstName); patient.FirstName = clean.FirstName;
         Track("middleName", patient.MiddleName, clean.MiddleName); patient.MiddleName = clean.MiddleName;
         Track("lastName", patient.LastName, clean.LastName); patient.LastName = clean.LastName;
-        Track("dateOfBirth", patient.DateOfBirth.ToString("yyyy-MM-dd"), clean.DateOfBirth.ToString("yyyy-MM-dd")); patient.DateOfBirth = clean.DateOfBirth;
+        Track("dateOfBirth", patient.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), clean.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)); patient.DateOfBirth = clean.DateOfBirth;
         Track("sex", patient.Sex, clean.Sex); patient.Sex = clean.Sex;
         Track("phone", patient.Phone, clean.Phone); patient.Phone = clean.Phone;
         Track("email", patient.Email, clean.Email); patient.Email = clean.Email;

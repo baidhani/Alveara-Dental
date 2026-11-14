@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Alveara.Api.Architecture.Scheduling;
@@ -44,7 +45,7 @@ public class ScheduleReportService(AlveraDbContext db, IPracticeClock clock, IOp
             var days = new List<ScheduleDayRow>(filter.Days);
             var byDay = rows.GroupBy(r => DateOnly.FromDateTime(clock.ToPracticeLocal(r.StartUtc).DateTime)).ToDictionary(g => g.Key, g => Count(g.Select(x => (x.Status, x.DurationMinutes))));
             for (var day = filter.From; day <= filter.To; day = day.AddDays(1))
-                days.Add(new ScheduleDayRow(day.ToString("yyyy-MM-dd"), byDay.TryGetValue(day, out var counts) ? counts : Count([])));
+                days.Add(new ScheduleDayRow(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), byDay.TryGetValue(day, out var counts) ? counts : Count([])));
 
             var providers = providerIds
                 .Select(id => new ScheduleProviderRow(id, names.GetValueOrDefault(id, "Unknown provider"), Count(rows.Where(r => r.ProviderProfileId == id).Select(x => (x.Status, x.DurationMinutes)))))

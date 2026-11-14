@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -262,7 +263,7 @@ public class ConfigurationController(
 
     // ---------- Availability + blocked time ----------
 
-    private static object WindowDto(ProviderWeeklyAvailability a) => new { dayOfWeek = (int)a.DayOfWeek, startLocal = a.StartLocal.ToString("HH:mm"), endLocal = a.EndLocal.ToString("HH:mm") };
+    private static object WindowDto(ProviderWeeklyAvailability a) => new { dayOfWeek = (int)a.DayOfWeek, startLocal = a.StartLocal.ToString("HH:mm", CultureInfo.InvariantCulture), endLocal = a.EndLocal.ToString("HH:mm", CultureInfo.InvariantCulture) };
 
     private static object ScheduleDto(ProviderAvailabilitySchedule s) => new { revision = s.Revision, windows = s.Windows.Select(WindowDto) };
 
@@ -280,8 +281,8 @@ public class ConfigurationController(
     private object BlockedDto(ProviderBlockedTime b, IPracticeClock clock) => new
     {
         b.Id, b.StartUtc, b.EndUtc, b.Reason,
-        startLocal = clock.ToPracticeLocal(b.StartUtc).ToString("yyyy-MM-dd'T'HH:mm"),
-        endLocal = clock.ToPracticeLocal(b.EndUtc).ToString("yyyy-MM-dd'T'HH:mm"),
+        startLocal = clock.ToPracticeLocal(b.StartUtc).ToString("yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture),
+        endLocal = clock.ToPracticeLocal(b.EndUtc).ToString("yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture),
     };
 
     [HttpGet("providers/{id:guid}/blocked-time")]

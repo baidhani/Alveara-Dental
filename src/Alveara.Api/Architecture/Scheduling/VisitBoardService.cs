@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Forms;
 using Alveara.Api.Architecture.Safety;
@@ -35,8 +36,8 @@ public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckIn
 
     public async Task<VisitBoard> BoardAsync(DateOnly day, bool includeReadiness, CancellationToken ct, bool includeSafety = false)
     {
-        var fromUtc = clock.FromPracticeLocal(day.ToDateTime(TimeOnly.MinValue));
-        var toUtc = clock.FromPracticeLocal(day.AddDays(1).ToDateTime(TimeOnly.MinValue));
+        var fromUtc = clock.StartOfPracticeDayUtc(day);            // ALV-N021 A2 (T-3): the shared rule; a midnight clock change no longer refuses the day
+        var toUtc = clock.StartOfPracticeDayUtc(day.AddDays(1));
 
         var ids = await db.Appointments.AsNoTracking().Where(a => a.StartUtc >= fromUtc && a.StartUtc < toUtc)
             .OrderBy(a => a.StartUtc).ThenBy(a => a.Id).Select(a => a.Id).Take(MaxCards).ToListAsync(ct);
@@ -61,6 +62,6 @@ public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckIn
 
         var cards = views.Select(v => new VisitCard(v.View, cues.TryGetValue(v.View.PatientId, out var r) && v.View.Status == AppointmentStatuses.Scheduled && ReadinessStates.Contains(v.View.FlowState) ? r : null, v.Carried,
             indicators.TryGetValue(v.View.PatientId, out var indicator) ? indicator : null)).ToList();
-        return new VisitBoard(day.ToString("yyyy-MM-dd"), clock.UtcNow, VisitStates.InOrder, cards);
+        return new VisitBoard(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), clock.UtcNow, VisitStates.InOrder, cards);
     }
 }
