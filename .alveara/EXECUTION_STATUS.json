@@ -115,12 +115,13 @@
       "dependencies": ["ALV-N020"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "A1-R01",
       "acceptance": {"total": 5, "passed": 0},
-      "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
+      "tests": {"status": "passed", "summary": "Attempt A1-R01 (PKG-04 date/time integrity only; A2 not started) on implementation 807014c05dc93896a69b022bca5fa2032b584081 (2026-11-14): template-version group 69 passed (v1 statements and receipts rebuild byte for byte from a baseline captured on the unchanged builder; v2 practice-day aging boundaries, DST, year end, zones ahead/behind UTC, frozen basis, stale/replay/unsupported/export cases, live agreement; aging negative controls in the suite); date-fix server group 65 (64 + 1 setup fix, class re-run 5/5); client 23/23 then 12/12; tsc exit 0; F-030 class 18/18; negative controls F-107, F-118, perio label, F-184 each fail and restore byte-identical. Findings: F-107, F-118, F-184 CONFIRMED and fixed, F-218 DUPLICATE, F-100 and Q-5an NOT_REPRODUCED, F-030 verified correct, F-133 WITHDRAWN; one new wrong-day site (date-of-birth limit) fixed. fullRegression DEFERRED_TO_ALV-N028; not release-certified."}, "demo": "not_applicable_date_time_tests", "parentRegression": "n/a", "implementationCommit": "807014c05dc93896a69b022bca5fa2032b584081", "evidenceCommit": null, "handoffPath": ".alveara/handoffs/ALV-N021/A1-R01.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null
+      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null,
+      "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
       "schemaVersion": "2",

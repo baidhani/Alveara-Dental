@@ -1,0 +1,52 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/components/dateOnly.test.tsx (12 tests | 3 failed) 68ms
+   ❯ prescription print (F-107) (4)
+     × prints the date of birth the header shows, in America/Chicago 31ms
+     × prints the date of birth the header shows, in Pacific/Honolulu 5ms
+     × prints the date of birth the header shows, in Pacific/Kiritimati 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/dateOnly.test.tsx > prescription print (F-107) > prints the date of birth the header shows, in America/Chicago
+ FAIL  src/components/dateOnly.test.tsx > prescription print (F-107) > prints the date of birth the header shows, in Pacific/Honolulu
+Error: [2mexpect([22m[31melement[39m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  (born 3/14/1985)[39m
+Received:
+[31m  For: Ann Lee (born 3/13/1985)Prescribed by: Dr. Dana on 11/3/2026[39m
+ ❯ src/components/dateOnly.test.tsx:64:46
+     62|     process.env.TZ = zone;
+     63|     render(<PrescriptionPrint content={content} />);
+     64|     expect(screen.getByText(/For: Ann Lee/)).toHaveTextContent(`(born …
+       |                                              ^
+     65|   });
+     66| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/components/dateOnly.test.tsx > prescription print (F-107) > prints the date of birth the header shows, in Pacific/Kiritimati
+Error: [2mexpect([22m[31melement[39m[2m).toHaveTextContent()[22m
+
+Expected element to have text content:
+[32m  (born 3/14/1985)[39m
+Received:
+[31m  For: Ann Lee (born 3/13/1985)Prescribed by: Dr. Dana on 11/4/2026[39m
+ ❯ src/components/dateOnly.test.tsx:64:46
+     62|     process.env.TZ = zone;
+     63|     render(<PrescriptionPrint content={content} />);
+     64|     expect(screen.getByText(/For: Ann Lee/)).toHaveTextContent(`(born …
+       |                                              ^
+     65|   });
+     66| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 9 passed (12)
+   Start at  08:50:42
+   Duration  1.72s (environment 69%, setup 18%, transform 7%, tests 4%, import 2%, worker 1%)
+

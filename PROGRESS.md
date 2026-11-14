@@ -2636,3 +2636,9 @@
   - What changed: ProcedureCatalogLifecycleTests gains the F-030 test (a new procedure's save instant comes back exact, UTC, seconds kept); client dateOnly.ts gains todayDateOnly() and PatientFieldsForm's date-of-birth max uses it instead of the UTC day from toISOString (new site, same kind as F-107, owner approved fixing in A1); dateOnly.test.tsx gains Chicago-evening and Kiritimati-morning cases with inline negative controls.
   - Verification: client vitest dateOnly 12/12 + tsc --noEmit exit 0 (12 s); ProcedureCatalogLifecycleTests 18/18 (1 min 22 s); negative controls on a18ce99, one class each, each file restored byte-identical (git hash-object): F-107 3 failed, F-118 1 failed, perio label 1 failed, F-184/F-218 1 failed (4 min 08 s). Total about 5 min 45 s; owner approved the run.
   - Notes: classification of 148 client matches in 93 files done read-only; only the DOB limit was a wrong-day site; nothing pushed.
+- [x] ALV-N021 A1-R01: record engineering handoff (Stage 1, focused proof)
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/handoffs/ALV-N021/A1-R01.md and A1-R01-evidence (finding records, A1-DECISION-01 contract checklist, client date-site classification, test results with durations, negative-control logs); EXECUTION_STATUS ALV-N021 record AWAITING_REVIEW attempt A1-R01 (implementation 807014c, evidenceCommit null, fullRegression DEFERRED_TO_ALV-N028); BUILD_STATE paragraph; regression ledger rows and section.
+  - Verification: documents only; EXECUTION_STATUS.json parses; diff limited to the ALV-N021 record; every cited test name checked against the source.
+  - Notes: raw console output exists only for the negative controls (disclosed); nothing pushed.

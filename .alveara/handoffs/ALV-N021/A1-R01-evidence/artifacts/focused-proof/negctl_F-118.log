@@ -1,0 +1,20 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Alveara.Api -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\bin\Debug\net10.0\Alveara.Api.dll
+  Alveara.Api.ChainHost -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll
+  Alveara.Api.Tests -> C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:28.05]     Alveara.Api.Tests.BillingTimelineAgingTests.A_charge_names_the_practice_day_its_procedure_was_performed_not_the_UTC_day [FAIL]
+  Failed Alveara.Api.Tests.BillingTimelineAgingTests.A_charge_names_the_practice_day_its_procedure_was_performed_not_the_UTC_day [910 ms]
+  Error Message:
+   Assert.Equal() Failure: Strings differ
+                                                  ↓ (pos 39)
+Expected: "Completed procedure performed 2026-11-15"
+Actual:   "Completed procedure performed 2026-11-16"
+                                                  ↑ (pos 39)
+  Stack Trace:
+     at Alveara.Api.Tests.BillingTimelineAgingTests.A_charge_names_the_practice_day_its_procedure_was_performed_not_the_UTC_day() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingTimelineAgingTests.cs:line 110
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:     4, Skipped:     0, Total:     5, Duration: 24 s - Alveara.Api.Tests.dll (net10.0)

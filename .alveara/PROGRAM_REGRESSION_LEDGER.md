@@ -29,6 +29,9 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Accumulated chain stage 0 + stage 1 on the new sign-in page | ALV-N020-C01 | R01: 20 of 20, 24 PASS on `94bcee0`; not re-run after the additive bootstrap-response commit `65c234b` |
 | Migration `20261112210440_AddLoginPresentation`: upgrade from the post-ALV-N020 schema on a copy of a populated database; triggers 51276-51279; the down path refused once a grant or added image exists; a real backup and restore of the `loginBackgrounds` asset class with an added image | ALV-N020-C01 | focused only: schema tests on a clone, backup/restore drill on a test database |
 | SkiaSharp 4.156.0 native assets on the deployment targets (Windows installer, ALV-N013) | ALV-N020-C01 | dependency audit clean; only the development machine exercised |
+| Full backend suite: also the new ALV-N021 A1 classes `FinancialDocumentTemplateVersionTests`, `BillingDocumentTemplateVersionServiceTests` and the added cases in `BillingDocumentBuilderTests`, `BillingDocumentServiceTests`, `BillingTimelineAgingTests`, `DiagnosisStructureServiceTests`, `TreatmentPlanStateServiceTests`, `PrescriptionServiceTests`, `ProcedureCatalogLifecycleTests` | ALV-N021 | focused only (A1-R01 runs 2, 3, 5); never in a broad run |
+| Client vitest/build/lint/`tsc`: `dateOnly` (new), `PatientFieldsForm`, `PrintPreview`, `documentText`, `TreatmentPlanItemStateLine`, `treatmentPlansApi` and every consumer of `documentText.formatDate` | ALV-N021 | focused only: dateOnly 12/12, treatment-plan answers; tsc exit 0; lint not run |
+| Real-backend walkthroughs that print a prescription, show billing documents/timeline or treatment-plan answers; statement reprint of documents issued before the upgrade on a populated database | ALV-N021 | not run |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -60,6 +63,13 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Implementation SHA (R01):** `7ed42a5082f24249654c5a4523f8f0a0b74755fd`. Presentation only (CSS, one image import, the owner-supplied static SVG logo replacing the PNG, two test files); no server, schema, dependency or shared-component change.
 - **Focused proof (R01):** `.alveara/handoffs/ALV-N020-C02/R01-evidence/TEST_RESULTS.md`.
 - **Deferred to ALV-N028:** the ALV-N020-C02 row in the table above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
+## ALV-N021 (item 58): PKG-04/PKG-05 - attempt A1 (PKG-04 date/time integrity)
+
+- **Implementation SHA (A1-R01):** `807014c05dc93896a69b022bca5fa2032b584081` (base `76bd422`). Statement template version 2 (practice-day aging, frozen basis in the existing envelope, version dispatch; no migration), date-only formatting (F-107, DOB limit), practice-day labels (F-118, perio), answer time apart from later changes (F-184/F-218).
+- **Focused proof (A1-R01):** `.alveara/handoffs/ALV-N021/A1-R01-evidence/TEST_RESULTS.md`.
+- **Deferred to ALV-N028:** the ALV-N021 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**
 
 - **Not release-certified.**
