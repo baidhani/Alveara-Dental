@@ -2588,3 +2588,9 @@
   - What changed: product owner ticked "Approved as written" and signed/dated the approval line of docs/design/ALV-N021_OWNER_DECISION_RECORD.md (owner's own edit); R03 package rebuilt with the signed record.
   - Verification: user confirmed; git diff shows only line 5 changed.
   - Notes: OD-09 kept as default Dentist (owner: grantable, can be extended to hygienists later); nothing pushed.
+- [x] ALV-N021 briefing revision 4 (document only) answering BRIEFING-R03
+  - Date: 2026-11-13
+  - Session: CC-20261109-8w3d
+  - What changed: stored BRIEFING-R03.md unchanged; added owner addendum 4 (completion permission grantable to hygienists; nothing starts until the whole briefing is approved); brief revision 4 merges A3 into A2 as one atomic change, limits CompleteOwnStartedVisit to linked Dentist/Hygienist who started treatment, refuses blocked time over active visits and check-in of flagged appointments; decision record revision 2 (OD-09, OD-17, OD-18, attempt column).
+  - Verification: user confirmed; owner signed decision record revision 2 and addendum 4; no code changed, no test run.
+  - Notes: A1 approved in R03 but held until the whole briefing is approved (owner); nothing pushed.
