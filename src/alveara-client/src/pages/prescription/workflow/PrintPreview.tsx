@@ -3,7 +3,9 @@ import { ApiError } from "../../../services/authApi";
 import { getPrint } from "../../../services/prescriptionWorkflowApi";
 import type { PrintContent } from "../../../services/prescriptionWorkflowApi";
 import { statusWords } from "./workflowRules";
+import { formatDateOnly } from "../../../components/dateOnly";
 
+/** An instant (when it was prescribed) shown as the viewer's calendar day. */
 const day = (iso: string) => new Date(iso).toLocaleDateString();
 
 /** The prescription as it prints: every line is the text the server built from the immutable record (nothing is worked out here), and a cancelled, discontinued or superseded prescription says so on its face. */
@@ -13,7 +15,7 @@ export function PrescriptionPrint({ content }: { content: PrintContent }) {
       {content.practice && <p className="alv-rx__practice"><strong>{content.practice.name}</strong>{content.practice.addressLine ? <><br />{content.practice.addressLine}</> : null}{content.practice.phone ? <><br />{content.practice.phone}</> : null}</p>}
       <h4>Prescription</h4>
       {content.status !== "Active" && <p className="alv-rx__status" role="note"><strong>{statusWords(content.status)}</strong></p>}
-      <p>For: {content.patientName} (born {day(content.patientDateOfBirth)})<br />Prescribed by: {content.prescriberName} on {day(content.prescribedAtUtc)}</p>
+      <p>For: {content.patientName} (born {formatDateOnly(content.patientDateOfBirth)})<br />Prescribed by: {content.prescriberName} on {day(content.prescribedAtUtc)}</p>
       <dl className="alv-rx__summary">
         <dt>Medication</dt><dd>{content.medication}</dd>
         <dt>Dose</dt><dd>{content.dose}, {content.frequency.toLowerCase()}</dd>

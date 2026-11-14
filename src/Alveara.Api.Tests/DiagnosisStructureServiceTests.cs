@@ -43,10 +43,10 @@ public class DiagnosisStructureServiceTests : SafetyTestBase
         return f.Id;
     }
 
-    private async Task<Guid> ChartAsync(Guid patient)
+    private async Task<Guid> ChartAsync(Guid patient, DateTimeOffset? recordedAt = null)
     {
         await using var db = Fixture.CreateContext();
-        var e = new PerioExam { Id = Guid.NewGuid(), PatientId = patient, IdempotencyKey = Guid.NewGuid().ToString("N"), RecordedAtUtc = new DateTimeOffset(2030, 2, 3, 9, 0, 0, TimeSpan.Zero), RecordedByUserId = S.Actor, ReadingCount = 1 };
+        var e = new PerioExam { Id = Guid.NewGuid(), PatientId = patient, IdempotencyKey = Guid.NewGuid().ToString("N"), RecordedAtUtc = recordedAt ?? new DateTimeOffset(2030, 2, 3, 9, 0, 0, TimeSpan.Zero), RecordedByUserId = S.Actor, ReadingCount = 1 };
         db.PerioExams.Add(e);
         await db.SaveChangesAsync();
         return e.Id;
@@ -240,6 +240,17 @@ public class DiagnosisStructureServiceTests : SafetyTestBase
     }
 
     // ---------- links to findings and periodontal charts ----------
+
+    [Fact]
+    public async Task A_linked_periodontal_chart_is_named_by_the_practice_day_it_was_recorded_not_the_UTC_day()
+    {
+        // ALV-N021 A1: 4 Feb 2030 02:00 UTC is 3 Feb 20:00 in the practice (America/Chicago); the label used to say 4 Feb
+        var d = await RecordAsync();
+        var chart = await ChartAsync(Ann, new DateTimeOffset(2030, 2, 4, 2, 0, 0, TimeSpan.Zero));
+        await LinkAsync(d, "PerioExam", chart);
+        Assert.Equal("Periodontal chart of 2030-02-03", (await GetAsync(d.Id)).Links!.Single().Summary);
+    }
+
 
     [Fact]
     public async Task A_diagnosis_is_linked_to_a_finding_and_a_periodontal_chart_of_the_same_patient_with_who_and_when_and_linking_twice_is_quiet()

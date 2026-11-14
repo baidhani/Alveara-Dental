@@ -114,7 +114,7 @@ public partial class DiagnosisService
         var names = await ClinicalNames.ResolveAsync(db, links.Select(l => l.CreatedByUserId), ct);
         string Summary(DiagnosisLink l) => l.LinkType == DiagnosisLinkTypes.Finding && findings.TryGetValue(l.TargetId, out var f)
             ? $"{f.Condition} on tooth {f.ToothKey}{(f.Surface is null ? "" : $", surface {f.Surface}")}"
-            : l.LinkType == DiagnosisLinkTypes.PerioExam && charts.TryGetValue(l.TargetId, out var c) ? $"Periodontal chart of {c.RecordedAtUtc:yyyy-MM-dd}" : "Linked record";
+            : l.LinkType == DiagnosisLinkTypes.PerioExam && charts.TryGetValue(l.TargetId, out var c) ? $"Periodontal chart of {clock.ToPracticeLocal(c.RecordedAtUtc):yyyy-MM-dd}" : "Linked record";
         return links.GroupBy(l => l.DiagnosisId).ToDictionary(g => g.Key,
             g => (IReadOnlyList<DiagnosisLinkView>)g.Select(l => new DiagnosisLinkView(l.LinkType, l.TargetId, Summary(l), ClinicalNames.Name(names, l.CreatedByUserId), l.CreatedAtUtc)).ToList());
     }

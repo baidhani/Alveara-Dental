@@ -47,6 +47,9 @@ export interface PlanItem {
   recordedByName: string | null;
   recordedAtUtc: string | null;
   decisionRevision: number | null;
+  /** ALV-N021 A1: who entered the current answer and when (recordedBy/recordedAt are the last change of any kind). Optional only so older test fixtures still type-check; the server always sends them. */
+  answerRecordedByName?: string | null;
+  answerRecordedAtUtc?: string | null;
 }
 
 export interface PlanPhase {

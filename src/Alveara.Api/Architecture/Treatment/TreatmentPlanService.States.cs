@@ -106,6 +106,21 @@ public partial class TreatmentPlanService
     private async Task<Dictionary<Guid, TreatmentPlanItemState>> CurrentStatesAsync(Guid planId, CancellationToken ct) =>
         (await db.TreatmentPlanItemStates.AsNoTracking().Where(s => s.PlanId == planId).ToListAsync(ct)).GroupBy(s => s.ItemId).ToDictionary(g => g.Key, g => g.OrderByDescending(s => s.Sequence).First());
 
+    /// <summary>
+    /// ALV-N021 A1 (F-184, F-218): the row in which the current answer was entered: the latest row whose acceptance differs from the row before it. This is exact, not a guess: giving the answer an item
+    /// already has writes no row (DecideItemAsync, DecidePlanAsync), so every answer changes the acceptance, while scheduling, unscheduling and completion append rows that keep it (Accepted). Null while
+    /// no answer has been given. Rows in sequence order.
+    /// </summary>
+    private static TreatmentPlanItemState? AnswerRow(IReadOnlyList<TreatmentPlanItemState> rows)
+    {
+        for (var i = rows.Count - 1; i >= 0; i--)
+        {
+            if (rows[i].Acceptance == ItemAcceptance.Pending) return null;
+            if (i == 0 || rows[i - 1].Acceptance != rows[i].Acceptance) return rows[i];
+        }
+        return null;
+    }
+
     private static string AcceptanceOf(TreatmentPlanItemState? s) => s?.Acceptance ?? ItemAcceptance.Pending;
     private static string SchedulingOf(TreatmentPlanItemState? s) => s?.Scheduling ?? ItemScheduling.Unscheduled;
     private static string CompletionOf(TreatmentPlanItemState? s) => s?.Completion ?? ItemCompletion.NotStarted;

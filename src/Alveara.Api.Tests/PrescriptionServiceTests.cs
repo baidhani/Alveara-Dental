@@ -64,6 +64,20 @@ public class PrescriptionServiceTests : SafetyTestBase
     }
 
     [Fact]
+    public async Task The_prescribed_time_is_the_clock_at_the_save_to_the_second_not_a_rounded_time()
+    {
+        // ALV-N021 A1 Q-5an (recorded NOT_REPRODUCED): "Prescribed ... 9:11:00 PM" had zero seconds; the time is the server clock at the save, never typed and never rounded
+        await NoKnownAllergiesAsync();
+        var now = DateTimeOffset.UtcNow.AddMinutes(1);
+        var at = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, 17, 123, TimeSpan.Zero);
+        var clock = new TestClock(at);
+        var saved = await WithDb(db => new PrescriptionService(db, clock, new SafetyContextService(db, clock)).RecordAsync(Ann, Entry(), S.Actor, default));
+        Assert.Equal(at, saved.Prescription.PrescribedAtUtc);
+        await using var db = Fixture.CreateContext();
+        Assert.Equal(at, (await db.Prescriptions.AsNoTracking().SingleAsync()).CreatedAtUtc);
+    }
+
+    [Fact]
     public async Task The_audit_entry_never_contains_the_medication_the_dose_or_an_allergy()
     {
         await RecordItemAsync(EncounterEntryKinds.Allergy, "Penicillin", "Hives", EncounterSeverities.Severe);

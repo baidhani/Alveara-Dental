@@ -92,6 +92,25 @@ public class BillingTimelineAgingTests : CompletionTestBase
     }
 
     [Fact]
+    public async Task A_charge_names_the_practice_day_its_procedure_was_performed_not_the_UTC_day()
+    {
+        // ALV-N021 A1 F-118: performed at 22:42 in the practice (America/Chicago) is already the next day in UTC; the timeline used to print the UTC day. The time is tomorrow evening, because the database
+        // refuses a performed time before the plan was created (and has no upper limit).
+        await CompletedAsync();
+        var chicago = TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
+        var tomorrow = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, chicago).Date.AddDays(1);
+        var evening = new DateTimeOffset(tomorrow.AddHours(22).AddMinutes(42), chicago.GetUtcOffset(tomorrow.AddHours(22).AddMinutes(42)));
+        Assert.NotEqual(evening.UtcDateTime.Date, tomorrow);                                                   // the UTC day really is different, so the old label would be wrong
+        CompletedProcedure procedure;
+        await using (var db = Fixture.CreateContext())
+            procedure = await (from p in db.CompletedProcedures.AsNoTracking() join e in db.BillingEntries.AsNoTracking() on p.PlanItemId equals e.PlanItemId where e.EntryNumber == 1 select p).SingleAsync();
+        await AddRowsAsync(AmendmentRow(procedure, 1, "evening", performed: evening.ToUniversalTime()));
+
+        var timeline = await Bill(s => s.GetTimelineAsync(Ann, default));
+        Assert.Equal($"Completed procedure performed {tomorrow:yyyy-MM-dd}", timeline.First(e => e.Type == "Charge" && e.Number == 1).Source);
+    }
+
+    [Fact]
     public async Task The_timeline_reads_the_history_in_order_and_names_the_procedure_behind_each_charge()
     {
         var (plan, _) = await CompletedAsync();

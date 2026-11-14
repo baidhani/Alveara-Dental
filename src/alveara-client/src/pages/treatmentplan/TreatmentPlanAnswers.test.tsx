@@ -14,13 +14,14 @@ import { TreatmentPlansPanel } from "./TreatmentPlansPanel";
  */
 const answered = {
   acceptance: "Accepted" as const, decidedByName: "Ann Alder (patient)", recordedByName: "Dr. Okafor", recordedAtUtc: "2030-01-03T10:00:00Z", decisionRevision: 2,
+  answerRecordedByName: "Dr. Okafor", answerRecordedAtUtc: "2030-01-03T10:00:00Z",
 };
 const mixed = () => plan({
   currentRevision: 2, acceptanceStatus: "Partial", activeItemCount: 4, estimateTotal: 260, acceptedEstimateTotal: 160,
   items: [
     item({ id: "it1", itemNumber: 1, ...answered }),
     item({ id: "it2", itemNumber: 2, procedureCode: "FILL-1", procedureDescription: "Filling", fee: 60, ...answered, scheduling: "Scheduled", plannedDate: "2030-05-20" }),
-    item({ id: "it3", itemNumber: 3, procedureCode: "CROWN-1", procedureDescription: "Crown", fee: 40, acceptance: "Declined", decisionReason: "Cannot afford it now", recordedByName: "Dr. Okafor", recordedAtUtc: "2030-01-03T10:05:00Z", decisionRevision: 2 }),
+    item({ id: "it3", itemNumber: 3, procedureCode: "CROWN-1", procedureDescription: "Crown", fee: 40, acceptance: "Declined", decisionReason: "Cannot afford it now", recordedByName: "Dr. Okafor", recordedAtUtc: "2030-01-03T10:05:00Z", decisionRevision: 2, answerRecordedByName: "Dr. Okafor", answerRecordedAtUtc: "2030-01-03T10:05:00Z" }),
     item({ id: "it4", itemNumber: 4, procedureCode: "POL-1", procedureDescription: "Polish", fee: 20 }),
   ],
 });
@@ -52,6 +53,22 @@ describe("where each procedure stands", () => {
     expect(within(row("POL-1")).getByText("Not yet answered")).toBeInTheDocument();
     expect(screen.getByText("Of that, accepted so far: $160.00")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Accept|Decline|Schedule|completed|Withdraw/ })).not.toBeInTheDocument();
+  });
+
+  it("ALV-N021 A1 (F-184, F-218): keeps when the answer was entered after a later scheduling, and shows the later change apart", async () => {
+    const enteredAt = "2030-01-03T10:00:00Z";
+    const changedAt = "2030-01-04T15:30:00Z";
+    stubApi({ plans: [plan({ items: [item({ id: "it1", itemNumber: 1, ...answered, scheduling: "Scheduled", plannedDate: "2030-05-20", recordedByName: "Fran Front", recordedAtUtc: changedAt })] })] });
+    await open(false);
+    const line = within(row("PERIO-1")).getByText(/Answer given by Ann Alder \(patient\)\./);
+    expect(line).toHaveTextContent(`Entered by Dr. Okafor on ${new Date(enteredAt).toLocaleString()} (plan revision 2).`);
+    expect(line).toHaveTextContent(`Last changed by Fran Front on ${new Date(changedAt).toLocaleString()}.`);
+  });
+
+  it("shows no separate last change while the answer is the latest change", async () => {
+    stubApi({ plans: [plan({ items: [item({ id: "it1", itemNumber: 1, ...answered })] })] });
+    await open(false);
+    expect(within(row("PERIO-1")).getByText(/Answer given by/)).not.toHaveTextContent("Last changed");
   });
 
   it("shows Completed and offers nothing more for a completed procedure, not even withdrawing it", async () => {

@@ -1,4 +1,5 @@
 /** Text helpers for the Documents tab. Display only: every rule is enforced by the server. */
+import { formatDateOnly } from "../../components/dateOnly";
 
 export function formatBytes(bytes: number): string {
   const trim = (n: number) => String(Math.round(n * 10) / 10);
@@ -8,10 +9,7 @@ export function formatBytes(bytes: number): string {
 }
 
 /** A date-only value from the server ("2030-03-09") shown in the viewer's own format, without letting the time zone move the day. */
-export function formatDate(isoDate: string): string {
-  const [y, m, d] = isoDate.slice(0, 10).split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString();
-}
+export const formatDate = (isoDate: string): string => formatDateOnly(isoDate);
 
 export const formatDateTime = (iso: string) => new Date(iso).toLocaleString();
 

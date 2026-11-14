@@ -35,7 +35,7 @@ public partial class BillingService
         foreach (var e in ledger.Entries)
         {
             var method = e.PaymentMethodId is Guid m && methods.TryGetValue(m, out var n) ? n : e.PaymentMethod;
-            string? source = e.Kind == BillingKinds.Charge && e.PlanItemId is not null ? $"Completed procedure performed {service[e.EntryNumber]:yyyy-MM-dd}" : null;
+            string? source = e.Kind == BillingKinds.Charge && e.PlanItemId is not null ? $"Completed procedure performed {clock.ToPracticeLocal(service[e.EntryNumber]):yyyy-MM-dd}" : null;
             var summary = e.Kind switch
             {
                 BillingKinds.Charge => $"Charge for {e.ProcedureCode} {e.ProcedureDescription}",

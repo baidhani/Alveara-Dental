@@ -33,7 +33,53 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
 
     private Task<int> StateRowsAsync() => WithDb(db => db.TreatmentPlanItemStates.CountAsync());
 
+    /// <summary>ALV-N021 A1 (F-100, Q-5an): an instant with seconds and milliseconds (a minute ahead of now, so every time rule still holds), to prove nothing rounds the save time.</summary>
+    private static DateTimeOffset OddInstant()
+    {
+        var now = DateTimeOffset.UtcNow.AddMinutes(1);
+        return new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, 17, 123, TimeSpan.Zero);
+    }
+
+    [Fact]
+    public async Task The_time_an_answer_is_entered_is_the_clock_at_the_save_to_the_second_not_a_rounded_or_default_time()
+    {
+        // ALV-N021 A1 F-100 (recorded NOT_REPRODUCED): "Entered by Dr. Dana on 11/3/2026, 8:00:00 AM" looked rounded; the time is the server clock at the save, with no user-entered time to round
+        var plan = await ThreeProcedurePlanAsync();
+        var at = OddInstant();
+        var item = (await WithDb(db => new TreatmentPlanService(db, new TestClock(at), CatalogFor(db)).DecideItemAsync(plan.Id, plan.Items[0].Id, "Accepted", null, null, plan.RowVersion, S.Actor, default))).Items[0];
+        Assert.Equal((at, at), (item.AnswerRecordedAtUtc, item.RecordedAtUtc));
+        Assert.Equal((17, 123), (item.AnswerRecordedAtUtc!.Value.Second, item.AnswerRecordedAtUtc.Value.Millisecond));
+    }
+
     // ---------- accepting and declining one procedure ----------
+
+    [Fact]
+    public async Task When_the_answer_was_entered_stays_put_through_scheduling_and_completion_and_moves_only_with_a_new_answer()
+    {
+        // ALV-N021 A1 (F-184, F-218): scheduling and unscheduling used to replace the "Entered ... on" time and name of the answer
+        var plan = await ThreeProcedurePlanAsync();
+        var accepted = (await Decide(plan, 0, "Accepted", by: "Ann Alder (patient)")).Items[0];
+        Assert.NotNull(accepted.AnswerRecordedAtUtc);
+        Assert.Equal((accepted.RecordedAtUtc, accepted.RecordedByName), (accepted.AnswerRecordedAtUtc, accepted.AnswerRecordedByName));   // the answer is the latest change
+
+        foreach (var step in new Func<Task<PlanView>>[] { () => Schedule(plan, 0, true, new DateOnly(2030, 5, 20)), () => Schedule(plan, 0, false), () => Schedule(plan, 0, true, new DateOnly(2030, 6, 1)) })
+        {
+            var item = (await step()).Items[0];
+            Assert.Equal((accepted.AnswerRecordedAtUtc, accepted.AnswerRecordedByName, 1), (item.AnswerRecordedAtUtc, item.AnswerRecordedByName, item.DecisionRevision));
+            Assert.NotEqual(item.AnswerRecordedAtUtc, item.RecordedAtUtc);                                                                      // the last change is shown apart
+        }
+
+        var declined = (await Decide(await Svc(s => s.GetAsync(plan.Id, default)), 0, "Declined", reason: "Cost", by: "Ann Alder (patient)")).Items[0];
+        Assert.Equal(declined.RecordedAtUtc, declined.AnswerRecordedAtUtc);                                                                     // a new answer moves it
+        Assert.NotEqual(accepted.AnswerRecordedAtUtc, declined.AnswerRecordedAtUtc);
+        var again = (await Decide(await Svc(s => s.GetAsync(plan.Id, default)), 0, "Accepted", by: "Ann Alder (patient)")).Items[0];
+        Assert.Equal(again.RecordedAtUtc, again.AnswerRecordedAtUtc);
+
+        var completed = (await Complete(plan, 0)).Items[0];
+        Assert.Equal(("Completed", again.AnswerRecordedAtUtc), (completed.Completion, completed.AnswerRecordedAtUtc));
+        Assert.Null((await Svc(s => s.GetAsync(plan.Id, default))).Items[1].AnswerRecordedAtUtc);                                                 // never answered
+    }
+
 
     [Fact]
     public async Task Accepting_records_who_entered_it_and_who_answered_the_revision_shown_and_a_history_and_audit_entry()

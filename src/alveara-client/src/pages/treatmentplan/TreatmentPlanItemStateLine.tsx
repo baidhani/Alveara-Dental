@@ -17,8 +17,10 @@ export function TreatmentPlanItemStateLine({ item }: { item: PlanItem }) {
       {answered && (
         <p className="alv-clinical__meta">
           {item.decidedByName ? `Answer given by ${item.decidedByName}. ` : ""}
-          Entered{item.recordedByName ? ` by ${item.recordedByName}` : ""}{item.recordedAtUtc ? ` on ${when(item.recordedAtUtc)}` : ""}{item.decisionRevision ? ` (plan revision ${item.decisionRevision})` : ""}.
+          {/* ALV-N021 A1 (F-184, F-218): when the answer itself was entered, which scheduling later never moves; any later change is shown apart */}
+          Entered{item.answerRecordedByName ? ` by ${item.answerRecordedByName}` : ""}{item.answerRecordedAtUtc ? ` on ${when(item.answerRecordedAtUtc)}` : ""}{item.decisionRevision ? ` (plan revision ${item.decisionRevision})` : ""}.
           {item.acceptance === "Declined" && item.decisionReason ? ` Reason: ${item.decisionReason}` : ""}
+          {item.recordedAtUtc && item.recordedAtUtc !== item.answerRecordedAtUtc ? ` Last changed${item.recordedByName ? ` by ${item.recordedByName}` : ""} on ${when(item.recordedAtUtc)}.` : ""}
         </p>
       )}
     </div>

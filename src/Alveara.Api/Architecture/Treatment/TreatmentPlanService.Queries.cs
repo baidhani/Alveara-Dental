@@ -50,10 +50,11 @@ public partial class TreatmentPlanService
         var versionIds = items.Select(i => i.ProcedureVersionId).Distinct().ToList();
         var versions = await db.ProcedureVersions.AsNoTracking().Where(v => versionIds.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => new { v.VersionNumber, v.Description }, ct);
         // the latest acceptance, scheduling and completion state of each procedure (a procedure with no row is Pending, Unscheduled and NotStarted)
-        var states = (await db.TreatmentPlanItemStates.AsNoTracking().Where(s => planIds.Contains(s.PlanId)).ToListAsync(ct))
-            .GroupBy(s => s.ItemId).ToDictionary(g => g.Key, g => g.OrderByDescending(s => s.Sequence).First());
+        var history = (await db.TreatmentPlanItemStates.AsNoTracking().Where(s => planIds.Contains(s.PlanId)).ToListAsync(ct)).GroupBy(s => s.ItemId).ToDictionary(g => g.Key, g => g.OrderBy(s => s.Sequence).ToList());
+        var states = history.ToDictionary(h => h.Key, h => h.Value[^1]);
+        var answers = history.ToDictionary(h => h.Key, h => AnswerRow(h.Value));
         var people = plans.SelectMany(p => new Guid?[] { p.CreatedByUserId, p.UpdatedByUserId, p.WithdrawnByUserId }).Concat(items.SelectMany(i => new Guid?[] { i.CreatedByUserId, i.WithdrawnByUserId }))
-            .Concat(states.Values.Select(s => (Guid?)s.RecordedByUserId));
+            .Concat(states.Values.Select(s => (Guid?)s.RecordedByUserId)).Concat(answers.Values.Select(s => (Guid?)s?.RecordedByUserId));
         var names = await ClinicalNames.ResolveAsync(db, people, ct);
         var itemsByPlan = items.ToLookup(i => i.PlanId);
 
@@ -74,7 +75,8 @@ public partial class TreatmentPlanService
                 i.WithdrawnAtUtc is not null, i.WithdrawnReason, i.WithdrawnAtUtc, ClinicalNames.Name(names, i.WithdrawnByUserId), i.CreatedAtUtc, ClinicalNames.Name(names, i.CreatedByUserId),
                 phase.GetValueOrDefault(i.Id), AcceptanceOf(states.GetValueOrDefault(i.Id)), SchedulingOf(states.GetValueOrDefault(i.Id)), CompletionOf(states.GetValueOrDefault(i.Id)),
                 states.GetValueOrDefault(i.Id)?.PlannedDate, states.GetValueOrDefault(i.Id)?.Reason, states.GetValueOrDefault(i.Id)?.DecidedByName,
-                ClinicalNames.Name(names, states.GetValueOrDefault(i.Id)?.RecordedByUserId), states.GetValueOrDefault(i.Id)?.RecordedAtUtc, states.GetValueOrDefault(i.Id)?.RevisionNumber)).ToList();
+                ClinicalNames.Name(names, states.GetValueOrDefault(i.Id)?.RecordedByUserId), states.GetValueOrDefault(i.Id)?.RecordedAtUtc, answers.GetValueOrDefault(i.Id)?.RevisionNumber,
+                ClinicalNames.Name(names, answers.GetValueOrDefault(i.Id)?.RecordedByUserId), answers.GetValueOrDefault(i.Id)?.RecordedAtUtc)).ToList();
             var active = views.Where(v => !v.IsWithdrawn).ToList();
             return new PlanView(p.Id, p.PatientId, p.Title, p.Status, active.Count, active.Sum(v => v.Fee), Alveara.Api.Architecture.Money.Money.Currency, TreatmentPlanEstimate.Label, views,
                 p.CreatedAtUtc, ClinicalNames.Name(names, p.CreatedByUserId), p.UpdatedAtUtc, ClinicalNames.Name(names, p.UpdatedByUserId), p.WithdrawnReason, p.WithdrawnAtUtc,
