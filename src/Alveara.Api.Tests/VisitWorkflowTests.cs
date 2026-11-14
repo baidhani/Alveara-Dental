@@ -30,19 +30,10 @@ public class VisitWorkflowTests : IAsyncLifetime
         (await _s.ScheduleAsync(_s.Request(patient, At(hour), provider, operatory))).Appointment;
 
     private Task<AppointmentView> GoAsync(AppointmentView a, string target, string? version = null) =>
-        _s.FlowAsync(f => f.TransitionAsync(a.Id, target, version ?? a.RowVersion, _s.Actor, default));
+        _s.FlowAsync(f => f.TransitionAsync(a.Id, target, version ?? a.RowVersion, _s.MoverFor(target, a), default));
 
-    /// <summary>Walks the visit to <paramref name="target"/> along the normal chain, returning the latest view.</summary>
-    private async Task<AppointmentView> WalkAsync(AppointmentView a, string target)
-    {
-        if (a.FlowState == target) return a;
-        foreach (var step in VisitStates.InOrder.SkipWhile(s => s != a.FlowState).Skip(1))
-        {
-            a = await GoAsync(a, step);
-            if (step == target) break;
-        }
-        return a;
-    }
+    /// <summary>Walks the visit to <paramref name="target"/> along the one path (ALV-N021 A2: each move by the person who makes it; the checkout resolved before completion).</summary>
+    private Task<AppointmentView> WalkAsync(AppointmentView a, string target) => _s.WalkAsync(a, target);
 
     private Task<AppointmentView> AssignAsync(AppointmentView a, Guid provider, Guid operatory, string? version = null) =>
         _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(provider, operatory, version ?? a.RowVersion), _s.Actor, default));
@@ -56,24 +47,26 @@ public class VisitWorkflowTests : IAsyncLifetime
     {
         var a = await BookAsync(_ann, 9);
         Assert.Equal(VisitStates.Scheduled, a.FlowState);
-        Assert.Equal([VisitStates.Confirmed, VisitStates.CheckedIn], a.NextFlowStates);
+        Assert.Equal([VisitStates.Confirmed], a.NextFlowStates);   // ALV-N021 A2: confirmation is required by default
 
         var done = await WalkAsync(a, VisitStates.Completed);
 
         Assert.Equal(VisitStates.Completed, done.FlowState);
         Assert.Empty(done.NextFlowStates!);
-        var moves = (await _s.HistoryAsync(a.Id)).Where(e => e.EventType != "Scheduled").ToList();
+        var moves = (await _s.HistoryAsync(a.Id)).Where(e => e.EventType is not ("Scheduled" or "CheckoutRecorded")).ToList();   // A2: checkout decisions are history too
         Assert.Equal(["Confirmed", "CheckedIn", "Ready", "Seated", "TreatmentStarted", "CheckedOut", "Completed"], moves.Select(e => e.EventType));
         Assert.Equal(["Scheduled -> Confirmed", "Confirmed -> CheckedIn", "CheckedIn -> Ready", "Ready -> Seated", "Seated -> InTreatment", "InTreatment -> CheckedOut", "CheckedOut -> Completed"], moves.Select(e => e.Detail));
-        Assert.All(moves, e => Assert.Equal(_s.Actor, e.ActorUserId));
+        // ALV-N021 A2: the front desk confirms, checks in and completes; the assistant readies and seats (test actor); the booked provider starts and ends treatment
+        Assert.Equal([_s.Actor, _s.Actor, _s.Actor, _s.Actor, _s.ProviderAUser, _s.ProviderAUser, _s.Actor], moves.Select(e => e.ActorUserId));
 
         await using var db = _fixture.CreateContext();
         var names = new[] { "PatientConfirmed", "PatientCheckedIn", "PatientReady", "PatientSeated", "PatientTreatmentStarted", "PatientCheckedOut", "PatientTreatmentCompleted" };
         var audits = await db.AuditLogEntries.Where(e => names.Contains(e.EventType)).OrderBy(e => e.TimestampUtc).ToListAsync();
         Assert.Equal(7, audits.Count);
+        Assert.Equal([_s.Actor, _s.Actor, _s.Actor, _s.Actor, _s.ProviderAUser, _s.ProviderAUser, _s.Actor], audits.Select(e => e.PerformedByUserAccountId));
         Assert.All(audits, e =>
         {
-            Assert.Equal((_s.Actor, a.Id), (e.PerformedByUserAccountId, e.TargetUserAccountId));
+            Assert.Equal(a.Id, e.TargetUserAccountId);
             Assert.InRange(e.TimestampUtc, DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddSeconds(5));
             Assert.DoesNotContain("Ann", e.Details);
         });
@@ -93,8 +86,8 @@ public class VisitWorkflowTests : IAsyncLifetime
         Assert.Equal((AppointmentStatuses.NoShow, VisitStates.Scheduled), (missed.Status, missed.FlowState));
         Assert.Empty(cancelled.NextFlowStates!);
         Assert.Empty(missed.NextFlowStates!);
-        Assert.Equal("appointment_not_scheduled", (await RefusedAsync(() => GoAsync(cancelled, VisitStates.CheckedIn))).Code);
-        Assert.Equal("appointment_not_scheduled", (await RefusedAsync(() => GoAsync(missed, VisitStates.Confirmed))).Code);
+        Assert.Equal("terminal_state", (await RefusedAsync(() => GoAsync(cancelled, VisitStates.CheckedIn))).Code);   // ALV-N021 A2 code
+        Assert.Equal("terminal_state", (await RefusedAsync(() => GoAsync(missed, VisitStates.Confirmed))).Code);
     }
 
     // ---------- invalid transitions ----------
@@ -107,8 +100,11 @@ public class VisitWorkflowTests : IAsyncLifetime
     [InlineData(VisitStates.Ready, VisitStates.InTreatment)]
     [InlineData(VisitStates.Seated, VisitStates.Completed)]
     [InlineData(VisitStates.InTreatment, VisitStates.Seated)]
-    [InlineData(VisitStates.Completed, VisitStates.CheckedOut)]
     [InlineData(VisitStates.CheckedOut, VisitStates.Confirmed)]
+    [InlineData(VisitStates.CheckedIn, VisitStates.InTreatment)]   // ALV-N021 A2: STORY-011's shortcuts are refused too
+    [InlineData(VisitStates.CheckedIn, VisitStates.Completed)]
+    [InlineData(VisitStates.InTreatment, VisitStates.Completed)]
+    [InlineData(VisitStates.Scheduled, VisitStates.CheckedIn)]    // confirmation is required by default
     public async Task A_move_the_state_machine_refuses_is_a_409_and_changes_nothing(string from, string to)
     {
         var a = await WalkAsync(await BookAsync(_ann, 9), from);
@@ -116,17 +112,26 @@ public class VisitWorkflowTests : IAsyncLifetime
 
         var ex = await RefusedAsync(() => GoAsync(a, to));
 
-        Assert.Equal(("invalid_flow_transition", 409), (ex.Code, ex.StatusCode));
+        Assert.Equal(("illegal_transition", 409), (ex.Code, ex.StatusCode));   // ALV-N021 A2 code
         var after = await _s.ReloadAsync(a.Id);
         Assert.Equal((from, a.RowVersion), (after.FlowState, after.RowVersion));
+    }
+
+    [Fact]
+    public async Task A_completed_visit_refuses_every_move_as_final()
+    {
+        var a = await WalkAsync(await BookAsync(_ann, 9), VisitStates.Completed);
+        var ex = await RefusedAsync(() => GoAsync(a, VisitStates.CheckedOut));
+        Assert.Equal(("terminal_state", 409), (ex.Code, ex.StatusCode));
+        Assert.Equal((VisitStates.Completed, a.RowVersion), ((await _s.ReloadAsync(a.Id)).FlowState, (await _s.ReloadAsync(a.Id)).RowVersion));
     }
 
     [Fact]
     public async Task An_unknown_target_state_is_refused()
     {
         var a = await BookAsync(_ann, 9);
-        Assert.Equal("invalid_flow_transition", (await RefusedAsync(() => GoAsync(a, "Arrived"))).Code);
-        Assert.Equal("invalid_flow_transition", (await RefusedAsync(() => GoAsync(a, "Cancelled"))).Code);
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => GoAsync(a, "Arrived"))).Code);
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => GoAsync(a, "Cancelled"))).Code);
     }
 
     // ---------- confirmed has not arrived; ready and seated have ----------
@@ -177,7 +182,7 @@ public class VisitWorkflowTests : IAsyncLifetime
     {
         var a = await WalkAsync(await BookAsync(_ann, 9), VisitStates.Ready);
         await using (var failing = _s.FailingAuditContext())
-            await Assert.ThrowsAsync<DbUpdateException>(() => _s.Flow(failing).TransitionAsync(a.Id, VisitStates.Seated, a.RowVersion, _s.Actor, default));
+            await Assert.ThrowsAsync<DbUpdateException>(() => _s.Flow(failing).TransitionAsync(a.Id, VisitStates.Seated, a.RowVersion, _s.MoverFor(VisitStates.Seated, a), default));
 
         var unchanged = await _s.ReloadAsync(a.Id);
         Assert.Equal((VisitStates.Ready, a.RowVersion), (unchanged.FlowState, unchanged.RowVersion));
@@ -195,23 +200,24 @@ public class VisitWorkflowTests : IAsyncLifetime
 
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => GoAsync(a, VisitStates.CheckedIn)); // a different move with the old version
         Assert.Equal(VisitStates.Confirmed, (await _s.ReloadAsync(a.Id)).FlowState);
-        Assert.Equal("row_version_required", (await RefusedAsync(() => _s.FlowAsync(f => f.TransitionAsync(a.Id, VisitStates.CheckedIn, null, _s.Actor, default)))).Code);
+        Assert.Equal("row_version_required", (await RefusedAsync(() => _s.FlowAsync(f => f.TransitionAsync(a.Id, VisitStates.CheckedIn, null, _s.Desk, default)))).Code);
     }
 
     [Fact]
     public async Task Two_people_making_different_moves_on_the_same_visit_never_overwrite_each_other()
     {
-        var a = await WalkAsync(await BookAsync(_ann, 9), VisitStates.CheckedIn);
+        var a = await WalkAsync(await BookAsync(_ann, 9), VisitStates.Ready);
 
-        var results = await Task.WhenAll(new[] { VisitStates.Ready, VisitStates.InTreatment, VisitStates.Completed }.Select(async target =>
+        // ALV-N021 A2: from Ready only Seated is on the path; the other two are refused by the rules or lose the race
+        var results = await Task.WhenAll(new[] { VisitStates.Seated, VisitStates.InTreatment, VisitStates.Completed }.Select(async target =>
         {
             try { return (await GoAsync(a, target)).FlowState; }
             catch (ConcurrencyConflictException) { return "conflict"; }
             catch (SchedulingException ex) { return ex.Code; }
         }));
 
-        Assert.Equal(1, results.Count(r => r != "conflict" && r != "invalid_flow_transition"));
-        var moves = (await _s.HistoryAsync(a.Id)).Count(e => e.EventType is "Ready" or "TreatmentStarted" or "Completed");
+        Assert.Equal(1, results.Count(r => r is not ("conflict" or "illegal_transition" or "visit_move_forbidden")));
+        var moves = (await _s.HistoryAsync(a.Id)).Count(e => e.EventType is "Seated" or "TreatmentStarted" or "Completed");
         Assert.Equal(1, moves); // exactly one of the three moves happened, and it is the one recorded
     }
 }

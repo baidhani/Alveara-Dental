@@ -25,7 +25,7 @@ public class VisitAssignmentTests : IAsyncLifetime
     private async Task<AppointmentView> BookAsync(Guid patient, int hour, Guid? provider = null, Guid? operatory = null) =>
         (await _s.ScheduleAsync(_s.Request(patient, At(hour), provider, operatory))).Appointment;
 
-    private Task<AppointmentView> GoAsync(AppointmentView a, string target) => _s.FlowAsync(f => f.TransitionAsync(a.Id, target, a.RowVersion, _s.Actor, default));
+    private Task<AppointmentView> GoAsync(AppointmentView a, string target) => _s.FlowAsync(f => f.TransitionAsync(a.Id, target, a.RowVersion, _s.MoverFor(target, a), default));
 
     private Task<AppointmentView> AssignAsync(AppointmentView a, Guid provider, Guid operatory, string? version = null) =>
         _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(provider, operatory, version ?? a.RowVersion), _s.Actor, default));
@@ -121,7 +121,7 @@ public class VisitAssignmentTests : IAsyncLifetime
     public async Task A_finished_cancelled_or_no_show_visit_cannot_be_reassigned()
     {
         var done = await BookAsync(_ann, 9);
-        foreach (var step in VisitStates.InOrder.Skip(1)) done = await GoAsync(done, step);
+        done = await _s.WalkAsync(done, VisitStates.Completed);   // ALV-N021 A2: the one path, checkout resolved
         Assert.Equal("visit_completed", (await RefusedAsync(() => AssignAsync(done, _s.ProviderB, _s.Op2))).Code);
 
         var b = await BookAsync(_bo, 11);
@@ -163,9 +163,9 @@ public class VisitAssignmentTests : IAsyncLifetime
     public async Task Two_seated_patients_moved_into_the_same_free_room_at_once_leave_exactly_one_there()
     {
         var a = await BookAsync(_ann, 9);
-        foreach (var step in new[] { VisitStates.CheckedIn, VisitStates.Ready, VisitStates.Seated }) a = await GoAsync(a, step);
+        a = await _s.WalkAsync(a, VisitStates.Seated);
         var b = await BookAsync(_bo, 11, _s.ProviderB, _s.Op2);
-        foreach (var step in new[] { VisitStates.CheckedIn, VisitStates.Ready, VisitStates.Seated }) b = await GoAsync(b, step);
+        b = await _s.WalkAsync(b, VisitStates.Seated);
         var room3 = await CreateOperatoryAsync("Op 3");
 
         // each pauses between its check and its write, so only the operatory lock can stop both being moved into Op 3
@@ -191,10 +191,10 @@ public class VisitAssignmentTests : IAsyncLifetime
     public async Task A_seated_patient_cannot_be_moved_into_an_occupied_room_but_a_waiting_patient_can_be_assigned_there_and_is_checked_at_seating()
     {
         var holder = await BookAsync(_ann, 9, _s.ProviderB, _s.Op2);
-        foreach (var step in new[] { VisitStates.CheckedIn, VisitStates.Ready, VisitStates.Seated }) holder = await GoAsync(holder, step);
+        holder = await _s.WalkAsync(holder, VisitStates.Seated);
 
         var seated = await BookAsync(_bo, 11);
-        foreach (var step in new[] { VisitStates.CheckedIn, VisitStates.Ready, VisitStates.Seated }) seated = await GoAsync(seated, step);
+        seated = await _s.WalkAsync(seated, VisitStates.Seated);
         var ex = await RefusedAsync(() => AssignAsync(seated, _s.ProviderA, _s.Op2));
         Assert.Equal(("operatory_occupied", holder.Id), (ex.Code, ex.ConflictingAppointmentId!.Value));
         Assert.Equal(_s.Op1, (await _s.ReloadAsync(seated.Id)).VisitOperatoryId); // stayed where they were
@@ -202,7 +202,7 @@ public class VisitAssignmentTests : IAsyncLifetime
         var waiting = await BookAsync(await _s.PatientAsync("Cy", "Poe"), 13);
         var assigned = await AssignAsync(waiting, _s.ProviderA, _s.Op2); // not seated yet: assigning the room is fine
         Assert.Equal(_s.Op2, assigned.VisitOperatoryId);
-        var ready = await GoAsync(await GoAsync(assigned, VisitStates.CheckedIn), VisitStates.Ready);
+        var ready = await _s.WalkAsync(assigned, VisitStates.Ready);
         Assert.Equal("operatory_occupied", (await RefusedAsync(() => GoAsync(ready, VisitStates.Seated))).Code);
     }
 }

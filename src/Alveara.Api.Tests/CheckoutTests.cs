@@ -42,7 +42,7 @@ public class CheckoutTests : CompletionTestBase
         foreach (var step in VisitStates.InOrder.Skip(1))
         {
             if (a.FlowState == until) break;
-            a = await S.FlowAsync(f => f.TransitionAsync(a.Id, step, a.RowVersion, S.Actor, default));
+            a = await S.FlowAsync(f => f.TransitionAsync(a.Id, step, a.RowVersion, S.MoverFor(step, a), default));
         }
         return a;
     }

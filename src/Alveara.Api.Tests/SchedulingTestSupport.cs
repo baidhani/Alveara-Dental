@@ -25,6 +25,16 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
     public Guid LocationId;
     public Guid Op1, Op2;
     public Guid ProviderA, ProviderB;
+    /// <summary>ALV-N021 A2: the accounts linked to the two providers (Dentist role), so a test can start and end treatment as the booked provider.</summary>
+    public Guid ProviderAUser, ProviderBUser;
+    /// <summary>ALV-N021 A2: a real front-desk account (checkout outcomes name a real account; <see cref="Actor"/> may have none).</summary>
+    public Guid DeskUser;
+
+    /// <summary>
+    /// ALV-N021 A2: visit moves run on the test day (Monday 2030-01-14, from 07:30 practice time, before every appointment), so the check-in day rule holds for that day's appointments. The clock
+    /// RUNS from 07:30 (real elapsed time is added), so successive moves get successive times and a visit's history keeps its order, as with a real clock.
+    /// </summary>
+    public static readonly IPracticeClock VisitDayClock = new RunningClock(new DateTimeOffset(2030, 1, 14, 7, 30, 0, TimeSpan.FromHours(-6)));
     public Guid Long60, Short30;
 
     public static DateTime At(int hour, int minute = 0, int dayOffset = 0) => Monday.AddDays(dayOffset).AddHours(hour).AddMinutes(minute);
@@ -39,17 +49,23 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
         Op2 = (await practice.CreateOperatoryAsync("Op 2", Actor, default)).Id;
         Long60 = (await practice.CreateAppointmentTypeAsync("Exam", 60, Actor, default)).Id;
         Short30 = (await practice.CreateAppointmentTypeAsync("Quick check", 30, Actor, default)).Id;
-        ProviderA = await NewProviderAsync(people, "Dr. Rivera");
-        ProviderB = await NewProviderAsync(people, "Dr. Patel");
+        DeskUser = Guid.NewGuid();
+        db.UserAccounts.Add(new UserAccount { Id = DeskUser, Username = $"desk-{Guid.NewGuid():N}", Role = Role.FrontDesk, CreatedAtUtc = DateTimeOffset.UtcNow });
+        await db.SaveChangesAsync();
+        (ProviderA, ProviderAUser) = await NewProviderAsync(db, people, "Dr. Rivera");
+        (ProviderB, ProviderBUser) = await NewProviderAsync(db, people, "Dr. Patel");
     }
 
-    private async Task<Guid> NewProviderAsync(StaffProviderService people, string name)
+    private async Task<(Guid Provider, Guid User)> NewProviderAsync(AlveraDbContext db, StaffProviderService people, string name)
     {
-        var staff = await people.CreateStaffAsync(name, "Dentist", null, Actor, default);
+        var user = new UserAccount { Id = Guid.NewGuid(), Username = $"prov-{Guid.NewGuid():N}", Role = Role.Dentist, CreatedAtUtc = DateTimeOffset.UtcNow };
+        db.UserAccounts.Add(user);
+        await db.SaveChangesAsync();
+        var staff = await people.CreateStaffAsync(name, "Dentist", user.Id, Actor, default);
         var provider = await people.CreateProviderAsync(staff.Id, "General dentistry", Actor, default);
         await people.ReplaceCurrentAsync(provider.Id,
             [.. new[] { DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Friday }.Select(d => new AvailabilityWindow(d, "08:00", "17:00"))], Actor);
-        return provider.Id;
+        return (provider.Id, user.Id);
     }
 
     public AppointmentScheduler Scheduler(AlveraDbContext db, IMeasurementEventSink? measurements = null) =>
@@ -66,13 +82,54 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
     }
 
     /// <summary>STORY-011: the patient-flow service (check in, start treatment, complete).</summary>
-    public AppointmentFlowService Flow(AlveraDbContext db, IMeasurementEventSink? measurements = null) =>
-        new(db, Clock, measurements);
+    public AppointmentFlowService Flow(AlveraDbContext db, IMeasurementEventSink? measurements = null, IPracticeClock? clock = null) =>
+        new(db, clock ?? VisitDayClock, PolicyTestSupport.Defaults(), measurements);
 
-    public async Task<AppointmentView> FlowAsync(Func<AppointmentFlowService, Task<AppointmentView>> action)
+    public async Task<AppointmentView> FlowAsync(Func<AppointmentFlowService, Task<AppointmentView>> action, IPracticeClock? clock = null)
     {
         await using var db = fixture.CreateContext();
-        return await action(Flow(db));
+        return await action(Flow(db, clock: clock));
+    }
+
+    // ---------- ALV-N021 A2: acting as the right person ----------
+
+    /// <summary>The front desk (front-office moves and completion).</summary>
+    public VisitActor Desk => new(Actor, Role.FrontDesk);
+
+    /// <summary>The booked provider's own account (start and end treatment).</summary>
+    public VisitActor ProviderOf(Guid provider) => new(provider == ProviderB ? ProviderBUser : ProviderAUser, Role.Dentist);
+
+    /// <summary>The person who normally makes a move into <paramref name="target"/>: the front desk, the assistant for ready and seat, the booked provider for treatment.</summary>
+    public VisitActor MoverFor(string target, AppointmentView a) => target switch
+    {
+        VisitStates.InTreatment or VisitStates.CheckedOut => ProviderOf(a.ProviderId),
+        VisitStates.Ready or VisitStates.Seated => new(Actor, Role.Assistant),
+        _ => Desk,
+    };
+
+    /// <summary>One move made by the person who normally makes it.</summary>
+    public Task<AppointmentView> MoveAsync(AppointmentView a, string target, IPracticeClock? clock = null) =>
+        FlowAsync(f => f.TransitionAsync(a.Id, target, a.RowVersion, MoverFor(target, a), default), clock);
+
+    /// <summary>Walks a visit along the one path until it reaches <paramref name="until"/>; to complete, the checkout items with no money involved are resolved first.</summary>
+    public async Task<AppointmentView> WalkAsync(AppointmentView a, string until, IPracticeClock? clock = null)
+    {
+        foreach (var step in VisitStates.InOrder.SkipWhile(s => s != a.FlowState).Skip(1))
+        {
+            if (a.FlowState == until) break;
+            if (step == VisitStates.Completed) await ResolveCheckoutAsync(a.Id);
+            a = await MoveAsync(a, step, clock);
+        }
+        return a;
+    }
+
+    /// <summary>Records "patient left" and "follow-up declined" so a visit with nothing owed may be completed.</summary>
+    public async Task ResolveCheckoutAsync(Guid appointmentId)
+    {
+        await using var db = fixture.CreateContext();
+        var recorder = new Architecture.Scheduling.Checkout.CheckoutRecorder(db, VisitDayClock, PolicyTestSupport.Defaults());
+        await recorder.RecordAsync(appointmentId, CheckoutItems.Departure, new(CheckoutOutcomes.PatientLeft, null, null), DeskUser, Role.FrontDesk, $"left-{appointmentId:N}", default);
+        await recorder.RecordAsync(appointmentId, CheckoutItems.FollowUp, new(CheckoutOutcomes.PatientDeclined, null, null), DeskUser, Role.FrontDesk, $"fu-{appointmentId:N}", default);
     }
 
     /// <summary>ALV-011-C01: the visit-time provider/operatory assignment service.</summary>
@@ -152,6 +209,18 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
             return base.SavingChangesAsync(eventData, result, cancellationToken);
         }
     }
+}
+
+/// <summary>ALV-N021 A2: the real practice clock, with "now" starting at a chosen instant and moving forward with real time.</summary>
+public sealed class RunningClock(DateTimeOffset start) : IPracticeClock
+{
+    private static readonly System.Diagnostics.Stopwatch Elapsed = System.Diagnostics.Stopwatch.StartNew();
+    private readonly TimeSpan _offset = Elapsed.Elapsed;
+    private readonly IPracticeClock _real = SchedulingTestSupport.Clock;
+    public TimeZoneInfo PracticeTimeZone => _real.PracticeTimeZone;
+    public DateTimeOffset UtcNow => start.ToUniversalTime() + (Elapsed.Elapsed - _offset);
+    public DateTimeOffset ToPracticeLocal(DateTimeOffset utcInstant) => _real.ToPracticeLocal(utcInstant);
+    public DateTimeOffset FromPracticeLocal(DateTime localTime, LocalTimeAmbiguityPolicy ambiguityPolicy = LocalTimeAmbiguityPolicy.Reject) => _real.FromPracticeLocal(localTime, ambiguityPolicy);
 }
 
 /// <summary>The real practice clock, except that "now" can be set - so a test can ask what happens after an appointment's start time has passed.</summary>

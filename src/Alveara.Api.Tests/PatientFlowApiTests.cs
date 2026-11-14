@@ -2,7 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Alveara.Api.Architecture.Scheduling;
+using Alveara.Api.Architecture.Time;
 using Alveara.Api.Controllers;
 using Xunit;
 using static Alveara.Api.Tests.SchedulingTestSupport;
@@ -12,6 +15,8 @@ namespace Alveara.Api.Tests;
 /// <summary>
 /// STORY-011 at the HTTP boundary: who may move a patient through check-in, treatment and completion, the CSRF and row-version contract, and the stable
 /// refusal shapes. The harness (real API, real SQL Server, real sessions per role) is the same as ALV-004-C01's AppointmentLifecycleApiTests.
+/// ALV-N021 A2: these legacy routes now run the one visit policy and path: check-in needs confirmation first (default setting) and the front office; start of treatment needs the booked
+/// provider's own account; completion needs Ready for checkout and a resolved checkout. The API runs on the test day's clock (the check-in day rule).
 /// </summary>
 public class PatientFlowApiTests : IAsyncLifetime
 {
@@ -34,12 +39,13 @@ public class PatientFlowApiTests : IAsyncLifetime
             builder.UseSetting("ConnectionStrings:Alveara", _fixture.ConnectionString);
             builder.UseSetting("AdminBootstrapSecret", IdentityTestHelpers.TestBootstrapSecret);
             builder.UseSetting("AuthAttemptRateLimit:PermitLimit", "500");
+            builder.ConfigureServices(services => services.AddSingleton<IPracticeClock>(VisitDayClock));   // ALV-N021 A2: the check-in day rule
         });
 
     private static async Task<string> CsrfAsync(HttpClient client) =>
         (await (await client.GetAsync("/api/auth/csrf-token")).Content.ReadFromJsonAsync<JsonElement>()).GetProperty("token").GetString()!;
 
-    private sealed record Session(HttpClient Client, string Csrf)
+    private sealed record Session(HttpClient Client, string Csrf, Guid UserId = default)
     {
         public async Task<(HttpStatusCode Status, JsonElement Body)> SendAsync(HttpMethod method, string url, object? body = null, string? key = null, bool csrf = true)
         {
@@ -71,7 +77,23 @@ public class PatientFlowApiTests : IAsyncLifetime
         await _admin.SendAsync(HttpMethod.Put, $"/api/auth/{id}/enabled", new SetEnabledRequest(true));
         var client = factory.CreateClient();
         await client.PostAsJsonAsync("/api/auth/login", new LoginRequest(username, "password"));
-        return new Session(client, await CsrfAsync(client));
+        return new Session(client, await CsrfAsync(client), id);
+    }
+
+    /// <summary>ALV-N021 A2: a Dentist session whose account is linked to the booked provider (ProviderA), who alone starts and ends treatment.</summary>
+    private async Task<Session> BookedProviderAsync(WebApplicationFactory<Program> factory)
+    {
+        var session = await SessionAsync(factory, "Dentist");
+        await using var db = _fixture.CreateContext();
+        await db.Database.ExecuteSqlRawAsync("UPDATE s SET [UserAccountId] = {0} FROM [StaffProfiles] s JOIN [ProviderProfiles] p ON p.[StaffProfileId] = s.[Id] WHERE p.[Id] = {1}", session.UserId, _s.ProviderA);
+        return session;
+    }
+
+    private static async Task<JsonElement> StateAsync(Session by, JsonElement a, string target)
+    {
+        var r = await by.SendAsync(HttpMethod.Post, $"/api/visits/{a.GetProperty("id").GetString()}/state", new { target, rowVersion = a.GetProperty("rowVersion").GetString() });
+        Assert.Equal(HttpStatusCode.OK, r.Status);
+        return r.Body;
     }
 
     private async Task<JsonElement> BookAsync(Session session, DateTime start)
@@ -110,22 +132,20 @@ public class PatientFlowApiTests : IAsyncLifetime
     [InlineData("Assistant", HttpStatusCode.Forbidden)]
     [InlineData("Billing", HttpStatusCode.Forbidden)]
     [InlineData("Unassigned", HttpStatusCode.Forbidden)]
-    public async Task Only_roles_that_manage_appointments_can_move_a_patient_through_the_visit(string role, HttpStatusCode expected)
+    public async Task Only_the_front_office_can_check_a_patient_in_on_the_legacy_route(string role, HttpStatusCode expected)
     {
         await using var factory = CreateFactory();
         var desk = await SessionAsync(factory, "FrontDesk");
-        var a = await BookAsync(desk, At(9));
+        var a = await StateAsync(desk, await BookAsync(desk, At(9)), "Confirmed");
         var session = await SessionAsync(factory, role);
 
         var checkIn = await session.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
-        var version = expected == HttpStatusCode.OK ? new { rowVersion = checkIn.Body.GetProperty("rowVersion").GetString() } : Version(a);
-        var complete = await session.SendAsync(HttpMethod.Post, Url(a, "/complete"), version);
 
-        Assert.Equal((expected, expected), (checkIn.Status, complete.Status));
+        Assert.Equal(expected, checkIn.Status);
         if (expected == HttpStatusCode.Forbidden)
         {
-            Assert.Equal("ManageAppointments", checkIn.Body.GetProperty("required").GetString());
-            Assert.Equal("Scheduled", (await desk.SendAsync(HttpMethod.Get, Url(a, ""))).Body.GetProperty("flowState").GetString()); // nothing moved
+            Assert.Equal(("visit_move_forbidden", "front_office_only"), (checkIn.Body.GetProperty("error").GetString(), checkIn.Body.GetProperty("reason").GetString()));   // ALV-N021 A2: the visit policy
+            Assert.Equal("Confirmed", (await desk.SendAsync(HttpMethod.Get, Url(a, ""))).Body.GetProperty("flowState").GetString()); // nothing moved
         }
     }
 
@@ -144,18 +164,28 @@ public class PatientFlowApiTests : IAsyncLifetime
     // ---------- the acceptance path over HTTP ----------
 
     [Fact]
-    public async Task A_scheduled_patient_checks_in_and_then_completes_and_the_responses_and_history_show_it()
+    public async Task A_patient_goes_through_the_visit_on_the_legacy_routes_and_the_responses_and_history_show_it()
     {
         await using var factory = CreateFactory();
         var desk = await SessionAsync(factory, "FrontDesk");
+        var admin = await SessionAsync(factory, "Admin");
+        var provider = await BookedProviderAsync(factory);
         var a = await BookAsync(desk, At(9));
         Assert.Equal("Scheduled", a.GetProperty("flowState").GetString());
 
-        var checkedIn = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
+        var confirmed = await StateAsync(desk, a, "Confirmed");
+        var checkedIn = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(confirmed));
         Assert.Equal((HttpStatusCode.OK, "CheckedIn"), (checkedIn.Status, checkedIn.Body.GetProperty("flowState").GetString()));
-        Assert.NotEqual(a.GetProperty("rowVersion").GetString(), checkedIn.Body.GetProperty("rowVersion").GetString());
+        Assert.NotEqual(confirmed.GetProperty("rowVersion").GetString(), checkedIn.Body.GetProperty("rowVersion").GetString());
 
-        var completed = await desk.SendAsync(HttpMethod.Post, Url(a, "/complete"), Version(checkedIn.Body));
+        var seated = await StateAsync(admin, await StateAsync(admin, checkedIn.Body, "Ready"), "Seated");
+        var started = await provider.SendAsync(HttpMethod.Post, Url(a, "/start-treatment"), Version(seated));
+        Assert.Equal((HttpStatusCode.OK, "InTreatment"), (started.Status, started.Body.GetProperty("flowState").GetString()));
+        var ended = await StateAsync(provider, started.Body, "CheckedOut");
+        foreach (var (item, outcome) in new[] { ("departure", "patient_left"), ("follow_up", "patient_declined") })
+            Assert.Equal(HttpStatusCode.OK, (await desk.SendAsync(HttpMethod.Post, Url(a, $"/checkout/{item}"), new { outcome }, $"co-{Guid.NewGuid():N}")).Status);
+
+        var completed = await desk.SendAsync(HttpMethod.Post, Url(a, "/complete"), Version(ended));
         Assert.Equal((HttpStatusCode.OK, "Completed"), (completed.Status, completed.Body.GetProperty("flowState").GetString()));
 
         var detail = await desk.SendAsync(HttpMethod.Get, Url(a, ""));
@@ -163,8 +193,8 @@ public class PatientFlowApiTests : IAsyncLifetime
         var listed = await desk.SendAsync(HttpMethod.Get, "/api/appointments?from=2030-01-14&to=2030-01-14");
         Assert.Equal("Completed", listed.Body.EnumerateArray().Single().GetProperty("flowState").GetString());
 
-        var history = (await desk.SendAsync(HttpMethod.Get, Url(a, "/history"))).Body.EnumerateArray().Select(e => e.GetProperty("eventType").GetString()).ToList();
-        Assert.Equal(["Scheduled", "CheckedIn", "Completed"], history);
+        var history = (await desk.SendAsync(HttpMethod.Get, Url(a, "/history"))).Body.EnumerateArray().Select(e => e.GetProperty("eventType").GetString()).Where(t => t != "CheckoutRecorded").ToList();
+        Assert.Equal(["Scheduled", "Confirmed", "CheckedIn", "Ready", "Seated", "TreatmentStarted", "CheckedOut", "Completed"], history);
     }
 
     // ---------- refusals ----------
@@ -176,18 +206,17 @@ public class PatientFlowApiTests : IAsyncLifetime
         var desk = await SessionAsync(factory, "FrontDesk");
         var a = await BookAsync(desk, At(9));
 
-        var skip = await desk.SendAsync(HttpMethod.Post, Url(a, "/start-treatment"), Version(a));
-        Assert.Equal((HttpStatusCode.Conflict, "invalid_flow_transition"), (skip.Status, skip.Body.GetProperty("error").GetString()));
+        var skip = await desk.SendAsync(HttpMethod.Post, Url(a, "/complete"), Version(a));
+        Assert.Equal((HttpStatusCode.Conflict, "illegal_transition"), (skip.Status, skip.Body.GetProperty("error").GetString()));   // ALV-N021 A2 code
+        var unconfirmed = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
+        Assert.Equal((HttpStatusCode.Conflict, "illegal_transition"), (unconfirmed.Status, unconfirmed.Body.GetProperty("error").GetString()));   // confirmation required
 
         var missing = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), new { });
         Assert.Equal((HttpStatusCode.BadRequest, "row_version_required"), (missing.Status, missing.Body.GetProperty("error").GetString()));
 
-        var first = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
-        Assert.Equal(HttpStatusCode.OK, first.Status);
-        // someone else changes the appointment, then a caller holding the version from before the check-in tries the next step
-        var started = await desk.SendAsync(HttpMethod.Post, Url(a, "/start-treatment"), Version(first.Body));
-        Assert.Equal(HttpStatusCode.OK, started.Status);
-        var stale = await desk.SendAsync(HttpMethod.Post, Url(a, "/complete"), Version(first.Body));
+        // someone else confirms the appointment, then a caller holding the version from before tries to check in
+        await StateAsync(desk, a, "Confirmed");
+        var stale = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
         Assert.Equal((HttpStatusCode.Conflict, "concurrency_conflict"), (stale.Status, stale.Body.GetProperty("error").GetString()));
 
         var unknown = await desk.SendAsync(HttpMethod.Post, $"/api/appointments/{Guid.NewGuid()}/check-in", new { rowVersion = "AAAA" });
@@ -199,7 +228,7 @@ public class PatientFlowApiTests : IAsyncLifetime
     {
         await using var factory = CreateFactory();
         var desk = await SessionAsync(factory, "FrontDesk");
-        var a = await BookAsync(desk, At(9));
+        var a = await StateAsync(desk, await BookAsync(desk, At(9)), "Confirmed");
         var ci = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
 
         var cancel = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Illness", rowVersion = ci.Body.GetProperty("rowVersion").GetString() });
@@ -208,6 +237,6 @@ public class PatientFlowApiTests : IAsyncLifetime
         var b = await BookAsync(desk, At(13));
         var cancelled = await desk.SendAsync(HttpMethod.Post, Url(b, "/cancel"), new { reason = "Illness", rowVersion = b.GetProperty("rowVersion").GetString() });
         var refused = await desk.SendAsync(HttpMethod.Post, Url(b, "/check-in"), Version(cancelled.Body));
-        Assert.Equal((HttpStatusCode.Conflict, "appointment_not_scheduled"), (refused.Status, refused.Body.GetProperty("error").GetString()));
+        Assert.Equal((HttpStatusCode.Conflict, "terminal_state"), (refused.Status, refused.Body.GetProperty("error").GetString()));   // ALV-N021 A2 code
     }
 }

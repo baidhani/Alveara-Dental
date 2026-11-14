@@ -131,24 +131,27 @@ public class AppointmentsController(AppointmentScheduler scheduler, AppointmentM
         Run(async () => Ok(await manager.UpdateNotesAsync(id, body.Notes, body.RowVersion, Actor, ct)));
 
     // ---------- STORY-011: patient flow ----------
+    // ALV-N021 A2 (briefing 5.4): these legacy routes run the SAME visit policy as visits/{id}/state; ManageAppointments is no longer sufficient (or needed) for any visit move.
+
+    private VisitActor VisitActor => new(Actor, Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) ? role : Role.Unassigned);
 
     [HttpPost("{id:guid}/check-in")]
-    [RequirePermission(Permission.ManageAppointments)]
+    [Authorize]
     [RequireCsrfToken]
     public Task<IActionResult> CheckIn(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
-        Run(async () => Ok(await flow.CheckInAsync(id, body.RowVersion, Actor, ct)));
+        Run(async () => Ok(await flow.CheckInAsync(id, body.RowVersion, VisitActor, ct)));
 
     [HttpPost("{id:guid}/start-treatment")]
-    [RequirePermission(Permission.ManageAppointments)]
+    [Authorize]
     [RequireCsrfToken]
     public Task<IActionResult> StartTreatment(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
-        Run(async () => Ok(await flow.StartTreatmentAsync(id, body.RowVersion, Actor, ct)));
+        Run(async () => Ok(await flow.StartTreatmentAsync(id, body.RowVersion, VisitActor, ct)));
 
     [HttpPost("{id:guid}/complete")]
-    [RequirePermission(Permission.ManageAppointments)]
+    [Authorize]
     [RequireCsrfToken]
     public Task<IActionResult> Complete(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
-        Run(async () => Ok(await flow.CompleteAsync(id, body.RowVersion, Actor, ct)));
+        Run(async () => Ok(await flow.CompleteAsync(id, body.RowVersion, VisitActor, ct)));
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {

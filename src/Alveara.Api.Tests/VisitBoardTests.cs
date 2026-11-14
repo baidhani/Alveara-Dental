@@ -29,18 +29,10 @@ public class VisitBoardTests : IAsyncLifetime
     private async Task<AppointmentView> BookAsync(Guid patient, DateTime start, Guid? provider = null, Guid? operatory = null) =>
         (await _s.ScheduleAsync(_s.Request(patient, start, provider, operatory))).Appointment;
 
-    private Task<AppointmentView> GoAsync(AppointmentView a, string target) => _s.FlowAsync(f => f.TransitionAsync(a.Id, target, a.RowVersion, _s.Actor, default));
+    private Task<AppointmentView> GoAsync(AppointmentView a, string target) => _s.FlowAsync(f => f.TransitionAsync(a.Id, target, a.RowVersion, _s.MoverFor(target, a), default));
 
-    private async Task<AppointmentView> ToAsync(AppointmentView a, string target)
-    {
-        if (a.FlowState == target) return a;
-        foreach (var step in VisitStates.InOrder.SkipWhile(s => s != a.FlowState).Skip(1))
-        {
-            a = await GoAsync(a, step);
-            if (step == target) break;
-        }
-        return a;
-    }
+    /// <summary>ALV-N021 A2: along the one path, each move by the person who makes it, the checkout resolved before completion; <paramref name="clock"/> for a visit on another day.</summary>
+    private Task<AppointmentView> ToAsync(AppointmentView a, string target, IPracticeClock? clock = null) => _s.WalkAsync(a, target, clock);
 
     private async Task<VisitBoard> BoardAsync(DateTime day, bool readiness = true, IPracticeClock? clock = null)
     {
@@ -49,6 +41,8 @@ public class VisitBoardTests : IAsyncLifetime
     }
 
     private static readonly DateTime Monday = new(2030, 1, 14);
+    /// <summary>ALV-N021 A2 (check-in day rule): moves of Friday's visits are made on Friday.</summary>
+    private static readonly IPracticeClock Friday = new TestClock(new DateTimeOffset(2030, 1, 11, 7, 30, 0, TimeSpan.FromHours(-6)));
 
     [Fact]
     public async Task The_board_opens_a_day_whose_midnight_does_not_exist_and_shows_exactly_that_days_visits()
@@ -98,7 +92,7 @@ public class VisitBoardTests : IAsyncLifetime
         var a = await BookAsync(_ann, At(9));
         Assert.Equal(VisitStates.Scheduled, (await BoardAsync(Monday)).Visits.Single().Appointment.FlowState);
 
-        await GoAsync(a, VisitStates.CheckedIn);
+        await ToAsync(a, VisitStates.CheckedIn);
 
         Assert.Equal(VisitStates.CheckedIn, (await BoardAsync(Monday)).Visits.Single().Appointment.FlowState);
     }
@@ -181,8 +175,8 @@ public class VisitBoardTests : IAsyncLifetime
     [Fact]
     public async Task A_visit_left_open_from_an_earlier_day_appears_on_todays_board_marked_carried_over_because_it_still_holds_its_room()
     {
-        var friday = await ToAsync(await BookAsync(_ann, At(9, 0, dayOffset: -3)), VisitStates.Seated); // Friday 2030-01-11, left seated
-        var finished = await ToAsync(await BookAsync(_bo, At(11, 0, dayOffset: -3), _s.ProviderB, _s.Op2), VisitStates.Completed);
+        var friday = await ToAsync(await BookAsync(_ann, At(9, 0, dayOffset: -3)), VisitStates.Seated, Friday); // Friday 2030-01-11, left seated
+        var finished = await ToAsync(await BookAsync(_bo, At(11, 0, dayOffset: -3), _s.ProviderB, _s.Op2), VisitStates.Completed, Friday);
         var today = new TestClock(new DateTimeOffset(2030, 1, 14, 14, 0, 0, TimeSpan.Zero)); // "now" is Monday the 14th, practice time
 
         var board = await BoardAsync(Monday, clock: today);
@@ -198,7 +192,7 @@ public class VisitBoardTests : IAsyncLifetime
     [Fact]
     public async Task Carried_over_visits_are_not_added_to_another_days_board()
     {
-        await ToAsync(await BookAsync(_ann, At(9, 0, dayOffset: -3)), VisitStates.Seated);
+        await ToAsync(await BookAsync(_ann, At(9, 0, dayOffset: -3)), VisitStates.Seated, Friday);
         var today = new TestClock(new DateTimeOffset(2030, 1, 14, 14, 0, 0, TimeSpan.Zero));
 
         Assert.Empty((await BoardAsync(Monday.AddDays(1), clock: today)).Visits); // Tuesday's board

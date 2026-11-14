@@ -79,11 +79,9 @@ public class VisitsController(VisitBoardService board, AppointmentFlowService fl
     {
         if (!VisitStates.IsKnown(body.Target))
             return BadRequest(new { error = "validation_failed", message = $"The target must be one of: {string.Join(", ", VisitStates.InOrder)}." });
-        var needed = VisitStateMachine.DutyFor(body.Target!) == TransitionDuty.FrontOffice ? Permission.UpdateVisitFlow : Permission.UpdateChairsideFlow;
+        // ALV-N021 A2: who may make the move is decided by VisitMovePolicy inside the flow service, for this route and the legacy ones alike
         if (!Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role)) return Unauthorized();
-        var refusal = PermissionResults.Refusal(await permissions.CheckAsync(role, needed, ct), needed.ToString());
-        if (refusal is not null) return refusal;
-        return await Run(async () => Ok(await flow.TransitionAsync(id, body.Target!, body.RowVersion, Actor, ct)));
+        return await Run(async () => Ok(await flow.TransitionAsync(id, body.Target!, body.RowVersion, new VisitActor(Actor, role), ct)));
     }
 
     [HttpPut("{id:guid}/assignment")]

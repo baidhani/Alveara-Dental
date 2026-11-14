@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Scheduling;
+using Alveara.Api.Architecture.Time;
 using Xunit;
 using static Alveara.Api.Tests.SchedulingTestSupport;
 
@@ -27,18 +28,10 @@ public class VisitOccupancyTests : IAsyncLifetime
         (await _s.ScheduleAsync(_s.Request(patient, At(hour), provider, operatory))).Appointment;
 
     private Task<AppointmentView> GoAsync(AppointmentView a, string target, string? version = null) =>
-        _s.FlowAsync(f => f.TransitionAsync(a.Id, target, version ?? a.RowVersion, _s.Actor, default));
+        _s.FlowAsync(f => f.TransitionAsync(a.Id, target, version ?? a.RowVersion, _s.MoverFor(target, a), default));
 
-    private async Task<AppointmentView> ToAsync(AppointmentView a, string target)
-    {
-        if (a.FlowState == target) return a;
-        foreach (var step in VisitStates.InOrder.SkipWhile(s => s != a.FlowState).Skip(1))
-        {
-            a = await GoAsync(a, step);
-            if (step == target) break;
-        }
-        return a;
-    }
+    /// <summary>ALV-N021 A2: along the one path, each move by the person who makes it, the checkout resolved before completion; <paramref name="clock"/> for a visit on another day.</summary>
+    private Task<AppointmentView> ToAsync(AppointmentView a, string target, IPracticeClock? clock = null) => _s.WalkAsync(a, target, clock);
 
     private static async Task<SchedulingException> RefusedAsync(Func<Task<AppointmentView>> action) => await Assert.ThrowsAsync<SchedulingException>(action);
 
@@ -77,14 +70,15 @@ public class VisitOccupancyTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task STORY_011s_check_in_straight_to_treatment_also_takes_the_room_and_is_refused_if_it_is_occupied()
+    public async Task STORY_011s_check_in_straight_to_treatment_is_refused_and_takes_no_room()
     {
+        // ALV-N021 A2 (OD-01): the shortcut is gone; a patient reaches treatment only by being seated, which is where the room is taken and checked
         await ToAsync(await BookAsync(_ann, 9), VisitStates.InTreatment);
         var second = await ToAsync(await BookAsync(_bo, 11), VisitStates.CheckedIn);
 
-        var ex = await RefusedAsync(() => _s.FlowAsync(f => f.StartTreatmentAsync(second.Id, second.RowVersion, _s.Actor, default)));
+        var ex = await RefusedAsync(() => _s.FlowAsync(f => f.StartTreatmentAsync(second.Id, second.RowVersion, _s.ProviderOf(second.ProviderId), default)));
 
-        Assert.Equal("operatory_occupied", ex.Code);
+        Assert.Equal("illegal_transition", ex.Code);
         Assert.Equal(VisitStates.CheckedIn, (await _s.ReloadAsync(second.Id)).FlowState);
     }
 
@@ -100,7 +94,7 @@ public class VisitOccupancyTests : IAsyncLifetime
         var results = await Task.WhenAll(ready.Select(async a =>
         {
             await using var db = _s.SlowSaveContext(TimeSpan.FromMilliseconds(200));
-            try { return (await _s.Flow(db).TransitionAsync(a.Id, VisitStates.Seated, a.RowVersion, _s.Actor, default)).FlowState; }
+            try { return (await _s.Flow(db).TransitionAsync(a.Id, VisitStates.Seated, a.RowVersion, _s.MoverFor(VisitStates.Seated, a), default)).FlowState; }
             catch (SchedulingException ex) { return ex.Code; }
         }));
 

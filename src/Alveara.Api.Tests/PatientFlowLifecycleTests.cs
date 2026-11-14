@@ -27,9 +27,28 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
 
     private async Task<AppointmentView> BookAsync(DateTime start) => (await _s.ScheduleAsync(_s.Request(_ann, start))).Appointment;
 
-    private Task<AppointmentView> CheckInAsync(AppointmentView a, string? version = null) => _s.FlowAsync(f => f.CheckInAsync(a.Id, version ?? a.RowVersion, _s.Actor, default));
-    private Task<AppointmentView> StartAsync(AppointmentView a, string? version = null) => _s.FlowAsync(f => f.StartTreatmentAsync(a.Id, version ?? a.RowVersion, _s.Actor, default));
-    private Task<AppointmentView> CompleteAsync(AppointmentView a, string? version = null) => _s.FlowAsync(f => f.CompleteAsync(a.Id, version ?? a.RowVersion, _s.Actor, default));
+    // ALV-N021 A2: the legacy routes keep their methods but run the one visit policy and path (confirmation required by default; seated before treatment; ready for checkout and a
+    // resolved checkout before completion). These helpers take the visit along that path the way the practice would, then make the STORY-011 move on its legacy method.
+    private Task<AppointmentView> RawCheckIn(AppointmentView a, string? version = null) => _s.FlowAsync(f => f.CheckInAsync(a.Id, version ?? a.RowVersion, _s.Desk, default));
+    private Task<AppointmentView> RawStart(AppointmentView a) => _s.FlowAsync(f => f.StartTreatmentAsync(a.Id, a.RowVersion, _s.ProviderOf(a.ProviderId), default));
+    private Task<AppointmentView> RawComplete(AppointmentView a) => _s.FlowAsync(f => f.CompleteAsync(a.Id, a.RowVersion, _s.Desk, default));
+
+    /// <summary>Confirms first when the STORED visit is still Scheduled (with the caller's version, so a stale view still conflicts), then checks in on the legacy method.</summary>
+    private async Task<AppointmentView> CheckInAsync(AppointmentView a, string? version = null)
+    {
+        if ((await _s.ReloadAsync(a.Id)).FlowState == VisitStates.Scheduled)
+            a = await _s.FlowAsync(f => f.TransitionAsync(a.Id, VisitStates.Confirmed, version ?? a.RowVersion, _s.Desk, default));
+        return await RawCheckIn(a, version is null ? null : a.RowVersion);
+    }
+
+    private async Task<AppointmentView> StartAsync(AppointmentView a) => await RawStart(await _s.WalkAsync(a, VisitStates.Seated));
+
+    private async Task<AppointmentView> CompleteAsync(AppointmentView a)
+    {
+        a = await _s.WalkAsync(a, VisitStates.CheckedOut);
+        await _s.ResolveCheckoutAsync(a.Id);
+        return await RawComplete(await _s.ReloadAsync(a.Id));
+    }
 
     private static async Task<SchedulingException> RefusedAsync(Func<Task<AppointmentView>> action) => await Assert.ThrowsAsync<SchedulingException>(action);
 
@@ -50,17 +69,16 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task A_checked_in_patient_whose_treatment_is_completed_becomes_Completed_and_InTreatment_is_optional()
+    public async Task A_visit_is_completed_only_from_ready_for_checkout_and_STORY_011_shortcuts_are_gone()
     {
-        var direct = await BookAsync(At(9));
-        var done = await CompleteAsync(await CheckInAsync(direct));
-        Assert.Equal(PatientFlowStates.Completed, done.FlowState);
-        Assert.Equal(PatientFlowStates.Completed, (await _s.ReloadAsync(direct.Id)).FlowState);
-
-        var stepwise = await BookAsync(At(11));
-        var inTreatment = await StartAsync(await CheckInAsync(stepwise));
+        // ALV-N021 A2 (OD-01): STORY-011 let a visit go from check-in straight to completed and from treatment straight to completed; both are now refused
+        var a = await CheckInAsync(await BookAsync(At(9)));
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => RawComplete(a))).Code);
+        var inTreatment = await StartAsync(a);
         Assert.Equal(PatientFlowStates.InTreatment, inTreatment.FlowState);
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => RawComplete(inTreatment))).Code);
         Assert.Equal(PatientFlowStates.Completed, (await CompleteAsync(inTreatment)).FlowState);
+        Assert.Equal(PatientFlowStates.Completed, (await _s.ReloadAsync(a.Id)).FlowState);
     }
 
     [Fact]
@@ -84,17 +102,18 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
 
         var flowEvents = (await _s.HistoryAsync(a.Id)).Where(e => e.EventType is "CheckedIn" or "TreatmentStarted" or "Completed").ToList();
         Assert.Equal(["CheckedIn", "TreatmentStarted", "Completed"], flowEvents.Select(e => e.EventType));
-        Assert.Equal(["Scheduled -> CheckedIn", "CheckedIn -> InTreatment", "InTreatment -> Completed"], flowEvents.Select(e => e.Detail));
-        Assert.All(flowEvents, e => Assert.Equal(_s.Actor, e.ActorUserId));
+        Assert.Equal(["Confirmed -> CheckedIn", "Seated -> InTreatment", "CheckedOut -> Completed"], flowEvents.Select(e => e.Detail));   // ALV-N021 A2: the one path
+        Assert.Equal([_s.Actor, _s.ProviderAUser, _s.Actor], flowEvents.Select(e => e.ActorUserId));                                         // the booked provider starts treatment
 
         await using var db = _fixture.CreateContext();
         var audits = await db.AuditLogEntries
             .Where(e => e.EventType == SchedulingAuditEvents.PatientCheckedIn || e.EventType == SchedulingAuditEvents.TreatmentStarted || e.EventType == SchedulingAuditEvents.TreatmentCompleted)
             .OrderBy(e => e.TimestampUtc).ToListAsync();
         Assert.Equal(3, audits.Count);
+        Assert.Equal([_s.Actor, _s.ProviderAUser, _s.Actor], audits.Select(e => e.PerformedByUserAccountId));
         Assert.All(audits, e =>
         {
-            Assert.Equal((_s.Actor, a.Id), (e.PerformedByUserAccountId, e.TargetUserAccountId));
+            Assert.Equal(a.Id, e.TargetUserAccountId);
             Assert.InRange(e.TimestampUtc, DateTimeOffset.UtcNow.AddMinutes(-5), DateTimeOffset.UtcNow.AddSeconds(5));
             Assert.DoesNotContain("Ann", e.Details);
             Assert.DoesNotContain("Lee", e.Details);
@@ -106,13 +125,13 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
     [Fact]
     public async Task If_the_log_cannot_be_written_the_status_does_not_change_either()
     {
-        var a = await BookAsync(At(9));
+        var a = await _s.MoveAsync(await BookAsync(At(9)), VisitStates.Confirmed);
         await using (var failing = _s.FailingAuditContext())
-            await Assert.ThrowsAsync<DbUpdateException>(() => _s.Flow(failing).CheckInAsync(a.Id, a.RowVersion, _s.Actor, default));
+            await Assert.ThrowsAsync<DbUpdateException>(() => _s.Flow(failing).CheckInAsync(a.Id, a.RowVersion, _s.Desk, default));
 
         var unchanged = await _s.ReloadAsync(a.Id);
-        Assert.Equal((PatientFlowStates.Scheduled, a.RowVersion), (unchanged.FlowState, unchanged.RowVersion));
-        Assert.Single(await _s.HistoryAsync(a.Id)); // only "Scheduled"
+        Assert.Equal((VisitStates.Confirmed, a.RowVersion), (unchanged.FlowState, unchanged.RowVersion));
+        Assert.Equal(2, (await _s.HistoryAsync(a.Id)).Count); // only "Scheduled" and "Confirmed"
 
         // and the same request can simply be retried once logging is back
         Assert.Equal(PatientFlowStates.CheckedIn, (await CheckInAsync(a)).FlowState);
@@ -123,12 +142,13 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
     {
         var a = await BookAsync(At(9));
 
-        Assert.Equal("invalid_flow_transition", (await RefusedAsync(() => StartAsync(a))).Code);   // cannot skip check-in
-        Assert.Equal("invalid_flow_transition", (await RefusedAsync(() => CompleteAsync(a))).Code); // cannot skip check-in
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => RawStart(a))).Code);      // cannot skip check-in (ALV-N021 A2 code)
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => RawComplete(a))).Code);
+        Assert.Equal("illegal_transition", (await RefusedAsync(() => RawCheckIn(a))).Code);    // ALV-N021 A2: confirmation is required by default
 
         var done = await CompleteAsync(await CheckInAsync(a));
-        var backwards = await RefusedAsync(() => CheckInAsync(done)); // Completed -> CheckedIn would be backwards (the version is current)
-        Assert.Equal(("invalid_flow_transition", 409), (backwards.Code, backwards.StatusCode));
+        var backwards = await RefusedAsync(() => RawCheckIn(done)); // a completed visit is final (the version is current)
+        Assert.Equal(("terminal_state", 409), (backwards.Code, backwards.StatusCode));
         Assert.Equal(PatientFlowStates.Completed, (await _s.ReloadAsync(a.Id)).FlowState);
     }
 
@@ -141,9 +161,9 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => CheckInAsync(a));
         Assert.Equal(PatientFlowStates.Scheduled, (await _s.ReloadAsync(a.Id)).FlowState);
 
-        var missing = await RefusedAsync(() => _s.FlowAsync(f => f.CheckInAsync(a.Id, null, _s.Actor, default)));
+        var missing = await RefusedAsync(() => _s.FlowAsync(f => f.CheckInAsync(a.Id, null, _s.Desk, default)));
         Assert.Equal(("row_version_required", 400), (missing.Code, missing.StatusCode));
-        var junk = await RefusedAsync(() => _s.FlowAsync(f => f.CheckInAsync(a.Id, "not base64!", _s.Actor, default)));
+        var junk = await RefusedAsync(() => _s.FlowAsync(f => f.CheckInAsync(a.Id, "not base64!", _s.Desk, default)));
         Assert.Equal("row_version_invalid", junk.Code);
     }
 
@@ -152,14 +172,14 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
     {
         var toCancel = await BookAsync(At(9));
         var cancelled = await _s.ManageAsync(m => m.CancelAsync(toCancel.Id, "Illness", toCancel.RowVersion, _s.Actor, default));
-        var refusedCancelled = await RefusedAsync(() => CheckInAsync(cancelled));
-        Assert.Equal(("appointment_not_scheduled", 409), (refusedCancelled.Code, refusedCancelled.StatusCode));
+        var refusedCancelled = await RefusedAsync(() => RawCheckIn(cancelled));
+        Assert.Equal(("terminal_state", 409), (refusedCancelled.Code, refusedCancelled.StatusCode));   // ALV-N021 A2 code
 
         var toMiss = await BookAsync(At(11));
         var missed = await _s.ManageAsync(m => m.MarkNoShowAsync(toMiss.Id, toMiss.RowVersion, _s.Actor, default), new TestClock(toMiss.StartUtc.AddHours(1)));
-        Assert.Equal("appointment_not_scheduled", (await RefusedAsync(() => CheckInAsync(missed))).Code);
+        Assert.Equal("terminal_state", (await RefusedAsync(() => RawCheckIn(missed))).Code);
 
-        var unknown = await RefusedAsync(() => _s.FlowAsync(f => f.CheckInAsync(Guid.NewGuid(), "AAAA", _s.Actor, default)));
+        var unknown = await RefusedAsync(() => _s.FlowAsync(f => f.CheckInAsync(Guid.NewGuid(), "AAAA", _s.Desk, default)));
         Assert.Equal(("appointment_not_found", 404), (unknown.Code, unknown.StatusCode));
     }
 

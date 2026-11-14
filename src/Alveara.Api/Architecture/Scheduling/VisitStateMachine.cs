@@ -42,45 +42,51 @@ public enum TransitionDuty
 }
 
 /// <summary>
-/// ALV-011-C01: the complete visit-state rule, as one pure function with no I/O so it can be tested on every pair of states.
+/// ALV-011-C01, rewritten by ALV-N021 A2 (briefing 5.1, 5.2, OD-01, OD-02): the complete visit-state rule, as one pure function with no I/O so it is tested on every pair of states and
+/// every combination of the two settings.
 ///
-/// It is a SUPERSET of STORY-011's <see cref="PatientFlowRules"/>: for any two of the four original states it gives exactly STORY-011's answer (a test
-/// compares every pair), so STORY-011's completion contract cannot drift. On top of that it adds the Confirmed, Ready, Seated and CheckedOut steps.
-///
-/// Rules: a visit moves forward only, along the edges below. It may not skip check-in, may not go back (a mistaken move is a correction for a later story,
-/// not a silent undo), and Completed is final. Asking for the state the visit is already in is a no-op, so a retry is safe.
+/// One path, no shortcuts: Scheduled -> Confirmed -> Checked in -> Ready -> Seated -> In treatment -> Ready for checkout (CheckedOut) -> Completed. STORY-011's shortcuts (check-in straight
+/// to treatment or to completed, treatment straight to completed) are REMOVED. Two steps are settings: with confirmation not required a visit may also be checked in from Scheduled; with
+/// mark-ready not required a patient may also be seated straight from Checked in. Completed is final. Asking for the state the visit is already in is a no-op, so a retry is safe.
+/// Who may make a move is <see cref="VisitMovePolicy"/>; whether the visit may be completed is also the checkout gate.
 /// </summary>
 public static class VisitStateMachine
 {
-    // The allowed forward moves. The three marked (011) are STORY-011's shortcuts and stay legal: a visit may go from check-in straight to treatment or to
-    // completed, and from treatment straight to completed, so the receptionist-only flow STORY-011 shipped still works with no chairside steps recorded.
-    private static readonly IReadOnlyDictionary<string, string[]> Edges = new Dictionary<string, string[]>
+    private static IReadOnlyList<string> EdgesFrom(string current, VisitSettings settings) => current switch
     {
-        [VisitStates.Scheduled] = [VisitStates.Confirmed, VisitStates.CheckedIn],
-        [VisitStates.Confirmed] = [VisitStates.CheckedIn],
-        [VisitStates.CheckedIn] = [VisitStates.Ready, VisitStates.InTreatment /* 011 */, VisitStates.Completed /* 011 */],
-        [VisitStates.Ready] = [VisitStates.Seated],
-        [VisitStates.Seated] = [VisitStates.InTreatment],
-        [VisitStates.InTreatment] = [VisitStates.CheckedOut, VisitStates.Completed /* 011 */],
-        [VisitStates.CheckedOut] = [VisitStates.Completed],
-        [VisitStates.Completed] = [],
+        VisitStates.Scheduled => settings.ConfirmationRequired ? [VisitStates.Confirmed] : [VisitStates.Confirmed, VisitStates.CheckedIn],
+        VisitStates.Confirmed => [VisitStates.CheckedIn],
+        VisitStates.CheckedIn => settings.MarkReadyRequired ? [VisitStates.Ready] : [VisitStates.Ready, VisitStates.Seated],
+        VisitStates.Ready => [VisitStates.Seated],
+        VisitStates.Seated => [VisitStates.InTreatment],
+        VisitStates.InTreatment => [VisitStates.CheckedOut],
+        VisitStates.CheckedOut => [VisitStates.Completed],
+        _ => [],
     };
 
-    public static FlowDecision Decide(string? current, string? requested)
+    /// <summary>With both settings at their default (required).</summary>
+    public static FlowDecision Decide(string? current, string? requested) => Decide(current, requested, VisitSettings.Default);
+
+    public static FlowDecision Decide(string? current, string? requested, VisitSettings settings)
     {
         if (!VisitStates.IsKnown(current) || !VisitStates.IsKnown(requested)) return FlowDecision.Refused;
         if (current == requested) return FlowDecision.NoChange;
-        return Edges[current!].Contains(requested!) ? FlowDecision.Move : FlowDecision.Refused;
+        return EdgesFrom(current!, settings).Contains(requested!) ? FlowDecision.Move : FlowDecision.Refused;
     }
 
-    /// <summary>The states a visit may move to next (empty for an unknown state or a finished visit), in chain order, for the board's action buttons.</summary>
-    public static IReadOnlyList<string> NextStates(string? current) =>
-        VisitStates.IsKnown(current) ? [.. VisitStates.InOrder.Where(s => Edges[current!].Contains(s))] : [];
+    /// <summary>The states a visit may move to next (empty for an unknown state or a finished visit), in chain order.</summary>
+    public static IReadOnlyList<string> NextStates(string? current) => NextStates(current, VisitSettings.Default);
 
-    /// <summary>Whether a move INTO this state is front-office or chairside work (decides which permission it needs).</summary>
+    public static IReadOnlyList<string> NextStates(string? current, VisitSettings settings) =>
+        VisitStates.IsKnown(current) ? [.. VisitStates.InOrder.Where(s => EdgesFrom(current!, settings).Contains(s))] : [];
+
+    /// <summary>
+    /// Whether a move INTO this state is front-office or chairside work. ALV-N021 A2: ending treatment (CheckedOut) is now chairside work (the booked provider), and completing is front-office
+    /// work (a clinician may complete only through <see cref="Identity.Permission.CompleteOwnStartedVisit"/>, decided by <see cref="VisitMovePolicy"/>).
+    /// </summary>
     public static TransitionDuty DutyFor(string target) => target switch
     {
-        VisitStates.Confirmed or VisitStates.CheckedIn or VisitStates.CheckedOut => TransitionDuty.FrontOffice,
+        VisitStates.Confirmed or VisitStates.CheckedIn or VisitStates.Completed => TransitionDuty.FrontOffice,
         _ => TransitionDuty.Chairside,
     };
 }

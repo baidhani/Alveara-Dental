@@ -81,7 +81,14 @@ public sealed class CheckoutRecorder(AlveraDbContext db, IPracticeClock clock, I
         AuditService.Record(db, AuditEvent, nameof(Appointment), appointmentId, actor, current is null ? $"Checkout {item} recorded as {outcome}." : $"Checkout {item} corrected to {outcome}.");
         try
         {
+            // under the visit's checkout lock, so a completion and this decision never interleave; the visit must still be ready for checkout once the lock is held
+            await using var transaction = await db.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted, ct);
+            await SchedulingGuards.AcquireLockAsync(db, AppointmentFlowService.CheckoutLock(appointmentId), ct);
+            var state = await db.Appointments.AsNoTracking().Where(x => x.Id == appointmentId).Select(x => new { x.Status, x.FlowState }).SingleAsync(ct);
+            if (state.Status != AppointmentStatuses.Scheduled || state.FlowState != VisitStates.CheckedOut)
+                throw new CheckoutException("checkout_not_open", "Checkout decisions are recorded once treatment has ended and before the visit is completed.", 409);
             await db.SaveChangesAsync(ct);
+            await transaction.CommitAsync(ct);
         }
         catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException { Number: 2601 or 2627 } sql)
         {
