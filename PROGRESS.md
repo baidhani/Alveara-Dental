@@ -2696,3 +2696,9 @@
   - What changed: request states A1 COMPLETE (d86304e) and asks that A2 wait for this decision; decision 4 reworded.
   - Verification: document only.
   - Notes: nothing pushed.
+- [x] ALV-N021: store decision 02 and the reviewer's execution-plan amendment
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: .alveara/reviews/ALV-N021/A2-DECISION-02.md stored unchanged; GPT Docs/Alveara_Dental_Execution_Plan_v4.md item 58 amendment (made by the reviewer/owner, committed unchanged); BUILD_STATE paragraph.
+  - Verification: user-supplied files; no code change, no test run.
+  - Notes: A2 scope now includes T-2 and T-3; A3 needs its own briefing; nothing pushed.
