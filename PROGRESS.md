@@ -2594,3 +2594,9 @@
   - What changed: stored BRIEFING-R03.md unchanged; added owner addendum 4 (completion permission grantable to hygienists; nothing starts until the whole briefing is approved); brief revision 4 merges A3 into A2 as one atomic change, limits CompleteOwnStartedVisit to linked Dentist/Hygienist who started treatment, refuses blocked time over active visits and check-in of flagged appointments; decision record revision 2 (OD-09, OD-17, OD-18, attempt column).
   - Verification: user confirmed; owner signed decision record revision 2 and addendum 4; no code changed, no test run.
   - Notes: A1 approved in R03 but held until the whole briefing is approved (owner); nothing pushed.
+- [x] ALV-N021 briefing approved (R04 stored)
+  - Date: 2026-11-13
+  - Session: CC-20261109-8w3d
+  - What changed: stored .alveara/reviews/ALV-N021/BRIEFING-R04.md unchanged (APPROVED: A1 may begin; A2 after A1 is approved and closed).
+  - Verification: reviewer decision file R04 on package f7514760...2b12 (commit 1ec686e).
+  - Notes: ALV-N030/N031/N032 remain proposals; nothing pushed.
