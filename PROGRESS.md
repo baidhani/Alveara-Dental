@@ -2606,3 +2606,9 @@
   - What changed: added docs/design/ALV-N021_A1_DECISION_REQUEST_01_AGING_DAYS.md (FinancialDocumentBuilder aging counts UTC days; reprint hash constraint; options A versioned practice days / C keep; A1 read-only findings summary).
   - Verification: read-only code check (FinancialDocumentBuilder.cs:47, BillingService.Documents.cs reprint hash check); no code changed, no test run.
   - Notes: owner referred to the reviewer; A1 code not started; nothing pushed.
+- [x] ALV-N021 A1 decision 01 stored and A1 scope amendment recorded (document only)
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: stored .alveara/reviews/ALV-N021/A1-DECISION-01.md unchanged (Option A approved: versioned practice-day aging with frozen basis); brief section 0a records the A1 scope amendment and the F-030 wording correction.
+  - Verification: reviewer decision file on package 2f2fccb3...15c7.
+  - Notes: A1 code not started; nothing pushed.

@@ -34,6 +34,10 @@
 | Addendum 2 (no shortcuts; meaning of checkout) | 5.1, 5.2 (OD-01, OD-02, OD-10). |
 | Addendum 3 (checkout-readiness gate) | Section 6 (OD-22 to OD-32), attempt A2, migration M3. |
 
+## 0a. A1 scope amendment 01 (2026-11-14)
+
+Request `docs/design/ALV-N021_A1_DECISION_REQUEST_01_AGING_DAYS.md` (commit `253f6a2`); decision `.alveara/reviews/ALV-N021/A1-DECISION-01.md`: **Option A approved** under the decision's mandatory contract (items 1-7) and focused proof. A1 now also includes: statement aging changes, as a **deliberate policy change** from the documented UTC-day rule of ALV-007-C02, to practice-local calendar days for new **template version 2** documents; rebuilds (reprint, export) dispatch on the stored template version, version 1 statements and receipts stay byte- and hash-identical, unknown versions fail explicitly; the version-2 date-conversion basis is frozen in the existing document envelope and bound to the preview/issue check; live aging (`BillingService.Timeline.cs`) uses the current policy; no migration unless disclosed first. Amounts, balances, ledger operations, thresholds and cut-offs unchanged. This narrowly extends the financial-date exclusion in section 2 to this calculation only. **F-030** is recorded as verification of correct behaviour (the raw entry closes the observation), not as a confirmed defect.
+
 ## 1. Intended result
 
 1. Date-only values (date of birth, performed date) are the same day everywhere and in every zone (F-107, F-118); recorded times are real action times and are not overwritten (F-100, Q-5an, F-184, F-218). **A1**
