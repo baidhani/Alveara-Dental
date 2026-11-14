@@ -2648,3 +2648,9 @@
   - What changed: EXECUTION_STATUS ALV-N021 evidenceCommit = a89246739567be36e974f9f33b9ba0d6d525ed34.
   - Verification: EXECUTION_STATUS.json parses; one-line diff.
   - Notes: nothing pushed.
+- [x] ALV-N021: record A1-R01 review (CHANGES_REQUIRED, documentation only)
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A1-R01.md; EXECUTION_STATUS ALV-N021 status CHANGES_REQUIRED with review block and blocking issue; BUILD_STATE paragraph.
+  - Verification: EXECUTION_STATUS.json parses; diff limited to the ALV-N021 record; R01 handoff, evidence and ZIP untouched.
+  - Notes: nothing pushed.
