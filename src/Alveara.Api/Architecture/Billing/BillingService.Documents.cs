@@ -103,13 +103,22 @@ public partial class BillingService
         await db.BillingAccounts.AsNoTracking().FirstOrDefaultAsync(a => a.PatientId == patientId, ct)
             ?? throw new BillingException("nothing_owed", "Nothing has been billed to this patient yet, so there is nothing to put on a document.", 409);
 
-    /// <summary>Builds the content at the cut-offs. For a receipt the payment must exist then and not have been reversed by then.</summary>
-    private async Task<(object Content, string Hash, DocumentEnvelope Envelope)> BuildAsync(BillingAccount account, LedgerSnapshot snapshot, FinancialCutOffs cutOffs, string type, int? paymentNumber, DocumentEnvelope? envelope, CancellationToken ct)
+    /// <summary>
+    /// Builds the content at the cut-offs with the given template version. With no envelope (a preview, or the check at issue) the envelope is resolved now and, for a version-2 statement, the aging basis is
+    /// made now from the practice's zone; with a stored envelope (a reprint or export) nothing is re-resolved: a version-2 statement ages from the basis frozen in it. For a receipt the payment must exist
+    /// then and not have been reversed by then.
+    /// </summary>
+    private async Task<(object Content, string Hash, DocumentEnvelope Envelope)> BuildAsync(BillingAccount account, LedgerSnapshot snapshot, FinancialCutOffs cutOffs, string type, int? paymentNumber, DocumentEnvelope? envelope, int templateVersion, CancellationToken ct)
     {
+        FinancialDocumentBuilder.RequireSupported(templateVersion);
         if (type == FinancialDocumentTypes.Statement)
         {
-            envelope ??= await ResolveEnvelopeAsync(account, cutOffs, null, ct);
-            var statement = FinancialDocumentBuilder.Statement(snapshot, cutOffs, envelope);
+            if (envelope is null)
+            {
+                envelope = await ResolveEnvelopeAsync(account, cutOffs, null, ct);
+                if (templateVersion >= 2) envelope = envelope with { AgingBasis = FinancialDocumentBuilder.PracticeBasis(snapshot, cutOffs, clock.PracticeTimeZone) };
+            }
+            var statement = FinancialDocumentBuilder.Statement(snapshot, cutOffs, envelope, templateVersion);
             return (statement, FinancialDocumentBuilder.HashOf(statement), envelope);
         }
         var payment = paymentNumber is int n ? snapshot.Entries.FirstOrDefault(e => e.Number == n && e.Number <= cutOffs.EntryNumber) : null;
@@ -120,7 +129,7 @@ public partial class BillingService
             var payer = await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == account.Id && e.EntryNumber == payment.Number).Select(e => e.PaidByPatientId).FirstAsync(ct);
             envelope = await ResolveEnvelopeAsync(account, cutOffs, payer ?? account.PatientId, ct);
         }
-        var receipt = FinancialDocumentBuilder.Receipt(snapshot, cutOffs, envelope, payment.Number);
+        var receipt = FinancialDocumentBuilder.Receipt(snapshot, cutOffs, envelope, payment.Number, templateVersion);
         return (receipt, FinancialDocumentBuilder.HashOf(receipt), envelope);
     }
 
@@ -137,12 +146,13 @@ public partial class BillingService
         var cutOffs = await CaptureCutOffsAsync(account.Id, snapshot, ct);
         // the amendments in force at the instant are the document's own; reload when that instant ends the cap differently from "latest"
         snapshot = await LoadSnapshotAsync(account.Id, cutOffs.AsOfUtc, ct);
-        var (content, hash, _) = await BuildAsync(account, snapshot, cutOffs, type, type == FinancialDocumentTypes.Receipt ? input.PaymentEntryNumber : null, null, ct);
+        var version = FinancialDocumentBuilder.CurrentTemplateVersion;
+        var (content, hash, _) = await BuildAsync(account, snapshot, cutOffs, type, type == FinancialDocumentTypes.Receipt ? input.PaymentEntryNumber : null, null, version, ct);
         if (transaction is not null) await transaction.CommitAsync(ct);
 
         var token = EncodeToken(new PreviewToken(type, type == FinancialDocumentTypes.Receipt ? input.PaymentEntryNumber : null, cutOffs.EntryNumber, cutOffs.AllocationNumber, cutOffs.ReleaseNumber,
-            cutOffs.ResponsibilitySequence, FinancialDocumentBuilder.Instant(cutOffs.AsOfUtc), FinancialDocumentBuilder.TemplateVersion, hash));
-        return new DocumentPreview(type, cutOffs, FinancialDocumentBuilder.TemplateVersion, hash, token, content as StatementContent, content as ReceiptContent);
+            cutOffs.ResponsibilitySequence, FinancialDocumentBuilder.Instant(cutOffs.AsOfUtc), version, hash));
+        return new DocumentPreview(type, cutOffs, version, hash, token, content as StatementContent, content as ReceiptContent);
     }
 
     /// <summary>Issues the previewed document: the same content, or nothing (<c>document_preview_stale</c>). The same key again returns the same document.</summary>
@@ -160,6 +170,8 @@ public partial class BillingService
         var cutOffs = new FinancialCutOffs(token.E, token.A, token.R, token.S, asOf);
 
         var account = await AccountForDocumentAsync(patientId, ct);
+        // A replay of an issue that already happened returns that document whatever version it was built with (a version-1 issue retried after the upgrade still finds its document); only a NEW issue needs
+        // a preview made with the current version.
         var prior = await db.FinancialDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.AccountId == account.Id && d.IdempotencyKey == key, ct);
         if (prior is not null)
             return prior.DocumentType == type && prior.ContentHash == token.H && prior.AsOfEntryNumber == token.E && prior.AsOfUtc == asOf && (prior.PaymentEntryId is null) == (token.P is null)
@@ -171,11 +183,12 @@ public partial class BillingService
         {
             var snapshot = await LoadSnapshotAsync(account.Id, asOf, ct);
             if (token.E < 1 || token.E > snapshot.Entries.Max(e => e.Number) || token.A > snapshot.Allocations.Select(a => a.Number).DefaultIfEmpty(0).Max() || token.R > snapshot.Releases.Select(r => r.Number).DefaultIfEmpty(0).Max()
-                || token.V != FinancialDocumentBuilder.TemplateVersion)
+                || token.V != FinancialDocumentBuilder.CurrentTemplateVersion)                          // a preview made before the upgrade is stale: preview again
                 throw new BillingException("document_preview_stale", "The account has changed since this preview was made. Preview the document again.", 409);
             try
             {
-                (_, hash, envelope) = await BuildAsync(account, snapshot, cutOffs, type, token.P, null, ct);
+                // rebuilt with a freshly made aging basis: if the practice's zone (or its rules) changed the basis since the preview, the content and so the hash differ and the issue is refused below
+                (_, hash, envelope) = await BuildAsync(account, snapshot, cutOffs, type, token.P, null, token.V, ct);
             }
             catch (BillingException ex) when (ex.Code is "payment_not_found" or "payment_reversed")
             {
@@ -240,16 +253,28 @@ public partial class BillingService
         var view = await ViewOfDocumentAsync(d, ct);
         var envelope = JsonSerializer.Deserialize<DocumentEnvelope>(d.EnvelopeJson) ?? throw new BillingException("document_content_changed", "This document can no longer be shown exactly as it was issued.", 409);
 
+        if (!FinancialDocumentBuilder.IsSupported(d.TemplateVersion))
+        {
+            logger?.LogError("billing_document_template_unsupported error_class={ErrorClass} document_type={Type} document_number={Number} template_version={Version}", "ContractViolation", d.DocumentType, d.DocumentNumber, d.TemplateVersion);
+            throw new BillingException("document_template_unsupported", "This document was made with a template this version of the system cannot rebuild, so it is not shown.", 409);
+        }
+
         var snapshot = await LoadSnapshotAsync(account.Id, d.AsOfUtc, ct);
         object content;
         string hash;
         try
         {
-            (content, hash, _) = await BuildAsync(account, snapshot, cutOffs, d.DocumentType, view.PaymentEntryNumber, envelope, ct);
+            // rebuilt with the document's OWN template version and its stored envelope (for version 2, the frozen aging basis): never with the current version
+            (content, hash, _) = await BuildAsync(account, snapshot, cutOffs, d.DocumentType, view.PaymentEntryNumber, envelope, d.TemplateVersion, ct);
         }
         catch (BillingException ex)
         {
             logger?.LogError("billing_document_rebuild_failed error_class={ErrorClass} code={Code}", "ContractViolation", ex.Code);
+            throw new BillingException("document_content_changed", "This document can no longer be shown exactly as it was issued.", 409, inner: ex);
+        }
+        catch (ArgumentException ex)
+        {
+            logger?.LogError("billing_document_rebuild_failed error_class={ErrorClass} code={Code}", "ContractViolation", "aging_basis_invalid");
             throw new BillingException("document_content_changed", "This document can no longer be shown exactly as it was issued.", 409, inner: ex);
         }
         if (!string.Equals(hash, d.ContentHash, StringComparison.Ordinal))

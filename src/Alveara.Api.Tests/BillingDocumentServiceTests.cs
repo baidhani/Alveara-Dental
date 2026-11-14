@@ -47,7 +47,10 @@ public class BillingDocumentServiceTests : BillingTestBase
 
         await using var db = Fixture.CreateContext();
         var stored = await db.FinancialDocuments.AsNoTracking().FirstAsync(d => d.Id == first.Id);
-        Assert.DoesNotContain("100", stored.EnvelopeJson);                                              // the envelope is names and currency, no amount
+        // the envelope is names, currency and (ALV-N021 A1, version 2) the frozen aging dates: no amount. It now holds a 7-digit as-of time, so the check is for an amount's text, not any "100".
+        Assert.DoesNotContain("100.00", stored.EnvelopeJson);
+        Assert.DoesNotContain("Amount", stored.EnvelopeJson);
+        Assert.DoesNotContain("Balance", stored.EnvelopeJson);
         Assert.Equal(2, await db.AuditLogEntries.CountAsync(a => a.EventType == "FinancialDocumentIssued" && a.TargetUserAccountId == stored.AccountId));
     }
 
@@ -135,7 +138,8 @@ public class BillingDocumentServiceTests : BillingTestBase
         }
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("H", new string('a', 64)), "doc-1"), S.Actor, default)))).Code);
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("E", 99), "doc-2"), S.Actor, default)))).Code);
-        Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("V", 2), "doc-3"), S.Actor, default)))).Code);
+        // a version other than the current one (2 since ALV-N021 A1; the version-1 case is in BillingDocumentTemplateVersionServiceTests)
+        Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("V", 3), "doc-3"), S.Actor, default)))).Code);
         Assert.Empty(await Bill(s => s.ListDocumentsAsync(Ann, default)));
     }
 

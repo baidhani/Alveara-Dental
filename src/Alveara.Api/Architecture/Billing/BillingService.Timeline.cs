@@ -72,7 +72,8 @@ public partial class BillingService
         if (account is null) return new AgingView(now, AppMoney.Currency, new DocumentAging("0.00", "0.00", "0.00", "0.00"), []);
         var snapshot = await LoadSnapshotAsync(account.Id, null, ct);                                  // live: the latest amendment of each completed procedure
         var cutOffs = new FinancialCutOffs(snapshot.Entries.Max(e => e.Number), snapshot.Allocations.Select(a => a.Number).DefaultIfEmpty(0).Max(), snapshot.Releases.Select(r => r.Number).DefaultIfEmpty(0).Max(), 0, now);
-        var (charges, buckets) = FinancialDocumentBuilder.AgingAt(snapshot, cutOffs);
+        // the current policy (template version 2, practice-local days), so live aging and a statement issued now agree for the same ledger and instant
+        var (charges, buckets) = FinancialDocumentBuilder.AgingAt(snapshot, cutOffs, FinancialDocumentBuilder.PracticeBasis(snapshot, cutOffs, clock.PracticeTimeZone));
         return new AgingView(now, AppMoney.Currency, buckets, charges);
     }
 }

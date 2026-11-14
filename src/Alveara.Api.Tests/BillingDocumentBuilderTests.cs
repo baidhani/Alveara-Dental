@@ -26,7 +26,7 @@ public class BillingDocumentBuilderTests
     public void A_statement_lists_the_ledger_with_running_balances_and_the_totals()
     {
         var snapshot = new LedgerSnapshot([Charge(1, 100m), Charge(2, 50.5m), Payment(3, 60m)], [new(1, 3, 1, 60m)], []);
-        var s = FinancialDocumentBuilder.Statement(snapshot, Cut(3, 1), Envelope);
+        var s = FinancialDocumentBuilder.Statement(snapshot, Cut(3, 1), Envelope, 1);
         Assert.Equal(["100.00", "150.50", "90.50"], s.Lines.Select(l => l.BalanceAfter));
         Assert.Equal(("90.50", "90.50", "0.00"), (s.Balance, s.OpenChargeTotal, s.UnappliedTotal));
         Assert.Equal([1, 2], s.OpenCharges.Select(c => c.Number));
@@ -39,8 +39,8 @@ public class BillingDocumentBuilderTests
     {
         var early = new LedgerSnapshot([Charge(1, 100m), Payment(2, 40m)], [new(1, 2, 1, 40m)], []);
         var later = new LedgerSnapshot([Charge(1, 100m), Payment(2, 40m), Refund(3, 2, 10m), Charge(4, 25m), Reversal(5, Payment(2, 40m))], [new(1, 2, 1, 40m), new(2, 2, 1, 1m)], [new(1, 2, 1, 10m, 3)]);
-        var a = FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(early, Cut(2, 1), Envelope));
-        var b = FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(later, Cut(2, 1), Envelope));
+        var a = FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(early, Cut(2, 1), Envelope, 1));
+        var b = FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(later, Cut(2, 1), Envelope, 1));
         Assert.Equal(a, b);
         Assert.Matches("^[0-9a-f]{64}$", a);
     }
@@ -50,14 +50,14 @@ public class BillingDocumentBuilderTests
     {
         var plain = new LedgerSnapshot([Charge(1, 100m)], [], []);
         var scaled = new LedgerSnapshot([Charge(1, 100.00m)], [], []);
-        var hash = (LedgerSnapshot s, DocumentEnvelope e) => FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(s, Cut(1), e));
+        var hash = (LedgerSnapshot s, DocumentEnvelope e) => FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(s, Cut(1), e, 1));
         Assert.Equal(hash(plain, Envelope), hash(scaled, Envelope));
         Assert.NotEqual(hash(plain, Envelope), hash(new LedgerSnapshot([Charge(1, 100.01m)], [], []), Envelope));
         Assert.NotEqual(hash(plain, Envelope), hash(plain, Envelope with { Addressee = Ann }));
         Assert.NotEqual(hash(plain, Envelope), hash(plain, Envelope with { Practice = new DocumentPractice("Alder Dental", null, null) }));
         Assert.NotEqual(hash(plain, Envelope with { Practice = new DocumentPractice("Alder Dental", null, null) }), hash(plain, Envelope with { Practice = new DocumentPractice("Alder Dental", "555-0100", null) }));
         Assert.NotEqual(hash(plain, Envelope), hash(plain, Envelope with { Patient = Ann with { Name = "Ann Leigh" } }));
-        Assert.NotEqual(FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(plain, Cut(1), Envelope)), FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(plain, Cut(1, asOf: T0.AddSeconds(1)), Envelope)));
+        Assert.NotEqual(FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(plain, Cut(1), Envelope, 1)), FinancialDocumentBuilder.HashOf(FinancialDocumentBuilder.Statement(plain, Cut(1, asOf: T0.AddSeconds(1)), Envelope, 1)));
     }
 
     [Theory]
@@ -70,7 +70,7 @@ public class BillingDocumentBuilderTests
     [InlineData(91, "Over 90")]
     public void Aging_falls_into_the_four_buckets_at_their_edges(int days, string bucket)
     {
-        var (charges, aging) = FinancialDocumentBuilder.AgingAt(new LedgerSnapshot([Charge(1, 10m, days)], [], []), Cut(1));
+        var (charges, aging) = FinancialDocumentBuilder.AgingAt(new LedgerSnapshot([Charge(1, 10m, days)], [], []), Cut(1), null);
         Assert.Equal((days, bucket), (charges[0].AgeDays, charges[0].Bucket));
         var amounts = new[] { aging.Current, aging.Days31To60, aging.Days61To90, aging.Over90 };
         Assert.Equal(1, amounts.Count(a => a == "10.00"));
@@ -81,8 +81,8 @@ public class BillingDocumentBuilderTests
     public void Aging_is_counted_to_the_documents_own_instant_and_only_open_amounts_age()
     {
         var snapshot = new LedgerSnapshot([Charge(1, 100m, 10), Payment(2, 30m)], [new(1, 2, 1, 30m)], []);
-        var now = FinancialDocumentBuilder.AgingAt(snapshot, Cut(2, 1)).Aging;
-        var later = FinancialDocumentBuilder.AgingAt(snapshot, Cut(2, 1, asOf: T0.AddDays(25))).Aging;
+        var now = FinancialDocumentBuilder.AgingAt(snapshot, Cut(2, 1), null).Aging;
+        var later = FinancialDocumentBuilder.AgingAt(snapshot, Cut(2, 1, asOf: T0.AddDays(25)), null).Aging;
         Assert.Equal(("70.00", "0.00"), (now.Current, now.Days31To60));                                  // 70 is still open, 10 days old
         Assert.Equal(("0.00", "70.00"), (later.Current, later.Days31To60));                              // the same 70, 35 days old
     }
@@ -91,7 +91,7 @@ public class BillingDocumentBuilderTests
     public void Amended_service_dates_age_the_charge_from_the_date_the_snapshot_carries()
     {
         var charge = Charge(1, 40m, 100) with { RecordedAtUtc = T0 };                                     // recorded today, performed 100 days ago
-        var aging = FinancialDocumentBuilder.AgingAt(new LedgerSnapshot([charge], [], []), Cut(1)).Aging;
+        var aging = FinancialDocumentBuilder.AgingAt(new LedgerSnapshot([charge], [], []), Cut(1), null).Aging;
         Assert.Equal("40.00", aging.Over90);
     }
 
@@ -99,7 +99,7 @@ public class BillingDocumentBuilderTests
     public void A_receipt_shows_the_payment_its_applications_net_of_releases_and_what_is_left()
     {
         var snapshot = new LedgerSnapshot([Charge(1, 100m), Charge(2, 100m, code: "D2740"), Payment(3, 150m), Refund(4, 3, 80m)], [new(1, 3, 1, 60m), new(2, 3, 2, 40m)], [new(1, 3, 2, 30m, 4)]);
-        var r = FinancialDocumentBuilder.Receipt(snapshot, Cut(4, 2, 1), Envelope, 3);
+        var r = FinancialDocumentBuilder.Receipt(snapshot, Cut(4, 2, 1), Envelope, 3, 1);
         Assert.Equal(("150.00", "Cash", "80.00"), (r.Amount, r.Method, r.RefundedToDate));
         Assert.Equal([("1", "60.00"), ("2", "10.00")], r.Applications.Select(a => (a.ChargeNumber.ToString(), a.Amount)));
         Assert.Equal(("0.00", Bo), (r.Unapplied, r.ReceivedFrom));                                        // 150 less 80 refunded (50 unapplied, 30 released) less 70 still applied
@@ -110,17 +110,17 @@ public class BillingDocumentBuilderTests
     {
         var payment = Payment(2, 20m);
         var snapshot = new LedgerSnapshot([Charge(1, 100m), payment, Reversal(3, payment)], [], []);
-        Assert.Equal("20.00", FinancialDocumentBuilder.Receipt(snapshot, Cut(2), Envelope, 2).Amount);   // before the reversal it is a valid receipt
-        Assert.Throws<ArgumentException>(() => FinancialDocumentBuilder.Receipt(snapshot, Cut(3), Envelope, 2));
-        Assert.Throws<ArgumentException>(() => FinancialDocumentBuilder.Receipt(snapshot, Cut(1), Envelope, 2));
-        Assert.Throws<ArgumentException>(() => FinancialDocumentBuilder.Receipt(snapshot, Cut(3), Envelope, 1));
+        Assert.Equal("20.00", FinancialDocumentBuilder.Receipt(snapshot, Cut(2), Envelope, 2, 1).Amount);   // before the reversal it is a valid receipt
+        Assert.Throws<ArgumentException>(() => FinancialDocumentBuilder.Receipt(snapshot, Cut(3), Envelope, 2, 1));
+        Assert.Throws<ArgumentException>(() => FinancialDocumentBuilder.Receipt(snapshot, Cut(1), Envelope, 2, 1));
+        Assert.Throws<ArgumentException>(() => FinancialDocumentBuilder.Receipt(snapshot, Cut(3), Envelope, 1, 1));
     }
 
     [Fact]
     public void A_csv_neutralises_formulas_and_quotes_what_needs_quotes()
     {
         var hostile = new SnapshotEntry(1, BillingKinds.Adjustment, -5m, null, null, null, "=CMD", "Say \"hi\", ok", "+1", "@x\nline", T0, T0);
-        var csv = FinancialDocumentBuilder.StatementCsv(FinancialDocumentBuilder.Statement(new LedgerSnapshot([Charge(1, 100m) with { ProcedureCode = "=CMD" }], [], []), Cut(1), Envelope));
+        var csv = FinancialDocumentBuilder.StatementCsv(FinancialDocumentBuilder.Statement(new LedgerSnapshot([Charge(1, 100m) with { ProcedureCode = "=CMD" }], [], []), Cut(1), Envelope, 1));
         Assert.Contains("'=CMD", csv);
         Assert.DoesNotContain(",=CMD", csv);
         var lines = FinancialDocumentBuilder.StatementCsv(new StatementContent("Statement", 1, "t", "USD", Ann, Bo, [new DocumentLine(1, "Adjustment", "-5.00", "95.00", hostile.ProcedureCode, hostile.ProcedureDescription, hostile.Method, hostile.Reason, "t", null, null, null)], [], [],

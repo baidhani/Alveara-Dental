@@ -1,4 +1,14 @@
+using System.Text.Json.Serialization;
+
 namespace Alveara.Api.Architecture.Billing;
+
+/// <summary>
+/// ALV-N021 A1 (A1-DECISION-01): the frozen date basis of a template-version-2 statement's aging. Each instant was converted to the practice's calendar date with its own zone offset when the document was
+/// previewed; the basis is stored in the issued document's envelope and repeated in its content (so the hash binds it), and a reprint ages from these dates, never from the zone rules of the day it reprints.
+/// No amount is in it. <c>ServiceDays</c> lists every charge open at the cut-offs.
+/// </summary>
+public sealed record DocumentAgingBasis(string Policy, string TimeZoneId, string AsOfUtc, string AsOfLocalDate, IReadOnlyList<DocumentServiceDay> ServiceDays);
+public sealed record DocumentServiceDay(int Number, string ServiceLocalDate);
 
 /// <summary>The practice as a document shows it (name, phone, address), kept in the issued document's envelope so a reprint shows the practice as it was on the day.</summary>
 public sealed record DocumentPractice(string Name, string? Phone, string? AddressLine);
@@ -14,9 +24,13 @@ public sealed record DocumentOpenCharge(int Number, string? ProcedureCode, strin
 public sealed record DocumentUnapplied(int PaymentNumber, string Amount);
 public sealed record DocumentAging(string Current, string Days31To60, string Days61To90, string Over90);
 
-/// <summary>The canonical content of a statement at its cut-offs. Everything in it is derived from the preserved ledger as it stood at those cut-offs plus the display envelope.</summary>
+/// <summary>
+/// The canonical content of a statement at its cut-offs. Everything in it is derived from the preserved ledger as it stood at those cut-offs plus the display envelope. <c>AgingBasis</c> is set only on
+/// template version 2 and is left out of the JSON when null, so a version-1 statement serializes byte for byte as it did before version 2 existed.
+/// </summary>
 public sealed record StatementContent(string DocumentType, int TemplateVersion, string AsOfUtc, string Currency, DocumentParty Patient, DocumentParty Addressee, IReadOnlyList<DocumentLine> Lines,
-    IReadOnlyList<DocumentOpenCharge> OpenCharges, IReadOnlyList<DocumentUnapplied> Unapplied, DocumentAging Aging, string Balance, string OpenChargeTotal, string UnappliedTotal, DocumentPractice? Practice = null);
+    IReadOnlyList<DocumentOpenCharge> OpenCharges, IReadOnlyList<DocumentUnapplied> Unapplied, DocumentAging Aging, string Balance, string OpenChargeTotal, string UnappliedTotal, DocumentPractice? Practice = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DocumentAgingBasis? AgingBasis = null);
 
 public sealed record ReceiptApplication(int ChargeNumber, string? ProcedureCode, string? ProcedureDescription, string Amount);
 
@@ -27,8 +41,11 @@ public sealed record ReceiptContent(string DocumentType, int TemplateVersion, st
 /// <summary>The four cut-offs and the instant that fix what a document contains. Appending to the ledger never changes what is at or before them.</summary>
 public sealed record FinancialCutOffs(int EntryNumber, int AllocationNumber, int ReleaseNumber, int ResponsibilitySequence, DateTimeOffset AsOfUtc);
 
-/// <summary>The non-financial display envelope stored with an issued document, so a reprint shows the same names (the addressee as resolved on the day) whatever has changed since.</summary>
-public sealed record DocumentEnvelope(DocumentParty Patient, DocumentParty Addressee, string AddresseeSource, string Currency, DocumentPractice? Practice = null);
+/// <summary>
+/// The non-financial display envelope stored with an issued document, so a reprint shows the same names (the addressee as resolved on the day) whatever has changed since. A version-2 statement also stores its
+/// frozen <see cref="DocumentAgingBasis"/> here (dates only); version-1 documents have none.
+/// </summary>
+public sealed record DocumentEnvelope(DocumentParty Patient, DocumentParty Addressee, string AddresseeSource, string Currency, DocumentPractice? Practice = null, DocumentAgingBasis? AgingBasis = null);
 
 /// <summary>A preview: the content a person is reviewing, its hash, and the token that issuing must present. Exactly one of <c>Statement</c> and <c>Receipt</c> is set.</summary>
 public sealed record DocumentPreview(string DocumentType, FinancialCutOffs CutOffs, int TemplateVersion, string ContentHash, string PreviewToken, StatementContent? Statement, ReceiptContent? Receipt);
