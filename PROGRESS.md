@@ -2582,3 +2582,9 @@
   - What changed: stored BRIEFING-R02.md and owner addenda 1-3 unchanged; added docs/design/ALV-N021_OWNER_DECISION_RECORD.md (OD-01..OD-37 with acceptance criteria, owner approval line); rewrote the brief as revision 3 (three attempts A1 PKG-04, A2 workflow, A3 checkout gate; full transition table; CollectPayments; blocked-time option 2; no-show final; migrations M1-M3); plan-change proposal gains ALV-N032 (late/automatic no-show/fee).
   - Verification: document only; read-only code check of billing permissions, charge-to-visit links, follow-ups, blocked time and no-show recorded in brief section 3; no code changed, no test run.
   - Notes: awaiting the owner's approval of the decision record and a new briefing review; plan and status ledger not edited; nothing pushed.
+- [x] ALV-N021 owner decision record signed (document only)
+  - Date: 2026-11-13
+  - Session: CC-20261109-8w3d
+  - What changed: product owner ticked "Approved as written" and signed/dated the approval line of docs/design/ALV-N021_OWNER_DECISION_RECORD.md (owner's own edit); R03 package rebuilt with the signed record.
+  - Verification: user confirmed; git diff shows only line 5 changed.
+  - Notes: OD-09 kept as default Dentist (owner: grantable, can be extended to hygienists later); nothing pushed.

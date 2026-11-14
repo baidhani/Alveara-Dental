@@ -2,7 +2,7 @@
 
 - **Date:** 2026-11-13. **Prepared by:** the coding agent (session CC-20261109-8w3d) from the product owner's answers in the working session of 2026-11-12/13 and the owner's addenda 1-3 in `.alveara/reviews/ALV-N021/`.
 - **Purpose:** answers review `BRIEFING-R02.md` blocking correction 2: each expanded item has an owner decision and an exact acceptance criterion, or is moved out of ALV-N021.
-- **Owner approval:** ☐ Approved as written ☐ Approved with the changes noted below — Product owner: ____________ Date: ________
+- **Owner approval:** ☑ Approved as written ☐ Approved with the changes noted below — Product owner: __Firas Baidhani__ Date: _11/13/2026_
 
 Ids: **OD-nn**. "Attempt" says where the item is built: **A1** PKG-04 date/time, **A2** PKG-05 workflow, **A3** checkout-readiness gate, or **Deferred** (a separately proposed story, not built in ALV-N021).
 
