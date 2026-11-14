@@ -165,7 +165,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
     public async Task Only_a_scheduled_appointment_can_be_rescheduled()
     {
         var a = await BookAsync(_ann, At(9));
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(a.Id, "Patient called", a.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Patient called", a.RowVersion, _s.Actor, default));
 
         var ex = await RefusedMoveAsync(cancelled, At(14));
 
@@ -196,22 +196,26 @@ public class AppointmentLifecycleTests : IAsyncLifetime
     // ---------- cancel ----------
 
     [Fact]
-    public async Task Cancelling_needs_a_reason_keeps_the_appointment_on_record_frees_the_time_and_is_audited_without_the_reason_text()
+    public async Task Cancelling_needs_a_category_keeps_the_appointment_on_record_frees_the_time_and_is_audited_without_the_note_text()
     {
         var a = await BookAsync(_ann, At(9));
 
-        var noReason = await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.CancelAsync(a.Id, "   ", a.RowVersion, _s.Actor, default)));
-        Assert.Equal("reason_required", noReason.Code);
-        Assert.Equal("reason_too_long", (await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.CancelAsync(a.Id, new string('x', 401), a.RowVersion, _s.Actor, default)))).Code);
+        // ALV-N021 A2 (OD-19): the category is required and must be on the list; the note is optional but bounded
+        foreach (var missing in new string?[] { null, "", "   " })
+            Assert.Equal("category_required", (await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.CancelAsync(a.Id, missing, "Patient called", a.RowVersion, _s.Actor, default)))).Code);
+        foreach (var wrong in new[] { "Patient", "illness", "patient " })
+            Assert.Equal("invalid_category", (await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.CancelAsync(a.Id, wrong, null, a.RowVersion, _s.Actor, default)))).Code);
+        Assert.Equal("reason_too_long", (await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", new string('x', 401), a.RowVersion, _s.Actor, default)))).Code);
+        Assert.Equal(AppointmentStatuses.Scheduled, (await _s.ReloadAsync(a.Id)).Status);   // nothing was written by any refusal
 
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(a.Id, "Patient called to cancel", a.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Patient called to cancel", a.RowVersion, _s.Actor, default));
 
-        Assert.Equal((AppointmentStatuses.Cancelled, "Patient called to cancel"), (cancelled.Status, cancelled.CancelReason));
+        Assert.Equal((AppointmentStatuses.Cancelled, "patient", "Patient called to cancel"), (cancelled.Status, cancelled.CancelCategory, cancelled.CancelReason));
         Assert.NotNull(cancelled.StatusChangedAtUtc);
         Assert.True((await _s.ScheduleAsync(_s.Request(_bo, At(9)))).Created); // the slot is free
         var history = await _s.HistoryAsync(a.Id);
         Assert.Equal(AppointmentEventTypes.Cancelled, history[^1].EventType);
-        Assert.Equal("Patient called to cancel", history[^1].Detail);
+        Assert.Equal(("Cancelled (patient).", "patient", "Patient called to cancel"), (history[^1].Detail, history[^1].Category, history[^1].Reason));
         await using var db = _fixture.CreateContext();
         var audit = await db.AuditLogEntries.SingleAsync(e => e.EventType == SchedulingAuditEvents.Cancelled);
         Assert.Equal(_s.Actor, audit.PerformedByUserAccountId);
@@ -223,7 +227,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
     {
         var a = await BookAsync(_ann, At(9));
         var b = await BookAsync(_bo, At(11), _s.ProviderB, _s.Op2);
-        await _s.ManageAsync(m => m.CancelAsync(a.Id, "Moved to another practice", a.RowVersion, _s.Actor, default));
+        await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Moved to another practice", a.RowVersion, _s.Actor, default));
 
         await using var db = _fixture.CreateContext();
         var scheduler = _s.Scheduler(db);
@@ -239,15 +243,15 @@ public class AppointmentLifecycleTests : IAsyncLifetime
     public async Task Cancelling_twice_changes_nothing_and_a_stale_cancel_is_a_conflict()
     {
         var a = await BookAsync(_ann, At(9));
-        var first = await _s.ManageAsync(m => m.CancelAsync(a.Id, "First reason", a.RowVersion, _s.Actor, default));
-        var again = await _s.ManageAsync(m => m.CancelAsync(a.Id, "Second reason", a.RowVersion, _s.Actor, default)); // stale version, but already done
+        var first = await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "First reason", a.RowVersion, _s.Actor, default));
+        var again = await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Second reason", a.RowVersion, _s.Actor, default)); // stale version, but already done
 
         Assert.Equal(("First reason", first.RowVersion), (again.CancelReason, again.RowVersion));
         Assert.Equal(1, await _s.CountAsync(db => db.AuditLogEntries.Where(e => e.EventType == SchedulingAuditEvents.Cancelled)));
 
         var b = await BookAsync(_bo, At(11), _s.ProviderB, _s.Op2);
         await MoveAsync(b, At(12), _s.ProviderB, _s.Op2);
-        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => _s.ManageAsync(m => m.CancelAsync(b.Id, "Too late", b.RowVersion, _s.Actor, default)));
+        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => _s.ManageAsync(m => m.CancelAsync(b.Id, "patient", "Too late", b.RowVersion, _s.Actor, default)));
         Assert.Equal(AppointmentStatuses.Scheduled, (await _s.ReloadAsync(b.Id)).Status);
     }
 
@@ -284,7 +288,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
         Assert.True((await _s.ScheduleAsync(_s.Request(_bo, At(9)))).Created);
 
         var b = await BookAsync(_bo, At(14));
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(b.Id, "Illness", b.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(b.Id, "patient", "Illness", b.RowVersion, _s.Actor, default));
         var ex = await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.MarkNoShowAsync(b.Id, cancelled.RowVersion, _s.Actor, default), new TestClock(Clock.FromPracticeLocal(At(16)))));
         Assert.Equal("appointment_not_scheduled", ex.Code);
     }
@@ -317,7 +321,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
         var a = await BookAsync(_ann, At(9));
         Assert.Equal("invalid_notes", (await Assert.ThrowsAsync<SchedulingException>(() => _s.ManageAsync(m => m.UpdateNotesAsync(a.Id, new string('n', 1001), a.RowVersion, _s.Actor, default)))).Code);
 
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(a.Id, "Illness", a.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Illness", a.RowVersion, _s.Actor, default));
         var noted = await _s.ManageAsync(m => m.UpdateNotesAsync(a.Id, "Wants to rebook next month", cancelled.RowVersion, _s.Actor, default));
         Assert.Equal(("Wants to rebook next month", AppointmentStatuses.Cancelled), (noted.Notes, noted.Status));
         Assert.Equal("invalid_notes", (await Assert.ThrowsAsync<SchedulingException>(() => _s.Scheduler(_fixture.CreateContext()).ScheduleAsync(_s.Request(_bo, At(14)) with { Notes = new string('n', 1001) }, "note-key-0001", _s.Actor, default))).Code);
@@ -336,7 +340,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
 
         Assert.True((await _s.ScheduleAsync(_s.Request(_ann, At(10), _s.ProviderB, _s.Op2))).Created); // starts exactly when the first ends
 
-        await _s.ManageAsync(m => m.CancelAsync(first.Id, "Illness", first.RowVersion, _s.Actor, default));
+        await _s.ManageAsync(m => m.CancelAsync(first.Id, "patient", "Illness", first.RowVersion, _s.Actor, default));
         Assert.True((await _s.ScheduleAsync(_s.Request(_ann, At(9), _s.ProviderB, _s.Op1))).Created);   // the cancelled one no longer blocks her
     }
 
@@ -433,7 +437,7 @@ public class AppointmentLifecycleTests : IAsyncLifetime
         {
             var manager = _s.Manager(db, null, new MeasurementEventSink(db));
             var moved = await manager.RescheduleAsync(a.Id, new RescheduleRequest(a.ProviderId, a.OperatoryId, At(10), null, a.RowVersion), _s.Actor, default);
-            await manager.CancelAsync(a.Id, "Illness", moved.RowVersion, _s.Actor, default);
+            await manager.CancelAsync(a.Id, "patient", "Illness", moved.RowVersion, _s.Actor, default);
         }
 
         await using var read = _fixture.CreateContext();

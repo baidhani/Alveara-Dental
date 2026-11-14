@@ -18,7 +18,7 @@ namespace Alveara.Api.Architecture.Scheduling;
 /// - <b>Reschedule</b> applies exactly STORY-004's rules to the new place and time (a real future time, a valid duration, an available provider, and no
 ///   provider, operatory or patient overlap with any OTHER scheduled appointment), under the same locks, so two people moving different appointments into
 ///   the same slot at once still produce one winner. The appointment keeps its identity; where it was is kept in its history.
-/// - <b>Cancel</b> needs a reason; <b>no-show</b> is only possible once the start time has passed. Both keep the appointment on the record and in the
+/// - <b>Cancel</b> needs a category (ALV-N021 A2, OD-19; the free-text note became optional); <b>no-show</b> is only possible once the start time has passed. Both keep the appointment on the record and in the
 ///   calendar (distinctly), and neither holds time any more. Only a Scheduled appointment can be rescheduled, cancelled or marked no-show.
 /// - Repeating a cancel, no-show or unchanged note/reschedule changes nothing (idempotent), so a retried request is harmless.
 /// - Each action is staged with its history entry and PHI-free audit entry in ONE save: if the audit write fails the change is not stored either. A refused
@@ -120,11 +120,16 @@ public class AppointmentManager(
 
     // ---------- cancel ----------
 
-    public async Task<AppointmentView> CancelAsync(Guid id, string? reason, string? rowVersion, Guid actor, CancellationToken ct)
+    /// <summary>ALV-N021 A2 (OD-19): a category from the controlled list is required; the note is optional. Short notice is derived from the times (<see cref="CancellationRules"/>), never asked for.</summary>
+    public async Task<AppointmentView> CancelAsync(Guid id, string? category, string? note, string? rowVersion, Guid actor, CancellationToken ct)
     {
-        var why = (reason ?? string.Empty).Replace("\r\n", "\n").Trim();
-        if (why.Length == 0) throw new SchedulingException("reason_required", "A reason for the cancellation is required.", 400);
-        if (why.Length > 400) throw new SchedulingException("reason_too_long", "The reason can be at most 400 characters.", 400);
+        if (string.IsNullOrWhiteSpace(category))
+            throw new SchedulingException("category_required", $"Choose why the appointment is cancelled: {string.Join(", ", AppointmentCancelCategories.All)}.", 400);
+        if (!AppointmentCancelCategories.All.Contains(category, StringComparer.Ordinal))
+            throw new SchedulingException("invalid_category", $"The category must be one of: {string.Join(", ", AppointmentCancelCategories.All)}.", 400);
+        var why = (note ?? string.Empty).Replace("\r\n", "\n").Trim();
+        if (why.Length > CancellationRules.NoteMaxLength) throw new SchedulingException("reason_too_long", $"The note can be at most {CancellationRules.NoteMaxLength} characters.", 400);
+        var cleanNote = why.Length == 0 ? null : why;
 
         var appointment = await LoadAsync(id, ct);
         if (appointment.Status == AppointmentStatuses.Cancelled) { db.ChangeTracker.Clear(); return await _views.ViewAsync(id, ct); } // already cancelled: nothing to do
@@ -136,12 +141,14 @@ public class AppointmentManager(
         var now = clock.UtcNow;
         appointment.Status = AppointmentStatuses.Cancelled;
         appointment.FlowState = VisitStates.Scheduled; // flow only exists while Scheduled (a Confirmed appointment that is cancelled keeps its Confirmed event in the history)
-        appointment.CancelReason = why;
+        appointment.CancelReason = cleanNote;
+        appointment.CancelCategory = category;
         appointment.StatusChangedAtUtc = now;
         appointment.StatusChangedByUserId = actor;
         db.AppointmentEvents.Add(new AppointmentEvent
         {
-            Id = Guid.NewGuid(), AppointmentId = id, EventType = AppointmentEventTypes.Cancelled, ActorUserId = actor, OccurredAtUtc = now, Detail = why,
+            Id = Guid.NewGuid(), AppointmentId = id, EventType = AppointmentEventTypes.Cancelled, ActorUserId = actor, OccurredAtUtc = now,
+            Detail = $"Cancelled ({category}).", Category = category, Reason = cleanNote,
         });
         AuditService.Record(db, SchedulingAuditEvents.Cancelled, nameof(Appointment), id, actor, "Appointment cancelled.");
         await SaveAsync(id, ct);

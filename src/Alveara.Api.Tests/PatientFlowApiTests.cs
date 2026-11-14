@@ -231,11 +231,11 @@ public class PatientFlowApiTests : IAsyncLifetime
         var a = await StateAsync(desk, await BookAsync(desk, At(9)), "Confirmed");
         var ci = await desk.SendAsync(HttpMethod.Post, Url(a, "/check-in"), Version(a));
 
-        var cancel = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Illness", rowVersion = ci.Body.GetProperty("rowVersion").GetString() });
+        var cancel = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "Illness", rowVersion = ci.Body.GetProperty("rowVersion").GetString() });
         Assert.Equal((HttpStatusCode.Conflict, "appointment_in_progress"), (cancel.Status, cancel.Body.GetProperty("error").GetString()));
 
         var b = await BookAsync(desk, At(13));
-        var cancelled = await desk.SendAsync(HttpMethod.Post, Url(b, "/cancel"), new { reason = "Illness", rowVersion = b.GetProperty("rowVersion").GetString() });
+        var cancelled = await desk.SendAsync(HttpMethod.Post, Url(b, "/cancel"), new { category = "patient", note = "Illness", rowVersion = b.GetProperty("rowVersion").GetString() });
         var refused = await desk.SendAsync(HttpMethod.Post, Url(b, "/check-in"), Version(cancelled.Body));
         Assert.Equal((HttpStatusCode.Conflict, "terminal_state"), (refused.Status, refused.Body.GetProperty("error").GetString()));   // ALV-N021 A2 code
     }

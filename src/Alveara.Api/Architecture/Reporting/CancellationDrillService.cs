@@ -14,7 +14,7 @@ public static class CancellationMeasures
 }
 
 /// <summary>Which appointments: a measure (required), optionally one booked provider, one appointment type and, for cancelled ones, one lead-time bucket (see <see cref="LeadTimeBuckets"/>), and the page.</summary>
-public sealed record CancellationDrillCriteria(string? Measure, Guid? ProviderId, Guid? AppointmentTypeId, string? LeadTime, int? Limit, DateTimeOffset? AfterStart, Guid? AfterId);
+public sealed record CancellationDrillCriteria(string? Measure, Guid? ProviderId, Guid? AppointmentTypeId, string? LeadTime, int? Limit, DateTimeOffset? AfterStart, Guid? AfterId, string? Category = null);
 
 /// <summary>
 /// ALV-N006 slice 4: the appointments behind a number of the cancellations report. The scope is the report's (<see cref="ReportSupport.Appointments"/>) and the lead-time buckets use the same whole-minute counts the report used,
@@ -29,6 +29,10 @@ public class CancellationDrillService(AlveraDbContext db, IOptions<ReportOptions
         if (criteria.Measure is null || !CancellationMeasures.All.Contains(criteria.Measure)) throw new ReportException("invalid_measure", $"The measure must be one of {string.Join(", ", CancellationMeasures.All)}.", 400);
         if (criteria.LeadTime is not null && !LeadTimeBuckets.All.Contains(criteria.LeadTime)) throw new ReportException("invalid_lead_time", $"The lead time must be one of {string.Join(", ", LeadTimeBuckets.All)}.", 400);
         if (criteria.LeadTime is not null && criteria.Measure != CancellationMeasures.Cancelled) throw new ReportException("invalid_lead_time", "A lead time applies to cancelled appointments only.", 400);
+        // ALV-N021 A2: one category (or "uncategorised") of the cancelled appointments, the report's category cut
+        if (criteria.Category is not null && !AppointmentCancelCategories.All.Append(AppointmentCancelCategories.Uncategorised).Contains(criteria.Category, StringComparer.Ordinal))
+            throw new ReportException("invalid_category", $"The category must be one of {string.Join(", ", AppointmentCancelCategories.All)}, {AppointmentCancelCategories.Uncategorised}.", 400);
+        if (criteria.Category is not null && criteria.Measure != CancellationMeasures.Cancelled) throw new ReportException("invalid_category", "A category applies to cancelled appointments only.", 400);
         var limit = criteria.Limit ?? opts.DefaultDrillRows;
         if (limit < 1 || limit > opts.MaxDrillRows) throw new ReportException("invalid_limit", $"The page size must be between 1 and {opts.MaxDrillRows}.", 400);
         if ((criteria.AfterStart is null) != (criteria.AfterId is null)) throw new ReportException("invalid_cursor", "Give both parts of the page position, or neither.", 400);
@@ -49,6 +53,8 @@ public class CancellationDrillService(AlveraDbContext db, IOptions<ReportOptions
                 LeadTimeBuckets.Unknown => query.Where(a => a.StatusChangedAtUtc == null),
                 _ => query,
             };
+            if (criteria.Category == AppointmentCancelCategories.Uncategorised) query = query.Where(a => a.CancelCategory == null);
+            else if (criteria.Category is { } category) query = query.Where(a => a.CancelCategory == category);
             total = await query.CountAsync(ct);
             if (criteria.AfterStart is { } afterStart && criteria.AfterId is { } afterId)
                 query = query.Where(a => a.StartUtc > afterStart || (a.StartUtc == afterStart && a.Id.CompareTo(afterId) > 0));

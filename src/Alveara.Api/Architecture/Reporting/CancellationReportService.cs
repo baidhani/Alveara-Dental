@@ -17,7 +17,7 @@ public static class LeadTimeBuckets
     public const string MoreThan7Days = "MoreThan7Days";
     public const string Unknown = "Unknown";
     public static readonly IReadOnlyList<string> All = [LessThan24h, Within7Days, MoreThan7Days, Unknown];
-    public const int DayMinutes = 1440;
+    public const int DayMinutes = CancellationRules.ShortNoticeMinutes;   // ALV-N021 A2: the same line as the appointment's derived "short notice"
     public const int WeekMinutes = 10080;
 
     public static string Of(int? minutes) => minutes is null ? Unknown : minutes < DayMinutes ? LessThan24h : minutes < WeekMinutes ? Within7Days : MoreThan7Days;
@@ -28,16 +28,20 @@ public sealed record CancellationCounts(int Booked, int Cancelled, int NoShow, d
 
 public sealed record CancellationLeadTimeRow(string Bucket, int Cancelled);
 
+/// <summary>ALV-N021 A2 (OD-19): cancelled appointments by category, and how many of them were short notice (under 24 hours). Cancellations from before categories existed are <see cref="AppointmentCancelCategories.Uncategorised"/>.</summary>
+public sealed record CancellationCategoryRow(string Category, int Cancelled, int ShortNotice);
+
 public sealed record CancellationProviderRow(Guid ProviderProfileId, string ProviderName, CancellationCounts Counts);
 
 public sealed record CancellationTypeRow(Guid AppointmentTypeId, string TypeName, CancellationCounts Counts);
 
 /// <summary>The cancellations and no-shows report. The providers and the types are two cuts of the same appointments, and the lead times cut the cancelled ones; <see cref="Reconciled"/> says each adds up.</summary>
-public sealed record CancellationData(CancellationCounts Totals, IReadOnlyList<CancellationLeadTimeRow> LeadTimes, IReadOnlyList<CancellationProviderRow> Providers, IReadOnlyList<CancellationTypeRow> Types, bool Reconciled);
+public sealed record CancellationData(CancellationCounts Totals, IReadOnlyList<CancellationLeadTimeRow> LeadTimes, IReadOnlyList<CancellationProviderRow> Providers, IReadOnlyList<CancellationTypeRow> Types, bool Reconciled,
+    IReadOnlyList<CancellationCategoryRow>? Categories = null);
 
 /// <summary>
 /// ALV-N006 slice 4: cancellations and no-shows. Source: the appointments that start in the range (any booking status) with their booked provider, type and the time the status changed. The rates are fractions of the appointments
-/// BOOKED in the range, whatever day they were cancelled. The cancel reason is free text and is never shown. The provider filter and the location filter (through the booked operatory) both work. Failure modes handled: nothing
+/// BOOKED in the range, whatever day they were cancelled. The cancel note is free text and is never shown; ALV-N021 A2 adds the controlled category as a cut of the cancelled ones (with its short-notice count). The provider filter and the location filter (through the booked operatory) both work. Failure modes handled: nothing
 /// booked (<c>NoData</c>, rates unavailable), more rows than the limit (413), an audit entry that cannot be saved (503). Definition version 1.
 /// </summary>
 public class CancellationReportService(AlveraDbContext db, IPracticeClock clock, IOptions<ReportOptions> options, ILogger<CancellationReportService> log)
@@ -54,7 +58,7 @@ public class CancellationReportService(AlveraDbContext db, IPracticeClock clock,
             var scoped = ReportSupport.Appointments(db, filter);
             var independent = await scoped.CountAsync(ct);
             ReportSupport.GuardSize(independent, options.Value);
-            var rows = await scoped.Select(a => new { a.ProviderProfileId, a.AppointmentTypeId, a.Status, Minutes = a.StatusChangedAtUtc == null ? (int?)null : EF.Functions.DateDiffMinute(a.StatusChangedAtUtc.Value, a.StartUtc) }).ToListAsync(ct);
+            var rows = await scoped.Select(a => new { a.ProviderProfileId, a.AppointmentTypeId, a.Status, a.CancelCategory, Minutes =a.StatusChangedAtUtc == null ? (int?)null : EF.Functions.DateDiffMinute(a.StatusChangedAtUtc.Value, a.StartUtc) }).ToListAsync(ct);
             var providerIds = rows.Select(r => r.ProviderProfileId).Concat(filter.ProviderIds).Distinct().ToArray();
             var typeIds = rows.Select(r => r.AppointmentTypeId).Distinct().ToArray();
             var providerNames = await db.ProviderProfiles.AsNoTracking().Where(p => providerIds.Contains(p.Id)).Select(p => new { p.Id, Name = p.StaffProfile!.DisplayName }).ToDictionaryAsync(p => p.Id, p => p.Name, ct);
@@ -66,8 +70,15 @@ public class CancellationReportService(AlveraDbContext db, IPracticeClock clock,
                 .OrderBy(t => t.TypeName, StringComparer.OrdinalIgnoreCase).ThenBy(t => t.AppointmentTypeId).ToList();
             var totals = Counts(rows.Select(r => r.Status));
             var leadTimes = LeadTimeBuckets.All.Select(b => new CancellationLeadTimeRow(b, rows.Count(r => r.Status == AppointmentStatuses.Cancelled && LeadTimeBuckets.Of(r.Minutes) == b))).ToList();
-            var reconciled = totals.Booked == independent && providers.Sum(p => p.Counts.Booked) == independent && types.Sum(t => t.Counts.Booked) == independent && leadTimes.Sum(l => l.Cancelled) == totals.Cancelled;
-            data = new CancellationData(totals, leadTimes, providers, types, reconciled);
+            var cancelled = rows.Where(r => r.Status == AppointmentStatuses.Cancelled).ToList();
+            var categories = AppointmentCancelCategories.All.Append(AppointmentCancelCategories.Uncategorised).Select(c =>
+            {
+                var inCategory = cancelled.Where(r => (r.CancelCategory ?? AppointmentCancelCategories.Uncategorised) == c).ToList();
+                return new CancellationCategoryRow(c, inCategory.Count, inCategory.Count(r => LeadTimeBuckets.Of(r.Minutes) == LeadTimeBuckets.LessThan24h));
+            }).ToList();
+            var reconciled = totals.Booked == independent && providers.Sum(p => p.Counts.Booked) == independent && types.Sum(t => t.Counts.Booked) == independent && leadTimes.Sum(l => l.Cancelled) == totals.Cancelled
+                && categories.Sum(c => c.Cancelled) == totals.Cancelled;
+            data = new CancellationData(totals, leadTimes, providers, types, reconciled, categories);
         }
 
         await ReportSupport.AuditAsync(db, log, ReportIds.Cancellations, false, filter, data.Totals.Booked, actor, ct);

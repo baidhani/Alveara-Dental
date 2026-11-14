@@ -8,7 +8,8 @@ namespace Alveara.Api.Architecture.Scheduling;
 /// <summary>One entry of an appointment's history, with the place and time it was moved FROM when it was rescheduled.</summary>
 public record AppointmentEventView(
     string EventType, Guid? ActorUserId, DateTimeOffset OccurredAtUtc, string? Detail,
-    string? PreviousStartLocal, string? PreviousProviderName, string? PreviousOperatoryName);
+    string? PreviousStartLocal, string? PreviousProviderName, string? PreviousOperatoryName,
+    string? Reason = null, string? Category = null);   // ALV-N021 A2: the reason the actor gave and the cancel category
 
 /// <summary>Builds the read model of an appointment (names resolved, times in both UTC and practice-local), shared by booking and the lifecycle actions.</summary>
 internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock clock)
@@ -39,7 +40,8 @@ internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock 
             Convert.ToBase64String(a1.RowVersion), a1.Notes, a1.CancelReason, a1.StatusChangedAtUtc,
             a1.FlowState, a1.FlowChangedAtUtc,
             visitProviderId, visitProviderName, visitOperatoryId, visitOperatoryName,
-            a1.Status == AppointmentStatuses.Scheduled ? VisitStateMachine.NextStates(a1.FlowState) : []);
+            a1.Status == AppointmentStatuses.Scheduled ? VisitStateMachine.NextStates(a1.FlowState) : [],
+            a1.CancelCategory, CancellationRules.IsShortNotice(a1));
     }
 
     public async Task<IReadOnlyList<AppointmentEventView>> HistoryAsync(Guid appointmentId, CancellationToken ct)
@@ -51,6 +53,7 @@ internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock 
             e.EventType, e.ActorUserId, e.OccurredAtUtc, e.Detail,
             e.PreviousStartUtc is null ? null : Local(e.PreviousStartUtc.Value),
             e.PreviousProviderProfileId is { } p && providers.TryGetValue(p, out var pn) ? pn : null,
-            e.PreviousOperatoryId is { } o && operatories.TryGetValue(o, out var on) ? on : null)).ToList();
+            e.PreviousOperatoryId is { } o && operatories.TryGetValue(o, out var on) ? on : null,
+            e.Reason, e.Category)).ToList();
     }
 }

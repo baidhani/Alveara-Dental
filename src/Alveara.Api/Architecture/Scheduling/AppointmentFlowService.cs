@@ -128,6 +128,74 @@ public class AppointmentFlowService(
         return await _views.ViewAsync(id, ct);
     }
 
+    /// <summary>
+    /// OD-11: undo a check-in from Checked in or Ready (before seating), back to the state held before check-in (Scheduled or Confirmed, read from the check-in event). Front desk; reason
+    /// required. The check-in event stays; a CheckInUndone event (actor, from, to, reason, time) and an audit entry are added in the same save. From Seated on: 409 <c>undo_check_in_too_late</c>.
+    /// A retry of the same undo (the visit is back before check-in and the last event is this undo with this reason) changes nothing.
+    /// </summary>
+    public async Task<AppointmentView> UndoCheckInAsync(Guid id, string? reason, string? rowVersion, VisitActor actor, CancellationToken ct)
+    {
+        try
+        {
+            return await UndoCheckInCoreAsync(id, reason, rowVersion, actor, ct);
+        }
+        catch (Exception ex) when (ex is SchedulingException or ConcurrencyConflictException)
+        {
+            var code = ex is SchedulingException s ? s.Code : "concurrency_conflict";
+            await _recorder.MeasureAsync("appointment.flow", new { category = code, outcome = "failure" }, ct);
+            throw;
+        }
+    }
+
+    private async Task<AppointmentView> UndoCheckInCoreAsync(Guid id, string? reason, string? rowVersion, VisitActor actor, CancellationToken ct)
+    {
+        var why = VisitReasons.Required(reason, "undoing the check-in");
+        var appointment = await db.Appointments.SingleOrDefaultAsync(a => a.Id == id, ct)
+            ?? throw new SchedulingException("appointment_not_found", "That appointment was not found.", 404);
+        if (appointment.Status != AppointmentStatuses.Scheduled)
+            throw new SchedulingException("terminal_state", $"Nothing more can happen to this visit: the appointment is {Describe(appointment.Status)}.", 409);
+        await new VisitMovePolicy(db, permissions).AuthorizeAsync(appointment, VisitMovePolicy.UndoCheckIn, actor, ct);
+
+        var from = appointment.FlowState;
+        if (from is VisitStates.Scheduled or VisitStates.Confirmed)
+        {
+            var last = await db.AppointmentEvents.AsNoTracking().Where(e => e.AppointmentId == id).OrderByDescending(e => e.OccurredAtUtc).FirstOrDefaultAsync(ct);
+            if (last is { EventType: AppointmentEventTypes.CheckInUndone } && last.Reason == why)
+            {
+                db.ChangeTracker.Clear();   // the same undo again: nothing to do
+                return await _views.ViewAsync(id, ct);
+            }
+            throw new SchedulingException("illegal_transition", "The patient is not checked in, so there is no check-in to undo.", 409);
+        }
+        if (from is not (VisitStates.CheckedIn or VisitStates.Ready))
+            throw new SchedulingException("undo_check_in_too_late", "A check-in can be undone only before the patient is seated.", 409);
+        AppointmentRowVersion.EnsureCurrent(db, appointment, rowVersion);
+
+        var back = await StateBeforeCheckInAsync(id, ct);
+        var now = clock.UtcNow;
+        appointment.FlowState = back;
+        appointment.FlowChangedAtUtc = now;
+        appointment.FlowChangedByUserId = actor.UserId;
+        db.AppointmentEvents.Add(new AppointmentEvent
+        {
+            Id = Guid.NewGuid(), AppointmentId = id, EventType = AppointmentEventTypes.CheckInUndone, ActorUserId = actor.UserId, OccurredAtUtc = now, Detail = $"{from} -> {back}", Reason = why,
+        });
+        AuditService.Record(db, SchedulingAuditEvents.CheckInUndone, nameof(Appointment), id, actor.UserId, $"Check-in undone: patient flow moved from {from} to {back}.");
+        await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(Appointment), id, ct);
+
+        await _recorder.MeasureAsync("appointment.flow", new { category = "UndoCheckIn", outcome = "success" }, ct);
+        return await _views.ViewAsync(id, ct);
+    }
+
+    /// <summary>The state the latest check-in moved FROM (its event's Detail is "&lt;from&gt; -&gt; CheckedIn"); Scheduled when that cannot be read (a check-in recorded before details were kept).</summary>
+    private async Task<string> StateBeforeCheckInAsync(Guid id, CancellationToken ct)
+    {
+        var detail = await db.AppointmentEvents.AsNoTracking().Where(e => e.AppointmentId == id && e.EventType == AppointmentEventTypes.CheckedIn)
+            .OrderByDescending(e => e.OccurredAtUtc).Select(e => e.Detail).FirstOrDefaultAsync(ct);
+        var before = detail?.Split(" -> ")[0];
+        return before is VisitStates.Confirmed ? VisitStates.Confirmed : VisitStates.Scheduled;
+    }
+
     private DateOnly DayOf(DateTimeOffset instant) => DateOnly.FromDateTime(clock.ToPracticeLocal(instant).DateTime);
 
     private static string EventTypeFor(string target) => target switch

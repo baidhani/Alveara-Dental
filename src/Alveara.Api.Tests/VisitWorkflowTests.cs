@@ -36,7 +36,7 @@ public class VisitWorkflowTests : IAsyncLifetime
     private Task<AppointmentView> WalkAsync(AppointmentView a, string target) => _s.WalkAsync(a, target);
 
     private Task<AppointmentView> AssignAsync(AppointmentView a, Guid provider, Guid operatory, string? version = null) =>
-        _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(provider, operatory, version ?? a.RowVersion), _s.Actor, default));
+        _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(provider, operatory, version ?? a.RowVersion, "Provider is running late"), _s.OfficeManager, default));
 
     private static async Task<SchedulingException> RefusedAsync(Func<Task<AppointmentView>> action) => await Assert.ThrowsAsync<SchedulingException>(action);
 
@@ -77,7 +77,7 @@ public class VisitWorkflowTests : IAsyncLifetime
     {
         var done = await WalkAsync(await BookAsync(_ann, 9), VisitStates.Completed);
         var toCancel = await BookAsync(_bo, 11);
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(toCancel.Id, "Illness", toCancel.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(toCancel.Id, "patient", "Illness", toCancel.RowVersion, _s.Actor, default));
         var toMiss = await BookAsync(_cy, 13);
         var missed = await _s.ManageAsync(m => m.MarkNoShowAsync(toMiss.Id, toMiss.RowVersion, _s.Actor, default), new TestClock(toMiss.StartUtc.AddHours(1)));
 
@@ -146,7 +146,7 @@ public class VisitWorkflowTests : IAsyncLifetime
 
         var b = await BookAsync(_bo, 11);
         var confirmedB = await GoAsync(b, VisitStates.Confirmed);
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(b.Id, "Changed mind", confirmedB.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(b.Id, "patient", "Changed mind", confirmedB.RowVersion, _s.Actor, default));
         Assert.Equal((AppointmentStatuses.Cancelled, VisitStates.Scheduled), (cancelled.Status, cancelled.FlowState));
         Assert.Equal(1, (await _s.HistoryAsync(b.Id)).Count(e => e.EventType == "Confirmed")); // the confirmation is not erased by the cancellation
 
@@ -167,7 +167,7 @@ public class VisitWorkflowTests : IAsyncLifetime
     {
         var a = await WalkAsync(await BookAsync(_ann, 9), state);
 
-        var cancel = await RefusedAsync(() => _s.ManageAsync(m => m.CancelAsync(a.Id, "x", a.RowVersion, _s.Actor, default)));
+        var cancel = await RefusedAsync(() => _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "x", a.RowVersion, _s.Actor, default)));
         var noShow = await RefusedAsync(() => _s.ManageAsync(m => m.MarkNoShowAsync(a.Id, a.RowVersion, _s.Actor, default), new TestClock(a.StartUtc.AddHours(1))));
         var move = await RefusedAsync(() => _s.ManageAsync(m => m.RescheduleAsync(a.Id, new RescheduleRequest(a.ProviderId, a.OperatoryId, At(14), null, a.RowVersion), _s.Actor, default)));
 

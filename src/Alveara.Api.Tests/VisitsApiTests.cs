@@ -104,6 +104,7 @@ public class VisitsApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Unauthorized, (await anon.GetAsync("/api/visits/board")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PostAsJsonAsync($"/api/visits/{id}/state", new { target = "Confirmed" })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PutAsJsonAsync($"/api/visits/{id}/assignment", new { })).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PostAsJsonAsync($"/api/visits/{id}/undo-check-in", new { reason = "x" })).StatusCode);   // ALV-N021 A2
     }
 
     [Theory]
@@ -268,7 +269,7 @@ public class VisitsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.NotFound, "appointment_not_found"), (unknown.Status, unknown.Body.GetProperty("error").GetString()));
 
         var b = await BookAsync(admin, _bo, At(11));
-        var cancelled = await admin.SendAsync(HttpMethod.Post, $"/api/appointments/{Id(b)}/cancel", new { reason = "Illness", rowVersion = Version(b) });
+        var cancelled = await admin.SendAsync(HttpMethod.Post, $"/api/appointments/{Id(b)}/cancel", new { category = "patient", note = "Illness", rowVersion = Version(b) });
         var onCancelled = await MoveAsync(admin, cancelled.Body, "CheckedIn");
         Assert.Equal((HttpStatusCode.Conflict, "terminal_state"), (onCancelled.Status, onCancelled.Body.GetProperty("error").GetString()));
     }
@@ -317,68 +318,121 @@ public class VisitsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.Conflict, "operatory_occupied"), (refused.Status, refused.Body.GetProperty("error").GetString()));
     }
 
-    // ---------- assignment ----------
+    // ---------- ALV-N021 A2: reassignment (OD-13 to OD-16) ----------
 
     [Theory]
-    [InlineData("FrontDesk", HttpStatusCode.OK)]
-    [InlineData("OfficeManager", HttpStatusCode.OK)]
-    [InlineData("Admin", HttpStatusCode.OK)]
-    [InlineData("Dentist", HttpStatusCode.OK)]
-    [InlineData("Hygienist", HttpStatusCode.OK)]
-    [InlineData("Assistant", HttpStatusCode.OK)]
-    [InlineData("Billing", HttpStatusCode.Forbidden)]
-    [InlineData("Unassigned", HttpStatusCode.Forbidden)]
-    public async Task Either_team_can_reassign_where_the_patient_is_seen_and_nobody_else_can(string role, HttpStatusCode expected)
+    [InlineData("FrontDesk", HttpStatusCode.Forbidden, HttpStatusCode.Forbidden)]
+    [InlineData("OfficeManager", HttpStatusCode.OK, HttpStatusCode.OK)]
+    [InlineData("Admin", HttpStatusCode.OK, HttpStatusCode.OK)]
+    [InlineData("Dentist", HttpStatusCode.Forbidden, HttpStatusCode.OK)]
+    [InlineData("Hygienist", HttpStatusCode.Forbidden, HttpStatusCode.OK)]
+    [InlineData("Assistant", HttpStatusCode.Forbidden, HttpStatusCode.OK)]
+    [InlineData("Billing", HttpStatusCode.Forbidden, HttpStatusCode.Forbidden)]
+    [InlineData("Unassigned", HttpStatusCode.Forbidden, HttpStatusCode.Forbidden)]
+    public async Task A_provider_change_needs_the_reassignment_permission_and_a_room_change_also_allows_chairside_staff(string role, HttpStatusCode provider, HttpStatusCode room)
     {
         var admin = await _api.SessionAsync("Admin");
         var a = await BookAsync(admin, _ann, At(9));
+        var b = await BookAsync(admin, _bo, At(11));
         var session = await _api.SessionAsync(role);
 
-        var r = await session.SendAsync(HttpMethod.Put, $"/api/visits/{Id(a)}/assignment", new { providerId = _s.ProviderB, operatoryId = _s.Op2, rowVersion = Version(a) });
+        var p = await session.SendAsync(HttpMethod.Put, $"/api/visits/{Id(a)}/assignment", new { providerId = _s.ProviderB, operatoryId = _s.Op1, rowVersion = Version(a), reason = "Dr. Rivera is ill" });
+        var r = await session.SendAsync(HttpMethod.Put, $"/api/visits/{Id(b)}/assignment", new { providerId = _s.ProviderA, operatoryId = _s.Op2, rowVersion = Version(b) });
 
-        Assert.Equal(expected, r.Status);
-        var stored = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body;
-        if (expected == HttpStatusCode.OK)
-        {
-            Assert.Equal(("Dr. Patel", "Op 2"), (r.Body.GetProperty("visitProviderName").GetString(), r.Body.GetProperty("visitOperatoryName").GetString()));
-            Assert.Equal(("Dr. Rivera", "Op 1"), (stored.GetProperty("providerName").GetString(), stored.GetProperty("operatoryName").GetString())); // the booking did not move
-        }
-        else
-        {
-            Assert.Equal("UpdateVisitFlow or UpdateChairsideFlow", r.Body.GetProperty("required").GetString());
-            Assert.Equal("Dr. Rivera", stored.GetProperty("visitProviderName").GetString());
-        }
+        Assert.Equal((provider, room), (p.Status, r.Status));
+        var storedA = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body;
+        Assert.Equal(provider == HttpStatusCode.OK ? "Dr. Patel" : "Dr. Rivera", storedA.GetProperty("providerName").GetString());   // the BOOKING moves (no separate "Seen by")
+        var storedB = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(b)}")).Body;
+        Assert.Equal(room == HttpStatusCode.OK ? "Op 2" : "Op 1", storedB.GetProperty("operatoryName").GetString());
+        if (provider == HttpStatusCode.Forbidden)
+            Assert.Equal(("visit_move_forbidden", "reassign_not_permitted"), (p.Body.GetProperty("error").GetString(), p.Body.GetProperty("reason").GetString()));
+        if (room == HttpStatusCode.Forbidden)
+            Assert.Equal(("visit_move_forbidden", "room_change_not_permitted"), (r.Body.GetProperty("error").GetString(), r.Body.GetProperty("reason").GetString()));
     }
 
     [Fact]
-    public async Task Assignment_refusals_are_missing_ids_unknown_people_stale_versions_finished_visits_and_occupied_rooms()
+    public async Task Reassignment_refusals_are_missing_ids_a_missing_reason_unknown_people_stale_versions_started_visits_and_occupied_rooms()
     {
         var admin = await _api.SessionAsync("Admin");
         var a = await BookAsync(admin, _ann, At(9));
         string Url(JsonElement x) => $"/api/visits/{Id(x)}/assignment";
+        const string why = "Dr. Rivera is ill";
 
-        var missing = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, rowVersion = Version(a) });
+        var missing = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, rowVersion = Version(a), reason = why });
         Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (missing.Status, missing.Body.GetProperty("error").GetString()));
-        var noProvider = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = Guid.NewGuid(), operatoryId = _s.Op2, rowVersion = Version(a) });
+        var noReason = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op1, rowVersion = Version(a) });
+        Assert.Equal((HttpStatusCode.BadRequest, "reason_required"), (noReason.Status, noReason.Body.GetProperty("error").GetString()));
+        var noProvider = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = Guid.NewGuid(), operatoryId = _s.Op2, rowVersion = Version(a), reason = why });
         Assert.Equal((HttpStatusCode.NotFound, "provider_not_found"), (noProvider.Status, noProvider.Body.GetProperty("error").GetString()));
-        var noVersion = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2 });
+        var noVersion = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2, reason = why });
         Assert.Equal((HttpStatusCode.BadRequest, "row_version_required"), (noVersion.Status, noVersion.Body.GetProperty("error").GetString()));
-        var noCsrf = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2, rowVersion = Version(a) }, csrf: false);
+        var noCsrf = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2, rowVersion = Version(a), reason = why }, csrf: false);
         Assert.Equal(HttpStatusCode.BadRequest, noCsrf.Status);
 
-        var done = await VisitAtAsync(admin, "Completed", _bo, At(11), _s.ProviderB, _s.Op2);
-        var finished = await admin.SendAsync(HttpMethod.Put, Url(done), new { providerId = _s.ProviderA, operatoryId = _s.Op1, rowVersion = Version(done) });
-        Assert.Equal((HttpStatusCode.Conflict, "visit_completed"), (finished.Status, finished.Body.GetProperty("error").GetString()));
+        var started = await VisitAtAsync(admin, "Completed", _bo, At(11), _s.ProviderB, _s.Op2);   // finished, so Op 2 is free for the seated patients below (In treatment is covered in ProviderReassignmentTests)
+        var tooLate = await admin.SendAsync(HttpMethod.Put, Url(started), new { providerId = _s.ProviderA, operatoryId = _s.Op2, rowVersion = Version(started), reason = why });
+        Assert.Equal((HttpStatusCode.Conflict, "visit_already_started"), (tooLate.Status, tooLate.Body.GetProperty("error").GetString()));
 
         var holder = await VisitAtAsync(admin, "Seated", _cy, At(13), _s.ProviderB, _s.Op2);
         var seated = await VisitAtAsync(admin, "Seated", await _s.PatientAsync("Di", "Lo"), At(15));
         var occupied = await admin.SendAsync(HttpMethod.Put, Url(seated), new { providerId = _s.ProviderA, operatoryId = _s.Op2, rowVersion = Version(seated) });
         Assert.Equal((HttpStatusCode.Conflict, "operatory_occupied", Id(holder)), (occupied.Status, occupied.Body.GetProperty("error").GetString(), occupied.Body.GetProperty("conflictingAppointmentId").GetString()));
 
-        var first = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2, rowVersion = Version(a) });
+        var first = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2, rowVersion = Version(a), reason = why });
         Assert.Equal(HttpStatusCode.OK, first.Status);
-        var stale = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderA, operatoryId = _s.Op2, rowVersion = Version(a) });
+        var retry = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderB, operatoryId = _s.Op2, rowVersion = Version(a), reason = why });
+        Assert.Equal((HttpStatusCode.OK, Version(first.Body)), (retry.Status, Version(retry.Body)));   // a retry changes nothing
+        var stale = await admin.SendAsync(HttpMethod.Put, Url(a), new { providerId = _s.ProviderA, operatoryId = _s.Op2, rowVersion = Version(a), reason = why });
         Assert.Equal((HttpStatusCode.Conflict, "concurrency_conflict"), (stale.Status, stale.Body.GetProperty("error").GetString()));
+        await using var db = _fixture.CreateContext();
+        Assert.Equal(2, await db.Notifications.CountAsync(n => n.Kind == Alveara.Api.Architecture.Notifications.NotificationKinds.AppointmentProviderReassigned));
+    }
+
+    // ---------- ALV-N021 A2: undo check-in (OD-11) ----------
+
+    [Theory]
+    [InlineData("FrontDesk", HttpStatusCode.OK)]
+    [InlineData("OfficeManager", HttpStatusCode.OK)]
+    [InlineData("Admin", HttpStatusCode.OK)]
+    [InlineData("Dentist", HttpStatusCode.Forbidden)]
+    [InlineData("Hygienist", HttpStatusCode.Forbidden)]
+    [InlineData("Assistant", HttpStatusCode.Forbidden)]
+    [InlineData("Billing", HttpStatusCode.Forbidden)]
+    [InlineData("Unassigned", HttpStatusCode.Forbidden)]
+    public async Task Only_the_front_office_can_undo_a_check_in_over_the_api(string role, HttpStatusCode expected)
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var a = await VisitAtAsync(admin, "CheckedIn", _ann, At(9));
+        var session = await _api.SessionAsync(role);
+
+        var r = await session.SendAsync(HttpMethod.Post, $"/api/visits/{Id(a)}/undo-check-in", new { reason = "Wrong patient", rowVersion = Version(a) });
+
+        Assert.Equal(expected, r.Status);
+        var stored = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body;
+        Assert.Equal(expected == HttpStatusCode.OK ? "Confirmed" : "CheckedIn", FlowOf(stored));
+        if (expected == HttpStatusCode.Forbidden)
+            Assert.Equal(("visit_move_forbidden", "front_office_only"), (r.Body.GetProperty("error").GetString(), r.Body.GetProperty("reason").GetString()));
+    }
+
+    [Fact]
+    public async Task Undo_check_in_refusals_are_a_missing_reason_a_missing_csrf_token_and_a_seated_patient()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var a = await VisitAtAsync(admin, "CheckedIn", _ann, At(9));
+        string Url(JsonElement x) => $"/api/visits/{Id(x)}/undo-check-in";
+
+        var noReason = await admin.SendAsync(HttpMethod.Post, Url(a), new { rowVersion = Version(a) });
+        Assert.Equal((HttpStatusCode.BadRequest, "reason_required"), (noReason.Status, noReason.Body.GetProperty("error").GetString()));
+        Assert.Equal(HttpStatusCode.BadRequest, (await admin.SendAsync(HttpMethod.Post, Url(a), new { reason = "Wrong patient", rowVersion = Version(a) }, csrf: false)).Status);
+
+        var seated = await VisitAtAsync(admin, "Seated", _bo, At(11));
+        var tooLate = await admin.SendAsync(HttpMethod.Post, Url(seated), new { reason = "Wrong patient", rowVersion = Version(seated) });
+        Assert.Equal((HttpStatusCode.Conflict, "undo_check_in_too_late"), (tooLate.Status, tooLate.Body.GetProperty("error").GetString()));
+
+        var undone = await admin.SendAsync(HttpMethod.Post, Url(a), new { reason = "Wrong patient", rowVersion = Version(a) });
+        Assert.Equal((HttpStatusCode.OK, "Confirmed"), (undone.Status, FlowOf(undone.Body)));
+        var history = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}/history")).Body.EnumerateArray().Last();
+        Assert.Equal(("CheckInUndone", "Wrong patient"), (history.GetProperty("eventType").GetString(), history.GetProperty("reason").GetString()));
     }
 
     // ---------- STORY-011's endpoints run the same policy ----------

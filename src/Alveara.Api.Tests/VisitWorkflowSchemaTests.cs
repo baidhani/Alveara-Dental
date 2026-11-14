@@ -62,7 +62,7 @@ public class VisitWorkflowSchemaTests : IAsyncLifetime
     {
         var id = await BookAsync(9);
         var a = await _s.ReloadAsync(id);
-        await _s.ManageAsync(m => m.CancelAsync(id, "Illness", a.RowVersion, _s.Actor, default));
+        await _s.ManageAsync(m => m.CancelAsync(id, "patient", "Illness", a.RowVersion, _s.Actor, default));
         await using var db = _fixture.CreateContext();
         var row = await db.Appointments.SingleAsync(x => x.Id == id);
         row.FlowState = state;

@@ -104,15 +104,16 @@ public class VisitOccupancyTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task A_patient_seated_in_an_assigned_operatory_holds_that_one_not_the_booked_one()
+    public async Task A_patient_whose_room_was_changed_before_seating_holds_the_new_room_not_the_old_one()
     {
+        // ALV-N021 A2 (OD-16): a room-only change by chairside staff moves the booking's room; no reason needed
         var a = await ToAsync(await BookAsync(_ann, 9), VisitStates.Ready);
-        await _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(a.ProviderId, _s.Op2, a.RowVersion), _s.Actor, default));
+        await _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(a.ProviderId, _s.Op2, a.RowVersion), new VisitActor(_s.Actor, Alveara.Api.Architecture.Identity.Role.Assistant), default));
         var current = await _s.ReloadAsync(a.Id);
         var seated = await GoAsync(current, VisitStates.Seated);
-        Assert.Equal(("Op 2", "Op 1"), (seated.VisitOperatoryName, seated.OperatoryName));
+        Assert.Equal(("Op 2", "Op 2"), (seated.VisitOperatoryName, seated.OperatoryName));
 
-        // Op 1 (booked) is free: someone else can be seated there; Op 2 (assigned) is held
+        // Op 1 (the old room) is free: someone else can be seated there; Op 2 (the new room) is held
         var inBooked = await ToAsync(await BookAsync(_bo, 11), VisitStates.Seated);
         Assert.Equal(VisitStates.Seated, inBooked.FlowState);
         var third = await ToAsync(await BookAsync(await _s.PatientAsync("Di", "Lo"), 13, _s.ProviderB, _s.Op2), VisitStates.Ready);

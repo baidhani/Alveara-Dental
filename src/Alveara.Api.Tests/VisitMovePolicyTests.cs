@@ -235,7 +235,7 @@ public class VisitMovePolicyTests : IAsyncLifetime
     public async Task A_cancelled_or_completed_visit_is_final()
     {
         var booked = await BookAsync(10);
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(booked.Id, "Illness", booked.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(booked.Id, "patient", "Illness", booked.RowVersion, _s.Actor, default));
         Assert.Equal("terminal_state", (await Refused(() => MoveAsync(cancelled, VisitStates.Confirmed, _s.Desk))).Code);
         var done = await _s.WalkAsync(await BookAsync(), VisitStates.Completed);
         Assert.Equal("terminal_state", (await Refused(() => MoveAsync(done, VisitStates.CheckedOut, _s.ProviderOf(_s.ProviderA)))).Code);

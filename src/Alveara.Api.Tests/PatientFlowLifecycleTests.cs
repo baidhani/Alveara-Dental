@@ -171,7 +171,7 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
     public async Task A_cancelled_or_no_show_appointment_has_no_flow_and_an_unknown_one_is_404()
     {
         var toCancel = await BookAsync(At(9));
-        var cancelled = await _s.ManageAsync(m => m.CancelAsync(toCancel.Id, "Illness", toCancel.RowVersion, _s.Actor, default));
+        var cancelled = await _s.ManageAsync(m => m.CancelAsync(toCancel.Id, "patient", "Illness", toCancel.RowVersion, _s.Actor, default));
         var refusedCancelled = await RefusedAsync(() => RawCheckIn(cancelled));
         Assert.Equal(("terminal_state", 409), (refusedCancelled.Code, refusedCancelled.StatusCode));   // ALV-N021 A2 code
 
@@ -222,7 +222,7 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
     public async Task The_database_itself_refuses_a_flow_beyond_Scheduled_on_a_cancelled_appointment_and_an_unknown_state()
     {
         var a = await BookAsync(At(9));
-        await _s.ManageAsync(m => m.CancelAsync(a.Id, "Illness", a.RowVersion, _s.Actor, default));
+        await _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Illness", a.RowVersion, _s.Actor, default));
 
         await using (var db = _fixture.CreateContext())
         {
@@ -247,7 +247,7 @@ public class PatientFlowLifecycleTests : IAsyncLifetime
         var a = await BookAsync(At(9));
         var ci = await CheckInAsync(a);
 
-        var cancel = await RefusedAsync(() => _s.ManageAsync(m => m.CancelAsync(a.Id, "Illness", ci.RowVersion, _s.Actor, default)));
+        var cancel = await RefusedAsync(() => _s.ManageAsync(m => m.CancelAsync(a.Id, "patient", "Illness", ci.RowVersion, _s.Actor, default)));
         var noShow = await RefusedAsync(() => _s.ManageAsync(m => m.MarkNoShowAsync(a.Id, ci.RowVersion, _s.Actor, default), new TestClock(a.StartUtc.AddHours(1))));
         var move = await RefusedAsync(() => _s.ManageAsync(m => m.RescheduleAsync(a.Id, new RescheduleRequest(a.ProviderId, a.OperatoryId, At(14), null, ci.RowVersion), _s.Actor, default)));
 

@@ -55,8 +55,8 @@ public class ReportsController(ReportFilterResolver filters, ScheduleReportServi
 
     [HttpGet("cancellations/appointments")]
     public Task<IActionResult> CancellationAppointments([FromQuery] string? from, [FromQuery] string? to, [FromQuery] Guid[]? providerIds, [FromQuery] Guid? locationId,
-        [FromQuery] string? measure, [FromQuery] Guid? providerId, [FromQuery] Guid? appointmentTypeId, [FromQuery] string? leadTime, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterStart, [FromQuery] Guid? afterId, CancellationToken ct) =>
-        GuardedAsync(async () => Ok(await cancellationDrill.AppointmentsAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(measure, providerId, appointmentTypeId, leadTime, limit, afterStart, afterId), Actor, ct)));
+        [FromQuery] string? measure, [FromQuery] Guid? providerId, [FromQuery] Guid? appointmentTypeId, [FromQuery] string? leadTime, [FromQuery] int? limit, [FromQuery] DateTimeOffset? afterStart, [FromQuery] Guid? afterId, [FromQuery] string? category, CancellationToken ct) =>
+        GuardedAsync(async () => Ok(await cancellationDrill.AppointmentsAsync(await filters.ResolveAsync(new(from, to, providerIds, locationId), ct), new(measure, providerId, appointmentTypeId, leadTime, limit, afterStart, afterId, category), Actor, ct)));
 
     /// <summary>The same report as <c>schedule</c>, handed over as a CSV (recorded as an export).</summary>
     [HttpGet("schedule/export")]

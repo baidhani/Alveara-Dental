@@ -76,11 +76,12 @@ public class VisitBoardTests : IAsyncLifetime
     public async Task Each_card_shows_the_persisted_state_the_next_moves_and_where_the_patient_actually_is()
     {
         var a = await ToAsync(await BookAsync(_ann, At(9)), VisitStates.Ready);
-        await _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(_s.ProviderB, _s.Op2, a.RowVersion), _s.Actor, default));
+        // ALV-N021 A2: a reassignment changes the booking itself, so the card's booked and "where the patient is" values agree
+        await _s.AssignAsync(v => v.AssignAsync(a.Id, new AssignVisitRequest(_s.ProviderB, _s.Op2, a.RowVersion, "Dr. Rivera called in sick"), _s.OfficeManager, default));
 
         var card = (await BoardAsync(Monday)).Visits.Single();
 
-        Assert.Equal((VisitStates.Ready, "Dr. Patel", "Op 2", "Dr. Rivera", "Op 1"),
+        Assert.Equal((VisitStates.Ready, "Dr. Patel", "Op 2", "Dr. Patel", "Op 2"),
             (card.Appointment.FlowState, card.Appointment.VisitProviderName, card.Appointment.VisitOperatoryName, card.Appointment.ProviderName, card.Appointment.OperatoryName));
         Assert.Equal([VisitStates.Seated], card.Appointment.NextFlowStates);
         Assert.NotNull(card.Appointment.FlowChangedAtUtc);
@@ -102,7 +103,7 @@ public class VisitBoardTests : IAsyncLifetime
     {
         var done = await ToAsync(await BookAsync(_ann, At(9)), VisitStates.Completed);
         var b = await BookAsync(_bo, At(11));
-        await _s.ManageAsync(m => m.CancelAsync(b.Id, "Illness", b.RowVersion, _s.Actor, default));
+        await _s.ManageAsync(m => m.CancelAsync(b.Id, "patient", "Illness", b.RowVersion, _s.Actor, default));
         var c = await BookAsync(_cy, At(13));
         await _s.ManageAsync(m => m.MarkNoShowAsync(c.Id, c.RowVersion, _s.Actor, default), new TestClock(c.StartUtc.AddHours(1)));
 
@@ -148,7 +149,7 @@ public class VisitBoardTests : IAsyncLifetime
         var waiting = await ToAsync(await BookAsync(_ann, At(9)), VisitStates.CheckedIn);
         var inChair = await ToAsync(await BookAsync(_bo, At(11), _s.ProviderB, _s.Op2), VisitStates.Seated);
         var cancelled = await BookAsync(_cy, At(13));
-        await _s.ManageAsync(m => m.CancelAsync(cancelled.Id, "Illness", cancelled.RowVersion, _s.Actor, default));
+        await _s.ManageAsync(m => m.CancelAsync(cancelled.Id, "patient", "Illness", cancelled.RowVersion, _s.Actor, default));
 
         var cards = (await BoardAsync(Monday)).Visits.ToDictionary(v => v.Appointment.Id);
         Assert.NotNull(cards[waiting.Id].Readiness);

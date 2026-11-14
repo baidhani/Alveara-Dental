@@ -129,7 +129,7 @@ public class AppointmentLifecycleApiTests : IAsyncLifetime
         var afterMove = ok ? moved.Body.GetProperty("rowVersion").GetString() : a.GetProperty("rowVersion").GetString();
         var noted = await session.SendAsync(HttpMethod.Put, Url(a, "/notes"), new { notes = "Hello", rowVersion = afterMove });
         var afterNote = ok ? noted.Body.GetProperty("rowVersion").GetString() : afterMove;
-        var cancelled = await session.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Illness", rowVersion = afterNote });
+        var cancelled = await session.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "Illness", rowVersion = afterNote });
 
         Assert.Equal((expected, expected, expected), (moved.Status, noted.Status, cancelled.Status));
         if (!ok) Assert.Equal("ManageAppointments", moved.Body.GetProperty("required").GetString());
@@ -160,7 +160,7 @@ public class AppointmentLifecycleApiTests : IAsyncLifetime
         var rv = a.GetProperty("rowVersion").GetString();
 
         Assert.Equal(HttpStatusCode.BadRequest, (await desk.SendAsync(HttpMethod.Put, Url(a, "/reschedule"), Move(a, At(14)), csrf: false)).Status);
-        Assert.Equal(HttpStatusCode.BadRequest, (await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "x", rowVersion = rv }, csrf: false)).Status);
+        Assert.Equal(HttpStatusCode.BadRequest, (await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "x", rowVersion = rv }, csrf: false)).Status);
         Assert.Equal(HttpStatusCode.BadRequest, (await desk.SendAsync(HttpMethod.Post, Url(a, "/no-show"), new { rowVersion = rv }, csrf: false)).Status);
         Assert.Equal(HttpStatusCode.BadRequest, (await desk.SendAsync(HttpMethod.Put, Url(a, "/notes"), new { notes = "x", rowVersion = rv }, csrf: false)).Status);
         Assert.Equal("2030-01-14T09:00", (await desk.SendAsync(HttpMethod.Get, Url(a))).Body.GetProperty("startLocal").GetString());
@@ -229,20 +229,24 @@ public class AppointmentLifecycleApiTests : IAsyncLifetime
     // ---------- cancel, no-show, notes, history ----------
 
     [Fact]
-    public async Task Cancelling_needs_a_reason_and_the_cancelled_appointment_leaves_the_booked_list_but_stays_in_the_calendar_view()
+    public async Task Cancelling_needs_a_category_and_the_cancelled_appointment_leaves_the_booked_list_but_stays_in_the_calendar_view()
     {
         await using var factory = CreateFactory();
         var desk = await SessionAsync(factory, "FrontDesk");
         var a = await BookAsync(desk, At(9));
         var rv = a.GetProperty("rowVersion").GetString();
 
-        var noReason = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = " ", rowVersion = rv });
-        Assert.Equal((HttpStatusCode.BadRequest, "reason_required"), (noReason.Status, noReason.Body.GetProperty("error").GetString()));
+        // ALV-N021 A2 (OD-19): no category 400; the old body with only a free-text reason is refused the same way
+        var noCategory = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { note = "Patient called", rowVersion = rv });
+        Assert.Equal((HttpStatusCode.BadRequest, "category_required"), (noCategory.Status, noCategory.Body.GetProperty("error").GetString()));
+        var oldShape = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Patient called", rowVersion = rv });
+        Assert.Equal((HttpStatusCode.BadRequest, "category_required"), (oldShape.Status, oldShape.Body.GetProperty("error").GetString()));
 
-        var cancelled = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Patient called", rowVersion = rv });
+        var cancelled = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "Patient called", rowVersion = rv });
         Assert.Equal(HttpStatusCode.OK, cancelled.Status);
-        Assert.Equal(("Cancelled", "Patient called"), (cancelled.Body.GetProperty("status").GetString(), cancelled.Body.GetProperty("cancelReason").GetString()));
-        var again = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Patient called", rowVersion = rv }); // a retry of the same request
+        Assert.Equal(("Cancelled", "patient", "Patient called"), (cancelled.Body.GetProperty("status").GetString(), cancelled.Body.GetProperty("cancelCategory").GetString(), cancelled.Body.GetProperty("cancelReason").GetString()));
+        Assert.False(cancelled.Body.GetProperty("shortNotice").GetBoolean());   // the API runs on the real clock: a 2030 appointment cancelled today is years ahead
+        var again = await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "Patient called", rowVersion = rv }); // a retry of the same request
         Assert.Equal(HttpStatusCode.OK, again.Status);
 
         Assert.Equal(0, (await desk.SendAsync(HttpMethod.Get, "/api/appointments?from=2030-01-14")).Body.GetArrayLength());
@@ -285,7 +289,7 @@ public class AppointmentLifecycleApiTests : IAsyncLifetime
         var desk = await SessionAsync(factory, "FrontDesk");
         var a = await BookAsync(desk, At(9));
         var moved = await desk.SendAsync(HttpMethod.Put, Url(a, "/reschedule"), Move(a, At(14), _s.ProviderB, _s.Op2));
-        await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Illness", rowVersion = moved.Body.GetProperty("rowVersion").GetString() });
+        await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "Illness", rowVersion = moved.Body.GetProperty("rowVersion").GetString() });
 
         var history = await desk.SendAsync(HttpMethod.Get, Url(a, "/history"));
 
@@ -302,7 +306,7 @@ public class AppointmentLifecycleApiTests : IAsyncLifetime
         var desk = await SessionAsync(factory, "FrontDesk");
         var a = await BookAsync(desk, At(9));
         var moved = await desk.SendAsync(HttpMethod.Put, Url(a, "/reschedule"), Move(a, At(14)));
-        await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { reason = "Illness", rowVersion = moved.Body.GetProperty("rowVersion").GetString() });
+        await desk.SendAsync(HttpMethod.Post, Url(a, "/cancel"), new { category = "patient", note = "Illness", rowVersion = moved.Body.GetProperty("rowVersion").GetString() });
 
         await using var db = _fixture.CreateContext();
         var entries = await db.AuditLogEntries.Where(e => e.EventType == SchedulingAuditEvents.Rescheduled || e.EventType == SchedulingAuditEvents.Cancelled).OrderBy(e => e.TimestampUtc).ToListAsync();

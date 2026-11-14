@@ -15,7 +15,8 @@ public record AppointmentView(
     string? RowVersion = null, string? Notes = null, string? CancelReason = null, DateTimeOffset? StatusChangedAtUtc = null,
     string FlowState = PatientFlowStates.Scheduled, DateTimeOffset? FlowChangedAtUtc = null,
     Guid? VisitProviderId = null, string? VisitProviderName = null, Guid? VisitOperatoryId = null, string? VisitOperatoryName = null,
-    IReadOnlyList<string>? NextFlowStates = null);
+    IReadOnlyList<string>? NextFlowStates = null,
+    string? CancelCategory = null, bool? ShortNotice = null);   // ALV-N021 A2 (OD-19): the category, and short notice derived (null unless cancelled with a recorded time)
 
 public static class SchedulingAuditEvents
 {
@@ -37,6 +38,10 @@ public static class SchedulingAuditEvents
     public const string PatientSeated = "PatientSeated";
     public const string PatientCheckedOut = "PatientCheckedOut";
     public const string VisitAssignmentChanged = "VisitAssignmentChanged";
+    // ALV-N021 A2
+    public const string CheckInUndone = "PatientCheckInUndone";
+    public const string ProviderReassigned = "AppointmentProviderReassigned";
+    public const string RoomChanged = "AppointmentRoomChanged";
 }
 
 /// <summary>A scheduling request was refused. <see cref="Code"/> is stable for the UI.</summary>

@@ -12,7 +12,7 @@ namespace Alveara.Api.Controllers;
 /// <summary>The start is practice-local wall-clock time as "yyyy-MM-ddTHH:mm" (seconds optional); durationMinutes is optional (the type's default is used).</summary>
 public record ScheduleAppointmentBody(Guid? PatientId, Guid? ProviderId, Guid? OperatoryId, Guid? AppointmentTypeId, string? StartLocal, int? DurationMinutes, string? Notes = null);
 public record RescheduleBody(Guid? ProviderId, Guid? OperatoryId, string? StartLocal, int? DurationMinutes, string? RowVersion);
-public record CancelBody(string? Reason, string? RowVersion);
+public record CancelBody(string? Category, string? Note, string? RowVersion);   // ALV-N021 A2 (OD-19): category required, note optional
 public record RowVersionBody(string? RowVersion);
 public record NotesBody(string? Notes, string? RowVersion);
 
@@ -116,7 +116,7 @@ public class AppointmentsController(AppointmentScheduler scheduler, AppointmentM
     [RequirePermission(Permission.ManageAppointments)]
     [RequireCsrfToken]
     public Task<IActionResult> Cancel(Guid id, [FromBody] CancelBody body, CancellationToken ct) =>
-        Run(async () => Ok(await manager.CancelAsync(id, body.Reason, body.RowVersion, Actor, ct)));
+        Run(async () => Ok(await manager.CancelAsync(id, body.Category, body.Note, body.RowVersion, Actor, ct)));
 
     [HttpPost("{id:guid}/no-show")]
     [RequirePermission(Permission.ManageAppointments)]

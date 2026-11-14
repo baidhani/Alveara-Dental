@@ -91,6 +91,24 @@ public static class AppointmentCancelCategories
     public const string Weather = "weather";
     public const string Other = "other";
     public static readonly IReadOnlyList<string> All = [Patient, Office, Provider, Weather, Other];
+    /// <summary>The report's and the drill's name for a cancellation made before categories existed (shown as "Not categorised").</summary>
+    public const string Uncategorised = "uncategorised";
+}
+
+/// <summary>
+/// ALV-N021 A2 (OD-19): "short notice" is derived, never stored: a cancellation made less than <see cref="ShortNoticeMinutes"/> before the start. Minutes are counted the way the cancellations
+/// report counts them in SQL (minute boundaries crossed, like <c>DATEDIFF(minute, ...)</c>), so the appointment panel and the report always agree. No recorded time means not known (null).
+/// </summary>
+public static class CancellationRules
+{
+    public const int ShortNoticeMinutes = 24 * 60;
+    public const int NoteMaxLength = 400;
+
+    public static int MinutesBetween(DateTimeOffset from, DateTimeOffset to) =>
+        (int)((to.UtcTicks / TimeSpan.TicksPerMinute) - (from.UtcTicks / TimeSpan.TicksPerMinute));
+
+    public static bool? IsShortNotice(Appointment a) =>
+        a.Status != AppointmentStatuses.Cancelled || a.StatusChangedAtUtc is null ? null : MinutesBetween(a.StatusChangedAtUtc.Value, a.StartUtc) < ShortNoticeMinutes;
 }
 
 public static class AppointmentEventTypes
@@ -109,5 +127,26 @@ public static class AppointmentEventTypes
     public const string Ready = "Ready";
     public const string Seated = "Seated";
     public const string CheckedOut = "CheckedOut";
+    /// <summary>ALV-011-C01's "Seen by" change. Retired by ALV-N021 A2: no longer written; existing rows stay in the history read-only.</summary>
     public const string AssignmentChanged = "AssignmentChanged";
+    // ALV-N021 A2: each carries the actor and the reason; a reassignment and a room change record the previous provider and room
+    public const string CheckInUndone = "CheckInUndone";
+    public const string ProviderReassigned = "ProviderReassigned";
+    public const string RoomChanged = "RoomChanged";
+}
+
+/// <summary>ALV-N021 A2: the one rule for a reason a person types (undo check-in, reassignment, room change): trimmed, line endings normalised, at most 500 characters (the history column).</summary>
+public static class VisitReasons
+{
+    public const int MaxLength = 500;
+
+    public static string Required(string? text, string what) =>
+        Optional(text) ?? throw new SchedulingException("reason_required", $"Give a reason for {what}.", 400);
+
+    public static string? Optional(string? text)
+    {
+        var clean = (text ?? string.Empty).Replace("\r\n", "\n").Trim();
+        if (clean.Length > MaxLength) throw new SchedulingException("reason_too_long", $"Keep the reason to {MaxLength} characters.", 400);
+        return clean.Length == 0 ? null : clean;
+    }
 }

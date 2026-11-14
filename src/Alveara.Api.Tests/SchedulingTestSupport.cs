@@ -132,9 +132,12 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
         await recorder.RecordAsync(appointmentId, CheckoutItems.FollowUp, new(CheckoutOutcomes.PatientDeclined, null, null), DeskUser, Role.FrontDesk, $"fu-{appointmentId:N}", default);
     }
 
-    /// <summary>ALV-011-C01: the visit-time provider/operatory assignment service.</summary>
+    /// <summary>ALV-N021 A2: the reassignment service (provider and room of the booking), on the test day's clock.</summary>
     public VisitAssignmentService Assignment(AlveraDbContext db, IMeasurementEventSink? measurements = null) =>
-        new(db, Clock, measurements);
+        new(db, VisitDayClock, new SchedulingConfiguration(db, VisitDayClock), PolicyTestSupport.Defaults(), measurements);
+
+    /// <summary>ALV-N021 A2: an office manager (holds <see cref="Permission.ReassignAppointmentProvider"/> by default).</summary>
+    public VisitActor OfficeManager => new(Actor, Role.OfficeManager);
 
     public async Task<AppointmentView> AssignAsync(Func<VisitAssignmentService, Task<AppointmentView>> action)
     {

@@ -11,7 +11,8 @@ using Alveara.Api.Architecture.Time;
 namespace Alveara.Api.Controllers;
 
 public record VisitStateBody(string? Target, string? RowVersion);
-public record AssignVisitBody(Guid? ProviderId, Guid? OperatoryId, string? RowVersion);
+public record AssignVisitBody(Guid? ProviderId, Guid? OperatoryId, string? RowVersion, string? Reason = null);
+public record UndoCheckInBody(string? Reason, string? RowVersion);
 
 /// <summary>
 /// ALV-011-C01: the live visit board and the visit's whole state chain. An appointment's id is its visit's id.
@@ -20,7 +21,9 @@ public record AssignVisitBody(Guid? ProviderId, Guid? OperatoryId, string? RowVe
 /// - <c>POST {id}/state</c> moves the visit to any state of the chain (the state machine decides if that is allowed from where it is). WHO may do it depends on the
 ///   move: confirm, check in and check out are front-office work (<see cref="Permission.UpdateVisitFlow"/>); ready, seat, start treatment and complete are
 ///   chairside work (<see cref="Permission.UpdateChairsideFlow"/>).
-/// - <c>PUT {id}/assignment</c> sets the provider and operatory the patient is actually with; either kind of staff may do it.
+/// - <c>PUT {id}/assignment</c> (ALV-N021 A2, OD-13 to OD-16): reassigns the BOOKED provider and/or room before treatment starts; who may do it and the reason rule are in
+///   <see cref="VisitAssignmentService"/>. It no longer writes ALV-011-C01's "Seen by" override.
+/// - <c>POST {id}/undo-check-in</c> (OD-11): front desk, reason required.
 /// Every change carries the row version the caller read (a stale one is the shared 409 <c>concurrency_conflict</c>) and a CSRF token. STORY-011's own
 /// endpoints on <c>api/appointments</c> are untouched and keep their <see cref="Permission.ManageAppointments"/> rule.
 /// </summary>
@@ -85,12 +88,20 @@ public class VisitsController(VisitBoardService board, AppointmentFlowService fl
     }
 
     [HttpPut("{id:guid}/assignment")]
-    [RequireAnyPermission(Permission.UpdateVisitFlow, Permission.UpdateChairsideFlow)]
     [RequireCsrfToken]
-    public Task<IActionResult> Assign(Guid id, [FromBody] AssignVisitBody body, CancellationToken ct)
+    public async Task<IActionResult> Assign(Guid id, [FromBody] AssignVisitBody body, CancellationToken ct)
     {
         if (body.ProviderId is null || body.OperatoryId is null)
-            return Task.FromResult<IActionResult>(BadRequest(new { error = "validation_failed", message = "Both the provider and the operatory are required." }));
-        return Run(async () => Ok(await assignment.AssignAsync(id, new AssignVisitRequest(body.ProviderId.Value, body.OperatoryId.Value, body.RowVersion), Actor, ct)));
+            return BadRequest(new { error = "validation_failed", message = "Both the provider and the operatory are required." });
+        if (!Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role)) return Unauthorized();
+        return await Run(async () => Ok(await assignment.AssignAsync(id, new AssignVisitRequest(body.ProviderId.Value, body.OperatoryId.Value, body.RowVersion, body.Reason), new VisitActor(Actor, role), ct)));
+    }
+
+    [HttpPost("{id:guid}/undo-check-in")]
+    [RequireCsrfToken]
+    public async Task<IActionResult> UndoCheckIn(Guid id, [FromBody] UndoCheckInBody body, CancellationToken ct)
+    {
+        if (!Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role)) return Unauthorized();
+        return await Run(async () => Ok(await flow.UndoCheckInAsync(id, body.Reason, body.RowVersion, new VisitActor(Actor, role), ct)));
     }
 }
