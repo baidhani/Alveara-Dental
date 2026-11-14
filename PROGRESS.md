@@ -2684,3 +2684,9 @@
   - What changed: docs/design/ALV-N021_DECISION_REQUEST_02_TIME_HANDLING.md: owner asks to address T-1 to T-4 within ALV-N021; proposes T-2 and T-3 in A2, T-1/T-4 as attempt A3 (practice-zone time model, option A), contracts, tests and negative controls; A1 closes unchanged.
   - Verification: document only; no code change, no test run.
   - Notes: awaiting reviewer; nothing pushed.
+- [x] ALV-N021: record A1-R02 review approval (A1 complete)
+  - Date: 2026-11-14
+  - Session: CC-20261109-8w3d
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A1-R02.md; EXECUTION_STATUS ALV-N021: attemptRecords.A1 COMPLETE (approved A1-R02, fullRegression DEFERRED_TO_ALV-N028, releaseCertified false), story status IN_PROGRESS (A2 next), story-level review block back to pending; BUILD_STATE paragraph.
+  - Verification: user-supplied review file (APPROVED); EXECUTION_STATUS.json parses; no code change, no test run.
+  - Notes: the story is not marked COMPLETE (A2 outstanding), so A1 completion is recorded per attempt; nothing pushed.
