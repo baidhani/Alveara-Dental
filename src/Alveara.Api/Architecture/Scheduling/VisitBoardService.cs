@@ -13,7 +13,7 @@ namespace Alveara.Api.Architecture.Scheduling;
 /// ALV-N011: <see cref="Safety"/> is the MINIMAL patient-safety indicator (alert yes/no, clearance open yes/no) and is present only for callers who hold
 /// <c>ViewSafetyIndicator</c> and only when there is something to show - never a diagnosis, allergy, medication, category, severity or count.
 /// </summary>
-public record VisitCard(AppointmentView Appointment, CheckInReadiness? Readiness, bool CarriedOver, SafetyIndicator? Safety = null);
+public record VisitCard(AppointmentView Appointment, CheckInReadiness? Readiness, bool CarriedOver, SafetyIndicator? Safety = null, AppointmentActions? Actions = null);   // ALV-N021 A2: the signed-in user's actions, same as GET appointments/{id}/actions
 
 /// <summary><see cref="ServerNowUtc"/> is the server's clock, so the screen's elapsed-time figures never depend on the browser's clock.</summary>
 public record VisitBoard(string Date, DateTimeOffset ServerNowUtc, IReadOnlyList<string> States, IReadOnlyList<VisitCard> Visits);
@@ -24,7 +24,7 @@ public record VisitBoard(string Date, DateTimeOffset ServerNowUtc, IReadOnlyList
 /// an earlier day is included on today's board, because it still occupies its operatory (<see cref="VisitOccupancy"/> is about who is in the room now, not
 /// about booked time) and would otherwise block the room with nothing on screen to explain why.
 /// </summary>
-public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckInReadinessService readiness, SafetyContextService? safety = null)
+public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckInReadinessService readiness, SafetyContextService? safety = null, VisitActionsService? actionsService = null)
 {
     private const int MaxCards = 500;
     private const int MaxCarriedOver = 100;
@@ -34,7 +34,7 @@ public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckIn
     /// <summary>The current practice-local date, for the board's default.</summary>
     public DateOnly Today() => DateOnly.FromDateTime(clock.ToPracticeLocal(clock.UtcNow).DateTime);
 
-    public async Task<VisitBoard> BoardAsync(DateOnly day, bool includeReadiness, CancellationToken ct, bool includeSafety = false)
+    public async Task<VisitBoard> BoardAsync(DateOnly day, bool includeReadiness, CancellationToken ct, bool includeSafety = false, VisitActor? actor = null)
     {
         var fromUtc = clock.StartOfPracticeDayUtc(day);            // ALV-N021 A2 (T-3): the shared rule; a midnight clock change no longer refuses the day
         var toUtc = clock.StartOfPracticeDayUtc(day.AddDays(1));
@@ -60,8 +60,18 @@ public class VisitBoardService(AlveraDbContext db, IPracticeClock clock, CheckIn
         IReadOnlyDictionary<Guid, SafetyIndicator> indicators = new Dictionary<Guid, SafetyIndicator>();
         if (includeSafety && safety is not null) indicators = await safety.IndicatorsAsync(views.Select(v => v.View.PatientId).ToList(), ct);
 
+        // ALV-N021 A2 (briefing 5.5): each card carries the caller's actions, built by the same service as GET appointments/{id}/actions (settings read once per board)
+        var perCard = new Dictionary<Guid, AppointmentActions>();
+        if (actor is not null && actionsService is not null)
+        {
+            var settings = await VisitSettings.ReadAsync(db, ct);
+            var viewIds = views.Select(v => v.View.Id).ToList();
+            var rows = await db.Appointments.AsNoTracking().Where(a => viewIds.Contains(a.Id)).ToListAsync(ct);
+            foreach (var row in rows) perCard[row.Id] = await actionsService.ForAsync(row, actor, settings, ct);
+        }
+
         var cards = views.Select(v => new VisitCard(v.View, cues.TryGetValue(v.View.PatientId, out var r) && v.View.Status == AppointmentStatuses.Scheduled && ReadinessStates.Contains(v.View.FlowState) ? r : null, v.Carried,
-            indicators.TryGetValue(v.View.PatientId, out var indicator) ? indicator : null)).ToList();
+            indicators.TryGetValue(v.View.PatientId, out var indicator) ? indicator : null, perCard.GetValueOrDefault(v.View.Id))).ToList();
         return new VisitBoard(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), clock.UtcNow, VisitStates.InOrder, cards);
     }
 }

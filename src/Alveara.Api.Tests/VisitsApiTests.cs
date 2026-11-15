@@ -471,6 +471,31 @@ public class VisitsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.Conflict, "block_overlaps_active_visit"), (overActive.Status, overActive.Body.GetProperty("error").GetString()));
     }
 
+    // ---------- ALV-N021 A2: available actions (briefing 5.5) ----------
+
+    [Fact]
+    public async Task The_actions_route_answers_for_the_signed_in_user_and_each_board_card_carries_the_same_list()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var a = (await MoveAsync(admin, await BookAsync(admin, _ann, At(9)), "Confirmed")).Body;
+        var url = $"/api/appointments/{Id(a)}/actions";
+        static string Codes(System.Text.Json.JsonElement list) =>
+            string.Join(' ', list.GetProperty("actions").EnumerateArray().Select(x => x.GetProperty("code").GetString()).Order(StringComparer.Ordinal));
+
+        var desk = await _api.SessionAsync("FrontDesk");
+        var deskList = await desk.SendAsync(HttpMethod.Get, url);
+        Assert.Equal((HttpStatusCode.OK, "cancel check_in no_show reschedule"), (deskList.Status, Codes(deskList.Body)));
+        Assert.Equal("Waiting for the front desk to check the patient in.", deskList.Body.GetProperty("nextActorText").GetString());
+        var assistant = await _api.SessionAsync("Assistant");
+        Assert.Equal("change_room", Codes((await assistant.SendAsync(HttpMethod.Get, url)).Body));
+
+        var board = (await desk.SendAsync(HttpMethod.Get, "/api/visits/board?date=2030-01-14")).Body;
+        var card = board.GetProperty("visits").EnumerateArray().Single(v => v.GetProperty("appointment").GetProperty("id").GetString() == Id(a));
+        Assert.Equal(deskList.Body.GetRawText(), card.GetProperty("actions").GetRawText());
+
+        Assert.Equal(HttpStatusCode.NotFound, (await desk.SendAsync(HttpMethod.Get, $"/api/appointments/{Guid.NewGuid()}/actions")).Status);
+    }
+
     // ---------- STORY-011's endpoints run the same policy ----------
 
     [Fact]

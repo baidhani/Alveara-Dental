@@ -68,7 +68,8 @@ public class VisitsController(VisitBoardService board, AppointmentFlowService fl
         {
             var readiness = await CanAsync(Permission.ViewSignedForms, ct);
             var safety = await CanAsync(Permission.ViewSafetyIndicator, ct);
-            return Ok(await board.BoardAsync(day, includeReadiness: readiness, ct, includeSafety: safety));
+            var actor = new VisitActor(Actor, Enum.TryParse<Role>(User.FindFirstValue(ClaimTypes.Role), out var role) ? role : Role.Unassigned);
+            return Ok(await board.BoardAsync(day, includeReadiness: readiness, ct, includeSafety: safety, actor: actor));   // ALV-N021 A2: each card carries this user's actions
         }
         catch (LocalTimeConversionException ex)
         {

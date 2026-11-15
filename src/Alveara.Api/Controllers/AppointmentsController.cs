@@ -101,6 +101,12 @@ public class AppointmentsController(AppointmentScheduler scheduler, AppointmentM
     public async Task<IActionResult> History(Guid id, CancellationToken ct) =>
         await scheduler.HistoryAsync(id, ct) is { } events ? Ok(events) : NotFound(new { error = "appointment_not_found", message = "That appointment was not found." });
 
+    /// <summary>ALV-N021 A2 (briefing 5.5): what the signed-in user may do to this appointment now and who the visit waits for; Calendar and Board render only this.</summary>
+    [HttpGet("{id:guid}/actions")]
+    [RequirePermission(Permission.ViewSchedule)]
+    public Task<IActionResult> Actions(Guid id, [FromServices] VisitActionsService actions, CancellationToken ct) =>
+        Run(async () => Ok(await actions.ForAsync(id, VisitActor, ct)));
+
     [HttpPut("{id:guid}/reschedule")]
     [RequirePermission(Permission.ManageAppointments)]
     [RequireCsrfToken]

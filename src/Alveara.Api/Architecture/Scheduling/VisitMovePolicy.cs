@@ -47,11 +47,23 @@ public sealed class VisitMovePolicy(AlveraDbContext db, IEffectivePermissions pe
     /// </summary>
     public async Task AuthorizeAssignmentAsync(bool providerChanges, VisitActor actor, CancellationToken ct)
     {
-        if (await permissions.HasAsync(actor.Role, Permission.ReassignAppointmentProvider, ct)) return;
-        var reason = providerChanges ? "reassign_not_permitted"
-            : await permissions.HasAsync(actor.Role, Permission.UpdateChairsideFlow, ct) ? null : "room_change_not_permitted";
+        var reason = await AssignmentRefusalAsync(providerChanges, actor, ct);
         if (reason is not null) throw new SchedulingException("visit_move_forbidden", Message(reason), 403, reason: reason);
     }
+
+    /// <summary>Read-only form of <see cref="AuthorizeAssignmentAsync"/> for the available-actions list: the refusal reason, or null when allowed.</summary>
+    public async Task<string?> AssignmentRefusalAsync(bool providerChanges, VisitActor actor, CancellationToken ct)
+    {
+        if (await permissions.HasAsync(actor.Role, Permission.ReassignAppointmentProvider, ct)) return null;
+        return providerChanges ? "reassign_not_permitted"
+            : await permissions.HasAsync(actor.Role, Permission.UpdateChairsideFlow, ct) ? null : "room_change_not_permitted";
+    }
+
+    /// <summary>Read-only form of <see cref="AuthorizeAsync"/> for the available-actions list: the refusal reason, or null when allowed. Same rules, so the list never offers a move the route refuses.</summary>
+    public Task<string?> MoveRefusalAsync(Appointment a, string target, VisitActor actor, CancellationToken ct) => RefusalAsync(a, target, actor, ct);
+
+    /// <summary>Whether the actor's role holds a permission (for actions whose routes are permission-only: reschedule, cancel, no-show).</summary>
+    public Task<bool> HasAsync(VisitActor actor, Permission permission, CancellationToken ct) => permissions.HasAsync(actor.Role, permission, ct);
 
     private async Task<string?> RefusalAsync(Appointment a, string target, VisitActor actor, CancellationToken ct)
     {
