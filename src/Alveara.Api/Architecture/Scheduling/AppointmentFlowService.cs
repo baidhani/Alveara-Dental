@@ -131,7 +131,7 @@ public class AppointmentFlowService(
         await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(Appointment), id, ct);
         await transaction.CommitAsync(ct);
 
-        await _recorder.MeasureAsync("appointment.flow", new { category = target, outcome = "success" }, ct);
+        await _recorder.MeasureAsync("appointment.flow", new { category = MeasureCategory(target), outcome = "success" }, ct);
         return await _views.ViewAsync(id, ct);
     }
 
@@ -190,7 +190,7 @@ public class AppointmentFlowService(
         AuditService.Record(db, SchedulingAuditEvents.CheckInUndone, nameof(Appointment), id, actor.UserId, $"Check-in undone: patient flow moved from {from} to {back}.");
         await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(Appointment), id, ct);
 
-        await _recorder.MeasureAsync("appointment.flow", new { category = "UndoCheckIn", outcome = "success" }, ct);
+        await _recorder.MeasureAsync("appointment.flow", new { category = MeasureCategory(VisitMovePolicy.UndoCheckIn), outcome = "success" }, ct);
         return await _views.ViewAsync(id, ct);
     }
 
@@ -259,6 +259,13 @@ public class AppointmentFlowService(
     }
 
     private DateOnly DayOf(DateTimeOffset instant) => DateOnly.FromDateTime(clock.ToPracticeLocal(instant).DateTime);
+
+    /// <summary>
+    /// ALV-N021 A2: a visit state as a measurement category ("CheckedIn" -> "checked_in"). The measurement validator accepts only lower-case snake_case categories, so the
+    /// PascalCase state sent since ALV-011-C01 was rejected and every successful move's measurement was silently dropped (logged as a warning, the move itself stood).
+    /// </summary>
+    internal static string MeasureCategory(string state) =>
+        string.Concat(state.Select((c, i) => char.IsUpper(c) ? (i > 0 ? "_" : "") + char.ToLowerInvariant(c) : c.ToString()));
 
     private static string EventTypeFor(string target) => target switch
     {
