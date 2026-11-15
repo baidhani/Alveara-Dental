@@ -145,8 +145,23 @@ export const getAvailability = (providerId: string) => request<AvailabilitySched
 export const replaceAvailability = (providerId: string, windows: AvailabilityWindow[], revision: number) =>
   requestWithCsrf<AvailabilitySchedule>(`/api/config/providers/${providerId}/availability`, "PUT", { windows, revision });
 export const listBlockedTime = (providerId: string) => request<BlockedTime[]>(`/api/config/providers/${providerId}/blocked-time`);
-export const addBlockedTime = (providerId: string, startLocal: string, endLocal: string, reason: string) =>
-  requestWithCsrf<BlockedTime>(`/api/config/providers/${providerId}/blocked-time`, "POST", { startLocal, endLocal, reason });
+/** ALV-N021 A2 (OD-17): over booked appointments the server refuses until `confirmOverlaps` is true (and then needs a reason); over a visit under way it always refuses. */
+export const addBlockedTime = (providerId: string, startLocal: string, endLocal: string, reason: string, confirmOverlaps = false) =>
+  requestWithCsrf<BlockedTime>(`/api/config/providers/${providerId}/blocked-time`, "POST", { startLocal, endLocal, reason, ...(confirmOverlaps ? { confirmOverlaps: true } : {}) });
+
+/** One appointment a blocked time would cover (patient name for this in-app list only; it never goes to the audit log). */
+export interface BlockOverlap {
+  appointmentId: string;
+  startLocal: string;
+  endLocal: string;
+  providerName: string;
+  operatoryName: string;
+  flowState: string;
+  patientName: string;
+}
+
+/** The covered appointments a blocked-time refusal carries (409 block_overlaps_appointments / block_overlaps_active_visit), or [] for any other error. */
+export const blockOverlapsOf = (body: Record<string, unknown>): BlockOverlap[] => (Array.isArray(body.overlaps) ? (body.overlaps as BlockOverlap[]) : []);
 export const removeBlockedTime = (providerId: string, blockId: string) =>
   requestWithCsrf<void>(`/api/config/providers/${providerId}/blocked-time/${blockId}`, "DELETE");
 

@@ -9,8 +9,9 @@ import { useNotifications } from "../../components/Notification";
 import { confirmDiscard, useUnsavedChangesWarning } from "../../hooks/useUnsavedChangesWarning";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
-import { addBlockedTime, getAvailability, listBlockedTime, listProviders, removeBlockedTime, replaceAvailability } from "../../services/configApi";
-import type { BlockedTime, ProviderRecord } from "../../services/configApi";
+import { addBlockedTime, blockOverlapsOf, getAvailability, listBlockedTime, listProviders, removeBlockedTime, replaceAvailability } from "../../services/configApi";
+import type { BlockOverlap, BlockedTime, ProviderRecord } from "../../services/configApi";
+import { BlockOverlapNotice } from "./BlockOverlapNotice";
 import { DAY_NAMES, validateWindows } from "./availabilityRules";
 import type { WindowRow } from "./availabilityRules";
 
@@ -54,6 +55,9 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   const [blocked, setBlocked] = useState<BlockedTime[]>([]);
   const [blockForm, setBlockForm] = useState({ start: "", end: "", reason: "" });
   const [blockError, setBlockError] = useState<string | null>(null);
+  /** ALV-N021 A2 (OD-17): what the last refused add would cover; "confirm" offers to add it anyway with a reason, "active" never does. */
+  const [overlap, setOverlap] = useState<{ kind: "active" | "confirm"; overlaps: BlockOverlap[] } | null>(null);
+  const [adding, setAdding] = useState(false);
 
   /** Advances whenever an editor is (re)populated; every async completion must match the session it started in. */
   const sessionRef = useRef(0);
@@ -138,6 +142,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
     setSaved("[]");
     setRevision(0);
     setBlocked([]);
+    setOverlap(null);
     setErrors({});
     setSaveError(null);
     setConflict(null);
@@ -166,6 +171,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
 
   function editBlockForm(patch: Partial<{ start: string; end: string; reason: string }>) {
     blockDraftRef.current += 1;
+    setOverlap(null);   // a different request: the old list no longer applies
     setBlockForm((prev) => ({ ...prev, ...patch }));
   }
 
@@ -212,6 +218,10 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
 
   async function submitBlock(event: FormEvent) {
     event.preventDefault();
+    await addBlock(false);
+  }
+
+  async function addBlock(confirmOverlaps: boolean) {
     const targetId = loadedFor;
     if (targetId === "") return;
     setBlockError(null);
@@ -223,18 +233,31 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
       setBlockError("Blocked time must end after it starts.");
       return;
     }
+    if (confirmOverlaps && !blockForm.reason.trim()) {
+      setBlockError("Give a reason for blocking time over booked appointments.");
+      return;
+    }
     const session = sessionRef.current;
     const blockDraftAtSubmit = blockDraftRef.current;
+    setAdding(true);
     try {
-      await addBlockedTime(targetId, blockForm.start, blockForm.end, blockForm.reason.trim());
+      await addBlockedTime(targetId, blockForm.start, blockForm.end, blockForm.reason.trim(), confirmOverlaps);
       const blocks = await listBlockedTime(targetId);
       if (session !== sessionRef.current) return;
       if (blockDraftRef.current === blockDraftAtSubmit) setBlockForm({ start: "", end: "", reason: "" }); // never wipe newer typing
       setBlocked(blocks);
-      notify("success", "Blocked time added.");
+      setOverlap(null);
+      notify("success", confirmOverlaps ? "Blocked time added; the appointments it covers are flagged for the front desk." : "Blocked time added.");
     } catch (err) {
       if (session !== sessionRef.current) return;
+      const overlaps = err instanceof ApiError ? blockOverlapsOf(err.body) : [];
+      if (err instanceof ApiError && overlaps.length > 0 && (err.code === "block_overlaps_active_visit" || err.code === "block_overlaps_appointments")) {
+        setOverlap({ kind: err.code === "block_overlaps_active_visit" ? "active" : "confirm", overlaps });
+        return;
+      }
       setBlockError(err instanceof ApiError ? err.message : "Could not add blocked time.");
+    } finally {
+      if (session === sessionRef.current) setAdding(false);
     }
   }
 
@@ -371,17 +394,21 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
           <form className="alv-config-panel__form" onSubmit={submitBlock} noValidate aria-label="Add blocked time">
             <FormField label="Blocked from" type="datetime-local" value={blockForm.start} onChange={(e) => editBlockForm({ start: e.target.value })} />
             <FormField label="Blocked until" type="datetime-local" value={blockForm.end} onChange={(e) => editBlockForm({ end: e.target.value })} />
-            <FormField label="Reason (optional)" type="text" maxLength={200} value={blockForm.reason} onChange={(e) => editBlockForm({ reason: e.target.value })} />
+            <FormField label={overlap?.kind === "confirm" ? "Reason (required over booked appointments)" : "Reason (optional)"} type="text" maxLength={200} value={blockForm.reason}
+              onChange={(e) => { blockDraftRef.current += 1; setBlockForm((prev) => ({ ...prev, reason: e.target.value })); }} />
             {blockError && (
               <p className="alv-form-field__error" role="alert">
                 {blockError}
               </p>
             )}
-            <div className="alv-config-panel__form-actions">
-              <Button type="submit" variant="primary">
-                Add blocked time
-              </Button>
-            </div>
+            {overlap && <BlockOverlapNotice kind={overlap.kind} overlaps={overlap.overlaps} busy={adding} onConfirm={() => void addBlock(true)} onBack={() => setOverlap(null)} />}
+            {!overlap && (
+              <div className="alv-config-panel__form-actions">
+                <Button type="submit" variant="primary" disabled={adding}>
+                  Add blocked time
+                </Button>
+              </div>
+            )}
           </form>
         </>
       )}

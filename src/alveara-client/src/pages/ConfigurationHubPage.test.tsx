@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { ConfigurationHubPage } from "./ConfigurationHubPage";
@@ -256,6 +256,83 @@ describe("Availability tab", () => {
     await user.type(screen.getByLabelText("Blocked until"), "2026-03-08T04:00");
     await user.click(screen.getByRole("button", { name: "Add blocked time" }));
     expect(await screen.findByText(/does not exist in America\/Chicago/)).toBeInTheDocument();
+  });
+
+  // ---------- ALV-N021 A2 (OD-17): blocked time over appointments ----------
+
+  const covered = [{ appointmentId: "a9", startLocal: "2030-01-14T09:00", endLocal: "2030-01-14T10:00", providerName: "Dr. Rivera", operatoryName: "Op 1", flowState: "Confirmed", patientName: "Ann Lee" }];
+  const blockPosts = (fetchMock: ReturnType<typeof stubApi>) =>
+    fetchMock.mock.calls.filter(([u, init]) => String(u).includes("/blocked-time") && (init as RequestInit | undefined)?.method === "POST").map(([, init]) => JSON.parse((init as RequestInit).body as string));
+
+  async function tryBlock(user: ReturnType<typeof userEvent.setup>) {
+    await user.type(screen.getByLabelText("Blocked from"), "2030-01-14T08:00");
+    await user.type(screen.getByLabelText("Blocked until"), "2030-01-14T12:00");
+    await user.click(screen.getByRole("button", { name: "Add blocked time" }));
+  }
+
+  it("lists the booked appointments a block would cover, needs a reason to add it anyway, and then sends the confirmation", async () => {
+    const fetchMock = stubApi({
+      "/api/config/providers/p1/blocked-time": (init) => {
+        if (init?.method !== "POST") return jsonResponse([]);
+        const body = JSON.parse(init.body as string);
+        return body.confirmOverlaps
+          ? jsonResponse({ id: "b1", startLocal: body.startLocal, endLocal: body.endLocal, reason: body.reason }, 201)
+          : jsonResponse({ error: "block_overlaps_appointments", message: "This blocked time covers booked appointments.", overlaps: covered }, 409);
+      },
+    });
+    await openAvailability();
+    const user = userEvent.setup();
+    await tryBlock(user);
+
+    const notice = within(await screen.findByRole("alert", { name: "This blocked time covers booked appointments" }));
+    expect(notice.getByRole("row", { name: /2030-01-14 09:00–10:00 Ann Lee Dr. Rivera Op 1 Confirmed/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Add blocked time" })).not.toBeInTheDocument();   // the choice is now in the notice
+
+    await user.click(notice.getByRole("button", { name: "Add blocked time and flag these appointments" }));
+    expect(await screen.findByText("Give a reason for blocking time over booked appointments.")).toBeInTheDocument();
+    expect(blockPosts(fetchMock)).toHaveLength(1);   // nothing sent without a reason
+
+    await user.type(screen.getByLabelText("Reason (required over booked appointments)"), "CPD course");
+    await user.click(notice.getByRole("button", { name: "Add blocked time and flag these appointments" }));
+    expect(await screen.findByText("Blocked time added; the appointments it covers are flagged for the front desk.")).toBeInTheDocument();
+    expect(blockPosts(fetchMock).at(-1)).toEqual({ startLocal: "2030-01-14T08:00", endLocal: "2030-01-14T12:00", reason: "CPD course", confirmOverlaps: true });
+    expect(blockPosts(fetchMock)[0]).not.toHaveProperty("confirmOverlaps");   // the first try never confirms on the user's behalf
+  });
+
+  it("over a patient who is already here, shows who is covered and offers no way to add it", async () => {
+    stubApi({
+      "/api/config/providers/p1/blocked-time": (init) =>
+        init?.method === "POST"
+          ? jsonResponse({ error: "block_overlaps_active_visit", message: "This blocked time covers a patient who is already here; it cannot be added.", overlaps: [{ ...covered[0], flowState: "Seated" }] }, 409)
+          : jsonResponse([]),
+    });
+    await openAvailability();
+    const user = userEvent.setup();
+    await tryBlock(user);
+
+    const notice = within(await screen.findByRole("alert", { name: "This blocked time covers a patient who is already here" }));
+    expect(notice.getByRole("cell", { name: "Seated" })).toBeInTheDocument();
+    expect(notice.queryByRole("button", { name: /Add blocked time/ })).not.toBeInTheDocument();
+    expect(notice.getByText(/Nothing was saved/)).toBeInTheDocument();
+
+    await user.click(notice.getByRole("button", { name: "Choose another time" }));
+    expect(screen.queryByRole("alert", { name: /covers/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add blocked time" })).toBeEnabled();
+  });
+
+  it("changing the time after a refusal clears the old list, so a confirmation never applies to a different request", async () => {
+    stubApi({
+      "/api/config/providers/p1/blocked-time": (init) =>
+        init?.method === "POST" ? jsonResponse({ error: "block_overlaps_appointments", message: "Covers booked appointments.", overlaps: covered }, 409) : jsonResponse([]),
+    });
+    await openAvailability();
+    const user = userEvent.setup();
+    await tryBlock(user);
+    await screen.findByRole("alert", { name: "This blocked time covers booked appointments" });
+
+    await user.type(screen.getByLabelText("Blocked until"), "{backspace}");
+    expect(screen.queryByRole("alert", { name: /covers/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add blocked time" })).toBeInTheDocument();
   });
 
   it("explains how to proceed when there are no providers yet", async () => {
