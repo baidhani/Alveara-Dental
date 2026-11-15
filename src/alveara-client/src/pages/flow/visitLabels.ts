@@ -5,30 +5,14 @@ import type { ReadinessStatus } from "../../services/visitsApi";
 /** Column headings: the visit's states in words. */
 export const STATE_LABELS: Record<PatientFlowState, string> = {
   Scheduled: "Scheduled", Confirmed: "Confirmed", CheckedIn: "Checked in", Ready: "Ready", Seated: "Seated",
-  InTreatment: "In treatment", CheckedOut: "Checked out", Completed: "Completed",
+  InTreatment: "In treatment", CheckedOut: "Ready for checkout", Completed: "Completed",   // ALV-N021 A2 (briefing 5.1): CheckedOut is a compatibility name
 };
 
-/** The button for moving a visit INTO each state. */
-export const ACTION_LABELS: Partial<Record<PatientFlowState, string>> = {
-  Confirmed: "Confirm", CheckedIn: "Check in", Ready: "Mark ready", Seated: "Seat patient",
-  InTreatment: "Start treatment", CheckedOut: "Check out", Completed: "Complete visit",
-};
-
-/** Said after a move went through (read out by the live region). */
+/** Said after a move went through (read out by the live region). ALV-N021 A2: button labels, and who may press them, come from the server's actions list. */
 export const DONE_LABELS: Partial<Record<PatientFlowState, string>> = {
   Confirmed: "confirmed", CheckedIn: "checked in", Ready: "marked ready", Seated: "seated",
-  InTreatment: "in treatment", CheckedOut: "checked out", Completed: "completed",
+  InTreatment: "in treatment", CheckedOut: "ready for checkout", Completed: "completed",
 };
-
-/**
- * Which permission a move needs. This mirrors the server's rule (VisitStateMachine.DutyFor) only so the screen offers buttons the person can actually use;
- * the server decides every time and a mismatch is a 403 that is explained, never a silent success.
- */
-export const permissionFor = (target: PatientFlowState): "UpdateVisitFlow" | "UpdateChairsideFlow" =>
-  target === "Confirmed" || target === "CheckedIn" || target === "CheckedOut" ? "UpdateVisitFlow" : "UpdateChairsideFlow";
-
-/** Completing a visit is final (there is no undo), so it asks first. Every other move is quick. */
-export const needsConfirmation = (target: PatientFlowState) => target === "Completed";
 
 export const READINESS_WORDS: Record<ReadinessStatus, string> = {
   Complete: "Complete", InProgress: "Started, not signed", SignedEarlierVersion: "Signed an earlier version", Missing: "Not done",
@@ -46,7 +30,21 @@ export function explainVisitRefusal(err: unknown, ctx: { operatory?: string }): 
     case "visit_completed":
     case "provider_inactive":
     case "operatory_inactive":
+    // ALV-N021 A2: the server's own sentence for each workflow rule
+    case "illegal_transition":
+    case "terminal_state":
+    case "block_flag_unresolved":
+    case "checkout_incomplete":
+    case "check_in_wrong_day":
+    case "undo_check_in_too_late":
+    case "not_flagged":
+    case "reason_required":
+    case "provider_double_booked":
+    case "operatory_double_booked":
+    case "provider_unavailable":
       return `${err.message} Nothing was changed.`;
+    case "visit_move_forbidden":
+      return `${err.message || "Your role is not allowed to make that change."} Nothing was changed.`;
     case "provider_not_found":
     case "operatory_not_found":
     case "appointment_not_found":

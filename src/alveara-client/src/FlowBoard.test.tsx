@@ -16,7 +16,7 @@ import { addDays, practiceNow } from "./pages/calendar/calendarLayout";
  */
 const DAY = "2030-01-14"; // a Monday
 const ANN = "pat-ann", BO = "pat-bo", CY = "pat-cy";
-const ALL = ["ViewPatientRecords", "ViewSchedule", "ViewSignedForms", "UpdateVisitFlow", "UpdateChairsideFlow"];
+const ALL = ["ViewPatientRecords", "ViewSchedule", "ViewSignedForms", "UpdateVisitFlow", "UpdateChairsideFlow", "ReassignAppointmentProvider"];
 
 let server: FakeFlowServer;
 
@@ -66,7 +66,7 @@ describe("what the board shows", () => {
 
     for (const [heading, patient] of [[/^Scheduled \(1\)$/, "Ann Lee"], [/^Confirmed \(1\)$/, "Bo Kim"], [/^Seated \(1\)$/, "Cy Poe"], [/^Completed \(1\)$/, "Di Lo"]] as const)
       expect(within(column(heading)).getByRole("heading", { name: patient })).toBeInTheDocument();
-    for (const heading of [/^Checked in \(0\)$/, /^Ready \(0\)$/, /^In treatment \(0\)$/, /^Checked out \(0\)$/]) {
+    for (const heading of [/^Checked in \(0\)$/, /^Ready \(0\)$/, /^In treatment \(0\)$/, /^Ready for checkout \(0\)$/]) {
       expect(within(column(heading)).getByText("No patients")).toBeInTheDocument();
       expect(column(heading)).toHaveClass("flow-column--empty"); // an empty column shrinks so the busy ones get the room
     }
@@ -134,25 +134,40 @@ describe("what the board shows", () => {
 });
 
 describe("who sees which buttons", () => {
-  it("offers a front-office person confirm and check in on a waiting patient, and nothing chairside", async () => {
+  it("offers a front-office person confirm, then check in, and undo check-in - nothing chairside and no shortcut", async () => {
     server.permissions = ["ViewSchedule", "UpdateVisitFlow"];
     const a = visit({ start: `${DAY}T09:30` });
+    const conf = visit({ start: `${DAY}T10:00`, flow: "Confirmed", name: "Cy Poe", patientId: CY });
     const ci = visit({ start: `${DAY}T10:30`, flow: "CheckedIn", name: "Bo Kim", patientId: BO });
     await openBoard();
 
     expect(within(card(a.id)).getByRole("button", { name: "Confirm Ann Lee" })).toBeEnabled();
-    expect(within(card(a.id)).getByRole("button", { name: "Check in Ann Lee" })).toBeEnabled();
+    expect(within(card(a.id)).queryByRole("button", { name: "Check in Ann Lee" })).not.toBeInTheDocument(); // confirmation comes first
+    expect(within(card(conf.id)).getByRole("button", { name: "Check in Cy Poe" })).toBeEnabled();
+    expect(within(card(ci.id)).getByRole("button", { name: "Undo check-in Bo Kim" })).toBeEnabled();
     for (const name of ["Mark ready Bo Kim", "Start treatment Bo Kim", "Complete visit Bo Kim"]) expect(within(card(ci.id)).queryByRole("button", { name })).not.toBeInTheDocument();
+    expect(within(card(ci.id)).queryByRole("button", { name: /Change (provider|room)/ })).not.toBeInTheDocument();
   });
 
-  it("offers a chairside person the chairside moves and not the front-office ones", async () => {
+  it("offers a chairside person only the next chairside move and a room change, not the front-office moves or a provider change", async () => {
     server.permissions = ["ViewSchedule", "UpdateChairsideFlow"];
     const waiting = visit({ start: `${DAY}T09:30` });
     const ci = visit({ start: `${DAY}T10:30`, flow: "CheckedIn", name: "Bo Kim", patientId: BO });
     await openBoard();
 
     expect(within(card(waiting.id)).queryByRole("button", { name: /Confirm|Check in/ })).not.toBeInTheDocument();
-    for (const name of ["Mark ready Bo Kim", "Start treatment Bo Kim", "Complete visit Bo Kim"]) expect(within(card(ci.id)).getByRole("button", { name })).toBeEnabled();
+    expect(within(card(ci.id)).getByRole("button", { name: "Mark ready Bo Kim" })).toBeEnabled();
+    for (const name of ["Start treatment Bo Kim", "Complete visit Bo Kim", "Undo check-in Bo Kim"]) expect(within(card(ci.id)).queryByRole("button", { name })).not.toBeInTheDocument();
+    expect(within(card(ci.id)).getByRole("button", { name: "Change room for Bo Kim" })).toBeEnabled();
+  });
+
+  it("draws only what the server listed: an action the server leaves out is not shown, even where the client could have guessed it", async () => {
+    const a = visit({ start: `${DAY}T09:30`, flow: "Seated" });
+    server.actionsFor = (x) => ({ appointmentId: x.id, rowVersion: x.rowVersion ?? "", status: x.status, flowState: "Seated", blockFlagged: false, nextActorText: "Waiting for the booked provider to start treatment.", actions: [] });
+    await openBoard();
+
+    expect(within(card(a.id)).queryByRole("button")).not.toBeInTheDocument();
+    expect(within(card(a.id)).getByText("Waiting for the booked provider to start treatment.")).toBeInTheDocument();
   });
 
   it("gives a person who can only look no buttons and says why", async () => {
@@ -166,14 +181,14 @@ describe("who sees which buttons", () => {
 });
 
 describe("making a move", () => {
-  it("is a single press, asks with the version it read, moves the card to its new column from what the server returns, announces it and keeps focus", async () => {
-    const a = visit({ start: `${DAY}T09:30` });
+  it("is a single press, asks with the version it read, moves the card to its new column from what the server returns, announces it with who is next and keeps focus", async () => {
+    const a = visit({ start: `${DAY}T09:30`, flow: "Confirmed" });
     await openBoard();
     const readsBefore = server.boardReads;
 
     await press(a, "Check in");
 
-    expect(await screen.findByText("Ann Lee is now checked in.")).toBeInTheDocument();
+    expect(await screen.findByText("Ann Lee is now checked in. Waiting for chairside staff to mark the patient ready.")).toBeInTheDocument();
     expect(posts(`/${a.id}/state`).at(-1)!.body).toEqual({ target: "CheckedIn", rowVersion: "a1" });
     await waitFor(() => expect(within(column(/^Checked in \(1\)$/)).getByRole("heading", { name: "Ann Lee" })).toBeInTheDocument());
     expect(a.flowState).toBe("CheckedIn");
@@ -183,7 +198,7 @@ describe("making a move", () => {
   });
 
   it("asks before completing a visit, because that is final, and a refusal to confirm changes nothing", async () => {
-    const a = visit({ start: `${DAY}T09:30`, flow: "InTreatment", operatory: "op-1" });
+    const a = visit({ start: `${DAY}T09:30`, flow: "CheckedOut", operatory: "op-1" });
     await openBoard();
 
     await press(a, "Complete visit");
@@ -191,7 +206,7 @@ describe("making a move", () => {
     expect(posts(`/${a.id}/state`)).toHaveLength(0);
     await userEvent.click(within(card(a.id)).getByRole("button", { name: "Keep it open" }));
     expect(posts(`/${a.id}/state`)).toHaveLength(0);
-    expect(a.flowState).toBe("InTreatment");
+    expect(a.flowState).toBe("CheckedOut");
 
     await press(a, "Complete visit");
     await userEvent.click(within(card(a.id)).getByRole("button", { name: "Yes, complete the visit" }));
@@ -199,10 +214,11 @@ describe("making a move", () => {
     expect(posts(`/${a.id}/state`).at(-1)!.body).toMatchObject({ target: "Completed" });
   });
 
-  it("walks a patient down the chain one press at a time, each press offering the next moves", async () => {
+  it("walks a patient down the one path a press at a time, each press offering the next move", async () => {
     const a = visit({ start: `${DAY}T09:30` });
     await openBoard();
-    for (const [button, column_] of [["Check in", /^Checked in/], ["Mark ready", /^Ready/], ["Seat patient", /^Seated/], ["Start treatment", /^In treatment/], ["Check out", /^Checked out/]] as const) {
+    for (const [button, column_] of [["Confirm", /^Confirmed/], ["Check in", /^Checked in/], ["Mark ready", /^Ready \(/], ["Seat patient", /^Seated/], ["Start treatment", /^In treatment/],
+      ["End treatment / ready for checkout", /^Ready for checkout/]] as const) {
       await press(a, button);
       await waitFor(() => expect(within(column(column_)).getByRole("heading", { name: "Ann Lee" })).toBeInTheDocument());
     }
@@ -223,21 +239,23 @@ describe("making a move", () => {
   });
 
   it("reports a change someone else made first as a conflict, applies nothing, and reloading shows the current state", async () => {
-    const a = visit({ start: `${DAY}T09:30` });
+    const a = visit({ start: `${DAY}T09:30`, flow: "CheckedIn" });
     await openBoard();
-    server.moveBehindTheScenes(a.id, "Confirmed"); // another user confirmed the patient while this card was on screen
+    server.moveBehindTheScenes(a.id, "Ready"); // the assistant marked the patient ready while this card was on screen
 
-    await press(a, "Check in");
+    await userEvent.click(within(card(a.id)).getByRole("button", { name: "Undo check-in Ann Lee" }));
+    await userEvent.type(within(card(a.id)).getByLabelText("Reason (required)"), "Wrong patient");
+    await userEvent.click(within(card(a.id)).getByRole("button", { name: "Undo check-in" }));
 
     expect(await screen.findByText("Someone else changed this while you were editing")).toBeInTheDocument();
-    expect(a.flowState).toBe("Confirmed"); // not checked in on top of their change
+    expect(a.flowState).toBe("Ready"); // not undone on top of their change
     await userEvent.click(screen.getByRole("button", { name: /Reload/ }));
-    await waitFor(() => expect(within(column(/^Confirmed \(1\)$/)).getByRole("heading", { name: "Ann Lee" })).toBeInTheDocument());
+    await waitFor(() => expect(within(column(/^Ready \(1\)$/)).getByRole("heading", { name: "Ann Lee" })).toBeInTheDocument());
     expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument();
   });
 
   it("says it cannot tell when the connection drops after the server applied the move, and pressing again does not move the patient twice", async () => {
-    const a = visit({ start: `${DAY}T09:30` });
+    const a = visit({ start: `${DAY}T09:30`, flow: "Confirmed" });
     await openBoard();
     server.dropNextMoveTo = "CheckedIn";
 
@@ -245,53 +263,117 @@ describe("making a move", () => {
     expect(await within(card(a.id)).findByRole("alert")).toHaveTextContent("could not confirm whether that was saved");
     expect(a.flowState).toBe("CheckedIn"); // it was applied
 
-    await press(a, "Check in"); // the card still says Scheduled and holds the old version: the server sees the patient is already in
-    expect(await screen.findByText("Ann Lee is now checked in.")).toBeInTheDocument();
+    await press(a, "Check in"); // the card still says Confirmed and holds the old version: the server sees the patient is already in
+    expect(await screen.findByText(/^Ann Lee is now checked in\./)).toBeInTheDocument();
     expect(a.flowState).toBe("CheckedIn");
   });
 });
 
-describe("changing the room or provider", () => {
-  it("asks for both, saves with the version it read, shows the new place and keeps the booking visible", async () => {
+describe("changing the provider or room (ALV-N021 A2: the booking moves)", () => {
+  it("asks for a reason when the provider changes, sends it with the version it read, and moves the booking", async () => {
     const a = visit({ start: `${DAY}T09:30` });
     await openBoard();
 
-    await userEvent.click(within(card(a.id)).getByRole("button", { name: "Change room or provider for Ann Lee" }));
-    const form = within(card(a.id)).getByRole("form", { name: "Change room or provider for Ann Lee" });
+    await userEvent.click(within(card(a.id)).getByRole("button", { name: "Change provider or room for Ann Lee" }));
+    const form = within(card(a.id)).getByRole("form", { name: "Change provider or room for Ann Lee" });
     expect(within(form).getByRole("button", { name: "Save" })).toBeDisabled(); // nothing changed yet
     await userEvent.selectOptions(within(form).getByLabelText("Provider"), "Dr. Patel");
     await userEvent.selectOptions(within(form).getByLabelText("Operatory"), "Op 2");
     await userEvent.click(within(form).getByRole("button", { name: "Save" }));
+    expect(within(form).getByRole("alert")).toHaveTextContent("Give a reason.");   // a provider change needs one; nothing was sent
+    expect(puts()).toHaveLength(0);
 
-    expect(await screen.findByText("Ann Lee was moved to the new room or provider.")).toBeInTheDocument();
-    expect(puts().at(-1)!.body).toEqual({ providerId: "prov-b", operatoryId: "op-2", rowVersion: "a1" });
+    await userEvent.type(within(form).getByLabelText("Reason for changing the provider (required)"), "Dr. Rivera is off sick");
+    await userEvent.click(within(form).getByRole("button", { name: "Save" }));
+
+    expect(await screen.findByText(/^Ann Lee was moved to another provider\./)).toBeInTheDocument();
+    expect(puts().at(-1)!.body).toEqual({ providerId: "prov-b", operatoryId: "op-2", rowVersion: "a1", reason: "Dr. Rivera is off sick" });
     await waitFor(() => expect(within(card(a.id)).getByText("Dr. Patel · Op 2")).toBeInTheDocument());
-    expect(within(card(a.id)).getByText("Booked: Dr. Rivera · Op 1")).toBeInTheDocument();
-    expect(a.providerName).toBe("Dr. Rivera"); // the booking itself did not move
+    expect(within(card(a.id)).queryByText(/^Booked:/)).not.toBeInTheDocument(); // there is no separate "seen by" any more
+    expect(a.providerName).toBe("Dr. Patel");
   });
 
-  it("explains an occupied room and leaves the visit where it was; Cancel closes the form", async () => {
+  it("changes only the room without a reason, explains an occupied room and leaves the visit where it was; Cancel closes the form", async () => {
     visit({ start: `${DAY}T09:00`, flow: "Seated", name: "Bo Kim", patientId: BO, provider: "prov-b", operatory: "op-2" });
     const seated = visit({ start: `${DAY}T11:00`, flow: "Seated", name: "Ann Lee" });
     await openBoard();
 
-    await userEvent.click(within(card(seated.id)).getByRole("button", { name: "Change room or provider for Ann Lee" }));
+    await userEvent.click(within(card(seated.id)).getByRole("button", { name: "Change provider or room for Ann Lee" }));
     await userEvent.selectOptions(within(card(seated.id)).getByLabelText("Operatory"), "Op 2");
+    expect(within(card(seated.id)).queryByLabelText(/Reason/)).not.toBeInTheDocument();
     await userEvent.click(within(card(seated.id)).getByRole("button", { name: "Save" }));
     expect(await within(card(seated.id)).findByRole("alert")).toHaveTextContent("Op 2 already has a patient who is seated or in treatment. Nothing was changed.");
-    expect(seated.visitOperatoryId).toBeUndefined();
+    expect(seated.operatoryId).toBe("op-1");
 
-    await userEvent.click(within(card(seated.id)).getByRole("button", { name: "Change room or provider for Ann Lee" }));
+    await userEvent.click(within(card(seated.id)).getByRole("button", { name: "Change provider or room for Ann Lee" }));
     await userEvent.click(within(card(seated.id)).getByRole("button", { name: "Cancel" }));
     expect(within(card(seated.id)).queryByRole("form")).not.toBeInTheDocument();
   });
 
-  it("is not offered to a finished visit, to a cancelled one, or to someone who cannot change visits", async () => {
+  it("is not offered once treatment has started, to a finished or cancelled visit", async () => {
+    const treating = visit({ start: `${DAY}T08:00`, flow: "InTreatment", name: "Di Lo", patientId: "pat-di" });
     const done = visit({ start: `${DAY}T09:00`, flow: "Completed", name: "Bo Kim", patientId: BO });
     visit({ start: `${DAY}T10:00`, status: "Cancelled", name: "Cy Poe" });
     await openBoard();
-    expect(within(card(done.id)).queryByRole("button", { name: /Change room/ })).not.toBeInTheDocument();
-    expect(screen.queryAllByRole("button", { name: /Change room/ })).toHaveLength(0);
+    expect(within(card(treating.id)).queryByRole("button", { name: /Change (provider|room)/ })).not.toBeInTheDocument();
+    expect(within(card(done.id)).queryByRole("button", { name: /Change (provider|room)/ })).not.toBeInTheDocument();
+    expect(screen.queryAllByRole("button", { name: /Change (provider|room)/ })).toHaveLength(0);
+  });
+});
+
+describe("undo check-in, blocked time and checkout (ALV-N021 A2)", () => {
+  it("undoes a check-in only with a reason and puts the patient back before check-in", async () => {
+    const a = visit({ start: `${DAY}T09:30`, flow: "CheckedIn" });
+    await openBoard();
+
+    await userEvent.click(within(card(a.id)).getByRole("button", { name: "Undo check-in Ann Lee" }));
+    const form = within(card(a.id)).getByRole("form", { name: "Undo check-in for Ann Lee" });
+    await userEvent.click(within(form).getByRole("button", { name: "Undo check-in" }));
+    expect(within(form).getByRole("alert")).toHaveTextContent("Give a reason.");
+    expect(posts(`/${a.id}/undo-check-in`)).toHaveLength(0);
+
+    await userEvent.type(within(form).getByLabelText("Reason (required)"), "Checked in the wrong patient");
+    await userEvent.click(within(form).getByRole("button", { name: "Undo check-in" }));
+
+    expect(await screen.findByText("Ann Lee is no longer checked in. Waiting for the front desk to check the patient in.")).toBeInTheDocument();
+    expect(posts(`/${a.id}/undo-check-in`).at(-1)!.body).toEqual({ reason: "Checked in the wrong patient", rowVersion: "a1" });
+    await waitFor(() => expect(within(column(/^Confirmed \(1\)$/)).getByRole("heading", { name: "Ann Lee" })).toBeInTheDocument());
+  });
+
+  it("shows a flagged appointment's blocked check-in with the reason, and keeping it with a reason makes check-in available", async () => {
+    const a = visit({ start: `${DAY}T09:30`, flow: "Confirmed" });
+    a.blockFlagged = true;
+    await openBoard();
+
+    expect(within(card(a.id)).getByText("Blocked time")).toBeInTheDocument();
+    const checkIn = within(card(a.id)).getByRole("button", { name: "Check in Ann Lee" });
+    expect(checkIn).toBeDisabled();
+    expect(checkIn).toHaveAccessibleDescription("The provider has blocked this time. Reschedule, reassign, cancel or keep the appointment first.");
+    expect(within(card(a.id)).getByText(/the front desk must reschedule, reassign, cancel or keep it/)).toBeInTheDocument();
+
+    await userEvent.click(within(card(a.id)).getByRole("button", { name: "Keep despite blocked time Ann Lee" }));
+    const form = within(card(a.id)).getByRole("form", { name: "Keep the appointment for Ann Lee" });
+    await userEvent.type(within(form).getByLabelText("Reason (required)"), "Dr. Rivera will see her before the course");
+    await userEvent.click(within(form).getByRole("button", { name: "Keep appointment" }));
+
+    expect(await screen.findByText(/^Ann Lee keeps the appointment despite the blocked time\./)).toBeInTheDocument();
+    expect(server.callsToSchedule("POST", "/api/appointments").filter((c) => c.url.endsWith("/keep-despite-block")).at(-1)!.body)
+      .toEqual({ reason: "Dr. Rivera will see her before the course", rowVersion: "a1" });
+    await waitFor(() => expect(within(card(a.id)).getByRole("button", { name: "Check in Ann Lee" })).toBeEnabled());
+    expect(within(card(a.id)).queryByText("Blocked time")).not.toBeInTheDocument();
+  });
+
+  it("shows Complete disabled with the checkout sentence while checkout items are open, and the server's refusal is explained if it is pressed anyway", async () => {
+    const a = visit({ start: `${DAY}T09:30`, flow: "CheckedOut" });
+    server.checkoutOpen.add(a.id);
+    await openBoard();
+
+    const complete = within(card(a.id)).getByRole("button", { name: "Complete visit Ann Lee" });
+    expect(complete).toBeDisabled();
+    expect(complete).toHaveAccessibleDescription("Ready for checkout — the patient has not been marked as left.");
+    expect(within(column(/^Ready for checkout \(1\)$/)).getByText("Ready for checkout — the patient has not been marked as left.", { selector: ".flow-card__next" })).toBeInTheDocument();
+    fireEvent.click(complete); // disabled: nothing happens
+    expect(posts(`/${a.id}/state`)).toHaveLength(0);
   });
 });
 

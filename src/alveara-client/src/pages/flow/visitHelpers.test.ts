@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ApiError } from "../../services/authApi";
 import type { Appointment } from "../../services/schedulingApi";
-import { ACTION_LABELS, STATE_LABELS, explainVisitRefusal, needsConfirmation, permissionFor } from "./visitLabels";
+import { STATE_LABELS, explainVisitRefusal } from "./visitLabels";
 import { boardNowMs, durationLabel, elapsedCue } from "./visitTime";
 
 const NOW = Date.parse("2030-01-14T15:00:30.000Z");
@@ -69,21 +69,17 @@ describe("elapsedCue", () => {
   });
 });
 
-describe("labels and permissions", () => {
-  it("names every state and the button for every move into it (Scheduled has no button: nothing moves back to it)", () => {
+describe("labels", () => {
+  // ALV-N021 A2: which buttons to offer, who may press them and their labels now come from the server's actions list; the client keeps only the column headings
+  it("names every state", () => {
     for (const s of ["Scheduled", "Confirmed", "CheckedIn", "Ready", "Seated", "InTreatment", "CheckedOut", "Completed"] as const) expect(STATE_LABELS[s]).toBeTruthy();
-    expect(ACTION_LABELS.Scheduled).toBeUndefined();
-    expect(Object.values(ACTION_LABELS)).toHaveLength(7);
   });
 
-  it("assigns confirm, check in and check out to the front office and every chairside step to the chairside team (mirrors the server)", () => {
-    expect(["Confirmed", "CheckedIn", "CheckedOut"].map((t) => permissionFor(t as never))).toEqual(["UpdateVisitFlow", "UpdateVisitFlow", "UpdateVisitFlow"]);
-    expect(["Ready", "Seated", "InTreatment", "Completed"].map((t) => permissionFor(t as never))).toEqual(Array(4).fill("UpdateChairsideFlow"));
-  });
-
-  it("asks for confirmation only before completing a visit, which is final", () => {
-    expect(needsConfirmation("Completed")).toBe(true);
-    for (const t of ["Confirmed", "CheckedIn", "Ready", "Seated", "InTreatment", "CheckedOut"] as const) expect(needsConfirmation(t)).toBe(false);
+  it("explains each workflow refusal in the server's words and says nothing changed", () => {
+    for (const code of ["block_flag_unresolved", "checkout_incomplete", "check_in_wrong_day", "illegal_transition", "undo_check_in_too_late"])
+      expect(explainVisitRefusal(new ApiError(409, code, "Server sentence."), {})).toBe("Server sentence. Nothing was changed.");
+    expect(explainVisitRefusal(new ApiError(403, "visit_move_forbidden", "Only the appointment's booked provider can start or end treatment."), {}))
+      .toBe("Only the appointment's booked provider can start or end treatment. Nothing was changed.");
   });
 });
 

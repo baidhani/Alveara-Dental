@@ -37,6 +37,38 @@ export interface VisitCard {
    * the board-indicator permission and only when there is something to show; absent means nothing is on file (never "unknown").
    */
   safety?: SafetyIndicator | null;
+  /** ALV-N021 A2: what the signed-in user may do to this visit now (same as GET appointments/{id}/actions). The board draws its buttons from this only. */
+  actions?: AppointmentActions | null;
+}
+
+/** ALV-N021 A2: stable action codes from the server (VisitActionCodes). */
+export type VisitActionCode =
+  | "confirm" | "check_in" | "undo_check_in" | "mark_ready" | "seat" | "start_treatment" | "end_treatment" | "complete"
+  | "reschedule" | "cancel" | "no_show" | "reassign_provider" | "change_room" | "keep_despite_block";
+
+/**
+ * One action the user may take now. `enabled` false: the user holds the authority but a rule blocks it at the moment; `blockedBy` is the server's error code and
+ * `blockedText` says why in words. Actions the user has no authority for are not listed at all. `targetState` is set for moves along the visit path.
+ */
+export interface VisitAction {
+  code: VisitActionCode;
+  label: string;
+  enabled: boolean;
+  blockedBy: string | null;
+  blockedText: string | null;
+  targetState: PatientFlowState | null;
+  needsReason: boolean;
+}
+
+export interface AppointmentActions {
+  appointmentId: string;
+  rowVersion: string;
+  status: string;
+  flowState: PatientFlowState;
+  blockFlagged: boolean;
+  /** Who the visit waits for, in words (roles, never the patient); announced through the live region after a change. */
+  nextActorText: string | null;
+  actions: VisitAction[];
 }
 
 export interface VisitBoard {
@@ -53,5 +85,16 @@ export const getVisitBoard = (date?: string, signal?: AbortSignal) =>
 export const moveVisit = (id: string, target: PatientFlowState, rowVersion: string) =>
   requestWithCsrf<Appointment>(`/api/visits/${id}/state`, "POST", { target, rowVersion });
 
-export const assignVisit = (id: string, providerId: string, operatoryId: string, rowVersion: string) =>
-  requestWithCsrf<Appointment>(`/api/visits/${id}/assignment`, "PUT", { providerId, operatoryId, rowVersion });
+/** ALV-N021 A2 (OD-13 to OD-16): changes the BOOKED provider and/or room; a provider change needs a reason. */
+export const assignVisit = (id: string, providerId: string, operatoryId: string, rowVersion: string, reason?: string) =>
+  requestWithCsrf<Appointment>(`/api/visits/${id}/assignment`, "PUT", { providerId, operatoryId, rowVersion, ...(reason ? { reason } : {}) });
+
+export const getAppointmentActions = (id: string, signal?: AbortSignal) => request<AppointmentActions>(`/api/appointments/${id}/actions`, { signal });
+
+/** ALV-N021 A2 (OD-11): back to the state before check-in; reason required. */
+export const undoCheckIn = (id: string, reason: string, rowVersion: string) =>
+  requestWithCsrf<Appointment>(`/api/visits/${id}/undo-check-in`, "POST", { reason, rowVersion });
+
+/** ALV-N021 A2 (OD-18): keep an appointment that blocked time covers; reason required. */
+export const keepDespiteBlock = (id: string, reason: string, rowVersion: string) =>
+  requestWithCsrf<Appointment>(`/api/appointments/${id}/keep-despite-block`, "POST", { reason, rowVersion });

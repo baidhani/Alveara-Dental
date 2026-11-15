@@ -38,6 +38,8 @@ export interface Appointment {
   visitOperatoryId?: string;
   visitOperatoryName?: string;
   nextFlowStates?: PatientFlowState[];
+  /** ALV-N021 A2 (OD-18): blocked time covers this appointment and nobody has resolved it yet (derived on the server). */
+  blockFlagged?: boolean;
 }
 
 export interface ScheduleInput {

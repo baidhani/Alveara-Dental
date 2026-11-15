@@ -194,6 +194,33 @@
   margin-top: var(--space-2);
 }
 
+/* ALV-N021 A2: who the visit waits for, the blocked-time flag, and a disabled action's reason */
+.flow-card__next {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  font-style: italic;
+}
+
+.flow-card__blocked {
+  padding: var(--space-1) var(--space-2);
+  border-left: 3px solid var(--color-warning);
+  background: var(--color-warning-bg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.flow-action {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 100%;
+}
+
+.flow-action__blocked {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 .flow-confirm,
 .flow-assign {
   margin-top: var(--space-2);

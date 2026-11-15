@@ -10,7 +10,7 @@ import { getSchedulingSnapshot } from "../../services/configApi";
 import type { SchedulingSnapshot } from "../../services/configApi";
 import { dateOf } from "../../services/schedulingApi";
 import type { Appointment, PatientFlowState } from "../../services/schedulingApi";
-import { assignVisit, getVisitBoard, moveVisit } from "../../services/visitsApi";
+import { assignVisit, getAppointmentActions, getVisitBoard, keepDespiteBlock, moveVisit, undoCheckIn } from "../../services/visitsApi";
 import type { VisitBoard, VisitCard } from "../../services/visitsApi";
 import { addDays, dayLabel, practiceNow } from "../calendar/calendarLayout";
 import { VisitCardView } from "./VisitCardView";
@@ -36,6 +36,8 @@ const clock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "2-dig
  *   conflict banner says so and nothing is applied. Reloading shows the current state.
  * - <b>Honest times.</b> Elapsed figures use the server's clock (moved forward by the time since the board was fetched), never the browser's clock itself.
  * - Buttons are offered only for the moves the server says come next AND this person's role may make; the server still decides every time.
+ *   ALV-N021 A2: each card's buttons come from the server's per-user actions list on the board (no client-side rules); after a change the card takes this user's fresh
+ *   list and the live region says what happened and who the visit now waits for.
  */
 export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
   const { hasPermission } = useAuth();
@@ -134,8 +136,10 @@ export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
     setConflict(null);
     try {
       const updated = await work();
-      setBoard((b) => (b ? { ...b, visits: b.visits.map((v) => (v.appointment.id === id ? { ...v, appointment: updated, readiness: null } : v)) } : b));
-      setAnnouncement(`${card.appointment.patientName} ${done}.`);
+      // ALV-N021 A2: the card's buttons must come from the server; take this user's fresh actions now (the board re-read follows) and announce who the visit waits for
+      const actions = await getAppointmentActions(id).catch(() => null);
+      setBoard((b) => (b ? { ...b, visits: b.visits.map((v) => (v.appointment.id === id ? { ...v, appointment: updated, readiness: null, actions } : v)) } : b));
+      setAnnouncement(`${card.appointment.patientName} ${done}.${actions?.nextActorText ? ` ${actions.nextActorText}` : ""}`);
       focusAfter.current = id;
       busy.current = false;
       refresh(); // then take the whole board from the server
@@ -150,15 +154,21 @@ export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
 
   const onMove = (card: VisitCard, target: PatientFlowState) =>
     void act(card, () => moveVisit(card.appointment.id, target, card.appointment.rowVersion ?? ""), `is now ${DONE_LABELS[target] ?? target}`, card.appointment.visitOperatoryId ?? card.appointment.operatoryId);
-  const onAssign = (card: VisitCard, providerId: string, operatoryId: string) =>
-    void act(card, () => assignVisit(card.appointment.id, providerId, operatoryId, card.appointment.rowVersion ?? ""), "was moved to the new room or provider", operatoryId);
+  const onAssign = (card: VisitCard, providerId: string, operatoryId: string, reason: string | undefined) =>
+    void act(card, () => assignVisit(card.appointment.id, providerId, operatoryId, card.appointment.rowVersion ?? "", reason),
+      providerId !== card.appointment.providerId ? "was moved to another provider" : "was moved to another room", operatoryId);
+  const onUndoCheckIn = (card: VisitCard, reason: string) =>
+    void act(card, () => undoCheckIn(card.appointment.id, reason, card.appointment.rowVersion ?? ""), "is no longer checked in");
+  const onKeep = (card: VisitCard, reason: string) =>
+    void act(card, () => keepDespiteBlock(card.appointment.id, reason, card.appointment.rowVersion ?? ""), "keeps the appointment despite the blocked time");
 
   const nowMs = shown ? boardNowMs(shown.serverNowUtc, fetchedAt, clientNow) : clientNow;
   const inChain = (v: VisitCard, s: string) => v.appointment.status === "Scheduled" && (v.appointment.flowState ?? "Scheduled") === s;
   const closed = shown?.visits.filter((v) => v.appointment.status !== "Scheduled") ?? [];
   const cardFor = (v: VisitCard) => (
     <li key={v.appointment.id}>
-      <VisitCardView card={v} nowMs={nowMs} snapshot={snapshot} can={hasPermission} busy={busyId !== null} error={errors[v.appointment.id] || null} onMove={onMove} onAssign={onAssign} />
+      <VisitCardView card={v} nowMs={nowMs} snapshot={snapshot} busy={busyId !== null} error={errors[v.appointment.id] || null}
+        onMove={onMove} onAssign={onAssign} onUndoCheckIn={onUndoCheckIn} onKeep={onKeep} />
     </li>
   );
 
