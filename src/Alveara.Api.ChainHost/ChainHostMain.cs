@@ -5,6 +5,7 @@ namespace Alveara.Api.ChainHost;
 /// <summary>
 /// Entry point of the chain host. Settings come from the same environment variables the production API reads (connection string, storage, key ring, backup folder, bootstrap secret), plus:
 /// <c>CHAIN_CLOCK_UTC</c> (ISO 8601 instant; default 2026-01-15T15:00:00Z) and <c>CHAIN_URL</c> (default http://localhost:5072). It prints one ready line and runs until it is stopped (Ctrl+C or the runner).
+/// ALV-N021 A2: <c>CHAIN_CONTROL_TOKEN</c>, <c>CHAIN_RUN_ID</c> and <c>CHAIN_CLOCK_LOG</c> switch on the clock-advance route for one chain run (<see cref="ClockAdvanceStartupFilter"/>).
 /// </summary>
 public static class ChainHostMain
 {
@@ -20,10 +21,12 @@ public static class ChainHostMain
         }
 
         var zoneId = Environment.GetEnvironmentVariable("PracticeTimeZone") ?? "America/Chicago";
-        using var factory = new ChainHostFactory(new ChainPracticeClock(start, TimeZoneInfo.FindSystemTimeZoneById(zoneId)));
+        // ALV-N021 A2: the run's control settings (set only by Invoke-AccumulatedChain.ps1); without CHAIN_CONTROL_TOKEN the clock-advance route stays off
+        var control = new ChainControlOptions(Environment.GetEnvironmentVariable("CHAIN_RUN_ID"), Environment.GetEnvironmentVariable("CHAIN_CONTROL_TOKEN"), Environment.GetEnvironmentVariable("CHAIN_CLOCK_LOG"));
+        using var factory = new ChainHostFactory(new ChainPracticeClock(start, TimeZoneInfo.FindSystemTimeZoneById(zoneId)), control);
         factory.UseKestrel(new Uri(url).Port);
         factory.StartServer();
-        Console.WriteLine($"ChainHost ready on {url} clockMode=injected clockUtc={start:O}");
+        Console.WriteLine($"ChainHost ready on {url} clockMode=injected clockUtc={start:O} clockAdvance={(control.AdvanceEnabled ? "on" : "off")}");
 
         using var stop = new CancellationTokenSource();
         Console.CancelKeyPress += (_, e) => { e.Cancel = true; stop.Cancel(); };

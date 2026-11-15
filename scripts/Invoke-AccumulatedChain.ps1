@@ -57,6 +57,8 @@ $exitCode    = 2
 $runnerSteps = New-Object System.Collections.ArrayList
 $schemaVersion = 'unknown'
 $clockModeSeen = 'unknown'      # what the running host reports, never what was asked for
+$tokenBytes = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($tokenBytes)   # Windows PowerShell 5.1 (.NET Framework) has no static GetBytes(int)
+$controlToken = [Convert]::ToBase64String($tokenBytes)   # ALV-N021 A2: per run, never stored; only this run's host and stages receive it
 
 foreach ($port in 5072, 5173) {
     if (Test-PortInUse $port) { Write-Host "Port $port is already in use: stop the dev app first; a chain run needs both ports."; exit 2 }
@@ -122,6 +124,10 @@ try {
     $psi.EnvironmentVariables['ASPNETCORE_ENVIRONMENT'] = 'Development'
     $psi.EnvironmentVariables['ASPNETCORE_URLS'] = $ApiUrl
     $psi.EnvironmentVariables['CHAIN_URL'] = $ApiUrl
+    # ALV-N021 A2 (owner decision 2026-11-15): this run's control token switches on the chain host's clock-advance route for this run only; each advance is appended to the evidence
+    $psi.EnvironmentVariables['CHAIN_RUN_ID'] = $runId
+    $psi.EnvironmentVariables['CHAIN_CONTROL_TOKEN'] = $controlToken
+    $psi.EnvironmentVariables['CHAIN_CLOCK_LOG'] = (Join-Path $evidenceDir 'clock-advances.jsonl')
     $psi.EnvironmentVariables['ConnectionStrings__Alveara'] = $connection
     $psi.EnvironmentVariables['AdminBootstrapSecret'] = $secret
     $psi.EnvironmentVariables['AuthAttemptRateLimit__PermitLimit'] = '500'
@@ -152,6 +158,7 @@ try {
     ConvertTo-Json -InputObject @{ requested = $ClockMode; reported = $clockModeSeen; report = $report } -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDir 'clock-mode.json') -Encoding utf8
     Write-Host "Clock mode: $clockModeSeen"
     $env:CHAIN_CLOCK_MODE = $clockModeSeen
+    $env:CHAIN_CONTROL_TOKEN = $controlToken   # the stages need it to move the injected clock (case 3.09)
     if ($InjectFault -eq 'KillApiAfterStart') {
         Stop-Process -Id $api.Id -Force
         [void]$api.WaitForExit(15000)
@@ -252,7 +259,7 @@ catch {
 }
 finally {
     $ErrorActionPreference = 'Continue'
-    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE, Env:CHAIN_API_CONTROL -ErrorAction SilentlyContinue
+    Remove-Item Env:E2E_DB_NAME, Env:E2E_BOOTSTRAP_SECRET, Env:CHAIN_OUT, Env:CHAIN_CLOCK_MODE, Env:CHAIN_API_CONTROL, Env:CHAIN_CONTROL_TOKEN -ErrorAction SilentlyContinue
     if ($api -and -not $api.HasExited) {
         try { Stop-Process -Id $api.Id -Force } catch { Write-Warning "Could not stop the API process $($api.Id): $_" }
         [void]$api.WaitForExit(15000)
