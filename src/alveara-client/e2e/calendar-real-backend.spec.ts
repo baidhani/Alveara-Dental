@@ -305,16 +305,18 @@ test("CONCURRENT EDITS: six appointments racing into one slot produce one winner
   evidence.concurrency = { sixWayRaceWinners: 1, sameAppointmentTwoWay: twoWay.map((r) => r.status).sort() };
 });
 
-test("CANCEL: a cancellation needs a reason, the appointment stays on the calendar marked cancelled (and holds no time), and its history is kept", async () => {
+test("CANCEL: a cancellation needs a category (ALV-N021 A2; the note is optional), the appointment stays on the calendar marked cancelled (and holds no time), and its history is kept", async () => {
   await gotoCalendar(desk, DAY);
   await blockOf(desk, ids.a3).click();
   await drawerOf(desk).getByRole("button", { name: "Cancel appointment" }).click();
-  await drawerOf(desk).getByRole("button", { name: "Confirm cancellation" }).click(); // no reason
-  await expect(drawerOf(desk).getByRole("alert")).toContainText("A reason for the cancellation is required.");
-  await drawerOf(desk).getByLabel("Reason for cancelling (required)").fill("Patient called to cancel");
+  await drawerOf(desk).getByRole("button", { name: "Confirm cancellation" }).click(); // no category
+  await expect(drawerOf(desk).getByRole("alert")).toContainText("Choose why the appointment is cancelled.");
+  await drawerOf(desk).getByLabel("Why is it cancelled? (required)").selectOption({ label: "Patient's request" });
+  await drawerOf(desk).getByLabel("Note (optional)").fill("Patient called to cancel");
   await drawerOf(desk).getByRole("button", { name: "Confirm cancellation" }).click();
-  await expect(drawerOf(desk).getByText("Appointment cancelled.")).toBeVisible();
+  await expect(drawerOf(desk).getByText(/^Appointment cancelled\./)).toBeVisible();
   await expect(drawerOf(desk).getByText("Patient called to cancel", { exact: true }).first()).toBeVisible();
+  await expect(drawerOf(desk).getByText(/^Patient's request/).first()).toBeVisible();
   await expect(drawerOf(desk).getByRole("button", { name: "Reschedule" })).toHaveCount(0);
   await shot(desk, "08-cancelled-drawer.png");
   await scanBothThemes(desk, "cancelled-drawer");
@@ -329,7 +331,8 @@ test("CANCEL: a cancellation needs a reason, the appointment stays on the calend
   expect(rebook.status).toBe(201);
   const stored = (await calendarOn(desk)).find((a) => a.id === ids.a3)!;
   expect(stored.status).toBe("Cancelled");
-  evidence.cancel = { reasonRequired: true, stillOnCalendar: true, freedTheSlot: true };
+  expect((stored as unknown as { cancelCategory: string }).cancelCategory).toBe("patient");
+  evidence.cancel = { categoryRequired: true, stillOnCalendar: true, freedTheSlot: true };
 });
 
 test("NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record", async () => {
@@ -337,7 +340,7 @@ test("NO-SHOW: not before the start time; once the start has passed the appointm
   await gotoCalendar(desk, DAY);
   await blockOf(desk, ids.a1).click();
   await expect(drawerOf(desk).getByRole("button", { name: "Mark no-show" })).toBeDisabled();
-  await expect(drawerOf(desk).getByText("A no-show can be recorded once the start time has passed.")).toBeVisible();
+  await expect(drawerOf(desk).getByRole("button", { name: "Mark no-show" })).toHaveAccessibleDescription("An appointment can only be marked as a no-show once its start time has passed.");   // ALV-N021 A2: the server's own reason
   const early = await call(desk, "post", `/api/appointments/${ids.a1}/no-show`, { rowVersion: (await calendarOn(desk)).find((a) => a.id === ids.a1)!.rowVersion });
   expect(early.status).toBe(409);
   expect(early.body.error).toBe("no_show_too_early");

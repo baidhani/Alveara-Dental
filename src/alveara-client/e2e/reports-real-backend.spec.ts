@@ -133,7 +133,7 @@ test("SETUP: a practice, five appointments on one day (two cancelled) and a 40 p
     expect(a.status, JSON.stringify(a.body)).toBe(201);
     booked.push({ id: a.body.id as string, rowVersion: a.body.rowVersion as string });
   }
-  for (const a of booked.slice(0, 2)) expect((await call(desk, "post", `/api/appointments/${a.id}/cancel`, { reason: "Patient asked", rowVersion: a.rowVersion })).status).toBe(200);
+  for (const a of booked.slice(0, 2)) expect((await call(desk, "post", `/api/appointments/${a.id}/cancel`, { category: "patient", note: "Patient asked", rowVersion: a.rowVersion })).status).toBe(200);
 
   const billing = sessions.Billing.page;
   const account = async () => (await (await billing.request.get(`/api/patients/${ids.ann}/billing`)).json()) as { rowVersion: string };

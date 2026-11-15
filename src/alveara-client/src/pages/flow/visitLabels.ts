@@ -41,6 +41,8 @@ export function explainVisitRefusal(err: unknown, ctx: { operatory?: string }): 
     case "reason_required":
     case "provider_double_booked":
     case "operatory_double_booked":
+    case "operatory_conflict":       // ALV-N021 A2: a room change moves the booking, so the booking guards answer first
+    case "patient_double_booked":
     case "provider_unavailable":
       return `${err.message} Nothing was changed.`;
     case "visit_move_forbidden":

@@ -36,6 +36,7 @@ const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Reschedul
   CheckedIn: "Patient checked in", TreatmentStarted: "Treatment started", Completed: "Visit completed",
   Confirmed: "Confirmed", Ready: "Marked ready", Seated: "Seated", CheckedOut: "Ready for checkout", AssignmentChanged: "Room or provider changed (earlier rule)",
   CheckInUndone: "Check-in undone", ProviderReassigned: "Provider changed", RoomChanged: "Room changed", KeptDespiteBlock: "Kept despite blocked time",
+  CheckoutRecorded: "Checkout decision recorded",
 };
 
 /** Visit moves and visit-level changes (the "Patient flow" group); booking changes are a separate group. */

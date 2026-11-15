@@ -34,7 +34,11 @@ Parameters: `-Config` (required, relative to `src\alveara-client`, for example `
 `gate-c/playwright.c2.config.ts`); `-OutputVariable` (the variable the spec reads for its output folder, named in the
 section for that walkthrough below, for example `BILLING_E2E_OUT`) and `-OutputDir` (where the screenshots and JSON go;
 default `Test-Data\Temp\walkthrough-output\<database>`, kept after the run because it is the evidence; copy what you
-need, then `.\scripts\Clear-TestData.ps1` removes the rest); `-SkipBuild` (when the API was just built).
+need, then `.\scripts\Clear-TestData.ps1` removes the rest); `-SkipBuild` (when the API was just built);
+`-InjectedClockUtc <yyyy-MM-ddTHH:mm:ssZ>` (ALV-N021 A2: runs the walkthrough on the chain host - the unchanged production application with the
+injected test clock of ALV-N019 - with "now" fixed at that UTC instant; the runner reads the host's `/api/chain/clock-mode` report and stops before any
+test unless it says `injected` at that instant, and sets `E2E_CLOCK_MODE` for the spec. Only walkthroughs that need a practice "today" use it: the
+check-in day rule allows a check-in only on the appointment's own practice day).
 
 Requirements: SQL Server Express reachable as `.\SQLEXPRESS` (`ALVERA_SQL_SERVER` overrides the name), the SQL Server
 service account able to write under `C:\.alvera-data` (`ALVERA_DATA_ROOT` overrides the root), `sqlcmd` on the path, and
@@ -305,34 +309,36 @@ screen and state in light and dark. Like the other real-backend specs it is excl
 
 ## STORY-011: patient flow walkthrough
 
-`e2e/patient-flow-real-backend.spec.ts` is the un-mocked run for patient flow. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough
-above (including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+`e2e/patient-flow-real-backend.spec.ts` is the un-mocked run for a visit from the calendar drawer (reworked for ALV-N021 A2). It needs the injected clock (the check-in
+day rule), so run it only through the runner:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
-$env:FLOW_E2E_OUT = "C:\tmp\flow-e2e"       # optional: where the JSON results and screenshots go (use a Windows path)
-npx playwright test --config=playwright.flow.config.ts
+Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]"
+.\scripts\Invoke-RealBackendWalkthrough.ps1 -Config playwright.flow.config.ts -OutputVariable FLOW_E2E_OUT -InjectedClockUtc 2030-01-14T13:30:00Z
 ```
 
-It configures the practice through the real configuration API, then signs in as front-desk users, a dentist and a billing user and shows: a scheduled patient checked in
-from the calendar drawer and then started and completed (the status in the drawer, on the calendar block and on the server); a checked-in patient going straight to completed;
-out-of-order, repeated, stale and unknown moves, and cancel / no-show / reschedule refused after check-in; a second user moving the patient first (a repeat is a quiet no-op, a
-different move is reported and not applied); six simultaneous check-ins producing one; a dentist who can see the flow but not move it (403); a keyboard-only check-in and
-completion; the audit log holding every move with user and time and no patient details - with axe scans in light and dark. It needs no `sqlcmd`. Like the other real-backend specs it
-is excluded from the default mocked `npm run test:e2e`.
+It configures the practice through the real configuration API (the dentist's account linked to Dr. Rivera), then shows: a patient confirmed and then checked in from the calendar
+drawer, whose buttons come only from the server's actions (no check-in before confirmation); the booked dentist starting and ending treatment; the receptionist resolving the
+checkout in the drawer (a provider-only outcome refused for her) and only then completing; STORY-011's shortcuts (check in then complete, skip treatment) refused on the visit route
+and the legacy routes; repeated, missing-version, stale and unknown moves, cancel / no-show / reschedule refused after check-in and a cancel without a category refused; a second user
+moving the patient first (a repeat is a quiet no-op, a different move is reported and not applied); six simultaneous check-ins producing one; a dentist who cannot do front-desk moves
+(403, also on the legacy route) and billing with no way in; a keyboard-only confirm and check-in; the audit log holding every move with the user and no patient details or reasons -
+with axe scans in light and dark. It needs no `sqlcmd`. Like the other real-backend specs it is excluded from the default mocked `npm run test:e2e`.
 
 
 ## ALV-011-C01: visit board walkthrough
 
-`e2e/visit-board-real-backend.spec.ts` is the un-mocked run for the visit board. Prepare a fresh database and start the API exactly as for the STORY-003 walkthrough above
-(including `AuthAttemptRateLimit__PermitLimit=500`), then from `src/alveara-client`:
+`e2e/visit-board-real-backend.spec.ts` is the un-mocked run for the visit board (reworked for ALV-N021 A2). It needs the injected clock (the check-in day rule), so run it
+only through the runner:
 
 ```powershell
-$env:E2E_BOOTSTRAP_SECRET = "e2e-real-backend-secret"
-$env:E2E_DB_NAME = "AlveraE2E"                       # the database the API is using: one step makes a seated appointment look left open from days ago with a SQL UPDATE
-$env:BOARD_E2E_OUT = "C:\tmp\board-e2e"             # optional: where the JSON results and screenshots go (use a Windows path)
-npx playwright test --config=playwright.board.config.ts
+Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]"
+.\scripts\Invoke-RealBackendWalkthrough.ps1 -Config playwright.board.config.ts -OutputVariable BOARD_E2E_OUT -InjectedClockUtc 2030-01-14T13:30:00Z
 ```
+
+ALV-N021 A2 changes what it shows: the board's buttons come only from the server's actions; confirmation before check-in; start and end treatment by the booked dentist (linked to Dr. Rivera);
+completion only after the checkout panel resolves the visit; a provider change by the office manager moves the booking, needs a reason and notifies the booked provider, while a chairside person can change
+only the room; the conflict step uses an undo by the other desk; STORY-011's legacy routes run the same policy. The description below is otherwise unchanged.
 
 It needs `sqlcmd` on the path (the API refuses to book a start in the past, so the "visit left open from an earlier day" is arranged directly in the database, and says so). It configures the practice
 through the real configuration API, creates six staff (front desk x2, assistant, dentist, office manager, billing), five patients and two required form templates with real signed, started and missing
