@@ -12,6 +12,7 @@ import type { Appointment, AppointmentEvent } from "../../services/schedulingApi
 import { assignVisit, getAppointmentActions, keepDespiteBlock, moveVisit, undoCheckIn } from "../../services/visitsApi";
 import type { AppointmentActions, VisitAction } from "../../services/visitsApi";
 import { AssignPanel } from "../flow/AssignPanel";
+import { CheckoutPanel } from "../flow/CheckoutPanel";
 import { ReasonForm } from "../flow/ReasonForm";
 import { flowWord, statusWord } from "./calendarLayout";
 import { CancelForm } from "./CancelForm";
@@ -206,6 +207,11 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }
       )}
       {mode === "details" && bookingActions.length > 0 && (
         <div className="cal-panel__actions" role="group" aria-label="Booking">{bookingActions.map((x) => button(x, false))}</div>
+      )}
+
+      {mode === "details" && current.status === "Scheduled" && flow === "CheckedOut" && (
+        <CheckoutPanel appointmentId={current.id} patientName={current.patientName}
+          onRecorded={() => void getAppointmentActions(current.id).then(setActions).catch(() => setActionsFailed(true))} />
       )}
 
       {mode === "complete" && (

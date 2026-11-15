@@ -159,6 +159,10 @@ export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
       providerId !== card.appointment.providerId ? "was moved to another provider" : "was moved to another room", operatoryId);
   const onUndoCheckIn = (card: VisitCard, reason: string) =>
     void act(card, () => undoCheckIn(card.appointment.id, reason, card.appointment.rowVersion ?? ""), "is no longer checked in");
+  const onCheckoutRecorded = (card: VisitCard) => {
+    const id = card.appointment.id;
+    void getAppointmentActions(id).then((actions) => setBoard((b) => (b ? { ...b, visits: b.visits.map((v) => (v.appointment.id === id ? { ...v, actions } : v)) } : b))).catch(() => refresh());
+  };
   const onKeep = (card: VisitCard, reason: string) =>
     void act(card, () => keepDespiteBlock(card.appointment.id, reason, card.appointment.rowVersion ?? ""), "keeps the appointment despite the blocked time");
 
@@ -168,7 +172,7 @@ export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
   const cardFor = (v: VisitCard) => (
     <li key={v.appointment.id}>
       <VisitCardView card={v} nowMs={nowMs} snapshot={snapshot} busy={busyId !== null} error={errors[v.appointment.id] || null}
-        onMove={onMove} onAssign={onAssign} onUndoCheckIn={onUndoCheckIn} onKeep={onKeep} />
+        onMove={onMove} onAssign={onAssign} onUndoCheckIn={onUndoCheckIn} onKeep={onKeep} onCheckoutRecorded={onCheckoutRecorded} />
     </li>
   );
 

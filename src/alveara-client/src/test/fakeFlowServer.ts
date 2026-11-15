@@ -51,8 +51,66 @@ export class FakeFlowServer extends FakeCalendarServer {
   hangBoard = false;
   /** The next move of this kind (e.g. "Seated") is applied but its answer never arrives, like a dropped connection. */
   dropNextMoveTo: PatientFlowState | null = null;
-  /** ALV-N021 A2: visits whose checkout still has open items (Complete is listed disabled and refused 409 checkout_incomplete). */
+  /** ALV-N021 A2: visits whose checkout still has open items (Complete is listed disabled and refused 409 checkout_incomplete). Emptied for a visit once every item is resolved. */
   checkoutOpen = new Set<string>();
+  /** Visits where money is due, so the financial item applies. */
+  financialDue = new Set<string>();
+  /** Ledger entry numbers the fake treats as a payment or waiver posted on the visit day (anything else is 409 checkout_outcome_unverified). */
+  ledgerEntries = new Set<number>();
+  /** Recorded outcomes per visit and item; and every POST that actually recorded something (a replayed key records nothing). */
+  checkoutOutcomes = new Map<string, Record<string, { code: string; reason: string | null; entry: number | null }>>();
+  checkoutWrites = 0;
+  /** The next checkout POST is recorded but its answer never arrives, like a dropped connection. */
+  dropNextCheckout = false;
+  private checkoutKeys = new Map<string, { body: string; response: unknown }>();
+
+  private checkoutView(a: Appointment) {
+    const recorded = this.checkoutOutcomes.get(a.id) ?? {};
+    const open = this.flowOf(a) === "CheckedOut";
+    const item = (code: string, applies: boolean, recordable: string[], next: string, role: string) => {
+      const o = recorded[code];
+      const resolved = !applies || (o !== undefined && o.code !== "waiver_requested") || (!this.checkoutOpen.has(a.id) && code !== "financial");
+      return {
+        code, applies, resolved, nextAction: resolved ? null : next, responsibleRole: resolved ? null : role, recordableOutcomes: applies ? recordable : [],
+        outcome: o ? { id: `o-${code}`, code: o.code, derived: false, reason: o.reason, linkedLedgerEntryNumber: o.entry, linkedAppointmentId: null, recordedByName: "Desk One", recordedAtUtc: this.serverNow, resolves: o.code !== "waiver_requested" } : null,
+      };
+    };
+    const items = [
+      { code: "treatment_ended", applies: true, resolved: true, nextAction: null, responsibleRole: null, recordableOutcomes: [],
+        outcome: { id: null, code: "treatment_ended", derived: true, reason: null, linkedLedgerEntryNumber: null, linkedAppointmentId: null, recordedByName: null, recordedAtUtc: null, resolves: true } },
+      item("departure", true, ["patient_left"], "Record that the patient has left.", "Front desk"),
+      item("follow_up", true, ["not_clinically_required", "patient_declined", "deferred"], "Book a follow-up or record why none is booked.", "Front desk"),
+      item("financial", this.financialDue.has(a.id), ["payment_recorded", "waived", "payment_plan", "insurance_to_bill", "send_statement", "waiver_requested"], "Record how the balance is handled.", "Front desk"),
+    ];
+    const openCodes = items.filter((i) => !i.resolved).map((i) => i.code);
+    const summary = openCodes.length === 0 ? "Ready for checkout — every item is resolved; the visit can be completed."
+      : openCodes[0] === "departure" ? CHECKOUT_OPEN : openCodes[0] === "follow_up" ? "Ready for checkout — follow-up decision required." : "Ready for checkout — financial decision required.";
+    return { appointmentId: a.id, flowState: this.flowOf(a), open, ready: openCodes.length === 0, summary, items, openItemCodes: openCodes };
+  }
+
+  private recordCheckout(a: Appointment, item: string, headers: Record<string, string>, body: Record<string, unknown>): Response {
+    const key = headers["Idempotency-Key"];
+    if (!key) return json(400, { error: "idempotency_key_required", message: "Send an Idempotency-Key." });
+    const text = JSON.stringify({ item, ...body });
+    const earlier = this.checkoutKeys.get(key);
+    if (earlier) return earlier.body === text ? json(200, earlier.response) : json(409, { error: "idempotency_conflict", message: "That Idempotency-Key was already used for a different checkout request." });
+    const outcome = String(body.outcome ?? "");
+    if (this.flowOf(a) !== "CheckedOut") return json(409, { error: "checkout_not_open", message: "Checkout decisions are recorded once treatment has ended and before the visit is completed." });
+    if (!this.permissions.includes("UpdateVisitFlow")) return json(403, { error: "forbidden", message: "Your role may not record this checkout outcome." });
+    if ((outcome === "deferred" || outcome === "waiver_requested") && !String(body.reason ?? "").trim()) return json(400, { error: "reason_required", message: "Give a reason for this outcome." });
+    const entry = typeof body.ledgerEntryNumber === "number" ? body.ledgerEntryNumber : null;
+    if ((outcome === "payment_recorded" || outcome === "waived") && (entry === null || !this.ledgerEntries.has(entry)))
+      return json(409, { error: "checkout_outcome_unverified", message: "No payment with that number was posted to this patient's account on the day of the visit (or it was reversed)." });
+    const recorded = this.checkoutOutcomes.get(a.id) ?? {};
+    recorded[item] = { code: outcome, reason: (body.reason as string | null) ?? null, entry };
+    this.checkoutOutcomes.set(a.id, recorded);
+    this.checkoutWrites++;
+    const settled = ["departure", "follow_up"].every((i) => recorded[i]) && (!this.financialDue.has(a.id) || (recorded.financial && recorded.financial.code !== "waiver_requested"));
+    if (settled) this.checkoutOpen.delete(a.id);
+    const view = this.checkoutView(a);
+    this.checkoutKeys.set(key, { body: text, response: view });
+    return json(200, view);
+  }
 
   /** ALV-N021 A2: the signed-in user's actions, as GET appointments/{id}/actions returns them (by this fake's permissions). */
   actionsFor(a: Appointment): AppointmentActions {
@@ -135,13 +193,20 @@ export class FakeFlowServer extends FakeCalendarServer {
 
   protected override async handleExtra(path: string, method: string, headers: Record<string, string>, body: Record<string, unknown> | null, u: URL): Promise<Response | null> {
     // ALV-N021 A2: the per-user actions and "keep despite blocked time" live under /api/appointments
-    const own = /^\/api\/appointments\/([^/]+)\/(actions|keep-despite-block)$/.exec(path);
+    const own = /^\/api\/appointments\/([^/]+)\/(actions|keep-despite-block|checkout)(?:\/([a-z_]+))?$/.exec(path);
     if (own) {
       const injected = this.takeInjected(method, path);
       if (injected) return injected;
       const a = this.appointments.find((x) => x.id === own[1]);
       if (!a) return json(404, { error: "appointment_not_found", message: "That appointment was not found." });
       if (own[2] === "actions" && method === "GET") return json(200, this.actionsFor(a));
+      if (own[2] === "checkout" && method === "GET" && !own[3]) return json(200, this.checkoutView(a));
+      if (own[2] === "checkout" && method === "POST" && own[3]) {
+        this.scheduleCalls.push({ method, url: u.pathname, headers, body });
+        const response = this.recordCheckout(a, own[3], headers, body ?? {});
+        if (this.dropNextCheckout && response.status < 300) { this.dropNextCheckout = false; throw new TypeError("Failed to fetch"); }
+        return response;
+      }
       if (own[2] === "keep-despite-block" && method === "POST") {
         this.scheduleCalls.push({ method, url: u.pathname, headers, body });
         if (!this.permissions.includes("UpdateVisitFlow")) return json(403, { error: "visit_move_forbidden", message: "Keeping an appointment despite blocked time is front-desk work.", reason: "front_office_only" });

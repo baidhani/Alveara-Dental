@@ -6,6 +6,7 @@ import type { PatientFlowState } from "../../services/schedulingApi";
 import type { VisitAction, VisitCard } from "../../services/visitsApi";
 import { statusWord } from "../calendar/calendarLayout";
 import { AssignPanel } from "./AssignPanel";
+import { CheckoutPanel } from "./CheckoutPanel";
 import { ReadinessCue } from "./ReadinessCue";
 import { ReasonForm } from "./ReasonForm";
 import { elapsedCue } from "./visitTime";
@@ -20,6 +21,8 @@ interface Props {
   onAssign: (card: VisitCard, providerId: string, operatoryId: string, reason: string | undefined) => void;
   onUndoCheckIn: (card: VisitCard, reason: string) => void;
   onKeep: (card: VisitCard, reason: string) => void;
+  /** A checkout outcome was recorded: re-read this card's actions (Complete may now be enabled). */
+  onCheckoutRecorded: (card: VisitCard) => void;
 }
 
 type Open = { kind: "none" } | { kind: "complete"; target: PatientFlowState } | { kind: "assign" } | { kind: "undo" } | { kind: "keep" };
@@ -33,9 +36,10 @@ const BOARD_CODES = new Set(["confirm", "check_in", "mark_ready", "seat", "start
  * blocked time, completion with open checkout items) stays visible but disabled, with the server's reason beside it. The card also says who the visit waits for.
  * Completing is final, so it asks first; undo check-in, keep and a provider change ask for a reason.
  */
-export function VisitCardView({ card, nowMs, snapshot, busy, error, onMove, onAssign, onUndoCheckIn, onKeep }: Props) {
+export function VisitCardView({ card, nowMs, snapshot, busy, error, onMove, onAssign, onUndoCheckIn, onKeep, onCheckoutRecorded }: Props) {
   const a = card.appointment;
   const [open, setOpen] = useState<Open>({ kind: "none" });
+  const [checkoutShown, setCheckoutShown] = useState(false);
   const close = () => setOpen({ kind: "none" });
   const scheduled = a.status === "Scheduled";
   const flow = a.flowState ?? "Scheduled";
@@ -79,6 +83,14 @@ export function VisitCardView({ card, nowMs, snapshot, busy, error, onMove, onAs
       )}
       {scheduled && card.actions?.nextActorText && <p className="flow-card__next">{card.actions.nextActorText}</p>}
       {error && <p className="flow-card__error" role="alert">{error}</p>}
+      {scheduled && flow === "CheckedOut" && (
+        <>
+          <Button aria-expanded={checkoutShown} aria-label={`${checkoutShown ? "Hide" : "Show"} checkout for ${a.patientName}`} onClick={() => setCheckoutShown((s) => !s)}>
+            {checkoutShown ? "Hide checkout" : "Checkout"}
+          </Button>
+          {checkoutShown && <CheckoutPanel appointmentId={a.id} patientName={a.patientName} onRecorded={() => onCheckoutRecorded(card)} />}
+        </>
+      )}
 
       {open.kind === "complete" ? (
         <div className="flow-confirm" role="group" aria-label={`Confirm: Complete visit for ${a.patientName}`}>
