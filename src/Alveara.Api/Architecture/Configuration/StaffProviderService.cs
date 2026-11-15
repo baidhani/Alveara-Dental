@@ -283,7 +283,19 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
     /// Takes PRACTICE-LOCAL wall-clock start/end and converts through IPracticeClock - a time that
     /// does not exist (DST gap) or occurs twice (DST overlap) is rejected, never guessed.
     /// </summary>
+    /// <remarks>ALV-N021 A2: no route calls this any more; the API adds blocked time through <c>Scheduling.BlockedTimeGuard</c>, which refuses blocks over visits under way and needs a confirmation
+    /// over booked appointments. Kept for test setup of blocks where no appointment is involved.</remarks>
     public async Task<ProviderBlockedTime> AddBlockedTimeAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, Guid actor, CancellationToken ct)
+    {
+        var block = await BuildBlockedTimeAsync(providerId, startLocal, endLocal, reason, ct);
+        db.ProviderBlockedTimes.Add(block);
+        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.ProviderBlockedTimeAdded, nameof(ProviderProfile), providerId, actor, "Blocked time added.");
+        await ConfigurationWrite.SaveAsync(db, nameof(ProviderProfile), providerId, ct);
+        return block;
+    }
+
+    /// <summary>ALV-N021 A2: the validated, NOT yet added block (provider active, local times exist, end after start, reason bounded), shared with the scheduling-side guarded add.</summary>
+    public async Task<ProviderBlockedTime> BuildBlockedTimeAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, CancellationToken ct)
     {
         var provider = await db.ProviderProfiles.SingleOrDefaultAsync(p => p.Id == providerId, ct) ?? throw PracticeConfigurationService.NotFound("Provider profile");
         if (!provider.IsActive)
@@ -302,15 +314,11 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         if (endUtc <= startUtc)
             throw new ConfigurationException("invalid_range", "Blocked time must end after it starts.");
 
-        var block = new ProviderBlockedTime
+        return new ProviderBlockedTime
         {
             Id = Guid.NewGuid(), ProviderProfileId = providerId, StartUtc = startUtc, EndUtc = endUtc,
             Reason = ConfigurationWrite.OptionalText(reason, "Reason", 200), CreatedAtUtc = clock.UtcNow,
         };
-        db.ProviderBlockedTimes.Add(block);
-        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.ProviderBlockedTimeAdded, nameof(ProviderProfile), providerId, actor, "Blocked time added.");
-        await ConfigurationWrite.SaveAsync(db, nameof(ProviderProfile), providerId, ct);
-        return block;
     }
 
     public async Task RemoveBlockedTimeAsync(Guid providerId, Guid blockId, Guid actor, CancellationToken ct)

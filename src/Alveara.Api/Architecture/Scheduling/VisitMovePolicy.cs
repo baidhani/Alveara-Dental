@@ -33,6 +33,8 @@ public sealed class VisitMovePolicy(AlveraDbContext db, IEffectivePermissions pe
 {
     /// <summary>The move that is not a state of the path: undo check-in (OD-11), front-desk work like check-in itself.</summary>
     public const string UndoCheckIn = "UndoCheckIn";
+    /// <summary>OD-18 Keep despite blocked time: front-desk work (briefing 5.4 table).</summary>
+    public const string KeepDespiteBlock = "KeepDespiteBlock";
 
     public async Task AuthorizeAsync(Appointment a, string target, VisitActor actor, CancellationToken ct)
     {
@@ -55,7 +57,7 @@ public sealed class VisitMovePolicy(AlveraDbContext db, IEffectivePermissions pe
     {
         switch (target)
         {
-            case VisitStates.Confirmed or VisitStates.CheckedIn or UndoCheckIn:
+            case VisitStates.Confirmed or VisitStates.CheckedIn or UndoCheckIn or KeepDespiteBlock:
                 return await permissions.HasAsync(actor.Role, Permission.UpdateVisitFlow, ct) ? null : "front_office_only";
             case VisitStates.Ready or VisitStates.Seated:
                 return await permissions.HasAsync(actor.Role, Permission.UpdateChairsideFlow, ct) ? null : "chairside_only";
@@ -80,7 +82,7 @@ public sealed class VisitMovePolicy(AlveraDbContext db, IEffectivePermissions pe
 
     private static string Message(string reason) => reason switch
     {
-        "front_office_only" => "Confirming, checking in and undoing a check-in are front-desk work.",
+        "front_office_only" => "Confirming, checking in, undoing a check-in and keeping an appointment despite blocked time are front-desk work.",
         "reassign_not_permitted" => "You do not have permission to change an appointment's provider.",
         "room_change_not_permitted" => "You do not have permission to change an appointment's room.",
         "chairside_only" => "Marking ready and seating are chairside work.",

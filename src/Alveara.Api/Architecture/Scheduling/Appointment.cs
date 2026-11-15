@@ -133,6 +133,8 @@ public static class AppointmentEventTypes
     public const string CheckInUndone = "CheckInUndone";
     public const string ProviderReassigned = "ProviderReassigned";
     public const string RoomChanged = "RoomChanged";
+    /// <summary>OD-18: the provider will see the patient despite a blocked time over the appointment (reason required); clears the flag for the blocks that existed then.</summary>
+    public const string KeptDespiteBlock = "KeptDespiteBlock";
 }
 
 /// <summary>ALV-N021 A2: the one rule for a reason a person types (undo check-in, reassignment, room change): trimmed, line endings normalised, at most 500 characters (the history column).</summary>

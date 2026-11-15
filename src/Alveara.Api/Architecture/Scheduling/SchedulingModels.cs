@@ -16,7 +16,8 @@ public record AppointmentView(
     string FlowState = PatientFlowStates.Scheduled, DateTimeOffset? FlowChangedAtUtc = null,
     Guid? VisitProviderId = null, string? VisitProviderName = null, Guid? VisitOperatoryId = null, string? VisitOperatoryName = null,
     IReadOnlyList<string>? NextFlowStates = null,
-    string? CancelCategory = null, bool? ShortNotice = null);   // ALV-N021 A2 (OD-19): the category, and short notice derived (null unless cancelled with a recorded time)
+    string? CancelCategory = null, bool? ShortNotice = null,
+    bool BlockFlagged = false);   // ALV-N021 A2 (OD-17/18): "Provider unavailable — needs attention", derived by BlockFlags   // ALV-N021 A2 (OD-19): the category, and short notice derived (null unless cancelled with a recorded time)
 
 public static class SchedulingAuditEvents
 {
@@ -42,6 +43,7 @@ public static class SchedulingAuditEvents
     public const string CheckInUndone = "PatientCheckInUndone";
     public const string ProviderReassigned = "AppointmentProviderReassigned";
     public const string RoomChanged = "AppointmentRoomChanged";
+    public const string KeptDespiteBlock = "AppointmentKeptDespiteBlock";
 }
 
 /// <summary>A scheduling request was refused. <see cref="Code"/> is stable for the UI.</summary>

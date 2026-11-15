@@ -14,6 +14,7 @@ public record ScheduleAppointmentBody(Guid? PatientId, Guid? ProviderId, Guid? O
 public record RescheduleBody(Guid? ProviderId, Guid? OperatoryId, string? StartLocal, int? DurationMinutes, string? RowVersion);
 public record CancelBody(string? Category, string? Note, string? RowVersion);   // ALV-N021 A2 (OD-19): category required, note optional
 public record RowVersionBody(string? RowVersion);
+public record KeepDespiteBlockBody(string? Reason, string? RowVersion);
 public record NotesBody(string? Notes, string? RowVersion);
 
 /// <summary>
@@ -152,6 +153,13 @@ public class AppointmentsController(AppointmentScheduler scheduler, AppointmentM
     [RequireCsrfToken]
     public Task<IActionResult> Complete(Guid id, [FromBody] RowVersionBody body, CancellationToken ct) =>
         Run(async () => Ok(await flow.CompleteAsync(id, body.RowVersion, VisitActor, ct)));
+
+    /// <summary>ALV-N021 A2 (OD-18): keep a flagged appointment despite the provider's blocked time; front office, reason required.</summary>
+    [HttpPost("{id:guid}/keep-despite-block")]
+    [Authorize]
+    [RequireCsrfToken]
+    public Task<IActionResult> KeepDespiteBlock(Guid id, [FromBody] KeepDespiteBlockBody body, CancellationToken ct) =>
+        Run(async () => Ok(await flow.KeepDespiteBlockAsync(id, body.Reason, body.RowVersion, VisitActor, ct)));
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {

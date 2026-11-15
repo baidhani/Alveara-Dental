@@ -70,7 +70,7 @@ public class ProviderReassignmentTests : IAsyncLifetime
         foreach (var phi in new[] { "Ann", "Lee", "Patel", "Rivera", "sick" }) Assert.DoesNotContain(phi, audit.Details);
 
         var sent = await NotificationsAsync();
-        Assert.Equal([_s.ProviderAUser, _s.ProviderBUser], sent.Select(n => n.RecipientUserId).Order());
+        Assert.Equal(new[] { _s.ProviderAUser, _s.ProviderBUser }.Order(), sent.Select(n => n.RecipientUserId).Order());   // ids are random: compare as sets of one each
         var eventId = await db.AppointmentEvents.Where(e => e.AppointmentId == a.Id && e.EventType == AppointmentEventTypes.ProviderReassigned).Select(e => e.Id).SingleAsync();
         Assert.All(sent, n =>
         {

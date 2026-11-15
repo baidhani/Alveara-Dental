@@ -67,6 +67,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.LoginPresentation.LoginPrese
 // the read model scheduling consumes.
 builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.BlockedTimeGuard>();   // ALV-N021 A2 (OD-17)
 builder.Services.AddScoped<StaffInactivationService>();                                              // ALV-N020 (F-021): inactivation also disables the linked login
 builder.Services.AddScoped<IStaffInactivationAlert, InAppStaffInactivationAlert>();                 // ALV-N020: Urgent in-app alert (migration decision Option A)
 builder.Services.AddScoped<SchedulingConfiguration>();

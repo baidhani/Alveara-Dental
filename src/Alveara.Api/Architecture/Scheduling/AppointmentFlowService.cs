@@ -96,6 +96,13 @@ public class AppointmentFlowService(
         }
 
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        if (target == VisitStates.CheckedIn)
+        {
+            // OD-18: a flagged appointment (a blocked time over it, not resolved) cannot become a visit; checked under the provider lock blocked time also takes, so the two never interleave
+            await SchedulingGuards.AcquireLockAsync(db, SchedulingGuards.ProviderLock(appointment.ProviderProfileId), ct);
+            if (await BlockFlags.IsFlaggedAsync(db, appointment, ct))
+                throw new SchedulingException("block_flag_unresolved", "The provider has blocked this time. Reschedule, reassign, cancel or keep the appointment before checking the patient in.", 409);
+        }
         // taking a room: the patient is entering a state that occupies an operatory from one that did not
         if (VisitStates.OccupiesOperatory(target) && !VisitStates.OccupiesOperatory(from))
         {
@@ -184,6 +191,61 @@ public class AppointmentFlowService(
         await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(Appointment), id, ct);
 
         await _recorder.MeasureAsync("appointment.flow", new { category = "UndoCheckIn", outcome = "success" }, ct);
+        return await _views.ViewAsync(id, ct);
+    }
+
+    /// <summary>
+    /// OD-18 "Keep": the provider will see the patient despite the blocked time. Front office; reason required; only while the appointment is flagged (409 <c>not_flagged</c> otherwise). Writes a
+    /// KeptDespiteBlock event (actor, reason) and an audit entry, which clears the flag for every block that exists now; a block added later flags it again. Runs under the provider lock, like
+    /// blocked time. A retry of the same keep (not flagged any more, last such event has this reason) changes nothing.
+    /// </summary>
+    public async Task<AppointmentView> KeepDespiteBlockAsync(Guid id, string? reason, string? rowVersion, VisitActor actor, CancellationToken ct)
+    {
+        try
+        {
+            return await KeepCoreAsync(id, reason, rowVersion, actor, ct);
+        }
+        catch (Exception ex) when (ex is SchedulingException or ConcurrencyConflictException)
+        {
+            var code = ex is SchedulingException s ? s.Code : "concurrency_conflict";
+            await _recorder.MeasureAsync("appointment.block_flag", new { category = code, outcome = "failure" }, ct);
+            throw;
+        }
+    }
+
+    private async Task<AppointmentView> KeepCoreAsync(Guid id, string? reason, string? rowVersion, VisitActor actor, CancellationToken ct)
+    {
+        var why = VisitReasons.Required(reason, "keeping the appointment despite the blocked time");
+        var appointment = await db.Appointments.SingleOrDefaultAsync(a => a.Id == id, ct)
+            ?? throw new SchedulingException("appointment_not_found", "That appointment was not found.", 404);
+        if (appointment.Status != AppointmentStatuses.Scheduled)
+            throw new SchedulingException("terminal_state", $"Nothing more can happen to this appointment: it is {Describe(appointment.Status)}.", 409);
+        await new VisitMovePolicy(db, permissions).AuthorizeAsync(appointment, VisitMovePolicy.KeepDespiteBlock, actor, ct);
+
+        await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+        await SchedulingGuards.AcquireLockAsync(db, SchedulingGuards.ProviderLock(appointment.ProviderProfileId), ct);
+        if (!await BlockFlags.IsFlaggedAsync(db, appointment, ct))
+        {
+            var last = await db.AppointmentEvents.AsNoTracking().Where(e => e.AppointmentId == id).OrderByDescending(e => e.OccurredAtUtc).FirstOrDefaultAsync(ct);
+            if (last is { EventType: AppointmentEventTypes.KeptDespiteBlock } && last.Reason == why)
+            {
+                db.ChangeTracker.Clear();   // the same keep again: nothing to do
+                return await _views.ViewAsync(id, ct);
+            }
+            throw new SchedulingException("not_flagged", "This appointment is not under a blocked time, so there is nothing to keep.", 409);
+        }
+        AppointmentRowVersion.EnsureCurrent(db, appointment, rowVersion);
+
+        db.AppointmentEvents.Add(new AppointmentEvent
+        {
+            Id = Guid.NewGuid(), AppointmentId = id, EventType = AppointmentEventTypes.KeptDespiteBlock, ActorUserId = actor.UserId, OccurredAtUtc = clock.UtcNow,
+            Detail = "Kept despite blocked time.", Reason = why,
+        });
+        AuditService.Record(db, SchedulingAuditEvents.KeptDespiteBlock, nameof(Appointment), id, actor.UserId, "Appointment kept despite blocked time.");
+        await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(Appointment), id, ct);
+        await transaction.CommitAsync(ct);
+
+        await _recorder.MeasureAsync("appointment.block_flag", new { category = "keep", outcome = "success" }, ct);
         return await _views.ViewAsync(id, ct);
     }
 

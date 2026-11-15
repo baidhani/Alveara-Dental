@@ -435,6 +435,42 @@ public class VisitsApiTests : IAsyncLifetime
         Assert.Equal(("CheckInUndone", "Wrong patient"), (history.GetProperty("eventType").GetString(), history.GetProperty("reason").GetString()));
     }
 
+    // ---------- ALV-N021 A2: blocked time over appointments (OD-17, OD-18) ----------
+
+    [Fact]
+    public async Task Blocked_time_over_an_appointment_needs_confirmation_flags_it_refuses_its_check_in_and_the_front_desk_can_keep_it()
+    {
+        var admin = await _api.SessionAsync("Admin");
+        var a = (await MoveAsync(admin, await BookAsync(admin, _ann, At(9)), "Confirmed")).Body;
+        var url = $"/api/config/providers/{_s.ProviderA}/blocked-time";
+
+        var unconfirmed = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", reason = "Course" });
+        Assert.Equal((HttpStatusCode.Conflict, "block_overlaps_appointments"), (unconfirmed.Status, unconfirmed.Body.GetProperty("error").GetString()));
+        Assert.Equal(Id(a), unconfirmed.Body.GetProperty("overlaps")[0].GetProperty("appointmentId").GetString());
+        var noReason = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", confirmOverlaps = true });
+        Assert.Equal((HttpStatusCode.BadRequest, "reason_required"), (noReason.Status, noReason.Body.GetProperty("error").GetString()));
+        var saved = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", reason = "Course", confirmOverlaps = true });
+        Assert.Equal(HttpStatusCode.Created, saved.Status);
+
+        var flagged = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body;
+        Assert.True(flagged.GetProperty("blockFlagged").GetBoolean());
+        var checkIn = await MoveAsync(admin, flagged, "CheckedIn");
+        Assert.Equal((HttpStatusCode.Conflict, "block_flag_unresolved"), (checkIn.Status, checkIn.Body.GetProperty("error").GetString()));
+
+        var keepUrl = $"/api/appointments/{Id(a)}/keep-despite-block";
+        var dentist = await _api.SessionAsync("Dentist");
+        var refused = await dentist.SendAsync(HttpMethod.Post, keepUrl, new { reason = "Seen anyway", rowVersion = Version(flagged) });
+        Assert.Equal((HttpStatusCode.Forbidden, "visit_move_forbidden"), (refused.Status, refused.Body.GetProperty("error").GetString()));
+        var desk = await _api.SessionAsync("FrontDesk");
+        Assert.Equal(HttpStatusCode.BadRequest, (await desk.SendAsync(HttpMethod.Post, keepUrl, new { reason = "Seen anyway", rowVersion = Version(flagged) }, csrf: false)).Status);
+        var kept = await desk.SendAsync(HttpMethod.Post, keepUrl, new { reason = "Seen anyway", rowVersion = Version(flagged) });
+        Assert.Equal((HttpStatusCode.OK, false), (kept.Status, kept.Body.GetProperty("blockFlagged").GetBoolean()));
+        Assert.Equal((HttpStatusCode.OK, "CheckedIn"), ((await MoveAsync(desk, kept.Body, "CheckedIn")).Status, FlowOf((await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body)));
+
+        var overActive = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T09:00", endLocal = "2030-01-14T09:30", reason = "Meeting", confirmOverlaps = true });
+        Assert.Equal((HttpStatusCode.Conflict, "block_overlaps_active_visit"), (overActive.Status, overActive.Body.GetProperty("error").GetString()));
+    }
+
     // ---------- STORY-011's endpoints run the same policy ----------
 
     [Fact]

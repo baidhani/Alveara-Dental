@@ -23,9 +23,12 @@ internal static class SchedulingGuards
 
     public static async Task AcquireLocksAsync(AlveraDbContext db, Guid providerId, Guid operatoryId, Guid patientId, CancellationToken ct)
     {
-        var resources = new[] { $"appointment:provider:{providerId:N}", $"appointment:operatory:{operatoryId:N}", $"appointment:patient:{patientId:N}" }.Order(StringComparer.Ordinal);
+        var resources = new[] { ProviderLock(providerId), $"appointment:operatory:{operatoryId:N}", $"appointment:patient:{patientId:N}" }.Order(StringComparer.Ordinal);
         foreach (var resource in resources) await AcquireLockAsync(db, resource, ct);
     }
+
+    /// <summary>The provider's booking lock. ALV-N021 A2: blocked time and check-in also take it, so a block and a check-in of that provider's patient never interleave (OD-17).</summary>
+    public static string ProviderLock(Guid providerId) => $"appointment:provider:{providerId:N}";
 
     /// <summary>One exclusive, transaction-scoped application lock (waits up to 10 seconds, then 503 schedule_busy). Also used by ALV-011-C01's visit-occupancy rule.</summary>
     public static async Task AcquireLockAsync(AlveraDbContext db, string resource, CancellationToken ct)

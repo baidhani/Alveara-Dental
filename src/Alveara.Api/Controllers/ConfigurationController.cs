@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Scheduling;
 using Alveara.Api.Architecture.Time;
 
 namespace Alveara.Api.Controllers;
@@ -18,7 +19,7 @@ public record SaveProviderRequest(Guid? StaffProfileId, string? Specialty, strin
 public record SetActiveRequest(bool IsActive, string? RowVersion);
 public record UnlinkStaffAccountRequest(string? Reason, string? RowVersion);
 public record ReplaceAvailabilityRequest(List<AvailabilityWindow>? Windows, int? Revision);
-public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, string? Reason);
+public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, string? Reason, bool ConfirmOverlaps = false);   // ALV-N021 A2 (OD-17): confirm a block over booked appointments
 
 /// <summary>
 /// ALV-N003: the configuration API. Reads and writes of practice configuration require
@@ -293,8 +294,19 @@ public class ConfigurationController(
     [HttpPost("providers/{id:guid}/blocked-time")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     [RequireCsrfToken]
-    public Task<IActionResult> AddBlockedTime(Guid id, [FromBody] AddBlockedTimeRequest request, [FromServices] IPracticeClock clock, CancellationToken ct) =>
-        Run(async () => StatusCode(StatusCodes.Status201Created, BlockedDto(await staffProviders.AddBlockedTimeAsync(id, request.StartLocal, request.EndLocal, request.Reason, Actor, ct), clock)));
+    public Task<IActionResult> AddBlockedTime(Guid id, [FromBody] AddBlockedTimeRequest request, [FromServices] IPracticeClock clock, [FromServices] BlockedTimeGuard guard, CancellationToken ct) =>
+        Run(async () =>
+        {
+            try
+            {
+                // ALV-N021 A2 (OD-17): never over a visit under way; over booked appointments only with confirmation and a reason
+                return StatusCode(StatusCodes.Status201Created, BlockedDto(await guard.AddAsync(id, request.StartLocal, request.EndLocal, request.Reason, request.ConfirmOverlaps, Actor, ct), clock));
+            }
+            catch (BlockedTimeRefusedException ex)
+            {
+                return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, overlaps = ex.Overlaps });
+            }
+        });
 
     [HttpDelete("providers/{id:guid}/blocked-time/{blockId:guid}")]
     [RequirePermission(Permission.ManagePracticeConfiguration)]

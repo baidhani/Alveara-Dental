@@ -41,7 +41,8 @@ internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock 
             a1.FlowState, a1.FlowChangedAtUtc,
             visitProviderId, visitProviderName, visitOperatoryId, visitOperatoryName,
             a1.Status == AppointmentStatuses.Scheduled ? VisitStateMachine.NextStates(a1.FlowState) : [],
-            a1.CancelCategory, CancellationRules.IsShortNotice(a1));
+            a1.CancelCategory, CancellationRules.IsShortNotice(a1),
+            await BlockFlags.IsFlaggedAsync(db, a1, ct));
     }
 
     public async Task<IReadOnlyList<AppointmentEventView>> HistoryAsync(Guid appointmentId, CancellationToken ct)
