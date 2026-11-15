@@ -1,13 +1,13 @@
 <#
 .SYNOPSIS
-  Runs the accumulated chain (stage 0 today) on its own throw-away environment, writes the evidence, then removes everything it created.
+  Runs the accumulated chain (every chain\stage-*.spec.ts, in order: stages 0, 1, 3 and 4 today) on its own throw-away environment, writes the evidence, then removes everything it created.
 
 .DESCRIPTION
   ALV-N019 (R05 PKG-01). One run owns: a database AlveraChain_<run id>, and a folder <root>\Test-Data\Chain\<run id> holding its database files, storage,
   key ring and backup. Steps:
     1. refuse if port 5072 or 5173 is busy, then create the database (explicit files inside the run folder) and apply every migration;
     2. start the real API on it (production composition, unchanged; the real clock) and wait for health;
-    3. run the stage-0 Playwright spec (administrator bootstrap, wrong/right/second secret, browser sign-in);
+    3. run the chain's Playwright specs (stage 0: administrator bootstrap and sign-in; stage 1: accounts and session; ALV-N021 A2 stages 3 and 4: scheduling and visit flow);
     4. take one COPY_ONLY checkpoint backup into the run folder and verify it (a safety net; the runner never resets anything automatically);
     5. ALWAYS, even on failure or interruption: stop the API, drop the database, delete the run folder;
     6. write <root>\Test-Data\Temp\chain-output\<run id>\evidence.json (kept) and exit with its code.
@@ -16,10 +16,12 @@
   started, by process id; never another process): 'stop.request' -> stop it, wait until port 5072 is free, write 'stopped.ack'; 'start.request' -> refuse if the port is
   busy, start the same host with the same settings (same database, key ring and storage, so sessions survive), wait for health, write 'started.ack'. Each action is
   recorded as a runner step (API-STOP, API-START). The chain spec reaches the folder through CHAIN_API_CONTROL.
+  ALV-N021 A2 (owner decision 2026-11-15, case 3.09): the runner makes a random control token for this run and gives it to the chain host and the stages (CHAIN_CONTROL_TOKEN);
+  only with it can a stage move the injected clock forward (POST /api/chain/clock/advance), and each advance is recorded in <evidence>\clock-advances.jsonl.
   Exit: 0 = every step PASS, 1 = any FAIL, SKIPPED_BLOCKED or blocking TRACKED_EXCEPTION, 2 = the runner could not complete its own setup.
 
 .PARAMETER Stage
-  The chain stage to run. Only 0 exists.
+  A label recorded in the evidence (only 0 is accepted); every stage file runs whatever it says.
 
 .PARAMETER SkipBuild
   Do not rebuild the API first (use when it was just built).
