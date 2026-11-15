@@ -40,7 +40,29 @@ export interface Appointment {
   nextFlowStates?: PatientFlowState[];
   /** ALV-N021 A2 (OD-18): blocked time covers this appointment and nobody has resolved it yet (derived on the server). */
   blockFlagged?: boolean;
+  /** ALV-N021 A2 (OD-19): why it was cancelled (one of CANCEL_CATEGORIES; null on cancellations from before categories). */
+  cancelCategory?: string | null;
+  /** ALV-N021 A2 (OD-19): cancelled less than 24 hours before the start (derived; null unless cancelled). */
+  shortNotice?: boolean | null;
 }
+
+/**
+ * ALV-N021 A2 (OD-19): the cancel categories, in the server's order (AppointmentCancelCategories.All). A backend test reads this list from this file and
+ * compares it with the server's, so the two cannot drift apart silently.
+ */
+export const CANCEL_CATEGORIES = [
+  { code: "patient", label: "Patient's request" },
+  { code: "office", label: "Office (practice) reason" },
+  { code: "provider", label: "Provider unavailable" },
+  { code: "weather", label: "Weather or closure" },
+  { code: "other", label: "Other" },
+] as const;
+
+/** The longest cancel note the server accepts (CancellationRules.NoteMaxLength). */
+export const CANCEL_NOTE_MAX = 400;
+
+export const cancelCategoryLabel = (code: string | null | undefined) =>
+  CANCEL_CATEGORIES.find((c) => c.code === code)?.label ?? (code ? code : "Not recorded");
 
 export interface ScheduleInput {
   patientId: string;
@@ -108,6 +130,9 @@ export interface AppointmentEvent {
   previousStartLocal: string | null;
   previousProviderName: string | null;
   previousOperatoryName: string | null;
+  /** ALV-N021 A2: the reason the actor gave (undo check-in, provider change, keep) and the cancel category. */
+  reason?: string | null;
+  category?: string | null;
 }
 
 /** Every appointment in the range whatever its status (cancelled and no-show ones are shown distinctly by the calendar). */
@@ -130,14 +155,12 @@ export interface RescheduleInput {
 
 export const rescheduleAppointment = (id: string, input: RescheduleInput, rowVersion: string) =>
   requestWithCsrf<Appointment>(`/api/appointments/${id}/reschedule`, "PUT", { ...input, rowVersion }); 
-export const cancelAppointment = (id: string, reason: string, rowVersion: string) =>
-  requestWithCsrf<Appointment>(`/api/appointments/${id}/cancel`, "POST", { reason, rowVersion });
+/** ALV-N021 A2 (OD-19): a category is required; the note is optional. */
+export const cancelAppointment = (id: string, category: string, note: string, rowVersion: string) =>
+  requestWithCsrf<Appointment>(`/api/appointments/${id}/cancel`, "POST", { category, note: note.trim() === "" ? null : note.trim(), rowVersion });
 export const markNoShow = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/no-show`, "POST", { rowVersion });
 export const updateAppointmentNotes = (id: string, notes: string, rowVersion: string) =>
   requestWithCsrf<Appointment>(`/api/appointments/${id}/notes`, "PUT", { notes, rowVersion });
 
-// ---------- STORY-011: patient flow ----------
-
-export const checkInPatient = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/check-in`, "POST", { rowVersion });
-export const startTreatment = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/start-treatment`, "POST", { rowVersion });
-export const completeTreatment = (id: string, rowVersion: string) => requestWithCsrf<Appointment>(`/api/appointments/${id}/complete`, "POST", { rowVersion });
+// STORY-011's check-in / start-treatment / complete helpers were removed in ALV-N021 A2: the client moves a visit through visitsApi.moveVisit only
+// (the legacy routes still exist on the server for older callers and run the same policy).

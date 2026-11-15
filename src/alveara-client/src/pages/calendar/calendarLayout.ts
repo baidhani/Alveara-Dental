@@ -127,7 +127,7 @@ export const flowWord = (a: { status: string; flowState?: string }): string | nu
 
 // "Scheduled" has nothing to say (the patient has simply not arrived); every later state is named. ALV-011-C01 added Confirmed, Ready, Seated and Checked out.
 const FLOW_WORDS: Record<string, string> = {
-  Confirmed: "Confirmed", CheckedIn: "Checked in", Ready: "Ready", Seated: "Seated", InTreatment: "In treatment", CheckedOut: "Checked out", Completed: "Completed",
+  Confirmed: "Confirmed", CheckedIn: "Checked in", Ready: "Ready", Seated: "Seated", InTreatment: "In treatment", CheckedOut: "Ready for checkout", Completed: "Completed",   // ALV-N021 A2 (briefing 5.1)
 };
 
 /** Which appointments belong in a day column. An appointment is in the column of every day it touches. */

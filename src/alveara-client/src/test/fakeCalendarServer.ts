@@ -127,6 +127,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
     return (this as unknown as { keys: Map<string, string> }).keys.has(key);
   }
 
+  private static readonly CANCEL_CATEGORIES = ["patient", "office", "provider", "weather", "other"];
   private static readonly FLOW_TARGET: Record<string, PatientFlowState> = { "check-in": "CheckedIn", "start-treatment": "InTreatment", complete: "Completed" };
   private static readonly FLOW_EVENT: Record<string, string> = { CheckedIn: "CheckedIn", InTreatment: "TreatmentStarted", Completed: "Completed" };
   private static readonly FLOW_ORDER: PatientFlowState[] = ["Scheduled", "CheckedIn", "InTreatment", "Completed"];
@@ -151,16 +152,22 @@ export class FakeCalendarServer extends FakeScheduleServer {
     if (action in FakeCalendarServer.FLOW_TARGET) return this.flow(a, action, body);
     const stale = body.rowVersion !== a.rowVersion;
     const arrived = a.status === "Scheduled" && (a.flowState ?? "Scheduled") !== "Scheduled";
-    if (arrived && ["cancel", "no-show", "reschedule"].includes(action) && !(stale || (action === "cancel" && !String(body.reason ?? "").trim())))
+    const category = String(body.category ?? "");
+    const badCategory = action === "cancel" && !FakeCalendarServer.CANCEL_CATEGORIES.includes(category);
+    if (arrived && ["cancel", "no-show", "reschedule"].includes(action) && !(stale || badCategory))
       return json(409, { error: "appointment_in_progress", message: "This appointment cannot be changed: the patient has already checked in." });
     if (action === "cancel") {
-      const reason = String(body.reason ?? "").trim();
-      if (!reason) return json(400, { error: "reason_required", message: "A reason for the cancellation is required." });
+      // ALV-N021 A2 (OD-19): a category from the fixed list is required; the note is optional
+      if (!category) return json(400, { error: "category_required", message: "Choose why the appointment is cancelled: patient, office, provider, weather, other." });
+      if (badCategory) return json(400, { error: "invalid_category", message: "The category must be one of: patient, office, provider, weather, other." });
       if (a.status === "Cancelled") return json(200, a);
       if (stale) return this.conflict(a.id);
       if (a.status !== "Scheduled") return json(409, { error: "appointment_not_scheduled", message: "Only a scheduled appointment can be cancelled." });
-      a.status = "Cancelled"; a.cancelReason = reason; a.statusChangedAtUtc = "2026-10-02T10:00:00Z";
-      this.touch(a); this.log(a, "Cancelled", reason);
+      const note = String(body.note ?? "").trim() || null;
+      a.status = "Cancelled"; a.cancelCategory = category; a.cancelReason = note; a.statusChangedAtUtc = "2026-10-02T10:00:00Z";
+      a.shortNotice = false;
+      this.touch(a); this.log(a, "Cancelled", note);
+      this.events.get(a.id)!.at(-1)!.category = category;
       return json(200, a);
     }
     if (action === "no-show") {

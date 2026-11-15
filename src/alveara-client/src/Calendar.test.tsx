@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { App } from "./App";
-import { FakeCalendarServer } from "./test/fakeCalendarServer";
+import { FakeFlowServer as FakeCalendarServer } from "./test/fakeFlowServer";   // ALV-N021 A2: the drawer reads the per-user actions, which the flow fake serves
 import { json, makePatient } from "./test/fakePatientServer";
 
 /**
@@ -323,14 +323,14 @@ describe("rescheduling", () => {
   it("moves the appointment, sending the version it read, and the calendar and history show where it is now and where it was", async () => {
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Reschedule" }));
+    await userEvent.click(await d.findByRole("button", { name: "Reschedule" }));
     const form = within(screen.getByRole("form", { name: "Reschedule appointment" }));
     fireEvent.change(form.getByLabelText("Start time *"), { target: { value: "14:00" } });
     await userEvent.selectOptions(form.getByLabelText("Provider *"), "Dr. Patel");
     await userEvent.selectOptions(form.getByLabelText("Operatory *"), "Op 2");
     await userEvent.click(form.getByRole("button", { name: "Save new time" }));
 
-    expect(await d.findByText("Appointment rescheduled.")).toBeInTheDocument();
+    expect(await d.findByText(/^Appointment rescheduled\./)).toBeInTheDocument();
     expect(d.getByText("2030-01-14 14:00–15:00 (60 min)")).toBeInTheDocument();
     await waitFor(() => expect(d.getByRole("heading", { name: "Ann Lee" })).toHaveFocus()); // keyboard focus is not lost when the form closes
     expect(d.getByText("Dr. Patel")).toBeInTheDocument();
@@ -345,7 +345,7 @@ describe("rescheduling", () => {
     server.seed({ start: `${DAY}T14:00`, minutes: 60, provider: "prov-b", operatory: "op-2", patientName: "Bo Kim" });
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Reschedule" }));
+    await userEvent.click(await d.findByRole("button", { name: "Reschedule" }));
     const form = within(screen.getByRole("form", { name: "Reschedule appointment" }));
     fireEvent.change(form.getByLabelText("Start time *"), { target: { value: "14:30" } });
     await userEvent.selectOptions(form.getByLabelText("Provider *"), "Dr. Patel");
@@ -359,7 +359,7 @@ describe("rescheduling", () => {
   it("a change made by someone else in the meantime is reported, not overwritten, and Reload shows the current appointment", async () => {
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Reschedule" }));
+    await userEvent.click(await d.findByRole("button", { name: "Reschedule" }));
     server.changeBehindTheScenes(a.id, { startLocal: `${DAY}T11:00`, endLocal: `${DAY}T12:00` }); // another user moved it
     const form = within(screen.getByRole("form", { name: "Reschedule appointment" }));
     fireEvent.change(form.getByLabelText("Start time *"), { target: { value: "15:00" } });
@@ -374,32 +374,32 @@ describe("rescheduling", () => {
   it("a second click on Save while the request is going out sends one request", async () => {
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Reschedule" }));
+    await userEvent.click(await d.findByRole("button", { name: "Reschedule" }));
     const form = within(screen.getByRole("form", { name: "Reschedule appointment" }));
     fireEvent.change(form.getByLabelText("Start time *"), { target: { value: "13:00" } });
     await userEvent.dblClick(form.getByRole("button", { name: "Save new time" }));
 
-    await d.findByText("Appointment rescheduled.");
+    await d.findByText(/^Appointment rescheduled\./);
     expect(calls("PUT", "/reschedule")).toHaveLength(1);
   });
 
   it("a dropped connection says it could not confirm the change and to reload, instead of claiming success", async () => {
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Reschedule" }));
+    await userEvent.click(await d.findByRole("button", { name: "Reschedule" }));
     server.dropNextResponseFor = "reschedule";
     const form = within(screen.getByRole("form", { name: "Reschedule appointment" }));
     fireEvent.change(form.getByLabelText("Start time *"), { target: { value: "13:00" } });
     await userEvent.click(form.getByRole("button", { name: "Save new time" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("could not confirm whether that was saved");
-    expect(screen.queryByText("Appointment rescheduled.")).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Appointment rescheduled\./)).not.toBeInTheDocument();
   });
 
   it("Keep as it is leaves the appointment untouched", async () => {
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Reschedule" }));
+    await userEvent.click(await d.findByRole("button", { name: "Reschedule" }));
     await userEvent.click(screen.getByRole("button", { name: "Keep as it is" }));
     expect(screen.queryByRole("form", { name: "Reschedule appointment" })).not.toBeInTheDocument();
     expect(calls("PUT", "/reschedule")).toHaveLength(0);
@@ -413,24 +413,41 @@ describe("cancelling, no-shows and notes", () => {
     return within(drawer());
   }
 
-  it("cancelling needs a reason; the cancelled appointment stays on the calendar, marked, with its reason, and offers no further changes except a note", async () => {
+  it("cancelling needs a category (the note is optional); the cancelled appointment stays on the calendar, marked, with its category and note, and offers no further changes except a note", async () => {
     const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const d = await openAppointment(a.id);
-    await userEvent.click(d.getByRole("button", { name: "Cancel appointment" }));
-    await userEvent.click(screen.getByRole("button", { name: "Confirm cancellation" })); // no reason yet
-    expect(await screen.findByRole("alert")).toHaveTextContent("A reason for the cancellation is required.");
+    await userEvent.click(await d.findByRole("button", { name: "Cancel appointment" }));
+    await userEvent.click(screen.getByRole("button", { name: "Confirm cancellation" })); // no category yet
+    expect(await screen.findByRole("alert")).toHaveTextContent("Choose why the appointment is cancelled.");
+    expect(calls("POST", "/cancel")).toHaveLength(0);   // nothing was sent
     expect(a.status).toBe("Scheduled");
 
-    await userEvent.type(screen.getByLabelText("Reason for cancelling (required)"), "Patient called to cancel");
+    await userEvent.selectOptions(screen.getByLabelText("Why is it cancelled? (required)"), "Patient's request");
+    await userEvent.type(screen.getByLabelText("Note (optional)"), "Patient called to cancel");
     await userEvent.click(screen.getByRole("button", { name: "Confirm cancellation" }));
 
     expect(await d.findByText("Appointment cancelled.")).toBeInTheDocument();
-    expect(d.getByText("Reason cancelled")).toBeInTheDocument();
+    expect(d.getByText("Patient's request", { selector: "dd" })).toBeInTheDocument();
     expect(d.getByText("Patient called to cancel", { selector: "dd" })).toBeInTheDocument();
+    expect(d.getByText(/Category: Patient's request/)).toBeInTheDocument();   // and in the history
     for (const name of ["Reschedule", "Cancel appointment", "Mark no-show"]) expect(d.queryByRole("button", { name })).not.toBeInTheDocument();
     await waitFor(() => expect(block(a.id)).toHaveClass("cal__block--cancelled"));
     expect(block(a.id)).toHaveTextContent("· Cancelled");
-    expect(calls("POST", "/cancel").at(-1)!.body).toMatchObject({ reason: "Patient called to cancel", rowVersion: "a1" });
+    expect(calls("POST", "/cancel").at(-1)!.body).toEqual({ category: "patient", note: "Patient called to cancel", rowVersion: "a1" });
+  });
+
+  it("shows a late cancellation as short notice, and an older cancellation without a category as not recorded", async () => {
+    const late = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee", status: "Cancelled" });
+    Object.assign(late, { cancelCategory: "office", shortNotice: true });
+    const legacy = server.seed({ start: `${DAY}T11:00`, patientName: "Bo Kim", provider: "prov-b", operatory: "op-2", status: "Cancelled", cancelReason: "Illness" });
+    const d = await openAppointment(late.id);
+    expect(d.getByText("Office (practice) reason · short notice (under 24 hours)", { selector: "dd" })).toBeInTheDocument();
+    fireEvent.keyDown(drawer(), { key: "Escape" });
+
+    await userEvent.click(block(legacy.id));
+    const d2 = within(drawer());
+    expect(await d2.findByText("Not recorded", { selector: "dd" })).toBeInTheDocument();
+    expect(d2.getByText("Illness", { selector: "dd" })).toBeInTheDocument();
   });
 
   it("a no-show is only offered once the start time has passed, then marks the appointment and keeps it on the calendar", async () => {
@@ -438,12 +455,13 @@ describe("cancelling, no-shows and notes", () => {
     const past = server.seed({ start: `${PAST}T09:00`, patientName: "Bo Kim" });
 
     const d = await openAppointment(future.id);
-    expect(d.getByRole("button", { name: "Mark no-show" })).toBeDisabled();
-    expect(d.getByText("A no-show can be recorded once the start time has passed.")).toBeInTheDocument();
+    const early = await d.findByRole("button", { name: "Mark no-show" });
+    expect(early).toBeDisabled();
+    expect(early).toHaveAccessibleDescription("An appointment can only be marked as a no-show once its start time has passed.");   // the server's reason
     fireEvent.keyDown(drawer(), { key: "Escape" });
 
     const d2 = await openAppointment(past.id, PAST);
-    const button = d2.getByRole("button", { name: "Mark no-show" });
+    const button = await d2.findByRole("button", { name: "Mark no-show" });
     expect(button).toBeEnabled();
     await userEvent.click(button);
 

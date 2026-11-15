@@ -44,6 +44,19 @@ export async function explainRefusal(err: unknown, names: { provider?: string; o
     case "appointment_type_inactive":
     case "validation_failed":
       return [err.message];
+    // ALV-N021 A2: the visit workflow and cancel rules, in the server's own words
+    case "category_required":
+    case "invalid_category":
+    case "illegal_transition":
+    case "terminal_state":
+    case "block_flag_unresolved":
+    case "checkout_incomplete":
+    case "check_in_wrong_day":
+    case "undo_check_in_too_late":
+    case "not_flagged":
+    case "visit_move_forbidden":
+    case "operatory_occupied":
+      return [err.message, "Nothing was changed."];
     default:
       return [err.status === 403 ? "Your role is not allowed to change appointments." : err.message || "That did not work. Try again."];
   }

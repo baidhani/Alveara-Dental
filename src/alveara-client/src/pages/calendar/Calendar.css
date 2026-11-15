@@ -268,6 +268,25 @@
   background: var(--color-info-bg);
 }
 
+/* ALV-N021 A2: blocked time over the appointment (OD-18), who the visit waits for, a disabled action and its reason */
+.cal-badge--blocked {
+  border-width: 2px;
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.cal-panel__next {
+  font-style: italic;
+  color: var(--color-text);
+}
+
+.cal-panel__action {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 100%;
+}
+
 .cal-badge--flow-completed {
   border-width: 2px;
   border-color: var(--color-success);

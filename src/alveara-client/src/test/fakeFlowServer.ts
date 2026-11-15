@@ -1,6 +1,7 @@
 import { vi } from "vitest";
 import { FakeCalendarServer } from "./fakeCalendarServer";
 import { json } from "./fakePatientServer";
+import { practiceNow } from "../pages/calendar/calendarLayout";
 import type { Appointment, PatientFlowState } from "../services/schedulingApi";
 import type { AppointmentActions, CheckInReadiness, VisitAction, VisitActionCode, VisitBoard } from "../services/visitsApi";
 
@@ -72,6 +73,11 @@ export class FakeFlowServer extends FakeCalendarServer {
     }
     if ((flow === "CheckedIn" || flow === "Ready") && has("UpdateVisitFlow")) actions.push(act("undo_check_in", "Undo check-in", null, null, true));
     if ((flow === "Scheduled" || flow === "Confirmed") && flagged && has("UpdateVisitFlow")) actions.push(act("keep_despite_block", "Keep despite blocked time", null, null, true));
+    if ((flow === "Scheduled" || flow === "Confirmed") && has("ManageAppointments")) {
+      actions.push(act("reschedule", "Reschedule"), act("cancel", "Cancel"));
+      const early = practiceNow("America/Chicago") < a.startLocal;   // the same "now" the calendar fake's no-show rule uses
+      actions.push(act("no_show", "Mark no-show", null, early ? ["no_show_too_early", "An appointment can only be marked as a no-show once its start time has passed."] : null));
+    }
     if (REASSIGNABLE.has(flow) && has("ReassignAppointmentProvider")) actions.push(act("reassign_provider", "Change provider", null, null, true));
     if (REASSIGNABLE.has(flow) && (has("ReassignAppointmentProvider") || has("UpdateChairsideFlow"))) actions.push(act("change_room", "Change room"));
     const next = flagged ? "Blocked time covers this appointment: the front desk must reschedule, reassign, cancel or keep it."

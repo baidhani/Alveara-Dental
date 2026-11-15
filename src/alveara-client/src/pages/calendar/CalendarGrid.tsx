@@ -21,7 +21,10 @@ interface GridProps {
 }
 
 const blockLabel = (a: Appointment) =>
-  `${timeOf(a.startLocal)} to ${timeOf(a.endLocal)}, ${a.patientName}, ${a.appointmentTypeName}, ${a.providerName}, ${a.operatoryName}, ${flowWord(a) ?? statusWord(a.status)}`;
+  `${timeOf(a.startLocal)} to ${timeOf(a.endLocal)}, ${a.patientName}, ${a.appointmentTypeName}, ${a.providerName}, ${a.operatoryName}, ${flowWord(a) ?? statusWord(a.status)}${blockedWord(a)}`;
+
+/** ALV-N021 A2 (OD-18): blocked time covers it and nobody has resolved it; written, never colour alone. */
+const blockedWord = (a: Appointment) => (a.status === "Scheduled" && a.blockFlagged ? ", blocked time" : "");
 
 /**
  * ALV-004-C01: the calendar grid. The day view has one column per provider (the practice's real assignments); the week view has one column per day,
@@ -102,7 +105,7 @@ function Block({ placed, selected, onOpen }: { placed: Placed; selected: boolean
   const cls = `cal__block cal__block--${a.status.toLowerCase()}${compact ? " cal__block--compact" : ""}${selected ? " cal__block--selected" : ""}`;
   // the status is written in the first line (never a separate row that a short block could crop): "09:00–10:00 · Cancelled"
   const word = a.status !== "Scheduled" ? statusWord(a.status) : flowWord(a); // STORY-011: a visit under way says so too
-  const time = `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}${word ? ` · ${word}` : ""}`;
+  const time = `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}${word ? ` · ${word}` : ""}${blockedWord(a) ? " · Blocked time" : ""}`;
   return (
     <button
       type="button"
