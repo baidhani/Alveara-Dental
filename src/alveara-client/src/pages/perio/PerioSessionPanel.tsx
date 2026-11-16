@@ -23,6 +23,7 @@ import {
 } from "./perioEntryState";
 import type { EntryBuffer } from "./perioEntryState";
 import { describeSite } from "./perioSiteModel";
+import { showInstant } from "../../time/practiceTime";
 
 type Status = { kind: "idle" } | { kind: "saving" } | { kind: "saved"; text: string } | { kind: "failed"; text: string };
 
@@ -250,7 +251,7 @@ export function PerioSessionPanel({ patient, numbering, canWrite, onFinalized, l
                 <>
                   <p className="alv-clinical__meta">This compares the sites already saved into the draft{unsaved > 0 ? `; ${unsaved} entered but not saved yet ${unsaved === 1 ? "is" : "are"} not in it. Save what you have entered to include them` : ""}.</p>
                   <PerioComparisonPanel key={session.rowVersion} patientId={patient.id} current={{ sessionId: session.id }} previousExamId={latestChart.id}
-                    labels={{ current: "The chart in progress", previous: new Date(latestChart.recordedAtUtc).toLocaleString() }} numbering={numbering} />
+                    labels={{ current: "The chart in progress", previous: showInstant(latestChart.recordedAtUtc) }} numbering={numbering} />
                 </>
               )}
             </div>

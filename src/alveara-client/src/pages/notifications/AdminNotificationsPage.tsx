@@ -9,8 +9,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ApiError } from "../../services/authApi";
 import { adminHistory, breakGlass } from "../../services/notificationsApi";
 import type { BreakGlassResult, HistoryItem, Paged } from "../../services/notificationsApi";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "");
+const when = (iso: string | null) => (iso ? showInstant(iso) : "");
 
 /**
  * ALV-N015: the administrator's notification history (metadata only: who, what kind, when, read or hidden - never a subject, a body or a patient) and, for

@@ -1,4 +1,5 @@
 import type { ProcedureInput, ProcedureVersion } from "../../services/proceduresApi";
+import { showInstant } from "../../time/practiceTime";
 
 export const CODE_SYSTEM_TEXT: Record<string, string> = { Local: "Practice code", CDT: "CDT code", External: "External code set" };
 export const CATEGORY_TEXT: Record<string, string> = {
@@ -12,7 +13,7 @@ export const STATUS_TEXT: Record<string, string> = { Active: "Active", Inactive:
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
 export const formatFee = (fee: number) => money.format(fee);
 export const isToothLevel = (scope: string) => scope === "Tooth" || scope === "ToothSurface";
-export const when = (iso: string) => new Date(iso).toLocaleString();
+export const when = (iso: string) => showInstant(iso);
 /** A calendar date written the way the server holds it (no time zone shift): 2030-03-15 becomes "Mar 15, 2030". */
 export const dateText = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 

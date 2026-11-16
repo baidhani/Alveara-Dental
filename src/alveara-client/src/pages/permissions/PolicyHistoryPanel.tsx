@@ -3,6 +3,7 @@ import { EmptyState, ErrorState, LoadingState } from "../../components/StatePatt
 import { getPolicyHistory } from "../../services/permissionPolicyApi";
 import type { HistoryPage } from "../../services/permissionPolicyApi";
 import "./permissions.css";
+import { showInstant } from "../../time/practiceTime";
 
 /** ALV-N018: the immutable permission-change history, for holders of the audit-log permission. `refreshKey` changes when the policy changes so the list follows it. */
 export function PolicyHistoryPanel({ refreshKey }: { refreshKey: number }) {
@@ -27,7 +28,7 @@ export function PolicyHistoryPanel({ refreshKey }: { refreshKey: number }) {
           <tbody>
             {state.page.items.map((h) => (
               <tr key={h.id}>
-                <td>{new Date(h.changedAtUtc).toLocaleString()}</td>
+                <td>{showInstant(h.changedAtUtc)}</td>
                 <td>{h.kind}{h.viaDelegation ? " (delegated)" : ""}</td>
                 <td>{h.role}{h.targetRole ? ` to ${h.targetRole}` : ""}</td>
                 <td>{h.permission}</td>

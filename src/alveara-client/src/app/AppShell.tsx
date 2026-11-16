@@ -21,7 +21,7 @@ import "./AppShell.css";
  */
 export function AppShell() {
   const { theme, setTheme } = usePersistedTheme();
-  const { state, hasPermission, logout, sessionExpiringSoon, connectionLost, identityEpoch } = useAuth();
+  const { state, hasPermission, logout, sessionExpiringSoon, connectionLost, identityEpoch, practiceZoneChangedTo, dismissPracticeZoneChange } = useAuth();
   const server = useServerConnection();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -123,6 +123,19 @@ export function AppShell() {
         {sessionExpiringSoon && (
           <div className="alv-shell__session-warning" role="alert">
             Your session will expire soon. Save your work and sign in again to continue.
+          </div>
+        )}
+        {/* ALV-N021 A3 (briefing 4.1-4): without a usable practice zone no time is shown at all - never one in the browser's zone. */}
+        {state.kind === "signed-in" && state.practiceTimeZoneId === null && (
+          <div className="alv-shell__session-warning" role="alert">
+            Times cannot be shown: the practice time zone is not available.
+          </div>
+        )}
+        {/* ALV-N021 A3 (briefing 4.1-5): a newer session answer carried a different zone (a reconnect after a redeployment); the times were re-rendered. */}
+        {practiceZoneChangedTo !== null && (
+          <div className="alv-shell__session-warning" role="status">
+            Your session was refreshed; times are shown in {practiceZoneChangedTo}.{" "}
+            <button type="button" className="alv-shell__link-button" onClick={dismissPracticeZoneChange}>Dismiss</button>
           </div>
         )}
 

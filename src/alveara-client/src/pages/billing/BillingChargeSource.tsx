@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { formatMoney } from "../../services/billingApi";
 import { getChargeSource, isChargeSource } from "../../services/billingStatementsApi";
 import type { ChargeSource } from "../../services/billingStatementsApi";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /**
  * ALV-007-C02 R02: where a charge came from, shown inside the timeline for anyone who may read billing. It is the billing projection of the plan procedure and its completion (the procedure, the tooth and

@@ -20,6 +20,7 @@ import {
 import type { AdminUserSummary } from "../services/authApi";
 import { PresentationAdministratorControl } from "./PresentationAdministratorControl";
 import "./AdminUsersPage.css";
+import { showInstant } from "../time/practiceTime";
 
 const ROLES = ["Dentist", "Hygienist", "Assistant", "FrontDesk", "Billing", "OfficeManager", "Admin"];
 
@@ -174,7 +175,7 @@ export function AdminUserDetailPage() {
             <dt>MFA</dt>
             <dd>{state.user.mfaEnabled ? "Enabled" : "Not enabled"}</dd>
             <dt>Created</dt>
-            <dd>{new Date(state.user.createdAtUtc).toLocaleString()}</dd>
+            <dd>{showInstant(state.user.createdAtUtc)}</dd>
           </dl>
 
           <div className="alv-admin-users__actions">

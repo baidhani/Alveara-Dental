@@ -9,8 +9,9 @@ import { getMessage, getThread, listMessages, messagePatientLink } from "../../s
 import type { MessageListItem, MessageView, Paged } from "../../services/notificationsApi";
 import { ComposeMessage } from "./ComposeMessage";
 import "./Notifications.css";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /** ALV-N015: the message inbox and sent box. Opening a message marks the caller's own notification read; read receipts are shown to the sender only. */
 export function MessagesPage() {

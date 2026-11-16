@@ -3,8 +3,9 @@ import { SafeLink } from "../../components/SafeLink";
 import { getPatientMergeHistory } from "../../services/patientMergesApi";
 import "./merge.css";
 import type { MergeLink, PatientMergeHistory } from "../../services/patientMergesApi";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleDateString();
+const when = (iso: string) => showInstant(iso, "date");
 
 function Line({ link }: { link: MergeLink }) {
   return <>{link.patientName} on {when(link.mergedAtUtc)} by {link.mergedByName || "an administrator"} ({link.reason})</>;

@@ -10,8 +10,9 @@ import type { PatientFormSummary, TemplateSummary } from "../../services/formsAp
 import type { PatientDetail } from "../../services/patientsApi";
 import { FormStatusBadge } from "./FormStatusBadge";
 import "./Forms.css";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
+const when = (iso: string | null) => (iso ? showInstant(iso) : "—");
 
 /**
  * ALV-N010: the patient workspace's Forms tab - the patient's forms with their status, and (for staff who complete forms) starting a new

@@ -11,6 +11,7 @@ import { EMPTY_STRUCTURE, checkStructure, structureInputFromDraft } from "./diag
 import type { StructureDraft } from "./diagnosisStructureRules";
 import { LABEL_MAX, NOTES_MAX, REFERENCE_MAX, checkDiagnosis, entryFromDraft } from "./diagnosisRules";
 import type { DiagnosisDraft } from "./diagnosisRules";
+import { showInstant } from "../../time/practiceTime";
 
 const FIELDS = ["encounterId", "label", "toothKey", "regionKey", "codingSystem", "code", "source", "sourceNote", "notes", "treatmentPlanReference", "reason"] as const;
 
@@ -137,11 +138,11 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
         <label htmlFor={ids.encounterId}>Encounter
           <select id={ids.encounterId} value={draft.encounterId} onChange={(e) => set({ encounterId: e.target.value })} aria-invalid={bad("encounterId").length > 0 || undefined} aria-describedby={describe("encounterId")}>
             <option value="">Choose an encounter</option>
-            {encounters.map((e) => <option key={e.id} value={e.id}>{new Date(e.encounterAtUtc).toLocaleString()} ({e.status.toLowerCase()})</option>)}
+            {encounters.map((e) => <option key={e.id} value={e.id}>{showInstant(e.encounterAtUtc)} ({e.status.toLowerCase()})</option>)}
           </select>
         </label>
       )}
-      {correcting && <p className="alv-clinical__meta">Encounter of {new Date(correcting.encounterAtUtc).toLocaleString()}. The patient and the encounter never change; to record against another encounter, withdraw this one and record a new diagnosis.</p>}
+      {correcting && <p className="alv-clinical__meta">Encounter of {showInstant(correcting.encounterAtUtc)}. The patient and the encounter never change; to record against another encounter, withdraw this one and record a new diagnosis.</p>}
 
       <label htmlFor={ids.label}>Diagnosis
         <input id={ids.label} type="text" maxLength={LABEL_MAX + 50} value={draft.label} onChange={(e) => set({ label: e.target.value })} aria-invalid={bad("label").length > 0 || undefined} aria-describedby={describe("label")} />

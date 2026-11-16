@@ -5,7 +5,7 @@ import { PageHeader } from "../components/PageHeader";
 import { FormField } from "../components/FormField";
 import { Button } from "../components/Button";
 import { login } from "../services/authApi";
-import { classifyLoginFailure, destinationAfterSignIn } from "./loginOutcome";
+import { classifyLoginFailure, destinationAfterSignIn, tryAgainIn } from "./loginOutcome";
 import type { LoginFormState } from "./loginOutcome";
 import { useAuth } from "../contexts/AuthContext";
 import { useServerConnection } from "../contexts/connectionStatusContext";
@@ -83,7 +83,7 @@ export function LoginPage() {
       {formState.kind === "locked-out" && (
         <div className="alv-login__banner alv-login__banner--danger" role="alert">
           This account is temporarily locked after too many failed attempts.
-          {formState.lockedUntilUtc && ` Try again after ${new Date(formState.lockedUntilUtc).toLocaleTimeString()}.`}
+          {formState.lockedUntilUtc && ` ${tryAgainIn(formState.lockedUntilUtc)}`}
         </div>
       )}
       {formState.kind === "rate-limited" && (

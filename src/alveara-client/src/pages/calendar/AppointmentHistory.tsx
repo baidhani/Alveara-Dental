@@ -1,6 +1,7 @@
 import { cancelCategoryLabel, dateOf, timeOf } from "../../services/schedulingApi";
 import type { AppointmentEvent } from "../../services/schedulingApi";
 import { STATE_LABELS } from "../flow/visitLabels";
+import { showInstant } from "../../time/practiceTime";
 
 const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Rescheduled: "Rescheduled", Cancelled: "Cancelled", NoShow: "Marked as a no-show", NotesChanged: "Note changed",
   CheckedIn: "Patient checked in", TreatmentStarted: "Treatment started", Completed: "Visit completed",
@@ -28,7 +29,7 @@ export function AppointmentHistory({ history }: { history: AppointmentEvent[] | 
           <tbody>
             {history.map((e, i) => (
               <tr key={`${e.eventType}-${i}`}>
-                <td>{new Date(e.occurredAtUtc).toLocaleString()}</td>
+                <td>{showInstant(e.occurredAtUtc)}</td>
                 <td>{EVENT_LABELS[e.eventType] ?? e.eventType}</td>
                 <td>{e.actorName ?? "—"}</td>
                 <td>{describeEvent(e)}</td>

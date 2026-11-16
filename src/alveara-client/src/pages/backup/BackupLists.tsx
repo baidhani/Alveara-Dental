@@ -6,8 +6,9 @@ import { useNotifications } from "../../components/Notification";
 import { removeRestoreTarget, verifyBackupHash } from "../../services/backupApi";
 import type { BackupNotification, BackupRecord, RestoreDrill, VerificationStatus } from "../../services/backupApi";
 import { assetLabel, describeBackupCode, describeBackupError, formatBytes } from "./backupMessages";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "-");
+const when = (iso: string | null) => (iso ? showInstant(iso) : "-");
 
 const VERIFICATION_LABEL: Record<VerificationStatus, string> = {
   NotVerified: "Not verified",

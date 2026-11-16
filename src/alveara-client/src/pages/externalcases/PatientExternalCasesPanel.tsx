@@ -7,6 +7,7 @@ import type { CaseKind, ExternalCase, PatientCaseTimelineEntry } from "../../ser
 import { describeEvent, formatDay, kindLabel, statusLabel } from "./externalCaseFormat";
 import { NewCaseForm } from "./NewCaseForm";
 import "../followups/followups.css";
+import { showInstant } from "../../time/practiceTime";
 
 interface Props { patientId: string; canManage: boolean }
 
@@ -61,7 +62,7 @@ export function PatientExternalCasesPanel({ patientId, canManage }: Props) {
         <ol className="alv-fu-history" aria-label="Referral and lab timeline">
           {timeline.map((t, i) => (
             <li key={`${t.caseId}-${i}-${t.occurredAtUtc}`}>
-              <strong>{describeEvent({ kind: t.eventKind, fromStatus: t.fromStatus, toStatus: t.toStatus })}</strong>: {t.caseSummary} ({kindLabel(t.caseKind)}) by {t.actorName ?? "a former colleague"} · {new Date(t.occurredAtUtc).toLocaleString()}
+              <strong>{describeEvent({ kind: t.eventKind, fromStatus: t.fromStatus, toStatus: t.toStatus })}</strong>: {t.caseSummary} ({kindLabel(t.caseKind)}) by {t.actorName ?? "a former colleague"} · {showInstant(t.occurredAtUtc)}
               {t.note && <span className="alv-fu-item__meta"> — {t.note}</span>}
             </li>
           ))}

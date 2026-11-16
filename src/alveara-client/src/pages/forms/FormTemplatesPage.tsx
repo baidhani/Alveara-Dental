@@ -6,6 +6,7 @@ import { CATEGORY_LABELS, getTemplate, listTemplates } from "../../services/form
 import type { TemplateDetail, TemplateSummary } from "../../services/formsApi";
 import { TemplateEditor } from "./TemplateEditor";
 import "./Forms.css";
+import { showInstant } from "../../time/practiceTime";
 
 type Selection = { kind: "none" } | { kind: "new" } | { kind: "template"; detail: TemplateDetail };
 
@@ -101,7 +102,7 @@ export function FormTemplatesPage() {
                       {selection.detail.versions.map((v) => (
                         <tr key={v.id}>
                           <td>{v.versionNumber}{v.id === selection.detail.template.current?.id ? " (current)" : ""}</td>
-                          <td>{new Date(v.createdAtUtc).toLocaleString()}</td>
+                          <td>{showInstant(v.createdAtUtc)}</td>
                           <td>{v.title}</td>
                           <td>{v.changeNote ?? "—"}</td>
                         </tr>

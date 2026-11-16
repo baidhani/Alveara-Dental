@@ -15,13 +15,15 @@
  */
 
 /** The display styles the screens use today. */
-export type InstantStyle = "date-time" | "date" | "time" | "time-seconds";
+export type InstantStyle = "date-time" | "date" | "time" | "time-seconds" | "moment";
 
 const STYLES: Record<InstantStyle, Intl.DateTimeFormatOptions> = {
   "date-time": { year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" },
   date: { year: "numeric", month: "numeric", day: "numeric" },
   time: { hour: "numeric", minute: "2-digit" },
   "time-seconds": { hour: "2-digit", minute: "2-digit", second: "2-digit" },
+  // reports and export history: short month and the zone named
+  moment: { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short" },
 };
 
 /** The fixed locale for exact machine text: Latin digits, Gregorian calendar (the locale's own calendar and digits are never used). */
@@ -88,3 +90,22 @@ export function addDaysToDate(day: string, days: number): string {
 
 /** What a screen shows in place of a time it cannot render. */
 export const TIME_UNAVAILABLE = "Time unavailable";
+
+/**
+ * The practice zone the screens render in: set ONLY by the AuthProvider from the newest authenticated session response (and cleared when the session
+ * ends), so plain formatting helpers outside React can use it without each caller passing the zone. Null means "unavailable" - never the browser zone.
+ */
+let renderZone: string | null = null;
+
+/** Called by the AuthProvider (and the test setup); not for screens. */
+export function setRenderZone(zone: string | null): void {
+  renderZone = isUsableZone(zone) ? zone : null;
+}
+
+/** The zone the screens currently render in, or null. */
+export const getRenderZone = (): string | null => renderZone;
+
+/** Readable text for an instant in the session's practice zone, or "Time unavailable": what every screen shows for a server instant. */
+export function showInstant(utc: string | number | Date, style: InstantStyle = "date-time"): string {
+  return formatInstant(utc, renderZone, style) ?? TIME_UNAVAILABLE;
+}

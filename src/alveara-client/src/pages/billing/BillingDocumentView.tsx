@@ -1,6 +1,7 @@
 import type { DocumentPractice, ReceiptContent, StatementContent } from "../../services/billingStatementsApi";
+import { showInstant } from "../../time/practiceTime";
 
-const day = (iso: string) => new Date(iso).toLocaleDateString();
+const day = (iso: string) => showInstant(iso, "date");
 const money = (text: string) => (text.startsWith("-") ? `-$${text.slice(1)}` : `$${text}`);
 
 /** The practice as issued (name, address, phone), the first thing on a printed document. */
@@ -18,7 +19,7 @@ export function StatementView({ statement }: { statement: StatementContent }) {
     <article className="alv-bill__document" aria-label="Statement">
       <PracticeHeader practice={statement.practice} />
       <h4>Statement of account</h4>
-      <p>For: {statement.patient.name}<br />Addressed to: {statement.addressee.name}{statement.addressee.isSelf ? "" : " (responsible for this account)"}<br />Up to: {new Date(statement.asOfUtc).toLocaleString()}</p>
+      <p>For: {statement.patient.name}<br />Addressed to: {statement.addressee.name}{statement.addressee.isSelf ? "" : " (responsible for this account)"}<br />Up to: {showInstant(statement.asOfUtc)}</p>
       <table className="alv-bill__table" aria-label="Statement lines">
         <thead><tr><th scope="col">#</th><th scope="col">Date</th><th scope="col">Entry</th><th scope="col">Details</th><th scope="col" className="alv-bill__num">Amount</th><th scope="col" className="alv-bill__num">Balance owed after</th></tr></thead>
         <tbody>
@@ -54,7 +55,7 @@ export function ReceiptView({ receipt }: { receipt: ReceiptContent }) {
     <article className="alv-bill__document" aria-label="Receipt">
       <PracticeHeader practice={receipt.practice} />
       <h4>Receipt for payment {receipt.paymentNumber}</h4>
-      <p>For: {receipt.patient.name}<br />Received from: {receipt.receivedFrom.name}<br />Received: {day(receipt.receivedAtUtc)}{receipt.method ? ` by ${receipt.method}` : ""}<br />Up to: {new Date(receipt.asOfUtc).toLocaleString()}</p>
+      <p>For: {receipt.patient.name}<br />Received from: {receipt.receivedFrom.name}<br />Received: {day(receipt.receivedAtUtc)}{receipt.method ? ` by ${receipt.method}` : ""}<br />Up to: {showInstant(receipt.asOfUtc)}</p>
       <p><strong>Amount received: {money(receipt.amount)}</strong></p>
       {receipt.applications.length > 0 && (
         <ul aria-label="What this payment paid">

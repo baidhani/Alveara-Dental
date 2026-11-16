@@ -1,5 +1,6 @@
 import { INTERVAL_MAX, NOTE_MAX, TITLE_MAX } from "../../services/followUpsApi";
 import type { FollowUpInput } from "../../services/followUpsApi";
+import { showInstant } from "../../time/practiceTime";
 
 /** STORY-009: small pure helpers for the follow-up screens (date inputs and the checks made before a request is sent; the server checks everything again). */
 
@@ -18,7 +19,7 @@ export function fromLocalInput(value: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-export const formatWhen = (iso: string) => new Date(iso).toLocaleString();
+export const formatWhen = (iso: string) => showInstant(iso);
 
 /** How each kind of history entry reads (the same words in a task's history and in a patient's timeline). */
 export const EVENT_LABEL: Record<string, string> = {

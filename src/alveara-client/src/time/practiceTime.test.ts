@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { addDaysToDate, formatInstant, isUsableZone, practiceNow, practiceToday, toPracticeLocalInput } from "./practiceTime";
+import { afterEach } from "vitest";
+import { addDaysToDate, formatInstant, isUsableZone, practiceNow, practiceToday, setRenderZone, showInstant, toPracticeLocalInput } from "./practiceTime";
+import { formatMoment } from "../pages/exports/exportFormat";
 
 // ALV-N021 A3 (briefing 4.1 and 6): the only client code that renders an instant in the practice zone. Every helper uses the zone it is given (never the
 // zone of the machine running the test) and returns null without a usable zone.
@@ -77,5 +79,29 @@ describe("isUsableZone", () => {
     expect(isUsableZone(CHICAGO)).toBe(true);
     expect(isUsableZone("Central Standard Time")).toBe(false);   // a Windows id is never published by the server, and is not usable here
     expect(isUsableZone(null)).toBe(false);
+  });
+});
+
+describe("showInstant: what every screen shows for a server instant", () => {
+  afterEach(() => setRenderZone(CHICAGO));
+  it("uses the session zone set by the AuthProvider", () => {
+    setRenderZone(KIRITIMATI);
+    expect(showInstant(LATE_EVENING_IN_CHICAGO, "date")).toBe("1/15/2030");
+    setRenderZone(CHICAGO);
+    expect(showInstant(LATE_EVENING_IN_CHICAGO, "date")).toBe("1/14/2030");
+  });
+  it("says 'Time unavailable' without a usable zone, never a browser-zone time", () => {
+    setRenderZone(null);
+    expect(showInstant(LATE_EVENING_IN_CHICAGO)).toBe("Time unavailable");
+    setRenderZone("Central Standard Time");
+    expect(showInstant(LATE_EVENING_IN_CHICAGO)).toBe("Time unavailable");
+  });
+});
+
+describe("formatMoment (reports, export history): rebuilt without the browser fallback", () => {
+  it("names the practice zone and says 'Time unavailable' without one", () => {
+    expect(plain(formatMoment(LATE_EVENING_IN_CHICAGO, CHICAGO))).toMatch(/Jan 14, 2030, 09:30 PM CST|Jan 14, 2030, 9:30 PM CST|Jan 14, 2030 at 09:30 PM CST/);
+    expect(formatMoment(LATE_EVENING_IN_CHICAGO, null)).toBe("Time unavailable");
+    expect(formatMoment(LATE_EVENING_IN_CHICAGO, "Not/AZone")).toBe("Time unavailable");
   });
 });

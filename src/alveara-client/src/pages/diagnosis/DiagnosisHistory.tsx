@@ -3,8 +3,9 @@ import { LoadingState } from "../../components/StatePatterns";
 import { getDiagnosisHistory } from "../../services/diagnosisApi";
 import type { DiagnosisVersion } from "../../services/diagnosisApi";
 import { REGION_LABELS, sourceText } from "./diagnosisStructureRules";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 const CHANGE_LABELS: Record<string, string> = {
   Recorded: "Recorded", Corrected: "Corrected", Withdrawn: "Withdrawn", Amended: "Amended (structure)", Resolved: "Marked resolved", Reactivated: "Made active again",
 };

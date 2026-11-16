@@ -17,6 +17,7 @@ import { FormStatusBadge } from "./FormStatusBadge";
 import { FormVoidPanel } from "./FormVoidPanel";
 import { FormHistory, SignedFormView } from "./SignedFormView";
 import "./Forms.css";
+import { showInstant } from "../../time/practiceTime";
 
 type Load = { kind: "loading" } | { kind: "not-found" } | { kind: "error" } | { kind: "loaded"; form: PatientFormDetail };
 
@@ -153,13 +154,13 @@ export function PatientFormView({ patient, formId }: { patient: PatientDetail; f
           <FormStatusBadge status={s.status} wasSigned={s.wasSigned} />
           <span>{CATEGORY_LABELS[s.category] ?? s.category}</span>
           <span>Template version {s.templateVersionNumber}</span>
-          <span>Started {new Date(s.startedAtUtc).toLocaleString()}</span>
+          <span>Started {showInstant(s.startedAtUtc)}</span>
         </div>
       </div>
 
       {s.status === "Void" && (
         <div className="alv-forms__banner alv-forms__banner--void" role="status">
-          <p><strong>This form is void</strong>{s.voidedAtUtc ? ` as of ${new Date(s.voidedAtUtc).toLocaleString()}` : ""}. Reason: {s.voidReason ?? "—"}</p>
+          <p><strong>This form is void</strong>{s.voidedAtUtc ? ` as of ${showInstant(s.voidedAtUtc)}` : ""}. Reason: {s.voidReason ?? "—"}</p>
           {canComplete && <Button onClick={startCorrected} disabled={busy}>Start a new form</Button>}
         </div>
       )}

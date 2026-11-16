@@ -1,6 +1,7 @@
 import { formatMoney } from "../../services/billingApi";
 import type { BillingAccount, BillingEntry } from "../../services/billingApi";
 import { standingOf, standingText } from "./billingLedgerView";
+import { showInstant } from "../../time/practiceTime";
 
 /** What an entry is about, in words a billing person would use. */
 function describe(e: BillingEntry): string {
@@ -52,7 +53,7 @@ export function BillingLedger({ account, onReverse, onApply, onRefund, onMove, o
           return (
             <tr key={e.entryNumber} className={standing?.isReversed ? "alv-bill__reversed" : undefined}>
               <td>{e.entryNumber}</td>
-              <td>{new Date(e.recordedAtUtc).toLocaleDateString()}</td>
+              <td>{showInstant(e.recordedAtUtc, "date")}</td>
               <td>{e.kind}</td>
               <td>{describe(e)}{text && <span className="alv-bill__standing"> ({text})</span>}</td>
               <td className="alv-bill__num">{formatMoney(e.amount)}</td>

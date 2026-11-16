@@ -1,14 +1,12 @@
 import type { ExportHistoryItem } from "../../services/patientExportsApi";
+import { formatInstant, TIME_UNAVAILABLE } from "../../time/practiceTime";
 
-/** A moment in the practice's own time zone, with the zone named, so a line in the history reads the same wherever the screen is opened. */
+/**
+ * A moment in the practice's own time zone, with the zone named, so a line in the history reads the same wherever the screen is opened.
+ * ALV-N021 A3: rebuilt on the shared helper; without a usable zone it says "Time unavailable" - it no longer falls back to the browser's zone.
+ */
 export function formatMoment(iso: string, timeZone: string | null): string {
-  const when = new Date(iso);
-  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", timeZoneName: "short" };
-  try {
-    return when.toLocaleString(undefined, timeZone ? { ...options, timeZone } : options);
-  } catch {
-    return when.toLocaleString();                                                       // a time zone name this browser does not know: the browser's own zone is better than nothing
-  }
+  return formatInstant(iso, timeZone, "moment") ?? TIME_UNAVAILABLE;
 }
 
 /** A size in words, up to gigabytes (the limits of a package are gigabytes; the shared formatter stops at megabytes). */

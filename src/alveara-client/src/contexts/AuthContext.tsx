@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { getMyPermissions, logout as apiLogout, setUnauthorizedHandler } from "../services/authApi";
 import type { MyPermissions } from "../services/authApi";
-import { isUsableZone } from "../time/practiceTime";
+import { isUsableZone, setRenderZone } from "../time/practiceTime";
 // ALV-N020 R02: the context object, its types and useIdentityEpoch live in authContextObject.ts, so this file exports only components and useAuth.
 import { AuthContext } from "./authContextObject";
 import type { AuthState } from "./authContextObject";
@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const previous = currentUserRef.current;
     currentUserRef.current = null;
     zoneInUseRef.current = null;   // ALV-N021 A3: the next sign-in starts fresh, not "changed"
+    setRenderZone(null);           // and no screen renders a time without a session zone
     setPracticeZoneChangedTo(null);
     setSessionExpiringSoon(false);
     setConnectionLost(false);
@@ -88,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const zone = isUsableZone(result.practiceTimeZoneId) ? result.practiceTimeZoneId : null;
       if (zone !== null && zoneInUseRef.current !== null && zone !== zoneInUseRef.current) setPracticeZoneChangedTo(zone);
       if (zone !== null) zoneInUseRef.current = zone;
+      setRenderZone(zone);   // the zone every screen renders instants in (null = "Time unavailable", never the browser zone)
       setState({
         kind: "signed-in",
         username: result.username,

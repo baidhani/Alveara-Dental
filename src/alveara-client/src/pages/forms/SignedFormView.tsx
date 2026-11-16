@@ -2,10 +2,11 @@ import { FormAnswers } from "../../components/FormFieldInputs";
 import { CATEGORY_LABELS } from "../../services/formsApi";
 import type { FormEvent, PatientFormDetail } from "../../services/formsApi";
 import "./Forms.css";
+import { showInstant } from "../../time/practiceTime";
 
 const EVENT_LABELS: Record<string, string> = { Started: "Started", Signed: "Signed", Voided: "Voided", Superseded: "Replaced by a newer version" };
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 export function FormHistory({ events }: { events: FormEvent[] }) {
   return (

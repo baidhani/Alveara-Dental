@@ -3,6 +3,7 @@ import { LoadingState, ErrorState } from "../components/StatePatterns";
 import { useSystemStatus, usePublicInternetSignal } from "../hooks/useSystemStatus";
 import type { SystemStatus } from "../hooks/useSystemStatus";
 import "./SystemStatusPage.css";
+import { showInstant } from "../time/practiceTime";
 
 function StatusDot({ tone }: { tone: "success" | "warning" | "danger" | "unknown" }) {
   return <span className={`status-dot status-dot--${tone}`} aria-hidden="true" />;
@@ -79,7 +80,7 @@ function StatusGrid({ status, internetSignal }: { status: SystemStatus; internet
         </p>
         {status.backgroundRunner.lastPollUtc && (
           <p className="status-caveat">
-            Last poll: {new Date(status.backgroundRunner.lastPollUtc).toLocaleString()}
+            Last poll: {showInstant(status.backgroundRunner.lastPollUtc)}
           </p>
         )}
       </div>
@@ -124,7 +125,7 @@ export function SystemStatusPage() {
         <>
           <div className="status-stale-banner" role="alert">
             <strong>Status is stale.</strong> The last successful check was at{" "}
-            {new Date(state.lastConfirmedAtUtc).toLocaleString()}. The most recent check failed,
+            {showInstant(state.lastConfirmedAtUtc)}. The most recent check failed,
             timed out, or returned an unexpected response — the values below are not current.
           </div>
           <StatusGrid status={state.lastGoodStatus} internetSignal={internetSignal} />

@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { CHANGE_LABELS, getItemHistory } from "../../../services/clinicalRecordApi";
 import type { ItemHistory as History, ItemVersion } from "../../../services/clinicalRecordApi";
 import "../Clinical.css";
+import { showInstant } from "../../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /** What a version says, as a clinician reads it: the status first, then whichever details were recorded. */
 function summary(v: ItemVersion): string {

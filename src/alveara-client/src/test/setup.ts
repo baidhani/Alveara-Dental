@@ -2,6 +2,8 @@ import "@testing-library/jest-dom/vitest";
 import { expect, vi, beforeEach } from "vitest";
 import { toHaveNoViolations } from "jest-axe";
 import { configure } from "@testing-library/react";
+import { setRenderZone } from "../time/practiceTime";
+import { TEST_PRACTICE_ZONE } from "./signedInSession";
 
 expect.extend(toHaveNoViolations);
 
@@ -34,3 +36,7 @@ beforeEach(() => {
     )
   );
 });
+
+// ALV-N021 A3: screens render instants in the session's practice zone; a component rendered without an AuthProvider would otherwise show
+// "Time unavailable". Every test starts with the zone the fake session builder uses; a test that needs no zone sets null itself.
+beforeEach(() => setRenderZone(TEST_PRACTICE_ZONE));

@@ -1,8 +1,8 @@
 import type { SafetySummary } from "../../services/safetyApi";
+import { showInstant } from "../../time/practiceTime";
 
 export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-export const when = (iso: string) => new Date(iso).toLocaleString();
-export const day = (iso: string) => new Date(iso).toLocaleDateString();
+export const when = (iso: string) => showInstant(iso);
 
 /** The one-line headline, in words: what is recorded, never what is merely absent. */
 export function safetyHeadline(s: SafetySummary): string {

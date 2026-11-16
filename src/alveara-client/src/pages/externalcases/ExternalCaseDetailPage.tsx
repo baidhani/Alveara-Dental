@@ -10,6 +10,7 @@ import { CaseEditForm } from "./CaseEditForm";
 import { CaseStatusForm } from "./CaseStatusForm";
 import { describeEvent, formatDay, kindLabel, moveLabel, statusLabel } from "./externalCaseFormat";
 import "../followups/followups.css";
+import { showInstant } from "../../time/practiceTime";
 
 type Editor = { kind: "move"; to: CaseStatus } | { kind: "edit" } | null;
 
@@ -85,7 +86,7 @@ export function ExternalCaseDetailPage() {
         <ol className="alv-fu-history" aria-label="Case history">
           {events.map((e) => (
             <li key={e.id}>
-              <strong>{describeEvent(e)}</strong> by {e.actorName ?? "a former colleague"} · {new Date(e.occurredAtUtc).toLocaleString()}
+              <strong>{describeEvent(e)}</strong> by {e.actorName ?? "a former colleague"} · {showInstant(e.occurredAtUtc)}
               {e.note && <span className="alv-fu-item__meta"> — {e.note}</span>}
             </li>
           ))}

@@ -1,8 +1,9 @@
 import { FINDING_STATES } from "../../services/odontogramApi";
 import type { Finding, FindingState } from "../../services/odontogramApi";
+import { showInstant } from "../../time/practiceTime";
 
 export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-export const when = (iso: string) => new Date(iso).toLocaleString();
+export const when = (iso: string) => showInstant(iso);
 
 /** What each state means, in words: the legend and the chart show the word, never only a colour or a border. */
 export const STATE_MEANING: Record<FindingState, string> = {

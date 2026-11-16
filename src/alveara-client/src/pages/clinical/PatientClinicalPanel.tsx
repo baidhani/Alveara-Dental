@@ -10,8 +10,9 @@ import type { EncounterSummary } from "../../services/clinicalApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { ClinicalRecordPanel } from "./record/ClinicalRecordPanel";
 import "./Clinical.css";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /**
  * STORY-005: the patient workspace's Clinical tab - the patient's encounters, newest first, each said in words to be a draft or finalized and whether all four sections

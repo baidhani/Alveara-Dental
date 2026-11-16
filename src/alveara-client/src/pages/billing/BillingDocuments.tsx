@@ -8,6 +8,7 @@ import {
 import type { DocumentPreview, IssuedDocument, IssuedDocumentDetail } from "../../services/billingStatementsApi";
 import { describeBillingFailure } from "./billingFailure";
 import { ReceiptView, StatementView } from "./BillingDocumentView";
+import { showInstant } from "../../time/practiceTime";
 
 interface Props {
   patientId: string;
@@ -124,7 +125,7 @@ export function BillingDocuments({ patientId, canWrite, controlRef, version }: P
 
       {detail && (
         <div className="alv-bill__preview">
-          <p className="alv-clinical__meta">{detail.document.documentType} {detail.document.documentNumber}, issued {new Date(detail.document.issuedAtUtc).toLocaleString()}{detail.document.issuedByName ? ` by ${detail.document.issuedByName}` : ""}. Shown exactly as issued.</p>
+          <p className="alv-clinical__meta">{detail.document.documentType} {detail.document.documentNumber}, issued {showInstant(detail.document.issuedAtUtc)}{detail.document.issuedByName ? ` by ${detail.document.issuedByName}` : ""}. Shown exactly as issued.</p>
           <div className="alv-bill__print">
             {detail.statement && <StatementView statement={detail.statement} />}
             {detail.receipt && <ReceiptView receipt={detail.receipt} />}
@@ -150,7 +151,7 @@ export function BillingDocuments({ patientId, canWrite, controlRef, version }: P
             {issued.map((d) => (
               <tr key={d.id}>
                 <td>{d.documentType} {d.documentNumber}{d.paymentEntryNumber ? ` (payment ${d.paymentEntryNumber})` : ""}</td>
-                <td>{new Date(d.issuedAtUtc).toLocaleString()}</td><td>{d.cutOffs.entryNumber}</td><td>{d.issuedByName ?? "Unknown"}</td>
+                <td>{showInstant(d.issuedAtUtc)}</td><td>{d.cutOffs.entryNumber}</td><td>{d.issuedByName ?? "Unknown"}</td>
                 <td><button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={() => void show(d.id)}>View {d.documentType.toLowerCase()} {d.documentNumber}</button></td>
               </tr>
             ))}

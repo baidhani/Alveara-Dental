@@ -20,6 +20,7 @@ import { CancelForm } from "./CancelForm";
 import { explainRefusal } from "./explainRefusal";
 import { PlacementFields } from "./PlacementFields";
 import type { Placement } from "./PlacementFields";
+import { showInstant } from "../../time/practiceTime";
 
 interface Props {
   appointment: Appointment;
@@ -184,14 +185,14 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged, 
         <div className="alv-form-answers__row"><dt>Provider</dt><dd>{current.providerName}</dd></div>
         <div className="alv-form-answers__row"><dt>Operatory</dt><dd>{current.operatoryName}</dd></div>
         <div className="alv-form-answers__row"><dt>Type</dt><dd>{current.appointmentTypeName}</dd></div>
-        {flowLabel && current.flowChangedAtUtc && <div className="alv-form-answers__row"><dt>{flowLabel} at</dt><dd>{new Date(current.flowChangedAtUtc).toLocaleString()}</dd></div>}
+        {flowLabel && current.flowChangedAtUtc && <div className="alv-form-answers__row"><dt>{flowLabel} at</dt><dd>{showInstant(current.flowChangedAtUtc)}</dd></div>}
         {current.status === "Cancelled" && (
           <>
             <div className="alv-form-answers__row"><dt>Why cancelled</dt><dd>{cancelCategoryLabel(current.cancelCategory)}{current.shortNotice ? " · short notice (under 24 hours)" : ""}</dd></div>
             {current.cancelReason && <div className="alv-form-answers__row"><dt>Note</dt><dd>{current.cancelReason}</dd></div>}
           </>
         )}
-        {current.statusChangedAtUtc && current.status !== "Scheduled" && <div className="alv-form-answers__row"><dt>{statusWord(current.status)} at</dt><dd>{new Date(current.statusChangedAtUtc).toLocaleString()}</dd></div>}
+        {current.statusChangedAtUtc && current.status !== "Scheduled" && <div className="alv-form-answers__row"><dt>{statusWord(current.status)} at</dt><dd>{showInstant(current.statusChangedAtUtc)}</dd></div>}
       </dl>
       {current.status === "Scheduled" && actions?.nextActorText && <p className="cal-panel__next">{actions.nextActorText}</p>}
 

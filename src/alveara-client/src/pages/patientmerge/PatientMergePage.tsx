@@ -7,6 +7,7 @@ import type { Dismissal, DuplicatePair, DuplicateScan, MergeLogEntry, MergeResul
 import { MergeReview } from "./MergeReview";
 import { UnmergeReview } from "./UnmergeReview";
 import "../followups/followups.css";
+import { showInstant } from "../../time/practiceTime";
 
 interface Done { result: MergeResult; source: PatientBrief; survivor: PatientBrief }
 
@@ -130,7 +131,7 @@ export function PatientMergePage() {
                 {dismissals.map((d) => (
                   <tr key={d.id}>
                     <td><strong>{briefName(d.first)}</strong> and <strong>{briefName(d.second)}</strong></td>
-                    <td>{d.reason}</td><td>{d.dismissedByName || d.dismissedByUserId}</td><td>{new Date(d.dismissedAtUtc).toLocaleString()}</td>
+                    <td>{d.reason}</td><td>{d.dismissedByName || d.dismissedByUserId}</td><td>{showInstant(d.dismissedAtUtc)}</td>
                     <td className="alv-fu-actions"><Button type="button" disabled={busy} onClick={() => restore(d)} aria-label={`Suggest ${briefName(d.first)} and ${briefName(d.second)} again`}>Suggest again</Button></td>
                   </tr>
                 ))}
@@ -146,14 +147,14 @@ export function PatientMergePage() {
               <tbody>
                 {log.map((m) => (
                   <tr key={m.mergeId}>
-                    <td>{new Date(m.mergedAtUtc).toLocaleString()}</td>
+                    <td>{showInstant(m.mergedAtUtc)}</td>
                     <td>{briefName(m.source)}</td>
                     <td><Link to={`/patients/${m.survivor.id}`}>{briefName(m.survivor)}</Link></td>
                     <td>{m.mergedByName || m.mergedByUserId}</td>
                     <td>{m.reason}</td>
                     <td>{m.rowsMoved}</td>
                     <td>{m.recordsLeftBehind}</td>
-                    <td>{m.undoneAtUtc ? `Undone ${new Date(m.undoneAtUtc).toLocaleDateString()} by ${m.undoneByName || "an administrator"}` : "In force"}</td>
+                    <td>{m.undoneAtUtc ? `Undone ${showInstant(m.undoneAtUtc, "date")} by ${m.undoneByName || "an administrator"}` : "In force"}</td>
                     <td className="alv-fu-actions">{m.canUndo && <Button type="button" onClick={() => { setUndoing(m.mergeId); setNotice(null); setError(null); }} aria-label={`Undo the merge of ${briefName(m.source)} into ${briefName(m.survivor)}`}>Undo</Button>}</td>
                   </tr>
                 ))}

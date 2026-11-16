@@ -10,8 +10,9 @@ import { emptyVitals, recordVitals, voidVitals } from "../../../services/clinica
 import type { VitalsInput } from "../../../services/clinicalNotesApi";
 import type { SaveResult } from "../SectionPanel";
 import "../Clinical.css";
+import { showInstant } from "../../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 interface Props {
   encounter: EncounterDetail;

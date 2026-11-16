@@ -8,8 +8,9 @@ import { EntryForm } from "../EntryForm";
 import type { SaveResult } from "../SectionPanel";
 import { ItemHistory } from "./ItemHistory";
 import "../Clinical.css";
+import { showInstant } from "../../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleDateString();
+const when = (iso: string) => showInstant(iso, "date");
 
 interface Props {
   item: RecordItem;

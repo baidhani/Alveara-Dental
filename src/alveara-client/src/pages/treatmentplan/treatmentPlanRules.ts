@@ -4,13 +4,14 @@
  */
 import { isPrimary, isToothKey } from "../odontogram/toothNumbering";
 import type { PlanItem, PlanItemInput, PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
+import { showInstant } from "../../time/practiceTime";
 
 /** STORY-008: the procedures "Review and complete" would offer: accepted, not withdrawn and not yet completed. */
 export const acceptedOpenItems = (plan: TreatmentPlan): PlanItem[] =>
   plan.items.filter((i) => !i.isWithdrawn && i.acceptance === "Accepted" && i.completion !== "Completed");
 
 /** A moment in the reader's own date and time format. */
-export const when = (iso: string) => new Date(iso).toLocaleString();
+export const when = (iso: string) => showInstant(iso);
 
 /** A calendar day (no time of day) in the reader's own date format. */
 export const dayOf = (isoDate: string) => new Date(`${isoDate}T00:00:00`).toLocaleDateString();

@@ -2,8 +2,9 @@ import type { Diagnosis } from "../../services/diagnosisApi";
 import { displayTooth, toothName } from "../odontogram/toothNumbering";
 import type { NumberingSystem } from "../odontogram/toothNumbering";
 import { REGION_LABELS, sourceText } from "./diagnosisStructureRules";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 const LINK_LABELS: Record<string, string> = { Finding: "Finding", PerioExam: "Periodontal chart" };
 
 /**

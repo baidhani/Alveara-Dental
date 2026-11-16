@@ -8,6 +8,7 @@ import { getChart } from "../../services/odontogramApi";
 import type { Finding } from "../../services/odontogramApi";
 import { getPerioCharts } from "../../services/perioApi";
 import type { PerioChart } from "../../services/perioApi";
+import { showInstant } from "../../time/practiceTime";
 
 interface Props {
   diagnosis: Diagnosis;
@@ -15,7 +16,7 @@ interface Props {
   onCancel: () => void;
 }
 
-const when = (iso: string) => new Date(iso).toLocaleDateString();
+const when = (iso: string) => showInstant(iso, "date");
 const findingText = (f: Finding) => `${f.conditionLabel} on tooth ${f.toothKey}${f.surface ? `, surface ${f.surface}` : ""}`;
 
 /**

@@ -1,7 +1,8 @@
 import type { BackupStatus } from "../../services/backupApi";
 import { assetLabel, describeBackupCode, formatBytes } from "./backupMessages";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "never");
+const when = (iso: string | null) => (iso ? showInstant(iso) : "never");
 
 /**
  * The truthful state of backups at a glance. A failure is shown prominently and is NOT hidden behind

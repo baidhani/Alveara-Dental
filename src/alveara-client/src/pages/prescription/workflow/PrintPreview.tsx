@@ -4,9 +4,10 @@ import { getPrint } from "../../../services/prescriptionWorkflowApi";
 import type { PrintContent } from "../../../services/prescriptionWorkflowApi";
 import { statusWords } from "./workflowRules";
 import { formatDateOnly } from "../../../components/dateOnly";
+import { showInstant } from "../../../time/practiceTime";
 
 /** An instant (when it was prescribed) shown as the viewer's calendar day. */
-const day = (iso: string) => new Date(iso).toLocaleDateString();
+const day = (iso: string) => showInstant(iso, "date");
 
 /** The prescription as it prints: every line is the text the server built from the immutable record (nothing is worked out here), and a cancelled, discontinued or superseded prescription says so on its face. */
 export function PrescriptionPrint({ content }: { content: PrintContent }) {

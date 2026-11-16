@@ -7,8 +7,9 @@ import { EntryForm } from "../EntryForm";
 import type { SaveResult } from "../SectionPanel";
 import { RecordItemRow } from "./RecordItemRow";
 import "../Clinical.css";
+import { showInstant } from "../../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleDateString();
+const when = (iso: string) => showInstant(iso, "date");
 
 /** What a clinician is told about a section, in words (never by colour alone): who said what, and when. */
 function sectionStatement(section: RecordSection): string {

@@ -5,6 +5,7 @@ import { PERIO_LINK_LABELS, PERIO_LINK_TYPES, linkPerioChart, perioProblemsOf } 
 import type { PerioChart } from "../../services/perioApi";
 import { displayTooth, toothName } from "../odontogram/toothNumbering";
 import type { NumberingSystem } from "../odontogram/toothNumbering";
+import { showInstant } from "../../time/practiceTime";
 
 /** What a saved chart records about whole teeth: mobility, furcation, and teeth not charted. Blank means not assessed, in words. */
 export function PerioToothRecords({ chart, numbering }: { chart: PerioChart; numbering: NumberingSystem }) {
@@ -35,7 +36,7 @@ interface LinksProps {
   onChanged: (chart: PerioChart) => void;
 }
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /**
  * The records a chart is linked to (a diagnosis, treatment plan, encounter or history entry) by reference. A link is added, never edited or removed; adding the same one again changes nothing. The

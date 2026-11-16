@@ -32,3 +32,13 @@ export function classifyLoginFailure(err: unknown): LoginFormState {
   return { kind: "unexpected-error" };
 }
 
+/**
+ * ALV-N021 A3 (inventory row 3): the lockout is shown on the sign-in page, before any session exists, so there is no practice zone to show a clock time
+ * in. It is shown as a duration instead ("Try again in 12 minutes."), from the server's instant and the elapsed time on this device only.
+ */
+export function tryAgainIn(lockedUntilUtc: string, nowMs: number = Date.now()): string {
+  const until = Date.parse(lockedUntilUtc);
+  if (Number.isNaN(until)) return "Try again later.";
+  const minutes = Math.max(1, Math.ceil((until - nowMs) / 60_000));
+  return `Try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}.`;
+}

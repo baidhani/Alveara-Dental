@@ -6,6 +6,7 @@ import { LoadingState, EmptyState, ErrorState } from "../../components/StatePatt
 import { ApiError } from "../../services/authApi";
 import { clearHistory, hideNotification, listNotifications, markAllRead, markRead, notificationPatientLink } from "../../services/notificationsApi";
 import type { NotificationView, Paged } from "../../services/notificationsApi";
+import { showInstant } from "../../time/practiceTime";
 
 type View = "unread" | "history";
 type State = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; data: Paged<NotificationView> };
@@ -13,7 +14,7 @@ type State = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; data: P
 const KIND_LABEL: Record<string, string> = { "document.duplicate_added": "A duplicate document was added", "message.received": "New message", "followup.due": "A follow-up is due",
   // ALV-N020 (F-021): sent Urgent to administrators and office managers; it carries no patient link, so it shows as text only
   "staff.inactivation_failed": "A staff inactivation failed; the login was not disabled" };
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /** ALV-N015: the caller's own notifications. Unread ones can be marked read; only read ones can be hidden (a hidden entry is kept, never deleted). */
 export function NotificationsPage() {

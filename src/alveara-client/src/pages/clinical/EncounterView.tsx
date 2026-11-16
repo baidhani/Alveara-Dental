@@ -20,11 +20,12 @@ import { SafetyStrip } from "../safety/SafetyStrip";
 import { SectionPanel } from "./SectionPanel";
 import type { SaveResult } from "./SectionPanel";
 import "./Clinical.css";
+import { showInstant } from "../../time/practiceTime";
 
 type Load = { kind: "loading" } | { kind: "not-found" } | { kind: "error" } | { kind: "loaded"; encounter: EncounterDetail };
 type Saving = { kind: "idle" } | { kind: "saving" } | { kind: "saved"; text: string } | { kind: "failed"; text: string };
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /**
  * STORY-005: one encounter - document medical and dental history, allergies and medications while it is a draft, review and finalize it, and read it (with its addenda

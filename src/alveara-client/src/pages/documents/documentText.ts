@@ -1,5 +1,6 @@
 /** Text helpers for the Documents tab. Display only: every rule is enforced by the server. */
 import { formatDateOnly } from "../../components/dateOnly";
+import { showInstant } from "../../time/practiceTime";
 
 export function formatBytes(bytes: number): string {
   const trim = (n: number) => String(Math.round(n * 10) / 10);
@@ -11,7 +12,7 @@ export function formatBytes(bytes: number): string {
 /** A date-only value from the server ("2030-03-09") shown in the viewer's own format, without letting the time zone move the day. */
 export const formatDate = (isoDate: string): string => formatDateOnly(isoDate);
 
-export const formatDateTime = (iso: string) => new Date(iso).toLocaleString();
+export const formatDateTime = (iso: string) => showInstant(iso);
 
 /** Today's date in the viewer's own calendar, as the value a date box takes. */
 export function todayValue(now = new Date()): string {
@@ -28,7 +29,7 @@ export const FILE_ERROR_CODES: ReadonlySet<string> = new Set([
 ]);
 
 /** An encounter shown by the day it took place (the viewer's own date format). */
-export const encounterLabel = (atUtc: string) => new Date(atUtc).toLocaleDateString();
+export const encounterLabel = (atUtc: string) => showInstant(atUtc, "date");
 
 /** One line of a document's history in words. */
 export function historyText(e: { kind: string; fromCategoryName: string | null; toCategoryName: string | null; byName: string; atUtc: string }): string {

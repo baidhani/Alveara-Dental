@@ -16,6 +16,7 @@ import { addDays, dayLabel, practiceNow } from "../calendar/calendarLayout";
 import { VisitCardView } from "./VisitCardView";
 import { DONE_LABELS, STATE_LABELS, explainVisitRefusal } from "./visitLabels";
 import { boardNowMs } from "./visitTime";
+import { showInstant } from "../../time/practiceTime";
 import "./FlowBoard.css";
 
 const POLL_MS = 15_000;
@@ -24,7 +25,7 @@ const CLOCK_TICK_MS = 30_000;
 
 type Load = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; snapshot: SchedulingSnapshot };
 
-const clock = (ms: number) => new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const clock = (ms: number) => showInstant(ms, "time-seconds");   // ALV-N021 A3: the board's "now" in the practice zone
 
 /**
  * ALV-011-C01: the live visit board - a shared view of where every patient is today and what happens next.

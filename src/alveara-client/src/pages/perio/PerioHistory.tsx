@@ -7,6 +7,7 @@ import type { NumberingSystem } from "../odontogram/toothNumbering";
 import { SITE_NAMES } from "./perioChartRules";
 import type { Site } from "./perioChartRules";
 import { DEEP_POCKET_MM, summarize } from "./perioSummary";
+import { showInstant } from "../../time/practiceTime";
 
 interface Props {
   patientId: string;
@@ -22,7 +23,7 @@ interface Props {
   onChartChanged: (chart: PerioChart) => void;
 }
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 /**

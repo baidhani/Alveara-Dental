@@ -1,6 +1,7 @@
 import { Button } from "../../components/Button";
 import type { ArchiveInfo } from "../../services/backupApi";
 import { formatBytes } from "./backupMessages";
+import { showInstant } from "../../time/practiceTime";
 
 /**
  * Disaster-recovery entry point: the retained backup files found on disk, listed WITHOUT needing any backup
@@ -34,7 +35,7 @@ export function ArchivePanel({ archives, onRestore }: { archives: ArchiveInfo[];
               <tr key={a.ref}>
                 <td>{a.fileName}</td>
                 <td>{a.location === "import" ? "Import folder" : "Backup folder"}</td>
-                <td>{new Date(a.modifiedUtc).toLocaleString()}</td>
+                <td>{showInstant(a.modifiedUtc)}</td>
                 <td>{formatBytes(a.sizeBytes)}</td>
                 <td>{!a.readable ? "Not a readable backup" : a.inHistory ? "In history" : "Not in history"}</td>
                 <td>

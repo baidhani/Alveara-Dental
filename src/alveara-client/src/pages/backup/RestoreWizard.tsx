@@ -7,6 +7,7 @@ import { ApiError } from "../../services/authApi";
 import { preflightArchive, preflightBackup, runArchiveRestoreDrill, runRestoreDrill, verifyBackupFully } from "../../services/backupApi";
 import type { ArchiveInfo, BackupRecord, PreflightResult, RecoveryMaterial, RestoreDrill, ValidationCheck } from "../../services/backupApi";
 import { describeBackupCode, describeBackupError } from "./backupMessages";
+import { showInstant } from "../../time/practiceTime";
 
 type Stage =
   | { kind: "material" }
@@ -129,7 +130,7 @@ export function RestoreWizard({ record, archive, onClose, onChanged }: { record?
   return (
     <section className="alv-config-panel__form alv-backup-wizard" role="dialog" aria-label="Restore wizard" aria-modal="false">
       <h2 className="alv-config-panel__form-title">
-        Restore wizard - {archive ? `retained backup file ${archive.fileName}` : `backup of ${new Date(record!.startedAtUtc).toLocaleString()}`}
+        Restore wizard - {archive ? `retained backup file ${archive.fileName}` : `backup of ${showInstant(record!.startedAtUtc)}`}
       </h2>
       <p className="alv-backup-alert alv-backup-alert--info">
         This never overwrites your live data. A restore creates a NEW, isolated copy (its own database and folder) so you can check it before anything else is done. Putting a restored copy

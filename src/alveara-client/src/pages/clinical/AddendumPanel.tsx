@@ -7,8 +7,9 @@ import { addAddendum, clinicalFieldErrorsOf, isNetworkFailure, newKey } from "..
 import type { EncounterDetail } from "../../services/clinicalApi";
 import { AMENDABLE_LABELS } from "../../services/clinicalNotesApi";
 import "./Clinical.css";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 interface Props {
   encounter: EncounterDetail;

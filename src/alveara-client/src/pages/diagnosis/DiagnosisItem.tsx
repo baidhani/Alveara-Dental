@@ -10,8 +10,9 @@ import { DiagnosisForm } from "./DiagnosisForm";
 import { DiagnosisHistory } from "./DiagnosisHistory";
 import { DiagnosisLinkForm } from "./DiagnosisLinkForm";
 import { DiagnosisReasonForm } from "./DiagnosisReasonForm";
+import { showInstant } from "../../time/practiceTime";
 
-const when = (iso: string) => new Date(iso).toLocaleString();
+const when = (iso: string) => showInstant(iso);
 
 /** How a reference was tied to its plan, in words. */
 const methodWords = (method: string | null | undefined) =>
@@ -27,7 +28,7 @@ export function PlanReference({ value, resolved }: { value: string | null; resol
     return (
       <span className="alv-dx__reference">
         Treatment plan reference (tied to a plan): <strong>{value}</strong> is the treatment plan <Link to={`/patients/${resolved.patientId}/treatment-plan`} className="alv-workspace__link">{resolved.title ?? "this patient's plan"}</Link>.
-        <span className="alv-clinical__meta"> {methodWords(resolved.method)[0].toUpperCase() + methodWords(resolved.method).slice(1)}{resolved.byName ? ` by ${resolved.byName}` : ""}{resolved.atUtc ? `, ${new Date(resolved.atUtc).toLocaleString()}` : ""}. The original text is kept as it was written.</span>
+        <span className="alv-clinical__meta"> {methodWords(resolved.method)[0].toUpperCase() + methodWords(resolved.method).slice(1)}{resolved.byName ? ` by ${resolved.byName}` : ""}{resolved.atUtc ? `, ${showInstant(resolved.atUtc)}` : ""}. The original text is kept as it was written.</span>
       </span>
     );
   }

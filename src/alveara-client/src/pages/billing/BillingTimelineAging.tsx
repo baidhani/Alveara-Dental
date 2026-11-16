@@ -3,6 +3,7 @@ import { getAging, getTimeline, isAgingView, isTimeline } from "../../services/b
 import type { AgingView, TimelineEvent } from "../../services/billingStatementsApi";
 import { formatMoney } from "../../services/billingApi";
 import { BillingChargeSource } from "./BillingChargeSource";
+import { showInstant } from "../../time/practiceTime";
 
 const money = (text: string) => `$${text}`;
 
@@ -51,7 +52,7 @@ export function BillingTimeline({ patientId, version, canViewClinical = false }:
         <ol className="alv-bill__timeline" aria-label="Account timeline">
           {events.map((e, i) => (
             <li key={`${e.type}-${e.number}-${i}`}>
-              <span className="alv-bill__when">{new Date(e.atUtc).toLocaleString()}</span> <strong>{e.type}</strong>{e.number !== null ? ` ${e.number}` : ""}: {e.summary}
+              <span className="alv-bill__when">{showInstant(e.atUtc)}</span> <strong>{e.type}</strong>{e.number !== null ? ` ${e.number}` : ""}: {e.summary}
               {e.amount !== null && ` (${formatMoney(e.amount)})`}{e.source && <span className="alv-bill__standing"> - {e.source}</span>}{e.actorName && <span className="alv-bill__standing"> - {e.actorName}</span>}
               {e.type === "Charge" && e.planItemId && e.number !== null && (
                 <>{" "}<button type="button" className="btn btn-outline-secondary" aria-expanded={sourceOf === e.number} onClick={() => setSourceOf((cur) => (cur === e.number ? null : e.number))}>{sourceOf === e.number ? `Hide source of charge ${e.number}` : `View source of charge ${e.number}`}</button></>

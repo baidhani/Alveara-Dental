@@ -3,6 +3,7 @@ import { EmptyState, ErrorState, LoadingState } from "../components/StatePattern
 import { getPatientHistory } from "../services/patientsApi";
 import type { PatientDetail, PatientHistoryRow } from "../services/patientsApi";
 import "./PatientWorkspace.css";
+import { showInstant } from "../time/practiceTime";
 
 const FIELD_LABELS: Record<string, string> = {
   firstName: "First name", middleName: "Middle name", lastName: "Last name", dateOfBirth: "Date of birth", sex: "Sex",
@@ -58,7 +59,7 @@ export function PatientHistoryPanel({ patient }: { patient: PatientDetail }) {
               const { from, to } = describe(r);
               return (
                 <tr key={r.id}>
-                  <td>{new Date(r.changedAtUtc).toLocaleString()}</td>
+                  <td>{showInstant(r.changedAtUtc)}</td>
                   <td>{FIELD_LABELS[r.fieldName] ?? r.fieldName}</td>
                   <td>{from}</td>
                   <td>{to}</td>
@@ -68,7 +69,7 @@ export function PatientHistoryPanel({ patient }: { patient: PatientDetail }) {
           </tbody>
         </table>
       )}
-      <p className="alv-workspace__note">Registered {new Date(patient.createdAtUtc).toLocaleString()}.</p>
+      <p className="alv-workspace__note">Registered {showInstant(patient.createdAtUtc)}.</p>
     </section>
   );
 }

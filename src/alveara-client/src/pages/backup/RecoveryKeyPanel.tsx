@@ -7,6 +7,7 @@ import { useUnsavedChangesWarning } from "../../hooks/useUnsavedChangesWarning";
 import { configureRecoveryKey } from "../../services/backupApi";
 import type { BackupSettings } from "../../services/backupApi";
 import { describeBackupError } from "./backupMessages";
+import { showInstant } from "../../time/practiceTime";
 
 type Step =
   | { kind: "idle" }
@@ -83,7 +84,7 @@ export function RecoveryKeyPanel({ settings, onChanged }: { settings: BackupSett
           {settings.recoveryKeyConfigured ? (
             <p>
               A recovery key is set up (fingerprint <code>{settings.recoveryKeyFingerprint?.slice(0, 16)}</code>
-              {settings.recoveryKeyConfiguredAtUtc ? `, ${new Date(settings.recoveryKeyConfiguredAtUtc).toLocaleDateString()}` : ""}). The server holds only its public half, so it can create
+              {settings.recoveryKeyConfiguredAtUtc ? `, ${showInstant(settings.recoveryKeyConfiguredAtUtc, "date")}` : ""}). The server holds only its public half, so it can create
               backups but can never read them back - restoring needs the key file and passphrase you stored offline.
             </p>
           ) : (

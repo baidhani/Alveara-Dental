@@ -6,6 +6,7 @@ import { Button } from "../components/Button";
 import { ApiError, AUDIT_LOG_WINDOW, getAuditLog } from "../services/authApi";
 import type { AuditLogEntry } from "../services/authApi";
 import "./AuditLogPage.css";
+import { showInstant } from "../time/practiceTime";
 
 type PageState =
   | { kind: "loading" }
@@ -74,7 +75,7 @@ export function AuditLogPage() {
             <tbody>
               {state.entries.map((entry) => (
                 <tr key={entry.id}>
-                  <td>{new Date(entry.timestampUtc).toLocaleString()}</td>
+                  <td>{showInstant(entry.timestampUtc)}</td>
                   <td>{entry.eventType}</td>
                   <td>
                     {entry.entityType ?? "—"} <span className="alv-audit-log__id">{entry.targetUserAccountId}</span>
