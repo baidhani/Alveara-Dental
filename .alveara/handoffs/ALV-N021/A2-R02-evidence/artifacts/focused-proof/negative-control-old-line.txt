@@ -1,0 +1,14 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:02.12]     Alveara.Api.Tests.TimeCultureGuardTests.Every_fixed_format_date_or_time_in_the_api_names_the_invariant_culture [FAIL]
+  Failed Alveara.Api.Tests.TimeCultureGuardTests.Every_fixed_format_date_or_time_in_the_api_names_the_invariant_culture [96 ms]
+  Error Message:
+   Name CultureInfo.InvariantCulture at:
+Alveara.Api.ChainHost/ChainHostMain.cs:22: var ok = DateTimeOffset.TryParse(value, null, DateTimeStyles.AssumeUniversal, out var parsed);   // NEGATIVE CONTROL: process culture, as in A2-R01
+  Stack Trace:
+     at Alveara.Api.Tests.TimeCultureGuardTests.Every_fixed_format_date_or_time_in_the_api_names_the_invariant_culture() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\TimeCultureGuardTests.cs:line 62
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+
+Failed!  - Failed:     1, Passed:    32, Skipped:     0, Total:    33, Duration: 238 ms - Alveara.Api.Tests.dll (net10.0)
+RESTORED-HASH-OK

@@ -81,6 +81,7 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 ## ALV-N021 (item 58): PKG-04/PKG-05 - attempt A2 (PKG-05 visit workflow and checkout gate; decision 02 T-2, T-3)
 
 - **Implementation SHA (A2-R01):** `2ef081770e12dc880b8ee52306ea5097e2e16cfa` (base `9d6e533`). Changed subsystems: visit workflow (one path, move policy, actions list, undo check-in), checkout gate (evaluator, recorder, panel), scheduling (reassignment with notifications, blocked time over bookings, cancel category, calendar blocked-time read route, history from/to), billing (`CollectPayments`), configuration (visit-workflow settings), client calendar, board, schedule, configuration pages; migrations M1-M6; permissions `CompleteOwnStartedVisit`, `ReassignAppointmentProvider`, `CollectPayments`; test-only chain clock-advance route.
-- **Focused proof and final evidence run (A2-R01):** `.alveara/handoffs/ALV-N021/A2-R01-evidence/TEST_RESULTS.md`.
+- **Focused proof and final evidence run (A2-R01):** `.alveara/handoffs/ALV-N021/A2-R01-evidence/TEST_RESULTS.md`. These runs are pre-Stage-1, unreviewed diagnostic evidence (review A2-R01).
+- **Implementation SHA (A2-R02):** `b7efad658138698547d1b887cb8789942c1ee350` (review CR-1 only: chain-host clock parse on the invariant culture, guard widened). Focused proof: `.alveara/handoffs/ALV-N021/A2-R02-evidence/TEST_RESULTS.md`.
 - **Deferred to ALV-N028:** the ALV-N021 A2 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**

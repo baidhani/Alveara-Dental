@@ -2912,3 +2912,9 @@
   - What changed: ChainHostMain.TryParseClockUtc (DateTimeOffset.TryParse with CultureInfo.InvariantCulture, AssumeUniversal | AdjustToUniversal, result in UTC) replaces TryParse(..., null, AssumeUniversal) in Main. New ChainHostClockParseTests (3 tests x th-TH, dotted-time, invariant: Z / offset / no-offset ISO text give the same UTC instant; the default parses; non-instants refused). TimeCultureGuardTests: scans src/Alveara.Api.ChainHost too; flags date Parse/TryParse without the invariant culture; asserts it sees the chain-host parse; negative examples incl. the exact A2-R01 line.
   - Verification: TimeCultureGuardTests + ChainHostClockParseTests 33/33 (4 s); negative control (old null-culture line restored in TryParseClockUtc) -> the guard fails naming ChainHostMain.cs:22, while the 9 culture cases still pass (.NET reads this ISO text identically under these cultures, so they prove the accepted value, the guard prevents the regression); file restored from backup, hash identical, 33/33 again.
   - Notes: the only other non-exact date parse (BillingService.Documents.cs) already names the invariant culture. No broad rerun (review). Nothing pushed.
+- [x] ALV-N021 A2-R02 handoff package (AWAITING_REVIEW)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/handoffs/ALV-N021/A2-R02.md and A2-R02-evidence/ (TEST_RESULTS with R1-R3 and the honest note that the culture cases pass with the old line too, ACCEPTANCE_EVIDENCE for CR-1, CHANGED_FILES with the diff, short PARENT/DEMO/NEXT notes, focused-proof logs); EXECUTION_STATUS A2-R02 AWAITING_REVIEW (A2-R01 decision kept in priorDecisions, CR-1 moved to priorBlockingIssues); BUILD_STATE; ledger lines (R01 runs labelled pre-Stage-1 diagnostic evidence, R02 SHA).
+  - Verification: the focused runs in A2-R02-evidence/TEST_RESULTS.md (implementation b7efad6).
+  - Notes: documentation only; A2-R01 files untouched. Nothing pushed.
