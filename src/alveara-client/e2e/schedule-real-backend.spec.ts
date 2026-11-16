@@ -151,10 +151,14 @@ test("ACCEPTANCE 1: with an available provider the appointment is confirmed, sho
   await shot(desk, "01-schedule-form.png");
   await desk.getByRole("button", { name: "Book appointment" }).click();
 
-  const confirmed = desk.getByText("Appointment confirmed.");
+  const confirmed = desk.getByText("Appointment booked.");
   await expect(confirmed).toBeVisible();
   await expect(confirmed.locator("..")).toContainText("Ann Schedule with Dr. Rivera in Op 1, 2030-01-14 09:00–10:00 (Exam)");
   await expect(desk.getByRole("table", { name: /Booked appointments/ }).getByText("09:00–10:00")).toBeVisible();
+  // ALV-N021 A2 (F-069): the row says where it stands and opens the appointment in the calendar
+  const row = desk.getByRole("table", { name: /Booked appointments/ }).getByRole("row", { name: /09:00–10:00/ });
+  await expect(row.getByRole("cell").nth(2)).toHaveText("Scheduled");
+  await expect(row.getByRole("link", { name: "Ann Schedule", exact: true })).toHaveAttribute("href", /^\/patients\/[0-9a-f-]{36}$/);
   await shot(desk, "02-confirmed.png");
   await scanBothThemes(desk, "confirmed");
 
@@ -208,7 +212,7 @@ test("FAILURE PATHS: an operatory in use, an unavailable provider (hours and blo
 test("BACK TO BACK: a corrected request that starts exactly when the first ends is accepted", async () => {
   await fillForm(desk, { provider: "Dr. Rivera", operatory: "Op 1", type: "Exam", time: "10:00" });
   await desk.getByRole("button", { name: "Book appointment" }).click();
-  await expect(desk.getByText("Appointment confirmed.")).toBeVisible();
+  await expect(desk.getByText("Appointment booked.")).toBeVisible();
   const booked = await appointmentsOn(desk);
   expect(booked.map((a) => `${a.startLocal.slice(11)}-${a.endLocal.slice(11)}`)).toEqual(["09:00-10:00", "10:00-11:00"]);
   evidence.backToBack = booked.map((a) => `${a.startLocal.slice(11)}-${a.endLocal.slice(11)}`);
@@ -237,7 +241,7 @@ test("DROPPED CONNECTION: the booking is stored but the answer is lost; the page
   await shot(desk, "06-unknown-outcome.png");
   await scanBothThemes(desk, "unknown-outcome");
   await desk.getByRole("button", { name: "Book again" }).click();
-  await expect(desk.getByText("Appointment confirmed.")).toBeVisible();
+  await expect(desk.getByText("Appointment booked.")).toBeVisible();
   await desk.unroute("**/api/appointments");
 
   expect(keys).toHaveLength(2);
@@ -318,6 +322,6 @@ test("KEYBOARD: an appointment can be booked without a mouse", async () => {
   await desk.getByLabel("Start time *").fill("11:00");
   await desk.getByRole("button", { name: "Book appointment" }).focus();
   await desk.keyboard.press("Enter");
-  await expect(desk.getByText("Appointment confirmed.")).toBeVisible();
+  await expect(desk.getByText("Appointment booked.")).toBeVisible();
   evidence.keyboard = { booked: true };
 });

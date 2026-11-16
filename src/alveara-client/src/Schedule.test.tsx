@@ -90,8 +90,8 @@ describe("booking", () => {
     await fill();
     await book();
 
-    expect(await screen.findByText("Appointment confirmed.")).toBeInTheDocument();
-    expect(screen.getByText("Appointment confirmed.").parentElement).toHaveTextContent("Ann Lee with Dr. Rivera in Op 1, 2030-01-14 09:00–10:00 (Exam)");
+    expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
+    expect(screen.getByText("Appointment booked.").parentElement).toHaveTextContent("Ann Lee with Dr. Rivera in Op 1, 2030-01-14 09:00–10:00 (Exam)");
     const call = bookCalls()[0];
     expect(call.body).toMatchObject({ patientId: ANN, providerId: "prov-a", operatoryId: "op-1", appointmentTypeId: "type-60", startLocal: `${DAY}T09:00`, durationMinutes: null });
     expect(call.headers["Idempotency-Key"]).toMatch(/^book-/);
@@ -107,9 +107,9 @@ describe("booking", () => {
     await fill({ duration: "90" });
     await book();
 
-    expect(await screen.findByText("Appointment confirmed.")).toBeInTheDocument();
+    expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
     expect(bookCalls()[0].body).toMatchObject({ durationMinutes: 90 });
-    expect(screen.getByText("Appointment confirmed.").parentElement).toHaveTextContent("09:00–10:30");
+    expect(screen.getByText("Appointment booked.").parentElement).toHaveTextContent("09:00–10:30");
   });
 
   it("asks for the missing details instead of sending anything", async () => {
@@ -125,7 +125,7 @@ describe("booking", () => {
     await fill();
     await userEvent.dblClick(await screen.findByRole("button", { name: "Book appointment" }));
 
-    await screen.findByText("Appointment confirmed.");
+    await screen.findByText("Appointment booked.");
     expect(bookCalls()).toHaveLength(1);
   });
 });
@@ -136,7 +136,7 @@ describe("after a confirmation", () => {
     await pickPatient("Ann Lee");
     await fill();
     await book();
-    await screen.findByText("Appointment confirmed.");
+    await screen.findByText("Appointment booked.");
     expect(screen.getByRole("button", { name: "Book appointment" })).toBeDisabled();
 
     await pickPatient("Bo Kim");
@@ -155,6 +155,21 @@ describe("refusals are explained in plain words and nothing is booked", () => {
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Dr. Rivera already has an appointment from 09:00 to 10:00.");
     expect(alert).toHaveTextContent("Nothing was booked");
+    expect(server.appointments).toHaveLength(1);
+  });
+
+  // ALV-N021 A2 (F-072): the same-patient refusal has the same format as the others
+  it("a patient already booked at that time: names the time and says nothing was booked", async () => {
+    const other = server.addAppointment({ start: `${DAY}T09:00`, minutes: 60, provider: "prov-b", operatory: "op-2", patientName: "Ann Lee" });
+    other.patientId = ANN;
+    open();
+    await pickPatient("Ann Lee");
+    await fill({ time: "09:30" });
+    await book();
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("This patient already has an appointment from 09:00 to 10:00.");
+    expect(alert).toHaveTextContent("A patient cannot be in two places at once. Nothing was booked. Choose another time.");
     expect(server.appointments).toHaveLength(1);
   });
 
@@ -202,9 +217,36 @@ describe("refusals are explained in plain words and nothing is booked", () => {
     await userEvent.type(time, "10:00"); // exactly when the other appointment ends
     await book();
 
-    expect(await screen.findByText("Appointment confirmed.")).toBeInTheDocument();
+    expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
     expect(server.appointments).toHaveLength(2);
     expect(new Set(bookCalls().map((c) => c.headers["Idempotency-Key"])).size).toBe(2); // a changed request gets a new key
+  });
+});
+
+describe("the day's list (ALV-N021 A2, F-069, F-070)", () => {
+  it("says where each appointment stands and opens it in the calendar and the patient's record", async () => {
+    const a = server.addAppointment({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
+    a.patientId = ANN;
+    Object.assign(a, { flowState: "CheckedIn" });
+    open();
+    const date = await screen.findByLabelText("Day");
+    await userEvent.clear(date);
+    await userEvent.type(date, DAY);
+    const table = within(await screen.findByRole("table", { name: /Booked appointments/ }));
+    expect(table.getByRole("columnheader", { name: "Status" })).toBeInTheDocument();
+    const row = within(table.getAllByRole("row")[1]);
+    expect(row.getByText("Checked in")).toBeInTheDocument();
+    expect(row.getByRole("link", { name: "09:00–10:00: open the appointment of Ann Lee in the calendar" })).toHaveAttribute("href", `/calendar?day=${DAY}&appointment=${a.id}`);
+    expect(row.getByRole("link", { name: "Ann Lee" })).toHaveAttribute("href", `/patients/${ANN}`);
+  });
+
+  it("a successful booking says booked, never confirmed (confirming is a later visit step)", async () => {
+    open();
+    await pickPatient("Ann Lee");
+    await fill({});
+    await book();
+    expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
+    expect(screen.queryByText(/Appointment confirmed/)).not.toBeInTheDocument();
   });
 });
 
@@ -222,7 +264,7 @@ describe("a dropped connection never books twice", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Book again" }));
 
-    expect(await screen.findByText("Appointment confirmed.")).toBeInTheDocument();
+    expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
     const keys = bookCalls().map((c) => c.headers["Idempotency-Key"]);
     expect(keys).toHaveLength(2);
     expect(keys[0]).toBe(keys[1]);
@@ -277,7 +319,7 @@ describe("accessibility", () => {
     await userEvent.clear(time);
     await userEvent.type(time, "13:00");
     await book();
-    await screen.findByText("Appointment confirmed.");
+    await screen.findByText("Appointment booked.");
     expect(await axe(container)).toHaveNoViolations();
   });
 });

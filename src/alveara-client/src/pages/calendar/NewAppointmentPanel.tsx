@@ -65,7 +65,7 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
         setLines(await explainRefusal(err, {
           provider: snapshot.providers.find((p) => p.providerId === place.providerId)?.displayName,
           operatory: snapshot.operatories.find((o) => o.id === place.operatoryId)?.name,
-        }));
+        }, "book"));
       } else setUnconfirmed(true); // no response at all: it may or may not be booked; the same key is kept
     } finally {
       setBusy(false);

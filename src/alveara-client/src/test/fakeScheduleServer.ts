@@ -117,6 +117,8 @@ export class FakeScheduleServer extends FakePatientServer {
     if (providerClash) return json(409, { error: "provider_double_booked", message: "The provider already has an appointment during that time.", conflictingAppointmentId: providerClash.id });
     const operatoryClash = this.appointments.find((a) => a.operatoryId === operatory.id && overlaps(a));
     if (operatoryClash) return json(409, { error: "operatory_conflict", message: "The operatory is already in use during that time.", conflictingAppointmentId: operatoryClash.id });
+    const patientClash = this.appointments.find((a) => a.patientId === String(body.patientId) && overlaps(a));   // ALV-N021 A2 (F-072): like the server
+    if (patientClash) return json(409, { error: "patient_double_booked", message: "The patient already has an appointment during that time.", conflictingAppointmentId: patientClash.id });
 
     const patient = this.patients.get(String(body.patientId))!;
     const a: Appointment = {

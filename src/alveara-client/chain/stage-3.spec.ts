@@ -187,7 +187,7 @@ test("3.10 two windows book the same free slot (Dr. Dana, Operatory 1, 15:00) fr
   at.slot1500 = at1500[0].id;
   const loser = at1500[0].patientName === "Dev Dalton" ? pages.desk2! : pages.desk!;
   await expect(drawerOf(loser).getByRole("alert")).toContainText(/Dr\. Dana already has an appointment|Operatory 1 is already in use/);
-  await expect(drawerOf(loser).getByRole("alert")).toContainText("Nothing was changed.");
+  await expect(drawerOf(loser).getByRole("alert")).toContainText("Nothing was booked.");   // ALV-N021 A2 (F-072): a refused booking says booked
 });
 
 test("3.13 day and week views, the provider and operatory filters and Today change what is shown; working hours are marked", async () => {
@@ -224,4 +224,9 @@ test("3.14 the Schedule page lists the same appointments for the day as the cale
   const rows = desk.getByRole("table", { name: /Booked appointments/ }).locator("tbody tr");
   await expect(rows).toHaveCount(scheduled.length);
   for (const a of scheduled) await expect(desk.getByRole("table", { name: /Booked appointments/ })).toContainText(`${a.startLocal.slice(11)}–${a.endLocal.slice(11)}`);
+  // ALV-N021 A2 (F-069): a row opens its appointment in the calendar - the drawer of exactly that appointment
+  const first = scheduled[0];
+  await desk.getByRole("link", { name: new RegExp(`^${first.startLocal.slice(11)}–${first.endLocal.slice(11)}: open the appointment of `) }).first().click();
+  await expect(desk).toHaveURL(new RegExp(`/calendar\\?day=${DAY}&appointment=`));
+  await expect(drawerOf(desk).getByRole("heading", { level: 2 })).toBeVisible();
 });

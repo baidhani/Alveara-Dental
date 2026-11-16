@@ -51,3 +51,12 @@
   gap: var(--space-3);
   margin-bottom: var(--space-3);
 }
+
+/* ALV-N021 A2 (F-069): the list's links. --color-info is the readable link colour in both themes (--color-primary is a button background in the dark theme, 1.77:1). */
+.alv-schedule__day a {
+  color: var(--color-info);
+}
+
+.alv-schedule__day a:hover {
+  text-decoration-thickness: 2px;
+}

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { PageHeader } from "../../components/PageHeader";
 import { ErrorState, LoadingState } from "../../components/StatePatterns";
@@ -44,13 +45,16 @@ export function CalendarPage() {
   const [announcement, setAnnouncement] = useState("");
   const drawerRef = useRef<HTMLDivElement>(null);
   const ids = { provider: useId(), operatory: useId() };
+  // ALV-N021 A2 (F-069): /calendar?day=yyyy-MM-dd&appointment=<id> opens that day with that appointment's drawer (from the Schedule list); read once
+  const [params] = useSearchParams();
+  const linked = useRef({ day: /^\d{4}-\d{2}-\d{2}$/.test(params.get("day") ?? "") ? params.get("day")! : "", appointment: params.get("appointment") ?? "" });
 
   useEffect(() => {
     const controller = new AbortController();
     getSchedulingSnapshot()
       .then((snapshot) => {
         if (controller.signal.aborted) return;
-        setDay((d) => d || dateOf(practiceNow(snapshot.timeZoneId)));
+        setDay((d) => d || linked.current.day || dateOf(practiceNow(snapshot.timeZoneId)));
         setLoad({ kind: "loaded", snapshot });
       })
       .catch(() => {
@@ -69,6 +73,8 @@ export function CalendarPage() {
       .then((rows) => {
         setFailed(false);
         setAppointments(rows);
+        const wanted = linked.current.appointment && rows.find((a) => a.id === linked.current.appointment);
+        if (wanted) { linked.current.appointment = ""; setDrawer({ kind: "appointment", appointment: wanted }); }
       })
       .catch(() => {
         if (!controller.signal.aborted) setFailed(true);

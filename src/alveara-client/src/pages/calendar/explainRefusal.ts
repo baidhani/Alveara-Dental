@@ -4,8 +4,11 @@ import { UNAVAILABLE_REASONS, conflictingAppointmentIdOf, getAppointment, timeOf
 /**
  * ALV-004-C01: turns a refused booking or reschedule into the plain words shown in the drawer, naming WHAT is in the way (the appointment already
  * holding the provider, operatory or patient, with its time) - the "conflict explanation". The server decides every conflict; this only explains.
+ * ALV-N021 A2 (F-072): every conflict has the same two lines - what is in the way, with its time; then "Nothing was booked." (a new booking) or "Nothing was changed."
+ * (a move), and what to do instead. The Schedule page and the calendar's booking drawer use this one function.
  */
-export async function explainRefusal(err: unknown, names: { provider?: string; operatory?: string }): Promise<string[]> {
+export async function explainRefusal(err: unknown, names: { provider?: string; operatory?: string }, action: "book" | "change" = "change"): Promise<string[]> {
+  const nothing = action === "book" ? "Nothing was booked." : "Nothing was changed.";
   if (!(err instanceof ApiError)) return ["Could not reach the server. Check your connection and try again."];
 
   const holderId = conflictingAppointmentIdOf(err);
@@ -20,13 +23,13 @@ export async function explainRefusal(err: unknown, names: { provider?: string; o
   }
   switch (err.code) {
     case "provider_double_booked":
-      return [`${names.provider ?? "The provider"} already has an appointment${holder || " during that time"}.`, "Nothing was changed. Choose another time or provider."];
+      return [`${names.provider ?? "The provider"} already has an appointment${holder || " during that time"}.`, `${nothing} Choose another time or provider.`];
     case "operatory_conflict":
-      return [`${names.operatory ?? "That operatory"} is already in use${holder || " during that time"}.`, "Nothing was changed. Choose another time or operatory."];
+      return [`${names.operatory ?? "That operatory"} is already in use${holder || " during that time"}.`, `${nothing} Choose another time or operatory.`];
     case "patient_double_booked":
-      return [`This patient already has an appointment${holder || " during that time"}.`, "A patient cannot be in two places at once. Nothing was changed."];
+      return [`This patient already has an appointment${holder || " during that time"}.`, `A patient cannot be in two places at once. ${nothing} Choose another time.`];
     case "provider_unavailable":
-      return [`${names.provider ?? "The provider"} is not available: ${UNAVAILABLE_REASONS[String(err.body.reason)] ?? "they are not available then"}.`, "Nothing was changed. Choose another time."];
+      return [`${names.provider ?? "The provider"} is not available: ${UNAVAILABLE_REASONS[String(err.body.reason)] ?? "they are not available then"}.`, `${nothing} Choose another time.`];
     case "schedule_busy":
       return ["The schedule is busy right now. Please try again in a moment."];
     case "appointment_not_scheduled":

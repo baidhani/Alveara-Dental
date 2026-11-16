@@ -205,6 +205,21 @@ describe("blocked time on the calendar (ALV-N021 A2, F-052)", () => {
   });
 });
 
+describe("a link to an appointment (ALV-N021 A2, F-069)", () => {
+  it("opens the calendar on that day with that appointment's drawer", async () => {
+    const a = server.seed({ start: "2030-01-16T11:00", patientName: "Cy Poe" });
+    open(`/calendar?day=2030-01-16&appointment=${a.id}`);
+    expect(await screen.findByRole("heading", { name: "Wednesday 2030-01-16" })).toBeInTheDocument();
+    expect(await within(await screen.findByRole("dialog")).findByRole("heading", { name: "Cy Poe" })).toBeInTheDocument();   // after the day's appointments load
+  });
+
+  it("an appointment that is not on that day opens no drawer, and a malformed day is ignored", async () => {
+    open("/calendar?day=not-a-day&appointment=nope");
+    await screen.findByRole("heading", { name: /\d{4}-\d{2}-\d{2}/ });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+});
+
 describe("a day nobody works (ALV-N021 A2, F-048)", () => {
   it("says there are no working hours and offers the next working day", async () => {
     await openOn("2030-01-19");   // a Saturday
@@ -352,7 +367,7 @@ describe("the appointment drawer", () => {
     server.seed({ start: `${DAY}T09:00`, minutes: 60, patientName: "Ann Lee" }); // Dr. Rivera, Op 1, 09:00-10:00
     await bookingWith({}); // Bo with Dr. Rivera in Op 2 at 09:30
     expect(await screen.findByRole("alert")).toHaveTextContent("Dr. Rivera already has an appointment from 09:00 to 10:00.");
-    expect(screen.getByRole("alert")).toHaveTextContent("Nothing was changed");
+    expect(screen.getByRole("alert")).toHaveTextContent("Nothing was booked. Choose another time or provider.");   // ALV-N021 A2 (F-072): a booking says booked
     expect(server.appointments).toHaveLength(1);
   });
 
@@ -368,7 +383,7 @@ describe("the appointment drawer", () => {
     ann.patientId = BO; // the existing appointment belongs to Bo
     await bookingWith({ provider: "Dr. Patel", operatory: "Op 2" });
     expect(await screen.findByRole("alert")).toHaveTextContent("This patient already has an appointment from 09:00 to 10:00.");
-    expect(screen.getByRole("alert")).toHaveTextContent("A patient cannot be in two places at once.");
+    expect(screen.getByRole("alert")).toHaveTextContent("A patient cannot be in two places at once. Nothing was booked. Choose another time.");
     expect(server.appointments).toHaveLength(1);
   });
 

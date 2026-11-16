@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { FormField } from "../../components/FormField";
 import { PageHeader } from "../../components/PageHeader";
@@ -12,9 +13,11 @@ import { getSchedulingSnapshot } from "../../services/configApi";
 import type { SchedulingSnapshot } from "../../services/configApi";
 import type { PatientSummary } from "../../services/patientsApi";
 import {
-  UNAVAILABLE_REASONS, conflictingAppointmentIdOf, dateOf, getAppointment, listAppointments, newScheduleKey, scheduleAppointment, timeOf,
+  dateOf, listAppointments, newScheduleKey, scheduleAppointment, timeOf,
 } from "../../services/schedulingApi";
 import type { Appointment } from "../../services/schedulingApi";
+import { explainRefusal } from "../calendar/explainRefusal";
+import { flowWord, statusWord } from "../calendar/calendarLayout";
 import { formFieldMessage } from "./scheduleMessages";
 import "./SchedulePage.css";
 
@@ -98,24 +101,11 @@ export function SchedulePage() {
   const provider = options.providers.find((p) => p.providerId === providerId);
   const operatory = options.operatories.find((o) => o.id === operatoryId);
 
+  // ALV-N021 A2 (F-072): a conflict is explained in the one shared format (what is in the way and when, then "Nothing was booked."), the same-patient conflict included;
+  // a field problem keeps its field-level words
   async function explain(err: unknown): Promise<string[]> {
     if (!(err instanceof ApiError)) return [];
-    const holder = conflictingAppointmentIdOf(err);
-    let when = "";
-    if (holder) {
-      try {
-        const a = await getAppointment(holder);
-        when = ` from ${timeOf(a.startLocal)} to ${timeOf(a.endLocal)}`;
-      } catch {
-        when = "";
-      }
-    }
-    if (err.code === "provider_double_booked") return [`${provider?.displayName ?? "The provider"} already has an appointment${when || " during that time"}.`, "Nothing was booked. Choose another time or provider."];
-    if (err.code === "operatory_conflict") return [`${operatory?.name ?? "That operatory"} is already in use${when || " during that time"}.`, "Nothing was booked. Choose another time or operatory."];
-    if (err.code === "provider_unavailable") {
-      const why = UNAVAILABLE_REASONS[String(err.body.reason)] ?? "they are not available then";
-      return [`${provider?.displayName ?? "The provider"} is not available: ${why}.`, "Nothing was booked. Choose another time."];
-    }
+    if (CONFLICTS.has(err.code)) return explainRefusal(err, { provider: provider?.displayName, operatory: operatory?.name }, "book");
     return [formFieldMessage(err)];
   }
 
@@ -173,7 +163,7 @@ export function SchedulePage() {
           <div role="status" className={outcome.kind === "confirmed" ? "alv-schedule__result" : "alv-schedule__result-slot"}>
             {outcome.kind === "confirmed" && (
               <>
-                <strong>Appointment confirmed.</strong> {outcome.appointment.patientName} with {outcome.appointment.providerName} in {outcome.appointment.operatoryName},{" "}
+                <strong>Appointment booked.</strong> {outcome.appointment.patientName} with {outcome.appointment.providerName} in {outcome.appointment.operatoryName},{" "}
                 {dateOf(outcome.appointment.startLocal)} {timeOf(outcome.appointment.startLocal)}–{timeOf(outcome.appointment.endLocal)} ({outcome.appointment.appointmentTypeName}).
               </>
             )}
@@ -214,13 +204,15 @@ export function SchedulePage() {
           <table className="alv-workspace__table">
             <caption className="alv-workspace__caption">Booked appointments, earliest first</caption>
             <thead>
-              <tr><th scope="col">Time</th><th scope="col">Patient</th><th scope="col">Provider</th><th scope="col">Operatory</th><th scope="col">Type</th></tr>
+              <tr><th scope="col">Time</th><th scope="col">Patient</th><th scope="col">Status</th><th scope="col">Provider</th><th scope="col">Operatory</th><th scope="col">Type</th></tr>
             </thead>
             <tbody>
               {day.map((a) => (
                 <tr key={a.id}>
-                  <td>{timeOf(a.startLocal)}–{timeOf(a.endLocal)}</td>
-                  <td>{a.patientName}</td>
+                  {/* ALV-N021 A2 (F-069): each row opens the appointment in the calendar and the patient's record, and says where it stands */}
+                  <td><Link to={`/calendar?day=${dateOf(a.startLocal)}&appointment=${a.id}`} aria-label={`${timeOf(a.startLocal)}–${timeOf(a.endLocal)}: open the appointment of ${a.patientName} in the calendar`}>{timeOf(a.startLocal)}–{timeOf(a.endLocal)}</Link></td>
+                  <td><Link to={`/patients/${a.patientId}`}>{a.patientName}</Link></td>
+                  <td>{flowWord(a) ?? statusWord(a.status)}</td>
                   <td>{a.providerName}</td>
                   <td>{a.operatoryName}</td>
                   <td>{a.appointmentTypeName} ({a.durationMinutes} min)</td>
@@ -233,6 +225,9 @@ export function SchedulePage() {
     </>
   );
 }
+
+/** The refusals that name what is in the way; everything else is a field problem. */
+const CONFLICTS = new Set(["provider_double_booked", "operatory_conflict", "patient_double_booked", "provider_unavailable", "schedule_busy"]);
 
 function SelectField({ id, label, value, onChange, options, disabled, blank = "Choose…" }: {
   id: string; label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; disabled?: boolean; blank?: string;
