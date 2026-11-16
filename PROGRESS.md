@@ -2930,3 +2930,9 @@
   - What changed: .alveara/handoffs/ALV-N021/A2-R02-regression.md and A2-R02-regression-evidence/ (console and record); EXECUTION_STATUS A2 AWAITING_REVIEW with the Stage 2 result; BUILD_STATE line.
   - Verification: the frozen command at b7efad6 (detached checkout): 33/33 passed, exit 0, 12:05:38-12:07:04 (85 s incl. build), tree clean before, at the SHA and after; returned to main.
   - Notes: nothing else run (review contract). Nothing pushed.
+- [x] ALV-N021 A2 closure recorded (APPROVED)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A2-R02-STAGE2.md; EXECUTION_STATUS attempt A2 COMPLETE (approved A2-R02, implementation b7efad6, evidence 3106c85, regression 4269f38, completedAt), story back to IN_PROGRESS with A3 PLANNED (briefing first, no implementation authorized); BUILD_STATE line.
+  - Verification: EXECUTION_STATUS parses as JSON; review file not edited; closure-only commit (no src or test file).
+  - Notes: nothing pushed.
