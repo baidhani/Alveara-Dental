@@ -103,7 +103,7 @@ export class FakeScheduleServer extends FakePatientServer {
 
     if (start.slice(11, 16) < "08:00" || end.slice(0, 10) !== start.slice(0, 10) || end.slice(11, 16) > "17:00")
       return json(409, { error: "provider_unavailable", message: "The provider is not available at that time.", reason: "outside_working_hours" });
-    const overlaps = (a: Appointment) => a.startLocal < end && start < a.endLocal;
+    const overlaps = (a: Appointment) => a.status === "Scheduled" && a.startLocal < end && start < a.endLocal;   // like the server: a cancelled or no-show appointment holds no time
     const providerClash = this.appointments.find((a) => a.providerId === provider.providerId && overlaps(a));
     if (providerClash) return json(409, { error: "provider_double_booked", message: "The provider already has an appointment during that time.", conflictingAppointmentId: providerClash.id });
     const operatoryClash = this.appointments.find((a) => a.operatoryId === operatory.id && overlaps(a));

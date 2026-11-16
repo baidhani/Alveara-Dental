@@ -44,7 +44,8 @@ export interface VisitCard {
 /** ALV-N021 A2: stable action codes from the server (VisitActionCodes). */
 export type VisitActionCode =
   | "confirm" | "check_in" | "undo_check_in" | "mark_ready" | "seat" | "start_treatment" | "end_treatment" | "complete"
-  | "reschedule" | "cancel" | "no_show" | "reassign_provider" | "change_room" | "keep_despite_block";
+  | "reschedule" | "cancel" | "no_show" | "reassign_provider" | "change_room" | "keep_despite_block"
+  | "rebook" | "open_patient";   // ALV-N021 A2: offered on a cancelled or no-show appointment to the people who book
 
 /**
  * One action the user may take now. `enabled` false: the user holds the authority but a rule blocks it at the moment; `blockedBy` is the server's error code and

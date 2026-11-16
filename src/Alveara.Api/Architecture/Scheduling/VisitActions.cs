@@ -24,6 +24,9 @@ public static class VisitActionCodes
     public const string ReassignProvider = "reassign_provider";
     public const string ChangeRoom = "change_room";
     public const string KeepDespiteBlock = "keep_despite_block";
+    // ALV-N021 A2 (briefing 5.4, F-045, F-051, F-073): after a cancellation or a no-show, book the patient again (a NEW appointment through the normal booking rules) or open their record
+    public const string Rebook = "rebook";
+    public const string OpenPatient = "open_patient";
 }
 
 /// <summary>
@@ -72,7 +75,7 @@ public sealed class VisitActionsService(AlveraDbContext db, IPracticeClock clock
         var flagged = await BlockFlags.IsFlaggedAsync(db, a, ct);
         var version = Convert.ToBase64String(a.RowVersion);
         if (a.Status != AppointmentStatuses.Scheduled || a.FlowState == VisitStates.Completed)
-            return new AppointmentActions(a.Id, version, a.Status, a.FlowState, false, null, []);   // terminal: nothing to offer (rebooking is a new appointment)
+            return new AppointmentActions(a.Id, version, a.Status, a.FlowState, false, null, await AfterEndAsync(a, actor, policy, ct));
 
         var actions = new List<VisitAction>();
         var checkout = a.FlowState == VisitStates.CheckedOut ? await new CheckoutEvaluator(db, clock).EvaluateAsync(a.Id, ct) : null;
@@ -116,6 +119,19 @@ public sealed class VisitActionsService(AlveraDbContext db, IPracticeClock clock
         }
 
         return new AppointmentActions(a.Id, version, a.Status, a.FlowState, flagged, NextActorText(a, flagged, settings, checkout), actions);
+    }
+
+    /// <summary>
+    /// A cancelled or no-show appointment changes no more, but the people who book (briefing 5.4: front desk, office manager, administrator through <see cref="Permission.ManageAppointments"/>)
+    /// are offered to book the patient again - a new appointment, decided by the booking route's own rules - and to open the patient's record (which also needs <see cref="Permission.ViewPatientRecords"/>).
+    /// A completed visit offers nothing.
+    /// </summary>
+    private static async Task<IReadOnlyList<VisitAction>> AfterEndAsync(Appointment a, VisitActor actor, VisitMovePolicy policy, CancellationToken ct)
+    {
+        if (a.Status is not (AppointmentStatuses.Cancelled or AppointmentStatuses.NoShow) || !await policy.HasAsync(actor, Permission.ManageAppointments, ct)) return [];
+        var actions = new List<VisitAction> { new(VisitActionCodes.Rebook, "Rebook", true, null, null, null, false) };
+        if (await policy.HasAsync(actor, Permission.ViewPatientRecords, ct)) actions.Add(new VisitAction(VisitActionCodes.OpenPatient, "Open patient", true, null, null, null, false));
+        return actions;
     }
 
     /// <summary>Who the visit is waiting for, in words (briefing 5.5; announced through the screen's live region). The provider is named by role, not by person, so the text stays PHI-free.</summary>

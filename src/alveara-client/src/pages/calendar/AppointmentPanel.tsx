@@ -12,6 +12,7 @@ import type { Appointment, AppointmentEvent } from "../../services/schedulingApi
 import { assignVisit, getAppointmentActions, keepDespiteBlock, moveVisit, undoCheckIn } from "../../services/visitsApi";
 import type { AppointmentActions, VisitAction } from "../../services/visitsApi";
 import { AssignPanel } from "../flow/AssignPanel";
+import { Link } from "react-router-dom";
 import { AppointmentHistory } from "./AppointmentHistory";
 import { CheckoutPanel } from "../flow/CheckoutPanel";
 import { ReasonForm } from "../flow/ReasonForm";
@@ -29,6 +30,8 @@ interface Props {
   /** Kept for the page's interface; the no-show rule now comes with the server's actions. */
   nowLocal?: string;
   onChanged: (appointment: Appointment) => void;
+  /** ALV-N021 A2: open the booking drawer for this patient again (offered by the server as "rebook" on a cancelled or no-show appointment). */
+  onRebook?: (appointment: Appointment) => void;
 }
 
 type Mode = "details" | "reschedule" | "cancel" | "undo" | "keep" | "assign" | "complete";
@@ -49,7 +52,7 @@ const DONE: Record<string, string> = {
  * so the calendar and the board can never offer different things. A blocked action stays visible but disabled with the server's reason. Moves go through the one
  * visit path (no STORY-011 shortcuts); cancel asks for a category; provider/room changes move the booking. The panel says who the visit waits for.
  */
-export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }: Props) {
+export function AppointmentPanel({ appointment, snapshot, canManage, onChanged, onRebook }: Props) {
   const [current, setCurrent] = useState(appointment);
   const [actions, setActions] = useState<AppointmentActions | null>(null);
   const [actionsFailed, setActionsFailed] = useState(false);
@@ -147,6 +150,8 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }
   const list = actions?.actions ?? [];
   const flowActions = list.filter((x) => FLOW_CODES.has(x.code));
   const bookingActions = list.filter((x) => x.code === "reschedule" || x.code === "cancel" || x.code === "no_show");
+  const canRebook = list.some((x) => x.code === "rebook");
+  const canOpenPatient = list.some((x) => x.code === "open_patient");
   const allowProvider = list.some((x) => x.code === "reassign_provider");
   const allowRoom = list.some((x) => x.code === "change_room");
   const flow = current.flowState ?? "Scheduled";
@@ -204,6 +209,13 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }
       )}
       {mode === "details" && bookingActions.length > 0 && (
         <div className="cal-panel__actions" role="group" aria-label="Booking">{bookingActions.map((x) => button(x, false))}</div>
+      )}
+
+      {mode === "details" && (canRebook || canOpenPatient) && (
+        <div className="cal-panel__actions" role="group" aria-label="Next steps">
+          {canRebook && onRebook && <Button variant="primary" onClick={() => onRebook(current)}>Rebook</Button>}
+          {canOpenPatient && <Link className="btn btn-outline-secondary" to={`/patients/${current.patientId}`}>Open patient</Link>}
+        </div>
       )}
 
       {mode === "details" && current.status === "Scheduled" && flow === "CheckedOut" && (

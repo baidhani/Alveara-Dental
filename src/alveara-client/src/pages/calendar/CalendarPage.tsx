@@ -11,11 +11,12 @@ import { AppointmentPanel } from "./AppointmentPanel";
 import { CalendarGrid } from "./CalendarGrid";
 import type { CalendarView } from "./CalendarGrid";
 import { NewAppointmentPanel } from "./NewAppointmentPanel";
+import type { Rebook } from "./NewAppointmentPanel";
 import { addDays, dayLabel, hhmm, practiceNow, viewDays } from "./calendarLayout";
 import "../scheduling/SchedulePage.css";
 import "./Calendar.css";
 
-type Drawer = { kind: "none" } | { kind: "new"; providerId?: string; date: string; time: string } | { kind: "appointment"; appointment: Appointment };
+type Drawer = { kind: "none" } | { kind: "new"; providerId?: string; date: string; time: string; rebook?: Rebook } | { kind: "appointment"; appointment: Appointment };
 type Load = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; snapshot: SchedulingSnapshot };
 
 /**
@@ -178,11 +179,11 @@ export function CalendarPage() {
           </div>
           {drawer.kind === "new" && (
             <>
-              <h2 id="cal-drawer-title" tabIndex={-1} className="alv-workspace__section-title">Book an appointment</h2>
+              <h2 id="cal-drawer-title" tabIndex={-1} className="alv-workspace__section-title">{drawer.rebook ? `Rebook ${drawer.rebook.patientName}` : "Book an appointment"}</h2>
               <NewAppointmentPanel
-                key={`${drawer.date}-${drawer.time}-${drawer.providerId ?? ""}`}
+                key={`${drawer.date}-${drawer.time}-${drawer.providerId ?? ""}-${drawer.rebook?.patientId ?? ""}`}
                 snapshot={snapshot}
-                initial={{ providerId: drawer.providerId, date: drawer.date, time: drawer.time }}
+                initial={{ providerId: drawer.providerId, date: drawer.date, time: drawer.time, rebook: drawer.rebook }}
                 onBooked={(a) => {
                   setAnnouncement(`Appointment booked: ${a.patientName} with ${a.providerName}, ${dateOf(a.startLocal)} ${timeOf(a.startLocal)}–${timeOf(a.endLocal)}.`);
                   setDay(dateOf(a.startLocal));
@@ -200,6 +201,11 @@ export function CalendarPage() {
               canManage={canManage}
               nowLocal={practiceNow(snapshot.timeZoneId)}
               onChanged={replace}
+              onRebook={(a) => {
+                // the same provider and time of day, on the appointment's own day or today if that has passed; the booking route decides whether it is free
+                const date = dateOf(a.startLocal) >= today ? dateOf(a.startLocal) : today;
+                setDrawer({ kind: "new", providerId: a.providerId, date, time: timeOf(a.startLocal), rebook: { patientId: a.patientId, patientName: a.patientName, appointmentTypeId: a.appointmentTypeId, operatoryId: a.operatoryId } });
+              }}
             />
           )}
         </div>

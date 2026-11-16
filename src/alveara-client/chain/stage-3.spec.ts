@@ -149,6 +149,10 @@ test("3.09 cancel needs a category and frees the slot; a no-show is refused befo
   await expect(drawerOf(desk).getByRole("button", { name: "Mark no-show" })).toBeEnabled();
   await drawerOf(desk).getByRole("button", { name: "Mark no-show" }).click();
   await expect(drawerOf(desk).getByText(/^Marked as a no-show\./).first()).toBeVisible();
+  // ALV-N021 A2 (F-073): the final no-show offers Rebook and Open patient, from the server's actions list
+  const next = drawerOf(desk).getByRole("group", { name: "Next steps" });
+  await expect(next.getByRole("button", { name: "Rebook" })).toBeVisible();
+  await expect(next.getByRole("link", { name: "Open patient" })).toHaveAttribute("href", /^\/patients\/[0-9a-f-]{36}$/);
   await drawerOf(desk).getByRole("button", { name: "Close drawer" }).click();
   await expect(blockOf(desk, at.dev)).toHaveClass(/cal__block--noshow/);
   expect((await load(desk, at.dev)).status).toBe("NoShow");

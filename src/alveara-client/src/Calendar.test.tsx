@@ -450,6 +450,48 @@ describe("cancelling, no-shows and notes", () => {
     expect(d2.getByText("Illness", { selector: "dd" })).toBeInTheDocument();
   });
 
+  // ALV-N021 A2 (F-045, F-051, F-073; briefing 5.4 "Rebook / Open patient"): the buttons come only from the server's actions list
+  it("a cancelled appointment offers Rebook and Open patient; Rebook opens the booking drawer with the same patient, type, provider and time, and books a new appointment", async () => {
+    const gone = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee", status: "Cancelled" });
+    Object.assign(gone, { patientId: ANN, cancelCategory: "patient" });
+    const d = await openAppointment(gone.id);
+    const next = within(await d.findByRole("group", { name: "Next steps" }));
+    expect(next.getByRole("link", { name: "Open patient" })).toHaveAttribute("href", `/patients/${ANN}`);
+
+    await userEvent.click(next.getByRole("button", { name: "Rebook" }));
+    expect(await screen.findByRole("heading", { name: "Rebook Ann Lee" })).toBeInTheDocument();
+    const form = within(screen.getByRole("form", { name: "New appointment" }));
+    expect(form.getByTestId("rebook-patient")).toHaveTextContent("Ann Lee (rebooking)");
+    expect(form.getByLabelText("Appointment type *")).toHaveValue("type-60");
+    expect(form.getByLabelText("Start time *")).toHaveValue("09:00");
+    expect(form.getByLabelText("Operatory *")).toHaveValue(gone.operatoryId);
+    await userEvent.click(form.getByRole("button", { name: "Book appointment" }));
+
+    await waitFor(() => expect(calls("POST", "").filter((c) => c.url === "/api/appointments")).toHaveLength(1));
+    const booked = calls("POST", "").find((c) => c.url === "/api/appointments")!;
+    expect(booked.body).toMatchObject({ patientId: ANN, appointmentTypeId: "type-60", startLocal: `${DAY}T09:00` });
+    expect(await screen.findByText(/^Appointment booked: Ann Lee/)).toBeInTheDocument();
+    expect(server.appointments.find((x) => x.id === gone.id)!.status).toBe("Cancelled");   // the cancelled one is left as it was
+  });
+
+  it("rebooking can still switch to a different patient", async () => {
+    const gone = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee", status: "NoShow" });
+    Object.assign(gone, { patientId: ANN });
+    const d = await openAppointment(gone.id);
+    await userEvent.click(await d.findByRole("button", { name: "Rebook" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Choose a different patient" }));
+    expect(screen.queryByTestId("rebook-patient")).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/Patient/, { selector: "input" })).toBeInTheDocument();   // the ordinary patient search
+  });
+
+  it("someone who cannot book sees neither Rebook nor Open patient on a cancelled appointment", async () => {
+    server.permissions = ["ViewSchedule", "ViewPatientRecords"];
+    const gone = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee", status: "Cancelled" });
+    const d = await openAppointment(gone.id);
+    await d.findByRole("table", { name: /What happened to this appointment/ });
+    expect(d.queryByRole("group", { name: "Next steps" })).not.toBeInTheDocument();
+  });
+
   it("a no-show is only offered once the start time has passed, then marks the appointment and keeps it on the calendar", async () => {
     const future = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
     const past = server.seed({ start: `${PAST}T09:00`, patientName: "Bo Kim" });

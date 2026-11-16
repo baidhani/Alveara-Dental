@@ -198,14 +198,48 @@ public class VisitActionsTests : IAsyncLifetime
         Assert.DoesNotContain("Ann", text);
     }
 
-    [Fact]
-    public async Task A_cancelled_or_no_show_appointment_offers_nothing_and_an_unknown_id_is_404()
+    /// <summary>A cancelled (patient's reason) or a no-show (marked once the 09:00 start has passed) appointment.</summary>
+    private async Task<AppointmentView> EndedAsync(string status)
     {
-        var cancelled = await BookAsync(9);
-        await _s.ManageAsync(m => m.CancelAsync(cancelled.Id, AppointmentCancelCategories.Patient, null, cancelled.RowVersion, _s.Actor, default), VisitDayClock);
-        var gone = await ActionsAsync(cancelled.Id, As(Role.Admin));
-        Assert.Equal((AppointmentStatuses.Cancelled, 0, (string?)null), (gone.Status, gone.Actions.Count, gone.NextActorText));
+        var a = await BookAsync(9);
+        return status == AppointmentStatuses.Cancelled
+            ? await _s.ManageAsync(m => m.CancelAsync(a.Id, AppointmentCancelCategories.Patient, null, a.RowVersion, _s.Actor, default), VisitDayClock)
+            : await _s.ManageAsync(m => m.MarkNoShowAsync(a.Id, a.RowVersion, _s.Actor, default), new TestClock(a.StartUtc.AddMinutes(30)));
+    }
 
+    // The 5.4 row "Rebook / Open patient | Cancelled, NoShow": FD Y, OM Y, AD Y, everyone else not offered (ALV-N021 A2, F-045, F-051, F-073).
+    [Theory]
+    [InlineData("Cancelled")]
+    [InlineData("NoShow")]
+    public async Task A_cancelled_or_no_show_appointment_offers_rebook_and_open_patient_to_the_booking_roles_only(string status)
+    {
+        var a = await EndedAsync(status);
+        Assert.Equal(status, a.Status);
+        Assert.Equal("open_patient rebook", await CodesAsync(a.Id, _s.Desk));
+        Assert.Equal("open_patient rebook", await CodesAsync(a.Id, _s.OfficeManager));
+        Assert.Equal("open_patient rebook", await CodesAsync(a.Id, As(Role.Admin)));
+        foreach (var other in new[] { _s.ProviderOf(_s.ProviderA), As(Role.Hygienist), As(Role.Assistant), As(Role.Billing), As(Role.Unassigned) })
+            Assert.Equal("", await CodesAsync(a.Id, other));
+        var view = await ActionsAsync(a.Id, _s.Desk);
+        Assert.Equal((false, (string?)null), (view.BlockFlagged, view.NextActorText));             // nothing is waiting on anyone
+    }
+
+    [Fact]
+    public async Task Rebooking_is_a_new_appointment_through_the_normal_booking_rules_and_the_ended_one_is_left_as_it_was()
+    {
+        var gone = await EndedAsync(AppointmentStatuses.NoShow);
+        var again = await _s.ScheduleAsync(_s.Request(_ann, At(11, dayOffset: 1)));                   // what the Rebook button opens: the booking form for the same patient
+        Assert.True(again.Created);
+        Assert.NotEqual(gone.Id, again.Appointment.Id);
+        Assert.Equal(AppointmentStatuses.NoShow, (await _s.ReloadAsync(gone.Id)).Status);
+        Assert.Equal("", await CodesAsync(gone.Id, As(Role.Hygienist)));
+    }
+
+    [Fact]
+    public async Task A_completed_visit_offers_nothing_and_an_unknown_id_is_404()
+    {
+        var done = await _s.WalkAsync(await BookAsync(), VisitStates.Completed);
+        Assert.Empty((await ActionsAsync(done.Id, As(Role.Admin))).Actions);
         Assert.Equal((404, "appointment_not_found"), await Assert.ThrowsAsync<SchedulingException>(() => ActionsAsync(Guid.NewGuid(), _s.Desk)) is var ex ? (ex.StatusCode, ex.Code) : default);
     }
 

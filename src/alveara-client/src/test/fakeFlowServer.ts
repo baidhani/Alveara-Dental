@@ -118,7 +118,15 @@ export class FakeFlowServer extends FakeCalendarServer {
     const has = (p: string) => this.permissions.includes(p);
     const flagged = a.blockFlagged ?? false;
     const base = { appointmentId: a.id, rowVersion: a.rowVersion ?? "", status: a.status, flowState: flow, blockFlagged: false, nextActorText: null };
-    if (a.status !== "Scheduled" || flow === "Completed") return { ...base, actions: [] };
+    if (a.status !== "Scheduled" || flow === "Completed") {
+      // ALV-N021 A2 (briefing 5.4): a cancelled or no-show appointment offers Rebook (and Open patient) to the people who book, like the server
+      const ended = a.status === "Cancelled" || a.status === "NoShow";
+      const after: VisitAction[] = !ended || !has("ManageAppointments") ? [] : [
+        { code: "rebook", label: "Rebook", enabled: true, blockedBy: null, blockedText: null, targetState: null, needsReason: false },
+        ...(has("ViewPatientRecords") ? [{ code: "open_patient" as const, label: "Open patient", enabled: true, blockedBy: null, blockedText: null, targetState: null, needsReason: false }] : []),
+      ];
+      return { ...base, actions: after };
+    }
     const act = (code: VisitActionCode, label: string, targetState: PatientFlowState | null = null, blocked: [string, string] | null = null, needsReason = false): VisitAction =>
       ({ code, label, enabled: blocked === null, blockedBy: blocked?.[0] ?? null, blockedText: blocked?.[1] ?? null, targetState, needsReason });
     const actions: VisitAction[] = [];

@@ -11,9 +11,12 @@ import { explainRefusal } from "./explainRefusal";
 import { PlacementFields } from "./PlacementFields";
 import type { Placement } from "./PlacementFields";
 
+/** ALV-N021 A2: who and what a Rebook starts from (the cancelled or no-show appointment). */
+export interface Rebook { patientId: string; patientName: string; appointmentTypeId: string; operatoryId: string }
+
 interface Props {
   snapshot: SchedulingSnapshot;
-  initial: { providerId?: string; date: string; time: string };
+  initial: { providerId?: string; date: string; time: string; rebook?: Rebook };
   onBooked: (appointment: Appointment) => void;
 }
 
@@ -24,8 +27,10 @@ interface Props {
  */
 export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
   const [patient, setPatient] = useState<PatientSummary | null>(null);
-  const [typeId, setTypeId] = useState("");
-  const [place, setPlace] = useState<Placement>({ providerId: initial.providerId ?? "", operatoryId: "", date: initial.date, time: initial.time, duration: "" });
+  // ALV-N021 A2 (F-045, F-051, F-073): rebooking after a cancellation or a no-show starts with the same patient and appointment type; both can still be changed
+  const [rebookPatient, setRebookPatient] = useState<Rebook | null>(initial.rebook ?? null);
+  const [typeId, setTypeId] = useState(initial.rebook?.appointmentTypeId ?? "");
+  const [place, setPlace] = useState<Placement>({ providerId: initial.providerId ?? "", operatoryId: initial.rebook?.operatoryId ?? "", date: initial.date, time: initial.time, duration: "" });
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
@@ -38,13 +43,14 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (busy) return;
-    if (!patient || !typeId || !place.providerId || !place.operatoryId || !place.date || !place.time) {
+    const patientId = patient?.id ?? rebookPatient?.patientId;
+    if (!patientId || !typeId || !place.providerId || !place.operatoryId || !place.date || !place.time) {
       setUnconfirmed(false);
       setLines(["Choose the patient, appointment type, provider, operatory, date and time first."]);
       return;
     }
     const input = {
-      patientId: patient.id, providerId: place.providerId, operatoryId: place.operatoryId, appointmentTypeId: typeId, startLocal: `${place.date}T${place.time}`,
+      patientId, providerId: place.providerId, operatoryId: place.operatoryId, appointmentTypeId: typeId, startLocal: `${place.date}T${place.time}`,
       durationMinutes: place.duration.trim() === "" ? null : Number(place.duration), notes: notes.trim() === "" ? null : notes,
     };
     const signature = JSON.stringify(input);
@@ -68,7 +74,12 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
 
   return (
     <form className="alv-workspace__form" onSubmit={submit} noValidate aria-label="New appointment">
-      <PatientPicker key="picker" label="Patient" selected={patient} onSelect={(p) => { setPatient(p); setLines([]); }} disabled={busy} />
+      {rebookPatient ? (
+        <div className="alv-patient-picker">
+          <p className="alv-patient-picker__selected" data-testid="rebook-patient"><span className="alv-patient-picker__label">Patient:</span> {rebookPatient.patientName} (rebooking)</p>
+          <Button type="button" onClick={() => { setRebookPatient(null); setLines([]); }} disabled={busy}>Choose a different patient</Button>
+        </div>
+      ) : <PatientPicker key="picker" label="Patient" selected={patient} onSelect={(p) => { setPatient(p); setLines([]); }} disabled={busy} />}
       <div className="alv-form-field">
         <label htmlFor={typeSelect} className="alv-form-field__label">Appointment type *</label>
         <select id={typeSelect} className="alv-form-field__input" value={typeId} onChange={(e) => setTypeId(e.target.value)} disabled={busy}>
