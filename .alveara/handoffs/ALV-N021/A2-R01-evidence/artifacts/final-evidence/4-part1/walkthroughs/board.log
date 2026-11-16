@@ -1,0 +1,33 @@
+Database AlveraWalk_playwright_board_config_b2c0f8d7 created in C:\.alvera-data\Test-Data\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.21
+Done.
+Clock: injected, now = 2030-01-14T13:30:00Z
+API healthy on http://localhost:5072; running playwright.board.config.ts ...
+
+Running 16 tests using 1 worker
+
+  ok  1 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:163:1 ΓÇ║ SETUP: the practice, six staff (the dentist linked to Dr. Rivera), five patients, two required forms and their real signing state (2.1s)
+  ok  2 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:222:1 ΓÇ║ BOARD: a column per state with each appointment where the server put it, the real form readiness at check-in, who each visit waits for, and no axe violations (2.9s)
+  ok  3 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:253:1 ΓÇ║ FRONT OFFICE: the front desk confirms and then checks in from the board; chairside buttons are not offered to them (870ms)
+  ok  4 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:277:1 ΓÇ║ CHAIRSIDE: the assistant marks patients ready and seats one; they cannot do the front desk's moves (645ms)
+  ok  5 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:299:1 ΓÇ║ ROOM: a second patient cannot be seated in an occupied room; the refusal says so in words and nothing changes (1.9s)
+  ok  6 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:314:1 ΓÇ║ WHOLE PATH: the booked dentist treats, the checkout is resolved, the manager completes; the room frees and the record is complete and attributed (5.2s)
+  ok  7 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:368:1 ΓÇ║ PROVIDER AND ROOM: the manager moves the booking to another provider with a reason (both notified); a chairside person can change only the room; occupied rooms are refused (2.8s)
+  ok  8 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:423:1 ΓÇ║ CONFLICT: when someone else changed the visit first, the stale press is reported and not applied, and Reload shows the real state (2.7s)
+  ok  9 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:447:1 ΓÇ║ LIVE: what another workstation does shows up on an open board by itself, without a reload or a click (15.6s)
+  ok 10 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:461:1 ΓÇ║ CANCELLED AND NO-SHOW: they stay on the board, apart from the path and distinct from completed (348ms)
+  ok 11 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:476:1 ΓÇ║ LEFT OPEN: a visit still open from an earlier day appears on today's board marked as carried over, and the room it holds stays blocked (2.5s)
+  ok 12 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:498:1 ΓÇ║ PERMISSIONS: the dentist moves patients chairside only; billing has no board and no way in; STORY-011's own endpoints run the same policy (736ms)
+  ok 13 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:526:1 ΓÇ║ KEYBOARD: a move can be made without a mouse and focus stays on the visit (405ms)
+  ok 14 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:537:1 ΓÇ║ RESPONSIVE: at tablet and phone width the page does not scroll sideways, a phone stacks the columns, and a card's actions stay reachable (3.0s)
+  ok 15 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:592:1 ΓÇ║ PARITY: for each role and state the Calendar drawer and the Board card offer the same visit actions, blocked the same way, with the same next-actor text (6.5s)
+  ok 16 [chromium] ΓÇ║ e2e\visit-board-real-backend.spec.ts:618:1 ΓÇ║ ACCEPTANCE: every state and assignment change is in the audit log with user and time and no patient details or reasons (43ms)
+
+  16 passed (57.6s)
+Database AlveraWalk_playwright_board_config_b2c0f8d7 dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\dfe629a69afb811c\75f893de-a6fd-4d6e-82a8-d7b9ae9033df\scratchpad\final4\walk\board

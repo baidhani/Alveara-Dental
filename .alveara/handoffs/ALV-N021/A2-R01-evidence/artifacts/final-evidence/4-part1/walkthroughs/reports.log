@@ -1,0 +1,17 @@
+Database AlveraWalk_playwright_reports_config_d01ae8fa created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.reports.config.ts ...
+
+Running 7 tests using 1 worker
+
+  ok 1 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:115:1 ΓÇ║ SETUP: a practice, five appointments on one day (two cancelled) and a 40 payment on an account holding 100 (2.2s)
+  ok 2 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:150:1 ΓÇ║ ACCESS: each role sees only the report groups it holds, and a report it does not hold is refused on the page and by the server (1.2s)
+  ok 3 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:171:1 ΓÇ║ SCHEDULE: the numbers equal an independent SQL count, a number opens its records, and the CSV holds the same numbers (2.8s)
+  ok 4 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:198:1 ΓÇ║ AUDIT: the run and the export are two separate records, with counts and no names (724ms)
+  ok 5 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:207:1 ΓÇ║ COLLECTIONS: money equals the ledger, the proof agrees with it, and the print layout leaves off the menu and the filters (2.4s)
+  ok 6 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:238:1 ΓÇ║ HONEST STATES: nothing to report, a range that is too long, and a day the server refuses are said in words (878ms)
+  ok 7 [chromium] ΓÇ║ e2e\reports-real-backend.spec.ts:249:1 ΓÇ║ MEASUREMENT: the metrics equal the SQL count, a baseline is set once, and the comparison shows no change where it cannot be honest (3.8s)
+
+  7 passed (22.2s)
+Database AlveraWalk_playwright_reports_config_d01ae8fa dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\dfe629a69afb811c\75f893de-a6fd-4d6e-82a8-d7b9ae9033df\scratchpad\final4\walk\reports

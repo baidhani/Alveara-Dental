@@ -32,6 +32,10 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Full backend suite: also the new ALV-N021 A1 classes `FinancialDocumentTemplateVersionTests`, `BillingDocumentTemplateVersionServiceTests` and the added cases in `BillingDocumentBuilderTests`, `BillingDocumentServiceTests`, `BillingTimelineAgingTests`, `DiagnosisStructureServiceTests`, `TreatmentPlanStateServiceTests`, `PrescriptionServiceTests`, `ProcedureCatalogLifecycleTests` | ALV-N021 | focused only (A1-R01 runs 2, 3, 5); never in a broad run |
 | Client vitest/build/lint/`tsc`: `dateOnly` (new), `PatientFieldsForm`, `PrintPreview`, `documentText`, `TreatmentPlanItemStateLine`, `treatmentPlansApi` and every consumer of `documentText.formatDate` | ALV-N021 | focused only: dateOnly 12/12, treatment-plan answers; tsc exit 0; lint not run |
 | Real-backend walkthroughs that print a prescription, show billing documents/timeline or treatment-plan answers; statement reprint of documents issued before the upgrade on a populated database | ALV-N021 | not run |
+| Full backend suite: also every ALV-N021 A2 class (42 changed or new, incl. `VisitMovePolicyTests`, `VisitPathTableTests`, `VisitActionsTests`, `CheckoutTests`, `CollectPaymentsApiTests`, `ProviderReassignmentTests`, `BlockedTimeOverlapTests`, `CalendarBlockedTimeApiTests`, `AppointmentMoveHistoryTests`, `CheckInDstDayRuleTests`, `VisitWorkflowSettingsTests`, the six migration classes) and every class A2 never ran (about 2,800 of the 3,765 test methods are neither in the A2 classes nor in `*ApiTests`) | ALV-N021 | A2 final run: the 42 classes + `PatientMergeSchemaTests` 747/747 and every `*ApiTests` class 1020/1021 (one pre-A2 stale count, fixed, 1/1) on `215436c`; never a full serial run |
+| Real-backend walkthroughs other than board, flow, calendar, schedule, reports (35 of 40), especially those that book, cancel, take payments or read appointment history (billing, billing-ledger, follow-ups, work-queue, external-cases, notifications, permission-policy, workspace) | ALV-N021 | not run on A2 (the five A2 walkthroughs and the chain stages 0-4 passed on `215436c`) |
+| Migrations M1-M6 (`20261114162213` .. `20261116145816`): upgrade from the post-A1 schema on a copy of a populated database; rollback guards 51280, 51281, 51284, 51285, 51286; merge-guard trigger re-created by M6 | ALV-N021 | each rolled back and forward on a test clone only |
+| Browsers other than Chromium for the time fields (F-068) | ALV-N021 | Chromium only |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -72,4 +76,11 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Deferred to ALV-N028:** the ALV-N021 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**
 
+- **Not release-certified.**
+
+## ALV-N021 (item 58): PKG-04/PKG-05 - attempt A2 (PKG-05 visit workflow and checkout gate; decision 02 T-2, T-3)
+
+- **Implementation SHA (A2-R01):** `2ef081770e12dc880b8ee52306ea5097e2e16cfa` (base `9d6e533`). Changed subsystems: visit workflow (one path, move policy, actions list, undo check-in), checkout gate (evaluator, recorder, panel), scheduling (reassignment with notifications, blocked time over bookings, cancel category, calendar blocked-time read route, history from/to), billing (`CollectPayments`), configuration (visit-workflow settings), client calendar, board, schedule, configuration pages; migrations M1-M6; permissions `CompleteOwnStartedVisit`, `ReassignAppointmentProvider`, `CollectPayments`; test-only chain clock-advance route.
+- **Focused proof and final evidence run (A2-R01):** `.alveara/handoffs/ALV-N021/A2-R01-evidence/TEST_RESULTS.md`.
+- **Deferred to ALV-N028:** the ALV-N021 A2 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**

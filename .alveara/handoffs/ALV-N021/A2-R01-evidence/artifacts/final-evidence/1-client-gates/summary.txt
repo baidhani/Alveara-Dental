@@ -1,0 +1,10 @@
+run commit: 7207b88b4070aecc2fe1218c5063a4706b165cf1
+tree changed paths: 0
+start: 2026-11-16T07:46:39-06:00
+== gate tsc exit=0 elapsed=3s: 
+== gate build exit=0 elapsed=9s: [32m✓ built in 1.21s[39m 
+== gate lint exit=0 elapsed=3s: 
+== gate vitest exit=0 elapsed=164s:  Test Files  133 passed (133)       Tests  2018 passed (2018) 
+== gate playwright_mocked exit=1 elapsed=106s:   14 failed   149 passed (1.6m) 
+== STOPPED after playwright_mocked
+end: 2026-11-16T07:51:28-06:00

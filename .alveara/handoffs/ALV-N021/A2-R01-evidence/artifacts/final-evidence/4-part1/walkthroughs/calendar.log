@@ -1,0 +1,74 @@
+Database AlveraWalk_playwright_calendar_config_3c23e97b created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.calendar.config.ts ...
+
+Running 12 tests using 1 worker
+
+  ok  1 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:137:1 ΓÇ║ SETUP: the practice (two providers, two operatories, two types, a blocked lunch) and six patients (986ms)
+  ok  2 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:155:1 ΓÇ║ CALENDAR: the day view shows the practice's real provider and operatory assignments at the right time and size, with working hours and filters (2.5s)
+  ok  3 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:191:1 ΓÇ║ BOOK + CONFLICTS: the drawer books an appointment; provider, operatory, patient, hours and blocked-time conflicts are each explained and nothing is booked (5.9s)
+  ok  4 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:241:1 ΓÇ║ RESCHEDULE: moving an appointment through the drawer, a refused move, and the history that remembers where it went from and to (610ms)
+  ok  5 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:267:1 ΓÇ║ STALE EDIT: a second user moves the appointment first; the first user's change is reported and NOT applied, and Reload shows the real state (2.7s)
+  ok  6 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:292:1 ΓÇ║ CONCURRENT EDITS: six appointments racing into one slot produce one winner; two users rescheduling the same appointment produce one change; no double booking (186ms)
+  ok  7 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:312:1 ΓÇ║ CANCEL: a cancellation needs a category (ALV-N021 A2; the note is optional), the appointment stays on the calendar marked cancelled (and holds no time), and its history is kept (2.7s)
+  ok  8 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:342:1 ΓÇ║ NO-SHOW: not before the start time; once the start has passed the appointment is marked no-show, shown distinctly, and stays on the record (3.8s)
+powershell.exe : [WebServer] 9:21:56 AM [vite] (client) [console.error] Encountered two children with the same key, 
+`08:00-17:00`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may 
+cause children to be duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+At C:\Users\firas\.claude\projects\c--Users-firas-Documents-AI-Project--Alveara-Dental-\memory\agent-tools\run_walkthro
+ughs_a2.ps1:24 char:3
++   & powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $cmd * ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] 9:2...future version.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] 9:21:56 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:56 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:56 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:56 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+[WebServer] 9:21:57 AM [vite] (client) [console.error] Encountered two children with the same key, `08:00-17:00`. Keys 
+should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be 
+duplicated and/or omitted ΓÇö the behavior is unsupported and could change in a future version.
+  ok  9 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:371:1 ΓÇ║ PATIENT OVERLAP + WEEK VIEW: a patient cannot be in two places at once; the week view puts overlapping providers side by side (2.7s)
+  ok 10 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:391:1 ΓÇ║ PERMISSIONS: a dentist sees the calendar and appointment details but cannot change anything (the API returns 403); billing has no Calendar (1.8s)
+  ok 11 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:416:1 ΓÇ║ KEYBOARD: an appointment can be rescheduled without a mouse (476ms)
+  ok 12 [chromium] ΓÇ║ e2e\calendar-real-backend.spec.ts:432:1 ΓÇ║ ACCEPTANCE: the audit trail holds every create, reschedule, cancel, no-show and refusal with user and time, and no patient details or reasons (43ms)
+
+  12 passed (30.9s)
+Database AlveraWalk_playwright_calendar_config_3c23e97b dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\dfe629a69afb811c\75f893de-a6fd-4d6e-82a8-d7b9ae9033df\scratchpad\final4\walk\calendar

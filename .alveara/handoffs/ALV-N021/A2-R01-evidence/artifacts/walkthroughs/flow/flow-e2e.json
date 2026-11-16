@@ -1,0 +1,103 @@
+{
+  "axe": {
+    "checked-in-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "checked-in-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "completed-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "completed-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "stale-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "stale-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    }
+  },
+  "stamp": 1794842457967,
+  "checkIn": {
+    "status": "CheckedIn",
+    "confirmedFirst": true,
+    "bookingButtonsGone": true
+  },
+  "complete": {
+    "status": "Completed",
+    "historyRows": [
+      "Patient checked in",
+      "Ready for checkout",
+      "Checkout decision recorded",
+      "Checkout decision recorded",
+      "Visit completed",
+      "Confirmed",
+      "Marked ready",
+      "Scheduled",
+      "Seated",
+      "Treatment started"
+    ],
+    "completeWaitedForCheckout": true,
+    "providerOnlyOutcomeRefused": true,
+    "stillHoldsTime": true
+  },
+  "noShortcuts": {
+    "checkInBeforeConfirm": 409,
+    "completeFromCheckedIn": 409,
+    "skipToTreatment": 409
+  },
+  "refusals": {
+    "repeat": "no-op",
+    "missingVersion": 400,
+    "stale": 409,
+    "cancelAfterCheckIn": 409,
+    "cancelWithoutCategory": 400,
+    "cancelledCannotMove": 409,
+    "unknown": 404
+  },
+  "staleEdit": {
+    "repeatWasQuietNoOp": true,
+    "differentMoveReported": true,
+    "notAppliedOnTop": true
+  },
+  "race": {
+    "statuses": [
+      409,
+      200,
+      409,
+      409,
+      409,
+      409
+    ],
+    "checkIns": 1
+  },
+  "permissions": {
+    "dentistUndoStatus": 403,
+    "dentistLegacyStatus": 403,
+    "billingApiStatus": 403,
+    "dentistSeesFlow": true
+  },
+  "keyboard": {
+    "confirmedAndCheckedIn": true
+  },
+  "audit": {
+    "PatientCheckedIn": 6,
+    "PatientTreatmentStarted": 1,
+    "PatientTreatmentCompleted": 1,
+    "PatientCheckInUndone": 0
+  }
+}

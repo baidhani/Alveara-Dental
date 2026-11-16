@@ -1,0 +1,202 @@
+{
+  "axe": {
+    "board-scheduled-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "board-scheduled-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "room-occupied-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "room-occupied-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "checkout-panel-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "checkout-panel-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 27
+    },
+    "conflict-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "conflict-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "carried-over-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "carried-over-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 26
+    },
+    "board-phone-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "board-phone-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 25
+    },
+    "parity-calendar-drawer-light": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    },
+    "parity-calendar-drawer-dark": {
+      "blocking": 0,
+      "violations": [],
+      "passes": 29
+    }
+  },
+  "stamp": 1794842380308,
+  "board": {
+    "columns": 9,
+    "readiness": {
+      "ann": "2 of 2",
+      "bo": "1 of 2 (one started)",
+      "cy": "0 of 2"
+    },
+    "noCheckInBeforeConfirm": true
+  },
+  "frontOffice": {
+    "confirmedFirst": true,
+    "checkedIn": true,
+    "checkInNotBlockedByOpenForm": true,
+    "chairsideButtonsHidden": true,
+    "undoOffered": true
+  },
+  "chairside": {
+    "ready": true,
+    "seated": true,
+    "frontOfficeButtonsHidden": true,
+    "treatmentNotOffered": true
+  },
+  "room": {
+    "refused": true,
+    "namesOccupier": true
+  },
+  "chain": {
+    "states": [
+      "Scheduled",
+      "Confirmed",
+      "CheckedIn",
+      "Ready",
+      "Seated",
+      "InTreatment",
+      "CheckedOut",
+      "Completed"
+    ],
+    "distinctPeople": 4,
+    "completeWaitedForCheckout": true,
+    "completionAskedFirst": true,
+    "roomFreedForNextPatient": true
+  },
+  "assignment": {
+    "bookingMoved": true,
+    "reasonRequired": true,
+    "reasonRecorded": true,
+    "bookedProviderNotified": true,
+    "chairsideRoomOnly": true,
+    "occupiedRoomRefusedAtSeating": true,
+    "roomChangeObeysBookingRules": true
+  },
+  "conflict": {
+    "reported": true,
+    "otherUsersChangeStood": true,
+    "undoRecordedWithReason": true
+  },
+  "live": {
+    "updatedWithoutReload": true,
+    "refreshSeconds": 15
+  },
+  "closedApart": {
+    "cancelledDistinctFromCompleted": true
+  },
+  "leftOpen": {
+    "carriedOver": true,
+    "roomStillBlocked": true
+  },
+  "permissions": {
+    "dentistChairsideOnly": true,
+    "billingApiStatus": 403,
+    "frontDeskCannotDoChairside": 403,
+    "story011EndpointsSamePolicy": true
+  },
+  "keyboard": {
+    "confirmedWithKeyboard": true,
+    "focusKept": true
+  },
+  "responsive": {
+    "tabletNoSidewaysPageScroll": true,
+    "phoneStacked": true,
+    "phoneActionsReachable": true,
+    "phoneAxe": true
+  },
+  "parity": {
+    "desk-Confirmed": {
+      "actions": [
+        "Check in"
+      ],
+      "next": "Waiting for the front desk to check the patient in."
+    },
+    "assistant-Confirmed": {
+      "actions": [],
+      "next": "Waiting for the front desk to check the patient in."
+    },
+    "desk-CheckedIn": {
+      "actions": [
+        "Undo check-in"
+      ],
+      "next": "Waiting for chairside staff to mark the patient ready."
+    },
+    "assistant-CheckedIn": {
+      "actions": [
+        "Mark ready"
+      ],
+      "next": "Waiting for chairside staff to mark the patient ready."
+    },
+    "desk-Seated": {
+      "actions": [],
+      "next": "Waiting for the booked provider to start treatment."
+    },
+    "assistant-Seated": {
+      "actions": [],
+      "next": "Waiting for the booked provider to start treatment."
+    }
+  },
+  "audit": {
+    "PatientConfirmed": 9,
+    "PatientCheckedIn": 9,
+    "PatientCheckInUndone": 1,
+    "PatientReady": 6,
+    "PatientSeated": 4,
+    "PatientTreatmentStarted": 1,
+    "PatientCheckedOut": 1,
+    "PatientTreatmentCompleted": 1,
+    "AppointmentProviderReassigned": 1,
+    "FormTemplateRequirementChanged": 2
+  }
+}

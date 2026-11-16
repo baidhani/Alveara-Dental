@@ -2888,3 +2888,9 @@
   - What changed: VisitWorkflowPanel.tsx drops its useEffect(setForm(...)); PracticeTab.tsx remounts the panel with key = the practice row version, so the form starts from the saved settings. Same behaviour.
   - Verification: npm run lint exit 0, 0 errors, 42 warnings (was 43 in the final evidence run; ALV-N020 R02 recorded 41, the other +1 predates A2 - the two A2-changed files with warnings had them before A2); tsc --noEmit clean; vitest ConfigurationHubPage 30/30.
   - Notes: found while packaging A2-R01; owner-approved. Nothing pushed.
+- [x] ALV-N021 A2-R01 handoff package (AWAITING_REVIEW)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/handoffs/ALV-N021/A2-R01.md and A2-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE with OD-01..OD-32 and 42 finding records, CHANGED_FILES, PARENT_REGRESSION, DEMO_EVIDENCE, NEXT_STORY_IMPACT, artifacts: final-run logs and walkthrough screenshots); EXECUTION_STATUS ALV-N021 AWAITING_REVIEW attempt A2-R01 (A3 PLANNED); BUILD_STATE line; PROGRAM_REGRESSION_LEDGER A2 rows and section.
+  - Verification: the final evidence run recorded in A2-R01-evidence/TEST_RESULTS.md (F1-F13), implementation 2ef0817.
+  - Notes: documentation only; the evidence commit SHA is recorded by the next commit; ZIP in .alveara/dist (gitignored). Nothing pushed.

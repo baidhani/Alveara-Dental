@@ -1,0 +1,62 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:15:13.82]     Alveara.Api.Tests.PatientMergeSchemaTests.Every_table_that_holds_a_patient_id_has_a_merge_scope_trigger_that_lists_every_other_column [FAIL]
+  Failed Alveara.Api.Tests.PatientMergeSchemaTests.Every_table_that_holds_a_patient_id_has_a_merge_scope_trigger_that_lists_every_other_column [46 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: True
+Actual:   False
+  Stack Trace:
+     at Alveara.Api.Tests.PatientMergeSchemaTests.Every_table_that_holds_a_patient_id_has_a_merge_scope_trigger_that_lists_every_other_column() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\PatientMergeSchemaTests.cs:line 269
+--- End of stack trace from previous location ---
+[xUnit.net 00:15:30.45]     Alveara.Api.Tests.VisitStateMachineTests.NextStates_lists_exactly_the_moves_the_rule_allows_in_chain_order [FAIL]
+  Failed Alveara.Api.Tests.VisitStateMachineTests.NextStates_lists_exactly_the_moves_the_rule_allows_in_chain_order [5 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                    ↓ (pos 1)
+Expected: <generated> ["Confirmed", "CheckedIn"]
+Actual:   <generated> ["Confirmed"]
+  Stack Trace:
+     at Alveara.Api.Tests.VisitStateMachineTests.NextStates_lists_exactly_the_moves_the_rule_allows_in_chain_order() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\VisitStateMachineTests.cs:line 119
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:15:30.45]     Alveara.Api.Tests.VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(target: "CheckedOut", duty: FrontOffice) [FAIL]
+[xUnit.net 00:15:30.45]     Alveara.Api.Tests.VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(target: "Completed", duty: Chairside) [FAIL]
+  Failed Alveara.Api.Tests.VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(target: "CheckedOut", duty: FrontOffice) [3 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: FrontOffice
+Actual:   Chairside
+  Stack Trace:
+     at Alveara.Api.Tests.VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(String target, TransitionDuty duty) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\VisitStateMachineTests.cs:line 164
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Alveara.Api.Tests.VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(target: "Completed", duty: Chairside) [< 1 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Chairside
+Actual:   FrontOffice
+  Stack Trace:
+     at Alveara.Api.Tests.VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(String target, TransitionDuty duty) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\VisitStateMachineTests.cs:line 164
+   at InvokeStub_VisitStateMachineTests.Each_move_is_front_office_or_chairside_work(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithFewArgs(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:15:30.46]     Alveara.Api.Tests.VisitStateMachineTests.For_the_four_original_states_it_gives_exactly_STORY_011s_answer [FAIL]
+  Failed Alveara.Api.Tests.VisitStateMachineTests.For_the_four_original_states_it_gives_exactly_STORY_011s_answer [< 1 ms]
+  Error Message:
+   Scheduled -> CheckedIn disagrees with STORY-011's rule
+  Stack Trace:
+     at Alveara.Api.Tests.VisitStateMachineTests.For_the_four_original_states_it_gives_exactly_STORY_011s_answer() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\VisitStateMachineTests.cs:line 44
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+[xUnit.net 00:15:30.46]     Alveara.Api.Tests.VisitStateMachineTests.Every_pair_of_states_has_exactly_the_documented_outcome [FAIL]
+  Failed Alveara.Api.Tests.VisitStateMachineTests.Every_pair_of_states_has_exactly_the_documented_outcome [1 ms]
+  Error Message:
+   Scheduled -> CheckedIn should be Move
+  Stack Trace:
+     at Alveara.Api.Tests.VisitStateMachineTests.Every_pair_of_states_has_exactly_the_documented_outcome() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\VisitStateMachineTests.cs:line 35
+   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)

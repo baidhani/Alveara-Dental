@@ -1,0 +1,15 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:20:54.96]     Alveara.Api.Tests.BackupApiTests.Manual_backup_verification_and_restore_drill_work_end_to_end_over_the_api_and_are_all_audited [FAIL]
+  Failed Alveara.Api.Tests.BackupApiTests.Manual_backup_verification_and_restore_drill_work_end_to_end_over_the_api_and_are_all_audited [2 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: 4
+Actual:   5
+  Stack Trace:
+     at Alveara.Api.Tests.BackupApiTests.Manual_backup_verification_and_restore_drill_work_end_to_end_over_the_api_and_are_all_audited() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BackupApiTests.cs:line 264
+   at Alveara.Api.Tests.BackupApiTests.Manual_backup_verification_and_restore_drill_work_end_to_end_over_the_api_and_are_all_audited() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BackupApiTests.cs:line 300
+--- End of stack trace from previous location ---
+Results File: C:\Users\firas\AppData\Local\Temp\claude\dfe629a69afb811c\75f893de-a6fd-4d6e-82a8-d7b9ae9033df\scratchpad\final5\trx\apitests.trx
+
+Failed!  - Failed:     1, Passed:  1020, Skipped:     0, Total:  1021, Duration: 21 m - Alveara.Api.Tests.dll (net10.0)

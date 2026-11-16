@@ -1,0 +1,21 @@
+Database AlveraWalk_playwright_flow_config_cf549613 created in C:\.alvera-data\Test-Data\Database
+Done.
+Clock: injected, now = 2030-01-14T13:30:00Z
+API healthy on http://localhost:5072; running playwright.flow.config.ts ...
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:146:1 ΓÇ║ SETUP: the practice (two providers, the dentist linked to Dr. Rivera, two operatories, an exam type) and patients (816ms)
+  ok  2 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:167:1 ΓÇ║ CHECK-IN: the receptionist confirms and checks a patient in from the calendar; the status shows on the drawer, the calendar and the server (2.9s)
+  ok  3 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:197:1 ΓÇ║ COMPLETE: the dentist treats, the receptionist resolves the checkout in the drawer and completes; a finished visit still holds its time (3.7s)
+  ok  4 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:238:1 ΓÇ║ NO SHORTCUTS: STORY-011's 'check in, then complete' and 'skip treatment' are refused on every route, and nothing changes (150ms)
+  ok  5 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:255:1 ΓÇ║ REFUSALS: repeats, a missing or stale version, a cancelled appointment and an unknown one behave and change nothing (253ms)
+  ok  6 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:291:1 ΓÇ║ STALE EDIT: a second user moves the patient first; a repeat of their move is a quiet no-op, a different move is reported and not applied, and Reload shows the real state (3.2s)
+  ok  7 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:323:1 ΓÇ║ RACE: six people pressing Check in at once produce exactly one check-in (133ms)
+  ok  8 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:335:1 ΓÇ║ PERMISSIONS: the dentist sees where the patient is and may not do front-desk moves (403, also on the legacy route); billing has no Calendar and no way in (969ms)
+  ok  9 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:353:1 ΓÇ║ KEYBOARD: a patient can be confirmed and checked in without a mouse (589ms)
+  ok 10 [chromium] ΓÇ║ e2e\patient-flow-real-backend.spec.ts:371:1 ΓÇ║ ACCEPTANCE: every status change is in the audit log with the user, and in the appointment's history, with no patient details (42ms)
+
+  10 passed (19.0s)
+Database AlveraWalk_playwright_flow_config_cf549613 dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\dfe629a69afb811c\75f893de-a6fd-4d6e-82a8-d7b9ae9033df\scratchpad\final4\walk\flow
