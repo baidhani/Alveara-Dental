@@ -2894,3 +2894,9 @@
   - What changed: .alveara/handoffs/ALV-N021/A2-R01.md and A2-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE with OD-01..OD-32 and 42 finding records, CHANGED_FILES, PARENT_REGRESSION, DEMO_EVIDENCE, NEXT_STORY_IMPACT, artifacts: final-run logs and walkthrough screenshots); EXECUTION_STATUS ALV-N021 AWAITING_REVIEW attempt A2-R01 (A3 PLANNED); BUILD_STATE line; PROGRAM_REGRESSION_LEDGER A2 rows and section.
   - Verification: the final evidence run recorded in A2-R01-evidence/TEST_RESULTS.md (F1-F13), implementation 2ef0817.
   - Notes: documentation only; the evidence commit SHA is recorded by the next commit; ZIP in .alveara/dist (gitignored). Nothing pushed.
+- [x] ALV-N021 A2-R01 review recorded (CHANGES_REQUIRED, CR-1)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A2-R01.md; EXECUTION_STATUS ALV-N021 CHANGES_REQUIRED with CR-1 as the blocking issue and the reviewed SHAs; BUILD_STATE line.
+  - Verification: review file byte-identical to the one the owner placed (not edited); EXECUTION_STATUS parses as JSON.
+  - Notes: documentation only. CR-1 work waits for the owner's Go. Nothing pushed.
