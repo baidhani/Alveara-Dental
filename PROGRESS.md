@@ -2936,3 +2936,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A2-R02-STAGE2.md; EXECUTION_STATUS attempt A2 COMPLETE (approved A2-R02, implementation b7efad6, evidence 3106c85, regression 4269f38, completedAt), story back to IN_PROGRESS with A3 PLANNED (briefing first, no implementation authorized); BUILD_STATE line.
   - Verification: EXECUTION_STATUS parses as JSON; review file not edited; closure-only commit (no src or test file).
   - Notes: nothing pushed.
+- [x] ALV-N021 A3 pre-implementation briefing revision 1 (for independent review)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: docs/design/ALV-N021_A3_PRE_IMPLEMENTATION_BRIEF.md (options A, B, D with measured footprint; owner D-1 = Option B with server-authoritative presentation rules: IANA practiceTimeZoneId in the session response, server-owned Windows mapping for a future WPF client, two shared client helpers, no browser fallback, zone-change refresh, true instants preserved, plain local input; owner D-2 = legacy ...Utc input fields retained temporarily, both forms refused as ambiguous) and docs/design/ALV-N021_A3_SITE_INVENTORY.md (157 classified client lines + the server request fields).
+  - Verification: read-only survey at d20e04c (counts in section 4 and Appendix A); no code or test written (A3 implementation not authorized before approval).
+  - Notes: documentation only. Nothing pushed.
