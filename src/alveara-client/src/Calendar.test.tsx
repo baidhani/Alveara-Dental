@@ -559,6 +559,7 @@ describe("cancelling, no-shows and notes", () => {
     expect(form.getByLabelText("Appointment type *")).toHaveValue("type-60");
     expect(form.getByLabelText("Start time *")).toHaveValue("09:00");
     expect(form.getByLabelText("Operatory *")).toHaveValue(gone.operatoryId);
+    expect(form.getByLabelText("Start time *")).toHaveAccessibleDescription("24-hour time, for example 09:30 or 14:00. You can type it.");   // F-068
     await userEvent.click(form.getByRole("button", { name: "Book appointment" }));
 
     await waitFor(() => expect(calls("POST", "").filter((c) => c.url === "/api/appointments")).toHaveLength(1));

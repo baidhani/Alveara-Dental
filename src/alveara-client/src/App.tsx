@@ -103,7 +103,7 @@ function createAppRouter() {
           }
         >
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/showcase" element={<ShowcasePage />} />
+          {import.meta.env.DEV && <Route path="/showcase" element={<ShowcasePage />} />}{/* ALV-N021 A2 (F-064): a developer page, never in a production build */}
           <Route path="/system-status" element={<SystemStatusPage />} />
           <Route
             path="/admin/users"

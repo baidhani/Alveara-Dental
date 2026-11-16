@@ -18,6 +18,9 @@ interface Props {
   durationHint?: string;
 }
 
+/** ALV-N021 A2 (F-068): some browsers (Firefox) draw no clock for a time field, so every start-time field says how to type it. */
+export const TIME_HINT = "24-hour time, for example 09:30 or 14:00. You can type it.";
+
 /** Where and when: provider, operatory, date, start time and an optional duration - the part of a booking or reschedule that is the same in both. */
 export function PlacementFields({ snapshot, values, onChange, disabled, durationHint }: Props) {
   const ids = { provider: useId(), operatory: useId() };
@@ -39,7 +42,7 @@ export function PlacementFields({ snapshot, values, onChange, disabled, duration
         </select>
       </div>
       <FormField label="Date *" type="date" value={values.date} onChange={(e) => set({ date: e.target.value })} disabled={disabled} />
-      <FormField label="Start time *" type="time" step={300} value={values.time} onChange={(e) => set({ time: e.target.value })} disabled={disabled} />
+      <FormField label="Start time *" type="time" step={300} value={values.time} onChange={(e) => set({ time: e.target.value })} disabled={disabled} hint={TIME_HINT} />
       <FormField label="Duration in minutes (optional)" type="number" min={5} max={480} step={5} value={values.duration} onChange={(e) => set({ duration: e.target.value })} disabled={disabled} hint={durationHint} />
     </div>
   );

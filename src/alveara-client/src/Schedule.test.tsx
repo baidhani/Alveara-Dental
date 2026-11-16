@@ -223,6 +223,13 @@ describe("refusals are explained in plain words and nothing is booked", () => {
   });
 });
 
+describe("typing a time (ALV-N021 A2, F-068)", () => {
+  it("the start time says how to type it, for browsers that draw no clock", async () => {
+    open();
+    expect(await screen.findByLabelText("Start time *")).toHaveAccessibleDescription("24-hour time, for example 09:30 or 14:00. You can type it.");
+  });
+});
+
 describe("the day's list (ALV-N021 A2, F-069, F-070)", () => {
   it("says where each appointment stands and opens it in the calendar and the patient's record", async () => {
     const a = server.addAppointment({ start: `${DAY}T09:00`, patientName: "Ann Lee" });

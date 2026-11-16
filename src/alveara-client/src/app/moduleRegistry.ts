@@ -19,7 +19,15 @@ export interface ModuleDefinition {
   activeWhen?: (pathname: string) => boolean;
 }
 
-export const moduleRegistry: ModuleDefinition[] = [
+/** ALV-N021 A2 (F-064): the developer Component Showcase - in a development build only; a production build has neither this entry nor the page. */
+const SHOWCASE: ModuleDefinition = { id: "showcase", label: "Component Showcase", path: "/showcase" };
+
+/** The navigation for a build: `isDevelopment` decides whether the developer-only entries are in it (pure, so both builds can be tested). */
+export function modulesFor(isDevelopment: boolean): ModuleDefinition[] {
+  return isDevelopment ? baseRegistry : baseRegistry.filter((m) => m.id !== SHOWCASE.id);
+}
+
+const baseRegistry: ModuleDefinition[] = [
   { id: "dashboard", label: "Dashboard", path: "/" },
   { id: "patients", label: "Patients", path: "/patients", requiredPermission: "ViewPatientRecords", activeWhen: (p) => p.startsWith("/patients") && p !== "/patients/register" },
   { id: "register-patient", label: "Register Patient", path: "/patients/register", requiredPermission: "RegisterPatients" },
@@ -31,7 +39,7 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "follow-ups", label: "My follow-ups", path: "/follow-ups", requiredPermission: "ViewFollowUps" },
   { id: "external-cases", label: "Referrals & labs", path: "/external-cases", requiredPermission: "ViewExternalCases", activeWhen: (p) => p.startsWith("/external-cases") },
   { id: "messages", label: "Messages", path: "/messages" },
-  { id: "showcase", label: "Component Showcase", path: "/showcase" },
+  SHOWCASE,
   { id: "system-status", label: "System Status", path: "/system-status" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users", anyPermission: ["ManageUsers", "ManageAccountStatus", "RevokeSessions"] },
   { id: "recall-settings", label: "Recall settings", path: "/admin/recall", requiredPermission: "ManageRecallSettings" },
@@ -52,3 +60,5 @@ export const moduleRegistry: ModuleDefinition[] = [
   { id: "backup-recovery", label: "Backup & Recovery", path: "/admin/backup", requiredPermission: "ViewBackupStatus" },
   { id: "mfa-settings", label: "Multi-Factor Authentication", path: "/settings/mfa" },
 ];
+
+export const moduleRegistry: ModuleDefinition[] = modulesFor(import.meta.env.DEV);

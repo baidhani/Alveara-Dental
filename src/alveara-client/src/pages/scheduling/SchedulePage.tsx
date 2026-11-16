@@ -17,6 +17,7 @@ import {
 } from "../../services/schedulingApi";
 import type { Appointment } from "../../services/schedulingApi";
 import { explainRefusal } from "../calendar/explainRefusal";
+import { TIME_HINT } from "../calendar/PlacementFields";
 import { flowWord, statusWord } from "../calendar/calendarLayout";
 import { formFieldMessage } from "./scheduleMessages";
 import "./SchedulePage.css";
@@ -155,7 +156,7 @@ export function SchedulePage() {
             <SelectField id={ids.type} label="Appointment type *" value={typeId} onChange={(v) => { touch(); setTypeId(v); }} disabled={busy}
               options={options.appointmentTypes.map((t) => ({ value: t.id, label: `${t.name} (${t.defaultDurationMinutes} min)` }))} />
             <FormField label="Date *" type="date" value={date} onChange={(e) => { touch(); setDate(e.target.value); }} disabled={busy} />
-            <FormField label="Start time *" type="time" step={300} value={time} onChange={(e) => { touch(); setTime(e.target.value); }} disabled={busy} />
+            <FormField label="Start time *" type="time" step={300} value={time} onChange={(e) => { touch(); setTime(e.target.value); }} disabled={busy} hint={TIME_HINT} />
             <FormField label="Duration in minutes (optional)" type="number" min={5} max={480} step={5} value={duration} onChange={(e) => { touch(); setDuration(e.target.value); }} disabled={busy}
               hint={type ? `Leave blank to use ${type.defaultDurationMinutes} minutes.` : "Leave blank to use the appointment type's default."} />
           </div>
