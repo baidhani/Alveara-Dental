@@ -37,6 +37,9 @@ public interface IPracticeClock
     /// uses this; none may convert a practice midnight itself. It is a default member so every clock (production, chain host, tests) shares the same rule.
     /// </summary>
     DateTimeOffset StartOfPracticeDayUtc(DateOnly date) => PracticeDayBoundary.StartUtc(PracticeTimeZone, date);
+
+    /// <summary>ALV-N021 A3: the canonical IANA id of <see cref="PracticeTimeZone"/>, the only zone identifier the API publishes (<see cref="PracticeZoneIds"/>).</summary>
+    string PracticeTimeZoneIanaId => PracticeZoneIds.CanonicalIanaId(PracticeTimeZone);
 }
 
 /// <summary>ALV-N021 A2 (T-3): the arithmetic behind <see cref="IPracticeClock.StartOfPracticeDayUtc"/>, kept pure so it is tested on any zone.</summary>

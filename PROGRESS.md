@@ -2960,3 +2960,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A3-BRIEFING-R02.md; EXECUTION_STATUS attempt A3 IN_PROGRESS with the briefing decision; BUILD_STATE line.
   - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
   - Notes: documentation only. Nothing pushed.
+- [x] ALV-N021 A3 slice 1: canonical IANA practice zone, server-owned Windows mapping, start-up check, practiceTimeZoneId in the session response
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: new Architecture/Time/PracticeZoneIds.cs (CanonicalIanaId: IANA as is, Windows id converted, no IANA form -> PracticeZoneConfigurationException; TryWindowsId for a future Windows client); IPracticeClock.PracticeTimeZoneIanaId default member; Program.cs resolves the zone once and stops start-up without an IANA form; AuthController.MyPermissions adds practiceTimeZoneId (authentication only). New PracticeTimeZoneSessionTests (6).
+  - Verification: PracticeTimeZoneSessionTests + AuthControllerPermissionMatrixTests 14/14 (28 s); negative control (session publishes the raw configured id) fails the Windows-configuration test, restored from backup, hash identical, 6/6.
+  - Notes: the start-up refusal is proven at unit level with a custom zone (every real Windows zone has an IANA form), not by starting the API with one. Nothing pushed.

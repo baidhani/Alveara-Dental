@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Time;
 using Alveara.Api.Architecture.Permissions;
 using Alveara.Api.Data;
 
@@ -36,7 +37,7 @@ public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDis
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db, IEffectivePermissions permissions) : ControllerBase
+public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db, IEffectivePermissions permissions, IPracticeClock clock) : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("AuthAttempts")]
@@ -197,6 +198,8 @@ public class AuthController(AccountService accountService, IConfiguration config
             // ALV-N020-C01: permissions held by this ACCOUNT (never by its role), e.g. ManageLoginPresentation.
             accountPermissions = await HttpContext.RequestServices.GetRequiredService<AccountPermissionService>().ForAccountAsync(Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!), HttpContext.RequestAborted),
             sessionExpiresAtUtc = authenticateResult.Properties?.ExpiresUtc,
+            // ALV-N021 A3 (briefing 4.1-1, BR-5): the practice zone every client renders instants in - canonical IANA, the same for every signed-in user, no permission beyond sign-in
+            practiceTimeZoneId = clock.PracticeTimeZoneIanaId,
         });
     }
 

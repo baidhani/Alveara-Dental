@@ -50,8 +50,10 @@ builder.Services.AddDbContext<AlveraDbContext>(options => options.UseSqlServer(c
 // Practice time zone — configurable, defaults to America/Chicago. All appointment-local
 // conversions go through this, never the server's own local time zone.
 var practiceTimeZoneId = builder.Configuration["PracticeTimeZone"] ?? "America/Chicago";
-builder.Services.AddSingleton<IPracticeClock>(
-    _ => new PracticeClock(TimeZoneInfo.FindSystemTimeZoneById(practiceTimeZoneId)));
+// ALV-N021 A3 (briefing 4.1-1): the zone must have a canonical IANA id, because that is what clients are told to show times in; a zone without one stops start-up here
+var practiceTimeZone = TimeZoneInfo.FindSystemTimeZoneById(practiceTimeZoneId);
+PracticeZoneIds.CanonicalIanaId(practiceTimeZone);
+builder.Services.AddSingleton<IPracticeClock>(_ => new PracticeClock(practiceTimeZone));
 
 // Storage-root/blob abstraction seam (no document module yet — ALV-N010 consumes this).
 var storageRoot = builder.Configuration["StorageRoot"]
