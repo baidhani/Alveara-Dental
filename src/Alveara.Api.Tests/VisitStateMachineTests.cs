@@ -3,17 +3,18 @@ using Xunit;
 
 namespace Alveara.Api.Tests;
 
-/// <summary>ALV-011-C01: the complete visit-state rule on its own (pure logic, no database), and its compatibility with STORY-011's rule.</summary>
+/// <summary>ALV-011-C01: the complete visit-state rule on its own (pure logic, no database), and how it relates to STORY-011's rule. Updated for ALV-N021 A2 (default settings).</summary>
 public class VisitStateMachineTests
 {
     private const string S = VisitStates.Scheduled, Cf = VisitStates.Confirmed, Ci = VisitStates.CheckedIn, R = VisitStates.Ready,
         Se = VisitStates.Seated, T = VisitStates.InTreatment, Co = VisitStates.CheckedOut, D = VisitStates.Completed;
 
-    // every allowed move, written out once; the exhaustive test below proves nothing else is allowed
+    // every allowed move under the default settings, written out once; the exhaustive test below proves nothing else is allowed.
+    // ALV-N021 A2: one path (OD-01); STORY-011's shortcuts CheckedIn->InTreatment, CheckedIn->Completed, InTreatment->Completed are removed (OD-02);
+    // with confirmation and marking ready required by default (OD-03, OD-04) Scheduled->CheckedIn is refused too. The settings-off table is in VisitPathTableTests.
     private static readonly (string, string)[] Moves =
     [
-        (S, Cf), (S, Ci), (Cf, Ci), (Ci, R), (R, Se), (Se, T), (T, Co), (Co, D),
-        (Ci, T), (Ci, D), (T, D), // STORY-011's shortcuts
+        (S, Cf), (Cf, Ci), (Ci, R), (R, Se), (Se, T), (T, Co), (Co, D),
     ];
 
     [Fact]
@@ -37,11 +38,20 @@ public class VisitStateMachineTests
     }
 
     [Fact]
-    public void For_the_four_original_states_it_gives_exactly_STORY_011s_answer()
+    public void For_the_four_original_states_it_agrees_with_STORY_011_except_that_every_STORY_011_move_was_a_shortcut_and_is_now_refused()
     {
+        // ALV-N021 A2 (OD-02, OD-03): among Scheduled, CheckedIn, InTreatment, Completed every move STORY-011 allowed skips a step of the one path, so each is refused;
+        // repeats and refusals are unchanged.
+        var storyMoves = 0;
         foreach (var from in PatientFlowStates.InOrder)
             foreach (var to in PatientFlowStates.InOrder)
-                Assert.True(PatientFlowRules.Decide(from, to) == VisitStateMachine.Decide(from, to), $"{from} -> {to} disagrees with STORY-011's rule");
+            {
+                var story = PatientFlowRules.Decide(from, to);
+                var expected = story == FlowDecision.Move ? FlowDecision.Refused : story;
+                if (story == FlowDecision.Move) storyMoves++;
+                Assert.True(expected == VisitStateMachine.Decide(from, to), $"{from} -> {to} should be {expected} (STORY-011 said {story})");
+            }
+        Assert.Equal(4, storyMoves);   // Scheduled->CheckedIn, CheckedIn->InTreatment, CheckedIn->Completed, InTreatment->Completed
     }
 
     [Fact]
@@ -78,7 +88,7 @@ public class VisitStateMachineTests
 
     [Theory]
     [InlineData(Ci, Se)] // the room must be made ready before the patient is seated
-    [InlineData(R, T)]   // and the patient must be seated before treatment starts (the only shortcut is STORY-011's check-in to treatment)
+    [InlineData(R, T)]   // and the patient must be seated before treatment starts (ALV-N021 A2, OD-05: no shortcut at all)
     [InlineData(Se, Co)]
     [InlineData(Se, D)]
     [InlineData(R, D)]
@@ -116,8 +126,8 @@ public class VisitStateMachineTests
             var expected = VisitStates.InOrder.Where(to => VisitStateMachine.Decide(from, to) == FlowDecision.Move).ToArray();
             Assert.Equal(expected, VisitStateMachine.NextStates(from));
         }
-        Assert.Equal([Cf, Ci], VisitStateMachine.NextStates(S));
-        Assert.Equal([R, T, D], VisitStateMachine.NextStates(Ci));
+        Assert.Equal([Cf], VisitStateMachine.NextStates(S));    // ALV-N021 A2 (OD-03): confirmation required by default
+        Assert.Equal([R], VisitStateMachine.NextStates(Ci));    // OD-02 (no shortcuts), OD-04 (marking ready required by default)
         Assert.Empty(VisitStateMachine.NextStates("nonsense"));
         Assert.Empty(VisitStateMachine.NextStates(null));
     }
@@ -155,11 +165,11 @@ public class VisitStateMachineTests
     [Theory]
     [InlineData(Cf, TransitionDuty.FrontOffice)]
     [InlineData(Ci, TransitionDuty.FrontOffice)]
-    [InlineData(Co, TransitionDuty.FrontOffice)]
+    [InlineData(D, TransitionDuty.FrontOffice)]   // ALV-N021 A2 (OD-09): the front desk completes (or the clinician who started treatment, a separate rule)
     [InlineData(R, TransitionDuty.Chairside)]
     [InlineData(Se, TransitionDuty.Chairside)]
     [InlineData(T, TransitionDuty.Chairside)]
-    [InlineData(D, TransitionDuty.Chairside)]
+    [InlineData(Co, TransitionDuty.Chairside)]    // ALV-N021 A2 (OD-08, OD-10): "Ready for checkout" is the booked provider's End treatment, not the front desk's
     public void Each_move_is_front_office_or_chairside_work(string target, TransitionDuty duty) =>
         Assert.Equal(duty, VisitStateMachine.DutyFor(target));
 }
