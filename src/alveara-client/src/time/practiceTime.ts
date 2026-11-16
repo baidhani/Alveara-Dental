@@ -108,6 +108,9 @@ export const getRenderZone = (): string | null => renderZone;
 /** The practice calendar day now in the session zone ("yyyy-MM-dd"), or null without one: every "today" default, preset and limit uses this. */
 export const sessionToday = (now: Date = new Date()): string | null => practiceToday(renderZone, now);
 
+/** The practice wall time now in the session zone ("yyyy-MM-ddTHH:mm"), or null without one: the Calendar's and Flow Board's "now". */
+export const sessionNow = (now: Date = new Date()): string | null => practiceNow(renderZone, now);
+
 /** The exact `datetime-local` value for an instant in the session zone (prefills only), or null without one. */
 export const sessionLocalInput = (utc: string | number | Date, options: { seconds?: boolean } = {}): string | null => toPracticeLocalInput(utc, renderZone, options);
 

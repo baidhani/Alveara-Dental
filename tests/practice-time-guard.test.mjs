@@ -1,8 +1,8 @@
 // ALV-N021 A3 (briefing section 8, BR-4): the client renders every instant in the PRACTICE zone and derives every "today" from it, through the shared
 // helper module src/alveara-client/src/time/practiceTime.ts only. This repository check scans the client source (tests, fakes and test servers excluded)
 // and fails on exactly two things outside that module:
-//   1. browser-zone formatting of an instant: toLocaleDateString( / toLocaleTimeString( (Date-only methods), toLocaleString( on a Date expression, or a
-//      new Intl.DateTimeFormat( without a timeZone;
+//   1. browser-zone formatting of an instant: toLocaleDateString( / toLocaleTimeString( (Date-only methods), toLocaleString( on a Date expression, or any
+//      new Intl.DateTimeFormat( (A3-R02: with or without a timeZone - the helper module is the only place a zone is applied);
 //   2. browser-local calendar-day derivation: getFullYear() / getMonth() / getDate() / getDay() / getHours() / getMinutes() on a Date.
 // It does NOT flag number or money formatting, Date.now() for timers or keys, getTime() instant arithmetic, or date-only values handled in the reviewed
 // allowlist below. Each allowlist entry names its file, the exact expression and why; there is no directory-wide exemption, and an entry that no longer
@@ -53,7 +53,9 @@ export function offences(text) {
   const found = [];
   lines.forEach((raw, i) => {
     const line = stripComment(raw);
-    const intlWithoutZone = INTL_DATE.test(line) && !/timeZone/.test(lines.slice(i, i + 4).join(" "));
+    // ALV-N021 A3-R02 (review CR-1): ANY Intl.DateTimeFormat outside the helper is refused, with or without a zone - a second zone source (such as the
+    // calendar's old practiceNow, which used the scheduling snapshot's zone) must not come back
+    const intlWithoutZone = INTL_DATE.test(line);
     if (DATE_ONLY_METHOD.test(line) || TO_LOCALE_STRING_ON_DATE.test(line) || intlWithoutZone || BROWSER_DAY.test(line)) found.push({ line: i + 1, text: raw.trim() });
   });
   return found;
@@ -95,6 +97,6 @@ test("negative controls: a browser-zone instant format and a browser 'today' are
   assert.equal(offences("const s = count.toLocaleString();").length, 0);
   assert.equal(offences("const s = amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });").length, 0);
   assert.equal(offences("const ms = new Date(x).getTime() - Date.now();").length, 0);
-  assert.equal(offences("const f = new Intl.DateTimeFormat('en-US', { timeZone: zone });").length, 0);
+  assert.equal(offences("const f = new Intl.DateTimeFormat('en-US', { timeZone: zone });").length, 1);   // A3-R02: a zone-aware formatter outside the helper is a second zone source
   assert.equal(offences("// new Date(x).toLocaleString() in a comment").length, 0);
 });

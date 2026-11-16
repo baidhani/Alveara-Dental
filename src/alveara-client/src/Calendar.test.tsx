@@ -648,3 +648,29 @@ describe("accessibility", () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 });
+
+// ALV-N021 A3-R02 (review CR-1): one zone source. The calendar's day comes from the SESSION's practice zone, never the scheduling snapshot's zone; without a
+// session zone the page says it cannot tell which day it is. At 2030-01-15T03:30Z it is still the 14th in Chicago (the snapshot's zone) but the 15th in Tokyo.
+describe("the calendar's today comes only from the session's practice zone (ALV-N021 A3-R02)", () => {
+  afterEach(() => vi.useRealTimers());
+
+  it("follows the session zone even when the scheduling snapshot reports another zone", async () => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2030-01-15T03:30:00Z") });
+    server.sessionZone = "Asia/Tokyo";
+    open();
+    expect(await screen.findByLabelText("Date")).toHaveValue("2030-01-15");
+  });
+
+  it("shows the same day as the snapshot only because the session zone is the same", async () => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2030-01-15T03:30:00Z") });
+    open();
+    expect(await screen.findByLabelText("Date")).toHaveValue("2030-01-14");
+  });
+
+  it("without a session zone says it cannot tell which day it is, and shows no calendar", async () => {
+    server.sessionZone = null;
+    open();
+    expect(await screen.findByText("Times cannot be shown")).toBeInTheDocument();
+    expect(document.querySelector(".cal")).toBeNull();
+  });
+});

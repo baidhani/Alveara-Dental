@@ -146,14 +146,8 @@ const FLOW_WORDS: Record<string, string> = {
 export const appointmentsOnDay = (appointments: Appointment[], day: string) =>
   appointments.filter((a) => dateOf(a.startLocal) <= day && day <= dateOf(a.endLocal) && !(dateOf(a.endLocal) === day && minutesOf(a.endLocal) === 0 && dateOf(a.startLocal) !== day));
 
-/** "now" in the practice's own time zone as "yyyy-MM-ddTHH:mm", from the zone id the scheduling snapshot reports. */
-export function practiceNow(timeZoneId: string, now: Date = new Date()): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: timeZoneId, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
-  }).formatToParts(now);
-  const get = (t: string) => parts.find((p) => p.type === t)!.value;
-  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
-}
+// ALV-N021 A3-R02 (review CR-1): the calendar's own practiceNow (which used the scheduling snapshot's zone) is gone. "now" and "today" come only from the
+// session's practice zone through time/practiceTime.ts (sessionNow, sessionToday), the same source every other screen uses.
 
 /** The start minute of a click at `offsetY` pixels down a column, snapped down to a 15-minute slot. */
 export const slotMinuteAt = (offsetY: number, axisStartMinute: number) => axisStartMinute + Math.floor(offsetY / PIXELS_PER_MINUTE / 15) * 15;

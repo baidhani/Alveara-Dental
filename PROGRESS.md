@@ -3014,3 +3014,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A3-R01.md; EXECUTION_STATUS ALV-N021 and attempt A3 CHANGES_REQUIRED with CR-1 and CR-2 as blocking issues and the reviewed SHAs; BUILD_STATE line.
   - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
   - Notes: documentation only. Nothing pushed.
+- [x] ALV-N021 A3-R02 (review CR-1, CR-2): one practice-zone source for Calendar and Flow Board; statement and receipt component test
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: CR-1: calendarLayout.practiceNow (scheduling snapshot zone) removed; new practiceTime.sessionNow; CalendarPage and FlowBoardPage take default day, today and now from sessionToday/sessionNow and show "Times cannot be shown" without a session zone; test fakes and two tests use the shared practiceNow; fakePatientServer.sessionZone; the guard now refuses any Intl.DateTimeFormat outside the helper module. New tests: Calendar.test (session Tokyo vs snapshot Chicago -> the 15th; same zone -> the 14th; no zone -> unavailable, no calendar), FlowBoard.test (Tokyo -> the 15th; no zone -> unavailable, no board). CR-2: new BillingDocumentView.test.tsx (StatementView and ReceiptView with the process zone set elsewhere: cut-off, line, service and received dates in the practice zone; swapping zones changes only the times).
+  - Verification: tsc clean, lint 42 warnings (unchanged); vitest Calendar, FlowBoard, calendarLayout, BillingDocumentView and src/time 109/109 (23 s); guard 4/4; negative control (CalendarPage default day from the snapshot zone) fails the Tokyo-session test, restored from backup, hash identical, 45/45.
+  - Notes: no full suite, mocked-browser, chain or walkthrough run (review R02 contract). Nothing pushed.

@@ -32,6 +32,8 @@ export function makePatient(over: Partial<Stored> & { id: string }): Stored {
 export class FakePatientServer {
   patients = new Map<string, Stored>();
   permissions: string[] = ["ViewPatientRecords", "RegisterPatients", "EditPatients"];
+  /** ALV-N021 A3-R02: the practice zone the fake session reports (null = none); the scheduling snapshot's zone is separate. */
+  sessionZone: string | null = "America/Chicago";
   calls: Call[] = [];
   history: Record<string, unknown[]> = {};
   /** Responses a test wants for the NEXT matching request: key is `METHOD path-prefix`. */
@@ -95,7 +97,7 @@ export class FakePatientServer {
 
     if (path === "/api/auth/csrf-token") return json(200, { token: "csrf-1" });
     if (path === "/api/auth/permissions")
-      return json(200, signedInSession({ username: "desk-1", role: "FrontDesk", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1_800_000).toISOString() }));
+      return json(200, signedInSession({ username: "desk-1", role: "FrontDesk", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1_800_000).toISOString(), practiceTimeZoneId: this.sessionZone }));
     if (path === "/api/health") return json(200, { status: "ok" });
     const extra = await this.handleExtra(path, method, headers, body, u);
     if (extra) return extra;

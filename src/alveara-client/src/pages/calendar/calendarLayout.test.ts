@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
 import type { Appointment } from "../../services/schedulingApi";
 import {
-  addDays, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, flowWord, hhmm, minutesOf, nextWorkingDay, placeColumn, practiceNow, slotMinuteAt, viewDays, weekStart,
+  addDays, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, flowWord, hhmm, minutesOf, nextWorkingDay, placeColumn, slotMinuteAt, viewDays, weekStart,
 } from "./calendarLayout";
+import { practiceNow as practiceNowShared } from "../../time/practiceTime";
 
 describe("the next working day (ALV-N021 A2, F-048)", () => {
   const weekdays = [{ weeklyAvailability: [1, 2, 3, 4, 5].map((dayOfWeek) => ({ dayOfWeek })) }];
@@ -51,10 +52,10 @@ describe("calendar dates are practice-local calendar arithmetic", () => {
 
   it("reports the practice's now from its own zone id, not the browser's", () => {
     const instant = new Date("2030-01-14T15:30:00Z");
-    expect(practiceNow("America/Chicago", instant)).toBe("2030-01-14T09:30");
-    expect(practiceNow("UTC", instant)).toBe("2030-01-14T15:30");
-    expect(practiceNow("Asia/Tokyo", instant)).toBe("2030-01-15T00:30");
-    expect(practiceNow("America/Chicago", new Date("2030-07-14T15:30:00Z"))).toBe("2030-07-14T10:30"); // daylight time
+    expect(practiceNowShared("America/Chicago", instant)).toBe("2030-01-14T09:30");
+    expect(practiceNowShared("UTC", instant)).toBe("2030-01-14T15:30");
+    expect(practiceNowShared("Asia/Tokyo", instant)).toBe("2030-01-15T00:30");
+    expect(practiceNowShared("America/Chicago", new Date("2030-07-14T15:30:00Z"))).toBe("2030-07-14T10:30"); // daylight time
   });
 });
 

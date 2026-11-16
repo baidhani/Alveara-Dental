@@ -14,7 +14,8 @@ import { CalendarGrid } from "./CalendarGrid";
 import type { CalendarView } from "./CalendarGrid";
 import { NewAppointmentPanel } from "./NewAppointmentPanel";
 import type { Rebook } from "./NewAppointmentPanel";
-import { addDays, dayLabel, hhmm, practiceNow, viewDays } from "./calendarLayout";
+import { addDays, dayLabel, hhmm, viewDays } from "./calendarLayout";
+import { sessionNow, sessionToday } from "../../time/practiceTime";
 import "../scheduling/SchedulePage.css";
 import "./Calendar.css";
 
@@ -54,7 +55,7 @@ export function CalendarPage() {
     getSchedulingSnapshot()
       .then((snapshot) => {
         if (controller.signal.aborted) return;
-        setDay((d) => d || linked.current.day || dateOf(practiceNow(snapshot.timeZoneId)));
+        setDay((d) => d || linked.current.day || (sessionToday() ?? ""));   // ALV-N021 A3-R02: the session practice day, never the snapshot's zone
         setLoad({ kind: "loaded", snapshot });
       })
       .catch(() => {
@@ -109,8 +110,11 @@ export function CalendarPage() {
   if (load.kind === "loading") return <LoadingState label="Loading the calendar…" />;
   if (load.kind === "error") return <ErrorState title="Could not load the calendar" description="Check your connection and reload the page." />;
   const { snapshot } = load;
+  // ALV-N021 A3-R02 (CR-1): one zone source - the session's practice zone; without it the page cannot tell today or now, so it says so instead of guessing
+  const nowLocal = sessionNow();
+  if (nowLocal === null) return <ErrorState title="Times cannot be shown" description="The practice time zone is not available, so this page cannot tell which day it is. Reload the page or sign in again." />;
   const shownProviders = snapshot.providers.filter((p) => !providerFilter || p.providerId === providerFilter);
-  const today = dateOf(practiceNow(snapshot.timeZoneId));
+  const today = dateOf(nowLocal);
   const step = view === "day" ? 1 : 7;
 
   const closeDrawer = () => setDrawer({ kind: "none" });
@@ -220,7 +224,7 @@ export function CalendarPage() {
               appointment={drawer.appointment}
               snapshot={snapshot}
               canManage={canManage}
-              nowLocal={practiceNow(snapshot.timeZoneId)}
+              nowLocal={nowLocal}
               onChanged={replace}
               onRebook={(a) => {
                 // the same provider and time of day, on the appointment's own day or today if that has passed; the booking route decides whether it is free

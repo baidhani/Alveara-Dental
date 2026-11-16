@@ -12,11 +12,11 @@ import { dateOf } from "../../services/schedulingApi";
 import type { Appointment, PatientFlowState } from "../../services/schedulingApi";
 import { assignVisit, getAppointmentActions, getVisitBoard, keepDespiteBlock, moveVisit, undoCheckIn } from "../../services/visitsApi";
 import type { VisitBoard, VisitCard } from "../../services/visitsApi";
-import { addDays, dayLabel, practiceNow } from "../calendar/calendarLayout";
+import { addDays, dayLabel } from "../calendar/calendarLayout";
 import { VisitCardView } from "./VisitCardView";
 import { DONE_LABELS, STATE_LABELS, explainVisitRefusal } from "./visitLabels";
 import { boardNowMs } from "./visitTime";
-import { showInstant } from "../../time/practiceTime";
+import { sessionNow, sessionToday, showInstant } from "../../time/practiceTime";
 import "./FlowBoard.css";
 
 const POLL_MS = 15_000;
@@ -62,7 +62,7 @@ export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
     getSchedulingSnapshot()
       .then((snapshot) => {
         if (controller.signal.aborted) return;
-        setDay((d) => d || dateOf(practiceNow(snapshot.timeZoneId)));
+        setDay((d) => d || (sessionToday() ?? ""));   // ALV-N021 A3-R02: the session practice day, never the snapshot's zone
         setLoad({ kind: "loaded", snapshot });
       })
       .catch(() => {
@@ -123,7 +123,10 @@ export function FlowBoardPage({ pollMs = POLL_MS }: { pollMs?: number }) {
   if (load.kind === "loading") return <LoadingState label="Loading the visit board…" />;
   if (load.kind === "error") return <ErrorState title="Could not load the visit board" description="Check your connection and reload the page." />;
   const { snapshot } = load;
-  const today = dateOf(practiceNow(snapshot.timeZoneId));
+  // ALV-N021 A3-R02 (CR-1): one zone source - the session's practice zone; without it the board cannot tell which day it is
+  const nowLocal = sessionNow();
+  if (nowLocal === null) return <ErrorState title="Times cannot be shown" description="The practice time zone is not available, so the board cannot tell which day it is. Reload the page or sign in again." />;
+  const today = dateOf(nowLocal);
   const refresh = () => setRefreshKey((k) => k + 1);
   const canMove = hasPermission("UpdateVisitFlow") || hasPermission("UpdateChairsideFlow");
   const shown = board && board.date === day ? board : null; // never show another day's board under this day's heading

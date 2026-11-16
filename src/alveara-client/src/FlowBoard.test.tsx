@@ -6,7 +6,8 @@ import { App } from "./App";
 import { FakeFlowServer } from "./test/fakeFlowServer";
 import { dateOf } from "./services/schedulingApi";
 import type { PatientFlowState } from "./services/schedulingApi";
-import { addDays, practiceNow } from "./pages/calendar/calendarLayout";
+import { addDays } from "./pages/calendar/calendarLayout";
+import { practiceNow } from "./time/practiceTime";
 
 /**
  * ALV-011-C01: the live visit board through the real <App /> against an in-memory fake of the visit API. The state rules, the audit trail, the room lock and
@@ -101,7 +102,7 @@ describe("what the board shows", () => {
   });
 
   it("carries a visit left open from an earlier day onto today's board and says so", async () => {
-    const today = dateOf(practiceNow("America/Chicago"));
+    const today = dateOf(practiceNow("America/Chicago")!);
     server.today = today;
     const earlier = addDays(today, -3);
     const old = visit({ start: `${earlier}T09:00`, flow: "Seated" });
@@ -463,5 +464,25 @@ describe("accessibility", () => {
 
     expect(screen.getAllByRole("region").length).toBeGreaterThanOrEqual(9); // eight states and the closed group
     expect(await axe(view.container)).toHaveNoViolations();
+  });
+});
+
+// ALV-N021 A3-R02 (review CR-1): one zone source. The board's day comes from the SESSION's practice zone, never the scheduling snapshot's zone; without a
+// session zone the board says it cannot tell which day it is. At 2030-01-15T03:30Z it is still the 14th in Chicago (the snapshot's zone) but the 15th in Tokyo.
+describe("the board's today comes only from the session's practice zone (ALV-N021 A3-R02)", () => {
+  it("follows the session zone even when the scheduling snapshot reports another zone", async () => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2030-01-15T03:30:00Z") });
+    server.sessionZone = "Asia/Tokyo";
+    window.history.pushState({}, "", "/flow");
+    render(<App />);
+    expect(await screen.findByLabelText("Date")).toHaveValue("2030-01-15");
+  });
+
+  it("without a session zone says it cannot tell which day it is, and shows no board", async () => {
+    server.sessionZone = null;
+    window.history.pushState({}, "", "/flow");
+    render(<App />);
+    expect(await screen.findByText("Times cannot be shown")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /^Scheduled \(/ })).toBeNull();
   });
 });

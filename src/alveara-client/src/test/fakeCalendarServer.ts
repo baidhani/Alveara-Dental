@@ -1,7 +1,7 @@
 import { FakeScheduleServer } from "./fakeScheduleServer";
 import { json } from "./fakePatientServer";
 import type { Appointment, AppointmentEvent, PatientFlowState } from "../services/schedulingApi";
-import { practiceNow } from "../pages/calendar/calendarLayout";
+import { practiceNow } from "../time/practiceTime";
 
 /**
  * ALV-004-C01: an in-memory stand-in for the lifecycle half of the scheduling API (reschedule, cancel, no-show, notes, history, patient overlap and the
@@ -177,7 +177,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
       if (a.status === "NoShow") return json(200, a);
       if (stale) return this.conflict(a.id);
       if (a.status !== "Scheduled") return json(409, { error: "appointment_not_scheduled", message: "Only a scheduled appointment can be marked as a no-show." });
-      if (practiceNow("America/Chicago") < a.startLocal) return json(409, { error: "no_show_too_early", message: "An appointment can only be marked as a no-show once its start time has passed." });
+      if (practiceNow("America/Chicago")! < a.startLocal) return json(409, { error: "no_show_too_early", message: "An appointment can only be marked as a no-show once its start time has passed." });
       a.status = "NoShow"; a.statusChangedAtUtc = "2026-10-02T10:00:00Z";
       this.touch(a); this.log(a, "NoShow", "Marked as a no-show.");
       return json(200, a);
