@@ -68,6 +68,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.LoginPresentation.LoginPrese
 builder.Services.AddScoped<PracticeConfigurationService>();
 builder.Services.AddScoped<StaffProviderService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.BlockedTimeGuard>();   // ALV-N021 A2 (OD-17)
+builder.Services.AddScoped<Alveara.Api.Architecture.Scheduling.CalendarBlockedTimeReader>();   // ALV-N021 A2 (F-052): the calendar's blocked time, without reasons
 builder.Services.AddScoped<StaffInactivationService>();                                              // ALV-N020 (F-021): inactivation also disables the linked login
 builder.Services.AddScoped<IStaffInactivationAlert, InAppStaffInactivationAlert>();                 // ALV-N020: Urgent in-app alert (migration decision Option A)
 builder.Services.AddScoped<SchedulingConfiguration>();

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../components/Button";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
@@ -9,7 +9,8 @@ import { useNotifications } from "../../components/Notification";
 import { confirmDiscard, useUnsavedChangesWarning } from "../../hooks/useUnsavedChangesWarning";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
-import { addBlockedTime, blockOverlapsOf, getAvailability, listBlockedTime, listProviders, removeBlockedTime, replaceAvailability } from "../../services/configApi";
+import { BLOCKED_TIME_LABELS, addBlockedTime, blockOverlapsOf, getAvailability, listBlockedTime, listProviders, removeBlockedTime, replaceAvailability } from "../../services/configApi";
+import type { BlockedTimeLabel } from "../../services/configApi";
 import type { BlockOverlap, BlockedTime, ProviderRecord } from "../../services/configApi";
 import { BlockOverlapNotice } from "./BlockOverlapNotice";
 import { DAY_NAMES, validateWindows } from "./availabilityRules";
@@ -53,7 +54,8 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleFailed, setScheduleFailed] = useState(false);
   const [blocked, setBlocked] = useState<BlockedTime[]>([]);
-  const [blockForm, setBlockForm] = useState({ start: "", end: "", reason: "" });
+  const labelId = useId();
+  const [blockForm, setBlockForm] = useState<{ start: string; end: string; reason: string; label: BlockedTimeLabel | "" }>({ start: "", end: "", reason: "", label: "" });
   const [blockError, setBlockError] = useState<string | null>(null);
   /** ALV-N021 A2 (OD-17): what the last refused add would cover; "confirm" offers to add it anyway with a reason, "active" never does. */
   const [overlap, setOverlap] = useState<{ kind: "active" | "confirm"; overlaps: BlockOverlap[] } | null>(null);
@@ -68,7 +70,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
   const blockDraftRef = useRef(0);
   const [saving, setSaving] = useState(false);
 
-  const blockDirty = blockForm.start !== "" || blockForm.end !== "" || blockForm.reason !== "";
+  const blockDirty = blockForm.start !== "" || blockForm.end !== "" || blockForm.reason !== "" || blockForm.label !== "";
   const scheduleDirty = loadedFor !== "" && snapshot(rows) !== saved;
   const dirty = scheduleDirty || blockDirty;
   useUnsavedChangesWarning(dirty);
@@ -149,7 +151,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
     setReloadError(null);
     setScheduleFailed(false);
     setScheduleLoading(false);
-    setBlockForm({ start: "", end: "", reason: "" });
+    setBlockForm({ start: "", end: "", reason: "", label: "" });
     setBlockError(null);
     if (id) loadSchedule(id);
   }
@@ -169,7 +171,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
     setRows((prev) => prev.filter((r) => r.key !== key));
   }
 
-  function editBlockForm(patch: Partial<{ start: string; end: string; reason: string }>) {
+  function editBlockForm(patch: Partial<{ start: string; end: string; reason: string; label: BlockedTimeLabel | "" }>) {
     blockDraftRef.current += 1;
     setOverlap(null);   // a different request: the old list no longer applies
     setBlockForm((prev) => ({ ...prev, ...patch }));
@@ -233,6 +235,11 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
       setBlockError("Blocked time must end after it starts.");
       return;
     }
+    if (!blockForm.label) {
+      setBlockError("Choose how the blocked time is shown on the calendar.");
+      return;
+    }
+    const label = blockForm.label;
     if (confirmOverlaps && !blockForm.reason.trim()) {
       setBlockError("Give a reason for blocking time over booked appointments.");
       return;
@@ -241,10 +248,10 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
     const blockDraftAtSubmit = blockDraftRef.current;
     setAdding(true);
     try {
-      await addBlockedTime(targetId, blockForm.start, blockForm.end, blockForm.reason.trim(), confirmOverlaps);
+      await addBlockedTime(targetId, blockForm.start, blockForm.end, blockForm.reason.trim(), label, confirmOverlaps);
       const blocks = await listBlockedTime(targetId);
       if (session !== sessionRef.current) return;
-      if (blockDraftRef.current === blockDraftAtSubmit) setBlockForm({ start: "", end: "", reason: "" }); // never wipe newer typing
+      if (blockDraftRef.current === blockDraftAtSubmit) setBlockForm({ start: "", end: "", reason: "", label: "" }); // never wipe newer typing
       setBlocked(blocks);
       setOverlap(null);
       notify("success", confirmOverlaps ? "Blocked time added; the appointments it covers are flagged for the front desk." : "Blocked time added.");
@@ -371,7 +378,8 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
                 <tr>
                   <th>From (practice time)</th>
                   <th>To (practice time)</th>
-                  <th>Reason</th>
+                  <th>On the calendar</th>
+                  <th>Reason (private)</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -380,6 +388,7 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
                   <tr key={b.id}>
                     <td>{b.startLocal.replace("T", " ")}</td>
                     <td>{b.endLocal.replace("T", " ")}</td>
+                    <td>{BLOCKED_TIME_LABELS.find((l) => l.code === b.calendarLabel)?.label ?? "Blocked time"}</td>
                     <td>{b.reason ?? "-"}</td>
                     <td>
                       <Button onClick={() => removeBlock(b.id)} aria-label={`Remove blocked time starting ${b.startLocal.replace("T", " ")}`}>
@@ -394,7 +403,15 @@ export function AvailabilityTab({ onDirtyChange }: { onDirtyChange: (dirty: bool
           <form className="alv-config-panel__form" onSubmit={submitBlock} noValidate aria-label="Add blocked time">
             <FormField label="Blocked from" type="datetime-local" value={blockForm.start} onChange={(e) => editBlockForm({ start: e.target.value })} />
             <FormField label="Blocked until" type="datetime-local" value={blockForm.end} onChange={(e) => editBlockForm({ end: e.target.value })} />
-            <FormField label={overlap?.kind === "confirm" ? "Reason (required over booked appointments)" : "Reason (optional)"} type="text" maxLength={200} value={blockForm.reason}
+            {/* ALV-N021 A2 (F-052): what the calendar shows comes from this list; the reason below is only seen here */}
+            <div className="alv-form-field">
+              <label htmlFor={labelId} className="alv-form-field__label">Shown on the calendar as *</label>
+              <select id={labelId} className="alv-form-field__input" value={blockForm.label} onChange={(e) => editBlockForm({ label: e.target.value as BlockedTimeLabel | "" })}>
+                <option value="">Choose…</option>
+                {BLOCKED_TIME_LABELS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
+              </select>
+            </div>
+            <FormField label={overlap?.kind === "confirm" ? "Private reason (required over booked appointments; not shown on the calendar)" : "Private reason (optional; not shown on the calendar)"} type="text" maxLength={200} value={blockForm.reason}
               onChange={(e) => { blockDraftRef.current += 1; setBlockForm((prev) => ({ ...prev, reason: e.target.value })); }} />
             {blockError && (
               <p className="alv-form-field__error" role="alert">

@@ -1,6 +1,6 @@
 import { FakePatientServer, json } from "./fakePatientServer";
 import type { Call } from "./fakePatientServer";
-import type { Appointment } from "../services/schedulingApi";
+import type { Appointment, CalendarBlock } from "../services/schedulingApi";
 
 /**
  * STORY-004: an in-memory stand-in for the scheduling API on top of the fake patient server. It models the response SHAPES (same as
@@ -11,6 +11,9 @@ import type { Appointment } from "../services/schedulingApi";
  */
 export class FakeScheduleServer extends FakePatientServer {
   appointments: Appointment[] = [];
+  /** ALV-N021 A2 (F-052): blocked time as GET /api/calendar/blocked-time returns it. */
+  calendarBlocks: CalendarBlock[] = [];
+  failCalendarBlocks = false;
   scheduleCalls: Call[] = [];
   dropNextBookResponse = false;
   private keys = new Map<string, string>();
@@ -63,6 +66,12 @@ export class FakeScheduleServer extends FakePatientServer {
   protected override async handleExtra(path: string, method: string, headers: Record<string, string>, body: Record<string, unknown> | null, u: URL): Promise<Response | null> {
     if (path === "/api/config/scheduling") {
       return json(200, { timeZoneId: "America/Chicago", activeLocationId: "loc", activeLocationName: "Main Office", providers: this.providers, operatories: this.operatories, appointmentTypes: this.types });
+    }
+    // ALV-N021 A2 (F-052): the calendar's blocked time, like the server: a controlled label, never a reason; by overlap with the days asked for
+    if (method === "GET" && path === "/api/calendar/blocked-time") {
+      if (this.failCalendarBlocks) return json(500, { error: "server_error", message: "boom" });
+      const from = u.searchParams.get("from")!, to = u.searchParams.get("to") ?? from, provider = u.searchParams.get("providerId");
+      return json(200, this.calendarBlocks.filter((b) => b.startLocal < `${addMinutes(`${to}T00:00`, 1440)}` && `${from}T00:00` < b.endLocal && (!provider || b.providerId === provider)));
     }
     if (!path.startsWith("/api/appointments")) return null;
     this.scheduleCalls.push({ method, url: u.pathname + u.search, headers, body });

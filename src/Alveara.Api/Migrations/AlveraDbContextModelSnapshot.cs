@@ -2469,6 +2469,10 @@ namespace Alveara.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CalendarLabel")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -2489,7 +2493,10 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("ProviderProfileId", "StartUtc");
 
-                    b.ToTable("ProviderBlockedTimes");
+                    b.ToTable("ProviderBlockedTimes", t =>
+                        {
+                            t.HasCheckConstraint("CK_ProviderBlockedTimes_CalendarLabel", "[CalendarLabel] IS NULL OR [CalendarLabel] COLLATE Latin1_General_CS_AS IN ('lunch','meeting','training','unavailable','other')");
+                        });
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Configuration.ProviderWeeklyAvailability", b =>

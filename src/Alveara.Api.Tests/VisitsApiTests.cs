@@ -444,12 +444,12 @@ public class VisitsApiTests : IAsyncLifetime
         var a = (await MoveAsync(admin, await BookAsync(admin, _ann, At(9)), "Confirmed")).Body;
         var url = $"/api/config/providers/{_s.ProviderA}/blocked-time";
 
-        var unconfirmed = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", reason = "Course" });
+        var unconfirmed = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", reason = "Course", calendarLabel = "training" });
         Assert.Equal((HttpStatusCode.Conflict, "block_overlaps_appointments"), (unconfirmed.Status, unconfirmed.Body.GetProperty("error").GetString()));
         Assert.Equal(Id(a), unconfirmed.Body.GetProperty("overlaps")[0].GetProperty("appointmentId").GetString());
-        var noReason = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", confirmOverlaps = true });
+        var noReason = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", confirmOverlaps = true, calendarLabel = "training" });
         Assert.Equal((HttpStatusCode.BadRequest, "reason_required"), (noReason.Status, noReason.Body.GetProperty("error").GetString()));
-        var saved = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", reason = "Course", confirmOverlaps = true });
+        var saved = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T08:00", endLocal = "2030-01-14T12:00", reason = "Course", confirmOverlaps = true, calendarLabel = "training" });
         Assert.Equal(HttpStatusCode.Created, saved.Status);
 
         var flagged = (await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body;
@@ -467,7 +467,7 @@ public class VisitsApiTests : IAsyncLifetime
         Assert.Equal((HttpStatusCode.OK, false), (kept.Status, kept.Body.GetProperty("blockFlagged").GetBoolean()));
         Assert.Equal((HttpStatusCode.OK, "CheckedIn"), ((await MoveAsync(desk, kept.Body, "CheckedIn")).Status, FlowOf((await admin.SendAsync(HttpMethod.Get, $"/api/appointments/{Id(a)}")).Body)));
 
-        var overActive = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T09:00", endLocal = "2030-01-14T09:30", reason = "Meeting", confirmOverlaps = true });
+        var overActive = await admin.SendAsync(HttpMethod.Post, url, new { startLocal = "2030-01-14T09:00", endLocal = "2030-01-14T09:30", reason = "Meeting", confirmOverlaps = true, calendarLabel = "meeting" });
         Assert.Equal((HttpStatusCode.Conflict, "block_overlaps_active_visit"), (overActive.Status, overActive.Body.GetProperty("error").GetString()));
     }
 

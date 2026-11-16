@@ -36,7 +36,7 @@ public class BlockedTimeOverlapTests : IAsyncLifetime
     private async Task<ProviderBlockedTime> BlockAsync(int from, int to, bool confirm = false, string? reason = Why, Guid? provider = null)
     {
         await using var db = _fixture.CreateContext();
-        return await new BlockedTimeGuard(db, VisitDayClock).AddAsync(provider ?? _s.ProviderA, At(from), At(to), reason, confirm, _s.Actor, default);
+        return await new BlockedTimeGuard(db, VisitDayClock).AddAsync(provider ?? _s.ProviderA, At(from), At(to), reason, confirm, _s.Actor, default, BlockedTimeLabels.Unavailable);
     }
 
     private static async Task<BlockedTimeRefusedException> RefusedBlockAsync(Func<Task> action) => await Assert.ThrowsAsync<BlockedTimeRefusedException>(action);
@@ -233,7 +233,7 @@ public class BlockedTimeOverlapTests : IAsyncLifetime
             var block = Task.Run(async () =>
             {
                 await using var db = _s.SlowSaveContext(TimeSpan.FromMilliseconds(200));
-                try { await new BlockedTimeGuard(db, VisitDayClock).AddAsync(_s.ProviderA, At(9 + 2 * round), At(10 + 2 * round), Why, true, _s.Actor, default); return "block"; }
+                try { await new BlockedTimeGuard(db, VisitDayClock).AddAsync(_s.ProviderA, At(9 + 2 * round), At(10 + 2 * round), Why, true, _s.Actor, default, BlockedTimeLabels.Unavailable); return "block"; }
                 catch (BlockedTimeRefusedException ex) { return ex.Code; }
             });
             var checkIn = Task.Run(async () =>

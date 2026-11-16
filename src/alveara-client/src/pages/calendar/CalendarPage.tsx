@@ -5,7 +5,8 @@ import { ErrorState, LoadingState } from "../../components/StatePatterns";
 import { useAuth } from "../../contexts/AuthContext";
 import { getSchedulingSnapshot } from "../../services/configApi";
 import type { SchedulingSnapshot } from "../../services/configApi";
-import { dateOf, listCalendar, timeOf } from "../../services/schedulingApi";
+import { dateOf, listCalendar, listCalendarBlocks, timeOf } from "../../services/schedulingApi";
+import type { CalendarBlock } from "../../services/schedulingApi";
 import type { Appointment } from "../../services/schedulingApi";
 import { AppointmentPanel } from "./AppointmentPanel";
 import { CalendarGrid } from "./CalendarGrid";
@@ -36,6 +37,8 @@ export function CalendarPage() {
   const [operatoryFilter, setOperatoryFilter] = useState("");
   const [appointments, setAppointments] = useState<Appointment[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const [blocks, setBlocks] = useState<CalendarBlock[]>([]);
+  const [blocksFailed, setBlocksFailed] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [drawer, setDrawer] = useState<Drawer>({ kind: "none" });
   const [announcement, setAnnouncement] = useState("");
@@ -72,6 +75,15 @@ export function CalendarPage() {
       });
     return () => controller.abort();
   }, [from, to, providerFilter, operatoryFilter, refreshKey]);
+  useEffect(() => {
+    // ALV-N021 A2 (F-052): blocked time is drawn when it can be read; when it cannot, the calendar says so and still works (the server refuses a booking over it anyway)
+    if (!from || !to) return;
+    const controller = new AbortController();
+    listCalendarBlocks(from, to, providerFilter || undefined, controller.signal)
+      .then((rows) => { setBlocks(rows); setBlocksFailed(false); })
+      .catch(() => { if (!controller.signal.aborted) { setBlocks([]); setBlocksFailed(true); } });
+    return () => controller.abort();
+  }, [from, to, providerFilter, refreshKey]);
 
   const drawerKey = drawer.kind === "appointment" ? drawer.appointment.id : drawer.kind;
   useEffect(() => {
@@ -143,10 +155,11 @@ export function CalendarPage() {
         {view === "day" ? dayLabel(day) : `Week of ${days[0]} to ${days[6]}`}
       </h2>
       <p className="cal-legend alv-workspace__note">
-        Cancelled appointments have a dashed outline and a struck-through name; no-shows have a dotted outline. Both are labelled and no longer hold the time.
+        Cancelled appointments have a dashed outline and a struck-through name; no-shows have a dotted outline. Both are labelled and no longer hold the time. Blocked time is a grey band with its label.
         {view === "day" ? " Shaded time is outside the provider's working hours." : " Shaded time is outside every shown provider's working hours."}
       </p>
       <p className="alv-workspace__saved-slot" role="status">{announcement}</p>
+      {blocksFailed && <p className="alv-workspace__note" role="alert">Could not load the providers' blocked time; it is not shown. Bookings over it are still refused.</p>}
 
       {failed ? (
         <ErrorState title="Could not load the appointments" action={<Button onClick={refresh}>Retry</Button>} />
@@ -157,6 +170,7 @@ export function CalendarPage() {
           view={view}
           days={days}
           appointments={appointments}
+          blocks={blocks}
           snapshot={snapshot}
           providers={shownProviders}
           selectedId={drawer.kind === "appointment" ? drawer.appointment.id : null}

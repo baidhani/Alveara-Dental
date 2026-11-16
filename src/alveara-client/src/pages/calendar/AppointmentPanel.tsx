@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import type { FormEvent } from "react";
-import { Button } from "../../components/Button";
+import { Button, ButtonLink } from "../../components/Button";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import type { SchedulingSnapshot } from "../../services/configApi";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
@@ -12,7 +12,6 @@ import type { Appointment, AppointmentEvent } from "../../services/schedulingApi
 import { assignVisit, getAppointmentActions, keepDespiteBlock, moveVisit, undoCheckIn } from "../../services/visitsApi";
 import type { AppointmentActions, VisitAction } from "../../services/visitsApi";
 import { AssignPanel } from "../flow/AssignPanel";
-import { Link } from "react-router-dom";
 import { AppointmentHistory } from "./AppointmentHistory";
 import { CheckoutPanel } from "../flow/CheckoutPanel";
 import { ReasonForm } from "../flow/ReasonForm";
@@ -214,7 +213,7 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged, 
       {mode === "details" && (canRebook || canOpenPatient) && (
         <div className="cal-panel__actions" role="group" aria-label="Next steps">
           {canRebook && onRebook && <Button variant="primary" onClick={() => onRebook(current)}>Rebook</Button>}
-          {canOpenPatient && <Link className="btn btn-outline-secondary" to={`/patients/${current.patientId}`}>Open patient</Link>}
+          {canOpenPatient && <ButtonLink to={`/patients/${current.patientId}`}>Open patient</ButtonLink>}
         </div>
       )}
 

@@ -254,6 +254,7 @@ describe("Availability tab", () => {
     const user = userEvent.setup();
     await user.type(screen.getByLabelText("Blocked from"), "2026-03-08T02:30");
     await user.type(screen.getByLabelText("Blocked until"), "2026-03-08T04:00");
+    await user.selectOptions(screen.getByLabelText("Shown on the calendar as *"), "unavailable");
     await user.click(screen.getByRole("button", { name: "Add blocked time" }));
     expect(await screen.findByText(/does not exist in America\/Chicago/)).toBeInTheDocument();
   });
@@ -267,8 +268,35 @@ describe("Availability tab", () => {
   async function tryBlock(user: ReturnType<typeof userEvent.setup>) {
     await user.type(screen.getByLabelText("Blocked from"), "2030-01-14T08:00");
     await user.type(screen.getByLabelText("Blocked until"), "2030-01-14T12:00");
+    await user.selectOptions(screen.getByLabelText("Shown on the calendar as *"), "training");
     await user.click(screen.getByRole("button", { name: "Add blocked time" }));
   }
+
+  // ALV-N021 A2 (F-052): a new block says how the calendar shows it, from the controlled list; the reason is private
+  it("needs a calendar label before sending, sends it with the block, and lists it apart from the private reason", async () => {
+    const fetchMock = stubApi({
+      "/api/config/providers/p1/blocked-time": (init) =>
+        init?.method === "POST"
+          ? jsonResponse({ id: "b1", startUtc: "", endUtc: "", startLocal: "2030-01-14T12:00", endLocal: "2030-01-14T13:00", reason: "Rep visit", calendarLabel: "lunch" }, 201)
+          : jsonResponse(blockPosts(fetchMock).length ? [{ id: "b1", startUtc: "", endUtc: "", startLocal: "2030-01-14T12:00", endLocal: "2030-01-14T13:00", reason: "Rep visit", calendarLabel: "lunch" }] : []),
+    });
+    await openAvailability();
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("Blocked from"), "2030-01-14T12:00");
+    await user.type(screen.getByLabelText("Blocked until"), "2030-01-14T13:00");
+    await user.type(screen.getByLabelText(/^Private reason \(optional/), "Rep visit");
+    await user.click(screen.getByRole("button", { name: "Add blocked time" }));
+    expect(await screen.findByText("Choose how the blocked time is shown on the calendar.")).toBeInTheDocument();
+    expect(blockPosts(fetchMock)).toHaveLength(0);
+
+    await user.selectOptions(screen.getByLabelText("Shown on the calendar as *"), "lunch");
+    await user.click(screen.getByRole("button", { name: "Add blocked time" }));
+    expect(await screen.findByText("Blocked time added.")).toBeInTheDocument();
+    expect(blockPosts(fetchMock)[0]).toEqual({ startLocal: "2030-01-14T12:00", endLocal: "2030-01-14T13:00", reason: "Rep visit", calendarLabel: "lunch" });
+    const row = within(await screen.findByRole("row", { name: /2030-01-14 12:00/ }));
+    expect(row.getByText("Lunch")).toBeInTheDocument();
+    expect(row.getByText("Rep visit")).toBeInTheDocument();
+  });
 
   it("lists the booked appointments a block would cover, needs a reason to add it anyway, and then sends the confirmation", async () => {
     const fetchMock = stubApi({
@@ -292,10 +320,10 @@ describe("Availability tab", () => {
     expect(await screen.findByText("Give a reason for blocking time over booked appointments.")).toBeInTheDocument();
     expect(blockPosts(fetchMock)).toHaveLength(1);   // nothing sent without a reason
 
-    await user.type(screen.getByLabelText("Reason (required over booked appointments)"), "CPD course");
+    await user.type(screen.getByLabelText(/^Private reason \(required over booked appointments/), "CPD course");
     await user.click(notice.getByRole("button", { name: "Add blocked time and flag these appointments" }));
     expect(await screen.findByText("Blocked time added; the appointments it covers are flagged for the front desk.")).toBeInTheDocument();
-    expect(blockPosts(fetchMock).at(-1)).toEqual({ startLocal: "2030-01-14T08:00", endLocal: "2030-01-14T12:00", reason: "CPD course", confirmOverlaps: true });
+    expect(blockPosts(fetchMock).at(-1)).toEqual({ startLocal: "2030-01-14T08:00", endLocal: "2030-01-14T12:00", reason: "CPD course", calendarLabel: "training", confirmOverlaps: true });
     expect(blockPosts(fetchMock)[0]).not.toHaveProperty("confirmOverlaps");   // the first try never confirms on the user's behalf
   });
 
@@ -621,7 +649,8 @@ describe("Availability editing-session completion protection (ALV-N003 R03)", ()
   async function startBlockDraft() {
     await userEvent.type(screen.getByLabelText("Blocked from"), "2026-05-04T09:00");
     await userEvent.type(screen.getByLabelText("Blocked until"), "2026-05-04T10:00");
-    await userEvent.type(screen.getByLabelText("Reason (optional)"), "Meeting");
+    await userEvent.type(screen.getByLabelText(/^Private reason \(optional/), "Meeting");
+    await userEvent.selectOptions(screen.getByLabelText("Shown on the calendar as *"), "meeting");
   }
 
   async function abandonBlockedAddAndReopenSameProvider(api: ReturnType<typeof drivenApi>) {
@@ -641,11 +670,11 @@ describe("Availability editing-session completion protection (ALV-N003 R03)", ()
     const api = drivenApi({ p1: [[monday("09:00")]], p2: [[monday("13:00")]] }, { p1: [1], p2: [5] });
     vi.spyOn(window, "confirm").mockReturnValue(true);
     await abandonBlockedAddAndReopenSameProvider(api);
-    await userEvent.type(screen.getByLabelText("Reason (optional)"), "new draft");
+    await userEvent.type(screen.getByLabelText(/^Private reason \(optional/), "new draft");
 
     await act(async () => api.held.post[0](jsonResponse(block, 201)));
 
-    expect(screen.getByLabelText("Reason (optional)")).toHaveValue("new draft");
+    expect(screen.getByLabelText(/^Private reason \(optional/)).toHaveValue("new draft");
     expect(screen.queryByText("Blocked time added.")).not.toBeInTheDocument();
   });
 
@@ -669,12 +698,12 @@ describe("Availability editing-session completion protection (ALV-N003 R03)", ()
     await select("p2");
     await screen.findByDisplayValue("13:00");
     await select("p1");
-    await screen.findByText("Meeting");
+    await screen.findByRole("cell", { name: "Meeting" });
 
     await act(async () => api.held.del[0](new Response(null, { status: 204 })));
 
     expect(screen.queryByText("Blocked time removed.")).not.toBeInTheDocument();
-    expect(screen.getByText("Meeting")).toBeInTheDocument(); // the new session's own (fresh) list is untouched
+    expect(screen.getByRole("cell", { name: "Meeting" })).toBeInTheDocument(); // the new session's own (fresh) list is untouched
   });
 });
 

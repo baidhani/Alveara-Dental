@@ -134,7 +134,7 @@ test("SETUP: the practice is configured (two providers, two operatories, two app
     const windows = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((_, i) => ({ dayOfWeek: i + 1, startLocal: "08:00", endLocal: "17:00" }));
     expect((await put(admin, `/api/config/providers/${ids[key]}/availability`, { windows, revision: current.revision })).status).toBe(200);
   }
-  expect((await post(admin, `/api/config/providers/${ids.patel}/blocked-time`, { startLocal: `${DAY}T12:00:00`, endLocal: `${DAY}T13:00:00`, reason: "Staff lunch" })).status).toBe(201);
+  expect((await post(admin, `/api/config/providers/${ids.patel}/blocked-time`, { startLocal: `${DAY}T12:00:00`, endLocal: `${DAY}T13:00:00`, reason: "Staff lunch", calendarLabel: "lunch" })).status).toBe(201);
   ids.ann = await registerPatient("Ann", "Schedule", "1985-03-09", "555-010-0100", `sched-e2e-ann-${stamp}`);
   ids.bo = await registerPatient("Bo", "Booker", "1990-01-01", "555-020-0200", `sched-e2e-bo-${stamp}`);
   ids.cy = await registerPatient("Cy", "Clinic", "1975-05-05", "555-030-0300", `sched-e2e-cy-${stamp}`);

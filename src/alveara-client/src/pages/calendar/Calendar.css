@@ -189,13 +189,34 @@
 /* ALV-N021 A2 (F-054): two or more appointments side by side in a week column - the start time, then the name wrapping; no cropped "10:00-10:" */
 .cal__block--narrow {
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   padding-left: 3px;
   padding-right: 3px;
 }
 
 .cal__block--narrow .cal__block-meta {
   display: none;
+}
+
+/* ALV-N021 A2 (F-052): blocked time - a grey band under the appointments, labelled in words (never colour alone) */
+.cal__blocked {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  box-sizing: border-box;
+  padding: 2px 6px;
+  overflow: hidden;
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  background: repeating-linear-gradient(45deg, var(--color-border) 0 4px, var(--color-bg) 4px 10px);
+  border-top: 1px solid var(--color-text-muted);
+  pointer-events: none;
+}
+
+.cal__blocked span {
+  background: var(--color-surface);
+  padding: 0 2px;
 }
 
 /* ALV-N021 A2 (F-048): a day or a week column nobody works says so in words */

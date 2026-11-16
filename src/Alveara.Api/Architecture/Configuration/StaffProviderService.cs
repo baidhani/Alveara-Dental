@@ -285,18 +285,23 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
     /// </summary>
     /// <remarks>ALV-N021 A2: no route calls this any more; the API adds blocked time through <c>Scheduling.BlockedTimeGuard</c>, which refuses blocks over visits under way and needs a confirmation
     /// over booked appointments. Kept for test setup of blocks where no appointment is involved.</remarks>
-    public async Task<ProviderBlockedTime> AddBlockedTimeAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, Guid actor, CancellationToken ct)
+    public async Task<ProviderBlockedTime> AddBlockedTimeAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, Guid actor, CancellationToken ct, string? calendarLabel = null)
     {
-        var block = await BuildBlockedTimeAsync(providerId, startLocal, endLocal, reason, ct);
+        var block = await BuildBlockedTimeAsync(providerId, startLocal, endLocal, reason, ct, calendarLabel);
         db.ProviderBlockedTimes.Add(block);
         ConfigurationWrite.Audit(db, ConfigurationAuditEvents.ProviderBlockedTimeAdded, nameof(ProviderProfile), providerId, actor, "Blocked time added.");
         await ConfigurationWrite.SaveAsync(db, nameof(ProviderProfile), providerId, ct);
         return block;
     }
 
-    /// <summary>ALV-N021 A2: the validated, NOT yet added block (provider active, local times exist, end after start, reason bounded), shared with the scheduling-side guarded add.</summary>
-    public async Task<ProviderBlockedTime> BuildBlockedTimeAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, CancellationToken ct)
+    /// <summary>
+    /// ALV-N021 A2: the validated, NOT yet added block (provider active, local times exist, end after start, reason bounded, calendar label one of <see cref="BlockedTimeLabels"/> when given),
+    /// shared with the scheduling-side guarded add (which requires the label).
+    /// </summary>
+    public async Task<ProviderBlockedTime> BuildBlockedTimeAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, CancellationToken ct, string? calendarLabel = null)
     {
+        if (calendarLabel is not null && !BlockedTimeLabels.IsValid(calendarLabel))
+            throw new ConfigurationException("invalid_calendar_label", $"Choose how the blocked time is shown on the calendar: {string.Join(", ", BlockedTimeLabels.All)}.");
         var provider = await db.ProviderProfiles.SingleOrDefaultAsync(p => p.Id == providerId, ct) ?? throw PracticeConfigurationService.NotFound("Provider profile");
         if (!provider.IsActive)
             throw new ConfigurationException("provider_inactive", "Blocked time cannot be added for an inactive provider.", 409);
@@ -317,7 +322,7 @@ public class StaffProviderService(AlveraDbContext db, IPracticeClock clock)
         return new ProviderBlockedTime
         {
             Id = Guid.NewGuid(), ProviderProfileId = providerId, StartUtc = startUtc, EndUtc = endUtc,
-            Reason = ConfigurationWrite.OptionalText(reason, "Reason", 200), CreatedAtUtc = clock.UtcNow,
+            Reason = ConfigurationWrite.OptionalText(reason, "Reason", 200), CalendarLabel = calendarLabel, CreatedAtUtc = clock.UtcNow,
         };
     }
 

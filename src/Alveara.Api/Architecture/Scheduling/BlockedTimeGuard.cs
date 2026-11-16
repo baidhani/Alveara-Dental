@@ -33,9 +33,12 @@ public sealed class BlockedTimeRefusedException(string code, string message, int
 /// </summary>
 public sealed class BlockedTimeGuard(AlveraDbContext db, IPracticeClock clock)
 {
-    public async Task<ProviderBlockedTime> AddAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, bool confirmOverlaps, Guid actor, CancellationToken ct)
+    public async Task<ProviderBlockedTime> AddAsync(Guid providerId, DateTime startLocal, DateTime endLocal, string? reason, bool confirmOverlaps, Guid actor, CancellationToken ct, string? calendarLabel = null)
     {
-        var block = await new StaffProviderService(db, clock).BuildBlockedTimeAsync(providerId, startLocal, endLocal, reason, ct);
+        // ALV-N021 A2 (F-052, owner decision 2026-11-15): every new block says how the calendar shows it, from the controlled list; the reason stays private
+        if (string.IsNullOrWhiteSpace(calendarLabel))
+            throw new BlockedTimeRefusedException("calendar_label_required", "Choose how the blocked time is shown on the calendar (lunch, meeting, training, unavailable or other).", 400, []);
+        var block = await new StaffProviderService(db, clock).BuildBlockedTimeAsync(providerId, startLocal, endLocal, reason, ct, calendarLabel);
 
         await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
         await SchedulingGuards.AcquireLockAsync(db, SchedulingGuards.ProviderLock(providerId), ct);

@@ -257,6 +257,10 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
         modelBuilder.Entity<ProviderBlockedTime>(e =>
         {
             e.Property(b => b.Reason).HasMaxLength(200);
+            // ALV-N021 A2 (M5): the calendar label is one of the controlled codes (case-sensitive) or null on a block added before M5
+            e.Property(b => b.CalendarLabel).HasMaxLength(20);
+            e.ToTable(t => t.HasCheckConstraint("CK_ProviderBlockedTimes_CalendarLabel",
+                "[CalendarLabel] IS NULL OR [CalendarLabel] COLLATE Latin1_General_CS_AS IN ('lunch','meeting','training','unavailable','other')"));
             e.HasOne(b => b.ProviderProfile).WithMany().HasForeignKey(b => b.ProviderProfileId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(b => new { b.ProviderProfileId, b.StartUtc });
         });

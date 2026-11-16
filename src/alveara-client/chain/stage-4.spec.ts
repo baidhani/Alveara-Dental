@@ -61,7 +61,7 @@ test("3.12 a blocked time over a visit under way is refused with the visit liste
   const url = `/api/config/providers/${p.dana}/blocked-time`;
   const before = ((await (await admin.request.get(url)).json()) as unknown[]).length;
   for (const confirmOverlaps of [false, true]) {
-    const r = await call(admin, "post", url, { startLocal: `${DAY}T13:00`, endLocal: `${DAY}T14:30`, reason: "Meeting", confirmOverlaps });
+    const r = await call(admin, "post", url, { startLocal: `${DAY}T13:00`, endLocal: `${DAY}T14:30`, reason: "Meeting", calendarLabel: "meeting", confirmOverlaps });
     expect([r.status, r.body.error], `confirm=${confirmOverlaps}`).toEqual([409, "block_overlaps_active_visit"]);
     expect((r.body.overlaps as { appointmentId: string }[]).map((o) => o.appointmentId)).toEqual([alice]);
   }
@@ -133,12 +133,12 @@ test("3.12 blocked time over a booked appointment needs a confirmation and a rea
   const id = dev.body.id as string;
   await walk(desk, id, ["Confirmed"]);
   const url = `/api/config/providers/${p.harper}/blocked-time`;
-  const unconfirmed = await call(admin, "post", url, { startLocal: `${DAY}T14:00`, endLocal: `${DAY}T15:30`, reason: "Course" });
+  const unconfirmed = await call(admin, "post", url, { startLocal: `${DAY}T14:00`, endLocal: `${DAY}T15:30`, reason: "Course", calendarLabel: "training" });
   expect([unconfirmed.status, unconfirmed.body.error]).toEqual([409, "block_overlaps_appointments"]);
   expect((unconfirmed.body.overlaps as { appointmentId: string }[]).map((o) => o.appointmentId)).toEqual([id]);
-  const noReason = await call(admin, "post", url, { startLocal: `${DAY}T14:00`, endLocal: `${DAY}T15:30`, confirmOverlaps: true });
+  const noReason = await call(admin, "post", url, { startLocal: `${DAY}T14:00`, endLocal: `${DAY}T15:30`, calendarLabel: "training", confirmOverlaps: true });
   expect([noReason.status, noReason.body.error]).toEqual([400, "reason_required"]);
-  expect((await call(admin, "post", url, { startLocal: `${DAY}T14:00`, endLocal: `${DAY}T15:30`, reason: "Course", confirmOverlaps: true })).status).toBe(201);
+  expect((await call(admin, "post", url, { startLocal: `${DAY}T14:00`, endLocal: `${DAY}T15:30`, reason: "Course", calendarLabel: "training", confirmOverlaps: true })).status).toBe(201);
 
   await gotoBoard(desk);
   await expect(cardOf(desk, id)).toContainText("Blocked time");

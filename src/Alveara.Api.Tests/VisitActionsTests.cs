@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.Configuration;
 using Alveara.Api.Architecture.Identity;
 using Alveara.Api.Architecture.Scheduling;
 using Xunit;
@@ -121,7 +122,7 @@ public class VisitActionsTests : IAsyncLifetime
     {
         var a = await _s.MoveAsync(await BookAsync(), VisitStates.Confirmed);
         await using (var db = _fixture.CreateContext())
-            await new BlockedTimeGuard(db, VisitDayClock).AddAsync(_s.ProviderA, At(8), At(12), "Course", true, _s.Actor, default);
+            await new BlockedTimeGuard(db, VisitDayClock).AddAsync(_s.ProviderA, At(8), At(12), "Course", true, _s.Actor, default, BlockedTimeLabels.Training);
 
         var list = await ActionsAsync(a.Id, _s.Desk);
         Assert.True(list.BlockFlagged);

@@ -74,7 +74,16 @@ export interface BlockedTime {
   startLocal: string;
   endLocal: string;
   reason: string | null;
+  /** ALV-N021 A2 (F-052, M5): how the calendar shows it; null on a block added before calendar labels existed. */
+  calendarLabel?: BlockedTimeLabel | null;
 }
+
+/** ALV-N021 A2 (F-052): the controlled calendar labels of blocked time (the server's BlockedTimeLabels); the reason stays private to configuration. */
+export type BlockedTimeLabel = "lunch" | "meeting" | "training" | "unavailable" | "other";
+export const BLOCKED_TIME_LABELS: { code: BlockedTimeLabel; label: string }[] = [
+  { code: "lunch", label: "Lunch" }, { code: "meeting", label: "Meeting" }, { code: "training", label: "Training" },
+  { code: "unavailable", label: "Unavailable" }, { code: "other", label: "Other blocked time" },
+];
 
 export interface SchedulingSnapshot {
   timeZoneId: string;
@@ -146,8 +155,8 @@ export const replaceAvailability = (providerId: string, windows: AvailabilityWin
   requestWithCsrf<AvailabilitySchedule>(`/api/config/providers/${providerId}/availability`, "PUT", { windows, revision });
 export const listBlockedTime = (providerId: string) => request<BlockedTime[]>(`/api/config/providers/${providerId}/blocked-time`);
 /** ALV-N021 A2 (OD-17): over booked appointments the server refuses until `confirmOverlaps` is true (and then needs a reason); over a visit under way it always refuses. */
-export const addBlockedTime = (providerId: string, startLocal: string, endLocal: string, reason: string, confirmOverlaps = false) =>
-  requestWithCsrf<BlockedTime>(`/api/config/providers/${providerId}/blocked-time`, "POST", { startLocal, endLocal, reason, ...(confirmOverlaps ? { confirmOverlaps: true } : {}) });
+export const addBlockedTime = (providerId: string, startLocal: string, endLocal: string, reason: string, calendarLabel: BlockedTimeLabel, confirmOverlaps = false) =>
+  requestWithCsrf<BlockedTime>(`/api/config/providers/${providerId}/blocked-time`, "POST", { startLocal, endLocal, reason, calendarLabel, ...(confirmOverlaps ? { confirmOverlaps: true } : {}) });
 
 /** One appointment a blocked time would cover (patient name for this in-app list only; it never goes to the audit log). */
 export interface BlockOverlap {

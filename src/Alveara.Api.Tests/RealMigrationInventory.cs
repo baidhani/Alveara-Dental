@@ -63,6 +63,7 @@ public static class RealMigrationInventory
         new(typeof(LoginPresentationSchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(VisitCheckoutMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N021 A2: migrations M1 to M3
         new(typeof(AppointmentMoveDestinationMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N021 A2: migration M4
+        new(typeof(BlockedTimeCalendarLabelMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N021 A2: migration M5
         new(typeof(PermissionPolicySchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(OdontogramCatalogueMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(PerioMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),

@@ -159,12 +159,49 @@ describe("the week view", () => {
     expect(screen.queryByTestId("cal-empty")).not.toBeInTheDocument();
   });
 
+  it("a narrow cancelled block writes its status on its own line, never split inside the word", async () => {
+    const gone = server.seed({ start: `${DAY}T16:00`, minutes: 60, patientName: "Cy Poe", status: "Cancelled" });
+    server.seed({ start: `${DAY}T16:00`, minutes: 60, provider: "prov-b", operatory: "op-2", patientName: "Di Dental" });
+    await openOn(DAY);
+    await userEvent.click(screen.getByRole("button", { name: "Week" }));
+    await waitFor(() => expect(block(gone.id)).toHaveClass("cal__block--narrow"));
+    expect(block(gone.id).querySelector(".cal__block-time")).toHaveTextContent(/^16:00$/);
+    expect(block(gone.id).querySelector(".cal__block-status")).toHaveTextContent(/^Cancelled$/);
+  });
+
   it("an operatory filter that leaves the week empty says so instead of showing an empty grid", async () => {
     server.seed({ start: `${DAY}T10:00`, minutes: 60, patientName: "Ann Lee" });
     await openOn(DAY);
     await userEvent.click(screen.getByRole("button", { name: "Week" }));
     await userEvent.selectOptions(screen.getByLabelText("Operatory"), "Op 2");
     expect(await screen.findByText("No appointments for this selection.")).toBeInTheDocument();
+  });
+});
+
+describe("blocked time on the calendar (ALV-N021 A2, F-052)", () => {
+  const lunch = { id: "blk-1", providerId: "prov-a", providerName: "Dr. Rivera", startUtc: "", endUtc: "", startLocal: `${DAY}T12:00`, endLocal: `${DAY}T13:00`, displayLabel: "Lunch" };
+
+  it("draws a provider's blocked time in their day column with its label, and in the week view with the provider's name", async () => {
+    server.calendarBlocks = [lunch];
+    await openOn(DAY);
+    const band = await waitFor(() => { const el = document.querySelector('[data-block="blk-1"]') as HTMLElement; expect(el).toBeInTheDocument(); return el; });
+    expect(band).toHaveTextContent("Lunch");
+    expect(band.closest('[data-column="prov-a"]')).not.toBeNull();                    // Dr. Rivera's column only
+    expect(document.querySelector('[data-column="prov-b"] [data-block]')).toBeNull();
+    expect(band.style.top).toBe(`${12 * 60 - 7 * 60}px`);                              // 12:00 on the 07:00 axis
+    expect(band.style.height).toBe("60px");
+    expect(calls("GET", "").length).toBeGreaterThan(0);
+
+    await userEvent.click(screen.getByRole("button", { name: "Week" }));
+    await waitFor(() => expect(document.querySelector(`.cal__body[data-day="${DAY}"] [data-block="blk-1"]`)).toHaveTextContent("Lunch · Dr. Rivera"));
+  });
+
+  it("says so when blocked time cannot be read, and the calendar still works", async () => {
+    server.failCalendarBlocks = true;
+    const a = server.seed({ start: `${DAY}T09:00`, patientName: "Ann Lee" });
+    await openOn(DAY);
+    expect(await screen.findByText(/Could not load the providers' blocked time/)).toBeInTheDocument();
+    await waitFor(() => expect(block(a.id)).toBeInTheDocument());
   });
 });
 

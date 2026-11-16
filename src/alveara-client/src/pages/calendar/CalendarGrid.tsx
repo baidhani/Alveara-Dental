@@ -1,7 +1,7 @@
 import type { MouseEvent } from "react";
 import { Button } from "../../components/Button";
 import type { SchedulingSnapshot } from "../../services/configApi";
-import type { Appointment } from "../../services/schedulingApi";
+import type { Appointment, CalendarBlock } from "../../services/schedulingApi";
 import { timeOf } from "../../services/schedulingApi";
 import { DAY_NAMES, PIXELS_PER_MINUTE, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, hhmm, flowWord, minutesOf, nextWorkingDay, placeColumn, slotMinuteAt, statusWord } from "./calendarLayout";
 import type { Placed } from "./calendarLayout";
@@ -12,6 +12,8 @@ interface GridProps {
   view: CalendarView;
   days: string[];
   appointments: Appointment[];
+  /** ALV-N021 A2 (F-052): the providers' blocked time in the shown days, each with its calendar label. */
+  blocks?: CalendarBlock[];
   snapshot: SchedulingSnapshot;
   /** The providers shown as columns in the day view (after filtering). */
   providers: SchedulingSnapshot["providers"];
@@ -35,7 +37,7 @@ const blockedWord = (a: Appointment) => (a.status === "Scheduled" && a.blockFlag
  * time outside a provider's weekly hours is drawn as "off hours" in the day view. Cancelled and no-show appointments stay on the grid but are drawn
  * distinctly (dashed or dotted border, struck-through patient name for a cancellation, and the status written in the block).
  */
-export function CalendarGrid({ view, days, appointments, snapshot, providers, selectedId, canBook, onOpen, onSlot, onGoToDay }: GridProps) {
+export function CalendarGrid({ view, days, appointments, blocks = [], snapshot, providers, selectedId, canBook, onOpen, onSlot, onGoToDay }: GridProps) {
   const windowsFor = (providerId: string, day: string) =>
     (snapshot.providers.find((p) => p.providerId === providerId)?.weeklyAvailability ?? []).filter((w) => w.dayOfWeek === dayOfWeek(day));
   // ALV-N021 A2 (F-052): the week view shades too - a day's column is plain where any shown provider works, hatched elsewhere
@@ -106,6 +108,18 @@ export function CalendarGrid({ view, days, appointments, snapshot, providers, se
                   />
                 ))}
                 {view === "week" && hoursWindows.length === 0 && <p className="cal__closed">No working hours</p>}
+                {blocksIn(blocks, col.day, col.providerId === null ? providers.map((p) => p.providerId) : [col.providerId]).map((b) => {
+                  const top = Math.max(minutesIn(b.startLocal, col.day), startMinute);
+                  const bottom = Math.min(minutesIn(b.endLocal, col.day), endMinute);
+                  if (bottom <= top) return null;
+                  const text = view === "week" ? `${b.displayLabel} · ${b.providerName}` : b.displayLabel;
+                  return (
+                    <div key={b.id} className="cal__blocked" data-block={b.id} title={`${text}, ${timeOf(b.startLocal)} to ${timeOf(b.endLocal)}`}
+                      style={{ top: (top - startMinute) * PIXELS_PER_MINUTE, height: (bottom - top) * PIXELS_PER_MINUTE }}>
+                      <span>{text}</span>
+                    </div>
+                  );
+                })}
                 {placed.map((p) => <Block key={p.appointment.id} placed={p} narrow={view === "week" && p.lanes > 1} selected={p.appointment.id === selectedId} onOpen={onOpen} />)}
               </div>
             </div>
@@ -117,6 +131,13 @@ export function CalendarGrid({ view, days, appointments, snapshot, providers, se
   );
 }
 
+/** The blocks of these providers that touch `day`. */
+const blocksIn = (blocks: CalendarBlock[], day: string, providerIds: string[]) =>
+  blocks.filter((b) => providerIds.includes(b.providerId) && b.startLocal.slice(0, 10) <= day && day <= b.endLocal.slice(0, 10) && b.endLocal !== `${day}T00:00`);
+
+/** A local time as minutes from the start of `day`: before the day is 0, after it is 24:00. */
+const minutesIn = (local: string, day: string) => (local.slice(0, 10) < day ? 0 : local.slice(0, 10) > day ? 24 * 60 : minutesOf(local));
+
 function Block({ placed, selected, narrow, onOpen }: { placed: Placed; selected: boolean; narrow: boolean; onOpen: (a: Appointment) => void }) {
   const a = placed.appointment;
   const widthPct = 100 / placed.lanes;
@@ -126,7 +147,9 @@ function Block({ placed, selected, narrow, onOpen }: { placed: Placed; selected:
   // the status is written in the first line (never a separate row that a short block could crop): "09:00–10:00 · Cancelled"
   const word = a.status !== "Scheduled" ? statusWord(a.status) : flowWord(a); // STORY-011: a visit under way says so too
   const span = narrow ? timeOf(a.startLocal) : `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}`;
-  const time = `${span}${word ? ` · ${word}` : ""}${blockedWord(a) ? " · Blocked time" : ""}`;
+  const status = `${word ?? ""}${word && blockedWord(a) ? " · " : ""}${blockedWord(a) ? "Blocked time" : ""}`;
+  // narrow: the status on its own line under the start time, so a word like "Cancelled" is never split
+  const time = narrow ? span : `${span}${status ? ` · ${status}` : ""}`;
   return (
     <button
       type="button"
@@ -141,6 +164,7 @@ function Block({ placed, selected, narrow, onOpen }: { placed: Placed; selected:
       onClick={() => onOpen(a)}
     >
       <span className="cal__block-time">{time}</span>
+      {narrow && status && <span className="cal__block-status">{status}</span>}
       <span className="cal__block-patient">{a.patientName}</span>
       <span className="cal__block-meta">{a.appointmentTypeName} · {a.providerName} · {a.operatoryName}</span>
     </button>

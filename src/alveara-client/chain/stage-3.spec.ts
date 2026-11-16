@@ -51,7 +51,7 @@ test("3.00 setup: the practice (Dr. Dana and Harper with real accounts, Operator
     const current = (await (await admin.request.get(`/api/config/providers/${id}/availability`)).json()) as { revision: number };
     const windows = [1, 2, 3, 4, 5].map((d) => ({ dayOfWeek: d, startLocal: "08:00", endLocal: "17:00" }));
     expect((await call(admin, "put", `/api/config/providers/${id}/availability`, { windows, revision: current.revision })).status).toBe(200);
-    if (name === "Dr. Dana") expect((await call(admin, "post", `/api/config/providers/${id}/blocked-time`, { startLocal: `${DAY}T12:00`, endLocal: `${DAY}T13:00`, reason: "Lunch" })).status).toBe(201);
+    if (name === "Dr. Dana") expect((await call(admin, "post", `/api/config/providers/${id}/blocked-time`, { startLocal: `${DAY}T12:00`, endLocal: `${DAY}T13:00`, reason: "Lunch", calendarLabel: "lunch" })).status).toBe(201);
   }
   for (const [first, last, dob] of [["Cara", "Carter", "1992-04-04"], ["Dev", "Dalton", "1988-08-08"]] as const) {
     const r = await call(admin, "post", "/api/patients", { firstName: first, lastName: last, dateOfBirth: dob, sex: "Female", phone: "555-010-0103", addressLine1: "2 Main St", city: "Springfield", state: "IL", postalCode: "62701" }, { "Idempotency-Key": `chain-stage3-${first}` });

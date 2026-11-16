@@ -19,7 +19,7 @@ public record SaveProviderRequest(Guid? StaffProfileId, string? Specialty, strin
 public record SetActiveRequest(bool IsActive, string? RowVersion);
 public record UnlinkStaffAccountRequest(string? Reason, string? RowVersion);
 public record ReplaceAvailabilityRequest(List<AvailabilityWindow>? Windows, int? Revision);
-public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, string? Reason, bool ConfirmOverlaps = false);   // ALV-N021 A2 (OD-17): confirm a block over booked appointments
+public record AddBlockedTimeRequest(DateTime StartLocal, DateTime EndLocal, string? Reason, bool ConfirmOverlaps = false, string? CalendarLabel = null);   // ALV-N021 A2 (M5): CalendarLabel required on the route   // ALV-N021 A2 (OD-17): confirm a block over booked appointments
 
 /// <summary>
 /// ALV-N003: the configuration API. Reads and writes of practice configuration require
@@ -281,7 +281,7 @@ public class ConfigurationController(
 
     private object BlockedDto(ProviderBlockedTime b, IPracticeClock clock) => new
     {
-        b.Id, b.StartUtc, b.EndUtc, b.Reason,
+        b.Id, b.StartUtc, b.EndUtc, b.Reason, b.CalendarLabel,
         startLocal = clock.ToPracticeLocal(b.StartUtc).ToString("yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture),
         endLocal = clock.ToPracticeLocal(b.EndUtc).ToString("yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture),
     };
@@ -300,7 +300,7 @@ public class ConfigurationController(
             try
             {
                 // ALV-N021 A2 (OD-17): never over a visit under way; over booked appointments only with confirmation and a reason
-                return StatusCode(StatusCodes.Status201Created, BlockedDto(await guard.AddAsync(id, request.StartLocal, request.EndLocal, request.Reason, request.ConfirmOverlaps, Actor, ct), clock));
+                return StatusCode(StatusCodes.Status201Created, BlockedDto(await guard.AddAsync(id, request.StartLocal, request.EndLocal, request.Reason, request.ConfirmOverlaps, Actor, ct, request.CalendarLabel), clock));
             }
             catch (BlockedTimeRefusedException ex)
             {

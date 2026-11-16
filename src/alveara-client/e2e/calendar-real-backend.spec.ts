@@ -147,7 +147,7 @@ test("SETUP: the practice (two providers, two operatories, two types, a blocked 
     const windows = [1, 2, 3, 4, 5].map((d) => ({ dayOfWeek: d, startLocal: "08:00", endLocal: "17:00" }));
     expect((await call(admin, "put", `/api/config/providers/${ids[key]}/availability`, { windows, revision: current.revision })).status).toBe(200);
   }
-  expect((await call(admin, "post", `/api/config/providers/${ids.patel}/blocked-time`, { startLocal: `${DAY}T12:00:00`, endLocal: `${DAY}T13:00:00`, reason: "Staff lunch" })).status).toBe(201);
+  expect((await call(admin, "post", `/api/config/providers/${ids.patel}/blocked-time`, { startLocal: `${DAY}T12:00:00`, endLocal: `${DAY}T13:00:00`, reason: "Staff lunch", calendarLabel: "lunch" })).status).toBe(201);
   const people: [string, string, string, string][] = [["Ann", "Calendar", "1985-03-09", "555-010-0100"], ["Bo", "Booker", "1990-01-01", "555-020-0200"], ["Cy", "Clinic", "1975-05-05", "555-030-0300"], ["Di", "Dental", "1980-07-07", "555-040-0400"], ["Ed", "Early", "1970-02-02", "555-050-0500"], ["Flo", "Frame", "1965-08-08", "555-060-0600"]];
   for (const [first, last, dob, phone] of people) ids[first.toLowerCase()] = await registerPatient(first, last, dob, phone, `cal-e2e-${first}-${stamp}`);
 });
@@ -170,6 +170,10 @@ test("CALENDAR: the day view shows the practice's real provider and operatory as
   expect(await style(riveraBlock)).toEqual({ top: "120px", height: "60px" });   // 09:00 is 120 minutes after the 07:00 axis start
   expect(await style(patelBlock)).toEqual({ top: "210px", height: "30px" });    // 10:30, 30 minutes
   await expect(desk.locator('[data-working="08:00-17:00"]')).toHaveCount(2);     // each provider's real weekly hours
+  // ALV-N021 A2 (F-052): Dr. Patel's lunch is drawn in his column with its calendar label; the calendar read carries no reason
+  await expect(desk.locator(".cal__column", { has: desk.locator(".cal__head", { hasText: "Dr. Patel" }) }).locator(".cal__blocked")).toHaveText("Lunch");
+  const calendarBlocks = await (await desk.request.get(`/api/calendar/blocked-time?from=${DAY}`)).json() as Record<string, unknown>[];
+  expect(calendarBlocks.map((b) => [b.displayLabel, "reason" in b])).toEqual([["Lunch", false]]);
   await shot(desk, "01-day-view.png");
   await scanBothThemes(desk, "day-view");
 
@@ -374,7 +378,8 @@ test("PATIENT OVERLAP + WEEK VIEW: a patient cannot be in two places at once; th
   await expect(desk.getByRole("heading", { name: "Week of 2030-01-14 to 2030-01-20" })).toBeVisible();
   await expect(desk.locator(".cal__column .cal__head")).toHaveText(["Monday 2030-01-14", "Tuesday 2030-01-15", "Wednesday 2030-01-16", "Thursday 2030-01-17", "Friday 2030-01-18", "Saturday 2030-01-19", "Sunday 2030-01-20"].map((d) => d.replace(" ", "")));   // ALV-N021 A2 (F-077): the day name over the date
   await expect(desk.locator('.cal__body[data-day="2030-01-19"] .cal__closed')).toHaveText("No working hours");                                    // F-052: the weekend says so
-  await expect(desk.locator(`.cal__body[data-day="${DAY}"] .cal__block--narrow`)).toHaveCount(2);                                                // F-054: the overlapping pair is drawn narrow
+  await expect(desk.locator(`.cal__body[data-day="${DAY}"] [data-appointment="${ids.a1}"]`)).toHaveClass(/cal__block--narrow/);                // F-054: Ann's 09:00, side by side with Ed's 09:15, is drawn narrow
+  await expect(desk.locator(`.cal__body[data-day="${DAY}"] [data-appointment="${ids.a1}"]`)).toContainText("Ann Calendar");                       // with the patient's name, not a cropped time
   const lefts = await desk.locator(`.cal__column[data-x], .cal__body[data-day="${DAY}"] .cal__block`).evaluateAll((els) => els.filter((e) => (e as HTMLElement).style.left).map((e) => (e as HTMLElement).style.left));
   expect(lefts).toContain("0%");
   expect(lefts).toContain("50%"); // two overlapping appointments share the day column side by side

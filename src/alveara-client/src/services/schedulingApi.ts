@@ -149,6 +149,22 @@ export function listCalendar(fromDay: string, toDay: string, providerId?: string
   return request<Appointment[]>(`/api/appointments?${params}`, { signal });
 }
 
+/** ALV-N021 A2 (F-052): one blocked time as the calendar shows it - a controlled label, never the private reason. */
+export interface CalendarBlock {
+  id: string;
+  providerId: string;
+  providerName: string;
+  startUtc: string;
+  endUtc: string;
+  startLocal: string;
+  endLocal: string;
+  displayLabel: string;
+}
+
+/** ALV-N021 A2 (F-052): the blocked time overlapping practice-local days `from`..`to` (at most 31), optionally of one provider. */
+export const listCalendarBlocks = (from: string, to: string, providerId?: string, signal?: AbortSignal) =>
+  request<CalendarBlock[]>(`/api/calendar/blocked-time?from=${from}&to=${to}${providerId ? `&providerId=${providerId}` : ""}`, { signal });
+
 export const getAppointmentHistory = (id: string, signal?: AbortSignal) => request<AppointmentEvent[]>(`/api/appointments/${id}/history`, { signal });
 
 export interface RescheduleInput {
