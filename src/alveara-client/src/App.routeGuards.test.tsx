@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "./App";
+import { signedInSession } from "./test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -38,7 +39,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
   it("shows permission-denied (not the protected page) for a signed-in caller lacking the required permission, with the shell nav still visible", async () => {
     stubFetch({
       permissions: () =>
-        jsonResponse({ username: "billing-1", role: "Billing", permissions: ["ManageBilling"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+        jsonResponse(signedInSession({ username: "billing-1", role: "Billing", permissions: ["ManageBilling"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })),
     });
     window.history.pushState({}, "", "/admin/users");
 
@@ -55,7 +56,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
   it("ALV-002-C01: denies the audit log to a caller without ViewAuditLog, and permits it to one who holds it", async () => {
     stubFetch({
       permissions: () =>
-        jsonResponse({ username: "billing-1", role: "Billing", permissions: ["ManageBilling"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+        jsonResponse(signedInSession({ username: "billing-1", role: "Billing", permissions: ["ManageBilling"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })),
     });
     window.history.pushState({}, "", "/admin/audit-log");
 
@@ -69,7 +70,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
   it("renders the protected page for a signed-in caller who holds the required permission", async () => {
     stubFetch({
       permissions: () =>
-        jsonResponse({ username: "admin-1", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+        jsonResponse(signedInSession({ username: "admin-1", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })),
       users: () => jsonResponse([]),
     });
     window.history.pushState({}, "", "/admin/users");
@@ -88,7 +89,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
         const u = String(url);
         if (u.includes("/api/auth/permissions"))
           return Promise.resolve(
-            jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+            jsonResponse(signedInSession({ username: "office-1", role: "OfficeManager", permissions: ["ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
           );
         if (u.includes("/api/auth/audit-log")) return Promise.resolve(jsonResponse([]));
         if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
@@ -108,7 +109,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
   it("ALV-N003: denies practice configuration to a caller without ManagePracticeConfiguration, hiding its nav link", async () => {
     stubFetch({
       permissions: () =>
-        jsonResponse({ username: "front-1", role: "FrontDesk", permissions: ["ViewSchedule"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+        jsonResponse(signedInSession({ username: "front-1", role: "FrontDesk", permissions: ["ViewSchedule"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })),
     });
     window.history.pushState({}, "", "/admin/configuration");
 
@@ -127,7 +128,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
         const u = String(url);
         if (u.includes("/api/auth/permissions"))
           return Promise.resolve(
-            jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ManagePracticeConfiguration"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+            jsonResponse(signedInSession({ username: "office-1", role: "OfficeManager", permissions: ["ManagePracticeConfiguration"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
           );
         if (u.includes("/api/config/practice"))
           return Promise.resolve(jsonResponse({ id: null, name: null, phone: null, addressLine: null, timeZoneId: "America/Chicago", currency: "USD", configured: false, rowVersion: null }));
@@ -148,7 +149,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
   it("ALV-N004: denies Backup & Recovery to a caller without ViewBackupStatus, hiding its nav link", async () => {
     stubFetch({
       permissions: () =>
-        jsonResponse({ username: "front-1", role: "FrontDesk", permissions: ["ViewSchedule"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }),
+        jsonResponse(signedInSession({ username: "front-1", role: "FrontDesk", permissions: ["ViewSchedule"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })),
     });
     window.history.pushState({}, "", "/admin/backup");
 
@@ -167,7 +168,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
         const u = String(url);
         if (u.includes("/api/auth/permissions"))
           return Promise.resolve(
-            jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+            jsonResponse(signedInSession({ username: "office-1", role: "OfficeManager", permissions: ["ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
           );
         if (u.includes("/api/backup/status"))
           return Promise.resolve(
@@ -205,12 +206,12 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
           return Promise.resolve(
             permissionsCallCount === 1
               ? jsonResponse({ error: "unauthorized" }, 401)
-              : jsonResponse({
+              : jsonResponse(signedInSession({
                   username: "admin-1",
                   role: "Admin",
                   permissions: ["ViewPermissionMatrix"],
                   sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString(),
-                })
+                }))
           );
         }
         if (u.includes("/api/auth/login")) {
@@ -249,12 +250,12 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
           return Promise.resolve(
             permissionsCallCount === 1
               ? jsonResponse({ error: "unauthorized" }, 401)
-              : jsonResponse({
+              : jsonResponse(signedInSession({
                   username: "admin-1",
                   role: "Admin",
                   permissions: ["ViewPermissionMatrix"],
                   sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString(),
-                })
+                }))
           );
         }
         if (u.includes("/api/auth/login")) {
@@ -299,7 +300,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
         if (u.includes("/api/auth/permissions")) {
           return Promise.resolve(
             session
-              ? jsonResponse({ username: session, role: "Admin", permissions: ["ViewPermissionMatrix"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+              ? jsonResponse(signedInSession({ username: session, role: "Admin", permissions: ["ViewPermissionMatrix"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
               : jsonResponse({ error: "unauthorized" }, 401)
           );
         }
@@ -348,7 +349,7 @@ describe("Direct-URL/deep-link route guards (ALV-N009)", () => {
       vi.fn().mockImplementation((url: RequestInfo | URL) => {
         const u = String(url);
         if (u.includes("/api/auth/permissions"))
-          return Promise.resolve(jsonResponse({ username: who(), role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+          return Promise.resolve(jsonResponse(signedInSession({ username: who(), role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
         if (u.includes("/api/auth/users")) return Promise.resolve(jsonResponse([]));
         if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));
         return Promise.resolve(jsonResponse({}));

@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { App } from "./App";
 import { patientWorkspaceTabs } from "./app/patientWorkspaceTabs";
 import { moduleRegistry } from "./app/moduleRegistry";
+import { signedInSession } from "./test/signedInSession";
 
 const jsonResponse = (body: unknown) => new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
 
@@ -12,7 +13,7 @@ function signInAs(role: string, permissions: string[]) {
     vi.fn().mockImplementation((url: string) =>
       Promise.resolve(
         String(url).includes("/api/auth/permissions")
-          ? jsonResponse({ username: "user-1", role, permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+          ? jsonResponse(signedInSession({ username: "user-1", role, permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
           : String(url).startsWith("/api/patients") ? jsonResponse([]) : jsonResponse({ status: "ok" })
       )
     )

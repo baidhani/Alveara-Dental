@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { AdminUsersPage } from "./AdminUsersPage";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../components/Notification";
+import { signedInSession } from "../test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -30,7 +31,7 @@ describe("AdminUsersPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string) => {
         if (String(url).includes("/api/auth/permissions")) {
-          return Promise.resolve(jsonResponse({ role: "Billing", permissions: ["ManageBilling"] }));
+          return Promise.resolve(jsonResponse(signedInSession({ role: "Billing", permissions: ["ManageBilling"] })));
         }
         if (String(url).includes("/api/auth/users")) {
           return Promise.resolve(jsonResponse({ error: "permission_denied", required: "ManageUsers" }, 403));
@@ -50,7 +51,7 @@ describe("AdminUsersPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string) => {
         if (String(url).includes("/api/auth/permissions")) {
-          return Promise.resolve(jsonResponse({ role: "Admin", permissions: ["ManageUsers", "ManageRoles", "ManageAccountStatus"] }));
+          return Promise.resolve(jsonResponse(signedInSession({ role: "Admin", permissions: ["ManageUsers", "ManageRoles", "ManageAccountStatus"] })));
         }
         if (String(url).includes("/api/auth/users")) {
           return Promise.resolve(
@@ -83,7 +84,7 @@ describe("AdminUsersPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string) => {
         if (String(url).includes("/api/auth/permissions")) {
-          return Promise.resolve(jsonResponse({ role: "Admin", permissions: ["ManageUsers"] }));
+          return Promise.resolve(jsonResponse(signedInSession({ role: "Admin", permissions: ["ManageUsers"] })));
         }
         if (String(url).includes("/api/auth/users")) {
           return Promise.resolve(jsonResponse([]));
@@ -104,7 +105,7 @@ describe("AdminUsersPage linked staff profile (ALV-N020, F-021)", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockImplementation((url: string) => {
-        if (String(url).includes("/api/auth/permissions")) return Promise.resolve(jsonResponse({ role: "Admin", permissions: ["ManageUsers"] }));
+        if (String(url).includes("/api/auth/permissions")) return Promise.resolve(jsonResponse(signedInSession({ role: "Admin", permissions: ["ManageUsers"] })));
         if (String(url).includes("/api/auth/users")) {
           return Promise.resolve(
             jsonResponse([

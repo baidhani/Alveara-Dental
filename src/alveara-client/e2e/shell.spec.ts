@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { Page, Route } from "@playwright/test";
+import { signedInSession } from "./support/signedInSession";
 
 // Real Chromium browser walkthrough (N001-R01-02) — replaces the claim that
 // jsdom/Testing-Library structural checks alone prove "usable at agreed
@@ -14,7 +15,7 @@ async function mockAuthenticated(page: Page) {
   await page.route("**/api/auth/permissions", (route: Route) =>
     route.fulfill({
       status: 200, contentType: "application/json",
-      body: JSON.stringify({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog", "ViewPermissionMatrix", "ManagePracticeConfiguration", "ManageBackups", "ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }),
+      body: JSON.stringify(signedInSession({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog", "ViewPermissionMatrix", "ManagePracticeConfiguration", "ManageBackups", "ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() })),
     })
   );
   await page.route("**/api/auth/csrf-token", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ token: "e2e-csrf" }) }));

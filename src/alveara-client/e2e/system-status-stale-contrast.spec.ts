@@ -1,13 +1,14 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Page, Route } from "@playwright/test";
+import { signedInSession } from "./support/signedInSession";
 
 // ALV-N002 R09: the System Status page's stale-data banner (shown when a poll fails after a successful one) must pass axe's colour-contrast
 // rule in both themes. Before R09 its warning text was 3.47:1 on its tint. The page polls every 15 s, so the test drives the page clock.
 
 async function mockAuthenticated(page: Page) {
   await page.route("**/api/auth/permissions", (route: Route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }) })
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(signedInSession({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() })) })
   );
   await page.route("**/api/auth/csrf-token", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ token: "e2e-csrf" }) }));
   await page.route("**/api/health", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ status: "ok" }) }));

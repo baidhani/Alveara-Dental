@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import type { PatientDetail, PatientLink } from "../services/patientsApi";
+import { signedInSession } from "./signedInSession";
 
 /**
  * A small in-memory stand-in for the patient API, installed as the global fetch in component tests. It models only what the UI
@@ -94,7 +95,7 @@ export class FakePatientServer {
 
     if (path === "/api/auth/csrf-token") return json(200, { token: "csrf-1" });
     if (path === "/api/auth/permissions")
-      return json(200, { username: "desk-1", role: "FrontDesk", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1_800_000).toISOString() });
+      return json(200, signedInSession({ username: "desk-1", role: "FrontDesk", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1_800_000).toISOString() }));
     if (path === "/api/health") return json(200, { status: "ok" });
     const extra = await this.handleExtra(path, method, headers, body, u);
     if (extra) return extra;

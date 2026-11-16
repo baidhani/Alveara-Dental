@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Page, Route } from "@playwright/test";
+import { signedInSession } from "./support/signedInSession";
 
 // ALV-N004 R06: the backup page's warning text (a restore-wizard check that does not pass but does not block) and its status alerts must pass
 // axe's colour-contrast rule in both themes. Before R06 the warning check line was 3.5:1 on the page surface (light theme). The tests assert the
@@ -15,7 +16,7 @@ const json = (route: Route, body: unknown, status = 200) => route.fulfill({ stat
 
 async function mockBackupPage(page: Page, theme: "light" | "dark") {
   await page.addInitScript((t) => localStorage.setItem("alveara-theme", t), theme);
-  await page.route("**/api/auth/permissions", (route) => json(route, { username: "e2e-admin", role: "Admin", permissions: ["ViewBackupStatus", "ManageBackups"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }));
+  await page.route("**/api/auth/permissions", (route) => json(route, signedInSession({ username: "e2e-admin", role: "Admin", permissions: ["ViewBackupStatus", "ManageBackups"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() })));
   await page.route("**/api/auth/csrf-token", (route) => json(route, { token: "e2e-csrf" }));
   await page.route("**/api/health", (route) => json(route, { status: "ok" }));
   await page.route(/\/api\/backup\/status(\?.*)?$/, (route) => json(route, status));

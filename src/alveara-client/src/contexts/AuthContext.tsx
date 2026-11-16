@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { getMyPermissions, logout as apiLogout, setUnauthorizedHandler } from "../services/authApi";
 import type { MyPermissions } from "../services/authApi";
+import { isUsableZone } from "../time/practiceTime";
 // ALV-N020 R02: the context object, its types and useIdentityEpoch live in authContextObject.ts, so this file exports only components and useAuth.
 import { AuthContext } from "./authContextObject";
 import type { AuthState } from "./authContextObject";
@@ -33,6 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [endedReason, setEndedReason] = useState<"expired" | "signed-out" | null>(null);
   const [expiredUsername, setExpiredUsername] = useState<string | null>(null);
   const [identityEpoch, setIdentityEpoch] = useState(0);
+  // ALV-N021 A3 (4.1-5): the practice zone in use, and whether a newer response in this session changed it
+  const zoneInUseRef = useRef<string | null>(null);
+  const [practiceZoneChangedTo, setPracticeZoneChangedTo] = useState<string | null>(null);
+  const dismissPracticeZoneChange = useCallback(() => setPracticeZoneChangedTo(null), []);
   // The identity currently signed in, read synchronously by the handlers below (state updates are asynchronous).
   const currentUserRef = useRef<string | null>(null);
 
@@ -40,6 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const endSession = useCallback((reason: "expired" | "signed-out") => {
     const previous = currentUserRef.current;
     currentUserRef.current = null;
+    zoneInUseRef.current = null;   // ALV-N021 A3: the next sign-in starts fresh, not "changed"
+    setPracticeZoneChangedTo(null);
     setSessionExpiringSoon(false);
     setConnectionLost(false);
     if (previous !== null) {
@@ -77,6 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       if (currentUserRef.current !== null && currentUserRef.current !== result.username) setIdentityEpoch((e) => e + 1);   // another person signed in (another tab)
       currentUserRef.current = result.username;
+      // ALV-N021 A3 (4.1-5): every authenticated response replaces the zone; a different usable zone than the one in use is a genuinely observed change
+      const zone = isUsableZone(result.practiceTimeZoneId) ? result.practiceTimeZoneId : null;
+      if (zone !== null && zoneInUseRef.current !== null && zone !== zoneInUseRef.current) setPracticeZoneChangedTo(zone);
+      if (zone !== null) zoneInUseRef.current = zone;
       setState({
         kind: "signed-in",
         username: result.username,
@@ -84,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // ALV-N020-C01: account-scoped permissions join the role's for showing and hiding UI; the server enforces each one separately.
         permissions: [...(result.permissions ?? []), ...(result.accountPermissions ?? [])],
         sessionExpiresAtUtc: result.sessionExpiresAtUtc,
+        practiceTimeZoneId: zone,
       });
     } catch {
       if (seq !== requestSeqRef.current) return;
@@ -191,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [endSession]);
 
   return (
-    <AuthContext.Provider value={{ state, refresh, hasPermission, logout, sessionExpiringSoon, connectionLost, endedReason, expiredUsername, identityEpoch }}>
+    <AuthContext.Provider value={{ state, refresh, hasPermission, logout, sessionExpiringSoon, connectionLost, endedReason, expiredUsername, identityEpoch, practiceZoneChangedTo, dismissPracticeZoneChange }}>
       {children}
     </AuthContext.Provider>
   );

@@ -5,7 +5,9 @@ import { createContext, useContext } from "react";
 export type AuthState =
   | { kind: "loading" }
   | { kind: "signed-out" }
-  | { kind: "signed-in"; username: string; role: string; permissions: string[]; sessionExpiresAtUtc: string | null };
+  | { kind: "signed-in"; username: string; role: string; permissions: string[]; sessionExpiresAtUtc: string | null;
+      /** ALV-N021 A3: the practice zone from the newest authenticated session response, or null when it is missing or this browser cannot use it. */
+      practiceTimeZoneId: string | null };
 
 export interface AuthContextValue {
   state: AuthState;
@@ -30,6 +32,10 @@ export interface AuthContextValue {
   /** ALV-N020 (F-037): increases whenever the signed-in identity ends or changes (sign-out, 401, a different user found by revalidation). Anything that holds
    *  identity-scoped state (the patient in context) clears itself when it changes. */
   identityEpoch: number;
+  /** ALV-N021 A3 (briefing 4.1-5): set when a newer authenticated response in THIS session carries a different usable practice zone than the one in use
+   *  (a reconnect after a redeployment, or an inconsistent server); the screens have already re-rendered in it. null otherwise. */
+  practiceZoneChangedTo: string | null;
+  dismissPracticeZoneChange: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -37,4 +43,10 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 /** ALV-N020 (F-037): the identity counter for identity-scoped state. Outside an AuthProvider (an isolated component test) it is a constant 0. */
 export function useIdentityEpoch(): number {
   return useContext(AuthContext)?.identityEpoch ?? 0;
+}
+
+/** ALV-N021 A3: the practice zone to render instants in, or null (signed out, outside an AuthProvider, or missing/unusable): never the browser's zone. */
+export function usePracticeZone(): string | null {
+  const state = useContext(AuthContext)?.state;
+  return state?.kind === "signed-in" ? state.practiceTimeZoneId : null;
 }

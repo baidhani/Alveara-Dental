@@ -6,6 +6,7 @@ import { axe } from "jest-axe";
 import { AuthProvider } from "../../contexts/AuthContext";
 import type { ExportHistoryItem, ExportOverview } from "../../services/patientExportsApi";
 import { ExportCenterPage } from "./ExportCenterPage";
+import { signedInSession } from "../../test/signedInSession";
 
 // ALV-018-C01: the Export screen against a small in-memory server that answers like the real API (permissions, overview, history, patient search, the three downloads with their headers and stable error codes).
 
@@ -41,7 +42,7 @@ beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
     const u = String(url);
     const call = { method: init?.method ?? "GET", url: u, init };
-    if (u.includes("/api/auth/permissions")) return Promise.resolve(json({ username: "admin", role: "Admin", permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+    if (u.includes("/api/auth/permissions")) return Promise.resolve(json(signedInSession({ username: "admin", role: "Admin", permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
     if (u.includes("/api/auth/csrf-token")) return Promise.resolve(json({ token: "t" }));
     calls.push(call);
     const custom = reply(call);

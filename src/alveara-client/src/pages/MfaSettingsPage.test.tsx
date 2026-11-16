@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { MfaSettingsPage } from "./MfaSettingsPage";
 import { AuthProvider } from "../contexts/AuthContext";
+import { signedInSession } from "../test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -25,7 +26,7 @@ describe("MfaSettingsPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string, init?: RequestInit) => {
         const u = String(url);
-        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse({ role: "Dentist", permissions: [] }));
+        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse(signedInSession({ role: "Dentist", permissions: [] })));
         if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "tok" }));
         if (u.includes("/api/auth/mfa/enroll") && init?.method === "POST") {
           return Promise.resolve(jsonResponse({ base32Secret: "ABCDEFGHIJKLMNOP", recoveryCodes: ["AAAA1111", "BBBB2222"] }));
@@ -49,7 +50,7 @@ describe("MfaSettingsPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string, init?: RequestInit) => {
         const u = String(url);
-        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse({ role: "Dentist", permissions: [] }));
+        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse(signedInSession({ role: "Dentist", permissions: [] })));
         if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "tok" }));
         if (u.includes("/api/auth/mfa/enroll") && init?.method === "POST") {
           const body = init?.body ? JSON.parse(String(init.body)) : {};

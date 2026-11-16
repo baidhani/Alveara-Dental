@@ -7,6 +7,7 @@ import { BackupRecoveryPage } from "./BackupRecoveryPage";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../components/Notification";
 import type { ArchiveInfo, BackupRecord, BackupSettings, BackupStatus, RestoreDrill } from "../services/backupApi";
+import { signedInSession } from "../test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -51,7 +52,7 @@ function stubApi(over: Partial<Api> = {}): Api {
       api.calls.push({ url: u, method, body: init?.body ? JSON.parse(init.body as string) : null });
       for (const [fragment, handler] of Object.entries(api.handlers)) if (u.includes(fragment)) return Promise.resolve(handler(init));
       if (u.includes("/api/auth/permissions"))
-        return Promise.resolve(jsonResponse({ username: "admin", role: "Admin", permissions: api.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+        return Promise.resolve(jsonResponse(signedInSession({ username: "admin", role: "Admin", permissions: api.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
       if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "csrf" }));
       if (u.includes("/api/backup/status")) return Promise.resolve(jsonResponse(api.status));
       if (u.includes("/api/backup/history")) return Promise.resolve(jsonResponse(api.history));
@@ -390,7 +391,7 @@ describe("Backup settings form", () => {
         "/api/auth/permissions": async () => {
           await firstServedPromise;
           await new Promise((resolve) => setTimeout(resolve, 25)); // let the first load finish rendering without the management panels
-          return jsonResponse({ username: "admin", role: "Admin", permissions: ["ViewBackupStatus", "ManageBackups"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() });
+          return jsonResponse(signedInSession({ username: "admin", role: "Admin", permissions: ["ViewBackupStatus", "ManageBackups"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
         },
       },
     });

@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import type { ImportBatch, ImportRow, MappingSuggestion, Reconciliation } from "../../services/bulkImportApi";
+import { signedInSession } from "../../test/signedInSession";
 
 /**
  * A small in-memory server for the data import screens' tests. It answers like the real API (permissions, batch, mapping, dry-run, rows, decision, commit, retry, reconciliation, error report) and records every call.
@@ -49,7 +50,7 @@ export class FakeImportServer {
   install() {
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
       const u = String(url);
-      if (u.includes("/api/auth/permissions")) return Promise.resolve(json({ username: "admin", role: "Admin", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+      if (u.includes("/api/auth/permissions")) return Promise.resolve(json(signedInSession({ username: "admin", role: "Admin", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
       if (u.includes("/api/auth/csrf-token")) return Promise.resolve(json({ token: "t" }));
       const call = { method: init?.method ?? "GET", url: u, init };
       this.calls.push(call);

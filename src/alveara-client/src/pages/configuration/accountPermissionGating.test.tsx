@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { ConfigurationHubPage } from "../ConfigurationHubPage";
 import { NotificationProvider } from "../../components/Notification";
 import { AuthProvider, useAuth } from "../../contexts/AuthContext";
+import { signedInSession } from "../../test/signedInSession";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 afterEach(() => vi.unstubAllGlobals());
@@ -11,7 +12,7 @@ function stub(accountPermissions: string[] | undefined) {
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => {
     const u = String(url);
     if (u.includes("/api/auth/permissions"))
-      return Promise.resolve(json({ username: "owner", role: "Admin", permissions: ["ManagePracticeConfiguration"], accountPermissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+      return Promise.resolve(json(signedInSession({ username: "owner", role: "Admin", permissions: ["ManagePracticeConfiguration"], accountPermissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
     if (u.includes("/api/config/practice")) return Promise.resolve(json({ id: null, name: null, phone: null, addressLine: null, configured: false, rowVersion: null }));
     return Promise.resolve(json([]));
   }));

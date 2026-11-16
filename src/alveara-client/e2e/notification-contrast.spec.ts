@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Page, Route } from "@playwright/test";
+import { signedInSession } from "./support/signedInSession";
 
 // ALV-N001 R04 (finding F1 and its siblings): every notification variant, rendered by the real component in a real browser, must
 // pass axe's colour-contrast rule in both themes. Before R04 the light success (4.45:1) and warning (3.47:1) and the dark success
@@ -10,7 +11,7 @@ async function mockAuthenticated(page: Page) {
   await page.route("**/api/auth/permissions", (route: Route) =>
     route.fulfill({
       status: 200, contentType: "application/json",
-      body: JSON.stringify({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }),
+      body: JSON.stringify(signedInSession({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() })),
     })
   );
   await page.route("**/api/auth/csrf-token", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ token: "e2e-csrf" }) }));

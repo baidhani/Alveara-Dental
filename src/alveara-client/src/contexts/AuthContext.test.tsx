@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { AuthProvider, CONNECTION_RETRY_INTERVAL_MS, useAuth } from "./AuthContext";
 import { ApiError, listUsers } from "../services/authApi";
+import { signedInSession } from "../test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -43,7 +44,7 @@ describe("AuthContext (ALV-N009)", () => {
     const soon = new Date(Date.now() + 60 * 1000).toISOString(); // 1 minute out - inside the 2-minute warning window
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(jsonResponse({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: soon }))
+      vi.fn().mockResolvedValue(jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: soon })))
     );
 
     render(
@@ -67,7 +68,7 @@ describe("AuthContext (ALV-N009)", () => {
     const later = new Date(Date.now() + 30 * 60 * 1000).toISOString();
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(jsonResponse({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: later }))
+      vi.fn().mockResolvedValue(jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: later })))
     );
 
     render(
@@ -89,7 +90,7 @@ describe("AuthContext (ALV-N009)", () => {
         if (u.includes("/api/auth/permissions")) {
           permissionsCallCount += 1;
           return Promise.resolve(
-            jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+            jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
           );
         }
         if (u.includes("/api/auth/users")) return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
@@ -127,7 +128,7 @@ describe("AuthContext (ALV-N009)", () => {
         const u = String(url);
         if (u.includes("/api/auth/permissions"))
           return Promise.resolve(
-            jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+            jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
           );
         if (u.includes("/api/auth/logout")) return Promise.resolve(jsonResponse(undefined));
         return Promise.resolve(jsonResponse({}));
@@ -170,7 +171,7 @@ describe("AuthContext (ALV-N009)", () => {
         // First call (mount) returns the still-valid session with a near expiry; once the
         // boundary is crossed, refresh() re-asks the server and the cookie is genuinely expired.
         if (permissionsCallCount === 1) {
-          return Promise.resolve(jsonResponse({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: soon }));
+          return Promise.resolve(jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: [], sessionExpiresAtUtc: soon })));
         }
         return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
       })
@@ -208,7 +209,7 @@ describe("AuthContext (ALV-N009)", () => {
         // role having been changed by another admin session mid-visit (no permission survives).
         if (permissionsCallCount === 1) {
           return Promise.resolve(
-            jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: farFuture })
+            jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: farFuture }))
           );
         }
         return Promise.resolve(jsonResponse({ error: "unauthorized" }, 401));
@@ -286,12 +287,12 @@ describe("AuthContext (ALV-N009)", () => {
     // resurrect a session that was just revoked.
     await act(async () => {
       resolveOlder(
-        jsonResponse({
+        jsonResponse(signedInSession({
           username: "u",
           role: "Admin",
           permissions: ["ManageUsers"],
           sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString(),
-        })
+        }))
       );
       await Promise.resolve();
       await Promise.resolve();
@@ -317,7 +318,7 @@ describe("AuthContext (ALV-N009)", () => {
           // second refresh() (call 2) is left pending until after logout() completes.
           if (permissionsCallCount === 1) {
             return Promise.resolve(
-              jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+              jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
             );
           }
           return olderResponse;
@@ -361,7 +362,7 @@ describe("AuthContext (ALV-N009)", () => {
     // must not undo the explicit sign-out.
     await act(async () => {
       resolveOlder(
-        jsonResponse({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })
+        jsonResponse(signedInSession({ username: "u", role: "Admin", permissions: ["ManageUsers"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }))
       );
       await Promise.resolve();
       await Promise.resolve();
@@ -411,7 +412,7 @@ function SessionProbe() {
 }
 
 const signedInAs = (username: string) =>
-  jsonResponse({ username, role: "Admin", permissions: [], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() });
+  jsonResponse(signedInSession({ username, role: "Admin", permissions: [], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
 
 /** Answers the permissions check from `next()`; everything else (csrf, logout) succeeds. */
 function stubPermissions(next: () => Response | Promise<Response>) {

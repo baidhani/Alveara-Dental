@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AppShell } from "./AppShell";
 import { AuthProvider } from "../contexts/AuthContext";
+import { signedInSession } from "../test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -15,7 +16,7 @@ function stubPermissions(role: string, permissions: string[]) {
     vi.fn().mockImplementation((url: string) => {
       if (String(url).includes("/api/auth/permissions")) {
         return Promise.resolve(
-          jsonResponse({ username: "test-user", role, permissions, sessionExpiresAtUtc: new Date(Date.now() + 30 * 60 * 1000).toISOString() })
+          jsonResponse(signedInSession({ username: "test-user", role, permissions, sessionExpiresAtUtc: new Date(Date.now() + 30 * 60 * 1000).toISOString() }))
         );
       }
       if (String(url).includes("/api/auth/logout")) {

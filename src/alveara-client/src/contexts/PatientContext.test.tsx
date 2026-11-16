@@ -4,6 +4,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import { PatientContextProvider } from "./PatientContext";
 import { AuthProvider } from "./AuthContext";
 import { usePatientContext } from "./patientContextStore";
+import { signedInSession } from "../test/signedInSession";
 
 /** ALV-003-C01: the patient-in-context state machine, in isolation: a switch drops the old patient at once and a late answer never resurrects it. */
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -162,7 +163,7 @@ describe("PatientContextProvider and the signed-in identity (ALV-N020, F-037)", 
       })
     );
   }
-  const signedIn = (username: string) => json(200, { username, role: "FrontDesk", permissions: [], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() });
+  const signedIn = (username: string) => json(200, signedInSession({ username, role: "FrontDesk", permissions: [], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
 
   it.each([
     ["the session ends (401)", () => json(401, { error: "unauthorized" })],

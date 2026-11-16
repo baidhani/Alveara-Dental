@@ -8,6 +8,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../components/Notification";
 import type { ProcedureSummary, ProcedureVersion } from "../services/proceduresApi";
 import { formatFee, parseFee } from "./procedures/procedureText";
+import { signedInSession } from "../test/signedInSession";
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
@@ -35,7 +36,7 @@ function stubApi(over: Partial<Api> = {}): Api {
     const body = init?.body ? (JSON.parse(init.body as string) as Record<string, unknown>) : null;
     api.calls.push({ url: u, method, body });
     for (const [fragment, handler] of Object.entries(api.respond)) if (u.includes(fragment)) return Promise.resolve(handler(body));
-    if (u.includes("/api/auth/permissions")) return Promise.resolve(json({ username: "billing", role: "Billing", permissions: api.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+    if (u.includes("/api/auth/permissions")) return Promise.resolve(json(signedInSession({ username: "billing", role: "Billing", permissions: api.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
     if (u.includes("/api/auth/csrf-token")) return Promise.resolve(json({ token: "csrf" }));
     if (u.includes("/usage")) return Promise.resolve(json({ procedureId: "p1", count: api.usageCount, bySource: [{ source: "Odontogram links", count: api.usageCount }] }));
     if (u.includes("/history")) return Promise.resolve(json([{ eventNumber: 1, changeType: "Created", versionNumber: 1, reason: null, actorName: "Dr. Okafor", occurredAtUtc: "2030-01-01T12:00:00Z" }]));

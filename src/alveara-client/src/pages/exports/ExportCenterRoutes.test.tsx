@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import { App } from "../../App";
+import { signedInSession } from "../../test/signedInSession";
 
 // ALV-018-C01: the Export screen's place in the application: a menu entry and a route for anyone who holds one of the three export permissions, and a permission-denied page (not the screen) for everyone else.
 
@@ -9,7 +10,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 function stubFetch(permissions: string[]) {
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => {
     const u = String(url);
-    if (u.includes("/api/auth/permissions")) return Promise.resolve(json({ username: "u", role: "Admin", permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+    if (u.includes("/api/auth/permissions")) return Promise.resolve(json(signedInSession({ username: "u", role: "Admin", permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
     if (u.includes("/api/patient-exports/overview")) return Promise.resolve(json({ domains: [], excluded: [], maxPatients: 5000, maxPackageBytes: 1, defaultFolderNaming: "IdOnly", allPatientsReadMode: "TableByTable", patientCount: 0, documentBytes: 0, allPatientsWithinLimits: true, practiceTimeZone: "UTC" }));
     if (u.includes("/api/patient-exports/history")) return Promise.resolve(json([]));
     if (u.includes("/api/health")) return Promise.resolve(json({ status: "ok" }));

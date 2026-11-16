@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AdminUserDetailPage } from "./AdminUserDetailPage";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../components/Notification";
+import { signedInSession } from "../test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -40,7 +41,7 @@ describe("AdminUserDetailPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string, init?: RequestInit) => {
         const u = String(url);
-        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse({ role: "Admin", permissions: ["ManageUsers", "ManageAccountStatus", "ManageRoles"] }));
+        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse(signedInSession({ role: "Admin", permissions: ["ManageUsers", "ManageAccountStatus", "ManageRoles"] })));
         if (u.includes("/api/auth/users") && (!init || init.method === undefined)) return Promise.resolve(jsonResponse([user]));
         if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "tok" }));
         if (u.includes("/session-timeout")) return Promise.resolve(jsonResponse({ id: user.id, username: user.username, sessionTimeoutMinutes: 60 }));
@@ -66,7 +67,7 @@ describe("AdminUserDetailPage", () => {
       "fetch",
       vi.fn().mockImplementation((url: string) => {
         const u = String(url);
-        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse({ role: "Admin", permissions: ["ManageUsers"] }));
+        if (u.includes("/api/auth/permissions")) return Promise.resolve(jsonResponse(signedInSession({ role: "Admin", permissions: ["ManageUsers"] })));
         if (u.includes("/api/auth/users")) return Promise.resolve(jsonResponse([]));
         return Promise.resolve(jsonResponse({}));
       })

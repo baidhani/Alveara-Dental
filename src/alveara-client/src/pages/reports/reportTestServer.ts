@@ -3,6 +3,7 @@ import type {
   AppointmentRecord, BalanceAccountRecord, BalancesData, Baseline, CancellationsData, CollectionsData, CompletedProceduresData, ComparisonData, FollowUpRecord, FollowUpsData, LedgerEntryRecord, LedgerProof, MeasurementData, MetricComparison, MetricSide, MetricValue, PatientFlowData,
   PlanItemRecord, PlanStatusData, ProcedureRecord, ProductionData, ProviderActivityData, ScheduleData,
 } from "../../services/reportsApi";
+import { signedInSession } from "../../test/signedInSession";
 
 /**
  * A small in-memory server for the report screens' tests. It answers like the real API: the permissions, the providers and locations lists, every report with a fixed small practice behind it, and the
@@ -197,7 +198,7 @@ export class FakeReportServer {
   install() {
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string, init?: RequestInit) => {
       const u = new URL(String(url), "http://x");
-      if (u.pathname === "/api/auth/permissions") return Promise.resolve(json({ username: "manager", role: "OfficeManager", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+      if (u.pathname === "/api/auth/permissions") return Promise.resolve(json(signedInSession({ username: "manager", role: "OfficeManager", permissions: this.permissions, sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
       if (u.pathname === "/api/auth/csrf-token") return Promise.resolve(json({ token: "t" }));
       const call: Call = { method: init?.method ?? "GET", url: String(url), path: u.pathname, params: u.searchParams, headers: new Headers(init?.headers), body: init?.body ? JSON.parse(String(init.body)) : undefined };
       this.calls.push(call);

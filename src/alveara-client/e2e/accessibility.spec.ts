@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import type { Page, Route } from "@playwright/test";
+import { signedInSession } from "./support/signedInSession";
 
 // Real-browser accessibility smoke coverage (N001-R01-03 asked for this to
 // extend beyond the dashboard-only jsdom check, and to cover both themes).
@@ -12,7 +13,7 @@ async function mockAuthenticated(page: Page) {
   await page.route("**/api/auth/permissions", (route: Route) =>
     route.fulfill({
       status: 200, contentType: "application/json",
-      body: JSON.stringify({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog", "ViewPermissionMatrix", "ManagePracticeConfiguration", "ManageBackups", "ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() }),
+      body: JSON.stringify(signedInSession({ username: "e2e-admin", role: "Admin", permissions: ["ManageUsers", "ViewAuditLog", "ViewPermissionMatrix", "ManagePracticeConfiguration", "ManageBackups", "ViewBackupStatus"], sessionExpiresAtUtc: new Date(Date.now() + 8 * 3600_000).toISOString() })),
     })
   );
   await page.route("**/api/auth/csrf-token", (route: Route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ token: "e2e-csrf" }) }));

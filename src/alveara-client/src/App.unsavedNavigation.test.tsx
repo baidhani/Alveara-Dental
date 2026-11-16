@@ -3,6 +3,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "./App";
 import { DISCARD_PROMPT } from "./hooks/useUnsavedChangesWarning";
+import { signedInSession } from "./test/signedInSession";
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -17,7 +18,7 @@ function stubFetch(overrides: Record<string, (init?: RequestInit) => Response> =
       const u = String(url);
       for (const [fragment, handler] of Object.entries(overrides)) if (u.includes(fragment)) return Promise.resolve(handler(init));
       if (u.includes("/api/auth/permissions"))
-        return Promise.resolve(jsonResponse({ username: "office-1", role: "OfficeManager", permissions: ["ManagePracticeConfiguration"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() }));
+        return Promise.resolve(jsonResponse(signedInSession({ username: "office-1", role: "OfficeManager", permissions: ["ManagePracticeConfiguration"], sessionExpiresAtUtc: new Date(Date.now() + 1800000).toISOString() })));
       if (u.includes("/api/auth/csrf-token")) return Promise.resolve(jsonResponse({ token: "csrf" }));
       if (u.includes("/api/config/practice")) return Promise.resolve(jsonResponse(practice));
       if (u.includes("/api/health")) return Promise.resolve(jsonResponse({ status: "ok" }));

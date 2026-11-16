@@ -33,6 +33,9 @@ export interface MyPermissions {
   /** ISO 8601, or null if the server couldn't determine it - the real cookie expiry, not a
    *  client-computed guess (see AuthController.MyPermissions). */
   sessionExpiresAtUtc: string | null;
+  /** ALV-N021 A3 (briefing 4.1-1): the practice time zone (canonical IANA id) every instant is shown in; the same for every signed-in user. Missing from a
+   *  server older than A3, in which case times show as unavailable (never in the browser's zone). */
+  practiceTimeZoneId?: string | null;
 }
 
 export interface PermissionMatrixEntry {
