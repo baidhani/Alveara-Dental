@@ -122,6 +122,39 @@ describe("ConfigurationHubPage (ALV-N003)", () => {
     });
   });
 
+  it("shows the visit workflow settings once the practice exists and saves both with the version it read (ALV-N021 A2, OD-03, OD-04)", async () => {
+    const practice = { id: "x", name: "Alveara", phone: null, addressLine: null, timeZoneId: "America/Chicago", currency: "USD", configured: true, rowVersion: "v1" };
+    const fetchMock = stubApi({
+      "/api/config/visit-workflow": () => jsonResponse({ ...practice, rowVersion: "v2", confirmationRequired: false, markReadyRequired: true }),
+      "/api/config/practice": () => jsonResponse({ ...practice, confirmationRequired: true, markReadyRequired: true }),
+    });
+    renderHub();
+    const form = within(await screen.findByRole("form", { name: "Visit workflow" }));
+    const confirm = form.getByRole("checkbox", { name: /Confirm before check-in/ });
+    const ready = form.getByRole("checkbox", { name: /Mark ready before seating/ });
+    expect(confirm).toBeChecked();
+    expect(ready).toBeChecked();
+    const save = form.getByRole("button", { name: "Save visit workflow" });
+    expect(save).toBeDisabled();
+    expect(form.getByText("Changes apply from the next move; visits already moved stay as they are.")).toBeInTheDocument();
+
+    await userEvent.click(confirm);
+    await userEvent.click(save);
+    expect(await screen.findByText("Visit workflow saved. It applies from the next move.")).toBeInTheDocument();
+    const put = fetchMock.mock.calls.find(([u]) => String(u).includes("/api/config/visit-workflow"));
+    expect((put![1] as RequestInit).method).toBe("PUT");
+    expect(JSON.parse((put![1] as RequestInit).body as string)).toEqual({ confirmationRequired: false, markReadyRequired: true, rowVersion: "v1" });
+    expect(confirm).not.toBeChecked();
+    expect(save).toBeDisabled();
+  });
+
+  it("does not offer the visit workflow settings before the practice is saved", async () => {
+    stubApi();
+    renderHub();
+    await screen.findByRole("button", { name: "Save practice information" });
+    expect(screen.queryByRole("form", { name: "Visit workflow" })).not.toBeInTheDocument();
+  });
+
   it("disables the practice form while a save is in flight, so its response cannot overwrite newer typing", async () => {
     let finish!: (r: Response) => void;
     vi.stubGlobal(

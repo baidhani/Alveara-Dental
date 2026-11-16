@@ -5,7 +5,8 @@ using Alveara.Api.Data;
 namespace Alveara.Api.Architecture.Configuration;
 
 public record PracticeSettingsView(
-    Guid? Id, string? Name, string? Phone, string? AddressLine, string TimeZoneId, string Currency, bool Configured, string? RowVersion);
+    Guid? Id, string? Name, string? Phone, string? AddressLine, string TimeZoneId, string Currency, bool Configured, string? RowVersion,
+    bool ConfirmationRequired = true, bool MarkReadyRequired = true);   // ALV-N021 A2 (OD-03, OD-04): the two visit-workflow settings, read with the practice
 
 /// <summary>
 /// ALV-N003: practice information, the (single active) location, operatories, and appointment
@@ -51,10 +52,38 @@ public class PracticeConfigurationService(AlveraDbContext db, IPracticeClock clo
         return ToView(existing);
     }
 
+    /// <summary>
+    /// ALV-N021 A2 (OD-03, OD-04): whether a visit must be confirmed before check-in and marked ready before seating. Changed only by a
+    /// ManagePracticeConfiguration holder (the route), on the practice row's version; the audit records old and new values, the actor and the time
+    /// in the same save. Nothing is cached: every visit move reads the settings afresh, so a change applies from the next move on, and moves
+    /// already made are never re-evaluated. Asking for what is already set writes nothing.
+    /// </summary>
+    public async Task<PracticeSettingsView> SaveVisitWorkflowAsync(bool? confirmationRequired, bool? markReadyRequired, string? rowVersion, Guid actor, CancellationToken ct)
+    {
+        if (confirmationRequired is null || markReadyRequired is null)
+            throw new ConfigurationException("visit_settings_required", "Say whether confirmation and marking ready are required.");
+        var existing = await db.PracticeSettings.SingleOrDefaultAsync(ct)
+            ?? throw new ConfigurationException("practice_not_configured", "Save the practice information first.", 409);
+        ConfigurationWrite.ApplyExpectedVersion(db, existing, rowVersion);
+        if (existing.ConfirmationRequired == confirmationRequired && existing.MarkReadyRequired == markReadyRequired) return ToView(existing);
+
+        var details = $"Visit workflow settings changed: confirmation required {Word(existing.ConfirmationRequired)} -> {Word(confirmationRequired.Value)}; "
+            + $"mark ready required {Word(existing.MarkReadyRequired)} -> {Word(markReadyRequired.Value)}.";
+        existing.ConfirmationRequired = confirmationRequired.Value;
+        existing.MarkReadyRequired = markReadyRequired.Value;
+        existing.UpdatedAtUtc = clock.UtcNow;
+        ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Updated, nameof(PracticeSettings), existing.Id, actor, details);
+        await ConfigurationWrite.SaveAsync(db, nameof(PracticeSettings), existing.Id, ct);
+        return ToView(existing);
+    }
+
+    private static string Word(bool value) => value ? "yes" : "no";
+
     private PracticeSettingsView ToView(PracticeSettings? s) => new(
         s?.Id, s?.Name, s?.Phone, s?.AddressLine,
         clock.PracticeTimeZone.Id, Money.Money.Currency, s is not null,
-        s is null ? null : Convert.ToBase64String(s.RowVersion));
+        s is null ? null : Convert.ToBase64String(s.RowVersion),
+        s?.ConfirmationRequired ?? true, s?.MarkReadyRequired ?? true);
 
     // ---------- Location (one active location in first release) ----------
 

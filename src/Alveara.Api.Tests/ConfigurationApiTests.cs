@@ -195,6 +195,39 @@ public class ConfigurationApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task The_visit_workflow_settings_are_read_with_the_practice_and_changed_only_with_ManagePracticeConfiguration_and_a_csrf_token()
+    {
+        // ALV-N021 A2 (OD-03, OD-04)
+        await using var factory = CreateFactory();
+        var (admin, csrf) = await AdminAsync(factory);
+        var saved = await (await admin.SendAsync(Req(HttpMethod.Put, "/api/config/practice", csrf, new SavePracticeRequest("Alveara Dental", null, null, null)))).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(saved.GetProperty("confirmationRequired").GetBoolean());
+        Assert.True(saved.GetProperty("markReadyRequired").GetBoolean());
+        var version = saved.GetProperty("rowVersion").GetString();
+
+        foreach (var role in new[] { "FrontDesk", "Dentist" })   // two denied roles + the manager: more sign-ins in a minute trip the AuthAttempts rate limit (10)
+        {
+            var user = await UserWithRoleAsync(factory, admin, csrf, role);
+            var denied = await user.SendAsync(Req(HttpMethod.Put, "/api/config/visit-workflow", await CsrfAsync(user), new SaveVisitWorkflowRequest(false, false, version)));
+            Assert.Equal(HttpStatusCode.Forbidden, denied.StatusCode);
+            Assert.Equal("ManagePracticeConfiguration", (await denied.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("required").GetString());
+        }
+        var manager = await UserWithRoleAsync(factory, admin, csrf, "OfficeManager");
+        var noToken = await manager.SendAsync(Req(HttpMethod.Put, "/api/config/visit-workflow", null, new SaveVisitWorkflowRequest(false, false, version)));
+        Assert.False(noToken.IsSuccessStatusCode);
+
+        var changed = await manager.SendAsync(Req(HttpMethod.Put, "/api/config/visit-workflow", await CsrfAsync(manager), new SaveVisitWorkflowRequest(false, true, version)));
+        Assert.True(changed.IsSuccessStatusCode, await changed.Content.ReadAsStringAsync());
+        var read = await (await manager.GetAsync("/api/config/practice")).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(read.GetProperty("confirmationRequired").GetBoolean());
+        Assert.True(read.GetProperty("markReadyRequired").GetBoolean());
+
+        var incomplete = await manager.SendAsync(Req(HttpMethod.Put, "/api/config/visit-workflow", await CsrfAsync(manager), new { markReadyRequired = true, rowVersion = read.GetProperty("rowVersion").GetString() }));
+        Assert.Equal(HttpStatusCode.BadRequest, incomplete.StatusCode);
+        Assert.Equal("visit_settings_required", (await incomplete.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("error").GetString());
+    }
+
+    [Fact]
     public async Task End_to_end_configuration_is_audited_and_consumed_by_the_scheduling_read_model()
     {
         await using var factory = CreateFactory();

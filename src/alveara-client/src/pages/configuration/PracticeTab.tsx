@@ -12,6 +12,7 @@ import type { ConcurrencyConflictProblem } from "../../services/authApi";
 import { getPractice, savePractice } from "../../services/configApi";
 import type { PracticeInfo } from "../../services/configApi";
 import { LocationPanel } from "./SimpleTabs";
+import { VisitWorkflowPanel } from "./VisitWorkflowPanel";
 
 type State = { kind: "loading" } | { kind: "denied" } | { kind: "error" } | { kind: "loaded"; info: PracticeInfo };
 const toForm = (info: PracticeInfo) => ({ name: info.name ?? "", phone: info.phone ?? "", addressLine: info.addressLine ?? "" });
@@ -110,6 +111,10 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
             {dirty && <span className="alv-config-panel__dirty">Unsaved changes</span>}
           </div>
         </form>
+      )}
+
+      {state.kind === "loaded" && state.info.configured && (
+        <VisitWorkflowPanel info={state.info} onReload={load} onSaved={(info) => setState({ kind: "loaded", info })} />
       )}
 
       <h2 className="alv-config-panel__form-title">Location</h2>
