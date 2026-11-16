@@ -114,7 +114,7 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
       )}
 
       {state.kind === "loaded" && state.info.configured && (
-        <VisitWorkflowPanel info={state.info} onReload={load} onSaved={(info) => setState({ kind: "loaded", info })} />
+        <VisitWorkflowPanel key={state.info.rowVersion ?? "new"} info={state.info} onReload={load} onSaved={(info) => setState({ kind: "loaded", info })} />
       )}
 
       <h2 className="alv-config-panel__form-title">Location</h2>

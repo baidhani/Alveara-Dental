@@ -2882,3 +2882,9 @@
   - What changed: BackupApiTests.Manual_backup_verification_... hard-coded 4 included asset classes; ALV-N020-C01 (5e962b9, 2026-11-12) deliberately added a fifth (loginBackgrounds). The test now asserts the backup holds exactly ManagedAssetClasses.All and contains loginBackgrounds. No product change.
   - Verification: part 2 (all *ApiTests, 215436c) 1020/1021 in 21 m with this the only failure; the test alone 1/1 after the change.
   - Notes: not A2 work; separate commit, owner-approved 2026-11-16. Nothing pushed.
+- [x] ALV-N021 A2: the visit-workflow panel no longer copies props into state in an effect (the one new lint warning A2 introduced)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: VisitWorkflowPanel.tsx drops its useEffect(setForm(...)); PracticeTab.tsx remounts the panel with key = the practice row version, so the form starts from the saved settings. Same behaviour.
+  - Verification: npm run lint exit 0, 0 errors, 42 warnings (was 43 in the final evidence run; ALV-N020 R02 recorded 41, the other +1 predates A2 - the two A2-changed files with warnings had them before A2); tsc --noEmit clean; vitest ConfigurationHubPage 30/30.
+  - Notes: found while packaging A2-R01; owner-approved. Nothing pushed.

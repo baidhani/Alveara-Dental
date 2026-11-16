@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../components/Button";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
@@ -12,7 +12,8 @@ const fromInfo = (info: PracticeInfo) => ({ confirmationRequired: info.confirmat
 
 /**
  * ALV-N021 A2 (OD-03, OD-04): the two visit-workflow settings. Both default to required. A change applies from the next visit move on;
- * moves already made stay as they are. Shown only once the practice exists (the settings live on the practice row).
+ * moves already made stay as they are. Shown only once the practice exists (the settings live on the practice row). The parent remounts the panel
+ * (key = the practice row version) when the saved settings change, so the form starts from them without copying props into state in an effect.
  */
 export function VisitWorkflowPanel({ info, onSaved, onReload }: { info: PracticeInfo; onSaved: (info: PracticeInfo) => void; onReload: () => void }) {
   const { notify } = useNotifications();
@@ -20,7 +21,6 @@ export function VisitWorkflowPanel({ info, onSaved, onReload }: { info: Practice
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
-  useEffect(() => setForm(fromInfo(info)), [info]);
   const dirty = JSON.stringify(form) !== JSON.stringify(fromInfo(info));
 
   async function submit(event: FormEvent) {
