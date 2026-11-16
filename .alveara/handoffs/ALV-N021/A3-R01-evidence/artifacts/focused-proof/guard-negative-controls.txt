@@ -1,0 +1,15 @@
+== control 1: browser-zone instant format
+ℹ pass 3
+ℹ fail 1
+  src/alveara-client/src/pages/AuditLogPage.tsx:95: export const negativeControl = (iso: string) => new Date(iso).toLocaleString();
+  +   'src/alveara-client/src/pages/AuditLogPage.tsx:95: export const negativeControl = (iso: string) => new Date(iso).toLocaleString();'
+    actual: [ 'src/alveara-client/src/pages/AuditLogPage.tsx:95: export const negativeControl = (iso: string) => new Date(iso).toLocaleString();' ],
+== control 2: browser today
+ℹ pass 3
+ℹ fail 1
+  src/alveara-client/src/pages/AuditLogPage.tsx:95: export const negativeControl2 = () => { const d = new Date(); return d.getDate(); };
+  +   'src/alveara-client/src/pages/AuditLogPage.tsx:95: export const negativeControl2 = () => { const d = new Date(); return d.getDate(); };'
+    actual: [ 'src/alveara-client/src/pages/AuditLogPage.tsx:95: export const negativeControl2 = () => { const d = new Date(); return d.getDate(); };' ],
+RESTORED-HASH-OK
+ℹ pass 4
+ℹ fail 0

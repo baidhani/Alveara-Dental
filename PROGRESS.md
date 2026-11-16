@@ -3002,3 +3002,9 @@
   - What changed: new e2e/practice-time-zones-real-backend.spec.ts and playwright.practice-time.config.ts (one admin bootstrap; front-desk users in browser contexts with timezoneId America/Chicago and Asia/Tokyo: the session carries America/Chicago; a follow-up typed as 2030-01-14T09:30 is stored as 15:30 UTC and shown as 1/14/2030, 9:30:00 AM; a report's "Last day" defaults to the practice's today); added to the mocked run's real-backend ignore list; run command in docs/testing/REAL_BACKEND_E2E.md.
   - Verification: walkthrough 2/2 (25 s with -SkipBuild; first run 63 s with build failed on my ambiguous list-item locator, narrowed to the follow-ups list as the existing follow-up spec does). Evidence: the Tokyo browser's own day was 2026-11-17 while the practice day was 2026-11-16, and the report defaulted to 2026-11-16; both browsers stored 2030-01-14T15:30:00Z; the Tokyo screenshot's timeline shows 4:01 PM on 11/16 (Chicago), not Tokyo time.
   - Notes: database dropped by the runner. Nothing pushed.
+- [x] ALV-N021 A3-R01 handoff package (AWAITING_REVIEW)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/handoffs/ALV-N021/A3-R01.md and A3-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, INVENTORY_COMPARISON, CHANGED_FILES, PARENT_REGRESSION, DEMO_EVIDENCE, NEXT_STORY_IMPACT, artifacts: two-zone walkthrough evidence and screenshots, focused-proof logs); EXECUTION_STATUS attempt A3-R01 AWAITING_REVIEW; BUILD_STATE; ledger rows and A3 section.
+  - Verification: the focused runs recorded in A3-R01-evidence/TEST_RESULTS.md (implementation b8756f1).
+  - Notes: documentation only. Nothing pushed.

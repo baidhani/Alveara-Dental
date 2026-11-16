@@ -36,6 +36,8 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Real-backend walkthroughs other than board, flow, calendar, schedule, reports (35 of 40), especially those that book, cancel, take payments or read appointment history (billing, billing-ledger, follow-ups, work-queue, external-cases, notifications, permission-policy, workspace) | ALV-N021 | not run on A2 (the five A2 walkthroughs and the chain stages 0-4 passed on `215436c`) |
 | Migrations M1-M6 (`20261114162213` .. `20261116145816`): upgrade from the post-A1 schema on a copy of a populated database; rollback guards 51280, 51281, 51284, 51285, 51286; merge-guard trigger re-created by M6 | ALV-N021 | each rolled back and forward on a test clone only |
 | Browsers other than Chromium for the time fields (F-068) | ALV-N021 | Chromium only |
+| Full backend suite: also the ALV-N021 A3 classes `PracticeTimeZoneSessionTests`, `PracticeLocalInputTests`, `PracticeLocalInputApiTests` and every class that reads `GET /api/auth/permissions` | ALV-N021 | A3 focused only (14 + 116 + 51) |
+| Every real-backend walkthrough and the chain after A3 (every screen now renders instants in the session zone; four forms send `...Local`): especially follow-ups, completion, completion-adoption, clinical (vitals), reports, billing statements, backup | ALV-N021 | only `practice-time-zones-real-backend.spec.ts` run (2/2) |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -84,4 +86,11 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Focused proof and final evidence run (A2-R01):** `.alveara/handoffs/ALV-N021/A2-R01-evidence/TEST_RESULTS.md`. These runs are pre-Stage-1, unreviewed diagnostic evidence (review A2-R01).
 - **Implementation SHA (A2-R02):** `b7efad658138698547d1b887cb8789942c1ee350` (review CR-1 only: chain-host clock parse on the invariant culture, guard widened). Focused proof: `.alveara/handoffs/ALV-N021/A2-R02-evidence/TEST_RESULTS.md`.
 - **Deferred to ALV-N028:** the ALV-N021 A2 rows in the table above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
+## ALV-N021 (item 58): attempt A3 (decision 02 T-1, T-4: practice-zone display, today and local input)
+
+- **Implementation SHA (A3-R01):** `b8756f1` (base `3845e31`). Changed subsystems: session response (`practiceTimeZoneId`), start-up zone check, local-input parser on five routes, client time helpers and every instant display, auth state, the test session builders, a repository guard, a new real-backend spec.
+- **Focused proof (A3-R01):** `.alveara/handoffs/ALV-N021/A3-R01-evidence/TEST_RESULTS.md`.
+- **Deferred to ALV-N028:** the ALV-N021 A3 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**

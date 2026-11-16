@@ -1,0 +1,3 @@
+# ALV-N021 A3-R01: demonstration evidence
+
+Real-backend walkthrough `e2e/practice-time-zones-real-backend.spec.ts` (runner, real API and SQL Server, database dropped), 2/2: one Chicago practice, a browser in America/Chicago and one in Asia/Tokyo. Screenshots and `practice-time-evidence.json` in `artifacts/two-zone-walkthrough/`. At run time the Tokyo browser day was 2026-11-17 and the practice day 2026-11-16: the report "Last day" showed 2026-11-16 in both; the follow-up typed as 2030-01-14 09:30 was stored as 15:30 UTC and shown as 1/14/2030, 9:30:00 AM in both; the Tokyo screenshot timeline shows 4:01 PM on 11/16 (Chicago), not Tokyo time.

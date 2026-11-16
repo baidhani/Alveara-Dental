@@ -1,0 +1,18 @@
+{
+  "America/Chicago": {
+    "session": "America/Chicago",
+    "browserDay": "2026-11-16",
+    "practiceDay": "2026-11-16",
+    "sameDay": true,
+    "followUpShown": "1/14/2030, 9:30:00 AM",
+    "storedDueAtUtc": "2030-01-14T15:30:00+00:00"
+  },
+  "Asia/Tokyo": {
+    "session": "America/Chicago",
+    "browserDay": "2026-11-17",
+    "practiceDay": "2026-11-16",
+    "sameDay": false,
+    "followUpShown": "1/14/2030, 9:30:00 AM",
+    "storedDueAtUtc": "2030-01-14T15:30:00+00:00"
+  }
+}

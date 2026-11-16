@@ -1,0 +1,3 @@
+# ALV-N021 A3-R01: parent and dependency regression
+
+n/a (new production story; no parent course story). Shared components A3 changed and how they were covered: the session response (`AuthController`; `AuthControllerPermissionMatrixTests` 14/14 with the new tests), the five routes and their existing API tests (FollowUpApiTests, CompletionApiTests, CompletionAdoptionApiTests, ClinicalRecordApiTests: 116 + 51 passed), every client screen (full client suite 2045/2045, full mocked Playwright 165 passed / 29 skipped), the repository checks (53/53). Broad regression `DEFERRED_TO_ALV-N028` (ledger rows added); not release-certified.
