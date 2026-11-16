@@ -93,5 +93,6 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Implementation SHA (A3-R01):** `b8756f1` (base `3845e31`). Changed subsystems: session response (`practiceTimeZoneId`), start-up zone check, local-input parser on five routes, client time helpers and every instant display, auth state, the test session builders, a repository guard, a new real-backend spec.
 - **Focused proof (A3-R01):** `.alveara/handoffs/ALV-N021/A3-R01-evidence/TEST_RESULTS.md`.
 - **Implementation SHA (A3-R02):** `6f0f128` (review CR-1 and CR-2 only: Calendar and Flow Board on the session zone; statement/receipt component test). Focused proof: `.alveara/handoffs/ALV-N021/A3-R02.md`.
+- **Approved (A3-R02, `.alveara/reviews/ALV-N021/A3-R02.md`):** ALV-N021 COMPLETE; the ALV-N021 rows above stay owed to ALV-N028.
 - **Deferred to ALV-N028:** the ALV-N021 A3 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**
