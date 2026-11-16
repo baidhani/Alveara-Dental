@@ -1,7 +1,8 @@
-# ALV-N021 attempt A3 - pre-implementation briefing (revision 1, for independent review)
+# ALV-N021 attempt A3 - pre-implementation briefing (revision 2, answering review A3-BRIEFING-R01)
 
 - **Story:** ALV-N021 (plan item 58). A1 COMPLETE (A1-R02), A2 COMPLETE (A2-R02, closure `d20e04c`).
 - **Authority:** decision 02 (`.alveara/reviews/ALV-N021/A2-DECISION-02.md`, "Authorized follow-on A3 scope - T-1 and T-4") and the execution-plan A3 boundary (item 58, "Required coverage"). The A2 closure review authorizes this briefing only; **no A3 code or test is written before this briefing is approved.**
+- **Revision 2:** answers BR-1 to BR-5 of `.alveara/reviews/ALV-N021/A3-BRIEFING-R01.md` (CHANGES_REQUIRED; architecture and D-2 approved in principle). Change map: section 12.
 - **Owner decisions in this briefing (2026-11-16):** D-1 = Option B with server-authoritative presentation rules (section 4); D-2 = keep the legacy `...Utc` input fields temporarily (section 5).
 - **Source audit:** `docs/design/ALV-N021_TIME_HANDLING_AUDIT.md` (T-1, T-4), re-inventoried against the current code (`d20e04c`) in Appendix A.
 
@@ -57,11 +58,11 @@ Footprint measured at `d20e04c` (read-only):
 
 ### 4.1 Option B contract (required)
 
-1. **Canonical zone in the session.** `GET /api/auth/permissions` (every signed-in user, `[Authorize]` only) gains `practiceTimeZoneId`: an **IANA** identifier (`America/Chicago`) that browser `Intl` supports. The server derives it from the configured `PracticeTimeZone`; if the configuration holds a Windows identifier (`Central Standard Time`, accepted by `FindSystemTimeZoneById` on Windows), the server converts it with `TimeZoneInfo.TryConvertWindowsIdToIanaId`; if no IANA form exists the API **does not start** with a misleading value (start-up check, tested). A platform-specific identifier is never published.
+1. **Canonical zone in the session (BR-5).** `practiceTimeZoneId` is an **additive field on every successful authenticated `GET /api/auth/permissions` response**, for every role, with no permission check beyond authentication (`[Authorize]`); it is the same value for every user. It is an **IANA** identifier (`America/Chicago`) that browser `Intl` supports. The server derives it once at start-up from the configured `PracticeTimeZone`; a Windows identifier (`Central Standard Time`, accepted by `FindSystemTimeZoneById` on Windows) is converted with `TimeZoneInfo.TryConvertWindowsIdToIanaId`; if no IANA form exists the API **does not start** (start-up check, tested). A platform-specific identifier is never published. The shared client session type and every fake/fixture that answers this route are listed in Appendix A section 6 and move to one test builder that includes the field.
 2. **Client-neutral contract; future WPF client.** The field is the same for every client. The server owns a tested mapping `PracticeZoneIds` (IANA canonical id and its Windows id via `TimeZoneInfo.TryConvertIanaIdToWindowsId`) so that a future Windows/WPF client whose native APIs need a Windows id gets it from the server, not by mapping it itself. A3 adds and tests the mapping; it publishes only the IANA field now (a Windows-id field is added when that client exists). Neither client may select, infer, persist or independently map the practice zone.
-3. **Two shared helpers only.** `src/alveara-client/src/time/practiceTime.ts`: `formatInstant(utcIso, zone, style)` (`Intl.DateTimeFormat` with `timeZone: zone`; the styles the screens use today) and `practiceToday(zone, now?)` / `practiceNow(zone, now?)`. No other code formats an instant or derives a calendar day from the browser clock (guard, section 8).
+3. **Shared helpers only (BR-1).** `src/alveara-client/src/time/practiceTime.ts` holds the only code that turns an instant into practice text or derives a practice day: `formatInstant` (display), `toPracticeLocalInput` (exact input prefill), `practiceToday` / `practiceNow` (section 6). No other code formats an instant or derives a calendar day from the browser clock (guard, section 8).
 4. **No silent fallback.** If the field is missing (older server) or `Intl` rejects it, the helpers return `null`; components show **"Time unavailable"** and one banner "Times cannot be shown: the practice time zone is not available." Nothing is rendered in the browser zone. Tested.
-5. **Zone change during a session.** The zone is a deployment setting: changing it needs an API restart, and the existing deployment-settings guard (ALV-N004) refuses domain calls while the running settings and the recorded ones disagree. The client re-reads `practiceTimeZoneId` with every session refresh (`permissions` call: sign-in, reload, session renewal and when the tab becomes visible again); if the value differs from the one in use, every rendered time re-renders with the new zone and a notice says "The practice time zone changed to <id>; times are now shown in it." Tested with a fake session response.
+5. **Deployment zone lifecycle (BR-3).** `PracticeTimeZone` is a **deployment setting** read once to build the singleton practice clock at start-up; it is not an in-app preference and no user can change it during a session. Changing it requires a restart or redeployment under the existing deployment/backup compatibility controls (the ALV-N004 deployment-settings record and the guard that refuses domain calls while the running and recorded settings disagree). The client does not promise a live "zone changed" event. It **replaces the stored session zone with the value of every authenticated `permissions` response** (sign-in, reload, session renewal, tab visible again), so a reconnect after a redeployment uses the current server answer. If a newer authenticated response carries a different **valid** zone (a rolling deployment or an inconsistent server), every rendered time re-renders from the newest response; a neutral notice ("Your session was refreshed; times are shown in <zone>.") appears only when a change is genuinely observed in this session. A missing or invalid zone in any response gives the no-fallback unavailable state (item 4).
 6. **True instants preserved.** API instants stay UTC (`...Z`) and unchanged; sorting, elapsed-time counters, session expiry, stale checks and every API contract keep using the instant, never the rendered text.
 7. **Plain practice-local input.** `datetime-local` values are sent as practice-local text (`...Local`, section 5) and converted only by the server through `IPracticeClock.FromPracticeLocal`; the client never converts typed text to an instant.
 8. **Date-only values unchanged.** `DateOnly` values (date of birth, service dates) keep `formatDateOnly` and are never zone-converted.
@@ -78,24 +79,47 @@ Footprint measured at `d20e04c` (read-only):
 | Amend a completed procedure | `POST api/completed-procedures/{id}/amend` | `performedAtUtc` | **unchanged**: no screen sends it (no browser conversion exists) |
 | Appointments, blocked time | (unchanged) | already `...Local` | unchanged |
 
-Rules (the five changed rows): exactly one of `...Local` / `...Utc` may be sent; **both** = 400 `ambiguous_time` naming both fields; local text parsed with `DateTime.ParseExact(..., InvariantCulture)` then `IPracticeClock.FromPracticeLocal`; a DST gap = 400 `local_time_does_not_exist`, an overlap = 400 `local_time_ambiguous`, each on the local field; the stored value stays a UTC `DateTimeOffset` (no schema change). The client sends only `...Local`.
+**Server local-input parser (BR-2).** One reusable parser, `PracticeLocalInput.TryParse(string? text, bool allowSeconds, out DateTime wallClock)`, used by all five changed routes:
+- accepts **only** the invariant ASCII patterns `yyyy-MM-ddTHH:mm` and, where `allowSeconds` (the two performed-time routes), `yyyy-MM-ddTHH:mm:ss`, via `DateTime.TryParseExact(text, patterns, CultureInfo.InvariantCulture, DateTimeStyles.None, ...)`; refuses leading/trailing spaces, a `Z` or any offset suffix, fractional seconds, other separators, non-ASCII digits and every other format;
+- yields a `DateTimeKind.Unspecified` wall-clock value, then converts **only** through `IPracticeClock.FromPracticeLocal` (the existing DST rules);
+- the stored value stays a UTC `DateTimeOffset` (no schema change).
+
+Stable validation results, each naming the field (`performedAtLocal`, `dueAtLocal` or `measuredAtLocal`) in the shared 400 validation shape:
+
+| Case | Code | Field |
+|---|---|---|
+| text not one of the accepted patterns (incl. `Z`/offset) | `invalid_local_time` | the `...Local` field |
+| wall time does not exist (DST gap) | `local_time_does_not_exist` | the `...Local` field |
+| wall time occurs twice (DST overlap) | `local_time_ambiguous` | the `...Local` field |
+| both `...Local` and the legacy `...Utc` sent | `ambiguous_time` | both field names |
+| required time missing (neither sent, where today the time is required) | the route's existing required-field code, unchanged | the `...Local` field |
+
+The same proof matrix (section 9) runs against all five routes.
 
 **Owner decision D-2 (2026-11-16): the legacy `...Utc` fields are retained temporarily.** Each is still accepted when supplied alone, for the existing chain, walkthrough and external callers; the product UI sends only the matching `...Local` field; a request with both forms is refused as ambiguous. The `...Utc` forms are documented as legacy-compatible (API comments and this map), and their retirement is deferred until the dependent callers are intentionally inventoried and migrated (recorded in `PROGRAM_REGRESSION_LEDGER.md` / next-story impact, not done in A3).
 
-## 6. Shared client helpers (one module, `src/alveara-client/src/time/practiceTime.ts`)
+## 6. Shared client helpers (`src/alveara-client/src/time/practiceTime.ts`) - BR-1
 
-- `formatInstant(utcIso, zone, style)` with the styles the screens use today (date, date-time, time), `Intl.DateTimeFormat` with `timeZone: zone`; returns `null` without a valid zone.
-- `practiceToday(zone, now?)` and `practiceNow(zone, now?)` (moved from `calendarLayout.ts`).
-- `toLocalInput(utcIso, zone)` for prefilling a `datetime-local` from an instant (rendering only; typed text is never converted by the client).
-- `formatDateOnly` stays in `components/dateOnly.ts` (date-only values are never zone-converted).
+| Helper | Contract |
+|---|---|
+| `formatInstant(utcIso, zone, style)` | **Display only.** `Intl.DateTimeFormat(locale, { timeZone: zone, ...style })` with the styles the screens use today (date, date-time, time); may follow the user's locale for readable text. Returns `null` for a missing/invalid zone or an unparsable instant. **Never used to fill a `datetime-local` control.** |
+| `toPracticeLocalInput(utcIso, zone, { seconds })` | **Exact input prefill.** Returns exactly ASCII `yyyy-MM-ddTHH:mm` (`yyyy-MM-ddTHH:mm:ss` only when `seconds: true`, which only the two performed-time fields use), assembled from `new Intl.DateTimeFormat("en-US-u-nu-latn-ca-gregory", { timeZone: zone, hourCycle: "h23", year/month/day/hour/minute[/second]: "2-digit"/"numeric" }).formatToParts(...)`: Latin digits, Gregorian calendar, 24-hour clock, the server zone; independent of the browser's locale, calendar and zone. Returns `null` for a missing/invalid zone; the form then shows its unavailable/error state and **never** substitutes a browser time. Presentation only: what the user then types is sent as plain text (`...Local`) and is **never** passed through `new Date(...).toISOString()`. |
+| `practiceToday(zone, now?)` / `practiceNow(zone, now?)` | The practice calendar day `yyyy-MM-dd` / wall time `yyyy-MM-ddTHH:mm`, built the same exact way (`formatToParts`, Latin digits, Gregorian, h23). Return `null` without a valid zone. Date arithmetic on the result (yesterday, +1 day, month start) is date-only arithmetic on the string. |
+| `formatDateOnly` (unchanged, `components/dateOnly.ts`) | date-only values; never zone-converted |
 
 ## 7. Database and migrations
 
 None. No stored value changes; issued financial documents keep their canonical content.
 
-## 8. Source-scan guard (client) and allowlist
+## 8. Source-scan guard (client) and allowlist - BR-4
 
-A node test in `tests/` (with the existing repo checks) scans `src/alveara-client/src` (tests, fakes excluded) and fails on: `toLocaleString/toLocaleDateString/toLocaleTimeString` on a date value, `new Intl.DateTimeFormat(` without `timeZone`, and `getFullYear()/getMonth()/getDate()/getHours()` on a `new Date()` outside `time/practiceTime.ts`. Allowlist (each with its reason, reviewed): number formatting (`count.toLocaleString()`, 33 sites in Appendix A class Z), `components/dateOnly.ts` (date-only), keys built from `Date.now()` (idempotency keys, timers: class E rows that are not dates). A negative control adds a direct `toLocaleString()` of an instant and shows the guard fails.
+A node test with the existing repo checks (`tests/*.test.mjs`) scans `src/alveara-client/src` (files ending `.test.ts(x)`, `test/`, fakes and test servers excluded) and targets exactly two things:
+1. **browser-zone formatting of an instant**: `toLocaleString(`, `toLocaleDateString(`, `toLocaleTimeString(` or `new Intl.DateTimeFormat(` applied to a `Date` (a `new Date(...)` receiver or a `Date`-typed expression), anywhere outside `time/practiceTime.ts`;
+2. **browser-local calendar-day derivation**: `getFullYear() / getMonth() / getDate() / getDay() / getHours() / getMinutes()` on a `Date`, outside `time/practiceTime.ts`.
+
+It does **not** flag number or money formatting (`count.toLocaleString()`, `amount.toLocaleString("en-US", { style: "currency" ... })`), `formatDateOnly` and other date-only helpers, `Date.now()` used for timers or idempotency keys, or `getTime()` instant arithmetic. Each remaining exception is an allowlist entry `{ path, expression or category, reason }`, reviewed; there is no project-wide or directory-wide exemption. The initial allowlist is exactly the RO rows that build a `Date` from parts (Appendix A rows 72-77: `components/dateOnly.ts` parts check, `externalCaseFormat.formatDay`, `procedureText.dateText`, `treatmentPlanRules.dayOf`, `treatmentPlanLayout` target date, `calendarLayout.fromDayNumber`) and the pre-session login duration (row 3) if it needs a `Date` call. Negative controls: a direct `new Date(x).toLocaleString()` of an instant, and a `new Date().getDate()` "today", each added to a scanned file, fail the guard; a number `toLocaleString()` does not.
+
+The A3 handoff compares the final changed and allowlisted lines to Appendix A (revision 2, the approved baseline) and reports every difference.
 
 ## 9. Focused proof plan (each run expected <= 5 minutes unless asked)
 
@@ -113,8 +137,11 @@ A node test in `tests/` (with the existing repo checks) scans `src/alveara-clien
 | existing Chicago behaviour | the A3-touched component tests (calendar, board, reports, billing, history) |
 | canonical zone id (4.1-1) | server tests: an IANA configuration is published as is; a Windows configuration (`Central Standard Time`) is published as `America/Chicago`; an id without an IANA form stops start-up with a clear error |
 | WPF mapping (4.1-2) | server test: `PracticeZoneIds` maps the IANA id to its Windows id and back (Chicago, Tokyo, a zone with a midnight transition) |
-| zone change in a session (4.1-5) | client test: a session refresh with a different `practiceTimeZoneId` re-renders the times in the new zone and shows the notice |
 | true instants preserved (4.1-6) | existing sorting, Flow Board elapsed-minute and session-expiry tests unchanged and passing; API instants still end in `Z` |
+| exact input prefill (BR-1) | `toPracticeLocalInput` unit tests: exact ASCII output under browser locales `th-TH` (Buddhist calendar, Thai digits available), `ar-EG` (Arabic-Indic digits) and `en-US`, browser zone != practice zone, with and without seconds; `null` without a zone; the four forms show their unavailable state and send nothing when it is `null` |
+| server parser (BR-2), each of the five routes | accepted minute and (performed time) second forms; `Z`, `+01:00`, spaces, fractional seconds, `2030-1-4T9:5`, Thai digits -> `invalid_local_time` on the field; Chicago 2030-03-10 02:30 -> `local_time_does_not_exist`; 2030-11-03 01:30 -> `local_time_ambiguous`; both fields -> `ambiguous_time`; legacy UTC alone accepted; parse under th-TH and the dotted-time machine culture gives the same result |
+| session lifecycle (BR-3) | client test: a newer `permissions` response with a different valid zone re-renders and shows the neutral notice once; an identical zone shows no notice; a missing/invalid zone shows the unavailable state |
+| session contract (BR-5) | API test: one signed-in account per role (all eight) gets `practiceTimeZoneId` = the canonical IANA id; unauthenticated 401; the client session builder is used by every listed fake (a test fails if a fake omits the field without saying so) |
 
 Negative controls: the helper falls back to the browser zone; the session publishes a Windows id; server converts local text with the process culture; the guard allowlist widened.
 
@@ -128,6 +155,16 @@ Negative controls: the helper falls back to the browser zone; the session publis
 
 Approve the inventory (Appendix A), the API map (section 5) with the owner's D-2, the owner's D-1 (Option B) and its contract (section 4.1), the guard and allowlist (section 8), the focused proof plan (section 9) and the no-fallback behaviour. No broad regression is requested (`DEFERRED_TO_ALV-N028`).
 
+## 12. Change map (review A3-BRIEFING-R01)
+
+| Item | Where answered |
+|---|---|
+| BR-1 display vs exact input formatting | section 6 (`formatInstant` display only; `toPracticeLocalInput` exact ASCII via `formatToParts`, Latin digits, Gregorian, h23, server zone, `null` without a zone, presentation only); 4.1-3; section 9 row "exact input prefill" |
+| BR-2 exact server parser | section 5 "Server local-input parser" (patterns, `Unspecified` kind, `Z`/offset refused, `FromPracticeLocal`, stable codes and field names, one parser for all five routes); section 9 row "server parser" |
+| BR-3 zone-change lifecycle | 4.1-5 rewritten (deployment setting, restart/redeployment controls, every authenticated refresh replaces the zone, neutral notice only when observed, unavailable state); the earlier "practice time zone changed" promise is removed |
+| BR-4 complete inventory and narrow guard | Appendix A revision 2 (85 rows, every site and wrapper with one disposition and caller counts; corrections found: `exportFormat.formatMoment` has a browser fallback, now removed; `safetyText.day` has no callers; the login lockout time is shown before any session exists and becomes a duration); section 8 (two targeted patterns, per-entry allowlist with path, expression and reason) |
+| BR-5 session contract | 4.1-1 (additive on every successful authenticated response, authentication only); Appendix A section 6 (server, session type, `AuthContext`, all 34 fakes/fixtures moved to one builder); section 9 row "session contract" |
+
 ## Appendix A
 
-`docs/design/ALV-N021_A3_SITE_INVENTORY.md`: every client line matching the display, today, input and wire patterns at `d20e04c` (157 lines, classified A-F/Z by pattern; class A and B rows to be confirmed line by line during implementation, any misclassification reported in the handoff), plus the five server request fields of section 5.
+`docs/design/ALV-N021_A3_SITE_INVENTORY.md` (revision 2): every candidate site at `d20e04c`, wrappers and their callers included, each with one explicit disposition (MI, MD, MP, MS, RS, RO, RL, X); the session-contract change list; the server request fields. This is the approved baseline the implementation is compared to.
