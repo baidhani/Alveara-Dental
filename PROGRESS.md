@@ -3020,3 +3020,9 @@
   - What changed: CR-1: calendarLayout.practiceNow (scheduling snapshot zone) removed; new practiceTime.sessionNow; CalendarPage and FlowBoardPage take default day, today and now from sessionToday/sessionNow and show "Times cannot be shown" without a session zone; test fakes and two tests use the shared practiceNow; fakePatientServer.sessionZone; the guard now refuses any Intl.DateTimeFormat outside the helper module. New tests: Calendar.test (session Tokyo vs snapshot Chicago -> the 15th; same zone -> the 14th; no zone -> unavailable, no calendar), FlowBoard.test (Tokyo -> the 15th; no zone -> unavailable, no board). CR-2: new BillingDocumentView.test.tsx (StatementView and ReceiptView with the process zone set elsewhere: cut-off, line, service and received dates in the practice zone; swapping zones changes only the times).
   - Verification: tsc clean, lint 42 warnings (unchanged); vitest Calendar, FlowBoard, calendarLayout, BillingDocumentView and src/time 109/109 (23 s); guard 4/4; negative control (CalendarPage default day from the snapshot zone) fails the Tokyo-session test, restored from backup, hash identical, 45/45.
   - Notes: no full suite, mocked-browser, chain or walkthrough run (review R02 contract). Nothing pushed.
+- [x] ALV-N021 A3-R02 handoff package (AWAITING_REVIEW)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/handoffs/ALV-N021/A3-R02.md (correction-to-evidence map, runs) and A3-R02-evidence/ (CHANGED_FILES with the source diff since R01, updated INVENTORY_COMPARISON, focused-proof logs); EXECUTION_STATUS attempt A3-R02 AWAITING_REVIEW (A3-R01 in priorDecisions, CR-1/CR-2 resolved); BUILD_STATE; ledger line.
+  - Verification: the focused runs in A3-R02.md (implementation 6f0f128).
+  - Notes: documentation only. Nothing pushed.

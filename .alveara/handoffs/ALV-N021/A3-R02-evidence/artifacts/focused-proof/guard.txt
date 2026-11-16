@@ -1,0 +1,12 @@
+✔ no instant is formatted in the browser zone and no 'today' is read from the browser outside the shared helper (363.1845ms)
+✔ every allowlist entry still matches a line, names a reason, and the shared helper exists (4.2189ms)
+✔ the scan sees the client and each allowlisted line is really one the rules catch (so the allowlist is not hiding nothing) (59.667ms)
+✔ negative controls: a browser-zone instant format and a browser 'today' are caught; number formatting and instant arithmetic are not (0.1787ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 506.6872
