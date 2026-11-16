@@ -2954,3 +2954,9 @@
   - What changed: briefing sections 4.1, 5 (one exact server parser PracticeLocalInput with stable codes for all five routes), 6 (formatInstant display-only vs toPracticeLocalInput exact ASCII prefill), 8 (narrow two-pattern guard with per-entry allowlist), 9, new 12 (change map); inventory revision 2 (85 rows, one disposition each, wrappers and caller counts, session-contract file list incl. 34 fakes). Found while reading: exportFormat.formatMoment browser fallback, login lockout shown pre-session, unused safetyText.day.
   - Verification: read-only reading of every candidate site at d20e04c; no code or test written.
   - Notes: documentation only. Nothing pushed.
+- [x] ALV-N021 A3 briefing R02 review recorded (APPROVED; A3 implementation authorized within the briefing)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A3-BRIEFING-R02.md; EXECUTION_STATUS attempt A3 IN_PROGRESS with the briefing decision; BUILD_STATE line.
+  - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
+  - Notes: documentation only. Nothing pushed.
