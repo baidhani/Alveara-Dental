@@ -129,19 +129,19 @@ public class BillingLedgerApiTests : IAsyncLifetime
     [InlineData("FrontDesk", false)]
     [InlineData("Hygienist", false)]
     [InlineData("Assistant", false)]
-    public async Task Only_billing_the_practice_manager_and_the_administrator_can_apply_reverse_record_responsibility_or_configure_methods(string role, bool allowed)
+    public async Task Only_billing_the_practice_manager_and_the_administrator_can_reverse_record_responsibility_or_configure_methods(string role, bool allowed)
     {
+        // Applying a payment also accepts CollectPayments since ALV-N021 A2 (OD-27): who may apply one is proven per role in CollectPaymentsApiTests.
         var by = await _api.SessionAsync(role);
         var statuses = new[]
         {
-            (await by.SendAsync(HttpMethod.Post, Url("/payments/apply"), new { paymentEntryNumber = 1, rowVersion = "AAAA", idempotencyKey = "a" })).Status,
             (await by.SendAsync(HttpMethod.Post, Url("/reversals"), new { entryNumber = 1, reason = "x", rowVersion = "AAAA", idempotencyKey = "r" })).Status,
             (await by.SendAsync(HttpMethod.Post, Url("/responsibility"), new { responsiblePatientId = Guid.NewGuid(), reason = "x" })).Status,
             (await by.SendAsync(HttpMethod.Post, Methods, new { name = "  ", kind = "Other" })).Status,
             (await by.SendAsync(HttpMethod.Post, $"{Methods}/{Guid.NewGuid()}/active", new { active = true, rowVersion = "AAAA" })).Status,
         };
         Assert.All(statuses, s => Assert.Equal(allowed, s != HttpStatusCode.Forbidden));
-        if (allowed) Assert.Equal(new[] { HttpStatusCode.Conflict, HttpStatusCode.Conflict, HttpStatusCode.BadRequest, HttpStatusCode.BadRequest, HttpStatusCode.NotFound }, statuses);
+        if (allowed) Assert.Equal(new[] { HttpStatusCode.Conflict, HttpStatusCode.BadRequest, HttpStatusCode.BadRequest, HttpStatusCode.NotFound }, statuses);
     }
 
     [Fact]

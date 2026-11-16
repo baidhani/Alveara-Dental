@@ -383,3 +383,45 @@ describe("accessibility", () => {
     expect(await axe(document.body)).toHaveNoViolations();
   });
 });
+
+describe("front desk collecting payments (ALV-N021 A2, OD-27)", () => {
+  const openAsFrontDesk = async () => {
+    render(<BillingPanel patient={patient} canCollect />);
+    await screen.findByRole("heading", { name: "Account history" });
+  };
+
+  it("offers taking a payment and applying one, and none of the other billing changes", async () => {
+    stubApi();
+    await openAsFrontDesk();
+    expect(screen.getByRole("status")).toHaveTextContent("You can take and apply payments. Other billing changes need the billing role.");
+    expect(screen.getByRole("form", { name: "Record a payment" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Apply payment 3" })).toBeInTheDocument();
+    expect(screen.queryByRole("form", { name: "Record an adjustment" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^(Reverse entry|Refund payment|Move payment|Correct entry) / })).not.toBeInTheDocument();
+    expect(screen.queryByRole("form", { name: "Add a payment method" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("table", { name: "Payment methods" })).not.toBeInTheDocument();
+  });
+
+  it("applies a payment through the same route as billing", async () => {
+    const user = userEvent.setup();
+    const api = stubApi();
+    api.post["/payments/apply"] = () => json({ ...unapplied(), unappliedTotal: 0 });
+    await openAsFrontDesk();
+    await user.click(screen.getByRole("button", { name: "Apply payment 3" }));
+    await user.click(within(screen.getByRole("form", { name: "Apply payment 3" })).getByRole("button", { name: "Apply payment" }));
+    expect(posts(api, "/payments/apply")[0].body).toMatchObject({ paymentEntryNumber: 3, rowVersion: "v1" });
+    expect(await screen.findByText(/Payment 3 applied\./)).toBeInTheDocument();
+  });
+
+  it("a refusal from the server (the grant was revoked) is shown and nothing is claimed as recorded", async () => {
+    const user = userEvent.setup();
+    const api = stubApi();
+    api.post["/payments/apply"] = () => json({ error: "forbidden", message: "You do not have permission to do that." }, 403);
+    await openAsFrontDesk();
+    await user.click(screen.getByRole("button", { name: "Apply payment 3" }));
+    await user.click(within(screen.getByRole("form", { name: "Apply payment 3" })).getByRole("button", { name: "Apply payment" }));
+    expect(posts(api, "/payments/apply")).toHaveLength(1);
+    expect(await within(screen.getByRole("form", { name: "Apply payment 3" })).findByRole("alert")).toBeInTheDocument();   // the form stays open with the refusal
+    expect(screen.queryByText(/Payment 3 applied\./)).not.toBeInTheDocument();
+  });
+});

@@ -109,13 +109,13 @@ public class BillingApiTests : IAsyncLifetime
     [InlineData("FrontDesk", false)]
     [InlineData("Hygienist", false)]
     [InlineData("Assistant", false)]
-    public async Task Only_billing_the_practice_manager_and_the_administrator_can_bill_take_payment_or_adjust(string role, bool allowed)
+    public async Task Only_billing_the_practice_manager_and_the_administrator_can_bill_or_adjust(string role, bool allowed)
     {
+        // Taking a payment also accepts CollectPayments since ALV-N021 A2 (OD-27): who may take one is proven per role in CollectPaymentsApiTests.
         var by = await _api.SessionAsync(role);
         var statuses = new[]
         {
             (await by.SendAsync(HttpMethod.Post, Url("/charges"), ChargeBody(Guid.NewGuid().ToString()))).Status,            // an unknown procedure: 404 for those allowed to ask, 403 for those who are not
-            (await by.SendAsync(HttpMethod.Post, Url("/payments"), PaymentBody(10m, "AAAA"))).Status,
             (await by.SendAsync(HttpMethod.Post, Url("/adjustments"), AdjustmentBody(10m, "AAAA"))).Status,
         };
         Assert.All(statuses, s => Assert.Equal(allowed, s != HttpStatusCode.Forbidden));

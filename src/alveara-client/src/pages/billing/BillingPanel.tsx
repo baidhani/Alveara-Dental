@@ -28,6 +28,8 @@ interface Props {
   patient: PatientDetail;
   /** Whether the signed-in person may bill, take payments, adjust, reverse and configure. It only decides which controls are drawn (the server checks every call). */
   canWrite?: boolean;
+  /** ALV-N021 A2 (OD-27): whether the signed-in person may take a payment and apply what it still holds (front desk at checkout) without the wider billing powers. Implied by canWrite. */
+  canCollect?: boolean;
   /** Whether the signed-in person may also read the clinical record: only then does the timeline offer the direct link to the clinical history (the billing source of a charge is shown to everyone who can read billing). */
   canViewClinical?: boolean;
 }
@@ -39,7 +41,8 @@ interface Props {
  * reversal that says why; everyone who can see billing reads the account exactly as recorded. Nothing recorded is ever edited or deleted. A failed load says it could not load rather than showing a zero balance; the
  * secondary panels (responsibility, guarantor summary, payment methods) are left out when they cannot be read, never drawn from a wrong answer.
  */
-export function BillingPanel({ patient, canWrite = false, canViewClinical = false }: Props) {
+export function BillingPanel({ patient, canWrite = false, canCollect = false, canViewClinical = false }: Props) {
+  const canPay = canWrite || canCollect;
   const [account, setAccount] = useState<BillingAccount | null>(null);
   const [ready, setReady] = useState<BillableProcedure[] | null>(null);
   const [responsibility, setResponsibility] = useState<Responsibility | null>(null);
@@ -57,8 +60,8 @@ export function BillingPanel({ patient, canWrite = false, canViewClinical = fals
   const loadSecondary = useCallback((signal?: AbortSignal) => {
     getResponsibility(patient.id, signal).then((r) => setResponsibility(isResponsibility(r) ? r : null)).catch(() => undefined);
     getGuarantorSummary(patient.id, signal).then((s) => setSummary(isGuarantorSummary(s) ? s : null)).catch(() => undefined);
-    if (canWrite) listPaymentMethods(true, signal).then((m) => setMethods(isPaymentMethodList(m) ? m : null)).catch(() => undefined);
-  }, [patient.id, canWrite]);
+    if (canPay) listPaymentMethods(true, signal).then((m) => setMethods(isPaymentMethodList(m) ? m : null)).catch(() => undefined);
+  }, [patient.id, canPay]);
 
   const load = useCallback((signal?: AbortSignal) => {
     getBillingAccount(patient.id, signal).then((a) => { setAccount(a); setFailed(false); }).catch(() => { if (!signal?.aborted) setFailed(true); });
@@ -106,7 +109,7 @@ export function BillingPanel({ patient, canWrite = false, canViewClinical = fals
       <p className="alv-clinical__meta">
         Charges, payments, adjustments and reversals for this patient. Nothing recorded is ever edited or deleted: a mistake is corrected with an adjustment or a reversal that says why. The balance owed is calculated from the history every time.
       </p>
-      <p className="alv-clinical__status" role="status" aria-live="polite">{status ?? (canWrite ? "Nothing has been recorded in this visit." : "You can read this but your role cannot change it.")}</p>
+      <p className="alv-clinical__status" role="status" aria-live="polite">{status ?? (canWrite ? "Nothing has been recorded in this visit." : canCollect ? "You can take and apply payments. Other billing changes need the billing role." : "You can read this but your role cannot change it.")}</p>
       {conflict && <ConcurrencyConflictBanner problem={{ error: "concurrency_conflict", entityType: "billing account", entityId: patient.id }} onReload={() => { setConflict(false); setStatus("Reloaded."); load(); }} />}
       {failed && <p className="alv-clinical__meta" role="alert">Could not refresh the account. What is shown may be out of date.</p>}
       {readyFailed && <p className="alv-clinical__meta" role="alert">Could not load the procedures ready to bill. The list shown may be out of date.</p>}
@@ -126,7 +129,7 @@ export function BillingPanel({ patient, canWrite = false, canViewClinical = fals
       <h3>Account history</h3>
       {account.entries.length === 0
         ? <p className="alv-clinical__meta">Nothing has been billed to this patient yet. That means nothing is recorded here, not that nothing is owed elsewhere.</p>
-        : <BillingLedger account={account} onReverse={canWrite ? (e) => { setApplying(null); setCorrecting(null); setReversing(e.entryNumber); } : undefined} onApply={canWrite ? (e) => { setReversing(null); setCorrecting(null); setApplying(e.entryNumber); } : undefined}
+        : <BillingLedger account={account} onReverse={canWrite ? (e) => { setApplying(null); setCorrecting(null); setReversing(e.entryNumber); } : undefined} onApply={canPay ? (e) => { setReversing(null); setCorrecting(null); setApplying(e.entryNumber); } : undefined}
           onRefund={canWrite ? (e) => { setReversing(null); setApplying(null); setCorrecting({ kind: "refund", entry: e.entryNumber }); } : undefined}
           onMove={canWrite ? (e) => { setReversing(null); setApplying(null); setCorrecting({ kind: "move", entry: e.entryNumber }); } : undefined}
           onCorrect={canWrite ? (e) => { setReversing(null); setApplying(null); setCorrecting({ kind: "correct", entry: e.entryNumber }); } : undefined}
@@ -136,8 +139,8 @@ export function BillingPanel({ patient, canWrite = false, canViewClinical = fals
       {canWrite && correctingEntry && correcting?.kind === "refund" && <BillingRefundForm account={account} entry={correctingEntry} recipient={recipient} methods={activeMethods} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setCorrecting(null)} />}
       {canWrite && correctingEntry && correcting?.kind === "move" && <BillingMoveForm account={account} entry={correctingEntry} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setCorrecting(null)} />}
       {canWrite && correctingEntry && correcting?.kind === "correct" && <BillingCorrectForm account={account} entry={correctingEntry} methods={activeMethods} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setCorrecting(null)} />}
-      {canWrite && applying !== null && <BillingApplyForm account={account} paymentEntryNumber={applying} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setApplying(null)} />}
-      {canWrite && account.hasAccount && account.balanceOwed > 0 && <BillingPaymentForm account={account} methods={activeMethods} payers={payers} onDone={changed} onConflict={() => setConflict(true)} />}
+      {canPay && applying !== null && <BillingApplyForm account={account} paymentEntryNumber={applying} onDone={changed} onConflict={() => setConflict(true)} onCancel={() => setApplying(null)} />}
+      {canPay && account.hasAccount && account.balanceOwed > 0 && <BillingPaymentForm account={account} methods={activeMethods} payers={payers} onDone={changed} onConflict={() => setConflict(true)} />}
       {canWrite && account.hasAccount && <BillingAdjustmentForm account={account} onDone={changed} onConflict={() => setConflict(true)} />}
       <BillingDocuments patientId={patient.id} canWrite={canWrite} controlRef={documents} version={account.rowVersion} />
       <BillingTimeline patientId={patient.id} version={account.rowVersion} canViewClinical={canViewClinical} />

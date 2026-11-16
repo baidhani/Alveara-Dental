@@ -38,7 +38,7 @@ public record AdjustmentRequest(decimal? Amount, string? Reason, string? RowVers
 /// <summary>
 /// STORY-007 and ALV-007-C01: a patient's billing account. Reading it (the ledger with its running balance, the completed procedures not yet billed, the check that the history adds up, who is responsible for the
 /// account, a guarantor's summary and the payment methods) needs <see cref="Permission.ViewBilling"/>; recording a charge, a payment, applying a payment, an adjustment, a reversal, who is responsible or a payment
-/// method needs <see cref="Permission.ManageBilling"/> plus a CSRF token. A refusal returns a stable <c>error</c> code, a message safe to show and, where several fields need
+/// method needs <see cref="Permission.ManageBilling"/> plus a CSRF token, except that recording and applying a payment also accept <see cref="Permission.CollectPayments"/> (ALV-N021 A2, OD-27). A refusal returns a stable <c>error</c> code, a message safe to show and, where several fields need
 /// attention, <c>fieldErrors</c>; a payment or adjustment made from an out-of-date copy of the account is the shared 409 concurrency conflict; a save that cannot be completed (including its audit entry) is
 /// 503 <c>save_failed</c> and stores nothing. Amounts are US dollars.
 /// </summary>
@@ -101,15 +101,16 @@ public class BillingController(BillingService billing) : ControllerBase
     public Task<IActionResult> Charge(Guid patientId, [FromBody] ChargeRequest request, CancellationToken ct) =>
         Run(async () => Ok(await billing.RecordChargeAsync(patientId, new ChargeInput(request.PlanItemId, request.IdempotencyKey), Actor, ct)));
 
+    // ALV-N021 A2 (OD-27): taking a payment and applying it are the two billing writes front desk may make at checkout (CollectPayments); every other change here keeps ManageBilling.
     [HttpPost("api/patients/{patientId:guid}/billing/payments")]
-    [RequirePermission(Permission.ManageBilling)]
+    [RequireAnyPermission(Permission.CollectPayments, Permission.ManageBilling, RequiredText = nameof(Permission.CollectPayments))]
     [RequireCsrfToken]
     public Task<IActionResult> Payment(Guid patientId, [FromBody] PaymentRequest request, CancellationToken ct) =>
         Run(async () => Ok(await billing.RecordPaymentAsync(patientId,
             new PaymentInput(request.Amount, request.Method, request.Note, request.RowVersion, request.IdempotencyKey, request.Allocations?.Select(a => new AllocationInput(a.ChargeEntryNumber, a.Amount)).ToList(), request.PaidByPatientId), Actor, ct)));
 
     [HttpPost("api/patients/{patientId:guid}/billing/payments/apply")]
-    [RequirePermission(Permission.ManageBilling)]
+    [RequireAnyPermission(Permission.CollectPayments, Permission.ManageBilling, RequiredText = nameof(Permission.CollectPayments))]
     [RequireCsrfToken]
     public Task<IActionResult> ApplyPayment(Guid patientId, [FromBody] ApplyPaymentRequest request, CancellationToken ct) =>
         Run(async () => Ok(await billing.ApplyPaymentAsync(patientId,
