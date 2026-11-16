@@ -1,3 +1,4 @@
+using System.Globalization;
 using Alveara.Api.Architecture.Time;
 
 namespace Alveara.Api.ChainHost;
@@ -11,10 +12,22 @@ public static class ChainHostMain
 {
     public const string DefaultClockUtc = "2026-01-15T15:00:00Z";
 
+    /// <summary>
+    /// ALV-N021 A2-R02 (review CR-1, decision 02 T-2): <c>CHAIN_CLOCK_UTC</c> is a documented machine value (ISO 8601 instant), so it is read with the invariant culture -
+    /// never the process culture, which on a Thai (Buddhist calendar) or dotted-time machine reads the same text differently or not at all. A value without an offset is UTC;
+    /// the result is always UTC.
+    /// </summary>
+    public static bool TryParseClockUtc(string? value, out DateTimeOffset utc)
+    {
+        var ok = DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var parsed);
+        utc = ok ? parsed.ToUniversalTime() : default;
+        return ok;
+    }
+
     public static async Task<int> Main(string[] args)
     {
         var url = Environment.GetEnvironmentVariable("CHAIN_URL") ?? "http://localhost:5072";
-        if (!DateTimeOffset.TryParse(Environment.GetEnvironmentVariable("CHAIN_CLOCK_UTC") ?? DefaultClockUtc, null, System.Globalization.DateTimeStyles.AssumeUniversal, out var start))
+        if (!TryParseClockUtc(Environment.GetEnvironmentVariable("CHAIN_CLOCK_UTC") ?? DefaultClockUtc, out var start))
         {
             Console.Error.WriteLine("CHAIN_CLOCK_UTC is not a valid ISO 8601 instant.");
             return 2;

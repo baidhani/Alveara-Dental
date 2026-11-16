@@ -2906,3 +2906,9 @@
   - What changed: EXECUTION_STATUS ALV-N021 CHANGES_REQUIRED (top level and attempt A2, review block with the reviewed SHAs, CR-1 as the blocking issue) and the BUILD_STATE line. My edit script for cec8c8a failed its own uniqueness check (the status text appears twice), so cec8c8a holds only the review file and its PROGRESS entry; this commit completes it.
   - Verification: EXECUTION_STATUS parses as JSON; review file unchanged.
   - Notes: documentation only. Nothing pushed.
+- [x] ALV-N021 A2-R02 CR-1: the chain host reads CHAIN_CLOCK_UTC with the invariant culture; the culture guard covers non-exact date parses and the chain host
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: ChainHostMain.TryParseClockUtc (DateTimeOffset.TryParse with CultureInfo.InvariantCulture, AssumeUniversal | AdjustToUniversal, result in UTC) replaces TryParse(..., null, AssumeUniversal) in Main. New ChainHostClockParseTests (3 tests x th-TH, dotted-time, invariant: Z / offset / no-offset ISO text give the same UTC instant; the default parses; non-instants refused). TimeCultureGuardTests: scans src/Alveara.Api.ChainHost too; flags date Parse/TryParse without the invariant culture; asserts it sees the chain-host parse; negative examples incl. the exact A2-R01 line.
+  - Verification: TimeCultureGuardTests + ChainHostClockParseTests 33/33 (4 s); negative control (old null-culture line restored in TryParseClockUtc) -> the guard fails naming ChainHostMain.cs:22, while the 9 culture cases still pass (.NET reads this ISO text identically under these cultures, so they prove the accepted value, the guard prevents the regression); file restored from backup, hash identical, 33/33 again.
+  - Notes: the only other non-exact date parse (BillingService.Documents.cs) already names the invariant culture. No broad rerun (review). Nothing pushed.

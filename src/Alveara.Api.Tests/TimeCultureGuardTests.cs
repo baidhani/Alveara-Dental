@@ -19,24 +19,29 @@ namespace Alveara.Api.Tests;
 [Collection(CultureSensitiveTests.Name)]
 public class TimeCultureGuardTests
 {
-    private static readonly string ApiRoot = FindApiRoot();
+    private static readonly string SrcRoot = FindSrcRoot();
 
-    private static string FindApiRoot()
+    private static string FindSrcRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "src", "Alveara.Api", "Alveara.Api.csproj"))) dir = dir.Parent;
-        return dir is null ? throw new InvalidOperationException("The repository root was not found from the test output folder.") : Path.Combine(dir.FullName, "src", "Alveara.Api");
+        return dir is null ? throw new InvalidOperationException("The repository root was not found from the test output folder.") : Path.Combine(dir.FullName, "src");
     }
 
+    /// <summary>The projects the guard scans: the API and (ALV-N021 A2-R02, review CR-1) the chain host, which reads machine values too.</summary>
+    private static readonly string[] ScannedProjects = ["Alveara.Api", "Alveara.Api.ChainHost"];
+
     private static IEnumerable<(string Path, int Line, string Text)> SourceLines() =>
-        Directory.EnumerateFiles(ApiRoot, "*.cs", SearchOption.AllDirectories)
+        ScannedProjects.SelectMany(p => Directory.EnumerateFiles(Path.Combine(SrcRoot, p), "*.cs", SearchOption.AllDirectories))
             .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}Migrations{Path.DirectorySeparatorChar}") && !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
-            .SelectMany(f => File.ReadAllLines(f).Select((t, i) => (Path.GetRelativePath(ApiRoot, f).Replace('\\', '/'), i + 1, t)));
+            .SelectMany(f => File.ReadAllLines(f).Select((t, i) => (Path.GetRelativePath(SrcRoot, f).Replace('\\', '/'), i + 1, t)));
 
     // a fixed date/time pattern: contains a year, hour, minute, month or day token (not "N" for a Guid, not the culture-free round-trip "O"/"o")
     private const string DatePattern = @"[^""]*(yyyy|HH|mm|MM|dd)[^""]*";
     private static readonly Regex FixedFormatToString = new(@"\.ToString\(""" + DatePattern + @"""(\)|,)", RegexOptions.Compiled);
     private static readonly Regex DateParseExact = new(@"\b(DateOnly|DateTime|DateTimeOffset|TimeOnly)\.(Try)?ParseExact\(", RegexOptions.Compiled);
+    // ALV-N021 A2-R02 (review CR-1): a non-exact date parse reads with the process culture unless it names one, so it must name the invariant culture too
+    private static readonly Regex DateParse = new(@"\b(DateOnly|DateTime|DateTimeOffset|TimeOnly)\.(Try)?Parse\(", RegexOptions.Compiled);
     private static readonly Regex InterpolatedDateHole = new(@"\$@?""[^""]*\{[^{}]*:(yyyy|HH|MM|dd)[^{}]*\}", RegexOptions.Compiled);
     private static readonly Regex NamesInvariant = new(@"CultureInfo\.InvariantCulture|,\s*Inv\)", RegexOptions.Compiled);
 
@@ -47,7 +52,7 @@ public class TimeCultureGuardTests
     private static readonly (string Path, string Reason)[] LocalizedDisplayAllowlist = [];
 
     internal static bool IsOffending(string line) =>
-        (FixedFormatToString.IsMatch(line) || DateParseExact.IsMatch(line) || InterpolatedDateHole.IsMatch(line)) && !NamesInvariant.IsMatch(line);
+        (FixedFormatToString.IsMatch(line) || DateParseExact.IsMatch(line) || DateParse.IsMatch(line) || InterpolatedDateHole.IsMatch(line)) && !NamesInvariant.IsMatch(line);
 
     [Fact]
     public void Every_fixed_format_date_or_time_in_the_api_names_the_invariant_culture()
@@ -63,6 +68,7 @@ public class TimeCultureGuardTests
         var lines = SourceLines().ToList();
         Assert.True(lines.Select(l => l.Path).Distinct().Count() > 100, "the guard found too few source files");
         Assert.True(lines.Count(l => FixedFormatToString.IsMatch(l.Text) || DateParseExact.IsMatch(l.Text) || InterpolatedDateHole.IsMatch(l.Text)) >= 40, "the guard no longer sees the date sites it protects");
+        Assert.Contains(lines, l => l.Path == "Alveara.Api.ChainHost/ChainHostMain.cs" && DateParse.IsMatch(l.Text));   // ALV-N021 A2-R02: the chain host is scanned and its clock parse is seen
     }
 
     [Theory]
@@ -70,6 +76,9 @@ public class TimeCultureGuardTests
     [InlineData(@"var s = a.StartLocal.ToString(""HH:mm"");")]
     [InlineData(@"var d = DateOnly.ParseExact(payload.DueDate, ""yyyy-MM-dd"");")]
     [InlineData(@"var k = $""recall:{id:N}:{due:yyyyMMdd}"";")]
+    [InlineData(@"if (!DateTimeOffset.TryParse(Environment.GetEnvironmentVariable(""CHAIN_CLOCK_UTC"") ?? DefaultClockUtc, null, System.Globalization.DateTimeStyles.AssumeUniversal, out var start))")]   // the A2-R01 line (review CR-1)
+    [InlineData(@"var d = DateTime.Parse(text);")]
+    [InlineData(@"var ok = DateOnly.TryParse(text, out var d);")]
     public void Negative_control_the_guard_flags_a_fixed_format_without_the_invariant_culture(string line) => Assert.True(IsOffending(line));
 
     [Theory]
@@ -77,6 +86,7 @@ public class TimeCultureGuardTests
     [InlineData(@"var k = string.Create(CultureInfo.InvariantCulture, $""recall:{id:N}:{due:yyyyMMdd}"");")]
     [InlineData(@"var s = h.ChangedAtUtc.ToString(""O"");")]
     [InlineData(@"var s = id.ToString(""N"");")]
+    [InlineData(@"var ok = DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed);")]
     public void The_guard_accepts_an_explicit_invariant_culture_and_culture_free_formats(string line) => Assert.False(IsOffending(line));
 
     // ---------- behaviour under other machine cultures ----------
