@@ -10,6 +10,7 @@ import type { Appointment } from "../../services/schedulingApi";
 import { explainRefusal } from "./explainRefusal";
 import { PlacementFields } from "./PlacementFields";
 import type { Placement } from "./PlacementFields";
+import { bookingDurationHint, durationAfterTypeChange } from "./bookingDuration";
 
 /** ALV-N021 A2: who and what a Rebook starts from (the cancelled or no-show appointment). */
 export interface Rebook { patientId: string; patientName: string; appointmentTypeId: string; operatoryId: string }
@@ -30,7 +31,19 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
   // ALV-N021 A2 (F-045, F-051, F-073): rebooking after a cancellation or a no-show starts with the same patient and appointment type; both can still be changed
   const [rebookPatient, setRebookPatient] = useState<Rebook | null>(initial.rebook ?? null);
   const [typeId, setTypeId] = useState(initial.rebook?.appointmentTypeId ?? "");
-  const [place, setPlace] = useState<Placement>({ providerId: initial.providerId ?? "", operatoryId: initial.rebook?.operatoryId ?? "", date: initial.date, time: initial.time, duration: "" });
+  const rebookLength = snapshot.appointmentTypes.find((t) => t.id === initial.rebook?.appointmentTypeId)?.defaultDurationMinutes;
+  const [place, setPlace] = useState<Placement>({ providerId: initial.providerId ?? "", operatoryId: initial.rebook?.operatoryId ?? "", date: initial.date, time: initial.time,
+    duration: rebookLength === undefined ? "" : String(rebookLength) });
+  // ALV-N021 A2 (OD-21): whether the person typed the duration themselves (then a type change never replaces it)
+  const durationTyped = useRef(false);
+  const chooseType = (id: string) => {
+    setTypeId(id);
+    setPlace((p) => ({ ...p, duration: durationAfterTypeChange(p.duration, durationTyped.current, snapshot.appointmentTypes.find((t) => t.id === id)?.defaultDurationMinutes) }));
+  };
+  const changePlace = (next: Placement) => {
+    if (next.duration !== place.duration) durationTyped.current = next.duration.trim() !== "";
+    setPlace(next);
+  };
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
@@ -82,13 +95,13 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
       ) : <PatientPicker key="picker" label="Patient" selected={patient} onSelect={(p) => { setPatient(p); setLines([]); }} disabled={busy} />}
       <div className="alv-form-field">
         <label htmlFor={typeSelect} className="alv-form-field__label">Appointment type *</label>
-        <select id={typeSelect} className="alv-form-field__input" value={typeId} onChange={(e) => setTypeId(e.target.value)} disabled={busy}>
+        <select id={typeSelect} className="alv-form-field__input" value={typeId} onChange={(e) => chooseType(e.target.value)} disabled={busy}>
           <option value="">Choose…</option>
           {snapshot.appointmentTypes.map((t) => <option key={t.id} value={t.id}>{t.name} ({t.defaultDurationMinutes} min)</option>)}
         </select>
       </div>
-      <PlacementFields snapshot={snapshot} values={place} onChange={setPlace} disabled={busy}
-        durationHint={type ? `Leave blank to use ${type.defaultDurationMinutes} minutes.` : "Leave blank to use the appointment type's default."} />
+      <PlacementFields snapshot={snapshot} values={place} onChange={changePlace} disabled={busy}
+        durationHint={bookingDurationHint(type?.defaultDurationMinutes)} />
       <div className="alv-form-field">
         <label htmlFor={notesId} className="alv-form-field__label">Note (optional)</label>
         <textarea id={notesId} className="alv-form-field__input alv-form-inputs__textarea" rows={2} maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={busy} />

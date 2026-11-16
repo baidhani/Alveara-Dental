@@ -47,7 +47,7 @@ async function fill({ provider = "Dr. Rivera", operatory = "Op 1", type = /Exam/
   const t = screen.getByLabelText("Start time *");
   await userEvent.clear(t);
   await userEvent.type(t, time);
-  if (duration) await userEvent.type(screen.getByLabelText(/Duration in minutes/), duration);
+  if (duration) { await userEvent.clear(screen.getByLabelText(/Duration in minutes/)); await userEvent.type(screen.getByLabelText(/Duration in minutes/), duration); }   // the field is filled from the type (OD-21)
 }
 
 const book = async () => userEvent.click(await screen.findByRole("button", { name: /Book (appointment|again)/ }));
@@ -93,7 +93,7 @@ describe("booking", () => {
     expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
     expect(screen.getByText("Appointment booked.").parentElement).toHaveTextContent("Ann Lee with Dr. Rivera in Op 1, 2030-01-14 09:00–10:00 (Exam)");
     const call = bookCalls()[0];
-    expect(call.body).toMatchObject({ patientId: ANN, providerId: "prov-a", operatoryId: "op-1", appointmentTypeId: "type-60", startLocal: `${DAY}T09:00`, durationMinutes: null });
+    expect(call.body).toMatchObject({ patientId: ANN, providerId: "prov-a", operatoryId: "op-1", appointmentTypeId: "type-60", startLocal: `${DAY}T09:00`, durationMinutes: 60 });   // ALV-N021 A2 (OD-21): the length shown is the length sent
     expect(call.headers["Idempotency-Key"]).toMatch(/^book-/);
     expect(call.headers["X-CSRF-Token"]).toBe("csrf-1");
     const table = await screen.findByRole("table", { name: /Booked appointments/ });
@@ -220,6 +220,42 @@ describe("refusals are explained in plain words and nothing is booked", () => {
     expect(await screen.findByText("Appointment booked.")).toBeInTheDocument();
     expect(server.appointments).toHaveLength(2);
     expect(new Set(bookCalls().map((c) => c.headers["Idempotency-Key"])).size).toBe(2); // a changed request gets a new key
+  });
+});
+
+describe("the duration comes from the appointment type (ALV-N021 A2, OD-21, F-044b)", () => {
+  const field = () => screen.getByLabelText(/Duration in minutes/);
+  const chooseType = (name: RegExp) => userEvent.selectOptions(screen.getByLabelText("Appointment type *"), screen.getByRole("option", { name }));
+
+  it("fills in the type's length, follows a type change, keeps a typed length, and says where the number came from", async () => {
+    open();
+    await screen.findByLabelText("Appointment type *");
+    expect(field()).toHaveValue(null);
+    expect(field()).toHaveAccessibleDescription("Choose an appointment type to fill in its length.");
+
+    await chooseType(/Exam/);
+    expect(field()).toHaveValue(60);
+    expect(field()).toHaveAccessibleDescription("Filled in from the appointment type (60 minutes). You can change it.");
+    await chooseType(/Quick check/);
+    expect(field()).toHaveValue(30);
+
+    await userEvent.clear(field());
+    await userEvent.type(field(), "45");
+    await chooseType(/Exam/);
+    expect(field()).toHaveValue(45);                     // typed: never replaced
+
+    await userEvent.clear(field());
+    await chooseType(/Quick check/);
+    expect(field()).toHaveValue(30);                     // cleared: follows the type again
+  });
+
+  it("books the length shown, including one the person changed", async () => {
+    open();
+    await pickPatient("Ann Lee");
+    await fill({ duration: "90" });
+    await book();
+    await screen.findByText("Appointment booked.");
+    expect(bookCalls()[0].body).toMatchObject({ durationMinutes: 90 });
   });
 });
 

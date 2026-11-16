@@ -322,7 +322,8 @@ describe("the appointment drawer", () => {
     await userEvent.type(form.getByLabelText(/Patient/, { selector: "input" }), "Ann");
     await userEvent.click(await form.findByRole("button", { name: /Ann Lee/ }));
     await userEvent.selectOptions(form.getByLabelText("Appointment type *"), form.getByRole("option", { name: /Exam/ }));
-    expect(form.getByText("Leave blank to use 60 minutes.")).toBeInTheDocument();
+    expect(form.getByLabelText(/Duration in minutes/)).toHaveValue(60);                                                          // ALV-N021 A2 (OD-21): filled from the type
+    expect(form.getByText("Filled in from the appointment type (60 minutes). You can change it.")).toBeInTheDocument();
     await userEvent.selectOptions(form.getByLabelText("Provider *"), "Dr. Rivera");
     await userEvent.selectOptions(form.getByLabelText("Operatory *"), "Op 1");
     fireEvent.change(form.getByLabelText("Date *"), { target: { value: DAY } });
@@ -333,7 +334,7 @@ describe("the appointment drawer", () => {
     expect(await within(drawer()).findByRole("heading", { name: "Ann Lee" })).toBeInTheDocument(); // now showing the booked appointment
     await waitFor(() => expect(document.querySelectorAll(".cal__block")).toHaveLength(1));
     const post = calls("POST", "/api/appointments").find((c) => c.url === "/api/appointments")!;
-    expect(post.body).toMatchObject({ patientId: ANN, providerId: "prov-a", operatoryId: "op-1", appointmentTypeId: "type-60", startLocal: `${DAY}T10:00`, durationMinutes: null, notes: "Needs an accessible room" });
+    expect(post.body).toMatchObject({ patientId: ANN, providerId: "prov-a", operatoryId: "op-1", appointmentTypeId: "type-60", startLocal: `${DAY}T10:00`, durationMinutes: 60, notes: "Needs an accessible room" });
     expect(post.headers["Idempotency-Key"]).toMatch(/^book-/);
     expect(within(drawer()).getByLabelText("Note")).toHaveValue("Needs an accessible room");
   });
@@ -559,6 +560,7 @@ describe("cancelling, no-shows and notes", () => {
     expect(form.getByLabelText("Appointment type *")).toHaveValue("type-60");
     expect(form.getByLabelText("Start time *")).toHaveValue("09:00");
     expect(form.getByLabelText("Operatory *")).toHaveValue(gone.operatoryId);
+    expect(form.getByLabelText(/Duration in minutes/)).toHaveValue(60);                       // the rebooked type's length (OD-21)
     expect(form.getByLabelText("Start time *")).toHaveAccessibleDescription("24-hour time, for example 09:30 or 14:00. You can type it.");   // F-068
     await userEvent.click(form.getByRole("button", { name: "Book appointment" }));
 
