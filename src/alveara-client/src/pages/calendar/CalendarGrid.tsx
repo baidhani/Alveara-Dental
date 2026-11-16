@@ -1,8 +1,9 @@
 import type { MouseEvent } from "react";
+import { Button } from "../../components/Button";
 import type { SchedulingSnapshot } from "../../services/configApi";
 import type { Appointment } from "../../services/schedulingApi";
 import { timeOf } from "../../services/schedulingApi";
-import { PIXELS_PER_MINUTE, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, hhmm, flowWord, minutesOf, placeColumn, slotMinuteAt, statusWord } from "./calendarLayout";
+import { DAY_NAMES, PIXELS_PER_MINUTE, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, hhmm, flowWord, minutesOf, nextWorkingDay, placeColumn, slotMinuteAt, statusWord } from "./calendarLayout";
 import type { Placed } from "./calendarLayout";
 
 export type CalendarView = "day" | "week";
@@ -18,6 +19,8 @@ interface GridProps {
   canBook: boolean;
   onOpen: (appointment: Appointment) => void;
   onSlot: (day: string, providerId: string | null, startMinute: number) => void;
+  /** ALV-N021 A2 (F-048): go to another day (the "Next working day" shortcut). */
+  onGoToDay?: (day: string) => void;
 }
 
 const blockLabel = (a: Appointment) =>
@@ -32,10 +35,14 @@ const blockedWord = (a: Appointment) => (a.status === "Scheduled" && a.blockFlag
  * time outside a provider's weekly hours is drawn as "off hours" in the day view. Cancelled and no-show appointments stay on the grid but are drawn
  * distinctly (dashed or dotted border, struck-through patient name for a cancellation, and the status written in the block).
  */
-export function CalendarGrid({ view, days, appointments, snapshot, providers, selectedId, canBook, onOpen, onSlot }: GridProps) {
+export function CalendarGrid({ view, days, appointments, snapshot, providers, selectedId, canBook, onOpen, onSlot, onGoToDay }: GridProps) {
   const windowsFor = (providerId: string, day: string) =>
     (snapshot.providers.find((p) => p.providerId === providerId)?.weeklyAvailability ?? []).filter((w) => w.dayOfWeek === dayOfWeek(day));
-  const allWindows = days.flatMap((d) => (view === "day" ? providers : snapshot.providers).flatMap((p) => windowsFor(p.providerId, d)));
+  // ALV-N021 A2 (F-052): the week view shades too - a day's column is plain where any shown provider works, hatched elsewhere
+  const shownWindows = (day: string) => providers.flatMap((p) => windowsFor(p.providerId, day));
+  const allWindows = days.flatMap((d) => shownWindows(d));
+  const visible = days.flatMap((d) => appointmentsOnDay(appointments, d));
+  const nextDay = view === "day" && allWindows.length === 0 ? nextWorkingDay(days[0], providers) : null;
   const { startMinute, endMinute } = axisRange(appointments, allWindows);
   const heightPx = (endMinute - startMinute) * PIXELS_PER_MINUTE;
   const hours = Array.from({ length: (endMinute - startMinute) / 60 }, (_, i) => startMinute + i * 60);
@@ -43,11 +50,21 @@ export function CalendarGrid({ view, days, appointments, snapshot, providers, se
   const columns =
     view === "day"
       ? providers.map((p) => ({ key: p.providerId, title: p.displayName, subtitle: dayLabel(days[0]), day: days[0], providerId: p.providerId as string | null }))
-      : days.map((d) => ({ key: d, title: dayLabel(d), subtitle: "", day: d, providerId: null as string | null }));
+      // F-077: every week header is the day name over the date, on two lines, whatever the column width
+      : days.map((d) => ({ key: d, title: DAY_NAMES[dayOfWeek(d)], subtitle: d, day: d, providerId: null as string | null }));
 
   if (columns.length === 0) return <p className="alv-workspace__note">No providers to show.</p>;
 
   return (
+    <>
+    {view === "day" && allWindows.length === 0 && (
+      // F-048: a day nobody works says so, with a way to the next working day
+      <div className="cal-notice" role="note">
+        <p>No working hours for {providers.length === 1 ? providers[0].displayName : "any provider"} on {dayLabel(days[0])}.</p>
+        {nextDay && onGoToDay && <Button onClick={() => onGoToDay(nextDay)}>Next working day ({dayLabel(nextDay)})</Button>}
+      </div>
+    )}
+    {visible.length === 0 && <p className="alv-workspace__note" data-testid="cal-empty">No appointments for this selection.</p>}
     <div className="cal" role="group" aria-label={view === "day" ? `Day calendar for ${dayLabel(days[0])}` : `Week calendar ${days[0]} to ${days[6]}`}>
       <div className="cal__axis" aria-hidden="true">
         <div className="cal__head" />
@@ -59,7 +76,7 @@ export function CalendarGrid({ view, days, appointments, snapshot, providers, se
         {columns.map((col) => {
           const mine = appointmentsOnDay(appointments, col.day).filter((a) => col.providerId === null || a.providerId === col.providerId);
           const placed = placeColumn(mine, col.day, startMinute);
-          const hoursWindows = col.providerId ? windowsFor(col.providerId, col.day) : [];
+          const hoursWindows = col.providerId ? windowsFor(col.providerId, col.day) : shownWindows(col.day);
           const onColumnClick = (event: MouseEvent<HTMLDivElement>) => {
             if (!canBook || event.target !== event.currentTarget) return; // only a click on the empty grid, not on an appointment
             onSlot(col.day, col.providerId, slotMinuteAt(event.nativeEvent.offsetY ?? 0, startMinute));
@@ -71,7 +88,7 @@ export function CalendarGrid({ view, days, appointments, snapshot, providers, se
                 {col.subtitle && <span className="cal__sub">{col.subtitle}</span>}
               </div>
               <div
-                className={`cal__body${col.providerId ? " cal__body--off" : ""}`}
+                className="cal__body cal__body--off"
                 style={{ height: heightPx }}
                 data-column={col.key}
                 data-day={col.day}
@@ -88,24 +105,28 @@ export function CalendarGrid({ view, days, appointments, snapshot, providers, se
                     style={{ top: (minutesOf(w.startLocal) - startMinute) * PIXELS_PER_MINUTE, height: (minutesOf(w.endLocal) - minutesOf(w.startLocal)) * PIXELS_PER_MINUTE }}
                   />
                 ))}
-                {placed.map((p) => <Block key={p.appointment.id} placed={p} selected={p.appointment.id === selectedId} onOpen={onOpen} />)}
+                {view === "week" && hoursWindows.length === 0 && <p className="cal__closed">No working hours</p>}
+                {placed.map((p) => <Block key={p.appointment.id} placed={p} narrow={view === "week" && p.lanes > 1} selected={p.appointment.id === selectedId} onOpen={onOpen} />)}
               </div>
             </div>
           );
         })}
       </div>
     </div>
+    </>
   );
 }
 
-function Block({ placed, selected, onOpen }: { placed: Placed; selected: boolean; onOpen: (a: Appointment) => void }) {
+function Block({ placed, selected, narrow, onOpen }: { placed: Placed; selected: boolean; narrow: boolean; onOpen: (a: Appointment) => void }) {
   const a = placed.appointment;
   const widthPct = 100 / placed.lanes;
-  const compact = placed.heightPx < 56; // a short appointment: one line, so the patient and status are never cropped
-  const cls = `cal__block cal__block--${a.status.toLowerCase()}${compact ? " cal__block--compact" : ""}${selected ? " cal__block--selected" : ""}`;
+  const compact = !narrow && placed.heightPx < 56; // a short appointment: one line, so the patient and status are never cropped
+  // ALV-N021 A2 (F-054): side by side in the week view the block is narrow - the start time alone, then the patient's name wrapping; full details in its name and tooltip
+  const cls = `cal__block cal__block--${a.status.toLowerCase()}${compact ? " cal__block--compact" : ""}${narrow ? " cal__block--narrow" : ""}${selected ? " cal__block--selected" : ""}`;
   // the status is written in the first line (never a separate row that a short block could crop): "09:00–10:00 · Cancelled"
   const word = a.status !== "Scheduled" ? statusWord(a.status) : flowWord(a); // STORY-011: a visit under way says so too
-  const time = `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}${word ? ` · ${word}` : ""}${blockedWord(a) ? " · Blocked time" : ""}`;
+  const span = narrow ? timeOf(a.startLocal) : `${timeOf(a.startLocal)}–${timeOf(a.endLocal)}`;
+  const time = `${span}${word ? ` · ${word}` : ""}${blockedWord(a) ? " · Blocked time" : ""}`;
   return (
     <button
       type="button"

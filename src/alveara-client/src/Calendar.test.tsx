@@ -124,8 +124,8 @@ describe("the week view", () => {
     await userEvent.click(screen.getByRole("button", { name: "Week" }));
 
     expect(await screen.findByRole("heading", { name: "Week of 2030-01-14 to 2030-01-20" })).toBeInTheDocument();
-    const heads = [...document.querySelectorAll(".cal__column .cal__head strong")].map((e) => e.textContent);
-    expect(heads).toEqual(["Monday 2030-01-14", "Tuesday 2030-01-15", "Wednesday 2030-01-16", "Thursday 2030-01-17", "Friday 2030-01-18", "Saturday 2030-01-19", "Sunday 2030-01-20"]);
+    const heads = [...document.querySelectorAll(".cal__column .cal__head")].map((e) => [e.querySelector("strong")!.textContent, e.querySelector(".cal__sub")!.textContent].join(" "));
+    expect(heads).toEqual(["Monday 2030-01-14", "Tuesday 2030-01-15", "Wednesday 2030-01-16", "Thursday 2030-01-17", "Friday 2030-01-18", "Saturday 2030-01-19", "Sunday 2030-01-20"]);   // ALV-N021 A2 (F-077): every header is the day name over the date
     await waitFor(() => expect(block(a.id)).toBeInTheDocument());
     expect(block(a.id).parentElement).toBe(block(b.id).parentElement); // same day column
     expect(block(a.id).style.left).toBe("0%");
@@ -133,6 +133,48 @@ describe("the week view", () => {
     expect(block(a.id).style.width).toBe("calc(50% - 4px)");
     expect(block(c.id).style.width).toBe("calc(100% - 4px)"); // alone on its day
     expect(calls("GET", "from=2030-01-14&to=2030-01-20").length).toBeGreaterThan(0);
+  });
+
+  // ALV-N021 A2 (F-052, F-054, F-076)
+  it("shades the hours nobody shown works, says so on a day off, and draws side-by-side appointments narrow with the patient's name", async () => {
+    const a = server.seed({ start: `${DAY}T10:00`, minutes: 60, patientName: "Ann Lee" });
+    const b = server.seed({ start: `${DAY}T10:00`, minutes: 60, provider: "prov-b", operatory: "op-2", patientName: "Bo Kim" });
+    await openOn(DAY);
+    await userEvent.click(screen.getByRole("button", { name: "Week" }));
+    await waitFor(() => expect(block(a.id)).toBeInTheDocument());
+
+    const monday = document.querySelector(`.cal__body[data-day="${DAY}"]`) as HTMLElement;
+    expect(monday).toHaveClass("cal__body--off");
+    expect(monday.querySelectorAll(".cal__working")).toHaveLength(2);                       // both providers' 08:00-17:00
+    const sunday = document.querySelector('.cal__body[data-day="2030-01-20"]') as HTMLElement;
+    expect(sunday.querySelectorAll(".cal__working")).toHaveLength(0);
+    expect(within(sunday).getByText("No working hours")).toBeInTheDocument();
+
+    for (const [x, name] of [[a, "Ann Lee"], [b, "Bo Kim"]] as const) {
+      expect(block(x.id)).toHaveClass("cal__block--narrow");
+      expect(within(block(x.id)).getByText(name)).toBeInTheDocument();
+      expect(within(block(x.id)).getByText("10:00")).toBeInTheDocument();                  // the start alone, never a cropped "10:00-10:"
+      expect(block(x.id)).toHaveAttribute("title", expect.stringContaining(name));           // the full details on hover
+    }
+    expect(screen.queryByTestId("cal-empty")).not.toBeInTheDocument();
+  });
+
+  it("an operatory filter that leaves the week empty says so instead of showing an empty grid", async () => {
+    server.seed({ start: `${DAY}T10:00`, minutes: 60, patientName: "Ann Lee" });
+    await openOn(DAY);
+    await userEvent.click(screen.getByRole("button", { name: "Week" }));
+    await userEvent.selectOptions(screen.getByLabelText("Operatory"), "Op 2");
+    expect(await screen.findByText("No appointments for this selection.")).toBeInTheDocument();
+  });
+});
+
+describe("a day nobody works (ALV-N021 A2, F-048)", () => {
+  it("says there are no working hours and offers the next working day", async () => {
+    await openOn("2030-01-19");   // a Saturday
+    expect(await screen.findByText("No working hours for any provider on Saturday 2030-01-19.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Next working day (Monday 2030-01-21)" }));
+    expect(await screen.findByRole("heading", { name: "Monday 2030-01-21" })).toBeInTheDocument();
+    expect(screen.queryByText(/No working hours for/)).not.toBeInTheDocument();
   });
 });
 

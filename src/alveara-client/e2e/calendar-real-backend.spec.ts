@@ -372,7 +372,9 @@ test("PATIENT OVERLAP + WEEK VIEW: a patient cannot be in two places at once; th
 
   await gotoCalendar(desk, DAY, "Week");
   await expect(desk.getByRole("heading", { name: "Week of 2030-01-14 to 2030-01-20" })).toBeVisible();
-  await expect(desk.locator(".cal__column .cal__head strong")).toHaveText(["Monday 2030-01-14", "Tuesday 2030-01-15", "Wednesday 2030-01-16", "Thursday 2030-01-17", "Friday 2030-01-18", "Saturday 2030-01-19", "Sunday 2030-01-20"]);
+  await expect(desk.locator(".cal__column .cal__head")).toHaveText(["Monday 2030-01-14", "Tuesday 2030-01-15", "Wednesday 2030-01-16", "Thursday 2030-01-17", "Friday 2030-01-18", "Saturday 2030-01-19", "Sunday 2030-01-20"].map((d) => d.replace(" ", "")));   // ALV-N021 A2 (F-077): the day name over the date
+  await expect(desk.locator('.cal__body[data-day="2030-01-19"] .cal__closed')).toHaveText("No working hours");                                    // F-052: the weekend says so
+  await expect(desk.locator(`.cal__body[data-day="${DAY}"] .cal__block--narrow`)).toHaveCount(2);                                                // F-054: the overlapping pair is drawn narrow
   const lefts = await desk.locator(`.cal__column[data-x], .cal__body[data-day="${DAY}"] .cal__block`).evaluateAll((els) => els.filter((e) => (e as HTMLElement).style.left).map((e) => (e as HTMLElement).style.left));
   expect(lefts).toContain("0%");
   expect(lefts).toContain("50%"); // two overlapping appointments share the day column side by side

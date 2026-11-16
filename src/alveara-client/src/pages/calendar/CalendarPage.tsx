@@ -144,7 +144,7 @@ export function CalendarPage() {
       </h2>
       <p className="cal-legend alv-workspace__note">
         Cancelled appointments have a dashed outline and a struck-through name; no-shows have a dotted outline. Both are labelled and no longer hold the time.
-        {view === "day" && " Shaded time is outside the provider's working hours."}
+        {view === "day" ? " Shaded time is outside the provider's working hours." : " Shaded time is outside every shown provider's working hours."}
       </p>
       <p className="alv-workspace__saved-slot" role="status">{announcement}</p>
 
@@ -163,6 +163,7 @@ export function CalendarPage() {
           canBook={canManage}
           onOpen={(a) => setDrawer({ kind: "appointment", appointment: a })}
           onSlot={(slotDay, providerId, minute) => setDrawer({ kind: "new", providerId: providerId ?? (providerFilter || undefined), date: slotDay, time: hhmm(minute) })}
+          onGoToDay={setDay}
         />
       )}
 

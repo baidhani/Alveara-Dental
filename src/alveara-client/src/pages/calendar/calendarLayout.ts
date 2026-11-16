@@ -22,6 +22,18 @@ export const dayOfWeek = (day: string) => new Date(dayNumber(day) * 86_400_000).
 export const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 export const dayLabel = (day: string) => `${DAY_NAMES[dayOfWeek(day)]} ${day}`;
 
+/**
+ * ALV-N021 A2 (F-048): the first day after `day` on which at least one of the given providers has working hours, looking at most a week ahead;
+ * null when none of them works on any day of the week.
+ */
+export function nextWorkingDay(day: string, providers: { weeklyAvailability: { dayOfWeek: number }[] }[]): string | null {
+  for (let i = 1; i <= 7; i++) {
+    const next = addDays(day, i);
+    if (providers.some((p) => p.weeklyAvailability.some((w) => w.dayOfWeek === dayOfWeek(next)))) return next;
+  }
+  return null;
+}
+
 /** The Monday on or before a day (weeks start on Monday). */
 export const weekStart = (day: string) => addDays(day, -((dayOfWeek(day) + 6) % 7));
 

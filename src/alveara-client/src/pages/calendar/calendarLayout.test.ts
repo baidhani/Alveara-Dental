@@ -1,8 +1,19 @@
 import { describe, it, expect } from "vitest";
 import type { Appointment } from "../../services/schedulingApi";
 import {
-  addDays, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, flowWord, hhmm, minutesOf, placeColumn, practiceNow, slotMinuteAt, viewDays, weekStart,
+  addDays, appointmentsOnDay, axisRange, dayLabel, dayOfWeek, flowWord, hhmm, minutesOf, nextWorkingDay, placeColumn, practiceNow, slotMinuteAt, viewDays, weekStart,
 } from "./calendarLayout";
+
+describe("the next working day (ALV-N021 A2, F-048)", () => {
+  const weekdays = [{ weeklyAvailability: [1, 2, 3, 4, 5].map((dayOfWeek) => ({ dayOfWeek })) }];
+  it("skips the weekend, works across a year end, and is null when nobody ever works", () => {
+    expect(nextWorkingDay("2030-01-19", weekdays)).toBe("2030-01-21");       // Saturday -> Monday
+    expect(nextWorkingDay("2030-01-14", weekdays)).toBe("2030-01-15");       // the next day, not the same one
+    expect(nextWorkingDay("2032-12-31", weekdays)).toBe("2033-01-03");       // Friday -> Monday across the year end
+    expect(nextWorkingDay("2030-01-19", [{ weeklyAvailability: [] }])).toBeNull();
+    expect(nextWorkingDay("2030-01-19", [])).toBeNull();
+  });
+});
 
 const appt = (id: string, start: string, end: string, over: Partial<Appointment> = {}): Appointment => ({
   id, patientId: "p", patientName: "Pat", providerId: "prov", providerName: "Dr. R", operatoryId: "op", operatoryName: "Op 1", appointmentTypeId: "t",
