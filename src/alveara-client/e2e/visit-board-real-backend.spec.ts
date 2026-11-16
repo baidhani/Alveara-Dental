@@ -566,6 +566,55 @@ test("RESPONSIVE: at tablet and phone width the page does not scroll sideways, a
   evidence.responsive = { tabletNoSidewaysPageScroll: true, phoneStacked: true, phoneActionsReachable: true, phoneAxe: true };
 });
 
+// ---------- ALV-N021 A2, briefing section 8 row "Calendar/Board parity and next-actor text" ----------
+
+/** A screen's visit actions as "label" or "label (blocked)", sorted - the reassignment button is left out (it opens a form, the same on both screens). */
+const actionSet = (labels: { text: string; disabled: boolean }[]) =>
+  labels.filter((l) => !/^(Change provider or room|Change room|Show checkout|Hide checkout)/.test(l.text)).map((l) => `${l.text}${l.disabled ? " (blocked)" : ""}`).sort();
+
+async function boardView(page: Page, id: string, patient: string) {
+  await gotoBoard(page);
+  const card = cardOf(page, id);
+  await expect(card.locator(".flow-card__next")).toBeVisible();
+  const labels = await card.getByRole("button").evaluateAll((els) => els.map((e) => ({ text: (e.getAttribute("aria-label") ?? e.textContent ?? "").trim(), disabled: (e as HTMLButtonElement).disabled })));
+  return { actions: actionSet(labels.map((l) => ({ ...l, text: l.text.endsWith(` ${patient}`) ? l.text.slice(0, -patient.length - 1) : l.text }))), next: (await card.locator(".flow-card__next").textContent())?.trim() };
+}
+
+async function calendarView(page: Page, id: string) {
+  await page.goto(`/calendar?day=${DAY}&appointment=${id}`);   // the link the Schedule page uses opens the drawer of exactly this appointment
+  const drawer = page.getByRole("dialog");
+  await expect(drawer.locator(".cal-panel__next")).toBeVisible();
+  const group = drawer.getByRole("group", { name: "Patient flow" });
+  const labels = (await group.count()) === 0 ? [] : await group.getByRole("button").evaluateAll((els) => els.map((e) => ({ text: (e.textContent ?? "").trim(), disabled: (e as HTMLButtonElement).disabled })));
+  return { actions: actionSet(labels), next: (await drawer.locator(".cal-panel__next").textContent())?.trim() };
+}
+
+test("PARITY: for each role and state the Calendar drawer and the Board card offer the same visit actions, blocked the same way, with the same next-actor text", async () => {
+  const { desk, assistant } = pages;
+  const op3 = (await call(pages.admin, "post", "/api/config/operatories", { name: "Op 3" })).body.id as string;   // Op 1 and Op 2 are held by visits earlier steps left seated
+  const id = (await book("ed", `${DAY}T16:00`, `board-parity-${stamp}`, ids.rivera, op3)).id;
+  const compared: Record<string, unknown> = {};
+  const compare = async (state: string) => {
+    for (const [role, page] of [["desk", desk], ["assistant", assistant]] as const) {
+      const board = await boardView(page, id, NAMES.ed);
+      const calendar = await calendarView(page, id);
+      expect(calendar, `${role} in ${state}`).toEqual(board);
+      compared[`${role}-${state}`] = board;
+    }
+  };
+
+  await walk(desk, id, ["Confirmed"]);
+  await compare("Confirmed");
+  await walk(desk, id, ["CheckedIn"]);
+  await compare("CheckedIn");
+  expect(compared["desk-CheckedIn"]).not.toEqual(compared["assistant-CheckedIn"]);   // the comparison is not trivially equal: the two roles see different moves
+  await calendarView(desk, id);
+  await scanBothThemes(desk, "parity-calendar-drawer");
+  await walk(assistant, id, ["Ready", "Seated"]);
+  await compare("Seated");
+  evidence.parity = compared;
+});
+
 test("ACCEPTANCE: every state and assignment change is in the audit log with user and time and no patient details or reasons", async () => {
   const entries = (await (await pages.admin.request.get("/api/auth/audit-log?take=500")).json()) as { eventType: string; performedByUserAccountId: string | null; timestampUtc: string; details: string }[];
   const by = (t: string) => entries.filter((e) => e.eventType === t);
