@@ -261,7 +261,10 @@ public class BackupApiTests : IAsyncLifetime
         var id = backup.GetProperty("id").GetGuid();
         Assert.Equal("Succeeded", backup.GetProperty("status").GetString());
         Assert.Equal("HashVerified", backup.GetProperty("verificationStatus").GetString());
-        Assert.Equal(4, backup.GetProperty("includedAssetClasses").GetArrayLength());
+        // every managed asset class is in the backup; ALV-N020-C01 added the sign-in backgrounds as the fifth (the count was 4 before it)
+        var included = backup.GetProperty("includedAssetClasses").EnumerateArray().Select(c => c.GetString()).ToList();
+        Assert.Equal(ManagedAssetClasses.All.Order(), included.Order());
+        Assert.Contains(ManagedAssetClasses.LoginBackgrounds, included);
         Assert.DoesNotContain("PRIVATE", backup.ToString());
 
         var history = await JsonOf(await admin.GetAsync("/api/backup/history"));
