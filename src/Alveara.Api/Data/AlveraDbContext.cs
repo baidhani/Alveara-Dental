@@ -416,7 +416,19 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             // ALV-N021 A2 (M1): the reason and category of a move (reason never blank when given)
             e.Property(v => v.Reason).HasMaxLength(500);
             e.Property(v => v.Category).HasMaxLength(20);
-            e.ToTable(t => t.HasCheckConstraint("CK_AppointmentEvents_Reason", "[Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0"));
+            // ALV-N021 A2 (M4): a move's destination - an id always with its non-blank name, and only on the three move events
+            e.Property(v => v.NewProviderName).HasMaxLength(MoveDestination.NameMaxLength);
+            e.Property(v => v.NewOperatoryName).HasMaxLength(MoveDestination.NameMaxLength);
+            e.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_AppointmentEvents_Reason", "[Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0");
+                t.HasCheckConstraint("CK_AppointmentEvents_NewProvider",
+                    "([NewProviderProfileId] IS NULL AND [NewProviderName] IS NULL) OR ([NewProviderProfileId] IS NOT NULL AND [NewProviderName] IS NOT NULL AND LEN(LTRIM(RTRIM([NewProviderName]))) > 0)");
+                t.HasCheckConstraint("CK_AppointmentEvents_NewOperatory",
+                    "([NewOperatoryId] IS NULL AND [NewOperatoryName] IS NULL) OR ([NewOperatoryId] IS NOT NULL AND [NewOperatoryName] IS NOT NULL AND LEN(LTRIM(RTRIM([NewOperatoryName]))) > 0)");
+                t.HasCheckConstraint("CK_AppointmentEvents_Destination",
+                    "([NewStartUtc] IS NULL AND [NewProviderProfileId] IS NULL AND [NewOperatoryId] IS NULL) OR [EventType] IN ('Rescheduled','ProviderReassigned','RoomChanged')");
+            });
             e.HasOne<Appointment>().WithMany().HasForeignKey(v => v.AppointmentId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(v => new { v.AppointmentId, v.OccurredAtUtc });
         });

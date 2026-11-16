@@ -8212,6 +8212,23 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<Guid?>("NewOperatoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NewOperatoryName")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("NewProviderName")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<Guid?>("NewProviderProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("NewStartUtc")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateTimeOffset>("OccurredAtUtc")
                         .HasColumnType("datetimeoffset");
 
@@ -8234,6 +8251,12 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("AppointmentEvents", t =>
                         {
+                            t.HasCheckConstraint("CK_AppointmentEvents_Destination", "([NewStartUtc] IS NULL AND [NewProviderProfileId] IS NULL AND [NewOperatoryId] IS NULL) OR [EventType] IN ('Rescheduled','ProviderReassigned','RoomChanged')");
+
+                            t.HasCheckConstraint("CK_AppointmentEvents_NewOperatory", "([NewOperatoryId] IS NULL AND [NewOperatoryName] IS NULL) OR ([NewOperatoryId] IS NOT NULL AND [NewOperatoryName] IS NOT NULL AND LEN(LTRIM(RTRIM([NewOperatoryName]))) > 0)");
+
+                            t.HasCheckConstraint("CK_AppointmentEvents_NewProvider", "([NewProviderProfileId] IS NULL AND [NewProviderName] IS NULL) OR ([NewProviderProfileId] IS NOT NULL AND [NewProviderName] IS NOT NULL AND LEN(LTRIM(RTRIM([NewProviderName]))) > 0)");
+
                             t.HasCheckConstraint("CK_AppointmentEvents_Reason", "[Reason] IS NULL OR LEN(LTRIM(RTRIM([Reason]))) > 0");
                         });
                 });

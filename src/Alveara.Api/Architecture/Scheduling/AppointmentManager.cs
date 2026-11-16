@@ -83,7 +83,7 @@ public class AppointmentManager(
 
         if (startUtc <= clock.UtcNow)
             throw new SchedulingException("start_in_past", "An appointment must start in the future.", 400);
-        var provider = await db.ProviderProfiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == request.ProviderId, ct)
+        var provider = await db.ProviderProfiles.AsNoTracking().Include(p => p.StaffProfile).SingleOrDefaultAsync(p => p.Id == request.ProviderId, ct)
             ?? throw new SchedulingException("provider_not_found", "That provider was not found.", 404);
         var operatory = await db.Operatories.AsNoTracking().Include(o => o.Location).SingleOrDefaultAsync(o => o.Id == request.OperatoryId, ct)
             ?? throw new SchedulingException("operatory_not_found", "That operatory was not found.", 404);
@@ -103,6 +103,8 @@ public class AppointmentManager(
         {
             Id = Guid.NewGuid(), AppointmentId = id, EventType = AppointmentEventTypes.Rescheduled, ActorUserId = actor, OccurredAtUtc = now,
             PreviousStartUtc = appointment.StartUtc, PreviousProviderProfileId = appointment.ProviderProfileId, PreviousOperatoryId = appointment.OperatoryId,
+            // ALV-N021 A2 (M4): the new place, recorded with the move (a reschedule always names its full destination)
+            NewStartUtc = startUtc, NewProviderProfileId = provider.Id, NewProviderName = MoveDestination.ProviderName(provider), NewOperatoryId = operatory.Id, NewOperatoryName = operatory.Name,
             Detail = $"Rescheduled for {duration} minutes.",
         });
         appointment.ProviderProfileId = provider.Id;

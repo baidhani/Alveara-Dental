@@ -17,7 +17,11 @@ export const ACCOUNTS = {
 export type AccountKey = keyof typeof ACCOUNTS;
 
 export type Appt = { id: string; rowVersion: string; status: string; flowState: string; startLocal: string; endLocal: string; patientId: string; patientName: string; providerId: string; providerName: string; operatoryId: string; operatoryName: string; cancelCategory?: string | null };
-export type Event = { eventType: string; actorUserId: string | null; detail: string | null; previousStartLocal: string | null; reason?: string | null; category?: string | null };
+export type Event = {
+  eventType: string; actorUserId: string | null; detail: string | null; previousStartLocal: string | null; reason?: string | null; category?: string | null;
+  // ALV-N021 A2 (F-046, M4): who did it, and where a move went
+  actorName?: string | null; previousProviderName?: string | null; previousOperatoryName?: string | null; newStartLocal?: string | null; newProviderName?: string | null; newOperatoryName?: string | null;
+};
 
 export async function csrf(page: Page): Promise<string> {
   return (await (await page.request.get("/api/auth/csrf-token")).json()).token as string;

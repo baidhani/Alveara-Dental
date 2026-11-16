@@ -5,11 +5,15 @@ using Alveara.Api.Data;
 
 namespace Alveara.Api.Architecture.Scheduling;
 
-/// <summary>One entry of an appointment's history, with the place and time it was moved FROM when it was rescheduled.</summary>
+/// <summary>
+/// One entry of an appointment's history: who did it (ALV-N021 A2: <c>ActorName</c>, F-046), the place and time a move took it FROM, and (M4) where it went TO, exactly as recorded with the move.
+/// The destination is null for events written before M4: the screen then shows only the "from" part and never guesses the rest.
+/// </summary>
 public record AppointmentEventView(
     string EventType, Guid? ActorUserId, DateTimeOffset OccurredAtUtc, string? Detail,
     string? PreviousStartLocal, string? PreviousProviderName, string? PreviousOperatoryName,
-    string? Reason = null, string? Category = null);   // ALV-N021 A2: the reason the actor gave and the cancel category
+    string? Reason = null, string? Category = null,   // ALV-N021 A2: the reason the actor gave and the cancel category
+    string? ActorName = null, string? NewStartLocal = null, string? NewProviderName = null, string? NewOperatoryName = null);
 
 /// <summary>Builds the read model of an appointment (names resolved, times in both UTC and practice-local), shared by booking and the lifecycle actions.</summary>
 internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock clock)
@@ -50,11 +54,14 @@ internal sealed class AppointmentViewBuilder(AlveraDbContext db, IPracticeClock 
         var events = await db.AppointmentEvents.AsNoTracking().Where(e => e.AppointmentId == appointmentId).OrderBy(e => e.OccurredAtUtc).ThenBy(e => e.EventType).ToListAsync(ct);
         var providers = await (from pr in db.ProviderProfiles.AsNoTracking() join s in db.StaffProfiles.AsNoTracking() on pr.StaffProfileId equals s.Id select new { pr.Id, s.DisplayName }).ToDictionaryAsync(x => x.Id, x => x.DisplayName, ct);
         var operatories = await db.Operatories.AsNoTracking().ToDictionaryAsync(o => o.Id, o => o.Name, ct);
+        var actors = await Alveara.Api.Architecture.Clinical.ClinicalNames.ResolveAsync(db, events.Select(e => e.ActorUserId), ct);   // staff names only; no patient data
         return events.Select(e => new AppointmentEventView(
             e.EventType, e.ActorUserId, e.OccurredAtUtc, e.Detail,
             e.PreviousStartUtc is null ? null : Local(e.PreviousStartUtc.Value),
             e.PreviousProviderProfileId is { } p && providers.TryGetValue(p, out var pn) ? pn : null,
             e.PreviousOperatoryId is { } o && operatories.TryGetValue(o, out var on) ? on : null,
-            e.Reason, e.Category)).ToList();
+            e.Reason, e.Category,
+            Alveara.Api.Architecture.Clinical.ClinicalNames.Name(actors, e.ActorUserId),
+            e.NewStartUtc is null ? null : Local(e.NewStartUtc.Value), e.NewProviderName, e.NewOperatoryName)).ToList();
     }
 }

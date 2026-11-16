@@ -300,12 +300,14 @@ export class FakeFlowServer extends FakeCalendarServer {
       const holder = this.appointments.find((x) => x.id !== a.id && x.status === "Scheduled" && OCCUPYING.has(this.flowOf(x)) && this.effectiveOperatory(x) === operatory.id);
       if (holder) return json(409, { error: "operatory_occupied", message: "That operatory is occupied by a patient who is seated or in treatment.", conflictingAppointmentId: holder.id });
     }
+    const previous = { provider: a.providerName, operatory: a.operatoryName };
     a.providerId = provider.providerId; a.providerName = provider.displayName;
     a.operatoryId = operatory.id; a.operatoryName = operatory.name;
     a.visitProviderId = undefined; a.visitProviderName = undefined; a.visitOperatoryId = undefined; a.visitOperatoryName = undefined;
     if (!sameProvider) a.blockFlagged = false;   // a different provider: their blocked time no longer covers it
     this.touch(a);
-    this.log(a, sameProvider ? "RoomChanged" : "ProviderReassigned", sameProvider ? "Room changed." : "Provider and room changed.");
+    this.log(a, sameProvider ? "RoomChanged" : "ProviderReassigned", sameProvider ? "Room changed." : sameOperatory ? "Provider changed." : "Provider and room changed.", previous,
+      { provider: sameProvider ? undefined : a.providerName, operatory: sameOperatory ? undefined : a.operatoryName });
     return json(200, this.view(a));
   }
 }

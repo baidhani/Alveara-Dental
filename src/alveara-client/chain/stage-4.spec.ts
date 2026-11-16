@@ -106,6 +106,7 @@ test("3.12 the manager moves Cara's booking to Harper in Hygiene 1 with a reason
   expect([now.providerName, now.operatoryName]).toEqual(["Harper", "Hygiene 1"]);
   const change = (await historyOf(manager, cara)).find((e) => e.eventType === "ProviderReassigned");
   expect([change?.actorUserId, change?.reason]).toEqual([p.users.manager, "Dr. Dana is in surgery"]);
+  expect([change?.newProviderName, change?.newOperatoryName]).toEqual(["Harper", "Hygiene 1"]);   // ALV-N021 A2 (F-062, M4): where it went, recorded with the change
   const notices = await (await hygienist.request.get("/api/notifications?status=unread")).text();
   expect(notices).toMatch(/"kind":"appointment\.provider_reassigned"[^}]*"priority":"Urgent"/);
   expect(notices).not.toContain("Cara");

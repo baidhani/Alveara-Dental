@@ -80,6 +80,27 @@ public class AppointmentEvent
     public string? Reason { get; set; }
     /// <summary>ALV-N021 A2: the controlled category of the move where one applies (a cancellation's <see cref="AppointmentCancelCategories"/>).</summary>
     public string? Category { get; set; }
+    // ALV-N021 A2 (migration M4, owner decision 2026-11-15): where a move took the appointment TO, written in the same save as the move (never derived later from other events or the
+    // appointment's current state). Only on Rescheduled, ProviderReassigned and RoomChanged; null on every event written before M4 (their destination is not known). The names are the
+    // display names at the time of the move, so a later rename does not rewrite history.
+    public DateTimeOffset? NewStartUtc { get; set; }
+    public Guid? NewProviderProfileId { get; set; }
+    public string? NewProviderName { get; set; }
+    public Guid? NewOperatoryId { get; set; }
+    public string? NewOperatoryName { get; set; }
+}
+
+/// <summary>ALV-N021 A2 (M4): the destination of a move as it is recorded on its history event.</summary>
+public static class MoveDestination
+{
+    public const int NameMaxLength = 120;   // the length of a staff display name and an operatory name
+
+    /// <summary>The event types that may carry a destination.</summary>
+    public static readonly IReadOnlyList<string> EventTypes = [AppointmentEventTypes.Rescheduled, AppointmentEventTypes.ProviderReassigned, AppointmentEventTypes.RoomChanged];
+
+    /// <summary>The provider's display name now (the caller loaded the staff profile with it); "Staff member" if it is missing, so the recorded destination is never blank.</summary>
+    public static string ProviderName(Alveara.Api.Architecture.Identity.ProviderProfile provider) =>
+        string.IsNullOrWhiteSpace(provider.StaffProfile?.DisplayName) ? Alveara.Api.Architecture.Clinical.ClinicalNames.Fallback : provider.StaffProfile.DisplayName;
 }
 
 /// <summary>ALV-N021 A2 (OD-19): why an appointment was cancelled, as a controlled list (the cancellations report counts them).</summary>

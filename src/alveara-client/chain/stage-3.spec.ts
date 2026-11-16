@@ -112,7 +112,8 @@ test("3.08 rescheduling Alice to 13:30 moves her and the history records the old
   expect(r.status, JSON.stringify(r.body)).toBe(200);
   expect((r.body as unknown as { startLocal: string }).startLocal).toBe(`${DAY}T13:30`);
   const moved = (await historyOf(pages.desk!, at.alice)).find((e) => e.eventType === "Rescheduled");
-  expect([moved?.previousStartLocal, moved?.actorUserId]).toEqual([`${DAY}T10:00`, p.users.desk]);
+  expect([moved?.previousStartLocal, moved?.newStartLocal, moved?.actorUserId]).toEqual([`${DAY}T10:00`, `${DAY}T13:30`, p.users.desk]);   // from and to, recorded with the move (M4)
+  expect(moved?.actorName).toBeTruthy();                                                                                                    // and the person is named (F-046)
 });
 
 test("3.09 cancel needs a category and frees the slot; a no-show is refused before the start, then allowed once the injected clock has passed it, and frees the slot", async () => {

@@ -338,7 +338,7 @@ describe("rescheduling", () => {
     expect(put.body).toMatchObject({ providerId: "prov-b", operatoryId: "op-2", startLocal: `${DAY}T14:00`, durationMinutes: null, rowVersion: "a1" });
     expect(put.headers["X-CSRF-Token"]).toBe("csrf-1");
     await waitFor(() => expect(block(a.id).style.top).toBe("420px")); // 14:00 in Dr. Patel's column
-    expect(await d.findByText("Was 2030-01-14 09:00 with Dr. Rivera in Op 1")).toBeInTheDocument();
+    expect(await d.findByText("From 2030-01-14 09:00 with Dr. Rivera in Op 1 to 2030-01-14 14:00 with Dr. Patel in Op 2")).toBeInTheDocument();   // F-049: from and to, as recorded
   });
 
   it("explains a conflict and leaves the appointment where it was", async () => {

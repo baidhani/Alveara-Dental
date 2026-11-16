@@ -12,6 +12,7 @@ import type { Appointment, AppointmentEvent } from "../../services/schedulingApi
 import { assignVisit, getAppointmentActions, keepDespiteBlock, moveVisit, undoCheckIn } from "../../services/visitsApi";
 import type { AppointmentActions, VisitAction } from "../../services/visitsApi";
 import { AssignPanel } from "../flow/AssignPanel";
+import { AppointmentHistory } from "./AppointmentHistory";
 import { CheckoutPanel } from "../flow/CheckoutPanel";
 import { ReasonForm } from "../flow/ReasonForm";
 import { flowWord, statusWord } from "./calendarLayout";
@@ -32,12 +33,6 @@ interface Props {
 
 type Mode = "details" | "reschedule" | "cancel" | "undo" | "keep" | "assign" | "complete";
 
-const EVENT_LABELS: Record<string, string> = { Scheduled: "Scheduled", Rescheduled: "Rescheduled", Cancelled: "Cancelled", NoShow: "Marked as a no-show", NotesChanged: "Note changed",
-  CheckedIn: "Patient checked in", TreatmentStarted: "Treatment started", Completed: "Visit completed",
-  Confirmed: "Confirmed", Ready: "Marked ready", Seated: "Seated", CheckedOut: "Ready for checkout", AssignmentChanged: "Room or provider changed (earlier rule)",
-  CheckInUndone: "Check-in undone", ProviderReassigned: "Provider changed", RoomChanged: "Room changed", KeptDespiteBlock: "Kept despite blocked time",
-  CheckoutRecorded: "Checkout decision recorded",
-};
 
 /** Visit moves and visit-level changes (the "Patient flow" group); booking changes are a separate group. */
 const FLOW_CODES = new Set(["confirm", "check_in", "mark_ready", "seat", "start_treatment", "end_treatment", "complete", "undo_check_in", "keep_despite_block"]);
@@ -175,7 +170,8 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }
     <div className="cal-panel">
       <h2 className="alv-workspace__section-title" id="cal-drawer-title" tabIndex={-1}>{current.patientName}</h2>
       <p className="cal-panel__status">
-        <span className={`cal-badge cal-badge--${current.status.toLowerCase()}`}>{statusWord(current.status)}</span>
+        {/* ALV-N021 A2 (F-055): one chip for where the appointment stands - the visit's state once it has one, otherwise the booking's status */}
+        {!flowLabel && <span className={`cal-badge cal-badge--${current.status.toLowerCase()}`}>{statusWord(current.status)}</span>}
         {flowLabel && <span className={`cal-badge cal-badge--flow-${flow.toLowerCase()}`} data-testid="flow-badge">{flowLabel}</span>}
         {flagged && <span className="cal-badge cal-badge--blocked" data-testid="block-flag">Blocked time</span>}
       </p>
@@ -184,14 +180,14 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }
         <div className="alv-form-answers__row"><dt>Provider</dt><dd>{current.providerName}</dd></div>
         <div className="alv-form-answers__row"><dt>Operatory</dt><dd>{current.operatoryName}</dd></div>
         <div className="alv-form-answers__row"><dt>Type</dt><dd>{current.appointmentTypeName}</dd></div>
-        {flowLabel && current.flowChangedAtUtc && <div className="alv-form-answers__row"><dt>{flowLabel} recorded</dt><dd>{new Date(current.flowChangedAtUtc).toLocaleString()}</dd></div>}
+        {flowLabel && current.flowChangedAtUtc && <div className="alv-form-answers__row"><dt>{flowLabel} at</dt><dd>{new Date(current.flowChangedAtUtc).toLocaleString()}</dd></div>}
         {current.status === "Cancelled" && (
           <>
             <div className="alv-form-answers__row"><dt>Why cancelled</dt><dd>{cancelCategoryLabel(current.cancelCategory)}{current.shortNotice ? " · short notice (under 24 hours)" : ""}</dd></div>
             {current.cancelReason && <div className="alv-form-answers__row"><dt>Note</dt><dd>{current.cancelReason}</dd></div>}
           </>
         )}
-        {current.statusChangedAtUtc && current.status !== "Scheduled" && <div className="alv-form-answers__row"><dt>{statusWord(current.status)} recorded</dt><dd>{new Date(current.statusChangedAtUtc).toLocaleString()}</dd></div>}
+        {current.statusChangedAtUtc && current.status !== "Scheduled" && <div className="alv-form-answers__row"><dt>{statusWord(current.status)} at</dt><dd>{new Date(current.statusChangedAtUtc).toLocaleString()}</dd></div>}
       </dl>
       {current.status === "Scheduled" && actions?.nextActorText && <p className="cal-panel__next">{actions.nextActorText}</p>}
 
@@ -255,38 +251,9 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged }
         {canManage && <div><Button type="submit" disabled={busy || !noteDirty}>Save note</Button></div>}
       </form>
 
-      <section aria-labelledby="cal-history-title">
-        <h3 id="cal-history-title" className="alv-workspace__subtitle">History</h3>
-        {history === null ? <p className="alv-workspace__note">Loading history…</p> : (
-          <table className="alv-workspace__table">
-            <caption className="alv-workspace__caption">What happened to this appointment, oldest first</caption>
-            <thead><tr><th scope="col">When</th><th scope="col">What</th><th scope="col">Details</th></tr></thead>
-            <tbody>
-              {history.map((e, i) => (
-                <tr key={`${e.eventType}-${i}`}>
-                  <td>{new Date(e.occurredAtUtc).toLocaleString()}</td>
-                  <td>{EVENT_LABELS[e.eventType] ?? e.eventType}</td>
-                  <td>{describe(e)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <AppointmentHistory history={history} />
     </div>
   );
-}
-
-/** One history row's details: where it was moved from, the cancel category, and the reason the person gave. */
-function describe(e: AppointmentEvent): string {
-  const parts: string[] = [];
-  if ((e.eventType === "Rescheduled" || e.eventType === "ProviderReassigned" || e.eventType === "RoomChanged") && (e.previousStartLocal || e.previousProviderName || e.previousOperatoryName)) {
-    const when = e.previousStartLocal ? `${dateOf(e.previousStartLocal)} ${timeOf(e.previousStartLocal)} ` : "";
-    parts.push(`Was ${when}with ${e.previousProviderName ?? "?"} in ${e.previousOperatoryName ?? "?"}`);
-  } else if (e.detail) parts.push(e.detail);
-  if (e.category) parts.push(`Category: ${cancelCategoryLabel(e.category)}`);
-  if (e.reason) parts.push(`Reason: ${e.reason}`);
-  return parts.length > 0 ? parts.join(" · ") : "—";
 }
 
 function placementOf(a: Appointment): Placement {

@@ -115,6 +115,9 @@ public class VisitAssignmentService(
         {
             Id = eventId, AppointmentId = id, EventType = providerChanges ? AppointmentEventTypes.ProviderReassigned : AppointmentEventTypes.RoomChanged,
             ActorUserId = actor.UserId, OccurredAtUtc = now, PreviousProviderProfileId = previousProvider, PreviousOperatoryId = previousRoom, Reason = reason,
+            // ALV-N021 A2 (M4): what changed TO, recorded with the move (only the parts that changed)
+            NewProviderProfileId = providerChanges ? provider.Id : null, NewProviderName = providerChanges ? MoveDestination.ProviderName(provider) : null,
+            NewOperatoryId = roomChanges ? operatory.Id : null, NewOperatoryName = roomChanges ? operatory.Name : null,
             Detail = providerChanges && roomChanges ? "Provider and room changed." : providerChanges ? "Provider changed." : "Room changed.",
         });
         AuditService.Record(db, providerChanges ? SchedulingAuditEvents.ProviderReassigned : SchedulingAuditEvents.RoomChanged, nameof(Appointment), id, actor.UserId,

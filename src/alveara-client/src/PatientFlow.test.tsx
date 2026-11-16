@@ -56,6 +56,8 @@ describe("moving a patient through the visit", () => {
     await userEvent.click(await d.findByRole("button", { name: "Check in" }));
     expect(await d.findByText("Patient checked in. Waiting for chairside staff to mark the patient ready.")).toBeInTheDocument();
     expect(d.getByTestId("flow-badge")).toHaveTextContent("Checked in");
+    expect(d.queryByText("Scheduled", { selector: ".cal-badge" })).not.toBeInTheDocument();   // F-055: one chip, the visit's state
+    expect(d.getByText("Checked in at", { selector: "dt" })).toBeInTheDocument();
     await waitFor(() => expect(block(a.id)).toHaveTextContent("09:00–10:00 · Checked in"));
     for (const name of ["Reschedule", "Cancel appointment", "Mark no-show"]) expect(d.queryByRole("button", { name })).not.toBeInTheDocument(); // arrived
   });

@@ -133,6 +133,12 @@ export interface AppointmentEvent {
   /** ALV-N021 A2: the reason the actor gave (undo check-in, provider change, keep) and the cancel category. */
   reason?: string | null;
   category?: string | null;
+  /** ALV-N021 A2 (F-046): the name of the person who did it ("Staff member" for an account without a staff profile); null when no person is recorded. */
+  actorName?: string | null;
+  /** ALV-N021 A2 (M4): where a reschedule, provider change or room change took the appointment, as recorded with the move; null for the parts that did not change and for every event written before M4. */
+  newStartLocal?: string | null;
+  newProviderName?: string | null;
+  newOperatoryName?: string | null;
 }
 
 /** Every appointment in the range whatever its status (cancelled and no-show ones are shown distinctly by the calendar). */

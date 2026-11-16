@@ -234,7 +234,7 @@ test("BOOK + CONFLICTS: the drawer books an appointment; provider, operatory, pa
   evidence.conflicts = { provider: true, operatory: true, patient: true, outsideHours: true, blockedTime: true, bookedAfterRefusals: before + 1 };
 });
 
-test("RESCHEDULE: moving an appointment through the drawer, a refused move, and the history that remembers where it was", async () => {
+test("RESCHEDULE: moving an appointment through the drawer, a refused move, and the history that remembers where it went from and to", async () => {
   await drawerOf(desk).getByRole("button", { name: "Reschedule" }).click();
   let form = drawerOf(desk).getByRole("form", { name: "Reschedule appointment" });
   await form.getByLabel("Provider *").selectOption({ label: "Dr. Patel" });
@@ -243,7 +243,7 @@ test("RESCHEDULE: moving an appointment through the drawer, a refused move, and 
   await form.getByRole("button", { name: "Save new time" }).click();
   await expect(drawerOf(desk).getByText("Appointment rescheduled.")).toBeVisible();
   await expect(drawerOf(desk).getByText("2030-01-14 15:00–16:00 (60 min)")).toBeVisible();
-  await expect(drawerOf(desk).getByText("Was 2030-01-14 10:00 with Dr. Rivera in Op 1")).toBeVisible();
+  await expect(drawerOf(desk).getByText("From 2030-01-14 10:00 with Dr. Rivera in Op 1 to 2030-01-14 15:00 with Dr. Patel in Op 2")).toBeVisible();   // ALV-N021 A2 (F-049, M4)
   await shot(desk, "05-rescheduled-with-history.png");
   await expect(desk.locator(".cal__column", { has: desk.locator(".cal__head", { hasText: "Dr. Patel" }) }).locator(`[data-appointment="${ids.a3}"]`)).toBeVisible(); // now in Dr. Patel's column
 

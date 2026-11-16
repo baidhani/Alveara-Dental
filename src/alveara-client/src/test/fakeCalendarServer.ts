@@ -42,11 +42,14 @@ export class FakeCalendarServer extends FakeScheduleServer {
     this.touch(a);
   }
 
-  protected log(a: Appointment, eventType: string, detail: string | null, previous?: { start: string; provider: string; operatory: string }) {
+  /** ALV-N021 A2 (M4): like the server, a move records where it went (`next`, only the parts that changed) and every row names the person (`actorName`). */
+  protected log(a: Appointment, eventType: string, detail: string | null, previous?: { start?: string; provider?: string; operatory?: string },
+    next?: { start?: string; provider?: string; operatory?: string }) {
     const list = this.events.get(a.id) ?? [];
     list.push({
-      eventType, actorUserId: "u1", occurredAtUtc: "2026-10-02T10:00:00Z", detail,
+      eventType, actorUserId: "u1", actorName: "Dana Desk", occurredAtUtc: "2026-10-02T10:00:00Z", detail,
       previousStartLocal: previous?.start ?? null, previousProviderName: previous?.provider ?? null, previousOperatoryName: previous?.operatory ?? null,
+      newStartLocal: next?.start ?? null, newProviderName: next?.provider ?? null, newOperatoryName: next?.operatory ?? null,
     });
     this.events.set(a.id, list);
   }
@@ -210,7 +213,7 @@ export class FakeCalendarServer extends FakeScheduleServer {
     const provider = this.providers.find((p) => p.providerId === body.providerId)!;
     const operatory = this.operatories.find((o) => o.id === body.operatoryId)!;
     Object.assign(a, { providerId: provider.providerId, providerName: provider.displayName, operatoryId: operatory.id, operatoryName: operatory.name, startLocal: start, endLocal: end, durationMinutes: minutes });
-    this.touch(a); this.log(a, "Rescheduled", `Rescheduled for ${minutes} minutes.`, previous);
+    this.touch(a); this.log(a, "Rescheduled", `Rescheduled for ${minutes} minutes.`, previous, { start: a.startLocal, provider: a.providerName, operatory: a.operatoryName });
     return json(200, a);
   }
 }
