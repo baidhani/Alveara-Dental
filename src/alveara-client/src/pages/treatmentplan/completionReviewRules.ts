@@ -4,21 +4,26 @@
  * server's and arrive in the readiness; nothing here reimplements them.
  */
 import type { ItemReadiness } from "../../services/completionApi";
+import { localInputText, sessionLocalInput } from "../../time/practiceTime";
 
 export const money = (amount: number): string => `$${amount.toFixed(2)}`;
 
-const pad = (n: number): string => String(n).padStart(2, "0");
-
-/** A date and time as a `datetime-local` field shows it (the person's own clock, to the second so "now" is never earlier than something just recorded). */
+/**
+ * ALV-N021 A3: a moment as the performed-time field shows it, in the PRACTICE zone, to the second so "now" is never earlier than something just recorded;
+ * empty without a practice zone (the person then types it).
+ */
 export function localInputValue(moment: Date): string {
-  return `${moment.getFullYear()}-${pad(moment.getMonth() + 1)}-${pad(moment.getDate())}T${pad(moment.getHours())}:${pad(moment.getMinutes())}:${pad(moment.getSeconds())}`;
+  return sessionLocalInput(moment, { seconds: true }) ?? "";
 }
 
-/** The field's value as an instant in UTC for the request, or null when it is empty or not a date. */
-export function toUtcIso(local: string): string | null {
-  if (local.trim() === "") return null;
-  const moment = new Date(local);
-  return Number.isNaN(moment.getTime()) ? null : moment.toISOString();
+/** The field's plain practice-local text for the request (`performedAtLocal`), or null when it is empty or not the exact form; the server converts it. */
+export function performedLocalText(local: string): string | null {
+  return localInputText(local, { seconds: true });
+}
+
+/** The server may name the performed time under the local field (and the legacy one); the form shows it under its own key. */
+export function withPerformedErrors(fields: Record<string, string>): Record<string, string> {
+  return fields.performedAtLocal !== undefined && fields.performedAtUtc === undefined ? { ...fields, performedAtUtc: fields.performedAtLocal } : fields;
 }
 
 export interface ReviewSummary {

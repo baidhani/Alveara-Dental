@@ -88,7 +88,8 @@ export function VitalsPanel({ encounter, editable, busy, run }: Props) {
       setValues(emptyVitals());
       return;
     }
-    setErrors(refused);
+    // ALV-N021 A3: the server names the measured time under measuredAtLocal (and, for its own rules, the legacy measuredAtUtc); one message under the field
+    setErrors(refused.measuredAtLocal !== undefined && refused.measuredAtUtc === undefined ? { ...refused, measuredAtUtc: refused.measuredAtLocal } : refused);
     if (failure instanceof ApiError) key.current = null; // a definite refusal: the next attempt is a new reading
     else if (isNetworkFailure(failure)) setNotice("The connection dropped, so it is not certain the reading was saved. What you typed is still here: send it again - it cannot be recorded twice.");
   }

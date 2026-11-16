@@ -136,7 +136,8 @@ describe("STORY-009 follow-ups panel", () => {
     expect(post.headers["Idempotency-Key"]).toBeTruthy();
     expect(post.headers["X-CSRF-Token"]).toBe("t");
     expect(post.body).toMatchObject({ title: "Check the new filling", note: "Ask about the bite", assigneeUserId: "u-hana", recallIntervalDays: 180 });
-    expect(new Date(post.body.dueAtUtc).toISOString()).toBe(post.body.dueAtUtc);                      // an instant, not a local string
+    expect(post.body.dueAtLocal).toBe("2026-12-01T09:30");                                             // ALV-N021 A3: plain practice-local text; the server converts it
+    expect("dueAtUtc" in post.body).toBe(false);                                                        // the legacy form is never sent by the screen
     expect(screen.queryByLabelText(/^Title/)).toBeNull();                                               // the form closed and the list reloaded
   });
 

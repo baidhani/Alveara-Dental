@@ -155,7 +155,8 @@ describe("completing", () => {
     const sent = completes(api)[0].body as Record<string, unknown>;
     expect(sent).toMatchObject({ rowVersion: "R1", encounterId: "en1", providerId: "pv1", itemIds: ["it1", "it2"] });
     expect(String(sent.idempotencyKey).length).toBeGreaterThan(8);
-    expect(sent.performedAtUtc).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+    expect(sent.performedAtLocal).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/);   // ALV-N021 A3: plain practice-local text; the server converts it
+    expect("performedAtUtc" in sent).toBe(false);
     expect("amount" in sent).toBe(false);                                                            // the charge is never sent
 
     const done = await screen.findByRole("region", { name: "Completion recorded" });

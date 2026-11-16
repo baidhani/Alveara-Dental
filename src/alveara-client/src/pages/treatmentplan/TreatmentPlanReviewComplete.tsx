@@ -8,7 +8,7 @@ import type { TreatmentPlan } from "../../services/treatmentPlansApi";
 import type { ChangeProps } from "./TreatmentPlanActions";
 import { CompletionResultPanel } from "./CompletionResultPanel";
 import { CompletionReviewTable } from "./CompletionReviewTable";
-import { formGaps, localInputValue, requestSignature, summarize, summaryWords, toUtcIso } from "./completionReviewRules";
+import { formGaps, localInputValue, performedLocalText, requestSignature, summarize, summaryWords, withPerformedErrors } from "./completionReviewRules";
 import { when } from "./treatmentPlanRules";
 
 interface Props extends ChangeProps {
@@ -80,7 +80,7 @@ export function TreatmentPlanReviewComplete({ plan, onChanged, onConflict, onClo
 
   async function submit() {
     if (readiness === null) return;
-    const utc = toUtcIso(performed);
+    const utc = performedLocalText(performed);   // ALV-N021 A3: plain practice-local text (sent as performedAtLocal)
     const gaps = formGaps(providerId, encounterId, utc, selected.size);
     setNote(null);
     setItemNotes({});
@@ -92,12 +92,12 @@ export function TreatmentPlanReviewComplete({ plan, onChanged, onConflict, onClo
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
     setBusy(true);
     try {
-      const done = await completeProcedures(plan.id, { idempotencyKey: attempt.current.key, rowVersion: readiness.rowVersion, encounterId, providerId, performedAtUtc: utc!, itemIds });
+      const done = await completeProcedures(plan.id, { idempotencyKey: attempt.current.key, rowVersion: readiness.rowVersion, encounterId, providerId, performedAtLocal: utc!, itemIds });
       setResult(done);
       onChanged(done.plan, `${done.procedures.length} procedure${done.procedures.length === 1 ? "" : "s"} completed${done.replayed ? " earlier; nothing new was recorded" : ""} and added to the clinical history.`);
     } catch (err) {
       setBusy(false);
-      const fields = planFieldErrorsOf(err);
+      const fields = withPerformedErrors(planFieldErrorsOf(err));
       if (isConcurrencyConflict(err)) { setNote("Nothing was completed: this plan changed since you opened this screen. Reload the review and look again."); onConflict(); }
       else if (err instanceof ApiError && refusedItemsOf(err).length > 0) { setItemNotes(itemNotesOf(err)); setNote(`Nothing was completed: ${err.message}`); load(); }
       else if (Object.keys(fields).some((f) => FIELDS.includes(f))) { setErrors(Object.fromEntries(Object.entries(fields).filter(([f]) => FIELDS.includes(f)))); setNote("Nothing was completed: check the fields marked below."); }

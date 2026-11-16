@@ -3,10 +3,10 @@ import { NO_EXTRA_REQUIREMENTS } from "./patientFields";
 import type { PatientValues } from "./patientFields";
 import type { PatientRequirements } from "../services/patientsApi";
 import "./PatientFieldsForm.css";
-import { todayDateOnly } from "./dateOnly";
+import { sessionToday } from "../time/practiceTime";
 
-// ALV-N021 A1: the latest date of birth allowed is today on the viewer's clock, not the UTC day
-const today = () => todayDateOnly();
+// ALV-N021 A1/A3: the latest date of birth allowed is the practice's today (no limit is shown without a practice zone; the server checks it anyway)
+const today = () => sessionToday() ?? undefined;
 
 interface Props {
   values: PatientValues;

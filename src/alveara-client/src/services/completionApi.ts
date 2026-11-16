@@ -96,7 +96,8 @@ export interface CompleteProceduresInput {
   rowVersion: string;
   encounterId: string;
   providerId: string;
-  performedAtUtc: string;
+  /** ALV-N021 A3: the plain practice-local text of the performed time; the server converts it in the practice zone */
+  performedAtLocal: string;
   itemIds: string[];
 }
 
@@ -106,7 +107,8 @@ export interface AdoptCompletionInput {
   rowVersion: string;
   encounterId: string;
   providerId: string;
-  performedAtUtc: string;
+  /** ALV-N021 A3: the plain practice-local text of the performed time; the server converts it in the practice zone */
+  performedAtLocal: string;
   reason: string;
 }
 

@@ -55,7 +55,8 @@ export function vitalsPayload(input: VitalsInput, rowVersion: string): Record<st
     if (raw !== "") body[key] = Number(raw);
   }
   if (input.note.trim() !== "") body.note = input.note.trim();
-  if (input.measuredAt.trim() !== "") body.measuredAtUtc = new Date(input.measuredAt).toISOString();
+  // ALV-N021 A3: the plain practice-local text the control holds; the server checks the exact form and converts it in the practice zone
+  if (input.measuredAt.trim() !== "") body.measuredAtLocal = input.measuredAt.trim();
   return body;
 }
 

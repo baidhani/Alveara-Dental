@@ -6,7 +6,7 @@ import type { CompletionReadiness, ItemReadiness } from "../../services/completi
 import { planFieldErrorsOf } from "../../services/treatmentPlansApi";
 import type { TreatmentPlan } from "../../services/treatmentPlansApi";
 import type { ChangeProps } from "./TreatmentPlanActions";
-import { localInputValue, money, toUtcIso } from "./completionReviewRules";
+import { localInputValue, money, performedLocalText, withPerformedErrors } from "./completionReviewRules";
 import { when } from "./treatmentPlanRules";
 
 interface Props extends ChangeProps {
@@ -87,7 +87,7 @@ export function TreatmentPlanAdoptCompletion({ plan, onChanged, onConflict, onCl
 
   async function submit() {
     if (readiness === null) return;
-    const utc = toUtcIso(performed);
+    const utc = performedLocalText(performed);   // ALV-N021 A3: plain practice-local text (sent as performedAtLocal)
     const gaps: Record<string, string> = {};
     if (providerId === "") gaps.providerId = "Choose the provider who performed the care.";
     if (encounterId === "") gaps.encounterId = "Choose the encounter this care belongs to.";
@@ -101,12 +101,12 @@ export function TreatmentPlanAdoptCompletion({ plan, onChanged, onConflict, onCl
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
     setBusy(true);
     try {
-      const done = await adoptCompletion(plan.id, chosen.itemId, { idempotencyKey: attempt.current.key, rowVersion: readiness.rowVersion, encounterId, providerId, performedAtUtc: utc!, reason: reason.trim() });
+      const done = await adoptCompletion(plan.id, chosen.itemId, { idempotencyKey: attempt.current.key, rowVersion: readiness.rowVersion, encounterId, providerId, performedAtLocal: utc!, reason: reason.trim() });
       onChanged(done.plan, `${chosen.procedureCode} adopted${done.replayed ? " earlier; nothing new was recorded" : ""}: its provider, encounter and time are recorded, and it is on the chart and the ledger like any completion.`);
       onClose();
     } catch (err) {
       setBusy(false);
-      const fields = planFieldErrorsOf(err);
+      const fields = withPerformedErrors(planFieldErrorsOf(err));
       if (isConcurrencyConflict(err)) { setNote("Nothing was recorded: this plan changed since you opened this screen. Reload and look again."); onConflict(); }
       else if (Object.keys(fields).some((f) => FIELDS.includes(f))) { setErrors(Object.fromEntries(Object.entries(fields).filter(([f]) => FIELDS.includes(f)))); setNote("Nothing was recorded: check the fields marked below."); }
       else if (isNetworkFailure(err)) setNote("Nothing was recorded: the connection dropped. What you entered is still here; try again (the same request is safe to repeat).");

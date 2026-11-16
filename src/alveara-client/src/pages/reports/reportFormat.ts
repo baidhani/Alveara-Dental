@@ -1,13 +1,14 @@
 import type { ReportQuery } from "../../services/reportsApi";
+import { addDaysToDate, sessionToday } from "../../time/practiceTime";
 
-/** Dates are practice-local days written year-month-day. The hub uses the browser's own calendar for "today" and the presets; the server reads them in the practice's time zone. */
-const pad = (n: number) => String(n).padStart(2, "0");
-export const isoDate = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-export const today = () => isoDate(new Date());
+/**
+ * Dates are practice-local days written year-month-day. ALV-N021 A3: "today" and the presets come from the practice's today (the session zone), never
+ * the browser's calendar; the arithmetic on them is date-only. Without a practice zone they are empty and the server refuses the range.
+ */
+export const today = () => sessionToday() ?? "";
 
 export function addDays(iso: string, days: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  return isoDate(new Date(y, m - 1, d + days));
+  return iso === "" ? "" : addDaysToDate(iso, days);
 }
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -36,10 +37,10 @@ export const PRESETS: { label: string; range: () => { from: string; to: string }
   { label: "Last 30 days", range: () => ({ from: addDays(today(), -29), to: today() }) },
   { label: "This month", range: () => ({ from: `${today().slice(0, 8)}01`, to: today() }) },
   { label: "Last month", range: () => {
-      const now = new Date();
-      const first = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const last = new Date(now.getFullYear(), now.getMonth(), 0);
-      return { from: isoDate(first), to: isoDate(last) };
+      const t = today();
+      if (t === "") return { from: "", to: "" };
+      const last = addDaysToDate(`${t.slice(0, 8)}01`, -1);   // the day before the first of this month
+      return { from: `${last.slice(0, 8)}01`, to: last };
     } },
 ];
 

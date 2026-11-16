@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { afterEach } from "vitest";
-import { addDaysToDate, formatInstant, isUsableZone, practiceNow, practiceToday, setRenderZone, showInstant, toPracticeLocalInput } from "./practiceTime";
+import { addDaysToDate, formatInstant, isUsableZone, localInputText, practiceNow, practiceToday, sessionLocalInput, sessionToday, setRenderZone, showInstant, toPracticeLocalInput } from "./practiceTime";
+import { PRESETS, today as reportToday } from "../pages/reports/reportFormat";
 import { formatMoment } from "../pages/exports/exportFormat";
 
 // ALV-N021 A3 (briefing 4.1 and 6): the only client code that renders an instant in the practice zone. Every helper uses the zone it is given (never the
@@ -103,5 +104,34 @@ describe("formatMoment (reports, export history): rebuilt without the browser fa
     expect(plain(formatMoment(LATE_EVENING_IN_CHICAGO, CHICAGO))).toMatch(/Jan 14, 2030, 09:30 PM CST|Jan 14, 2030, 9:30 PM CST|Jan 14, 2030 at 09:30 PM CST/);
     expect(formatMoment(LATE_EVENING_IN_CHICAGO, null)).toBe("Time unavailable");
     expect(formatMoment(LATE_EVENING_IN_CHICAGO, "Not/AZone")).toBe("Time unavailable");
+  });
+});
+
+describe("plain local input text and the session's today (ALV-N021 A3, slice 5)", () => {
+  afterEach(() => setRenderZone(CHICAGO));
+  it("localInputText keeps only the exact form the server accepts, and never makes an instant", () => {
+    expect(localInputText("2030-01-14T09:30")).toBe("2030-01-14T09:30");
+    expect(localInputText(" 2030-01-14T09:30 ")).toBe("2030-01-14T09:30");
+    expect(localInputText("2030-01-14T09:30:15")).toBeNull();
+    expect(localInputText("2030-01-14T09:30:15", { seconds: true })).toBe("2030-01-14T09:30:15");
+    expect(localInputText("2030-01-14T09:30Z")).toBeNull();
+    expect(localInputText("")).toBeNull();
+  });
+  it("sessionLocalInput and sessionToday use the session zone, and are null without one", () => {
+    expect(sessionLocalInput(LATE_EVENING_IN_CHICAGO)).toBe("2030-01-14T21:30");
+    expect(sessionToday(new Date(LATE_EVENING_IN_CHICAGO))).toBe("2030-01-14");
+    setRenderZone(null);
+    expect(sessionLocalInput(LATE_EVENING_IN_CHICAGO)).toBeNull();
+    expect(sessionToday()).toBeNull();
+  });
+  it("report presets are built on the practice day by date-only arithmetic, and are empty without a zone", () => {
+    expect(reportToday()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const lastMonth = PRESETS.find((p) => p.label === "Last month")!.range();
+    expect(lastMonth.from.endsWith("-01")).toBe(true);
+    expect(addDaysToDate(lastMonth.to, 1).endsWith("-01")).toBe(true);   // the last day of last month
+    setRenderZone(null);
+    expect(reportToday()).toBe("");
+    expect(lastMonth.from).not.toBe("");
+    expect(PRESETS.find((p) => p.label === "Last month")!.range()).toEqual({ from: "", to: "" });
   });
 });

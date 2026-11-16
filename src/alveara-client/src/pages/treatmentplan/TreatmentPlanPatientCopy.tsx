@@ -2,6 +2,8 @@ import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";
 import type { PlanItem, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { groupItems, phaseTitle, phaseWhen } from "./treatmentPlanLayout";
 import { dayOf, formatFee } from "./treatmentPlanRules";
+import { sessionToday, TIME_UNAVAILABLE } from "../../time/practiceTime";
+import { formatDateOnly } from "../../components/dateOnly";
 
 interface Props {
   plan: TreatmentPlan;
@@ -38,7 +40,7 @@ function Row({ item }: { item: PlanItem }) {
 export function TreatmentPlanPatientCopy({ plan, patientName, onClose }: Props) {
   const live = { ...plan, items: plan.items.filter((i) => !i.isWithdrawn) };
   const groups = groupItems(live);
-  const today = new Date().toLocaleDateString();
+  const today = ((d) => (d === null ? TIME_UNAVAILABLE : formatDateOnly(d)))(sessionToday());   // ALV-N021 A3: the printed date is the practice day
   return (
     <section className="alv-tp__copy" aria-label={`Patient copy of ${plan.title}`}>
       <div className="alv-tp__copy-actions alv-tp__no-print">

@@ -1,4 +1,5 @@
 import type { CaseEvent, CaseKind, CaseStatus, PartyKind } from "../../services/externalCasesApi";
+import { sessionToday } from "../../time/practiceTime";
 
 /** ALV-009-C02: words for the screens. Statuses, kinds and dates are always said in words; colour and badges only add to them. */
 export const statusLabel = (status: CaseStatus | string): string => (status === "InProgress" ? "In progress" : status);
@@ -16,11 +17,9 @@ export function formatDay(day: string | null): string {
   return new Date(y, m - 1, d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
-/** Today's date on this machine as YYYY-MM-DD (the browser runs in the practice's time zone). */
+/** ALV-N021 A3: the practice's today as YYYY-MM-DD, from the session zone; empty without one (never the browser's day). */
 export function todayInput(): string {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  return sessionToday() ?? "";
 }
 
 /** The move needs a written note: a cancellation always, and a lab case sent back from Received for a remake. */

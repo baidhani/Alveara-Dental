@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { formatDateOnly, todayDateOnly } from "./dateOnly";
+import { formatDateOnly } from "./dateOnly";
+import { sessionToday, setRenderZone } from "../time/practiceTime";
 import { PrescriptionPrint } from "../pages/prescription/workflow/PrintPreview";
 import type { PrintContent } from "../services/prescriptionWorkflowApi";
 
@@ -40,20 +41,27 @@ describe("formatDateOnly", () => {
   });
 });
 
-describe("todayDateOnly (date-of-birth limit)", () => {
-  // 2026-11-14 01:30 UTC is still the 13th on a Chicago evening; 2026-11-13 20:30 UTC is already the 14th on a Kiritimati morning
-  it("is the viewer's own day on a Chicago evening, not the UTC day", () => {
-    process.env.TZ = "America/Chicago";
-    const instant = new Date("2026-11-14T01:30:00Z");
-    expect(todayDateOnly(instant)).toBe("2026-11-13");
-    expect(instant.toISOString().slice(0, 10)).toBe("2026-11-14"); // negative control: the old rule gave tomorrow
+describe("sessionToday (date-of-birth limit and every other 'today'), ALV-N021 A3", () => {
+  // the practice is in Chicago (the session zone); the BROWSER is put elsewhere: the practice day wins either way
+  it("is the practice's day when the browser is ahead of it (Kiritimati) on a Chicago evening", () => {
+    process.env.TZ = "Pacific/Kiritimati";
+    setRenderZone("America/Chicago");
+    const instant = new Date("2026-11-14T01:30:00Z");                    // the 13th in Chicago, the 14th in Kiritimati and in UTC
+    expect(sessionToday(instant)).toBe("2026-11-13");
+    expect(instant.getDate()).toBe(14);                                  // negative control: the browser's own day is the 14th
   });
 
-  it("is the viewer's own day on a morning east of UTC", () => {
-    process.env.TZ = "Pacific/Kiritimati";
-    const instant = new Date("2026-11-13T20:30:00Z");
-    expect(todayDateOnly(instant)).toBe("2026-11-14");
-    expect(instant.toISOString().slice(0, 10)).toBe("2026-11-13"); // negative control: the old rule gave yesterday
+  it("is the practice's day when the browser is behind it (Honolulu) on a Chicago morning", () => {
+    process.env.TZ = "Pacific/Honolulu";
+    setRenderZone("America/Chicago");
+    const instant = new Date("2026-11-14T08:30:00Z");                    // 02:30 on the 14th in Chicago, 22:30 on the 13th in Honolulu
+    expect(sessionToday(instant)).toBe("2026-11-14");
+    expect(instant.getDate()).toBe(13);
+  });
+
+  it("is null without a practice zone (never the browser's day)", () => {
+    setRenderZone(null);
+    expect(sessionToday(new Date("2026-11-14T08:30:00Z"))).toBeNull();
   });
 });
 

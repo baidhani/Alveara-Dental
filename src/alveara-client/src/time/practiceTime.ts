@@ -105,6 +105,22 @@ export function setRenderZone(zone: string | null): void {
 /** The zone the screens currently render in, or null. */
 export const getRenderZone = (): string | null => renderZone;
 
+/** The practice calendar day now in the session zone ("yyyy-MM-dd"), or null without one: every "today" default, preset and limit uses this. */
+export const sessionToday = (now: Date = new Date()): string | null => practiceToday(renderZone, now);
+
+/** The exact `datetime-local` value for an instant in the session zone (prefills only), or null without one. */
+export const sessionLocalInput = (utc: string | number | Date, options: { seconds?: boolean } = {}): string | null => toPracticeLocalInput(utc, renderZone, options);
+
+/**
+ * The plain practice-local text a `datetime-local` control holds, checked for the exact form the server accepts ("yyyy-MM-ddTHH:mm", and ":ss" when
+ * `seconds`), or null when it is empty or anything else. Never turned into an instant here: the server converts it (`...Local` fields).
+ */
+export function localInputText(value: string, options: { seconds?: boolean } = {}): string | null {
+  const v = value.trim();
+  const pattern = options.seconds ? /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/ : /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+  return pattern.test(v) ? v : null;
+}
+
 /** Readable text for an instant in the session's practice zone, or "Time unavailable": what every screen shows for a server instant. */
 export function showInstant(utc: string | number | Date, style: InstantStyle = "date-time"): string {
   return formatInstant(utc, renderZone, style) ?? TIME_UNAVAILABLE;

@@ -22,6 +22,7 @@ import { bookingDurationHint, durationAfterTypeChange } from "../calendar/bookin
 import { flowWord, statusWord } from "../calendar/calendarLayout";
 import { formFieldMessage } from "./scheduleMessages";
 import "./SchedulePage.css";
+import { sessionToday, addDaysToDate } from "../../time/practiceTime";
 
 type Load = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; options: SchedulingSnapshot };
 type Outcome =
@@ -31,10 +32,10 @@ type Outcome =
   | { kind: "unconfirmed" }
   | { kind: "error"; message: string };
 
+// ALV-N021 A3: the practice's tomorrow (date-only arithmetic on the practice day); empty without a practice zone
 const tomorrow = () => {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const today = sessionToday();
+  return today === null ? "" : addDaysToDate(today, 1);
 };
 
 /**

@@ -1,6 +1,6 @@
 /** Text helpers for the Documents tab. Display only: every rule is enforced by the server. */
 import { formatDateOnly } from "../../components/dateOnly";
-import { showInstant } from "../../time/practiceTime";
+import { sessionToday, showInstant } from "../../time/practiceTime";
 
 export function formatBytes(bytes: number): string {
   const trim = (n: number) => String(Math.round(n * 10) / 10);
@@ -14,10 +14,9 @@ export const formatDate = (isoDate: string): string => formatDateOnly(isoDate);
 
 export const formatDateTime = (iso: string) => showInstant(iso);
 
-/** Today's date in the viewer's own calendar, as the value a date box takes. */
+/** ALV-N021 A3: the practice's today, as the value a date box takes; empty without a practice zone (never the browser's day). */
 export function todayValue(now = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  return sessionToday(now) ?? "";
 }
 
 /** The types the server will let the browser show; everything else is offered as a download only. */

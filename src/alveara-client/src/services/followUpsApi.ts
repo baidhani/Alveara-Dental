@@ -48,7 +48,8 @@ export interface FollowUpPage { items: FollowUp[]; count: number; more: boolean 
 export interface FollowUpResult { task: FollowUp; replayed: boolean; recallTaskId: string | null }
 export interface Assignee { id: string; name: string; role: string }
 
-export interface FollowUpInput { title: string; note: string | null; dueAtUtc: string; assigneeUserId: string; recallIntervalDays: number | null }
+/** ALV-N021 A3: `dueAtLocal` is the plain practice-local text of the due time ("yyyy-MM-ddTHH:mm"); the server converts it in the practice zone. */
+export interface FollowUpInput { title: string; note: string | null; dueAtLocal: string; assigneeUserId: string; recallIntervalDays: number | null }
 
 export const newFollowUpKey = (): string => (crypto.randomUUID ? crypto.randomUUID() : `k-${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
