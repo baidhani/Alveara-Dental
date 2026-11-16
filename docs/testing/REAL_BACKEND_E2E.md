@@ -639,3 +639,17 @@ Saved evidence is in `docs/testing/bulk-import-walkthrough/` (18 screenshots, `b
 What running it found (all fixed, then the whole walkthrough was run again): a link with too little contrast on the dark theme (a unit test cannot see this), the singular "1 rows", and an upload form whose labels ran into their inputs.
 
 The removal of a stray file is exercised on a real disk: the runner sets `E2E_STORAGE_ROOT` to the API's storage folder for every walkthrough, and the sweep step places an old and a young unreferenced file in the `imports` folder, runs the sweep from the screen, and checks that only the old one is gone. The rules themselves are also proven by the backend tests (`ImportReportsRetryAndSweepTests`).
+
+## ALV-N021 A3: practice time in two browser zones
+
+`e2e/practice-time-zones-real-backend.spec.ts` checks that a browser's own time zone never changes what is shown or stored. One Chicago practice; two browser
+contexts, one in `America/Chicago` and one in `Asia/Tokyo` (15 hours ahead, so its calendar day usually differs). In both: the session carries
+`practiceTimeZoneId` = `America/Chicago`; a follow-up due time typed as 2030-01-14 09:30 is stored as 15:30 UTC and shown back as 1/14/2030, 9:30:00 AM; a
+report's "Last day" defaults to the practice's today. It uses the real clock (no injected clock).
+
+```powershell
+Set-Location -LiteralPath "C:\Users\firas\Documents\AI-Project-[Alveara-Dental]"
+.\scripts\Invoke-RealBackendWalkthrough.ps1 -Config playwright.practice-time.config.ts -OutputVariable PRACTICE_TIME_E2E_OUT
+```
+
+Evidence: `practice-time-evidence.json` (each browser's own day, the practice day, the stored instant) and four screenshots.
