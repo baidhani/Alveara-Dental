@@ -3008,3 +3008,9 @@
   - What changed: .alveara/handoffs/ALV-N021/A3-R01.md and A3-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, INVENTORY_COMPARISON, CHANGED_FILES, PARENT_REGRESSION, DEMO_EVIDENCE, NEXT_STORY_IMPACT, artifacts: two-zone walkthrough evidence and screenshots, focused-proof logs); EXECUTION_STATUS attempt A3-R01 AWAITING_REVIEW; BUILD_STATE; ledger rows and A3 section.
   - Verification: the focused runs recorded in A3-R01-evidence/TEST_RESULTS.md (implementation b8756f1).
   - Notes: documentation only. Nothing pushed.
+- [x] ALV-N021 A3-R01 review recorded (CHANGES_REQUIRED, CR-1 and CR-2)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A3-R01.md; EXECUTION_STATUS ALV-N021 and attempt A3 CHANGES_REQUIRED with CR-1 and CR-2 as blocking issues and the reviewed SHAs; BUILD_STATE line.
+  - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
+  - Notes: documentation only. Nothing pushed.
