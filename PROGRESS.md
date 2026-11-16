@@ -2918,3 +2918,9 @@
   - What changed: .alveara/handoffs/ALV-N021/A2-R02.md and A2-R02-evidence/ (TEST_RESULTS with R1-R3 and the honest note that the culture cases pass with the old line too, ACCEPTANCE_EVIDENCE for CR-1, CHANGED_FILES with the diff, short PARENT/DEMO/NEXT notes, focused-proof logs); EXECUTION_STATUS A2-R02 AWAITING_REVIEW (A2-R01 decision kept in priorDecisions, CR-1 moved to priorBlockingIssues); BUILD_STATE; ledger lines (R01 runs labelled pre-Stage-1 diagnostic evidence, R02 SHA).
   - Verification: the focused runs in A2-R02-evidence/TEST_RESULTS.md (implementation b7efad6).
   - Notes: documentation only; A2-R01 files untouched. Nothing pushed.
+- [x] ALV-N021 A2-R02 Stage 1 review recorded (STAGE 1 APPROVED, frozen focused Stage 2 contract)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N021/A2-R02.md; EXECUTION_STATUS ALV-N021 AWAITING_REGRESSION with the Stage 1 decision and the frozen command; BUILD_STATE line.
+  - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
+  - Notes: documentation only. Nothing pushed.
