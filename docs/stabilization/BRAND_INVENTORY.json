@@ -22,7 +22,7 @@
     },
     {
       "id": "theme-storage-key",
-      "file": "src/alveara-client/src/app/AppShell.tsx",
+      "file": "src/alveara-client/src/app/useAppTheme.ts",
       "literal": "\"alveara-theme\"",
       "reason": "localStorage key; renaming resets every user's theme"
     },

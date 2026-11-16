@@ -2864,3 +2864,9 @@
   - What changed: playwright.config.ts: shell.spec.ts and notification-contrast.spec.ts run in new projects desktop-dev/tablet-dev against `vite` on port 4174 (second webServer); all other specs stay on the production preview build; the real-backend ignore list is now a named constant repeated in each project (a project-level testIgnore replaces the top-level one). New e2e/production-build.spec.ts: the production build has no Component Showcase link and /showcase is "Page not found". shell.spec.ts layout test picks the tablet check by project name prefix ("tablet" or "tablet-dev").
   - Verification: mocked Playwright 165 passed, 29 skipped, 0 failed (126 s). Part 1 first stopped here with 14 failed (12 showcase, 2 catalog). My first config attempt replaced the real-backend ignore list (499 tests per project, 106 failed, stopped); one retry hit a 30 s webServer timeout left by the stopped run's processes (servers start in ~1 s by hand); then 1 failed on the project-name check, fixed.
   - Notes: shared test configuration, owner-approved 2026-11-16. Nothing pushed.
+- [x] Pre-A2 leftover: brand inventory points the theme storage key at its current file (found by the ALV-N021 A2 final evidence run)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: docs/stabilization/BRAND_INVENTORY.json entry theme-storage-key: file AppShell.tsx -> useAppTheme.ts. ALV-N020 (21b40fc, 2026-11-11) moved `"alveara-theme"` unchanged into useAppTheme.ts (THEME_KEY); the key value is the same, so no user's theme resets and no migration is needed.
+  - Verification: repo checks (node --test tests/*.test.mjs) 49/49 pass (was 48/49).
+  - Notes: not A2 work; separate commit, owner-approved 2026-11-16.
