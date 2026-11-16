@@ -1,3 +1,4 @@
+using Alveara.Api.Architecture.Time;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,12 @@ using Alveara.Api.Architecture.Treatment;
 namespace Alveara.Api.Controllers;
 
 /// <summary>A selected set of one plan's procedures to complete: the caller's key, the plan's version as last read, the encounter, the provider, when it was performed and which procedures.</summary>
-public record CompleteProceduresBody(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, List<Guid>? ItemIds);
+/// <summary>ALV-N021 A3: <c>PerformedAtLocal</c> is the practice-local time the screen sends; <c>PerformedAtUtc</c> is the legacy form, still accepted alone (D-2).</summary>
+public record CompleteProceduresBody(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, List<Guid>? ItemIds, string? PerformedAtLocal = null);
 
 /// <summary>ALV-008-C02: adopt ONE procedure completed the old way: the caller's key, the plan's version as last read, who performed it, where, when and why it is being recorded now. The procedure is named by the route.</summary>
-public record AdoptCompletionBody(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, string? Reason);
+/// <summary>ALV-N021 A3: as <see cref="CompleteProceduresBody"/>, <c>PerformedAtLocal</c> or the legacy <c>PerformedAtUtc</c>, never both.</summary>
+public record AdoptCompletionBody(string? IdempotencyKey, string? RowVersion, Guid? EncounterId, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, string? Reason, string? PerformedAtLocal = null);
 
 /// <summary>A correction to a completed procedure: the amendment last seen (0 if none), the caller's key, what to correct and why.</summary>
 public record AmendProcedureBody(string? IdempotencyKey, int? ExpectedAmendmentNumber, Guid? ProviderId, DateTimeOffset? PerformedAtUtc, Guid? EncounterId, string? Reason);
@@ -25,9 +28,17 @@ public record AmendProcedureBody(string? IdempotencyKey, int? ExpectedAmendmentN
 /// </summary>
 [ApiController]
 [Authorize]
-public class CompletionController(CompletedProcedureService completion) : ControllerBase
+public class CompletionController(CompletedProcedureService completion, IPracticeClock clock) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    /// <summary>ALV-N021 A3 (BR-2): the performed time a completion means (seconds allowed: "now" must never be earlier than something just recorded).</summary>
+    private DateTimeOffset? Performed(string? local, DateTimeOffset? legacyUtc)
+    {
+        var performed = PracticeLocalInput.Resolve(local, legacyUtc, "performedAtLocal", "performedAtUtc", allowSeconds: true, clock);
+        if (local is not null) PracticeLocalInput.MarkLocalUsed(HttpContext, "performedAtLocal", "performedAtUtc");
+        return performed;
+    }
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {
@@ -35,17 +46,21 @@ public class CompletionController(CompletedProcedureService completion) : Contro
         {
             return await action();
         }
+        catch (LocalTimeInputException ex)   // ALV-N021 A3 (BR-2): a refused practice-local time, with the field named
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors });
+        }
         catch (ItemsNotCompletableException ex)
         {
-            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors, items = ex.Items });
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = PracticeLocalInput.WithLocalAlias(ex.FieldErrors, HttpContext), items = ex.Items });
         }
         catch (AmbiguousChartFindingException ex)
         {
-            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors, items = ex.Items });
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = PracticeLocalInput.WithLocalAlias(ex.FieldErrors, HttpContext), items = ex.Items });
         }
         catch (TreatmentPlanException ex)
         {
-            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors });
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = PracticeLocalInput.WithLocalAlias(ex.FieldErrors, HttpContext) });
         }
         catch (ConcurrencyConflictException ex)
         {
@@ -57,7 +72,7 @@ public class CompletionController(CompletedProcedureService completion) : Contro
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> Complete(Guid planId, [FromBody] CompleteProceduresBody body, CancellationToken ct) =>
-        Run(async () => Ok(await completion.CompleteAsync(planId, new CompleteProceduresRequest(body.IdempotencyKey, body.RowVersion, body.EncounterId, body.ProviderId, body.PerformedAtUtc, body.ItemIds), Actor, ct)));
+        Run(async () => Ok(await completion.CompleteAsync(planId, new CompleteProceduresRequest(body.IdempotencyKey, body.RowVersion, body.EncounterId, body.ProviderId, Performed(body.PerformedAtLocal, body.PerformedAtUtc), body.ItemIds), Actor, ct)));
 
     /// <summary>
     /// ALV-008-C02: adopts one procedure that was completed the old, state-only way: records its provider, encounter, performed time and reason, the completed-procedure record, the chart effect and its one charge in
@@ -67,7 +82,7 @@ public class CompletionController(CompletedProcedureService completion) : Contro
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> Adopt(Guid planId, Guid itemId, [FromBody] AdoptCompletionBody body, CancellationToken ct) =>
-        Run(async () => Ok(await completion.AdoptAsync(planId, itemId, new AdoptCompletionRequest(body.IdempotencyKey, body.RowVersion, body.EncounterId, body.ProviderId, body.PerformedAtUtc, body.Reason), Actor, ct)));
+        Run(async () => Ok(await completion.AdoptAsync(planId, itemId, new AdoptCompletionRequest(body.IdempotencyKey, body.RowVersion, body.EncounterId, body.ProviderId, Performed(body.PerformedAtLocal, body.PerformedAtUtc), body.Reason), Actor, ct)));
 
     /// <summary>What completing the given procedures (or every open one) would do: which can be completed, the chart effect and the charge effect of each. Reads only.</summary>
     [HttpGet("api/treatment-plans/{planId:guid}/completion-readiness")]

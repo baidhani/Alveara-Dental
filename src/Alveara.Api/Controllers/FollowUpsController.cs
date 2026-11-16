@@ -1,3 +1,4 @@
+using Alveara.Api.Architecture.Time;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,15 +14,23 @@ namespace Alveara.Api.Controllers;
 /// </summary>
 [ApiController]
 [Authorize]
-public class FollowUpsController(FollowUpService service) : ControllerBase
+public class FollowUpsController(FollowUpService service, IPracticeClock clock) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    /// <summary>ALV-N021 A3 (BR-2): the due time a follow-up means (minutes only).</summary>
+    private DateTimeOffset? Due(string? local, DateTimeOffset? legacyUtc) =>
+        PracticeLocalInput.Resolve(local, legacyUtc, "dueAtLocal", "dueAtUtc", allowSeconds: false, clock);
 
     private async Task<IActionResult> Run(Func<Task<object>> action)
     {
         try
         {
             return Ok(await action());
+        }
+        catch (LocalTimeInputException ex)   // ALV-N021 A3 (BR-2): a refused practice-local time, with the field named
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors });
         }
         catch (FollowUpException ex)
         {
@@ -33,7 +42,7 @@ public class FollowUpsController(FollowUpService service) : ControllerBase
     [RequirePermission(Permission.ManageFollowUps)]
     [RequireCsrfToken]
     public Task<IActionResult> Create(Guid patientId, [FromBody] CreateFollowUpRequest request, [FromHeader(Name = "Idempotency-Key")] string? key, CancellationToken ct) =>
-        Run(async () => await service.CreateAsync(Actor, patientId, request, key, ct));
+        Run(async () => await service.CreateAsync(Actor, patientId, request with { DueAtUtc = Due(request.DueAtLocal, request.DueAtUtc), DueAtLocal = null }, key, ct));
 
     [HttpGet("api/patients/{patientId:guid}/follow-ups")]
     [RequirePermission(Permission.ViewFollowUps)]
@@ -60,7 +69,7 @@ public class FollowUpsController(FollowUpService service) : ControllerBase
     [RequirePermission(Permission.ManageFollowUps)]
     [RequireCsrfToken]
     public Task<IActionResult> Update(Guid id, [FromBody] UpdateFollowUpRequest request, CancellationToken ct) =>
-        Run(async () => await service.UpdateAsync(Actor, id, request, ct));
+        Run(async () => await service.UpdateAsync(Actor, id, request with { DueAtUtc = Due(request.DueAtLocal, request.DueAtUtc), DueAtLocal = null }, ct));
 
     [HttpPost("api/follow-ups/{id:guid}/complete")]
     [RequirePermission(Permission.ManageFollowUps)]

@@ -8,10 +8,12 @@ public sealed class FollowUpException(string code, string message, int statusCod
     public int StatusCode { get; } = statusCode;
 }
 
-public sealed record CreateFollowUpRequest(string? Title, string? Note, DateTimeOffset? DueAtUtc, Guid? AssigneeUserId, int? RecallIntervalDays);
+/// <summary>ALV-N021 A3: the screen sends <c>DueAtLocal</c> (practice-local text); <c>DueAtUtc</c> is the legacy form, still accepted alone (D-2). The controller resolves both into <c>DueAtUtc</c>.</summary>
+public sealed record CreateFollowUpRequest(string? Title, string? Note, DateTimeOffset? DueAtUtc, Guid? AssigneeUserId, int? RecallIntervalDays, string? DueAtLocal = null);
 
 /// <summary>An edit replaces the editable fields as a whole and carries the version the person saw.</summary>
-public sealed record UpdateFollowUpRequest(string? Title, string? Note, DateTimeOffset? DueAtUtc, Guid? AssigneeUserId, int? RecallIntervalDays, string? RowVersion);
+/// <summary>ALV-N021 A3: as <see cref="CreateFollowUpRequest"/>, <c>DueAtLocal</c> or the legacy <c>DueAtUtc</c>, never both.</summary>
+public sealed record UpdateFollowUpRequest(string? Title, string? Note, DateTimeOffset? DueAtUtc, Guid? AssigneeUserId, int? RecallIntervalDays, string? RowVersion, string? DueAtLocal = null);
 
 public sealed record CompleteFollowUpRequest(string? Note, string? RowVersion);
 

@@ -1,3 +1,4 @@
+using Alveara.Api.Architecture.Time;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,8 @@ public record SaveNoteRequest(string? Body, string? RowVersion);
 public record ApplyTemplateRequest(Guid TemplateId, string? RowVersion);
 public record RecordVitalsRequest(
     DateTimeOffset? MeasuredAtUtc, int? SystolicMmHg, int? DiastolicMmHg, int? PulseBpm, int? RespirationsPerMinute, decimal? TemperatureC,
-    int? OxygenSaturationPercent, decimal? WeightKg, decimal? HeightCm, string? Note, string? RowVersion)
+    int? OxygenSaturationPercent, decimal? WeightKg, decimal? HeightCm, string? Note, string? RowVersion,
+    string? MeasuredAtLocal = null)   // ALV-N021 A3: the practice-local time the screen sends; MeasuredAtUtc is the legacy form, still accepted alone (D-2)
 {
     public VitalsInput Input => new(MeasuredAtUtc, SystolicMmHg, DiastolicMmHg, PulseBpm, RespirationsPerMinute, TemperatureC, OxygenSaturationPercent, WeightKg, HeightCm, Note);
 }
@@ -32,7 +34,7 @@ public record NoteTemplateActiveRequest(bool Active, string? RowVersion);
 /// </summary>
 [ApiController]
 [Authorize]
-public class ClinicalNotesController(EncounterNoteService notes, EncounterVitalsService vitals, EncounterSigningService signing, NoteTemplateService templates, IEffectivePermissions permissions) : ControllerBase
+public class ClinicalNotesController(EncounterNoteService notes, EncounterVitalsService vitals, EncounterSigningService signing, NoteTemplateService templates, IEffectivePermissions permissions, IPracticeClock clock) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -42,9 +44,13 @@ public class ClinicalNotesController(EncounterNoteService notes, EncounterVitals
         {
             return await action();
         }
-        catch (ClinicalException ex)
+        catch (LocalTimeInputException ex)   // ALV-N021 A3 (BR-2): a refused practice-local time, with the field named
         {
             return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors });
+        }
+        catch (ClinicalException ex)
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = PracticeLocalInput.WithLocalAlias(ex.FieldErrors, HttpContext) });
         }
         catch (ConcurrencyConflictException ex)
         {
@@ -76,7 +82,10 @@ public class ClinicalNotesController(EncounterNoteService notes, EncounterVitals
     public Task<IActionResult> RecordVitals(Guid encounterId, [FromBody] RecordVitalsRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, CancellationToken ct) =>
         Run(async () =>
         {
-            var (detail, created) = await vitals.RecordAsync(encounterId, request.Input, idempotencyKey, request.RowVersion, Actor, ct);
+            // ALV-N021 A3 (BR-2): measuredAtLocal (minutes only) or the legacy measuredAtUtc, never both
+            var measured = PracticeLocalInput.Resolve(request.MeasuredAtLocal, request.MeasuredAtUtc, "measuredAtLocal", "measuredAtUtc", allowSeconds: false, clock);
+            if (request.MeasuredAtLocal is not null) PracticeLocalInput.MarkLocalUsed(HttpContext, "measuredAtLocal", "measuredAtUtc");
+            var (detail, created) = await vitals.RecordAsync(encounterId, (request with { MeasuredAtUtc = measured }).Input, idempotencyKey, request.RowVersion, Actor, ct);
             return created ? Created($"api/encounters/{encounterId}", detail) : Ok(detail);
         });
 
