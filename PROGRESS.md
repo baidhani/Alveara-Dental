@@ -2858,3 +2858,9 @@
   - What changed: the ledger has listed ALV-N020-C02 since 0fa4e2c (2026-11-12) but the catalog had no entry, so architecture-map.spec.ts failed (desktop + tablet); entry added: title "DentalKeep Login Layout Visual Polish" (execution plan 57b), subsystem "Platform & Release" (as its parent N020-C01).
   - Verification: mocked Playwright run 165 passed / 0 failed (architecture-map both projects green).
   - Notes: not A2 work; separate commit, owner-approved 2026-11-16.
+- [x] ALV-N021 A2 final evidence run fix: mocked Playwright serves the Component Showcase specs from the development server (consequence of F-064)
+  - Date: 2026-11-16
+  - Session: CC-20261115-m7x2
+  - What changed: playwright.config.ts: shell.spec.ts and notification-contrast.spec.ts run in new projects desktop-dev/tablet-dev against `vite` on port 4174 (second webServer); all other specs stay on the production preview build; the real-backend ignore list is now a named constant repeated in each project (a project-level testIgnore replaces the top-level one). New e2e/production-build.spec.ts: the production build has no Component Showcase link and /showcase is "Page not found". shell.spec.ts layout test picks the tablet check by project name prefix ("tablet" or "tablet-dev").
+  - Verification: mocked Playwright 165 passed, 29 skipped, 0 failed (126 s). Part 1 first stopped here with 14 failed (12 showcase, 2 catalog). My first config attempt replaced the real-backend ignore list (499 tests per project, 106 failed, stopped); one retry hit a 30 s webServer timeout left by the stopped run's processes (servers start in ~1 s by hand); then 1 failed on the project-name check, fixed.
+  - Notes: shared test configuration, owner-approved 2026-11-16. Nothing pushed.

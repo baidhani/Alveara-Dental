@@ -172,7 +172,7 @@ test.describe("Application shell — real browser walkthrough", () => {
     const viewport = page.viewportSize()!;
     expect(sidebarBox).not.toBeNull();
 
-    if (testInfo.project.name === "tablet") {
+    if (testInfo.project.name.startsWith("tablet")) {   // "tablet" or "tablet-dev" (ALV-N021 A2: the showcase specs run on the development server)
       // Collapsed to a top bar: sidebar spans (approximately) the full width.
       expect(sidebarBox!.width).toBeGreaterThan(viewport.width * 0.9);
     } else {
