@@ -3110,3 +3110,9 @@
   - What changed: .alveara/handoffs/ALV-N022/A2-R01.md and A2-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, DEMO_EVIDENCE, PARENT_REGRESSION, CHANGED_FILES, NEXT_STORY_IMPACT, artifacts: per-test backend list, verbose vitest output, walkthrough log/screens/json, control outputs); EXECUTION_STATUS ALV-N022 attempt A2-R01 AWAITING_REVIEW (A1 record kept COMPLETE); BUILD_STATE; ledger rows and A2 section.
   - Verification: the focused runs in A2-R01-evidence/TEST_RESULTS.md on implementation 6348276; EXECUTION_STATUS parses as JSON.
   - Notes: documentation only; no product commit after this package until the review closes. Nothing pushed since 2690d7a.
+- [x] ALV-N022 A2-R01 review recorded (CHANGES_REQUIRED, CR-1 finalization race)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged; EXECUTION_STATUS ALV-N022 and attempt A2 CHANGES_REQUIRED with CR-1 and the reviewed SHAs (A1 kept COMPLETE); BUILD_STATE line.
+  - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
+  - Notes: closure-only. Nothing pushed since 2690d7a.

@@ -626,3 +626,5 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 **2026-11-17 ALV-N022 A1 COMPLETE:** review `.alveara/reviews/ALV-N022/A1-R02.md` APPROVED attempt A1-R02 (implementation `38f478e`, evidence `69972a5`). ALV-N022 stays `IN_PROGRESS`: A2 may begin only under its separately approved scope/briefing; A3 not authorized. `fullRegression: DEFERRED_TO_ALV-N028`; not release-certified, not Gate F.
 
 **2026-11-17 ALV-N022 A2-R01 (Stage 1):** `AWAITING_REVIEW` (implementation `6348276`, handoff `.alveara/handoffs/ALV-N022/A2-R01.md`): a finalized encounter accepts no new diagnosis; completed-procedure attribution to Draft or Finalized unchanged and proven. Focused: 125/125, vitest 15/15, walkthrough 1/1, controls caught. Stage 2 contract to be defined by the reviewer. `fullRegression: DEFERRED_TO_ALV-N028`.
+
+**2026-11-17 ALV-N022 A2-R01 review:** `CHANGES_REQUIRED` (`.alveara/reviews/ALV-N022/A2-R01.md`): ordinary paths accepted; CR-1 - the finalize/diagnosis race needs a database-enforced guard. A2-R02 follows. Stage 2 not defined yet.
