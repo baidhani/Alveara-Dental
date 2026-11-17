@@ -139,8 +139,28 @@ test("ONE RECORD: an encounter writes the allergy to the chart, the one banner r
 
   const items = await chartAllergies();
   expect(items.map((i) => [i.name, i.status])).toEqual([["Penicillin", "Active"]]); // still ONE record
-  const enc = (await api(page, "get", page.url().replace(/^.*\/clinical\//, "/api/encounters/"))).body;
+  const encounterUrl = page.url().replace(/^.*\/clinical\//, "/api/encounters/");
+
+  // 5. the Safety tab shows the same chart, reached in-app from the banner (no reload)
+  // the refused add left its form open with the typed text, so leaving first asks to discard it; dismissing keeps the user (and the text) on the encounter
+  const prompts: string[] = [];
+  page.once("dialog", (d) => { prompts.push(d.type()); void d.dismiss(); });
+  await banner(page).getByRole("link", { name: "Open safety details" }).click();
+  await expect.poll(() => prompts).toEqual(["confirm"]);
+  await expect(page).toHaveURL(/\/clinical\//);
+  page.once("dialog", (d) => void d.accept());                                      // if closing the form asks to discard the text, the user agrees
+  await allergies(page).getByRole("button", { name: "Cancel" }).click();          // the user closes the form
+  await expect(allergies(page).getByLabel("Name")).toHaveCount(0);
+  const loads: string[] = [];
+  page.on("load", () => loads.push(page.url()));
+  await banner(page).getByRole("link", { name: "Open safety details" }).click();
+  await expect(page).toHaveURL(new RegExp(`/patients/${annId}/safety`));
+  await expect(page.getByRole("main").getByText("Penicillin").first()).toBeVisible();
+  expect(loads).toEqual([]); // client-side navigation: no page load happened
+  await shot(page, "03-safety-tab.png");
+
+  const enc = (await api(page, "get", encounterUrl)).body;
   const here = enc.sections.find((s: any) => s.kind === "Allergy").recordedHere.map((p: any) => p.changeType);
   expect(here).toEqual(["Added", "StatusChanged", "StatusChanged"]);
-  evidence.oneRecord = { records: items.length, provenance: here, cancelChangedNothing: true, nothingPreselected: true, bannerRefreshedWithoutReload: true };
+  evidence.oneRecord = { records: items.length, provenance: here, cancelChangedNothing: true, nothingPreselected: true, bannerRefreshedWithoutReload: true, safetyTabShowsItWithoutReload: true, leavingWithTypedTextAsksFirst: true };
 });

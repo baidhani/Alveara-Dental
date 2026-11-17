@@ -161,7 +161,51 @@ public class EncounterChartRoutingTests : IAsyncLifetime
         Assert.Equal(1, (await GetAsync(e.Id)).History.Count(h => h.EventType == EncounterEventTypes.EntryAdded));
     }
 
+    [Fact]
+    public async Task Two_simultaneous_chart_adds_of_one_allergy_with_different_values_leave_one_record_and_the_loser_is_pointed_to_it()
+    {
+        var outcomes = await Task.WhenAll(new[] { "Hives", "Rash" }.Select(reaction => Task.Run(async () =>
+        {
+            try { await AddOnChartAsync(EncounterEntryKinds.Allergy, "Penicillin", reaction: reaction); return (ExistingItemRef?)null; }
+            catch (ClinicalException ex) when (ex.Code == "duplicate_item") { return ex.Existing; }
+        })));
+        await using var db = _fixture.CreateContext();
+        var record = Assert.Single(await db.ClinicalRecordItems.AsNoTracking().ToListAsync());
+        var loser = Assert.Single(outcomes, o => o is not null);                 // exactly one was refused...
+        Assert.Equal(new ExistingItemRef(record.Id, EncounterEntryKinds.Allergy, ClinicalItemStatuses.Active), loser); // ...and pointed to the winner
+    }
+
+    // ---------- category boundary (BR-4): the allergy rule is not applied to medications or medical history ----------
+
+    [Fact]
+    public async Task Inner_spaces_make_two_allergies_one_name_but_leave_medications_and_history_as_typed()
+    {
+        var e = await AddAsync(await StartAsync(), EncounterEntryKinds.Allergy, "Peanut  Oil");
+        Assert.Equal("duplicate_item", (await RefusedAsync(() => AddAsync(e, EncounterEntryKinds.Allergy, "Peanut Oil", reaction: "Hives"))).Code);
+
+        e = await AddAsync(e, EncounterEntryKinds.Medication, "Vitamin  D");
+        e = await AddAsync(e, EncounterEntryKinds.Medication, "Vitamin D");
+        Assert.Equal(new[] { "Vitamin  D", "Vitamin D" }, Chart(e, EncounterEntryKinds.Medication).Select(i => i.Name).Order());
+        e = await AddAsync(e, EncounterEntryKinds.MedicalHistory, "Type  2 diabetes");
+        e = await AddAsync(e, EncounterEntryKinds.MedicalHistory, "Type 2 diabetes");
+        Assert.Equal(2, Chart(e, EncounterEntryKinds.MedicalHistory).Count);
+    }
+
     // ---------- medications and medical history already on the chart (S-1 option A) ----------
+
+    [Fact]
+    public async Task A_medication_already_on_the_chart_is_updated_from_the_encounter_with_a_new_version_recorded_here()
+    {
+        var v = await ChartAsync(s => s.AddItemAsync(_ann, EncounterEntryKinds.Medication, new EntryFields("Lisinopril", null, null, null, "10 mg", null), null, null, _s.Actor, default));
+        var item = v.Sections.Single(s => s.Kind == EncounterEntryKinds.Medication).Items.Single();
+        var e = await StartAsync();
+        var updated = await RunAsync(s => s.UpdateEntryAsync(e.Id, item.Id, new EntryFields("Lisinopril", null, null, null, "20 mg", null), e.RowVersion, _s.Actor, default, item.RowVersion));
+        Assert.Equal("20 mg", Assert.Single(Chart(updated, EncounterEntryKinds.Medication)).Dose);
+        var recorded = Assert.Single(Sec(updated, EncounterEntryKinds.Medication).RecordedHere!);
+        Assert.Equal((ClinicalChangeTypes.Changed, 2), (recorded.ChangeType, recorded.VersionNumber));
+        Assert.Equal(SectionStatuses.Recorded, Sec(updated, EncounterEntryKinds.Medication).Status);
+        Assert.Equal(1, await _s.CountAsync(db => db.ClinicalRecordItems));
+    }
 
     [Fact]
     public async Task A_medication_already_on_the_chart_is_confirmed_current_or_updated_never_added_twice()
@@ -238,6 +282,40 @@ public class EncounterChartRoutingTests : IAsyncLifetime
         Assert.Equal(SectionStatuses.NoneReported, allergy.Status);       // the mark is kept...
         Assert.Equal("Penicillin", Assert.Single(allergy.ChartItems!).Name); // ...and so is the active item
         Assert.Equal(1, await _s.CountAsync(db => db.EncounterSectionMarks));
+    }
+
+    [Fact]
+    public async Task This_encounters_none_reported_is_flagged_when_an_active_item_is_added_on_the_chart_later_and_both_are_kept()
+    {
+        var enc = await StartAsync();
+        enc = await RunAsync(s => s.MarkSectionNoneReportedAsync(enc.Id, EncounterEntryKinds.Allergy, enc.RowVersion, _s.Actor, default));
+        Assert.Null(Sec(enc, EncounterEntryKinds.Allergy).Contradiction);                // true when said
+
+        await AddOnChartAsync(EncounterEntryKinds.Allergy, "Penicillin");               // added later, outside the encounter
+        var after = await GetAsync(enc.Id);
+        var section = Sec(after, EncounterEntryKinds.Allergy);
+        Assert.Equal("Contradiction: marked none reported, and 1 active item is listed on the chart now. Both records are kept.", section.Contradiction);
+        Assert.Equal((SectionStatuses.NoneReported, ClinicalReviewStates.NoneKnown), (section.Status, section.ReviewedHere)); // the statement is kept...
+        Assert.Equal("Penicillin", Assert.Single(section.ChartItems!).Name);                                                   // ...and so is the item
+    }
+
+    [Fact]
+    public async Task A_chart_none_known_standing_beside_an_active_item_is_flagged_and_no_flag_is_shown_without_a_none_statement()
+    {
+        await AddOnChartAsync(EncounterEntryKinds.Allergy, "Latex");
+        var e = await StartAsync();
+        Assert.Null(Sec(e, EncounterEntryKinds.Allergy).Contradiction);                  // an active item alone is no contradiction
+
+        // older data: a chart "none known" left standing beside an active item (no longer possible through the app, OD-04)
+        await using (var db = _fixture.CreateContext())
+        {
+            db.ClinicalSectionReviews.Add(new ClinicalSectionReview { Id = Guid.NewGuid(), PatientId = _ann, Section = EncounterEntryKinds.Allergy, State = ClinicalReviewStates.NoneKnown, ReviewedAtUtc = DateTimeOffset.UtcNow, ReviewedByUserId = _s.Actor });
+            await db.SaveChangesAsync();
+        }
+        var flagged = Sec(await GetAsync(e.Id), EncounterEntryKinds.Allergy);
+        Assert.StartsWith("Contradiction: marked none reported while 1 active item was listed", flagged.Contradiction);
+        Assert.Equal(1, await _s.CountAsync(db => db.ClinicalSectionReviews));         // nothing erased
+        Assert.Equal("Latex", Assert.Single(flagged.ChartItems!).Name);
     }
 
     // ---------- provenance of a finalized encounter ----------

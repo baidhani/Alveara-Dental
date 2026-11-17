@@ -11,7 +11,8 @@ namespace Alveara.Api.Architecture.Clinical;
 ///   finalized encounter shows never changes when the chart changes later.
 /// - What it recorded before the change: its own legacy entries and "none reported" mark, kept and shown read-only.
 /// - A section is addressed when this encounter changed it on the chart, made a statement about it (that was not withdrawn here), or holds legacy entries or a legacy mark.
-/// - Contradiction (computed, never stored): a legacy "none reported" mark made while the chart listed an active item of that kind.
+/// - Contradiction (brief 4.2; computed, never stored): a legacy "none reported" mark, this encounter's "none known", or the chart's "none known", for a section that had
+///   an active item when it was said or has one now.
 /// </summary>
 internal sealed class EncounterChartSections(AlveraDbContext db)
 {
@@ -20,7 +21,7 @@ internal sealed class EncounterChartSections(AlveraDbContext db)
 
     public sealed record Inputs(
         IReadOnlyList<ClinicalRecordItem> LiveItems, IReadOnlyList<ClinicalRecordItemVersion> VersionsHere, IReadOnlyList<ClinicalRecordEvent> StatementsHere,
-        IReadOnlyList<ClinicalRecordItemVersion> KindHistory);
+        IReadOnlyList<ClinicalRecordItemVersion> KindHistory, IReadOnlyList<ClinicalSectionReview> ChartReviews);
 
     public async Task<Inputs> LoadAsync(Guid encounterId, Guid patientId, CancellationToken ct)
     {
@@ -30,7 +31,8 @@ internal sealed class EncounterChartSections(AlveraDbContext db)
             .OrderBy(e => e.OccurredAtUtc).ThenBy(e => e.Id).ToListAsync(ct);
         // the whole version history of the patient's items is needed only to judge a legacy mark; it is small (one row per change)
         var history = await db.ClinicalRecordItemVersions.AsNoTracking().Where(v => v.PatientId == patientId).ToListAsync(ct);
-        return new Inputs(live, here, statements, history);
+        var reviews = await db.ClinicalSectionReviews.AsNoTracking().Where(r => r.PatientId == patientId).ToListAsync(ct);
+        return new Inputs(live, here, statements, history, reviews);
     }
 
     public static SectionView Build(string kind, Inputs data, IReadOnlyList<EntryView> legacyEntries, EncounterSectionMark? legacyMark, IReadOnlyDictionary<Guid, string> names)
@@ -41,9 +43,16 @@ internal sealed class EncounterChartSections(AlveraDbContext db)
         var statements = data.StatementsHere.Where(e => e.Section == kind).ToList();
         var statement = LastStatement(statements);
         var status = Status(legacyEntries.Count > 0, legacyMark is not null, here.Count > 0, statement);
-        var contradiction = legacyMark is null ? null : ContradictionFor(kind, legacyMark.MarkedAtUtc, data.KindHistory);
         // who and when: a legacy mark keeps its own; otherwise the statement made here (null when none stands)
         var stated = statement is null ? null : statements[^1];
+        // brief 4.2: every "none reported / none known" said about this section - the legacy mark, this encounter's standing statement, the chart's current statement
+        var noneSaidAt = new List<DateTimeOffset>();
+        if (legacyMark is not null) noneSaidAt.Add(legacyMark.MarkedAtUtc);
+        if (statement == ClinicalReviewStates.NoneKnown) noneSaidAt.Add(stated!.OccurredAtUtc);
+        var chartReview = data.ChartReviews.SingleOrDefault(r => r.Section == kind);
+        if (chartReview?.State == ClinicalReviewStates.NoneKnown) noneSaidAt.Add(chartReview.ReviewedAtUtc);
+        var activeNow = data.LiveItems.Count(i => i.Kind == kind && i.Status == ClinicalItemStatuses.Active);
+        var contradiction = ContradictionFor(kind, noneSaidAt, data.KindHistory, activeNow);
         return new SectionView(kind, status, legacyEntries, legacyMark?.MarkedAtUtc ?? stated?.OccurredAtUtc, legacyMark?.MarkedByUserId ?? stated?.ActorUserId,
             SectionSources.Chart, chart, here, statement, contradiction);
     }
@@ -66,13 +75,22 @@ internal sealed class EncounterChartSections(AlveraDbContext db)
         return ClinicalReviewPhrases.StateOf(last.Detail) ?? ClinicalReviewStates.Reviewed;
     }
 
-    /// <summary>How many items of the kind were active on the chart at the moment of a legacy "none reported" mark, read from the append-only version history.</summary>
-    internal static string? ContradictionFor(string kind, DateTimeOffset markedAtUtc, IReadOnlyList<ClinicalRecordItemVersion> history)
+    /// <summary>
+    /// Brief 4.2: a "none reported / none known" statement contradicts the chart when the section had an active item at the moment it was said (read from the append-only
+    /// version history) or has one now. Computed on every read, never stored; both records are kept and shown.
+    /// </summary>
+    internal static string? ContradictionFor(string kind, IReadOnlyList<DateTimeOffset> noneSaidAt, IReadOnlyList<ClinicalRecordItemVersion> history, int activeNow)
     {
-        var active = history.Where(v => v.Kind == kind && v.OccurredAtUtc <= markedAtUtc).GroupBy(v => v.ItemId)
+        if (noneSaidAt.Count == 0) return null;
+        var activeThen = noneSaidAt.Max(at => ActiveAt(kind, at, history));
+        if (activeThen > 0)
+            return $"Contradiction: marked none reported while {activeThen} active item{(activeThen == 1 ? " was" : "s were")} listed on the chart. Both records are kept.";
+        return activeNow == 0 ? null
+            : $"Contradiction: marked none reported, and {activeNow} active item{(activeNow == 1 ? " is" : "s are")} listed on the chart now. Both records are kept.";
+    }
+
+    private static int ActiveAt(string kind, DateTimeOffset at, IReadOnlyList<ClinicalRecordItemVersion> history) =>
+        history.Where(v => v.Kind == kind && v.OccurredAtUtc <= at).GroupBy(v => v.ItemId)
             .Select(g => g.OrderBy(v => v.VersionNumber).Last())
             .Count(v => v.Status == ClinicalItemStatuses.Active && v.ChangeType != ClinicalChangeTypes.RemovedInError);
-        return active == 0 ? null
-            : $"Contradiction: marked none reported while {active} active item{(active == 1 ? " was" : "s were")} listed on the chart. Both records are kept.";
-    }
 }
