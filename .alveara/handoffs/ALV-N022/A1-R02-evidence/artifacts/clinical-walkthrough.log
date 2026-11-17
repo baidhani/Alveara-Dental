@@ -1,0 +1,35 @@
+Database AlveraWalk_playwright_clinical_config_c3d9a4db created in C:\.alvera-data\Test-Data\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:19.89
+Done.
+API healthy on http://localhost:5072; running playwright.clinical.config.ts ...
+powershell : [WebServer] (node:87228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:12 char:1
++ powershell -NoProfile -ExecutionPolicy Bypass -Command $cmd *> "$out\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:102124) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\clinical-real-backend.spec.ts:120:1 › ACCESS: the clinical team sees the Clinical tab; front desk, billing and the practice manager do not and cannot read it; an assistant reads but cannot write (2.9s)
+  ok 2 [chromium] › e2e\clinical-real-backend.spec.ts:148:1 › ACCEPTANCE 1: a dentist documents an encounter - medical and dental history, an allergy and a medication - each saved as it is made (6.7s)
+  ok 3 [chromium] › e2e\clinical-real-backend.spec.ts:187:1 › INCOMPLETE DOCUMENTATION: a note with sections still not addressed cannot be finalized; 'reviewed - none reported' completes it without inventing an entry (3.7s)
+  ok 4 [chromium] › e2e\clinical-real-backend.spec.ts:223:1 › ACCEPTANCE 2: a finalized encounter cannot be changed, and an addendum is added beside the untouched original (2.7s)
+  ok 5 [chromium] › e2e\clinical-real-backend.spec.ts:260:1 › DATA LOSS: a response lost after the server stored an addendum keeps the typed text and a retry cannot add it twice (645ms)
+  ok 6 [chromium] › e2e\clinical-real-backend.spec.ts:286:1 › CONCURRENCY: a second clinician's stale screen is refused with the conflict banner; what they typed survives the reload and then saves (4.1s)
+  ok 7 [chromium] › e2e\clinical-real-backend.spec.ts:319:1 › KEYBOARD: an allergy can be recorded without a mouse (837ms)
+  ok 8 [chromium] › e2e\clinical-real-backend.spec.ts:331:1 › SCOPE: another patient's list never shows this patient's encounters, and an encounter opened under the wrong patient is not found (3.6s)
+  ok 9 [chromium] › e2e\clinical-real-backend.spec.ts:348:1 › TRUST: every change is in the audit log with the user and a time, and no clinical content is in it (44ms)
+
+  9 passed (34.9s)
+Database AlveraWalk_playwright_clinical_config_c3d9a4db dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\a1r02\clinical

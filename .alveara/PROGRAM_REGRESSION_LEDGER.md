@@ -104,5 +104,6 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 
 - **Implementation SHA (A1-R01):** `6414ffa` (base `3ab3c4e`). Changed subsystems: encounter write path for allergy/medication/medical history (routed to the clinical-record service), encounter read model (chart-backed sections, provenance, contradictions), clinical-record duplicate and none-known rules, two new encounter routes, the encounter screen, the safety banner refresh, a repository guard, a new real-backend spec.
 - **Focused proof (A1-R01):** `.alveara/handoffs/ALV-N022/A1-R01-evidence/TEST_RESULTS.md`.
+- **Implementation SHA (A1-R02):** `38f478e` (review A1-R01 CR-1 only: FinalizeReview chart-backed count). Focused proof: `.alveara/handoffs/ALV-N022/A1-R02-evidence/TEST_RESULTS.md`.
 - **Deferred to ALV-N028:** the ALV-N022 rows in the table above, plus every earlier row (unchanged).
 - **Not release-certified.**

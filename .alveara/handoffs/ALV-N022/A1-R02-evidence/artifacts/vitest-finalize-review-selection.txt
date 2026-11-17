@@ -1,0 +1,24 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ✓ src/services/safetyApi.withSafetyNotice.test.ts > withSafetyNotice > announces the patient once the write is saved and returns the server's answer 11ms
+ ✓ src/services/safetyApi.withSafetyNotice.test.ts > withSafetyNotice > announces nothing when the write is refused, and passes the refusal on 1ms
+ ✓ src/services/safetyApi.withSafetyNotice.test.ts > withSafetyNotice > does not announce before the write settles 0ms
+ ✓ src/pages/clinical/FinalizeReview.test.tsx > FinalizeReview counts > counts a chart-backed section's items on the chart 25ms
+ ✓ src/pages/clinical/FinalizeReview.test.tsx > FinalizeReview counts > includes entries the encounter recorded before the chart became the one record 2ms
+ ✓ src/pages/clinical/FinalizeReview.test.tsx > FinalizeReview counts > shows no count for a confirmed chart section with nothing listed, and dental history keeps its own count 2ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > lists the chart's items and, for a resolved match, offers reactivation with no status chosen until the user picks one 221ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > for an active match offers to update the existing item 13ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > cancel closes the notice and changes nothing 50ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > for a medication already listed also offers to confirm the list is current 46ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > offers Remove only for an item added in this encounter 21ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > offers 'none reported' only while no item is active 8ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > offers 'none reported' when the only items are resolved 9ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > shows a stored contradiction and keeps both records on screen 6ms
+ ✓ src/pages/clinical/ChartSectionPanel.test.tsx > ChartSectionPanel > is read-only when the encounter cannot be edited 3ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  08:46:14
+   Duration  1.62s (environment 62%, setup 17%, tests 11%, transform 6%, import 3%, worker 1%)
+
