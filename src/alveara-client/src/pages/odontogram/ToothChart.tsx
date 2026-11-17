@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from "react";
 import type { Finding } from "../../services/odontogramApi";
-import { headlineState, plural, stateClass } from "./odontogramText";
+import { headlineState, isDrawnAbsent, plural, stateClass } from "./odontogramText";
 import { archesFor } from "./dentition";
 import type { DentitionView } from "./dentition";
 import { displayTooth, toothName } from "./toothNumbering";
@@ -12,23 +12,29 @@ interface Props {
   numbering: NumberingSystem;
   selected: string | null;
   onSelect: (toothKey: string) => void;
+  /** ALV-N022 A3 (F-091): the condition codes whose tooth effect is Absent (from the condition catalogue). */
+  absentConditions?: ReadonlySet<string>;
 }
 
-function Tooth({ toothKey, findings, numbering, selected, onSelect }: { toothKey: string; findings: Finding[]; numbering: NumberingSystem; selected: boolean; onSelect: (k: string) => void }) {
+
+const NO_CODES: ReadonlySet<string> = new Set();
+
+function Tooth({ toothKey, findings, numbering, selected, onSelect, absent }: { toothKey: string; findings: Finding[]; numbering: NumberingSystem; selected: boolean; onSelect: (k: string) => void; absent: boolean }) {
   const state = headlineState(findings);
   const label = displayTooth(toothKey, numbering);
-  const summary = findings.length === 0 ? "nothing recorded" : `${plural(findings.length, "finding", "findings")}, ${state}`;
+  const summary = `${findings.length === 0 ? "nothing recorded" : `${plural(findings.length, "finding", "findings")}, ${state}`}${absent ? ", not present" : ""}`;
   return (
     <li>
       <button
         type="button"
         data-tooth={toothKey}
-        className={`alv-odonto__tooth ${state ? stateClass(state) : "alv-odonto__state--none"}${selected ? " alv-odonto__tooth--selected" : ""}`}
+        className={`alv-odonto__tooth ${state ? stateClass(state) : "alv-odonto__state--none"}${selected ? " alv-odonto__tooth--selected" : ""}${absent ? " alv-odonto__tooth--absent" : ""}`}
         aria-pressed={selected}
         aria-label={`Tooth ${label}, ${toothName(toothKey)}: ${summary}`}
         onClick={() => onSelect(toothKey)}
       >
         <span className="alv-odonto__tooth-number">{label}</span>
+        {absent && <span className="alv-odonto__tooth-absent" aria-hidden="true" data-absent-mark>✕</span>}
         <span className="alv-odonto__tooth-state" aria-hidden="true">{findings.length === 0 ? "—" : `${state}${findings.length > 1 ? ` +${findings.length - 1}` : ""}`}</span>
       </button>
     </li>
@@ -69,14 +75,14 @@ const centre = (el: HTMLElement) => el.getBoundingClientRect().left + el.getBoun
  * number on it is whatever the numbering system says, and its state is written as a word under the number (the border style says the same, but never alone). Selecting a tooth opens its
  * details.
  */
-export function ToothChart({ view, byTooth, numbering, selected, onSelect }: Props) {
+export function ToothChart({ view, byTooth, numbering, selected, onSelect, absentConditions = NO_CODES }: Props) {
   return (
     <div className="alv-odonto__chart" onKeyDown={moveFocus}>
       <p className="alv-odonto__side"><span>Patient's right</span><span>Patient's left</span></p>
       {archesFor(view).map((arch) => (
         <div key={arch.title} role="group" aria-label={arch.title}>
           <ul className={`alv-odonto__arch${arch.primary ? " alv-odonto__arch--primary" : ""}`}>
-            {arch.keys.map((k) => <Tooth key={k} toothKey={k} findings={byTooth.get(k) ?? []} numbering={numbering} selected={selected === k} onSelect={onSelect} />)}
+            {arch.keys.map((k) => <Tooth key={k} toothKey={k} findings={byTooth.get(k) ?? []} numbering={numbering} selected={selected === k} onSelect={onSelect} absent={isDrawnAbsent(byTooth.get(k) ?? [], absentConditions)} />)}
           </ul>
         </div>
       ))}

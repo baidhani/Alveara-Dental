@@ -73,6 +73,9 @@ export function DiagnosisItem({ diagnosis: d, encounters, numbering, canWrite, o
         {d.status === "Resolved" && <span className="alv-dx__badge"> Resolved</span>}
       </p>
       <DiagnosisChips diagnosis={d} numbering={numbering} />
+      {(d.linkedFromPerioCharts?.length ?? 0) > 0 && (
+        <p className="alv-clinical__meta">Periodontal charts linked to this diagnosis: {d.linkedFromPerioCharts!.map((c) => `chart of ${showInstant(c.recordedAtUtc)} (linked by ${c.linkedByName ?? "a staff member"})`).join("; ")}.</p>
+      )}{/* ALV-N022 A3 (Q-5aa) */}
       <p className="alv-clinical__meta">
         Encounter of {when(d.encounterAtUtc)}{encounter ? ` (${encounter.status.toLowerCase()})` : ""} · recorded by {d.recordedByName ?? "a staff member"}, {when(d.recordedAtUtc)}
         {d.updatedAtUtc ? ` · last changed by ${d.updatedByName ?? "a staff member"}, ${when(d.updatedAtUtc)}` : ""}
@@ -111,7 +114,7 @@ export function DiagnosisItem({ diagnosis: d, encounters, numbering, canWrite, o
         <DiagnosisReasonForm title="Make this diagnosis active again" hint="This diagnosis was marked resolved. Making it active again records that the condition is present."
           question="Why is this diagnosis active again?" button="Make active again" past="reactivated" act={(r) => reactivateDiagnosis(d, r)} onDone={(s) => done(s, "Diagnosis made active again.")} onConflict={onConflict} onCancel={() => setMode("none")} />
       )}
-      {mode === "history" && <DiagnosisHistory id={d.id} />}
+      {mode === "history" && <DiagnosisHistory id={d.id} numbering={numbering} />}
     </li>
   );
 }

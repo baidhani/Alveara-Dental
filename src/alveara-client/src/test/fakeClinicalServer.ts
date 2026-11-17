@@ -145,7 +145,8 @@ export class FakeClinicalServer extends FakePatientServer {
 
   protected override async handleExtra(path: string, method: string, headers: Record<string, string>, body: Record<string, unknown> | null, u: URL): Promise<Response | null> {
     const isRecord = /^\/api\/(clinical-record|clinical\/templates)/.test(path) || /^\/api\/patients\/[^/]+\/clinical-record/.test(path);
-    const isSafety = /^\/api\/safety\//.test(path) || /^\/api\/patients\/[^/]+\/safety/.test(path);
+    // ALV-N022 A3: the clearance's document picker reads the patient's library (GET .../documents), answered by the safety fake
+    const isSafety = /^\/api\/safety\//.test(path) || /^\/api\/patients\/[^/]+\/safety/.test(path) || (method === "GET" && /^\/api\/patients\/[^/]+\/documents$/.test(path));
     const isOdontogram = /^\/api\/odontogram\//.test(path) || /^\/api\/patients\/[^/]+\/odontogram/.test(path);
     const isPerio = /^\/api\/patients\/[^/]+\/periodontal/.test(path) || /^\/api\/periodontal\//.test(path);
     const isDiagnosis = /^\/api\/patients\/[^/]+\/diagnoses/.test(path) || /^\/api\/diagnoses\//.test(path);

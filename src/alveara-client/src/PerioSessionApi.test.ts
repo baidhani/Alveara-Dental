@@ -107,10 +107,10 @@ describe("finalizing, abandoning and linking", () => {
 
   it("a finalized chart can be linked once per type and reference, and the link reads back with the chart", async () => {
     const chart = await finalizePerioSession(await savePerioEntries(await startPerioSession(A), { readings: [site("16", "B", 3)] }));
-    await linkPerioChart(chart.id, "Diagnosis", "dx-1");
-    const again = await linkPerioChart(chart.id, "Diagnosis", " dx-1 ");
+    await linkPerioChart(chart.id, "Encounter", "enc-1");                 // ALV-N022 A3: a diagnosis link now names a diagnosis by id (server tests); this checks the request shape
+    const again = await linkPerioChart(chart.id, "Encounter", " enc-1 ");
     expect(again.links).toHaveLength(1);
-    expect((await getPerioChart(chart.id)).links?.[0]).toMatchObject({ linkType: "Diagnosis", reference: "dx-1" });
+    expect((await getPerioChart(chart.id)).links?.[0]).toMatchObject({ linkType: "Encounter", reference: "enc-1" });
     expect(await linkPerioChart(chart.id, "Procedure", "x").catch((e) => e)).toMatchObject({ status: 400 });
   });
 });

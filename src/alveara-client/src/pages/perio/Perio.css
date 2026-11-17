@@ -41,3 +41,6 @@
 .alv-perio__links { margin: 0.75rem 0; }
 .alv-perio__linkform { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: end; margin: 0.5rem 0; }
 .alv-perio__linkform label { display: flex; flex-direction: column; gap: 0.125rem; }
+
+/* ALV-N022 A3 (F-097): each box says what it holds */
+.alv-perio__mm-label { display: block; font-size: 0.7rem; line-height: 1.1; color: var(--color-text-muted, #6c757d); }

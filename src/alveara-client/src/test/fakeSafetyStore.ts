@@ -1,4 +1,8 @@
 import { json } from "./fakePatientServer";
+
+/** ALV-N022 A3: the one active document the fake library offers. */
+export const FAKE_DOCUMENT_ID = "doc-letter";
+const FAKE_DOCUMENT_NAME = "cardiac-letter.pdf (2026-09-03)";
 import type { Clearance, SafetyContext, SafetyEntry, SafetyGap, SafetySeverity, SafetySummary } from "../services/safetyApi";
 
 /**
@@ -74,7 +78,7 @@ export class FakeSafetyStore {
 
   private clearanceView(c: StoredClearance): Clearance {
     const { v, patientId: _patientId, ...rest } = c;
-    return { ...rest, documentPending: (c.status === "Received" || c.status === "Resolved") && c.documentReference === null, rowVersion: `c${v}` };
+    return { ...rest, documentPending: (c.status === "Received" || c.status === "Resolved") && c.documentReference === null && !c.documentId, rowVersion: `c${v}` };
   }
 
   context(patientId: string): SafetyContext {
@@ -133,6 +137,12 @@ export class FakeSafetyStore {
         return json(200, this.context(patientId));
       }
     }
+    // ALV-N022 A3 (D-1 B): the patient's document library, for the clearance's document picker (one active document and one inactive one, which is not offered)
+    if (method === "GET" && parts[2] === "patients" && parts[4] === "documents" && parts.length === 5) {
+      const entry = (id: string, title: string, isInactive: boolean) => ({ kind: "Document", id, patientFormId: null, title, categoryName: "Letter", date: "2026-09-03", detectedType: "pdf",
+        sizeBytes: 10, importedByName: ACTOR, atUtc: "2026-09-03T10:00:00Z", isVoided: false, isDuplicate: false, document: null, isInactive });
+      return json(200, { patientId: parts[3], entries: [entry(FAKE_DOCUMENT_ID, "cardiac-letter.pdf", false), entry("doc-old", "old-letter.pdf", true)], maxUploadBytes: 10485760 });
+    }
     if (parts[2] === "safety" && parts[3] === "alerts" && parts[4]) return this.alertRoute(parts, method, body);
     if (parts[2] === "safety" && parts[3] === "clearances" && parts[4]) return this.clearanceRoute(parts, method, body);
     return null;
@@ -183,14 +193,16 @@ export class FakeSafetyStore {
     const closed = c.status === "Resolved" || c.status === "Cancelled";
     if (parts[5] === "receive") {
       if (closed) return this.refuse(409, "clearance_closed", `This clearance is already ${c.status.toLowerCase()} and cannot be changed.`);
-      if (c.status === "Requested") { Object.assign(c, { status: "Received", receivedAtUtc: this.now(), receivedByName: ACTOR, receivedNote: this.text(body, "note") || null, documentReference: this.text(body, "documentReference") || null }); c.v++; }
+      if (this.text(body, "documentReference")) return this.refuse(400, "validation_failed", "Some fields need attention.", { documentReference: "Free-text document references are no longer accepted. Choose one of this patient's documents." });
+      const doc = this.text(body, "documentId") || null;
+      if (c.status === "Requested") { Object.assign(c, { status: "Received", receivedAtUtc: this.now(), receivedByName: ACTOR, receivedNote: this.text(body, "note") || null, documentId: doc, documentName: doc ? FAKE_DOCUMENT_NAME : null }); c.v++; }
       return json(200, this.context(patientId));
     }
     if (parts[5] === "document") {
-      if (!this.text(body, "documentReference")) return this.refuse(400, "validation_failed", "Some fields need attention.", { documentReference: "Say which document this is." });
+      if (!this.text(body, "documentId")) return this.refuse(400, "validation_failed", "Some fields need attention.", { documentId: "Choose one of this patient's documents." });
       if (c.status === "Requested") return this.refuse(409, "clearance_not_received", "The clearance has not been received yet, so there is no document to attach.");
       if (c.status === "Cancelled") return this.refuse(409, "clearance_closed", "This clearance is already cancelled and cannot be changed.");
-      c.documentReference = this.text(body, "documentReference"); c.v++;
+      c.documentId = this.text(body, "documentId"); c.documentName = FAKE_DOCUMENT_NAME; c.v++;
       return json(200, this.context(patientId));
     }
     if (parts[5] === "resolve") {

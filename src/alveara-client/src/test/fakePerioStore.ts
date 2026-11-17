@@ -146,11 +146,16 @@ export class FakePerioStore {
       if (!chart) return this.refuse(404, "exam_not_found", "That periodontal chart was not found.");
       if (method === "GET" && parts.length === 5) return json(200, this.view(chart));
       if (method === "POST" && parts[5] === "links") {
-        const type = String(body?.linkType ?? ""), reference = String(body?.reference ?? "").trim();
+        const type = String(body?.linkType ?? ""), diagnosisId = String(body?.diagnosisId ?? "");
+        // ALV-N022 A3 (D-1 B): a Diagnosis link names a diagnosis by id (free text refused, as on the server); the other types keep their reference text
+        const reference = type === "Diagnosis" ? diagnosisId : String(body?.reference ?? "").trim();
+        if (type === "Diagnosis" && String(body?.reference ?? "").trim() !== "")
+          return this.refuse(400, "validation_failed", "The link needs correcting. Nothing was saved.", [{ toothKey: null, site: null, field: "reference", code: "free_text_retired", message: "Free-text diagnosis references are no longer accepted. Choose one of this patient's diagnoses." }]);
         if (!["Diagnosis", "TreatmentPlan", "Encounter", "HistoryEntry"].includes(type) || reference === "" || reference.length > 100)
-          return this.refuse(400, "validation_failed", "The link needs correcting. Nothing was saved.", [{ toothKey: null, site: null, field: type ? "reference" : "linkType", code: "invalid", message: "Check the link type and reference." }]);
+          return this.refuse(400, "validation_failed", "The link needs correcting. Nothing was saved.", [{ toothKey: null, site: null, field: type ? (type === "Diagnosis" ? "diagnosisId" : "reference") : "linkType", code: "invalid", message: "Check the link type and reference." }]);
         chart.links ??= [];
-        if (!chart.links.some((l) => l.linkType === type && l.reference === reference)) chart.links.push({ linkType: type, reference, linkedByName: ACTOR, linkedAtUtc: this.now() });
+        if (!chart.links.some((l) => l.linkType === type && l.reference === reference))
+          chart.links.push({ linkType: type, reference, linkedByName: ACTOR, linkedAtUtc: this.now(), ...(type === "Diagnosis" ? { diagnosisId, diagnosisLabel: `Diagnosis ${diagnosisId}` } : {}) });
         return json(200, this.view(chart));
       }
       return null;

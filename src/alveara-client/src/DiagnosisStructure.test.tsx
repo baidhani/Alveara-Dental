@@ -159,7 +159,7 @@ describe("amending", () => {
     await act(user, "Periodontitis", "History");
     const rows = within(await within(li).findByRole("table")).getAllByRole("row").slice(1).map((r) => within(r).getAllByRole("cell").map((c) => c.textContent));
     expect(rows[0][2]).toBe("Recorded");
-    expect(rows[0][3]).toBe("Periodontitis (tooth 16 FDI)");                                           // what the amendment replaced is still there
+    expect(rows[0][3]).toBe("Periodontitis (tooth 3)");                                                // ALV-N022 A3 (F-099): the screen's numbering, never the raw FDI key                                           // what the amendment replaced is still there
     expect(rows[1][2]).toBe("Amended (structure)");
     expect(rows[1][5]).toBe("Moved to the region and coded");
     expect(rows[1][6]).toBe("region Upper right quadrant; Local P-9");

@@ -220,7 +220,7 @@ describe("the charts on record show the new measures, tooth records and links", 
     const user = userEvent.setup();
     await openHistory();
     const group = newest();
-    expect(within(group).getByRole("list", { name: "Linked records" })).toHaveTextContent("Diagnosis: dx-1 (linked by Dr. Okafor");
+    expect(within(group).getByRole("list", { name: "Linked records" })).toHaveTextContent("Diagnosis: dx-1 (free-text reference, legacy) (linked by Dr. Okafor");   // ALV-N022 A3: an old free-text diagnosis link is shown as such
     const form = within(group).getByRole("form", { name: "Link this chart" });
     expect(within(form).getByRole("button", { name: "Add link" })).toBeDisabled();                          // nothing typed yet
     await user.selectOptions(within(form).getByLabelText("Link to"), "TreatmentPlan");
@@ -238,6 +238,8 @@ describe("the charts on record show the new measures, tooth records and links", 
     await openHistory();
     expect(within(newest()).getByText("This chart is not linked to a diagnosis, treatment plan, encounter or history entry.")).toBeInTheDocument();
     const form = within(newest()).getByRole("form", { name: "Link this chart" });
+    expect(within(form).queryByLabelText("Reference")).not.toBeInTheDocument();     // ALV-N022 A3 (D-1 B): a diagnosis is chosen, never typed
+    await user.selectOptions(within(form).getByLabelText("Link to"), "Encounter");
     await user.type(within(form).getByLabelText("Reference"), "dx-2");
     await user.click(within(form).getByRole("button", { name: "Add link" }));
     expect(await within(newest()).findByRole("alert")).toHaveTextContent("Not linked: The change could not be saved, so nothing was recorded.");

@@ -62,6 +62,7 @@ export function PerioGrid({ draft, problems, numbering, disabled, onChange }: Pr
                       const issue = issues.find((p) => p.field === field);
                       return (
                         <>
+                          <span className="alv-perio__mm-label" aria-hidden="true">{field === "pd" ? "Depth" : "Rec."}</span>{/* ALV-N022 A3 (F-097): visible label */}
                           <input
                             type="text" inputMode="numeric" autoComplete="off" maxLength={2} className={`alv-perio__mm${issue ? " alv-perio__mm--invalid" : ""}`}
                             aria-label={label(what)} aria-invalid={issue ? true : undefined} aria-describedby={issue ? `${id}-${field}-problem` : undefined}

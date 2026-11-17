@@ -31,3 +31,10 @@ export const ALL_STATES = FINDING_STATES;
 
 /** What a finding is, in a few words: "Caries (Occlusal surface)" or "Crown (whole tooth)". The label is the condition's own, from the catalogue. */
 export const describeFinding = (conditionLabel: string, surfaceName: string | null) => `${conditionLabel} (${surfaceName ? `${surfaceName} surface` : "whole tooth"})`;
+
+/**
+ * ALV-N022 A3 (F-091, OD-09, display only): the tooth is drawn as not present ONLY when it has an active finding of an Absent condition in state Existing or Completed. A Diagnosed or
+ * Planned missing-tooth finding shows its state like any other finding, without the mark. Nothing about extraction intent or implants is inferred; the recording rule is unchanged.
+ */
+export const isDrawnAbsent = (findings: Finding[], absentConditions: ReadonlySet<string>) =>
+  findings.some((f) => f.status === "Active" && absentConditions.has(f.condition) && (f.state === "Existing" || f.state === "Completed"));

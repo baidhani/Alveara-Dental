@@ -45,7 +45,10 @@ export interface Clearance {
   reason: string;
   requestedFrom: string | null;
   status: "Requested" | "Received" | "Resolved" | "Cancelled";
+  /** LEGACY free text (before ALV-N022 A3); new entries use documentId. */
   documentReference: string | null;
+  documentId?: string | null;
+  documentName?: string | null;
   /** True once the clearance was received (or resolved) but no supporting document has been attached yet. */
   documentPending: boolean;
   requestedAtUtc: string;
@@ -116,7 +119,10 @@ export interface ClearanceVersion {
   reason: string;
   requestedFrom: string | null;
   status: string;
+  /** LEGACY free text (before ALV-N022 A3); new entries use documentId. */
   documentReference: string | null;
+  documentId?: string | null;
+  documentName?: string | null;
   note: string | null;
   actorName: string | null;
   occurredAtUtc: string;
@@ -148,10 +154,11 @@ export const acknowledgeAlert = (alertId: string, revision: number) => requestWi
 
 export const requestClearance = (patientId: string, kind: string, reason: string, requestedFrom: string) =>
   requestWithCsrf<SafetyContext>(`/api/patients/${patientId}/safety/clearances`, "POST", { kind, reason, requestedFrom });
-export const receiveClearance = (id: string, note: string, documentReference: string, rowVersion: string) =>
-  requestWithCsrf<SafetyContext>(`/api/safety/clearances/${id}/receive`, "POST", { note, documentReference, rowVersion });
-export const attachClearanceDocument = (id: string, documentReference: string, rowVersion: string) =>
-  requestWithCsrf<SafetyContext>(`/api/safety/clearances/${id}/document`, "POST", { documentReference, rowVersion });
+/** ALV-N022 A3 (D-1 B): the document is one of the patient's own documents, by id (free text is no longer accepted for new entries). */
+export const receiveClearance = (id: string, note: string, documentId: string | null, rowVersion: string) =>
+  requestWithCsrf<SafetyContext>(`/api/safety/clearances/${id}/receive`, "POST", { note, documentId: documentId || null, rowVersion });
+export const attachClearanceDocument = (id: string, documentId: string, rowVersion: string) =>
+  requestWithCsrf<SafetyContext>(`/api/safety/clearances/${id}/document`, "POST", { documentId, rowVersion });
 export const resolveClearance = (id: string, reason: string, rowVersion: string) => requestWithCsrf<SafetyContext>(`/api/safety/clearances/${id}/resolve`, "POST", { reason, rowVersion });
 export const cancelClearance = (id: string, reason: string, rowVersion: string) => requestWithCsrf<SafetyContext>(`/api/safety/clearances/${id}/cancel`, "POST", { reason, rowVersion });
 

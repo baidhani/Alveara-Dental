@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";
+import type { NumberingSystem } from "../odontogram/toothNumbering";
 import { LoadingState } from "../../components/StatePatterns";
 import { getDiagnosisHistory } from "../../services/diagnosisApi";
 import type { DiagnosisVersion } from "../../services/diagnosisApi";
@@ -24,7 +26,7 @@ function structureText(v: DiagnosisVersion): string {
  * The history of one diagnosis, oldest first: every step with who, when and why, and the whole diagnosis as it stood then (its place, coding and source, and the treatment-plan reference, always marked
  * unresolved). Amendments, resolving and reactivating appear as steps of their own, so what an amendment replaced is never lost. A failed load says so rather than showing an empty history.
  */
-export function DiagnosisHistory({ id }: { id: string }) {
+export function DiagnosisHistory({ id, numbering = DEFAULT_NUMBERING }: { id: string; numbering?: NumberingSystem }) {
   const [versions, setVersions] = useState<DiagnosisVersion[] | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -43,7 +45,7 @@ export function DiagnosisHistory({ id }: { id: string }) {
           {versions.map((v) => (
             <tr key={v.versionNumber}>
               <td>{when(v.occurredAtUtc)}</td><td>{v.actorName ?? "a staff member"}</td><td>{CHANGE_LABELS[v.changeType] ?? v.changeType}</td>
-              <td>{v.label}{v.toothKey ? ` (tooth ${v.toothKey} FDI)` : ""}</td>
+              <td>{v.label}{v.toothKey ? ` (tooth ${displayTooth(v.toothKey, numbering)})` : ""}</td>{/* ALV-N022 A3 (F-099): the screen's numbering, not raw FDI */}
               <td>{v.treatmentPlanReference === null ? "none" : `${v.treatmentPlanReference} (unresolved)`}</td>
               <td>{v.reason ?? "-"}</td>
               <td>{structureText(v)}</td>

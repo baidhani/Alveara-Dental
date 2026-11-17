@@ -67,7 +67,8 @@ export function perioProblemsOf(err: unknown): PerioProblem[] {
 /** What a chart records about a whole tooth. Mobility and furcation are grades 0 to 3 (null = not assessed); furcation only applies to multi-rooted teeth. */
 export interface PerioTooth { toothKey: string; mobility: number | null; furcation: number | null; excluded: boolean }
 export interface PerioToothInput { toothKey: string; mobility?: number | null; furcation?: number | null; excluded?: boolean }
-export interface PerioLink { linkType: string; reference: string; linkedByName: string | null; linkedAtUtc: string }
+/** ALV-N022 A3 (D-1 B): a Diagnosis link made by the picker carries diagnosisId and its label; one without is LEGACY free text. */
+export interface PerioLink { linkType: string; reference: string; linkedByName: string | null; linkedAtUtc: string; diagnosisId?: string | null; diagnosisLabel?: string | null }
 export const PERIO_LINK_TYPES = ["Diagnosis", "TreatmentPlan", "Encounter", "HistoryEntry"] as const;
 export const PERIO_LINK_LABELS: Record<string, string> = { Diagnosis: "Diagnosis", TreatmentPlan: "Treatment plan", Encounter: "Encounter", HistoryEntry: "History entry" };
 
@@ -112,7 +113,8 @@ export const finalizePerioSession = (session: Pick<PerioSession, "id" | "rowVers
 export const abandonPerioSession = (session: Pick<PerioSession, "id" | "rowVersion">) =>
   requestWithCsrf<PerioSession>(`/api/periodontal/sessions/${session.id}/abandon`, "POST", { rowVersion: session.rowVersion });
 export const getPerioChart = (examId: string, signal?: AbortSignal) => request<PerioChart>(`/api/periodontal/charts/${examId}`, { signal });
-export const linkPerioChart = (examId: string, linkType: string, reference: string) => requestWithCsrf<PerioChart>(`/api/periodontal/charts/${examId}/links`, "POST", { linkType, reference });
+export const linkPerioChart = (examId: string, linkType: string, reference: string, diagnosisId?: string) =>
+  requestWithCsrf<PerioChart>(`/api/periodontal/charts/${examId}/links`, "POST", linkType === "Diagnosis" ? { linkType, diagnosisId } : { linkType, reference });   // ALV-N022 A3 (D-1 B)
 
 export interface PerioFigures {
   sites: number; teeth: number; meanDepthMm: number; meanAttachmentLossMm: number; bleedingPercent: number; deepSites: number; veryDeepSites: number; suppurationSites: number; plaquePercent: number | null;

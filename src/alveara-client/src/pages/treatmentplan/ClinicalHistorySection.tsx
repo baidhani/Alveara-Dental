@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";   // ALV-N022 A3 (F-099): the numbering the plan rows use
 import { ErrorState } from "../../components/StatePatterns";
 import { getClinicalHistory } from "../../services/treatmentPlansApi";
 import type { ClinicalHistoryEntry } from "../../services/treatmentPlansApi";
@@ -31,7 +32,7 @@ export function ClinicalHistorySection({ patientId, refreshKey }: { patientId: s
           <ul className="alv-dx__list" aria-label="Completed procedures">
             {entries.map((e) => (
               <li key={e.itemId} className="alv-dx__item">
-                <strong>{e.procedureCode}</strong> {e.procedureDescription}{e.toothKey ? ` · tooth ${e.toothKey}` : ""}{e.surface ? ` · surface ${e.surface}` : ""}
+                <strong>{e.procedureCode}</strong> {e.procedureDescription}{e.toothKey ? ` · tooth ${displayTooth(e.toothKey, DEFAULT_NUMBERING)}` : ""}{e.surface ? ` · surface ${e.surface}` : ""}
                 <p className="alv-clinical__meta">Completed by {e.completedByName} on {when(e.completedAtUtc)} · from {e.planTitle}, revision {e.planRevisionAtCompletion}</p>
                 {e.completedProcedureId && (
                   <p className="alv-clinical__meta">

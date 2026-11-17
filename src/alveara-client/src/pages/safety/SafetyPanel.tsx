@@ -188,7 +188,7 @@ export function SafetyPanel({ patient }: { patient: PatientDetail }) {
           <p className="alv-clinical__meta">No clearances have been requested.</p>
         ) : (
           <ul className="alv-clinical__entries">
-            {context.clearances.map((c) => <ClearanceCard key={c.id} clearance={c} canWrite={canWrite} busy={busy} run={run} />)}
+            {context.clearances.map((c) => <ClearanceCard key={c.id} patientId={patient.id} clearance={c} canWrite={canWrite} busy={busy} run={run} />)}
           </ul>
         )}
         {canWrite && (

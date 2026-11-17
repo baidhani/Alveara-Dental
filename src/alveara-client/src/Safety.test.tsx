@@ -5,6 +5,7 @@ import { axe } from "jest-axe";
 import { App } from "./App";
 import { FakeClinicalServer } from "./test/fakeClinicalServer";
 import { json, makePatient } from "./test/fakePatientServer";
+import { formatDateOnly } from "./components/dateOnly";
 
 /**
  * ALV-N011: the patient-safety strip (patient header and open encounter) and the Safety tab, through the real <App /> against an in-memory fake of the safety API. The rules are
@@ -64,14 +65,19 @@ describe("the patient safety strip", () => {
     expect(within(strip()).getByRole("link", { name: "Open safety details" })).toHaveAttribute("href", `/patients/${A}/safety`);
   });
 
-  it("is also at the top of an open encounter, under its own name, before anything is documented", async () => {
+  // Stale-test correction found in ALV-N022 A3 (no behaviour change): ALV-N022 A1 (ff68e9d, approved) removed the encounter's own strip so an open encounter shows the ONE shared
+  // patient safety banner in the patient header, refreshed after every clinical write. This proves that approved behaviour.
+  it("an open encounter shows the one shared patient safety banner, with no second encounter-specific strip", async () => {
     server.safety.addAlert(A, { title: "Pregnant", category: "Pregnancy", severity: "High" });
     server.addEncounter(A, { id: "e1" });
     open(`/patients/${A}/clinical/e1`);
     await screen.findByRole("heading", { name: /^Encounter on/ });
-    const own = await screen.findByRole("region", { name: "Patient safety for this encounter" });
-    expect(within(own).getByText(/1 active alert \(highest: High\)/)).toBeInTheDocument();
-    expect(screen.getAllByRole("region", { name: /Patient safety/ })).toHaveLength(2);        // the header's and the encounter's, told apart
+    const banner = await screen.findByRole("region", { name: "Patient safety" });
+    expect(screen.getByRole("region", { name: "Patient context" })).toContainElement(banner);   // the shared header banner
+    expect(await within(banner).findByText(/1 active alert \(highest: High\)/)).toBeInTheDocument();
+    expect(screen.getAllByRole("region", { name: /Patient safety/ })).toHaveLength(1);          // no second strip
+    expect(screen.queryByRole("region", { name: "Patient safety for this encounter" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Patient safety for this encounter/)).not.toBeInTheDocument();   // the old label is gone, as a region name or as text
   });
 
   it("says it could not load - and not to assume there is none - then recovers when tried again", async () => {
@@ -279,9 +285,12 @@ describe("clearances", () => {
     expect(within(strip()).getByText(/1 clearance open/)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: `Attach document: ${label}` }));
-    await user.type(screen.getByLabelText("Document reference"), "cardiac-letter.pdf");
+    // ALV-N022 A3 (F-090, D-1 B): a picker of this patient's active documents, no free text
+    const picker = await screen.findByLabelText("Supporting document");
+    expect(Array.from((picker as HTMLSelectElement).options).map((o) => o.textContent)).toEqual(["Choose a document", `cardiac-letter.pdf (${formatDateOnly("2026-09-03")})`]);   // the inactive one is not offered
+    await user.selectOptions(picker, "doc-letter");
     await user.click(screen.getByRole("button", { name: "Attach document" }));
-    expect(await screen.findByText("Supporting document: cardiac-letter.pdf")).toBeInTheDocument();
+    expect(await screen.findByText("Supporting document: cardiac-letter.pdf (2026-09-03)")).toBeInTheDocument();
     expect(screen.queryByText(/Supporting document not yet attached/)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: `Resolve: ${label}` }));

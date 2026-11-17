@@ -43,6 +43,8 @@ export interface Diagnosis {
   sourceNote?: string | null;
   regionKey?: string | null;
   links?: DiagnosisLink[];
+  /** ALV-N022 A3 (Q-5aa): periodontal charts that link to this diagnosis (typed links only). */
+  linkedFromPerioCharts?: { examId: string; recordedAtUtc: string; linkedByName: string | null; linkedAtUtc: string }[];
 }
 
 /** A link to a finding or periodontal chart of the same patient: what it points at in words, who linked it and when. */

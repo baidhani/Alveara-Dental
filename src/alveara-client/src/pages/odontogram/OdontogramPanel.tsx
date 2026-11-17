@@ -77,11 +77,12 @@ export function OdontogramPanel({ patient, numbering = DEFAULT_NUMBERING, canWri
   const notDrawn: Finding[] = findings.filter((f) => !drawn.has(f.toothKey));
   const busy = saving.kind === "saving";
 
-  async function exec<T>(change: () => Promise<T>, adopt: (value: T) => void, savedText: string, entity: string): Promise<SaveResult> {
+  async function exec<T>(change: () => Promise<T>, adopt: (value: T) => void, savedText: string, entity: string, textFor?: (value: T) => string): Promise<SaveResult> {
     setSaving({ kind: "saving" });
     try {
-      adopt(await change());
-      setSaving({ kind: "saved", text: savedText });
+      const value = await change();
+      adopt(value);
+      setSaving({ kind: "saved", text: textFor ? textFor(value) : savedText });
       return null;
     } catch (err) {
       if (isConcurrencyConflict(err)) {
@@ -95,7 +96,13 @@ export function OdontogramPanel({ patient, numbering = DEFAULT_NUMBERING, canWri
       return clinicalFieldErrorsOf(err);
     }
   }
-  const run = (change: () => Promise<Chart>, savedText: string) => exec(change, adoptChart, savedText, "tooth finding");
+  // ALV-N022 A3 (F-094): an identical repeat changes nothing on the server (a quiet repeat); say so instead of claiming a save
+  const signature = (c: Chart | null) => (c?.findings ?? []).map((f) => `${f.id}:${f.rowVersion}:${f.state}:${f.status}`).sort().join("|");
+  const before = signature(chart);
+  const run = (change: () => Promise<Chart>, savedText: string) =>
+    exec(change, adoptChart, savedText, "tooth finding", (next) => (signature(next) === before ? "Already recorded: nothing changed." : savedText));
+  // ALV-N022 A3 (F-091): the conditions whose tooth effect is Absent
+  const absentConditions = useMemo(() => new Set((types ?? []).filter((t) => t.toothEffect === "Absent").map((t) => t.code)), [types]);
   const runTypes = (change: () => Promise<ConditionType[]>, savedText: string) => exec(change, adoptTypes, savedText, "condition type");
 
   async function reload() {
@@ -137,9 +144,14 @@ export function OdontogramPanel({ patient, numbering = DEFAULT_NUMBERING, canWri
         ))}
       </ul>
 
+      <p className="alv-clinical__meta" data-testid="plan-complete-explained">
+        Planned and Completed here are states of a finding on this chart. They do not create a treatment plan or record a completed procedure; those are made on the Treatment plan tab.
+      </p>{/* ALV-N022 A3 (F-095): explain only, no connection is built */}
       {findings.length === 0 && <p className="alv-clinical__meta">No findings are recorded on any tooth.</p>}
 
-      <ToothChart view={effectiveView} byTooth={byTooth} numbering={numbering} selected={selected} onSelect={(k) => { setSelected(k === selected ? null : k); setSurface(null); }} />
+      <ToothChart view={effectiveView} byTooth={byTooth} numbering={numbering} selected={selected} absentConditions={absentConditions}
+        onSelect={(k) => { setSelected(k === selected ? null : k); setSurface(null); setSaving({ kind: "idle" }); }} />{/* ALV-N022 A3 (F-093): a new tooth starts without the last tooth's message */}
+      <p className="alv-clinical__meta">A ✕ on a tooth means a missing-tooth finding recorded as Existing or Completed (not present). A Diagnosed or Planned one shows only its state.</p>
       <p className="alv-clinical__meta">Arrow keys move between teeth; Enter or Space selects one.</p>
 
       {selected ? (

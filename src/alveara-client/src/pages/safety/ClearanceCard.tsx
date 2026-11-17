@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "../../components/Button";
-import { FormField } from "../../components/FormField";
 import { attachClearanceDocument, cancelClearance, receiveClearance, resolveClearance } from "../../services/safetyApi";
 import type { Clearance, SafetyContext } from "../../services/safetyApi";
+import { DocumentPicker } from "./DocumentPicker";
 import { ReasonForm } from "./SafetyForms";
 import type { SaveResult } from "./SafetyForms";
 import { SafetyHistory } from "./SafetyHistory";
@@ -14,6 +14,8 @@ type Mode = "view" | "receive" | "resolve" | "cancel" | "document";
 const STATUS_WORDS: Record<Clearance["status"], string> = { Requested: "Requested - waiting", Received: "Received - not yet resolved", Resolved: "Resolved", Cancelled: "Cancelled" };
 
 interface Props {
+  /** ALV-N022 A3: whose documents the picker offers. */
+  patientId: string;
   clearance: Clearance;
   canWrite: boolean;
   busy: boolean;
@@ -26,7 +28,7 @@ interface Props {
  * available yet - the clearance can be received without it, says "document not yet attached" in words, and the reference can be attached later (documents are a later story, so
  * the reference is just text).
  */
-export function ClearanceCard({ clearance: c, canWrite, busy, run }: Props) {
+export function ClearanceCard({ patientId, clearance: c, canWrite, busy, run }: Props) {
   const [mode, setMode] = useState<Mode>("view");
   const label = `${c.kind} clearance: ${c.reason}`;
   const open = c.status === "Requested" || c.status === "Received";
@@ -43,7 +45,8 @@ export function ClearanceCard({ clearance: c, canWrite, busy, run }: Props) {
           {c.receivedAtUtc ? ` · Received ${when(c.receivedAtUtc)} by ${c.receivedByName ?? "a staff member"}${c.receivedNote ? `: ${c.receivedNote}` : ""}` : ""}
         </p>
         {c.closedAtUtc && <p className="alv-clinical__meta">{c.status === "Resolved" ? "Resolved" : "Cancelled"} {when(c.closedAtUtc)} by {c.closedByName ?? "a staff member"}: {c.closingReason}</p>}
-        {c.documentReference && <p className="alv-clinical__meta">Supporting document: {c.documentReference}</p>}
+        {c.documentId && <p className="alv-clinical__meta">Supporting document: {c.documentName ?? "a document of this patient"}</p>}
+        {c.documentReference && <p className="alv-clinical__meta">Free-text reference (legacy): {c.documentReference}</p>}{/* ALV-N022 A3 (D-1 B): kept, shown as legacy */}
         {c.documentPending && <p className="alv-clinical__note" role="note">Supporting document not yet attached.{canWrite ? " Attach the reference when it arrives." : ""}</p>}
         <SafetyHistory kind="clearance" id={c.id} name={label} version={c.rowVersion} />
 
@@ -57,12 +60,12 @@ export function ClearanceCard({ clearance: c, canWrite, busy, run }: Props) {
             busy={busy}
             onCancel={() => setMode("view")}
             onSubmit={async (note, extra) => {
-              const refused = await run(() => receiveClearance(c.id, note, extra.documentReference ?? "", c.rowVersion), "Clearance marked as received.");
+              const refused = await run(() => receiveClearance(c.id, note, extra.documentId || null, c.rowVersion), "Clearance marked as received.");
               if (!refused) setMode("view");
               return refused;
             }}
           >
-            {(extra, set, errors) => <FormField label="Document reference (optional)" value={extra.documentReference ?? ""} error={errors.documentReference} maxLength={300} onChange={(e) => set("documentReference", e.target.value)} />}
+            {(extra, set, errors) => <DocumentPicker patientId={patientId} label="Supporting document (optional)" optional value={extra.documentId ?? ""} error={errors.documentId ?? errors.documentReference} onChange={(v) => set("documentId", v)} />}
           </ReasonForm>
         )}
         {mode === "document" && (
@@ -74,12 +77,12 @@ export function ClearanceCard({ clearance: c, canWrite, busy, run }: Props) {
             busy={busy}
             onCancel={() => setMode("view")}
             onSubmit={async (_note, extra) => {
-              const refused = await run(() => attachClearanceDocument(c.id, extra.documentReference ?? "", c.rowVersion), "Document attached.");
+              const refused = await run(() => attachClearanceDocument(c.id, extra.documentId ?? "", c.rowVersion), "Document attached.");
               if (!refused) setMode("view");
               return refused;
             }}
           >
-            {(extra, set, errors) => <FormField label="Document reference" value={extra.documentReference ?? ""} error={errors.documentReference} maxLength={300} onChange={(e) => set("documentReference", e.target.value)} />}
+            {(extra, set, errors) => <DocumentPicker patientId={patientId} label="Supporting document" value={extra.documentId ?? ""} error={errors.documentId ?? errors.documentReference} onChange={(v) => set("documentId", v)} />}
           </ReasonForm>
         )}
         {mode === "resolve" && (

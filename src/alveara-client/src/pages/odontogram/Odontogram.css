@@ -161,3 +161,7 @@
   .alv-odonto__arch { grid-template-columns: repeat(8, minmax(0, 1fr)); }
   .alv-odonto__arch--primary { grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; }
 }
+
+/* ALV-N022 A3 (F-091): a tooth recorded as not present (Existing or Completed missing-tooth finding) */
+.alv-odonto__tooth--absent { background-image: linear-gradient(to top right, transparent calc(50% - 1px), var(--color-text-muted, #6c757d) 50%, transparent calc(50% + 1px)); }
+.alv-odonto__tooth-absent { font-weight: 700; line-height: 1; }
