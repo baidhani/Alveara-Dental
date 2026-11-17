@@ -1285,7 +1285,7 @@
       "homePackage": "PKG-06",
       "rawLine": 551,
       "excerpt": "Amoxicillin 500 mg Every 6 hours, Check entry: \"No allergy recorded for this patient matches this medication's name. This is a name comparis...",
-      "note": "observed in the manual pass; verify in code first",
+      "note": "observed in the manual pass; verified in code 2026-11-16 (name comparison only). Allergy-class check DEFERRED, not removed (ALV-N022 owner direction 2026-11-16, review BRIEFING-R01 BR-1): ALV-N022 keeps the direct-name warning and the no-verdict wording only; follow-on Medication Reference and Provider Lookup proposal, not authorized; release limitation until delivered.",
       "canonicalOf": null
     },
     {

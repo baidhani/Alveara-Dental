@@ -1,191 +1,218 @@
-# ALV-N022 pre-implementation briefing (revision 1): safety and clinical-record integrity, finalized encounters
+# ALV-N022 pre-implementation briefing (revision 2): safety and clinical-record integrity, finalized encounters
 
 - **Story:** ALV-N022 (execution item 59): R05 **PKG-06** and **PKG-07**.
 - **Date:** 2026-11-16. **Session:** CC-20261115-m7x2. **Code read at:** `2eca1a9`.
-- **Status:** **PROPOSED, awaiting independent briefing review.** This is a document only. No code, test, schema, migration, setting or permission has changed, and nothing was run.
-- **Companion files:**
-  - `docs/design/ALV-N022_OWNER_DECISION_RECORD.md`: decisions OD-01..OD-08, and the open and proposed items OD-09..OD-15.
-  - `docs/design/ALV-N022_SCOPE_MATRIX.md`: every register row and where it goes.
-  - `docs/design/ALV-N022_FINDING_SURVEY.md`: the read-only survey and the code evidence.
-  - `docs/design/ALV-N022_DECISION_REQUEST.md`: the original request, superseded where the record differs.
-- **Not authorized before approval:** implementation, migration, any drug or external API integration, or any broad or full-suite test run.
+- **Revision:** 2, answering `.alveara/reviews/ALV-N022/BRIEFING-R01.md` (CHANGES_REQUIRED). Revision 1 is in `0a19afc`.
+- **Status:** **PROPOSED, awaiting independent briefing review.** This is a document only. No product code, test, schema, migration, setting, permission or external integration has changed. The only command run was the repo's document checks (`node --test tests/*.test.mjs`, 53/53, 2 s) after the plan, R05 and register edits. No focused, browser, chain, broad or full test was run.
+- **Companion files (this package):**
+  - `ALV-N022_OWNER_DECISION_RECORD.md` (rev. 2)
+  - `ALV-N022_SCOPE_MATRIX.md` (rev. 2)
+  - `ALV-N022_FINDING_SURVEY.md`
+  - `ALV-N022_DECISION_REQUEST.md`, superseded by the record where they differ
+  - Amended authorities: `GPT Docs/Alveara_Dental_Execution_Plan_v4.md` (item 59), `docs/design/MANUAL_E2E_STABILIZATION_PLAN_R05.md` (PKG-06 Group C, PD-12, row 6.07), `docs/stabilization/DISPOSITION_REGISTER.json` (F-105 note)
+- **Not authorized before approval:** implementation, migration, external lookup, allergy-class logic, or any test run beyond the document checks.
+
+## 0. Answers to BRIEFING-R01
+
+| Item | Answer |
+|---|---|
+| BR-1 (authorities) | Plan item 59 Scope and Acceptance are amended (F-105/PD-12 DEFERRED, not removed; only the direct-name warning; no class seed, drug API, interaction, contraindication, dose, compatibility or prescribing-decision logic; follow-on Medication Reference and Provider Lookup, its own design, no patient data external; a **release limitation**, not claimed as delivered). R05 PKG-06 Group C has the same amendment. The PD-12 row and chain row 6.07 are marked deferred. The register's F-105 note records it; its disposition stays `CONFIRMED`, because `DEFERRED` is not in the register vocabulary and changing the vocabulary is a schema change not asked for. |
+| BR-2 (decision authority) | Decision record rev. 2: column 2 quotes only the owner's words. Acceptance criteria are labelled as the agent's proposals. No clinical sign-off is claimed. The rev. 1 signature is explained, and a fresh owner line covers only the DECIDED rows. OD-10..OD-15 stay PROPOSED. **OD-13 (signed drafts) is removed from A2 and from its tests**: signed drafts keep today's behaviour. |
+| BR-3 (dental history) | Option 1: dental history is **removed from A1**. Its model, routes and behaviour are unchanged (4.1). |
+| BR-4 (duplicates) | The new normalized active-duplicate refusal applies to **allergies only**. Other kinds keep their current duplicate semantics. Category-boundary tests are added (10). |
+| BR-5 (legacy add) | The "add to chart" flow is an explicit confirmation flow (5.3). It is built only if the owner approves OD-14. Otherwise legacy entries are display-only in A1. |
+| BR-6 (truthful gates) | The matrix says PLANNED and gives each row's verification level. Step 0 enumerates every register-only item with a stop rule (3). The F-095 and F-090/F-098 picker scopes are fixed in the matrix. |
 
 ## 1. Problem in one paragraph
 
-Allergies, medications and history exist twice: once on the patient's chart (`ClinicalRecordItem`) and once in each encounter (`EncounterEntry`).
-- The safety banner, the Safety tab and the prescribing allergy check read only the chart.
+Allergies, medications and medical history exist twice: on the chart (`ClinicalRecordItem`) and in each encounter (`EncounterEntry`).
+- The banner, the Safety tab and the prescribing allergy check read only the chart.
 - Encounter entries are checked for duplicates only within their own encounter, and never reach the chart.
-- The banner refreshes only on an event that only the Safety tab sends.
+- The banner refreshes only on an event the Safety tab sends.
 
-This one design gap produces F-078, F-080, F-084, F-085, F-086, F-111 and F-112 (survey section 1). The chart side already has what the fix needs:
-- `ClinicalRecordService.AddItemAsync` already takes an `encounterId`.
-- Each change appends a `ClinicalRecordItemVersion`, and section changes append a `ClinicalRecordEvent`. Both carry `EncounterId`, and database triggers keep both append-only.
-- A duplicate live item is refused (`duplicate_item`), race-guarded by a unique index.
-- "None known" is refused when the section has items (`section_has_items`).
+This explains F-078, F-080, F-084, F-085, F-086, F-111 and F-112 (survey section 1). The chart side already has what the fix needs:
+- `ClinicalRecordService.AddItemAsync`, `UpdateItemAsync` and the section review take an `encounterId`.
+- Versions and section events carry `EncounterId`, and triggers keep them append-only.
+- Duplicate live items are refused, race-guarded by a unique index.
+- "None known" is refused when the section has items.
 
-So the fix is mostly **routing**: the encounter's section actions call the chart service with the encounter's id. It is not a new data model.
+So A1 is mostly **routing** the encounter's allergy, medication and medical-history actions to the chart service.
 
 ## 2. Attempts
 
-The attempts are sequenced. Each is one reviewed package. Nothing from a later attempt lands in an earlier one.
-
 | Attempt | Content | Decisions |
 |---|---|---|
-| **A1** chart as single source | The encounter's allergy, medication, medical-history and dental-history actions write to the chart with encounter provenance. The encounter reads its sections from the chart. Duplicate, "none reported" and contradiction rules apply. One banner, refreshed after every clinical write. Legacy encounter entries are kept and shown, with the one-click "add to chart" option (OD-14, if approved). | OD-01..OD-05, OD-14 |
-| **A2** finalized encounters | Completion, adoption and diagnosis attachment require a draft encounter. Pickers list only drafts. The addendum route is unchanged. Signed drafts follow OD-13 if approved. | OD-06, OD-13 |
-| **A3** display and integrity corrections | F-106, the F-105 wording audit and guard, group B rows (scope matrix), and the PD-09d non-semantic display correction (2.1). | OD-07, OD-08 |
+| **A1** chart as single source | Encounter allergy, medication and medical-history actions write to the chart with provenance; the encounter reads those sections from the chart. Allergy duplicate rule. "None reported" rule and contradiction flags. One banner, refreshed after every clinical write. Legacy entries kept and displayed. The add flow (5.3) only if OD-14 is approved. | OD-01..OD-05 |
+| **A2** finalized encounters | Completion, adoption and diagnosis attachment refuse a Finalized encounter. Pickers exclude finalized encounters. Addendum unchanged. Signed drafts unchanged. | OD-06 |
+| **A3** display and integrity | F-106, the F-105 wording guard, the Group B rows in the matrix, and the PD-09d display correction (2.1). | OD-07..OD-09 |
 
-### 2.1 PD-09d: the smallest safe non-semantic correction
+### 2.1 PD-09d: smallest safe non-semantic correction (subject to step 0)
 
-No clinical rule is added or changed: OdontogramService's missing-tooth rule still covers Existing/Completed only. What changes is **display of what is stored**:
-- The tooth summary and tooltip show each finding with its recorded status, for example "Missing (whole tooth) - Diagnosed". The odontogram draws the "absent" glyph only for an Existing/Completed missing finding. A Diagnosed/Planned missing finding gets a status mark, not the absent glyph.
-- Today the tile shows "missing" whatever the status. This is the cause of F-091's "impossible combination" reading.
-- An implant and a missing finding on the same tooth are both listed as recorded (Q-5v). There is no "replaced by" text, no superseding and no requirement either way (Q-5w).
-- Messages: the stale tooth message clears when the selected tooth changes (F-093). An identical repeat says "Already recorded; nothing was added" (F-094).
+No clinical rule is added or changed. The odontogram missing-tooth rule still covers Existing/Completed only. The change is to display only:
+- Each tooth finding shows its recorded status, for example "Missing (whole tooth) - Diagnosed".
+- The "absent" glyph is drawn only for an Existing/Completed missing finding.
+- An implant and a missing finding are both listed as recorded. There is no superseding, no "replaced by" and no requirement either way.
+- The stale tooth message clears (F-093), and an identical repeat says "already recorded" (F-094).
 
-## 3. Step 0 (read-only, at the start of each attempt)
+If step 0 shows that today's tile does not draw "absent" for Diagnosed/Planned, the glyph part is dropped and recorded.
 
-R05 asks for verification first. These are read-only checks of code and the dev database, recorded in the evidence:
+## 3. Step 0: verification gate (read-only, per attempt)
 
-1. **Name comparison.** The chart's duplicate check compares `Name == name` in SQL. Confirm the column collation is case-insensitive, and that trailing spaces compare equal (SQL Server padding). Report how many live chart items have leading or inner repeated whitespace (read-only count on the dev database).
-2. **Unique index.** Confirm the exact index behind `ClinicalWrite.IsUniqueViolation` on `ClinicalRecordItems`: its columns, its filter, and whether it includes status.
-3. **"None known" rule.** Confirm whether `section_has_items` counts inactive or resolved items. OD-04 speaks of active items, so if it counts every live item, A1 narrows it to active items only, and a test proves that a resolved allergy plus "none known" is allowed.
-4. **Encounter readers.** List every reader of `EncounterEntries` and `EncounterSectionMarks`: the encounter reader, the list counts (F-082), finalize checks, export (`ExportDomainCatalog` "encounters"), and client pages.
-5. **A2 paths.** List every completion, adoption and diagnosis path that takes or changes an encounter id.
-6. **Pending register rows.** Re-read the register-only rows of the survey in code (F-081, F-086, F-089, F-067...), and Q-5aj.
+Each item is recorded as CONFIRMED, NOT_REPRODUCED, DUPLICATE, WITHDRAWN or DESIGN_DECISION_REQUIRED, with file:line or dev-database evidence.
 
-If step 0 contradicts this briefing, I stop and report before building.
+**Stop rule:** if any item is NOT_REPRODUCED, belongs to another package, or would need a new rule, schema, permission or API beyond this briefing, the attempt stops and returns a **briefing addendum** for review before building that item. The other items may continue only if they do not depend on it.
+
+| # | Attempt | Check |
+|---|---|---|
+| 0.1 | A1 | Chart-name comparison: column collation (case), trailing-space behaviour. Count of live **allergy** items whose normalized names collide (read-only on dev DB). If any collide, stop: collisions are never merged. |
+| 0.2 | A1 | The exact unique index behind `ClinicalWrite.IsUniqueViolation` on `ClinicalRecordItems` (columns, filter, status). |
+| 0.3 | A1 | Does `section_has_items` count only active items? OD-04 refuses on **active** items. If the current rule is broader, narrowing it is in A1 and is tested. |
+| 0.4 | A1 | Every reader of `EncounterEntries` and `EncounterSectionMarks`: encounter reader, list counts, finalize checks, export, client. |
+| 0.5 | A1 | F-081 (two strips), F-086 ("not established" after encounter saves), Q-5f, Q-5g, Q-5i: reproduce in code paths. |
+| 0.6 | A2 | Every completion, adoption and diagnosis path that sets or changes an encounter id. Q-5ad: the diagnosis picker offers finalized encounters. |
+| 0.7 | A3 | F-106: which prescription fields exist (`PrescriptionWorkflow.Instructions`, `QuantityValue/Unit`, status, supersede link) and what the tab shows. No new field may be needed; if one is, stop. |
+| 0.8 | A3 | F-105: every surface (server text, client components, print and export) that shows the allergy-check outcome. |
+| 0.9 | A3 | F-067, F-079, F-082, F-089 (where the "patient" source default comes from), F-092, F-093, F-094, F-097, F-099, F-137, F-199, Q-5aa, Q-5ai, Q-5j: each located in code. |
+| 0.10 | A3 | F-090 and F-098: whether the picker can store a reference without a schema change. If a column or foreign key is needed, stop for an addendum. |
+| 0.11 | A3 | F-095: confirm that Plan/Complete are chart statuses only (explain-only is then enough). |
+| 0.12 | A3 | F-091 display: what the tile draws today for each status. |
+| 0.13 | A3 | Q-5aj: completion chart effect versus surface display. If PKG-08, stop for an addendum. |
 
 ## 4. A1 design
 
-### 4.1 Write path
+### 4.1 Write path (allergy, medication, medical history only)
 
 The existing encounter routes keep their URLs and permissions:
 - `POST/PUT api/encounters/{id}/entries`
-- `POST .../entries/{entryId}/remove`
-- `POST .../sections/{kind}/none-reported`
-- `POST .../sections/{kind}/clear-review`
+- `.../entries/{entryId}/remove`
+- `.../sections/{kind}/none-reported`
+- `.../sections/{kind}/clear-review`
 
-Their behaviour changes:
+For kind Allergy, Medication or MedicalHistory:
 
 | Encounter action | Becomes |
 |---|---|
-| Add entry | `ClinicalRecordService.AddItemAsync(patient, kind, fields, Active, encounterId)`: the chart item, with version 1 carrying `EncounterId` |
-| Change entry | `UpdateItemAsync(..., encounterId)` on the chart item, which appends a version |
-| Remove entry | Withdraw as entered in error (`RemovedInError`, reason required) on the chart item. Only an item **added in this encounter** may be removed from the encounter. Others are changed by status (Resolved, Discontinued), which appends a version. |
-| "Reviewed - none reported" | Chart section review `NoneKnown` with `encounterId`. Refused with 409 `section_has_active_items` while an active item exists (OD-04). |
-| "Confirm list is current" (new in the encounter, Q-5i) | Chart section review `Reviewed` with `encounterId` |
+| Add entry | `ClinicalRecordService.AddItemAsync(..., Active, encounterId)` |
+| Change entry | `UpdateItemAsync(..., encounterId)`, which appends a version |
+| Remove entry | Withdraw as entered in error (reason required), allowed only for an item **added in this encounter**. Other items change by status, which appends a version. |
+| "Reviewed - none reported" | Chart review `NoneKnown` with `encounterId`. Refused with 409 `section_has_active_items` while an active item exists. |
+| "Confirm list is current" | Chart review `Reviewed` with `encounterId` |
 | Clear review | Chart `NotReviewed` with `encounterId` |
 
-Name normalization (OD-03) is one function used on every chart write: trim, collapse inner whitespace, then a case-insensitive compare. The stored name is the normalized text with the user's case kept. A retried identical add replays the existing item (the current idempotent behaviour). A different add with the same normalized name is refused with 409 `duplicate_item`, with the existing item's id in the problem detail so the client can link to it. Nothing is merged.
+**DentalHistory:** unchanged. It stays on `EncounterEntry` and `EncounterSectionMark` with today's rules and display (BR-3).
 
-Legacy `EncounterEntry` and `EncounterSectionMark` rows are **never written again**: the service no longer inserts or changes them. Their tables, triggers and rows stay as they are.
+**Duplicates (BR-4):**
+- **Allergies:** normalized name (trim, collapse inner whitespace, compare without case) equal to an **active** allergy gives 409 `duplicate_item` with the existing item's id, and the client links to it. Nothing is merged or changed. A retried identical add replays.
+- **Medications and medical history:** today's chart duplicate behaviour, unchanged.
+- **Display and search:** the stored name keeps the user's text, trimmed. Normalization is used only for the allergy comparison and for searching.
+
+For the three moved kinds, legacy `EncounterEntry` and `EncounterSectionMark` rows are never written again. They are kept unchanged, with their tables and triggers.
 
 ### 4.2 Read path
 
-- **What the encounter shows, per section:**
+- **What the encounter shows** for each of the three sections:
   - the chart's current items;
-  - "recorded in this encounter": the versions whose `EncounterId` is this encounter;
-  - "reviewed in this encounter": the section events carrying it;
-  - for an encounter that started before A1, its legacy entries and marks, labelled "recorded in this encounter (before the chart was the single source)".
-- **Section addressed** (the encounter's completeness signal): the section was changed or reviewed during this encounter, or it holds legacy entries or a legacy mark. Finalizing keeps today's rule on unaddressed sections.
-- **Finalized encounters:** their provenance view is built only from append-only rows (versions and events with that encounter id, and the legacy rows), so it cannot change after finalization. The chart's current items are shown separately as "the chart now", never as what the encounter recorded.
-- **Contradictions (OD-04), computed on read and never stored:**
-  - a legacy encounter "none reported" mark, or a chart `NoneKnown` review, for a section that had an active item at the time the mark was made (taken from the item versions' history);
-  - or a chart `NoneKnown` that coexists with an active item now.
+  - "recorded in this encounter" (versions with this `EncounterId`);
+  - "reviewed in this encounter" (events with it);
+  - for pre-A1 encounters, the legacy entries and marks, labelled as recorded before the chart was the single source.
+- **Finalized encounters:** the provenance view is built only from append-only rows, so it cannot change. "The chart now" is shown separately.
+- **Contradictions:** computed on read and never stored. A legacy "none reported" mark, or a chart `NoneKnown`, for a section that had an active item when it was made (from version history), or has one now. The flag reads "Contradiction: marked none reported while <n> active item(s) were listed". Both records are kept.
 
-  Each is shown as "Contradiction: marked none reported while <n> active item(s) were listed". Neither record is changed.
+### 4.3 Banner
 
-### 4.3 Banner (OD-05)
-
-- **One render.** One `SafetyStrip` on the patient page shell; the second render inside the encounter is removed (F-081).
-- **Refresh.** One client helper, `notifySafetyChanged(patientId)`, is called after every successful clinical-record write: chart, encounter section actions, alerts and clearances. `SafetyStrip` refetches the server summary when it hears it. The server stays the only source of what the banner says.
-- **Guard test.** A repo check (`tests/`) fails if a module calls a clinical-record mutation API without going through the helper.
+One `SafetyStrip` on the patient page shell; the encounter's second render is removed. One client helper, `notifySafetyChanged(patientId)`, is called after every successful clinical-record, alert or clearance write, and the strip refetches the server summary. A repo guard test refuses a clinical-record mutation call that bypasses the helper.
 
 ## 5. Migration and preservation plan
 
-- **Schema (M1, small, reversible):**
-  - add an index on `ClinicalRecordItemVersions(EncounterId)` and one on `ClinicalRecordEvents(EncounterId)`, for the per-encounter read;
-  - nothing else in A1;
-  - `Down` drops them;
-  - no data is rewritten, moved or deleted;
-  - no trigger is changed.
-- **Normalized-name column:** not added unless step 0 item 1 finds live names whose normalized forms collide. If it does, I stop and bring options to the owner; collisions are never merged by a migration.
-- **Legacy entries (OD-14), proposed option M-A:**
-  - no automatic copy into the chart, because a copy would create chart facts nobody confirmed;
-  - for each legacy entry with no live chart item of the same kind and normalized name, the encounter shows "Not on the chart: Add to chart";
-  - a clinician with ManageClinicalNotes can then add it in one click, as a normal chart add with provenance `EncounterId` = the legacy encounter and reason "added from a pre-A1 encounter entry".
-  - **Alternative M-B:** a one-time backfill that creates Active chart items from every legacy entry. **Not recommended**, because it silently asserts current facts.
-- **Data the migration must preserve:** every `EncounterEntry`, `EncounterSectionMark`, `EncounterEvent`, `ClinicalRecordItem`, version and event row, unchanged. The proof is a row count and checksum of these tables on the dev database before and after M1, with identical results.
-- **Export:** the "encounters" export domain keeps `EncounterEntries`, so historical data still exports. Chart items already export with the clinical record.
-- **Rollback:** reverting A1's code restores the old write path. The new chart rows written meanwhile are ordinary chart items with provenance, valid under either version. M1's `Down` drops only the indexes.
+### 5.1 Schema
+
+- **M1, indexes only:** on `ClinicalRecordItemVersions(EncounterId)` and `ClinicalRecordEvents(EncounterId)`; `Down` drops them.
+- No data is written, moved or deleted, and no trigger is changed.
+- No normalized-name column (0.1 stops on any collision).
+
+### 5.2 Preservation
+
+- **Rows kept unchanged:** every `EncounterEntry` (all kinds), `EncounterSectionMark`, `EncounterEvent`, `ClinicalRecordItem`, version and event row.
+- **Proof:** row counts and checksums on the dev database before and after M1, which must be identical.
+- **Export:** the "encounters" domain keeps `EncounterEntries`.
+- **Rollback:** revert the code; chart rows written meanwhile are valid chart items with provenance under either version.
+
+### 5.3 Legacy "add to chart" flow (OD-14 proposed; built only if approved; BR-5)
+
+There is no automatic copy or backfill, ever. For a legacy allergy, medication or medical-history entry with no live chart item of the same kind and name, the encounter shows "Not on the chart" with an **Add to chart...** action. The action opens a form that:
+- shows the historical text (name, reaction or severity, or dose and frequency, as recorded) and the encounter's date, read-only, labelled "as recorded on <date>";
+- pre-fills the editable fields from it, with **no status pre-selected**: the clinician must choose the **current status** (Active, Inactive, Resolved or Discontinued as the kind allows) before it can be submitted;
+- submits a **new** chart add through the normal chart route and rules, including the allergy duplicate rule;
+- records provenance in the version: actor, time, reason "added from a legacy encounter entry", and the legacy entry's id in a link field.
+
+Whether a link field exists without a schema change is a step-0 item. If it does not, the flow stops for an addendum before this flow is built. The legacy entry itself is never changed.
+
+If OD-14 is not approved, legacy entries are display-only.
 
 ## 6. Provenance and audit plan
 
-Every encounter-originated chart change writes three things in **one save**, so they stand or fall together:
-1. the `ClinicalRecordItemVersion` (full snapshot, `EncounterId`, actor, time, reason when given), or for a review the `ClinicalSectionReview` change plus a `ClinicalRecordEvent` carrying `EncounterId`;
-2. an `EncounterEvent`, PHI-free, for example "Allergy added to the chart in this encounter";
-3. the existing `AuditService.Record` line, PHI-free.
+Each encounter-originated chart change writes, in **one save**:
+1. the version (snapshot, `EncounterId`, actor, time, reason) or the review plus a `ClinicalRecordEvent` with `EncounterId`;
+2. a PHI-free `EncounterEvent`;
+3. the existing PHI-free `AuditService.Record` line.
 
-No clinical text goes into events or audit detail (the existing rule). Version and event tables stay append-only (existing triggers). A test proves that an UPDATE or DELETE is refused.
+Append-only triggers are unchanged. A test proves that an UPDATE or DELETE on versions and events is refused.
 
 ## 7. Authorization plan
 
-| Action | Permission | Extra server checks |
+| Action | Permission (unchanged) | Extra checks |
 |---|---|---|
-| Encounter section actions (A1) | ManageClinicalNotes (unchanged) | The encounter exists and belongs to the item's patient. It is a Draft, otherwise `encounter_finalized`. It is not signed (the existing lock). The patient is active. The chart item belongs to the same patient. |
-| Read the encounter, chart or banner | ViewClinicalDocumentation (unchanged) | - |
-| Completion and adoption (A2) | ManageTreatmentPlans (unchanged) | The encounter is a Draft and belongs to the plan's patient. Signed drafts follow OD-13. |
-| Diagnosis create and relink (A2) | ManageClinicalNotes (unchanged) | Same Draft and patient check |
+| Encounter section actions (A1) | ManageClinicalNotes | The encounter belongs to the item's patient; it is Draft (else `encounter_finalized`); it is not signed (existing lock); the patient is active |
+| Reads | ViewClinicalDocumentation | - |
+| Completion and adoption (A2) | ManageTreatmentPlans | The encounter is not Finalized and belongs to the plan's patient |
+| Diagnosis create and re-link (A2) | ManageClinicalNotes | Same |
 
-There are no new permissions or grants. Each route gets tests for: 401 when unauthenticated, 403 without the permission, refusal of another patient's encounter or item, and refusal of a finalized encounter.
+There are no new permissions or grants. Each route is tested for: 401, 403, another patient's encounter or item, and a finalized encounter.
 
-## 8. A2 design (summary)
+## 8. A2 design
 
-`CompletionService` (complete and adopt) and `DiagnosisService` (create, and every path that sets `EncounterId`) load the encounter. They refuse with 409 `encounter_finalized` before any write when it is not a Draft. The client pickers request drafts only, and say "Finalized encounters cannot receive new care. Start a new encounter." when there are none.
+Completion, adoption, diagnosis create and every path that sets `EncounterId` load the encounter, and refuse with 409 `encounter_finalized` before any write when it is Finalized. Pickers exclude finalized encounters and say "Finalized encounters cannot receive new care. Start a new encounter." Signed drafts: today's behaviour, unchanged (OD-13 proposed).
 
-Existing completions or diagnoses attached to a finalized encounter after its `FinalizedAtUtc` are kept. They are shown with "attached after the encounter was finalized" (display only). The addendum route and its triggers are unchanged.
+Existing attachments made after `FinalizedAtUtc` are kept and labelled "attached after the encounter was finalized". The addendum route is unchanged.
 
 ## 9. Failure handling
 
-- Every write is one transaction: a refused or failed save leaves nothing behind.
-- The existing optimistic concurrency (`RowVersion`) and the unique-index race path stay in place.
+- One transaction per write.
+- Existing `RowVersion` concurrency and the unique-index race path are kept.
 - The client shows the server's problem text and never retries a 409.
-- No external calls are added.
+- No external calls.
 
-## 10. Focused test plan
+## 10. Focused test plan (runs only after approval; each group of 5 minutes or less; anything longer is asked first)
 
-Per attempt, run only the named tests. The estimates follow measured durations (`reference_measured_durations`). Any group estimated above 5 minutes is put to the owner before it runs, and nothing broad is run.
-
-| Attempt | Server (xUnit, template-clone DB) | Client (vitest) | Browser |
+| Attempt | Server (xUnit) | Client (vitest) | Browser |
 |---|---|---|---|
-| A1 | Encounter add/change/remove goes to the chart with `EncounterId`, for every kind. Duplicate: case, whitespace, active vs resolved, retried identical add replays, concurrent double add (one wins, one refused or replayed). None-reported refused while an active item exists, allowed with only resolved items. Contradiction derivation (legacy mark, chart NoneKnown). Finalized-encounter provenance unchanged after a later chart change. Version and event append-only. Auth matrix (401/403/other patient/finalized/signed). M1 up/down; row counts and checksums preserved. About 3 min. | Encounter sections render chart plus provenance plus legacy; duplicate 409 links to the existing item; one banner; banner refetches after each write path; guard test. About 1 min. | One real-backend spec: add Penicillin in an encounter, see the banner and Safety tab update without reload, then a duplicate refused. About 1-2 min. |
-| A2 | Complete, adopt and diagnose against Draft (accepted), Finalized (409, nothing written), signed draft (OD-13), other patient's encounter, and auth. About 1-2 min. | Pickers list drafts only; refusal message. Under 1 min. | none |
-| A3 | Allergy-check text guard (no verdict words), prescription view fields, alert source not invented, tooth 99 field problem. About 1 min. | Each display row in the scope matrix, the PD-09d status rendering, the pickers (F-090, F-098). About 1-2 min. | none |
+| A1 | **Routing:** encounter add, change and remove reach the chart with `EncounterId` for Allergy, Medication and MedicalHistory; DentalHistory still writes `EncounterEntry` (boundary). **Allergy duplicate:** case, whitespace, active vs resolved (resolved: not refused by the new rule), retried replay, concurrent double add. **Category boundary (BR-4):** medication and medical-history duplicates behave exactly as before. **None-reported:** refused with an active item, allowed with only resolved items (per 0.3). **Contradiction derivation:** legacy mark and chart NoneKnown. **Provenance:** a finalized encounter is unchanged after a later chart change. Append-only refusal. **Auth matrix.** M1 up and down, with counts and checksums. About 3 min. | Sections render chart, provenance and legacy items; duplicate 409 links to the existing item; one banner; refetch after each write path; guard test. About 1 min. | One real-backend spec: allergy in an encounter, banner and Safety tab update without reload, duplicate refused. About 1-2 min. |
+| A1 (only if OD-14 is approved) | The add flow refuses submission without a chosen status; it creates a new item; the legacy row is unchanged; provenance is linked. | No status pre-selected; historical text read-only. | - |
+| A2 | Complete, adopt and diagnose: Draft accepted; Finalized refused with nothing written; another patient's encounter; auth. **No signed-draft test** (OD-13). About 1-2 min. | Pickers exclude finalized encounters; message. | - |
+| A3 | Allergy-check verdict-word guard; prescription view fields; alert source not invented; tooth 99 field problem. About 1 min. | Each display row of the matrix, the PD-09d status rendering, pickers within their stated scope. About 1-2 min. | - |
 
-**Negative controls (each caught, then restored from a backup with a hash check):**
-- A1: re-enable the encounter-local duplicate check only.
-- A1: drop `EncounterId` from the version.
-- A2: remove the Draft check.
-- A3: plant "safe" in the no-match text.
+**Negative controls (caught, then restored from a backup with a hash check):**
+- A1: encounter-local duplicate check only;
+- A1: `EncounterId` dropped from the version;
+- A1: allergy rule applied to medications (the boundary test must catch it);
+- A2: Draft check removed;
+- A3: "safe" planted in the no-match text.
 
-**Repo checks:** `node --test tests/*.test.mjs`, `tsc`, lint.
+`fullRegression: DEFERRED_TO_ALV-N028`.
 
-`fullRegression: DEFERRED_TO_ALV-N028`, as for ALV-N021.
+## 11. Out of scope
 
-## 11. Out of scope (restated)
-
-- Any allergy-class list.
-- Drug, interaction, dose or contraindication logic.
-- Any external drug API.
-- The clinical meaning of Diagnosed/Planned missing teeth, extraction intent or implant relationships (OD-09, open).
-- Connecting odontogram Plan/Complete to treatment plans (F-095 is explained, not connected).
-- Proposed items OD-10..OD-13 and OD-15 until the owner decides.
+- The allergy-class list and any drug, interaction, dose, contraindication, compatibility or prescribing-decision logic, and any external drug API (deferred; a release limitation).
+- Dental-history consolidation.
+- New duplicate rules for non-allergy kinds.
+- PD-09d clinical meaning.
+- Connecting odontogram Plan/Complete.
+- OD-10..OD-15 until decided.
 
 ## 12. Assumptions (logged)
 
-1. The dental-history section moves to the chart with the other three, because it shares the model and the encounter routes. Leaving it behind would keep two sources.
-2. Removing from the encounter is limited to items added in that encounter. Other items are changed by status. This avoids an encounter erasing a chart fact it did not record.
-3. Normalization keeps the user's case in the stored name.
-4. The contradiction flag is computed and never stored.
-5. M1 adds indexes only, subject to step 0 item 1.
+1. Encounter removal is limited to items added in that encounter.
+2. The stored name keeps the user's text, trimmed.
+3. Contradiction flags are computed and never stored.
+4. M1 adds indexes only, subject to 0.1.
+5. The register's F-105 disposition stays `CONFIRMED`, with the deferral in its note (vocabulary unchanged).
