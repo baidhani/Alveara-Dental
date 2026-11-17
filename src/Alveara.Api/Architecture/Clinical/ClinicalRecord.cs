@@ -117,6 +117,28 @@ public static class ClinicalChangeTypes
     public const string RemovedInError = "RemovedInError";
 }
 
+/// <summary>
+/// ALV-N022 A1: the fixed wording of a section statement in the record's history ("Allergies: reviewed, none known."). The encounter reader reads which statement was made in an
+/// encounter back from these phrases, so they are defined once here and never changed for existing rows.
+/// </summary>
+public static class ClinicalReviewPhrases
+{
+    public const string ConfirmedCurrent = "reviewed and confirmed current";
+    public const string NoneKnown = "reviewed, none known";
+    public const string Unknown = "marked unknown";
+    public const string Withdrawn = "review withdrawn";
+
+    public static string For(string state) => state switch { ClinicalReviewStates.Reviewed => ConfirmedCurrent, ClinicalReviewStates.NoneKnown => NoneKnown, _ => Unknown };
+
+    /// <summary>The stored state a history detail line records, or null when it is not a statement line (or an older wording).</summary>
+    public static string? StateOf(string? detail) =>
+        detail is null ? null
+        : detail.EndsWith(": " + ConfirmedCurrent + ".", StringComparison.Ordinal) ? ClinicalReviewStates.Reviewed
+        : detail.EndsWith(": " + NoneKnown + ".", StringComparison.Ordinal) ? ClinicalReviewStates.NoneKnown
+        : detail.EndsWith(": " + Unknown + ".", StringComparison.Ordinal) ? ClinicalReviewStates.Unknown
+        : null;
+}
+
 public static class ClinicalReviewStates
 {
     public const string Reviewed = "Reviewed";

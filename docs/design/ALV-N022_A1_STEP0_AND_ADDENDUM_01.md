@@ -57,3 +57,7 @@ Or A1 waits as a whole, if the owner prefers.
 4. **Concurrency:** two simultaneous adds leave one record (existing unique index); the losing request gets the same existing-record direction.
 
 Updated in this addendum: decision record OD-03 acceptance criterion (agent wording column; the owner's words are unchanged), briefing 4.1, 5.1 and 10, scope matrix F-084. Documents only; no product code, schema, test or configuration changed; no test run.
+
+## 5. Step 3 finding (2026-11-17): migration M1 is not needed
+
+The two indexes the briefing planned for M1 already exist, created by EF Core with the foreign keys: `IX_ClinicalRecordItemVersions_EncounterId` and `IX_ClinicalRecordEvents_EncounterId` (read-only `sys.indexes` check on AlveraDev; also in the model snapshot by convention). A1 therefore adds **no migration and no schema change**. `dotnet ef migrations has-pending-model-changes` reports no changes. The preservation proof (row counts and checksums before and after M1) becomes a proof that A1 changes no schema; the deployment collision preflight condition still applies before A1 is deployed.

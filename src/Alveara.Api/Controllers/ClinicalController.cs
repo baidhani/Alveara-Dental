@@ -12,11 +12,16 @@ public record AddEntryRequest(string? Kind, string? Name, string? Detail, string
 {
     public EntryFields Fields => new(Name, Detail, Reaction, Severity, Dose, Frequency);
 }
-public record UpdateEntryRequest(string? Name, string? Detail, string? Reaction, string? Severity, string? Dose, string? Frequency, string? RowVersion)
+/// <summary>ALV-N022 A1 (additive): for a chart item, <see cref="ItemRowVersion"/> is the item's version (stale edits are refused) and <see cref="Reason"/> is optional history text.</summary>
+public record UpdateEntryRequest(string? Name, string? Detail, string? Reaction, string? Severity, string? Dose, string? Frequency, string? RowVersion, string? ItemRowVersion = null, string? Reason = null)
 {
     public EntryFields Fields => new(Name, Detail, Reaction, Severity, Dose, Frequency);
 }
 public record EncounterVersionRequest(string? RowVersion);
+/// <summary>ALV-N022 A1: removing a chart item added in this encounter needs the item's version and a reason (it is marked entered in error, never deleted).</summary>
+public record RemoveEntryRequest(string? RowVersion, string? ItemRowVersion = null, string? Reason = null);
+/// <summary>ALV-N022 A1: a status the user chose for a chart item (for example reactivating a resolved allergy).</summary>
+public record EntryStatusRequest(string? Status, string? RowVersion, string? ItemRowVersion, string? Reason = null);
 public record AddendumRequest(string? Text, string? Section = null);
 
 /// <summary>
@@ -40,7 +45,7 @@ public class ClinicalController(EncounterService encounters, EncounterReader rea
         }
         catch (ClinicalException ex)
         {
-            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors });
+            return StatusCode(ex.StatusCode, ex.ToBody());
         }
         catch (ConcurrencyConflictException ex)
         {
@@ -81,14 +86,28 @@ public class ClinicalController(EncounterService encounters, EncounterReader rea
     [RequirePermission(Permission.ManageClinicalNotes)]
     [RequireCsrfToken]
     public Task<IActionResult> UpdateEntry(Guid encounterId, Guid entryId, [FromBody] UpdateEntryRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await encounters.UpdateEntryAsync(encounterId, entryId, request.Fields, request.RowVersion, Actor, ct)));
+        Run(async () => Ok(await encounters.UpdateEntryAsync(encounterId, entryId, request.Fields, request.RowVersion, Actor, ct, request.ItemRowVersion, request.Reason)));
 
     /// <summary>Removes an entry from the active documentation (it is kept, never deleted).</summary>
     [HttpPost("api/encounters/{encounterId:guid}/entries/{entryId:guid}/remove")]
     [RequirePermission(Permission.ManageClinicalNotes)]
     [RequireCsrfToken]
-    public Task<IActionResult> RemoveEntry(Guid encounterId, Guid entryId, [FromBody] EncounterVersionRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await encounters.RemoveEntryAsync(encounterId, entryId, request.RowVersion, Actor, ct)));
+    public Task<IActionResult> RemoveEntry(Guid encounterId, Guid entryId, [FromBody] RemoveEntryRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await encounters.RemoveEntryAsync(encounterId, entryId, request.RowVersion, Actor, ct, request.ItemRowVersion, request.Reason)));
+
+    /// <summary>ALV-N022 A1: changes a chart item's status from the encounter (the user chose it; recorded with this encounter).</summary>
+    [HttpPost("api/encounters/{encounterId:guid}/entries/{entryId:guid}/status")]
+    [RequirePermission(Permission.ManageClinicalNotes)]
+    [RequireCsrfToken]
+    public Task<IActionResult> SetEntryStatus(Guid encounterId, Guid entryId, [FromBody] EntryStatusRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await encounters.SetEntryStatusAsync(encounterId, entryId, request.Status, request.RowVersion, request.ItemRowVersion, request.Reason, Actor, ct)));
+
+    /// <summary>ALV-N022 A1: confirms in this encounter that the chart's list for a section is current ("Allergy", "Medication" or "MedicalHistory").</summary>
+    [HttpPost("api/encounters/{encounterId:guid}/sections/{kind}/confirm-current")]
+    [RequirePermission(Permission.ManageClinicalNotes)]
+    [RequireCsrfToken]
+    public Task<IActionResult> ConfirmCurrent(Guid encounterId, string kind, [FromBody] EncounterVersionRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await encounters.ConfirmSectionCurrentAsync(encounterId, kind, request.RowVersion, Actor, ct)));
 
     /// <summary>Records that a section was reviewed and there is nothing to report ("MedicalHistory", "DentalHistory", "Allergy" or "Medication").</summary>
     [HttpPost("api/encounters/{encounterId:guid}/sections/{kind}/none-reported")]

@@ -158,3 +158,13 @@ export const cancelClearance = (id: string, reason: string, rowVersion: string) 
 /** Tells every mounted safety strip (the patient header, an open encounter) to re-read, after a change in the safety panel. */
 export const SAFETY_CHANGED_EVENT = "alveara:safety-changed";
 export const announceSafetyChanged = (patientId: string) => window.dispatchEvent(new CustomEvent(SAFETY_CHANGED_EVENT, { detail: { patientId } }));
+
+/**
+ * ALV-N022 A1 (OD-05): wraps a clinical-record write so that, once the server has saved it, every safety banner for that patient refetches the server's summary. Every
+ * allergy, medication, medical-history and section-statement write - from the chart or from an encounter - goes through this (a repo check refuses one that does not).
+ */
+export const withSafetyNotice = async <T extends { patientId: string }>(write: Promise<T>): Promise<T> => {
+  const saved = await write;
+  announceSafetyChanged(saved.patientId);
+  return saved;
+};

@@ -152,21 +152,31 @@ test("ACCEPTANCE 1: a dentist documents an encounter - medical and dental histor
   await shot(page, "01-new-draft.png");
 
   await addEntry(page, "Medical history", "medical history item", { Name: "Hypertension", Details: "Controlled with medication" });
-  await expect(region(page, "Medical history").getByText("Hypertension")).toBeVisible();
+  // ALV-N022 A1: allergies, medications and medical history are saved to the patient's chart (listed, and again under "recorded in this encounter")
+  await expect(region(page, "Medical history").getByText("Hypertension").first()).toBeVisible();
   await addEntry(page, "Dental history", "dental history item", { Name: "Root canal, lower left, 2019" });
   await addEntry(page, "Allergies", "allergy", { Name: "Penicillin", Reaction: "Hives", Severity: "Moderate" });
   await addEntry(page, "Medications", "medication", { Name: "Lisinopril", Dose: "10 mg", Frequency: "daily" });
   await expect(region(page, "Allergies").getByText("Reaction: Hives · Severity: Moderate")).toBeVisible();
   await expect(region(page, "Medications").getByText("Dose: 10 mg · Frequency: daily")).toBeVisible();
-  await expect(page.getByText("Medications entry saved.")).toBeVisible();
+  await expect(page.getByText("Medications: saved to the chart.")).toBeVisible();
+  await expect(region(page, "Allergies").getByText("Recorded on the chart in this encounter")).toBeVisible();
   await shot(page, "02-documented.png");
 
   const stored = await encounter(page, ids.enc1);
-  const byKind = Object.fromEntries(stored.sections.map((s: any) => [s.kind, s.entries.map((e: any) => e.name)]));
+  const names = (s: any) => (s.source === "Chart" ? s.chartItems : s.entries).map((e: any) => e.name);
+  const byKind = Object.fromEntries(stored.sections.map((s: any) => [s.kind, names(s)]));
   expect(byKind).toEqual({ MedicalHistory: ["Hypertension"], DentalHistory: ["Root canal, lower left, 2019"], Allergy: ["Penicillin"], Medication: ["Lisinopril"] });
   expect(stored.isComplete).toBe(true);
-  expect(stored.sections.every((s: any) => s.entries.every((e: any) => e.createdByUserId && e.createdAtUtc))).toBe(true);
-  evidence.documented = { sections: byKind, complete: stored.isComplete, attributed: true };
+  const dental = stored.sections.find((s: any) => s.kind === "DentalHistory");
+  expect(dental.entries.every((e: any) => e.createdByUserId && e.createdAtUtc)).toBe(true);
+  // who and when for the chart items: this encounter's provenance rows
+  const provenance = stored.sections.filter((s: any) => s.source === "Chart").flatMap((s: any) => s.recordedHere);
+  expect(provenance.map((p: any) => [p.name, p.changeType]).sort()).toEqual([["Hypertension", "Added"], ["Lisinopril", "Added"], ["Penicillin", "Added"]]);
+  expect(provenance.every((p: any) => p.actorName && p.occurredAtUtc)).toBe(true);
+  const chart = (await api(page, "get", `/api/patients/${ids.ann}/clinical-record`)).body as any;
+  expect(chart.sections.find((s: any) => s.kind === "Allergy").items.map((i: any) => i.name)).toEqual(["Penicillin"]); // one record, on the chart
+  evidence.documented = { sections: byKind, complete: stored.isComplete, attributed: true, onTheChart: true };
 
   await scanBothThemes(page, "draft-editor");
   await region(page, "Allergies").getByRole("button", { name: "Add allergy: Allergies" }).click();
@@ -193,12 +203,21 @@ test("INCOMPLETE DOCUMENTATION: a note with sections still not addressed cannot 
   expect(Object.keys(refused.body.fieldErrors as object).sort()).toEqual(["Allergy", "DentalHistory", "Medication"]);
 
   await page.getByRole("button", { name: "Keep editing" }).click();
-  for (const section of ["Dental history", "Allergies", "Medications"]) await region(page, section).getByRole("button", { name: `Reviewed - none reported: ${section}` }).click();
-  await expect(region(page, "Medications").getByText("Reviewed - none reported", { exact: true })).toBeVisible();
-  await expect(region(page, "Allergies").getByRole("button", { name: /Add allergy/ })).toHaveCount(0); // cannot add while marked
+  // dental history: "reviewed - none reported" on the encounter itself
+  await region(page, "Dental history").getByRole("button", { name: "Reviewed - none reported: Dental history" }).click();
+  await expect(region(page, "Dental history").getByText("Reviewed - none reported", { exact: true })).toBeVisible();
+  await expect(region(page, "Dental history").getByRole("button", { name: /Add dental history item/ })).toHaveCount(0); // cannot add while marked
+  // ALV-N022 A1 (OD-04): the chart lists an active allergy and medication, so "none reported" is not offered there; the list is confirmed current instead
+  for (const section of ["Allergies", "Medications"]) {
+    await expect(region(page, section).getByRole("button", { name: `Reviewed - none reported: ${section}` })).toHaveCount(0);
+    await region(page, section).getByRole("button", { name: `Confirm the list is current: ${section}` }).click();
+    await expect(region(page, section).getByText("Confirmed in this encounter: the chart's list is current.")).toBeVisible();
+  }
+  const noneRefused = await api(page, "post", `/api/encounters/${ids.enc2}/sections/Allergy/none-reported`, { rowVersion: (await encounter(page, ids.enc2)).rowVersion });
+  expect([noneRefused.status, noneRefused.body.error]).toEqual([409, "section_has_active_items"]);
   await page.getByRole("button", { name: "Review and finalize" }).click();
   await expect(page.getByRole("region", { name: "Review before finalizing" }).getByText(/Needs attention/)).toHaveCount(0);
-  evidence.incomplete = { refused: 409, code: "documentation_incomplete", sections: Object.keys(refused.body.fieldErrors as object), noneReportedCompletesIt: true };
+  evidence.incomplete = { refused: 409, code: "documentation_incomplete", sections: Object.keys(refused.body.fieldErrors as object), noneReportedCompletesIt: true, confirmCurrentCompletesChartSections: true, noneReportedRefusedWithActiveItem: "section_has_active_items" };
 });
 
 test("ACCEPTANCE 2: a finalized encounter cannot be changed, and an addendum is added beside the untouched original", async () => {
@@ -206,7 +225,7 @@ test("ACCEPTANCE 2: a finalized encounter cannot be changed, and an addendum is 
   await page.getByRole("button", { name: "Finalize encounter" }).click();
   await expect(page.getByText("Finalized", { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/can no longer be changed/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Add (medical|dental|allergy|medication)|Change|Remove|Review and finalize|Reviewed - none reported/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Add (medical|dental|allergy|medication)|Change|Remove|Review and finalize|Reviewed - none reported|Confirm the list|Withdraw/ })).toHaveCount(0);
 
   const original = await encounter(page, ids.enc2);
   expect(original.status).toBe("Finalized");
@@ -235,7 +254,7 @@ test("ACCEPTANCE 2: a finalized encounter cannot be changed, and an addendum is 
   const hygienist = sessions.Hygienist.page;
   await hygienist.goto(`/patients/${ids.ann}/clinical/${ids.enc2}`);
   await expect(hygienist.getByText("Patient later confirmed the allergy list is complete.")).toBeVisible();
-  await expect(region(hygienist, "Medical history").getByText("Asthma")).toBeVisible();
+  await expect(region(hygienist, "Medical history").getByText("Asthma").first()).toBeVisible();
 });
 
 test("DATA LOSS: a response lost after the server stored an addendum keeps the typed text and a retry cannot add it twice", async () => {
@@ -278,19 +297,22 @@ test("CONCURRENCY: a second clinician's stale screen is refused with the conflic
 
   await expect(second.getByText("Someone else changed this while you were editing")).toBeVisible();
   await shot(second, "06-stale-edit.png");
+  // ALV-N022 A1: what this encounter recorded on the chart
+  const here = (enc: any, kind: string) => enc.sections.find((s: any) => s.kind === kind).recordedHere.map((p: any) => p.name);
   let current = await encounter(first, ids.enc3);
-  expect(current.sections.find((s: any) => s.kind === "Medication").entries).toHaveLength(0); // nothing was overwritten
-  expect(current.sections.find((s: any) => s.kind === "Allergy").entries.map((e: any) => e.name)).toEqual(["Latex"]);
+  expect(here(current, "Medication")).toEqual([]); // nothing was written by the stale screen
+  expect(current.sections.find((s: any) => s.kind === "Medication").chartItems.map((i: any) => i.name)).not.toContain("Aspirin");
+  expect(here(current, "Allergy")).toEqual(["Latex"]);
   await scanBothThemes(second, "conflict-banner");
 
   await second.getByRole("button", { name: /reload/i }).click();
   await expect(second.getByText("Someone else changed this while you were editing")).toHaveCount(0);
-  await expect(region(second, "Allergies").getByText("Latex")).toBeVisible(); // the reload shows the other clinician's change
+  await expect(region(second, "Allergies").getByText("Latex").first()).toBeVisible(); // the reload shows the other clinician's change
   await expect(region(second, "Medications").getByLabel("Name")).toHaveValue("Aspirin"); // and the typed value survived (refreshed in place)
   await region(second, "Medications").getByRole("button", { name: "Add medication", exact: true }).click();
-  await expect(region(second, "Medications").getByText("Aspirin")).toBeVisible();
+  await expect(region(second, "Medications").getByText("Aspirin").first()).toBeVisible();
   current = await encounter(first, ids.enc3);
-  expect(current.sections.find((s: any) => s.kind === "Medication").entries.map((e: any) => e.name)).toEqual(["Aspirin"]);
+  expect(here(current, "Medication")).toEqual(["Aspirin"]);
   evidence.concurrency = { staleEditRefused: true, otherChangeStood: true, typedValuesSurvivedReload: true, savedAfterReload: true };
 });
 
@@ -325,15 +347,18 @@ test("SCOPE: another patient's list never shows this patient's encounters, and a
 
 test("TRUST: every change is in the audit log with the user and a time, and no clinical content is in it", async () => {
   const entries = (await (await admin.request.get("/api/auth/audit-log?take=500")).json()) as { eventType: string; performedByUserAccountId: string | null; timestampUtc: string; details: string }[];
-  const clinical = entries.filter((e) => e.eventType.startsWith("Encounter"));
+  // ALV-N022 A1: the encounter audits its own entries (dental history); allergy, medication and history writes are audited on the chart (ClinicalRecord* / ClinicalSection*)
+  const clinical = entries.filter((e) => /^(Encounter|ClinicalRecord|ClinicalSection)/.test(e.eventType));
   const by = (t: string) => clinical.filter((e) => e.eventType === t);
   expect(by("EncounterStarted").length).toBe(3);
-  expect(by("EncounterEntryAdded").length).toBeGreaterThanOrEqual(8);
-  expect(by("EncounterSectionReviewed").length).toBe(3);
+  expect(by("EncounterEntryAdded").length).toBe(2);                 // the two dental-history entries
+  expect(by("ClinicalRecordItemAdded").length).toBe(6);             // Hypertension, Penicillin, Lisinopril, Asthma, Latex, Aspirin - each once
+  expect(by("EncounterSectionReviewed").length).toBe(1);            // dental history, none reported
+  expect(by("ClinicalSectionReviewed").length).toBe(2);             // allergies and medications confirmed current
   expect(by("EncounterFinalized").length).toBe(1);
   expect(by("EncounterAddendumAdded").length).toBe(2);
   expect(clinical.every((e) => e.performedByUserAccountId && e.timestampUtc)).toBe(true);
   const text = clinical.map((e) => e.details).join(" ");
   for (const secret of ["Penicillin", "Hypertension", "Lisinopril", "Hives", "Asthma", "Latex", "Aspirin", "Patient later confirmed", "Sent once"]) expect(text, `audit must not contain ${secret}`).not.toContain(secret);
-  evidence.audit = Object.fromEntries(["EncounterStarted", "EncounterEntryAdded", "EncounterEntryChanged", "EncounterSectionReviewed", "EncounterFinalized", "EncounterAddendumAdded"].map((t) => [t, by(t).length]));
+  evidence.audit = Object.fromEntries(["EncounterStarted", "EncounterEntryAdded", "EncounterEntryChanged", "EncounterSectionReviewed", "EncounterFinalized", "EncounterAddendumAdded", "ClinicalRecordItemAdded", "ClinicalSectionReviewed"].map((t) => [t, by(t).length]));
 });

@@ -39,7 +39,7 @@ public class ClinicalRecordController(ClinicalRecordService service, ClinicalRec
         }
         catch (ClinicalException ex)
         {
-            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message, fieldErrors = ex.FieldErrors });
+            return StatusCode(ex.StatusCode, ex.ToBody());
         }
         catch (ConcurrencyConflictException ex)
         {

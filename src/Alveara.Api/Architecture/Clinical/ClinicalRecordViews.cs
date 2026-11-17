@@ -23,9 +23,19 @@ public sealed record ItemVersionView(
 public sealed record ItemHistoryView(Guid ItemId, string Kind, IReadOnlyList<ItemVersionView> Versions);
 
 /// <summary>The words and limits for the record's sections, one place so messages, history text and tests agree.</summary>
-public static class ClinicalRecordRules
+public static partial class ClinicalRecordRules
 {
     public const int ReasonMax = 500;
+
+    /// <summary>
+    /// ALV-N022 A1 (Addendum 01): NEW allergy input is canonicalized - trimmed and inner whitespace collapsed to one space, case kept - so the unique live-name index also
+    /// catches "Penicillin  V" against "Penicillin V" (case and trailing spaces are already equal under the column's collation). Other kinds are unchanged; stored rows are never rewritten.
+    /// </summary>
+    public static EntryFields Canonical(string kind, EntryFields f) =>
+        kind == EncounterEntryKinds.Allergy && f.Name is not null ? f with { Name = InnerWhitespace().Replace(f.Name.Trim(), " ") } : f;
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"\s+")]
+    private static partial System.Text.RegularExpressions.Regex InnerWhitespace();
 
     public static string RequireStatus(string kind, string? status)
     {

@@ -34,6 +34,9 @@ public class ClinicalRecordReader(AlveraDbContext db)
     /// <summary>The status of a section: with items, "Reviewed" only while no item changed after the review; without items, what the clinician said, else "not reviewed".</summary>
     internal static string SectionStatus(IReadOnlyList<ClinicalRecordItem> liveItems, ClinicalSectionReview? review)
     {
+        // ALV-N022 A1 (OD-04): "none known" may stand beside resolved or inactive items (history), never beside an active one; it is then what the clinician said.
+        if (review is { State: ClinicalReviewStates.NoneKnown } && liveItems.All(i => i.Status != ClinicalItemStatuses.Active))
+            return ClinicalSectionStatuses.NoneKnown;
         if (liveItems.Count > 0)
         {
             var newest = liveItems.Max(i => i.UpdatedAtUtc ?? i.CreatedAtUtc);
@@ -56,7 +59,7 @@ public class ClinicalRecordReader(AlveraDbContext db)
             v.VersionNumber, v.ChangeType, v.Name, v.Detail, v.Reaction, v.Severity, v.Dose, v.Frequency, v.Status, v.Reason, v.EncounterId, ClinicalNames.Name(names, v.ActorUserId), v.OccurredAtUtc)).ToList());
     }
 
-    private static ItemView ToView(ClinicalRecordItem i, IReadOnlyDictionary<Guid, string> names) =>
+    internal static ItemView ToView(ClinicalRecordItem i, IReadOnlyDictionary<Guid, string> names) =>
         new(i.Id, i.Kind, i.Name, i.Detail, i.Reaction, i.Severity, i.Dose, i.Frequency, i.Status, i.CreatedAtUtc, ClinicalNames.Name(names, i.CreatedByUserId),
             i.UpdatedAtUtc, ClinicalNames.Name(names, i.UpdatedByUserId), Convert.ToBase64String(i.RowVersion));
 }

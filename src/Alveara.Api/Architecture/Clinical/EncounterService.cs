@@ -25,7 +25,7 @@ namespace Alveara.Api.Architecture.Clinical;
 ///   encounter and re-sending an addendum with the same key all return the current state and change nothing.
 /// - <b>Audit text is PHI-free:</b> section names and ids only; names, reactions, doses and notes live in the clinical tables, behind the clinical permissions.
 /// </summary>
-public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<EncounterService>? logger = null)
+public partial class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<EncounterService>? logger = null)
 {
     private static readonly IReadOnlySet<RecordLifecycleAction> AllowedFromDraft = new HashSet<RecordLifecycleAction> { RecordLifecycleAction.Finalize };
     private static readonly IReadOnlySet<RecordLifecycleAction> AllowedFromFinalized = new HashSet<RecordLifecycleAction> { RecordLifecycleAction.Addendum };
@@ -97,6 +97,7 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
     public async Task<EncounterDetail> AddEntryAsync(Guid encounterId, string? kind, EntryFields fields, string? rowVersion, Guid actor, CancellationToken ct)
     {
         kind = EncounterRules.RequireKind(kind);
+        if (EncounterChartSections.OnChart(kind)) return await AddToChartAsync(encounterId, kind, fields, rowVersion, actor, ct); // ALV-N022 A1
         var f = EncounterRules.Validate(kind, fields);
         var encounter = await LoadDraftAsync(encounterId, rowVersion, ct);
 
@@ -122,8 +123,11 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
         return await Reader.GetAsync(encounterId, ct);
     }
 
-    public async Task<EncounterDetail> UpdateEntryAsync(Guid encounterId, Guid entryId, EntryFields fields, string? rowVersion, Guid actor, CancellationToken ct)
+    public async Task<EncounterDetail> UpdateEntryAsync(Guid encounterId, Guid entryId, EntryFields fields, string? rowVersion, Guid actor, CancellationToken ct,
+        string? itemRowVersion = null, string? reason = null)
     {
+        // ALV-N022 A1: an id that is not one of this encounter's own entries is a chart item (allergies, medications, medical history)
+        if (await FindLegacyEntryAsync(encounterId, entryId, ct) is null) return await UpdateOnChartAsync(encounterId, entryId, fields, rowVersion, itemRowVersion, reason, actor, ct);
         var encounter = await LoadDraftAsync(encounterId, rowVersion, ct);
         var entry = await db.EncounterEntries.SingleOrDefaultAsync(x => x.Id == entryId && x.EncounterId == encounterId, ct)
             ?? throw new ClinicalException("entry_not_found", "That entry was not found on this encounter.", 404);
@@ -145,8 +149,10 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
     }
 
     /// <summary>Removes an entry from the active documentation. It is kept (who and when) and never deleted; removing a removed entry changes nothing.</summary>
-    public async Task<EncounterDetail> RemoveEntryAsync(Guid encounterId, Guid entryId, string? rowVersion, Guid actor, CancellationToken ct)
+    public async Task<EncounterDetail> RemoveEntryAsync(Guid encounterId, Guid entryId, string? rowVersion, Guid actor, CancellationToken ct,
+        string? itemRowVersion = null, string? reason = null)
     {
+        if (await FindLegacyEntryAsync(encounterId, entryId, ct) is null) return await RemoveFromChartAsync(encounterId, entryId, rowVersion, itemRowVersion, reason, actor, ct); // ALV-N022 A1
         var encounter = await LoadDraftAsync(encounterId, rowVersion, ct);
         var entry = await db.EncounterEntries.SingleOrDefaultAsync(x => x.Id == entryId && x.EncounterId == encounterId, ct)
             ?? throw new ClinicalException("entry_not_found", "That entry was not found on this encounter.", 404);
@@ -166,6 +172,7 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
     public async Task<EncounterDetail> MarkSectionNoneReportedAsync(Guid encounterId, string? kind, string? rowVersion, Guid actor, CancellationToken ct)
     {
         kind = EncounterRules.RequireKind(kind);
+        if (EncounterChartSections.OnChart(kind)) return await StateOnChartAsync(encounterId, kind, ClinicalReviewStates.NoneKnown, rowVersion, actor, ct); // ALV-N022 A1 (OD-04)
         var encounter = await LoadDraftAsync(encounterId, rowVersion, ct);
         if (await db.EncounterSectionMarks.AnyAsync(m => m.EncounterId == encounterId && m.Section == kind, ct)) return await Reader.GetAsync(encounterId, ct);
         if (await db.EncounterEntries.AnyAsync(x => x.EncounterId == encounterId && x.Kind == kind && x.RemovedAtUtc == null, ct))
@@ -182,6 +189,7 @@ public class EncounterService(AlveraDbContext db, IPracticeClock clock, ILogger<
     public async Task<EncounterDetail> ClearSectionReviewAsync(Guid encounterId, string? kind, string? rowVersion, Guid actor, CancellationToken ct)
     {
         kind = EncounterRules.RequireKind(kind);
+        if (EncounterChartSections.OnChart(kind)) return await StateOnChartAsync(encounterId, kind, ClinicalReviewStates.NotReviewed, rowVersion, actor, ct); // ALV-N022 A1
         var encounter = await LoadDraftAsync(encounterId, rowVersion, ct);
         var mark = await db.EncounterSectionMarks.SingleOrDefaultAsync(m => m.EncounterId == encounterId && m.Section == kind, ct);
         if (mark is null) return await Reader.GetAsync(encounterId, ct);

@@ -7,16 +7,17 @@ import { useAuth } from "../../contexts/AuthContext";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
 import {
-  EVENT_LABELS, SECTION_LABELS, addEntry, clearSectionReview, clinicalFieldErrorsOf, finalizeEncounter, getEncounter, isNetworkFailure, markNoneReported, removeEntry, updateEntry,
+  EVENT_LABELS, SECTION_LABELS, addEntry, clearSectionReview, clinicalFieldErrorsOf, confirmSectionCurrent, existingItemOf, finalizeEncounter, getEncounter, isNetworkFailure,
+  markNoneReported, removeEntry, setEntryStatus, updateEntry,
 } from "../../services/clinicalApi";
-import type { EncounterDetail, EntryInput } from "../../services/clinicalApi";
+import type { EncounterDetail, EntryInput, ExistingItem } from "../../services/clinicalApi";
 import { NOTE_LABELS, applyTemplate, saveNote, signEncounter, unsignEncounter } from "../../services/clinicalNotesApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { AddendumPanel } from "./AddendumPanel";
 import { FinalizeReview } from "./FinalizeReview";
 import { NotesPanel } from "./notes/NotesPanel";
 import { VitalsPanel } from "./notes/VitalsPanel";
-import { SafetyStrip } from "../safety/SafetyStrip";
+import { ChartSectionPanel } from "./ChartSectionPanel";
 import { SectionPanel } from "./SectionPanel";
 import type { SaveResult } from "./SectionPanel";
 import "./Clinical.css";
@@ -47,6 +48,8 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
   const [reviewing, setReviewing] = useState(false);
   const [refusal, setRefusal] = useState<{ message: string; sections: string[] } | null>(null);
+  /** ALV-N022 A1: the chart item a refused add pointed to (Addendum 02); the section offers to update or reactivate it, and cancelling changes nothing. */
+  const [existing, setExisting] = useState<ExistingItem | null>(null);
   const latest = useRef<EncounterDetail | null>(null);
   const queue = useRef<Promise<unknown>>(Promise.resolve());
 
@@ -92,6 +95,9 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
       if (isConcurrencyConflict(err)) {
         setConflict(err.body);
         setSaving({ kind: "failed", text: "Not saved: someone else changed this note." });
+      } else if (existingItemOf(err)) {
+        setExisting(existingItemOf(err));
+        setSaving({ kind: "failed", text: `Not added: ${err instanceof ApiError ? err.message : "it is already on the chart."}` });
       } else if (err instanceof ApiError && err.code === "documentation_incomplete") {
         setRefusal({ message: err.message, sections: Object.keys(clinicalFieldErrorsOf(err)) });
         setSaving({ kind: "failed", text: "Not finalized: some sections still need attention." });
@@ -143,8 +149,6 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
         </span>
       </header>
 
-      <SafetyStrip patientId={patient.id} label="Patient safety for this encounter" />
-
       <p className="alv-clinical__status" role="status" aria-live="polite">
         {saving.kind === "saving" ? "Saving…" : saving.kind === "saved" ? saving.text : saving.kind === "failed" ? saving.text : draft ? (e.isSigned ? "This note is signed and locked." : "Every change is saved as you make it.") : "This note is finalized."}
       </p>
@@ -164,7 +168,23 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
         </div>
       )}
 
-      {e.sections.map((section) => (
+      {e.sections.map((section) => section.source === "Chart" ? (
+        <ChartSectionPanel
+          key={section.kind}
+          section={section}
+          editable={!!editable}
+          busy={busy}
+          existing={existing && existing.kind === section.kind ? existing : null}
+          onDismissExisting={() => setExisting(null)}
+          onAdd={(kind, input: EntryInput) => run((v) => addEntry(e.id, kind, input, v), `${SECTION_LABELS[kind]}: saved to the chart.`)}
+          onUpdate={(item, input) => run((v) => updateEntry(e.id, item.id, input, v, item.rowVersion), "Chart item changed.")}
+          onSetStatus={(item, status) => run((v) => setEntryStatus(e.id, item.id, status, v, item.rowVersion), `Status changed to ${status.toLowerCase()}.`)}
+          onRemove={(item, reason) => run((v) => removeEntry(e.id, item.id, v, item.rowVersion, reason), "Removed as entered in error.")}
+          onConfirm={async (kind) => void (await run((v) => confirmSectionCurrent(e.id, kind, v), `${SECTION_LABELS[kind]}: confirmed current.`))}
+          onMarkNone={async (kind) => void (await run((v) => markNoneReported(e.id, kind, v), `${SECTION_LABELS[kind]} marked reviewed, none reported.`))}
+          onClearReview={async (kind) => void (await run((v) => clearSectionReview(e.id, kind, v), `${SECTION_LABELS[kind]}: statement withdrawn.`))}
+        />
+      ) : (
         <SectionPanel
           key={section.kind}
           section={section}

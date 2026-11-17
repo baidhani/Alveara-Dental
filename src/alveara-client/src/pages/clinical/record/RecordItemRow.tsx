@@ -78,7 +78,7 @@ export function RecordItemRow({ item, canWrite, busy, run }: Props) {
       {mode === "edit" ? (
         <EntryForm
           kind={item.kind}
-          initial={entryInputOf({ ...item, createdByUserId: null })}
+          initial={entryInputOf(item)}
           submitLabel="Save changes"
           busy={busy}
           onCancel={() => setMode("view")}

@@ -35,7 +35,7 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
     private async Task<ClinicalRecordView> AddItemAsync(Guid patientId, string? kind, EntryFields fields, string? status, Guid? encounterId, Guid actor, CancellationToken ct, bool retried)
     {
         kind = EncounterRules.RequireKind(kind);
-        var f = EncounterRules.Validate(kind, fields);
+        var f = ClinicalRecordRules.Canonical(kind, EncounterRules.Validate(kind, fields));
         status = ClinicalRecordRules.RequireStatus(kind, status ?? ClinicalItemStatuses.Active);
         await RequireActivePatientAsync(patientId, ct);
         await RequireOpenEncounterAsync(patientId, encounterId, ct);
@@ -54,9 +54,18 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
         await ClearStatementIfAnyAsync(patientId, kind, "added an item", encounterId, actor, now, ct);
         StageEvent(patientId, kind, "ItemAdded", $"{EncounterRules.Label(kind)}: item added.", encounterId, actor, now);
         AuditService.Record(db, "ClinicalRecordItemAdded", nameof(ClinicalRecordItem), item.Id, actor, $"{EncounterRules.Label(kind)}: item added.");
+        await StageEncounterAsync(encounterId, kind, EncounterEventTypes.EntryAdded, "item added", actor, now, ct);
         try
         {
             await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException ex) when (IsEncounterConflict(ex))
+        {
+            throw new ConcurrencyConflictException(nameof(Encounter), encounterId!.Value); // the encounter changed since the caller read it: never retried past
+        }
+        catch (DbUpdateException ex) when (encounterId is not null && ClinicalWrite.IsClinicalTrigger(ex))
+        {
+            throw EncounterClosedMeanwhile();
         }
         catch (DbUpdateConcurrencyException) when (!retried)
         {
@@ -76,20 +85,22 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
     {
         reason = ClinicalRecordRules.CleanReason(reason);
         var item = await LoadItemAsync(itemId, rowVersion, ct);
-        var f = EncounterRules.Validate(item.Kind, fields);
+        var f = ClinicalRecordRules.Canonical(item.Kind, EncounterRules.Validate(item.Kind, fields));
         await RequireOpenEncounterAsync(item.PatientId, encounterId, ct);
         if (SameFields(item, f)) return await Reader.GetAsync(item.PatientId, ct);
 
-        var clash = await db.ClinicalRecordItems.AsNoTracking().AnyAsync(x => x.PatientId == item.PatientId && x.Kind == item.Kind && x.RemovedAtUtc == null && x.Id != itemId && x.Name == f.Name, ct);
-        if (clash) throw new ClinicalException("duplicate_item", $"'{f.Name}' is already listed under {EncounterRules.Label(item.Kind)}.", 409);
+        var clash = await db.ClinicalRecordItems.AsNoTracking().Where(x => x.PatientId == item.PatientId && x.Kind == item.Kind && x.RemovedAtUtc == null && x.Id != itemId && x.Name == f.Name)
+            .Select(x => new ExistingItemRef(x.Id, x.Kind, x.Status)).FirstOrDefaultAsync(ct);
+        if (clash is not null) throw new ClinicalException("duplicate_item", $"'{f.Name}' is already listed under {EncounterRules.Label(item.Kind)}.", 409) { Existing = clash };
 
         var now = clock.UtcNow;
         item.Name = f.Name!; item.Detail = f.Detail; item.Reaction = f.Reaction; item.Severity = f.Severity; item.Dose = f.Dose; item.Frequency = f.Frequency;
         Stamp(item, actor, now);
         StageVersion(item, await NextVersionAsync(itemId, ct), ClinicalChangeTypes.Changed, reason, encounterId, actor, now);
         StageEvent(item.PatientId, item.Kind, "ItemChanged", $"{EncounterRules.Label(item.Kind)}: item changed.", encounterId, actor, now);
+        await StageEncounterAsync(encounterId, item.Kind, EncounterEventTypes.EntryChanged, "item changed", actor, now, ct);
         AuditService.Record(db, "ClinicalRecordItemChanged", nameof(ClinicalRecordItem), item.Id, actor, $"{EncounterRules.Label(item.Kind)}: item changed.");
-        return await SaveAsync(item, ct);
+        return await SaveAsync(item, encounterId, ct);
     }
 
     public async Task<ClinicalRecordView> SetStatusAsync(Guid itemId, string? status, string? rowVersion, string? reason, Guid? encounterId, Guid actor, CancellationToken ct)
@@ -101,12 +112,15 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
         if (item.Status == status) return await Reader.GetAsync(item.PatientId, ct);
 
         var now = clock.UtcNow;
+        // ALV-N022 A1: "none known" is refused only while an ACTIVE item exists, so reactivating an item withdraws such a statement in the same save (it would contradict it).
+        if (status == ClinicalItemStatuses.Active) await ClearStatementIfAnyAsync(item.PatientId, item.Kind, "reactivated an item", encounterId, actor, now, ct);
         item.Status = status;
         Stamp(item, actor, now);
         StageVersion(item, await NextVersionAsync(itemId, ct), ClinicalChangeTypes.StatusChanged, reason, encounterId, actor, now);
         StageEvent(item.PatientId, item.Kind, "ItemStatusChanged", $"{EncounterRules.Label(item.Kind)}: status changed to {status}.", encounterId, actor, now);
+        await StageEncounterAsync(encounterId, item.Kind, EncounterEventTypes.EntryChanged, $"status changed to {status}", actor, now, ct);
         AuditService.Record(db, "ClinicalRecordItemStatusChanged", nameof(ClinicalRecordItem), item.Id, actor, $"{EncounterRules.Label(item.Kind)}: status changed to {status}.");
-        return await SaveAsync(item, ct);
+        return await SaveAsync(item, encounterId, ct);
     }
 
     /// <summary>Marks an item as entered in error. It is kept with its history and a required reason; removing a removed item changes nothing.</summary>
@@ -123,8 +137,9 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
         Stamp(item, actor, now);
         StageVersion(item, await NextVersionAsync(itemId, ct), ClinicalChangeTypes.RemovedInError, reason, encounterId, actor, now);
         StageEvent(item.PatientId, item.Kind, "ItemRemoved", $"{EncounterRules.Label(item.Kind)}: item removed as entered in error.", encounterId, actor, now);
+        await StageEncounterAsync(encounterId, item.Kind, EncounterEventTypes.EntryRemoved, "item removed as entered in error", actor, now, ct);
         AuditService.Record(db, "ClinicalRecordItemRemoved", nameof(ClinicalRecordItem), item.Id, actor, $"{EncounterRules.Label(item.Kind)}: item removed as entered in error.");
-        return await SaveAsync(item, ct);
+        return await SaveAsync(item, encounterId, ct);
     }
 
     // ---------- section statements ----------
@@ -149,16 +164,21 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
         {
             if (review is null) return await Reader.GetAsync(patientId, ct);
             db.ClinicalSectionReviews.Remove(review);
-            StageEvent(patientId, section, "ReviewCleared", $"{label}: review withdrawn.", encounterId, actor, now);
+            StageEvent(patientId, section, "ReviewCleared", $"{label}: {ClinicalReviewPhrases.Withdrawn}.", encounterId, actor, now);
+            await StageEncounterAsync(encounterId, section, EncounterEventTypes.SectionUnmarked, ClinicalReviewPhrases.Withdrawn, actor, now, ct);
             AuditService.Record(db, "ClinicalSectionReviewCleared", nameof(ClinicalSectionReview), review.Id, actor, $"{label}: review withdrawn.");
         }
         else
         {
             if (state == ClinicalReviewStates.Reviewed && live.Count == 0)
                 throw new ClinicalException("section_empty", $"{label} has nothing listed to confirm. Mark it none known or unknown instead.", 409);
-            if (state != ClinicalReviewStates.Reviewed && live.Count > 0)
+            // ALV-N022 A1 (OD-04): "none known" is refused while an ACTIVE item exists (resolved or inactive history does not contradict it); "unknown" keeps the empty-section rule.
+            if (state == ClinicalReviewStates.NoneKnown && live.Any(i => i.Status == ClinicalItemStatuses.Active))
+                throw new ClinicalException("section_has_active_items", $"{label} has active items, so it cannot be marked none known. Change their status first if they no longer apply.", 409);
+            if (state == ClinicalReviewStates.Unknown && live.Count > 0)
                 throw new ClinicalException("section_has_items", $"{label} already has items, so it cannot be marked {(state == ClinicalReviewStates.NoneKnown ? "none known" : "unknown")}.", 409);
-            if (review is not null && review.State == state && (state != ClinicalReviewStates.Reviewed || review.ReviewedAtUtc >= live.Max(i => i.UpdatedAtUtc ?? i.CreatedAtUtc)))
+            if (review is not null && review.State == state && (state != ClinicalReviewStates.Reviewed || review.ReviewedAtUtc >= live.Max(i => i.UpdatedAtUtc ?? i.CreatedAtUtc))
+                && !await RestatedInNewEncounterAsync(encounterId, section, state, ct))
                 return await Reader.GetAsync(patientId, ct); // already said, and (for a confirmation) nothing changed since: nothing to record
 
             if (review is null)
@@ -170,13 +190,22 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
             {
                 review.State = state; review.ReviewedAtUtc = now; review.ReviewedByUserId = actor;
             }
-            var said = state switch { ClinicalReviewStates.Reviewed => "reviewed and confirmed current", ClinicalReviewStates.NoneKnown => "reviewed, none known", _ => "marked unknown" };
+            var said = ClinicalReviewPhrases.For(state);
             StageEvent(patientId, section, "SectionReviewed", $"{label}: {said}.", encounterId, actor, now);
+            await StageEncounterAsync(encounterId, section, EncounterEventTypes.SectionMarked, said, actor, now, ct);
             AuditService.Record(db, "ClinicalSectionReviewed", nameof(ClinicalSectionReview), review.Id, actor, $"{label}: {said}.");
         }
         try
         {
             await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException ex) when (IsEncounterConflict(ex))
+        {
+            throw new ConcurrencyConflictException(nameof(Encounter), encounterId!.Value);
+        }
+        catch (DbUpdateException ex) when (encounterId is not null && ClinicalWrite.IsClinicalTrigger(ex))
+        {
+            throw EncounterClosedMeanwhile();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -232,7 +261,11 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
     private async Task<ClinicalRecordView> ReplayOrRefuseDuplicateAsync(ClinicalRecordItem existing, EntryFields f, string status, CancellationToken ct)
     {
         if (SameFields(existing, f, ignoreNameCase: true) && existing.Status == status) return await Reader.GetAsync(existing.PatientId, ct); // a retried add: already there
-        throw new ClinicalException("duplicate_item", $"'{f.Name}' is already listed under {EncounterRules.Label(existing.Kind)} (status {existing.Status}). Change that item instead.", 409);
+        // ALV-N022 A1 (Addendum 02): one record is kept. Active match: update that item. Not active: reactivate or update it, the user choosing the status. Nothing is added or changed here.
+        var message = existing.Status == ClinicalItemStatuses.Active
+            ? $"'{existing.Name}' is already listed under {EncounterRules.Label(existing.Kind)}. Update that item instead."
+            : $"'{existing.Name}' is already listed under {EncounterRules.Label(existing.Kind)} with status {existing.Status}. Reactivate or update that item instead.";
+        throw new ClinicalException("duplicate_item", message, 409) { Existing = new ExistingItemRef(existing.Id, existing.Kind, existing.Status) };
     }
 
     /// <summary>Adding an item contradicts "none known" / "unknown" for the section, so that statement is withdrawn in the same save (and the withdrawal is recorded).</summary>
@@ -260,14 +293,53 @@ public class ClinicalRecordService(AlveraDbContext db, IPracticeClock clock)
             ActorUserId = actor, OccurredAtUtc = now,
         });
 
+    /// <summary>
+    /// ALV-N022 A1 (OD-02): a chart change made in an encounter is recorded on that encounter in the SAME save - the encounter is touched (its version moves, so a stale
+    /// encounter editor is refused) and gets a PHI-free history row. The encounter was already checked open (<see cref="RequireOpenEncounterAsync"/>); when the encounter
+    /// service loaded it with the caller's expected version, this returns that tracked instance, so that version is what the save checks.
+    /// </summary>
+    private async Task StageEncounterAsync(Guid? encounterId, string kind, string eventType, string what, Guid actor, DateTimeOffset now, CancellationToken ct)
+    {
+        if (encounterId is null) return;
+        var encounter = await db.Encounters.SingleAsync(e => e.Id == encounterId, ct);
+        ClinicalWrite.Touch(encounter, actor, now);
+        db.EncounterEvents.Add(new EncounterEvent
+        {
+            Id = Guid.NewGuid(), EncounterId = encounter.Id, PatientId = encounter.PatientId, EventType = eventType, ActorUserId = actor, OccurredAtUtc = now,
+            Detail = $"{EncounterRules.Label(kind)}: {what} on the chart in this encounter.",
+        });
+    }
+
+    /// <summary>
+    /// ALV-N022 A1: a statement the chart already holds is still RECORDED when it is made again in an encounter that has not made it yet, so that encounter shows the section
+    /// as reviewed in it (who and when move to this review). A repeat within the same encounter, or outside any encounter, stays quiet.
+    /// </summary>
+    private async Task<bool> RestatedInNewEncounterAsync(Guid? encounterId, string section, string state, CancellationToken ct)
+    {
+        if (encounterId is null) return false;
+        var mine = await db.ClinicalRecordEvents.AsNoTracking()
+            .Where(e => e.EncounterId == encounterId && e.Section == section && (e.EventType == "SectionReviewed" || e.EventType == "ReviewCleared"))
+            .OrderBy(e => e.OccurredAtUtc).ThenBy(e => e.Id).ToListAsync(ct);
+        return EncounterChartSections.LastStatement(mine) != state;
+    }
+
+    private static bool IsEncounterConflict(DbUpdateConcurrencyException ex) => ex.Entries.Any(e => e.Entity is Encounter);
+
+    private static ClinicalException EncounterClosedMeanwhile() =>
+        new("encounter_not_open", "That encounter was signed or finalized while you were working. Reload it; nothing was saved.", 409);
+
     private void StageEvent(Guid patientId, string section, string eventType, string detail, Guid? encounterId, Guid actor, DateTimeOffset now) =>
         db.ClinicalRecordEvents.Add(new ClinicalRecordEvent { Id = Guid.NewGuid(), PatientId = patientId, Section = section, EventType = eventType, ActorUserId = actor, OccurredAtUtc = now, EncounterId = encounterId, Detail = detail });
 
-    private async Task<ClinicalRecordView> SaveAsync(ClinicalRecordItem item, CancellationToken ct)
+    private async Task<ClinicalRecordView> SaveAsync(ClinicalRecordItem item, Guid? encounterId, CancellationToken ct)
     {
         try
         {
             await ConcurrencySaveGuard.SaveOrThrowConflictAsync(db, nameof(ClinicalRecordItem), item.Id, ct);
+        }
+        catch (DbUpdateException ex) when (encounterId is not null && ClinicalWrite.IsClinicalTrigger(ex))
+        {
+            throw EncounterClosedMeanwhile();
         }
         catch (DbUpdateException ex) when (ClinicalWrite.IsUniqueViolation(ex))
         {

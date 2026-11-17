@@ -8,6 +8,7 @@
  */
 import { request, requestWithCsrf } from "./authApi";
 import type { EntryInput } from "./clinicalApi";
+import { withSafetyNotice } from "./safetyApi";
 
 export type SectionStatus = "Reviewed" | "NeedsReview" | "NoneKnown" | "Unknown" | "NotReviewed";
 export type ReviewState = "Reviewed" | "NoneKnown" | "Unknown" | "NotReviewed";
@@ -87,11 +88,13 @@ export const getRecord = (patientId: string, signal?: AbortSignal) => request<Cl
 export const getItemHistory = (itemId: string, signal?: AbortSignal) => request<ItemHistory>(`/api/clinical-record/items/${itemId}/history`, { signal });
 
 /** Adds an item; adding one that is already listed with the same values returns the record unchanged (a retry is quiet). */
-export const addRecordItem = (patientId: string, kind: string, input: EntryInput) => requestWithCsrf<ClinicalRecord>(`/api/patients/${patientId}/clinical-record/items`, "POST", { kind, ...input });
+export const addRecordItem = (patientId: string, kind: string, input: EntryInput) =>
+  withSafetyNotice(requestWithCsrf<ClinicalRecord>(`/api/patients/${patientId}/clinical-record/items`, "POST", { kind, ...input }));
 export const updateRecordItem = (itemId: string, input: EntryInput, rowVersion: string, reason?: string) =>
-  requestWithCsrf<ClinicalRecord>(`/api/clinical-record/items/${itemId}`, "PUT", { ...input, rowVersion, reason: reason || undefined });
+  withSafetyNotice(requestWithCsrf<ClinicalRecord>(`/api/clinical-record/items/${itemId}`, "PUT", { ...input, rowVersion, reason: reason || undefined }));
 export const setItemStatus = (itemId: string, status: ItemStatus, rowVersion: string, reason?: string) =>
-  requestWithCsrf<ClinicalRecord>(`/api/clinical-record/items/${itemId}/status`, "POST", { status, rowVersion, reason: reason || undefined });
-export const removeRecordItem = (itemId: string, rowVersion: string, reason: string) => requestWithCsrf<ClinicalRecord>(`/api/clinical-record/items/${itemId}/remove`, "POST", { rowVersion, reason });
+  withSafetyNotice(requestWithCsrf<ClinicalRecord>(`/api/clinical-record/items/${itemId}/status`, "POST", { status, rowVersion, reason: reason || undefined }));
+export const removeRecordItem = (itemId: string, rowVersion: string, reason: string) =>
+  withSafetyNotice(requestWithCsrf<ClinicalRecord>(`/api/clinical-record/items/${itemId}/remove`, "POST", { rowVersion, reason }));
 export const setSectionReview = (patientId: string, section: string, state: ReviewState) =>
-  requestWithCsrf<ClinicalRecord>(`/api/patients/${patientId}/clinical-record/sections/${section}/review`, "PUT", { state });
+  withSafetyNotice(requestWithCsrf<ClinicalRecord>(`/api/patients/${patientId}/clinical-record/sections/${section}/review`, "PUT", { state }));

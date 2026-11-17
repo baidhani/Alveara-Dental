@@ -125,6 +125,18 @@
   font-size: var(--font-size-lg);
 }
 
+/* ALV-N022 A1: the parts of a chart-backed encounter section (the chart now, what this encounter recorded, older entries) */
+.alv-clinical__subhead {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--font-size-md, 1rem);
+}
+
+/* ALV-N022 A1: a stored contradiction ("none reported" while an item was active) - shown, never erased */
+.alv-clinical__note--warning {
+  border-color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
 .alv-clinical__section-status {
   padding: 0 var(--space-2);
   border: 1px solid var(--color-border-strong);

@@ -337,16 +337,18 @@ test("HEADER AND ENCOUNTER: safety information is in view before documenting - o
   await expect(strip(dentist).getByText(/1 active alert \(highest: Critical\)/)).toBeVisible();                     // the patient header, on a screen that is not the safety tab
   await dentist.getByRole("button", { name: "Start an encounter" }).click();
   await expect(dentist.getByRole("heading", { name: /^Encounter on/ })).toBeVisible();
-  const own = dentist.getByRole("region", { name: "Patient safety for this encounter" });
-  await expect(own).toBeVisible();
-  await expect(own.getByText(/1 active alert \(highest: Critical\)/)).toBeVisible();
-  await expect(own.getByText(/1 clearance open/)).toBeVisible();
-  const first = await own.boundingBox();
+  // ALV-N022 A1 (OD-05): ONE banner - the patient header's - stays in view on the encounter; the encounter no longer draws a second copy
+  await expect(dentist.getByRole("region", { name: "Patient safety for this encounter" })).toHaveCount(0);
+  const one = strip(dentist);
+  await expect(one).toHaveCount(1);
+  await expect(one.getByText(/1 active alert \(highest: Critical\)/)).toBeVisible();
+  await expect(one.getByText(/1 clearance open/)).toBeVisible();
+  const first = await one.boundingBox();
   const sections = await dentist.getByRole("region", { name: "Medical history" }).boundingBox();
   expect(first!.y).toBeLessThan(sections!.y);                                                                        // above the documentation sections
   await shot(dentist, "09-encounter-strip.png");
   await scanBothThemes(dentist, "encounter-with-safety-strip");
-  evidence.encounterStrip = { aboveDocumentation: true, alert: "1 active alert (highest: Critical)" };
+  evidence.encounterStrip = { oneBanner: true, aboveDocumentation: true, alert: "1 active alert (highest: Critical)" };
 });
 
 test("LIVE BOARD: authorized roles see only 'Safety alert on file' and 'Clearance open'; others see nothing; no diagnosis, allergy or medication ever reaches the shared board", async () => {

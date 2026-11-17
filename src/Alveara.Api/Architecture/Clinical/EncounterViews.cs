@@ -10,7 +10,17 @@ public class ClinicalException(string code, string message, int statusCode, IRea
     public string Code { get; } = code;
     public int StatusCode { get; } = statusCode;
     public IReadOnlyDictionary<string, string> FieldErrors { get; } = fieldErrors ?? new Dictionary<string, string>();
+    /// <summary>ALV-N022 A1: for a duplicate refusal, the live item the user is directed to (update it, or reactivate it when it is not active). Null otherwise.</summary>
+    public ExistingItemRef? Existing { get; init; }
+
+    /// <summary>The response body. The shape is unchanged unless there is an existing item to point to, which adds <c>existingItem</c>.</summary>
+    public object ToBody() => Existing is null
+        ? new { error = Code, message = Message, fieldErrors = FieldErrors }
+        : new { error = Code, message = Message, fieldErrors = FieldErrors, existingItem = Existing };
 }
+
+/// <summary>ALV-N022 A1: the live chart item a duplicate refusal points to, with its status so the client offers "update" (Active) or "reactivate/update" (otherwise).</summary>
+public sealed record ExistingItemRef(Guid Id, string Kind, string Status);
 
 /// <summary>The fields a clinician types for one entry. Which ones apply depends on the entry's kind (see <see cref="EncounterRules"/>).</summary>
 public sealed record EntryFields(string? Name, string? Detail, string? Reaction, string? Severity, string? Dose, string? Frequency);
@@ -19,8 +29,26 @@ public sealed record EntryView(
     Guid Id, string Kind, string Name, string? Detail, string? Reaction, string? Severity, string? Dose, string? Frequency,
     DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId, DateTimeOffset? UpdatedAtUtc);
 
-/// <summary>One of the four sections of an encounter: its active entries and whether the clinician has recorded something, reviewed it as none reported, or not yet addressed it.</summary>
-public sealed record SectionView(string Kind, string Status, IReadOnlyList<EntryView> Entries, DateTimeOffset? ReviewedAtUtc, Guid? ReviewedByUserId);
+/// <summary>
+/// One of the four sections of an encounter: its entries and whether the clinician has recorded something, reviewed it as none reported, or not yet addressed it.
+/// ALV-N022 A1 (additive): for allergies, medications and medical history the patient's CHART is the record. <see cref="Source"/> is then "Chart";
+/// <see cref="Entries"/> holds only entries recorded in this encounter before that change (kept, read-only); <see cref="ChartItems"/> is the chart now;
+/// <see cref="RecordedHere"/> is what this encounter changed on the chart (append-only versions, so a finalized encounter's list never changes); <see cref="ReviewedHere"/> is
+/// the statement made in this encounter, if any; <see cref="Contradiction"/> flags a stored "none reported" that an active chart item contradicted (both are kept).
+/// Dental history keeps the encounter's own entries (<see cref="Source"/> "Encounter").
+/// </summary>
+public sealed record SectionView(string Kind, string Status, IReadOnlyList<EntryView> Entries, DateTimeOffset? ReviewedAtUtc, Guid? ReviewedByUserId,
+    string Source = SectionSources.Encounter, IReadOnlyList<ItemView>? ChartItems = null, IReadOnlyList<ProvenanceView>? RecordedHere = null, string? ReviewedHere = null,
+    string? Contradiction = null);
+
+/// <summary>ALV-N022 A1: one change this encounter made to a chart item, as recorded at the time (a version snapshot; never rewritten).</summary>
+public sealed record ProvenanceView(Guid ItemId, int VersionNumber, string ChangeType, string Name, string Status, DateTimeOffset OccurredAtUtc, string? ActorName);
+
+public static class SectionSources
+{
+    public const string Encounter = "Encounter";
+    public const string Chart = "Chart";
+}
 
 /// <summary><see cref="Section"/> (ALV-005-C01) says what the addendum amends: a documentation or note section, or null when it is general.</summary>
 public sealed record AddendumView(Guid Id, string Text, DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId, string? Section = null, string? CreatedByName = null);
@@ -58,6 +86,8 @@ public static class SectionStatuses
     public const string NoneReported = "NoneReported";
     /// <summary>Neither - the documentation is incomplete until the clinician records something or marks it none reported.</summary>
     public const string Empty = "Empty";
+    /// <summary>ALV-N022 A1: the chart section was marked unknown in this encounter (a statement, so the section is addressed).</summary>
+    public const string Unknown = "Unknown";
 }
 
 /// <summary>Limits and the per-kind field rules for entries; one place so the service, the API and the tests agree.</summary>

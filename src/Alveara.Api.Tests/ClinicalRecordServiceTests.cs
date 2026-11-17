@@ -322,15 +322,24 @@ public class ClinicalRecordServiceTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Marking_a_section_none_known_or_unknown_needs_an_empty_section_and_confirming_needs_items()
+    public async Task Marking_a_section_none_known_needs_no_active_item_unknown_needs_an_empty_section_and_confirming_needs_items()
     {
-        await AddAsync(EncounterEntryKinds.Allergy, "Penicillin");
-        Assert.Equal("section_has_items", (await RefusedAsync(() => ReviewAsync(EncounterEntryKinds.Allergy, ClinicalReviewStates.NoneKnown))).Code);
+        // ALV-N022 A1 (OD-04): "none known" is refused only while an ACTIVE item is listed; "unknown" still needs an empty section
+        var v = await AddAsync(EncounterEntryKinds.Allergy, "Penicillin");
+        Assert.Equal("section_has_active_items", (await RefusedAsync(() => ReviewAsync(EncounterEntryKinds.Allergy, ClinicalReviewStates.NoneKnown))).Code);
+        Assert.Equal("section_has_items", (await RefusedAsync(() => ReviewAsync(EncounterEntryKinds.Allergy, ClinicalReviewStates.Unknown))).Code);
+        Assert.Equal(0, await _s.CountAsync(db => db.ClinicalSectionReviews));
+
+        // once the only item is resolved, "none known" (no current allergy) may be stated; "unknown" still may not, the section has an item
+        var item = Item(v, EncounterEntryKinds.Allergy, "Penicillin");
+        await RunAsync(s => s.SetStatusAsync(item.Id, ClinicalItemStatuses.Resolved, item.RowVersion, null, null, _s.Actor, default));
+        Assert.Equal(ClinicalSectionStatuses.NoneKnown, Section(await ReviewAsync(EncounterEntryKinds.Allergy, ClinicalReviewStates.NoneKnown), EncounterEntryKinds.Allergy).Status);
+        Assert.Equal(1, await _s.CountAsync(db => db.ClinicalSectionReviews));
         Assert.Equal("section_has_items", (await RefusedAsync(() => ReviewAsync(EncounterEntryKinds.Allergy, ClinicalReviewStates.Unknown))).Code);
         Assert.Equal("section_empty", (await RefusedAsync(() => ReviewAsync(EncounterEntryKinds.Medication, ClinicalReviewStates.Reviewed))).Code);
         Assert.Equal("validation_failed", (await RefusedAsync(() => ReviewAsync(EncounterEntryKinds.Medication, "Fine"))).Code);
         Assert.Equal("validation_failed", (await RefusedAsync(() => ReviewAsync("Vitals", ClinicalReviewStates.NoneKnown))).Code);
-        Assert.Equal(0, await _s.CountAsync(db => db.ClinicalSectionReviews));
+        Assert.Equal(1, await _s.CountAsync(db => db.ClinicalSectionReviews)); // only the allowed allergy statement
     }
 
     [Fact]

@@ -109,7 +109,8 @@ public class EncountersApiTests : IAsyncLifetime
         {
             Assert.Equal((HttpStatusCode.OK, HttpStatusCode.OK), (list.Status, one.Status));
             Assert.Equal(Id(e), list.Body[0].GetProperty("id").GetString());
-            Assert.Equal("Penicillin", Section(one.Body, "Allergy").GetProperty("entries")[0].GetProperty("name").GetString());
+            Assert.Equal("Penicillin", Section(one.Body, "Allergy").GetProperty("chartItems")[0].GetProperty("name").GetString()); // ALV-N022 A1: on the chart
+            Assert.Equal("Root canal 2019", Section(one.Body, "DentalHistory").GetProperty("entries")[0].GetProperty("name").GetString());
         }
         else
         {
@@ -132,6 +133,7 @@ public class EncountersApiTests : IAsyncLifetime
         var draft = await StartAsync(dentist, _bo);
         var by = await _api.SessionAsync(role);
         var before = await _s.CountAsync(db => db.EncounterEntries);
+        var chartBefore = await _s.CountAsync(db => db.ClinicalRecordItems); // ALV-N022 A1: an allergy goes to the chart
 
         var attempts = new (HttpMethod Method, string Url, object? Body, string? Key)[]
         {
@@ -149,6 +151,7 @@ public class EncountersApiTests : IAsyncLifetime
         {
             Assert.All(statuses, s => Assert.Equal(HttpStatusCode.Forbidden, s));
             Assert.Equal(before, await _s.CountAsync(db => db.EncounterEntries));                 // nothing was stored
+            Assert.Equal(chartBefore, await _s.CountAsync(db => db.ClinicalRecordItems));
             Assert.Equal(0, await _s.CountAsync(db => db.EncounterAddenda));
             Assert.Equal(1, (await dentist.SendAsync(HttpMethod.Get, EncounterUrl(draft))).Body.GetProperty("history").GetArrayLength()); // the draft was not touched
         }
@@ -176,8 +179,12 @@ public class EncountersApiTests : IAsyncLifetime
 
         var seen = (await assistant.SendAsync(HttpMethod.Get, EncounterUrl(finalized))).Body;
         Assert.Equal("Finalized", seen.GetProperty("status").GetString());
-        Assert.Equal("Penicillin", Section(seen, "Allergy").GetProperty("entries")[0].GetProperty("name").GetString()); // the original, untouched
-        Assert.Single(Section(seen, "Allergy").GetProperty("entries").EnumerateArray());
+        // ALV-N022 A1: the allergy is on the chart, and the encounter keeps what it recorded there (its provenance row), untouched
+        Assert.Equal("Penicillin", Section(seen, "Allergy").GetProperty("chartItems")[0].GetProperty("name").GetString());
+        Assert.Single(Section(seen, "Allergy").GetProperty("chartItems").EnumerateArray());
+        var recorded = Assert.Single(Section(seen, "Allergy").GetProperty("recordedHere").EnumerateArray());
+        Assert.Equal(("Penicillin", "Added"), (recorded.GetProperty("name").GetString(), recorded.GetProperty("changeType").GetString()));
+        Assert.Equal("Root canal 2019", Assert.Single(Section(seen, "DentalHistory").GetProperty("entries").EnumerateArray()).GetProperty("name").GetString());
         Assert.Equal("Patient also reports a latex sensitivity.", seen.GetProperty("addenda")[0].GetProperty("text").GetString());
         Assert.Equal(Version(finalized), Version(seen));
     }
@@ -207,17 +214,18 @@ public class EncountersApiTests : IAsyncLifetime
     public async Task An_entry_can_be_changed_and_removed_over_the_API_and_a_removed_entry_leaves_the_chart()
     {
         var dentist = await _api.SessionAsync("Dentist");
-        var e = await AddAsync(dentist, await StartAsync(dentist), "Medication", "Lisinopril", new { dose = "10 mg", frequency = "daily" });
-        var entryId = Section(e, "Medication").GetProperty("entries")[0].GetProperty("id").GetString();
+        // the encounter's own entries (dental history); chart items changed from an encounter are tested in EncounterChartRoutingTests
+        var e = await AddAsync(dentist, await StartAsync(dentist), "DentalHistory", "Crown", new { detail = "Upper left" });
+        var entryId = Section(e, "DentalHistory").GetProperty("entries")[0].GetProperty("id").GetString();
 
-        var changed = await dentist.SendAsync(HttpMethod.Put, EncounterUrl(e, $"/entries/{entryId}"), new { name = "Lisinopril", dose = "20 mg", frequency = "daily", rowVersion = Version(e) });
+        var changed = await dentist.SendAsync(HttpMethod.Put, EncounterUrl(e, $"/entries/{entryId}"), new { name = "Crown", detail = "Upper right", rowVersion = Version(e) });
         Assert.Equal(HttpStatusCode.OK, changed.Status);
-        Assert.Equal("20 mg", Section(changed.Body, "Medication").GetProperty("entries")[0].GetProperty("dose").GetString());
+        Assert.Equal("Upper right", Section(changed.Body, "DentalHistory").GetProperty("entries")[0].GetProperty("detail").GetString());
 
         var removed = await dentist.SendAsync(HttpMethod.Post, EncounterUrl(e, $"/entries/{entryId}/remove"), new { rowVersion = Version(changed.Body) });
         Assert.Equal(HttpStatusCode.OK, removed.Status);
-        Assert.Empty(Section(removed.Body, "Medication").GetProperty("entries").EnumerateArray());
-        Assert.Equal("Empty", Section(removed.Body, "Medication").GetProperty("status").GetString());
+        Assert.Empty(Section(removed.Body, "DentalHistory").GetProperty("entries").EnumerateArray());
+        Assert.Equal("Empty", Section(removed.Body, "DentalHistory").GetProperty("status").GetString());
         Assert.Equal(1, await _s.CountAsync(db => db.EncounterEntries)); // kept, not deleted
     }
 
@@ -254,7 +262,10 @@ public class EncountersApiTests : IAsyncLifetime
         Assert.Equal("Encounter", stale.Body.GetProperty("entityType").GetString());
 
         var current = (await dentist.SendAsync(HttpMethod.Get, EncounterUrl(e))).Body;
-        Assert.Equal(new[] { "Penicillin" }, current.GetProperty("sections").EnumerateArray().SelectMany(s => s.GetProperty("entries").EnumerateArray()).Select(x => x.GetProperty("name").GetString()!));
+        Assert.Equal(new[] { "Penicillin" }, current.GetProperty("sections").EnumerateArray()
+            .SelectMany(s => s.TryGetProperty("chartItems", out var c) && c.ValueKind == JsonValueKind.Array ? c.EnumerateArray() : Enumerable.Empty<JsonElement>())
+            .Select(x => x.GetProperty("name").GetString()!));
+        Assert.Equal(0, await _s.CountAsync(db => db.ClinicalRecordItems.Where(i => i.Kind == "Medication")));
     }
 
     [Fact]
@@ -345,11 +356,14 @@ public class EncountersApiTests : IAsyncLifetime
 
         await using var db = _fixture.CreateContext();
         var audit = await db.AuditLogEntries.AsNoTracking().Where(a => a.EntityType == nameof(Encounter) && a.TargetUserAccountId == Guid.Parse(Id(finalized))).OrderBy(a => a.TimestampUtc).ToListAsync();
-        Assert.Equal(new[] { "EncounterStarted", "EncounterEntryAdded", "EncounterEntryAdded", "EncounterEntryAdded", "EncounterEntryAdded", "EncounterFinalized", "EncounterAddendumAdded" }, audit.Select(a => a.EventType));
-        Assert.Single(audit.Select(a => a.PerformedByUserAccountId).Distinct());
+        // ALV-N022 A1: dental history is the encounter's own entry; the medical history, allergy and medication went to the chart and are audited there
+        Assert.Equal(new[] { "EncounterStarted", "EncounterEntryAdded", "EncounterFinalized", "EncounterAddendumAdded" }, audit.Select(a => a.EventType));
+        var chartAudit = await db.AuditLogEntries.AsNoTracking().Where(a => a.EntityType == "ClinicalRecordItem").OrderBy(a => a.TimestampUtc).ToListAsync();
+        Assert.Equal(new[] { "ClinicalRecordItemAdded", "ClinicalRecordItemAdded", "ClinicalRecordItemAdded" }, chartAudit.Select(a => a.EventType));
+        Assert.Single(audit.Concat(chartAudit).Select(a => a.PerformedByUserAccountId).Distinct());
         Assert.NotNull(audit[0].PerformedByUserAccountId);
-        Assert.All(audit, a => Assert.True(a.TimestampUtc > DateTimeOffset.UtcNow.AddMinutes(-5)));
-        var text = string.Join(" ", audit.Select(a => a.Details));
+        Assert.All(audit.Concat(chartAudit), a => Assert.True(a.TimestampUtc > DateTimeOffset.UtcNow.AddMinutes(-5)));
+        var text = string.Join(" ", audit.Concat(chartAudit).Select(a => a.Details));
         foreach (var secret in new[] { "Penicillin", "Hypertension", "Lisinopril", "Hives", "Patient confirms" }) Assert.DoesNotContain(secret, text);
     }
 }

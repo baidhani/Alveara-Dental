@@ -55,6 +55,19 @@ public class EncounterServiceTests : IAsyncLifetime
 
     private static async Task<ClinicalException> RefusedAsync<T>(Func<Task<T>> action) => await Assert.ThrowsAsync<ClinicalException>(action);
 
+    // ALV-N022 A1: allergies, medications and medical history live on the patient's chart; the encounter section lists the chart (ChartItems) and what it changed there
+    private static SectionView Sec(EncounterDetail e, string kind) => e.Sections.Single(s => s.Kind == kind);
+    private static IReadOnlyList<ItemView> Chart(EncounterDetail e, string kind) => Sec(e, kind).ChartItems ?? [];
+    private static EntryView Dental(EncounterDetail e) => Sec(e, EncounterEntryKinds.DentalHistory).Entries.Single();
+
+    /// <summary>The chart's audit rows (items and section statements) - where an encounter's allergy, medication and history changes are audited now.</summary>
+    private async Task<List<(string Type, string Details, Guid? By)>> ChartAuditAsync()
+    {
+        await using var db = _fixture.CreateContext();
+        return (await db.AuditLogEntries.AsNoTracking().Where(a => a.EntityType == nameof(ClinicalRecordItem) || a.EntityType == nameof(ClinicalSectionReview)).OrderBy(a => a.TimestampUtc).ToListAsync())
+            .Select(a => (a.EventType, a.Details, a.PerformedByUserAccountId)).ToList();
+    }
+
     private async Task<List<(string Type, string Details, Guid? By, DateTimeOffset At)>> AuditAsync(Guid encounterId)
     {
         await using var db = _fixture.CreateContext();
@@ -81,16 +94,26 @@ public class EncounterServiceTests : IAsyncLifetime
         Assert.Empty(e.MissingSections);
         var byKind = e.Sections.ToDictionary(s => s.Kind);
         Assert.All(byKind.Values, s => Assert.Equal(SectionStatuses.Recorded, s.Status));
-        var allergy = Assert.Single(byKind[EncounterEntryKinds.Allergy].Entries);
+        // ALV-N022 A1: allergy, medication and medical history were written to the chart - one item each, nothing kept as a second copy on the encounter
+        var allergy = Assert.Single(Chart(e, EncounterEntryKinds.Allergy));
         Assert.Equal(("Penicillin", "Hives", EncounterSeverities.Moderate), (allergy.Name, allergy.Reaction, allergy.Severity));
-        var medication = Assert.Single(byKind[EncounterEntryKinds.Medication].Entries);
+        var medication = Assert.Single(Chart(e, EncounterEntryKinds.Medication));
         Assert.Equal(("Lisinopril", "10 mg", "daily"), (medication.Name, medication.Dose, medication.Frequency));
-        Assert.Equal("Controlled", Assert.Single(byKind[EncounterEntryKinds.MedicalHistory].Entries).Detail);
-        Assert.All(byKind.Values.SelectMany(s => s.Entries), x => Assert.Equal(_s.Actor, x.CreatedByUserId));
-        Assert.All(byKind.Values.SelectMany(s => s.Entries), x => Assert.True(x.CreatedAtUtc > DateTimeOffset.UtcNow.AddMinutes(-5)));
+        Assert.Equal("Controlled", Assert.Single(Chart(e, EncounterEntryKinds.MedicalHistory)).Detail);
+        Assert.Equal(1, await _s.CountAsync(db => db.EncounterEntries)); // only dental history
+        // who and when: the dental entry on the encounter, the chart items through this encounter's provenance rows
+        var dental = Dental(e);
+        Assert.Equal(("Root canal, 2019", (Guid?)_s.Actor), (dental.Name, dental.CreatedByUserId));
+        var chartKinds = new[] { EncounterEntryKinds.Allergy, EncounterEntryKinds.Medication, EncounterEntryKinds.MedicalHistory };
+        Assert.All(chartKinds, k => Assert.Equal(ClinicalChangeTypes.Added, Assert.Single(Sec(e, k).RecordedHere ?? []).ChangeType));
+        Assert.All(chartKinds.SelectMany(k => Sec(e, k).RecordedHere!), p => Assert.True(p.OccurredAtUtc > DateTimeOffset.UtcNow.AddMinutes(-5) && p.ActorName is not null));
+        await using (var db = _fixture.CreateContext())
+            Assert.All(await db.ClinicalRecordItemVersions.AsNoTracking().ToListAsync(), v => Assert.Equal(((Guid?)e.Id, (Guid?)_s.Actor), (v.EncounterId, v.ActorUserId)));
 
         // a fresh read of the same encounter shows exactly the same thing: it was stored, not just returned
-        Assert.Equal(e.Sections.SelectMany(s => s.Entries).Select(x => x.Name).Order(), (await GetAsync(e.Id)).Sections.SelectMany(s => s.Entries).Select(x => x.Name).Order());
+        var again = await GetAsync(e.Id);
+        Assert.Equal(e.Sections.SelectMany(s => (s.ChartItems ?? []).Select(i => i.Name).Concat(s.Entries.Select(x => x.Name))).Order(),
+            again.Sections.SelectMany(s => (s.ChartItems ?? []).Select(i => i.Name).Concat(s.Entries.Select(x => x.Name))).Order());
     }
 
     [Fact]
@@ -177,14 +200,38 @@ public class EncounterServiceTests : IAsyncLifetime
     [Fact]
     public async Task A_none_reported_section_cannot_also_have_entries_and_the_review_can_be_cleared_while_it_is_a_draft()
     {
+        // dental history keeps the encounter's own rule: a none-reported section refuses entries until the review is cleared
+        var e = await StartAsync();
+        e = await MarkAsync(e, EncounterEntryKinds.DentalHistory);
+        Assert.Equal("section_marked_none_reported", (await RefusedAsync(() => AddAsync(e, EncounterEntryKinds.DentalHistory, "Crown"))).Code);
+
+        e = await RunAsync(s => s.ClearSectionReviewAsync(e.Id, EncounterEntryKinds.DentalHistory, e.RowVersion, _s.Actor, default));
+        Assert.Equal(SectionStatuses.Empty, Sec(e, EncounterEntryKinds.DentalHistory).Status);
+        e = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Crown");
+        Assert.Equal("section_has_entries", (await RefusedAsync(() => MarkAsync(e, EncounterEntryKinds.DentalHistory))).Code);
+    }
+
+    [Fact]
+    public async Task On_the_chart_adding_an_item_withdraws_this_encounters_none_reported_and_none_reported_is_refused_while_an_item_is_active()
+    {
+        // ALV-N022 A1 (OD-04, logged assumption 2): the chart withdraws "none known" when an item is added (recorded with this encounter), rather than refusing the add
         var e = await StartAsync();
         e = await MarkAsync(e, EncounterEntryKinds.Allergy);
-        Assert.Equal("section_marked_none_reported", (await RefusedAsync(() => AddAsync(e, EncounterEntryKinds.Allergy, "Latex"))).Code);
+        Assert.Equal((SectionStatuses.NoneReported, ClinicalReviewStates.NoneKnown), (Sec(e, EncounterEntryKinds.Allergy).Status, Sec(e, EncounterEntryKinds.Allergy).ReviewedHere));
 
-        e = await RunAsync(s => s.ClearSectionReviewAsync(e.Id, EncounterEntryKinds.Allergy, e.RowVersion, _s.Actor, default));
-        Assert.Equal(SectionStatuses.Empty, e.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Status);
         e = await AddAsync(e, EncounterEntryKinds.Allergy, "Latex");
-        Assert.Equal("section_has_entries", (await RefusedAsync(() => MarkAsync(e, EncounterEntryKinds.Allergy))).Code);
+        var section = Sec(e, EncounterEntryKinds.Allergy);
+        Assert.Equal((SectionStatuses.Recorded, (string?)null), (section.Status, section.ReviewedHere));
+        Assert.Equal("Latex", Assert.Single(Chart(e, EncounterEntryKinds.Allergy)).Name);
+        await using (var db = _fixture.CreateContext())
+        {
+            Assert.Equal(0, await db.ClinicalSectionReviews.CountAsync());
+            Assert.Contains(await db.ClinicalRecordEvents.AsNoTracking().ToListAsync(), x => x.EventType == "ReviewCleared" && x.EncounterId == e.Id && x.Section == EncounterEntryKinds.Allergy);
+        }
+
+        var refused = await RefusedAsync(() => MarkAsync(e, EncounterEntryKinds.Allergy));
+        Assert.Equal(("section_has_active_items", 409), (refused.Code, refused.StatusCode));
+        Assert.Equal(e.RowVersion, (await GetAsync(e.Id)).RowVersion);
     }
 
     [Fact]
@@ -235,45 +282,47 @@ public class EncounterServiceTests : IAsyncLifetime
     public async Task Adding_the_same_entry_twice_is_a_quiet_repeat_and_a_different_entry_under_the_same_name_is_refused()
     {
         var e = await StartAsync();
-        var once = await AddAsync(e, EncounterEntryKinds.Allergy, "Penicillin", reaction: "Hives");
-        var twice = await AddAsync(once, EncounterEntryKinds.Allergy, "penicillin ", reaction: "Hives"); // same entry, retyped
+        // the encounter's own entry mechanism (dental history; ALV-N022 A1 moved the other kinds to the chart, tested in EncounterChartRoutingTests)
+        var once = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Crown", detail: "Upper left");
+        var twice = await AddAsync(once, EncounterEntryKinds.DentalHistory, "crown ", detail: "Upper left"); // same entry, retyped
         Assert.Equal(once.RowVersion, twice.RowVersion);
-        Assert.Single(twice.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries);
+        Assert.Single(Sec(twice, EncounterEntryKinds.DentalHistory).Entries);
         Assert.Single(twice.History, h => h.EventType == EncounterEventTypes.EntryAdded);
 
-        Assert.Equal("duplicate_entry", (await RefusedAsync(() => AddAsync(twice, EncounterEntryKinds.Allergy, "Penicillin", reaction: "Rash"))).Code);
+        Assert.Equal("duplicate_entry", (await RefusedAsync(() => AddAsync(twice, EncounterEntryKinds.DentalHistory, "Crown", detail: "Lower right"))).Code);
     }
 
     [Fact]
     public async Task Fixing_only_the_capital_letters_of_an_entry_is_a_real_change()
     {
-        var e = await AddAsync(await StartAsync(), EncounterEntryKinds.Allergy, "penicillin");
-        var entry = e.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries.Single();
-        var fixedCase = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Penicillin", null, null, null, null, null), e.RowVersion, _s.Actor, default));
+        var e = await AddAsync(await StartAsync(), EncounterEntryKinds.DentalHistory, "root canal");
+        var entry = Dental(e);
+        var fixedCase = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Root canal", null, null, null, null, null), e.RowVersion, _s.Actor, default));
         Assert.NotEqual(e.RowVersion, fixedCase.RowVersion);
-        Assert.Equal("Penicillin", fixedCase.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries.Single().Name);
+        Assert.Equal("Root canal", Dental(fixedCase).Name);
     }
 
     [Fact]
     public async Task An_entry_can_be_changed_with_a_history_row_and_changing_nothing_changes_nothing()
     {
         var e = await StartAsync();
-        e = await AddAsync(e, EncounterEntryKinds.Medication, "Lisinopril", dose: "10 mg", frequency: "daily");
-        var entry = e.Sections.Single(s => s.Kind == EncounterEntryKinds.Medication).Entries.Single();
+        e = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Crown", detail: "Upper left");
+        var entry = Dental(e);
 
-        var unchanged = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Lisinopril", null, null, null, "10 mg", "daily"), e.RowVersion, _s.Actor, default));
+        var unchanged = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Crown", "Upper left", null, null, null, null), e.RowVersion, _s.Actor, default));
         Assert.Equal(e.RowVersion, unchanged.RowVersion);
 
-        var changed = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Lisinopril", null, null, null, "20 mg", "daily"), e.RowVersion, _s.Actor, default));
+        var changed = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Crown", "Upper right", null, null, null, null), e.RowVersion, _s.Actor, default));
         Assert.NotEqual(e.RowVersion, changed.RowVersion);
-        var updated = changed.Sections.Single(s => s.Kind == EncounterEntryKinds.Medication).Entries.Single();
-        Assert.Equal(("20 mg", _s.Actor), (updated.Dose, updated.UpdatedAtUtc is null ? Guid.Empty : _s.Actor));
+        var updated = Dental(changed);
+        Assert.Equal(("Upper right", _s.Actor), (updated.Detail, updated.UpdatedAtUtc is null ? Guid.Empty : _s.Actor));
         Assert.Equal(1, changed.History.Count(h => h.EventType == EncounterEventTypes.EntryChanged));
 
         Assert.Equal("duplicate_entry", (await RefusedAsync(async () =>
         {
-            var withSecond = await AddAsync(changed, EncounterEntryKinds.Medication, "Metformin", dose: "500 mg");
-            return await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Metformin", null, null, null, "20 mg", "daily"), withSecond.RowVersion, _s.Actor, default));
+            var withSecond = await AddAsync(changed, EncounterEntryKinds.DentalHistory, "Bridge", detail: "Lower");
+            var first = withSecond.Sections.Single(s => s.Kind == EncounterEntryKinds.DentalHistory).Entries.Single(x => x.Name == "Crown");
+            return await RunAsync(s => s.UpdateEntryAsync(e.Id, first.Id, new EntryFields("Bridge", "Upper right", null, null, null, null), withSecond.RowVersion, _s.Actor, default));
         })).Code);
     }
 
@@ -281,25 +330,25 @@ public class EncounterServiceTests : IAsyncLifetime
     public async Task A_removed_entry_leaves_the_active_chart_but_is_kept_with_who_and_when_so_nothing_typed_is_lost()
     {
         var e = await StartAsync();
-        e = await AddAsync(e, EncounterEntryKinds.Allergy, "Penicillin", reaction: "Hives");
-        var entry = e.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries.Single();
+        e = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Crown", detail: "Upper left");
+        var entry = Dental(e);
 
         var removed = await RunAsync(s => s.RemoveEntryAsync(e.Id, entry.Id, e.RowVersion, _s.Actor, default));
-        Assert.Empty(removed.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries);
-        Assert.Equal(SectionStatuses.Empty, removed.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Status);
+        Assert.Empty(Sec(removed, EncounterEntryKinds.DentalHistory).Entries);
+        Assert.Equal(SectionStatuses.Empty, Sec(removed, EncounterEntryKinds.DentalHistory).Status);
 
         await using (var db = _fixture.CreateContext())
         {
             var kept = await db.EncounterEntries.SingleAsync(x => x.Id == entry.Id);
-            Assert.Equal(("Penicillin", "Hives", _s.Actor), (kept.Name, kept.Reaction, kept.RemovedByUserId));
+            Assert.Equal(("Crown", "Upper left", (Guid?)_s.Actor), (kept.Name, kept.Detail, kept.RemovedByUserId));
             Assert.NotNull(kept.RemovedAtUtc);
         }
 
         var again = await RunAsync(s => s.RemoveEntryAsync(e.Id, entry.Id, removed.RowVersion, _s.Actor, default));
         Assert.Equal(removed.RowVersion, again.RowVersion); // removing a removed entry is a quiet repeat
-        Assert.Equal("entry_removed", (await RefusedAsync(() => RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Penicillin", null, "Rash", null, null, null), again.RowVersion, _s.Actor, default)))).Code);
-        var readded = await AddAsync(again, EncounterEntryKinds.Allergy, "Penicillin", reaction: "Hives"); // the name is free again
-        Assert.Single(readded.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries);
+        Assert.Equal("entry_removed", (await RefusedAsync(() => RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Crown", "Lower", null, null, null, null), again.RowVersion, _s.Actor, default)))).Code);
+        var readded = await AddAsync(again, EncounterEntryKinds.DentalHistory, "Crown", detail: "Upper left"); // the name is free again
+        Assert.Single(Sec(readded, EncounterEntryKinds.DentalHistory).Entries);
     }
 
     [Fact]
@@ -319,9 +368,12 @@ public class EncounterServiceTests : IAsyncLifetime
         var finalized = await FinalizeAsync(draft);
         Assert.Equal((EncounterStatuses.Finalized, _s.Actor), (finalized.Status, finalized.FinalizedByUserId));
         Assert.NotNull(finalized.FinalizedAtUtc);
-        var entry = finalized.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries.Single();
+        var entry = Dental(finalized);
+        var allergy = Assert.Single(Chart(finalized, EncounterEntryKinds.Allergy));
 
         Assert.Equal("encounter_finalized", (await RefusedAsync(() => AddAsync(finalized, EncounterEntryKinds.Medication, "Added later"))).Code);
+        Assert.Equal("encounter_finalized", (await RefusedAsync(() => AddAsync(finalized, EncounterEntryKinds.DentalHistory, "Added later"))).Code);
+        Assert.Equal("encounter_finalized", (await RefusedAsync(() => RunAsync(s => s.UpdateEntryAsync(finalized.Id, allergy.Id, new EntryFields("Rewritten", null, null, null, null, null), finalized.RowVersion, _s.Actor, default, allergy.RowVersion)))).Code);
         Assert.Equal("encounter_finalized", (await RefusedAsync(() => RunAsync(s => s.UpdateEntryAsync(finalized.Id, entry.Id, new EntryFields("Rewritten", null, null, null, null, null), finalized.RowVersion, _s.Actor, default)))).Code);
         Assert.Equal("encounter_finalized", (await RefusedAsync(() => RunAsync(s => s.RemoveEntryAsync(finalized.Id, entry.Id, finalized.RowVersion, _s.Actor, default)))).Code);
         Assert.Equal("encounter_finalized", (await RefusedAsync(() => MarkAsync(finalized, EncounterEntryKinds.DentalHistory))).Code);
@@ -330,6 +382,9 @@ public class EncounterServiceTests : IAsyncLifetime
         var after = await GetAsync(finalized.Id);
         Assert.Equal(finalized.RowVersion, after.RowVersion);
         Assert.Equal(finalized.Sections.SelectMany(s => s.Entries).Select(x => (x.Name, x.Reaction)).Order(), after.Sections.SelectMany(s => s.Entries).Select(x => (x.Name, x.Reaction)).Order());
+        Assert.Equal(finalized.Sections.SelectMany(s => s.RecordedHere ?? []).Select(p => (p.ItemId, p.VersionNumber, p.Name)).Order(),
+            after.Sections.SelectMany(s => s.RecordedHere ?? []).Select(p => (p.ItemId, p.VersionNumber, p.Name)).Order());
+        Assert.Equal(allergy.RowVersion, Assert.Single(Chart(after, EncounterEntryKinds.Allergy)).RowVersion); // the chart item was not touched either
         Assert.Equal(finalized.History.Count, after.History.Count);
     }
 
@@ -414,13 +469,15 @@ public class EncounterServiceTests : IAsyncLifetime
     public async Task Every_documentation_change_is_audited_with_the_user_and_a_timestamp_and_the_audit_text_contains_no_clinical_content()
     {
         var e = await StartAsync();
-        e = await AddAsync(e, EncounterEntryKinds.Allergy, "Penicillin", reaction: "Anaphylaxis", severity: EncounterSeverities.Severe);
-        var entry = e.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries.Single();
-        e = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Penicillin", "Confirmed by testing", "Anaphylaxis", EncounterSeverities.Severe, null, null), e.RowVersion, _s.Actor, default));
+        // the encounter's own entries (dental history)
+        e = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Extraction 2021", detail: "Lower left");
+        var entry = Dental(e);
+        e = await RunAsync(s => s.UpdateEntryAsync(e.Id, entry.Id, new EntryFields("Extraction 2021", "Confirmed by testing", null, null, null, null), e.RowVersion, _s.Actor, default));
         e = await RunAsync(s => s.RemoveEntryAsync(e.Id, entry.Id, e.RowVersion, _s.Actor, default));
+        e = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Extraction 2022");
+        // chart writes made in the encounter (ALV-N022 A1): audited on the chart, recorded in the encounter's history
+        e = await AddAsync(e, EncounterEntryKinds.Allergy, "Penicillin", reaction: "Anaphylaxis", severity: EncounterSeverities.Severe);
         e = await AddAsync(e, EncounterEntryKinds.MedicalHistory, "Diabetes type 2");
-        e = await AddAsync(e, EncounterEntryKinds.DentalHistory, "Extraction 2021");
-        e = await MarkAsync(e, EncounterEntryKinds.Allergy);
         e = await MarkAsync(e, EncounterEntryKinds.Medication);
         e = await RunAsync(s => s.ClearSectionReviewAsync(e.Id, EncounterEntryKinds.Medication, e.RowVersion, _s.Actor, default));
         e = await MarkAsync(e, EncounterEntryKinds.Medication);
@@ -430,35 +487,43 @@ public class EncounterServiceTests : IAsyncLifetime
         var audit = await AuditAsync(finalized.Id);
         Assert.Equal(new[]
         {
-            "EncounterStarted", "EncounterEntryAdded", "EncounterEntryChanged", "EncounterEntryRemoved", "EncounterEntryAdded", "EncounterEntryAdded",
-            "EncounterSectionReviewed", "EncounterSectionReviewed", "EncounterSectionReviewCleared", "EncounterSectionReviewed", "EncounterFinalized", "EncounterAddendumAdded",
+            "EncounterStarted", "EncounterEntryAdded", "EncounterEntryChanged", "EncounterEntryRemoved", "EncounterEntryAdded", "EncounterFinalized", "EncounterAddendumAdded",
         }, audit.Select(a => a.Type));
+        var chartAudit = await ChartAuditAsync();
+        Assert.Equal(new[] { "ClinicalRecordItemAdded", "ClinicalRecordItemAdded", "ClinicalSectionReviewed", "ClinicalSectionReviewCleared", "ClinicalSectionReviewed" }, chartAudit.Select(a => a.Type));
         Assert.All(audit, a => Assert.Equal(_s.Actor, a.By));
+        Assert.All(chartAudit, a => Assert.Equal(_s.Actor, a.By));
         Assert.All(audit, a => Assert.True(a.At > DateTimeOffset.UtcNow.AddMinutes(-5) && a.At <= DateTimeOffset.UtcNow.AddMinutes(1)));
         // no name, reaction, detail or note ever reaches the audit log
-        var text = string.Join(" ", audit.Select(a => a.Details));
+        var text = string.Join(" ", audit.Select(a => a.Details).Concat(chartAudit.Select(a => a.Details)));
         foreach (var secret in new[] { "Penicillin", "Anaphylaxis", "Confirmed by testing", "Diabetes", "Extraction", "no new medication" })
             Assert.DoesNotContain(secret, text);
 
-        // the encounter's own history has one row per change, in order, with the same user
+        // the encounter's own history has one row per change - its own and the chart writes made in it - in order, with the same user
         var after = await GetAsync(finalized.Id);
-        Assert.Equal(audit.Count, after.History.Count);
+        Assert.Equal(audit.Count + chartAudit.Count, after.History.Count);
         Assert.All(after.History, h => Assert.Equal(_s.Actor, h.ActorUserId));
-        Assert.DoesNotContain("Penicillin", string.Join(" ", after.History.Select(h => h.Detail)));
+        foreach (var secret in new[] { "Penicillin", "Diabetes", "Extraction" })
+            Assert.DoesNotContain(secret, string.Join(" ", after.History.Select(h => h.Detail)));
     }
 
     [Fact]
     public async Task Quiet_repeats_and_refused_requests_write_neither_history_nor_audit()
     {
         var finalized = await FinalizeAsync(await CompleteDraftAsync());
+        // ALV-N022 A1: chart writes made in the encounter are audited on the chart, so each count is compared with its own value before
         var before = (await AuditAsync(finalized.Id)).Count;
+        var chartBefore = (await ChartAuditAsync()).Count;
+        var historyBefore = finalized.History.Count;
 
         await FinalizeAsync(finalized);                                                                  // finalize again
-        await RefusedAsync(() => AddAsync(finalized, EncounterEntryKinds.Allergy, "Refused"));           // refused change
+        await RefusedAsync(() => AddAsync(finalized, EncounterEntryKinds.Allergy, "Refused"));           // refused change (chart kind)
+        await RefusedAsync(() => AddAsync(finalized, EncounterEntryKinds.DentalHistory, "Refused"));     // refused change (encounter kind)
         await RefusedAsync(() => RunAsync(s => s.AddAddendumAsync(finalized.Id, "", "k", _s.Actor, default))); // invalid addendum
 
         Assert.Equal(before, (await AuditAsync(finalized.Id)).Count);
-        Assert.Equal(before, (await GetAsync(finalized.Id)).History.Count);
+        Assert.Equal(chartBefore, (await ChartAuditAsync()).Count);
+        Assert.Equal(historyBefore, (await GetAsync(finalized.Id)).History.Count);
     }
 
     // ---------- failure path: audit failure ----------
@@ -467,16 +532,22 @@ public class EncounterServiceTests : IAsyncLifetime
     public async Task If_the_audit_entry_cannot_be_written_the_change_is_not_made_and_the_request_can_be_retried()
     {
         var e = await StartAsync();
-        await using (var failing = _s.FailingAuditContext())
-            await Assert.ThrowsAsync<DbUpdateException>(() => new EncounterService(failing, Clock).AddEntryAsync(e.Id, EncounterEntryKinds.Allergy, new EntryFields("Penicillin", null, null, null, null, null), e.RowVersion, _s.Actor, default));
+        // both paths: the encounter's own entry (dental history) and a chart write made in the encounter (ALV-N022 A1)
+        foreach (var kind in new[] { EncounterEntryKinds.DentalHistory, EncounterEntryKinds.Allergy })
+            await using (var failing = _s.FailingAuditContext())
+                await Assert.ThrowsAsync<DbUpdateException>(() => new EncounterService(failing, Clock).AddEntryAsync(e.Id, kind, new EntryFields("Penicillin", null, null, null, null, null), e.RowVersion, _s.Actor, default));
 
         var unchanged = await GetAsync(e.Id);
         Assert.Equal(e.RowVersion, unchanged.RowVersion);
         Assert.Equal(0, await _s.CountAsync(db => db.EncounterEntries));
+        Assert.Equal(0, await _s.CountAsync(db => db.ClinicalRecordItems));
+        Assert.Equal(0, await _s.CountAsync(db => db.ClinicalRecordItemVersions));
         Assert.Equal(e.History.Count, unchanged.History.Count);
 
         var retried = await AddAsync(e, EncounterEntryKinds.Allergy, "Penicillin"); // the same version works once the log is back
-        Assert.Single(retried.Sections.Single(s => s.Kind == EncounterEntryKinds.Allergy).Entries);
+        Assert.Single(Chart(retried, EncounterEntryKinds.Allergy));
+        retried = await AddAsync(retried, EncounterEntryKinds.DentalHistory, "Penicillin");
+        Assert.Single(Sec(retried, EncounterEntryKinds.DentalHistory).Entries);
     }
 
     [Fact]
@@ -503,7 +574,8 @@ public class EncounterServiceTests : IAsyncLifetime
 
         var after = await GetAsync(e.Id);
         Assert.Equal(first.RowVersion, after.RowVersion);
-        Assert.Equal(new[] { "Penicillin" }, after.Sections.SelectMany(s => s.Entries).Select(x => x.Name));
+        Assert.Equal(new[] { "Penicillin" }, after.Sections.SelectMany(s => s.ChartItems ?? []).Select(x => x.Name)); // the chart write moved the encounter's version
+        Assert.Equal(0, await _s.CountAsync(db => db.ClinicalRecordItems.Where(i => i.Kind == EncounterEntryKinds.Medication)));
     }
 
     [Fact]
@@ -542,7 +614,7 @@ public class EncounterServiceTests : IAsyncLifetime
         var e = await StartAsync();
         var outcomes = await Task.WhenAll(Enumerable.Range(0, 6).Select(_ => Task.Run(async () =>
         {
-            try { await AddAsync(e, EncounterEntryKinds.Allergy, "Penicillin"); return "ok"; }
+            try { await AddAsync(e, EncounterEntryKinds.DentalHistory, "Crown"); return "ok"; } // the encounter's own entries; the chart race is in EncounterChartRoutingTests
             catch (ConcurrencyConflictException) { return "conflict"; }
         })));
         Assert.Contains("ok", outcomes);

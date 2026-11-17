@@ -19,14 +19,17 @@ public class EncounterReader(AlveraDbContext db)
         var events = await db.EncounterEvents.AsNoTracking().Where(x => x.EncounterId == encounterId).OrderBy(x => x.OccurredAtUtc).ThenBy(x => x.Id).ToListAsync(ct);
         var notes = await db.EncounterNotes.AsNoTracking().Where(x => x.EncounterId == encounterId).ToListAsync(ct);
         var vitals = await db.EncounterVitals.AsNoTracking().Where(x => x.EncounterId == encounterId).OrderBy(x => x.MeasuredAtUtc).ThenBy(x => x.CreatedAtUtc).ToListAsync(ct);
+        var chart = await new EncounterChartSections(db).LoadAsync(encounterId, e.PatientId, ct); // ALV-N022 A1
         var names = await ClinicalNames.ResolveAsync(db, notes.Select(n => n.UpdatedByUserId).Concat(vitals.SelectMany(v => new[] { v.CreatedByUserId, v.VoidedByUserId }))
-            .Concat(addenda.Select(a => a.CreatedByUserId)).Append(e.SignedByUserId).Append(e.FinalizedByUserId), ct);
+            .Concat(addenda.Select(a => a.CreatedByUserId)).Append(e.SignedByUserId).Append(e.FinalizedByUserId)
+            .Concat(chart.LiveItems.SelectMany(i => new[] { i.CreatedByUserId, i.UpdatedByUserId })).Concat(chart.VersionsHere.Select(v => v.ActorUserId)), ct);
 
         var sections = new List<SectionView>();
         foreach (var kind in EncounterEntryKinds.All)
         {
             var mine = entries.Where(x => x.Kind == kind).Select(ToView).ToList();
             var mark = marks.SingleOrDefault(m => m.Section == kind);
+            if (EncounterChartSections.OnChart(kind)) { sections.Add(EncounterChartSections.Build(kind, chart, mine, mark, names)); continue; }
             var status = mine.Count > 0 ? SectionStatuses.Recorded : mark is not null ? SectionStatuses.NoneReported : SectionStatuses.Empty;
             sections.Add(new SectionView(kind, status, mine, mark?.MarkedAtUtc, mark?.MarkedByUserId));
         }
@@ -53,11 +56,23 @@ public class EncounterReader(AlveraDbContext db)
         var entries = await db.EncounterEntries.AsNoTracking().Where(x => ids.Contains(x.EncounterId) && x.RemovedAtUtc == null).Select(x => new { x.EncounterId, x.Kind }).ToListAsync(ct);
         var marks = await db.EncounterSectionMarks.AsNoTracking().Where(x => ids.Contains(x.EncounterId)).Select(x => new { x.EncounterId, x.Section }).ToListAsync(ct);
         var addenda = await db.EncounterAddenda.AsNoTracking().Where(x => ids.Contains(x.EncounterId)).GroupBy(x => x.EncounterId).Select(g => new { Id = g.Key, N = g.Count() }).ToListAsync(ct);
+        // ALV-N022 A1: chart changes and statements made in each encounter count as documentation of that encounter, read the same way as the encounter detail
+        var versions = await db.ClinicalRecordItemVersions.AsNoTracking().Where(v => v.EncounterId != null && ids.Contains(v.EncounterId.Value)).Select(v => new { EncounterId = v.EncounterId!.Value, v.Kind }).ToListAsync(ct);
+        var statements = await db.ClinicalRecordEvents.AsNoTracking().Where(x => x.EncounterId != null && ids.Contains(x.EncounterId.Value) && (x.EventType == "SectionReviewed" || x.EventType == "ReviewCleared"))
+            .OrderBy(x => x.OccurredAtUtc).ThenBy(x => x.Id).ToListAsync(ct);
         return encounters.Select(e =>
         {
-            var addressed = entries.Where(x => x.EncounterId == e.Id).Select(x => x.Kind).Concat(marks.Where(x => x.EncounterId == e.Id).Select(x => x.Section)).Distinct().Count();
+            var addressed = EncounterEntryKinds.All.Count(kind =>
+            {
+                var legacyEntries = entries.Any(x => x.EncounterId == e.Id && x.Kind == kind);
+                var legacyMark = marks.Any(x => x.EncounterId == e.Id && x.Section == kind);
+                if (!EncounterChartSections.OnChart(kind)) return legacyEntries || legacyMark;
+                var status = EncounterChartSections.Status(legacyEntries, legacyMark, versions.Any(v => v.EncounterId == e.Id && v.Kind == kind),
+                    EncounterChartSections.LastStatement(statements.Where(x => x.EncounterId == e.Id && x.Section == kind)));
+                return status != SectionStatuses.Empty;
+            });
             return new EncounterSummary(e.Id, e.AppointmentId, e.EncounterAtUtc, e.Status, addressed == EncounterEntryKinds.All.Count,
-                entries.Count(x => x.EncounterId == e.Id), addenda.SingleOrDefault(a => a.Id == e.Id)?.N ?? 0);
+                entries.Count(x => x.EncounterId == e.Id) + versions.Count(v => v.EncounterId == e.Id), addenda.SingleOrDefault(a => a.Id == e.Id)?.N ?? 0);
         }).ToList();
     }
 

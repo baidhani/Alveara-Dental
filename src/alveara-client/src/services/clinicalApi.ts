@@ -7,6 +7,8 @@
  * - A finalized encounter is never edited; the only addition is an addendum, shown beside the original.
  */
 import { ApiError, fetchCsrfToken, request, requestWithCsrf } from "./authApi";
+import type { RecordItem } from "./clinicalRecordApi";
+import { withSafetyNotice } from "./safetyApi";
 
 /** The four sections of an encounter, in the order they are presented. The server uses the same names. */
 export const SECTION_ORDER = ["MedicalHistory", "DentalHistory", "Allergy", "Medication"] as const;
@@ -15,7 +17,7 @@ export const SECTION_LABELS: Record<string, string> = { MedicalHistory: "Medical
 /** What one entry in a section is called, for button names ("Add allergy"). */
 export const ENTRY_NOUNS: Record<string, string> = { MedicalHistory: "medical history item", DentalHistory: "dental history item", Allergy: "allergy", Medication: "medication" };
 export const SEVERITIES = ["Mild", "Moderate", "Severe"] as const;
-export const SECTION_STATUS_LABELS: Record<string, string> = { Recorded: "Recorded", NoneReported: "Reviewed - none reported", Empty: "Not yet addressed" };
+export const SECTION_STATUS_LABELS: Record<string, string> = { Recorded: "Recorded", NoneReported: "Reviewed - none reported", Empty: "Not yet addressed", Unknown: "Marked unknown" };
 export const EVENT_LABELS: Record<string, string> = {
   Created: "Encounter started", EntryAdded: "Entry added", EntryChanged: "Entry changed", EntryRemoved: "Entry removed", SectionMarked: "Section reviewed, none reported",
   SectionUnmarked: "Section review cleared", Finalized: "Encounter finalized", AddendumAdded: "Addendum added",
@@ -38,12 +40,33 @@ export interface EncounterEntry {
   updatedAtUtc: string | null;
 }
 
+/** ALV-N022 A1: one change an encounter made to a chart item, as recorded at the time. */
+export interface ProvenanceEntry {
+  itemId: string;
+  versionNumber: number;
+  changeType: "Added" | "Changed" | "StatusChanged" | "RemovedInError";
+  name: string;
+  status: string;
+  occurredAtUtc: string;
+  actorName: string | null;
+}
+
+/**
+ * One section of an encounter. ALV-N022 A1: for allergies, medications and medical history `source` is "Chart": the patient's chart is the one record, `chartItems` is
+ * the chart now, `recordedHere` what this encounter changed on it, `reviewedHere` the statement made here, and `entries` only what the encounter recorded before that
+ * change (read-only). Dental history keeps `source` "Encounter" and its own entries.
+ */
 export interface EncounterSection {
   kind: string;
-  status: "Recorded" | "NoneReported" | "Empty";
+  status: "Recorded" | "NoneReported" | "Empty" | "Unknown";
   entries: EncounterEntry[];
   reviewedAtUtc: string | null;
   reviewedByUserId: string | null;
+  source?: "Encounter" | "Chart";
+  chartItems?: RecordItem[] | null;
+  recordedHere?: ProvenanceEntry[] | null;
+  reviewedHere?: "Reviewed" | "NoneKnown" | "Unknown" | null;
+  contradiction?: string | null;
 }
 
 export interface EncounterAddendum {
@@ -147,7 +170,7 @@ export interface EntryInput {
 
 export const emptyEntry = (): EntryInput => ({ name: "", detail: "", reaction: "", severity: "", dose: "", frequency: "" });
 
-export const entryInputOf = (e: EncounterEntry): EntryInput => ({
+export const entryInputOf = (e: Pick<EncounterEntry, "name" | "detail" | "reaction" | "severity" | "dose" | "frequency">): EntryInput => ({
   name: e.name, detail: e.detail ?? "", reaction: e.reaction ?? "", severity: e.severity ?? "", dose: e.dose ?? "", frequency: e.frequency ?? "",
 });
 
@@ -165,15 +188,35 @@ export async function startEncounter(patientId: string, idempotencyKey: string):
 }
 
 export const addEntry = (encounterId: string, kind: string, input: EntryInput, rowVersion: string) =>
-  requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries`, "POST", { kind, ...input, rowVersion });
-export const updateEntry = (encounterId: string, entryId: string, input: EntryInput, rowVersion: string) =>
-  requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries/${entryId}`, "PUT", { ...input, rowVersion });
-export const removeEntry = (encounterId: string, entryId: string, rowVersion: string) =>
-  requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries/${entryId}/remove`, "POST", { rowVersion });
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries`, "POST", { kind, ...input, rowVersion }));
+/** For a chart item (ALV-N022 A1) pass the item's own version; a reason is optional history text. */
+export const updateEntry = (encounterId: string, entryId: string, input: EntryInput, rowVersion: string, itemRowVersion?: string, reason?: string) =>
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries/${entryId}`, "PUT", { ...input, rowVersion, itemRowVersion, reason: reason || undefined }));
+/** For a chart item added in this encounter: its version and a reason (it is marked entered in error, never deleted). */
+export const removeEntry = (encounterId: string, entryId: string, rowVersion: string, itemRowVersion?: string, reason?: string) =>
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries/${entryId}/remove`, "POST", { rowVersion, itemRowVersion, reason: reason || undefined }));
+/** ALV-N022 A1: a status the user chose for a chart item (for example reactivating a resolved allergy). */
+export const setEntryStatus = (encounterId: string, itemId: string, status: string, rowVersion: string, itemRowVersion: string, reason?: string) =>
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/entries/${itemId}/status`, "POST", { status, rowVersion, itemRowVersion, reason: reason || undefined }));
+/** ALV-N022 A1: confirms in this encounter that the chart's list for a section is current. */
+export const confirmSectionCurrent = (encounterId: string, kind: string, rowVersion: string) =>
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/sections/${kind}/confirm-current`, "POST", { rowVersion }));
 export const markNoneReported = (encounterId: string, kind: string, rowVersion: string) =>
-  requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/sections/${kind}/none-reported`, "POST", { rowVersion });
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/sections/${kind}/none-reported`, "POST", { rowVersion }));
 export const clearSectionReview = (encounterId: string, kind: string, rowVersion: string) =>
-  requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/sections/${kind}/clear-review`, "POST", { rowVersion });
+  withSafetyNotice(requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/sections/${kind}/clear-review`, "POST", { rowVersion }));
+
+/** ALV-N022 A1 (Addendum 02): the existing chart item a 409 `duplicate_item` points to, so the screen offers "update" (Active) or "reactivate or update" (otherwise). */
+export interface ExistingItem {
+  id: string;
+  kind: string;
+  status: string;
+}
+export function existingItemOf(err: unknown): ExistingItem | null {
+  if (!(err instanceof ApiError) || err.code !== "duplicate_item") return null;
+  const raw = err.body.existingItem as Partial<ExistingItem> | undefined;
+  return raw && typeof raw.id === "string" && typeof raw.kind === "string" && typeof raw.status === "string" ? { id: raw.id, kind: raw.kind, status: raw.status } : null;
+}
 export const finalizeEncounter = (encounterId: string, rowVersion: string) =>
   requestWithCsrf<EncounterDetail>(`/api/encounters/${encounterId}/finalize`, "POST", { rowVersion });
 
