@@ -3080,3 +3080,9 @@
   - What changed: docs/design/ALV-N022_A2_STEP0_AND_ADDENDUM_01.md - check 0.6 (seven encounter-link paths, none checks finalized; Q-5ad confirmed), dev-database counts (2 diagnoses and 2 completions already attached after finalization), stop conditions (documents/referral cases; link time on change paths) and questions Q-1..Q-4 for the reviewer.
   - Verification: read-only code search on 2690d7a; read-only SELECTs on AlveraDev (disclosed in the record).
   - Notes: documents only; A2 not built and not authorized until the addendum is reviewed. Pushed state before this: 2690d7a.
+- [x] ALV-N022 A2 Step 0 review stored (CHANGES_REQUIRED: authority conflict) and Addendum 02 (documents only)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N022/A2-STEP0-ADDENDUM-01.md; docs/design/ALV-N022_A2_STEP0_AND_ADDENDUM_01.md section 7 (Addendum 02): owner decision verbatim (completion/adoption/amendment may attribute to Draft or Finalized; refusal for diagnoses only), path rules, Q-3 label removed, proposed exact amendments to OD-06, briefing sections 8 and 10 and plan item 59, deferred items, revised test plan; no diagnosis re-link path exists (verified).
+  - Verification: read-only code search; nothing built, no test run.
+  - Notes: the planning-record amendments are proposed only; applied after the reviewer approves Addendum 02. Nothing pushed since 2690d7a.
