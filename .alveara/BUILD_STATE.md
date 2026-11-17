@@ -622,3 +622,5 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 **2026-11-17 ALV-N022 A1-R01 review:** `CHANGES_REQUIRED` (`.alveara/reviews/ALV-N022/A1-R01.md`): the implementation is accepted in substance; the only finding is the package/repository mismatch (post-package commit `38f478e`). A narrow A1-R02 from `38f478e` follows. A2 not authorized.
 
 **2026-11-17 ALV-N022 A1-R02:** attempt A1-R02 is `AWAITING_REVIEW` (implementation `38f478e`, handoff `.alveara/handoffs/ALV-N022/A1-R02.md`), answering A1-R01 CR-1 (package/repository mismatch): the only production change since A1-R01 is the FinalizeReview chart-backed count; fresh stored runs on R02 - vitest 15/15, clinical walkthrough 9/9. `fullRegression: DEFERRED_TO_ALV-N028`.
+
+**2026-11-17 ALV-N022 A1 COMPLETE:** review `.alveara/reviews/ALV-N022/A1-R02.md` APPROVED attempt A1-R02 (implementation `38f478e`, evidence `69972a5`). ALV-N022 stays `IN_PROGRESS`: A2 may begin only under its separately approved scope/briefing; A3 not authorized. `fullRegression: DEFERRED_TO_ALV-N028`; not release-certified, not Gate F.
