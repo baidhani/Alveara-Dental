@@ -3194,3 +3194,9 @@
   - What changed: two neighbour walkthrough specs updated to the A3 behaviour (external-cases: F-137 lab-tooth message; diagnoses-structure: F-099 history numbering); playwright.config.ts ignores the new a3-display real-backend spec in the mocked run.
   - Verification: the Stage 1 focused sweep runs on this exact commit (results in the A3 handoff).
   - Notes: Not pushed.
+- [x] ALV-N022 A3: two client tests the approved matrix (6.5) required and the sweep mapping found missing (Q-5aa card, F-098 picker)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: pages/A3Display.test.tsx adds the diagnosis card listing its linked perio charts (Q-5aa) and the perio picker offering only the chart's patient's non-withdrawn diagnoses, sending the id, labelling legacy text (F-098). Test file only; no production change since ecfb7f4.
+  - Verification: A3Display.test 5/5; each new test caught a planted break (withdrawn diagnosis offered; Q-5aa paragraph removed), both restored. tsc/lint/focused vitest re-run on this commit (A3 handoff).
+  - Notes: Not pushed.
