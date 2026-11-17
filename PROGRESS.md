@@ -3212,3 +3212,9 @@
   - What changed: new running list of findings that belong to no story yet (U-nnn ids, assigned later by the owner); U-001 "Link to" label (owner, manual walkthrough), U-002 sticky status line over the odontogram, U-003 note box typing before its text loads / flaky ClinicalNotes test.
   - Verification: user confirmed (owner asked for the list).
   - Notes: documents only; no product change. Not pushed.
+- [x] Unassigned findings: U-004 added (perio Treatment plan / Encounter / History entry links still free text)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md row U-004 (owner, manual walkthrough).
+  - Verification: user confirmed (owner reported it).
+  - Notes: documents only. Not pushed.
