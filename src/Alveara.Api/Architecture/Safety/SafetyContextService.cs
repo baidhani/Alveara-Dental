@@ -42,7 +42,8 @@ public class SafetyContextService(AlveraDbContext db, IPracticeClock clock) : IS
         var active = entries.Where(e => e.Status == SafetyAlertStatuses.Active).OrderBy(e => SafetySeverities.Rank(e.Severity)).ThenBy(e => e.Category).ThenBy(e => e.Title).ToList();
         var resolved = entries.Where(e => e.Status == SafetyAlertStatuses.Resolved).OrderByDescending(e => e.ResolvedAtUtc).ToList();
         var gaps = Gaps(recordItems, reviews);
-        var clearanceViews = clearances.OrderBy(c => ClearanceStatuses.IsOpen(c.Status) ? 0 : 1).ThenByDescending(c => c.RequestedAtUtc).Select(c => ToView(c, names)).ToList();
+        var docs = await ClearanceService.DocumentNamesAsync(db, clearances.Select(c => c.DocumentId), ct);
+        var clearanceViews = clearances.OrderBy(c => ClearanceStatuses.IsOpen(c.Status) ? 0 : 1).ThenByDescending(c => c.RequestedAtUtc).Select(c => ToView(c, names, docs)).ToList();
         return new SafetyContext(patientId, asOf, Summarize(patientId, asOf, active, clearances, gaps), active, resolved, clearanceViews, gaps);
     }
 
@@ -97,10 +98,11 @@ public class SafetyContextService(AlveraDbContext db, IPracticeClock clock) : IS
             a.ResolvedAtUtc, ClinicalNames.Name(names, a.ResolvedByUserId), a.ResolutionReason);
     }
 
-    private static ClearanceView ToView(Clearance c, IReadOnlyDictionary<Guid, string> names) =>
-        new(c.Id, c.Kind, c.Reason, c.RequestedFrom, c.Status, c.DocumentReference, c.Status is ClearanceStatuses.Received or ClearanceStatuses.Resolved && c.DocumentReference is null,
+    private static ClearanceView ToView(Clearance c, IReadOnlyDictionary<Guid, string> names, IReadOnlyDictionary<Guid, string> docs) =>
+        new(c.Id, c.Kind, c.Reason, c.RequestedFrom, c.Status, c.DocumentReference, c.Status is ClearanceStatuses.Received or ClearanceStatuses.Resolved && c.DocumentReference is null && c.DocumentId is null,
             c.RequestedAtUtc, ClinicalNames.Name(names, c.RequestedByUserId), c.ReceivedAtUtc, ClinicalNames.Name(names, c.ReceivedByUserId), c.ReceivedNote,
-            c.ClosedAtUtc, ClinicalNames.Name(names, c.ClosedByUserId), c.ClosingReason, c.UpdatedAtUtc, Convert.ToBase64String(c.RowVersion));
+            c.ClosedAtUtc, ClinicalNames.Name(names, c.ClosedByUserId), c.ClosingReason, c.UpdatedAtUtc, Convert.ToBase64String(c.RowVersion),
+            c.DocumentId, c.DocumentId is { } d ? docs.GetValueOrDefault(d) : null);
 
     private static readonly (string Kind, string Label)[] WatchedSections =
     [

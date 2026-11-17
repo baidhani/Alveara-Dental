@@ -7,7 +7,8 @@ namespace Alveara.Api.Controllers;
 
 public record SaveEntriesRequest(string? RowVersion, List<PerioReadingRequest?>? Readings, List<PerioToothRequest?>? Teeth, List<PerioSiteRefRequest?>? ClearSites, List<string>? ClearTeeth);
 public record CloseSessionRequest(string? RowVersion);
-public record LinkChartRequest(string? LinkType, string? Reference);
+/// <summary>ALV-N022 A3 (D-1 B): DiagnosisId for a Diagnosis link (free text refused for it); Reference for the other link types.</summary>
+public record LinkChartRequest(string? LinkType, string? Reference, Guid? DiagnosisId = null);
 
 /// <summary>
 /// ALV-012-C01: periodontal chart sessions, finalized charts and comparison. Reading needs <see cref="Permission.ViewClinicalDocumentation"/>; every write needs <see cref="Permission.ManageClinicalNotes"/> plus
@@ -60,7 +61,7 @@ public class PerioSessionController(PerioSessionService sessions, PerioCompariso
     [RequirePermission(Permission.ManageClinicalNotes)]
     [RequireCsrfToken]
     public Task<IActionResult> Link(Guid examId, [FromBody] LinkChartRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await sessions.LinkAsync(examId, request.LinkType, request.Reference, Actor, ct)));
+        Run(async () => Ok(await sessions.LinkAsync(examId, request.LinkType, request.Reference, request.DiagnosisId, Actor, ct)));
 
     /// <summary>Compares a saved chart (<c>currentExamId</c>) or the draft being entered (<c>currentSessionId</c>) with an earlier chart (<c>previousExamId</c>, or by default the latest finalized one before it).</summary>
     [HttpGet("api/patients/{patientId:guid}/periodontal/comparison")]

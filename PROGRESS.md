@@ -3164,3 +3164,9 @@
   - What changed: review A3-STEP0-ADDENDUM-02 stored unchanged; DISPOSITION_REGISTER F-079, F-089, F-092 CONFIRMED -> NOT_REPRODUCED with the Step 0 evidence (reopen on the raw source entry or a reproducible screen).
   - Verification: register parses as JSON; the three rows asserted.
   - Notes: documents only. Pushed state: c2d6959.
+- [x] ALV-N022 A3 slice 1 (wip): typed clearance-document and perio-diagnosis links (D-1 B) and Q-5aa
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: migration 20261117180509_AddTypedClearanceDocumentAndPerioDiagnosisLinks (nullable DocumentId on Clearances/ClearanceVersions, DiagnosisId on PerioExamLinks, FKs, CK, same-patient triggers 51288/51289, Down refused 51290 with typed links present); ClearanceService receive/attach by documentId (free text refused, same patient + active checked, 51288 mapped); perio Diagnosis links by diagnosisId (free text refused, same patient + not withdrawn, 51289 mapped, Reference mirrors the id); views gain documentId/documentName, diagnosisId/label; DiagnosisView.LinkedFromPerioCharts (Q-5aa). Tests: ClearanceServiceTests and PerioSessionServiceTests rewritten to ids (+5 new), SafetyApiTests and PerioSessionApiTests updated, new TypedLinkGuardMigrationTests (4); inventory count 29 -> 30.
+  - Verification: 8 classes 182/184 (2 m 49 s); the 2 failures were my test code (helper used a non-existent user; a missed free-text Diagnosis link) - fixed, SafetyApiTests + PerioSessionApiTests rerun 61/61 (1 m 26 s). EF reports no pending model changes.
+  - Notes: client pickers and the safety browser spec follow in slices 3-4. Not pushed.

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Concurrency;
+using Alveara.Api.Architecture.Documents;
 using Alveara.Api.Architecture.Safety;
 using Xunit;
 using static Alveara.Api.Tests.SchedulingTestSupport;
@@ -18,6 +19,25 @@ public class ClearanceServiceTests : SafetyTestBase
 
     private async Task<ClearanceView> RequestedAsync(string kind = "Medical", string reason = "Cardiac clearance before extraction") => ClearanceOf(await RequestAsync(kind, reason), kind);
 
+    /// <summary>ALV-N022 A3 (D-1 B): a document of the patient, as the document library stores it (database row only; no file is needed for these rules).</summary>
+    private async Task<Guid> DocAsync(string name = "cardiac-clearance-2030-01-10.pdf", Guid? patient = null, string status = DocumentStatuses.Active)
+    {
+        var id = Guid.NewGuid();
+        await WithDb(async db =>
+        {
+            db.Add(new PatientDocument
+            {
+                Id = id, PatientId = patient ?? Ann, CategoryId = DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2030, 1, 10), Description = null, OriginalFileName = name,
+                DetectedType = "pdf", ContentType = "application/pdf", SizeBytes = 10, Sha256 = new string('a', 64), BlobId = Guid.NewGuid(), ImportedByUserId = S.Actor,
+                ImportedAtUtc = DateTimeOffset.UtcNow, IdempotencyKey = $"doc-{Guid.NewGuid():N}", RequestHash = new string('b', 64), Status = status,
+                InactiveReason = status == DocumentStatuses.Active ? null : "Superseded", InactivatedByUserId = status == DocumentStatuses.Active ? null : S.Actor,
+                InactivatedAtUtc = status == DocumentStatuses.Active ? null : DateTimeOffset.UtcNow,
+            });
+            return await db.SaveChangesAsync();
+        });
+        return id;
+    }
+
     // ---------- the workflow ----------
 
     [Fact]
@@ -28,9 +48,11 @@ public class ClearanceServiceTests : SafetyTestBase
         Assert.Equal((ClearanceStatuses.Requested, "Dr. Okafor", "Dr. Singh, cardiology", false), (asked.Status, asked.RequestedByName, asked.RequestedFrom, asked.DocumentPending));
         Assert.Equal(1, c.Summary.OpenClearanceCount);
 
-        c = await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Letter faxed back", "cardiac-clearance-2030-01-10.pdf", asked.RowVersion, Other, default));
+        var letter = await DocAsync();
+        c = await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Letter faxed back", letter, null, asked.RowVersion, Other, default));
         var got = ClearanceOf(c);
-        Assert.Equal((ClearanceStatuses.Received, "Hana Hygienist", "Letter faxed back", "cardiac-clearance-2030-01-10.pdf", false), (got.Status, got.ReceivedByName, got.ReceivedNote, got.DocumentReference, got.DocumentPending));
+        Assert.Equal((ClearanceStatuses.Received, "Hana Hygienist", "Letter faxed back", (Guid?)letter, false), (got.Status, got.ReceivedByName, got.ReceivedNote, got.DocumentId, got.DocumentPending));
+        Assert.Equal(("cardiac-clearance-2030-01-10.pdf (2030-01-10)", (string?)null), (got.DocumentName, got.DocumentReference));
         Assert.NotNull(got.ReceivedAtUtc);
         Assert.Equal(1, c.Summary.OpenClearanceCount);                    // received is NOT resolved: still open until someone resolves it
 
@@ -64,7 +86,7 @@ public class ClearanceServiceTests : SafetyTestBase
     public async Task Resolving_or_cancelling_needs_a_reason(string? reason)
     {
         var asked = await RequestedAsync();
-        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, asked.RowVersion, S.Actor, default)));
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default)));
         var resolve = await RefusedAsync(() => ClearancesAsync(s => s.ResolveAsync(got.Id, reason, got.RowVersion, S.Actor, default)));
         var cancel = await RefusedAsync(() => ClearancesAsync(s => s.CancelAsync(got.Id, reason, got.RowVersion, S.Actor, default)));
         Assert.Equal(("reason_required", "reason_required"), (resolve.Code, cancel.Code));
@@ -84,16 +106,18 @@ public class ClearanceServiceTests : SafetyTestBase
 
         var again = await ClearancesAsync(s => s.CancelAsync(asked.Id, "Again", closed.RowVersion, S.Actor, default));
         Assert.Equal(closed.RowVersion, ClearanceOf(again, "Dental").RowVersion);
-        Assert.Equal("clearance_closed", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, closed.RowVersion, S.Actor, default)))).Code);
+        Assert.Equal("clearance_closed", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, closed.RowVersion, S.Actor, default)))).Code);
         Assert.Equal("clearance_closed", (await RefusedAsync(() => ClearancesAsync(s => s.ResolveAsync(asked.Id, "x", closed.RowVersion, S.Actor, default)))).Code);
-        Assert.Equal("clearance_closed", (await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(asked.Id, "doc.pdf", closed.RowVersion, S.Actor, default)))).Code);
+        var doc = await DocAsync();
+        Assert.Equal("clearance_closed", (await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(asked.Id, doc, null, closed.RowVersion, S.Actor, default)))).Code);
     }
 
     [Fact]
     public async Task A_resolved_clearance_cannot_be_cancelled_or_changed()
     {
         var asked = await RequestedAsync();
-        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, "letter.pdf", asked.RowVersion, S.Actor, default)));
+        var letter = await DocAsync("letter.pdf");
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, letter, null, asked.RowVersion, S.Actor, default)));
         var done = ClearanceOf(await ClearancesAsync(s => s.ResolveAsync(got.Id, "Cleared", got.RowVersion, S.Actor, default)));
         Assert.Equal("clearance_closed", (await RefusedAsync(() => ClearancesAsync(s => s.CancelAsync(done.Id, "Oops", done.RowVersion, S.Actor, default)))).Code);
         var again = ClearanceOf(await ClearancesAsync(s => s.ResolveAsync(done.Id, "Cleared again", done.RowVersion, Other, default)));
@@ -106,32 +130,82 @@ public class ClearanceServiceTests : SafetyTestBase
     public async Task A_clearance_can_be_received_and_resolved_without_its_document_and_says_so_until_it_is_attached()
     {
         var asked = await RequestedAsync();
-        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Verbal clearance by phone", null, asked.RowVersion, S.Actor, default)));
-        Assert.Equal((ClearanceStatuses.Received, (string?)null, true), (got.Status, got.DocumentReference, got.DocumentPending));      // the document is not yet available
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Verbal clearance by phone", null, null, asked.RowVersion, S.Actor, default)));
+        Assert.Equal((ClearanceStatuses.Received, (Guid?)null, true), (got.Status, got.DocumentId, got.DocumentPending));      // the document is not yet available
 
         var done = ClearanceOf(await ClearancesAsync(s => s.ResolveAsync(got.Id, "Cleared on the physician's word; letter to follow", got.RowVersion, S.Actor, default)));
         Assert.True(done.DocumentPending);                                // resolved, but still flagged: no document attached
         Assert.Contains(await AuditAsync(nameof(Clearance)), e => e.Type == "ClearanceResolved" && e.Details.Contains("without a supporting document"));
 
-        var attached = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(done.Id, "cardiac-letter-2030-01-12.pdf", done.RowVersion, Other, default)));
-        Assert.Equal(("cardiac-letter-2030-01-12.pdf", false, ClearanceStatuses.Resolved), (attached.DocumentReference, attached.DocumentPending, attached.Status));
+        var letter = await DocAsync("cardiac-letter-2030-01-12.pdf");
+        var attached = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(done.Id, letter, null, done.RowVersion, Other, default)));
+        Assert.Equal(((Guid?)letter, false, ClearanceStatuses.Resolved), (attached.DocumentId, attached.DocumentPending, attached.Status));
         var history = await WithDb(db => new ClearanceService(db, Clock).HistoryAsync(done.Id, default));
         Assert.Equal(new[] { ClearanceChangeTypes.Requested, ClearanceChangeTypes.Received, ClearanceChangeTypes.Resolved, ClearanceChangeTypes.DocumentAttached }, history.Versions.Select(v => v.ChangeType));
-        Assert.Null(history.Versions[2].DocumentReference);               // what it said before the document arrived is still there
+        Assert.Null(history.Versions[2].DocumentId);                      // what it said before the document arrived is still there
+        Assert.Equal((Guid?)letter, history.Versions[3].DocumentId);
     }
 
     [Fact]
     public async Task A_document_cannot_be_attached_before_the_clearance_is_received_must_say_which_document_and_attaching_it_again_is_quiet()
     {
         var asked = await RequestedAsync();
-        Assert.Equal("clearance_not_received", (await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(asked.Id, "x.pdf", asked.RowVersion, S.Actor, default)))).Code);
-        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, asked.RowVersion, S.Actor, default)));
-        var blank = await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(got.Id, "  ", got.RowVersion, S.Actor, default)));
-        Assert.True(blank.FieldErrors.ContainsKey("documentReference"));
-        var with = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(got.Id, "x.pdf", got.RowVersion, S.Actor, default)));
-        var same = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(got.Id, "x.pdf", with.RowVersion, Other, default)));
+        var x = await DocAsync("x.pdf");
+        Assert.Equal("clearance_not_received", (await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(asked.Id, x, null, asked.RowVersion, S.Actor, default)))).Code);
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default)));
+        var none = await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(got.Id, null, null, got.RowVersion, S.Actor, default)));
+        Assert.True(none.FieldErrors.ContainsKey("documentId"));
+        var with = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(got.Id, x, null, got.RowVersion, S.Actor, default)));
+        var same = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(got.Id, x, null, with.RowVersion, Other, default)));
         Assert.Equal(with.RowVersion, same.RowVersion);
         Assert.Equal(3, (await WithDb(db => new ClearanceService(db, Clock).HistoryAsync(got.Id, default))).Versions.Count);
+    }
+
+    // ---------- ALV-N022 A3 (D-1 B): the document is one of this patient's own active documents ----------
+
+    [Fact]
+    public async Task Free_text_is_no_longer_accepted_for_a_new_document_reference_and_nothing_changes()
+    {
+        var asked = await RequestedAsync();
+        var onReceive = await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, "ER Doctor", asked.RowVersion, S.Actor, default)));
+        Assert.Equal(("validation_failed", 400), (onReceive.Code, onReceive.StatusCode));
+        Assert.True(onReceive.FieldErrors.ContainsKey("documentReference"));
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default)));
+        var onAttach = await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(got.Id, null, "letter.pdf", got.RowVersion, S.Actor, default)));
+        Assert.True(onAttach.FieldErrors.ContainsKey("documentReference"));
+        Assert.Equal(2, (await WithDb(db => new ClearanceService(db, Clock).HistoryAsync(asked.Id, default))).Versions.Count);
+    }
+
+    [Fact]
+    public async Task Another_patients_document_an_unknown_one_and_an_inactive_one_are_refused_and_nothing_changes()
+    {
+        var asked = await RequestedAsync();
+        var bos = await DocAsync("bo.pdf", Bo);
+        var inactive = await DocAsync("old.pdf", status: DocumentStatuses.Inactive);
+        foreach (var bad in new[] { bos, Guid.NewGuid(), inactive })
+        {
+            var refused = await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, bad, null, asked.RowVersion, S.Actor, default)));
+            Assert.Equal(("validation_failed", 400), (refused.Code, refused.StatusCode));
+            Assert.True(refused.FieldErrors.ContainsKey("documentId"));
+        }
+        Assert.Equal(ClearanceStatuses.Requested, ClearanceOf(await ContextAsync()).Status);
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default)));
+        Assert.True((await RefusedAsync(() => ClearancesAsync(s => s.AttachDocumentAsync(got.Id, bos, null, got.RowVersion, S.Actor, default)))).FieldErrors.ContainsKey("documentId"));
+        Assert.Null(ClearanceOf(await ContextAsync()).DocumentId);
+    }
+
+    [Fact]
+    public async Task A_legacy_free_text_reference_is_kept_and_still_shown_and_a_typed_document_can_be_attached_beside_it()
+    {
+        var asked = await RequestedAsync();
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default)));
+        await WithDb(db => db.Database.ExecuteSqlRawAsync("UPDATE [Clearances] SET [DocumentReference] = 'ER Doctor' WHERE [Id] = {0}", got.Id));   // a row from before A3
+        var legacy = ClearanceOf(await ContextAsync());
+        Assert.Equal(("ER Doctor", (Guid?)null, false), (legacy.DocumentReference, legacy.DocumentId, legacy.DocumentPending));
+
+        var letter = await DocAsync();
+        var attached = ClearanceOf(await ClearancesAsync(s => s.AttachDocumentAsync(got.Id, letter, null, legacy.RowVersion, S.Actor, default)));
+        Assert.Equal(("ER Doctor", (Guid?)letter), (attached.DocumentReference, attached.DocumentId));       // the legacy text is never rewritten
     }
 
     // ---------- validation, repeats and uniqueness ----------
@@ -181,9 +255,11 @@ public class ClearanceServiceTests : SafetyTestBase
     public async Task Receiving_a_received_clearance_changes_nothing()
     {
         var asked = await RequestedAsync();
-        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "First", "a.pdf", asked.RowVersion, S.Actor, default)));
-        var again = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Second", "b.pdf", got.RowVersion, Other, default)));
-        Assert.Equal((got.RowVersion, "First", "a.pdf", "Dr. Okafor"), (again.RowVersion, again.ReceivedNote, again.DocumentReference, again.ReceivedByName));
+        var a = await DocAsync("a.pdf");
+        var b = await DocAsync("b.pdf");
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "First", a, null, asked.RowVersion, S.Actor, default)));
+        var again = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Second", b, null, got.RowVersion, Other, default)));
+        Assert.Equal((got.RowVersion, "First", (Guid?)a, "Dr. Okafor"), (again.RowVersion, again.ReceivedNote, again.DocumentId, again.ReceivedByName));
         Assert.Equal(2, (await WithDb(db => new ClearanceService(db, Clock).HistoryAsync(asked.Id, default))).Versions.Count);
     }
 
@@ -206,12 +282,12 @@ public class ClearanceServiceTests : SafetyTestBase
     public async Task A_stale_edit_is_refused_and_a_missing_or_unknown_version_is_rejected_before_anything_changes()
     {
         var asked = await RequestedAsync();
-        await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, asked.RowVersion, S.Actor, default));                              // first clinician, from V
+        await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default));                              // first clinician, from V
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => ClearancesAsync(s => s.CancelAsync(asked.Id, "Second", asked.RowVersion, Other, default)));
         Assert.Equal(ClearanceStatuses.Received, ClearanceOf(await ContextAsync()).Status);
-        Assert.Equal("row_version_required", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, S.Actor, default)))).Code);
-        Assert.Equal("row_version_invalid", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, "not base64!", S.Actor, default)))).Code);
-        Assert.Equal("clearance_not_found", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(Guid.NewGuid(), null, null, asked.RowVersion, S.Actor, default)))).Code);
+        Assert.Equal("row_version_required", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, null, S.Actor, default)))).Code);
+        Assert.Equal("row_version_invalid", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, "not base64!", S.Actor, default)))).Code);
+        Assert.Equal("clearance_not_found", (await RefusedAsync(() => ClearancesAsync(s => s.ReceiveAsync(Guid.NewGuid(), null, null, null, asked.RowVersion, S.Actor, default)))).Code);
         Assert.Equal("clearance_not_found", (await RefusedAsync(() => WithDb(db => new ClearanceService(db, Clock).HistoryAsync(Guid.NewGuid(), default)))).Code);
         Assert.Equal(2, (await WithDb(db => new ClearanceService(db, Clock).HistoryAsync(asked.Id, default))).Versions.Count);
     }
@@ -220,7 +296,8 @@ public class ClearanceServiceTests : SafetyTestBase
     public async Task Every_step_is_audited_with_user_and_time_and_no_audit_text_contains_the_clearance_content()
     {
         var asked = await RequestedAsync("Medical", "HIV viral load review before surgery");
-        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Lab result attached", "lab-2030.pdf", asked.RowVersion, Other, default)));
+        var lab = await DocAsync("lab-2030.pdf");
+        var got = ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Lab result attached", lab, null, asked.RowVersion, Other, default)));
         await ClearancesAsync(s => s.ResolveAsync(got.Id, "Viral load undetectable", got.RowVersion, S.Actor, default));
         var audit = await AuditAsync(nameof(Clearance));
         Assert.Equal(new[] { "ClearanceRequested", "ClearanceReceived", "ClearanceResolved" }, audit.Select(e => e.Type));
@@ -238,8 +315,8 @@ public class ClearanceServiceTests : SafetyTestBase
 
         var asked = await RequestedAsync();
         await using (var failing = S.FailingAuditContext())
-            await Assert.ThrowsAsync<DbUpdateException>(() => new ClearanceService(failing, Clock).ReceiveAsync(asked.Id, null, null, asked.RowVersion, S.Actor, default));
+            await Assert.ThrowsAsync<DbUpdateException>(() => new ClearanceService(failing, Clock).ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default));
         Assert.Equal(ClearanceStatuses.Requested, ClearanceOf(await ContextAsync()).Status);
-        Assert.Equal(ClearanceStatuses.Received, ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, asked.RowVersion, S.Actor, default))).Status);
+        Assert.Equal(ClearanceStatuses.Received, ClearanceOf(await ClearancesAsync(s => s.ReceiveAsync(asked.Id, null, null, null, asked.RowVersion, S.Actor, default))).Status);
     }
 }

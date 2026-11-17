@@ -46,35 +46,40 @@ public class ClearanceService(AlveraDbContext db, IPracticeClock clock)
         return await Context.GetAsync(patientId, actor, ct);
     }
 
-    /// <summary>Records that the clearance arrived. The document reference is optional ("not yet available"); receiving a received clearance changes nothing.</summary>
-    public async Task<SafetyContext> ReceiveAsync(Guid id, string? note, string? documentReference, string? rowVersion, Guid actor, CancellationToken ct)
+    /// <summary>Records that the clearance arrived. The document is optional ("not yet available"); receiving a received clearance changes nothing.
+    /// ALV-N022 A3 (D-1 B): the document is one of the patient's own active documents, by id; free text is refused for new entries.</summary>
+    public async Task<SafetyContext> ReceiveAsync(Guid id, string? note, Guid? documentId, string? documentReference, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var n = SafetyRules.OptionalNote(note);
-        var doc = SafetyRules.OptionalDocument(documentReference);
+        SafetyRules.RefuseFreeTextDocument(documentReference);
         var c = await LoadAsync(id, rowVersion, ct);
         if (c.Status == ClearanceStatuses.Received) return await Context.GetAsync(c.PatientId, actor, ct);
         if (c.Status != ClearanceStatuses.Requested) throw Closed(c);
+        if (documentId is { } d) await RequirePatientDocumentAsync(c.PatientId, d, ct);
 
         var now = clock.UtcNow;
-        c.Status = ClearanceStatuses.Received; c.ReceivedAtUtc = now; c.ReceivedByUserId = actor; c.ReceivedNote = n; c.DocumentReference = doc;
+        c.Status = ClearanceStatuses.Received; c.ReceivedAtUtc = now; c.ReceivedByUserId = actor; c.ReceivedNote = n; c.DocumentId = documentId;
         Touch(c, actor, now);
         StageVersion(c, await NextVersionAsync(id, ct), ClearanceChangeTypes.Received, n, actor, now);
-        AuditService.Record(db, "ClearanceReceived", nameof(Clearance), id, actor, $"{c.Kind} clearance received{(doc is null ? " (document not yet attached)" : "")}.");
+        AuditService.Record(db, "ClearanceReceived", nameof(Clearance), id, actor, $"{c.Kind} clearance received{(documentId is null ? " (document not yet attached)" : "")}.");
         await SaveAsync(id, ct);
         return await Context.GetAsync(c.PatientId, actor, ct);
     }
 
-    /// <summary>Attaches (or replaces) the supporting-document reference once it is available. Needs a received clearance; the earlier reference stays in the history.</summary>
-    public async Task<SafetyContext> AttachDocumentAsync(Guid id, string? documentReference, string? rowVersion, Guid actor, CancellationToken ct)
+    /// <summary>Attaches (or replaces) the supporting document once it is available. Needs a received clearance; the earlier reference (typed or legacy text) stays in the history.
+    /// ALV-N022 A3 (D-1 B): one of the patient's own active documents, by id.</summary>
+    public async Task<SafetyContext> AttachDocumentAsync(Guid id, Guid? documentId, string? documentReference, string? rowVersion, Guid actor, CancellationToken ct)
     {
-        var doc = SafetyRules.RequireDocument(documentReference);
+        SafetyRules.RefuseFreeTextDocument(documentReference);
+        var doc = documentId ?? throw SafetyRules.DocumentRequired();
         var c = await LoadAsync(id, rowVersion, ct);
         if (c.Status == ClearanceStatuses.Cancelled) throw Closed(c);
         if (c.Status == ClearanceStatuses.Requested) throw new SafetyException("clearance_not_received", "The clearance has not been received yet, so there is no document to attach.", 409);
-        if (c.DocumentReference == doc) return await Context.GetAsync(c.PatientId, actor, ct);
+        if (c.DocumentId == doc) return await Context.GetAsync(c.PatientId, actor, ct);
+        await RequirePatientDocumentAsync(c.PatientId, doc, ct);
 
         var now = clock.UtcNow;
-        c.DocumentReference = doc;
+        c.DocumentId = doc;
         Touch(c, actor, now);
         StageVersion(c, await NextVersionAsync(id, ct), ClearanceChangeTypes.DocumentAttached, null, actor, now);
         AuditService.Record(db, "ClearanceDocumentAttached", nameof(Clearance), id, actor, $"{c.Kind} clearance document attached.");
@@ -122,7 +127,18 @@ public class ClearanceService(AlveraDbContext db, IPracticeClock clock)
         if (!await db.Clearances.AsNoTracking().AnyAsync(c => c.Id == id, ct)) throw new SafetyException("clearance_not_found", "That clearance was not found.", 404);
         var versions = await db.ClearanceVersions.AsNoTracking().Where(v => v.ClearanceId == id).OrderBy(v => v.VersionNumber).ToListAsync(ct);
         var names = await ClinicalNames.ResolveAsync(db, versions.Select(v => v.ActorUserId), ct);
-        return new ClearanceHistoryView(id, versions.Select(v => new ClearanceVersionView(v.VersionNumber, v.ChangeType, v.Kind, v.Reason, v.RequestedFrom, v.Status, v.DocumentReference, v.Note, ClinicalNames.Name(names, v.ActorUserId), v.OccurredAtUtc)).ToList());
+        var docs = await DocumentNamesAsync(db, versions.Select(v => v.DocumentId), ct);
+        return new ClearanceHistoryView(id, versions.Select(v => new ClearanceVersionView(v.VersionNumber, v.ChangeType, v.Kind, v.Reason, v.RequestedFrom, v.Status, v.DocumentReference, v.Note, ClinicalNames.Name(names, v.ActorUserId), v.OccurredAtUtc,
+            v.DocumentId, v.DocumentId is { } d ? docs.GetValueOrDefault(d) : null)).ToList());
+    }
+
+    /// <summary>ALV-N022 A3: how a typed document is named on screen (its description or file name, and its date).</summary>
+    internal static async Task<IReadOnlyDictionary<Guid, string>> DocumentNamesAsync(Alveara.Api.Data.AlveraDbContext db, IEnumerable<Guid?> ids, CancellationToken ct)
+    {
+        var wanted = ids.Where(i => i is not null).Select(i => i!.Value).Distinct().ToList();
+        if (wanted.Count == 0) return new Dictionary<Guid, string>();
+        return await db.Documents.AsNoTracking().Where(d => wanted.Contains(d.Id))
+            .ToDictionaryAsync(d => d.Id, d => $"{d.Description ?? d.OriginalFileName} ({d.DocumentDate:yyyy-MM-dd})", ct);
     }
 
     // ---------- shared ----------
@@ -150,7 +166,7 @@ public class ClearanceService(AlveraDbContext db, IPracticeClock clock)
         db.ClearanceVersions.Add(new ClearanceVersion
         {
             Id = Guid.NewGuid(), ClearanceId = c.Id, PatientId = c.PatientId, VersionNumber = number, ChangeType = changeType, Kind = c.Kind, Reason = c.Reason, RequestedFrom = c.RequestedFrom,
-            Status = c.Status, DocumentReference = c.DocumentReference, Note = note, ActorUserId = actor, OccurredAtUtc = now,
+            Status = c.Status, DocumentReference = c.DocumentReference, DocumentId = c.DocumentId, Note = note, ActorUserId = actor, OccurredAtUtc = now,
         });
 
     private async Task SaveAsync(Guid id, CancellationToken ct)
@@ -163,5 +179,20 @@ public class ClearanceService(AlveraDbContext db, IPracticeClock clock)
         {
             throw new ConcurrencyConflictException(nameof(Clearance), id); // two writers claimed the same next version: the stale one reloads
         }
+        catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException { Number: DocumentSamePatientGuard })
+        {
+            db.ChangeTracker.Clear();
+            throw SafetyRules.DocumentNotUsable();                        // the database guard caught what the check above should have: same answer, no SQL text
+        }
+    }
+
+    /// <summary>The database guard's error number (migration AddTypedClearanceDocumentAndPerioDiagnosisLinks, trigger TR_Clearances_DocumentSamePatient).</summary>
+    internal const int DocumentSamePatientGuard = 51288;
+
+    /// <summary>ALV-N022 A3 (D-1 B): the document must exist, belong to this patient and be active.</summary>
+    private async Task RequirePatientDocumentAsync(Guid patientId, Guid documentId, CancellationToken ct)
+    {
+        var ok = await db.Documents.AsNoTracking().AnyAsync(d => d.Id == documentId && d.PatientId == patientId && d.Status == Alveara.Api.Architecture.Documents.DocumentStatuses.Active, ct);
+        if (!ok) throw SafetyRules.DocumentNotUsable();
     }
 }

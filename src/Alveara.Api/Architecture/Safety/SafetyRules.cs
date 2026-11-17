@@ -80,6 +80,20 @@ public static class SafetyRules
     public static string RequireDocument(string? reference) =>
         OptionalDocument(reference) ?? throw Invalid(new Dictionary<string, string> { ["documentReference"] = "Say which document this is." });
 
+    /// <summary>
+    /// ALV-N022 A3 (D-1 B): new entries point to one of the patient's documents by id; free text is no longer accepted for them (existing text stays, shown as legacy).
+    /// A request that still sends text is refused, never silently ignored.
+    /// </summary>
+    public static void RefuseFreeTextDocument(string? reference)
+    {
+        if (Clean(reference) is not null)
+            throw Invalid(new Dictionary<string, string> { ["documentReference"] = "Free-text document references are no longer accepted. Choose one of this patient's documents." });
+    }
+
+    public static SafetyException DocumentRequired() => Invalid(new Dictionary<string, string> { ["documentId"] = "Choose one of this patient's documents." });
+    public static SafetyException DocumentNotUsable() =>
+        Invalid(new Dictionary<string, string> { ["documentId"] = "That document was not found among this patient's active documents. Choose one of this patient's documents." });
+
     public static string? OptionalNote(string? note)
     {
         var n = Clean(note);

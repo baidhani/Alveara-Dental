@@ -82,11 +82,14 @@ internal static class SafetyModel
             e.Property(x => x.RowVersion).IsRowVersion();
             e.HasOne<Architecture.Patients.Patient>().WithMany().HasForeignKey(x => x.PatientId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.PatientId, x.Status });
+            e.HasOne<Architecture.Documents.PatientDocument>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Restrict);   // ALV-N022 A3 (D-1 B)
+            e.HasIndex(x => x.DocumentId);
             // one OPEN clearance of a kind per reason per patient: a retried or simultaneous request cannot open a second one
             e.HasIndex(x => new { x.PatientId, x.Kind, x.ReasonKey }).IsUnique().HasFilter("[Status] IN ('Requested','Received')");
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_Clearances_NoDelete");
+                t.HasTrigger("TR_Clearances_DocumentSamePatient");   // ALV-N022 A3: 51288
                 t.HasCheckConstraint("CK_Clearances_Kind", "[Kind] COLLATE Latin1_General_CS_AS IN ('Medical','Dental')");
                 t.HasCheckConstraint("CK_Clearances_Status", "[Status] COLLATE Latin1_General_CS_AS IN ('Requested','Received','Resolved','Cancelled')");
                 t.HasCheckConstraint("CK_Clearances_ReasonNotBlank", "LEN(LTRIM(RTRIM([Reason]))) > 0");
@@ -109,6 +112,8 @@ internal static class SafetyModel
             e.Property(x => x.Note).HasMaxLength(500);
             e.HasOne<Clearance>().WithMany().HasForeignKey(x => x.ClearanceId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.ClearanceId, x.VersionNumber }).IsUnique();
+            e.HasOne<Architecture.Documents.PatientDocument>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Restrict);   // ALV-N022 A3 (D-1 B)
+            e.HasIndex(x => x.DocumentId);
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_ClearanceVersions_Immutable");

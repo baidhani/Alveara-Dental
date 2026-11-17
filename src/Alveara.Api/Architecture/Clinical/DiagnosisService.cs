@@ -261,11 +261,18 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
         var resolutions = (await db.DiagnosisPlanResolutions.AsNoTracking().Where(r => ids.Contains(r.DiagnosisId)).ToListAsync(ct)).ToDictionary(r => r.DiagnosisId);
         var planTitles = await db.TreatmentPlans.AsNoTracking().Where(p => resolutions.Values.Select(r => r.PlanId).Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => p.Title, ct);
         var resolvers = await ClinicalNames.ResolveAsync(db, resolutions.Values.Select(r => (Guid?)r.ResolvedByUserId), ct);
+        // ALV-N022 A3 (Q-5aa): perio charts that link to these diagnoses through the typed link (legacy free-text links cannot be resolved and are not shown here)
+        var perio = await (from l in db.PerioExamLinks.AsNoTracking() where l.DiagnosisId != null && ids.Contains(l.DiagnosisId.Value)
+                           join e in db.PerioExams.AsNoTracking() on l.ExamId equals e.Id
+                           select new { DiagnosisId = l.DiagnosisId!.Value, l.ExamId, e.RecordedAtUtc, l.CreatedByUserId, l.CreatedAtUtc }).ToListAsync(ct);
+        var perioNames = await ClinicalNames.ResolveAsync(db, perio.Select(p => p.CreatedByUserId), ct);
+        var perioByDx = perio.OrderBy(p => p.CreatedAtUtc).ToLookup(p => p.DiagnosisId, p => new LinkedPerioChartView(p.ExamId, p.RecordedAtUtc, ClinicalNames.Name(perioNames, p.CreatedByUserId), p.CreatedAtUtc));
         return rows.Select(d => new DiagnosisView(
             d.Id, d.PatientId, d.EncounterId, at[d.EncounterId], d.Label, d.ToothKey, d.Notes, d.TreatmentPlanReference, resolutions.ContainsKey(d.Id) ? TreatmentPlanReferenceStates.Resolved : State(d.TreatmentPlanReference), d.Status,
             ClinicalNames.Name(names, d.CreatedByUserId), d.CreatedAtUtc, ClinicalNames.Name(names, d.UpdatedByUserId), d.UpdatedAtUtc, ClinicalNames.Name(names, d.WithdrawnByUserId), d.WithdrawnAtUtc, d.WithdrawnReason,
             Convert.ToBase64String(d.RowVersion), d.CodingSystem, d.Code, d.Source, d.SourceNote, d.RegionKey, links.GetValueOrDefault(d.Id) ?? [],
             resolutions.GetValueOrDefault(d.Id)?.PlanId, resolutions.ContainsKey(d.Id) ? planTitles.GetValueOrDefault(resolutions[d.Id].PlanId) : null, resolutions.GetValueOrDefault(d.Id)?.Method,
-            resolutions.GetValueOrDefault(d.Id)?.ResolvedAtUtc, resolutions.ContainsKey(d.Id) ? ClinicalNames.Name(resolvers, resolutions[d.Id].ResolvedByUserId) : null)).ToList();
+            resolutions.GetValueOrDefault(d.Id)?.ResolvedAtUtc, resolutions.ContainsKey(d.Id) ? ClinicalNames.Name(resolvers, resolutions[d.Id].ResolvedByUserId) : null,
+            perioByDx[d.Id].ToList())).ToList();
     }
 }

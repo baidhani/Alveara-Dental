@@ -90,8 +90,10 @@ public class Clearance
     public string? RequestedFrom { get; set; }
     /// <summary>One of <see cref="ClearanceStatuses"/>.</summary>
     public required string Status { get; set; }
-    /// <summary>A reference to the supporting document, when there is one (free text until documents exist); null means "not yet available".</summary>
+    /// <summary>LEGACY free-text reference to the supporting document (kept and shown as "free-text reference (legacy)"); new entries use <see cref="DocumentId"/>.</summary>
     public string? DocumentReference { get; set; }
+    /// <summary>ALV-N022 A3 (D-1 B): the supporting document, one of this patient's own documents (foreign key; same patient enforced by trigger 51288). Null = not yet available.</summary>
+    public Guid? DocumentId { get; set; }
     public DateTimeOffset RequestedAtUtc { get; set; }
     public Guid? RequestedByUserId { get; set; }
     public DateTimeOffset? ReceivedAtUtc { get; set; }
@@ -119,6 +121,8 @@ public class ClearanceVersion
     public string? RequestedFrom { get; set; }
     public required string Status { get; set; }
     public string? DocumentReference { get; set; }
+    /// <summary>ALV-N022 A3: the document the clearance pointed to at this version (snapshot of <see cref="Clearance.DocumentId"/>).</summary>
+    public Guid? DocumentId { get; set; }
     public string? Note { get; set; }
     public Guid? ActorUserId { get; set; }
     public DateTimeOffset OccurredAtUtc { get; set; }

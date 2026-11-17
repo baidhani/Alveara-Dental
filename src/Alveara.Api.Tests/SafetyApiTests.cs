@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Alveara.Api.Architecture.Clinical;
+using Alveara.Api.Architecture.Documents;
 using Alveara.Api.Architecture.Safety;
 using Xunit;
 using static Alveara.Api.Tests.SchedulingTestSupport;
@@ -195,11 +196,35 @@ public class SafetyApiTests : IAsyncLifetime
 
         var received = ClearanceOf((await dentist.SendAsync(HttpMethod.Post, $"/api/safety/clearances/{id}/receive", new { note = "Phoned through", rowVersion = asked.GetProperty("rowVersion").GetString() })).Body);
         Assert.Equal(("Received", true), (received.GetProperty("status").GetString(), received.GetProperty("documentPending").GetBoolean()));   // no document yet, and it says so
-        var attached = ClearanceOf((await dentist.SendAsync(HttpMethod.Post, $"/api/safety/clearances/{id}/document", new { documentReference = "letter.pdf", rowVersion = received.GetProperty("rowVersion").GetString() })).Body);
+        // ALV-N022 A3 (D-1 B): free text is refused; one of the patient's own documents is attached by id
+        var freeText = await dentist.SendAsync(HttpMethod.Post, $"/api/safety/clearances/{id}/document", new { documentReference = "letter.pdf", rowVersion = received.GetProperty("rowVersion").GetString() });
+        Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (freeText.Status, Error(freeText.Body)));
+        var letter = await DocumentAsync(_ann);
+        var bosLetter = await DocumentAsync(_bo);
+        var crossPatient = await dentist.SendAsync(HttpMethod.Post, $"/api/safety/clearances/{id}/document", new { documentId = bosLetter, rowVersion = received.GetProperty("rowVersion").GetString() });
+        Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (crossPatient.Status, Error(crossPatient.Body)));
+        Assert.True(crossPatient.Body.GetProperty("fieldErrors").TryGetProperty("documentId", out _));
+        var attached = ClearanceOf((await dentist.SendAsync(HttpMethod.Post, $"/api/safety/clearances/{id}/document", new { documentId = letter, rowVersion = received.GetProperty("rowVersion").GetString() })).Body);
         Assert.False(attached.GetProperty("documentPending").GetBoolean());
+        Assert.Equal((letter.ToString(), "letter.pdf (2030-01-10)"), (attached.GetProperty("documentId").GetString(), attached.GetProperty("documentName").GetString()));
         var done = (await dentist.SendAsync(HttpMethod.Post, $"/api/safety/clearances/{id}/resolve", new { reason = "Cleared", rowVersion = attached.GetProperty("rowVersion").GetString() })).Body;
         Assert.Equal("Resolved", ClearanceOf(done).GetProperty("status").GetString());
         Assert.Equal(0, done.GetProperty("summary").GetProperty("openClearanceCount").GetInt32());
+    }
+
+    /// <summary>ALV-N022 A3: a document of the patient as the library stores it (database row only).</summary>
+    private async Task<Guid> DocumentAsync(Guid patient)
+    {
+        var id = Guid.NewGuid();
+        await using var db = _fixture.CreateContext();
+        db.Add(new PatientDocument
+        {
+            Id = id, PatientId = patient, CategoryId = DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2030, 1, 10), OriginalFileName = "letter.pdf", DetectedType = "pdf",
+            ContentType = "application/pdf", SizeBytes = 10, Sha256 = new string('a', 64), BlobId = Guid.NewGuid(), ImportedByUserId = await db.UserAccounts.Select(u => u.Id).FirstAsync(), ImportedAtUtc = DateTimeOffset.UtcNow,
+            IdempotencyKey = $"doc-{Guid.NewGuid():N}", RequestHash = new string('b', 64),
+        });
+        await db.SaveChangesAsync();
+        return id;
     }
 
     // ---------- the contract ----------

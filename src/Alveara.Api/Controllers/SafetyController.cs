@@ -12,8 +12,9 @@ public record UpdateAlertRequest(string? Title, string? Detail, string? Severity
 public record AlertReasonRequest(string? Reason, string? RowVersion);
 public record AcknowledgeRequest(int? Revision);
 public record RequestClearanceBody(string? Kind, string? Reason, string? RequestedFrom);
-public record ReceiveClearanceBody(string? Note, string? DocumentReference, string? RowVersion);
-public record AttachDocumentBody(string? DocumentReference, string? RowVersion);
+/// <summary>ALV-N022 A3 (D-1 B): DocumentId is one of the patient's documents; DocumentReference (free text) is refused for new entries and kept only so an old client gets a clear answer.</summary>
+public record ReceiveClearanceBody(string? Note, string? DocumentReference, string? RowVersion, Guid? DocumentId = null);
+public record AttachDocumentBody(string? DocumentReference, string? RowVersion, Guid? DocumentId = null);
 public record ClearanceReasonBody(string? Reason, string? RowVersion);
 
 /// <summary>
@@ -108,13 +109,13 @@ public class SafetyController(SafetyContextService context, SafetyAlertService a
     [RequirePermission(Permission.ManageClinicalNotes)]
     [RequireCsrfToken]
     public Task<IActionResult> ReceiveClearance(Guid clearanceId, [FromBody] ReceiveClearanceBody request, CancellationToken ct) =>
-        Run(async () => Ok(await clearances.ReceiveAsync(clearanceId, request.Note, request.DocumentReference, request.RowVersion, Actor, ct)));
+        Run(async () => Ok(await clearances.ReceiveAsync(clearanceId, request.Note, request.DocumentId, request.DocumentReference, request.RowVersion, Actor, ct)));
 
     [HttpPost("api/safety/clearances/{clearanceId:guid}/document")]
     [RequirePermission(Permission.ManageClinicalNotes)]
     [RequireCsrfToken]
     public Task<IActionResult> AttachDocument(Guid clearanceId, [FromBody] AttachDocumentBody request, CancellationToken ct) =>
-        Run(async () => Ok(await clearances.AttachDocumentAsync(clearanceId, request.DocumentReference, request.RowVersion, Actor, ct)));
+        Run(async () => Ok(await clearances.AttachDocumentAsync(clearanceId, request.DocumentId, request.DocumentReference, request.RowVersion, Actor, ct)));
 
     [HttpPost("api/safety/clearances/{clearanceId:guid}/resolve")]
     [RequirePermission(Permission.ManageClinicalNotes)]

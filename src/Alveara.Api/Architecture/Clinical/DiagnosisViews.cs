@@ -29,7 +29,11 @@ public sealed record DiagnosisView(
     Guid Id, Guid PatientId, Guid EncounterId, DateTimeOffset EncounterAtUtc, string Label, string? ToothKey, string? Notes, string? TreatmentPlanReference, string? TreatmentPlanReferenceState,
     string Status, string? RecordedByName, DateTimeOffset RecordedAtUtc, string? UpdatedByName, DateTimeOffset? UpdatedAtUtc, string? WithdrawnByName, DateTimeOffset? WithdrawnAtUtc, string? WithdrawnReason, string RowVersion,
     string? CodingSystem = null, string? Code = null, string Source = DiagnosisSources.Manual, string? SourceNote = null, string? RegionKey = null, IReadOnlyList<DiagnosisLinkView>? Links = null,
-    Guid? ResolvedPlanId = null, string? ResolvedPlanTitle = null, string? ResolvedMethod = null, DateTimeOffset? ResolvedAtUtc = null, string? ResolvedByName = null);
+    Guid? ResolvedPlanId = null, string? ResolvedPlanTitle = null, string? ResolvedMethod = null, DateTimeOffset? ResolvedAtUtc = null, string? ResolvedByName = null,
+    IReadOnlyList<LinkedPerioChartView>? LinkedFromPerioCharts = null);
+
+/// <summary>ALV-N022 A3 (Q-5aa): a periodontal chart that links TO this diagnosis (typed link, D-1 B) - the chart, when it was recorded, and who linked it when.</summary>
+public sealed record LinkedPerioChartView(Guid ExamId, DateTimeOffset RecordedAtUtc, string? LinkedByName, DateTimeOffset LinkedAtUtc);
 
 /// <summary>A link from a diagnosis to a finding or periodontal chart of the same patient: what it points at, in words, and who linked it and when.</summary>
 public sealed record DiagnosisLinkView(string LinkType, Guid TargetId, string Summary, string? LinkedByName, DateTimeOffset LinkedAtUtc);

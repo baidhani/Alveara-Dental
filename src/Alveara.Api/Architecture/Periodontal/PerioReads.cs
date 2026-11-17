@@ -17,11 +17,14 @@ internal static class PerioReads
         var teeth = (await db.PerioToothRecords.AsNoTracking().Where(t => ids.Contains(t.ExamId)).ToListAsync(ct)).ToLookup(t => t.ExamId);
         var links = (await db.PerioExamLinks.AsNoTracking().Where(l => ids.Contains(l.ExamId)).OrderBy(l => l.CreatedAtUtc).ToListAsync(ct)).ToLookup(l => l.ExamId);
         var names = await ClinicalNames.ResolveAsync(db, exams.Select(e => (Guid?)e.RecordedByUserId).Concat(links.SelectMany(g => g).Select(l => l.CreatedByUserId)), ct);
+        var dxIds = links.SelectMany(g => g).Where(l => l.DiagnosisId is not null).Select(l => l.DiagnosisId!.Value).Distinct().ToList();
+        var dxLabels = dxIds.Count == 0 ? new Dictionary<Guid, string>() : await db.Diagnoses.AsNoTracking().Where(d => dxIds.Contains(d.Id)).ToDictionaryAsync(d => d.Id, d => d.Label, ct);
         return exams.Select(e => new PerioExamView(
             e.Id, e.PatientId, e.RecordedAtUtc, ClinicalNames.Name(names, e.RecordedByUserId) ?? ClinicalNames.Fallback, e.ReadingCount,
             Ordered(readings[e.Id]).Select(r => new PerioReadingView(r.ToothKey, r.Site, r.ProbingDepthMm, r.RecessionMm, r.ProbingDepthMm + r.RecessionMm, r.Bleeding, r.Suppuration, r.Plaque)).ToList(),
             teeth[e.Id].OrderBy(t => t.ToothKey, StringComparer.Ordinal).Select(t => new PerioToothView(t.ToothKey, t.Mobility, t.Furcation, t.Excluded)).ToList(),
-            links[e.Id].Select(l => new PerioLinkView(l.LinkType, l.Reference, ClinicalNames.Name(names, l.CreatedByUserId), l.CreatedAtUtc)).ToList())).ToList();
+            links[e.Id].Select(l => new PerioLinkView(l.LinkType, l.Reference, ClinicalNames.Name(names, l.CreatedByUserId), l.CreatedAtUtc,
+                l.DiagnosisId, l.DiagnosisId is { } d ? dxLabels.GetValueOrDefault(d) : null)).ToList())).ToList();
     }
 
     /// <summary>Readings by tooth then by the order of the six sites (not alphabetical).</summary>

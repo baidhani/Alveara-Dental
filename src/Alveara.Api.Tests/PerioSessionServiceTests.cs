@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Alveara.Api.Architecture.Clinical;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Odontogram;
 using Alveara.Api.Architecture.Periodontal;
@@ -392,17 +393,73 @@ END");
 
     // ---------- links ----------
 
+    /// <summary>ALV-N022 A3 (D-1 B): one of the patient's diagnoses (an encounter and a diagnosis row, as the clinical screens store them).</summary>
+    private async Task<Guid> DiagnosisAsync(Guid? patient = null, string label = "Chronic localized periodontitis", string status = DiagnosisStatuses.Active)
+    {
+        var id = Guid.NewGuid();
+        await WithDb(async db =>
+        {
+            var encounter = new Encounter { Id = Guid.NewGuid(), PatientId = patient ?? Ann, EncounterAtUtc = DateTimeOffset.UtcNow.AddHours(-1), Status = EncounterStatuses.Draft, CreatedAtUtc = DateTimeOffset.UtcNow };
+            db.Encounters.Add(encounter);
+            db.Diagnoses.Add(new Diagnosis
+            {
+                Id = id, PatientId = patient ?? Ann, EncounterId = encounter.Id, IdempotencyKey = $"dx-{Guid.NewGuid():N}", Label = label, Status = status, CreatedAtUtc = DateTimeOffset.UtcNow, CreatedByUserId = S.Actor,
+                WithdrawnAtUtc = status == DiagnosisStatuses.Withdrawn ? DateTimeOffset.UtcNow : null, WithdrawnByUserId = status == DiagnosisStatuses.Withdrawn ? S.Actor : null,
+                WithdrawnReason = status == DiagnosisStatuses.Withdrawn ? "Entered on the wrong patient" : null,
+            });
+            return await db.SaveChangesAsync();
+        });
+        return id;
+    }
+
     [Fact]
     public async Task A_finalized_chart_can_be_linked_to_a_diagnosis_a_plan_an_encounter_and_a_history_entry_and_a_repeat_is_quiet()
     {
         var exam = await FinalizeAsync(await SaveAsync(await StartAsync(), Batch([R()])));
-        PerioExamView linked = exam;
-        foreach (var type in PerioLinkTypes.All) linked = await Svc(s => s.LinkAsync(exam.Id, type, "ref-1", S.Actor, default));
-        linked = await Svc(s => s.LinkAsync(exam.Id, "Diagnosis", " ref-1 ", Other, default));                    // the same link again, even with spaces
+        var dx = await DiagnosisAsync();
+        PerioExamView linked = await Svc(s => s.LinkAsync(exam.Id, "Diagnosis", null, dx, S.Actor, default));       // ALV-N022 A3: a diagnosis by id
+        foreach (var type in PerioLinkTypes.All.Where(t => t != "Diagnosis")) linked = await Svc(s => s.LinkAsync(exam.Id, type, "ref-1", null, S.Actor, default));
+        linked = await Svc(s => s.LinkAsync(exam.Id, "Diagnosis", null, dx, Other, default));                        // the same link again
+        linked = await Svc(s => s.LinkAsync(exam.Id, "Encounter", " ref-1 ", null, Other, default));                  // the same text link again, even with spaces
         Assert.Equal(new[] { "Diagnosis", "TreatmentPlan", "Encounter", "HistoryEntry" }, linked.Links!.Select(l => l.LinkType));
-        Assert.Equal("Dr. Okafor", linked.Links![0].LinkedByName);
+        Assert.Equal(("Dr. Okafor", (Guid?)dx, "Chronic localized periodontitis"), (linked.Links![0].LinkedByName, linked.Links[0].DiagnosisId, linked.Links[0].DiagnosisLabel));
         Assert.Equal(exam.Readings, linked.Readings);                                                                // linking never changes the chart
         Assert.Equal(4, (await AuditAsync(nameof(PerioExam))).Count(a => a.Type == "PerioExamLinked"));
+    }
+
+    [Fact]
+    public async Task A_diagnosis_link_needs_one_of_the_same_patients_diagnoses_free_text_is_refused_and_nothing_is_linked()
+    {
+        var exam = await FinalizeAsync(await SaveAsync(await StartAsync(), Batch([R()])));
+        var bos = await DiagnosisAsync(Bo);
+        var withdrawn = await DiagnosisAsync(status: DiagnosisStatuses.Withdrawn);
+        var freeText = await Refused(() => Svc(s => s.LinkAsync(exam.Id, "Diagnosis", "chronic", null, S.Actor, default)));
+        Assert.Contains(freeText.Problems, p => p.Field == "reference" && p.Code == "free_text_retired");
+        foreach (var bad in new[] { bos, Guid.NewGuid(), withdrawn })
+        {
+            var refused = await Refused(() => Svc(s => s.LinkAsync(exam.Id, "Diagnosis", null, bad, S.Actor, default)));
+            Assert.Equal(("validation_failed", 400), (refused.Code, refused.StatusCode));
+            Assert.Contains(refused.Problems, p => p.Field == "diagnosisId");
+        }
+        Assert.Contains((await Refused(() => Svc(s => s.LinkAsync(exam.Id, "Encounter", "ref", Guid.NewGuid(), S.Actor, default)))).Problems, p => p.Field == "diagnosisId");
+        Assert.Empty((await Svc(s => s.ExamAsync(exam.Id, default))).Links!);
+    }
+
+    [Fact]
+    public async Task The_diagnosis_lists_the_charts_that_link_to_it_and_a_legacy_text_link_stays_shown_as_text()
+    {
+        var exam = await FinalizeAsync(await SaveAsync(await StartAsync(), Batch([R()])));
+        var dx = await DiagnosisAsync();
+        await Svc(s => s.LinkAsync(exam.Id, "Diagnosis", null, dx, S.Actor, default));
+        var view = await WithDb(db => new DiagnosisService(db, Clock).GetAsync(dx, default));
+        var chart = Assert.Single(view.LinkedFromPerioCharts!);                                                      // Q-5aa
+        Assert.Equal((exam.Id, "Dr. Okafor"), (chart.ExamId, chart.LinkedByName));
+
+        await WithDb(db => db.Database.ExecuteSqlRawAsync(
+            "INSERT INTO [PerioExamLinks] ([Id],[ExamId],[PatientId],[LinkType],[Reference],[CreatedAtUtc],[CreatedByUserId]) VALUES ({0},{1},{2},'Diagnosis','chronic',SYSDATETIMEOFFSET(),{3})",
+            Guid.NewGuid(), exam.Id, Ann, S.Actor));                                                                  // a free-text link from before A3
+        var legacy = (await Svc(s => s.ExamAsync(exam.Id, default))).Links!.Single(l => l.Reference == "chronic");
+        Assert.Equal(("Diagnosis", (Guid?)null), (legacy.LinkType, legacy.DiagnosisId));
     }
 
     [Theory]
@@ -410,12 +467,12 @@ END");
     public async Task A_link_with_an_unknown_type_or_no_reference_is_refused_and_a_long_reference_too(string? type, string? reference)
     {
         var exam = await FinalizeAsync(await SaveAsync(await StartAsync(), Batch([R()])));
-        Assert.Equal("validation_failed", (await Refused(() => Svc(s => s.LinkAsync(exam.Id, type, reference, S.Actor, default)))).Code);
-        Assert.Equal("validation_failed", (await Refused(() => Svc(s => s.LinkAsync(exam.Id, "Diagnosis", new string('x', 101), S.Actor, default)))).Code);
+        Assert.Equal("validation_failed", (await Refused(() => Svc(s => s.LinkAsync(exam.Id, type, reference, null, S.Actor, default)))).Code);
+        Assert.Equal("validation_failed", (await Refused(() => Svc(s => s.LinkAsync(exam.Id, "Encounter", new string('x', 101), null, S.Actor, default)))).Code);
         Assert.Empty((await Svc(s => s.ExamAsync(exam.Id, default))).Links!);
     }
 
     [Fact]
     public async Task Linking_an_unknown_chart_is_a_404()
-        => Assert.Equal("exam_not_found", (await Refused(() => Svc(s => s.LinkAsync(Guid.NewGuid(), "Diagnosis", "x", S.Actor, default)))).Code);
+        => Assert.Equal("exam_not_found", (await Refused(() => Svc(s => s.LinkAsync(Guid.NewGuid(), "Encounter", "x", null, S.Actor, default)))).Code);
 }

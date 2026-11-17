@@ -30,7 +30,8 @@ public sealed record SafetyEntry(
 public sealed record ClearanceView(
     Guid Id, string Kind, string Reason, string? RequestedFrom, string Status, string? DocumentReference, bool DocumentPending,
     DateTimeOffset RequestedAtUtc, string? RequestedByName, DateTimeOffset? ReceivedAtUtc, string? ReceivedByName, string? ReceivedNote,
-    DateTimeOffset? ClosedAtUtc, string? ClosedByName, string? ClosingReason, DateTimeOffset? UpdatedAtUtc, string RowVersion);
+    DateTimeOffset? ClosedAtUtc, string? ClosedByName, string? ClosingReason, DateTimeOffset? UpdatedAtUtc, string RowVersion,
+    Guid? DocumentId = null, string? DocumentName = null);   // ALV-N022 A3 (D-1 B): the typed document; DocumentReference is then LEGACY free text only
 
 /// <summary>A part of the picture that is NOT established (never reviewed, unknown, changed since confirmed). It is shown as exactly that - an absence of an entry here never means "none".</summary>
 public sealed record SafetyGap(string Section, string Status, string Message);
@@ -60,7 +61,8 @@ public sealed record AlertVersionView(
 public sealed record AlertHistoryView(Guid AlertId, IReadOnlyList<AlertVersionView> Versions);
 
 public sealed record ClearanceVersionView(
-    int VersionNumber, string ChangeType, string Kind, string Reason, string? RequestedFrom, string Status, string? DocumentReference, string? Note, string? ActorName, DateTimeOffset OccurredAtUtc);
+    int VersionNumber, string ChangeType, string Kind, string Reason, string? RequestedFrom, string Status, string? DocumentReference, string? Note, string? ActorName, DateTimeOffset OccurredAtUtc,
+    Guid? DocumentId = null, string? DocumentName = null);
 
 public sealed record ClearanceHistoryView(Guid ClearanceId, IReadOnlyList<ClearanceVersionView> Versions);
 

@@ -86,6 +86,12 @@ public class PerioExamLink
     public Guid PatientId { get; set; }
     public required string LinkType { get; set; }
     public required string Reference { get; set; }
+    /// <summary>
+    /// ALV-N022 A3 (D-1 B): for a Diagnosis link made by the picker, the diagnosis itself (foreign key; same patient enforced by trigger 51289) - the authoritative link.
+    /// <see cref="Reference"/> then holds the same id as text only so the existing uniqueness (chart, type, reference) and quiet-repeat rule keep working. Null for the
+    /// other link types and for LEGACY Diagnosis links typed as free text (shown as "free-text reference (legacy)").
+    /// </summary>
+    public Guid? DiagnosisId { get; set; }
     public DateTimeOffset CreatedAtUtc { get; set; }
     public Guid? CreatedByUserId { get; set; }
 }

@@ -6270,6 +6270,9 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid?>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("DiagnosisId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ExamId")
                         .HasColumnType("uniqueidentifier");
 
@@ -6288,6 +6291,8 @@ namespace Alveara.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DiagnosisId");
+
                     b.HasIndex("PatientId");
 
                     b.HasIndex("ExamId", "LinkType", "Reference")
@@ -6295,9 +6300,13 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("PerioExamLinks", t =>
                         {
+                            t.HasTrigger("TR_PerioExamLinks_DiagnosisSamePatient");
+
                             t.HasTrigger("TR_PerioExamLinks_Immutable");
 
                             t.HasTrigger("TR_PerioExamLinks_MergeScope");
+
+                            t.HasCheckConstraint("CK_PerioExamLinks_DiagnosisIdType", "[DiagnosisId] IS NULL OR [LinkType] = 'Diagnosis'");
 
                             t.HasCheckConstraint("CK_PerioExamLinks_LinkType", "[LinkType] COLLATE Latin1_General_CS_AS IN ('Diagnosis','TreatmentPlan','Encounter','HistoryEntry')");
 
@@ -7698,6 +7707,9 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("DocumentReference")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -7759,6 +7771,8 @@ namespace Alveara.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DocumentId");
+
                     b.HasIndex("PatientId", "Status");
 
                     b.HasIndex("PatientId", "Kind", "ReasonKey")
@@ -7767,6 +7781,8 @@ namespace Alveara.Api.Migrations
 
                     b.ToTable("Clearances", t =>
                         {
+                            t.HasTrigger("TR_Clearances_DocumentSamePatient");
+
                             t.HasTrigger("TR_Clearances_MergeScope");
 
                             t.HasTrigger("TR_Clearances_NoDelete");
@@ -7798,6 +7814,9 @@ namespace Alveara.Api.Migrations
                         .HasColumnType("nvarchar(16)");
 
                     b.Property<Guid>("ClearanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DocumentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("DocumentReference")
@@ -7837,6 +7856,8 @@ namespace Alveara.Api.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
 
                     b.HasIndex("ClearanceId", "VersionNumber")
                         .IsUnique();
@@ -10067,6 +10088,11 @@ namespace Alveara.Api.Migrations
 
             modelBuilder.Entity("Alveara.Api.Architecture.Periodontal.PerioExamLink", b =>
                 {
+                    b.HasOne("Alveara.Api.Architecture.Clinical.Diagnosis", null)
+                        .WithMany()
+                        .HasForeignKey("DiagnosisId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Alveara.Api.Architecture.Periodontal.PerioExam", null)
                         .WithMany()
                         .HasForeignKey("ExamId")
@@ -10302,6 +10328,11 @@ namespace Alveara.Api.Migrations
 
             modelBuilder.Entity("Alveara.Api.Architecture.Safety.Clearance", b =>
                 {
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Alveara.Api.Architecture.Patients.Patient", null)
                         .WithMany()
                         .HasForeignKey("PatientId")
@@ -10316,6 +10347,11 @@ namespace Alveara.Api.Migrations
                         .HasForeignKey("ClearanceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Documents.PatientDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("Alveara.Api.Architecture.Safety.SafetyAlert", b =>

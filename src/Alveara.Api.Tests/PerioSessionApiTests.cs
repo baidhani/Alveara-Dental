@@ -103,7 +103,7 @@ public class PerioSessionApiTests : IAsyncLifetime
             (await by.SendAsync(HttpMethod.Post, Charts(_bo) + "/sessions")).Status,
             (await SaveAsync(by, open, new[] { Site() })).Status,
             (await by.SendAsync(HttpMethod.Post, $"/api/periodontal/sessions/{id}/finalize", new { rowVersion = Version(open) })).Status,
-            (await by.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{chart.GetProperty("id").GetString()}/links", new { linkType = "Diagnosis", reference = "dx-1" })).Status,
+            (await by.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{chart.GetProperty("id").GetString()}/links", new { linkType = "Encounter", reference = "enc-1" })).Status,   // ALV-N022 A3: diagnosis links are by id now; the route's permission is what this tests
         };
         if (allowed) Assert.DoesNotContain(HttpStatusCode.Forbidden, statuses);
         else
@@ -154,10 +154,10 @@ public class PerioSessionApiTests : IAsyncLifetime
         Assert.Equal(2, done.Body.GetProperty("readingCount").GetInt32());
         Assert.Equal(JsonValueKind.Null, (await hygienist.SendAsync(HttpMethod.Get, Charts() + "/session")).Body.GetProperty("session").ValueKind);   // no draft is open any more
 
-        var linked = await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{examId}/links", new { linkType = "Diagnosis", reference = "dx-9" });
+        var linked = await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{examId}/links", new { linkType = "Encounter", reference = "enc-9" });   // ALV-N022 A3: diagnosis links are by id now (PerioSessionServiceTests)
         Assert.Equal(HttpStatusCode.OK, linked.Status);
         var chart = (await hygienist.SendAsync(HttpMethod.Get, $"/api/periodontal/charts/{examId}")).Body;
-        Assert.Equal(("Diagnosis", "dx-9"), (chart.GetProperty("links")[0].GetProperty("linkType").GetString(), chart.GetProperty("links")[0].GetProperty("reference").GetString()));
+        Assert.Equal(("Encounter", "enc-9"), (chart.GetProperty("links")[0].GetProperty("linkType").GetString(), chart.GetProperty("links")[0].GetProperty("reference").GetString()));
         Assert.Equal((1, 2), (chart.GetProperty("teeth")[0].GetProperty("mobility").GetInt32(), chart.GetProperty("teeth")[0].GetProperty("furcation").GetInt32()));
         var history = (await hygienist.SendAsync(HttpMethod.Get, Charts() + "/charts")).Body.GetProperty("exams");
         Assert.Equal(examId, history[0].GetProperty("id").GetString());                                                          // the STORY-012 history shows it
@@ -272,7 +272,7 @@ public class PerioSessionApiTests : IAsyncLifetime
         var id = chart.GetProperty("id").GetString();
         var bad = await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{id}/links", new { linkType = "Procedure", reference = "x" });
         Assert.Equal((HttpStatusCode.BadRequest, "validation_failed"), (bad.Status, Error(bad.Body)));
-        Assert.Equal(HttpStatusCode.NotFound, (await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{Guid.NewGuid()}/links", new { linkType = "Diagnosis", reference = "x" })).Status);
+        Assert.Equal(HttpStatusCode.NotFound, (await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{Guid.NewGuid()}/links", new { linkType = "Encounter", reference = "x" })).Status);
         await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{id}/links", new { linkType = "Encounter", reference = "enc-1" });
         var again = await dentist.SendAsync(HttpMethod.Post, $"/api/periodontal/charts/{id}/links", new { linkType = "Encounter", reference = "enc-1" });
         Assert.Equal((HttpStatusCode.OK, 1), (again.Status, again.Body.GetProperty("links").GetArrayLength()));

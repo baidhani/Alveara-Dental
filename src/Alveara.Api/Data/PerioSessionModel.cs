@@ -91,9 +91,13 @@ internal static class PerioSessionModel
             e.HasOne<PerioExam>().WithMany().HasForeignKey(x => x.ExamId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => new { x.ExamId, x.LinkType, x.Reference }).IsUnique();
             e.HasIndex(x => x.PatientId);
+            e.HasOne<Architecture.Clinical.Diagnosis>().WithMany().HasForeignKey(x => x.DiagnosisId).OnDelete(DeleteBehavior.Restrict);   // ALV-N022 A3 (D-1 B)
+            e.HasIndex(x => x.DiagnosisId);
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_PerioExamLinks_Immutable");
+                t.HasTrigger("TR_PerioExamLinks_DiagnosisSamePatient");   // ALV-N022 A3: 51289
+                t.HasCheckConstraint("CK_PerioExamLinks_DiagnosisIdType", "[DiagnosisId] IS NULL OR [LinkType] = 'Diagnosis'");
                 t.HasCheckConstraint("CK_PerioExamLinks_LinkType", $"[LinkType] COLLATE Latin1_General_CS_AS IN ({In(PerioLinkTypes.All)})");
                 t.HasCheckConstraint("CK_PerioExamLinks_ReferenceNotBlank", "LEN(LTRIM(RTRIM([Reference]))) > 0");
             });

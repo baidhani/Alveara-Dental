@@ -18,7 +18,8 @@ public sealed record PerioReadingView(string ToothKey, string Site, int ProbingD
 public sealed record PerioToothView(string ToothKey, int? Mobility, int? Furcation, bool Excluded);
 
 /// <summary>A link from a chart to a diagnosis, treatment plan, encounter or history entry, by reference.</summary>
-public sealed record PerioLinkView(string LinkType, string Reference, string? LinkedByName, DateTimeOffset LinkedAtUtc);
+/// <summary>ALV-N022 A3: for a typed Diagnosis link, DiagnosisId and its label; a Diagnosis link without an id is LEGACY free text (shown as such).</summary>
+public sealed record PerioLinkView(string LinkType, string Reference, string? LinkedByName, DateTimeOffset LinkedAtUtc, Guid? DiagnosisId = null, string? DiagnosisLabel = null);
 
 /// <summary>One saved chart. Names are the person's display name (never an account id or login).</summary>
 public sealed record PerioExamView(Guid Id, Guid PatientId, DateTimeOffset RecordedAtUtc, string RecordedByName, int ReadingCount, IReadOnlyList<PerioReadingView> Readings, IReadOnlyList<PerioToothView>? Teeth = null, IReadOnlyList<PerioLinkView>? Links = null);

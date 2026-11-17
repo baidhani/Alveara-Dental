@@ -74,22 +74,36 @@ public partial class PerioSessionService
     }
 
     /// <summary>
-    /// Links a saved chart to a diagnosis, treatment plan, encounter or history entry by reference (the records do not all exist yet, so the reference is opaque text). Append-only; the same link
-    /// again is quiet. Linking never changes the chart.
+    /// Links a saved chart to a diagnosis, treatment plan, encounter or history entry. Append-only; the same link again is quiet. Linking never changes the chart.
+    /// ALV-N022 A3 (D-1 B): a Diagnosis link names one of the SAME patient's diagnoses by id (typed column with a foreign key; same patient also enforced by the database,
+    /// 51289); free text is refused for it. The other link types keep their reference text (out of D-1's scope). <see cref="PerioExamLink.Reference"/> then mirrors the id
+    /// only so the existing uniqueness and quiet-repeat rule keep working.
     /// </summary>
-    public async Task<PerioExamView> LinkAsync(Guid examId, string? linkType, string? reference, Guid actor, CancellationToken ct)
+    public async Task<PerioExamView> LinkAsync(Guid examId, string? linkType, string? reference, Guid? diagnosisId, Guid actor, CancellationToken ct)
     {
         var type = linkType?.Trim();
         var text = reference?.Trim();
         var problems = new List<PerioProblem>();
         if (type is null || !PerioLinkTypes.All.Contains(type)) problems.Add(new(null, null, "linkType", "invalid", $"Choose what the chart is linked to: {string.Join(", ", PerioLinkTypes.All)}."));
-        if (string.IsNullOrEmpty(text) || text.Length > MaxLinkReference) problems.Add(new(null, null, "reference", "invalid", $"Enter a reference of 1 to {MaxLinkReference} characters."));
+        else if (type == PerioLinkTypes.Diagnosis)
+        {
+            if (!string.IsNullOrEmpty(text)) problems.Add(new(null, null, "reference", "free_text_retired", "Free-text diagnosis references are no longer accepted. Choose one of this patient's diagnoses."));
+            if (diagnosisId is null) problems.Add(new(null, null, "diagnosisId", "required", "Choose one of this patient's diagnoses."));
+            else text = diagnosisId.Value.ToString();
+        }
+        else
+        {
+            if (diagnosisId is not null) problems.Add(new(null, null, "diagnosisId", "invalid", "A diagnosis can be chosen only for a diagnosis link."));
+            if (string.IsNullOrEmpty(text) || text.Length > MaxLinkReference) problems.Add(new(null, null, "reference", "invalid", $"Enter a reference of 1 to {MaxLinkReference} characters."));
+        }
         if (problems.Count > 0) throw new PerioException("validation_failed", "The link needs correcting. Nothing was saved.", 400, problems);
 
         var exam = await db.PerioExams.AsNoTracking().SingleOrDefaultAsync(e => e.Id == examId, ct) ?? throw new PerioException("exam_not_found", "That periodontal chart was not found.", 404);
+        if (diagnosisId is { } dx && !await db.Diagnoses.AsNoTracking().AnyAsync(d => d.Id == dx && d.PatientId == exam.PatientId && d.Status != Alveara.Api.Architecture.Clinical.DiagnosisStatuses.Withdrawn, ct))
+            throw DiagnosisNotUsable();
         if (await db.PerioExamLinks.AsNoTracking().AnyAsync(l => l.ExamId == examId && l.LinkType == type && l.Reference == text, ct)) return await ExamAsync(examId, ct);
 
-        db.PerioExamLinks.Add(new PerioExamLink { Id = Guid.NewGuid(), ExamId = examId, PatientId = exam.PatientId, LinkType = type!, Reference = text!, CreatedAtUtc = clock.UtcNow, CreatedByUserId = actor });
+        db.PerioExamLinks.Add(new PerioExamLink { Id = Guid.NewGuid(), ExamId = examId, PatientId = exam.PatientId, LinkType = type!, Reference = text!, DiagnosisId = diagnosisId, CreatedAtUtc = clock.UtcNow, CreatedByUserId = actor });
         AuditService.Record(db, "PerioExamLinked", nameof(PerioExam), examId, actor, "Periodontal chart linked.");
         try
         {
@@ -99,6 +113,11 @@ public partial class PerioSessionService
         {
             db.ChangeTracker.Clear();                                                  // the same link was made at the same moment: it stands
         }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: DiagnosisSamePatientGuard })
+        {
+            db.ChangeTracker.Clear();
+            throw DiagnosisNotUsable();                                                // the database guard caught it: same answer, no SQL text
+        }
         catch (DbUpdateException ex)
         {
             db.ChangeTracker.Clear();
@@ -106,6 +125,13 @@ public partial class PerioSessionService
         }
         return await ExamAsync(examId, ct);
     }
+
+    /// <summary>The database guard's error number (migration AddTypedClearanceDocumentAndPerioDiagnosisLinks, trigger TR_PerioExamLinks_DiagnosisSamePatient).</summary>
+    internal const int DiagnosisSamePatientGuard = 51289;
+
+    private static PerioException DiagnosisNotUsable() =>
+        new("validation_failed", "The link needs correcting. Nothing was saved.", 400,
+            [new(null, null, "diagnosisId", "not_found", "That diagnosis was not found among this patient's diagnoses. Choose one of this patient's diagnoses.")]);
 
     private static PerioException Closed(PerioSession s) =>
         new("session_closed", $"This chart session was {s.Status.ToLowerInvariant()}, so it can no longer be changed. Start a new session to chart again.", 409);
