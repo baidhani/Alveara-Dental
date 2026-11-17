@@ -50,9 +50,7 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
 
         // ALV-N022 A2 (OD-06 as amended 2026-11-17): a finalized encounter accepts no new diagnosis; later care belongs in a new draft encounter. Completed-procedure
         // attribution to a finalized encounter is NOT refused (ALV-008-C01 D6). Signed drafts keep today's behaviour (OD-13 undecided).
-        if (encounterStatus == EncounterStatuses.Finalized)
-            throw new DiagnosisException("encounter_finalized", "That encounter is finalized and cannot receive new diagnoses. Start a new encounter. Nothing was saved.", 409,
-                [new("encounterId", "finalized", "Finalized encounters cannot receive new diagnoses. Start a new encounter.")]);
+        if (encounterStatus == EncounterStatuses.Finalized) throw EncounterFinalized();
 
         var now = clock.UtcNow;
         var d = new Diagnosis
@@ -74,6 +72,11 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
             var winner = await FindByKeyAsync(patientId, key!, ct) ?? throw SaveFailed(ex);
             return await ReplayAsync(winner, v, ct);
         }
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException { Number: FinalizedEncounterGuard })
+        {
+            db.ChangeTracker.Clear();                                                  // the encounter was finalized after the check above (the database guard refused): nothing was saved
+            throw EncounterFinalized();
+        }
         catch (DbUpdateException ex)
         {
             db.ChangeTracker.Clear();
@@ -81,6 +84,14 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
         }
         return await ViewAsync(d.Id, ct);
     }
+
+    /// <summary>The database guard's error number (migration AddDiagnosisFinalizedEncounterGuard, trigger TR_Diagnoses_EncounterNotFinalized).</summary>
+    internal const int FinalizedEncounterGuard = 51287;
+
+    /// <summary>ALV-N022 A2: the one refusal for a new diagnosis on a finalized encounter, whether the service's check or the database guard caught it.</summary>
+    private static DiagnosisException EncounterFinalized() =>
+        new("encounter_finalized", "That encounter is finalized and cannot receive new diagnoses. Start a new encounter. Nothing was saved.", 409,
+            [new("encounterId", "finalized", "Finalized encounters cannot receive new diagnoses. Start a new encounter.")]);
 
     /// <summary>Corrects a diagnosis (a reason is required and goes in its history). Changing nothing is quiet. The treatment-plan reference changes only by an explicit act (see <see cref="DiagnosisCorrection"/>).</summary>
     public async Task<DiagnosisView> CorrectAsync(Guid diagnosisId, string? rowVersion, DiagnosisCorrection? correction, string? reason, Guid actor, CancellationToken ct)

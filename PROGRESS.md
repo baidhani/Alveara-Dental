@@ -3116,3 +3116,9 @@
   - What changed: review stored unchanged; EXECUTION_STATUS ALV-N022 and attempt A2 CHANGES_REQUIRED with CR-1 and the reviewed SHAs (A1 kept COMPLETE); BUILD_STATE line.
   - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
   - Notes: closure-only. Nothing pushed since 2690d7a.
+- [x] ALV-N022 A2-R02 implementation (review A2-R01 CR-1): database-enforced guard against a new diagnosis on a finalized encounter
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: migration 20261117160917_AddDiagnosisFinalizedEncounterGuard (trigger TR_Diagnoses_EncounterNotFinalized, AFTER INSERT, UPDLOCK/HOLDLOCK read of the encounter, THROW 51287; Down drops it); DiagnosisService maps 51287 to 409 encounter_finalized via one helper. New tests DiagnosisFinalizedEncounterGuardTests (interleaving via a save interceptor, direct insert, correction/withdrawal still allowed) and DiagnosisFinalizedGuardMigrationTests (down/up, upgrade keeps existing rows); RealMigrationInventory entry and pinned rollback count 28 -> 29 per the established procedure.
+  - Verification: 12 diagnosis classes + RealMigrationInventoryTests 266/266 (first run 265/266: the pinned count, updated); finalized-encounter walkthrough 1/1 (27 s); controls G1 (guard never fires) and G2 (mapping removed) caught, restored with identical hashes.
+  - Notes: only DiagnosisService inserts diagnoses (verified); R01 control N1 would now survive (defence in depth). Nothing pushed since 2690d7a.
