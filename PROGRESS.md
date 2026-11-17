@@ -3158,3 +3158,9 @@
   - What changed: review A3-STEP0-ADDENDUM-01 stored unchanged; A3 record section 6: owner decisions D-1 B (typed nullable DocumentId/DiagnosisId with FKs and same-patient triggers 51288/51289), D-2 F-092 NOT_REPRODUCED, D-3 neutral completion sentence; CR-1 F-091 absent-glyph rule restored (Existing/Completed only); CR-2 real-browser workflow added; revised test matrix and controls.
   - Verification: documents only; no build or test.
   - Notes: A3 not built until Addendum 02 is approved. Pushed state: c2d6959.
+- [x] ALV-N022 A3 Addendum 02 review recorded (APPROVED; A3 Stage 1 authorized) and register dispositions
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: review A3-STEP0-ADDENDUM-02 stored unchanged; DISPOSITION_REGISTER F-079, F-089, F-092 CONFIRMED -> NOT_REPRODUCED with the Step 0 evidence (reopen on the raw source entry or a reproducible screen).
+  - Verification: register parses as JSON; the three rows asserted.
+  - Notes: documents only. Pushed state: c2d6959.

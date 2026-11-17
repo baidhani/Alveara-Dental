@@ -969,11 +969,11 @@
       "rawId": "F-079",
       "kind": "finding",
       "severity": "S4",
-      "disposition": "CONFIRMED",
+      "disposition": "NOT_REPRODUCED",
       "homePackage": "PKG-06",
       "rawLine": 303,
       "excerpt": "each item's History is expanded by default; with many entries the Clinical tab becomes long. Collapse by default.",
-      "note": "observed in the manual pass; verify in code first",
+      "note": "observed in the manual pass; ALV-N022 A3 Step 0 (2026-11-17), reviews A3-STEP0-ADDENDUM-01/02: NOT_REPRODUCED - ItemHistory.tsx and EncounterView.tsx history are closed <details> by default, unchanged since 2026-10-03 (before the 2026-10-30 pass). Reopen on the raw source entry or a reproducible screen.",
       "canonicalOf": null
     },
     {
@@ -1089,11 +1089,11 @@
       "rawId": "F-089",
       "kind": "finding",
       "severity": "S3",
-      "disposition": "CONFIRMED",
+      "disposition": "NOT_REPRODUCED",
       "homePackage": "PKG-06",
       "rawLine": 367,
       "excerpt": "the Source box was left empty, yet the saved alert says \"Source: patient\". The app invented the provenance (the page says alerts are \"what a...",
-      "note": "observed in the manual pass; verify in code first",
+      "note": "observed in the manual pass; ALV-N022 A3 Step 0 (2026-11-17), reviews A3-STEP0-ADDENDUM-01/02: NOT_REPRODUCED - the alert source is required on client and server (SafetyForms.tsx, SafetyRules.cs) and shown as stored; no 'patient' default exists; unchanged since ALV-N011. Reopen on the raw source entry or a reproducible screen.",
       "canonicalOf": null
     },
     {
@@ -1125,11 +1125,11 @@
       "rawId": "F-092",
       "kind": "finding",
       "severity": "S3",
-      "disposition": "CONFIRMED",
+      "disposition": "NOT_REPRODUCED",
       "homePackage": "PKG-06",
       "rawLine": 423,
       "excerpt": "the Withdraw form says \"Use this for an entry that was wrong. It leaves the chart but stays in the history, with who withdrew it and this re...",
-      "note": "observed in the manual pass; verify in code first",
+      "note": "observed in the manual pass; ALV-N022 A3 Step 0 (2026-11-17), owner decision D-2, reviews A3-STEP0-ADDENDUM-01/02: NOT_REPRODUCED - the complaint is truncated in the register and R05, the raw log line 423 is not in the repository, and the current Withdraw hint (FindingRow.tsx) reads correctly. Reopen on the raw source entry or a reproducible screen.",
       "canonicalOf": null
     },
     {
