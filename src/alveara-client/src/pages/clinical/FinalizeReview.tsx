@@ -1,6 +1,6 @@
 import { Button } from "../../components/Button";
 import { SECTION_LABELS, SECTION_STATUS_LABELS } from "../../services/clinicalApi";
-import type { EncounterDetail } from "../../services/clinicalApi";
+import type { EncounterDetail, EncounterSection } from "../../services/clinicalApi";
 import { NOTE_LABELS } from "../../services/clinicalNotesApi";
 import "./Clinical.css";
 
@@ -13,6 +13,18 @@ interface Props {
   /** Signs the note (the middle state between draft and finalized); absent when the caller does not offer signing. */
   onSign?: () => void;
   onCancel: () => void;
+}
+
+/**
+ * The count shown beside a section's status. ALV-N022 A1: allergies, medications and medical history live on the patient's chart, so their count is the items listed
+ * there now (plus anything the encounter recorded before the chart became the one record); dental history counts the encounter's own entries.
+ */
+function countText(s: EncounterSection): string {
+  if (s.source === "Chart") {
+    const n = (s.chartItems?.length ?? 0) + s.entries.length;
+    return n > 0 ? ` (${n} on the chart)` : "";
+  }
+  return s.entries.length > 0 ? ` (${s.entries.length})` : "";
 }
 
 /**
@@ -37,7 +49,7 @@ export function FinalizeReview({ encounter, busy, refusal, onConfirm, onSign, on
         {encounter.sections.map((s) => (
           <li key={s.kind} className={flagged.has(s.kind) ? "alv-clinical__review-item alv-clinical__review-item--open" : "alv-clinical__review-item"}>
             <span className="alv-clinical__review-name">{SECTION_LABELS[s.kind]}</span>
-            <span>{flagged.has(s.kind) ? "Needs attention - record an entry or mark it reviewed, none reported" : `${SECTION_STATUS_LABELS[s.status]}${s.entries.length > 0 ? ` (${s.entries.length})` : ""}`}</span>
+            <span>{flagged.has(s.kind) ? "Needs attention - record an entry or mark it reviewed, none reported" : `${SECTION_STATUS_LABELS[s.status]}${countText(s)}`}</span>
           </li>
         ))}
         {notes.map((n) => {

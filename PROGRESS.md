@@ -3050,3 +3050,9 @@
   - What changed: .alveara/handoffs/ALV-N022/A1-R01.md and A1-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE with the briefing section 10 proof map, DEMO_EVIDENCE, PARENT_REGRESSION, CHANGED_FILES, NEXT_STORY_IMPACT, artifacts: per-test backend list, walkthrough evidence and screenshots, negative-control outputs); EXECUTION_STATUS ALV-N022 AWAITING_REVIEW attempt A1-R01; BUILD_STATE; ledger rows and A1 section.
   - Verification: the focused runs recorded in A1-R01-evidence/TEST_RESULTS.md (implementation 6414ffa); clinical, safety and clinical-companion walkthroughs re-run on the final tree before packaging; EXECUTION_STATUS parses as JSON.
   - Notes: documentation only. Found at package time and disclosed, not fixed: FinalizeReview shows no count for chart-backed sections. Nothing pushed.
+- [x] ALV-N022 A1 follow-up (owner request, after the A1-R01 package): finalize review counts chart-backed sections
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: FinalizeReview shows "(n on the chart)" for allergies, medications and medical history (chart items plus pre-A1 encounter entries); dental history keeps "(n)". New FinalizeReview.test.tsx (3).
+  - Verification: vitest FinalizeReview + ChartSectionPanel + withSafetyNotice 15/15; clinical-real-backend walkthrough 9/9 (47 s); tsc -b clean; lint clean on the touched files.
+  - Notes: lands after the A1-R01 package (implementation 6414ffa); to be disclosed to the reviewer as a post-package change. Nothing pushed.
