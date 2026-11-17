@@ -1,0 +1,4 @@
+cwd: /c/tmp/n022s2
+resolved HEAD: 66c92b90dcfd8ebab245d3d6147e5fce26746d17
+status before (porcelain, empty = clean):
+--- end status

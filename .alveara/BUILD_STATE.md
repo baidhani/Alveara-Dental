@@ -632,3 +632,5 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 **2026-11-17 ALV-N022 A2-R02 (Stage 1):** `AWAITING_REVIEW` (implementation `66c92b9`, handoff `.alveara/handoffs/ALV-N022/A2-R02.md`), answering A2-R01 CR-1: a database guard (migration `20261117160917_AddDiagnosisFinalizedEncounterGuard`, trigger 51287 with a locking read) refuses a new diagnosis on a finalized encounter even after a racing finalize. Focused: 266/266, walkthrough 1/1, controls caught. Stage 2 contract to be defined by the reviewer. `fullRegression: DEFERRED_TO_ALV-N028`.
 
 **2026-11-17 ALV-N022 A2-R02 Stage 1 review:** `APPROVED` (`.alveara/reviews/ALV-N022/A2-R02.md`); A2 `AWAITING_REGRESSION`. Frozen Stage 2: one targeted `dotnet test` (guard, migration, diagnosis service and API, migration inventory) at `66c92b9`. A2 not complete; A3 not authorized.
+
+**2026-11-17 ALV-N022 A2-R02 Stage 2:** the frozen contract ran once at `66c92b9` in a clean detached worktree: exit 0, 77/77, 117 s; `.alveara/handoffs/ALV-N022/A2-R02-regression.md`. A2 `AWAITING_REVIEW` (closure).

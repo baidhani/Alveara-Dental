@@ -3134,3 +3134,9 @@
   - What changed: review stored unchanged; EXECUTION_STATUS ALV-N022 and attempt A2 AWAITING_REGRESSION with the frozen Stage 2 command; BUILD_STATE line.
   - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
   - Notes: closure-only; no src/ or tests/ change. Nothing pushed since 2690d7a.
+- [x] ALV-N022 A2-R02 Stage 2 run and recorded (77/77; AWAITING_REVIEW for closure)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/handoffs/ALV-N022/A2-R02-regression.md and A2-R02-regression-evidence/ (console output, before/after HEAD and status, start time); EXECUTION_STATUS A2 stage2Result and AWAITING_REVIEW; BUILD_STATE; ledger line.
+  - Verification: the frozen command once, in a detached worktree at 66c92b9: exit 0, 77 passed, 117 s, clean before and after.
+  - Notes: no code or test change. Worktree removed. Nothing pushed since 2690d7a.
