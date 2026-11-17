@@ -20,7 +20,7 @@ Revision 2 answers review BRIEFING-R01 BR-3, BR-4 and BR-6. Decisions: `ALV-N022
 | F-078 | S1 | code | Banner refreshes after any clinical write | OD-05 | A1 |
 | F-080, F-112 | S2/S3 | code | "None reported" refused when an active item exists; contradictions flagged | OD-04 | A1 |
 | F-081 | S4 | register | One banner on the encounter page | OD-05 | A1 |
-| F-084 | S2 | code | Normalized duplicate **active allergy** refused, user directed to the existing item (allergies only) | OD-03 | A1 |
+| F-084 | S2 | code | Allergies only: no second item for any live match; Active -> update the existing item; Resolved/Inactive -> explicit reactivate/update with a chosen status; cancel changes nothing; concurrent adds leave one record (Addendum 02). Encounter medication/medical-history match -> confirm current or update (Addendum 01 S-1 A) | OD-03 | A1 |
 | F-085, F-111 | S2 | code | Encounter medication goes to the chart | OD-01/02 | A1 |
 | F-086 | S2 | register | "Not established" reflects chart reviews made in an encounter | OD-01/05 | A1 |
 | Q-5f, Q-5g, Q-5i | - | register | Encounter allergy, medication and medical-history sections read the chart; "Confirm list is current" in an encounter is a chart review with provenance | OD-01/02 | A1 |

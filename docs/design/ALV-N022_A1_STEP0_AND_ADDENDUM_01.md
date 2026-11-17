@@ -45,3 +45,15 @@ Approval of **S-1 option A** (no schema change) and of the two reuse points (the
 - M1 indexes.
 
 Or A1 waits as a whole, if the owner prefers.
+
+## 4. Addendum 02 (2026-11-16, answering `.alveara/reviews/ALV-N022/A1-STEP0-ADDENDUM-01.md`)
+
+**Accepted by review:** S-1 option A; reuse of `encounter_not_open` / `encounter_patient_mismatch` (no signed-draft policy change); canonicalization of **new** allergy input (trim, collapse inner whitespace, keep case; no historical row rewritten or merged); and the condition that a real deployment database gets the same read-only normalized active-allergy collision check before A1's migration, a collision stopping that work for review.
+
+**A1-01 correction.** Section 2's statement that the existing refusal of a resolved match "meets OD-03" was inaccurate: OD-03 as written named only the active case. The user-visible outcomes are now precise, one record is kept in every case, and no index or clinical rule changes:
+1. **Active match:** nothing added; the user is directed to update the active item.
+2. **Resolved or Inactive match** (allergies have no Discontinued status): nothing added; an explicit **reactivate/update the existing record** action is offered; the user must choose the new status (none pre-selected); nothing changes until it is submitted, which appends one version with provenance.
+3. **Cancel:** every existing item unchanged.
+4. **Concurrency:** two simultaneous adds leave one record (existing unique index); the losing request gets the same existing-record direction.
+
+Updated in this addendum: decision record OD-03 acceptance criterion (agent wording column; the owner's words are unchanged), briefing 4.1, 5.1 and 10, scope matrix F-084. Documents only; no product code, schema, test or configuration changed; no test run.
