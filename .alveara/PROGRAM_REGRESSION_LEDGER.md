@@ -43,6 +43,11 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Real-backend walkthroughs that open an encounter or read the clinical record or the banner (clinical, clinical-companion, safety, encounter-chart run; completion, completion-adoption, diagnoses, prescriptions, patient workspace and others not run) | ALV-N022 | 4 of the walkthroughs run on `6414ffa`: 1, 9, 11, 9 passed |
 | Full backend suite: also the ALV-N022 A2 changes (`DiagnosisServiceTests` refusal/replay cases, adoption Draft/Finalized theory, amendment Draft case) and every class that records a diagnosis | ALV-N022 | focused only: 5 classes 125 of 125 (A2-R01) |
 | Real-backend walkthroughs that record a diagnosis (diagnoses, completion, completion-adoption, the chain): a diagnosis on a finalized encounter is now refused | ALV-N022 | only `finalized-encounter` run (1 of 1); the others not run |
+| Full backend suite: also the ALV-N022 A3 classes (`TypedLinkGuardMigrationTests`, changed `ClearanceServiceTests`, `PerioSessionServiceTests`, `SafetyApiTests`, `PerioSessionApiTests`, `PrescriptionWorkflowServiceTests`, `SafetyContextServiceTests`, `RealMigrationInventoryTests` count 30) and every class that reads clearances, perio links, prescriptions or diagnoses | ALV-N022 | A3 focused only: 12 classes 297 of 297 |
+| Migration `20261117180509_AddTypedClearanceDocumentAndPerioDiagnosisLinks`: upgrade from the post-A2 schema on a copy of a populated database (legacy free-text values kept), triggers 51288/51289, Down refused 51290 once a typed link exists; the installer path (ALV-N013) | ALV-N022 | migration tests on test clones only |
+| Client vitest/build/lint/`tsc -b` and the full mocked Playwright suite over the A3 screens (odontogram, perio, diagnoses, safety clearances, prescriptions, treatment plan, external cases, patient header, templates route) | ALV-N022 | focused only: 45 files 917 of 917 at `63f74ff`; mocked suite listed, not run |
+| Every other real-backend walkthrough and the chain after A3 (typed links, `/clinical/templates` route, odontogram/perio display text) | ALV-N022 | 11 walkthroughs 110 of 110 (a3-display, safety, perio-sessions, clinical-companion, external-cases, diagnoses-structure, completion-adoption, prescription-workflow, prescriptions, perio, odontogram-longitudinal); the others and the chain not run |
+| Test debt: `ClinicalNotes.test.tsx` "shows the conflict banner for a stale tab..." is timing-sensitive under load (waits for the heading, not the note text) | ALV-005-C01 (owner work) | failed once in A3's focused run, 5 of 5 alone and 917 of 917 on retry; not changed |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -120,4 +125,12 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Approved (`.alveara/reviews/ALV-N022/A2-R02-STAGE2.md`):** attempt A2 COMPLETE; ALV-N022 IN_PROGRESS (A3 pending); the ALV-N022 rows above stay owed to ALV-N028.
 - **Stage 2:** contract to be defined by the reviewer after Stage 1 approval.
 - **Deferred to ALV-N028:** the ALV-N022 A2 rows above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
+## ALV-N022 (item 59): attempt A3 (findings remediation, Addendum 02)
+
+- **Implementation SHA (A3-R01, Stage 1):** `63f74ff` (swept tree `ecfb7f4` + one test-only commit; base `8ea6ad5`). Changed subsystems: safety clearances (typed document), perio links (typed diagnosis), diagnosis view (linked perio charts), prescriptions list, safety context text, odontogram and perio display, diagnosis/clinical history numbering, lab-case form, plan item tooth, patient header, templates route; one migration.
+- **Focused proof:** `.alveara/handoffs/ALV-N022/A3-R01-evidence/TEST_RESULTS.md` (backend 297/297, vitest 917/917, repo 58/58, walkthroughs 110/110, negative controls as designed).
+- **Approved (`.alveara/reviews/ALV-N022/A3-R01.md`, final focused-proof approval, no package-level Stage 2):** attempt A3 COMPLETE; with A1 and A2 COMPLETE, ALV-N022 COMPLETE; the ALV-N022 rows above stay owed to ALV-N028.
+- **Deferred to ALV-N028:** the ALV-N022 A3 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**
