@@ -3056,3 +3056,9 @@
   - What changed: FinalizeReview shows "(n on the chart)" for allergies, medications and medical history (chart items plus pre-A1 encounter entries); dental history keeps "(n)". New FinalizeReview.test.tsx (3).
   - Verification: vitest FinalizeReview + ChartSectionPanel + withSafetyNotice 15/15; clinical-real-backend walkthrough 9/9 (47 s); tsc -b clean; lint clean on the touched files.
   - Notes: lands after the A1-R01 package (implementation 6414ffa); to be disclosed to the reviewer as a post-package change. Nothing pushed.
+- [x] ALV-N022 A1-R01 review recorded (CHANGES_REQUIRED, CR-1 package/repository mismatch)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: review stored unchanged at .alveara/reviews/ALV-N022/A1-R01.md; EXECUTION_STATUS ALV-N022 and attempt A1 CHANGES_REQUIRED with CR-1 and the reviewed SHAs; BUILD_STATE line.
+  - Verification: EXECUTION_STATUS parses as JSON; review file not edited.
+  - Notes: closure-only. Nothing pushed.
