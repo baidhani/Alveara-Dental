@@ -1,4 +1,6 @@
-# ALV-N022 pre-implementation briefing (revision 2): safety and clinical-record integrity, finalized encounters
+# ALV-N022 pre-implementation briefing (revision 3): safety and clinical-record integrity, finalized encounters
+
+- **Revision 3 (2026-11-16):** answers `.alveara/reviews/ALV-N022/BRIEFING-R02.md` (BR-7, BR-8): documentation corrections to the Execution Plan, R05 and the register only. Sections 1-12 are unchanged from revision 2 (`48967b2`).
 
 - **Story:** ALV-N022 (execution item 59): R05 **PKG-06** and **PKG-07**.
 - **Date:** 2026-11-16. **Session:** CC-20261115-m7x2. **Code read at:** `2eca1a9`.
@@ -12,7 +14,14 @@
   - Amended authorities: `GPT Docs/Alveara_Dental_Execution_Plan_v4.md` (item 59), `docs/design/MANUAL_E2E_STABILIZATION_PLAN_R05.md` (PKG-06 Group C, PD-12, row 6.07), `docs/stabilization/DISPOSITION_REGISTER.json` (F-105 note)
 - **Not authorized before approval:** implementation, migration, external lookup, allergy-class logic, or any test run beyond the document checks.
 
-## 0. Answers to BRIEFING-R01
+## 0. Answers to BRIEFING-R02 (revision 3, documents only; no test command run)
+
+| Item | Answer |
+|---|---|
+| BR-7 (row 6.07) | R05 chain row 6.07 now asserts only that a direct recorded-name match shows the existing warning with the existing override reason, and that a no-match result is never presented as a safety, compatibility, approval or clearance verdict. The not-checkable expectation is moved entirely to the deferred Medication Reference and Provider Lookup follow-on and is not asserted in the chain. |
+| BR-8 (F-091) | Execution plan item 59 no longer requires "missing-tooth invariants". It states that the clinical meaning of Diagnosed/Planned missing teeth, extraction intent and implant/missing relationships is OPEN, deferred for a future owner decision (PD-09d), that ALV-N022 makes only the non-semantic display correction after Step 0, and that it cannot claim to resolve the invariant. The same amendment is in R05 PKG-06 Group B and chain row 5.03 (only the Existing/Completed refusal and the status display are asserted), and appended to the register's F-091 note (disposition unchanged). |
+
+## 0a. Answers to BRIEFING-R01 (revision 2)
 
 | Item | Answer |
 |---|---|

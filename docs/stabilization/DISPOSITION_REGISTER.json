@@ -1117,7 +1117,7 @@
       "homePackage": "PKG-06",
       "rawLine": 414,
       "excerpt": "5.03 FAIL (impossible combination accepted). Tooth 15 was recorded \"Missing tooth (whole tooth) ... Diagnosed\" at 11:22:26 PM. Then \"Caries ...",
-      "note": "meaning of Diagnosed/Planned missing-tooth coexistence (Existing/Completed already refuse)",
+      "note": "meaning of Diagnosed/Planned missing-tooth coexistence (Existing/Completed already refuse) | ALV-N022 (2026-11-16, review BRIEFING-R02 BR-8): clinical meaning OPEN, deferred for a future owner decision (PD-09d); ALV-N022 makes only a non-semantic status-display correction after Step 0 and does not resolve the clinical invariant.",
       "canonicalOf": null
     },
     {
