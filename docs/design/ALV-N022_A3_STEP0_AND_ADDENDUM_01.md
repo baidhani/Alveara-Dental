@@ -52,3 +52,54 @@ All other items are independent of these and can proceed when A3 is authorized.
 
 ## 5. Disclosure
 Read-only code search only; no database query, no build, no test run.
+
+---
+
+## 6. Addendum 02 (answers review `.alveara/reviews/ALV-N022/A3-STEP0-ADDENDUM-01.md`, CHANGES_REQUIRED: CR-1, CR-2, D-1..D-3)
+
+### 6.1 Owner decisions (2026-11-17)
+- **D-1: Option B** - typed nullable link columns with foreign keys (reviewer's recommendation).
+- **D-2: F-092 NOT_REPRODUCED** with the section 1 evidence; reopened only if the owner supplies raw-log line 423 or a reproducible screen.
+- **D-3: add only the neutral sentence** to the completion result.
+
+Q-1 (F-079, F-089 NOT_REPRODUCED) was accepted by the review. Q-5aj creates no finding and changes no completed-procedure rule.
+
+### 6.2 CR-1: F-091 absent-glyph rule restored (my error in section 1)
+Section 1 wrongly treated "no glyph is drawn today" as "already satisfied"; the briefing and the plan require the bounded display correction to be **built**. A3 implements and tests exactly:
+- each finding row shows its recorded status (already true; kept and tested);
+- the tooth tile draws an "absent" mark **only** when the tooth has an active missing-tooth finding (condition type whose `toothEffect` is `Absent`) in state **Existing or Completed**; a Diagnosed or Planned missing finding shows its status but no absent mark;
+- an implant and a missing finding are both listed as recorded: no superseding, no "replaced by", no requirement either way;
+- the mark has a text alternative in the tile's accessible name ("not present").
+No missing-tooth clinical meaning, extraction intent or implant relationship is inferred; the recording rule (`tooth_absent` refusal for Existing/Completed) is unchanged. PD-09d semantics stay OPEN.
+
+### 6.3 D-1 design (Option B)
+**Migration (one):**
+- `Clearances.DocumentId` and `ClearanceVersions.DocumentId`: nullable `uniqueidentifier`, foreign key to `PatientDocuments(Id)` (no cascade). The version table stays append-only and snapshots the id.
+- `PerioExamLinks.DiagnosisId`: nullable `uniqueidentifier`, foreign key to `Diagnoses(Id)` (no cascade); set only on insert (the table is append-only, `TR_PerioExamLinks_Immutable`). Used when `LinkType = Diagnosis`; the other link types keep the reference text.
+- Same-patient enforced in the database by two AFTER INSERT, UPDATE triggers: a clearance's document must belong to the clearance's patient (THROW **51288**); a perio link's diagnosis must belong to the link's patient (THROW **51289**). Both numbers verified unused.
+- Existing rows untouched: legacy `DocumentReference` / `Reference` text stays and is shown as "free-text reference (legacy)"; nothing is converted or guessed.
+- Down: drops the triggers, the foreign keys and the columns; refused (THROW) if any row already holds an id, so no link is silently lost.
+
+**Service:** the picker sends an id; the service checks it exists, belongs to the same patient and (documents) is not deleted/inactive, and refuses otherwise with a field error; the database triggers back this up. The free-text field is no longer offered for new entries.
+
+**Client:** F-090 picker over the patient's own active documents; F-098 picker over the same patient's diagnoses; legacy text shown read-only and labelled. **Q-5aa** then lists, on the diagnosis card, the perio exams whose `DiagnosisId` is that diagnosis.
+
+### 6.4 D-3
+When a completed procedure's chart outcome is "no linked finding", the completion result adds: "No chart finding was linked to this procedure, so the chart was not changed." No other change.
+
+### 6.5 Revised A3 plan and test matrix (Stage 1)
+| Item | Server test | Client test |
+|---|---|---|
+| F-106 | tab view carries status, instructions, quantity, supersession from the workflow record; a row without one says so | rows show them; superseded marked |
+| F-105 | guard: no allergy-check surface contains verdict words | - |
+| F-199 | "has"/"have" per label | - |
+| F-090 / F-098 (D-1) | same-patient refusal (service), direct-insert refusal 51288 / 51289 (database), legacy text kept; migration up/down and refused down with ids present | pickers list only the patient's own records; legacy shown read-only |
+| Q-5aa | card read lists linked exams | card shows them |
+| F-091 (CR-1) | - | glyph only for Existing/Completed missing; Diagnosed/Planned show status, no glyph; implant + missing both listed |
+| F-067, F-082, F-093, F-094, F-095, F-097, F-099, F-137, Q-5ai, Q-5j, D-3 sentence | - | one focused case each (Q-5j: old URL redirects) |
+
+**Real-browser workflow (CR-2):** one new fresh-database real-backend Chromium spec, about **1.5-2 minutes** including the build (under five; ask first if a run exceeds it): (1) the Prescriptions tab shows a workflow prescription's status, instructions, quantity and its superseded version marked; (2) the odontogram shows a Diagnosed missing finding with its status and no absent mark, then an Existing one with the mark; (3) the perio linked-record picker offers only the patient's diagnoses, and an API attempt with another patient's diagnosis is refused.
+
+**Negative controls (restored with a hash check):** "safe" planted in the no-match text (must fail the guard); the service's same-patient check removed (the database trigger must still refuse - proves the layering); the glyph drawn for every status (must fail the glyph test).
+
+**Route:** Stage 1 focused proof as above; Stage 2 as the reviewer defines after Stage 1 approval. Broad regression `DEFERRED_TO_ALV-N028`. No external medication service, no allergy-class, interaction, dose or compatibility logic.
