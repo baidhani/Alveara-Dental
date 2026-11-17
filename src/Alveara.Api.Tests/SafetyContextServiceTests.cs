@@ -183,4 +183,14 @@ public class SafetyContextServiceTests : SafetyTestBase
             return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
         }
     }
+
+    // ALV-N022 A3 (F-199): each gap message agrees with its section's name
+    [Fact]
+    public async Task Each_unreviewed_section_says_has_or_have_to_agree_with_its_name()
+    {
+        var gaps = (await ContextAsync()).Gaps.Select(g => g.Message).ToList();
+        Assert.Contains("Medical history has not been reviewed. Nothing listed here does not mean none.", gaps);
+        Assert.Contains("Allergies have not been reviewed. Nothing listed here does not mean none.", gaps);
+        Assert.Contains("Medications have not been reviewed. Nothing listed here does not mean none.", gaps);
+    }
 }

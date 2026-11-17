@@ -35,7 +35,13 @@ public class PrescriptionService(AlveraDbContext db, IPracticeClock clock, ISafe
     {
         await RequirePatientAsync(patientId, ct);
         var rows = await db.Prescriptions.AsNoTracking().Where(p => p.PatientId == patientId).OrderByDescending(p => p.CreatedAtUtc).ThenByDescending(p => p.Id).ToListAsync(ct);
-        return await ViewsAsync(rows, ct);
+        var views = await ViewsAsync(rows, ct);
+        // ALV-N022 A3 (F-106): what finalizing and later events recorded, read by the workflow's own reader (the same rows); a STORY-016 row without details says so
+        var records = (await new PrescriptionRecordReader(db).ListAsync(patientId, ct)).ToDictionary(r => r.Id);
+        return views.Select(v => records.TryGetValue(v.Id, out var r)
+            ? v with { Status = r.Status, Instructions = r.Instructions, QuantityValue = r.QuantityValue, QuantityUnit = r.QuantityUnit, Refills = r.Refills,
+                SupersedesPrescriptionId = r.SupersedesPrescriptionId, SupersededByPrescriptionId = r.SupersededByPrescriptionId, HasWorkflowDetails = r.HasDetails }
+            : v).ToList();
     }
 
     /// <summary>Judges an entry without saving it: the problems, the allergy assessment, and whether the prescriber's review is required. Writes nothing.</summary>

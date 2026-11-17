@@ -580,4 +580,21 @@ END"); return 0; });
             .SelectMany(t => t.GetMethods()).Select(m => m.Name);
         Assert.DoesNotContain(surface, n => n.Contains("Interaction", StringComparison.OrdinalIgnoreCase) || n.Contains("Appropriate", StringComparison.OrdinalIgnoreCase) || n.Contains("Therapeutic", StringComparison.OrdinalIgnoreCase));
     }
+
+    // ALV-N022 A3 (F-106): the Prescriptions tab's list carries what the workflow recorded - status, instructions, quantity, refills and supersession - from the same rows
+    [Fact]
+    public async Task The_prescriptions_tab_list_shows_status_details_and_which_version_replaced_which()
+    {
+        var first = await FinalizedAsync();
+        var amended = (await AmendAsync(first.Id)).Draft;
+        var second = (await FinalizeAsync(amended)).Record;
+        var list = await WithDb(db => new PrescriptionService(db, Clock, new SafetyContextService(db, Clock)).ListAsync(Ann, default));
+
+        var newer = list.Single(p => p.Id == second.Id);
+        var older = list.Single(p => p.Id == first.Id);
+        Assert.Equal((PrescriptionStatuses.Active, true, (Guid?)first.Id, (Guid?)null), (newer.Status, newer.HasWorkflowDetails, newer.SupersedesPrescriptionId, newer.SupersededByPrescriptionId));
+        Assert.Equal((PrescriptionStatuses.Superseded, (Guid?)second.Id), (older.Status, older.SupersededByPrescriptionId));
+        Assert.Equal(("Take one capsule with food until finished.", (decimal?)21m), (newer.Instructions, newer.QuantityValue));
+        Assert.Equal((second.QuantityUnit, second.Refills), (newer.QuantityUnit, newer.Refills));
+    }
 }

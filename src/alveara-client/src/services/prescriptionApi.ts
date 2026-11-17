@@ -9,6 +9,7 @@
  * - A save carries an idempotency key; the same key and entry returns the prescription already saved (`replayed` true); the same key with a different entry is a 409. A prescription is never changed or deleted.
  */
 import { ApiError, request, requestWithCsrf } from "./authApi";
+import type { PrescriptionStatus } from "./prescriptionWorkflowApi";
 
 export type AllergyOutcome = "RecordedAllergyMatch" | "NoRecordedMatch" | "NotEstablished";
 export type AllergyListState = "Established" | "Unconfirmed" | "NotEstablished";
@@ -38,6 +39,15 @@ export interface Prescription {
   reviewNote: string | null;
   prescribedByName: string | null;
   prescribedAtUtc: string;
+  /** ALV-N022 A3 (F-106): what the prescription workflow recorded for it; absent (null/false) for one saved before the workflow, never invented. */
+  status?: PrescriptionStatus | null;
+  instructions?: string | null;
+  quantityValue?: number | null;
+  quantityUnit?: string | null;
+  refills?: number | null;
+  supersedesPrescriptionId?: string | null;
+  supersededByPrescriptionId?: string | null;
+  hasWorkflowDetails?: boolean;
 }
 
 export interface SavedPrescription { prescription: Prescription; replayed: boolean }

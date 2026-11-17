@@ -4,7 +4,8 @@ import { money } from "./completionReviewRules";
 import { when } from "./treatmentPlanRules";
 
 const chartWords = (outcome: string): string =>
-  outcome === "Updated" ? "chart finding marked Completed" : outcome === "AlreadyCompleted" ? "chart finding already Completed" : "no chart change";
+  outcome === "Updated" ? "chart finding marked Completed" : outcome === "AlreadyCompleted" ? "chart finding already Completed"
+    : "no chart finding was linked to this procedure, so the chart was not changed";   // ALV-N022 A3 (D-3, Q-5aj): neutral; no finding is created and no rule changes
 
 /**
  * ALV-008-C01: shown only after the server confirmed the whole set. What each procedure became (when it was performed, what happened to the chart, what was charged) and where to see it next: the clinical

@@ -118,7 +118,7 @@ public class SafetyContextService(AlveraDbContext db, IPracticeClock clock) : IS
             var status = ClinicalRecordReader.SectionStatus(items.Where(i => i.Kind == kind).ToList(), reviews.SingleOrDefault(r => r.Section == kind));
             var message = status switch
             {
-                ClinicalSectionStatuses.NotReviewed => $"{label} have not been reviewed. Nothing listed here does not mean none.",
+                ClinicalSectionStatuses.NotReviewed => $"{label} {(label.EndsWith('s') ? "have" : "has")} not been reviewed. Nothing listed here does not mean none.",   // ALV-N022 A3 (F-199): "Medical history has"
                 ClinicalSectionStatuses.Unknown => $"{label} could not be established. Nothing listed here does not mean none.",
                 ClinicalSectionStatuses.NeedsReview => $"{label} have changed or were never confirmed as current.",
                 _ => null,

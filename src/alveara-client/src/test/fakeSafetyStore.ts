@@ -86,7 +86,7 @@ export class FakeSafetyStore {
       .sort((a, b) => Number(b.status === "Requested" || b.status === "Received") - Number(a.status === "Requested" || a.status === "Received")).map((c) => this.clearanceView(c));
     const est = this.established.get(patientId) ?? new Set<string>();
     const gaps: SafetyGap[] = [["Allergy", "Allergies"], ["Medication", "Medications"], ["MedicalHistory", "Medical history"]]
-      .filter(([k]) => !est.has(k)).map(([k, l]) => ({ section: k, status: "NotReviewed", message: `${l} have not been reviewed. Nothing listed here does not mean none.` }));
+      .filter(([k]) => !est.has(k)).map(([k, l]) => ({ section: k, status: "NotReviewed", message: `${l} ${l.endsWith("s") ? "have" : "has"} not been reviewed. Nothing listed here does not mean none.` }));
     const summary: SafetySummary = {
       patientId, asOfUtc: "2026-10-03T14:00:00Z", activeAlertCount: active.filter((e) => e.origin === "Alert").length, activeAllergyCount: active.filter((e) => e.category === "Allergy").length,
       currentMedicationCount: active.filter((e) => e.category === "Medication").length, highestSeverity: SEVERITIES.find((s) => active.some((e) => e.severity === s)) ?? null,

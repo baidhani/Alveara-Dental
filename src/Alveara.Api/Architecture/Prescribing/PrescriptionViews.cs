@@ -14,7 +14,10 @@ public class PrescriptionException(string code, string message, int statusCode, 
 /// <summary>A saved prescription as it is read back, with who prescribed it and what the allergy check said when it was saved.</summary>
 public sealed record PrescriptionView(
     Guid Id, Guid PatientId, string Medication, decimal DoseValue, string DoseUnit, string Frequency, string AllergyOutcome, string AllergyListState, string? AllergyMatches, string? ReviewNote,
-    string? PrescribedByName, DateTimeOffset PrescribedAtUtc);
+    string? PrescribedByName, DateTimeOffset PrescribedAtUtc,
+    // ALV-N022 A3 (F-106): additive, from the workflow records; absent (null/false) for a prescription saved before the workflow, never invented
+    string? Status = null, string? Instructions = null, decimal? QuantityValue = null, string? QuantityUnit = null, int? Refills = null,
+    Guid? SupersedesPrescriptionId = null, Guid? SupersededByPrescriptionId = null, bool HasWorkflowDetails = false);
 
 /// <summary>The answer to a save: the prescription, and whether it was already saved under the same key (a retry changes nothing).</summary>
 public sealed record SavedPrescription(PrescriptionView Prescription, bool Replayed);
