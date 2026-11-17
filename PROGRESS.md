@@ -3146,3 +3146,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N022/A2-R02-STAGE2.md; EXECUTION_STATUS attempt A2 COMPLETE (A2-R02, implementation 66c92b9, Stage 1 evidence e2b7435, regression evidence e13c600, both review paths, completedAt 2026-11-17T16:49:17Z); story IN_PROGRESS; BUILD_STATE and ledger lines.
   - Verification: EXECUTION_STATUS parses as JSON and the script asserts the values; review file not edited; no src/ or tests/ change.
   - Notes: closure-only. A3 needs its own Step 0/briefing review. Nothing pushed since 2690d7a.
+- [x] ALV-N022 A3 Step 0 verification record and briefing addendum 01 (documents only)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: docs/design/ALV-N022_A3_STEP0_AND_ADDENDUM_01.md - checks 0.7-0.13 and every A3 matrix row located in code: 14 CONFIRMED with a display/additive fix, F-105 already compliant (guard test only), F-091/Q-5v/Q-5w display already as required (glyph part dropped), F-079 and F-089 NOT_REPRODUCED, F-092 complaint truncated (raw log needed), F-090/F-098 storage choice, Q-5aj belongs to the completion rule; questions Q-1..Q-4.
+  - Verification: read-only code search on c2d6959; no database access, no build, no test.
+  - Notes: documents only; A3 not built and not authorized until reviewed. Pushed state: c2d6959.
