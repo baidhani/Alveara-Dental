@@ -78,11 +78,45 @@ public class DiagnosisServiceTests : SafetyTestBase
         Assert.Equal(("3f2504e0-4f89-11d3-9a0c-0305e82c3301", "Unresolved"), (d.TreatmentPlanReference, d.TreatmentPlanReferenceState));
     }
 
+    // ALV-N022 A2 (OD-06 as amended 2026-11-17): a finalized encounter accepts no new diagnosis. This replaces the earlier test that allowed it.
     [Fact]
-    public async Task A_diagnosis_can_be_recorded_against_a_finalized_encounter_because_it_changes_nothing_in_its_notes()
+    public async Task A_diagnosis_on_a_finalized_encounter_is_refused_before_any_write_and_the_encounter_is_unchanged()
     {
         var finalized = await EncounterAsync(Ann, EncounterStatuses.Finalized);
-        Assert.Equal(finalized, (await RecordAsync(In(finalized))).EncounterId);
+        var before = await WithDb(db => db.Encounters.AsNoTracking().SingleAsync(e => e.Id == finalized));
+
+        var e = await Refused(() => RecordAsync(In(finalized)));
+        Assert.Equal(("encounter_finalized", 409), (e.Code, e.StatusCode));
+        Assert.Equal(("encounterId", "finalized"), (Assert.Single(e.Problems).Field, e.Problems[0].Code));
+        Assert.Equal((0, 0, 0), await CountsAsync());                                     // no diagnosis, no version, no audit
+
+        var after = await WithDb(db => db.Encounters.AsNoTracking().SingleAsync(e => e.Id == finalized));
+        Assert.Equal((before.Status, Convert.ToBase64String(before.RowVersion), before.FinalizedAtUtc), (after.Status, Convert.ToBase64String(after.RowVersion), after.FinalizedAtUtc));
+        Assert.Equal(0, await WithDb(db => db.EncounterEvents.CountAsync(x => x.EncounterId == finalized)));
+    }
+
+    [Fact]
+    public async Task A_diagnosis_on_a_draft_encounter_is_recorded()
+    {
+        Assert.Equal(_annEncounter, (await RecordAsync(In(_annEncounter))).EncounterId);
+        Assert.Equal((1, 1, 1), await CountsAsync());
+    }
+
+    [Fact]
+    public async Task A_retried_save_of_a_diagnosis_recorded_before_the_encounter_was_finalized_replays_it_and_writes_nothing()
+    {
+        var d = await RecordAsync(In(_annEncounter), key: "dx-before-finalize");
+        await WithDb(async db =>
+        {
+            var enc = await db.Encounters.SingleAsync(x => x.Id == _annEncounter);
+            (enc.Status, enc.FinalizedAtUtc, enc.FinalizedByUserId) = (EncounterStatuses.Finalized, DateTimeOffset.UtcNow, S.Actor);
+            return await db.SaveChangesAsync();
+        });
+        var replay = await RecordAsync(In(_annEncounter), key: "dx-before-finalize");
+        Assert.Equal((d.Id, d.RowVersion), (replay.Id, replay.RowVersion));
+        Assert.Equal((1, 1, 1), await CountsAsync());
+        // a NEW diagnosis on that now-finalized encounter is refused
+        Assert.Equal("encounter_finalized", (await Refused(() => RecordAsync(In(_annEncounter), key: "dx-after-finalize"))).Code);
     }
 
     // ---------- the links are authoritative: failure path "diagnosis fails to link to patient record" ----------

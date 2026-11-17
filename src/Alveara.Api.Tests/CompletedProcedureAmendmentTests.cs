@@ -219,6 +219,25 @@ public class CompletedProcedureAmendmentTests : CompletionTestBase
         Assert.Equal(rowBefore.RowVersion, (await db.Encounters.AsNoTracking().SingleAsync(e => e.Id == second)).RowVersion);
     }
 
+    // ALV-N022 A2: the Draft companion of the finalized case above - re-attribution to a Draft encounter of the patient also leaves that encounter unchanged.
+    [Fact]
+    public async Task A_correction_can_name_a_draft_encounter_and_does_not_change_it()
+    {
+        var (_, done) = await CompletedAsync();
+        var second = await EncounterAsync(Ann);
+        await using var before = Fixture.CreateContext();
+        var rowBefore = await before.Encounters.AsNoTracking().SingleAsync(e => e.Id == second);
+        Assert.Equal(Alveara.Api.Architecture.Clinical.EncounterStatuses.Draft, rowBefore.Status);
+
+        var result = await AmendAsync(done.Procedures[0].Id, 0, encounter: second, reason: "Belongs to the later visit");
+
+        Assert.Equal(second, result.Procedure.EncounterId);
+        await using var db = Fixture.CreateContext();
+        var after = await db.Encounters.AsNoTracking().SingleAsync(e => e.Id == second);
+        Assert.Equal((rowBefore.Status, Convert.ToBase64String(rowBefore.RowVersion)), (after.Status, Convert.ToBase64String(after.RowVersion)));
+        Assert.Equal(0, await db.EncounterEvents.CountAsync(e => e.EncounterId == second));
+    }
+
     [Fact]
     public async Task An_unknown_completed_procedure_is_not_found()
     {

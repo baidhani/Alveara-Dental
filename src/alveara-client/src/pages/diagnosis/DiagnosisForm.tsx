@@ -40,7 +40,11 @@ interface Props {
  * The treatment-plan reference is a FORWARD reference: the form says it is a note of a plan to link later, not proof that a plan exists. When correcting, it is kept as it is unless the person chooses to
  * replace or remove it, and both choices ask for the reason that every correction needs.
  */
-export function DiagnosisForm({ patientId, numbering, encounters, correcting, onSaved, onConflict, onCancel }: Props) {
+export function DiagnosisForm({ patientId, numbering, encounters: all, correcting, onSaved, onConflict, onCancel }: Props) {
+  // ALV-N022 A2 (OD-06 as amended): a finalized encounter accepts no new diagnosis, so it is not offered here (the server refuses it too). Only this picker filters;
+  // the patient's encounter list itself is unchanged, and completion/adoption pickers still offer finalized encounters (ALV-008-C01 D6).
+  const encounters = all.filter((e) => e.status !== "Finalized");
+  const finalizedHidden = encounters.length < all.length;
   const [initial] = useState<DiagnosisDraft>(() => correcting
     ? { encounterId: correcting.encounterId, label: correcting.label, toothKey: correcting.toothKey ?? "", notes: correcting.notes ?? "", treatmentPlanReference: "" }
     : { encounterId: encounters[0]?.id ?? "", label: "", toothKey: "", notes: "", treatmentPlanReference: "" });
@@ -142,6 +146,7 @@ export function DiagnosisForm({ patientId, numbering, encounters, correcting, on
           </select>
         </label>
       )}
+      {!correcting && finalizedHidden && <p className="alv-clinical__meta">Finalized encounters cannot receive new diagnoses. Start a new encounter.</p>}
       {correcting && <p className="alv-clinical__meta">Encounter of {showInstant(correcting.encounterAtUtc)}. The patient and the encounter never change; to record against another encounter, withdraw this one and record a new diagnosis.</p>}
 
       <label htmlFor={ids.label}>Diagnosis

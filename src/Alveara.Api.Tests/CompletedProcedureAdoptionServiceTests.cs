@@ -73,6 +73,33 @@ public class CompletedProcedureAdoptionServiceTests : CompletionTestBase
         Assert.Equal(0, await db.AuditLogEntries.CountAsync(a => a.EventType == "CompletionSetRecorded"));   // an adoption is not an ordinary set
     }
 
+    // ALV-N022 A2 (OD-06 as amended; ALV-008-C01 D6): an adoption may attribute to a Draft or a Finalized encounter of the patient, and never changes it.
+    [Theory]
+    [InlineData("Draft")]
+    [InlineData("Finalized")]
+    public async Task An_adoption_may_name_a_draft_or_a_finalized_encounter_and_the_encounter_is_never_changed(string status)
+    {
+        var plan = await LegacyAsync(1, 0);
+        if (status == "Finalized")
+            await ExecuteAsync("UPDATE [Encounters] SET [Status] = 'Finalized', [FinalizedAtUtc] = SYSDATETIMEOFFSET(), [FinalizedByUserId] = {0} WHERE [Id] = {1}", S.Actor, AnnEncounter);
+        var before = await EncounterRowAsync();
+        Assert.StartsWith(status + "|", before);
+
+        var result = await Adopt(plan, 0);
+
+        Assert.Equal(AnnEncounter, result.Procedures.Single().EncounterId);
+        Assert.Equal(before, await EncounterRowAsync());                                     // same status, update stamp, finalize stamp and row version
+        await using var db = Fixture.CreateContext();
+        Assert.Equal(0, await db.EncounterEvents.CountAsync(e => e.EncounterId == AnnEncounter)); // no history row on the encounter
+    }
+
+    private async Task<string> EncounterRowAsync()
+    {
+        await using var db = Fixture.CreateContext();
+        var e = await db.Encounters.AsNoTracking().SingleAsync(x => x.Id == AnnEncounter);
+        return $"{e.Status}|{e.UpdatedAtUtc:O}|{e.UpdatedByUserId}|{e.FinalizedAtUtc:O}|{e.SignedAtUtc:O}|{Convert.ToBase64String(e.RowVersion)}";
+    }
+
     [Fact]
     public async Task The_legacy_state_row_event_and_audit_entry_are_not_rewritten_and_nothing_is_added_to_them()
     {

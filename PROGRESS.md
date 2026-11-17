@@ -3098,3 +3098,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N022/A2-STEP0-ADDENDUM-03.md.
   - Verification: review file not edited.
   - Notes: closure-only. A3 not authorized. Nothing pushed since 2690d7a.
+- [x] ALV-N022 A2 Stage 1 implementation: a finalized encounter accepts no new diagnosis; completion attribution to Draft or Finalized proven unchanged
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: DiagnosisService.RecordAsync refuses a Finalized encounter with 409 encounter_finalized after the idempotent replay lookup (a retry replays; a new write is refused); DiagnosisForm offers only non-finalized encounters with the message. Tests: DiagnosisServiceTests (old allow-test replaced by refusal + draft + replay), adoption Draft/Finalized theory, amendment Draft companion, DiagnosisFormEncounters.test.tsx (3), adoption picker case; new real-backend spec finalized-encounter-real-backend + config (excluded from the mocked run). Completion/adoption/amendment code untouched (ALV-008-C01 D6).
+  - Verification: backend 5 classes 125/125 (2 m 36 s); vitest 15/15; finalized-encounter walkthrough 1/1 (30 s); negative controls N1 and N2 caught, restored with identical hashes.
+  - Notes: no migration; signed drafts unchanged (OD-13). Nothing pushed since 2690d7a.

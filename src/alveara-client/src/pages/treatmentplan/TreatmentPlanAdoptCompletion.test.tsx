@@ -83,6 +83,18 @@ describe("the adoption form", () => {
     expect(f.getByText(/The earlier completion is not changed/)).toBeInTheDocument();
   });
 
+  // ALV-N022 A2 (ALV-008-C01 D6 kept): only the diagnosis picker hides finalized encounters; an adoption may still be attributed to one, so both are offered with their status.
+  it("still offers both a draft and a finalized encounter, each with its status", async () => {
+    const encounters = [{ id: "en1", atUtc: "2030-01-01T10:00:00Z", status: "Draft" }, { id: "en2", atUtc: "2029-12-01T10:00:00Z", status: "Finalized" }];
+    stubApi({ plans: [legacyPlan()], respond: { "/completion-readiness": () => json({ ...readinessOf([row()]), encounters }) } });
+    const f = await openAdopt(userEvent.setup());
+    const options = Array.from((f.getByLabelText("Encounter") as HTMLSelectElement).options).filter((o) => o.value);
+    expect(options.map((o) => o.value)).toEqual(["en1", "en2"]);
+    expect(options[0].textContent).toMatch(/\(Draft\)$/);
+    expect(options[1].textContent).toMatch(/\(Finalized\)$/);
+    expect(f.queryByText(/cannot receive new diagnoses/)).not.toBeInTheDocument();
+  });
+
   it("describes each effect in words and refuses an ambiguous chart match", () => {
     expect(adoptionEffectWords(row({ billable: false, fee: 0 }))).toBe("no chart finding changes; it has no fee, so nothing is charged.");
     expect(adoptionEffectWords(row({ chartEffect: "AlreadyCompleted", chargeExists: true }))).toBe("the linked chart finding is already Completed and is left alone; its existing charge is kept.");

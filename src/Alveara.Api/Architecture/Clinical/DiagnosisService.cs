@@ -42,11 +42,17 @@ public partial class DiagnosisService(AlveraDbContext db, IPracticeClock clock, 
         var v = check.Value!;
 
         if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw new DiagnosisException("patient_not_found", "That patient was not found.", 404);
-        if (!await db.Encounters.AsNoTracking().AnyAsync(e => e.Id == v.EncounterId && e.PatientId == patientId, ct))
-            throw new DiagnosisException("encounter_not_found", "That encounter was not found for this patient. Choose one of this patient's encounters.", 404, [new("encounterId", "not_found", "Choose one of this patient's encounters.")]);
+        var encounterStatus = await db.Encounters.AsNoTracking().Where(e => e.Id == v.EncounterId && e.PatientId == patientId).Select(e => e.Status).SingleOrDefaultAsync(ct)
+            ?? throw new DiagnosisException("encounter_not_found", "That encounter was not found for this patient. Choose one of this patient's encounters.", 404, [new("encounterId", "not_found", "Choose one of this patient's encounters.")]);
 
         var existing = await FindByKeyAsync(patientId, key!, ct);
-        if (existing is not null) return await ReplayAsync(existing, v, ct);
+        if (existing is not null) return await ReplayAsync(existing, v, ct); // a retried save writes nothing, so it replays even if the encounter was finalized since
+
+        // ALV-N022 A2 (OD-06 as amended 2026-11-17): a finalized encounter accepts no new diagnosis; later care belongs in a new draft encounter. Completed-procedure
+        // attribution to a finalized encounter is NOT refused (ALV-008-C01 D6). Signed drafts keep today's behaviour (OD-13 undecided).
+        if (encounterStatus == EncounterStatuses.Finalized)
+            throw new DiagnosisException("encounter_finalized", "That encounter is finalized and cannot receive new diagnoses. Start a new encounter. Nothing was saved.", 409,
+                [new("encounterId", "finalized", "Finalized encounters cannot receive new diagnoses. Start a new encounter.")]);
 
         var now = clock.UtcNow;
         var d = new Diagnosis
