@@ -231,7 +231,7 @@ test("LAB: a lab case goes out and back and is sent back for a remake (which nee
   await dr.getByLabel(/^What is being made/).fill("Crown, zirconia");
   await dr.getByLabel(/^Tooth/).fill("3x");
   await dr.getByRole("button", { name: "Save the lab case" }).click();
-  await expect(dr.getByText("Enter the tooth as its two-digit number, or leave it blank.")).toBeVisible();
+  await expect(dr.getByText("Choose a tooth from the chart (its two-digit number), or leave it blank.")).toBeVisible();
   await dr.getByLabel(/^Tooth/).fill("36");
   await dr.getByLabel(/^Material/).fill("Zirconia");
   await dr.getByLabel(/^Shade/).fill("A2");

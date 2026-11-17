@@ -235,7 +235,7 @@ test("AMENDMENT: it asks why, keeps what it replaced with who, when and why, car
   const rows = li.getByRole("table").getByRole("row");
   await expect(rows).toHaveCount(3);
   await expect(rows.nth(1)).toContainText("Recorded");
-  await expect(rows.nth(1)).toContainText("Chronic periodontitis (tooth 16 FDI)");                 // what the amendment replaced is still there
+  await expect(rows.nth(1)).toContainText("Chronic periodontitis (tooth 3)");   // ALV-N022 A3 (F-099): the screen's numbering, not the raw FDI key                 // what the amendment replaced is still there
   await expect(rows.nth(2)).toContainText("Amended (structure)");
   await expect(rows.nth(2)).toContainText("Moved to the quadrant and coded locally");
   await expect(rows.nth(2)).toContainText(NAMES.Dentist);
