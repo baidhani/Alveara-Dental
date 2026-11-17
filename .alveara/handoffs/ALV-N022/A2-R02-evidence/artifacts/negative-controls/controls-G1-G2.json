@@ -1,0 +1,16 @@
+[
+  {
+    "control": "G1 the database guard never fires",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 83
+  },
+  {
+    "control": "G2 the service does not map the guard's refusal",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 82
+  }
+]

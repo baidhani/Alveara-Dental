@@ -115,6 +115,7 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 
 - **Implementation SHA (A2-R01, Stage 1):** `6348276` (base `05460a1`). Changed subsystems: diagnosis create, the diagnosis form's encounter choice, a new real-backend spec.
 - **Focused proof (A2-R01):** `.alveara/handoffs/ALV-N022/A2-R01-evidence/TEST_RESULTS.md`.
+- **Implementation SHA (A2-R02, Stage 1):** `66c92b9` (review A2-R01 CR-1: database guard, migration `20261117160917_AddDiagnosisFinalizedEncounterGuard`). Focused proof: `.alveara/handoffs/ALV-N022/A2-R02-evidence/TEST_RESULTS.md`. Owes to ALV-N028: `MigrationTests` from an empty database and the installer upgrade path with the new migration.
 - **Stage 2:** contract to be defined by the reviewer after Stage 1 approval.
 - **Deferred to ALV-N028:** the ALV-N022 A2 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**

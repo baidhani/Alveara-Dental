@@ -1,0 +1,2 @@
+G1: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 12 s - Alveara.Api.Tests.dll (net10.0)
+G2: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 19 s - Alveara.Api.Tests.dll (net10.0)
