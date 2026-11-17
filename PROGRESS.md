@@ -3086,3 +3086,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N022/A2-STEP0-ADDENDUM-01.md; docs/design/ALV-N022_A2_STEP0_AND_ADDENDUM_01.md section 7 (Addendum 02): owner decision verbatim (completion/adoption/amendment may attribute to Draft or Finalized; refusal for diagnoses only), path rules, Q-3 label removed, proposed exact amendments to OD-06, briefing sections 8 and 10 and plan item 59, deferred items, revised test plan; no diagnosis re-link path exists (verified).
   - Verification: read-only code search; nothing built, no test run.
   - Notes: the planning-record amendments are proposed only; applied after the reviewer approves Addendum 02. Nothing pushed since 2690d7a.
+- [x] ALV-N022 A2 Addendum 03 and planning-record amendments (documents only)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: review A2-STEP0-ADDENDUM-02 stored unchanged; A2 record section 8 (Addendum 03: CR-1 one real-backend browser workflow, about 1-1.5 min; CR-2 two-stage route); amendments applied: OD-06 row (owner quote kept, amendment appended), briefing section 8 and section 10 A2 row and A2 negative controls, execution plan item 59 acceptance clarification, register Q-5ad note (disposition unchanged).
+  - Verification: each replacement asserted to match exactly once; DISPOSITION_REGISTER parses as JSON; git diff limited to the intended lines.
+  - Notes: documents only; A2 code not authorized until this package is approved. Nothing pushed since 2690d7a.

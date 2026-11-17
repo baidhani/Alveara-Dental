@@ -3181,7 +3181,7 @@
       "homePackage": "PKG-07",
       "rawLine": 476,
       "excerpt": "the hygienist's diagnosis was also attached to the finalized 11/1 encounter (only encounter offered). Same question as Q-5z.",
-      "note": "",
+      "note": "ALV-N022 A2 (addenda 02-03, owner 2026-11-17): a finalized encounter accepts no new diagnosis (diagnosis picker and API, built in A2); completed-procedure attribution to a finalized encounter stays valid under ALV-008-C01 D6. Deferred for a later decision: documents and referral cases linked to a finalized encounter, and any display of links made after finalization.",
       "canonicalOf": null
     },
     {

@@ -109,3 +109,23 @@ No "attached after the encounter was finalized" label is built in A2. Existing r
 - Client: the diagnosis picker excludes finalized encounters and shows the message; the complete and adopt pickers still list them.
 - Negative controls (restored with a hash check): the diagnosis Finalized check removed (must fail the refusal test); completion made to refuse Finalized (must fail the attribution test).
 - Not run: broad or full suites, chain, migration (none needed). `fullRegression: DEFERRED_TO_ALV-N028`.
+
+---
+
+## 8. Addendum 03 (answers review `.alveara/reviews/ALV-N022/A2-STEP0-ADDENDUM-02.md`, CHANGES_REQUIRED: CR-1, CR-2)
+
+Addendum 02 (section 7) stands; this adds the two evidence-contract items. Authority: execution plan item 59, "Required coverage: ... real-browser clinical workflows. This is clinical integrity work and requires two-stage review."
+
+### 8.1 CR-1: one real-backend browser workflow added to the A2 focused contract
+New spec `e2e/finalized-encounter-real-backend.spec.ts` with its own config (`playwright.finalized-encounter.config.ts`), added to the mocked suite's real-backend exclusion list; real Chromium, Vite proxy, Alveara.Api and SQL Server on a fresh database, set up through the API (one patient, one Draft and one Finalized encounter, and a treatment plan with an item ready to complete). It proves:
+1. **Diagnosis:** the diagnosis form offers only the Draft encounter, shows "Finalized encounters cannot receive new diagnoses. Start a new encounter.", and a direct API create against the Finalized encounter returns 409 `encounter_finalized` with no diagnosis written.
+2. **Completion:** the complete (or adopt) picker lists both the Draft and the Finalized encounter with their status visible; completing the item attributed to the Finalized encounter succeeds, and the Finalized encounter's status, row version and history are unchanged (read through the API before and after).
+Documents and referrals are not covered (unchanged in A2). **Expected duration: about 1-1.5 minutes** (one spec, one test; the runner build adds about 1 minute the first time). Under 5 minutes; if a run exceeds 5 minutes, I stop and ask.
+
+### 8.2 CR-2: two-stage route
+- **Stage 1:** the A2 implementation handoff with the focused proof only - the server tests and negative controls of section 7.6, the client tests, and the browser workflow of 8.1. The reviewer examines the frozen implementation and its evidence.
+- **Stage 2:** only after Stage 1 is approved, run the targeted contract **the reviewer defines after seeing the A2 implementation**, on the unchanged implementation, and return its regression and closure evidence. Not pre-run, and not turned into a broad regression.
+- Broad and full regression, the chain and unrelated walkthroughs remain `DEFERRED_TO_ALV-N028`.
+
+### 8.3 Planning-record amendments
+The amendments proposed in section 7.4 (items 1-4) are applied in the same documents-only commit as this addendum, plus the browser row and the two-stage route in briefing section 10. Item 5 (register note) is applied with them.

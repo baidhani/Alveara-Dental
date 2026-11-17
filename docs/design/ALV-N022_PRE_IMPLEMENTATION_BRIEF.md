@@ -182,9 +182,9 @@ There are no new permissions or grants. Each route is tested for: 401, 403, anot
 
 ## 8. A2 design
 
-Completion, adoption, diagnosis create and every path that sets `EncounterId` load the encounter, and refuse with 409 `encounter_finalized` before any write when it is Finalized. Pickers exclude finalized encounters and say "Finalized encounters cannot receive new care. Start a new encounter." Signed drafts: today's behaviour, unchanged (OD-13 proposed).
+**Amended 2026-11-17 (A2 addenda 02-03, owner decision; reviews A2-STEP0-ADDENDUM-01/02).** Diagnosis create (and any future diagnosis re-link) loads the encounter and refuses with 409 `encounter_finalized` before any write when it is Finalized; the diagnosis picker excludes finalized encounters and says "Finalized encounters cannot receive new diagnoses. Start a new encounter." Completed-procedure completion, adoption and append-only amendment keep the ALV-008-C01 rule: a same-patient Draft or Finalized encounter is valid attribution and is never changed. Documents and referral cases are unchanged. Signed drafts: today's behaviour, unchanged (OD-13 proposed).
 
-Existing attachments made after `FinalizedAtUtc` are kept and labelled "attached after the encounter was finalized". The addendum route is unchanged.
+The addendum route is unchanged. (No "attached after the encounter was finalized" label in A2; deferred.)
 
 ## 9. Failure handling
 
@@ -199,14 +199,14 @@ Existing attachments made after `FinalizedAtUtc` are kept and labelled "attached
 |---|---|---|---|
 | A1 | **Routing:** encounter add, change and remove reach the chart with `EncounterId` for Allergy, Medication and MedicalHistory; DentalHistory still writes `EncounterEntry` (boundary). **Allergy duplicate (Addendum 02):** case and inner-whitespace canonicalization of new input (case kept); Active match refused with direction to update, nothing written; Resolved/Inactive match refused with the reactivate/update direction and its status, nothing written; reactivate through the explicit action requires a chosen status and appends one version with provenance; cancel leaves the item unchanged; retried replay; concurrent double add leaves one record and the loser gets the existing-record direction; historical rows unchanged. **Encounter medication/medical-history match (S-1 A):** no second item; confirm records the review event with provenance; update appends a version. **Category boundary (BR-4):** medication and medical-history duplicates behave exactly as before. **None-reported:** refused with an active item, allowed with only resolved items (per 0.3). **Contradiction derivation:** legacy mark and chart NoneKnown. **Provenance:** a finalized encounter is unchanged after a later chart change. Append-only refusal. **Auth matrix.** M1 up and down, with counts and checksums. About 3 min. | Sections render chart, provenance and legacy items; duplicate 409 links to the existing item (Active: update; Resolved/Inactive: reactivate/update with no status pre-selected; cancel changes nothing); encounter confirm-current/update for a medication or medical-history match; one banner; refetch after each write path; guard test. About 1 min. | One real-backend spec: allergy in an encounter, banner and Safety tab update without reload, duplicate refused. About 1-2 min. |
 | A1 (only if OD-14 is approved) | The add flow refuses submission without a chosen status; it creates a new item; the legacy row is unchanged; provenance is linked. | No status pre-selected; historical text read-only. | - |
-| A2 | Complete, adopt and diagnose: Draft accepted; Finalized refused with nothing written; another patient's encounter; auth. **No signed-draft test** (OD-13). About 1-2 min. | Pickers exclude finalized encounters; message. | - |
+| A2 (amended 2026-11-17) | Diagnosis create: Draft accepted; Finalized refused with nothing written; another patient's encounter; auth. Completion, adoption and amendment: Draft **and** Finalized attribution accepted with the encounter row (version, status, history) unchanged; another patient's encounter refused. **No signed-draft test** (OD-13). About 1-2 min. | Diagnosis picker excludes finalized encounters, with the message; complete and adopt pickers still list finalized encounters. | One real-backend spec (`finalized-encounter-real-backend`): the diagnosis form offers only the Draft encounter with the message, and an API create on the Finalized one is refused; the completion picker lists Draft and Finalized with status, and completing against the Finalized encounter leaves its status, version and history unchanged. About 1-1.5 min. **Two-stage review:** Stage 1 = this focused proof; Stage 2 = the targeted contract the reviewer defines after Stage 1 approval, run on the unchanged implementation. |
 | A3 | Allergy-check verdict-word guard; prescription view fields; alert source not invented; tooth 99 field problem. About 1 min. | Each display row of the matrix, the PD-09d status rendering, pickers within their stated scope. About 1-2 min. | - |
 
 **Negative controls (caught, then restored from a backup with a hash check):**
 - A1: encounter-local duplicate check only;
 - A1: `EncounterId` dropped from the version;
 - A1: allergy rule applied to medications (the boundary test must catch it);
-- A2: Draft check removed;
+- A2 (amended): the diagnosis Finalized check removed; completion made to refuse a Finalized encounter (must fail the attribution test);
 - A3: "safe" planted in the no-match text.
 
 `fullRegression: DEFERRED_TO_ALV-N028`.
