@@ -1,0 +1,58 @@
+[
+  {
+    "control": "C1 allergies routed back to the encounter",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 80
+  },
+  {
+    "control": "C2 duplicate refusal without existingItem",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 68
+  },
+  {
+    "control": "C3 none known allowed while an item is active",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 58
+  },
+  {
+    "control": "C4 removing an item not added in this encounter",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 57
+  },
+  {
+    "control": "C5 legacy entries editable",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 54
+  },
+  {
+    "control": "C6 chart write does not touch the encounter version",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 49
+  },
+  {
+    "control": "C7 one encounter mutation not wrapped in withSafetyNotice",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 0
+  },
+  {
+    "control": "C8 a status preselected in the reactivate form",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 6
+  }
+]

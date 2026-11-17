@@ -1,0 +1,9 @@
+C1: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 12 s - Alveara.Api.Tests.dll (net10.0)
+C2: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 13 s - Alveara.Api.Tests.dll (net10.0)
+C3: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 12 s - Alveara.Api.Tests.dll (net10.0)
+C4: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 12 s - Alveara.Api.Tests.dll (net10.0)
+C5: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 12 s - Alveara.Api.Tests.dll (net10.0)
+C6: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 10 s - Alveara.Api.Tests.dll (net10.0)
+C7:   AssertionError [ERR_ASSERTION]: src/alveara-client/src/services/clinicalApi.ts: not wrapped in withSafetyNotice (or missing): confirmSectionCurrent
+C8:      × lists the chart's items and, for a resolved match, offers reactivation with no status chosen until the user picks one 118ms
+C8: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯

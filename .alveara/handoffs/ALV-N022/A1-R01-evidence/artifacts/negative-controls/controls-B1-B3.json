@@ -1,0 +1,23 @@
+[
+  {
+    "control": "B1 duplicate check limited to this encounter (brief control a)",
+    "caught": false,
+    "exit": 0,
+    "restored": true,
+    "secs": 78
+  },
+  {
+    "control": "B2 EncounterId dropped from the version (brief control b)",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 64
+  },
+  {
+    "control": "B3 allergy name rule applied to medications (brief control c)",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 59
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "axe": {
+    "resolved-match-notice-light": {
+      "blocking": 0,
+      "passes": 27
+    },
+    "resolved-match-notice-dark": {
+      "blocking": 0,
+      "passes": 27
+    }
+  },
+  "oneRecord": {
+    "records": 1,
+    "provenance": [
+      "Added",
+      "StatusChanged",
+      "StatusChanged"
+    ],
+    "cancelChangedNothing": true,
+    "nothingPreselected": true,
+    "bannerRefreshedWithoutReload": true,
+    "safetyTabShowsItWithoutReload": true,
+    "leavingWithTypedTextAsksFirst": true
+  }
+}
