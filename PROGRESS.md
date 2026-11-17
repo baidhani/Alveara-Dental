@@ -3074,3 +3074,9 @@
   - What changed: review stored unchanged at .alveara/reviews/ALV-N022/A1-R02.md; EXECUTION_STATUS attempt A1 COMPLETE (approved A1-R02, implementation 38f478e, evidence 69972a5, completedAt 2026-11-17T14:53:34Z), story ALV-N022 IN_PROGRESS; BUILD_STATE and ledger lines.
   - Verification: EXECUTION_STATUS parses as JSON and the script asserts the values; review file not edited; no src/, tests/ or evidence change.
   - Notes: closure-only. A2 needs its separately approved briefing; A3 not authorized. Nothing pushed.
+- [x] ALV-N022 A2 Step 0 verification record and briefing addendum 01 (documents only)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: docs/design/ALV-N022_A2_STEP0_AND_ADDENDUM_01.md - check 0.6 (seven encounter-link paths, none checks finalized; Q-5ad confirmed), dev-database counts (2 diagnoses and 2 completions already attached after finalization), stop conditions (documents/referral cases; link time on change paths) and questions Q-1..Q-4 for the reviewer.
+  - Verification: read-only code search on 2690d7a; read-only SELECTs on AlveraDev (disclosed in the record).
+  - Notes: documents only; A2 not built and not authorized until the addendum is reviewed. Pushed state before this: 2690d7a.
