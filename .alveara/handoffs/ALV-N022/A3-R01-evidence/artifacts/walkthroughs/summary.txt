@@ -1,0 +1,13 @@
+﻿walkthroughs start 2026-11-17T13:57:46.5463361-06:00
+== walk a3-display exit=0 elapsed=28s: 3 passed (11.5s)
+== walk safety exit=0 elapsed=54s: 11 passed (37.7s)
+== walk perio-sessions exit=0 elapsed=60s: 12 passed (43.1s)
+== walk clinical-companion exit=0 elapsed=65s: 9 passed (45.4s)
+== walk external-cases exit=0 elapsed=71s: 9 passed (49.9s)
+== walk diagnoses-structure exit=0 elapsed=48s: 12 passed (31.0s)
+== walk completion-adoption exit=0 elapsed=43s: 8 passed (25.1s)
+== walk prescription-workflow exit=0 elapsed=50s: 15 passed (31.4s)
+== walk prescriptions exit=0 elapsed=39s: 10 passed (20.4s)
+== walk perio exit=0 elapsed=55s: 10 passed (37.3s)
+== walk odontogram-longitudinal exit=0 elapsed=54s: 11 passed (34.3s)
+walkthroughs end 2026-11-17T14:07:13.3782532-06:00

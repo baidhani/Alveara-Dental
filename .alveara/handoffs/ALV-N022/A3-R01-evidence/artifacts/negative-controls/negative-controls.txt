@@ -1,0 +1,22 @@
+== NC1: the word "safe" planted in the client no-match text; expected: the allergy wording guard FAILS
+file: src/alveara-client/src/pages/prescription/prescriptionText.ts
+sha256 before: 2ef10289ddf5b378eb5d623b3e1189d3f4c6c4f98f533dcbd12b86298d6c0a42
+planted lines: 1
+exit=1 (non-zero = caught);  uses the verdict word "safe"
+sha256 after restore: 2ef10289ddf5b378eb5d623b3e1189d3f4c6c4f98f533dcbd12b86298d6c0a42
+
+== NC3: the absent mark drawn for every state (Existing/Completed condition removed); expected: OdontogramA3 FAILS
+file: src/alveara-client/src/pages/odontogram/odontogramText.ts
+sha256 before: 5fff23b70631657df127b444f3cd0fae19e5c9c7023674c1a08721bf478223e9
+planted: yes
+exit=1 (non-zero = caught); ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯       Tests  2 failed | 3 passed (5)       × is drawn only for an active Absent-condition finding in Existing or Completed 13ms      × marks the tile and its name, and leaves a Diagnosed missing tooth with only its state 197ms 
+sha256 after restore: 5fff23b70631657df127b444f3cd0fae19e5c9c7023674c1a08721bf478223e9
+
+== NC2: the service's same-patient document check removed; expected: the other-patient refusal tests STILL PASS (the database trigger 51288 refuses; proves the layering)
+file: src/Alveara.Api/Architecture/Safety/ClearanceService.cs
+sha256 before: 65cb1fbe9e7ca542fe93e931427972465dfbe462fc0e77c8b44d4c0c6cfa9d1d
+planted: yes
+exit=0 (zero = refusal held by the database); Passed!  - Failed:     0, Passed:    35, Skipped:     0, Total:    35, Duration: 55 s - Alveara.Api.Tests.dll (net10.0)
+sha256 after restore: 65cb1fbe9e7ca542fe93e931427972465dfbe462fc0e77c8b44d4c0c6cfa9d1d
+
+tree changed paths after controls: 0

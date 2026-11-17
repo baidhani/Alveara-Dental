@@ -1,0 +1,19 @@
+Database AlveraWalk_playwright_external_cases_config_c37a88c8 created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.external-cases.config.ts ...
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:127:1 ΓÇ║ SETUP: a patient with a radiograph already in the document library (177ms)
+  ok 2 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:134:1 ΓÇ║ PARTIES: the office manager adds a referral provider and a lab vendor; a dentist cannot (2.7s)
+  ok 3 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:155:1 ΓÇ║ REFERRAL: the dentist starts it (the form is checked first), sends it with a past date and links the radiograph (1.7s)
+  ok 4 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:190:1 ΓÇ║ CHASE: within seconds the system makes an unassigned task; the front desk finds it in the work queue and follows it to the case (17.1s)
+  ok 5 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:207:1 ΓÇ║ COMPLETE: recording the report and completing the case closes the chase task by itself (12.4s)
+  ok 6 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:226:1 ΓÇ║ LAB: a lab case goes out and back and is sent back for a remake (which needs a note); a change by someone else is explained (2.0s)
+  ok 7 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:270:1 ΓÇ║ BROKEN LINK: a document whose file goes missing stays in the case, flagged (409ms)
+  ok 8 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:280:1 ΓÇ║ ROLES: a role that only reads sees no buttons, and billing sees nothing (4.4s)
+  ok 9 [chromium] ΓÇ║ e2e\external-cases-real-backend.spec.ts:297:1 ΓÇ║ AUDIT: the audit trail names every action and holds no reason or note (135ms)
+
+  9 passed (49.9s)
+Database AlveraWalk_playwright_external_cases_config_c37a88c8 dropped (its files went with it).
+Output kept in C:\tmp\a3-stage1\walk\external-cases\out

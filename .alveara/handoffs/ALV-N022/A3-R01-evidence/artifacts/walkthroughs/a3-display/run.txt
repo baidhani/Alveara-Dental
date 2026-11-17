@@ -1,0 +1,19 @@
+Database AlveraWalk_playwright_a3_display_config_5f652bb2 created in C:\.alvera-data\Test-Data\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.21
+Done.
+API healthy on http://localhost:5072; running playwright.a3-display.config.ts ...
+
+Running 3 tests using 1 worker
+
+  ok 1 [chromium] ΓÇ║ e2e\a3-display-real-backend.spec.ts:82:1 ΓÇ║ F-106 PRESCRIPTIONS TAB: a workflow prescription shows its status, instructions, quantity and refills; the version it replaced is marked superseded (1.4s)
+  ok 2 [chromium] ΓÇ║ e2e\a3-display-real-backend.spec.ts:115:1 ΓÇ║ F-091 ABSENT MARK: a Diagnosed missing tooth shows its state and no mark; an Existing missing tooth shows the mark (1.9s)
+  ok 3 [chromium] ΓÇ║ e2e\a3-display-real-backend.spec.ts:143:1 ΓÇ║ D-1 B PERIO LINK: the picker offers only this patient's diagnoses; another patient's diagnosis is refused by the API (2.7s)
+
+  3 passed (11.5s)
+Database AlveraWalk_playwright_a3_display_config_5f652bb2 dropped (its files went with it).
+Output kept in C:\tmp\a3-stage1\walk\a3-display\out

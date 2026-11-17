@@ -1,0 +1,56 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/OdontogramA3.test.tsx (5 tests | 2 failed) 1170ms
+   ❯ F-091 the absent mark (3)
+     × is drawn only for an active Absent-condition finding in Existing or Completed 13ms
+     × marks the tile and its name, and leaves a Diagnosed missing tooth with only its state 197ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/OdontogramA3.test.tsx > F-091 the absent mark > is drawn only for an active Absent-condition finding in Existing or Completed
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/OdontogramA3.test.tsx:41:64
+     39|     expect(isDrawnAbsent([f({ state: "Existing" })], absent)).toBe(tru…
+     40|     expect(isDrawnAbsent([f({ state: "Completed" })], absent)).toBe(tr…
+     41|     expect(isDrawnAbsent([f({ state: "Diagnosed" })], absent)).toBe(fa…
+       |                                                                ^
+     42|     expect(isDrawnAbsent([f({ state: "Planned" })], absent)).toBe(fals…
+     43|     expect(isDrawnAbsent([f({ status: "Withdrawn" })], absent)).toBe(f…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/OdontogramA3.test.tsx > F-091 the absent mark > marks the tile and its name, and leaves a Diagnosed missing tooth with only its state
+Error: [2mexpect([22m[31melement[39m[2m).not.toHaveAccessibleName()[22m
+
+Expected element not to have accessible name:
+[32m  /not present/[39m
+Received:
+[31m  Tooth 30, lower right first molar: 1 finding, Diagnosed, not present[39m
+ ❯ src/OdontogramA3.test.tsx:53:29
+     51|     expect(tooth("19")).toHaveAccessibleName(/, not present$/);
+     52|     expect(tooth("19").querySelector("[data-absent-mark]")).not.toBeNu…
+     53|     expect(tooth("30")).not.toHaveAccessibleName(/not present/);
+       |                             ^
+     54|     expect(tooth("30").querySelector("[data-absent-mark]")).toBeNull();
+     55|     expect(tooth("30").querySelector(".alv-odonto__tooth-state")!.text…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  14:07:25
+   Duration  11.89s (transform 37%, environment 32%, setup 13%, tests 10%, import 8%)
+
+  Transform  transforming modules took 4.13s · 37% of tracked time, re-done on every run
+             persist transforms across runs with fsModuleCache: true
+             learn more: https://vitest.dev/guide/improving-performance#caching-between-reruns
+

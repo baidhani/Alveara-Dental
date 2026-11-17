@@ -1,0 +1,35 @@
+✖ every surface that words the 'no recorded match' outcome says it is not a clearance and uses no verdict word (5.675ms)
+✔ the check catches a missing caveat and a planted verdict word (0.7095ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.6832
+
+✖ failing tests:
+
+test at tests\allergy-wording-guard.test.mjs:33:1
+✖ every surface that words the 'no recorded match' outcome says it is not a clearance and uses no verdict word (5.675ms)
+  AssertionError [ERR_ASSERTION]: src/alveara-client/src/pages/prescription/prescriptionText.ts: default: return "No recorded allergy matched this medication's name. That is a name comparison, not a clearance, so it is safe.";
+  + actual - expected
+  
+  + [
+  +   'uses the verdict word "safe"'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/firas/Documents/AI-Project-%5BAlveara-Dental%5D/tests/allergy-wording-guard.test.mjs:37:38)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'uses the verdict word "safe"' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

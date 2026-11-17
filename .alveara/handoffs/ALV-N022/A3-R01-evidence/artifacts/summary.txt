@@ -1,0 +1,38 @@
+run commit: ecfb7f4b71ec5e2fdb3248bb83c9b596296cf72d
+tree changed paths: 0
+start: 2026-11-17T13:51:04-06:00
+== leak counts before saved
+== gate backend_build exit=0 elapsed=69s: 
+== gate backend_focused exit=0 elapsed=264s: Passed!  - Failed:     0, Passed:   297, Skipped:     0, Total:   297, Duration: 4 m 7 s - Alveara.Api.Tests.dll (net10.0) 
+== gate tsc exit=0 elapsed=7s: 
+== gate lint exit=0 elapsed=2s: 
+== gate build exit=0 elapsed=9s: [32m✓ built in 1.25s[39m 
+== gate vitest_focused exit=0 elapsed=36s:  Test Files  45 passed (45)       Tests  915 passed (915) 
+== gate playwright_list exit=0: a3-display listed in the mocked run: 0 (expected 0); Total: 194 tests in 13 files
+== gate repo_checks exit=0 elapsed=5s: 
+﻿walkthroughs start 2026-11-17T13:57:46.5463361-06:00
+== walk a3-display exit=0 elapsed=28s: 3 passed (11.5s)
+== walk safety exit=0 elapsed=54s: 11 passed (37.7s)
+== walk perio-sessions exit=0 elapsed=60s: 12 passed (43.1s)
+== walk clinical-companion exit=0 elapsed=65s: 9 passed (45.4s)
+== walk external-cases exit=0 elapsed=71s: 9 passed (49.9s)
+== walk diagnoses-structure exit=0 elapsed=48s: 12 passed (31.0s)
+== walk completion-adoption exit=0 elapsed=43s: 8 passed (25.1s)
+== walk prescription-workflow exit=0 elapsed=50s: 15 passed (31.4s)
+== walk prescriptions exit=0 elapsed=39s: 10 passed (20.4s)
+== walk perio exit=0 elapsed=55s: 10 passed (37.3s)
+== walk odontogram-longitudinal exit=0 elapsed=54s: 11 passed (34.3s)
+walkthroughs end 2026-11-17T14:07:13.3782532-06:00
+== walkthroughs elapsed=567s
+== negative controls elapsed=150s
+== NC1: the word "safe" planted in the client no-match text; expected: the allergy wording guard FAILS
+exit=1 (non-zero = caught);  uses the verdict word "safe"
+== NC3: the absent mark drawn for every state (Existing/Completed condition removed); expected: OdontogramA3 FAILS
+exit=1 (non-zero = caught); ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯       Tests  2 failed | 3 passed (5)       × is drawn only for an active Absent-condition finding in Existing or Completed 13ms      × marks the tile and its name, and leaves a Diagnosed missing tooth with only its state 197ms 
+== NC2: the service's same-patient document check removed; expected: the other-patient refusal tests STILL PASS (the database trigger 51288 refuses; proves the layering)
+exit=0 (zero = refusal held by the database); Passed!  - Failed:     0, Passed:    35, Skipped:     0, Total:    35, Duration: 55 s - Alveara.Api.Tests.dll (net10.0)
+tree changed paths after controls: 0
+== leak counts after saved
+end: 2026-11-17T14:09:47-06:00
+tree changed paths after: 0
+== SWEEP DONE

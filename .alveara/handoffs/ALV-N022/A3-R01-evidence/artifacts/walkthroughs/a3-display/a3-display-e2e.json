@@ -1,0 +1,17 @@
+{
+  "stamp": 1794945483614,
+  "prescriptions": {
+    "active": 1,
+    "superseded": 1,
+    "marked": true
+  },
+  "absentMark": {
+    "diagnosedMarked": false,
+    "existingMarked": true
+  },
+  "perioLink": {
+    "otherPatientRefused": 400,
+    "freeTextRefused": 400,
+    "offeredOnlyOwn": true
+  }
+}

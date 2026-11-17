@@ -1,0 +1,32 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/ClinicalNotes.test.tsx (23 tests | 1 failed) 17096ms
+   ❯ notes and templates (8)
+     × shows the conflict banner for a stale tab and reloads in place so the typed note survives 390ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/ClinicalNotes.test.tsx > notes and templates > shows the conflict banner for a stale tab and reloads in place so the typed note survives
+Error: [2mexpect([22m[31melement[39m[2m).toHaveValue([22m[32mMy version[39m[2m)[22m
+
+Expected the element to have value:
+[32m  My version[39m
+Received:
+[31m  OriginalMy version[39m
+ ❯ src/ClinicalNotes.test.tsx:154:26
+    152|     await user.click(screen.getByRole("button", { name: /Reload/ }));
+    153|     await waitFor(() => expect(screen.queryByText("Someone else change…
+    154|     expect(note("Plan")).toHaveValue("My version"); // the box stayed …
+       |                          ^
+    155|     await user.click(screen.getByRole("button", { name: "Save plan now…
+    156|     await waitFor(() => expect(server.encounters.get("e1")!.notes.get(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 44 passed (45)
+      Tests  1 failed | 916 passed (917)
+   Start at  14:14:41
+   Duration  42.19s (tests 54%, transform 19%, environment 16%, import 7%, setup 4%)
+

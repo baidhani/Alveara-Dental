@@ -1,0 +1,21 @@
+Database AlveraWalk_playwright_safety_config_5c0c8c94 created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.safety.config.ts ...
+
+Running 11 tests using 1 worker
+
+  ok  1 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:132:1 ΓÇ║ SETUP: the practice, three patients and a booked visit each (1.2s)
+  ok  2 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:152:1 ΓÇ║ NOTHING INVENTED: an empty chart shows no alerts, says what is NOT established, and never says 'none' (1.1s)
+  ok  3 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:171:1 ΓÇ║ ALLERGIES AND MEDICATIONS are read from the clinical record, in the safety picture with their source and without being copied; a milder or resolved item is not shown as active (1.0s)
+  ok  4 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:206:1 ΓÇ║ ALERT LIFECYCLE: a clinician states an alert with its source; acknowledging is shown to be different from resolving; resolving needs a reason and keeps who, when and why (6.7s)
+  ok  5 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:293:1 ΓÇ║ CLEARANCES: requested -> received (without its document, said in words) -> document attached later -> resolved with a reason; a clearance still waiting cannot be resolved (4.0s)
+  ok  6 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:356:1 ΓÇ║ HEADER AND ENCOUNTER: safety information is in view before documenting - on every patient screen and at the top of an encounter (2.8s)
+  ok  7 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:377:1 ΓÇ║ LIVE BOARD: authorized roles see only 'Safety alert on file' and 'Clearance open'; others see nothing; no diagnosis, allergy or medication ever reaches the shared board (3.3s)
+  ok  8 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:420:1 ΓÇ║ CONCURRENCY: a stale alert edit is refused with the conflict banner and what was typed survives the reload (3.4s)
+  ok  9 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:448:1 ΓÇ║ KEYBOARD: an alert can be acknowledged without a mouse (470ms)
+  ok 10 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:457:1 ΓÇ║ ACCESS: front desk, office manager and billing cannot read any of it; an assistant reads and acknowledges but cannot change anything (1.4s)
+  ok 11 [chromium] ΓÇ║ e2e\safety-real-backend.spec.ts:486:1 ΓÇ║ TRUST: every alert, acknowledgement, resolution and clearance step is in the audit log with the user and a time, and no safety content is in it (29ms)
+
+  11 passed (37.7s)
+Database AlveraWalk_playwright_safety_config_5c0c8c94 dropped (its files went with it).
+Output kept in C:\tmp\a3-stage1\walk\safety\out

@@ -1,0 +1,20 @@
+Database AlveraWalk_playwright_prescriptions_config_2aeb76e9 created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.prescriptions.config.ts ...
+
+Running 10 tests using 1 worker
+
+  ok  1 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:129:1 ΓÇ║ SETUP: Ann has her allergies reviewed (penicillin and latex); Bo's allergies were never reviewed (690ms)
+  ok  2 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:145:1 ΓÇ║ THE SCREEN: a prescriber sees the form, what is recorded for the patient, and what is NOT checked; the list starts empty and says what that means (2.3s)
+  ok  3 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:160:1 ΓÇ║ CRITERION 1 and TRUST: a correct entry is checked for allergies, saved, listed with who prescribed it and logged with the user and the time (950ms)
+  ok  4 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:186:1 ΓÇ║ CRITERION 2: an incorrect dose is refused beside its box with what was typed kept and the ceiling said not to be a clinical limit; correcting it saves (2.6s)
+  ok  5 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:215:1 ΓÇ║ ALLERGY MATCH: penicillin is refused until the dentist gives their own words, then saved with them, and the list says it was reviewed (2.6s)
+  ok  6 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:243:1 ΓÇ║ UNREVIEWED ALLERGIES: Bo's list is never treated as clear: the panel says so and a prescription waits for the dentist's own words (752ms)
+  ok  7 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:262:1 ΓÇ║ FAILURE PATH: when the log is unavailable nothing is saved, no internals are shown, and the same click works once it is back (898ms)
+  ok  8 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:290:1 ΓÇ║ REPLAY and APPEND-ONLY: the same request again changes nothing, a changed one under the same key is a conflict, and a prescription can be neither changed nor deleted (235ms)
+  ok  9 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:308:1 ΓÇ║ READ-ONLY: a hygienist reads the prescriptions and the safety panel, has no form and is refused by the server; front desk has no tab and is refused (764ms)
+  ok 10 [chromium] ΓÇ║ e2e\prescriptions-real-backend.spec.ts:329:1 ΓÇ║ TRUST: every saved prescription is in the audit log with the dentist's id and a time, and none of it names a medication, a dose or an allergy (393ms)
+
+  10 passed (20.4s)
+Database AlveraWalk_playwright_prescriptions_config_2aeb76e9 dropped (its files went with it).
+Output kept in C:\tmp\a3-stage1\walk\prescriptions\out

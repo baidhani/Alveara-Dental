@@ -1,0 +1,19 @@
+Database AlveraWalk_playwright_clinical_companion_config_87b23b0b created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.clinical-companion.config.ts ...
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:132:1 ΓÇ║ RECORD: allergies, medications and history are captured across encounters with who and when, and a change keeps what it replaced (6.3s)
+  ok 2 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:179:1 ΓÇ║ UNKNOWN / NOT REVIEWED / NONE KNOWN: three different statements, none of them an invented item; a confirmed list goes stale when an item changes (4.9s)
+  ok 3 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:244:1 ΓÇ║ TEMPLATE: a dentist configures a clinical note template; a hygienist can read the list but cannot configure (5.3s)
+  ok 4 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:278:1 ΓÇ║ ENCOUNTER: a template shapes the SOAP and treatment notes; required notes block signing and are named; vitals are recorded with the encounter and a mistake is voided (8.9s)
+  ok 5 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:352:1 ΓÇ║ SIGNING: a signed note is locked (screen and API) until it is unsigned or finalized, and the signature is attributed (3.4s)
+  ok 6 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:400:1 ΓÇ║ FINALIZED + AMENDMENT: a finalized note cannot be overwritten; an amendment preserves the original, who wrote it, when and what it amends (3.0s)
+  ok 7 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:455:1 ΓÇ║ CONCURRENCY: a stale note save is refused with the conflict banner and the typed note survives the reload (1.6s)
+  ok 8 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:485:1 ΓÇ║ ACCESS: front desk cannot read or write any of it; an assistant reads but gets no controls (860ms)
+  ok 9 [chromium] ΓÇ║ e2e\clinical-companion-real-backend.spec.ts:509:1 ΓÇ║ TRUST: every save, sign, finalize and amend is in the audit log with the user and a time, and no clinical content is in it (40ms)
+
+  9 passed (45.4s)
+Database AlveraWalk_playwright_clinical_companion_config_87b23b0b dropped (its files went with it).
+Output kept in C:\tmp\a3-stage1\walk\clinical-companion\out

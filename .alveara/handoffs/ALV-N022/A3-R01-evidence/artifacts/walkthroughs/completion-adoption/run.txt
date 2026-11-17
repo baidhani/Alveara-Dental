@@ -1,0 +1,18 @@
+Database AlveraWalk_playwright_completion_adoption_config_3ff9b692 created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.completion-adoption.config.ts ...
+
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:159:1 ΓÇ║ SETUP: a provider, a patient with an encounter, a chart finding, and one plan whose three procedures were completed the old way (3.3s)
+  ok 2 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:196:1 ΓÇ║ RETIRED: no screen offers the old completion, and the old routes answer 410 and change nothing (908ms)
+  ok 3 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:217:1 ΓÇ║ ADOPT: the missing fields are named, then the adoption records the provider, the chart effect and the one charge (3.7s)
+  ok 4 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:246:1 ΓÇ║ FAILURE: when the log is unavailable nothing is recorded, and the same click works once it is back (1.1s)
+  ok 5 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:273:1 ΓÇ║ STALE: a second screen that is out of date is told, records nothing, and works after a reload (1.9s)
+  ok 6 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:299:1 ΓÇ║ PARENT (STORY-008 criteria 2 and 3): revising afterwards keeps the original revision and the completed care, and the plan's log shows every change once, adoption adding none (752ms)
+  ok 7 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:321:1 ΓÇ║ READ-ONLY: a hygienist sees no way to adopt and is refused by the server; front desk is refused; only the audit-log roles read the reconciliation (381ms)
+  ok 8 [chromium] ΓÇ║ e2e\completion-adoption-real-backend.spec.ts:336:1 ΓÇ║ GATE D: after the walk every legacy completion is adopted, every charge has a completion, and the chart agrees (409ms)
+
+  8 passed (25.1s)
+Database AlveraWalk_playwright_completion_adoption_config_3ff9b692 dropped (its files went with it).
+Output kept in C:\tmp\a3-stage1\walk\completion-adoption\out

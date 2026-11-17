@@ -3200,3 +3200,9 @@
   - What changed: pages/A3Display.test.tsx adds the diagnosis card listing its linked perio charts (Q-5aa) and the perio picker offering only the chart's patient's non-withdrawn diagnoses, sending the id, labelling legacy text (F-098). Test file only; no production change since ecfb7f4.
   - Verification: A3Display.test 5/5; each new test caught a planted break (withdrawn diagnosis offered; Q-5aa paragraph removed), both restored. tsc/lint/focused vitest re-run on this commit (A3 handoff).
   - Notes: Not pushed.
+- [x] ALV-N022 A3-R01: record Stage 1 engineering handoff (AWAITING_REVIEW)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/handoffs/ALV-N022/A3-R01.md and A3-R01-evidence/ (TEST_RESULTS, ACCEPTANCE_EVIDENCE, CHANGED_FILES, DEMO_EVIDENCE, PARENT_REGRESSION, NEXT_STORY_IMPACT, artifacts); EXECUTION_STATUS ALV-N022 status AWAITING_REVIEW, attempt A3-R01, A3 attempt record (evidenceCommit null); BUILD_STATE line.
+  - Verification: sweep on ecfb7f4 - backend 297/297, tsc/lint/build pass, vitest 915/915, repo 58/58, 11 walkthroughs 110/110, controls as designed, leak counts identical; on 63f74ff vitest 917/917 (run 1 916/917, pre-existing ClinicalNotes timing, disclosed).
+  - Notes: Not pushed.
