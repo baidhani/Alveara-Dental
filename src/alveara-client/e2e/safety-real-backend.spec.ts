@@ -79,6 +79,16 @@ const entry = (page: Page, title: string) => page.locator("li.alv-safety__entry"
 const activeEntries = (ctx: any) => (ctx.entries as any[]).filter((e) => e.origin === "Alert");
 const statusLine = (page: Page) => page.locator("p.alv-clinical__status");
 
+// ALV-N022 A3 (D-1 B): a clearance's supporting document is one of the patient's own imported documents, never typed text. The office manager imports (it holds ImportDocuments).
+const PNG_1X1 = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+const RADIOGRAPH = "d0c00000-0000-0000-0000-000000000001";
+async function importDocumentFor(page: Page, patient: string, description: string, key: string): Promise<string> {
+  const r = await page.request.post(`/api/patients/${ids[patient]}/documents`, { headers: { "X-CSRF-Token": await csrf(page), "Idempotency-Key": `safety-doc-${key}-${stamp}` },
+    multipart: { file: { name: `${key}.png`, mimeType: "image/png", buffer: Buffer.concat([PNG_1X1, Buffer.from(`${key}-${stamp}`)]) }, categoryId: RADIOGRAPH, documentDate: "2026-10-01", description } });
+  expect(r.status(), await r.text()).toBe(201);
+  return ((await r.json()) as any).document.id as string;
+}
+
 async function gotoSafety(page: Page, patient = "ann") {
   await page.goto(`/patients/${ids[patient]}/safety`);
   await expect(page.getByRole("heading", { name: "Patient safety details" })).toBeVisible();
@@ -304,10 +314,21 @@ test("CLEARANCES: requested -> received (without its document, said in words) ->
   await expect(strip(dentist).getByText(/1 clearance open/)).toBeVisible();
   await shot(dentist, "07-clearance-received-no-document.png");
 
+  // ALV-N022 A3 (F-090, D-1 B): the letter is imported into Ann's documents, then chosen from a picker of Ann's documents only
+  const annLetter = await importDocumentFor(sessions.OfficeManager.page, "ann", "Cardiac clearance letter", "ann-letter");
+  const benLetter = await importDocumentFor(sessions.OfficeManager.page, "ben", "Another patient's letter", "ben-letter");
+  ctx = await safetyOf(dentist);
+  const typed = await api(dentist, "post", `/api/safety/clearances/${ids.clearanceId}/document`, { documentReference: "cardiac-letter-2030-01-12.pdf", rowVersion: ctx.clearances[0].rowVersion });
+  expect([typed.status, Object.keys(typed.body.fieldErrors ?? {})]).toEqual([400, ["documentReference"]]);          // free text is refused
+  const foreign = await api(dentist, "post", `/api/safety/clearances/${ids.clearanceId}/document`, { documentId: benLetter, rowVersion: ctx.clearances[0].rowVersion });
+  expect([foreign.status, Object.keys(foreign.body.fieldErrors ?? {})]).toEqual([400, ["documentId"]]);              // another patient's document is refused
   await dentist.getByRole("button", { name: `Attach document: ${label}` }).click();
-  await dentist.getByLabel("Document reference").fill("cardiac-letter-2030-01-12.pdf");
+  const picker = dentist.getByLabel("Supporting document", { exact: true });
+  await expect(picker.locator("option", { hasText: "ann-letter.png" })).toHaveCount(1);
+  await expect(picker.locator("option", { hasText: "ben-letter.png" })).toHaveCount(0);
+  await picker.selectOption(annLetter);
   await dentist.getByRole("button", { name: "Attach document", exact: true }).click();
-  await expect(dentist.getByText("Supporting document: cardiac-letter-2030-01-12.pdf")).toBeVisible();
+  await expect(dentist.getByText("Supporting document: ann-letter.png (2026-10-01)")).toBeVisible();
   await expect(dentist.getByText(/Supporting document not yet attached/)).toHaveCount(0);
 
   await dentist.getByRole("button", { name: `Resolve: ${label}` }).click();
@@ -323,10 +344,12 @@ test("CLEARANCES: requested -> received (without its document, said in words) ->
   const history = (await api(dentist, "get", `/api/safety/clearances/${ids.clearanceId}/history`)).body;
   expect(history.versions.map((v: any) => v.changeType)).toEqual(["Requested", "Received", "DocumentAttached", "Resolved"]);
   expect(history.versions[1].documentReference).toBeNull();                                                          // before the document arrived it said so
+  expect(history.versions[2].documentId).toBe(annLetter);                                                            // the typed link, kept in the history
   // a second clearance stays open for the board, and a closed one can be cancelled only with a reason
   const second = await api(dentist, "post", `/api/patients/${ids.ann}/safety/clearances`, { kind: "Dental", reason: "Specialist opinion on the implant site", requestedFrom: "Dr. Patel" });
   expect(second.status).toBe(200);
-  evidence.clearances = { workflow: history.versions.map((v: any) => v.changeType), waitingCannotBeResolved: "clearance_not_received", documentPendingShown: true, resolvedBy: ctx.clearances[0].closedByName };
+  evidence.clearances = { workflow: history.versions.map((v: any) => v.changeType), waitingCannotBeResolved: "clearance_not_received", documentPendingShown: true, resolvedBy: ctx.clearances[0].closedByName,
+    typedDocument: { freeTextRefused: typed.status, otherPatientRefused: foreign.status, attached: history.versions[2].documentId === annLetter } };
   await scanBothThemes(dentist, "safety-clearances");
 });
 

@@ -20,14 +20,14 @@ public class ClearanceServiceTests : SafetyTestBase
     private async Task<ClearanceView> RequestedAsync(string kind = "Medical", string reason = "Cardiac clearance before extraction") => ClearanceOf(await RequestAsync(kind, reason), kind);
 
     /// <summary>ALV-N022 A3 (D-1 B): a document of the patient, as the document library stores it (database row only; no file is needed for these rules).</summary>
-    private async Task<Guid> DocAsync(string name = "cardiac-clearance-2030-01-10.pdf", Guid? patient = null, string status = DocumentStatuses.Active)
+    private async Task<Guid> DocAsync(string name = "cardiac-clearance-2030-01-10.pdf", Guid? patient = null, string status = DocumentStatuses.Active, string? description = null)
     {
         var id = Guid.NewGuid();
         await WithDb(async db =>
         {
             db.Add(new PatientDocument
             {
-                Id = id, PatientId = patient ?? Ann, CategoryId = DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2030, 1, 10), Description = null, OriginalFileName = name,
+                Id = id, PatientId = patient ?? Ann, CategoryId = DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2030, 1, 10), Description = description, OriginalFileName = name,
                 DetectedType = "pdf", ContentType = "application/pdf", SizeBytes = 10, Sha256 = new string('a', 64), BlobId = Guid.NewGuid(), ImportedByUserId = S.Actor,
                 ImportedAtUtc = DateTimeOffset.UtcNow, IdempotencyKey = $"doc-{Guid.NewGuid():N}", RequestHash = new string('b', 64), Status = status,
                 InactiveReason = status == DocumentStatuses.Active ? null : "Superseded", InactivatedByUserId = status == DocumentStatuses.Active ? null : S.Actor,
@@ -48,7 +48,7 @@ public class ClearanceServiceTests : SafetyTestBase
         Assert.Equal((ClearanceStatuses.Requested, "Dr. Okafor", "Dr. Singh, cardiology", false), (asked.Status, asked.RequestedByName, asked.RequestedFrom, asked.DocumentPending));
         Assert.Equal(1, c.Summary.OpenClearanceCount);
 
-        var letter = await DocAsync();
+        var letter = await DocAsync(description: "Cardiac clearance letter");   // the name shown is the library's (file name and date), never the optional description
         c = await ClearancesAsync(s => s.ReceiveAsync(asked.Id, "Letter faxed back", letter, null, asked.RowVersion, Other, default));
         var got = ClearanceOf(c);
         Assert.Equal((ClearanceStatuses.Received, "Hana Hygienist", "Letter faxed back", (Guid?)letter, false), (got.Status, got.ReceivedByName, got.ReceivedNote, got.DocumentId, got.DocumentPending));

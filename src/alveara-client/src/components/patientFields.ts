@@ -2,6 +2,14 @@ import type { PatientRequirements, RegisterPatientInput } from "../services/pati
 
 export type PatientValues = RegisterPatientInput;
 
+const KNOWN_SEX: Record<string, string> = { m: "Male", male: "Male", f: "Female", female: "Female", other: "Other", unknown: "Unknown" };
+
+/** ALV-N022 A3 (F-067): imported rows hold "male" where registered ones hold "Male". The known values are SHOWN in one form; anything else is shown as stored. Nothing is rewritten. */
+export function displaySex(sex: string | null | undefined): string {
+  const s = (sex ?? "").trim();
+  return KNOWN_SEX[s.toLowerCase()] ?? s;
+}
+
 export const EMPTY_PATIENT: PatientValues = {
   firstName: "", middleName: "", lastName: "", dateOfBirth: "", sex: "",
   phone: "", email: "", addressLine1: "", addressLine2: "", city: "", state: "", postalCode: "",

@@ -9,7 +9,6 @@ import type { ConcurrencyConflictProblem } from "../../../services/authApi";
 import { clinicalFieldErrorsOf, isNetworkFailure } from "../../../services/clinicalApi";
 import { NOTE_LABELS, createTemplate, listTemplates, setTemplateActive, updateTemplate } from "../../../services/clinicalNotesApi";
 import type { NoteTemplate, TemplateInput } from "../../../services/clinicalNotesApi";
-import type { PatientDetail } from "../../../services/patientsApi";
 import { TemplateForm } from "./TemplateForm";
 import "../Clinical.css";
 
@@ -24,7 +23,7 @@ const sectionsOf = (t: NoteTemplate) => t.sections.map((s) => `${NOTE_LABELS[s.s
  * is taken out of use, never deleted, and changing one never changes an encounter that already used it. A stale edit shows the shared conflict banner and a reload that
  * refreshes in place, so the form stays mounted.
  */
-export function TemplatesPage({ patient }: { patient: PatientDetail }) {
+export function TemplatesPage({ backTo }: { backTo: string | null }) {
   const { hasPermission } = useAuth();
   const canConfigure = hasPermission("ManageClinicalTemplates");
   const [templates, setTemplates] = useState<NoteTemplate[] | null>(null);
@@ -70,7 +69,7 @@ export function TemplatesPage({ patient }: { patient: PatientDetail }) {
 
   return (
     <section className="alv-clinical" aria-labelledby="alv-templates-title">
-      <SafeLink to={`/patients/${patient.id}/clinical`} className="alv-workspace__link alv-clinical__back">Back to clinical documentation</SafeLink>
+      {backTo && <SafeLink to={backTo} className="alv-workspace__link alv-clinical__back">Back to clinical documentation</SafeLink>}
       <h2 id="alv-templates-title" className="alv-workspace__section-title">Note templates</h2>
       <p className="alv-clinical__meta">A template names the sections of a note, which of them must be written before the note can be signed, and optional starter text.</p>
       <p className="alv-clinical__status" role="status" aria-live="polite">

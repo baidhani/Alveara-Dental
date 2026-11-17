@@ -23,8 +23,9 @@ import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
-import { PatientClinicalTab, PatientClinicalTemplatesTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientFollowUpsTab, PatientExternalCasesTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
+import { PatientClinicalTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientFollowUpsTab, PatientExternalCasesTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
+import { LegacyPatientTemplatesRedirect, PracticeTemplatesPage } from "./pages/clinical/notes/PracticeTemplatesPage";
 import { SchedulePage } from "./pages/scheduling/SchedulePage";
 import { CalendarPage } from "./pages/calendar/CalendarPage";
 import { FlowBoardPage } from "./pages/flow/FlowBoardPage";
@@ -258,12 +259,13 @@ function createAppRouter() {
             <Route path="external-cases" element={<RequirePermission permission="ViewExternalCases"><PatientExternalCasesTab /></RequirePermission>} />
             <Route path="treatment-plan" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientTreatmentPlanTab /></RequirePermission>} />
             <Route path="billing" element={<RequirePermission permission="ViewBilling"><PatientBillingTab /></RequirePermission>} />
-            <Route path="clinical/templates" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientClinicalTemplatesTab /></RequirePermission>} />
+            <Route path="clinical/templates" element={<LegacyPatientTemplatesRedirect />} />{/* ALV-N022 A3 (Q-5j): the old patient URL redirects to the practice page */}
             <Route path="clinical/:encounterId" element={<RequirePermission permission="ViewClinicalDocumentation"><PatientEncounterTab /></RequirePermission>} />
           </Route>
           <Route path="/follow-ups" element={<RequirePermission permission="ViewFollowUps"><MyFollowUpsPage /></RequirePermission>} />
           <Route path="/work-queue" element={<RequirePermission permission="ViewFollowUps"><WorkQueuePage /></RequirePermission>} />
           <Route path="/admin/recall" element={<RequirePermission permission="ManageRecallSettings"><RecallSettingsPage /></RequirePermission>} />
+          <Route path="/clinical/templates" element={<RequirePermission permission="ViewClinicalDocumentation"><PracticeTemplatesPage /></RequirePermission>} />
           <Route path="/external-cases" element={<RequirePermission permission="ViewExternalCases"><ExternalCasesPage /></RequirePermission>} />
           <Route path="/external-cases/:route/:id" element={<RequirePermission permission="ViewExternalCases"><ExternalCaseDetailPage /></RequirePermission>} />
           <Route path="/admin/patient-merge" element={<RequirePermission permission="MergePatients"><PatientMergePage /></RequirePermission>} />

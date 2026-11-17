@@ -290,7 +290,7 @@ test("A WHOLE MOUTH WITHOUT THE MOUSE: all 192 sites typed from the keyboard, th
   evidence.wholeMouth = { sites: 192, typedWithoutMouse: true };
 });
 
-test("COMPARISON AND LINKS: a chart is compared with the one before it in words, the draft is compared live, and a link to a diagnosis is added by reference", async () => {
+test("COMPARISON AND LINKS: a chart is compared with the one before it in words, the draft is compared live, and a link to a diagnosis is chosen from the patient's diagnoses", async () => {
   const page = sessions.Dentist.page;
   const make = async (readings: unknown[], teeth?: unknown[]) => {
     const s = (await api(page, "post", `${P("ed")}/sessions`)).body;
@@ -316,12 +316,22 @@ test("COMPARISON AND LINKS: a chart is compared with the one before it in words,
   const api12 = (await api(page, "get", `${P("ed")}/comparison?currentExamId=${second.id}`)).body;
   expect([api12.matchedSites, api12.improved, api12.worsened, api12.unchanged, api12.onlyCurrent, api12.onlyPrevious]).toEqual([3, 1, 1, 1, 1, 0]);
 
-  const form = newest.getByRole("form", { name: "Link this chart" });
+  // ALV-N022 A3 (D-1 B): a diagnosis link names one of THIS patient's diagnoses by id, chosen from a list; typed text is refused
+  const enc = await api(page, "post", `/api/patients/${ids.ed}/encounters`, {}, { "Idempotency-Key": `perio-link-enc-${stamp}` });
+  expect([200, 201]).toContain(enc.status);
+  const dx = await api(page, "post", `/api/patients/${ids.ed}/diagnoses`, { idempotencyKey: `perio-link-dx-${stamp}`, encounterId: enc.body.id, label: "Generalized periodontitis", toothKey: null, notes: null, treatmentPlanReference: null });
+  expect([200, 201]).toContain(dx.status);
+  const dxId = (dx.body.diagnosis ?? dx.body).id as string;
+  const typed = await api(page, "post", `/api/periodontal/charts/${second.id}/links`, { linkType: "Diagnosis", reference: "dx-perio-1" });
+  expect(typed.status).toBe(400);                                                               // free text is refused
+  await page.reload();
+  const form = history(page).getByRole("group").first().getByRole("form", { name: "Link this chart" });
   await form.getByLabel("Link to").selectOption("Diagnosis");
-  await form.getByLabel("Reference").fill("dx-perio-1");
+  await expect(form.getByLabel("Reference")).toHaveCount(0);
+  await form.getByLabel("Diagnosis", { exact: true }).selectOption(dxId);
   await form.getByRole("button", { name: "Add link" }).click();
-  await expect(newest.getByRole("list", { name: "Linked records" })).toContainText("Diagnosis: dx-perio-1");
-  const again = await api(page, "post", `/api/periodontal/charts/${second.id}/links`, { linkType: "Diagnosis", reference: "dx-perio-1" });
+  await expect(history(page).getByRole("group").first().getByRole("list", { name: "Linked records" })).toContainText("Diagnosis: Generalized periodontitis");
+  const again = await api(page, "post", `/api/periodontal/charts/${second.id}/links`, { linkType: "Diagnosis", diagnosisId: dxId });
   expect([again.status, again.body.links.length]).toEqual([200, 1]);                           // the same link again is quiet
 
   // a draft is compared live with the last finalized chart

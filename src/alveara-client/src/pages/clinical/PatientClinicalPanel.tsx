@@ -10,6 +10,7 @@ import type { EncounterSummary } from "../../services/clinicalApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { ClinicalRecordPanel } from "./record/ClinicalRecordPanel";
 import "./Clinical.css";
+import { templatesPath } from "./notes/templatesPath";
 import { showInstant } from "../../time/practiceTime";
 
 const when = (iso: string) => showInstant(iso);
@@ -71,7 +72,7 @@ export function PatientClinicalPanel({ patient }: { patient: PatientDetail }) {
       <h2 id="alv-clinical-list-title" className="alv-workspace__section-title">Clinical documentation</h2>
       <ClinicalRecordPanel patient={patient} />
       <h3 className="alv-clinical__section-title alv-clinical__encounters-title">Encounters</h3>
-      <p className="alv-clinical__meta"><SafeLink to={`/patients/${patient.id}/clinical/templates`} className="alv-workspace__link">Note templates</SafeLink></p>
+      <p className="alv-clinical__meta"><SafeLink to={templatesPath(patient.id)} className="alv-workspace__link">Note templates</SafeLink></p>
       {canWrite && (
         <div className="alv-clinical__start">
           <Button type="button" variant="primary" onClick={() => void start()} disabled={busy || !patient.isActive}>Start an encounter</Button>
@@ -88,7 +89,7 @@ export function PatientClinicalPanel({ patient }: { patient: PatientDetail }) {
               <SafeLink to={`/patients/${patient.id}/clinical/${e.id}`} className="alv-workspace__link alv-clinical__list-link">Encounter on {when(e.encounterAtUtc)}</SafeLink>
               <span className={`alv-clinical__badge alv-clinical__badge--${e.status.toLowerCase()}`}>{e.status === "Draft" ? "Draft - not finalized" : "Finalized"}</span>
               <span className="alv-clinical__meta">
-                {e.isComplete ? "All four sections addressed" : "Some sections not yet addressed"} · {e.entryCount} {e.entryCount === 1 ? "entry" : "entries"}
+                {e.isComplete ? "All four sections addressed" : "Some sections not yet addressed"} · {e.entryCount} history, allergy and medication {e.entryCount === 1 ? "entry" : "entries"}
                 {e.addendumCount > 0 ? ` · ${e.addendumCount} ${e.addendumCount === 1 ? "addendum" : "addenda"}` : ""}
               </span>
             </li>

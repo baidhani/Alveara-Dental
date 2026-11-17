@@ -329,7 +329,7 @@ describe("ALV-009-C02 a patient's referrals and lab cases", () => {
     await userEvent.type(screen.getByLabelText(/^What is being made/), "Crown, zirconia");
     await userEvent.type(screen.getByLabelText(/^Tooth/), "3x");
     await userEvent.click(screen.getByRole("button", { name: "Save the lab case" }));
-    expect(screen.getByText("Enter the tooth as its two-digit number, or leave it blank.")).toBeInTheDocument();
+    expect(screen.getByText("Choose a tooth from the chart (its two-digit number), or leave it blank.")).toBeInTheDocument();   // ALV-N022 A3 (F-137)
     await userEvent.clear(screen.getByLabelText(/^Tooth/));
     await userEvent.type(screen.getByLabelText(/^Tooth/), "36");
     await userEvent.type(screen.getByLabelText(/^Material/), "Zirconia");

@@ -11,7 +11,6 @@ import type { PatientDetail } from "../services/patientsApi";
 import { HouseholdGuarantorPanel } from "./HouseholdGuarantorPanel";
 import { PatientDetailsPanel } from "./PatientDetailsPanel";
 import { EncounterView } from "./clinical/EncounterView";
-import { TemplatesPage } from "./clinical/notes/TemplatesPage";
 import { SafetyPanel } from "./safety/SafetyPanel";
 import { OdontogramPanel } from "./odontogram/OdontogramPanel";
 import { PerioPanel } from "./perio/PerioPanel";
@@ -200,11 +199,6 @@ export function PatientBillingTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
   return <BillingPanel patient={patient} canWrite={hasPermission("ManageBilling")} canCollect={hasPermission("CollectPayments")} canViewClinical={hasPermission("ViewClinicalDocumentation")} />;
-}
-
-export function PatientClinicalTemplatesTab() {
-  const { patient } = useOutletContext<WorkspaceOutlet>();
-  return <TemplatesPage patient={patient} />;
 }
 
 export function PatientEncounterTab() {

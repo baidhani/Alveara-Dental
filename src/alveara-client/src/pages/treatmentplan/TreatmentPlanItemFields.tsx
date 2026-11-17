@@ -28,12 +28,13 @@ export function TreatmentPlanItemFields({ idBase, diagnoses, procedures, value, 
     return { id: `${idBase}-${name}`, message, invalid: message ? true : undefined, describedBy: message ? `${idBase}-${name}-problem` : undefined };
   };
   const diagnosis = field("diagnosisId"), procedure = field("procedureId"), tooth = field("toothKey"), surface = field("surface");
+  const toothOf = (diagnosisId: string) => diagnoses.find((d) => d.id === diagnosisId)?.toothKey ?? "";   // ALV-N022 A3 (Q-5ai)
   const problem = (f: ReturnType<typeof field>) => f.message && <span id={`${f.id}-problem`} className="alv-tp__error">{f.message}</span>;
 
   return (
     <>
       <label htmlFor={diagnosis.id}>Diagnosis this procedure is for
-        <select id={diagnosis.id} value={value.diagnosisId} onChange={(e) => onChange({ ...value, diagnosisId: e.target.value })} aria-invalid={diagnosis.invalid} aria-describedby={diagnosis.describedBy}>
+        <select id={diagnosis.id} value={value.diagnosisId} onChange={(e) => onChange({ ...value, diagnosisId: e.target.value, toothKey: value.toothKey || (need !== "none" ? toothOf(e.target.value) : "") })} aria-invalid={diagnosis.invalid} aria-describedby={diagnosis.describedBy}>
           <option value="">Choose a diagnosis</option>
           {diagnoses.map((d) => <option key={d.id} value={d.id}>{d.label}{d.toothKey ? ` (tooth ${displayTooth(d.toothKey, DEFAULT_NUMBERING)})` : ""}</option>)}
         </select>
@@ -41,7 +42,7 @@ export function TreatmentPlanItemFields({ idBase, diagnoses, procedures, value, 
       </label>
       <label htmlFor={procedure.id}>Procedure
         <select id={procedure.id} value={value.procedure?.procedureId ?? ""} aria-invalid={procedure.invalid} aria-describedby={procedure.describedBy}
-          onChange={(e) => onChange({ ...value, procedure: procedures.find((p) => p.procedureId === e.target.value) ?? null, toothKey: "", surface: "" })}>
+          onChange={(e) => { const next = procedures.find((p) => p.procedureId === e.target.value) ?? null; onChange({ ...value, procedure: next, toothKey: next && siteNeedOf(next.scope) !== "none" ? toothOf(value.diagnosisId) : "", surface: "" }); }}>
           <option value="">Choose a procedure</option>
           {procedures.map((p) => <option key={p.procedureId} value={p.procedureId}>{p.code} - {p.description} ({formatFee(p.fee)})</option>)}
         </select>

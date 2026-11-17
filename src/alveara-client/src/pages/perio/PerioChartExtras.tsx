@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ApiError } from "../../services/authApi";
 import { isNetworkFailure } from "../../services/clinicalApi";
 import { PERIO_LINK_LABELS, PERIO_LINK_TYPES, linkPerioChart, perioProblemsOf } from "../../services/perioApi";
@@ -48,6 +48,7 @@ export function PerioChartLinks({ chart, canWrite, onChanged }: LinksProps) {
   const [type, setType] = useState<string>(PERIO_LINK_TYPES[0]);
   const [reference, setReference] = useState("");
   const [diagnosisId, setDiagnosisId] = useState("");
+  const diagnosisFieldId = useId();   // an explicit label, so the select is named "Diagnosis" alone (a wrapping label adds the chosen option to its name)
   const [diagnoses, setDiagnoses] = useState<Diagnosis[] | null>(null);
   const [note, setNote] = useState<{ kind: "saved" | "failed"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -88,12 +89,13 @@ export function PerioChartLinks({ chart, canWrite, onChanged }: LinksProps) {
             <select value={type} onChange={(e) => setType(e.target.value)}>{PERIO_LINK_TYPES.map((t) => <option key={t} value={t}>{PERIO_LINK_LABELS[t]}</option>)}</select>
           </label>
           {isDiagnosis ? (
-            <label>Diagnosis
-              <select value={diagnosisId} onChange={(e) => setDiagnosisId(e.target.value)}>
+            <>
+              <label htmlFor={diagnosisFieldId}>Diagnosis</label>
+              <select id={diagnosisFieldId} value={diagnosisId} onChange={(e) => setDiagnosisId(e.target.value)}>
                 <option value="">{diagnoses === null ? "Loading this patient's diagnoses…" : diagnoses.length === 0 ? "This patient has no diagnosis to link" : "Choose a diagnosis"}</option>
                 {(diagnoses ?? []).map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
               </select>
-            </label>
+            </>
           ) : (
             <label>Reference
               <input type="text" maxLength={100} value={reference} onChange={(e) => setReference(e.target.value)} />

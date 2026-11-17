@@ -38,7 +38,7 @@ describe("the clinical history", () => {
     expect(rows[0]).toHaveTextContent("PERIO-1 Periodontal maintenance");
     expect(rows[0]).toHaveTextContent("Completed by Dr. Okafor");
     expect(rows[0]).toHaveTextContent("Gum health plan, revision 1");
-    expect(rows[1]).toHaveTextContent("tooth 16 · surface O");
+    expect(rows[1]).toHaveTextContent("tooth 3 · surface O");                       // ALV-N022 A3 (F-099): the plan rows' numbering, not the raw FDI key 16
     expect(rows[1]).toHaveTextContent("Completed by Dr. Li");
   });
 

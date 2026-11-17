@@ -65,7 +65,7 @@ describe("who sees the Clinical tab", () => {
     expect(items[0]).toHaveTextContent("Some sections not yet addressed");
     expect(items[1]).toHaveTextContent("Finalized");
     expect(items[1]).toHaveTextContent("All four sections addressed");
-    expect(items[1]).toHaveTextContent("4 entries");
+    expect(items[1]).toHaveTextContent("4 history, allergy and medication entries");   // ALV-N022 A3 (F-082): the count says what it counts
     expect(items[1]).toHaveTextContent("1 addendum");
   });
 

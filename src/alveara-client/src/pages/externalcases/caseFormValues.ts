@@ -1,4 +1,5 @@
 import { MATERIAL_MAX, NOTE_MAX, REASON_MAX, SHADE_MAX, TITLE_MAX } from "../../services/externalCasesApi";
+import { ALL_KEYS } from "../odontogram/toothNumbering";
 import type { CaseKind } from "../../services/externalCasesApi";
 
 /** The values of a case form as text, so a half-typed value is never lost. */
@@ -18,7 +19,7 @@ export function checkValues(kind: CaseKind, v: CaseFormValues, partyId: string):
   if (summary === "" || summary.length > max) e.summary = kind === "Lab" ? `Write what is being made (up to ${TITLE_MAX} characters).` : `Write the reason for the referral (up to ${REASON_MAX} characters).`;
   if (v.notes.trim().length > NOTE_MAX) e.notes = `Keep the notes to ${NOTE_MAX} characters.`;
   if (kind === "Lab") {
-    if (v.toothKey.trim() !== "" && !/^\d{2}$/.test(v.toothKey.trim())) e.toothKey = "Enter the tooth as its two-digit number, or leave it blank.";
+    if (v.toothKey.trim() !== "" && !ALL_KEYS.includes(v.toothKey.trim())) e.toothKey = "Choose a tooth from the chart (its two-digit number), or leave it blank.";   // ALV-N022 A3 (F-137)
     if (v.material.trim().length > MATERIAL_MAX) e.material = `Keep the material to ${MATERIAL_MAX} characters.`;
     if (v.shade.trim().length > SHADE_MAX) e.shade = `Keep the shade to ${SHADE_MAX} characters.`;
   }

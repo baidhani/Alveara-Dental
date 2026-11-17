@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { usePatientContext } from "../contexts/patientContextStore";
 import { displayName } from "../services/patientsApi";
 import { SafetyStrip } from "../pages/safety/SafetyStrip";
+import { displaySex } from "../components/patientFields";
 
 /**
  * ALV-003-C01: the shared patient identity header, rendered in the shell's patient-context region on every screen.
@@ -48,7 +49,7 @@ export function PatientHeader() {
             <span>
               DOB {state.patient.dateOfBirth} ({state.patient.age} y)
             </span>
-            {state.patient.sex && <span>{state.patient.sex}</span>}
+            {displaySex(state.patient.sex) && <span>{displaySex(state.patient.sex)}</span>}
             <span>{state.patient.phone}</span>
             {!state.patient.isActive && <span className="alv-status-badge alv-status-badge--disabled">Inactive</span>}
             {state.patient.guarantor && <span>Guarantor: {state.patient.guarantor.displayName}</span>}
