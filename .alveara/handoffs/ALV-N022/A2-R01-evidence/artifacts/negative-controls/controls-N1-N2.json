@@ -1,0 +1,16 @@
+[
+  {
+    "control": "N1 the diagnosis Finalized check removed",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 92
+  },
+  {
+    "control": "N2 completion made to refuse a Finalized encounter",
+    "caught": true,
+    "exit": 1,
+    "restored": true,
+    "secs": 84
+  }
+]

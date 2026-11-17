@@ -1,0 +1,24 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ✓ src/pages/diagnosis/DiagnosisFormEncounters.test.tsx > DiagnosisForm encounter choice > offers only the draft encounter when the patient has a draft and a finalized one, and says why 40ms
+ ✓ src/pages/diagnosis/DiagnosisFormEncounters.test.tsx > DiagnosisForm encounter choice > offers nothing to choose when every encounter is finalized 8ms
+ ✓ src/pages/diagnosis/DiagnosisFormEncounters.test.tsx > DiagnosisForm encounter choice > shows no message when no encounter is finalized 9ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > where adopting is offered > is offered to a writer when a procedure is completed, and not otherwise 154ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > where adopting is offered > is not offered to a reader 24ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > lists only the legacy completions and says what adopting will do, from the server's readiness 90ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > still offers both a draft and a finalized encounter, each with its status 67ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > describes each effect in words and refuses an ambiguous chart match 1ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > says there is nothing to adopt when the server finds no legacy completion 70ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > names what is missing beside its field and sends nothing 173ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > sends the plan's version, the choices and the reason, then reports the adoption and closes 822ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > reuses the save key when the same request is sent again after a dropped connection 854ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > shows the server's field errors beside the fields and its refusals as nothing recorded 727ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > says nothing was recorded for a refusal, and for a stale plan 852ms
+ ✓ src/pages/treatmentplan/TreatmentPlanAdoptCompletion.test.tsx > the adoption form > has no accessibility violations with the form open 229ms
+
+ Test Files  2 passed (2)
+      Tests  15 passed (15)
+   Start at  09:58:50
+   Duration  5.70s (tests 60%, environment 25%, setup 6%, transform 6%, import 2%)
+

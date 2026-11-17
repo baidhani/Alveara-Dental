@@ -1,0 +1,27 @@
+﻿Database AlveraWalk_playwright_finalized_encounter_config_c9d2fd9f created in C:\.alvera-data\Test-Data\Database
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.15
+Done.
+API healthy on http://localhost:5072; running playwright.finalized-encounter.config.ts ...
+powershell : [WebServer] (node:76496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+At line:6 char:1
++ powershell -NoProfile -ExecutionPolicy Bypass -Command $cmd *> "$out\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([WebServer] (no... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:121036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 [chromium] › e2e\finalized-encounter-real-backend.spec.ts:111:1 › A finalized encounter receives no new diagnosis, but a completed procedure may still be attributed to it without changing it (2.4s)
+
+  1 passed (13.0s)
+Database AlveraWalk_playwright_finalized_encounter_config_c9d2fd9f dropped (its files went with it).
+Output kept in C:\Users\firas\AppData\Local\Temp\claude\a2walk\finalized-encounter

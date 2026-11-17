@@ -41,6 +41,8 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Full backend suite: also the ALV-N022 A1 classes `EncounterChartRoutingTests`, `EncounterChartApiTests` and the rewritten `EncounterServiceTests`, `EncountersApiTests`, `ClinicalRecordServiceTests`, plus every class that reads an encounter or the clinical record | ALV-N022 | focused only: 9 classes 232 of 232 (A1-R01) |
 | Client vitest/build/lint/`tsc -b` and the mocked Playwright suite over the changed encounter screen, `ChartSectionPanel`, `clinicalApi`, `clinicalRecordApi`, `safetyApi` | ALV-N022 | focused only: 2 vitest files 12 of 12, `tsc -b` clean; mocked Playwright not run |
 | Real-backend walkthroughs that open an encounter or read the clinical record or the banner (clinical, clinical-companion, safety, encounter-chart run; completion, completion-adoption, diagnoses, prescriptions, patient workspace and others not run) | ALV-N022 | 4 of the walkthroughs run on `6414ffa`: 1, 9, 11, 9 passed |
+| Full backend suite: also the ALV-N022 A2 changes (`DiagnosisServiceTests` refusal/replay cases, adoption Draft/Finalized theory, amendment Draft case) and every class that records a diagnosis | ALV-N022 | focused only: 5 classes 125 of 125 (A2-R01) |
+| Real-backend walkthroughs that record a diagnosis (diagnoses, completion, completion-adoption, the chain): a diagnosis on a finalized encounter is now refused | ALV-N022 | only `finalized-encounter` run (1 of 1); the others not run |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -107,4 +109,12 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Implementation SHA (A1-R02):** `38f478e` (review A1-R01 CR-1 only: FinalizeReview chart-backed count). Focused proof: `.alveara/handoffs/ALV-N022/A1-R02-evidence/TEST_RESULTS.md`.
 - **Approved (A1-R02, `.alveara/reviews/ALV-N022/A1-R02.md`):** attempt A1 COMPLETE; ALV-N022 IN_PROGRESS (A2, A3 pending); the ALV-N022 rows above stay owed to ALV-N028.
 - **Deferred to ALV-N028:** the ALV-N022 rows in the table above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
+## ALV-N022 (item 59): attempt A2 (finalized encounters: no new diagnosis; completion attribution unchanged)
+
+- **Implementation SHA (A2-R01, Stage 1):** `6348276` (base `05460a1`). Changed subsystems: diagnosis create, the diagnosis form's encounter choice, a new real-backend spec.
+- **Focused proof (A2-R01):** `.alveara/handoffs/ALV-N022/A2-R01-evidence/TEST_RESULTS.md`.
+- **Stage 2:** contract to be defined by the reviewer after Stage 1 approval.
+- **Deferred to ALV-N028:** the ALV-N022 A2 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**

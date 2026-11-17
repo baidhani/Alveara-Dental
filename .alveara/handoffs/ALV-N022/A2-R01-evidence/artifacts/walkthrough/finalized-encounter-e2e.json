@@ -1,0 +1,9 @@
+{
+  "result": {
+    "diagnosisPickerOffered": "draft only",
+    "diagnosisOnFinalized": "409 encounter_finalized",
+    "completionPickerOffered": "draft and finalized",
+    "completionAttributedToFinalized": true,
+    "finalizedEncounterUnchanged": true
+  }
+}
