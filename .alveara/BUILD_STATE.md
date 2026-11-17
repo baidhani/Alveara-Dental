@@ -634,3 +634,5 @@ R02 corrections (responding to R01's independent review, `.alveara/reviews/ALV-N
 **2026-11-17 ALV-N022 A2-R02 Stage 1 review:** `APPROVED` (`.alveara/reviews/ALV-N022/A2-R02.md`); A2 `AWAITING_REGRESSION`. Frozen Stage 2: one targeted `dotnet test` (guard, migration, diagnosis service and API, migration inventory) at `66c92b9`. A2 not complete; A3 not authorized.
 
 **2026-11-17 ALV-N022 A2-R02 Stage 2:** the frozen contract ran once at `66c92b9` in a clean detached worktree: exit 0, 77/77, 117 s; `.alveara/handoffs/ALV-N022/A2-R02-regression.md`. A2 `AWAITING_REVIEW` (closure).
+
+**2026-11-17 ALV-N022 A2 COMPLETE:** review `.alveara/reviews/ALV-N022/A2-R02-STAGE2.md` APPROVED (Stage 1 `.alveara/reviews/ALV-N022/A2-R02.md`): implementation `66c92b9`, Stage 1 evidence `e2b7435`, Stage 2 regression evidence `e13c600`. ALV-N022 stays `IN_PROGRESS`; A3 needs its own Step 0/briefing review. `fullRegression: DEFERRED_TO_ALV-N028`; not release-certified, not Gate F.

@@ -117,6 +117,7 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Focused proof (A2-R01):** `.alveara/handoffs/ALV-N022/A2-R01-evidence/TEST_RESULTS.md`.
 - **Implementation SHA (A2-R02, Stage 1):** `66c92b9` (review A2-R01 CR-1: database guard, migration `20261117160917_AddDiagnosisFinalizedEncounterGuard`). Focused proof: `.alveara/handoffs/ALV-N022/A2-R02-evidence/TEST_RESULTS.md`. Owes to ALV-N028: `MigrationTests` from an empty database and the installer upgrade path with the new migration.
 - **Stage 2 (A2-R02, frozen by review A2-R02):** the five targeted classes at `66c92b9`, 77/77, exit 0, clean tree before and after (`.alveara/handoffs/ALV-N022/A2-R02-regression.md`). Broad obligations unchanged.
+- **Approved (`.alveara/reviews/ALV-N022/A2-R02-STAGE2.md`):** attempt A2 COMPLETE; ALV-N022 IN_PROGRESS (A3 pending); the ALV-N022 rows above stay owed to ALV-N028.
 - **Stage 2:** contract to be defined by the reviewer after Stage 1 approval.
 - **Deferred to ALV-N028:** the ALV-N022 A2 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**
