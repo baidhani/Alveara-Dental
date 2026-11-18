@@ -3248,3 +3248,9 @@
   - What changed: brief S14/C13 (booking with plan items in one transaction, bookable-treatment read without clinical text, link/unlink by ManageAppointments or ManageTreatmentPlans), permissions, inventory, acceptance row; decision record OQ-1 verbatim.
   - Verification: user confirmed (owner's answer).
   - Notes: Not pushed.
+- [x] ALV-N023: briefing revision 2 answering BRIEFING-R01 (CR-1..CR-4; documents only)
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: brief section 0 (answers), CR-1 Stage 2 removed (focused proof, DEFERRED_TO_ALV-N028, no package Stage 2, <=5 min groups, no neighbour sweeps), CR-2 versioned follow-up key unscheduled:v2:{item}:s{s}:l{l}:{e} from immutable rows with legacy equivalence and the five paths + seeded upgrade tests, CR-3 no Withdraw on Completed/Closed, CR-4 derived-state matrix (state, actions, follow-up eligibility); tests and inventory updated.
+  - Verification: documents only; cancel/no-show terminality and their append-only appointment events checked in code.
+  - Notes: appendix and owner decision record unchanged. Not pushed.
