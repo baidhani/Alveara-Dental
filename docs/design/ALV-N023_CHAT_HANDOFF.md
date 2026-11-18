@@ -101,3 +101,11 @@ Then commit the test fixes as a NEW commit (do NOT amend a0c45e0; never rewrite 
 - Heredocs in Bash break on apostrophes: write Python scripts to the scratchpad and run `python -I <file>`; edits keep CRLF/BOM.
 - New out-of-scope findings go to `docs/stabilization/UNASSIGNED_FINDINGS.md` (U-001..U-009 so far), never fixed inside the open story ([[unassigned-findings-list]]).
 - Replies: short, plain words, tables for results.
+
+## 8. The programme around this story (what comes after ALV-N023)
+Full, current picture: memory `project_status_roadmap.md` (refreshed 2026-11-18). In short:
+- **Where we are:** post-Gate-E stabilization programme, items 56-65 (plan R05, `docs/design/MANUAL_E2E_STABILIZATION_PLAN_R05.md`). COMPLETE: N019, N020, N020-C01, N020-C02, N021, N022. ALV-N023 (item 60) is this story.
+- **Order after N023 closes** (each only on the owner's Go): ALV-N024 (61) financial issuance/reconciliation -> N025 (62) access/audit/identity/import/merge -> N026 (63) documents/prescriptions/printing/backup -> N027 (64) messaging/follow-ups/reports/navigation/config/onboarding -> N029 (65a, DEFERRED; owner decides) -> **N028 (65)**, the one full chain + full regression over every ledger obligation -> the owner's release sequence (added features, final manual E2E, explicit clear-to-go). Release engineering (N008, N013, N014) stays paused until the owner says so.
+- **How each next story starts:** NOT with code. Read-only survey of its R05 package findings -> pre-implementation briefing (+ source appendix, finding survey, owner decision record) -> reviewer approves the briefing (`.alveara/reviews/<ID>/BRIEFING-Rnn.md`) -> owner Go -> slices. Copy the ALV-N023 documents in `docs/design/ALV-N023_*` for shape, and map every briefing item to a slice before planning.
+- **Open decisions:** reviewer - the N030-N032 plan-change proposal (`docs/design/ALV-N021_PLAN_CHANGE_PROPOSAL.md`, PROPOSED; never add them to the plan yourself); owner - whether N029 runs, the post-N028 feature list, which unassigned findings (U-nnn) go into which story.
+- **Loose ends:** leftover test data and chain-output folders (remove only with the owner's agreement); dev DB `AlveraDev` lacks N023's migration (no writes without permission).
