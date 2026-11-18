@@ -14,10 +14,11 @@ public partial class TreatmentPlanService
     /// An explicit revision: the rationale, the patient explanation, the phases and where each procedure sits. Null parts are kept as they are. It needs a reason and the plan's current version, and a
     /// withdrawn plan cannot be revised. Sending what the plan already says saves nothing and returns the plan.
     /// </summary>
-    public async Task<PlanView> ReviseAsync(Guid planId, ReviseInput input, string? rowVersion, Guid actor, CancellationToken ct)
+    public async Task<PlanView> ReviseAsync(Guid planId, ReviseInput input, string? rowVersion, Guid actor, CancellationToken ct, bool reviseAnyway = false)
     {
         var plan = await db.TreatmentPlans.SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct, reviseAnyway);                                                         // PD-14: a finished plan is corrected only by a deliberate "Revise anyway"
 
         var errors = new Dictionary<string, string>();
         var reason = string.IsNullOrWhiteSpace(input.Reason) ? null : input.Reason.Trim();
@@ -43,7 +44,7 @@ public partial class TreatmentPlanService
         var eventNumber = await NextEventAsync(planId, ct);
         Touch(plan, actor, now);
         StageEvent(plan, eventNumber, TreatmentPlanChanges.Revised, null, null, reason, actor, now, number);
-        AuditService.Record(db, "TreatmentPlanRevised", nameof(TreatmentPlan), planId, actor, $"Treatment plan revised (revision {number}).", reason);
+        AuditService.Record(db, "TreatmentPlanRevised", nameof(TreatmentPlan), planId, actor, $"Treatment plan {PlanRef(plan)} revised (revision {number}){(reviseAnyway ? " after it was finished (Revise anyway)" : "")}.", reason);
         await StageRevisionAsync(plan, number, TreatmentPlanChanges.Revised, eventNumber, reason, actor, now, next, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);

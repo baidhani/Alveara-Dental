@@ -57,7 +57,7 @@ public class CompletedProcedureAdoptionHardeningTests : CompletionTestBase
         var plan = await LegacyAsync(2, 0);
         var before = await SnapshotAsync(plan.Id);
         // the adoption asks the clock for the time once while it cleans the request and again just before it opens its transaction: the plan is renamed at the second moment, after the version was checked
-        var clock = new HookedClock(SchedulingTestSupport.Clock, onCall: 2, () => Svc(s => s.RenameAsync(plan.Id, "Renamed in the gap", plan.RowVersion, S.Actor, default)).GetAwaiter().GetResult());
+        var clock = new HookedClock(SchedulingTestSupport.Clock, onCall: 2, () => Svc(s => s.RenameAsync(plan.Id, "Renamed in the gap", "Clearer title for the patient", plan.RowVersion, S.Actor, default)).GetAwaiter().GetResult());
 
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Adopt(plan, 0, "gap-1", clock: clock));
 

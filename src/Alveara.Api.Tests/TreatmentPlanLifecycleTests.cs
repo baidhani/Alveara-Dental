@@ -39,7 +39,7 @@ public class TreatmentPlanLifecycleTests : TreatmentPlanTestBase
         var missing = await Refused(() => Svc(s => s.AddItemAsync(plan.Id, Item(diagnosis, other.Summary.Id, key: "k1"), null, S.Actor, default)));
         Assert.Equal(("row_version_required", 400), (missing.Code, missing.StatusCode));
 
-        await Svc(s => s.RenameAsync(plan.Id, "A different title", plan.RowVersion, S.Actor, default));                  // someone else saves first
+        await Svc(s => s.RenameAsync(plan.Id, "A different title", "Clearer title for the patient", plan.RowVersion, S.Actor, default));                  // someone else saves first
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => AddAsync(plan, diagnosis, other.Summary.Id));      // plan.RowVersion is now stale
         Assert.Single((await Svc(s => s.GetAsync(plan.Id, default))).Items);
     }
@@ -126,7 +126,7 @@ public class TreatmentPlanLifecycleTests : TreatmentPlanTestBase
     public async Task Withdrawing_from_a_stale_copy_is_a_conflict_and_changes_nothing()
     {
         var (plan, _, _) = await SimplePlanAsync();
-        await Svc(s => s.RenameAsync(plan.Id, "Renamed first", plan.RowVersion, S.Actor, default));
+        await Svc(s => s.RenameAsync(plan.Id, "Renamed first", "Clearer title for the patient", plan.RowVersion, S.Actor, default));
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[0].Id, "Wrong tooth", plan.RowVersion, S.Actor, default)));
         Assert.False((await Svc(s => s.GetAsync(plan.Id, default))).Items[0].IsWithdrawn);
     }
@@ -137,13 +137,13 @@ public class TreatmentPlanLifecycleTests : TreatmentPlanTestBase
     public async Task A_plan_is_renamed_and_saving_the_same_title_changes_nothing()
     {
         var (plan, _, _) = await SimplePlanAsync();
-        var renamed = await Svc(s => s.RenameAsync(plan.Id, "  Full mouth plan  ", plan.RowVersion, S.Actor, default));
+        var renamed = await Svc(s => s.RenameAsync(plan.Id, "  Full mouth plan  ", "Clearer title for the patient", plan.RowVersion, S.Actor, default));
         Assert.Equal("Full mouth plan", renamed.Title);
         var before = await CountsAsync();
-        var same = await Svc(s => s.RenameAsync(plan.Id, "Full mouth plan", renamed.RowVersion, S.Actor, default));
+        var same = await Svc(s => s.RenameAsync(plan.Id, "Full mouth plan", "Clearer title for the patient", renamed.RowVersion, S.Actor, default));
         Assert.Equal((renamed.RowVersion, before), (same.RowVersion, await CountsAsync()));
-        Assert.Contains("title is required", (await Refused(() => Svc(s => s.RenameAsync(plan.Id, "  ", renamed.RowVersion, S.Actor, default)))).FieldErrors["title"]);
-        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Svc(s => s.RenameAsync(plan.Id, "Another", plan.RowVersion, S.Actor, default)));
+        Assert.Contains("title is required", (await Refused(() => Svc(s => s.RenameAsync(plan.Id, "  ", "Clearer title for the patient", renamed.RowVersion, S.Actor, default)))).FieldErrors["title"]);
+        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Svc(s => s.RenameAsync(plan.Id, "Another", "Clearer title for the patient", plan.RowVersion, S.Actor, default)));
     }
 
     [Fact]
@@ -159,7 +159,7 @@ public class TreatmentPlanLifecycleTests : TreatmentPlanTestBase
         var before = await CountsAsync();
         var again = await Svc(s => s.WithdrawAsync(plan.Id, "Other words", plan.RowVersion, S.Actor, default));         // quiet, even from a stale copy
         Assert.Equal(("Treatment not going ahead", before), (again.WithdrawnReason, await CountsAsync()));
-        Assert.Equal("plan_withdrawn", (await Refused(() => Svc(s => s.RenameAsync(plan.Id, "New name", withdrawn.RowVersion, S.Actor, default)))).Code);
+        Assert.Equal("plan_withdrawn", (await Refused(() => Svc(s => s.RenameAsync(plan.Id, "New name", "Clearer title for the patient", withdrawn.RowVersion, S.Actor, default)))).Code);
         Assert.Equal("plan_withdrawn", (await Refused(() => Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[0].Id, "x", withdrawn.RowVersion, S.Actor, default)))).Code);
 
         Assert.Empty(await Svc(s => s.ListAsync(Ann, false, default)));
@@ -174,7 +174,7 @@ public class TreatmentPlanLifecycleTests : TreatmentPlanTestBase
         var (plan, diagnosis, procedure) = await SimplePlanAsync(50m);
         var other = await ProcedureAsync("PERIO-2", fee: 70m);
         var two = await AddAsync(plan, diagnosis, other.Summary.Id);
-        var renamed = await Svc(s => s.RenameAsync(plan.Id, "Revised plan", two.RowVersion, S.Actor, default));
+        var renamed = await Svc(s => s.RenameAsync(plan.Id, "Revised plan", "Clearer title for the patient", two.RowVersion, S.Actor, default));
         var item = await Svc(s => s.WithdrawItemAsync(plan.Id, two.Items[0].Id, "Wrong tooth", renamed.RowVersion, Other, default));
         await Svc(s => s.WithdrawAsync(plan.Id, "Treatment not going ahead", item.RowVersion, S.Actor, default));
 
@@ -232,7 +232,7 @@ END");
         var before = await CountsAsync();
         Assert.Equal("save_failed", (await Refused(() => AddAsync(plan, diagnosis, other.Summary.Id))).Code);
         Assert.Equal("save_failed", (await Refused(() => Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[0].Id, "Wrong tooth", plan.RowVersion, S.Actor, default)))).Code);
-        Assert.Equal("save_failed", (await Refused(() => Svc(s => s.RenameAsync(plan.Id, "Another title", plan.RowVersion, S.Actor, default)))).Code);
+        Assert.Equal("save_failed", (await Refused(() => Svc(s => s.RenameAsync(plan.Id, "Another title", "Clearer title for the patient", plan.RowVersion, S.Actor, default)))).Code);
         Assert.Equal("save_failed", (await Refused(() => Svc(s => s.WithdrawAsync(plan.Id, "Not going ahead", plan.RowVersion, S.Actor, default)))).Code);
 
         var after = await Svc(s => s.GetAsync(plan.Id, default));
@@ -278,7 +278,7 @@ END");
         Assert.Equal("patient_not_found", (await Refused(() => Svc(s => s.ListAsync(Guid.NewGuid(), false, default)))).Code);
         Assert.Equal("plan_not_found", (await Refused(() => Svc(s => s.GetAsync(Guid.NewGuid(), default)))).Code);
         Assert.Equal("plan_not_found", (await Refused(() => Svc(s => s.HistoryAsync(Guid.NewGuid(), default)))).Code);
-        Assert.Equal("plan_not_found", (await Refused(() => Svc(s => s.RenameAsync(Guid.NewGuid(), "x", "AAAA", S.Actor, default)))).Code);
+        Assert.Equal("plan_not_found", (await Refused(() => Svc(s => s.RenameAsync(Guid.NewGuid(), "x", "Clearer title for the patient", "AAAA", S.Actor, default)))).Code);
     }
 
 }

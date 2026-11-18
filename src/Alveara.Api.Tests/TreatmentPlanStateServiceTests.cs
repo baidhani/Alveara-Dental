@@ -137,7 +137,7 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
     {
         var plan = await ThreeProcedurePlanAsync();
         await Decide(plan, 0, "Accepted");
-        var renamed = await Svc(s => s.RenameAsync(plan.Id, "A different plan", plan.RowVersion, S.Actor, default));          // the content changed after `plan` was read
+        var renamed = await Svc(s => s.RenameAsync(plan.Id, "A different plan", "Clearer title for the patient", plan.RowVersion, S.Actor, default));          // the content changed after `plan` was read
         Assert.NotEqual(plan.RowVersion, renamed.RowVersion);
 
         await Decide(plan, 0, "Accepted");                                                                                    // the same answer again: nothing to do
@@ -174,24 +174,23 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
         Assert.Equal("PlanAccepted", history[^1].ChangeType);
         Assert.Equal(1, history.Count(h => h.ChangeType == "PlanAccepted"));
 
-        await DecidePlan(plan, "Accepted");                                                                                   // stale copy, same answer: quiet
+        Assert.Equal("nothing_unanswered", (await Refused(() => DecidePlan(plan, "Accepted"))).Code);                         // ALV-N023 (DR-4): nothing left unanswered is refused
         Assert.Equal((3, history.Count), (await StateRowsAsync(), (await Svc(s => s.HistoryAsync(plan.Id, default))).Count));
     }
 
     [Fact]
-    public async Task A_plan_decision_never_overwrites_an_opposite_one_and_fills_in_only_what_is_still_pending()
+    public async Task A_plan_decision_applies_only_to_unanswered_procedures_never_overwrites_an_answer_and_says_how_many_changed()
     {
+        // ALV-N023 (owner decision DR-4): the opposite answer is left alone (the old partial-acceptance refusal is gone)
         var plan = await ThreeProcedurePlanAsync();
         var mixed = await Decide(plan, 0, "Declined", reason: "Not now");
-        var e = await Refused(() => DecidePlan(mixed, "Accepted"));
-        Assert.Equal(("partial_acceptance_conflict", 409), (e.Code, e.StatusCode));
-        Assert.Equal(1, await StateRowsAsync());                                                                              // nothing was recorded
-        Assert.Equal("Partial", (await Svc(s => s.GetAsync(plan.Id, default))).AcceptanceStatus);
-
-        var declined = await DecidePlan(mixed, "Declined", reason: "Not this year");                                          // the same direction: only the two pending ones change
-        Assert.Equal(("Declined", 3), (declined.AcceptanceStatus, await StateRowsAsync()));
-        Assert.Equal<IEnumerable<string?>>(["Not now", "Not this year", "Not this year"], declined.Items.Select(i => i.DecisionReason));
-        Assert.Equal("Say why it was declined.", (await Refused(() => DecidePlan(plan, "Declined"))).FieldErrors["reason"]);
+        Assert.Equal("Say why it was declined.", (await Refused(() => DecidePlan(mixed, "Declined"))).FieldErrors["reason"]);
+        var accepted = await DecidePlan(mixed, "Accepted");
+        Assert.Equal((2, 3), (accepted.ChangedCount, await StateRowsAsync()));
+        Assert.Equal(["Declined", "Accepted", "Accepted"], accepted.Items.Select(i => i.Acceptance).ToArray());
+        Assert.Equal(("Not now", 0), (accepted.Items[0].DecisionReason, accepted.UnansweredCount));
+        Assert.Equal("nothing_unanswered", (await Refused(() => DecidePlan(accepted, "Declined", reason: "Not this year"))).Code);   // nothing unanswered: refused, nothing written
+        Assert.Equal(3, await StateRowsAsync());
     }
 
     [Fact]
@@ -207,7 +206,7 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
 
         var cleared = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[0].Id, "x", accepted.RowVersion, S.Actor, default));
         cleared = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[1].Id, "y", cleared.RowVersion, S.Actor, default));
-        Assert.Equal("no_procedures", (await Refused(() => DecidePlan(cleared, "Accepted"))).Code);
+        Assert.Equal("nothing_unanswered", (await Refused(() => DecidePlan(cleared, "Accepted"))).Code);                      // ALV-N023: an empty plan is Closed but correctable (addendum 01); nothing to answer
 
         var withdrawn = await Svc(s => s.WithdrawAsync(plan.Id, "Entered in error", cleared.RowVersion, S.Actor, default));
         Assert.Equal("plan_withdrawn", (await Refused(() => DecidePlan(withdrawn, "Declined", reason: "x"))).Code);
@@ -236,8 +235,8 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
             .Select((s, i) => i == 0 ? "Accepted" : s).ToArray());
 
         Assert.Equal("plannedDate", (await Refused(() => Schedule(plan, 0, true, new DateOnly(1990, 1, 1)))).FieldErrors.Keys.Single());
-        var types = (await Svc(s => s.HistoryAsync(plan.Id, default))).Select(h => h.ChangeType).Where(t => t.StartsWith("ItemSch") || t.StartsWith("ItemUns")).ToArray();
-        Assert.Equal(["ItemScheduled", "ItemScheduled", "ItemUnscheduled"], types);
+        var types = (await Svc(s => s.HistoryAsync(plan.Id, default))).Select(h => h.ChangeType).Where(t => t.StartsWith("TargetDate")).ToArray();
+        Assert.Equal(["TargetDateSet", "TargetDateSet", "TargetDateCleared"], types);                                         // ALV-N023 (PD-15): target dates, not bookings
     }
 
     [Fact]
@@ -259,8 +258,10 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
 
         Assert.Equal("item_completed", (await Refused(() => Decide(plan, 0, "Declined", reason: "x"))).Code);
         Assert.Equal("item_completed", (await Refused(() => Schedule(plan, 0, true))).Code);
-        Assert.Equal("partial_acceptance_conflict", (await Refused(() => DecidePlan(plan, "Declined", reason: "x"))).Code);                   // a completed procedure holds an Accepted answer, so declining the plan would overwrite it
         Assert.Equal("ItemCompleted", (await Svc(s => s.HistoryAsync(plan.Id, default)))[^1].ChangeType);
+        var rest = await DecidePlan(plan, "Declined", reason: "x");                                                           // ALV-N023 (DR-4): only the two unanswered; the completed one stays Accepted/Completed
+        Assert.Equal((2, "Accepted", "Completed"), (rest.ChangedCount, rest.Items[0].Acceptance, rest.Items[0].Completion));
+        Assert.Equal(PlanStates.Closed, rest.PlanState);                                                                      // completed + declined: Closed, not Completed
     }
 
     // ---------- failure: the log is unavailable ----------
@@ -274,10 +275,10 @@ public class TreatmentPlanStateServiceTests : TreatmentPlanTestBase
         await using (var db = Fixture.CreateContext())
             await db.Database.ExecuteSqlRawAsync(@"CREATE TRIGGER [TR_Test_RefuseStateAudit] ON [AuditLogEntries] INSTEAD OF INSERT AS
 BEGIN
-    IF EXISTS (SELECT 1 FROM inserted WHERE EventType IN ('TreatmentPlanItemAccepted', 'TreatmentPlanItemDeclined', 'TreatmentPlanAccepted', 'TreatmentPlanDeclined', 'TreatmentPlanItemScheduled', 'TreatmentPlanItemCompleted')) THROW 59020, 'audit unavailable', 1;
+    IF EXISTS (SELECT 1 FROM inserted WHERE EventType IN ('TreatmentPlanItemAccepted', 'TreatmentPlanItemDeclined', 'TreatmentPlanAccepted', 'TreatmentPlanDeclined', 'TreatmentPlanItemTargetDateSet', 'TreatmentPlanItemCompleted')) THROW 59020, 'audit unavailable', 1;
     INSERT INTO [AuditLogEntries] SELECT * FROM inserted;
 END");
-        var failures = new Func<Task>[] { () => Decide(plan, 1, "Accepted"), () => DecidePlan(plan, "Accepted"), () => Schedule(plan, 0, true), () => Complete(plan, 0) };
+        var failures = new Func<Task>[] { () => Decide(plan, 1, "Accepted"), () => DecidePlan(plan, "Accepted"), () => Schedule(plan, 0, true, new DateOnly(2030, 5, 20)), () => Complete(plan, 0) };
         foreach (var attempt in failures)
         {
             var e = await Refused(async () => { await attempt(); return 0; });

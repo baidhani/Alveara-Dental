@@ -72,7 +72,7 @@ public class DiagnosisReconciliationTests : TreatmentPlanTestBase
         Assert.Equal("referenceCode", (await Refused(() => Svc(s => s.SetReferenceCodeAsync(plan.Id, new string('x', 101), plan.RowVersion, S.Actor, default)))).FieldErrors.Keys.Single());
         Assert.Equal("referenceCode", (await Refused(() => Svc(s => s.SetReferenceCodeAsync(plan.Id, "bad\u0007", plan.RowVersion, S.Actor, default)))).FieldErrors.Keys.Single());
         Assert.Equal("row_version_required", (await Refused(() => Svc(s => s.SetReferenceCodeAsync(plan.Id, "CODE", "", S.Actor, default)))).Code);
-        var renamed = await Svc(s => s.RenameAsync(plan.Id, "Renamed", plan.RowVersion, S.Actor, default));
+        var renamed = await Svc(s => s.RenameAsync(plan.Id, "Renamed", "Clearer title for the patient", plan.RowVersion, S.Actor, default));
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Svc(s => s.SetReferenceCodeAsync(plan.Id, "CODE", plan.RowVersion, S.Actor, default)));
         var withdrawn = await Svc(s => s.WithdrawAsync(plan.Id, "Entered in error", renamed.RowVersion, S.Actor, default));
         Assert.Equal("CODE", (await Svc(s => s.SetReferenceCodeAsync(plan.Id, "CODE", withdrawn.RowVersion, S.Actor, default))).ReferenceCode);

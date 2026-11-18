@@ -118,7 +118,7 @@ public class TreatmentPlanApiTests : IAsyncLifetime
             (await CreatePlan(by, [Item(diagnosis, procedure)], "by-role")).Status,
             (await by.SendAsync(HttpMethod.Post, PlanUrl(plan, "/items"), new { idempotencyKey = "extra", diagnosisId = diagnosis, procedureId = procedure, rowVersion = Version(plan) })).Status,
             (await by.SendAsync(HttpMethod.Post, PlanUrl(plan, $"/items/{itemId}/withdraw"), new { reason = "why", rowVersion = Version(plan) })).Status,
-            (await by.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "Renamed", rowVersion = Version(plan) })).Status,
+            (await by.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "Renamed", rowVersion = Version(plan) })).Status,
             (await by.SendAsync(HttpMethod.Post, PlanUrl(plan, "/withdraw"), new { reason = "why", rowVersion = Version(plan) })).Status,
         };
         if (allowed) Assert.DoesNotContain(HttpStatusCode.Forbidden, statuses);
@@ -143,7 +143,7 @@ public class TreatmentPlanApiTests : IAsyncLifetime
             (await dentist.SendAsync(HttpMethod.Post, ListUrl(), new { idempotencyKey = "no-csrf", title = "x", items = new[] { Item(diagnosis, procedure) } }, csrf: false)).Status,
             (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/items"), new { idempotencyKey = "no-csrf", diagnosisId = diagnosis, procedureId = procedure, rowVersion = Version(plan) }, csrf: false)).Status,
             (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, $"/items/{itemId}/withdraw"), new { reason = "y", rowVersion = Version(plan) }, csrf: false)).Status,
-            (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "x", rowVersion = Version(plan) }, csrf: false)).Status,
+            (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "x", rowVersion = Version(plan) }, csrf: false)).Status,
             (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/withdraw"), new { reason = "y", rowVersion = Version(plan) }, csrf: false)).Status,
         };
         Assert.All(statuses, s => Assert.Equal(HttpStatusCode.BadRequest, s));
@@ -175,7 +175,7 @@ public class TreatmentPlanApiTests : IAsyncLifetime
         var added = await dentist.SendAsync(HttpMethod.Post, PlanUrl(created.Body, "/items"), new { idempotencyKey = "second", diagnosisId = diagnosis, procedureId = second, rowVersion = Version(created.Body) });
         Assert.Equal((HttpStatusCode.OK, 120.25m), (added.Status, added.Body.GetProperty("estimateTotal").GetDecimal()));
 
-        var renamed = await dentist.SendAsync(HttpMethod.Post, PlanUrl(added.Body, "/rename"), new { title = "Gum health plan", rowVersion = Version(added.Body) });
+        var renamed = await dentist.SendAsync(HttpMethod.Post, PlanUrl(added.Body, "/rename"), new { reason = "Clearer title", title = "Gum health plan", rowVersion = Version(added.Body) });
         Assert.Equal("Gum health plan", renamed.Body.GetProperty("title").GetString());
 
         var firstItemId = renamed.Body.GetProperty("items")[0].GetProperty("id").GetString()!;
@@ -250,9 +250,9 @@ public class TreatmentPlanApiTests : IAsyncLifetime
         var noReason = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/withdraw"), new { reason = " ", rowVersion = Version(plan) });
         Assert.Equal((HttpStatusCode.BadRequest, "reason_required"), (noReason.Status, Error(noReason.Body)));
         Assert.Contains("reason", noReason.Body.GetProperty("fieldErrors").EnumerateObject().Select(p => p.Name));
-        var noVersion = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "Renamed" });
+        var noVersion = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "Renamed" });
         Assert.Equal((HttpStatusCode.BadRequest, "row_version_required"), (noVersion.Status, Error(noVersion.Body)));
-        var badVersion = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "Renamed", rowVersion = "not-a-version" });
+        var badVersion = await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "Renamed", rowVersion = "not-a-version" });
         Assert.Equal((HttpStatusCode.BadRequest, "row_version_invalid"), (badVersion.Status, Error(badVersion.Body)));
         Assert.Equal("Proposed", (await dentist.SendAsync(HttpMethod.Get, PlanUrl(plan))).Body.GetProperty("status").GetString());
     }
@@ -265,8 +265,8 @@ public class TreatmentPlanApiTests : IAsyncLifetime
         var dentist = await _api.SessionAsync("Dentist");
         var admin = await _api.SessionAsync("Admin");
         var (plan, _, _) = await SimplePlanAsync(dentist, admin);
-        Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "First change", rowVersion = Version(plan) })).Status);
-        var stale = await admin.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "Second change", rowVersion = Version(plan) });        // the administrator still holds the first version
+        Assert.Equal(HttpStatusCode.OK, (await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "First change", rowVersion = Version(plan) })).Status);
+        var stale = await admin.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "Second change", rowVersion = Version(plan) });        // the administrator still holds the first version
         Assert.Equal((HttpStatusCode.Conflict, "concurrency_conflict"), (stale.Status, Error(stale.Body)));
         Assert.Equal("First change", (await dentist.SendAsync(HttpMethod.Get, PlanUrl(plan))).Body.GetProperty("title").GetString());
     }
@@ -290,7 +290,7 @@ public class TreatmentPlanApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.OK, w.Status);
         var attempts = new[]
         {
-            await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { title = "x", rowVersion = Version(w.Body) }),
+            await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/rename"), new { reason = "Clearer title", title = "x", rowVersion = Version(w.Body) }),
             await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, "/items"), new { idempotencyKey = "late", diagnosisId = diagnosis, procedureId = procedure, rowVersion = Version(w.Body) }),
             await dentist.SendAsync(HttpMethod.Post, PlanUrl(plan, $"/items/{itemId}/withdraw"), new { reason = "why", rowVersion = Version(w.Body) }),
         };

@@ -157,7 +157,7 @@ public class CompletedProcedureServiceTests : CompletionTestBase
     public async Task A_plan_changed_since_it_was_read_is_a_conflict_and_nothing_is_recorded()
     {
         var plan = await AcceptedPlanAsync(2);
-        await Svc(s => s.RenameAsync(plan.Id, "Renamed by someone else", plan.RowVersion, S.Actor, default));
+        await Svc(s => s.RenameAsync(plan.Id, "Renamed by someone else", "Clearer title for the patient", plan.RowVersion, S.Actor, default));
         var before = await SnapshotAsync(plan.Id);
 
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => CompleteAsync(plan, [0, 1]));
@@ -193,7 +193,7 @@ public class CompletedProcedureServiceTests : CompletionTestBase
         var provider = await Provider();
         // The completion asks the clock for the time once while it checks the request and a second time just before it opens its transaction: the plan is renamed at that second moment,
         // after the version was checked and before anything is saved. Only the version check inside the save itself can catch that.
-        var clock = new HookedClock(SchedulingTestSupport.Clock, onCall: 2, () => Svc(s => s.RenameAsync(plan.Id, "Renamed in the gap", plan.RowVersion, S.Actor, default)).GetAwaiter().GetResult());
+        var clock = new HookedClock(SchedulingTestSupport.Clock, onCall: 2, () => Svc(s => s.RenameAsync(plan.Id, "Renamed in the gap", "Clearer title for the patient", plan.RowVersion, S.Actor, default)).GetAwaiter().GetResult());
 
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Completion(s => s.CompleteAsync(plan.Id, RequestFor(plan, [0, 1], AnnEncounter, provider.Id, "gap-1"), S.Actor, default), clock));
 

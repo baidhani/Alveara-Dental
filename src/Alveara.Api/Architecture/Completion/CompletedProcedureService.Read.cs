@@ -60,7 +60,8 @@ public partial class CompletedProcedureService
                 a.EncounterId is { } e ? encounters.GetValueOrDefault(e) : null, ClinicalNames.Name(people, a.AmendedByUserId) ?? ClinicalNames.Fallback, a.AmendedAtUtc)).ToList();
             return new CompletedProcedureDetail(r.Id, r.SetId, r.PatientId, r.PlanId, titles[r.PlanId], r.PlanItemId, item.ItemNumber, r.PlanRevisionNumber, codes[item.ProcedureId], versions[r.ProcedureVersionId],
                 r.ToothKey, r.Surface, encounterId, encounters.GetValueOrDefault(encounterId), providerId, Provider(providerId), performed, r.EncounterId, r.ProviderProfileId, r.PerformedAtUtc,
-                r.ChartOutcome, r.ToothFindingId, charge, ClinicalNames.Name(people, r.FinalizedByUserId) ?? ClinicalNames.Fallback, r.FinalizedAtUtc, made.Count == 0 ? 0 : made[^1].AmendmentNumber, views, sets[r.SetId].AdoptionReason is not null, sets[r.SetId].AdoptionReason);
+                r.ChartOutcome, r.ToothFindingId, charge, ClinicalNames.Name(people, r.FinalizedByUserId) ?? ClinicalNames.Fallback, r.FinalizedAtUtc, made.Count == 0 ? 0 : made[^1].AmendmentNumber, views, sets[r.SetId].AdoptionReason is not null, sets[r.SetId].AdoptionReason,
+                CompletionDates.DaysAfter(clock, performed, encounters.GetValueOrDefault(encounterId)));
         }).ToList();
     }
 }

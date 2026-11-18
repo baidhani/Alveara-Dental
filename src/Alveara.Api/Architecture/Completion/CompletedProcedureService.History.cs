@@ -20,7 +20,7 @@ public partial class CompletedProcedureService
 
         var details = (await DetailsAsync(rows, ct)).ToDictionary(d => d.PlanItemId);
         return entries.Select(e => details.TryGetValue(e.ItemId, out var d)
-            ? e with { CompletedProcedureId = d.Id, ProviderName = d.ProviderName, PerformedAtUtc = d.PerformedAtUtc, EncounterId = d.EncounterId, ChargeEntryNumber = d.Charge?.EntryNumber, ChargeAmount = d.Charge?.Amount, ChartOutcome = d.ChartOutcome }
+            ? e with { CompletedProcedureId = d.Id, ProviderName = d.ProviderName, PerformedAtUtc = d.PerformedAtUtc, EncounterId = d.EncounterId, ChargeEntryNumber = d.Charge?.EntryNumber, ChargeAmount = d.Charge?.Amount, ChartOutcome = d.ChartOutcome, PerformedAfterEncounterDays = d.PerformedAfterEncounterDays }
             : e).ToList();
     }
 }

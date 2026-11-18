@@ -36,6 +36,9 @@ public partial class TreatmentPlanService
         return "Partial";
     }
 
+    private static List<TreatmentPlanStateRules.ItemFacts> Facts(IEnumerable<PlanItemView> views) => views.Select(v => new TreatmentPlanStateRules.ItemFacts(v.IsWithdrawn, v.Acceptance, v.Completion)).ToList();
+    private static string State(string status, IEnumerable<PlanItemView> views) => TreatmentPlanStateRules.Derive(status, Facts(views));
+
     private async Task<IReadOnlyList<PlanView>> ViewsAsync(IQueryable<TreatmentPlan> query, CancellationToken ct)
     {
         var plans = await query.OrderByDescending(p => p.CreatedAtUtc).ThenBy(p => p.Id).ToListAsync(ct);
@@ -58,6 +61,8 @@ public partial class TreatmentPlanService
         var names = await ClinicalNames.ResolveAsync(db, people, ct);
         var itemsByPlan = items.ToLookup(i => i.PlanId);
         var booked = await CurrentAppointmentsAsync(items.Select(i => i.Id).ToList(), ct);   // ALV-N023: each item's linked appointment, read live
+        var recorded = (await db.CompletedProcedures.AsNoTracking().Where(c => planIds.Contains(c.PlanId)).Select(c => c.PlanItemId).ToListAsync(ct)).ToHashSet();   // F-180/F-222
+        var today = Today();
 
         // the plan's current revision: its words, its phases and where each procedure sits
         var current = await (from r in db.TreatmentPlanRevisions.AsNoTracking() join p in db.TreatmentPlans.AsNoTracking() on r.PlanId equals p.Id
@@ -77,14 +82,18 @@ public partial class TreatmentPlanService
                 phase.GetValueOrDefault(i.Id), AcceptanceOf(states.GetValueOrDefault(i.Id)), SchedulingOf(states.GetValueOrDefault(i.Id)), CompletionOf(states.GetValueOrDefault(i.Id)),
                 states.GetValueOrDefault(i.Id)?.PlannedDate, states.GetValueOrDefault(i.Id)?.Reason, states.GetValueOrDefault(i.Id)?.DecidedByName,
                 ClinicalNames.Name(names, states.GetValueOrDefault(i.Id)?.RecordedByUserId), states.GetValueOrDefault(i.Id)?.RecordedAtUtc, answers.GetValueOrDefault(i.Id)?.RevisionNumber,
-                ClinicalNames.Name(names, answers.GetValueOrDefault(i.Id)?.RecordedByUserId), answers.GetValueOrDefault(i.Id)?.RecordedAtUtc, booked.GetValueOrDefault(i.Id))).ToList();
+                ClinicalNames.Name(names, answers.GetValueOrDefault(i.Id)?.RecordedByUserId), answers.GetValueOrDefault(i.Id)?.RecordedAtUtc, booked.GetValueOrDefault(i.Id),
+                states.GetValueOrDefault(i.Id) is { Scheduling: ItemScheduling.Scheduled, PlannedDate: { } target } s && s.Completion != ItemCompletion.Completed && target < today)).ToList();
             var active = views.Where(v => !v.IsWithdrawn).ToList();
             return new PlanView(p.Id, p.PatientId, p.Title, p.Status, active.Count, active.Sum(v => v.Fee), Alveara.Api.Architecture.Money.Money.Currency, TreatmentPlanEstimate.Label, views,
                 p.CreatedAtUtc, ClinicalNames.Name(names, p.CreatedByUserId), p.UpdatedAtUtc, ClinicalNames.Name(names, p.UpdatedByUserId), p.WithdrawnReason, p.WithdrawnAtUtc,
                 ClinicalNames.Name(names, p.WithdrawnByUserId), Convert.ToBase64String(p.RowVersion),
                 p.CurrentRevision, p.ReferenceCode, revision?.ClinicalRationale, revision?.PatientExplanation,
                 revision is null ? [] : phasesByRevision[revision.Id].Select(x => new PlanPhaseView(x.PhaseNumber, x.Name, x.PlannedVisit, x.TargetDate)).ToList(),
-                StatusOf(active), active.Where(v => v.Acceptance == ItemAcceptance.Accepted).Sum(v => v.Fee));
+                StatusOf(active), active.Where(v => v.Acceptance == ItemAcceptance.Accepted).Sum(v => v.Fee),
+                State(p.Status, views), active.Count(v => v.Acceptance == ItemAcceptance.Pending && v.Completion != ItemCompletion.Completed),
+                active.Any(v => v.Completion == ItemCompletion.Completed && !recorded.Contains(v.Id)), null,
+                TreatmentPlanStateRules.ClosedReason(State(p.Status, views), Facts(views)), TreatmentPlanStateRules.IsLocked(State(p.Status, views), Facts(views)));
         }).ToList();
     }
 }

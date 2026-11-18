@@ -10,7 +10,8 @@ namespace Alveara.Api.Architecture.Treatment;
 public sealed record ClinicalHistoryEntryView(
     Guid PlanId, string PlanTitle, Guid ItemId, int ItemNumber, string ProcedureCodeSystem, string ProcedureCode, string ProcedureDescription,
     string? ToothKey, string? Surface, string CompletedByName, DateTimeOffset CompletedAtUtc, int PlanRevisionAtCompletion,
-    Guid? CompletedProcedureId = null, string? ProviderName = null, DateTimeOffset? PerformedAtUtc = null, Guid? EncounterId = null, int? ChargeEntryNumber = null, decimal? ChargeAmount = null, string? ChartOutcome = null);
+    Guid? CompletedProcedureId = null, string? ProviderName = null, DateTimeOffset? PerformedAtUtc = null, Guid? EncounterId = null, int? ChargeEntryNumber = null, decimal? ChargeAmount = null, string? ChartOutcome = null,
+    int? PerformedAfterEncounterDays = null);   // ALV-N023 (DR-8)
 
 public partial class TreatmentPlanService
 {

@@ -11,7 +11,7 @@ public sealed record PlanItemView(
     DateTimeOffset CreatedAtUtc, string? CreatedByName,
     int? PhaseNumber = null, string Acceptance = "Pending", string Scheduling = "Unscheduled", string Completion = "NotStarted", DateOnly? PlannedDate = null,
     string? DecisionReason = null, string? DecidedByName = null, string? RecordedByName = null, DateTimeOffset? RecordedAtUtc = null, int? DecisionRevision = null,
-    string? AnswerRecordedByName = null, DateTimeOffset? AnswerRecordedAtUtc = null, ItemAppointmentView? Appointment = null);
+    string? AnswerRecordedByName = null, DateTimeOffset? AnswerRecordedAtUtc = null, ItemAppointmentView? Appointment = null, bool TargetOverdue = false);
 
 /// <summary>A phase (visit or stage of care) of the plan's current revision.</summary>
 public sealed record PlanPhaseView(int PhaseNumber, string Name, string? PlannedVisit, DateOnly? TargetDate);
@@ -24,6 +24,8 @@ public sealed record PlanView(
     Guid Id, Guid PatientId, string Title, string Status, int ActiveItemCount, decimal EstimateTotal, string Currency, string EstimateLabel, IReadOnlyList<PlanItemView> Items,
     DateTimeOffset CreatedAtUtc, string? CreatedByName, DateTimeOffset? UpdatedAtUtc, string? UpdatedByName, string? WithdrawnReason, DateTimeOffset? WithdrawnAtUtc, string? WithdrawnByName, string RowVersion,
     int CurrentRevision = 1, string? ReferenceCode = null, string? ClinicalRationale = null, string? PatientExplanation = null, IReadOnlyList<PlanPhaseView>? Phases = null,
-    string AcceptanceStatus = "Pending", decimal AcceptedEstimateTotal = 0m);
+    string AcceptanceStatus = "Pending", decimal AcceptedEstimateTotal = 0m,
+    string PlanState = PlanStates.Proposed, int UnansweredCount = 0, bool HasAdoptable = false, int? ChangedCount = null,   // ALV-N023: PD-14 state, DR-4 count, F-180/F-222
+    string? ClosedReason = null, bool Locked = false);                                                                      // ALV-N023 addendum 01: why Closed; read-only only with completed care
 
 public sealed record PlanEventView(int EventNumber, string ChangeType, Guid? ItemId, string? Title, string? Reason, string? ActorName, DateTimeOffset OccurredAtUtc, int? RevisionNumber = null);

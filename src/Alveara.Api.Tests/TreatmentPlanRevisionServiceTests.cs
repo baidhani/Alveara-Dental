@@ -47,14 +47,14 @@ public class TreatmentPlanRevisionServiceTests : TreatmentPlanTestBase
 
         var filling = await ProcedureAsync("FILL-1", ProcedureScopes.ToothSurface, ProcedureDentitions.Both, 140m, "Resin filling");
         var added = await Svc(s => s.AddItemAsync(plan.Id, Item(diagnosis, filling.Summary.Id, "16", "O", "add-1"), plan.RowVersion, S.Actor, default));
-        var renamed = await Svc(s => s.RenameAsync(plan.Id, "Gum health plan", added.RowVersion, S.Actor, default));
+        var renamed = await Svc(s => s.RenameAsync(plan.Id, "Gum health plan", "Clearer title for the patient", added.RowVersion, S.Actor, default));
         var withdrawn = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[0].Id, "Patient declined", renamed.RowVersion, S.Actor, default));
 
         Assert.Equal(4, withdrawn.CurrentRevision);
         var revisions = await RevisionsAsync(plan.Id);
         Assert.Equal(["Created", "ItemAdded", "Renamed", "ItemWithdrawn"], revisions.Select(r => r.ChangeType).ToArray());
         Assert.Equal(["Periodontal plan", "Periodontal plan", "Gum health plan", "Gum health plan"], revisions.Select(r => r.Title).ToArray());
-        Assert.Equal<IEnumerable<string?>>([null, null, null, "Patient declined"], revisions.Select(r => r.Reason));
+        Assert.Equal<IEnumerable<string?>>([null, null, "Clearer title for the patient", "Patient declined"], revisions.Select(r => r.Reason));   // ALV-N023 (DR-5): a rename keeps its reason
         Assert.Equal(revisions.Select(r => r.EventNumber).Distinct().Count(), revisions.Count);
 
         // each revision still says what it said: revision 1 has one live procedure, 2 has two, 4 has the first marked withdrawn
@@ -73,11 +73,11 @@ public class TreatmentPlanRevisionServiceTests : TreatmentPlanTestBase
     public async Task Saving_the_same_title_adds_no_revision_and_a_stale_everyday_change_is_a_conflict_that_adds_none()
     {
         var (plan, diagnosis, _) = await SimplePlanAsync();
-        await Svc(s => s.RenameAsync(plan.Id, plan.Title, plan.RowVersion, S.Actor, default));
+        await Svc(s => s.RenameAsync(plan.Id, plan.Title, "Clearer title for the patient", plan.RowVersion, S.Actor, default));
         Assert.Single(await RevisionsAsync(plan.Id));
         var other = await ProcedureAsync("LOCAL-200");
         await Svc(s => s.AddItemAsync(plan.Id, Item(diagnosis, other.Summary.Id, key: "a"), plan.RowVersion, S.Actor, default));
-        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Svc(s => s.RenameAsync(plan.Id, "Too late", plan.RowVersion, S.Actor, default)));
+        await Assert.ThrowsAsync<ConcurrencyConflictException>(() => Svc(s => s.RenameAsync(plan.Id, "Too late", "Clearer title for the patient", plan.RowVersion, S.Actor, default)));
         Assert.Equal(2, (await RevisionsAsync(plan.Id)).Count);
     }
 
@@ -164,7 +164,7 @@ public class TreatmentPlanRevisionServiceTests : TreatmentPlanTestBase
         plan = await ReviseAsync(plan, Revise(rationale: "Deep pockets", phases: [Phase(1, "First"), Phase(2, "Second", "Later", new DateOnly(2030, 6, 1))],
             placements: [new(plan.Items[0].Id, 1), new(plan.Items[1].Id, 2)]));                                            // revision 3
         plan = await ReviseAsync(plan, Revise(reason: "Merge", rationale: " ", phases: [new(1, "First visit", "Today", null)], placements: [new(plan.Items[1].Id, 1)]));          // revision 4: phase 2 gone, phase 1 renamed
-        plan = await Svc(s => s.RenameAsync(plan.Id, "Gum health plan", plan.RowVersion, S.Actor, default));              // revision 5
+        plan = await Svc(s => s.RenameAsync(plan.Id, "Gum health plan", "Clearer title for the patient", plan.RowVersion, S.Actor, default));              // revision 5
         plan = await Svc(s => s.WithdrawItemAsync(plan.Id, plan.Items[0].Id, "Patient declined", plan.RowVersion, S.Actor, default));   // revision 6: the $50 procedure goes
 
         var all = await Svc(s => s.RevisionsAsync(plan.Id, default));

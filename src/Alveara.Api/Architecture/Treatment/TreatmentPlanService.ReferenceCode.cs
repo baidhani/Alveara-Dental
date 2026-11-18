@@ -13,6 +13,7 @@ public partial class TreatmentPlanService
     public async Task<PlanView> SetReferenceCodeAsync(Guid planId, string? code, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var plan = await db.TreatmentPlans.SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
+        await RequireUnfinishedAsync(plan, ct);
         var errors = new Dictionary<string, string>();
         var clean = string.IsNullOrWhiteSpace(code) ? null : Regex.Replace(code.Trim(), "\\s+", " ");
         if (clean is null) errors["referenceCode"] = "Enter the reference code.";
@@ -34,7 +35,7 @@ public partial class TreatmentPlanService
         plan.ReferenceCode = clean;
         Touch(plan, actor, now);
         StageEvent(plan, await NextEventAsync(planId, ct), TreatmentPlanChanges.ReferenceCodeSet, null, null, null, actor, now);
-        AuditService.Record(db, "TreatmentPlanReferenceCodeSet", nameof(TreatmentPlan), planId, actor, "Treatment plan reference code set.");
+        AuditService.Record(db, "TreatmentPlanReferenceCodeSet", nameof(TreatmentPlan), planId, actor, $"Treatment plan reference code set to {clean}.");
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }

@@ -83,16 +83,22 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
         return await GetAsync(plan.Id, ct);
     }
 
-    /// <summary>Changes the title. Saving the same title changes nothing; a withdrawn plan cannot be renamed.</summary>
-    public async Task<PlanView> RenameAsync(Guid planId, string? title, string? rowVersion, Guid actor, CancellationToken ct)
+    /// <summary>
+    /// Changes the title. ALV-N023 (owner decision DR-5): a rename stays a revision and needs a brief reason, like Revise; the history keeps the reason and both titles (the revision before holds
+    /// the old one). Saving the same title changes nothing; a withdrawn or finished plan cannot be renamed. (The reason is enforced here only: the database's reason check is not widened to
+    /// Renamed because renames recorded before ALV-N023 have none.)
+    /// </summary>
+    public async Task<PlanView> RenameAsync(Guid planId, string? title, string? reason, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var plan = await db.TreatmentPlans.SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         var errors = new Dictionary<string, string>();
         var t = TreatmentPlanRules.CleanTitle(errors, "title", title);
         if (errors.Count > 0) throw TreatmentPlanRules.Invalid(errors);
         var version = TreatmentPlanRules.ParseVersion(rowVersion);
         if (t == plan.Title) return await GetAsync(planId, ct);
+        var why = TreatmentPlanRules.RequireReason(reason, "Say why this treatment plan is being renamed.");
 
         db.Entry(plan).Property(p => p.RowVersion).OriginalValue = version;
         var now = clock.UtcNow;
@@ -100,9 +106,9 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
         Touch(plan, actor, now);
         var eventNumber = await NextEventAsync(planId, ct);
         var revision = plan.CurrentRevision + 1;
-        StageEvent(plan, eventNumber, TreatmentPlanChanges.Renamed, null, t, null, actor, now, revision);
-        AuditService.Record(db, "TreatmentPlanRenamed", nameof(TreatmentPlan), planId, actor, "Treatment plan title changed.");
-        await StageRevisionAsync(plan, revision, TreatmentPlanChanges.Renamed, eventNumber, null, actor, now, null, ct);
+        StageEvent(plan, eventNumber, TreatmentPlanChanges.Renamed, null, t, why, actor, now, revision);
+        AuditService.Record(db, "TreatmentPlanRenamed", nameof(TreatmentPlan), planId, actor, $"Treatment plan {PlanRef(plan)} renamed (revision {revision}).", why);   // DR-7: no title
+        await StageRevisionAsync(plan, revision, TreatmentPlanChanges.Renamed, eventNumber, why, actor, now, null, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }
@@ -112,6 +118,7 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
     {
         var plan = await db.TreatmentPlans.SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         if (plan.Status == TreatmentPlanStatuses.Withdrawn) return await GetAsync(planId, ct);
+        await RequireUnfinishedAsync(plan, ct);                                                                       // CR-3: a finished plan is never withdrawn
         var why = TreatmentPlanRules.RequireReason(reason, "Say why this treatment plan is being withdrawn.");
         db.Entry(plan).Property(p => p.RowVersion).OriginalValue = TreatmentPlanRules.ParseVersion(rowVersion);
 
@@ -122,7 +129,7 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
         plan.WithdrawnReason = why;
         Touch(plan, actor, now);
         StageEvent(plan, await NextEventAsync(planId, ct), TreatmentPlanChanges.Withdrawn, null, null, why, actor, now);
-        AuditService.Record(db, "TreatmentPlanWithdrawn", nameof(TreatmentPlan), planId, actor, "Treatment plan withdrawn.", why);
+        AuditService.Record(db, "TreatmentPlanWithdrawn", nameof(TreatmentPlan), planId, actor, $"Treatment plan {PlanRef(plan)} withdrawn.", why);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }
@@ -136,6 +143,29 @@ public partial class TreatmentPlanService(AlveraDbContext db, IPracticeClock clo
     {
         if (plan.Status == TreatmentPlanStatuses.Withdrawn) throw new TreatmentPlanException("plan_withdrawn", "That treatment plan has been withdrawn, so it cannot be changed.", 409);
     }
+
+    /// <summary>
+    /// ALV-N023 (PD-14, CR-3, owner addendum 01): a Completed or Closed plan that contains completed care is read-only except its history, its patient copy and the warned "Revise anyway";
+    /// a Closed plan without completed care (empty, or all declined) stays correctable.
+    /// </summary>
+    private async Task RequireUnfinishedAsync(TreatmentPlan plan, CancellationToken ct, bool reviseAnyway = false)
+    {
+        if (reviseAnyway) return;
+        var (state, locked) = await PlanStateAsync(plan, ct);
+        if (locked) throw new TreatmentPlanException("plan_finished", TreatmentPlanStateRules.LockedMessage(state), 409);
+    }
+
+    internal async Task<(string State, bool Locked)> PlanStateAsync(TreatmentPlan plan, CancellationToken ct)
+    {
+        var items = await db.TreatmentPlanItems.AsNoTracking().Where(i => i.PlanId == plan.Id).Select(i => new { i.Id, i.WithdrawnAtUtc }).ToListAsync(ct);
+        var states = await CurrentStatesAsync(plan.Id, ct);
+        var facts = items.Select(i => new TreatmentPlanStateRules.ItemFacts(i.WithdrawnAtUtc is not null, AcceptanceOf(states.GetValueOrDefault(i.Id)), CompletionOf(states.GetValueOrDefault(i.Id)))).ToList();
+        var state = TreatmentPlanStateRules.Derive(plan.Status, facts);
+        return (state, TreatmentPlanStateRules.IsLocked(state, facts));
+    }
+
+    /// <summary>DR-7: how an audit row names a plan - by its reference code, never its title.</summary>
+    private static string PlanRef(TreatmentPlan plan) => plan.ReferenceCode is null ? "(no reference code)" : $"with reference {plan.ReferenceCode}";
 
     private static void Touch(TreatmentPlan plan, Guid actor, DateTimeOffset now)
     {

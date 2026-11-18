@@ -26,16 +26,16 @@ public record PlanPlacementRequest(Guid? ItemId, int? PhaseNumber);
 
 public record DecisionRequest(string? Decision, string? Reason, string? DecidedByName, string? RowVersion);
 
-public record ScheduleRequest(bool Scheduled, DateOnly? PlannedDate);
+public record ScheduleRequest(bool Scheduled, DateOnly? PlannedDate, bool ConfirmPast = false);   // ALV-N023 (PD-15): a past target date needs confirmPast
 
 /// <summary>ALV-N023 (DR-1, OQ-1): the appointment that books an accepted procedure, or the reason a link is removed.</summary>
 public record AppointmentLinkRequest(Guid? AppointmentId);
 public record AppointmentUnlinkRequest(string? Reason);
 
 /// <summary>ALV-015-C01: an explicit revision (reason required). Null parts are kept as they are; a blank rationale or explanation clears it.</summary>
-public record ReviseRequest(string? Reason, string? ClinicalRationale, string? PatientExplanation, List<PlanPhaseRequest>? Phases, List<PlanPlacementRequest>? Placements, string? RowVersion);
+public record ReviseRequest(string? Reason, string? ClinicalRationale, string? PatientExplanation, List<PlanPhaseRequest>? Phases, List<PlanPlacementRequest>? Placements, string? RowVersion, bool ReviseAnyway = false);
 
-public record RenamePlanRequest(string? Title, string? RowVersion);
+public record RenamePlanRequest(string? Title, string? RowVersion, string? Reason = null);   // ALV-N023 (DR-5): a rename needs a reason
 
 /// <summary>ALV-015-C01: a plan's reference code, set once, which an old diagnosis's free-text reference can be matched to.</summary>
 public record ReferenceCodeRequest(string? Code, string? RowVersion);
@@ -172,7 +172,7 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> ScheduleItem(Guid planId, Guid itemId, [FromBody] ScheduleRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await plans.ScheduleItemAsync(planId, itemId, request.Scheduled, request.PlannedDate, Actor, ct)));
+        Run(async () => Ok(await plans.ScheduleItemAsync(planId, itemId, request.Scheduled, request.PlannedDate, Actor, ct, request.ConfirmPast)));
 
     /// <summary>RETIRED (ALV-008-C02): answers 410 Gone. See <see cref="RetiredCompletion"/>.</summary>
     [HttpPost("api/treatment-plans/{planId:guid}/complete-accepted")]
@@ -212,7 +212,7 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     public Task<IActionResult> Revise(Guid planId, [FromBody] ReviseRequest request, CancellationToken ct) =>
         Run(async () => Ok(await plans.ReviseAsync(planId, new ReviseInput(request.Reason, request.ClinicalRationale, request.PatientExplanation,
             request.Phases?.Select(p => new PlanPhaseInput(p.Number, p.Name, p.PlannedVisit, p.TargetDate)).ToList(),
-            request.Placements?.Select(p => new PlanPlacementInput(p.ItemId, p.PhaseNumber)).ToList()), request.RowVersion, Actor, ct)));
+            request.Placements?.Select(p => new PlanPlacementInput(p.ItemId, p.PhaseNumber)).ToList()), request.RowVersion, Actor, ct, request.ReviseAnyway)));
 
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/withdraw")]
     [RequirePermission(Permission.ManageTreatmentPlans)]
@@ -224,7 +224,7 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     [RequirePermission(Permission.ManageTreatmentPlans)]
     [RequireCsrfToken]
     public Task<IActionResult> Rename(Guid planId, [FromBody] RenamePlanRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await plans.RenameAsync(planId, request.Title, request.RowVersion, Actor, ct)));
+        Run(async () => Ok(await plans.RenameAsync(planId, request.Title, request.Reason, request.RowVersion, Actor, ct)));
 
     [HttpPost("api/treatment-plans/{planId:guid}/withdraw")]
     [RequirePermission(Permission.ManageTreatmentPlans)]

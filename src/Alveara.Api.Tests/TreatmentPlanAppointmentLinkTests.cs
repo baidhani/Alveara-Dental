@@ -103,7 +103,12 @@ public class TreatmentPlanAppointmentLinkTests : TreatmentPlanTestBase
     [Fact]
     public async Task A_completed_procedure_cannot_be_booked()
     {
-        var (plan, item) = await AcceptedItemAsync();
+        var dx = await DiagnosisAsync();
+        var p1 = await ProcedureAsync(code: $"LOCAL-{Guid.NewGuid():N}"[..14]);
+        var p2 = await ProcedureAsync(code: $"LOCAL-{Guid.NewGuid():N}"[..14]);
+        var plan = await CreateAsync([Item(dx, p1.Summary.Id), Item(dx, p2.Summary.Id)]);                                // a second, unanswered procedure keeps the plan open
+        plan = await Svc(s => s.DecideItemAsync(plan.Id, plan.Items[0].Id, "Accepted", null, null, plan.RowVersion, S.Actor, default));
+        var item = plan.Items[0].Id;
         await LegacyComplete(plan.Id, item);
         var ex = await Assert.ThrowsAsync<TreatmentPlanException>(async () => await Link(plan.Id, item, await AppointmentAsync()));
         Assert.Equal("item_completed", ex.Code);

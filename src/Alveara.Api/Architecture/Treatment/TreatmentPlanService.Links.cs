@@ -46,6 +46,7 @@ public partial class TreatmentPlanService
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         var item = await db.TreatmentPlanItems.AsNoTracking().SingleOrDefaultAsync(i => i.Id == itemId && i.PlanId == planId, ct) ?? throw ItemNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         var why = TreatmentPlanRules.RequireReason(reason, "Say why this appointment no longer books the procedure.");
         var latest = await LatestLinkAsync(itemId, ct);
         if (latest is not { Action: AppointmentLinkActions.Linked }) return await LinkResultAsync(plan.Id, itemId, ct);   // nothing linked: quiet
@@ -90,6 +91,7 @@ public partial class TreatmentPlanService
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         var item = await db.TreatmentPlanItems.AsNoTracking().SingleOrDefaultAsync(i => i.Id == itemId && i.PlanId == planId, ct) ?? throw ItemNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         if (item.WithdrawnAtUtc is not null) throw new TreatmentPlanException("item_withdrawn", "That procedure has been withdrawn.", 409);
         var state = (await CurrentStatesAsync(planId, ct)).GetValueOrDefault(itemId);
         if (CompletionOf(state) == ItemCompletion.Completed) throw ItemCompleted();

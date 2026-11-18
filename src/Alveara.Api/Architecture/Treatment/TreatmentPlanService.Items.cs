@@ -23,6 +23,7 @@ public partial class TreatmentPlanService
         var key = TreatmentPlanRules.CleanKey(errors, "idempotencyKey", input.IdempotencyKey);
         if (key is not null && await db.TreatmentPlanItems.AsNoTracking().AnyAsync(i => i.PlanId == planId && i.IdempotencyKey == key, ct)) return await GetAsync(planId, ct);
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
 
         var item = await BuildItemAsync(plan.PatientId, input, "", errors, ct);
         var basis = await LayoutAsync(planId, plan.CurrentRevision, ct);
@@ -59,6 +60,7 @@ public partial class TreatmentPlanService
             ?? throw new TreatmentPlanException("item_not_found", "That item was not found in this treatment plan.", 404);
         if (item.WithdrawnAtUtc is not null) return await GetAsync(planId, ct);
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         if (CompletionOf((await CurrentStatesAsync(planId, ct)).GetValueOrDefault(itemId)) == ItemCompletion.Completed) throw ItemCompleted();     // care that has been done stays on the plan
         var why = TreatmentPlanRules.RequireReason(reason, "Say why this procedure is being withdrawn from the plan.");
         db.Entry(plan).Property(p => p.RowVersion).OriginalValue = TreatmentPlanRules.ParseVersion(rowVersion);
@@ -71,7 +73,7 @@ public partial class TreatmentPlanService
         var eventNumber = await NextEventAsync(planId, ct);
         var revision = plan.CurrentRevision + 1;
         StageEvent(plan, eventNumber, TreatmentPlanChanges.ItemWithdrawn, itemId, null, why, actor, now, revision);
-        AuditService.Record(db, "TreatmentPlanItemWithdrawn", nameof(TreatmentPlan), planId, actor, $"Item {item.ItemNumber} withdrawn from a treatment plan.", why);
+        AuditService.Record(db, "TreatmentPlanItemWithdrawn", nameof(TreatmentPlan), planId, actor, $"{await ItemLabelAsync(plan, item, ct)} withdrawn.", why);
         await StageRevisionAsync(plan, revision, TreatmentPlanChanges.ItemWithdrawn, eventNumber, why, actor, now, null, ct);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);

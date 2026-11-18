@@ -132,6 +132,10 @@ public class TreatmentPlanRevisionSchemaTests : TreatmentPlanTestBase
     [InlineData("ItemScheduled", true, null, null)]
     [InlineData("ItemUnscheduled", true, null, null)]
     [InlineData("ItemCompleted", true, null, null)]
+    [InlineData("AppointmentLinked", true, null, null)]                 // ALV-N023
+    [InlineData("AppointmentUnlinked", true, "Patient will call back", null)]
+    [InlineData("TargetDateSet", true, null, null)]
+    [InlineData("TargetDateCleared", true, null, null)]
     public async Task The_history_accepts_each_new_kind_of_entry(string type, bool needsItem, string? reason, int? revision)
     {
         var (plan, item) = await ArrangedAsync();

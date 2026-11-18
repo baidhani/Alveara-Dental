@@ -190,15 +190,16 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
         Assert.Equal(("Partial", 100m, 170m), (declined.Body.GetProperty("acceptanceStatus").GetString(), declined.Body.GetProperty("acceptedEstimateTotal").GetDecimal(), declined.Body.GetProperty("estimateTotal").GetDecimal()));
 
         var conflict = await dentist.SendAsync(HttpMethod.Post, P(plan2, "/decision"), new { decision = "Accepted", rowVersion = Version(plan2) });
-        Assert.Equal((HttpStatusCode.Conflict, "partial_acceptance_conflict"), (conflict.Status, Error(conflict.Body)));
+        Assert.Equal((HttpStatusCode.Conflict, "nothing_unanswered"), (conflict.Status, Error(conflict.Body)));                // ALV-N023 (DR-4): both already answered
 
         var scheduled = await dentist.SendAsync(HttpMethod.Post, P(plan2, $"/items/{Item(plan2, 0)}/schedule"), new { scheduled = true, plannedDate = "2030-05-20" });
         Assert.Equal(("Scheduled", "2030-05-20"), (scheduled.Body.GetProperty("items")[0].GetProperty("scheduling").GetString(), scheduled.Body.GetProperty("items")[0].GetProperty("plannedDate").GetString()));
         await LegacyCompletionFixture.CompleteItemAsync(_fixture, Id(plan2), Item(plan2, 0), _s.Actor);        // completed the old way (the route is retired; see LegacyCompletionFixture)
         var done = await dentist.SendAsync(HttpMethod.Get, P(plan2));
         Assert.Equal("Completed", done.Body.GetProperty("items")[0].GetProperty("completion").GetString());
+        Assert.Equal("Closed", done.Body.GetProperty("planState").GetString());                                              // ALV-N023 (PD-14): completed + declined
         var late = await dentist.SendAsync(HttpMethod.Post, P(plan2, $"/items/{Item(plan2, 0)}/decision"), new { decision = "Declined", reason = "x", rowVersion = Version(plan2) });
-        Assert.Equal((HttpStatusCode.Conflict, "item_completed"), (late.Status, Error(late.Body)));
+        Assert.Equal((HttpStatusCode.Conflict, "plan_finished"), (late.Status, Error(late.Body)));                               // a finished plan takes no answer
 
         var compare = (await hygienist.SendAsync(HttpMethod.Get, P(plan, "/revisions/compare?from=1&to=2"))).Body;
         Assert.Equal(["After healing", "First visit"], compare.GetProperty("phasesAdded").EnumerateArray().Select(p => p.GetProperty("name").GetString()!).Order().ToArray());
@@ -210,7 +211,7 @@ public class TreatmentPlanCompletionApiTests : IAsyncLifetime
         Assert.Equal("Phased for healing", revisions[1].GetProperty("reason").GetString());
 
         var history = (await hygienist.SendAsync(HttpMethod.Get, P(plan, "/history"))).Body.EnumerateArray().Select(h => h.GetProperty("changeType").GetString()!).ToArray();
-        Assert.Equal(["Created", "ItemAdded", "ItemAdded", "Revised", "ItemAccepted", "ItemDeclined", "ItemScheduled", "ItemCompleted"], history);
+        Assert.Equal(["Created", "ItemAdded", "ItemAdded", "Revised", "ItemAccepted", "ItemDeclined", "TargetDateSet", "ItemCompleted"], history);
         Assert.All((await hygienist.SendAsync(HttpMethod.Get, P(plan, "/history"))).Body.EnumerateArray(), h => Assert.False(string.IsNullOrWhiteSpace(h.GetProperty("actorName").GetString())));
         var logged = await _s.CountAsync(db => db.AuditLogEntries.Where(a => a.EntityType == "TreatmentPlan" && a.EventType != "TreatmentPlanCreated" && a.EventType != "TreatmentPlanItemAdded"));
         Assert.Equal(5, logged);                                                                                      // revise, accept, decline, schedule, complete (the create and its two procedures were logged when the plan was made)

@@ -3278,3 +3278,9 @@
   - What changed: .alveara/reviews/ALV-N023/BRIEFING-R02-ADDENDUM-01.md stored unchanged.
   - Verification: review file read in full.
   - Notes: Not pushed.
+- [x] ALV-N023 slice 2 (wip): derived plan state + lock rule (PD-14, CR-3, addendum 01), bulk answers on unanswered only (DR-4), rename reason (DR-5), target dates (PD-15), PHI-free audit detail (DR-7, A1-3), performed-after-encounter days (DR-8)
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: TreatmentPlanStateRules (Derive, ClosedReason, IsLocked); one plan_finished guard on every plan write (locked = finished with completed care); PlanView planState/closedReason/locked/unansweredCount/hasAdoptable/changedCount, item targetOverdue; DecidePlanAsync unanswered-only + nothing_unanswered; RenameAsync reason (service-only enforcement); ScheduleItemAsync = target date (required, confirmPast, TargetDateSet/Cleared events); audit details with code/item/plan reference, no title, no respondent name; CompletionDates.DaysAfter on completion result/detail/clinical history; controller fields reason/reviseAnyway/confirmPast. Tests: TreatmentPlanStateTests (22, new), TreatmentPlanAuditTests (new), existing tests updated to the approved rules (bulk answers, events, finished plans, 19+8 rename calls with a reason, schema types, revision reasons).
+  - Verification: group A first run 121/129 -> stopped (3 ambiguities, addendum 01 approved), then 131/132 (my test lacked an idempotency key) -> TreatmentPlanStateTests 22/22; group B 122/124 (API renames without the now-required reason) -> TreatmentPlanApiTests+TreatmentPlanAuditTests 25/25.
+  - Notes: Not pushed.

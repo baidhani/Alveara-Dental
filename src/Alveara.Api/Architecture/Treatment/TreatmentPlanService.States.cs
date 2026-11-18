@@ -19,6 +19,7 @@ public partial class TreatmentPlanService
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         var item = await db.TreatmentPlanItems.AsNoTracking().SingleOrDefaultAsync(i => i.Id == itemId && i.PlanId == planId, ct) ?? throw ItemNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         if (item.WithdrawnAtUtc is not null) throw new TreatmentPlanException("item_withdrawn", "That procedure has been withdrawn, so it cannot be accepted or declined.", 409);
         var (choice, why, by) = CleanDecision(decision, reason, decidedBy);
         var version = TreatmentPlanRules.ParseVersion(rowVersion);
@@ -33,55 +34,64 @@ public partial class TreatmentPlanService
             choice == ItemAcceptance.Accepted ? previous?.PlannedDate : null, why, by, actor, now);
         var type = choice == ItemAcceptance.Accepted ? TreatmentPlanChanges.ItemAccepted : TreatmentPlanChanges.ItemDeclined;
         StageEvent(plan, await NextEventAsync(planId, ct), type, itemId, null, why, actor, now, plan.CurrentRevision);
-        AuditService.Record(db, choice == ItemAcceptance.Accepted ? "TreatmentPlanItemAccepted" : "TreatmentPlanItemDeclined", nameof(TreatmentPlan), planId, actor, $"Item {item.ItemNumber} {choice.ToLowerInvariant()} in a treatment plan.", why);
+        AuditService.Record(db, choice == ItemAcceptance.Accepted ? "TreatmentPlanItemAccepted" : "TreatmentPlanItemDeclined", nameof(TreatmentPlan), planId, actor,
+            $"{await ItemLabelAsync(plan, item, ct)} {choice.ToLowerInvariant()}{AnswerSource(by)}.", why);
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }
 
     /// <summary>
-    /// Accepts or declines the whole plan: every procedure not yet withdrawn that is still Pending gets the decision. If any of them already holds the opposite decision the request is refused as a
-    /// partial-acceptance conflict and nothing is recorded, so a plan is never half-overwritten; the person decides those procedures one by one.
+    /// ALV-N023 (owner decision DR-4): accepts or declines every procedure of the plan that has no answer yet (not withdrawn, not completed). Procedures that already have an answer are left exactly
+    /// as they are - never overwritten. The plan view returned says how many were changed (<c>ChangedCount</c>); with nothing unanswered the request is refused (nothing_unanswered) and nothing is recorded.
     /// </summary>
     public async Task<PlanView> DecidePlanAsync(Guid planId, string? decision, string? reason, string? decidedBy, string? rowVersion, Guid actor, CancellationToken ct)
     {
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         var (choice, why, by) = CleanDecision(decision, reason, decidedBy);
         var version = TreatmentPlanRules.ParseVersion(rowVersion);
 
         var live = await db.TreatmentPlanItems.AsNoTracking().Where(i => i.PlanId == planId && i.WithdrawnAtUtc == null).OrderBy(i => i.ItemNumber).ToListAsync(ct);
-        if (live.Count == 0) throw new TreatmentPlanException("no_procedures", "This plan has no procedures left to accept or decline.", 409);
         var states = await CurrentStatesAsync(planId, ct);
-        var opposite = live.Where(i => AcceptanceOf(states.GetValueOrDefault(i.Id)) is var a && a != ItemAcceptance.Pending && a != choice).ToList();
-        if (opposite.Count > 0)
-            throw new TreatmentPlanException("partial_acceptance_conflict", $"{opposite.Count} of the {live.Count} procedures already {(choice == ItemAcceptance.Accepted ? "declined" : "accepted")}. Decide those one by one, or leave them as they are.", 409);
-        var pending = live.Where(i => AcceptanceOf(states.GetValueOrDefault(i.Id)) == ItemAcceptance.Pending).ToList();
-        if (pending.Count == 0) return await GetAsync(planId, ct);
+        var pending = live.Where(i => AcceptanceOf(states.GetValueOrDefault(i.Id)) == ItemAcceptance.Pending && CompletionOf(states.GetValueOrDefault(i.Id)) != ItemCompletion.Completed).ToList();
+        if (pending.Count == 0) throw new TreatmentPlanException("nothing_unanswered", "No procedure on this plan is waiting for an answer, so nothing was recorded.", 409);
         RequireCurrent(plan, version);
 
         var now = clock.UtcNow;
         foreach (var i in pending) StageState(plan, i.Id, states.GetValueOrDefault(i.Id), choice, ItemScheduling.Unscheduled, ItemCompletion.NotStarted, null, why, by, actor, now);
         StageEvent(plan, await NextEventAsync(planId, ct), choice == ItemAcceptance.Accepted ? TreatmentPlanChanges.PlanAccepted : TreatmentPlanChanges.PlanDeclined, null, null, why, actor, now, plan.CurrentRevision);
-        AuditService.Record(db, choice == ItemAcceptance.Accepted ? "TreatmentPlanAccepted" : "TreatmentPlanDeclined", nameof(TreatmentPlan), planId, actor, $"{pending.Count} procedure{(pending.Count == 1 ? "" : "s")} {choice.ToLowerInvariant()} in a treatment plan.", why);
+        var codes = await db.ProcedureDefinitions.AsNoTracking().Where(d => pending.Select(i => i.ProcedureId).Contains(d.Id)).ToDictionaryAsync(d => d.Id, d => d.Code, ct);
+        AuditService.Record(db, choice == ItemAcceptance.Accepted ? "TreatmentPlanAccepted" : "TreatmentPlanDeclined", nameof(TreatmentPlan), planId, actor,
+            $"{pending.Count} unanswered procedure{(pending.Count == 1 ? "" : "s")} ({string.Join(", ", pending.Select(i => $"item {i.ItemNumber} {codes[i.ProcedureId]}"))}) {choice.ToLowerInvariant()} in the treatment plan {PlanRef(plan)}{AnswerSource(by)}.", why);
         await SaveAsync(planId, ct);
-        return await GetAsync(planId, ct);
+        return await GetAsync(planId, ct) with { ChangedCount = pending.Count };
     }
 
-    /// <summary>Marks an accepted procedure scheduled (with an optional planned date) or unscheduled. Saying what is already so changes nothing; a completed procedure cannot be rescheduled.</summary>
-    public async Task<PlanView> ScheduleItemAsync(Guid planId, Guid itemId, bool scheduled, DateOnly? plannedDate, Guid actor, CancellationToken ct)
+    /// <summary>
+    /// ALV-N023 (owner decisions DR-1 and PD-15): sets or clears an accepted procedure's TARGET date. A target date is only a target - it never books the procedure and never settles its
+    /// unscheduled-treatment follow-up (only a linked appointment does). Setting one needs a date; a date before today needs <paramref name="confirmPast"/> and is then shown as overdue.
+    /// Saying what is already so changes nothing; a completed procedure cannot be changed.
+    /// </summary>
+    public async Task<PlanView> ScheduleItemAsync(Guid planId, Guid itemId, bool scheduled, DateOnly? plannedDate, Guid actor, CancellationToken ct, bool confirmPast = false)
     {
         var (plan, item, previous) = await LoadForProgressAsync(planId, itemId, ct);
         if (CompletionOf(previous) == ItemCompletion.Completed) throw ItemCompleted();
         var wanted = scheduled ? ItemScheduling.Scheduled : ItemScheduling.Unscheduled;
         var date = scheduled ? plannedDate : null;
+        if (scheduled && date is null) throw TreatmentPlanRules.Invalid(new Dictionary<string, string> { ["plannedDate"] = "Choose the target date, or clear it." });
         if (date is { } d && (d < new DateOnly(2000, 1, 1) || d > Today().AddYears(10)))
             throw TreatmentPlanRules.Invalid(new Dictionary<string, string> { ["plannedDate"] = "Choose a date between 2000 and ten years from now." });
+        if (date is { } past && past < Today() && !confirmPast)
+            throw new TreatmentPlanException("past_target_date", "That date has passed. Confirm to save it as an overdue target date.", 400,
+                new Dictionary<string, string> { ["plannedDate"] = "That date has passed. Confirm to save it as an overdue target date." });
         if (SchedulingOf(previous) == wanted && previous?.PlannedDate == date) return await GetAsync(planId, ct);
 
         var now = clock.UtcNow;
         StageState(plan, item.Id, previous, ItemAcceptance.Accepted, wanted, ItemCompletion.NotStarted, date, null, previous?.DecidedByName, actor, now);
-        StageEvent(plan, await NextEventAsync(planId, ct), scheduled ? TreatmentPlanChanges.ItemScheduled : TreatmentPlanChanges.ItemUnscheduled, itemId, null, null, actor, now, plan.CurrentRevision);
-        AuditService.Record(db, scheduled ? "TreatmentPlanItemScheduled" : "TreatmentPlanItemUnscheduled", nameof(TreatmentPlan), planId, actor, $"Item {item.ItemNumber} {(scheduled ? "scheduled" : "unscheduled")} in a treatment plan.");
+        StageEvent(plan, await NextEventAsync(planId, ct), scheduled ? TreatmentPlanChanges.TargetDateSet : TreatmentPlanChanges.TargetDateCleared, itemId, null, null, actor, now, plan.CurrentRevision);
+        AuditService.Record(db, scheduled ? "TreatmentPlanItemTargetDateSet" : "TreatmentPlanItemTargetDateCleared", nameof(TreatmentPlan), planId, actor,
+            $"{await ItemLabelAsync(plan, item, ct)} {(scheduled ? $"target date set to {date:yyyy-MM-dd}{(date < Today() ? " (overdue, confirmed)" : "")}" : "target date cleared")}.");
         await SaveAsync(planId, ct);
         return await GetAsync(planId, ct);
     }
@@ -96,6 +106,7 @@ public partial class TreatmentPlanService
         var plan = await db.TreatmentPlans.AsNoTracking().SingleOrDefaultAsync(p => p.Id == planId, ct) ?? throw PlanNotFound();
         var item = await db.TreatmentPlanItems.AsNoTracking().SingleOrDefaultAsync(i => i.Id == itemId && i.PlanId == planId, ct) ?? throw ItemNotFound();
         RequireProposed(plan);
+        await RequireUnfinishedAsync(plan, ct);
         if (item.WithdrawnAtUtc is not null) throw new TreatmentPlanException("item_withdrawn", "That procedure has been withdrawn.", 409);
         var state = (await CurrentStatesAsync(planId, ct)).GetValueOrDefault(itemId);
         if (AcceptanceOf(state) != ItemAcceptance.Accepted) throw new TreatmentPlanException("item_not_accepted", "Only an accepted procedure can be scheduled or completed. Accept it first.", 409);
@@ -152,6 +163,12 @@ public partial class TreatmentPlanService
         if (errors.Count > 0) throw TreatmentPlanRules.Invalid(errors);
         return (choice!, why, by);
     }
+
+    /// <summary>
+    /// ALV-N023 (owner decision, addendum 01, ambiguity 3): the audit log stays free of patient and representative identity. It says only whether the person who gave the answer was named;
+    /// the name itself stays in the plan's own answer history, visible to staff who may read plans.
+    /// </summary>
+    private static string AnswerSource(string? decidedBy) => decidedBy is null ? "" : "; the person who gave the answer is recorded on the plan";
 
     private static TreatmentPlanException ItemNotFound() => new("item_not_found", "That item was not found in this treatment plan.", 404);
     private static TreatmentPlanException ItemCompleted() => new("item_completed", "That procedure is completed, so its acceptance and schedule are final.", 409);

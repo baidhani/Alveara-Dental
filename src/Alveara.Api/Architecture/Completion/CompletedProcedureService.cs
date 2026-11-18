@@ -128,11 +128,14 @@ public partial class CompletedProcedureService(AlveraDbContext db, IPracticeCloc
         var plan = await plans.GetAsync(set.PlanId, ct);
         var rows = await db.CompletedProcedures.AsNoTracking().Where(c => c.SetId == set.Id).ToListAsync(ct);
         var charges = await ChargeEffectsAsync(set, plan.Items.Where(i => rows.Any(r => r.PlanItemId == i.Id)).ToList(), ct);
+        var encounterIds = rows.Select(r => r.EncounterId).Distinct().ToList();
+        var encounterDays = await db.Encounters.AsNoTracking().Where(e => encounterIds.Contains(e.Id)).ToDictionaryAsync(e => e.Id, e => e.EncounterAtUtc, ct);
         var views = rows.Select(r =>
         {
             var item = plan.Items.Single(i => i.Id == r.PlanItemId);
             return new CompletedProcedureView(r.Id, r.PlanItemId, item.ItemNumber, item.ProcedureCode, item.ProcedureDescription, r.ToothKey, r.Surface, r.EncounterId, r.ProviderProfileId,
-                r.PerformedAtUtc, r.PlanRevisionNumber, r.ChartOutcome, r.ToothFindingId, charges[r.PlanItemId], set.AdoptionReason is not null, set.AdoptionReason);
+                r.PerformedAtUtc, r.PlanRevisionNumber, r.ChartOutcome, r.ToothFindingId, charges[r.PlanItemId], set.AdoptionReason is not null, set.AdoptionReason,
+                CompletionDates.DaysAfter(clock, r.PerformedAtUtc, encounterDays.GetValueOrDefault(r.EncounterId)));
         }).OrderBy(v => v.ItemNumber).ToList();
         return new CompletionResult(plan, set.Id, set.CorrelationId, replayed, views, set.AdoptionReason);
     }

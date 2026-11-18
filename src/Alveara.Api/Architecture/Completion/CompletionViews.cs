@@ -15,7 +15,8 @@ public sealed record ChargeEffect(string Outcome, int? EntryNumber, decimal? Amo
 /// <summary>One procedure of a completion set as it was recorded: where it came from, who did it, when, where on the chart and what happened to the chart and the charge.</summary>
 public sealed record CompletedProcedureView(
     Guid Id, Guid PlanItemId, int ItemNumber, string ProcedureCode, string ProcedureDescription, string? ToothKey, string? Surface, Guid EncounterId, Guid ProviderProfileId,
-    DateTimeOffset PerformedAtUtc, int PlanRevisionNumber, string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge, bool Adopted = false, string? AdoptionReason = null);
+    DateTimeOffset PerformedAtUtc, int PlanRevisionNumber, string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge, bool Adopted = false, string? AdoptionReason = null,
+    int? PerformedAfterEncounterDays = null);   // ALV-N023 (DR-8): practice days the performed date is after the encounter's date (null when not after)
 
 /// <summary>The answer to completing a set: the plan as it now stands, the set, whether this was a replay of an earlier identical submission, and each procedure as recorded.</summary>
 public sealed record CompletionResult(PlanView Plan, Guid SetId, Guid CorrelationId, bool Replayed, IReadOnlyList<CompletedProcedureView> Procedures, string? AdoptionReason = null);
@@ -78,7 +79,7 @@ public sealed record CompletedProcedureDetail(
     Guid EncounterId, DateTimeOffset EncounterAtUtc, Guid ProviderProfileId, string ProviderName, DateTimeOffset PerformedAtUtc,
     Guid OriginalEncounterId, Guid OriginalProviderProfileId, DateTimeOffset OriginalPerformedAtUtc,
     string ChartOutcome, Guid? ToothFindingId, ChargeEffect? Charge, string FinalizedByName, DateTimeOffset FinalizedAtUtc, int LatestAmendmentNumber, IReadOnlyList<AmendmentView> Amendments,
-    bool Adopted = false, string? AdoptionReason = null);
+    bool Adopted = false, string? AdoptionReason = null, int? PerformedAfterEncounterDays = null);
 
 /// <summary>The answer to correcting a completed procedure: the procedure as it now stands, the number of the amendment, and whether this was a replay of an earlier identical correction.</summary>
 public sealed record AmendmentResult(CompletedProcedureDetail Procedure, int AmendmentNumber, bool Replayed);
