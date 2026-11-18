@@ -3218,3 +3218,9 @@
   - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md row U-004 (owner, manual walkthrough).
   - Verification: user confirmed (owner reported it).
   - Notes: documents only. Not pushed.
+- [x] Unassigned findings: U-005 to U-009 added (owner, manual walkthrough after ALV-N022)
+  - Date: 2026-11-17
+  - Session: CC-20261115-m7x2
+  - What changed: docs/stabilization/UNASSIGNED_FINDINGS.md rows U-005 (linked records not clickable), U-006 (condition catalogue: who may change it, practice-level page), U-007 ("Retire" wording), U-008 (dentist cannot import documents by default), U-009 (Safety tab sub-tabs; checked not assigned to any story).
+  - Verification: user confirmed (owner reported them).
+  - Notes: documents only. Not pushed.
