@@ -20,3 +20,9 @@
 4. **PD-14** adds a closed/terminal presentation (for example "Closed - no remaining procedures") distinct from Completed.
 5. **DR-5** changes the rename API and form (a required reason) and the revision history wording ("Renamed from <old> to <new>" with the reason).
 6. **DR-7**'s "resolved user names" applies to the plan audit detail text; the audit page's "Performed by" column showing ids is F-029 and stays with its own package unless the reviewer moves it.
+
+## Added 2026-11-18: OQ-1 (raised by the brief)
+
+| # | Finding(s) | Decision | Owner's words (verbatim) | Agent's recommendation |
+|---|---|---|---|---|
+| **OQ-1** | F-185, F-188 (DR-1) | **Front desk links too.** | "OQ-1 decision: Front desk links too. Front desk and Office Manager may link an appointment while booking it under their existing ManageAppointments authority; Dentist/Admin may also link from the plan. This is an administrative scheduling relationship, not a treatment-plan edit. Enforce same patient, accepted/live item, and valid appointment server-side; it must not alter clinical/financial/acceptance fields. Cancellation or removal must restore the item’s truthful unscheduled-follow-up state. Audit the link/unlink using plan reference and procedure code, not plan-title/free clinical text." | Differs (agent recommended dentist-only linking, front-desk linking later). |
