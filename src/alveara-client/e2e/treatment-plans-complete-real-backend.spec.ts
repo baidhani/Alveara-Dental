@@ -7,8 +7,7 @@ import { seedLegacyCompletion } from "./support/legacyCompletion";
 
 // ALV-015-C01 demo, un-mocked: a real Chromium against the real Vite proxy -> real Alveara.Api -> real SQL Server.
 // Excluded from the default mocked run (playwright.config.ts) and run with playwright.treatment-plans-complete.config.ts against an API the caller started (see docs/testing/REAL_BACKEND_E2E.md).
-// It walks the companion story as a dentist would: a plan revised into phases with a rationale and a patient explanation; a patient's answers recorded with who gave them (and the whole-plan answer refused when it
-// would overwrite an opposite one); a procedure scheduled and completed (and then final); two revisions compared; the patient copy shown and printed; an old diagnosis reference tied to the right plan (and never to
+// It walks the companion story as a dentist would: a plan revised into phases with a rationale and a patient explanation; a patient's answers recorded with who gave them (and the whole-plan answer, since ALV-N023 DR-4, given only to the unanswered procedures); a procedure given a target date and completed (and then final); two revisions compared; the patient copy shown and printed; an old diagnosis reference tied to the right plan (and never to
 // another patient's) with its original text kept. A hygienist reads everything and changes nothing, and the API refuses what the screen does not offer.
 
 test.describe.configure({ mode: "serial" });
@@ -210,7 +209,7 @@ test("REVISION: phases, a clinical rationale and a patient explanation are laid 
   await scanBothThemes(page, "grouped");
 });
 
-test("ANSWERS: a decline needs a reason, an answer carries who gave it, and the whole-plan answer is refused when it would overwrite an opposite one", async () => {
+test("ANSWERS: a decline needs a reason, an answer carries who gave it, and the whole-plan answer (ALV-N023 DR-4) answers only the unanswered procedures", async () => {
   const page = sessions.Dentist.page;
   await gotoTab(page);
   await row(page, "PERIO-1").getByRole("button", { name: "Accept PERIO-1" }).click();
@@ -233,17 +232,15 @@ test("ANSWERS: a decline needs a reason, an answer carries who gave it, and the 
   await expect(card(page, "Gum health plan")).toContainText("Patient's answer: Partly accepted");
 
   // answering the whole plan against the declined procedure is refused, and nothing is recorded
-  await card(page, "Gum health plan").getByRole("button", { name: "Accept all pending" }).click();
-  const all = page.getByRole("form", { name: "Accept all pending procedures" });
-  await all.getByRole("button", { name: "Record acceptance" }).click();
-  await expect(all.getByRole("alert")).toContainText("1 of the 3 procedures already declined");
-  await shot(page, "03-partial-conflict.png");
-  await all.getByRole("button", { name: "Cancel" }).click();
+  // ALV-N023 (DR-4): the whole-plan answer applies to the unanswered procedures only and leaves the answers already given as they are
   await expect(row(page, "POL-1")).toContainText("Not yet answered");
-
-  await row(page, "POL-1").getByRole("button", { name: "Accept POL-1" }).click();
-  await page.getByRole("form", { name: "Accept POL-1" }).getByRole("button", { name: "Record acceptance" }).click();
-  await expect(statusLine(page)).toContainText("POL-1 accepted.");
+  await card(page, "Gum health plan").getByRole("button", { name: "Accept all unanswered" }).click();
+  const all = page.getByRole("form", { name: "Accept all unanswered procedures" });
+  await all.getByRole("button", { name: "Record acceptance" }).click();
+  await expect(statusLine(page)).toContainText("1 unanswered procedure accepted. Answers already given were left as they were.");
+  await shot(page, "03-accept-all-unanswered.png");
+  await expect(row(page, "SCALE-1")).toContainText("Declined");
+  await expect(card(page, "Gum health plan").getByRole("button", { name: "Accept all unanswered" })).toHaveCount(0);   // hidden when nothing is left unanswered
   await expect(card(page, "Gum health plan")).toContainText("Of that, accepted so far: $150.00");
   await shot(page, "04-answers.png");
   const states = (await plansOf(page, "ann"))[0].items.map((i: any) => [i.procedureCode, i.acceptance]);
@@ -254,14 +251,14 @@ test("ANSWERS: a decline needs a reason, an answer carries who gave it, and the 
 test("PROGRESS: only an accepted procedure is scheduled, completing is final, and a completed procedure cannot be re-answered or withdrawn", async () => {
   const page = sessions.Dentist.page;
   await gotoTab(page);
-  await expect(row(page, "SCALE-1").getByRole("button", { name: /Schedule|completed/ })).toHaveCount(0);      // declined: nothing to schedule
-  await row(page, "PERIO-1").getByRole("button", { name: "Schedule PERIO-1" }).click();
-  const sched = page.getByRole("form", { name: "Schedule PERIO-1" });
+  await expect(row(page, "SCALE-1").getByRole("button", { name: /target date|completed/ })).toHaveCount(0);      // declined: nothing to schedule
+  await row(page, "PERIO-1").getByRole("button", { name: "Set target date of PERIO-1" }).click();            // ALV-N023 (PD-15): a target date, never a booking
+  const sched = page.getByRole("form", { name: "Target date of PERIO-1" });
   await expect(sched.getByText("It does not book an appointment.")).toBeVisible();
-  await sched.getByLabel("Planned date (optional)").fill("2030-06-15");
-  await sched.getByRole("button", { name: "Save schedule" }).click();
-  await expect(statusLine(page)).toContainText("PERIO-1 scheduled.");
-  await expect(row(page, "PERIO-1")).toContainText("Scheduled for");
+  await sched.getByLabel("Target date").fill("2030-06-15");
+  await sched.getByRole("button", { name: "Save target date" }).click();
+  await expect(statusLine(page)).toContainText("Target date for PERIO-1 saved. It does not book an appointment.");
+  await expect(row(page, "PERIO-1")).toContainText("Target date");
 
   await expect(row(page, "PERIO-1").getByRole("button", { name: /Mark .* completed/ })).toHaveCount(0);       // ALV-008-C02: the per-procedure completion is retired; completing is Review and complete
   const open = (await plansOf(page, "ann"))[0];
@@ -416,7 +413,7 @@ test("a hygienist reads the plan, its answers, its history and the patient copy 
   await expect(row(page, "SCALE-1")).toContainText("Reason: Cannot afford it now");
   await expect(c).toContainText("Clinical rationale: Deep pockets");
   await expect(page.getByRole("form")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Revise plan|Accept|Decline|Schedule|completed|Withdraw|Set reference code|Add procedure|Rename plan|Review old/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Revise plan|Accept|Decline|target date|completed|Withdraw|Set reference code|Add procedure|Rename plan|Review old/ })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "Old diagnosis references" })).toHaveCount(0);
 
   await c.getByRole("button", { name: "Show revision history" }).click();
@@ -460,7 +457,7 @@ test("the API refuses what the screen does not offer: a stale answer, another pa
   expect([label.status, label.body.treatmentPlanReference, label.body.treatmentPlanReferenceState]).toEqual([200, "plan-7", "Resolved"]);   // the rest of the diagnosis can still be corrected
 
   const audit = JSON.stringify((await api(admin, "get", "/api/auth/audit-log")).body);
-  for (const event of ["TreatmentPlanRevised", "TreatmentPlanItemAccepted", "TreatmentPlanItemDeclined", "TreatmentPlanItemScheduled", "TreatmentPlanItemCompleted", "DiagnosisPlanReferenceResolved", "TreatmentPlanReferenceCodeSet"]) expect(audit, event).toContain(event);
+  for (const event of ["TreatmentPlanRevised", "TreatmentPlanItemAccepted", "TreatmentPlanItemDeclined", "TreatmentPlanItemTargetDateSet", "TreatmentPlanItemCompleted", "DiagnosisPlanReferenceResolved", "TreatmentPlanReferenceCodeSet"]) expect(audit, event).toContain(event);
   evidence.refusals = { stale: stale.body.error, crossPatient: cross.body.error, noCsrf: noCsrf.status, resolvedReferenceLocked: change.body.error, auditEvents: 7 };
 });
 
