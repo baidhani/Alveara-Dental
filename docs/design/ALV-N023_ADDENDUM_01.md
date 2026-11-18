@@ -1,0 +1,26 @@
+# ALV-N023 addendum 01: state/action ambiguities found while building slice 2 (owner decisions, 2026-11-18)
+
+**Basis:** review `.alveara/reviews/ALV-N023/BRIEFING-R02.md` ("Any new data invariant, permission, external integration, clinical rule, or state/action ambiguity must stop for review"). While implementing the approved section 4.6 matrix and DR-7, the focused tests exposed three conflicts that the approved briefing did not resolve. Work stopped; the owner decided them; this addendum records them for the reviewer. Nothing else in the approved contract changes.
+
+## Findings that triggered the stop (from the focused run of slice 2 group A, 121/129)
+1. **Empty plan.** Matrix row 2 made a plan whose procedures were all withdrawn "Closed" and read-only. That blocks the established correction "withdraw the wrong procedure, then add the right one" (`TreatmentPlanLifecycleTests.A_wrong_added_procedure_is_refused_on_the_named_field_and_a_duplicate_is_refused_until_the_first_is_withdrawn`) and makes an emptied plan impossible to withdraw (`TreatmentPlanStateServiceTests.Withdrawn_procedures_are_left_out...`).
+2. **All declined.** Matrix row 4 made an all-declined plan "Closed" and read-only, so a patient who later changes their mind could not have a procedure re-accepted, and the plan could not be withdrawn.
+3. **DR-7 "who gave the answer".** The answering person is usually the patient or a relative; writing that name into the audit detail broke the existing PHI-free audit rule and its test (`TreatmentPlanStateServiceTests.Accepting_records_who_entered_it...`: "the patient's name is not in the log").
+
+## Owner decisions (verbatim)
+| # | Decision | Owner's words |
+|---|---|---|
+| A1-1 | **Empty plan: allow add + withdraw** | "Allow add + withdraw. If every procedure was withdrawn and there is no completed care, staff must be able to correct the plan: add the right procedure, rename it if needed, or withdraw the empty plan. Keep the truthful display "Closed — no procedures remain," but do not make it irreversibly read-only." |
+| A1-2 | **Lock only with completed care** | "Lock only with completed care. A patient can change their mind. An all-declined plan with no completed procedures stays truthfully "Closed — all procedures declined," but allows changing an answer and withdrawing the plan. If an item is accepted again, the derived state returns to In progress. Plans containing completed care remain locked to the warned revision path." |
+| A1-3 | **No name in audit** | "No name in audit. Keep the audit log PHI-free. The audit detail may state an answer source category such as "patient," "parent/guardian," or "representative," but must not include that person's name. The staff user remains the recorded actor; the entered person's name remains only in the authorized treatment-plan answer/history record. Use this: Audit detail: Answer recorded — source: patient or source: representative. Audit entity: existing plan reference, item number, and procedure code. Technical correlation: retain the existing audit-event ID/correlation ID internally, not as patient-identifying detail. Authorized treatment-plan answer history: keeps the actual named person and source record for staff who legitimately need it." |
+
+## Effect on the approved section 4.6 matrix
+- States and their display are unchanged (Proposed / In progress / Completed / Closed / Withdrawn), with a stated reason for Closed: `NoProcedures` ("no procedures remain"), `AllDeclined` ("all procedures declined"), `CompletedOrDeclined`.
+- **Locked** (read-only except Activity, revision history, patient copy and the warned Revise anyway; no Withdraw - CR-3 unchanged) = Completed, or Closed **and containing completed care**. A Closed plan without completed care (rows 2 and the all-declined case of row 4) keeps the open-plan actions it can use: add procedure, rename (with reason), change an answer, withdraw item, withdraw plan. Re-accepting an item returns it to In progress (rule 5).
+- Follow-up eligibility is unchanged.
+
+## A1-3 implementation note (a limit, disclosed)
+The plan stores the answering person only as free text (`DecidedByName`, e.g. "Ann Alder (patient)"); there is no separate source-category field. Deriving "patient" vs "representative" from that text would be a guess, and adding a field would be a new data invariant (stop-for-review). So the audit detail says only "the person who gave the answer is recorded on the plan" - no name, no guessed category; the staff user stays the actor; the name stays in the plan's answer history. A real source-category field can be a later decision.
+
+## Tests (added or changed for this addendum)
+`TreatmentPlanStateTests`: matrix theory now asserts the lock rule per row; `A_closed_plan_says_why`; `An_empty_plan_is_closed_but_stays_correctable_add_rename_and_withdraw`; `An_all_declined_plan_is_closed_but_the_patient_can_change_their_mind_and_it_can_be_withdrawn`; the Completed and Closed-with-completed-care tests still refuse Withdraw. `TreatmentPlanAuditTests`: no name of the answering person in any row. `TreatmentPlanStateServiceTests`: the PHI-free audit test unchanged (it passes again); an empty plan's bulk answer is `nothing_unanswered`.
