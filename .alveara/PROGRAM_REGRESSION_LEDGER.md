@@ -48,6 +48,10 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Client vitest/build/lint/`tsc -b` and the full mocked Playwright suite over the A3 screens (odontogram, perio, diagnoses, safety clearances, prescriptions, treatment plan, external cases, patient header, templates route) | ALV-N022 | focused only: 45 files 917 of 917 at `63f74ff`; mocked suite listed, not run |
 | Every other real-backend walkthrough and the chain after A3 (typed links, `/clinical/templates` route, odontogram/perio display text) | ALV-N022 | 11 walkthroughs 110 of 110 (a3-display, safety, perio-sessions, clinical-companion, external-cases, diagnoses-structure, completion-adoption, prescription-workflow, prescriptions, perio, odontogram-longitudinal); the others and the chain not run |
 | Test debt: `ClinicalNotes.test.tsx` "shows the conflict banner for a stale tab..." is timing-sensitive under load (waits for the heading, not the note text) | ALV-005-C01 (owner work) | failed once in A3's focused run, 5 of 5 alone and 917 of 917 on retry; not changed |
+| Full backend suite: also the ALV-N023 classes (new `TreatmentPlanAppointmentLinkTests`, `TreatmentPlanAppointmentLinkMigrationTests`, `TreatmentPlanStateTests`, `TreatmentPlanAuditTests`, `TreatmentPlanBookingApiTests`; changed `UnscheduledTreatmentJobTests`, `TreatmentPlanStateServiceTests`, `TreatmentPlanCompletionApiTests`, `TreatmentPlanRevisionSchemaTests`, `RealMigrationInventory*`) and every class that books appointments, reads plans or writes follow-ups | ALV-N023 | focused only: 20 classes 368 of 368 at `f9c0d2a` |
+| Migration `20261118143203_AddTreatmentPlanItemAppointmentLinks`: upgrade from the post-N022 schema on a copy of a populated database (legacy scheduled items and open legacy follow-up tasks upgraded as section 4.4 says), guards 51291/51292, Down refused 51293 once a link exists; the installer path (ALV-N013); the dev database `AlveraDev` | ALV-N023 | migration tests on test clones only; `AlveraDev` not migrated |
+| Client vitest/build/lint/`tsc -b` and the full mocked Playwright suite over the N023 screens (treatment plan, calendar booking form, appointment view, patient copy, clinical history) | ALV-N023 | focused only: 21 files 242 of 242 at `2ade215` |
+| Every other real-backend walkthrough and the chain after N023, including `treatment-plans-complete-real-backend` (updated in source to DR-4, PD-15 wording and the `TreatmentPlanItemTargetDateSet` event, not run), `follow-ups`, `work-queue`, `calendar`, `schedule`, `completion*` | ALV-N023 | only the new `treatment-plan-integrity` spec, 7 of 7 |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -133,4 +137,12 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Focused proof:** `.alveara/handoffs/ALV-N022/A3-R01-evidence/TEST_RESULTS.md` (backend 297/297, vitest 917/917, repo 58/58, walkthroughs 110/110, negative controls as designed).
 - **Approved (`.alveara/reviews/ALV-N022/A3-R01.md`, final focused-proof approval, no package-level Stage 2):** attempt A3 COMPLETE; with A1 and A2 COMPLETE, ALV-N022 COMPLETE; the ALV-N022 rows above stay owed to ALV-N028.
 - **Deferred to ALV-N028:** the ALV-N022 A3 rows above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
+## ALV-N023 (item 60): PKG-08 treatment-plan scheduling, follow-up, state and revisions
+
+- **Implementation SHA (R01, Stage 1):** `2ade215` (swept tree `f9c0d2a` + one test-only commit; base `721ec8e`). Changed subsystems: treatment-plan appointment links (migration, guards 51291-51293), unscheduled-treatment follow-up rules and episodes, plan state and lock, plan decisions, rename, target dates, audit detail, appointment booking with plan items, treatment-plan and calendar screens, patient copy.
+- **Focused proof:** `.alveara/handoffs/ALV-N023/R01-evidence/TEST_RESULTS.md` (server 368/368, vitest 242/242, repo 58/58, browser spec 7/7, negative controls as designed).
+- **Approved (`.alveara/reviews/ALV-N023/R01.md`, final focused-proof approval, no package-level Stage 2):** ALV-N023 COMPLETE; the ALV-N023 rows above stay owed to ALV-N028.
+- **Deferred to ALV-N028:** the ALV-N023 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**
