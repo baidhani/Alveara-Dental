@@ -3272,3 +3272,9 @@
   - What changed: docs/design/ALV-N023_ADDENDUM_01.md (findings from the slice 2 group A run 121/129, owner decisions A1-1..A1-3 verbatim, effect on the section 4.6 matrix: lock only with completed care; audit names nothing, source-category limit disclosed).
   - Verification: user confirmed (owner's answers); paused for reviewer per BRIEFING-R02 stop rule.
   - Notes: slice 2 code is NOT committed (working tree) until the addendum review. Not pushed.
+- [x] ALV-N023: store review BRIEFING-R02-ADDENDUM-01 (APPROVED; implementation resumes; documents only)
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/reviews/ALV-N023/BRIEFING-R02-ADDENDUM-01.md stored unchanged.
+  - Verification: review file read in full.
+  - Notes: Not pushed.
