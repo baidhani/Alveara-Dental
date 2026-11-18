@@ -12,6 +12,8 @@ import type { Appointment, CalendarBlock } from "../services/schedulingApi";
 export class FakeScheduleServer extends FakePatientServer {
   /** ALV-N023 (OQ-1): accepted, unbooked procedures per patient, as GET /api/patients/{id}/bookable-treatment returns them. */
   bookable = new Map<string, unknown[]>();
+  /** ALV-N023 (OQ-1): the procedures each appointment books, as GET /api/appointments/{id}/treatment-items returns them. */
+  appointmentTreatment = new Map<string, unknown[]>();
   appointments: Appointment[] = [];
   /** ALV-N021 A2 (F-052): blocked time as GET /api/calendar/blocked-time returns it. */
   calendarBlocks: CalendarBlock[] = [];
@@ -78,8 +80,18 @@ export class FakeScheduleServer extends FakePatientServer {
     // ALV-N023 (OQ-1): the patient's accepted, unbooked procedures for the booking form (none unless a test sets them)
     const bookable = /^\/api\/patients\/([^/]+)\/bookable-treatment$/.exec(path);
     if (method === "GET" && bookable) return json(200, { patientId: bookable[1], items: this.bookable.get(bookable[1]) ?? [] });
+    // ALV-N023 (OQ-1): the front desk removes a procedure's link from the appointment view
+    const unlink = /^\/api\/treatment-plans\/([^/]+)\/items\/([^/]+)\/appointment-unlink$/.exec(path);
+    if (method === "POST" && unlink) {
+      this.scheduleCalls.push({ method, url: u.pathname + u.search, headers, body });
+      for (const [k, v] of this.appointmentTreatment) this.appointmentTreatment.set(k, v.filter((x) => (x as { itemId: string }).itemId !== unlink[2]));
+      return json(200, { planId: unlink[1], itemId: unlink[2], appointment: null });
+    }
     if (!path.startsWith("/api/appointments")) return null;
     this.scheduleCalls.push({ method, url: u.pathname + u.search, headers, body });
+    // ALV-N023 (OQ-1): the procedures an appointment books (none unless a test sets them)
+    const treatment = /^\/api\/appointments\/([^/]+)\/treatment-items$/.exec(path);
+    if (method === "GET" && treatment) return json(200, { appointmentId: treatment[1], items: this.appointmentTreatment.get(treatment[1]) ?? [] });
     const injected = this.takeInjected(method, path);
     if (injected) return injected;
 

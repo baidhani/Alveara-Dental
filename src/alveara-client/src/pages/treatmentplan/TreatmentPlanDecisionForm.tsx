@@ -26,7 +26,7 @@ export function TreatmentPlanDecisionForm({ plan, item, decision, onDone, onConf
   const [busy, setBusy] = useState(false);
   const uid = useId();
   const verb = decision === "Accepted" ? "Accept" : "Decline";
-  const subject = item ? item.procedureCode : "all pending procedures";
+  const subject = item ? item.procedureCode : "all unanswered procedures";   // ALV-N023 (DR-4)
   const past = decision === "Accepted" ? "accepted" : "declined";
   const needsReason = decision === "Declined";
 
@@ -37,7 +37,7 @@ export function TreatmentPlanDecisionForm({ plan, item, decision, onDone, onConf
     const input = { decision, reason: needsReason ? reason.trim() : null, decidedByName: by.trim() || null };
     try {
       const saved = item ? await decideItem(plan, item.id, input) : await decidePlan(plan, input);
-      onDone(saved, item ? `${item.procedureCode} ${past}.` : `All pending procedures ${past}.`);
+      onDone(saved, item ? `${item.procedureCode} ${past}.` : `${saved.changedCount ?? 0} unanswered procedure${saved.changedCount === 1 ? "" : "s"} ${past}. Answers already given were left as they were.`);
     } catch (err) {
       const fields = Object.values(planFieldErrorsOf(err));
       if (isConcurrencyConflict(err)) { setNote("Not recorded: this plan changed since you opened it. Reload and look again."); onConflict(); }

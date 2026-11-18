@@ -42,3 +42,13 @@
 .alv-tp__review th, .alv-tp__review td { text-align: left; vertical-align: top; padding: 0.375rem 0.5rem; border-bottom: 1px solid var(--color-border, #dde2e8); font-weight: normal; }
 .alv-tp__review thead th { font-weight: 600; }
 .alv-tp__legacy { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border, #dde2e8); }
+
+/* ALV-N023 (D-03): plan actions in labelled groups with space between them; Withdraw set apart and quieter. Item rows get breathing room between their action rows. */
+.alv-tp__action-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.alv-tp__action-group--quiet { padding-top: 0.5rem; border-top: 1px dashed var(--color-border, #dde2e8); }
+.alv-tp__item .alv-clinical__row-actions { margin-top: 0.5rem; }
+.alv-tp__controls + .alv-clinical__row-actions, .alv-tp__controls + button { margin-top: 0.5rem; }
+/* ALV-N023 (PD-15): "Overdue" is a word, with a border so it never depends on colour alone */
+.alv-tp__overdue { border: 1px solid currentColor; font-weight: 600; }
+.alv-tp__activity-list { margin: 0.25rem 0 0.5rem 1.25rem; padding: 0; }
+.alv-tp__copy-practice { margin-bottom: 0.75rem; }

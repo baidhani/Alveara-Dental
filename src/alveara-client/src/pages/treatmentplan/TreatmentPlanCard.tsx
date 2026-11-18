@@ -8,7 +8,8 @@ import { TreatmentPlanPatientCopy } from "./TreatmentPlanPatientCopy";
 import { TreatmentPlanPhaseGroups } from "./TreatmentPlanPhaseGroups";
 import { TreatmentPlanRevisions } from "./TreatmentPlanRevisions";
 import { TreatmentPlanStateControls } from "./TreatmentPlanStateControls";
-import { answerWords, when } from "./treatmentPlanRules";
+import { TreatmentPlanActivity } from "./TreatmentPlanActivity";
+import { answerWords, planStateWords, when } from "./treatmentPlanRules";
 
 interface Props extends Partial<ChangeProps> {
   plan: TreatmentPlan;
@@ -30,19 +31,21 @@ export function TreatmentPlanCard({ plan, canWrite = false, diagnoses = [], proc
   const change = canWrite && !withdrawn && onChanged && onConflict ? { onChanged, onConflict } : null;
   return (
     <li className={`alv-dx__item${withdrawn ? " alv-dx__item--withdrawn" : ""}`}>
-      <h3 className="alv-dx__label">{plan.title} <span className="alv-dx__badge">{plan.status}</span></h3>
+      <h3 className="alv-dx__label">{plan.title} <span className="alv-dx__badge" data-testid="plan-state">{planStateWords(plan)}</span></h3>
+      {plan.locked && <p className="alv-clinical__meta">This plan contains completed care and is finished, so it can no longer be changed. A correction is made with Revise anyway.</p>}
       <p className="alv-clinical__meta">
         Created{plan.createdByName ? ` by ${plan.createdByName}` : ""} on {when(plan.createdAtUtc)}
         {plan.updatedAtUtc ? ` · last changed${plan.updatedByName ? ` by ${plan.updatedByName}` : ""} on ${when(plan.updatedAtUtc)}` : ""}
       </p>
       <p className="alv-clinical__meta">Revision {plan.currentRevision}{plan.referenceCode ? ` · Reference code ${plan.referenceCode}` : ""}</p>
-      {!withdrawn && <p className="alv-clinical__meta">Patient&apos;s answer: {answerWords(plan.acceptanceStatus)}</p>}
+      {!withdrawn && (plan.unansweredCount ?? 1) > 0 && <p className="alv-clinical__meta">Patient&apos;s answer: {answerWords(plan.acceptanceStatus)}</p>}
       {withdrawn && <p className="alv-clinical__meta">Withdrawn{plan.withdrawnByName ? ` by ${plan.withdrawnByName}` : ""}{plan.withdrawnAtUtc ? ` on ${when(plan.withdrawnAtUtc)}` : ""}: {plan.withdrawnReason}</p>}
       {plan.clinicalRationale && <p className="alv-tp__words"><strong>Clinical rationale:</strong> {plan.clinicalRationale}</p>}
       {plan.patientExplanation && <p className="alv-tp__words"><strong>For the patient:</strong> {plan.patientExplanation}</p>}
-      <TreatmentPlanPhaseGroups plan={plan} control={change ? (i) => (i.isWithdrawn ? null : <><TreatmentPlanStateControls plan={plan} item={i} {...change} />{i.completion === "Completed" ? null : <WithdrawItemControl plan={plan} item={i} {...change} />}</>) : undefined} />
+      <TreatmentPlanPhaseGroups plan={plan} control={change && !plan.locked ? (i) => (i.isWithdrawn ? null : <><TreatmentPlanStateControls plan={plan} item={i} {...change} />{i.completion === "Completed" ? null : <WithdrawItemControl plan={plan} item={i} {...change} />}</>) : undefined} />
       <TreatmentPlanEstimate plan={plan} />
       <TreatmentPlanRevisions plan={plan} />
+      <TreatmentPlanActivity plan={plan} />
       {!withdrawn && (copy
         ? <TreatmentPlanPatientCopy plan={plan} patientName={patientName} onClose={() => setCopy(false)} />
         : <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setCopy(true)}>Show patient copy</button>)}

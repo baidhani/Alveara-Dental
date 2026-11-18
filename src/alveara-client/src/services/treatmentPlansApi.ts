@@ -50,6 +50,10 @@ export interface PlanItem {
   /** ALV-N021 A1: who entered the current answer and when (recordedBy/recordedAt are the last change of any kind). Optional only so older test fixtures still type-check; the server always sends them. */
   answerRecordedByName?: string | null;
   answerRecordedAtUtc?: string | null;
+  /** ALV-N023 (DR-1): the appointment that books it, read live (moves followed; cancelled/no-show = not live). */
+  appointment?: ItemAppointment | null;
+  /** ALV-N023 (PD-15): a target date that has passed (the procedure is not completed). */
+  targetOverdue?: boolean;
 }
 
 export interface PlanPhase {
@@ -84,6 +88,13 @@ export interface TreatmentPlan {
   phases: PlanPhase[];
   acceptanceStatus: Acceptance | "Partial";
   acceptedEstimateTotal: number;
+  /** ALV-N023 (PD-14, addendum 01): the derived state and the server's own flags; the screen renders these, never infers them. */
+  planState?: "Proposed" | "InProgress" | "Completed" | "Closed" | "Withdrawn";
+  closedReason?: "NoProcedures" | "AllDeclined" | "CompletedOrDeclined" | null;
+  locked?: boolean;
+  unansweredCount?: number;
+  hasAdoptable?: boolean;
+  changedCount?: number | null;
 }
 
 export interface PlanEvent {
@@ -234,22 +245,34 @@ type Versioned = Pick<TreatmentPlan, "id" | "rowVersion">;
 export const addPlanItem = (plan: Versioned, idempotencyKey: string, item: PlanItemInput) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/items`, "POST", { idempotencyKey, rowVersion: plan.rowVersion, ...item });
 
-export const revisePlan = (plan: Versioned, input: ReviseInput) =>
-  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/revise`, "POST", { rowVersion: plan.rowVersion, ...input });
+/** ALV-N023 (PD-14): a finished plan with completed care is revised only with reviseAnyway (a deliberate, warned correction). */
+export const revisePlan = (plan: Versioned, input: ReviseInput, reviseAnyway = false) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/revise`, "POST", { rowVersion: plan.rowVersion, ...input, reviseAnyway });
 
 /** Accepts or declines one procedure. A decline needs a reason; `decidedByName` is who gave the answer (the signed-in account is recorded as who entered it). */
 export const decideItem = (plan: Versioned, itemId: string, input: DecisionInput) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/items/${itemId}/decision`, "POST", { rowVersion: plan.rowVersion, ...input });
 
-/** Accepts or declines every procedure still pending. Refused (409 partial_acceptance_conflict) when any holds the opposite answer. */
+/** ALV-N023 (DR-4): accepts or declines every procedure that has no answer yet; answered ones are left alone. The plan returned says how many changed (changedCount); nothing unanswered is refused (409 nothing_unanswered). */
 export const decidePlan = (plan: Versioned, input: DecisionInput) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/decision`, "POST", { rowVersion: plan.rowVersion, ...input });
 
-export const scheduleItem = (planId: string, itemId: string, scheduled: boolean, plannedDate: string | null) =>
-  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/schedule`, "POST", { scheduled, plannedDate });
+/** ALV-N023 (PD-15): sets or clears a TARGET date (never a booking). A past date is refused (400 past_target_date) unless confirmPast. */
+export const scheduleItem = (planId: string, itemId: string, scheduled: boolean, plannedDate: string | null, confirmPast = false) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${planId}/items/${itemId}/schedule`, "POST", { scheduled, plannedDate, confirmPast });
+
+/** ALV-N023 (F-183): the practice's name, phone and address for the patient copy. */
+export const getPracticeHeader = (signal?: AbortSignal) => request<{ name: string | null; phone: string | null; addressLine: string | null }>("/api/treatment-plans/practice-header", { signal });
+
+/** ALV-N023 (DR-1): the patient's still-scheduled appointments a procedure can be linked to. */
+export interface LinkableAppointment { appointmentId: string; startUtc: string; durationMinutes: number; providerName: string | null }
+export const getLinkableAppointments = (patientId: string, signal?: AbortSignal) =>
+  request<{ patientId: string; appointments: LinkableAppointment[] }>(`/api/patients/${patientId}/linkable-appointments`, { signal });
 
 /** One completed procedure in a patient's clinical history, read from the completion record of the plan it was planned in. */
 export interface ClinicalHistoryEntry {
+  /** ALV-N023 (DR-8): practice days the performed date is after the encounter's date (absent when not after). */
+  performedAfterEncounterDays?: number | null;
   planId: string;
   planTitle: string;
   itemId: string;
@@ -295,8 +318,9 @@ export const resolvePlanReference = (diagnosisId: string, planId: string) =>
 export const withdrawPlanItem = (plan: Versioned, itemId: string, reason: string) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/items/${itemId}/withdraw`, "POST", { rowVersion: plan.rowVersion, reason });
 
-export const renameTreatmentPlan = (plan: Versioned, title: string) =>
-  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/rename`, "POST", { rowVersion: plan.rowVersion, title });
+/** ALV-N023 (DR-5): a rename needs a reason. */
+export const renameTreatmentPlan = (plan: Versioned, title: string, reason: string) =>
+  requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/rename`, "POST", { rowVersion: plan.rowVersion, title, reason });
 
 export const withdrawTreatmentPlan = (plan: Versioned, reason: string) =>
   requestWithCsrf<TreatmentPlan>(`/api/treatment-plans/${plan.id}/withdraw`, "POST", { rowVersion: plan.rowVersion, reason });

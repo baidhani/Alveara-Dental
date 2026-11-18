@@ -13,6 +13,7 @@ import { assignVisit, getAppointmentActions, keepDespiteBlock, moveVisit, undoCh
 import type { AppointmentActions, VisitAction } from "../../services/visitsApi";
 import { AssignPanel } from "../flow/AssignPanel";
 import { AppointmentHistory } from "./AppointmentHistory";
+import { AppointmentTreatment } from "./AppointmentTreatment";
 import { CheckoutPanel } from "../flow/CheckoutPanel";
 import { ReasonForm } from "../flow/ReasonForm";
 import { flowWord, statusWord } from "./calendarLayout";
@@ -263,6 +264,7 @@ export function AppointmentPanel({ appointment, snapshot, canManage, onChanged, 
         {canManage && <div><Button type="submit" disabled={busy || !noteDirty}>Save note</Button></div>}
       </form>
 
+      <AppointmentTreatment key={current.id} appointmentId={current.id} canManage={canManage} />   {/* ALV-N023 (OQ-1) */}
       <AppointmentHistory history={history} />
     </div>
   );

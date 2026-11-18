@@ -47,17 +47,17 @@ describe("the patient copy", () => {
     expect(copy).toHaveTextContent("Deep cleaning");
     expect(copy).toHaveTextContent("For: Chronic periodontitis");
     expect(copy).toHaveTextContent("Estimated fee: $100.00 · Your answer: accepted · planned for");
-    expect(copy).toHaveTextContent("done");
+    expect(copy).toHaveTextContent("Completed");                                                           // ALV-N023 (F-183): not the terse "done"
     expect(copy).toHaveTextContent("Polish");
     expect(copy).toHaveTextContent("Estimated fee: $20.00 · Your answer: not yet given");
-    expect(copy).toHaveTextContent("Plan version 3 · Reference PLAN-7");
+    expect(copy).toHaveTextContent("Plan version 3 · Plan reference: PLAN-7");                              // ALV-N023 (DR-6): kept, clearly labelled
   });
 
   it("totals only what is still proposed, shows what has been accepted, and says what the figure is and is not", async () => {
     const copy = await open();
     expect(copy).toHaveTextContent("Estimated total: $120.00");                                           // $100 + $20; the withdrawn $60 is not in it
     expect(copy).toHaveTextContent("Of that, the part you have accepted so far: $100.00");
-    expect(copy).toHaveTextContent("not an insurance estimate and not a guaranteed patient cost");
+    expect(copy).not.toHaveTextContent("not an insurance estimate and not a guaranteed patient cost");      // ALV-N023 (F-183): one disclaimer, not two saying nearly the same
     expect(copy).toHaveTextContent("It does not include any insurance benefits, and it is not a quote of what you will be asked to pay.");
     expect(copy.textContent).not.toMatch(/covered|insurer|your insurance will|you will pay/i);
   });

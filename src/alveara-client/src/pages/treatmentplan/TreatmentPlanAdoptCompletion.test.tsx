@@ -14,7 +14,8 @@ import { TreatmentPlansPanel } from "./TreatmentPlansPanel";
  * completed procedure exists, the form lists only legacy completions, says in words what adopting will do (from the server's readiness), names what is missing before sending anything, sends the plan's version
  * and a key that a retry reuses, and every failure says nothing was recorded and keeps what was entered.
  */
-const legacyPlan = () => plan({ items: [item({ id: "it1", procedureCode: "PERIO-1", acceptance: "Accepted", completion: "Completed" }), item({ id: "it2", itemNumber: 2, procedureCode: "FILL-1", acceptance: "Accepted" })], acceptanceStatus: "Accepted" });
+// ALV-N023 (F-180/F-222): the server says whether an old-style completion exists (hasAdoptable); the button follows it
+const legacyPlan = () => plan({ items: [item({ id: "it1", procedureCode: "PERIO-1", acceptance: "Accepted", completion: "Completed" }), item({ id: "it2", itemNumber: 2, procedureCode: "FILL-1", acceptance: "Accepted" })], acceptanceStatus: "Accepted", hasAdoptable: true });
 
 const row = (over: Partial<ItemReadiness> = {}): ItemReadiness => ({
   itemId: "it1", itemNumber: 1, procedureCode: "PERIO-1", procedureDescription: "Periodontal maintenance", toothKey: null, surface: null, ready: false, notReadyReason: "already_completed", chartEffect: "NotApplicable", chartMatches: 0,

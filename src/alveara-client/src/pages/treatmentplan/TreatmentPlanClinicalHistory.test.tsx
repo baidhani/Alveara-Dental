@@ -57,7 +57,7 @@ describe("the clinical history", () => {
 
   it("refreshes after an adoption so the new care shows straight away", async () => {
     const user = userEvent.setup();
-    const completed = plan({ items: [accepted("it1", "PERIO-1", { completion: "Completed" })], acceptanceStatus: "Accepted" });
+    const completed = plan({ items: [accepted("it1", "PERIO-1", { completion: "Completed" })], acceptanceStatus: "Accepted", hasAdoptable: true });   // ALV-N023: an old-style completion
     const readiness: CompletionReadiness = {
       planId: "pl1", rowVersion: "R1", providers: [{ id: "pv1", name: "Dr. Okafor", specialty: "General dentistry" }], encounters: [{ id: "en1", atUtc: "2030-01-01T10:00:00Z", status: "Draft" }],
       items: [{ itemId: "it1", itemNumber: 1, procedureCode: "PERIO-1", procedureDescription: "PERIO-1 wording", toothKey: null, surface: null, ready: false, notReadyReason: "already_completed", chartEffect: "NotApplicable", chartMatches: 0, billable: true, fee: 120, chargeExists: false, legacyCompleted: true }],

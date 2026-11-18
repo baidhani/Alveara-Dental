@@ -67,3 +67,24 @@ describe("booking with accepted treatment", () => {
     expect(form.queryByRole("checkbox")).not.toBeInTheDocument();
   });
 });
+
+describe("the appointment view lists what it books (OQ-1)", () => {
+  it("shows the booked procedure and lets the front desk unlink it with a reason", async () => {
+    const a = server.seed({ start: `${DAY}T09:00`, minutes: 30, patientName: "Ann Lee" });
+    server.appointmentTreatment.set(a.id, [crown]);
+    window.history.pushState({}, "", "/calendar");
+    render(<App />);
+    fireEvent.change(await screen.findByLabelText("Date"), { target: { value: DAY } });
+    await userEvent.click(await vi.waitFor(() => { const b = document.querySelector(`[data-appointment="${a.id}"]`) as HTMLElement; expect(b).toBeTruthy(); return b; }));
+    const section = await screen.findByRole("region", { name: "Treatment this appointment books" });
+    expect(section).toHaveTextContent("D2740 Crown - porcelain (tooth 19) - plan plan-2030-01, item 1");
+    await userEvent.click(within(section).getByRole("button", { name: "Unlink D2740" }));
+    await userEvent.click(within(section).getByRole("button", { name: "Unlink" }));
+    expect(await within(section).findByText("Say why.")).toBeInTheDocument();
+    await userEvent.type(within(section).getByLabelText(/Why is this appointment no longer booking D2740/), "Patient will call back");
+    await userEvent.click(within(section).getByRole("button", { name: "Unlink" }));
+    expect(await within(section).findByText("D2740 is no longer booked by this appointment.")).toBeInTheDocument();
+    expect(server.callsToSchedule("POST", "/api/treatment-plans/plan-1/items/item-1/appointment-unlink").at(-1)!.body).toEqual({ reason: "Patient will call back" });
+  });
+});
+

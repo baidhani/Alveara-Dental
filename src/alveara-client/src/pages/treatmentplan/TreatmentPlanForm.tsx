@@ -5,7 +5,7 @@ import type { Diagnosis } from "../../services/diagnosisApi";
 import { createTreatmentPlan, planFieldErrorsOf } from "../../services/treatmentPlansApi";
 import type { PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { TreatmentPlanItemFields } from "./TreatmentPlanItemFields";
-import { EMPTY_ITEM, itemGap, otherMessages, titleGap, toItemInput } from "./treatmentPlanRules";
+import { EMPTY_ITEM, itemGaps, otherMessages, titleGap, toItemInput } from "./treatmentPlanRules";
 import type { ItemDraft } from "./treatmentPlanRules";
 
 interface Props {
@@ -44,8 +44,7 @@ export function TreatmentPlanForm({ patientId, diagnoses, procedures, onSaved }:
     const found: Record<string, string> = {};
     const titleProblem = titleGap(title);
     if (titleProblem) found.title = titleProblem;
-    const gap = itemGap(item);
-    if (gap) found[!item.diagnosisId ? "items[0].diagnosisId" : !item.procedure ? "items[0].procedureId" : "items[0].toothKey"] = gap;
+    for (const [field, gap] of Object.entries(itemGaps(item))) found[`items[0].${field}`] = gap;   // ALV-N023 (Q-5ae): every gap beside its field
     if (Object.keys(found).length > 0) return refuse(found, "Not saved: some entries need correcting. Nothing was sent.");
 
     const input = toItemInput(item);

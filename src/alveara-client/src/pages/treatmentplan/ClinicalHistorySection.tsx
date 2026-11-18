@@ -4,12 +4,16 @@ import { ErrorState } from "../../components/StatePatterns";
 import { getClinicalHistory } from "../../services/treatmentPlansApi";
 import type { ClinicalHistoryEntry } from "../../services/treatmentPlansApi";
 import { when } from "./treatmentPlanRules";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/authContextObject";
 
 /**
  * STORY-008: the care this patient has had, newest first, read from the completion records of their treatment plans (there is no separate record to drift). It reloads when `refreshKey` changes, so a completion
  * shows here straight away. An empty list says only that nothing has been completed; a failed load says it could not load rather than showing an empty list.
  */
 export function ClinicalHistorySection({ patientId, refreshKey }: { patientId: string; refreshKey: number }) {
+  const canSeeBilling = useContext(AuthContext)?.hasPermission("ViewBilling") ?? false;   // ALV-N023 (F-102): the account entry links to the account only for those who may read it
   const [entries, setEntries] = useState<ClinicalHistoryEntry[] | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -37,7 +41,8 @@ export function ClinicalHistorySection({ patientId, refreshKey }: { patientId: s
                 {e.completedProcedureId && (
                   <p className="alv-clinical__meta">
                     Performed by {e.providerName} on {when(e.performedAtUtc!)}
-                    {e.chargeEntryNumber ? ` · charged $${(e.chargeAmount ?? 0).toFixed(2)} (account entry ${e.chargeEntryNumber})` : " · no charge"}
+                    {e.chargeEntryNumber ? <> · charged ${(e.chargeAmount ?? 0).toFixed(2)} ({canSeeBilling ? <Link to={`/patients/${patientId}/billing`} className="alv-workspace__link">account entry {e.chargeEntryNumber}</Link> : `account entry ${e.chargeEntryNumber}`})</> : " · no charge"}
+                    {e.performedAfterEncounterDays ? ` · performed ${e.performedAfterEncounterDays} day${e.performedAfterEncounterDays === 1 ? "" : "s"} after the selected encounter` : ""}
                     {e.chartOutcome === "Updated" ? " · chart finding completed" : ""}
                   </p>
                 )}

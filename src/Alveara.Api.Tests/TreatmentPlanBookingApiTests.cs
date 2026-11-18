@@ -142,4 +142,22 @@ public class TreatmentPlanBookingApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Forbidden, (await other.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/bookable-treatment")).Status);
         Assert.Equal(HttpStatusCode.Forbidden, (await other.SendAsync(HttpMethod.Post, $"/api/treatment-plans/{Id(plan)}/items/{item}/appointment-link", new { appointmentId = Guid.NewGuid() })).Status);
     }
+
+    [Fact]
+    public async Task The_link_picker_lists_only_still_scheduled_appointments_and_the_practice_header_is_readable_by_plan_readers()
+    {
+        var (dentist, desk) = (await _api.SessionAsync("Dentist"), await _api.SessionAsync("FrontDesk"));
+        var kept = await desk.SendAsync(HttpMethod.Post, "/api/appointments", Booking(At(9), _ann), "book-pick-0001");
+        var gone = await desk.SendAsync(HttpMethod.Post, "/api/appointments", Booking(At(13), _ann), "book-pick-0002");
+        Assert.Equal(HttpStatusCode.OK, (await desk.SendAsync(HttpMethod.Post, $"/api/appointments/{Id(gone.Body)}/cancel",
+            new { category = "patient", note = (string?)null, rowVersion = gone.Body.GetProperty("rowVersion").GetString() })).Status);
+
+        var list = await dentist.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/linkable-appointments");
+        Assert.Equal(HttpStatusCode.OK, list.Status);
+        Assert.Equal([Id(kept.Body)], list.Body.GetProperty("appointments").EnumerateArray().Select(a => a.GetProperty("appointmentId").GetString()!).ToArray());   // the cancelled one is not offered
+
+        var header = await dentist.SendAsync(HttpMethod.Get, "/api/treatment-plans/practice-header");
+        Assert.Equal(HttpStatusCode.OK, header.Status);
+        Assert.Equal(["name", "phone", "addressLine"], header.Body.EnumerateObject().Select(p => p.Name).ToArray());       // only what the patient copy prints
+    }
 }

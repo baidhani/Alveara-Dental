@@ -162,6 +162,17 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     public Task<IActionResult> LinkAppointment(Guid planId, Guid itemId, [FromBody] AppointmentLinkRequest request, CancellationToken ct) =>
         Run(async () => Ok(await plans.LinkAppointmentAsync(planId, itemId, request.AppointmentId, Actor, ct)));
 
+    /// <summary>ALV-N023 (F-183): the practice's name, phone and address for the printed patient copy (readers of plans cannot read the practice settings themselves).</summary>
+    [HttpGet("api/treatment-plans/practice-header")]
+    [RequirePermission(Permission.ViewClinicalDocumentation)]
+    public Task<IActionResult> PracticeHeader(CancellationToken ct) => Run(async () => Ok(await plans.PracticeHeaderAsync(ct)));
+
+    /// <summary>ALV-N023 (DR-1): the patient's still-scheduled appointments a procedure can be linked to (when and with whom only).</summary>
+    [HttpGet("api/patients/{patientId:guid}/linkable-appointments")]
+    [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]
+    public Task<IActionResult> LinkableAppointments(Guid patientId, CancellationToken ct) =>
+        Run(async () => Ok(new { patientId, appointments = await plans.LinkableAppointmentsAsync(patientId, ct) }));
+
     /// <summary>ALV-N023 (OQ-1): the patient's accepted, not-yet-booked procedures for the booking form - codes and descriptions only, no clinical text.</summary>
     [HttpGet("api/patients/{patientId:guid}/bookable-treatment")]
     [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]

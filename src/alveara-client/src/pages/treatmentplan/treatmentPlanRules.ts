@@ -31,6 +31,35 @@ export function changeWords(changeType: string): string {
   }
 }
 
+/** ALV-N023 (F-181, F-190): every kind of activity on a plan, in words. Old "ItemScheduled" rows were only ever target dates. */
+export function activityWords(changeType: string): string {
+  switch (changeType) {
+    case "ItemAccepted": return "Answer recorded: accepted";
+    case "ItemDeclined": return "Answer recorded: declined";
+    case "PlanAccepted": return "Unanswered procedures accepted";
+    case "PlanDeclined": return "Unanswered procedures declined";
+    case "ItemScheduled": case "TargetDateSet": return "Target date set";
+    case "ItemUnscheduled": case "TargetDateCleared": return "Target date cleared";
+    case "AppointmentLinked": return "Appointment linked (booked)";
+    case "AppointmentUnlinked": return "Appointment unlinked";
+    case "ReferenceCodeSet": return "Reference code set";
+    case "ItemCompleted": return "Procedure completed";
+    case "Withdrawn": return "Plan withdrawn";
+    default: return changeWords(changeType);
+  }
+}
+
+/** ALV-N023 (PD-14, addendum 01): the plan's state in words, from the server's derived state and the reason it is closed. */
+export function planStateWords(plan: { planState?: string; closedReason?: string | null; status: string }): string {
+  switch (plan.planState ?? (plan.status === "Withdrawn" ? "Withdrawn" : "Proposed")) {
+    case "InProgress": return "In progress";
+    case "Completed": return "Completed";
+    case "Closed": return plan.closedReason === "NoProcedures" ? "Closed - no procedures remain" : plan.closedReason === "AllDeclined" ? "Closed - all procedures declined" : "Closed - all remaining procedures are completed or declined";
+    case "Withdrawn": return "Withdrawn";
+    default: return "Proposed";
+  }
+}
+
 /** A change in money with its sign spelled out, so it is never read as a total: "+$30.00", "-$30.00" or "no change". */
 export function formatDelta(amount: number): string {
   if (amount === 0) return "no change";
@@ -77,6 +106,15 @@ export interface ItemDraft { diagnosisId: string; procedure: PlanningProcedure |
 export const EMPTY_ITEM: ItemDraft = { diagnosisId: "", procedure: null, toothKey: "", surface: "" };
 
 /** The first thing missing from an item as typed, or null when it is complete enough to send. */
+/** ALV-N023 (Q-5ae): every gap of an item, each beside its own field (a missing diagnosis AND a missing procedure are both named, as the server would). */
+export function itemGaps(draft: ItemDraft): Partial<Record<"diagnosisId" | "procedureId" | "toothKey", string>> {
+  const gaps: Partial<Record<"diagnosisId" | "procedureId" | "toothKey", string>> = {};
+  if (!draft.diagnosisId) gaps.diagnosisId = "Choose the diagnosis this procedure is for.";
+  if (!draft.procedure) gaps.procedureId = "Choose the procedure to propose.";
+  else if (draft.diagnosisId) { const site = itemGap(draft); if (site) gaps.toothKey = site; }
+  return gaps;
+}
+
 export function itemGap(draft: ItemDraft): string | null {
   if (!draft.diagnosisId) return "Choose the diagnosis this procedure is for.";
   if (!draft.procedure) return "Choose the procedure to propose.";

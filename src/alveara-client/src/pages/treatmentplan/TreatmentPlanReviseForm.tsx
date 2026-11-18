@@ -20,7 +20,7 @@ interface Props {
  * ALV-015-C01: revise a plan's content: its clinical rationale, the explanation a patient will read, its phases and where each procedure sits. Every revision says why and is saved as the next version; the
  * earlier ones stay readable. A gap is named beside its field before anything is sent; the server's refusal is shown the same way and everything typed is kept. Saving what the plan already says changes nothing.
  */
-export function TreatmentPlanReviseForm({ plan, onDone, onConflict, onCancel }: Props) {
+export function TreatmentPlanReviseForm({ plan, onDone, onConflict, onCancel, reviseAnyway = false }: Props & { reviseAnyway?: boolean }) {
   const uid = useId();
   const [draft, setDraft] = useState<ReviseDraft>(() => draftFromPlan(plan));
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -43,7 +43,7 @@ export function TreatmentPlanReviseForm({ plan, onDone, onConflict, onCancel }: 
     if (Object.keys(gaps).length > 0) return refuse(gaps, "Not saved: some entries need correcting. Nothing was sent.");
     setBusy(true);
     try {
-      const saved = await revisePlan(plan, toReviseInput(draft, live));
+      const saved = await revisePlan(plan, toReviseInput(draft, live), reviseAnyway);
       onDone(saved, saved.currentRevision === plan.currentRevision ? "Nothing changed, so no new revision was saved." : `Plan revised: this is now revision ${saved.currentRevision}. The earlier version is kept.`);
     } catch (err) {
       const server = planFieldErrorsOf(err);
@@ -66,6 +66,7 @@ export function TreatmentPlanReviseForm({ plan, onDone, onConflict, onCancel }: 
 
   return (
     <form className="alv-dx__form" aria-label="Revise this treatment plan" onSubmit={(e) => { e.preventDefault(); void save(); }}>
+      {reviseAnyway && <p className="alv-dx__message" role="note">Care on this plan was already completed. Revising keeps the completed care and its charges exactly as recorded; only the plan&apos;s wording and layout change.</p>}
       {message && <p className="alv-dx__message" role="status">{message}</p>}
       {Object.keys(errors).length > 0 && (
         <div className="alv-dx__problems" role="alert" tabIndex={-1} ref={summary}>

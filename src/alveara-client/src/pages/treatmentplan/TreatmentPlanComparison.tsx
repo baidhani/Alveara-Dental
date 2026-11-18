@@ -6,7 +6,7 @@ const shown = (v: string | null) => (v === null || v === "" ? "(none)" : v);
 
 function Words({ label, change }: { label: string; change: FieldChange | null }) {
   if (!change) return null;
-  return <li><strong>{label} changed.</strong> Before: {shown(change.from)} After: {shown(change.to)}</li>;
+  return <li><strong>{label} changed.</strong>{" "}<br /><span>Before: {shown(change.from)}</span>{" "}<br /><span>After: {shown(change.to)}</span></li>;   // ALV-N023 (F-182): one per line
 }
 
 function Items({ label, items }: { label: string; items: RevisionItem[] }) {

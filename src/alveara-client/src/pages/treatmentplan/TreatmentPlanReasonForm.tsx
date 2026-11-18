@@ -30,6 +30,7 @@ export function TreatmentPlanReasonForm({ title, hint, question, button, past, a
   const id = useId();
 
   async function submit() {
+    if (reason.trim() === "") return setNote("Say why.");   // ALV-N023 (F-186): explained, not a greyed-out button
     setBusy(true);
     setNote(null);
     try {
@@ -53,7 +54,7 @@ export function TreatmentPlanReasonForm({ title, hint, question, button, past, a
         <input id={id} type="text" maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} />
       </label>
       <div className="alv-clinical__row-actions">
-        <button type="submit" className="btn btn-primary" disabled={busy || reason.trim() === ""}>{button}</button>
+        <button type="submit" className="btn btn-primary" disabled={busy}>{button}</button>
         <button type="button" className="btn btn-outline-secondary" onClick={onCancel}>Cancel</button>
       </div>
     </form>

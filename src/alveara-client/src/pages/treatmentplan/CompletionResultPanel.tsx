@@ -20,6 +20,7 @@ export function CompletionResultPanel({ result, patientId, onDone }: { result: C
           <li key={p.id}>
             <strong>{p.procedureCode}</strong> {p.procedureDescription}: performed {when(p.performedAtUtc)}; {chartWords(p.chartOutcome)};{" "}
             {p.charge && p.charge.outcome !== "none" ? `charged ${money(p.charge.amount ?? 0)} (account entry ${p.charge.entryNumber})` : "no charge"}.
+            {p.performedAfterEncounterDays ? ` Performed ${p.performedAfterEncounterDays} day${p.performedAfterEncounterDays === 1 ? "" : "s"} after the selected encounter - check the date if that is not right.` : ""}
           </li>
         ))}
       </ul>

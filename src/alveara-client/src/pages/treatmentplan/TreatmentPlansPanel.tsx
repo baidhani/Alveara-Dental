@@ -74,7 +74,7 @@ export function TreatmentPlansPanel({ patient, canWrite = false }: Props) {
       <p className="alv-clinical__meta">
         A treatment plan proposes catalog procedures for this patient's diagnoses, with the practice's fee for each. It is never deleted: a wrong procedure or plan is withdrawn with a reason, and the history is kept.
       </p>
-      <p className="alv-clinical__status" role="status" aria-live="polite">{status ?? (canWrite ? "Nothing is saved until you create a plan." : "You can read this but your role cannot change it.")}</p>
+      <p className="alv-clinical__status" role="status" aria-live="polite">{status ?? (canWrite ? "" : "You can read this but your role cannot change it.")}</p>
       {conflict && <ConcurrencyConflictBanner problem={{ error: "concurrency_conflict", entityType: "treatment plan", entityId: patient.id }} onReload={() => { setConflict(false); setStatus("Reloaded."); load(showWithdrawn); }} />}
       {failed && <p className="alv-clinical__meta" role="alert">Could not refresh the treatment plans. What is shown may be out of date.</p>}
       {canWrite && catalogFailed && <p className="alv-clinical__meta" role="alert">The procedure catalog could not be loaded, so a plan cannot be created now. Reload the page to try again.</p>}

@@ -3,8 +3,9 @@ import type { PlanItem, TreatmentPlan } from "../../services/treatmentPlansApi";
 import type { ChangeProps } from "./TreatmentPlanActions";
 import { TreatmentPlanDecisionForm } from "./TreatmentPlanDecisionForm";
 import { TreatmentPlanScheduleForm } from "./TreatmentPlanScheduleForm";
+import { TreatmentPlanAppointmentLink } from "./TreatmentPlanAppointmentLink";
 
-type Mode = "accept" | "decline" | "schedule" | null;
+type Mode = "accept" | "decline" | "schedule" | "book" | null;
 
 /**
  * ALV-015-C01: what a person who may change plans can do with one procedure of a Proposed plan: record that the patient accepted or declined it and mark it scheduled (completing is done on the plan, with Review and complete). Only what makes sense
@@ -12,7 +13,7 @@ type Mode = "accept" | "decline" | "schedule" | null;
  */
 export function TreatmentPlanStateControls({ plan, item, onChanged, onConflict }: ChangeProps & { plan: TreatmentPlan; item: PlanItem }) {
   const [mode, setMode] = useState<Mode>(null);
-  if (item.completion === "Completed") return null;
+  if (item.completion === "Completed" || plan.locked) return null;                            // ALV-N023: a locked plan offers no item changes
   const done = (p: TreatmentPlan, text: string) => { setMode(null); onChanged(p, text); };
   const cancel = () => setMode(null);
   const accepted = item.acceptance === "Accepted";
@@ -24,12 +25,14 @@ export function TreatmentPlanStateControls({ plan, item, onChanged, onConflict }
         <div className="alv-clinical__row-actions">
           {!accepted && button("accept", `Accept ${item.procedureCode}`)}
           {item.acceptance !== "Declined" && button("decline", `Decline ${item.procedureCode}`)}
-          {accepted && button("schedule", `${item.scheduling === "Scheduled" ? "Change schedule of" : "Schedule"} ${item.procedureCode}`)}
+          {accepted && button("schedule", `${item.scheduling === "Scheduled" ? "Change target date of" : "Set target date of"} ${item.procedureCode}`)}
+          {accepted && button("book", `${item.appointment?.live ? "Unlink appointment of" : "Link appointment to"} ${item.procedureCode}`)}
         </div>
       )}
       {mode === "accept" && <TreatmentPlanDecisionForm plan={plan} item={item} decision="Accepted" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "decline" && <TreatmentPlanDecisionForm plan={plan} item={item} decision="Declined" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "schedule" && <TreatmentPlanScheduleForm plan={plan} item={item} onDone={done} onCancel={cancel} />}
+      {mode === "book" && <TreatmentPlanAppointmentLink plan={plan} item={item} onDone={done} onCancel={cancel} />}
     </div>
   );
 }

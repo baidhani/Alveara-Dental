@@ -73,6 +73,8 @@ export interface CompletedProcedureResult {
   providerProfileId: string;
   performedAtUtc: string;
   planRevisionNumber: number;
+  /** ALV-N023 (DR-8): practice days the performed date is after the encounter's date (absent when not after). */
+  performedAfterEncounterDays?: number | null;
   chartOutcome: string;
   toothFindingId: string | null;
   charge: ChargeEffectView | null;

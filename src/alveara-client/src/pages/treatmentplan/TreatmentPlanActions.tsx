@@ -32,6 +32,7 @@ export function WithdrawItemControl({ plan, item, onChanged, onConflict }: Chang
 
 function RenameForm({ plan, onChanged, onConflict, onCancel }: ChangeProps & { plan: TreatmentPlan; onCancel: () => void }) {
   const [title, setTitle] = useState(plan.title);
+  const [reason, setReason] = useState("");   // ALV-N023 (DR-5)
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const id = useId();
@@ -39,10 +40,11 @@ function RenameForm({ plan, onChanged, onConflict, onCancel }: ChangeProps & { p
   async function save() {
     const gap = titleGap(title);
     if (gap) return setNote(`Not renamed: ${gap}`);
+    if (title.trim() !== plan.title && reason.trim() === "") return setNote("Not renamed: say why the plan is being renamed.");
     setBusy(true);
     setNote(null);
     try {
-      onChanged(await renameTreatmentPlan(plan, title.trim()), "Treatment plan renamed.");
+      onChanged(await renameTreatmentPlan(plan, title.trim(), reason.trim()), "Treatment plan renamed.");
     } catch (err) {
       const fields = Object.values(planFieldErrorsOf(err));
       if (isConcurrencyConflict(err)) { setNote("Not renamed: someone else changed this treatment plan. Reload and try again."); onConflict(); }
@@ -59,6 +61,9 @@ function RenameForm({ plan, onChanged, onConflict, onCancel }: ChangeProps & { p
       {note && <p className="alv-dx__message" role="alert">{note}</p>}
       <label htmlFor={id}>New title
         <input id={id} type="text" maxLength={250} value={title} onChange={(e) => setTitle(e.target.value)} />
+      </label>
+      <label htmlFor={`${id}-why`}>Why is it being renamed?
+        <input id={`${id}-why`} type="text" maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} />
       </label>
       <div className="alv-clinical__row-actions">
         <button type="submit" className="btn btn-primary" disabled={busy}>Save title</button>
@@ -80,25 +85,40 @@ export function TreatmentPlanActions({ plan, diagnoses, procedures, onChanged, o
 
   return (
     <div className="alv-tp__actions">
-      {mode === null && (
-        <div className="alv-clinical__row-actions">
-          <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("add")}>Add procedure</button>
-          <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("revise")}>Revise plan</button>
-          {plan.acceptanceStatus !== "Accepted" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("accept")}>Accept all pending</button>}
-          {plan.acceptanceStatus !== "Declined" && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("decline")}>Decline all pending</button>}
-          {acceptedOpenItems(plan).length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => setMode("review")}>Review and complete…</button>}
-          {plan.items.some((i) => !i.isWithdrawn && i.completion === "Completed") && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("adopt")}>Adopt earlier completions…</button>}
-          <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("rename")}>Rename plan</button>
-          {plan.referenceCode === null && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("code")}>Set reference code</button>}
-          <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("withdraw")}>Withdraw plan</button>
+      {/* ALV-N023 (PD-14, addendum 01): a locked plan (finished, with completed care) offers only the warned Revise anyway */}
+      {mode === null && plan.locked && (
+        <div className="alv-tp__action-group" role="group" aria-label="Plan actions">
+          <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("revise")}>Revise anyway…</button>
         </div>
+      )}
+      {/* D-03: the plan's answers, its content changes and Withdraw are grouped apart; only buttons that can act are shown (F-178, F-180, F-187, F-189, F-222) */}
+      {mode === null && !plan.locked && (
+        <>
+          {((plan.unansweredCount ?? 0) > 0 || acceptedOpenItems(plan).length > 0 || plan.hasAdoptable) && (
+            <div className="alv-tp__action-group" role="group" aria-label="Answers and completion">
+              {(plan.unansweredCount ?? 0) > 0 && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("accept")}>Accept all unanswered</button>}
+              {(plan.unansweredCount ?? 0) > 0 && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("decline")}>Decline all unanswered</button>}
+              {acceptedOpenItems(plan).length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => setMode("review")}>Review and complete…</button>}
+              {plan.hasAdoptable && <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("adopt")}>Adopt earlier completions…</button>}
+            </div>
+          )}
+          <div className="alv-tp__action-group" role="group" aria-label="Plan changes">
+            <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("add")}>Add procedure</button>
+            <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setMode("revise")}>Revise plan</button>
+            <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("rename")}>Rename plan</button>
+            {plan.referenceCode === null && <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => setMode("code")}>Set reference code</button>}
+          </div>
+          <div className="alv-tp__action-group alv-tp__action-group--quiet" role="group" aria-label="Withdraw">
+            <button type="button" className="btn btn-link btn-sm" onClick={() => setMode("withdraw")}>Withdraw plan</button>
+          </div>
+        </>
       )}
       {mode === "add" && <TreatmentPlanAddItemForm plan={plan} diagnoses={diagnoses} procedures={procedures} onDone={(p) => done(p, "Procedure added to the plan.")} onConflict={onConflict} onCancel={cancel} />}
       {mode === "accept" && <TreatmentPlanDecisionForm plan={plan} decision="Accepted" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "decline" && <TreatmentPlanDecisionForm plan={plan} decision="Declined" onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "adopt" && <TreatmentPlanAdoptCompletion plan={plan} onChanged={onChanged} onConflict={onConflict} onClose={cancel} />}
       {mode === "review" && <TreatmentPlanReviewComplete plan={plan} onChanged={onChanged} onConflict={onConflict} onClose={cancel} />}
-      {mode === "revise" && <TreatmentPlanReviseForm plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
+      {mode === "revise" && <TreatmentPlanReviseForm plan={plan} reviseAnyway={plan.locked === true} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "code" && <TreatmentPlanReferenceCodeForm plan={plan} onDone={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "rename" && <RenameForm plan={plan} onChanged={done} onConflict={onConflict} onCancel={cancel} />}
       {mode === "withdraw" && (

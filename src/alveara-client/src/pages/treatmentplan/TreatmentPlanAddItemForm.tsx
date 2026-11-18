@@ -5,7 +5,7 @@ import type { Diagnosis } from "../../services/diagnosisApi";
 import { addPlanItem, planFieldErrorsOf } from "../../services/treatmentPlansApi";
 import type { PlanningProcedure, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { TreatmentPlanItemFields } from "./TreatmentPlanItemFields";
-import { EMPTY_ITEM, itemGap, otherMessages, toItemInput } from "./treatmentPlanRules";
+import { EMPTY_ITEM, itemGaps, otherMessages, toItemInput } from "./treatmentPlanRules";
 import type { ItemDraft } from "./treatmentPlanRules";
 
 interface Props {
@@ -30,9 +30,9 @@ export function TreatmentPlanAddItemForm({ plan, diagnoses, procedures, onDone, 
 
   async function save() {
     setMessage(null);
-    const gap = itemGap(item);
-    if (gap) {
-      setErrors({ [!item.diagnosisId ? "diagnosisId" : !item.procedure ? "procedureId" : "toothKey"]: gap });
+    const gaps = itemGaps(item);   // ALV-N023 (Q-5ae): every gap beside its field
+    if (Object.keys(gaps).length > 0) {
+      setErrors(gaps);
       return setMessage("Not added: some entries need correcting. Nothing was sent.");
     }
     setErrors({});
