@@ -3230,3 +3230,9 @@
   - What changed: docs/design/ALV-N023_FINDING_SURVEY.md (26 PKG-08 items read in code: 23 confirmed, F-188 take-off not reproduced in code, 3 questions answered) and docs/design/ALV-N023_DECISION_REQUEST.md (DR-1 scheduling model, PD-15, PD-14, DR-4..DR-8).
   - Verification: read-only code reading at 7a8b64e; no test run, no database access.
   - Notes: awaiting owner decisions before the pre-implementation brief. Not pushed.
+- [x] ALV-N023: owner decision record (DR-1 real appointment link, PD-15, PD-14, DR-4..DR-8)
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: docs/design/ALV-N023_OWNER_DECISION_RECORD.md with the owner's verbatim answers and their consequences for the brief (DR-1 is a schema change; R05 escalation note).
+  - Verification: user confirmed (owner's answers).
+  - Notes: documents only. Not pushed.
