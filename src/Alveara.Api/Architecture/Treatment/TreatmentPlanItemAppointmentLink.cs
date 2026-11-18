@@ -38,3 +38,9 @@ public sealed record ItemAppointmentView(Guid AppointmentId, DateTimeOffset Star
 
 /// <summary>ALV-N023: what a link or unlink returns. Deliberately minimal (no plan title, diagnosis or other clinical text): front desk and office manager may link but cannot read plans.</summary>
 public sealed record ItemAppointmentResult(Guid PlanId, Guid ItemId, ItemAppointmentView? Appointment);
+
+/// <summary>
+/// ALV-N023 (OQ-1): one accepted procedure as the front desk sees it when booking, or on an appointment that books it - only what scheduling needs: the procedure code and description, where on
+/// the mouth, the item number and the plan's reference code. No plan title, no diagnosis, no clinical text (front desk cannot read plans).
+/// </summary>
+public sealed record BookableTreatmentView(Guid PlanId, Guid ItemId, int ItemNumber, string ProcedureCode, string ProcedureDescription, string? ToothKey, string? Surface, string? PlanReference);

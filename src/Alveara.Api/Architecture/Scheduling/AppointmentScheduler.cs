@@ -102,6 +102,9 @@ public class AppointmentScheduler(
         if (!operatory.IsActive || operatory.Location is { IsActive: false })
             throw new SchedulingException("operatory_inactive", "That operatory is inactive.", 409);
 
+        // ---- ALV-N023 (OQ-1): the accepted procedures this appointment books, checked before anything is written ----
+        var treatment = await BookingTreatmentLinks.CheckAsync(db, request.PatientId, request.PlanItemIds, ct);
+
         // ---- is the provider working then? (inactive provider, outside weekly hours, blocked time, daylight-saving transition) ----
         var availability = await configuration.CheckProviderAvailabilityAsync(provider.Id, startUtc, duration, ct);
         if (!availability.Available)
@@ -125,6 +128,7 @@ public class AppointmentScheduler(
             Detail = $"Scheduled for {duration} minutes.",
         });
         AuditService.Record(db, SchedulingAuditEvents.Scheduled, nameof(Appointment), appointment.Id, actor, $"Appointment scheduled ({duration} minutes).");
+        await BookingTreatmentLinks.StageAsync(db, clock, appointment, treatment, actor, ct);   // same save: no appointment without its links, no link without its appointment
         try
         {
             await db.SaveChangesAsync(ct);
@@ -134,7 +138,8 @@ public class AppointmentScheduler(
         {
             // the same request raced itself past the early check; the other one won
             db.ChangeTracker.Clear();
-            var winner = await db.Appointments.AsNoTracking().SingleAsync(a => a.ScheduleKey == key, ct);
+            var winner = await db.Appointments.AsNoTracking().SingleOrDefaultAsync(a => a.ScheduleKey == key, ct)
+                ?? throw new SchedulingException("plan_item_conflict", "One of those procedures was booked or changed by someone else at the same moment. Nothing was booked; check and try again.", 409);   // ALV-N023: a link or plan-event number was taken
             return SameRequest(winner, request, startUtc, duration)
                 ? new ScheduleResult(await _views.ViewAsync(winner.Id, ct), false)
                 : throw new SchedulingException("idempotency_key_reused", "That Idempotency-Key was already used for a different appointment.", 409);

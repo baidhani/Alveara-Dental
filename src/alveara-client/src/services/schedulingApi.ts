@@ -73,7 +73,18 @@ export interface ScheduleInput {
   /** Blank = the appointment type's default. */
   durationMinutes: number | null;
   notes?: string | null;
+  /** ALV-N023 (OQ-1): accepted plan procedures this appointment books (linked in the same save). */
+  planItemIds?: string[];
 }
+
+/** ALV-N023 (OQ-1): an accepted, unbooked procedure as the booking form shows it - no plan title or diagnosis. */
+export interface BookableTreatment { planId: string; itemId: string; itemNumber: number; procedureCode: string; procedureDescription: string; toothKey: string | null; surface: string | null; planReference: string | null }
+
+export const getBookableTreatment = (patientId: string, signal?: AbortSignal) =>
+  request<{ patientId: string; items: BookableTreatment[] }>(`/api/patients/${patientId}/bookable-treatment`, { signal });
+
+export const getAppointmentTreatment = (appointmentId: string, signal?: AbortSignal) =>
+  request<{ appointmentId: string; items: BookableTreatment[] }>(`/api/appointments/${appointmentId}/treatment-items`, { signal });
 
 /** One key per booking attempt (renewed whenever the request changes, reused on every retry of the same request). */
 export const newScheduleKey = () => `book-${crypto.randomUUID()}`;

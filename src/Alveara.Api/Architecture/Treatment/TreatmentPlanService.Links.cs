@@ -84,6 +84,44 @@ public partial class TreatmentPlanService
         });
     }
 
+    /// <summary>ALV-N023 (OQ-1): the patient's accepted procedures that are not completed, not withdrawn, on an open plan and not booked by a live appointment.</summary>
+    public async Task<IReadOnlyList<BookableTreatmentView>> BookableAsync(Guid patientId, CancellationToken ct)
+    {
+        if (!await db.Patients.AsNoTracking().AnyAsync(p => p.Id == patientId, ct)) throw PatientNotFound();
+        var items = await (from i in db.TreatmentPlanItems.AsNoTracking()
+                           join p in db.TreatmentPlans.AsNoTracking() on i.PlanId equals p.Id
+                           where i.PatientId == patientId && i.WithdrawnAtUtc == null && p.Status == TreatmentPlanStatuses.Proposed
+                           select i).ToListAsync(ct);
+        var ids = items.Select(i => i.Id).ToList();
+        var states = (await db.TreatmentPlanItemStates.AsNoTracking().Where(s => ids.Contains(s.ItemId)).ToListAsync(ct)).GroupBy(s => s.ItemId).ToDictionary(g => g.Key, g => g.OrderByDescending(s => s.Sequence).First());
+        var links = await Recall.UnscheduledTreatmentRules.LinksAsync(db, ids, ct);
+        var open = items.Where(i => states.GetValueOrDefault(i.Id) is { Acceptance: ItemAcceptance.Accepted } s && s.Completion != ItemCompletion.Completed && links.GetValueOrDefault(i.Id) is not { Live: true }).ToList();
+        return await BookableViewsAsync(open, ct);
+    }
+
+    /// <summary>ALV-N023 (OQ-1): the procedures an appointment currently books (their latest link row is Linked to it).</summary>
+    public async Task<IReadOnlyList<BookableTreatmentView>> AppointmentTreatmentAsync(Guid appointmentId, CancellationToken ct)
+    {
+        var itemIds = await db.TreatmentPlanItemAppointmentLinks.AsNoTracking().Where(l => l.AppointmentId == appointmentId).Select(l => l.ItemId).Distinct().ToListAsync(ct);
+        var current = (await db.TreatmentPlanItemAppointmentLinks.AsNoTracking().Where(l => itemIds.Contains(l.ItemId)).ToListAsync(ct))
+            .GroupBy(l => l.ItemId).Select(g => g.OrderByDescending(l => l.Sequence).First()).Where(l => l.Action == AppointmentLinkActions.Linked && l.AppointmentId == appointmentId).Select(l => l.ItemId).ToList();
+        var items = await db.TreatmentPlanItems.AsNoTracking().Where(i => current.Contains(i.Id)).ToListAsync(ct);
+        return await BookableViewsAsync(items, ct);
+    }
+
+    private async Task<IReadOnlyList<BookableTreatmentView>> BookableViewsAsync(IReadOnlyList<TreatmentPlanItem> items, CancellationToken ct)
+    {
+        if (items.Count == 0) return [];
+        var planIds = items.Select(i => i.PlanId).Distinct().ToList();
+        var refs = await db.TreatmentPlans.AsNoTracking().Where(p => planIds.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => p.ReferenceCode, ct);
+        var procedureIds = items.Select(i => i.ProcedureId).Distinct().ToList();
+        var codes = await db.ProcedureDefinitions.AsNoTracking().Where(d => procedureIds.Contains(d.Id)).ToDictionaryAsync(d => d.Id, d => d.Code, ct);
+        var versionIds = items.Select(i => i.ProcedureVersionId).Distinct().ToList();
+        var descriptions = await db.ProcedureVersions.AsNoTracking().Where(v => versionIds.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Description, ct);
+        return items.OrderBy(i => i.CreatedAtUtc).ThenBy(i => i.ItemNumber)
+            .Select(i => new BookableTreatmentView(i.PlanId, i.Id, i.ItemNumber, codes[i.ProcedureId], descriptions[i.ProcedureVersionId], i.ToothKey, i.Surface, refs[i.PlanId])).ToList();
+    }
+
     // ---------- shared ----------
 
     private async Task<(TreatmentPlan Plan, TreatmentPlanItem Item)> LoadLinkableAsync(Guid planId, Guid itemId, CancellationToken ct)

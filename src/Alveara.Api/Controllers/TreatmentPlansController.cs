@@ -162,6 +162,18 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     public Task<IActionResult> LinkAppointment(Guid planId, Guid itemId, [FromBody] AppointmentLinkRequest request, CancellationToken ct) =>
         Run(async () => Ok(await plans.LinkAppointmentAsync(planId, itemId, request.AppointmentId, Actor, ct)));
 
+    /// <summary>ALV-N023 (OQ-1): the patient's accepted, not-yet-booked procedures for the booking form - codes and descriptions only, no clinical text.</summary>
+    [HttpGet("api/patients/{patientId:guid}/bookable-treatment")]
+    [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]
+    public Task<IActionResult> BookableTreatment(Guid patientId, CancellationToken ct) =>
+        Run(async () => Ok(new { patientId, items = await plans.BookableAsync(patientId, ct) }));
+
+    /// <summary>ALV-N023 (OQ-1): the procedures an appointment books, for the appointment's detail (front desk may unlink one with a reason).</summary>
+    [HttpGet("api/appointments/{appointmentId:guid}/treatment-items")]
+    [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]
+    public Task<IActionResult> AppointmentTreatment(Guid appointmentId, CancellationToken ct) =>
+        Run(async () => Ok(new { appointmentId, items = await plans.AppointmentTreatmentAsync(appointmentId, ct) }));
+
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/appointment-unlink")]
     [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]
     [RequireCsrfToken]

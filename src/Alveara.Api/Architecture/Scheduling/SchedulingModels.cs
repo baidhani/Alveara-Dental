@@ -1,7 +1,8 @@
 namespace Alveara.Api.Architecture.Scheduling;
 
 /// <summary>What the scheduler asks for. The start is practice-local wall-clock time ("2026-11-02T09:00"), as a person at the front desk thinks of it.</summary>
-public record ScheduleAppointmentRequest(Guid PatientId, Guid ProviderId, Guid OperatoryId, Guid AppointmentTypeId, DateTime StartLocal, int? DurationMinutes, string? Notes = null);
+public record ScheduleAppointmentRequest(Guid PatientId, Guid ProviderId, Guid OperatoryId, Guid AppointmentTypeId, DateTime StartLocal, int? DurationMinutes, string? Notes = null,
+    IReadOnlyList<Guid>? PlanItemIds = null);   // ALV-N023 (OQ-1): accepted plan procedures this appointment books
 
 /// <summary>Where to move an appointment (ALV-004-C01). The patient and appointment type stay; the provider, operatory, start and duration may change. <c>DurationMinutes</c> null keeps the current duration.</summary>
 public record RescheduleRequest(Guid ProviderId, Guid OperatoryId, DateTime StartLocal, int? DurationMinutes, string? RowVersion);

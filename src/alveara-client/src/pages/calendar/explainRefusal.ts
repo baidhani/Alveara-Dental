@@ -46,6 +46,8 @@ export async function explainRefusal(err: unknown, names: { provider?: string; o
     case "operatory_inactive":
     case "appointment_type_inactive":
     case "validation_failed":
+    case "plan_item_invalid":    // ALV-N023 (OQ-1): a named procedure cannot be booked; nothing was booked
+    case "plan_item_conflict":
       return [err.message];
     // ALV-N021 A2: the visit workflow and cancel rules, in the server's own words
     case "category_required":

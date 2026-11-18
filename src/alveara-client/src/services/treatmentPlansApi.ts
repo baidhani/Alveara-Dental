@@ -217,6 +217,13 @@ export interface ReconciliationResult {
 export const listTreatmentPlans = (patientId: string, options: { includeWithdrawn?: boolean } = {}, signal?: AbortSignal) =>
   request<{ patientId: string; plans: TreatmentPlan[] }>(`/api/patients/${patientId}/treatment-plans${options.includeWithdrawn ? "?includeWithdrawn=true" : ""}`, { signal });
 
+/** ALV-N023 (DR-1, OQ-1): link a real appointment to an accepted procedure, or remove the link with a reason. The answer is minimal (no plan title); reload the plan to show it. */
+export interface ItemAppointment { appointmentId: string; startUtc: string; providerName: string | null; status: string; live: boolean; linkedByName: string | null; linkedAtUtc: string }
+export const linkPlanItemAppointment = (planId: string, itemId: string, appointmentId: string) =>
+  requestWithCsrf<{ planId: string; itemId: string; appointment: ItemAppointment | null }>(`/api/treatment-plans/${planId}/items/${itemId}/appointment-link`, "POST", { appointmentId });
+export const unlinkPlanItemAppointment = (planId: string, itemId: string, reason: string) =>
+  requestWithCsrf<{ planId: string; itemId: string; appointment: ItemAppointment | null }>(`/api/treatment-plans/${planId}/items/${itemId}/appointment-unlink`, "POST", { reason });
+
 export const getTreatmentPlanHistory = (planId: string, signal?: AbortSignal) => request<PlanEvent[]>(`/api/treatment-plans/${planId}/history`, { signal });
 
 export const createTreatmentPlan = (patientId: string, idempotencyKey: string, title: string, items: PlanItemInput[]) =>

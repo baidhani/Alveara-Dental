@@ -10,6 +10,8 @@ import type { Appointment, CalendarBlock } from "../services/schedulingApi";
  * so the UI's handling of each outcome can be tested in isolation.
  */
 export class FakeScheduleServer extends FakePatientServer {
+  /** ALV-N023 (OQ-1): accepted, unbooked procedures per patient, as GET /api/patients/{id}/bookable-treatment returns them. */
+  bookable = new Map<string, unknown[]>();
   appointments: Appointment[] = [];
   /** ALV-N021 A2 (F-052): blocked time as GET /api/calendar/blocked-time returns it. */
   calendarBlocks: CalendarBlock[] = [];
@@ -73,6 +75,9 @@ export class FakeScheduleServer extends FakePatientServer {
       const from = u.searchParams.get("from")!, to = u.searchParams.get("to") ?? from, provider = u.searchParams.get("providerId");
       return json(200, this.calendarBlocks.filter((b) => b.startLocal < `${addMinutes(`${to}T00:00`, 1440)}` && `${from}T00:00` < b.endLocal && (!provider || b.providerId === provider)));
     }
+    // ALV-N023 (OQ-1): the patient's accepted, unbooked procedures for the booking form (none unless a test sets them)
+    const bookable = /^\/api\/patients\/([^/]+)\/bookable-treatment$/.exec(path);
+    if (method === "GET" && bookable) return json(200, { patientId: bookable[1], items: this.bookable.get(bookable[1]) ?? [] });
     if (!path.startsWith("/api/appointments")) return null;
     this.scheduleCalls.push({ method, url: u.pathname + u.search, headers, body });
     const injected = this.takeInjected(method, path);

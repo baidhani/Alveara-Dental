@@ -11,6 +11,7 @@ import { explainRefusal } from "./explainRefusal";
 import { PlacementFields } from "./PlacementFields";
 import type { Placement } from "./PlacementFields";
 import { bookingDurationHint, durationAfterTypeChange } from "./bookingDuration";
+import { BookableTreatmentField } from "./BookableTreatmentField";
 
 /** ALV-N021 A2: who and what a Rebook starts from (the cancelled or no-show appointment). */
 export interface Rebook { patientId: string; patientName: string; appointmentTypeId: string; operatoryId: string }
@@ -45,6 +46,7 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
     setPlace(next);
   };
   const [notes, setNotes] = useState("");
+  const [treatment, setTreatment] = useState<string[]>([]);   // ALV-N023 (OQ-1)
   const [busy, setBusy] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [unconfirmed, setUnconfirmed] = useState(false);
@@ -65,6 +67,7 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
     const input = {
       patientId, providerId: place.providerId, operatoryId: place.operatoryId, appointmentTypeId: typeId, startLocal: `${place.date}T${place.time}`,
       durationMinutes: place.duration.trim() === "" ? null : Number(place.duration), notes: notes.trim() === "" ? null : notes,
+      ...(treatment.length > 0 ? { planItemIds: [...treatment].sort() } : {}),
     };
     const signature = JSON.stringify(input);
     if (attempt.current?.signature !== signature) attempt.current = { signature, key: newScheduleKey() };
@@ -90,9 +93,9 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
       {rebookPatient ? (
         <div className="alv-patient-picker">
           <p className="alv-patient-picker__selected" data-testid="rebook-patient"><span className="alv-patient-picker__label">Patient:</span> {rebookPatient.patientName} (rebooking)</p>
-          <Button type="button" onClick={() => { setRebookPatient(null); setLines([]); }} disabled={busy}>Choose a different patient</Button>
+          <Button type="button" onClick={() => { setRebookPatient(null); setTreatment([]); setLines([]); }} disabled={busy}>Choose a different patient</Button>
         </div>
-      ) : <PatientPicker key="picker" label="Patient" selected={patient} onSelect={(p) => { setPatient(p); setLines([]); }} disabled={busy} />}
+      ) : <PatientPicker key="picker" label="Patient" selected={patient} onSelect={(p) => { setPatient(p); setTreatment([]); setLines([]); }} disabled={busy} />}
       <div className="alv-form-field">
         <label htmlFor={typeSelect} className="alv-form-field__label">Appointment type *</label>
         <select id={typeSelect} className="alv-form-field__input" value={typeId} onChange={(e) => chooseType(e.target.value)} disabled={busy}>
@@ -102,6 +105,7 @@ export function NewAppointmentPanel({ snapshot, initial, onBooked }: Props) {
       </div>
       <PlacementFields snapshot={snapshot} values={place} onChange={changePlace} disabled={busy}
         durationHint={bookingDurationHint(type?.defaultDurationMinutes)} />
+      <BookableTreatmentField key={patient?.id ?? rebookPatient?.patientId ?? "none"} patientId={patient?.id ?? rebookPatient?.patientId ?? null} selected={treatment} onChange={setTreatment} disabled={busy} />
       <div className="alv-form-field">
         <label htmlFor={notesId} className="alv-form-field__label">Note (optional)</label>
         <textarea id={notesId} className="alv-form-field__input alv-form-inputs__textarea" rows={2} maxLength={1000} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={busy} />
