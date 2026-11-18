@@ -3260,3 +3260,9 @@
   - What changed: .alveara/reviews/ALV-N023/BRIEFING-R02.md stored unchanged.
   - Verification: review file read in full.
   - Notes: implementation in slices on owner Go. Not pushed.
+- [x] ALV-N023 slice 1 (wip): appointment links (DR-1, OQ-1), migration with guards 51291-51293, v2 follow-up episode rule
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: TreatmentPlanItemAppointmentLink entity/model/DbSet; migration AddTreatmentPlanItemAppointmentLinks (table, same-patient and append-only triggers, refused Down, four new plan event types); TreatmentPlanService.Links (link/unlink, quiet repeats, refusals, PHI-free audit, minimal result); routes appointment-link/unlink (ManageTreatmentPlans or ManageAppointments); plan item view carries the live appointment; UnscheduledTreatmentJobs waiting rule (no live link; target date never settles), versioned key unscheduled:v2 with legacy equivalence, new closure notes. Tests: TreatmentPlanAppointmentLinkTests (13, new), TreatmentPlanAppointmentLinkMigrationTests (4, new), UnscheduledTreatmentJobTests (6 rewritten to the approved rule + 6 path/upgrade tests), inventory 30 -> 31.
+  - Verification: 4 classes 47/48 first run (my test expected validation_failed; the helper's code is reason_required - test fixed), link class rerun 13/13; job class rerun 26/26 after a type-only warning fix; inventory 5/5 and migration 4/4 in the first run.
+  - Notes: setting a target date appends a state row and so starts a new follow-up episode (closes 'Continued in a new follow-up' and opens a new task) - per the approved algorithm; to disclose. Test class name correction: UnscheduledTreatmentJobTests (brief said RecallJobTests). Not pushed.

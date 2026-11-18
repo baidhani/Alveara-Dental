@@ -100,6 +100,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<Architecture.Treatment.TreatmentPlanRevisionPhase> TreatmentPlanRevisionPhases => Set<Architecture.Treatment.TreatmentPlanRevisionPhase>();
     public DbSet<Architecture.Treatment.TreatmentPlanRevisionItem> TreatmentPlanRevisionItems => Set<Architecture.Treatment.TreatmentPlanRevisionItem>();
     public DbSet<Architecture.Treatment.TreatmentPlanItemState> TreatmentPlanItemStates => Set<Architecture.Treatment.TreatmentPlanItemState>();
+    public DbSet<Architecture.Treatment.TreatmentPlanItemAppointmentLink> TreatmentPlanItemAppointmentLinks => Set<Architecture.Treatment.TreatmentPlanItemAppointmentLink>();   // ALV-N023
     public DbSet<Architecture.Billing.BillingAccount> BillingAccounts => Set<Architecture.Billing.BillingAccount>();
     public DbSet<Architecture.Billing.BillingEntry> BillingEntries => Set<Architecture.Billing.BillingEntry>();
     public DbSet<Architecture.Billing.BillingAllocation> BillingAllocations => Set<Architecture.Billing.BillingAllocation>();

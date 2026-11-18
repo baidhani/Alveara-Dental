@@ -26,11 +26,17 @@ public static class TreatmentPlanChanges
     public const string ItemScheduled = "ItemScheduled";
     public const string ItemUnscheduled = "ItemUnscheduled";
     public const string ItemCompleted = "ItemCompleted";
-    public static readonly IReadOnlyList<string> All = [Created, ItemAdded, ItemWithdrawn, Renamed, Withdrawn, Revised, ReferenceCodeSet, ItemAccepted, ItemDeclined, PlanAccepted, PlanDeclined, ItemScheduled, ItemUnscheduled, ItemCompleted];
+    // ALV-N023 (DR-1, PD-15): a real appointment books an item; a target date is only a target. The old ItemScheduled/ItemUnscheduled rows stay readable (shown as target dates).
+    public const string AppointmentLinked = "AppointmentLinked";
+    public const string AppointmentUnlinked = "AppointmentUnlinked";
+    public const string TargetDateSet = "TargetDateSet";
+    public const string TargetDateCleared = "TargetDateCleared";
+    public static readonly IReadOnlyList<string> All = [Created, ItemAdded, ItemWithdrawn, Renamed, Withdrawn, Revised, ReferenceCodeSet, ItemAccepted, ItemDeclined, PlanAccepted, PlanDeclined, ItemScheduled, ItemUnscheduled, ItemCompleted,
+        AppointmentLinked, AppointmentUnlinked, TargetDateSet, TargetDateCleared];
     /// <summary>The changes that are about one procedure and so name it.</summary>
-    public static readonly IReadOnlyList<string> AboutAnItem = [ItemAdded, ItemWithdrawn, ItemAccepted, ItemDeclined, ItemScheduled, ItemUnscheduled, ItemCompleted];
+    public static readonly IReadOnlyList<string> AboutAnItem = [ItemAdded, ItemWithdrawn, ItemAccepted, ItemDeclined, ItemScheduled, ItemUnscheduled, ItemCompleted, AppointmentLinked, AppointmentUnlinked, TargetDateSet, TargetDateCleared];
     /// <summary>The changes that cannot be made without saying why.</summary>
-    public static readonly IReadOnlyList<string> NeedAReason = [ItemWithdrawn, Withdrawn, ItemDeclined, PlanDeclined, Revised];
+    public static readonly IReadOnlyList<string> NeedAReason = [ItemWithdrawn, Withdrawn, ItemDeclined, PlanDeclined, Revised, AppointmentUnlinked];
     /// <summary>The changes that save a new revision of the plan's content.</summary>
     public static readonly IReadOnlyList<string> MakeARevision = [Created, ItemAdded, ItemWithdrawn, Renamed, Revised];
 }

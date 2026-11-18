@@ -79,7 +79,11 @@ public static class FollowUpRules
     /// <summary>The longest key that makes a system task unique (see <see cref="FollowUpTask.SourceKey"/>).</summary>
     public const int SourceKeyMaxLength = 100;
     public static string RecallSourceKey(Guid patientId, DateOnly dueDate) => string.Create(CultureInfo.InvariantCulture, $"recall:{patientId:N}:{dueDate:yyyyMMdd}");
+    /// <summary>The key of tasks made before ALV-N023 (kept for reading old tasks; never written any more).</summary>
     public static string UnscheduledSourceKey(Guid planItemId, int stateSequence) => $"unscheduled:{planItemId:N}:{stateSequence}";
+    /// <summary>ALV-N023 (briefing revision 2, section 4.4): one waiting episode of accepted treatment - the item's state row, its appointment-link row and whether that link's appointment ended.</summary>
+    public static string UnscheduledEpisodeKey(Guid planItemId, int stateSequence, int linkSequence, bool ended) =>
+        string.Create(CultureInfo.InvariantCulture, $"unscheduled:v2:{planItemId:N}:s{stateSequence}:l{linkSequence}:{(ended ? "ended" : "open")}");
     /// <summary>ALV-009-C02: one chase task per referral or lab case and due date (a changed due date is a new chase).</summary>
     public static string ReferralSourceKey(Guid caseId, DateOnly dueOn) => string.Create(CultureInfo.InvariantCulture, $"referral:{caseId:N}:{dueOn:yyyyMMdd}");
     public static string LabSourceKey(Guid caseId, DateOnly dueOn) => string.Create(CultureInfo.InvariantCulture, $"lab:{caseId:N}:{dueOn:yyyyMMdd}");

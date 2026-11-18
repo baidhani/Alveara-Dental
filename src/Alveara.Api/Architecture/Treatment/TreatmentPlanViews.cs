@@ -11,7 +11,7 @@ public sealed record PlanItemView(
     DateTimeOffset CreatedAtUtc, string? CreatedByName,
     int? PhaseNumber = null, string Acceptance = "Pending", string Scheduling = "Unscheduled", string Completion = "NotStarted", DateOnly? PlannedDate = null,
     string? DecisionReason = null, string? DecidedByName = null, string? RecordedByName = null, DateTimeOffset? RecordedAtUtc = null, int? DecisionRevision = null,
-    string? AnswerRecordedByName = null, DateTimeOffset? AnswerRecordedAtUtc = null);
+    string? AnswerRecordedByName = null, DateTimeOffset? AnswerRecordedAtUtc = null, ItemAppointmentView? Appointment = null);
 
 /// <summary>A phase (visit or stage of care) of the plan's current revision.</summary>
 public sealed record PlanPhaseView(int PhaseNumber, string Name, string? PlannedVisit, DateOnly? TargetDate);

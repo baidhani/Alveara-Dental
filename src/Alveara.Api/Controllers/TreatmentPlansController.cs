@@ -28,6 +28,10 @@ public record DecisionRequest(string? Decision, string? Reason, string? DecidedB
 
 public record ScheduleRequest(bool Scheduled, DateOnly? PlannedDate);
 
+/// <summary>ALV-N023 (DR-1, OQ-1): the appointment that books an accepted procedure, or the reason a link is removed.</summary>
+public record AppointmentLinkRequest(Guid? AppointmentId);
+public record AppointmentUnlinkRequest(string? Reason);
+
 /// <summary>ALV-015-C01: an explicit revision (reason required). Null parts are kept as they are; a blank rationale or explanation clears it.</summary>
 public record ReviseRequest(string? Reason, string? ClinicalRationale, string? PatientExplanation, List<PlanPhaseRequest>? Phases, List<PlanPlacementRequest>? Placements, string? RowVersion);
 
@@ -149,6 +153,20 @@ public class TreatmentPlansController(TreatmentPlanService plans, DiagnosisRecon
     [RequireCsrfToken]
     public Task<IActionResult> DecideItem(Guid planId, Guid itemId, [FromBody] DecisionRequest request, CancellationToken ct) =>
         Run(async () => Ok(await plans.DecideItemAsync(planId, itemId, request.Decision, request.Reason, request.DecidedByName, request.RowVersion, Actor, ct)));
+
+    /// <summary>ALV-N023 (DR-1, OQ-1): link a real appointment to an accepted procedure. Allowed to plan writers and to appointment managers (an administrative scheduling relationship, not a plan edit);
+    /// the answer carries no plan title or diagnosis.</summary>
+    [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/appointment-link")]
+    [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> LinkAppointment(Guid planId, Guid itemId, [FromBody] AppointmentLinkRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.LinkAppointmentAsync(planId, itemId, request.AppointmentId, Actor, ct)));
+
+    [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/appointment-unlink")]
+    [RequireAnyPermission(Permission.ManageTreatmentPlans, Permission.ManageAppointments)]
+    [RequireCsrfToken]
+    public Task<IActionResult> UnlinkAppointment(Guid planId, Guid itemId, [FromBody] AppointmentUnlinkRequest request, CancellationToken ct) =>
+        Run(async () => Ok(await plans.UnlinkAppointmentAsync(planId, itemId, request.Reason, Actor, ct)));
 
     [HttpPost("api/treatment-plans/{planId:guid}/items/{itemId:guid}/schedule")]
     [RequirePermission(Permission.ManageTreatmentPlans)]

@@ -64,6 +64,41 @@ public abstract class TreatmentPlanTestBase : SafetyTestBase
     protected Task<ProcedureDetailView> ProcedureAsync(string code = "LOCAL-100", string scope = ProcedureScopes.WholeMouth, string? dentition = null, decimal fee = 50m, string description = "Periodontal maintenance") =>
         Catalog(s => s.CreateAsync(new ProcedureInput(ProcedureCodeSystems.Local, code, description, "Periodontic", scope, dentition, fee, null, null, null, null), S.Actor, default));
 
+    /// <summary>ALV-N023: a real appointment of a patient (seeded scheduling provider, room and type), Scheduled unless told otherwise.</summary>
+    protected async Task<Guid> AppointmentAsync(Guid? patient = null, DateTimeOffset? start = null)
+    {
+        await using var db = Fixture.CreateContext();
+        var at = start ?? new DateTimeOffset(2030, 2, 4, 15, 0, 0, TimeSpan.Zero);
+        var a = new Architecture.Scheduling.Appointment
+        {
+            Id = Guid.NewGuid(), PatientId = patient ?? Ann, ProviderProfileId = S.ProviderA, OperatoryId = S.Op1, AppointmentTypeId = S.Short30, StartUtc = at, EndUtc = at.AddMinutes(30), DurationMinutes = 30,
+            Status = Architecture.Scheduling.AppointmentStatuses.Scheduled,
+        };
+        db.Appointments.Add(a);
+        await db.SaveChangesAsync();
+        return a.Id;
+    }
+
+    /// <summary>ALV-N023: an appointment cancelled or marked no-show (terminal), or moved, as the scheduling module leaves it; written directly so these tests depend only on the result.</summary>
+    protected async Task EndAppointmentAsync(Guid id, string status)
+    {
+        await using var db = Fixture.CreateContext();
+        var a = await db.Appointments.SingleAsync(x => x.Id == id);
+        a.Status = status;
+        a.StatusChangedAtUtc = DateTimeOffset.UtcNow;
+        a.StatusChangedByUserId = S.Actor;
+        if (status == Architecture.Scheduling.AppointmentStatuses.Cancelled) a.CancelReason = "Patient asked";
+        await db.SaveChangesAsync();
+    }
+
+    protected async Task MoveAppointmentAsync(Guid id, DateTimeOffset start)
+    {
+        await using var db = Fixture.CreateContext();
+        var a = await db.Appointments.SingleAsync(x => x.Id == id);
+        (a.StartUtc, a.EndUtc) = (start, start.AddMinutes(a.DurationMinutes));
+        await db.SaveChangesAsync();
+    }
+
     protected static PlanItemInput Item(Guid diagnosis, Guid procedure, string? tooth = null, string? surface = null, string? key = null) => new(diagnosis, procedure, tooth, surface, key);
 
     protected Task<PlanView> CreateAsync(IEnumerable<PlanItemInput> items, string title = "Periodontal plan", string? key = null, Guid? patient = null, Guid? actor = null) =>

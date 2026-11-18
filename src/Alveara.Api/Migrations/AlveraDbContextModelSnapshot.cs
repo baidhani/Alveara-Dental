@@ -8580,13 +8580,13 @@ namespace Alveara.Api.Migrations
 
                             t.HasTrigger("TR_TreatmentPlanEvents_MergeScope");
 
-                            t.HasCheckConstraint("CK_TreatmentPlanEvents_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Withdrawn','Revised','ReferenceCodeSet','ItemAccepted','ItemDeclined','PlanAccepted','PlanDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted')");
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_ChangeType", "[ChangeType] COLLATE Latin1_General_CS_AS IN ('Created','ItemAdded','ItemWithdrawn','Renamed','Withdrawn','Revised','ReferenceCodeSet','ItemAccepted','ItemDeclined','PlanAccepted','PlanDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted','AppointmentLinked','AppointmentUnlinked','TargetDateSet','TargetDateCleared')");
 
-                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Item", "([ChangeType] IN ('ItemAdded','ItemWithdrawn','ItemAccepted','ItemDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted') AND [ItemId] IS NOT NULL) OR ([ChangeType] NOT IN ('ItemAdded','ItemWithdrawn','ItemAccepted','ItemDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted') AND [ItemId] IS NULL)");
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Item", "([ChangeType] IN ('ItemAdded','ItemWithdrawn','ItemAccepted','ItemDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted','AppointmentLinked','AppointmentUnlinked','TargetDateSet','TargetDateCleared') AND [ItemId] IS NOT NULL) OR ([ChangeType] NOT IN ('ItemAdded','ItemWithdrawn','ItemAccepted','ItemDeclined','ItemScheduled','ItemUnscheduled','ItemCompleted','AppointmentLinked','AppointmentUnlinked','TargetDateSet','TargetDateCleared') AND [ItemId] IS NULL)");
 
                             t.HasCheckConstraint("CK_TreatmentPlanEvents_Number", "[EventNumber] >= 1");
 
-                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Reason", "[ChangeType] NOT IN ('ItemWithdrawn','Withdrawn','ItemDeclined','PlanDeclined','Revised') OR ([Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0)");
+                            t.HasCheckConstraint("CK_TreatmentPlanEvents_Reason", "[ChangeType] NOT IN ('ItemWithdrawn','Withdrawn','ItemDeclined','PlanDeclined','Revised','AppointmentUnlinked') OR ([Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0)");
 
                             t.HasCheckConstraint("CK_TreatmentPlanEvents_RevisionNumber", "[RevisionNumber] IS NULL OR [RevisionNumber] >= 1");
 
@@ -8698,6 +8698,67 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_TreatmentPlanItems_ToothKey", "[ToothKey] IS NULL OR [ToothKey] COLLATE Latin1_General_CS_AS IN ('11','12','13','14','15','16','17','18','21','22','23','24','25','26','27','28','31','32','33','34','35','36','37','38','41','42','43','44','45','46','47','48','51','52','53','54','55','61','62','63','64','65','71','72','73','74','75','81','82','83','84','85')");
 
                             t.HasCheckConstraint("CK_TreatmentPlanItems_WithdrawnStamp", "([WithdrawnAtUtc] IS NULL AND [WithdrawnByUserId] IS NULL AND [WithdrawnReason] IS NULL) OR ([WithdrawnAtUtc] IS NOT NULL AND [WithdrawnByUserId] IS NOT NULL AND [WithdrawnReason] IS NOT NULL AND LEN(LTRIM(RTRIM([WithdrawnReason]))) > 0)");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanItemAppointmentLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTimeOffset>("RecordedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RecordedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("ItemId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("TreatmentPlanItemAppointmentLinks", null, t =>
+                        {
+                            t.HasTrigger("TR_TPItemAppointmentLinks_AppendOnly");
+
+                            t.HasTrigger("TR_TPItemAppointmentLinks_SamePatient");
+
+                            t.HasCheckConstraint("CK_TPItemAppointmentLinks_Action", "[Action] COLLATE Latin1_General_CS_AS IN ('Linked','Unlinked')");
+
+                            t.HasCheckConstraint("CK_TPItemAppointmentLinks_Reason", "([Action] = 'Unlinked' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Action] = 'Linked' AND [Reason] IS NULL)");
+
+                            t.HasCheckConstraint("CK_TPItemAppointmentLinks_Sequence", "[Sequence] >= 1");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -10513,6 +10574,27 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Procedures.ProcedureVersion", null)
                         .WithMany()
                         .HasForeignKey("ProcedureVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Treatment.TreatmentPlanItemAppointmentLink", b =>
+                {
+                    b.HasOne("Alveara.Api.Architecture.Scheduling.Appointment", null)
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlanItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Alveara.Api.Architecture.Treatment.TreatmentPlan", null)
+                        .WithMany()
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

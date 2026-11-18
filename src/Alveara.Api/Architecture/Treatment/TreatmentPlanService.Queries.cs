@@ -57,6 +57,7 @@ public partial class TreatmentPlanService
             .Concat(states.Values.Select(s => (Guid?)s.RecordedByUserId)).Concat(answers.Values.Select(s => (Guid?)s?.RecordedByUserId));
         var names = await ClinicalNames.ResolveAsync(db, people, ct);
         var itemsByPlan = items.ToLookup(i => i.PlanId);
+        var booked = await CurrentAppointmentsAsync(items.Select(i => i.Id).ToList(), ct);   // ALV-N023: each item's linked appointment, read live
 
         // the plan's current revision: its words, its phases and where each procedure sits
         var current = await (from r in db.TreatmentPlanRevisions.AsNoTracking() join p in db.TreatmentPlans.AsNoTracking() on r.PlanId equals p.Id
@@ -76,7 +77,7 @@ public partial class TreatmentPlanService
                 phase.GetValueOrDefault(i.Id), AcceptanceOf(states.GetValueOrDefault(i.Id)), SchedulingOf(states.GetValueOrDefault(i.Id)), CompletionOf(states.GetValueOrDefault(i.Id)),
                 states.GetValueOrDefault(i.Id)?.PlannedDate, states.GetValueOrDefault(i.Id)?.Reason, states.GetValueOrDefault(i.Id)?.DecidedByName,
                 ClinicalNames.Name(names, states.GetValueOrDefault(i.Id)?.RecordedByUserId), states.GetValueOrDefault(i.Id)?.RecordedAtUtc, answers.GetValueOrDefault(i.Id)?.RevisionNumber,
-                ClinicalNames.Name(names, answers.GetValueOrDefault(i.Id)?.RecordedByUserId), answers.GetValueOrDefault(i.Id)?.RecordedAtUtc)).ToList();
+                ClinicalNames.Name(names, answers.GetValueOrDefault(i.Id)?.RecordedByUserId), answers.GetValueOrDefault(i.Id)?.RecordedAtUtc, booked.GetValueOrDefault(i.Id))).ToList();
             var active = views.Where(v => !v.IsWithdrawn).ToList();
             return new PlanView(p.Id, p.PatientId, p.Title, p.Status, active.Count, active.Sum(v => v.Fee), Alveara.Api.Architecture.Money.Money.Currency, TreatmentPlanEstimate.Label, views,
                 p.CreatedAtUtc, ClinicalNames.Name(names, p.CreatedByUserId), p.UpdatedAtUtc, ClinicalNames.Name(names, p.UpdatedByUserId), p.WithdrawnReason, p.WithdrawnAtUtc,

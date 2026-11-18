@@ -109,6 +109,26 @@ internal static class TreatmentPlanModel
             });
         });
 
+        // ALV-N023 (DR-1): the append-only history of which appointment books an accepted item. Same-patient (51291) and append-only (51292) are triggers; the checks keep each row whole.
+        modelBuilder.Entity<TreatmentPlanItemAppointmentLink>(e =>
+        {
+            e.Property(x => x.Action).HasMaxLength(16);
+            e.Property(x => x.Reason).HasMaxLength(TreatmentPlanRules.ReasonMax);
+            e.HasOne<TreatmentPlan>().WithMany().HasForeignKey(x => x.PlanId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<TreatmentPlanItem>().WithMany().HasForeignKey(x => x.ItemId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<Architecture.Scheduling.Appointment>().WithMany().HasForeignKey(x => x.AppointmentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.ItemId, x.Sequence }).IsUnique();
+            e.ToTable("TreatmentPlanItemAppointmentLinks", t =>
+            {
+                t.HasTrigger("TR_TPItemAppointmentLinks_SamePatient");
+                t.HasTrigger("TR_TPItemAppointmentLinks_AppendOnly");
+                t.HasCheckConstraint("CK_TPItemAppointmentLinks_Sequence", "[Sequence] >= 1");
+                t.HasCheckConstraint("CK_TPItemAppointmentLinks_Action", $"[Action] COLLATE Latin1_General_CS_AS IN ({In(AppointmentLinkActions.All)})");
+                t.HasCheckConstraint("CK_TPItemAppointmentLinks_Reason",
+                    "([Action] = 'Unlinked' AND [Reason] IS NOT NULL AND LEN(LTRIM(RTRIM([Reason]))) > 0) OR ([Action] = 'Linked' AND [Reason] IS NULL)");
+            });
+        });
+
         TreatmentPlanRevisionModel.Configure(modelBuilder);
     }
 }
