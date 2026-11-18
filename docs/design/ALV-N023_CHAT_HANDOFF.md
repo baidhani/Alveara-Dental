@@ -15,7 +15,7 @@ Read this first, then START HERE ([[session-handoff-gate-e]]) and the operating 
 ## 1. Where the programme is
 - ALV-N022 COMPLETE (closure 6823946, pushed). origin/main = **7a8b64e**.
 - **ALV-N023** (plan item 60, R05 PKG-08: treatment-plan scheduling, follow-up, state, revisions) is being BUILT. Route: **focused proof only**, `fullRegression: "DEFERRED_TO_ALV-N028"`, `releaseCertified: false`, **no package-level Stage 2, no broad/full suite, no neighbour walkthrough sweeps**. Each test command/group must be expected <= 5 minutes and run separately; anything longer needs the owner's prior permission.
-- Local main is **13 commits ahead of origin (HEAD a0c45e0), NOT pushed** (push only on the owner's say-so).
+- Local main is **ahead of origin, NOT pushed**: 13 commits up to slice 4 (a0c45e0), then documents-only handoff commits on top (`git log --oneline origin/main..` is the truth) (push only on the owner's say-so).
 
 ## 2. The approved design (read these documents, all committed)
 - `docs/design/ALV-N023_PRE_IMPLEMENTATION_BRIEF.md` (revision 2) - the contract. Sections 2 (S1-S14 server, C1-C13 client), 4 (schema, follow-up key algorithm, state matrix), 6 (source-to-acceptance table), 8 (file inventory), 9 (Stage 1 tests).
