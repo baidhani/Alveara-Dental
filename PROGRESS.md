@@ -3254,3 +3254,9 @@
   - What changed: brief section 0 (answers), CR-1 Stage 2 removed (focused proof, DEFERRED_TO_ALV-N028, no package Stage 2, <=5 min groups, no neighbour sweeps), CR-2 versioned follow-up key unscheduled:v2:{item}:s{s}:l{l}:{e} from immutable rows with legacy equivalence and the five paths + seeded upgrade tests, CR-3 no Withdraw on Completed/Closed, CR-4 derived-state matrix (state, actions, follow-up eligibility); tests and inventory updated.
   - Verification: documents only; cancel/no-show terminality and their append-only appointment events checked in code.
   - Notes: appendix and owner decision record unchanged. Not pushed.
+- [x] ALV-N023: store briefing review R02 (APPROVED for implementation, focused-proof route; documents only)
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: .alveara/reviews/ALV-N023/BRIEFING-R02.md stored unchanged.
+  - Verification: review file read in full.
+  - Notes: implementation in slices on owner Go. Not pushed.
