@@ -92,6 +92,7 @@ describe("creating a plan (acceptance 1 and 2)", () => {
     await user.click(within(createForm()).getByRole("button", { name: "Create treatment plan" }));
     expect(await screen.findByText("Give the plan a title.", { selector: "span" })).toBeInTheDocument();
     expect(screen.getByText("Choose the diagnosis this procedure is for.", { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText("Choose the procedure to propose.", { selector: "span" })).toBeInTheDocument();   // ALV-N023 (Q-5ae): every gap, not only the first
     expect(posts(api)).toHaveLength(0);
   });
 
@@ -144,7 +145,9 @@ describe("changing a plan", () => {
     await openPanel(true);
     await user.click(screen.getByRole("button", { name: "Withdraw PERIO-1" }));
     const f = within(screen.getByRole("form", { name: "Withdraw PERIO-1 from this plan" }));
-    expect(f.getByRole("button", { name: "Withdraw procedure" })).toBeDisabled();
+    await user.click(f.getByRole("button", { name: "Withdraw procedure" }));   // ALV-N023 (F-186): explained, not a greyed-out button
+    expect(f.getByRole("alert")).toHaveTextContent("Say why.");
+    expect(posts(api)).toHaveLength(0);
     await user.type(f.getByLabelText("Why is this procedure being withdrawn?"), "Patient declined");
     await user.click(f.getByRole("button", { name: "Withdraw procedure" }));
     const [post] = posts(api);
@@ -159,7 +162,9 @@ describe("changing a plan", () => {
     await openPanel(true);
     await user.click(screen.getByRole("button", { name: "Withdraw plan" }));
     const f = within(screen.getByRole("form", { name: "Withdraw this treatment plan" }));
-    expect(f.getByRole("button", { name: "Withdraw plan" })).toBeDisabled();
+    await user.click(f.getByRole("button", { name: "Withdraw plan" }));   // ALV-N023 (F-186): explained, not a greyed-out button
+    expect(f.getByRole("alert")).toHaveTextContent("Say why.");
+    expect(posts(api)).toHaveLength(0);
     await user.type(f.getByLabelText("Why is this plan being withdrawn?"), "Entered in error");
     await user.click(f.getByRole("button", { name: "Withdraw plan" }));
     expect(posts(api)[0].body).toEqual({ rowVersion: "R1", reason: "Entered in error" });
@@ -178,7 +183,11 @@ describe("changing a plan", () => {
     expect(posts(api)).toHaveLength(0);
     await user.type(f.getByLabelText("New title"), "Periodontal plan");
     await user.click(f.getByRole("button", { name: "Save title" }));
-    expect(posts(api)[0].body).toEqual({ rowVersion: "R1", title: "Periodontal plan" });
+    expect(f.getByRole("alert")).toHaveTextContent("Not renamed: say why the plan is being renamed.");   // ALV-N023 (DR-5): a rename needs a reason
+    expect(posts(api)).toHaveLength(0);
+    await user.type(f.getByLabelText("Why is it being renamed?"), "Clearer for the patient");
+    await user.click(f.getByRole("button", { name: "Save title" }));
+    expect(posts(api)[0].body).toEqual({ rowVersion: "R1", title: "Periodontal plan", reason: "Clearer for the patient" });
   });
 
   it("adds a procedure with its own key and the plan's version", async () => {
@@ -205,6 +214,7 @@ describe("changing a plan", () => {
     const f = within(screen.getByRole("form", { name: "Rename this treatment plan" }));
     await user.clear(f.getByLabelText("New title"));
     await user.type(f.getByLabelText("New title"), "Other title");
+    await user.type(f.getByLabelText("Why is it being renamed?"), "Clearer for the patient");
     await user.click(f.getByRole("button", { name: "Save title" }));
     expect(await screen.findByText("Someone else changed this while you were editing")).toBeInTheDocument();
     expect(f.getByRole("alert")).toHaveTextContent("Not renamed: someone else changed this treatment plan.");

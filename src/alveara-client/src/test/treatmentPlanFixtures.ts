@@ -24,7 +24,10 @@ export const item = (over: Partial<PlanItem> = {}): PlanItem => ({
   createdAtUtc: "2030-01-02T10:00:00Z", createdByName: "Dr. Okafor", phaseNumber: null, acceptance: "Pending", scheduling: "Unscheduled", completion: "NotStarted", plannedDate: null,
   decisionReason: null, decidedByName: null, recordedByName: null, recordedAtUtc: null, decisionRevision: null, ...over,
 });
+/** ALV-N023 (DR-4): the server's count of unanswered procedures - not withdrawn, still Pending, not completed. Declined, accepted and withdrawn items do not count. */
+const unansweredOf = (items: PlanItem[]) => items.filter((i) => !i.isWithdrawn && i.acceptance === "Pending" && i.completion !== "Completed").length;
 export const plan = (over: Partial<TreatmentPlan> = {}): TreatmentPlan => ({
+  unansweredCount: unansweredOf(over.items ?? [item()]),
   id: "pl1", patientId: P, title: "Gum health plan", status: "Proposed", activeItemCount: 1, estimateTotal: 120, currency: "USD",
   estimateLabel: "Practice fee estimate: the practice's catalog fee when each item was proposed. It is not an insurance estimate and not a guaranteed patient cost.", items: [item()],
   createdAtUtc: "2030-01-02T10:00:00Z", createdByName: "Dr. Okafor", updatedAtUtc: null, updatedByName: null, withdrawnReason: null, withdrawnAtUtc: null, withdrawnByName: null, rowVersion: "R1",

@@ -46,13 +46,13 @@ describe("where each procedure stands", () => {
     expect(first.getByText("Accepted")).toBeInTheDocument();
     expect(first.getByText(/Answer given by Ann Alder \(patient\)\./)).toHaveTextContent("Entered by Dr. Okafor on");
     expect(first.getByText(/plan revision 2/)).toBeInTheDocument();
-    expect(within(row("FILL-1")).getByText(/Scheduled for/)).toBeInTheDocument();
+    expect(within(row("FILL-1")).getByText(/Target date/)).toBeInTheDocument();
     const declined = within(row("CROWN-1"));
     expect(declined.getByText("Declined")).toBeInTheDocument();
     expect(declined.getByText(/Reason: Cannot afford it now/)).toBeInTheDocument();
     expect(within(row("POL-1")).getByText("Not yet answered")).toBeInTheDocument();
     expect(screen.getByText("Of that, accepted so far: $160.00")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Accept|Decline|Schedule|completed|Withdraw/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Accept|Decline|target date|completed|Withdraw/ })).not.toBeInTheDocument();
   });
 
   it("ALV-N021 A1 (F-184, F-218): keeps when the answer was entered after a later scheduling, and shows the later change apart", async () => {
@@ -116,36 +116,37 @@ describe("recording an answer", () => {
     expect(within(row("PERIO-1")).queryByRole("button", { name: "Accept PERIO-1" })).not.toBeInTheDocument();
     expect(within(row("PERIO-1")).getByRole("button", { name: "Decline PERIO-1" })).toBeInTheDocument();
     expect(within(row("CROWN-1")).queryByRole("button", { name: "Decline CROWN-1" })).not.toBeInTheDocument();
-    expect(within(row("CROWN-1")).queryByRole("button", { name: /Schedule|completed/ })).not.toBeInTheDocument();
-    expect(within(row("POL-1")).queryByRole("button", { name: /Schedule|completed/ })).not.toBeInTheDocument();
-    expect(within(row("FILL-1")).getByRole("button", { name: "Change schedule of FILL-1" })).toBeInTheDocument();
+    expect(within(row("CROWN-1")).queryByRole("button", { name: /target date|completed/ })).not.toBeInTheDocument();
+    expect(within(row("POL-1")).queryByRole("button", { name: /target date|completed/ })).not.toBeInTheDocument();
+    expect(within(row("FILL-1")).getByRole("button", { name: "Change target date of FILL-1" })).toBeInTheDocument();
   });
 
-  it("shows the server's refusal when the whole plan is answered against an opposite answer, and records nothing", async () => {
+  it("ALV-N023 (DR-4): shows the server's refusal when every procedure was answered meanwhile, keeps what was typed and records nothing", async () => {
     const user = userEvent.setup();
-    const api = stubApi({ plans: [mixed()], respond: { "/api/treatment-plans/pl1/decision": () => json({ error: "partial_acceptance_conflict", message: "1 of the 4 procedures already declined. Decide those one by one, or leave them as they are." }, 409) } });
+    const api = stubApi({ plans: [mixed()], respond: { "/api/treatment-plans/pl1/decision": () => json({ error: "nothing_unanswered", message: "No procedure on this plan is waiting for an answer, so nothing was recorded." }, 409) } });
     await open(true);
-    await user.click(screen.getByRole("button", { name: "Accept all pending" }));
-    const f = within(screen.getByRole("form", { name: "Accept all pending procedures" }));
+    await user.click(screen.getByRole("button", { name: "Accept all unanswered" }));
+    const f = within(screen.getByRole("form", { name: "Accept all unanswered procedures" }));
     await user.type(f.getByLabelText(/^Who gave this answer/), "Ann Alder");
     await user.click(f.getByRole("button", { name: "Record acceptance" }));
-    expect(await f.findByRole("alert")).toHaveTextContent("Not recorded: 1 of the 4 procedures already declined. Decide those one by one, or leave them as they are.");
+    expect(await f.findByRole("alert")).toHaveTextContent("Not recorded: No procedure on this plan is waiting for an answer, so nothing was recorded.");
     expect(f.getByLabelText(/^Who gave this answer/)).toHaveValue("Ann Alder");
     expect(posts(api)).toHaveLength(1);
+    expect(screen.queryByText("Someone else changed this while you were editing")).not.toBeInTheDocument();   // a refusal, not a stale-version conflict
     expect(screen.getByText("Patient's answer: Partly accepted")).toBeInTheDocument();         // nothing on screen changed
   });
 
   it("answers the whole plan and says so", async () => {
     const user = userEvent.setup();
-    const api = stubApi({ plans: [plan()] });
+    const api = stubApi({ plans: [plan()], respond: { "/api/treatment-plans/pl1/decision": () => json(plan({ changedCount: 1 })) } });
     await open(true);
-    await user.click(screen.getByRole("button", { name: "Decline all pending" }));
-    const f = within(screen.getByRole("form", { name: "Decline all pending procedures" }));
+    await user.click(screen.getByRole("button", { name: "Decline all unanswered" }));
+    const f = within(screen.getByRole("form", { name: "Decline all unanswered procedures" }));
     await user.type(f.getByLabelText("Why was it declined?"), "Not this year");
     await user.click(f.getByRole("button", { name: "Record decline" }));
     expect(posts(api)[0].url).toContain("/api/treatment-plans/pl1/decision");
     expect(posts(api)[0].body).toMatchObject({ decision: "Declined", reason: "Not this year" });
-    expect(await screen.findByText("All pending procedures declined.")).toBeInTheDocument();
+    expect(await screen.findByText("1 unanswered procedure declined. Answers already given were left as they were.")).toBeInTheDocument();
   });
 
   it("shows the conflict banner when the plan changed since it was opened, and keeps what was typed", async () => {
@@ -163,30 +164,30 @@ describe("recording an answer", () => {
 });
 
 describe("scheduling and completing", () => {
-  it("schedules an accepted procedure with a date and takes it off the schedule", async () => {
+  it("ALV-N023 (PD-15): sets an accepted procedure's target date, which books nothing, and clears it", async () => {
     const user = userEvent.setup();
     const api = stubApi({ plans: [mixed()] });
     await open(true);
-    await user.click(within(row("PERIO-1")).getByRole("button", { name: "Schedule PERIO-1" }));
-    const f = within(screen.getByRole("form", { name: "Schedule PERIO-1" }));
-    expect(f.getByText("This records that PERIO-1 is scheduled. It does not book an appointment.")).toBeInTheDocument();
-    expect(f.queryByRole("button", { name: "Take off the schedule" })).not.toBeInTheDocument();
-    await user.type(f.getByLabelText("Planned date (optional)"), "2030-06-15");
-    await user.click(f.getByRole("button", { name: "Save schedule" }));
+    await user.click(within(row("PERIO-1")).getByRole("button", { name: "Set target date of PERIO-1" }));
+    const f = within(screen.getByRole("form", { name: "Target date of PERIO-1" }));
+    expect(f.getByText("A target date is only a plan for when PERIO-1 should happen. It does not book an appointment; link an appointment to book it.")).toBeInTheDocument();
+    expect(f.queryByRole("button", { name: "Clear target date" })).not.toBeInTheDocument();
+    await user.type(f.getByLabelText("Target date"), "2030-06-15");
+    await user.click(f.getByRole("button", { name: "Save target date" }));
     expect(posts(api)[0].url).toContain("/api/treatment-plans/pl1/items/it1/schedule");
-    expect(posts(api)[0].body).toEqual({ scheduled: true, plannedDate: "2030-06-15" });
-    expect(await screen.findByText("PERIO-1 scheduled.")).toBeInTheDocument();
+    expect(posts(api)[0].body).toEqual({ scheduled: true, plannedDate: "2030-06-15", confirmPast: false });
+    expect(await screen.findByText("Target date for PERIO-1 saved. It does not book an appointment.")).toBeInTheDocument();
 
-    await user.click(within(row("FILL-1")).getByRole("button", { name: "Change schedule of FILL-1" }));
-    await user.click(within(screen.getByRole("form", { name: "Schedule FILL-1" })).getByRole("button", { name: "Take off the schedule" }));
-    expect(posts(api)[1].body).toEqual({ scheduled: false, plannedDate: null });
+    await user.click(within(row("FILL-1")).getByRole("button", { name: "Change target date of FILL-1" }));
+    await user.click(within(screen.getByRole("form", { name: "Target date of FILL-1" })).getByRole("button", { name: "Clear target date" }));
+    expect(posts(api)[1].body).toEqual({ scheduled: false, plannedDate: null, confirmPast: false });
   });
 
   it("offers no way to mark a procedure completed: completing is done on the plan with Review and complete", async () => {
     const api = stubApi({ plans: [mixed()] });
     await open(true);
     expect(screen.queryByRole("button", { name: /Mark .* completed/ })).not.toBeInTheDocument();
-    expect(within(row("PERIO-1")).getByRole("button", { name: "Schedule PERIO-1" })).toBeInTheDocument();     // the rest of the per-procedure controls are unchanged
+    expect(within(row("PERIO-1")).getByRole("button", { name: "Set target date of PERIO-1" })).toBeInTheDocument();     // the rest of the per-procedure controls are unchanged
     expect(screen.getByRole("button", { name: "Review and complete…" })).toBeInTheDocument();
     expect(posts(api)).toHaveLength(0);
   });
