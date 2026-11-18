@@ -1,0 +1,40 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx (4 tests | 1 failed) 300ms
+   ❯ DR-8 (Q-5af): the performed-after-encounter note (1)
+     × says how many days after the selected encounter the procedure was performed, and says nothing when it was not after 34ms
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx > DR-8 (Q-5af): the performed-after-encounter note > 
+says how many days after the selected encounter the procedure was performed, and says nothing when it was not after
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  performed 2 days after the selected encounter
+Received:
+  PERIO-1 Periodontal maintenanceCompleted by Dr. Okafor on 2/3/2030, 4:00:00 AM · from Gum health plan, revision 
+1Performed by Dr. Okafor on 2/3/2030, 4:00:00 AM · charged $120.00 (account entry 3)
+ ❯ src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx:61:21
+     59|     await open(["ViewClinicalDocumentation"]);
+     60|     const rows = within(await screen.findByRole("list", { name: "Compl…
+     61|     expect(rows[0]).toHaveTextContent("performed 2 days after the sele…
+       |                     ^
+     62|     expect(rows[1]).not.toHaveTextContent("after the selected encounte…
+     63|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:32:27
+   Duration  2.54s (environment 47%, transform 21%, setup 14%, tests 12%, import 4%, worker 1%)
+

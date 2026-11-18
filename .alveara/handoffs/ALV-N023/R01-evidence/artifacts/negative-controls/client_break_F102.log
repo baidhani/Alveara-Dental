@@ -1,0 +1,97 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx (4 tests | 1 failed) 219ms
+   ❯ F-102: the account entry (2)
+     × is a link to the patient's account for someone who may read billing 121ms
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx > F-102: the account entry > is a link to the patient's 
+account for someone who may read billing
+TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "account entry 3"
+
+Here are the accessible roles:
+
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  --------------------------------------------------paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<li[39m
+  [33mclass[39m=[32m"alv-dx__item"[39m
+[36m>[39m
+  [36m<strong>[39m
+    [0mPERIO-1[0m
+  [36m</strong>[39m
+  [0m [0m
+  [0mPeriodontal maintenance[0m
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m>[39m
+    [0mCompleted by [0m
+    [0mDr. Okafor[0m
+    [0m on [0m
+    [0m2/3/2030, 4:00:00 AM[0m
+    [0m · from [0m
+    [0mGum health plan[0m
+    [0m, revision [0m
+    [0m1[0m
+  [36m</p>[39m
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m>[39m
+    [0mPerformed by [0m
+    [0mDr. Okafor[0m
+    [0m on [0m
+    [0m2/3/2030, 4:00:00 AM[0m
+    [0m · charged $[0m
+    [0m120.00[0m
+    [0m ([0m
+    [0maccount entry 3[0m
+    [0m)[0m
+  [36m</p>[39m
+[36m</li>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx:43:45
+     41|     stubApi({ history: [authoritative()] });
+     42|     await open(["ViewClinicalDocumentation", "ViewBilling"]);
+     43|     const link = within(await historyRow()).getByRole("link", { name: …
+       |                                             ^
+     44|     expect(link).toHaveAttribute("href", `/patients/${P}/billing`);
+     45|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:32:22
+   Duration  2.50s (environment 54%, transform 20%, setup 12%, tests 9%, import 4%, worker 1%)
+

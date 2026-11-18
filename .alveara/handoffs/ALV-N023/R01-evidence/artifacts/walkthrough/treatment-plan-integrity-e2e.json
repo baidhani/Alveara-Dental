@@ -1,0 +1,31 @@
+{
+  "stamp": 1795036536886,
+  "accepted": {
+    "planState": "InProgress"
+  },
+  "booked": {
+    "appointmentId": "d1ef32a4-51db-4ac5-8831-3012df59142b",
+    "linked": [
+      "CROWN-1"
+    ]
+  },
+  "cancelled": {
+    "bookableAgain": true
+  },
+  "targetDate": {
+    "plannedDate": "2020-01-14",
+    "targetOverdue": true
+  },
+  "finished": {
+    "planState": "Closed",
+    "closedReason": "CompletedOrDeclined",
+    "locked": true,
+    "withdraw": [
+      409,
+      "plan_finished"
+    ]
+  },
+  "patientCopy": {
+    "practiceHeader": true
+  }
+}

@@ -1,0 +1,17 @@
+Database AlveraWalk_playwright_treatment_plan_integrity_conf_e97c39e4 created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.treatment-plan-integrity.config.ts ...
+
+Running 7 tests using 1 worker
+
+  ok 1 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:101:1 › SETUP: the practice (name, address, phone, one operatory, one type, the dentist's hours), a patient with an encounter and a diagnosis, and a two-procedure plan (2.0s)
+  ok 2 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:134:1 › ACCEPT: the dentist records the patient's acceptance; the procedure is accepted and says it is not booked (969ms)
+  ok 3 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:148:1 › BOOK (OQ-1, DR-1): the front desk books an appointment for the accepted procedure in one save; the plan says Booked (2.5s)
+  ok 4 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:187:1 › CANCEL (DR-1): cancelling the appointment leaves the procedure not booked, and the plan says why (524ms)
+  ok 5 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:200:1 › TARGET DATE (PD-15): a past target date is saved only after confirming, shows Overdue, and books nothing (743ms)
+  ok 6 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:219:1 › FINISHED (PD-14, CR-3, addendum 01): with POL-1 declined and CROWN-1 completed the plan is Closed with completed care, so it is locked; only Revise anyway is offered and the API refuses a change (1.3s)
+  ok 7 [chromium] › e2e\treatment-plan-integrity-real-backend.spec.ts:247:1 › PATIENT COPY (F-183): the copy carries the practice's name, address and phone (500ms)
+
+  7 passed (14.3s)
+Database AlveraWalk_playwright_treatment_plan_integrity_conf_e97c39e4 dropped (its files went with it).
+Output kept in C:\.alvera-data\Test-Data\Temp\n023-stage1-f9c0d2a\walkthrough

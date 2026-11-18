@@ -1,0 +1,27 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Architecture\Recall\UnscheduledTreatmentJobs.cs(122,79): warning CS8604: Possible null reference argument for parameter 'taskKey' in 'bool UnscheduledTreatmentRules.SameEpisode(string taskKey, Guid itemId, int sequence, int linkSequence, bool ended)'. [c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\Alveara.Api.csproj]
+  Alveara.Api -> c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api\bin\Debug\net10.0\Alveara.Api.dll
+  Alveara.Api.ChainHost -> c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.ChainHost\bin\Debug\net10.0\Alveara.Api.ChainHost.dll
+  Alveara.Api.Tests -> c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll
+Test run for c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:35.18]     Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_target_date_never_settles_it_only_a_live_linked_appointment_does [FAIL]
+[xUnit.net 00:00:36.21]     Alveara.Api.Tests.UnscheduledTreatmentJobTests.Path1_legacy_scheduled_item_gets_a_new_v2_task_and_the_old_closed_task_is_untouched [FAIL]
+  Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_target_date_never_settles_it_only_a_live_linked_appointment_does [409 ms]
+  Error Message:
+   Assert.Single() Failure: The collection was empty
+  Stack Trace:
+     at Alveara.Api.Tests.UnscheduledTreatmentJobTests.A_target_date_never_settles_it_only_a_live_linked_appointment_does() in c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\UnscheduledTreatmentJobTests.cs:line 144
+--- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.UnscheduledTreatmentJobTests.Path1_legacy_scheduled_item_gets_a_new_v2_task_and_the_old_closed_task_is_untouched [395 ms]
+  Error Message:
+   Assert.Equal() Failure: Collections differ
+                                                                                                                       ↓ (pos 1)
+Expected: [Tuple ("unscheduled:6cc7dce4c24c41a2bd47514b87015c99:1", "Completed", "The treatment has been scheduled."), Tuple ("unscheduled:v2:6cc7dce4c24c41a2bd47514b87015c99:s2"···, "Open", null)]
+Actual:   [Tuple ("unscheduled:6cc7dce4c24c41a2bd47514b87015c99:1", "Completed", "The treatment has been scheduled.")]
+  Stack Trace:
+     at Alveara.Api.Tests.UnscheduledTreatmentJobTests.Path1_legacy_scheduled_item_gets_a_new_v2_task_and_the_old_closed_task_is_untouched() in c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\UnscheduledTreatmentJobTests.cs:line 302
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     2, Passed:    24, Skipped:     0, Total:    26, Duration: 47 s - Alveara.Api.Tests.dll (net10.0)

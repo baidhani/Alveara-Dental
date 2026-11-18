@@ -1,0 +1,17 @@
+run commit: f9c0d2a7105a5273f3219d4783ab20ae60d8a254
+working tree before: 0 changed paths
+start: 2026-11-18T15:05:48-06:00
+== leak before exit=0
+== backend build exit=0 elapsed=26s
+== groupA exit=0 elapsed=102s: Passed!  - Failed:     0, Passed:    77, Skipped:     0, Total:    77, Duration: 1 m 36 s - Alveara.Api.Tests.dll (net10.0)
+== groupB exit=0 elapsed=199s: Passed!  - Failed:     0, Passed:   173, Skipped:     0, Total:   173, Duration: 3 m 16 s - Alveara.Api.Tests.dll (net10.0)
+== groupC exit=0 elapsed=157s: Passed!  - Failed:     0, Passed:   118, Skipped:     0, Total:   118, Duration: 2 m 33 s - Alveara.Api.Tests.dll (net10.0)
+== gate tsc exit=0 elapsed=9s: 
+== gate lint exit=0 elapsed=1s: e2e/notifications-real-backend.spec.ts:277:89: warning eslint(no-unused-vars): Catch parameter 'e' is caught but never used. help: Consider handling this error. e2e/login-presentation.spec.ts:44:18: warning eslint(no-empty-pattern): Empty object binding pattern help: Passing `null` or `undefined` will result in runtime error because `null` and `undefined` cannot be destructured. 
+== gate build exit=0 elapsed=9s: [32m✓ built in 810ms[39m 
+== gate vitest_focused exit=0 elapsed=31s:  Test Files  20 passed (20)       Tests  238 passed (238) 
+== gate repo_checks exit=0 elapsed=3s: 
+== walkthrough integrity exit=0 elapsed=31s:   7 passed (14.3s) 
+end: 2026-11-18T15:15:51-06:00
+working tree after: 0 changed paths
+== SWEEP DONE

@@ -1,0 +1,787 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx (4 tests | 1 failed) 293ms
+   ❯ D-03: grouped actions (1)
+     × puts the plan's actions in labelled groups and keeps each procedure's own actions out of them 72ms
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx > D-03: grouped actions > puts the plan's actions in 
+labelled groups and keeps each procedure's own actions out of them
+TestingLibraryElementError: Unable to find an accessible element with the role "group" and name "Plan changes"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "Treatment plan":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-tp-title"[39m
+    [33mclass[39m=[32m"alv-clinical alv-dx alv-tp"[39m
+  [36m/>[39m
+
+  Name "Old diagnosis references":
+  [36m<section[39m
+    [33maria-label[39m=[32m"Old diagnosis references"[39m
+    [33mclass[39m=[32m"alv-tp__references"[39m
+  [36m/>[39m
+
+  Name "Clinical history":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-ch-title"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Treatment plan":
+  [36m<h2[39m
+    [33mclass[39m=[32m"alv-workspace__section-title"[39m
+    [33mid[39m=[32m"alv-tp-title"[39m
+  [36m/>[39m
+
+  Name "Plans on record":
+  [36m<h3 />[39m
+
+  Name "Gum health plan Proposed":
+  [36m<h3[39m
+    [33mclass[39m=[32m"alv-dx__label"[39m
+  [36m/>[39m
+
+  Name "Old diagnosis references":
+  [36m<h3 />[39m
+
+  Name "Clinical history":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-ch-title"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-tp__item-title"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-tp__total"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"alv-clinical__status"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  form:
+
+  Name "Create a treatment plan":
+  [36m<form[39m
+    [33maria-label[39m=[32m"Create a treatment plan"[39m
+    [33mclass[39m=[32m"alv-dx__form"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Plan title":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_3_-title"[39m
+    [33mmaxlength[39m=[32m"250"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Diagnosis this procedure is for":
+  [36m<select[39m
+    [33mid[39m=[32m"_r_3_-item-diagnosisId"[39m
+  [36m/>[39m
+
+  Name "Procedure":
+  [36m<select[39m
+    [33mid[39m=[32m"_r_3_-item-procedureId"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  option:
+
+  Name "Choose a diagnosis":
+  [36m<option[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Chronic periodontitis":
+  [36m<option[39m
+    [33mvalue[39m=[32m"dx1"[39m
+  [36m/>[39m
+
+  Name "Choose a procedure":
+  [36m<option[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "PERIO-1 - Periodontal maintenance ($120.00)":
+  [36m<option[39m
+    [33mvalue[39m=[32m"pr1"[39m
+  [36m/>[39m
+
+  Name "FILL-1 - Filling ($80.00)":
+  [36m<option[39m
+    [33mvalue[39m=[32m"pr2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Create treatment plan":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-primary"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  Name "Accept PERIO-1":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Decline PERIO-1":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Withdraw PERIO-1":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Show revision history":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Show activity":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Show patient copy":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Accept all unanswered":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Decline all unanswered":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Add procedure":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Revise plan":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Rename plan":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Set reference code":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Withdraw plan":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-link btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Review old diagnosis references":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Show withdrawn plans":
+  [36m<input[39m
+    [33mtype[39m=[32m"checkbox"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "Treatment plans":
+  [36m<ul[39m
+    [33maria-label[39m=[32m"Treatment plans"[39m
+    [33mclass[39m=[32m"alv-dx__list"[39m
+  [36m/>[39m
+
+  Name "Procedures in Gum health plan":
+  [36m<ul[39m
+    [33maria-label[39m=[32m"Procedures in Gum health plan"[39m
+    [33mclass[39m=[32m"alv-tp__items"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"alv-dx__item"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"alv-tp__item"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "Answers and completion":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Answers and completion"[39m
+    [33mclass[39m=[32m"alv-tp__action-group"[39m
+    [33mrole[39m=[32m"group"[39m
+  [36m/>[39m
+
+  Name "Withdraw":
+  [36m<div[39m
+    [33maria-label[39m=[32m"Withdraw"[39m
+    [33mclass[39m=[32m"alv-tp__action-group alv-tp__action-group--quiet"[39m
+    [33mrole[39m=[32m"group"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"alv-tp-title"[39m
+      [33mclass[39m=[32m"alv-clinical alv-dx alv-tp"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-workspace__section-title"[39m
+        [33mid[39m=[32m"alv-tp-title"[39m
+      [36m>[39m
+        [0mTreatment plan[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mA treatment plan proposes catalog procedures for this patient's diagnoses, with the practice's fee for 
+each. It is never deleted: a wrong procedure or plan is withdrawn with a reason, and the history is kept.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"alv-clinical__status"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m/>[39m
+      [36m<form[39m
+        [33maria-label[39m=[32m"Create a treatment plan"[39m
+        [33mclass[39m=[32m"alv-dx__form"[39m
+      [36m>[39m
+        [36m<label[39m
+          [33mfor[39m=[32m"_r_3_-title"[39m
+        [36m>[39m
+          [0mPlan title[0m
+          [36m<input[39m
+            [33mid[39m=[32m"_r_3_-title"[39m
+            [33mmaxlength[39m=[32m"250"[39m
+            [33mtype[39m=[32m"text"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</label>[39m
+        [36m<label[39m
+          [33mfor[39m=[32m"_r_3_-item-diagnosisId"[39m
+        [36m>[39m
+          [0mDiagnosis this procedure is for[0m
+          [36m<select[39m
+            [33mid[39m=[32m"_r_3_-item-diagnosisId"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mChoose a diagnosis[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"dx1"[39m
+            [36m>[39m
+              [0mChronic periodontitis[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</label>[39m
+        [36m<label[39m
+          [33mfor[39m=[32m"_r_3_-item-procedureId"[39m
+        [36m>[39m
+          [0mProcedure[0m
+          [36m<select[39m
+            [33mid[39m=[32m"_r_3_-item-procedureId"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m""[39m
+            [36m>[39m
+              [0mChoose a procedure[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"pr1"[39m
+            [36m>[39m
+              [0mPERIO-1[0m
+              [0m - [0m
+              [0mPeriodontal maintenance[0m
+              [0m ([0m
+              [0m$120.00[0m
+              [0m)[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"pr2"[39m
+            [36m>[39m
+              [0mFILL-1[0m
+              [0m - [0m
+              [0mFilling[0m
+              [0m ([0m
+              [0m$80.00[0m
+              [0m)[0m
+            [36m</option>[39m
+          [36m</select>[39m
+        [36m</label>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mThe fee is the practice's catalog fee today. It is an estimate for the practice, not an insurance 
+estimate.[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-clinical__row-actions"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-primary"[39m
+            [33mtype[39m=[32m"submit"[39m
+          [36m>[39m
+            [0mCreate treatment plan[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</form>[39m
+      [36m<h3>[39m
+        [0mPlans on record[0m
+      [36m</h3>[39m
+      [36m<label[39m
+        [33mclass[39m=[32m"alv-dx__showall"[39m
+      [36m>[39m
+        [36m<input[39m
+          [33mtype[39m=[32m"checkbox"[39m
+        [36m/>[39m
+        [0m Show withdrawn plans[0m
+      [36m</label>[39m
+      [36m<ul[39m
+        [33maria-label[39m=[32m"Treatment plans"[39m
+        [33mclass[39m=[32m"alv-dx__list"[39m
+      [36m>[39m
+        [36m<li[39m
+          [33mclass[39m=[32m"alv-dx__item"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"alv-dx__label"[39m
+          [36m>[39m
+            [0mGum health plan[0m
+            [0m [0m
+            [36m<span[39m
+              [33mclass[39m=[32m"alv-dx__badge"[39m
+              [33mdata-testid[39m=[32m"plan-state"[39m
+            [36m>[39m
+              [0mProposed[0m
+            [36m</span>[39m
+          [36m</h3>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"alv-clinical__meta"[39m
+          [36m>[39m
+            [0mCreated[0m
+            [0m by Dr. Okafor[0m
+            [0m on [0m
+            [0m1/2/2030, 4:00:00 AM[0m
+          [36m</p>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"alv-clinical__meta"[39m
+          [36m>[39m
+            [0mRevision [0m
+            [0m1[0m
+          [36m</p>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"alv-clinical__meta"[39m
+          [36m>[39m
+            [0mPatient's answer: [0m
+            [0mNot yet answered[0m
+          [36m</p>[39m
+          [36m<ul[39m
+            [33maria-label[39m=[32m"Procedures in Gum health plan"[39m
+            [33mclass[39m=[32m"alv-tp__items"[39m
+          [36m>[39m
+            [36m<li[39m
+              [33mclass[39m=[32m"alv-tp__item"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"alv-tp__item-title"[39m
+              [36m>[39m
+                [36m<strong>[39m
+                  [0mPERIO-1[0m
+                [36m</strong>[39m
+                [0m [0m
+                [0mPeriodontal maintenance[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"alv-clinical__meta"[39m
+              [36m>[39m
+                [0mFor: [0m
+                [0mChronic periodontitis[0m
+                [0m · Fee [0m
+                [0m$120.00[0m
+                [0m (catalog version [0m
+                [0m1[0m
+                [0m)[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"alv-tp__state"[39m
+              [36m>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"alv-clinical__meta"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"alv-dx__badge"[39m
+                  [36m>[39m
+                    [0mNot yet answered[0m
+                  [36m</span>[39m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"alv-tp__controls"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"alv-clinical__row-actions"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mAccept PERIO-1[0m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0mDecline PERIO-1[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mWithdraw [0m
+                [0mPERIO-1[0m
+              [36m</button>[39m
+            [36m</li>[39m
+          [36m</ul>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-tp__estimate"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-tp__total"[39m
+            [36m>[39m
+              [36m<strong>[39m
+                [0mEstimate total: [0m
+                [0m$120.00[0m
+              [36m</strong>[39m
+              [0m for [0m
+              [0m1[0m
+              [0m [0m
+              [0mprocedure[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-clinical__meta"[39m
+            [36m>[39m
+              [0mOf that, accepted so far: [0m
+              [0m$0.00[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-clinical__meta"[39m
+            [36m>[39m
+              [0mPractice fee estimate: the practice's catalog fee when each item was proposed. It is not an 
+insurance estimate and not a guaranteed patient cost.[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"alv-clinical__meta"[39m
+            [36m>[39m
+              [0mSource: the practice's fee schedule, as it stood when each procedure was proposed. No insurance 
+benefits, discounts or payment plans are applied, and the total changes if the plan is revised.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-tp__history"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0mShow revision history[0m
+            [36m</button>[39m
+          [36m</div>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mShow activity[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mShow patient copy[0m
+          [36m</button>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-tp__actions"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Answers and completion"[39m
+              [33mclass[39m=[32m"alv-tp__action-group"[39m
+              [33mrole[39m=[32m"group"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mAccept all unanswered[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mDecline all unanswered[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"alv-tp__action-group"[39m
+              [33mdata-x[39m=[32m"Plan changes"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mAdd procedure[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-primary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mRevise plan[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mRename plan[0m
+              [36m</button>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mSet reference code[0m
+              [36m</button>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33maria-label[39m=[32m"Withdraw"[39m
+              [33mclass[39m=[32m"alv-tp__action-group alv-tp__action-group--quiet"[39m
+              [33mrole[39m=[32m"group"[39m
+            [36m>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-link btn-sm"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mWithdraw plan[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</li>[39m
+      [36m</ul>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"Old diagnosis references"[39m
+        [33mclass[39m=[32m"alv-tp__references"[39m
+      [36m>[39m
+        [36m<h3>[39m
+          [0mOld diagnosis references[0m
+        [36m</h3>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mA diagnosis recorded before treatment plans existed may carry a free-text reference such as 
+"plan-2026-07". Reviewing shows which of them match one of this patient's plans. Nothing is changed until you tie 
+them.[0m
+        [36m</p>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"btn btn-outline-secondary btn-sm"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mReview old diagnosis references[0m
+        [36m</button>[39m
+        [36m<p[39m
+          [33maria-live[39m=[32m"polite"[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+          [33mrole[39m=[32m"status"[39m
+        [36m/>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"alv-ch-title"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"alv-ch-title"[39m
+        [36m>[39m
+          [0mClinical history[0m
+        [36m</h3>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mLoading the clinical history…[0m
+        [36m</p>[39m
+      [36m</section>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx:71:28
+     69|     await open(["ViewClinicalDocumentation"], true);
+     70|     const answers = screen.getByRole("group", { name: "Answers and com…
+     71|     const changes = screen.getByRole("group", { name: "Plan changes" }…
+       |                            ^
+     72|     const withdraw = screen.getByRole("group", { name: "Withdraw" });
+     73|     expect(within(answers).getByRole("button", { name: "Accept all una…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  15:32:31
+   Duration  2.65s (environment 50%, transform 21%, setup 13%, tests 12%, import 4%, worker 1%)
+

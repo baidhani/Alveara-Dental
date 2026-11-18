@@ -155,12 +155,12 @@
       "dependencies": ["ALV-N022"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {"total": 4, "passed": 0},
-      "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
+      "tests": {"status": "passed", "summary": "Attempt R01 (Stage 1) on implementation 2ade215 (2026-11-18; sweep on f9c0d2a, the implementation adds one test-only file): append-only treatment-plan appointment links with database guards 51291-51293 (DR-1, OQ-1), follow-up only closed by a live linked appointment (versioned episodes), derived plan state and lock (PD-14, CR-3, addendum 01), bulk answers on unanswered only (DR-4), rename reason (DR-5), target dates with overdue confirmation (PD-15), PHI-free audit (DR-7), booking with accepted treatment in one save, client display. Server groups A/B/C 368/368; tsc, lint, build pass; focused vitest 238/238 (242/242 on the implementation); repo checks 58/58; browser spec treatment-plan-integrity 7/7; controls (a) held by the trigger, (b)-(d) caught; client planted breaks caught. fullRegression DEFERRED_TO_ALV-N028; not release-certified."}, "demo": "real_backend_treatment_plan_integrity_7_of_7", "parentRegression": "n/a", "implementationCommit": "2ade215c3c88864b29b17cb8831428c6eee9c4a1", "evidenceCommit": null, "handoffPath": ".alveara/handoffs/ALV-N023/R01.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null
+      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null, "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
       "schemaVersion": "2",
