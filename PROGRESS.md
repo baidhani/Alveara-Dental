@@ -3315,3 +3315,9 @@
   - What changed: treatment-plan scheduling, follow-up, state and revisions per the approved brief rev 2 + addendum 01 - slices 1-5 (1d1e68e, 891ed08, 6c1540c, a0c45e0 + f81d31a, b4b62a0, 25be828): appointment links (DR-1, OQ-1, guards 51291-51293), derived plan state and lock (PD-14, CR-3), DR-4 bulk answers, DR-5 rename reason, PD-15 target dates, DR-7 audit, DR-8 note, booking with treatment, client display, browser spec.
   - Verification: per slice (see the slice entries); client group 238/238; browser spec 7/7; negative controls (a)-(d) as required. Stage 1 sweep evidence will be recorded in the R01 handoff.
   - Notes: fullRegression DEFERRED_TO_ALV-N028; not release-certified; never marked COMPLETE here (only a review closure does). Not pushed.
+- [x] ALV-N023: client proofs for F-102, DR-8 (Q-5af) and D-03 (test-only; found while mapping the R01 acceptance evidence)
+  - Date: 2026-11-18
+  - Session: CC-20261115-m7x2
+  - What changed: new src/alveara-client/src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx (4 tests): account entry links to /patients/<id>/billing only for a billing reader (F-102); "performed N days after the selected encounter" note (DR-8); plan actions in labelled groups apart from item actions (D-03). No production change.
+  - Verification: tsc -b clean; oxlint clean; the file 4/4; planted breaks (link removed, note removed, group role removed) each failed exactly its test and were restored with matching SHA-256 (logs C:\.alvera-data\Test-Data\Temp\n023-negctl-2026-11-18\client_break_*.log); focused vitest 21 files 242/242 (30 s).
+  - Notes: owner-approved (question tool). The Stage 1 sweep ran on f9c0d2a; this commit differs only by this test file and PROGRESS.md. Vitest started from Bash or via cmd intermittently failed to load ("failed to find the runner") on the unchanged tree; runs started directly from PowerShell were reliable - a launcher issue, not the code. Not pushed.
