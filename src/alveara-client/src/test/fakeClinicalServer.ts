@@ -87,7 +87,7 @@ export class FakeClinicalServer extends FakePatientServer {
   addEncounter(patientId: string, over: Partial<{ id: string; status: "Draft" | "Finalized"; at: string; entries: Partial<EncounterEntry>[]; none: string[]; addenda: string[] }> = {}): StoredEncounter {
     const e: StoredEncounter = {
       id: over.id ?? `enc-${++this.seq}`, patientId, appointmentId: null, at: over.at ?? "2026-10-02T15:00:00Z", status: "Draft", v: 1, startKey: null,
-      entries: [], marks: new Set(over.none ?? []), addenda: [], events: [{ eventType: "Created", actorUserId: "u1", occurredAtUtc: "2026-10-02T15:00:00Z", detail: "Encounter started." }], finalizedAtUtc: null,
+      entries: [], marks: new Set(over.none ?? []), addenda: [], events: [{ eventType: "Created", actorUserId: "u1", actorName: "Dee Dentist", occurredAtUtc: "2026-10-02T15:00:00Z", detail: "Encounter started." }], finalizedAtUtc: null,
       notes: new Map(), vitals: [], templateId: null, templateName: null, signed: false,
     };
     for (const x of over.entries ?? []) e.entries.push(this.makeEntry(x));
@@ -126,7 +126,7 @@ export class FakeClinicalServer extends FakePatientServer {
   }
 
   private event(e: StoredEncounter, eventType: string, detail: string) {
-    e.events.push({ eventType, actorUserId: "u1", occurredAtUtc: new Date(2026, 9, 3, 10, e.events.length).toISOString(), detail });
+    e.events.push({ eventType, actorUserId: "u1", actorName: "Dee Dentist", occurredAtUtc: new Date(2026, 9, 3, 10, e.events.length).toISOString(), detail });
   }
 
   private stale = (e: StoredEncounter, body: Record<string, unknown> | null) => body?.rowVersion !== `e${e.v}`;

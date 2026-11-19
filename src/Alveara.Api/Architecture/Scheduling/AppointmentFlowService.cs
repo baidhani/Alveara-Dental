@@ -57,7 +57,7 @@ public class AppointmentFlowService(
         catch (Exception ex) when (ex is SchedulingException or ConcurrencyConflictException)
         {
             var code = ex is SchedulingException s ? s.Code : "concurrency_conflict";
-            await _recorder.MeasureAsync("appointment.flow", new { category = code, outcome = "failure" }, ct);
+            await _recorder.MeasureAsync("appointment.flow", new { category = Alveara.Api.Architecture.Measurement.MeasurementCategory.Of(code), outcome = "failure" }, ct);
             throw;
         }
     }
@@ -149,7 +149,7 @@ public class AppointmentFlowService(
         catch (Exception ex) when (ex is SchedulingException or ConcurrencyConflictException)
         {
             var code = ex is SchedulingException s ? s.Code : "concurrency_conflict";
-            await _recorder.MeasureAsync("appointment.flow", new { category = code, outcome = "failure" }, ct);
+            await _recorder.MeasureAsync("appointment.flow", new { category = Alveara.Api.Architecture.Measurement.MeasurementCategory.Of(code), outcome = "failure" }, ct);
             throw;
         }
     }
@@ -208,7 +208,7 @@ public class AppointmentFlowService(
         catch (Exception ex) when (ex is SchedulingException or ConcurrencyConflictException)
         {
             var code = ex is SchedulingException s ? s.Code : "concurrency_conflict";
-            await _recorder.MeasureAsync("appointment.block_flag", new { category = code, outcome = "failure" }, ct);
+            await _recorder.MeasureAsync("appointment.block_flag", new { category = Alveara.Api.Architecture.Measurement.MeasurementCategory.Of(code), outcome = "failure" }, ct);
             throw;
         }
     }

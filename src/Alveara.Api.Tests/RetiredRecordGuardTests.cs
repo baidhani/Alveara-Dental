@@ -141,4 +141,31 @@ public class RetiredRecordGuardTests : TreatmentPlanTestBase
             Assert.True(await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.sql_modules WHERE definition LIKE N'%retired-record-guard%'").SingleAsync() >= 50);
         Assert.Equal(51235, (await Refusal(() => AddAsync(Plan(gone)))).Number);
     }
+
+    // ALV-N025 (U-015): ALV-N021 A2's M6 re-created TR_Appointments_MergeScope without the guard; 20261119222212_RestoreAppointmentRetiredRecordGuard puts it back.
+    private const string BeforeAppointmentGuardRestore = "20261119034014_AddReceiptReplacementAndPayerEligibility";
+
+    [Fact]
+    public async Task U015_a_new_appointment_for_a_merged_away_patient_is_refused_by_the_database_and_an_active_patient_stays_schedulable()
+    {
+        var kept = await S.PatientAsync("Cy", "Kim"); var gone = await S.PatientAsync("Dee", "Kim");
+        await MergeAsync(gone, kept);
+        Assert.Equal(51235, (await Refusal(() => AppointmentAsync(gone))).Number);                                        // direct persistence, no service in between
+        var booked = await AppointmentAsync(kept);                                                                         // the surviving, active patient books as ever
+        await using var db = Fixture.CreateContext();
+        Assert.Equal((0, 1), (await db.Appointments.CountAsync(a => a.PatientId == gone && a.Id != booked), await db.Appointments.CountAsync(a => a.Id == booked)));
+    }
+
+    [Fact]
+    public async Task U015_the_restore_migration_puts_the_appointment_guard_back_and_its_rollback_takes_only_that_out()
+    {
+        var kept = await S.PatientAsync("Cy", "Kim"); var gone = await S.PatientAsync("Dee", "Kim");
+        await MergeAsync(gone, kept);
+        await using (var db = Fixture.CreateContext()) await db.GetInfrastructure().GetRequiredService<IMigrator>().MigrateAsync(BeforeAppointmentGuardRestore);
+        await AppointmentAsync(gone);                                                                                      // the M6 state: the regression, reproduced
+        await using (var db = Fixture.CreateContext())
+            Assert.True(await db.Database.SqlQuery<int>($"SELECT COUNT(*) AS [Value] FROM sys.sql_modules WHERE definition LIKE N'%retired-record-guard%'").SingleAsync() >= 50);   // only Appointments lost it
+        await using (var db = Fixture.CreateContext()) await db.Database.MigrateAsync();
+        Assert.Equal(51235, (await Refusal(() => AppointmentAsync(gone))).Number);
+    }
 }

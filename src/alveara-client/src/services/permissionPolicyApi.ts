@@ -38,7 +38,7 @@ export interface EffectivePolicy { version: number; health: PolicyHealth; roles:
 
 export interface HistoryItem {
   id: string; policyVersion: number; kind: string; role: string; permission: string; targetRole: string | null;
-  oldEffective: boolean; newEffective: boolean; reason: string; changedByUserId: string; viaDelegation: boolean; changedAtUtc: string;
+  oldEffective: boolean; newEffective: boolean; reason: string; changedByUserId: string; changedByName?: string | null; viaDelegation: boolean; changedAtUtc: string;
 }
 export interface HistoryPage { items: HistoryItem[]; total: number; page: number; pageSize: number }
 

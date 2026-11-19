@@ -115,6 +115,8 @@ export interface EncounterEvent {
   actorUserId: string | null;
   occurredAtUtc: string;
   detail: string | null;
+  /** ALV-N025 (F-087): who did it, by name. */
+  actorName?: string | null;
 }
 
 export interface EncounterDetail {

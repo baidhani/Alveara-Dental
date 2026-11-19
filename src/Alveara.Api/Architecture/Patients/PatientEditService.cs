@@ -21,11 +21,13 @@ public class PatientEditService(AlveraDbContext db, IPracticeClock clock)
 
         var now = clock.UtcNow;
         var changed = new List<string>();
+        Guid? firstHistory = null;
         void Track(string name, string? oldValue, string? newValue)
         {
             if (string.Equals(oldValue, newValue, StringComparison.Ordinal)) return;
             changed.Add(name);
-            PatientWrite.History(db, id, now, actor, "Updated", name, oldValue, newValue);
+            var entry = PatientWrite.History(db, id, now, actor, "Updated", name, oldValue, newValue);
+            firstHistory ??= entry;
         }
 
         Track("firstName", patient.FirstName, clean.FirstName); patient.FirstName = clean.FirstName;
@@ -53,7 +55,7 @@ public class PatientEditService(AlveraDbContext db, IPracticeClock clock)
         }
 
         PatientWrite.Touch(patient, now, actor);
-        PatientWrite.Audit(db, PatientAuditEventsV2.Updated, id, actor, $"Patient updated: {string.Join(", ", changed)}.");
+        PatientWrite.Audit(db, PatientAuditEventsV2.Updated, id, actor, $"Patient updated: {string.Join(", ", changed)}.", firstHistory);   // ALV-N025 (F-041): the fields; the values are in History
         await PatientWrite.SaveAsync(db, id, ct);
         return patient;
     }

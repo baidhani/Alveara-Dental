@@ -172,7 +172,8 @@ public partial class FollowUpService(AlveraDbContext db, IPracticeClock clock, I
         foreach (var r in Enum.GetValues<Role>())
             if (await permissions.HasAsync(r, Permission.ViewFollowUps, ct)) roles.Add(r);
         var rows = await db.UserAccounts.AsNoTracking().Where(u => !u.IsDisabled && roles.Contains(u.Role)).OrderBy(u => u.Username).Take(500).Select(u => new { u.Id, u.Username, u.Role }).ToListAsync(ct);
-        return rows.Select(u => new FollowUpAssignee(u.Id, u.Username, u.Role.ToString())).ToList();
+        var names = await Clinical.ClinicalNames.ResolveAsync(db, rows.Select(u => (Guid?)u.Id), ct);              // ALV-N025 (U-011): the person's name, the username only without a staff profile
+        return rows.Select(u => new FollowUpAssignee(u.Id, Clinical.ClinicalNames.Name(names, u.Id) ?? u.Username, u.Role.ToString())).OrderBy(a => a.Name, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     // ---------- helpers ----------
@@ -249,8 +250,9 @@ public partial class FollowUpService(AlveraDbContext db, IPracticeClock clock, I
     private async Task<Guid?> RecallIdAsync(Guid taskId, CancellationToken ct) =>
         await db.FollowUpTasks.AsNoTracking().Where(t => t.RecallOfTaskId == taskId).Select(t => (Guid?)t.Id).FirstOrDefaultAsync(ct);
 
-    private async Task<Dictionary<Guid, string>> NamesAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct) =>
-        ids.Count == 0 ? [] : await db.UserAccounts.AsNoTracking().Where(u => ids.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.Username, ct);
+    /// <summary>ALV-N025 (U-011): the shared actor-name rule - the staff display name, else the username.</summary>
+    private async Task<IReadOnlyDictionary<Guid, string>> NamesAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct) =>
+        ids.Count == 0 ? new Dictionary<Guid, string>() : await Clinical.ClinicalNames.ResolveAsync(db, ids.Select(i => (Guid?)i), ct);
 
     private async Task<FollowUpView> ViewAsync(FollowUpTask task, CancellationToken ct) => (await ViewsAsync([task], ct))[0];
 

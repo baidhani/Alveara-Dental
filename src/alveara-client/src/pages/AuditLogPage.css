@@ -35,3 +35,8 @@
   color: var(--color-text-muted);
   font-style: italic;
 }
+
+/* ALV-N025: the filter row and the note shown instead of a History link */
+.alv-audit-log__filters { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin: 0 0 1rem; }
+.alv-audit-log__filters label { display: flex; flex-direction: column; gap: 0.25rem; }
+.alv-audit-log__note { color: var(--color-text-muted, #5b6573); }

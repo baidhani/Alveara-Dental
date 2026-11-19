@@ -237,7 +237,7 @@ export function EncounterView({ patient, encounterId }: { patient: PatientDetail
             <li key={`${h.occurredAtUtc}-${i}`}>
               <span className="alv-clinical__history-what">{EVENT_LABELS[h.eventType] ?? h.eventType}</span>
               {h.detail && <span> - {h.detail}</span>}
-              <span className="alv-clinical__meta"> {when(h.occurredAtUtc)}</span>
+              <span className="alv-clinical__meta"> {when(h.occurredAtUtc)}{h.actorName ? ` by ${h.actorName}` : ""}</span>{/* ALV-N025 (F-087) */}
             </li>
           ))}
         </ol>

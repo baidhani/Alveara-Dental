@@ -22,7 +22,7 @@ public class EncounterReader(AlveraDbContext db)
         var chart = await new EncounterChartSections(db).LoadAsync(encounterId, e.PatientId, ct); // ALV-N022 A1
         var names = await ClinicalNames.ResolveAsync(db, notes.Select(n => n.UpdatedByUserId).Concat(vitals.SelectMany(v => new[] { v.CreatedByUserId, v.VoidedByUserId }))
             .Concat(addenda.Select(a => a.CreatedByUserId)).Append(e.SignedByUserId).Append(e.FinalizedByUserId)
-            .Concat(chart.LiveItems.SelectMany(i => new[] { i.CreatedByUserId, i.UpdatedByUserId })).Concat(chart.VersionsHere.Select(v => v.ActorUserId)), ct);
+            .Concat(chart.LiveItems.SelectMany(i => new[] { i.CreatedByUserId, i.UpdatedByUserId })).Concat(chart.VersionsHere.Select(v => v.ActorUserId)).Concat(events.Select(v => v.ActorUserId)), ct);
 
         var sections = new List<SectionView>();
         foreach (var kind in EncounterEntryKinds.All)
@@ -41,7 +41,7 @@ public class EncounterReader(AlveraDbContext db)
         return new EncounterDetail(
             e.Id, e.PatientId, e.AppointmentId, e.EncounterAtUtc, e.Status, missing.Count == 0, missing, sections,
             addenda.Select(a => new AddendumView(a.Id, a.Text, a.CreatedAtUtc, a.CreatedByUserId, a.Section, ClinicalNames.Name(names, a.CreatedByUserId))).ToList(),
-            events.Select(v => new EventView(v.EventType, v.ActorUserId, v.OccurredAtUtc, v.Detail)).ToList(),
+            events.Select(v => new EventView(v.EventType, v.ActorUserId, v.OccurredAtUtc, v.Detail, ClinicalNames.Name(names, v.ActorUserId))).ToList(),   // ALV-N025 (F-087)
             e.CreatedAtUtc, e.CreatedByUserId, e.FinalizedAtUtc, e.FinalizedByUserId, Convert.ToBase64String(e.RowVersion),
             noteViews, vitals.Select(v => ToView(v, names)).ToList(), e.TemplateId, e.TemplateName, missingNotes, missing.Count == 0 && missingNotes.Count == 0,
             e.SignedAtUtc is not null, e.SignedAtUtc, ClinicalNames.Name(names, e.SignedByUserId), ClinicalNames.Name(names, e.FinalizedByUserId));

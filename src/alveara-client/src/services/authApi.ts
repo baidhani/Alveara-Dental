@@ -57,7 +57,15 @@ export interface AuditLogEntry {
   entityType: string | null;
   reason: string | null;
   correlationId: string | null;
+  /** ALV-N025: the people by name (the actor-name rule); targetName only for rows about an account. */
+  performedByName?: string | null;
+  targetName?: string | null;
+  /** ALV-N025 (F-041, BR-02): on a patient-edit row, an opaque reference to its History entry. Never a value: following it needs ViewPatientRecords. */
+  historyEntryId?: string | null;
 }
+
+/** ALV-N025 (F-150): the audit page's filters. */
+export interface AuditLogFilter { eventType?: string; fromUtc?: string; toUtc?: string }
 
 /** ALV-002-C01 R02 (review finding ALV-002-C01-R01-02): the shared conflict-result shape a
  *  mutable-record edit flow's 409 response carries, matching the backend's
@@ -252,8 +260,17 @@ export async function getPermissionMatrix(): Promise<PermissionMatrixEntry[]> {
 export const AUDIT_LOG_WINDOW = 500;
 
 /** ALV-002-C01: most-recent-first, explicitly requesting AUDIT_LOG_WINDOW rows. */
-export async function getAuditLog(): Promise<AuditLogEntry[]> {
-  return request<AuditLogEntry[]>(`/api/auth/audit-log?take=${AUDIT_LOG_WINDOW}`);
+export async function getAuditLog(filter: AuditLogFilter = {}): Promise<AuditLogEntry[]> {
+  const q = new URLSearchParams({ take: String(AUDIT_LOG_WINDOW) });
+  if (filter.eventType) q.set("eventType", filter.eventType);
+  if (filter.fromUtc) q.set("fromUtc", filter.fromUtc);
+  if (filter.toUtc) q.set("toUtc", filter.toUtc);
+  return request<AuditLogEntry[]>(`/api/auth/audit-log?${q.toString()}`);
+}
+
+/** ALV-N025 (F-150): the event types present in the log, for the filter. */
+export async function getAuditEventTypes(): Promise<string[]> {
+  return request<string[]>("/api/auth/audit-log/event-types");
 }
 
 /** ALV-002-C01 R02: true if `err` is a 409 carrying the shared concurrency-conflict shape - the

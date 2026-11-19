@@ -35,15 +35,22 @@ internal static class PatientWrite
         patient.UpdatedByUserId = actor;
     }
 
-    public static void History(AlveraDbContext db, Guid patientId, DateTimeOffset now, Guid actor, string changeType, string field, string? oldValue, string? newValue) =>
-        db.PatientHistory.Add(new PatientHistoryEntry
+    /// <summary>Adds one History row (old and new value of one field) and returns its id (ALV-N025: the audit row of an edit points at its first History row).</summary>
+    public static Guid History(AlveraDbContext db, Guid patientId, DateTimeOffset now, Guid actor, string changeType, string field, string? oldValue, string? newValue)
+    {
+        var entry = new PatientHistoryEntry
         {
             Id = Guid.NewGuid(), PatientId = patientId, ChangedAtUtc = now, ChangedByUserId = actor,
             ChangeType = changeType, FieldName = field, OldValue = Clip(oldValue), NewValue = Clip(newValue),
-        });
+        };
+        db.PatientHistory.Add(entry);
+        return entry.Id;
+    }
 
-    public static void Audit(AlveraDbContext db, string eventType, Guid patientId, Guid actor, string details) =>
-        AuditService.Record(db, eventType, nameof(Patient), patientId, actor, details);
+    /// <summary>The PHI-free audit row of a patient change. ALV-N025 (F-041, BR-02): an edit passes its first History row's id as <paramref name="historyEntryId"/> (an opaque reference, stored in
+    /// the row's correlation id); the values themselves stay only in the History row, which needs patient-record permission to read.</summary>
+    public static void Audit(AlveraDbContext db, string eventType, Guid patientId, Guid actor, string details, Guid? historyEntryId = null) =>
+        AuditService.Record(db, eventType, nameof(Patient), patientId, actor, details, null, historyEntryId);
 
     public static async Task SaveAsync(AlveraDbContext db, Guid patientId, CancellationToken ct)
     {

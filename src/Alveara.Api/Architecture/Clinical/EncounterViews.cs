@@ -53,7 +53,8 @@ public static class SectionSources
 /// <summary><see cref="Section"/> (ALV-005-C01) says what the addendum amends: a documentation or note section, or null when it is general.</summary>
 public sealed record AddendumView(Guid Id, string Text, DateTimeOffset CreatedAtUtc, Guid? CreatedByUserId, string? Section = null, string? CreatedByName = null);
 
-public sealed record EventView(string EventType, Guid? ActorUserId, DateTimeOffset OccurredAtUtc, string? Detail);
+/// <summary>One recorded step of an encounter. ALV-N025 (F-087): <c>ActorName</c> names who did it (the actor-name rule).</summary>
+public sealed record EventView(string EventType, Guid? ActorUserId, DateTimeOffset OccurredAtUtc, string? Detail, string? ActorName = null);
 
 /// <summary>ALV-005-C01: one note section of an encounter (SOAP, progress or treatment). <see cref="Required"/> came from the template applied to the encounter.</summary>
 public sealed record NoteView(string Section, string Body, bool Required, DateTimeOffset? UpdatedAtUtc, string? UpdatedByName);

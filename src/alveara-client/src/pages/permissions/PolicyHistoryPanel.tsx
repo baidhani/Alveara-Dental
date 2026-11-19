@@ -35,7 +35,7 @@ export function PolicyHistoryPanel({ refreshKey }: { refreshKey: number }) {
                 <td>{h.oldEffective ? "granted" : "not granted"}</td>
                 <td>{h.newEffective ? "granted" : "not granted"}</td>
                 <td>{h.reason}</td>
-                <td>{h.changedByUserId.slice(0, 8)}</td>
+                <td title={h.changedByUserId}>{h.changedByName ?? h.changedByUserId}</td>{/* ALV-N025 (F-172, F-214): the person, the id in the tooltip */}
               </tr>
             ))}
           </tbody>

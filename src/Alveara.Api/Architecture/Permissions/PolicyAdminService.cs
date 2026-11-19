@@ -19,7 +19,8 @@ public sealed record PolicyHealth(string Status, long Version, bool Stale, int I
 public sealed record EffectivePolicy(long Version, PolicyHealth Health, IReadOnlyList<EffectiveRole> Roles);
 public sealed record InvalidRowView(Guid Id, string Table, string Role, string Permission, string? TargetRole, string? Effect, string Reason, string RowVersion);
 public sealed record RetiredRowView(Guid Id, string Table, string Role, string Permission);
-public sealed record PolicyHistoryItem(Guid Id, long PolicyVersion, string Kind, string Role, string Permission, string? TargetRole, bool OldEffective, bool NewEffective, string Reason, Guid ChangedByUserId, bool ViaDelegation, DateTimeOffset ChangedAtUtc);
+public sealed record PolicyHistoryItem(Guid Id, long PolicyVersion, string Kind, string Role, string Permission, string? TargetRole, bool OldEffective, bool NewEffective, string Reason, Guid ChangedByUserId, bool ViaDelegation, DateTimeOffset ChangedAtUtc,
+    string? ChangedByName = null);
 public sealed record PolicyHistoryPage(IReadOnlyList<PolicyHistoryItem> Items, int Total, int Page, int PageSize);
 public sealed record RemoveRowResult(Guid Id, long PolicyVersion);
 
@@ -76,7 +77,9 @@ public class PolicyAdminService(AlveraDbContext db, IEffectivePermissions permis
         var q = db.RolePermissionHistories.AsNoTracking();
         var total = await q.CountAsync(ct);
         var rows = await q.OrderByDescending(h => h.PolicyVersion).ThenBy(h => h.Id).Skip((p - 1) * size).Take(size).ToListAsync(ct);
-        return new PolicyHistoryPage(rows.Select(h => new PolicyHistoryItem(h.Id, h.PolicyVersion, h.Kind, h.Role, h.Permission, h.TargetRole, h.OldEffective, h.NewEffective, h.Reason, h.ChangedByUserId, h.ViaDelegation, h.ChangedAtUtc)).ToList(), total, p, size);
+        var names = await Clinical.ClinicalNames.ResolveAsync(db, rows.Select(h => (Guid?)h.ChangedByUserId), ct);              // ALV-N025 (F-172, F-214): who, by name
+        return new PolicyHistoryPage(rows.Select(h => new PolicyHistoryItem(h.Id, h.PolicyVersion, h.Kind, h.Role, h.Permission, h.TargetRole, h.OldEffective, h.NewEffective, h.Reason, h.ChangedByUserId, h.ViaDelegation, h.ChangedAtUtc,
+            Clinical.ClinicalNames.Name(names, h.ChangedByUserId))).ToList(), total, p, size);
     }
 
     private static PolicyHealth ToHealth(PolicySnapshot s, bool stale) => new(

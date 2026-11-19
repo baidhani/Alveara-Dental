@@ -42,7 +42,7 @@ public class PatientRelationshipService(AlveraDbContext db, IPracticeClock clock
         PatientWrite.History(db, id, now, actor, "GuarantorChanged", "guarantorPatientId", patient.GuarantorPatientId?.ToString(), target?.ToString());
         patient.GuarantorPatientId = target;
         PatientWrite.Touch(patient, now, actor);
-        PatientWrite.Audit(db, PatientAuditEventsV2.GuarantorChanged, id, actor, target is null ? "Guarantor cleared (self-responsible)." : "Guarantor set.");
+        PatientWrite.Audit(db, PatientAuditEventsV2.GuarantorChanged, id, actor, target is null ? "Guarantor cleared (self-responsible)." : $"Guarantor set to patient {target}.");   // ALV-N025 (F-040): the other party by id, never by name
         await PatientWrite.SaveAsync(db, id, ct);
         return patient;
     }
@@ -101,7 +101,7 @@ public class PatientRelationshipService(AlveraDbContext db, IPracticeClock clock
         patient.HouseholdId = householdId;
         patient.HouseholdRelationship = relationship;
         PatientWrite.Touch(patient, now, actor);
-        PatientWrite.Audit(db, PatientAuditEventsV2.HouseholdChanged, id, actor, "Household membership set.");
+        PatientWrite.Audit(db, PatientAuditEventsV2.HouseholdChanged, id, actor, $"Household membership set: household {householdId}, relationship {relationship}, with patient {anchor.Id}.");   // ALV-N025 (O-G2j)
         if (anchor.Id != id && db.Entry(anchor).State == EntityState.Modified)
             PatientWrite.Audit(db, PatientAuditEventsV2.HouseholdChanged, anchor.Id, actor, "Household created.");
         await PatientWrite.SaveAsync(db, id, ct);

@@ -26,7 +26,7 @@ internal sealed class SchedulingRecorder(AlveraDbContext db, IMeasurementEventSi
         {
             logger?.LogWarning(ex, "The refusal of a scheduling request ({Code}) could not be audited; the refusal stands.", refusal.Code);
         }
-        await MeasureAsync("appointment.rejected", new { category = refusal.Code, outcome = "failure" }, ct);
+        await MeasureAsync("appointment.rejected", new { category = Alveara.Api.Architecture.Measurement.MeasurementCategory.Of(refusal.Code), outcome = "failure" }, ct);
     }
 
     public async Task MeasureAsync(string name, object properties, CancellationToken ct)

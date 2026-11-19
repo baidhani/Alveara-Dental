@@ -487,6 +487,7 @@ describe("the encounter's own history and which patient it belongs to", () => {
     expect(await screen.findByText(/History of this encounter \(2\)/)).toBeInTheDocument();
     expect(screen.getByText("Encounter started")).toBeInTheDocument();
     expect(screen.getByText("Entry added")).toBeInTheDocument();
+    expect(screen.getAllByText(/ by Dee Dentist$/).length).toBeGreaterThanOrEqual(2);   // ALV-N025 (F-087): every step names who did it
   });
 
   it("never shows another patient's encounter under this patient", async () => {

@@ -23,16 +23,45 @@ public sealed class SafeExceptionHandlingMiddleware(RequestDelegate next, ILogge
         return false;
     }
 
+    /// <summary>A cancellation caused by the client going away (the request's own abort token), anywhere in the exception chain.</summary>
+    internal static bool IsClientAbort(Exception ex, HttpContext context)
+    {
+        if (!context.RequestAborted.IsCancellationRequested) return false;
+        for (var e = ex; e is not null; e = e.InnerException)
+            if (e is OperationCanceledException) return true;
+        return false;
+    }
+
+    /// <summary>The number of the first SQL Server error in the exception chain, if any.</summary>
+    internal static int? SqlNumber(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+            if (e is SqlException sql) return sql.Number;
+        return null;
+    }
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
         {
             await next(context);
         }
+        catch (Exception ex) when (IsClientAbort(ex, context))
+        {
+            // ALV-N025 (F-126, F-010): the browser abandoned the request (navigation, reload, a closed tab). Not a fault: information, and nothing is written back.
+            logger.LogInformation("request_aborted error_class={ErrorClass} method={Method} path={Path} (correlation {CorrelationId})", "ClientAborted", context.Request.Method,
+                context.Request.Path.Value, Activity.Current?.Id ?? context.TraceIdentifier);
+        }
         catch (Exception ex)
         {
             var correlationId = Activity.Current?.Id ?? context.TraceIdentifier;
-            logger.LogError("Unhandled request exception: {ExceptionType} (correlation {CorrelationId})", ex.GetType().Name, correlationId);
+            // ALV-N025 (F-127): a SQL failure is logged with its error number, method and path (never its message or any data), so it can be diagnosed from the log.
+            if (SqlNumber(ex) is int number)
+                logger.LogError("Unhandled request exception: {ExceptionType} error_class={ErrorClass} sql_error={SqlError} method={Method} path={Path} (correlation {CorrelationId})",
+                    ex.GetType().Name, "SqlError", number, context.Request.Method, context.Request.Path.Value, correlationId);
+            else
+                logger.LogError("Unhandled request exception: {ExceptionType} method={Method} path={Path} (correlation {CorrelationId})", ex.GetType().Name, context.Request.Method,
+                    context.Request.Path.Value, correlationId);
 
             if (context.Response.HasStarted)
             {

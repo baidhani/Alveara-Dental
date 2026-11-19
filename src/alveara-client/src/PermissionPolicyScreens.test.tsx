@@ -50,7 +50,7 @@ beforeEach(() => {
     if (u === "/api/auth/permission-matrix") return Promise.resolve(json([{ role: "Admin", permissions: ["ViewBilling"] }, { role: "Dentist", permissions: ["ViewBilling"] }]));
     if (u === "/api/permissions/my-delegations") return Promise.resolve(json({ policyVersion: s.version, delegations: s.my }));
     if (u === "/api/permissions/delegations" && method === "GET") return Promise.resolve(json({ policyVersion: s.version, rows: s.delegations, delegableDelegates: ["OfficeManager"], delegablePermissions: ["ImportDocuments", "ViewDocuments"], targetRoles: ["Dentist", "Hygienist"] }));
-    if (u.startsWith("/api/permissions/history")) return Promise.resolve(json({ items: [{ id: "h1", policyVersion: 6, kind: "Revoked", role: "Dentist", permission: "ViewBilling", targetRole: null, oldEffective: true, newEffective: false, reason: "Earlier reason", changedByUserId: "11111111-2222", viaDelegation: false, changedAtUtc: "2026-10-01T10:00:00Z" }], total: 1, page: 1, pageSize: 25 }));
+    if (u.startsWith("/api/permissions/history")) return Promise.resolve(json({ items: [{ id: "h1", policyVersion: 6, kind: "Revoked", role: "Dentist", permission: "ViewBilling", targetRole: null, oldEffective: true, newEffective: false, reason: "Earlier reason", changedByUserId: "11111111-2222", changedByName: "Maya Manager", viaDelegation: false, changedAtUtc: "2026-10-01T10:00:00Z" }], total: 1, page: 1, pageSize: 25 }));
     if (method === "PUT" && u === "/api/permissions/overrides") { s.version++; return Promise.resolve(json({ policyVersion: s.version, replayed: false, change: body.effect === "Revert" ? "Reverted" : body.effect === "Grant" ? "Granted" : "Revoked", role: body.role, permission: body.permission, effective: body.effect === "Grant", source: "granted", enabledUsers: 3 })); }
     return Promise.resolve(json({ error: "unexpected" }, 500));
   }));
@@ -186,6 +186,8 @@ describe("ALV-N018 editable matrix", () => {
     const history = await screen.findByRole("heading", { name: "Change history" });
     expect(history).toBeTruthy();
     expect(await screen.findByText("Earlier reason")).toBeTruthy();
+    expect(screen.getByText("Maya Manager")).toHaveAttribute("title", "11111111-2222");   // ALV-N025 (F-172, F-214): the person, the id only in the tooltip
+    expect(screen.queryByText("11111111")).toBeNull();
   });
 });
 
