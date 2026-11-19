@@ -3,7 +3,7 @@ import { newKey } from "../../services/clinicalApi";
 import { PAYMENT_METHODS, formatMoney } from "../../services/billingApi";
 import type { BillingAccount, BillingEntry } from "../../services/billingApi";
 import { refundPayment } from "../../services/billingStatementsApi";
-import { describeBillingFailure } from "./billingFailure";
+import { NOT_RECORDED_FIX_FIELDS, clearFieldError, describeBillingFailure } from "./billingFailure";
 import { standingOf } from "./billingLedgerView";
 
 interface Props {
@@ -41,7 +41,7 @@ export function BillingRefundForm({ account, entry, recipient, methods, onDone, 
     if (value === null || Number.isNaN(value)) gaps.amount = "Enter the amount to refund.";
     if (method === "") gaps.method = "Choose how the money is returned.";
     if (reason.trim() === "") gaps.reason = "A refund needs a reason, so the history explains it.";
-    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage("Not recorded: some entries need correcting. Nothing was sent."); return; }
+    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage(NOT_RECORDED_FIX_FIELDS); return; }
 
     const signature = JSON.stringify([account.rowVersion, entry.entryNumber, value, method, reason.trim()]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
@@ -71,18 +71,18 @@ export function BillingRefundForm({ account, entry, recipient, methods, onDone, 
       </p>
       {message && <p className="alv-dx__message" role="alert">{message}</p>}
       <label htmlFor={`${id}-amount`}>Amount to refund (US dollars)
-        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} aria-describedby={fields.amount ? `${id}-amount-e` : undefined} onChange={(e) => setAmount(e.target.value)} />
+        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} aria-describedby={fields.amount ? `${id}-amount-e` : undefined} onChange={(e) => { setAmount(e.target.value); setFields(clearFieldError("amount")); }} />
       </label>
       {fields.amount && <p id={`${id}-amount-e`} className="alv-bill__error">{fields.amount}</p>}
       <label htmlFor={`${id}-method`}>How the money is returned
-        <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} aria-describedby={fields.method ? `${id}-method-e` : undefined} onChange={(e) => setMethod(e.target.value)}>
+        <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} aria-describedby={fields.method ? `${id}-method-e` : undefined} onChange={(e) => { setMethod(e.target.value); setFields(clearFieldError("method")); }}>
           <option value="">Choose a method</option>
           {names.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
       </label>
       {fields.method && <p id={`${id}-method-e`} className="alv-bill__error">{fields.method}</p>}
       <label htmlFor={`${id}-reason`}>Why is it being refunded?
-        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fields.reason ? true : undefined} aria-describedby={fields.reason ? `${id}-reason-e` : undefined} onChange={(e) => setReason(e.target.value)} />
+        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fields.reason ? true : undefined} aria-describedby={fields.reason ? `${id}-reason-e` : undefined} onChange={(e) => { setReason(e.target.value); setFields(clearFieldError("reason")); }} />
       </label>
       {fields.reason && <p id={`${id}-reason-e`} className="alv-bill__error">{fields.reason}</p>}
       <div className="alv-clinical__row-actions">

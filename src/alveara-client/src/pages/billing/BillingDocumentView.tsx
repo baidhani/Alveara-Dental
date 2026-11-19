@@ -25,7 +25,7 @@ export function StatementView({ statement }: { statement: StatementContent }) {
         <tbody>
           {statement.lines.map((l) => (
             <tr key={l.number}>
-              <td>{l.number}</td><td>{day(l.recordedAtUtc)}</td><td>{l.kind}</td>
+              <td>{l.number}</td><td>{day(l.recordedAtUtc)}</td><td>{l.kind}{l.reversedByNumber ? <> <span className="alv-bill__reversed-by">(reversed by {l.reversedByNumber})</span></> : null}</td>
               <td>{[l.procedureCode, l.procedureDescription, l.method, l.reason].filter(Boolean).join(" - ")}</td>
               <td className="alv-bill__num">{money(l.amount)}</td><td className="alv-bill__num">{money(l.balanceAfter)}</td>
             </tr>
@@ -45,6 +45,9 @@ export function StatementView({ statement }: { statement: StatementContent }) {
       )}
       <p>By age: 0-30 days {money(statement.aging.current)}; 31-60 days {money(statement.aging.days31To60)}; 61-90 days {money(statement.aging.days61To90)}; over 90 days {money(statement.aging.over90)}.</p>
       {statement.unapplied.length > 0 && <p>Payments not yet applied to a charge: {statement.unapplied.map((u) => `payment ${u.paymentNumber} ${money(u.amount)}`).join("; ")}.</p>}
+      {statement.adjustmentTotal != null && Number(statement.adjustmentTotal) !== 0 && (
+        <p>Adjustments not applied to a charge: {money(statement.adjustmentTotal)}. They are in the balance owed but in no age group.</p>
+      )}
     </article>
   );
 }

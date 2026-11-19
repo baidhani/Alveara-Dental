@@ -32,19 +32,29 @@ export interface DocumentParty { patientId: string; name: string; isSelf: boolea
 export interface DocumentLine {
   number: number; kind: string; amount: string; balanceAfter: string; procedureCode: string | null; procedureDescription: string | null; method: string | null; reason: string | null; recordedAtUtc: string;
   reversesNumber: number | null; refundsNumber: number | null; replacesNumber: number | null;
+  /** ALV-N024 (F-117), template version 3 only: the reversal that undid this line. Absent on older documents. */
+  reversedByNumber?: number | null;
 }
 export interface StatementContent {
   documentType: "Statement"; templateVersion: number; asOfUtc: string; currency: string; patient: DocumentParty; addressee: DocumentParty; lines: DocumentLine[]; openCharges: OpenCharge[];
   unapplied: { paymentNumber: number; amount: string }[]; aging: Aging; balance: string; openChargeTotal: string; unappliedTotal: string; practice?: DocumentPractice | null;
+  /** ALV-N024 (F-116), template version 3 only: the adjustments in the balance that no charge-age bucket holds. Absent on older statements. */
+  adjustmentTotal?: string | null;
 }
 export interface ReceiptContent {
   documentType: "Receipt"; templateVersion: number; asOfUtc: string; currency: string; patient: DocumentParty; receivedFrom: DocumentParty; paymentNumber: number; amount: string; method: string | null;
   receivedAtUtc: string; applications: { chargeNumber: number; procedureCode: string | null; procedureDescription: string | null; amount: string }[]; unapplied: string; refundedToDate: string; balanceOwed: string; practice?: DocumentPractice | null;
 }
 export interface CutOffs { entryNumber: number; allocationNumber: number; releaseNumber: number; responsibilitySequence: number; asOfUtc: string }
-export interface DocumentPreview { documentType: "Statement" | "Receipt"; cutOffs: CutOffs; templateVersion: number; contentHash: string; previewToken: string; statement: StatementContent | null; receipt: ReceiptContent | null }
+export interface DocumentPreview {
+  documentType: "Statement" | "Receipt"; cutOffs: CutOffs; templateVersion: number; contentHash: string; previewToken: string; statement: StatementContent | null; receipt: ReceiptContent | null;
+  /** ALV-N024 (PD-17): set when this preview is a replacement of that receipt number. */
+  replacesNumber?: number | null;
+}
 export interface IssuedDocument {
   id: string; documentType: "Statement" | "Receipt"; documentNumber: number; paymentEntryNumber: number | null; cutOffs: CutOffs; templateVersion: number; contentHash: string; issuedAtUtc: string; issuedByName: string | null;
+  /** ALV-N024: what is true of the document now (never part of it). */
+  replacesNumber?: number | null; replacementReason?: string | null; supersededByNumber?: number | null; paymentReversed?: boolean; paymentRefunded?: number; legacyDuplicate?: boolean;
 }
 export interface IssuedDocumentDetail { document: IssuedDocument; statement: StatementContent | null; receipt: ReceiptContent | null; currentStatus: string[] }
 
@@ -73,11 +83,13 @@ export const getTimeline = (patientId: string, signal?: AbortSignal) => request<
 export const getChargeSource = (patientId: string, entryNumber: number, signal?: AbortSignal) => request<ChargeSource>(`${base(patientId)}/entries/${entryNumber}/source`, { signal });
 export const getAging = (patientId: string, signal?: AbortSignal) => request<AgingView>(`${base(patientId)}/aging`, { signal });
 
-export const previewDocument = (patientId: string, type: "Statement" | "Receipt", paymentEntryNumber?: number, signal?: AbortSignal) =>
-  request<DocumentPreview>(`${base(patientId)}/documents/preview?type=${type}${paymentEntryNumber !== undefined ? `&paymentEntryNumber=${paymentEntryNumber}` : ""}`, { signal });
+/** ALV-N024 (PD-17): <c>replacesDocumentId</c> previews a deliberate replacement of that receipt. */
+export const previewDocument = (patientId: string, type: "Statement" | "Receipt", paymentEntryNumber?: number, signal?: AbortSignal, replacesDocumentId?: string) =>
+  request<DocumentPreview>(`${base(patientId)}/documents/preview?type=${type}${paymentEntryNumber !== undefined ? `&paymentEntryNumber=${paymentEntryNumber}` : ""}${replacesDocumentId ? `&replacesDocumentId=${replacesDocumentId}` : ""}`, { signal });
 
-export const issueDocument = (patientId: string, idempotencyKey: string, previewToken: string) =>
-  requestWithCsrf<IssuedDocument>(`${base(patientId)}/documents`, "POST", { idempotencyKey, previewToken });
+/** ALV-N024 (PD-17): <c>replacementReason</c> is required when the preview was a replacement. */
+export const issueDocument = (patientId: string, idempotencyKey: string, previewToken: string, replacementReason?: string) =>
+  requestWithCsrf<IssuedDocument>(`${base(patientId)}/documents`, "POST", { idempotencyKey, previewToken, ...(replacementReason !== undefined ? { replacementReason } : {}) });
 
 export const listDocuments = (patientId: string, signal?: AbortSignal) => request<IssuedDocument[]>(`${base(patientId)}/documents`, { signal });
 export const getDocument = (patientId: string, documentId: string, signal?: AbortSignal) => request<IssuedDocumentDetail>(`${base(patientId)}/documents/${documentId}`, { signal });

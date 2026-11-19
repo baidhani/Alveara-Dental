@@ -3,7 +3,7 @@ import { newKey } from "../../services/clinicalApi";
 import { PAYMENT_METHODS, formatMoney } from "../../services/billingApi";
 import type { BillingAccount, BillingEntry } from "../../services/billingApi";
 import { correctEntry } from "../../services/billingStatementsApi";
-import { describeBillingFailure } from "./billingFailure";
+import { NOT_RECORDED_FIX_FIELDS, clearFieldError, describeBillingFailure } from "./billingFailure";
 
 interface Props {
   account: BillingAccount;
@@ -39,7 +39,7 @@ export function BillingCorrectForm({ account, entry, methods, onDone, onConflict
     if (value === null || Number.isNaN(value)) gaps.amount = isPayment ? "Enter the corrected payment amount." : "Enter the corrected adjustment amount (negative to reduce what is owed).";
     if (isPayment && method === "") gaps.method = "Choose how the payment was received.";
     if (reason.trim() === "") gaps.reason = "A correction needs a reason, so the history explains it.";
-    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage("Not recorded: some entries need correcting. Nothing was sent."); return; }
+    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage(NOT_RECORDED_FIX_FIELDS); return; }
 
     const signature = JSON.stringify([account.rowVersion, entry.entryNumber, value, method, note.trim(), reason.trim()]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
@@ -71,12 +71,12 @@ export function BillingCorrectForm({ account, entry, methods, onDone, onConflict
       </p>
       {message && <p className="alv-dx__message" role="alert">{message}</p>}
       <label htmlFor={`${id}-amount`}>{isPayment ? "Corrected payment amount (US dollars)" : "Corrected adjustment amount (US dollars, negative reduces what is owed)"}
-        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} onChange={(e) => setAmount(e.target.value)} />
+        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} onChange={(e) => { setAmount(e.target.value); setFields(clearFieldError("amount")); }} />
       </label>
       {error("amount")}
       {isPayment && (
         <label htmlFor={`${id}-method`}>How it was received
-          <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} onChange={(e) => setMethod(e.target.value)}>
+          <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} onChange={(e) => { setMethod(e.target.value); setFields(clearFieldError("method")); }}>
             <option value="">Choose a method</option>
             {names.map((m) => <option key={m} value={m}>{m}</option>)}
           </select>
@@ -88,7 +88,7 @@ export function BillingCorrectForm({ account, entry, methods, onDone, onConflict
       </label>
       {error("note")}
       <label htmlFor={`${id}-reason`}>Why is it being corrected?
-        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fields.reason ? true : undefined} onChange={(e) => setReason(e.target.value)} />
+        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fields.reason ? true : undefined} onChange={(e) => { setReason(e.target.value); setFields(clearFieldError("reason")); }} />
       </label>
       {error("reason")}
       {fields.entryNumber && <p className="alv-bill__error">{fields.entryNumber}</p>}

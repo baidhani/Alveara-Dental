@@ -154,7 +154,7 @@ describe("taking a payment", () => {
     await user.click(paymentForm().getByRole("button", { name: "Record payment" }));
     expect(await screen.findByText("Enter the payment amount.")).toBeInTheDocument();
     expect(screen.getByText("Choose how the payment was received.")).toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveTextContent("Nothing was sent.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Not recorded: some entries need correcting.");   // ALV-N024 (F-122): the same sentence as a server refusal
     expect(posts(api)).toHaveLength(0);
   });
 

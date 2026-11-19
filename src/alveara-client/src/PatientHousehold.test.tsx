@@ -73,6 +73,7 @@ describe("household and guarantor editor", () => {
     expect(server.callsTo("PUT", `/api/patients/${KID}/guarantor`)[0].body).toEqual({ guarantorPatientId: GRANDPA, rowVersion: "v1" });
     expect(await screen.findByText(/Gus Hale/, { selector: "a" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Make self-responsible" })).toBeInTheDocument();
+    expect(screen.getByText("Gus Hale is now the guarantor for Cal Lee.")).toBeInTheDocument();                  // ALV-N024 (F-204): the message names the people
   });
 
   it("clears a guarantor with Make self-responsible", async () => {
@@ -82,6 +83,14 @@ describe("household and guarantor editor", () => {
 
     await waitFor(() => expect(server.callsTo("PUT", `/api/patients/${KID}/guarantor`)[0].body).toEqual({ guarantorPatientId: null, rowVersion: "v1" }));
     expect(await screen.findByText("This patient is responsible for themselves.")).toBeInTheDocument();
+    expect(screen.getByText("Cal Lee is now responsible for themselves.")).toBeInTheDocument();                  // ALV-N024 (F-204)
+  });
+
+  it("says before any click that a guarantor for others cannot be given a guarantor, and offers no picker (ALV-N024, F-203)", async () => {
+    server.patients.get(KID)!.guarantorId = MOM;
+    open(`/patients/${MOM}/household`);
+    expect(await screen.findByTestId("guarantor-not-possible")).toHaveTextContent("cannot be given a guarantor of their own");
+    expect(screen.queryByRole("button", { name: "Set guarantor" })).not.toBeInTheDocument();
   });
 
   it("shows the server's reason next to the control when a relationship is invalid", async () => {

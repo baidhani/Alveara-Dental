@@ -160,7 +160,7 @@ describe("refunding", () => {
     expect(within(form).getByText(/newest first, which become open again/)).toBeInTheDocument();
 
     await userEvent.click(within(form).getByRole("button", { name: /Refund to Ann Alder/ }));
-    expect(within(form).getByRole("alert")).toHaveTextContent("Nothing was sent");
+    expect(within(form).getByRole("alert")).toHaveTextContent("Not recorded: some entries need correcting.");   // ALV-N024 (F-122)
     expect(within(form).getByText("Enter the amount to refund.")).toBeInTheDocument();
     expect(within(form).getByText("Choose how the money is returned.")).toBeInTheDocument();
     expect(within(form).getByText("A refund needs a reason, so the history explains it.")).toBeInTheDocument();
@@ -385,5 +385,64 @@ describe("accessibility", () => {
     await userEvent.click(screen.getByRole("button", { name: "Preview a statement" }));
     await screen.findByText("Preview: not issued yet.");
     expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe("ALV-N024: one receipt per payment, replacements, document status and the version-3 statement", () => {
+  const receiptDoc = (over: Partial<IssuedDocument> = {}): IssuedDocument => ({ ...issuedDoc(), id: "r1", documentType: "Receipt", documentNumber: 1, paymentEntryNumber: 3, ...over });
+  const receiptDetail = (doc: IssuedDocument = receiptDoc()): IssuedDocumentDetail => ({ document: doc, statement: null, receipt: receiptPreview().receipt, currentStatus: [] });
+
+  it("opens the existing receipt instead of a new preview when the payment already has one (PD-17)", async () => {
+    const api = stubApi({ documents: [receiptDoc()], detail: () => json(receiptDetail()) });
+    await openPanel(true);
+    await userEvent.click(screen.getByRole("button", { name: "Receipt for payment 3" }));
+    expect(await screen.findByText(/Payment 3 already has receipt 1, shown below/)).toBeInTheDocument();
+    expect(screen.getByText("Receipt 1")).toBeInTheDocument();                                              // the number is inside the printed block (Q-5av)
+    expect(screen.queryByText("Preview: not issued yet.")).not.toBeInTheDocument();
+    expect(api.calls.some((c) => c.url.includes("/documents/preview"))).toBe(false);
+  });
+
+  it("issues a replacement only with a reason, sending the receipt it replaces and the reason", async () => {
+    const api = stubApi({
+      documents: [receiptDoc()], detail: () => json(receiptDetail()), preview: () => json({ ...receiptPreview(), replacesNumber: 1 }),
+      post: { "/billing/documents": () => json(receiptDoc({ id: "r2", documentNumber: 2, replacesNumber: 1 })) },
+    });
+    await openPanel(true);
+    await userEvent.click(screen.getByRole("button", { name: "View receipt 1" }));
+    await userEvent.click(await screen.findByRole("button", { name: /Issue a replacement for receipt 1/ }));
+    expect(await screen.findByText(/It will replace receipt 1\./)).toBeInTheDocument();
+    expect(api.calls.find((c) => c.url.includes("/documents/preview"))!.url).toContain("replacesDocumentId=r1");
+
+    await userEvent.click(screen.getByRole("button", { name: "Issue the replacement for receipt 1" }));
+    expect(await screen.findByText("Say why.")).toBeInTheDocument();                                         // refused on screen, nothing sent
+    expect(posts(api, "/billing/documents")).toHaveLength(0);
+
+    await typeInto("Why is receipt 1 being replaced?", "Patient lost the first copy");
+    expect(screen.queryByText("Say why.")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Issue the replacement for receipt 1" }));
+    expect(posts(api, "/billing/documents")[0].body).toMatchObject({ previewToken: "tok-r", replacementReason: "Patient lost the first copy" });
+    expect(await screen.findByText("Receipt 2 issued; it replaces receipt 1.")).toBeInTheDocument();
+  });
+
+  it("lists what is true of each document now: superseded, replaces, reversed, refunded and legacy duplicates (F-115, OQ-4)", async () => {
+    stubApi({ documents: [
+      receiptDoc({ supersededByNumber: 2 }), receiptDoc({ id: "r2", documentNumber: 2, replacesNumber: 1, paymentRefunded: 20 }),
+      receiptDoc({ id: "r3", documentNumber: 3, paymentEntryNumber: 5, paymentReversed: true, legacyDuplicate: true }),
+    ] });
+    await openPanel(false);
+    const rows = within(screen.getByRole("table", { name: "Issued documents" })).getAllByRole("row").slice(1);
+    expect(rows.map((r) => within(r).getAllByRole("cell")[4].textContent)).toEqual([
+      "Superseded by receipt 2", "Replaces receipt 1; $20.00 refunded", "Payment reversed; Multiple legacy receipts exist for this payment",
+    ]);
+  });
+
+  it("marks a reversed line and explains the adjustments on a version-3 statement (F-117, F-116), and brings the preview into focus (F-113)", async () => {
+    const v3 = statement();
+    stubApi({ preview: () => json({ ...preview(), templateVersion: 3, statement: { ...v3, templateVersion: 3, adjustmentTotal: "-31.00", lines: [{ ...v3.lines[0], reversedByNumber: 4 }] } }) });
+    await openPanel(false);
+    await userEvent.click(screen.getByRole("button", { name: "Preview a statement" }));
+    expect(await screen.findByText("(reversed by 4)")).toBeInTheDocument();
+    expect(screen.getByText(/Adjustments not applied to a charge: -\$31\.00/)).toBeInTheDocument();
+    expect(document.activeElement).toBe(screen.getByLabelText("Preview of a statement"));
   });
 });

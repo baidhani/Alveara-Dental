@@ -30,7 +30,9 @@ export function PaymentMethodsSettings({ methods, onChanged }: Props) {
     try {
       const added = await addPaymentMethod(name.trim(), kind);
       setName("");
-      onChanged(replace(added), `Payment method ${added.name} is available.`);
+      onChanged(replace(added), added.created === false
+        ? `Payment method ${added.name} already exists, so nothing was added. It is available.`        // ALV-N024 (F-120)
+        : `Payment method ${added.name} is available.`);
     } catch (err) {
       const failure = describeBillingFailure(err);
       setMessage(failure.message.replace("Not recorded:", "Not added:"));

@@ -12,6 +12,11 @@
 .alv-bill__alloc { border: 1px solid var(--color-border, #dde2e8); border-radius: 0.375rem; padding: 0.5rem 0.75rem; margin: 0.5rem 0; }
 .alv-bill__alloc-row { margin: 0.25rem 0; }
 .alv-bill__choose { display: flex; gap: 0.5rem; align-items: center; margin: 0.5rem 0; }
+/* ALV-N024 (F-196): the checkbox keeps its own size beside its text, like every other checkbox, instead of being stretched to the width of a text field */
+.alv-bill__choose input[type="checkbox"] { width: auto; flex: 0 0 auto; margin: 0; }
+/* ALV-N024: the number of an issued document, printed with it (Q-5av), and a statement line that was reversed (F-117) */
+.alv-bill__docnumber { margin: 0 0 0.5rem; }
+.alv-bill__reversed-by { font-style: italic; }
 .alv-bill__responsibility, .alv-bill__methods { margin: 1rem 0; }
 .alv-bill__table td .btn { margin-right: 0.25rem; margin-bottom: 0.25rem; }
 

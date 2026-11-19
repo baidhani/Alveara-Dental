@@ -22,3 +22,10 @@ export function describeBillingFailure(err: unknown): BillingFailure {
   if (isNetworkFailure(err)) return { message: "Not recorded: the connection dropped. What you typed is still here; try again.", fields: {}, conflict: false };
   return { message: `Not recorded: ${err instanceof ApiError ? err.message : "something went wrong."}`, fields: {}, conflict: false };
 }
+
+/** ALV-N024 (F-121): drops one field's error when that field changes, so a corrected field no longer looks wrong until the next save. */
+export const clearFieldError = (key: string) => (fields: Record<string, string>): Record<string, string> =>
+  key in fields ? Object.fromEntries(Object.entries(fields).filter(([k]) => k !== key)) : fields;
+
+/** ALV-N024 (F-122): the one sentence for a save the screen itself stops; a refusal from the server says the same (describeBillingFailure). */
+export const NOT_RECORDED_FIX_FIELDS = "Not recorded: some entries need correcting.";

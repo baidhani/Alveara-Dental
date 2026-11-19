@@ -4,16 +4,19 @@ import { PAYMENT_METHODS, formatMoney, recordPayment } from "../../services/bill
 import type { BillingAccount } from "../../services/billingApi";
 import { AllocationChooser } from "./AllocationChooser";
 import { allocationErrorsByCharge, namedAllocations, openChargesOf } from "./billingLedgerView";
-import { describeBillingFailure } from "./billingFailure";
+import { NOT_RECORDED_FIX_FIELDS, clearFieldError, describeBillingFailure } from "./billingFailure";
 
-export interface PayerOption { id: string; name: string }
+/** ALV-N024 (PD-18): a person who may be recorded as having paid, with how they are related. */
+export interface PayerOption { id: string; name: string; relationship?: string }
 
 interface Props {
   account: BillingAccount;
   /** The names of the payment methods that can be chosen. Without them (the list could not be read) the four built-in ones are offered. */
   methods?: string[];
-  /** People who can be recorded as having paid, besides the patient (the party responsible for the account, when it is someone else). */
+  /** ALV-N024 (PD-18): everyone who may be recorded as having paid, the patient first (from the server's payer read). */
   payers?: PayerOption[];
+  /** ALV-N024 (F-205): who is chosen until the person picks someone else: the party responsible for the account now. */
+  defaultPayer?: string;
   onDone: (account: BillingAccount, text: string) => void;
   onConflict: () => void;
 }
@@ -24,11 +27,12 @@ interface Props {
  * payment methods and, optionally, as paid by the person responsible for the account. A save carries a key that is kept while the entry is unchanged, so a double click or a retry cannot record the payment twice.
  * A refusal is shown beside its field with what was typed kept.
  */
-export function BillingPaymentForm({ account, methods, payers = [], onDone, onConflict }: Props) {
+export function BillingPaymentForm({ account, methods, payers = [], defaultPayer, onDone, onConflict }: Props) {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("");
   const [note, setNote] = useState("");
-  const [payer, setPayer] = useState("");
+  const [picked, setPicked] = useState<string | null>(null);
+  const payer = picked ?? defaultPayer ?? account.patientId;                          // until someone is picked, the responsible party
   const [choose, setChoose] = useState(false);
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [chargeErrors, setChargeErrors] = useState<Record<number, string>>({});
@@ -47,7 +51,7 @@ export function BillingPaymentForm({ account, methods, payers = [], onDone, onCo
     if (method === "") gaps.method = "Choose how the payment was received.";
     const named = choose ? namedAllocations(charges, typed) : { allocations: [], order: [] as number[] };
     if (choose && named.allocations.length === 0) gaps.allocations = "Name at least one charge, or choose to apply the payment to the oldest charges first.";
-    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage("Not recorded: some entries need correcting. Nothing was sent."); return; }
+    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage(NOT_RECORDED_FIX_FIELDS); return; }
 
     const signature = JSON.stringify([account.rowVersion, value, method, note.trim(), payer, choose ? named.allocations : null]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
@@ -58,9 +62,9 @@ export function BillingPaymentForm({ account, methods, payers = [], onDone, onCo
     try {
       const updated = await recordPayment(account, attempt.current.key, {
         amount: value, method, note: note.trim() === "" ? null : note.trim(),
-        ...(choose ? { allocations: named.allocations } : {}), ...(payer !== "" ? { paidByPatientId: payer } : {}),
+        ...(choose ? { allocations: named.allocations } : {}), ...(payer !== account.patientId ? { paidByPatientId: payer } : {}),
       });
-      setAmount(""); setMethod(""); setNote(""); setPayer(""); setChoose(false); setTyped({}); attempt.current = null;
+      setAmount(""); setMethod(""); setNote(""); setPicked(null); setChoose(false); setTyped({}); attempt.current = null;
       onDone(updated, `Payment of ${formatMoney(value!)} recorded. Balance owed is now ${formatMoney(updated.balanceOwed)}.`);
     } catch (err) {
       const failure = describeBillingFailure(err);
@@ -79,31 +83,30 @@ export function BillingPaymentForm({ account, methods, payers = [], onDone, onCo
       <p className="alv-clinical__meta">A payment is applied to this account's balance owed ({formatMoney(account.balanceOwed)}) and cannot be more than it.</p>
       {message && <p className="alv-dx__message" role="alert">{message}</p>}
       <label htmlFor={`${id}-amount`}>Amount (US dollars)
-        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} aria-describedby={fields.amount ? `${id}-amount-e` : undefined} onChange={(e) => setAmount(e.target.value)} />
+        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} aria-describedby={fields.amount ? `${id}-amount-e` : undefined} onChange={(e) => { setAmount(e.target.value); setFields(clearFieldError("amount")); }} />
       </label>
       {fields.amount && <p id={`${id}-amount-e`} className="alv-bill__error">{fields.amount}</p>}
       <label htmlFor={`${id}-method`}>How it was received
-        <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} aria-describedby={fields.method ? `${id}-method-e` : undefined} onChange={(e) => setMethod(e.target.value)}>
+        <select id={`${id}-method`} value={method} aria-invalid={fields.method ? true : undefined} aria-describedby={fields.method ? `${id}-method-e` : undefined} onChange={(e) => { setMethod(e.target.value); setFields(clearFieldError("method")); }}>
           <option value="">Choose a method</option>
           {names.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
       </label>
       {fields.method && <p id={`${id}-method-e`} className="alv-bill__error">{fields.method}</p>}
-      {payers.length > 0 && (
+      {payers.length > 1 && (
         <label htmlFor={`${id}-payer`}>Who paid
-          <select id={`${id}-payer`} value={payer} aria-invalid={fields.paidBy ? true : undefined} aria-describedby={fields.paidBy ? `${id}-payer-e` : undefined} onChange={(e) => setPayer(e.target.value)}>
-            <option value="">The patient</option>
-            {payers.map((p) => <option key={p.id} value={p.id}>{p.name} (responsible for this account)</option>)}
+          <select id={`${id}-payer`} value={payer} aria-invalid={fields.paidBy ? true : undefined} aria-describedby={fields.paidBy ? `${id}-payer-e` : undefined} onChange={(e) => { setPicked(e.target.value); setFields(clearFieldError("paidBy")); }}>
+            {payers.map((p) => <option key={p.id} value={p.id}>{p.name}{p.relationship ? ` (${p.relationship})` : ""}</option>)}
           </select>
         </label>
       )}
       {fields.paidBy && <p id={`${id}-payer-e`} className="alv-bill__error">{fields.paidBy}</p>}
       <label htmlFor={`${id}-note`}>Note (optional)
-        <input id={`${id}-note`} type="text" maxLength={500} value={note} aria-invalid={fields.note ? true : undefined} aria-describedby={fields.note ? `${id}-note-e` : undefined} onChange={(e) => setNote(e.target.value)} />
+        <input id={`${id}-note`} type="text" maxLength={500} value={note} aria-invalid={fields.note ? true : undefined} aria-describedby={fields.note ? `${id}-note-e` : undefined} onChange={(e) => { setNote(e.target.value); setFields(clearFieldError("note")); }} />
       </label>
       {fields.note && <p id={`${id}-note-e`} className="alv-bill__error">{fields.note}</p>}
       {charges.length > 0 && (
-        <label className="alv-bill__choose"><input type="checkbox" checked={choose} onChange={(e) => setChoose(e.target.checked)} /> Choose which charges this pays (otherwise the oldest are paid first)</label>
+        <label className="alv-bill__choose"><input type="checkbox" checked={choose} onChange={(e) => { setChoose(e.target.checked); setFields(clearFieldError("allocations")); }} /> <span>Choose which charges this pays (otherwise the oldest are paid first)</span></label>
       )}
       {choose && <AllocationChooser charges={charges} typed={typed} onTyped={(n, v) => setTyped((t) => ({ ...t, [n]: v }))} errors={chargeErrors} summaryError={fields.allocations} />}
       <div className="alv-clinical__row-actions">

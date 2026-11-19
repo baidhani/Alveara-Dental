@@ -3,7 +3,7 @@ import { newKey } from "../../services/clinicalApi";
 import { formatMoney } from "../../services/billingApi";
 import type { BillingAccount, BillingEntry } from "../../services/billingApi";
 import { moveAllocations } from "../../services/billingStatementsApi";
-import { describeBillingFailure } from "./billingFailure";
+import { NOT_RECORDED_FIX_FIELDS, clearFieldError, describeBillingFailure } from "./billingFailure";
 import { openChargesOf } from "./billingLedgerView";
 
 interface Props {
@@ -49,7 +49,7 @@ export function BillingMoveForm({ account, entry, onDone, onConflict, onCancel }
     if (to === "") gaps["allocations[0]"] = "Choose the charge to put the money on.";
     if (value === null || Number.isNaN(value)) gaps.amount = "Enter the amount to move.";
     if (reason.trim() === "") gaps.reason = "A move needs a reason, so the history explains it.";
-    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage("Not recorded: some entries need correcting. Nothing was sent."); return; }
+    if (Object.keys(gaps).length > 0) { setFields(gaps); setMessage(NOT_RECORDED_FIX_FIELDS); return; }
 
     const signature = JSON.stringify([account.rowVersion, entry.entryNumber, from, to, value, reason.trim()]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
@@ -78,14 +78,14 @@ export function BillingMoveForm({ account, entry, onDone, onConflict, onCancel }
       <p className="alv-clinical__meta">This takes money off one charge, which becomes open again, and puts the same amount on another open charge. The payment, its amount and the balance owed do not change.</p>
       {message && <p className="alv-dx__message" role="alert">{message}</p>}
       <label htmlFor={`${id}-from`}>Take it off
-        <select id={`${id}-from`} value={from} aria-invalid={fields["releases[0]"] ? true : undefined} onChange={(e) => setFrom(e.target.value)}>
+        <select id={`${id}-from`} value={from} aria-invalid={fields["releases[0]"] ? true : undefined} onChange={(e) => { setFrom(e.target.value); setFields(clearFieldError("releases[0]")); }}>
           <option value="">Choose a charge this payment pays</option>
           {sources.map((s) => <option key={s.charge} value={s.charge}>Charge {s.charge} (this payment pays {formatMoney(s.amount)})</option>)}
         </select>
       </label>
       {error("releases[0]")}
       <label htmlFor={`${id}-to`}>Put it on
-        <select id={`${id}-to`} value={to} aria-invalid={fields["allocations[0]"] ? true : undefined} onChange={(e) => setTo(e.target.value)}>
+        <select id={`${id}-to`} value={to} aria-invalid={fields["allocations[0]"] ? true : undefined} onChange={(e) => { setTo(e.target.value); setFields(clearFieldError("allocations[0]")); }}>
           <option value="">Choose an open charge</option>
           {targets.map((t) => <option key={t.entryNumber} value={t.entryNumber}>{t.label} ({formatMoney(t.open)} open)</option>)}
         </select>
@@ -93,11 +93,11 @@ export function BillingMoveForm({ account, entry, onDone, onConflict, onCancel }
       {error("allocations[0]")}
       {fields.allocations && <p className="alv-bill__error">{fields.allocations}</p>}
       <label htmlFor={`${id}-amount`}>Amount to move (US dollars)
-        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} onChange={(e) => setAmount(e.target.value)} />
+        <input id={`${id}-amount`} type="text" inputMode="decimal" value={amount} aria-invalid={fields.amount ? true : undefined} onChange={(e) => { setAmount(e.target.value); setFields(clearFieldError("amount")); }} />
       </label>
       {error("amount")}
       <label htmlFor={`${id}-reason`}>Why is it being moved?
-        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fields.reason ? true : undefined} onChange={(e) => setReason(e.target.value)} />
+        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fields.reason ? true : undefined} onChange={(e) => { setReason(e.target.value); setFields(clearFieldError("reason")); }} />
       </label>
       {error("reason")}
       <div className="alv-clinical__row-actions">

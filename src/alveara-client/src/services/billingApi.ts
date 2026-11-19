@@ -49,6 +49,8 @@ export interface BillingEntryStanding {
   /** Payment only: what has been refunded of it, and what can still be (zero once it is reversed). */
   refundedAmount?: number | null;
   refundableAmount?: number | null;
+  /** ALV-N024 (Q-5ax): why a payment can no longer be reversed or corrected (it has been refunded). */
+  cannotChangeBecause?: string | null;
 }
 
 export interface BillingAllocation {
@@ -77,6 +79,8 @@ export interface BillingAccount {
   unappliedTotal?: number;
   /** What is left to pay on charges that have not been reversed. */
   openChargeTotal?: number;
+  /** ALV-N024 (F-116): the adjustments in force, which no charge holds: openChargeTotal - unappliedTotal + adjustmentTotal = balanceOwed. */
+  adjustmentTotal?: number;
   standing?: BillingEntryStanding[];
 }
 
@@ -97,6 +101,8 @@ export interface PaymentMethod {
   isBuiltIn: boolean;
   isActive: boolean;
   rowVersion: string;
+  /** ALV-N024 (F-120): on an add, whether it was created now (false: it already existed). */
+  created?: boolean | null;
 }
 
 export interface ResponsibilityItem {
@@ -120,7 +126,13 @@ export interface Responsibility {
   effectiveFrom: string | null;
   rowVersion: string | null;
   history: ResponsibilityItem[];
+  /** ALV-N024 (F-197): false when the party named was already responsible, so nothing was recorded. */
+  changed?: boolean;
 }
+
+/** ALV-N024 (PD-18): one person who may be recorded as having paid, and how they are related. */
+export interface PayerChoice { patientId: string; name: string; relationship: string }
+export interface PayerChoices { patientId: string; defaultPayerId: string; payers: PayerChoice[] }
 
 export interface GuarantorAccount {
   patientId: string;
@@ -174,7 +186,10 @@ export const getResponsibility = (patientId: string, signal?: AbortSignal) => re
 export const recordResponsibility = (patientId: string, rowVersion: string | null, responsiblePatientId: string, reason: string | null) =>
   requestWithCsrf<Responsibility>(`/api/patients/${patientId}/billing/responsibility`, "POST", { responsiblePatientId, reason, rowVersion });
 
-export const getGuarantorSummary = (patientId: string, signal?: AbortSignal) => request<GuarantorSummary>(`/api/patients/${patientId}/billing/guarantor-summary`, { signal });
+/** ALV-N024 (PD-18): who may be recorded as having paid this patient's account, and the default (the party responsible now). */
+export const getPayerChoices = (patientId: string, signal?: AbortSignal) => request<PayerChoices>(`/api/patients/${patientId}/billing/payers`, { signal });
+
+export const getGuarantorSummary =(patientId: string, signal?: AbortSignal) => request<GuarantorSummary>(`/api/patients/${patientId}/billing/guarantor-summary`, { signal });
 
 /** The server's message for each field it refused, keyed by field name ("amount", "method", "reason", "allocations[0]"...). */
 export function billingFieldErrorsOf(err: unknown): Record<string, string> {
@@ -189,5 +204,7 @@ export const formatMoney = (amount: number) => `${amount < 0 ? "-" : ""}$${Math.
 
 /** Whether a response really is the shape asked for, so a screen never draws from a body that is something else. */
 export const isResponsibility = (x: unknown): x is Responsibility => typeof x === "object" && x !== null && typeof (x as Responsibility).source === "string" && Array.isArray((x as Responsibility).history);
-export const isGuarantorSummary = (x: unknown): x is GuarantorSummary => typeof x === "object" && x !== null && Array.isArray((x as GuarantorSummary).accounts);
+export const isPayerChoices = (x: unknown): x is PayerChoices =>
+  typeof x === "object" && x !== null && typeof (x as PayerChoices).defaultPayerId === "string" && Array.isArray((x as PayerChoices).payers);
+export const isGuarantorSummary =(x: unknown): x is GuarantorSummary => typeof x === "object" && x !== null && Array.isArray((x as GuarantorSummary).accounts);
 export const isPaymentMethodList = (x: unknown): x is PaymentMethod[] => Array.isArray(x) && x.every((m) => typeof m === "object" && m !== null && typeof (m as PaymentMethod).name === "string");

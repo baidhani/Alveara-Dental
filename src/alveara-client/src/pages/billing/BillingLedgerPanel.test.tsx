@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import type { PatientDetail } from "../../services/patientsApi";
-import type { BillingAccount, BillingEntry, BillingEntryStanding, GuarantorSummary, PaymentMethod, Responsibility } from "../../services/billingApi";
+import type { BillingAccount, BillingEntry, BillingEntryStanding, GuarantorSummary, PayerChoices, PaymentMethod, Responsibility } from "../../services/billingApi";
 import { BillingPanel } from "./BillingPanel";
 
 /**
@@ -54,6 +54,8 @@ const guarantorResponsible = (): Responsibility => ({
   history: [{ sequence: 1, responsiblePatientId: "g1", responsibleName: "Gus Guarantor", isSelf: false, effectiveFrom: "2030-01-01", reason: "Gus pays for Ann", setAtUtc: "2030-01-01T10:00:00Z", setByName: "Beth Billing" }],
 });
 const builtIns = (): PaymentMethod[] => ["Card", "Cash", "Check", "Other"].map((n) => ({ id: `m-${n}`, name: n, kind: n, isBuiltIn: true, isActive: true, rowVersion: "mv" }));
+const patientOnly = (): PayerChoices => ({ patientId: P, defaultPayerId: P, payers: [{ patientId: P, name: "Ann Alder", relationship: "the patient" }] });
+const withGuarantor = (defaultPayerId = "g1"): PayerChoices => ({ patientId: P, defaultPayerId, payers: [...patientOnly().payers, { patientId: "g1", name: "Gus Guarantor", relationship: "registered guarantor" }, { patientId: "h1", name: "Hal Alder", relationship: "household member (spouse)" }] });
 const venmo = (over: Partial<PaymentMethod> = {}): PaymentMethod => ({ id: "m-venmo", name: "Venmo", kind: "Other", isBuiltIn: false, isActive: true, rowVersion: "vv1", ...over });
 
 interface Call { url: string; method: string; body: Record<string, unknown> | null }
@@ -63,12 +65,14 @@ interface Api {
   responsibility: Responsibility | null;
   summary: GuarantorSummary | null;
   methods: PaymentMethod[] | null;
+  /** ALV-N024 (PD-18): the server's payer read. */
+  payers: PayerChoices | null;
   calls: Call[];
   post: Record<string, Handler>;
 }
 
 function stubApi(over: Partial<Api> = {}): Api {
-  const api: Api = { account: unapplied(), responsibility: selfResponsible(), summary: null, methods: builtIns(), calls: [], post: {}, ...over };
+  const api: Api = { account: unapplied(), responsibility: selfResponsible(), summary: null, methods: builtIns(), payers: patientOnly(), calls: [], post: {}, ...over };
   vi.stubGlobal("fetch", vi.fn().mockImplementation((url: RequestInfo | URL, init?: RequestInit) => {
     const u = String(url);
     const method = init?.method ?? "GET";
@@ -83,6 +87,7 @@ function stubApi(over: Partial<Api> = {}): Api {
     if (u.includes("/billing/responsibility")) return Promise.resolve(api.responsibility ? json(api.responsibility) : json({ error: "server_error", message: "boom" }, 500));
     if (u.includes("/billing/guarantor-summary")) return Promise.resolve(api.summary ? json(api.summary) : json({ error: "server_error", message: "boom" }, 500));
     if (u.includes("/api/billing/payment-methods")) return Promise.resolve(api.methods ? json(api.methods) : json({ error: "server_error", message: "boom" }, 500));
+    if (u.includes("/billing/payers")) return Promise.resolve(api.payers ? json(api.payers) : json({ error: "server_error", message: "boom" }, 500));
     return Promise.resolve(json(api.account));
   }));
   return api;
@@ -131,7 +136,7 @@ describe("reading the ledger", () => {
     });
     await openPanel(false);
     expect(screen.getByText(/Gus Guarantor/, { selector: "strong" })).toBeInTheDocument();
-    expect(screen.getByText(/recorded by billing/)).toBeInTheDocument();
+    expect(screen.getByText(/recorded on this account/)).toBeInTheDocument();                              // ALV-N024 (F-198): no role named beside a table that names people
     expect(within(screen.getByRole("table", { name: "Who has been responsible" })).getByText("Gus pays for Ann")).toBeInTheDocument();
     const table = screen.getByRole("table", { name: "Accounts this patient is responsible for" });
     expect(within(table).getByText("Dan Alder")).toBeInTheDocument();
@@ -251,12 +256,14 @@ describe("applying what a payment still holds", () => {
 describe("taking a payment with the practice's methods, charges and payer", () => {
   it("offers the configured methods, sends the chosen charges and who paid, and refuses to send a choice that names no charge", async () => {
     const user = userEvent.setup();
-    const api = stubApi({ methods: [...builtIns(), venmo()], responsibility: guarantorResponsible() });
+    const api = stubApi({ methods: [...builtIns(), venmo()], responsibility: guarantorResponsible(), payers: withGuarantor() });
     api.post["/billing/payments"] = () => json(unapplied());
     await openPanel(true);
     const form = within(screen.getByRole("form", { name: "Record a payment" }));
     expect(within(form.getByLabelText("How it was received")).getAllByRole("option").map((o) => o.textContent)).toContain("Venmo");
-    expect(within(form.getByLabelText("Who paid")).getAllByRole("option").map((o) => o.textContent)).toEqual(["The patient", "Gus Guarantor (responsible for this account)"]);
+    // ALV-N024 (PD-18, F-205): the server's list - patient, guarantor, household - and the responsible party chosen to start with
+    expect(within(form.getByLabelText("Who paid")).getAllByRole("option").map((o) => o.textContent)).toEqual(["Ann Alder (the patient)", "Gus Guarantor (registered guarantor)", "Hal Alder (household member (spouse))"]);
+    expect(form.getByLabelText("Who paid")).toHaveValue("g1");
 
     await user.type(form.getByLabelText(/^Amount/), "50");
     await user.selectOptions(form.getByLabelText("How it was received"), "Venmo");
@@ -273,7 +280,7 @@ describe("taking a payment with the practice's methods, charges and payer", () =
 
   it("shows a refusal of one allocation beside its charge and what the server said about the payer beside the payer", async () => {
     const user = userEvent.setup();
-    const api = stubApi({ responsibility: guarantorResponsible() });
+    const api = stubApi({ responsibility: guarantorResponsible(), payers: withGuarantor(P) });
     api.post["/billing/payments"] = () => json({ error: "validation_failed", message: "Some entries need attention.", fieldErrors: { "allocations[0]": "Charge 1 has only 100.00 USD left to pay.", paidBy: "Only the patient, or someone recorded as responsible for this account, can be recorded as having paid it." } }, 400);
     await openPanel(true);
     const form = within(screen.getByRole("form", { name: "Record a payment" }));
@@ -312,12 +319,22 @@ describe("who is responsible, and the payment methods", () => {
     expect(select).toHaveValue("x9");                                                                          // the form starts on who is responsible now, never on a different choice
   });
 
-  it("offers the form to record who is responsible only once something has been billed, like the payment and adjustment forms, and says so before that", async () => {
+  it("offers the form to record who is responsible before anything is billed, while payments and adjustments wait for the account (ALV-N024, Q-5bf)", async () => {
     stubApi({ account: { ...unapplied(), hasAccount: false, rowVersion: null, balanceOwed: 0, entries: [], standing: [], unappliedTotal: 0, openChargeTotal: 0 } });
     await openPanel(true);
-    for (const name of ["Record who is responsible", "Record a payment", "Record an adjustment"]) expect(screen.queryByRole("form", { name })).not.toBeInTheDocument();
-    expect(screen.getByText("Who is responsible can be recorded once something has been billed to this account.")).toBeInTheDocument();
-    expect(screen.getByText(/the patient, because no guarantor is registered/)).toBeInTheDocument();     // who is responsible is still shown
+    expect(screen.getByRole("form", { name: "Record who is responsible" })).toBeInTheDocument();
+    for (const name of ["Record a payment", "Record an adjustment"]) expect(screen.queryByRole("form", { name })).not.toBeInTheDocument();
+    expect(screen.queryByText(/can be recorded once something has been billed/)).not.toBeInTheDocument();
+    expect(screen.getByText(/the patient, because no guarantor is registered/)).toBeInTheDocument();
+  });
+
+  it("says nothing changed when the party named is already responsible (ALV-N024, F-197)", async () => {
+    const user = userEvent.setup();
+    const api = stubApi();
+    api.post["/billing/responsibility"] = () => json({ ...selfResponsible(), changed: false });
+    await openPanel(true);
+    await user.click(screen.getByRole("button", { name: "Record responsibility" }));
+    expect(await screen.findByText("Nothing changed: Ann Alder is already responsible for this account, so nothing was recorded.")).toBeInTheDocument();
   });
 
   it("says nothing was changed and keeps the form when billing refuses the change", async () => {
@@ -425,3 +442,44 @@ describe("front desk collecting payments (ALV-N021 A2, OD-27)", () => {
     expect(screen.queryByText(/Payment 3 applied\./)).not.toBeInTheDocument();
   });
 });
+
+describe("ALV-N024: payment methods, adjustments, refunded payments and field errors", () => {
+  it("says a payment method already existed when adding it again (F-120)", async () => {
+    const user = userEvent.setup();
+    const api = stubApi({ methods: [...builtIns(), venmo()] });
+    api.post["/api/billing/payment-methods"] = () => json({ ...venmo(), created: false });
+    await openPanel(true);
+    await user.click(screen.getByText("Payment methods"));
+    await user.type(screen.getByLabelText("Method name"), "venmo");
+    await user.click(screen.getByRole("button", { name: "Add method" }));
+    expect(await screen.findByText("Payment method Venmo already exists, so nothing was added. It is available.")).toBeInTheDocument();
+  });
+
+  it("explains the adjustments that are in the balance but in no age group (F-116)", async () => {
+    stubApi({ account: { ...unapplied(), adjustmentTotal: -31 } });
+    await openPanel(false);
+    expect(screen.getByText(/Adjustments not applied to a charge: -\$31\.00/)).toBeInTheDocument();
+  });
+
+  it("says why a refunded payment can no longer be reversed or corrected (Q-5ax)", async () => {
+    const account = unapplied();
+    const why = "Part of this payment has been refunded, so it cannot be reversed or corrected: reversing it would return the refunded money a second time.";
+    stubApi({ account: { ...account, standing: account.standing!.map((st) => st.entryNumber === 3 ? { ...st, refundedAmount: 5, cannotChangeBecause: why } : st) } });
+    await openPanel(true);
+    expect(screen.getByText(why)).toBeInTheDocument();
+  });
+
+  it("clears a field's error as soon as that field changes, before the next save (F-121)", async () => {
+    const user = userEvent.setup();
+    stubApi();
+    await openPanel(true);
+    const form = within(screen.getByRole("form", { name: "Record a payment" }));
+    await user.click(form.getByRole("button", { name: "Record payment" }));
+    expect(await form.findByText("Choose how the payment was received.")).toBeInTheDocument();
+    expect(form.getByText("Not recorded: some entries need correcting.")).toBeInTheDocument();          // F-122: one wording
+    await user.selectOptions(form.getByLabelText("How it was received"), "Cash");
+    expect(form.queryByText("Choose how the payment was received.")).not.toBeInTheDocument();
+    expect(form.getByText("Enter the payment amount.")).toBeInTheDocument();                              // the other field's error stays until it changes
+  });
+});
+

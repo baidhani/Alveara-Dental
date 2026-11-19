@@ -67,6 +67,7 @@ export function BillingLedger({ account, onReverse, onApply, onRefund, onMove, o
                   {canCorrect && <button type="button" className="btn btn-outline-secondary" onClick={() => onCorrect(e)}>Correct entry {e.entryNumber}</button>}
                   {onReceipt && live && <button type="button" className="btn btn-outline-secondary" onClick={() => onReceipt(e)}>Receipt for payment {e.entryNumber}</button>}
                   {canReverse && <button type="button" className="btn btn-outline-secondary" onClick={() => onReverse(e)}>Reverse entry {e.entryNumber}</button>}
+                  {standing?.cannotChangeBecause && <p className="alv-clinical__meta">{standing.cannotChangeBecause}</p>}{/* ALV-N024 (Q-5ax) */}
                 </td>
               )}
             </tr>

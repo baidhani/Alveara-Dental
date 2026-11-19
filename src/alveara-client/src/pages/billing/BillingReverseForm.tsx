@@ -2,7 +2,7 @@ import { useId, useRef, useState } from "react";
 import { newKey } from "../../services/clinicalApi";
 import { formatMoney, reverseEntry } from "../../services/billingApi";
 import type { BillingAccount, BillingEntry } from "../../services/billingApi";
-import { describeBillingFailure } from "./billingFailure";
+import { NOT_RECORDED_FIX_FIELDS, describeBillingFailure } from "./billingFailure";
 
 interface Props {
   account: BillingAccount;
@@ -25,7 +25,7 @@ export function BillingReverseForm({ account, entry, onDone, onConflict, onCance
   const id = useId();
 
   async function submit() {
-    if (reason.trim() === "") { setFieldError("A reversal needs a reason, so the history explains it."); setMessage("Not recorded: some entries need correcting. Nothing was sent."); return; }
+    if (reason.trim() === "") { setFieldError("A reversal needs a reason, so the history explains it."); setMessage(NOT_RECORDED_FIX_FIELDS); return; }
     const signature = JSON.stringify([account.rowVersion, entry.entryNumber, reason.trim()]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
     setBusy(true);
@@ -50,7 +50,7 @@ export function BillingReverseForm({ account, entry, onDone, onConflict, onCance
       <p className="alv-clinical__meta">This adds an entry that undoes it. The original stays in the history exactly as it was.</p>
       {message && <p className="alv-dx__message" role="alert">{message}</p>}
       <label htmlFor={`${id}-reason`}>Why is it being reversed?
-        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fieldError ? true : undefined} aria-describedby={fieldError ? `${id}-reason-e` : undefined} onChange={(e) => setReason(e.target.value)} />
+        <input id={`${id}-reason`} type="text" maxLength={500} value={reason} aria-invalid={fieldError ? true : undefined} aria-describedby={fieldError ? `${id}-reason-e` : undefined} onChange={(e) => { setReason(e.target.value); setFieldError(null); }} />
       </label>
       {fieldError && <p id={`${id}-reason-e`} className="alv-bill__error">{fieldError}</p>}
       <div className="alv-clinical__row-actions">

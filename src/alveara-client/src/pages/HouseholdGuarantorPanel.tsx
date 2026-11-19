@@ -53,7 +53,10 @@ export function HouseholdGuarantorPanel({ patient, onChanged }: { patient: Patie
   }
 
   const saveGuarantor = (id: string | null) =>
-    run(() => setGuarantor(patient.id, id, patient.rowVersion), setGuarantorError, id ? "Guarantor set." : "Patient is now responsible for themselves.", () => setNewGuarantor(null));
+    run(() => setGuarantor(patient.id, id, patient.rowVersion), setGuarantorError,
+      // ALV-N024 (F-204): the message names the people
+      id ? `${newGuarantor ? displayName(newGuarantor) : "The chosen patient"} is now the guarantor for ${displayName(patient)}.` : `${displayName(patient)} is now responsible for themselves.`,
+      () => setNewGuarantor(null));
 
   // Adding a member changes THAT patient's row, so we read their current version first.
   const addMember = () =>
@@ -104,7 +107,11 @@ export function HouseholdGuarantorPanel({ patient, onChanged }: { patient: Patie
             </ul>
           </div>
         )}
-        {canEdit && (
+        {canEdit && patient.guaranteeFor.length > 0 && !patient.guarantor && (
+          // ALV-N024 (F-203): said before any click - the server refuses a guarantor for a patient who is a guarantor for others
+          <p className="alv-workspace__note" data-testid="guarantor-not-possible">{displayName(patient)} is the guarantor for the patients listed above, so they cannot be given a guarantor of their own. A guarantor must be responsible for themselves.</p>
+        )}
+        {canEdit && (patient.guaranteeFor.length === 0 || patient.guarantor) && (
           <div className="alv-workspace__controls">
             <PatientPicker key={`guarantor-${patient.rowVersion}`} label="Choose a guarantor" selected={newGuarantor} onSelect={setNewGuarantor} excludeIds={[patient.id]} disabled={busy} />
             <div className="alv-workspace__actions">

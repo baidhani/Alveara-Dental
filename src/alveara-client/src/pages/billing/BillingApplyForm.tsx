@@ -32,7 +32,7 @@ export function BillingApplyForm({ account, paymentEntryNumber, onDone, onConfli
 
   async function submit() {
     const named = choose ? namedAllocations(charges, typed) : { allocations: [], order: [] as number[] };
-    if (choose && named.allocations.length === 0) { setMessage("Not recorded: name at least one charge, or apply the rest to the oldest charges first. Nothing was sent."); return; }
+    if (choose && named.allocations.length === 0) { setMessage("Not recorded: name at least one charge, or apply the rest to the oldest charges first."); return; }
     const signature = JSON.stringify([account.rowVersion, paymentEntryNumber, choose ? named.allocations : null]);
     if (attempt.current?.signature !== signature) attempt.current = { key: newKey(), signature };
     setBusy(true);

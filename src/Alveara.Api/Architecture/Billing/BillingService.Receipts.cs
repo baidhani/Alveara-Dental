@@ -101,6 +101,6 @@ public partial class BillingService
         if (view.LegacyDuplicate) yield return "Multiple legacy receipts exist for this payment.";
     }
 
-    /// <summary>Money in a note, written the way every screen writes it ("$264.00", "-$5.00").</summary>
-    private static string NoteMoney(decimal amount) => amount.ToString("C2", CultureInfo.GetCultureInfo("en-US"));
+    /// <summary>Money in a note, written exactly as the client's <c>formatMoney</c> writes it ("$264.00", "$1264.00", "-$5.00"), so a note and the screen never differ (F-208).</summary>
+    private static string NoteMoney(decimal amount) => $"{(amount < 0 ? "-" : "")}${Math.Abs(amount).ToString("F2", CultureInfo.InvariantCulture)}";
 }

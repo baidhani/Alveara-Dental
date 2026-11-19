@@ -46,6 +46,7 @@ export function BillingTimeline({ patientId, version, canViewClinical = false }:
   return (
     <section aria-labelledby="alv-bill-timeline-title">
       <h3 id="alv-bill-timeline-title">Timeline</h3>
+      <p className="alv-clinical__meta">The same history as the account history above, told as dated events: when each charge, payment, application and document happened, and where each charge came from.</p>
       <button type="button" className="btn btn-outline-secondary" aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? "Hide the timeline" : "Show the timeline"}</button>
       {open && failed && <p className="alv-clinical__meta" role="alert">Could not load the timeline.</p>}
       {open && events && (
