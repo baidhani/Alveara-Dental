@@ -13,3 +13,9 @@
 - **PD-17:** what "superseded by" looks like on the original (its list row, its opened view and its print), and whether a statement can also be "replaced". A statement is a cut-off, and the survey recommends that a later statement is a new statement, not a replacement; the brief states this for review. There is also the migration for the replacement link and its guards (append-only; the replacement belongs to the same account and payment).
 - **PD-18:** what "verified household members" means in the data model today (the household and guarantor records behind `HouseholdGuarantorPanel`). If no "verified" flag exists, the brief proposes the rule (for example, members of the patient's recorded household) and stops for the owner if that is a schema change. The server must enforce the same set; the client list alone is not enough.
 - **Q-5bf:** the client shows the responsibility form before the first charge. The server already opens the account on that record; the brief confirms this has no billing side effect (no entry, no document).
+
+## Briefing decisions (2026-11-18)
+| Id | Decision | Owner's words |
+|---|---|---|
+| OQ-1 (PD-18) | Recorded means verified. | "Here, "verified" means the relationship was formally recorded through the existing audited patient-record workflow - not an extra financial or identity-verification claim. No new schema or workflow is needed." |
+| OQ-4 (PD-17) | Mark old duplicates. | "Do not alter historical receipt data or invent a supersession relationship retroactively. Show a neutral read-only notice such as: "Multiple legacy receipts exist for this payment." The new replacement/supersession rule applies only to newly issued receipts." |

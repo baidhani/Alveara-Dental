@@ -119,15 +119,15 @@ The `INSTEAD OF UPDATE, DELETE` immutability trigger (51169) is unchanged. Addin
 
 ### 4.2 Database guards (verified unused at `e2a50ad`: the highest in use is 51293)
 - **51294:** a replacement belongs to the same account, the same document type and the same payment as the document it replaces.
-- **51295:** a receipt for a payment that already has a receipt nobody has replaced must name that receipt in `ReplacesDocumentId`. This makes a silent second receipt impossible even if the service check is bypassed.
+- **51295:** a receipt for a payment that already has a receipt nobody has replaced must name, in `ReplacesDocumentId`, the **latest** such receipt (the highest number). This makes a silent second receipt impossible even if the service check is bypassed, and it still lets a legacy unlinked pair (OQ-4) be replaced deliberately through its latest receipt.
 - **51296:** `Down` is refused once any replacement row exists, so nothing is lost (the ALV-N023 51293 pattern).
 - **51142, widened:** `TR_BillingEntries_Reversals` is re-created with the payer condition "the patient, OR recorded responsible (as today), OR the patient's `GuarantorPatientId`, OR a patient with the same non-null `HouseholdId`, as read at insert time". Its message becomes "A payment is made by the patient, their guarantor, a household member or someone recorded as responsible for the account." `Down` restores the old body. This is safe because the trigger checks inserted rows only, so rows already stored are not re-checked.
 
-### 4.3 "Verified household member" (PD-18). The owner must confirm this (OQ-1)
-There is no "verified" flag in the data. Household membership (`Patient.HouseholdId` with a relationship) and the guarantor (`Patient.GuarantorPatientId`) are recorded on the patient record by staff through the audited household and guarantor actions (`PatientHouseholdChanged`, `PatientGuarantorChanged`). **Proposed meaning:** "verified" = recorded on the patient record by an authorised user through those audited actions, as read at the moment of payment. A new verification flag (schema, a workflow and who may verify) is **not** proposed. If the owner wants one, that is a scope change: it stops for a decision.
+### 4.3 "Verified household member" (PD-18; OQ-1 DECIDED 2026-11-18)
+There is no "verified" flag in the data. Household membership (`Patient.HouseholdId` with a relationship) and the guarantor (`Patient.GuarantorPatientId`) are recorded on the patient record by staff through the audited household and guarantor actions (`PatientHouseholdChanged`, `PatientGuarantorChanged`). **Proposed meaning:** "verified" = recorded on the patient record by an authorised user through those audited actions, as read at the moment of payment. **Owner's decision (OQ-1):** "Here, 'verified' means the relationship was formally recorded through the existing audited patient-record workflow - not an extra financial or identity-verification claim. No new schema or workflow is needed."
 
 ### 4.4 Upgrade
-No backfill. Existing duplicate receipts (such as the walkthrough's Receipts 1 and 2 for payment 5) are not rewritten. Rule 51295 applies only to new inserts. The list shows such an old pair as "Receipt 1" and "Receipt 2" with no supersede link. The brief proposes no data repair (OQ-4).
+No backfill. Existing duplicate receipts (such as the walkthrough's Receipts 1 and 2 for payment 5) are not rewritten. Rule 51295 applies only to new inserts. **Owner's decision (OQ-4):** "Do not alter historical receipt data or invent a supersession relationship retroactively. Show a neutral read-only notice such as: 'Multiple legacy receipts exist for this payment.' The new replacement/supersession rule applies only to newly issued receipts." So the list and the opened view show that notice on every receipt of a payment that has more than one receipt with no replacement link between them. This is derived at read time and stores nothing. For such a payment, the preview refusal names the latest receipt, and a replacement replaces that one.
 
 ## 5. Identifiers addressed (31)
 F-113, F-114, F-115, F-116, F-117, F-119, F-120, F-121, F-122, F-175, F-193 (deferred to ALV-N027 by the owner), F-195, F-196, F-197, F-198, F-203, F-204, F-205, F-207, F-208, F-209, D-09 (PKG-14), D-10 (PKG-14; partly delivered by `GuarantorSummary`), Q-5ag, Q-5av, Q-5ax, Q-5ay, Q-5ba (answered; a test is added), Q-5bb, Q-5bf, Q-5cs.
@@ -136,7 +136,7 @@ F-113, F-114, F-115, F-116, F-117, F-119, F-120, F-121, F-122, F-175, F-193 (def
 | Id | Criterion | Server proof | Client / browser proof |
 |---|---|---|---|
 | F-114, Q-5cs | A second preview is refused with `receipt_exists`; a replacement needs a reason, gets the next number and supersedes; retrying with the same key returns the same document; two replacements of one receipt at once leave one; guards 51294, 51295 and 51296 hold on direct SQL | `BillingDocumentReplacementTests` (new), `BillingDocumentReplacementMigrationTests` (new) | `BillingStatementsPanel.test.tsx` (View receipt N, the replacement form, "Say why."); browser spec RECEIPT |
-| F-115 | List status for reversed, refunded and superseded documents | `BillingDocumentServiceTests` | vitest list; browser REVERSE |
+| F-115, OQ-4 | List status for reversed, refunded and superseded documents; the legacy notice on an old unlinked pair | `BillingDocumentServiceTests` | vitest list; browser REVERSE |
 | F-117, F-116, Q-5ay | v3 statement: reversed lines marked; adjustment line; the parts sum to the balance (property test); v1 and v2 rebuild unchanged | `BillingDocumentBuilderTests`, `BillingReconciliationTests` (property), `FinancialDocumentTemplateVersionTests`, `BillingDocumentTemplateVersionServiceTests` | `BillingDocumentView.test.tsx`; `BillingPanel.test.tsx` reconciliation line |
 | F-175 | The Balances report agrees with the balance | `FinancialReportsTests` (if changed) | - |
 | F-119, Q-5ba | CSV header block, ReversedBy column, local times; `=1+1` neutralised | `BillingStatementsApiTests` | - |
@@ -174,10 +174,10 @@ Inspected but untouched: the patient merge services (they move billing rows; the
    - (d) The v2 builder is pointed at the v3 code: the template-version tests must fail.
 
 ## 10. Open decisions
-- **OQ-1 (owner):** confirm that "verified household member" means a household member recorded on the patient record through the audited household action (section 4.3), with no new verification flag.
+- **OQ-1 (owner): DECIDED** - recorded through the audited patient-record workflow means verified; no new schema (section 4.3).
 - **OQ-2 (reviewer):** statements are not replaceable (a later statement is a new cut-off); replacement is for receipts only.
 - **OQ-3 (reviewer):** a v1 or v2 statement's CSV gains the header block when exported again (it is an export, not the issued document; the hash is unaffected).
-- **OQ-4 (owner/reviewer):** existing duplicate receipts are left as they are, with no data repair.
+- **OQ-4 (owner): DECIDED** - no data change; a neutral read-only notice "Multiple legacy receipts exist for this payment." (section 4.4). Reviewer: confirm the 51295 wording (it names the latest unreplaced receipt), which lets an old pair be replaced deliberately through its latest receipt.
 - **OQ-5 (reviewer):** approve the schema of section 4 (columns, index, guards 51294-51296, widened 51142, refused Down).
 
 ## 11. Out of scope
