@@ -42,6 +42,9 @@ public class BillingReconciliationTests : CompletionTestBase
     {
         Assert.True(model.Balance == a.BalanceOwed, $"{context}: balance {a.BalanceOwed} differs from the model {model.Balance}");
         Assert.True(a.BalanceOwed == a.OpenChargeTotal - a.UnappliedTotal + model.AdjustmentNet, $"{context}: balance != open - unapplied + adjustments ({a.OpenChargeTotal} - {a.UnappliedTotal} + {model.AdjustmentNet})");
+        // ALV-N024 (F-116): the account view's own adjustment total is the model's, so the screen's parts add up to the balance without the model
+        Assert.True(a.AdjustmentTotal == model.AdjustmentNet, $"{context}: adjustment total {a.AdjustmentTotal} differs from the model {model.AdjustmentNet}");
+        Assert.True(a.BalanceOwed == a.OpenChargeTotal - a.UnappliedTotal + a.AdjustmentTotal, $"{context}: balance != open - unapplied + the view's adjustment total");
         foreach (var p in Live(a, BillingKinds.Payment))
         {
             var s = St(a, p.EntryNumber);
@@ -68,7 +71,7 @@ public class BillingReconciliationTests : CompletionTestBase
         var preview = await Bill(s => s.PreviewDocumentAsync(Ann, new DocumentPreviewInput("Statement", null), default));
         var s = preview.Statement!;
         string F(decimal v) => v.ToString("F2", CultureInfo.InvariantCulture);
-        Assert.Equal((F(a.BalanceOwed), F(a.OpenChargeTotal), F(a.UnappliedTotal)), (s.Balance, s.OpenChargeTotal, s.UnappliedTotal));
+        Assert.Equal((F(a.BalanceOwed), F(a.OpenChargeTotal), F(a.UnappliedTotal), F(a.AdjustmentTotal)), (s.Balance, s.OpenChargeTotal, s.UnappliedTotal, s.AdjustmentTotal));
         Assert.Equal(a.Entries.Count, s.Lines.Count);
         var buckets = new[] { s.Aging.Current, s.Aging.Days31To60, s.Aging.Days61To90, s.Aging.Over90 }.Sum(x => decimal.Parse(x, CultureInfo.InvariantCulture));
         Assert.True(buckets == a.OpenChargeTotal, $"{context}: aging buckets {buckets} != open charges {a.OpenChargeTotal}");

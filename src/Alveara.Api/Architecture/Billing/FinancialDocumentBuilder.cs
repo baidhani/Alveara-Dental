@@ -23,15 +23,17 @@ public sealed record LedgerSnapshot(IReadOnlyList<SnapshotEntry> Entries, IReadO
 ///   for byte as issued (proved against bytes captured from the original builder).
 /// - <b>Version 2</b> (current): aging counts practice-local calendar days, from a frozen <see cref="DocumentAgingBasis"/> made when the document is previewed (each instant converted with its own zone
 ///   offset, so DST is handled) and carried in the envelope and the content. Thresholds, amounts and cut-offs are unchanged.
+/// - <b>Version 3</b> (ALV-N024, current): as version 2, plus each reversed line names its reversal (<c>ReversedByNumber</c>, F-117) and the statement carries <c>AdjustmentTotal</c>, the adjustments
+///   that are in the balance but in no charge-age bucket (F-116). Receipts differ only in the version they carry.
 /// - Any other version is refused (<see cref="UnsupportedTemplateVersionException"/>); nothing ever falls back to the current version.
 /// </summary>
 public static class FinancialDocumentBuilder
 {
     /// <summary>The version new previews and issues use.</summary>
-    public const int CurrentTemplateVersion = 2;
+    public const int CurrentTemplateVersion = 3;
     public const string PracticeLocalDaysPolicy = "PracticeLocalCalendarDays";
 
-    public static bool IsSupported(int templateVersion) => templateVersion is 1 or 2;
+    public static bool IsSupported(int templateVersion) => templateVersion is 1 or 2 or 3;
 
     public static void RequireSupported(int templateVersion)
     {
@@ -115,18 +117,20 @@ public static class FinancialDocumentBuilder
     public static StatementContent Statement(LedgerSnapshot snapshot, FinancialCutOffs cutOffs, DocumentEnvelope envelope, int templateVersion)
     {
         RequireSupported(templateVersion);
-        var basis = templateVersion == 1 ? null : envelope.AgingBasis ?? throw new ArgumentException("A version-2 statement needs its aging basis.");
+        var basis = templateVersion == 1 ? null : envelope.AgingBasis ?? throw new ArgumentException($"A version-{templateVersion} statement needs its aging basis.");
         var cut = CutAt(snapshot, cutOffs);
         var running = BillingLedgerMath.RunningBalances(cut.Math);
+        var reversedBy = templateVersion >= 3 ? cut.Entries.Where(e => e.ReversesNumber is not null).ToDictionary(e => e.ReversesNumber!.Value, e => e.Number) : [];
         var lines = cut.Entries.Select((e, i) => new DocumentLine(e.Number, e.Kind, Money(e.Amount), Money(running[i]), e.ProcedureCode, e.ProcedureDescription, e.Method, e.Reason, Instant(e.RecordedAtUtc),
-            e.ReversesNumber, e.RefundsNumber, e.ReplacesNumber)).ToList();
+            e.ReversesNumber, e.RefundsNumber, e.ReplacesNumber, reversedBy.TryGetValue(e.Number, out var by) ? by : null)).ToList();
         var (open, aging) = AgingAt(snapshot, cutOffs, basis);
         var unapplied = cut.Entries.Where(e => e.Kind == BillingKinds.Payment)
             .Select(e => (e.Number, Left: BillingLedgerMath.Unapplied(cut.Math, cut.Allocations, e.Number, cut.Releases))).Where(p => p.Left > 0).Select(p => new DocumentUnapplied(p.Number, Money(p.Left))).ToList();
         var openTotal = open.Aggregate(AppMoney.Zero, (sum, o) => sum + AppMoney.FromDecimal(decimal.Parse(o.Open, CultureInfo.InvariantCulture))).Amount;
         var unappliedTotal = unapplied.Aggregate(AppMoney.Zero, (sum, u) => sum + AppMoney.FromDecimal(decimal.Parse(u.Amount, CultureInfo.InvariantCulture))).Amount;
         return new StatementContent(FinancialDocumentTypes.Statement, templateVersion, Instant(cutOffs.AsOfUtc), envelope.Currency, envelope.Patient, envelope.Addressee, lines, open, unapplied, aging,
-            Money(BillingLedgerMath.Balance(cut.Math)), Money(openTotal), Money(unappliedTotal), envelope.Practice, basis);
+            Money(BillingLedgerMath.Balance(cut.Math)), Money(openTotal), Money(unappliedTotal), envelope.Practice, basis,
+            templateVersion >= 3 ? Money(BillingLedgerMath.LiveAdjustments(cut.Math)) : null);
     }
 
     /// <summary>The receipt for one payment at the cut-offs. The payment must exist at them and must not have been reversed by then. A receipt has no aging; versions 1 and 2 differ only in the version they carry.</summary>
@@ -145,14 +149,28 @@ public static class FinancialDocumentBuilder
             Money(BillingLedgerMath.Balance(cut.Math)), envelope.Practice);
     }
 
-    /// <summary>The statement as CSV text: one row per ledger line, then the totals. Text that a spreadsheet could read as a formula is prefixed with an apostrophe.</summary>
-    public static string StatementCsv(StatementContent s)
+    /// <summary>
+    /// ALV-N024 (CR-2, route 1): the statement as CSV, a LIVE EXPORT of the issued content - never stored and never part of its hash, so every version gets the current structure: an identity block
+    /// (practice, patient, statement number, as-of time and balance), a blank line, one row per ledger line with practice-local times and the zone named, a ReversedBy column (filled only where the content
+    /// carries it: version 3; empty for versions 1 and 2, never recomputed), then the balance row. Text a spreadsheet could read as a formula is prefixed with an apostrophe.
+    /// </summary>
+    public static string StatementCsv(StatementContent s, int statementNumber, TimeZoneInfo zone)
     {
+        string Local(string utcText) => DateTimeOffset.TryParse(utcText, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var at)
+            ? TimeZoneInfo.ConvertTime(at, zone).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) : utcText;
         var sb = new StringBuilder();
-        sb.Append("Number,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAtUtc\r\n");
+        void Row(params string[] cells) => sb.Append(string.Join(',', cells)).Append("\r\n");
+        Row(Cell("Practice"), Cell(s.Practice?.Name));
+        Row(Cell("Patient"), Cell(s.Patient.Name));
+        Row(Cell("Statement"), statementNumber.ToString(CultureInfo.InvariantCulture));
+        Row(Cell("As of"), Cell($"{Local(s.AsOfUtc)} ({zone.Id})"));
+        Row(Cell("Balance owed"), s.Balance);
+        Row();
+        Row("Number", "Kind", "Amount", "BalanceAfter", "ProcedureCode", "Description", "Method", "Reason", Cell($"RecordedAt ({zone.Id})"), "ReversedBy");
         foreach (var l in s.Lines)
-            sb.Append(string.Join(',', l.Number.ToString(CultureInfo.InvariantCulture), Cell(l.Kind), l.Amount, l.BalanceAfter, Cell(l.ProcedureCode), Cell(l.ProcedureDescription), Cell(l.Method), Cell(l.Reason), l.RecordedAtUtc)).Append("\r\n");
-        sb.Append(string.Join(',', "", Cell("Balance owed"), s.Balance, "", "", "", "", "", s.AsOfUtc)).Append("\r\n");
+            Row(l.Number.ToString(CultureInfo.InvariantCulture), Cell(l.Kind), l.Amount, l.BalanceAfter, Cell(l.ProcedureCode), Cell(l.ProcedureDescription), Cell(l.Method), Cell(l.Reason), Local(l.RecordedAtUtc),
+                l.ReversedByNumber?.ToString(CultureInfo.InvariantCulture) ?? "");
+        Row("", Cell("Balance owed"), s.Balance, "", "", "", "", "", Local(s.AsOfUtc), "");
         return sb.ToString();
     }
 

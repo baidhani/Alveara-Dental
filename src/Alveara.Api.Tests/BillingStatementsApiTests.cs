@@ -221,7 +221,9 @@ public class BillingStatementsApiTests : IAsyncLifetime
 
         var csv = await billing.Client.GetAsync(Url($"/documents/{id}/csv"));
         Assert.Equal((HttpStatusCode.OK, "text/csv"), (csv.StatusCode, csv.Content.Headers.ContentType!.MediaType));
-        Assert.StartsWith("Number,Kind,Amount", await csv.Content.ReadAsStringAsync());
+        var text = await csv.Content.ReadAsStringAsync();
+        Assert.StartsWith("Practice,", text);                                                               // ALV-N024: the identity block comes first
+        Assert.Contains("\r\nNumber,Kind,Amount,", text);
         var receiptCsv = await billing.SendAsync(HttpMethod.Get, Url($"/documents/{receiptIssued.Body.GetProperty("id").GetString()}/csv"));
         Assert.Equal((HttpStatusCode.Conflict, "csv_statement_only"), (receiptCsv.Status, Error(receiptCsv.Body)));
         Assert.Equal((HttpStatusCode.NotFound, "document_not_found"), ((await billing.SendAsync(HttpMethod.Get, Url($"/documents/{Guid.NewGuid()}"))).Status, Error((await billing.SendAsync(HttpMethod.Get, Url($"/documents/{Guid.NewGuid()}"))).Body)));

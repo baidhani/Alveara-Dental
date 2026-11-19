@@ -62,6 +62,16 @@ public static class BillingLedgerMath
         return (given - released).Amount;
     }
 
+    /// <summary>
+    /// ALV-N024 (F-116): the adjustments in force (not reversed), opening balances included. No adjustment is applied to a charge, so this is the part of the balance that neither the open charges nor the
+    /// unapplied payments explain: open charges - unapplied payments + this = the balance owed (a property test holds the identity).
+    /// </summary>
+    public static decimal LiveAdjustments(IReadOnlyList<LedgerEntry> entries)
+    {
+        var reversed = Reversed(entries);
+        return entries.Where(e => e.Kind == BillingKinds.Adjustment && !reversed.Contains(e.Number)).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(e.Amount)).Amount;
+    }
+
     /// <summary>What is left to pay on each charge that has not been reversed and is not yet paid in full, in entry order.</summary>
     public static IReadOnlyList<(int Charge, decimal Open)> OpenCharges(IReadOnlyList<LedgerEntry> entries, IReadOnlyList<LedgerAllocation> allocations, IReadOnlyList<LedgerRelease>? releases = null)
     {

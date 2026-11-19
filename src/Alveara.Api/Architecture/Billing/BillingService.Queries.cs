@@ -53,7 +53,8 @@ public partial class BillingService
                 ClinicalNames.Name(names, a.AllocatedByUserId), ReleasedAmount: (a.Amount - ledger.Remaining(a)))).ToList();
         var unapplied = ledger.Entries.Where(e => e.Kind == BillingKinds.Payment).Aggregate(AppMoney.Zero, (sum, e) => sum + AppMoney.FromDecimal(BillingLedgerMath.Unapplied(math, maths, e.EntryNumber, releases))).Amount;
         var openTotal = open.Values.Aggregate(AppMoney.Zero, (sum, v) => sum + AppMoney.FromDecimal(v)).Amount;
-        return new BillingAccountView(patientId, true, running.Count == 0 ? 0m : running[^1], AppMoney.Currency, Convert.ToBase64String(account.RowVersion), views, allocationViews, unapplied, openTotal, standing);
+        return new BillingAccountView(patientId, true, running.Count == 0 ? 0m : running[^1], AppMoney.Currency, Convert.ToBase64String(account.RowVersion), views, allocationViews, unapplied, openTotal, standing,
+            BillingLedgerMath.LiveAdjustments(math));
     }
 
     /// <summary>

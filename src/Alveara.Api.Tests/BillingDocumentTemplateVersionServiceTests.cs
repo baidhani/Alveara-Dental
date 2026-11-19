@@ -103,8 +103,13 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
         Assert.Null(s.Statement!.AgingBasis);
         var r = await Get(oldReceipt);
         Assert.Equal((1, receiptJson), (r.Document.TemplateVersion, FinancialDocumentBuilder.CanonicalJson(r.Receipt!)));
+        // ALV-N024 (CR-2, route 1): the CSV is a live export, so a version-1 statement exports with the current structure from its own, unchanged content; ReversedBy stays empty (not recomputed)
+        var before = await WithDb(db => db.FinancialDocuments.AsNoTracking().SingleAsync(d => d.Id == oldStatement));
         var (_, csv) = await Bill(b => b.GetStatementCsvAsync(Ann, oldStatement, S.Actor, default));
-        Assert.Equal(OriginalFinancialDocumentBuilderV1.StatementCsv(JsonSerializer.Deserialize<StatementContent>(statementJson)!), csv);
+        Assert.Equal(FinancialDocumentBuilder.StatementCsv(JsonSerializer.Deserialize<StatementContent>(statementJson)!, 2, SchedulingTestSupport.Clock.PracticeTimeZone), csv);
+        Assert.All(csv.Split("\r\n").SkipWhile(l => !l.StartsWith("Number,")).Skip(1).Where(l => l.Length > 0), l => Assert.EndsWith(",", l));
+        var after = await WithDb(db => db.FinancialDocuments.AsNoTracking().SingleAsync(d => d.Id == oldStatement));
+        Assert.Equal((before.ContentHash, before.TemplateVersion, before.EnvelopeJson), (after.ContentHash, after.TemplateVersion, after.EnvelopeJson));
     }
 
     [Fact]
@@ -121,7 +126,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
     {
         await PaidAsync();
         var statement = await Issue((await Preview("Statement")).PreviewToken, "now-s");
-        var (unknown, _) = await StoreAsVersion1Async(statement.Id, 2, "unknown", storedVersion: 3);
+        var (unknown, _) = await StoreAsVersion1Async(statement.Id, 2, "unknown", storedVersion: 4);                      // ALV-N024: 3 is supported now, so the unknown version is 4
         Assert.Equal("document_template_unsupported", (await RefusedBilling(() => Get(unknown))).Code);
         Assert.Equal("document_template_unsupported", (await RefusedBilling(() => Bill(b => b.GetStatementCsvAsync(Ann, unknown, S.Actor, default)))).Code);
     }
@@ -131,7 +136,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
     {
         await PaidAsync();
         var preview = await Preview("Statement");
-        Assert.Equal(2, preview.TemplateVersion);
+        Assert.Equal(3, preview.TemplateVersion);                                                         // the current version (3 since ALV-N024)
         var oldToken = TokenWith(preview.PreviewToken, t => t["V"] = JsonSerializer.SerializeToElement(1));
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Issue(oldToken, "late"))).Code);
         Assert.Empty(await Bill(s => s.ListDocumentsAsync(Ann, default)));
@@ -163,7 +168,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
         await PaidAsync();
         var preview = await Preview("Statement");
         var issued = await Issue(preview.PreviewToken, "now-s");
-        Assert.Equal((2, preview.ContentHash), (issued.TemplateVersion, issued.ContentHash));
+        Assert.Equal((3, preview.ContentHash), (issued.TemplateVersion, issued.ContentHash));             // a new statement is version 3 (ALV-N024), which keeps version 2's frozen basis
         await using (var db = Fixture.CreateContext())
         {
             var envelope = JsonSerializer.Deserialize<DocumentEnvelope>((await db.FinancialDocuments.AsNoTracking().FirstAsync(d => d.Id == issued.Id)).EnvelopeJson)!;
@@ -185,7 +190,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
         var preview = await Preview("Statement");
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Issue(preview.PreviewToken, "moved", TokyoClock))).Code);
         Assert.Empty(await Bill(s => s.ListDocumentsAsync(Ann, default)));
-        Assert.Equal(2, (await Issue(preview.PreviewToken, "same-zone")).TemplateVersion);
+        Assert.Equal(3, (await Issue(preview.PreviewToken, "same-zone")).TemplateVersion);                // the current version (3 since ALV-N024)
     }
 
     [Fact]

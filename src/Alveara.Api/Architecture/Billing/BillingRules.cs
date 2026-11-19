@@ -71,7 +71,8 @@ public sealed record LedgerVerification(Guid PatientId, bool Consistent, IReadOn
 
 /// <summary>A patient's account. <see cref="BalanceOwed"/> is computed from the entries every time it is read; <see cref="RowVersion"/> is what a payment or adjustment must echo back. An account that does not exist yet has a zero balance and no row version.</summary>
 public sealed record BillingAccountView(Guid PatientId, bool HasAccount, decimal BalanceOwed, string Currency, string? RowVersion, IReadOnlyList<BillingEntryView> Entries,
-    IReadOnlyList<BillingAllocationView>? Allocations = null, decimal UnappliedTotal = 0m, decimal OpenChargeTotal = 0m, IReadOnlyList<BillingEntryStanding>? Standing = null);
+    IReadOnlyList<BillingAllocationView>? Allocations = null, decimal UnappliedTotal = 0m, decimal OpenChargeTotal = 0m, IReadOnlyList<BillingEntryStanding>? Standing = null,
+    decimal AdjustmentTotal = 0m);
 
 /// <summary>A completed, unbilled plan procedure as billing sees it: what is needed to bill it and nothing clinical (no diagnosis, rationale or plan wording).</summary>
 public sealed record BillableProcedureView(Guid PlanItemId, string ProcedureCode, string Description, string? ToothKey, string? Surface, decimal Fee, string Currency);

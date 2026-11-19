@@ -138,8 +138,8 @@ public class BillingDocumentServiceTests : BillingTestBase
         }
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("H", new string('a', 64)), "doc-1"), S.Actor, default)))).Code);
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("E", 99), "doc-2"), S.Actor, default)))).Code);
-        // a version other than the current one (2 since ALV-N021 A1; the version-1 case is in BillingDocumentTemplateVersionServiceTests)
-        Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("V", 3), "doc-3"), S.Actor, default)))).Code);
+        // a version other than the current one (3 since ALV-N024; the version-1 case is in BillingDocumentTemplateVersionServiceTests)
+        Assert.Equal("document_preview_stale", (await RefusedBilling(() => Bill(s => s.IssueDocumentAsync(Ann, new IssueDocumentInput(Rebuild("V", 2), "doc-3"), S.Actor, default)))).Code);
         Assert.Empty(await Bill(s => s.ListDocumentsAsync(Ann, default)));
     }
 
@@ -271,8 +271,8 @@ public class BillingDocumentServiceTests : BillingTestBase
         var (name, csv) = await Bill(s => s.GetStatementCsvAsync(Ann, issued.Id, S.Actor, default));
         Assert.Equal("statement-1.csv", name);
         var rows = csv.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
-        Assert.Equal(1 + 3 + 1, rows.Length);                                                           // header, three entries, the total
-        Assert.StartsWith("3,Payment,-150.00,50.00,", rows[3]);
+        Assert.Equal(5 + 1 + 3 + 1, rows.Length);                                                       // ALV-N024: the identity block (5 rows), the column header, three entries, the total
+        Assert.StartsWith("3,Payment,-150.00,50.00,", rows[5 + 3]);                                       // entry 3, after the identity block and the column header
     }
 
     [Fact]

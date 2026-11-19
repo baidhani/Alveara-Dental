@@ -346,6 +346,6 @@ public partial class BillingService
         var account = await db.BillingAccounts.AsNoTracking().FirstAsync(a => a.PatientId == patientId, ct);
         AuditService.Record(db, "FinancialDocumentExported", nameof(BillingAccount), account.Id, actor, $"Statement {detail.Document.DocumentNumber} exported as CSV.");
         await SaveAsync(account.Id, ct);
-        return ($"statement-{detail.Document.DocumentNumber}.csv", FinancialDocumentBuilder.StatementCsv(detail.Statement));
+        return ($"statement-{detail.Document.DocumentNumber}.csv", FinancialDocumentBuilder.StatementCsv(detail.Statement, detail.Document.DocumentNumber, clock.PracticeTimeZone));
     }
 }

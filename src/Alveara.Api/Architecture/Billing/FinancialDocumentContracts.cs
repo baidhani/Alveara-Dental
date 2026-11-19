@@ -17,8 +17,9 @@ public sealed record DocumentPractice(string Name, string? Phone, string? Addres
 public sealed record DocumentParty(Guid PatientId, string Name, bool IsSelf);
 
 /// <summary>One ledger entry as a document shows it. Amounts are fixed two-place text so the canonical bytes (and so the hash) never depend on how a number was stored or computed.</summary>
+/// ALV-N024: <c>ReversedByNumber</c> (template version 3 only) names the reversal that undid this line; it is left out of the JSON when null, so a version-1 or version-2 line serializes as before.
 public sealed record DocumentLine(int Number, string Kind, string Amount, string BalanceAfter, string? ProcedureCode, string? ProcedureDescription, string? Method, string? Reason, string RecordedAtUtc,
-    int? ReversesNumber, int? RefundsNumber, int? ReplacesNumber);
+    int? ReversesNumber, int? RefundsNumber, int? ReplacesNumber, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? ReversedByNumber = null);
 
 public sealed record DocumentOpenCharge(int Number, string? ProcedureCode, string? ProcedureDescription, string Amount, string Paid, string Open, string ServiceDateUtc, int AgeDays, string Bucket);
 public sealed record DocumentUnapplied(int PaymentNumber, string Amount);
@@ -26,11 +27,13 @@ public sealed record DocumentAging(string Current, string Days31To60, string Day
 
 /// <summary>
 /// The canonical content of a statement at its cut-offs. Everything in it is derived from the preserved ledger as it stood at those cut-offs plus the display envelope. <c>AgingBasis</c> is set only on
-/// template version 2 and is left out of the JSON when null, so a version-1 statement serializes byte for byte as it did before version 2 existed.
+/// template version 2 and is left out of the JSON when null, so a version-1 statement serializes byte for byte as it did before version 2 existed. ALV-N024: <c>AdjustmentTotal</c> (version 3 only) is
+/// the adjustments in force at the cut-offs, so that OpenChargeTotal - UnappliedTotal + AdjustmentTotal = Balance; left out of the JSON when null.
 /// </summary>
 public sealed record StatementContent(string DocumentType, int TemplateVersion, string AsOfUtc, string Currency, DocumentParty Patient, DocumentParty Addressee, IReadOnlyList<DocumentLine> Lines,
     IReadOnlyList<DocumentOpenCharge> OpenCharges, IReadOnlyList<DocumentUnapplied> Unapplied, DocumentAging Aging, string Balance, string OpenChargeTotal, string UnappliedTotal, DocumentPractice? Practice = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DocumentAgingBasis? AgingBasis = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] DocumentAgingBasis? AgingBasis = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? AdjustmentTotal = null);
 
 public sealed record ReceiptApplication(int ChargeNumber, string? ProcedureCode, string? ProcedureDescription, string Amount);
 

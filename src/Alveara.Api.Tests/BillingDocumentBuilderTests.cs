@@ -120,14 +120,14 @@ public class BillingDocumentBuilderTests
     public void A_csv_neutralises_formulas_and_quotes_what_needs_quotes()
     {
         var hostile = new SnapshotEntry(1, BillingKinds.Adjustment, -5m, null, null, null, "=CMD", "Say \"hi\", ok", "+1", "@x\nline", T0, T0);
-        var csv = FinancialDocumentBuilder.StatementCsv(FinancialDocumentBuilder.Statement(new LedgerSnapshot([Charge(1, 100m) with { ProcedureCode = "=CMD" }], [], []), Cut(1), Envelope, 1));
+        var csv = FinancialDocumentBuilder.StatementCsv(FinancialDocumentBuilder.Statement(new LedgerSnapshot([Charge(1, 100m) with { ProcedureCode = "=CMD" }], [], []), Cut(1), Envelope, 1), 1, TimeZoneInfo.Utc);
         Assert.Contains("'=CMD", csv);
         Assert.DoesNotContain(",=CMD", csv);
         var lines = FinancialDocumentBuilder.StatementCsv(new StatementContent("Statement", 1, "t", "USD", Ann, Bo, [new DocumentLine(1, "Adjustment", "-5.00", "95.00", hostile.ProcedureCode, hostile.ProcedureDescription, hostile.Method, hostile.Reason, "t", null, null, null)], [], [],
-            new DocumentAging("0.00", "0.00", "0.00", "0.00"), "95.00", "0.00", "0.00"));
+            new DocumentAging("0.00", "0.00", "0.00", "0.00"), "95.00", "0.00", "0.00"), 1, TimeZoneInfo.Utc);
         Assert.Contains("\"Say \"\"hi\"\", ok\"", lines);
         Assert.Contains("'+1", lines);
         Assert.Contains("\"'@x\nline\"", lines);
-        Assert.StartsWith("Number,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAtUtc\r\n", lines);
+        Assert.Contains("\r\nNumber,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAt (UTC),ReversedBy\r\n", lines);   // ALV-N024: after the identity block
     }
 }

@@ -185,7 +185,7 @@ public class FinancialDocumentTemplateVersionTests
 
     [Theory]
     [InlineData(0)]
-    [InlineData(3)]
+    [InlineData(4)]
     [InlineData(-1)]
     public void An_unknown_template_version_is_refused_for_statements_and_receipts(int version)
     {
@@ -193,6 +193,47 @@ public class FinancialDocumentTemplateVersionTests
         Assert.Equal(version, Assert.Throws<UnsupportedTemplateVersionException>(() => FinancialDocumentBuilder.Statement(c.Snapshot, c.CutOffs, c.Envelope, version)).Version);
         Assert.Throws<UnsupportedTemplateVersionException>(() => FinancialDocumentBuilder.Receipt(c.Snapshot, c.CutOffs, c.Envelope, 2, version));
         Assert.False(FinancialDocumentBuilder.IsSupported(version));
+    }
+
+    [Fact]
+    public void Every_case_built_as_version_2_is_byte_for_byte_what_the_frozen_version_2_builder_made()
+    {
+        foreach (var c in FinancialDocumentV1Cases.All)
+        {
+            var stored = c.Envelope with { AgingBasis = OriginalFinancialDocumentBuilderV2.PracticeBasis(c.Snapshot, c.CutOffs, Chicago) };
+            object now = c.Type == FinancialDocumentTypes.Statement ? FinancialDocumentBuilder.Statement(c.Snapshot, c.CutOffs, stored, 2) : FinancialDocumentBuilder.Receipt(c.Snapshot, c.CutOffs, stored, c.PaymentNumber!.Value, 2);
+            object then = c.Type == FinancialDocumentTypes.Statement ? OriginalFinancialDocumentBuilderV2.Statement(c.Snapshot, c.CutOffs, stored, 2) : OriginalFinancialDocumentBuilderV2.Receipt(c.Snapshot, c.CutOffs, stored, c.PaymentNumber!.Value, 2);
+            Assert.True(OriginalFinancialDocumentBuilderV2.CanonicalJson(then) == FinancialDocumentBuilder.CanonicalJson(now), c.Name);
+            Assert.Equal(OriginalFinancialDocumentBuilderV2.HashOf(then), FinancialDocumentBuilder.HashOf(now));
+        }
+    }
+
+    [Fact]
+    public void Version_3_adds_only_the_reversed_by_numbers_and_the_adjustment_total()
+    {
+        var c = FinancialDocumentV1Cases.All.First(x => x.Name == "statement-rich");                     // charge 5 is reversed by entry 6; no adjustment
+        var stored = c.Envelope with { AgingBasis = FinancialDocumentBuilder.PracticeBasis(c.Snapshot, c.CutOffs, Chicago) };
+        var v2 = FinancialDocumentBuilder.Statement(c.Snapshot, c.CutOffs, stored, 2);
+        var v3 = FinancialDocumentBuilder.Statement(c.Snapshot, c.CutOffs, stored, 3);
+        Assert.Equal(6, v3.Lines.Single(l => l.Number == 5).ReversedByNumber);
+        Assert.All(v3.Lines.Where(l => l.Number != 5), l => Assert.Null(l.ReversedByNumber));
+        Assert.All(v2.Lines, l => Assert.Null(l.ReversedByNumber));
+        Assert.Equal(("0.00", null), (v3.AdjustmentTotal, v2.AdjustmentTotal));
+        Assert.Equal(FinancialDocumentBuilder.CanonicalJson(v2 with { TemplateVersion = 3, Lines = v3.Lines, AdjustmentTotal = "0.00" }), FinancialDocumentBuilder.CanonicalJson(v3));   // nothing else differs
+        Assert.Matches("\r\n5,Charge,[^\r]*,6\r\n", FinancialDocumentBuilder.StatementCsv(v3, 1, Chicago));   // the CSV names the reversal of line 5
+        Assert.Matches("\r\n5,Charge,[^\r]*,\r\n", FinancialDocumentBuilder.StatementCsv(v2, 1, Chicago));     // a version-2 line leaves it empty
+        Assert.Equal(v2.Lines.Select(l => l with { ReversedByNumber = null }), v3.Lines.Select(l => l with { ReversedByNumber = null }));
+        Assert.DoesNotContain("ReversedByNumber", FinancialDocumentBuilder.CanonicalJson(v2));
+        Assert.DoesNotContain("AdjustmentTotal", FinancialDocumentBuilder.CanonicalJson(v2));
+
+        var withAdjustment = new LedgerSnapshot([.. c.Snapshot.Entries, new SnapshotEntry(7, BillingKinds.Adjustment, -12.5m, null, null, null, null, null, null, "Courtesy", c.CutOffs.AsOfUtc, c.CutOffs.AsOfUtc),
+            new SnapshotEntry(8, BillingKinds.Adjustment, 40m, null, null, null, null, null, null, "Opening balance", c.CutOffs.AsOfUtc, c.CutOffs.AsOfUtc),
+            new SnapshotEntry(9, BillingKinds.Reversal, -40m, 8, null, null, null, null, null, "Entered twice", c.CutOffs.AsOfUtc, c.CutOffs.AsOfUtc)], c.Snapshot.Allocations, c.Snapshot.Releases);
+        var cut = c.CutOffs with { EntryNumber = 9 };
+        var adjusted = FinancialDocumentBuilder.Statement(withAdjustment, cut, c.Envelope with { AgingBasis = FinancialDocumentBuilder.PracticeBasis(withAdjustment, cut, Chicago) }, 3);
+        decimal D(string x) => decimal.Parse(x, System.Globalization.CultureInfo.InvariantCulture);
+        Assert.Equal("-12.50", adjusted.AdjustmentTotal);                                                  // the reversed adjustment no longer counts
+        Assert.Equal(D(adjusted.Balance), D(adjusted.OpenChargeTotal) - D(adjusted.UnappliedTotal) + D(adjusted.AdjustmentTotal!));
     }
 
     [Fact]
