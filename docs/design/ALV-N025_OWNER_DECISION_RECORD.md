@@ -51,3 +51,12 @@
   - This is a data-model boundary (R05: escalate).
 - **F-032 / F-033:** the ISO country code (alpha-2) column, the practice-setting default, the mapping of existing Sex and State values, and a review list for unmappable ones; the import and export columns.
 - **U-011:** the shared actor-name rule (staff display name, else username, never a bare id; the id kept for auditors) applied across the audit page, change histories, fee and document history, the encounter history and follow-ups.
+
+## Briefing decisions (2026-11-19)
+| Id | Decision | Owner's words |
+|---|---|---|
+| OQ-1 (PD-20 prints) | Record prints | "Record a PatientMaterialPrinted audit event when a user uses an in-application Print button. The event records the print request/intent, not a claim that physical printing succeeded. Native browser printing outside the application's buttons (for example, Ctrl+P) is outside this guarantee. Include actor, patient/resource ID, material type, timestamp, and outcome; keep it PHI-free." |
+| OQ-2 (MRN on printed documents) | In ALV-N026 | "ALV-N025 should add MRN to headers, search, and exports. ALV-N026 should version and update printed patient documents, statements, receipts, prescriptions, and their compatibility tests. This avoids an unnecessary document-template expansion inside N025." |
+| OQ-5 (one-member household) | Dissolve | "When only one patient remains, dissolve the household and audit the action. Clear the remaining patient's household membership and set their relationship to Self (or the equivalent neutral non-household state)." |
+| OQ-3 (blocked duplicates) | Do not log | "Leave routine validation refusals out of the audit log to avoid noisy, low-value records. The deliberate "Register anyway" duplicate override remains audited with its required reason and matched record IDs." |
+
