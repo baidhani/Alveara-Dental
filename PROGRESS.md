@@ -3340,3 +3340,9 @@
   - What changed: FinancialDocumentBuilder version 3 (ReversedByNumber on lines, AdjustmentTotal; both omitted from JSON when null so v1/v2 bytes are unchanged); BillingLedgerMath.LiveAdjustments; account view AdjustmentTotal; StatementCsv(content, number, zone) with identity block, practice-local times, ReversedBy column (CR-2 route 1); Balances report checked - no gap, unchanged; tests: frozen OriginalFinancialDocumentBuilderV2 (verbatim at f34cd43, SHA-256 recorded), v2 byte-for-byte and v3 delta tests, property identity in BillingReconciliationTests, CSV contract for v1/v2/v3
   - Verification: group of 8 classes - first run 6 failures, all tests hard-coding current version 2 or the old CSV layout (updated to the approved v3/live-export behaviour, not loosened); re-run of the 3 affected classes then BillingDocumentServiceTests 18/18; the other 5 classes green in the first run (2 m 32 s)
   - Notes: not pushed.
+- [ ] ALV-N024 slice 4: payer eligibility, responsibility nothing-changed, payment-method created flag, refunded-payment explanation
+  - Date: 2026-11-19
+  - Session: CC-20261115-m7x2
+  - What changed: new BillingService.Payers.cs (PD-18 choices and default, GET billing/payers, payer_not_eligible for payments and corrections); BillingResponsibilityView.Changed (F-197, both cases, no account opened for the implicit self); PaymentMethodView.Created (F-120); BillingEntryStanding.CannotChangeBecause (Q-5ax); tests BillingPayerEligibilityTests (3), BillingResponsibilityAndMethodAnswersTests (4)
+  - Verification: focused group 7 classes 128/128 (3 m 29 s)
+  - Notes: Q-5ag "performed by" NOT built - owner decision 2026-11-19 (conflicts with the ALV-007-C02 R02 no-provider-in-billing rule); recorded in the owner decision record, to be disclosed in R01. Not pushed.

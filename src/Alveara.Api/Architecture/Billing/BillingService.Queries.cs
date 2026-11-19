@@ -45,7 +45,9 @@ public partial class BillingService
             standing.Add(new BillingEntryStanding(e.EntryNumber, reversed.ContainsKey(e.Id), reversed.TryGetValue(e.Id, out var by) ? by : null,
                 isCharge ? BillingLedgerMath.Paid(math, maths, e.EntryNumber, releases) : null, isCharge ? open.GetValueOrDefault(e.EntryNumber) : null,
                 isPayment ? BillingLedgerMath.Applied(maths, e.EntryNumber, releases) : null, isPayment ? BillingLedgerMath.Unapplied(math, maths, e.EntryNumber, releases) : null,
-                isPayment ? BillingLedgerMath.Refunded(math, e.EntryNumber) : null, isPayment ? BillingLedgerMath.Refundable(math, e.EntryNumber) : null));
+                isPayment ? BillingLedgerMath.Refunded(math, e.EntryNumber) : null, isPayment ? BillingLedgerMath.Refundable(math, e.EntryNumber) : null,
+                isPayment && !reversed.ContainsKey(e.Id) && BillingLedgerMath.Refunded(math, e.EntryNumber) > 0   // ALV-N024 (Q-5ax)
+                    ? "Part of this payment has been refunded, so it cannot be reversed or corrected: reversing it would return the refunded money a second time." : null));
         }
         var releasedPayments = BillingLedgerMath.Reversed(math);
         var allocationViews = ledger.Allocations.OrderBy(a => a.AllocationNumber)

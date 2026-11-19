@@ -89,6 +89,11 @@ public class BillingController(BillingService billing) : ControllerBase
     [RequirePermission(Permission.ViewBilling)]
     public Task<IActionResult> GuarantorSummary(Guid patientId, CancellationToken ct) => Run(async () => Ok(await billing.GetGuarantorSummaryAsync(patientId, ct)));
 
+    /// <summary>ALV-N024 (PD-18): who may be recorded as having paid this patient's account, and the default (the responsible party). The same permission as recording a payment.</summary>
+    [HttpGet("api/patients/{patientId:guid}/billing/payers")]
+    [RequireAnyPermission(Permission.CollectPayments, Permission.ManageBilling, RequiredText = nameof(Permission.CollectPayments))]
+    public Task<IActionResult> Payers(Guid patientId, CancellationToken ct) => Run(async () => Ok(await billing.GetPayerChoicesAsync(patientId, ct)));
+
     [HttpGet("api/billing/payment-methods")]
     [RequirePermission(Permission.ViewBilling)]
     public Task<IActionResult> PaymentMethods([FromQuery] bool includeInactive, CancellationToken ct) => Run(async () => Ok(await billing.ListPaymentMethodsAsync(includeInactive, ct)));

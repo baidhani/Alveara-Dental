@@ -30,7 +30,7 @@ public partial class BillingService
 
         var existing = await db.BillingPaymentMethods.AsNoTracking().FirstOrDefaultAsync(m => m.Name == name, ct);                    // the column's collation makes this match whatever the case
         if (existing is not null)
-            return existing.Kind == kind ? ViewOf(existing) : throw new BillingException("method_exists", $"A payment method named {existing.Name} already exists (as {existing.Kind}).", 409);
+            return existing.Kind == kind ? ViewOf(existing) with { Created = false } : throw new BillingException("method_exists", $"A payment method named {existing.Name} already exists (as {existing.Kind}).", 409);
 
         var method = new BillingPaymentMethod { Id = Guid.NewGuid(), Name = name!, Kind = kind!, IsBuiltIn = false, IsActive = true, CreatedAtUtc = clock.UtcNow, CreatedByUserId = actor };
         db.BillingPaymentMethods.Add(method);
@@ -44,9 +44,9 @@ public partial class BillingService
             // two people added the same name at the same moment (the unique name): the first stands, so this is a repeat of it when it is the same kind
             db.ChangeTracker.Clear();
             var winner = await db.BillingPaymentMethods.AsNoTracking().FirstOrDefaultAsync(m => m.Name == name, ct);
-            return winner is not null && winner.Kind == kind ? ViewOf(winner) : throw new BillingException("method_exists", $"A payment method named {name} already exists.", 409);
+            return winner is not null && winner.Kind == kind ? ViewOf(winner) with { Created = false } : throw new BillingException("method_exists", $"A payment method named {name} already exists.", 409);
         }
-        return ViewOf(await db.BillingPaymentMethods.AsNoTracking().FirstAsync(m => m.Id == method.Id, ct));
+        return ViewOf(await db.BillingPaymentMethods.AsNoTracking().FirstAsync(m => m.Id == method.Id, ct)) with { Created = true };   // ALV-N024 (F-120): added now
     }
 
     /// <summary>Inactivates or reactivates a method, with the version the caller read. A built-in method always stays active; setting the state it is already in changes nothing.</summary>

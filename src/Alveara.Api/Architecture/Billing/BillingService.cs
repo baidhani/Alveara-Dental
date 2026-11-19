@@ -108,9 +108,7 @@ public partial class BillingService(AlveraDbContext db, IPracticeClock clock, IL
         if (same is not null)
             return same.Kind == BillingKinds.Payment && same.Amount == -amount && same.PaymentMethodId == method!.Id && same.Reason == note ? await GetAccountAsync(patientId, ct) : throw KeyReused();
 
-        var paidBy = input.PaidByPatientId is Guid payer && payer != patientId ? payer : (Guid?)null;
-        if (paidBy is Guid other && !await db.BillingResponsibilities.AsNoTracking().AnyAsync(r => r.AccountId == account.Id && r.ResponsiblePatientId == other, ct))
-            throw BillingRules.Invalid(new Dictionary<string, string> { ["paidBy"] = "Only the patient, or someone recorded as responsible for this account, can be recorded as having paid it." });
+        var paidBy = await EligiblePayerOrRefuseAsync(patientId, input.PaidByPatientId, ct);                   // ALV-N024 (PD-18): the patient, guarantor, household or a recorded responsible party
 
         var balance = await BalanceAsync(account.Id, ct);
         if (amount > balance)

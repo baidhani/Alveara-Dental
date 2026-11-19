@@ -65,6 +65,10 @@ public partial class BillingService
         }
         if (errors.Count > 0) throw BillingRules.Invalid(errors);
 
+        // ALV-N024 (F-197): with nothing recorded yet the patient is responsible for themselves; naming the patient again changes nothing and records nothing (no row, no account opened)
+        var standing = await GetResponsibilityAsync(patientId, ct);
+        if (standing.History.Count == 0 && standing.Source == "Self" && responsible!.Id == patientId) return standing with { Changed = false };
+
         var account = await db.BillingAccounts.FirstOrDefaultAsync(a => a.PatientId == patientId, ct);
         var now = clock.UtcNow;
         var sequence = 1;
@@ -74,7 +78,7 @@ public partial class BillingService
             if (last is not null)
             {
                 sequence = last.Sequence + 1;
-                if (last.ResponsiblePatientId == responsible!.Id) return await GetResponsibilityAsync(patientId, ct);                    // already the responsible party: nothing to record
+                if (last.ResponsiblePatientId == responsible!.Id) return (await GetResponsibilityAsync(patientId, ct)) with { Changed = false };   // already the responsible party: nothing to record
                 if (from < last.EffectiveFrom) throw BillingRules.Invalid(new Dictionary<string, string> { ["effectiveFrom"] = string.Create(CultureInfo.InvariantCulture, $"The date cannot be before the one it replaces ({last.EffectiveFrom:yyyy-MM-dd}).") });
             }
             Touch(account, BillingRules.ParseVersion(input.RowVersion), now);

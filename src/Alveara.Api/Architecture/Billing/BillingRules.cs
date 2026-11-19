@@ -37,7 +37,9 @@ public sealed record BillingEntryView(
 /// What an entry stands for now, derived from the preserved history (so it can change as later entries are made, unlike the entry itself): whether a reversal has undone it, what a charge has been paid and has left,
 /// and what a payment has been applied to and has not yet. Parallel to the entries, in the same order.
 /// </summary>
-public sealed record BillingEntryStanding(int EntryNumber, bool IsReversed, int? ReversedByEntryNumber, decimal? PaidAmount, decimal? OpenAmount, decimal? AppliedAmount, decimal? UnappliedAmount, decimal? RefundedAmount = null, decimal? RefundableAmount = null);
+/// ALV-N024 (Q-5ax): <c>CannotChangeBecause</c> says why a payment can no longer be reversed or corrected (it has been refunded, in whole or in part).
+public sealed record BillingEntryStanding(int EntryNumber, bool IsReversed, int? ReversedByEntryNumber, decimal? PaidAmount, decimal? OpenAmount, decimal? AppliedAmount, decimal? UnappliedAmount, decimal? RefundedAmount = null, decimal? RefundableAmount = null,
+    string? CannotChangeBecause = null);
 
 /// <summary>One allocation as shown: which payment paid which charge, for how much, and whether it has been released by reversing the payment.</summary>
 public sealed record BillingAllocationView(int AllocationNumber, int PaymentEntryNumber, int ChargeEntryNumber, decimal Amount, bool Released, DateTimeOffset AllocatedAtUtc, string? AllocatedByName, decimal? ReleasedAmount = null);
@@ -52,7 +54,9 @@ public sealed record BillingResponsibilityItem(int Sequence, Guid ResponsiblePat
 /// Who is responsible for a patient's account now, kept apart from the patient's identity: the latest recorded change if billing has recorded one (<c>Recorded</c>), otherwise the guarantor registered on the patient
 /// (<c>RegisteredGuarantor</c>), otherwise the patient (<c>Self</c>). Changing one never changes the other. <c>RowVersion</c> is null until the account exists.
 /// </summary>
-public sealed record BillingResponsibilityView(Guid PatientId, Guid ResponsiblePatientId, string ResponsibleName, bool IsSelf, string Source, DateOnly? EffectiveFrom, string? RowVersion, IReadOnlyList<BillingResponsibilityItem> History);
+/// ALV-N024 (F-197): <c>Changed</c> is false when recording named the party that is already responsible, so nothing was recorded.
+public sealed record BillingResponsibilityView(Guid PatientId, Guid ResponsiblePatientId, string ResponsibleName, bool IsSelf, string Source, DateOnly? EffectiveFrom, string? RowVersion, IReadOnlyList<BillingResponsibilityItem> History,
+    bool Changed = true);
 
 /// <summary>One account a guarantor is responsible for: the patient it belongs to and what is owed on it.</summary>
 public sealed record GuarantorAccountView(Guid PatientId, string PatientName, bool IsGuarantor, decimal BalanceOwed, decimal OpenChargeTotal, decimal UnappliedTotal);
@@ -61,7 +65,8 @@ public sealed record GuarantorAccountView(Guid PatientId, string PatientName, bo
 public sealed record GuarantorSummaryView(Guid GuarantorPatientId, string GuarantorName, string Currency, decimal TotalOwed, IReadOnlyList<GuarantorAccountView> Accounts);
 
 /// <summary>A payment method the practice records payments under: its name, the kind the ledger reports on, whether it is one of the four built in, and whether it can still be chosen.</summary>
-public sealed record PaymentMethodView(Guid Id, string Name, string Kind, bool IsBuiltIn, bool IsActive, string RowVersion);
+/// ALV-N024 (F-120): <c>Created</c> answers an add - true when the method was added now, false when it already existed (null on a plain read).
+public sealed record PaymentMethodView(Guid Id, string Name, string Kind, bool IsBuiltIn, bool IsActive, string RowVersion, bool? Created = null);
 
 /// <summary>A new payment method: a name (unique, whatever its case) and one of the four kinds.</summary>
 public sealed record PaymentMethodInput(string? Name, string? Kind);

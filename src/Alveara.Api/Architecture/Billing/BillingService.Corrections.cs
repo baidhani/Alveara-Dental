@@ -135,9 +135,7 @@ public partial class BillingService
         {
             amount = BillingRules.CleanPositiveAmount(errors, input.Amount, "payment");
             method = BillingRules.CleanMethod(errors, input.Method, await ActiveMethodsAsync(ct));
-            paidBy = input.PaidByPatientId is Guid payer && payer != patientId ? payer : null;
-            if (paidBy is Guid other && !await db.BillingResponsibilities.AsNoTracking().AnyAsync(r => r.AccountId == account.Id && r.ResponsiblePatientId == other, ct))
-                errors["paidBy"] = "Only the patient, or someone recorded as responsible for this account, can be recorded as having paid it.";
+            paidBy = await EligiblePayerOrRefuseAsync(patientId, input.PaidByPatientId, ct);                       // ALV-N024 (PD-18): the same payer rule as a new payment
         }
         else
         {
