@@ -3321,3 +3321,10 @@
   - What changed: new src/alveara-client/src/pages/treatmentplan/TreatmentPlanN023Proof.test.tsx (4 tests): account entry links to /patients/<id>/billing only for a billing reader (F-102); "performed N days after the selected encounter" note (DR-8); plan actions in labelled groups apart from item actions (D-03). No production change.
   - Verification: tsc -b clean; oxlint clean; the file 4/4; planted breaks (link removed, note removed, group role removed) each failed exactly its test and were restored with matching SHA-256 (logs C:\.alvera-data\Test-Data\Temp\n023-negctl-2026-11-18\client_break_*.log); focused vitest 21 files 242/242 (30 s).
   - Notes: owner-approved (question tool). The Stage 1 sweep ran on f9c0d2a; this commit differs only by this test file and PROGRESS.md. Vitest started from Bash or via cmd intermittently failed to load ("failed to find the runner") on the unchanged tree; runs started directly from PowerShell were reliable - a launcher issue, not the code. Not pushed.
+
+- [ ] ALV-N024 slice 1 (wip 5e4f799): receipt replacement columns, per-payment receipt lock and guards 51294-51297, widened payer rule 51142, migration AddReceiptReplacementAndPayerEligibility
+  - Date: 2026-11-19
+  - Session: CC-20261115-m7x2
+  - What changed: FinancialDocument ReplacesDocumentId/ReplacementReason + CHECK + unique index; re-created TR_FinancialDocuments_Links (sp_getapplock alveara.receipt:{payment}, READCOMMITTEDLOCK, 51294/51295/51297) and TR_BillingEntries_Reversals (51142 widened to guarantor and household); Down refused once a replacement exists (51296); BillingDocumentReplacementMigrationTests (7); migration inventory 31 -> 32
+  - Verification: focused group 7 classes 121/121 neighbours (3 m 29 s); BillingDocumentReplacementMigrationTests 7/7 after a test-setup fix and addendum 01
+  - Notes: addendum 01 (direct-SQL race can end with 51297) - owner accepted 2026-11-19; awaiting independent review before slice 2
