@@ -3358,3 +3358,9 @@
   - What changed: BillingReceiptConcurrencyTests records a database refusal and checks the invariants (count, audit, lock, nothing written) before the refusal code; docs/design/ALV-N024_ADDENDUM_02.md
   - Verification: controls (a) 2/3 failed (caught at preview), (b) 1/3 failed (database refused: save_failed), (c) 1/1 failed, (d) 3/24 failed, (e) re-run 4/4 failed at the refusal code after every invariant passed, (f) 1/1 PASSED (hint necessity unproven); every restore SHA-256 equal; strengthened BillingReceiptConcurrencyTests 4/4 on the real code (37 s); logs C:\.alvera-data\Test-Data\Temp\n024-negctl-2026-11-19
   - Notes: owner decision 2026-11-19 - strengthen (e), do not claim (f), addendum 02 for independent review BEFORE the final commit, sweep and package. Not pushed.
+- [ ] ALV-N024 (item 61, PKG-09) implementation complete - financial issuance and reconciliation integrity
+  - Date: 2026-11-19
+  - Session: CC-20261115-m7x2
+  - What changed: slices 1-6 (5e4f799, f34cd43, c67f644, c8ef075, e2ce256, 9f7811f, c7fb422): receipt replacement and one receipt per payment (PD-17, guards 51294-51297, per-payment lock), payer eligibility (PD-18, widened 51142), statement template v3 and reconciliation (F-116, F-117), CSV live export (CR-2), responsibility and method answers, billing screens, billing-integrity spec; addenda 01 and 02 approved; Q-5ag not built (owner, reviewer carry-forward)
+  - Verification: Stage 1 sweep on this commit (results in the R01 handoff)
+  - Notes: final implementation commit of ALV-N024; not pushed.
