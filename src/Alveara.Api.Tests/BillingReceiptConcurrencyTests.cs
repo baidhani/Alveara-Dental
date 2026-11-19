@@ -32,7 +32,11 @@ public class BillingReceiptConcurrencyTests : BillingTestBase
             account = await Bill(s => s.RecordPaymentAsync(Ann, new PaymentInput(1m, "Cash", null, account.RowVersion, $"p-{i}"), S.Actor, default));
     }
 
-    /// <summary>Runs both calls at the same moment, each on its own context, and returns what each did (the document, or the refusal code).</summary>
+    /// <summary>
+    /// Runs both calls at the same moment, each on its own context, and returns what each did: the document, the service's refusal code, or - when the service did not refuse and the database did (a deadlock
+    /// victim, a guard, a lock timeout) - <c>database:</c> and the exception's type. Capturing it keeps the round going, so every round checks the receipt count, the audit count and the lock BEFORE the
+    /// refusal code (ALV-N024 negative control (e): with the service lock removed the database still refuses, and the invariants are still checked).
+    /// </summary>
     private static async Task<(IssuedDocumentView? Doc, string? Refused)[]> TogetherAsync(Func<Task<IssuedDocumentView>> a, Func<Task<IssuedDocumentView>> b)
     {
         using var barrier = new Barrier(2);
@@ -41,6 +45,7 @@ public class BillingReceiptConcurrencyTests : BillingTestBase
             barrier.SignalAndWait(TimeSpan.FromSeconds(10));
             try { return (await call(), null); }
             catch (BillingException e) { return (null, e.Code); }
+            catch (Exception e) when (e is Microsoft.EntityFrameworkCore.DbUpdateException or InvalidOperationException or SqlException or Alveara.Api.Architecture.Concurrency.ConcurrencyConflictException) { return (null, $"database:{e.GetType().Name}"); }
         }
         return await Task.WhenAll(Task.Run(() => Run(a)), Task.Run(() => Run(b)));
     }
@@ -74,11 +79,11 @@ public class BillingReceiptConcurrencyTests : BillingTestBase
             var (a, b) = (await Preview(payment), await Preview(payment));                                   // both previewed while there is no receipt yet
             var issuedBefore = await AuditCountAsync("FinancialDocumentIssued");
             var results = await TogetherAsync(() => Issue(a, $"a-{round}"), () => Issue(b, $"b-{round}"));
-            Assert.Single(results, r => r.Doc is not null);
-            Assert.Contains(results.Single(r => r.Doc is null).Refused, new[] { "receipt_exists", "receipt_busy" });
-            Assert.Equal(1, await ReceiptsAsync(payment));
+            Assert.Equal(1, await ReceiptsAsync(payment));                                                        // the invariants first, whoever refused the loser
             Assert.Equal(issuedBefore + 1, await AuditCountAsync("FinancialDocumentIssued"));                     // the refused caller left no audit row
             Assert.True(await LockIsFreeAsync(payment), $"round {round}: the receipt lock is still held");
+            Assert.Single(results, r => r.Doc is not null);
+            Assert.Contains(results.Single(r => r.Doc is null).Refused, new[] { "receipt_exists", "receipt_busy" });   // then: the service itself refused it
         }
         Assert.Equal(Enumerable.Range(1, Rounds), (await Bill(s => s.ListDocumentsAsync(Ann, default))).Select(d => d.DocumentNumber).Order());   // numbers stay 1, 2, 3 ... with no gap
     }
@@ -93,10 +98,11 @@ public class BillingReceiptConcurrencyTests : BillingTestBase
             var original = await Issue(await Preview(payment), $"o-{round}");
             var (a, b) = (await Preview(payment, original.Id), await Preview(payment, original.Id));
             var results = await TogetherAsync(() => Issue(a, $"ra-{round}", "Reprint for the insurer"), () => Issue(b, $"rb-{round}", "Name corrected"));
+            Assert.Equal(2, await ReceiptsAsync(payment));                                                        // the invariants first
+            Assert.Equal(round, await AuditCountAsync("FinancialDocumentReplaced"));
+            Assert.True(await LockIsFreeAsync(payment), $"round {round}: the receipt lock is still held");
             Assert.Single(results, r => r.Doc is not null);
             Assert.Contains(results.Single(r => r.Doc is null).Refused, new[] { "receipt_replaced", "receipt_busy" });
-            Assert.Equal(2, await ReceiptsAsync(payment));
-            Assert.True(await LockIsFreeAsync(payment), $"round {round}: the receipt lock is still held");
         }
         Assert.Equal(Rounds, await AuditCountAsync("FinancialDocumentReplaced"));
     }
@@ -110,9 +116,11 @@ public class BillingReceiptConcurrencyTests : BillingTestBase
             var payment = round + 1;
             var preview = await Preview(payment);
             var results = await TogetherAsync(() => Issue(preview, $"same-{round}"), () => Issue(preview, $"same-{round}"));
+            Assert.Equal(1, await ReceiptsAsync(payment));                                                        // the invariants first
+            Assert.Equal(round, await AuditCountAsync("FinancialDocumentIssued"));
+            Assert.True(await LockIsFreeAsync(payment), $"round {round}: the receipt lock is still held");
             Assert.All(results, r => Assert.NotNull(r.Doc));
             Assert.Single(results.Select(r => r.Doc!.Id).Distinct());
-            Assert.Equal(1, await ReceiptsAsync(payment));
         }
         Assert.Equal(Rounds, await AuditCountAsync("FinancialDocumentIssued"));
     }
@@ -133,10 +141,11 @@ public class BillingReceiptConcurrencyTests : BillingTestBase
             take.Parameters.AddWithValue("@resource", $"alveara.receipt:{id:N}");
             await take.ExecuteNonQueryAsync();
 
-            var busy = await RefusedBilling(() => WithDb(db => new BillingService(db, SchedulingTestSupport.Clock) { ReceiptLockTimeoutMilliseconds = 200 }
+            var refused = await Assert.ThrowsAnyAsync<Exception>(() => WithDb(db => new BillingService(db, SchedulingTestSupport.Clock) { ReceiptLockTimeoutMilliseconds = 200 }
                 .IssueDocumentAsync(Ann, new IssueDocumentInput(preview.PreviewToken, "busy-1"), S.Actor, default)));
+            Assert.Equal((0, 0), (await ReceiptsAsync(2), await AuditCountAsync("FinancialDocumentIssued")));   // nothing written, whoever refused it
+            var busy = Assert.IsType<BillingException>(refused);
             Assert.Equal(("receipt_busy", 503), (busy.Code, busy.StatusCode));
-            Assert.Equal((0, 0), (await ReceiptsAsync(2), await AuditCountAsync("FinancialDocumentIssued")));
             await held.RollbackAsync();
         }
         Assert.True(await LockIsFreeAsync(2));
