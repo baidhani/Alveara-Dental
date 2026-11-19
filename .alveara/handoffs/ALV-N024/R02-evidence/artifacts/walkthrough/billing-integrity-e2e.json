@@ -1,0 +1,43 @@
+{
+  "stamp": 1795101561496,
+  "checkbox": {
+    "box": {
+      "x": 281,
+      "y": 1783.78125,
+      "width": 13,
+      "height": 13
+    },
+    "line": {
+      "x": 281,
+      "y": 1779.03125,
+      "width": 958,
+      "height": 22.5
+    },
+    "text": {
+      "x": 296,
+      "y": 1779.03125,
+      "width": 443.703125,
+      "height": 22.5
+    },
+    "styles": {
+      "inputMargin": "0px",
+      "inputHeight": "13px",
+      "inputDisplay": "block",
+      "flexDirection": "row",
+      "justifyContent": "flex-start",
+      "alignItems": "center",
+      "labelPadding": "0px",
+      "labelLineHeight": "22.5px"
+    }
+  },
+  "payerRefusal": "payer_not_eligible",
+  "csvHead": [
+    "Practice,",
+    "Patient,Ann Alder",
+    "Statement,1",
+    "As of,2026-11-19 09:19 (America/Chicago)",
+    "Balance owed,185.00",
+    "",
+    "Number,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAt (America/Chicago),ReversedBy"
+  ]
+}

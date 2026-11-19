@@ -1,0 +1,17 @@
+Database AlveraWalk_playwright_billing_integrity_config_39547fed created in C:\.alvera-data\Test-Data\Database
+Done.
+API healthy on http://localhost:5072; running playwright.billing-integrity.config.ts ...
+
+Running 7 tests using 1 worker
+
+  ok 1 [chromium] › e2e\billing-integrity-real-backend.spec.ts:96:1 › SETUP: Ann, a guarantor (Gia) and a household member (Hal), and two procedures completed and ready to bill (2.3s)
+  ok 2 [chromium] › e2e\billing-integrity-real-backend.spec.ts:125:1 › RESPONSIBILITY: offered before anything is billed; naming the patient, who is already responsible, records nothing (849ms)
+  ok 3 [chromium] › e2e\billing-integrity-real-backend.spec.ts:136:1 › PAYER: the guarantor and the household are offered with how they are related, the responsible party first, and nobody else is accepted (1.8s)
+  ok 4 [chromium] › e2e\billing-integrity-real-backend.spec.ts:177:1 › RECEIPT: issued once; asking again opens it, and the API refuses a second one (1.4s)
+  ok 5 [chromium] › e2e\billing-integrity-real-backend.spec.ts:194:1 › REPLACE: a replacement needs a reason, gets the next number and supersedes the first (464ms)
+  ok 6 [chromium] › e2e\billing-integrity-real-backend.spec.ts:209:1 › REVERSE: once the payment is reversed the list says so beside its receipt (865ms)
+  ok 7 [chromium] › e2e\billing-integrity-real-backend.spec.ts:220:1 › STATEMENT: version 3 marks the reversed line and explains the adjustments, and the CSV starts with its identity block (891ms)
+
+  7 passed (14.3s)
+Database AlveraWalk_playwright_billing_integrity_config_39547fed dropped (its files went with it).
+Output kept in C:\.alvera-data\Test-Data\Temp\n024-r02\walkthrough
