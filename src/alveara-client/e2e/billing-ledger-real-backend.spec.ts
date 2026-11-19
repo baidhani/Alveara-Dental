@@ -281,7 +281,7 @@ test("RESPONSIBILITY: a registered guarantor is followed until billing records o
   await form.getByLabel("Why (optional)").fill("Bo pays for Ann");
   await form.getByRole("button", { name: "Record responsibility" }).click();
   await expect(statusLine(page)).toContainText("Bo Kim is recorded as responsible for this account.");
-  await expect(page.getByText(/recorded by billing/)).toBeVisible();
+  await expect(page.getByText(/recorded on this account/)).toBeVisible();                    // ALV-N024 (F-198)
   await expect(page.getByRole("table", { name: "Who has been responsible" })).toContainText("Bo pays for Ann");
 
   await setRegisteredGuarantor(annId, null);                                            // changing the registration does not rewrite what billing recorded
@@ -289,9 +289,9 @@ test("RESPONSIBILITY: a registered guarantor is followed until billing records o
   expect(patient.body.guarantor).toBeNull();
   await gotoBilling(page);
   await expect(page.locator("strong", { hasText: /Bo Kim/ })).toBeVisible();
-  await expect(page.getByText(/recorded by billing/)).toBeVisible();
+  await expect(page.getByText(/recorded on this account/)).toBeVisible();                    // ALV-N024 (F-198)
 
-  await pay(page, "10", "Cash", { payer: "Bo Kim (responsible for this account)" });
+  await pay(page, "10", "Cash", { payer: "Bo Kim (recorded as responsible)" });                // ALV-N024 (PD-18): the server's payer list says how each person is related
   await expect(statusLine(page)).toContainText("Payment of $10.00 recorded. Balance owed is now $60.00.");
   await expect(row(page, 8)).toContainText("paid by Bo Kim");
   await shot(page, "08-responsibility-recorded-and-guarantor-as-payer.png");

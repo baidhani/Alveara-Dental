@@ -173,7 +173,7 @@ test("REFUND: the money goes back to the original payer, the unapplied money fir
   await expect(form).toContainText("The money goes back to Ann Alder, who paid it; it cannot be sent to anyone else. Up to $150.00 can still be refunded.");
   await expect(form).toContainText("newest first, which become open again");
   await form.getByRole("button", { name: /Refund to Ann Alder/ }).click();
-  await expect(form.getByRole("alert")).toContainText("Nothing was sent");
+  await expect(form.getByRole("alert")).toContainText("Not recorded: some entries need correcting.");   // ALV-N024 (F-122): one wording
   await expect(form.getByText("A refund needs a reason, so the history explains it.")).toBeVisible();
   expect((await account(page)).entries).toHaveLength(3);                                 // nothing was added
   await shot(page, "01-refund-form-names-gaps-before-sending.png");
@@ -320,7 +320,7 @@ test("STATEMENT: previewed, issued, reprinted as issued, exported as CSV and pri
 
   await page.getByRole("button", { name: "Issue this statement" }).click();
   await expect(docsStatus(page)).toContainText("Statement 1 issued.");
-  const detail = page.getByText(/Statement 1, issued/);
+  const detail = page.locator(".alv-bill__docnumber", { hasText: "Statement 1" });            // ALV-N024 (Q-5av): the number is printed with the document
   await expect(detail).toBeVisible();
   await expect(page.getByRole("link", { name: "Download CSV" })).toBeVisible();
   const issued = (await api(page, "get", `/api/patients/${annId}/billing/documents`)).body.find((d: any) => d.documentType === "Statement");
@@ -328,7 +328,8 @@ test("STATEMENT: previewed, issued, reprinted as issued, exported as CSV and pri
   expect(csv.status()).toBe(200);
   expect(csv.headers()["content-type"]).toContain("text/csv");
   const text = await csv.text();
-  expect(text.split("\r\n")[0]).toBe("Number,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAtUtc");
+  expect(text.startsWith("Practice,")).toBe(true);                                        // ALV-N024 (CR-2): the identity block comes first
+  expect(text).toMatch(/\r\nNumber,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAt \([^)]+\),ReversedBy\r\n/);
   expect(text).toContain("Refund");
   evidence.statementCsvRows = text.split("\r\n").filter(Boolean).length;
 
