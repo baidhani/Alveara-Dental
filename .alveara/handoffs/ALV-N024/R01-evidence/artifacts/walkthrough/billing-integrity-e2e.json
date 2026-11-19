@@ -1,0 +1,13 @@
+{
+  "stamp": 1795099701525,
+  "payerRefusal": "payer_not_eligible",
+  "csvHead": [
+    "Practice,",
+    "Patient,Ann Alder",
+    "Statement,1",
+    "As of,2026-11-19 08:48 (America/Chicago)",
+    "Balance owed,185.00",
+    "",
+    "Number,Kind,Amount,BalanceAfter,ProcedureCode,Description,Method,Reason,RecordedAt (America/Chicago),ReversedBy"
+  ]
+}

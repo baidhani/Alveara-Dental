@@ -1,0 +1,39 @@
+control (b): service payer check removed (the widened trigger 51142 must still refuse an outsider)
+filter: FullyQualifiedName~Tests.BillingPayerEligibilityTests.
+elapsed: 48 s
+exit: 1
+
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.81]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:02.37]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:02.40]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:01:43.0606867+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (71.4 h old)"]}}
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:01:57.6052115+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":73,"migrate_ms":11195,"total_ms":14526,"backup_bytes":8511488}}
+  Passed Alveara.Api.Tests.BillingPayerEligibilityTests.A_patient_with_nobody_else_pays_for_themselves_by_default [125 ms]
+  Passed Alveara.Api.Tests.BillingPayerEligibilityTests.The_choices_are_the_patient_the_guarantor_and_the_household_and_the_default_is_the_responsible_party [1 s]
+[xUnit.net 00:00:24.77]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:24.77]       Expected: Tuple ("payer_not_eligible", 400)
+[xUnit.net 00:00:24.77]       Actual:   Tuple ("save_failed", 503)
+[xUnit.net 00:00:24.77]       Stack Trace:
+[xUnit.net 00:00:24.77]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingPayerEligibilityTests.cs(76,0): at Alveara.Api.Tests.BillingPayerEligibilityTests.A_payment_by_the_guarantor_or_a_household_member_is_accepted_and_anyone_else_is_refused_with_nothing_recorded()
+[xUnit.net 00:00:24.77]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:24.78]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:02:03.7653872+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":3,"fallbacks":0,"real_migration_fixtures":0,"build_ms":14526,"restore_ms_total":1029}}
+  Failed Alveara.Api.Tests.BillingPayerEligibilityTests.A_payment_by_the_guarantor_or_a_household_member_is_accepted_and_anyone_else_is_refused_with_nothing_recorded [992 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple ("payer_not_eligible", 400)
+Actual:   Tuple ("save_failed", 503)
+  Stack Trace:
+     at Alveara.Api.Tests.BillingPayerEligibilityTests.A_payment_by_the_guarantor_or_a_household_member_is_accepted_and_anyone_else_is_refused_with_nothing_recorded() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingPayerEligibilityTests.cs:line 76
+--- End of stack trace from previous location ---
+
+Total tests: 3
+     Passed: 2
+     Failed: 1
+ Total time: 26.0298 Seconds
+
+[xUnit.net 00:00:24.77]     Alveara.Api.Tests.BillingPayerEligibilityTests.A_payment_by_the_guarantor_or_a_household_member_is_accepted_and_anyone_else_is_refused_with_nothing_recorded [FAIL]
+Test Run Failed.

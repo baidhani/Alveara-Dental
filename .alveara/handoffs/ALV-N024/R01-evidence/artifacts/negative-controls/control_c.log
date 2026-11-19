@@ -1,0 +1,34 @@
+control (c): adjustment term removed from the reconciliation (the property test must fail)
+filter: FullyQualifiedName~Tests.BillingReconciliationTests.
+elapsed: 45 s
+exit: 1
+
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.79]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:02.20]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:02.21]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:02:30.2583587+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (71.4 h old)"]}}
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:02:44.5374078+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":73,"migrate_ms":10953,"total_ms":14271,"backup_bytes":8511488}}
+[xUnit.net 00:00:22.06]       after transaction 6 (adjust): adjustment total 0 differs from the model -21.97
+[xUnit.net 00:00:22.06]       Stack Trace:
+[xUnit.net 00:00:22.06]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReconciliationTests.cs(46,0): at Alveara.Api.Tests.BillingReconciliationTests.AssertReconciledAsync(BillingAccountView a, Model model, String context)
+[xUnit.net 00:00:22.06]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReconciliationTests.cs(218,0): at Alveara.Api.Tests.BillingReconciliationTests.More_than_sixty_real_transactions_reconcile_to_the_cent_after_every_step_and_an_issued_statement_reprints_unchanged()
+[xUnit.net 00:00:22.06]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:22.08]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:02:49.1708883+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":1,"fallbacks":0,"real_migration_fixtures":0,"build_ms":14271,"restore_ms_total":290}}
+  Failed Alveara.Api.Tests.BillingReconciliationTests.More_than_sixty_real_transactions_reconcile_to_the_cent_after_every_step_and_an_issued_statement_reprints_unchanged [2 s]
+  Error Message:
+   after transaction 6 (adjust): adjustment total 0 differs from the model -21.97
+  Stack Trace:
+     at Alveara.Api.Tests.BillingReconciliationTests.AssertReconciledAsync(BillingAccountView a, Model model, String context) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReconciliationTests.cs:line 46
+   at Alveara.Api.Tests.BillingReconciliationTests.More_than_sixty_real_transactions_reconcile_to_the_cent_after_every_step_and_an_issued_statement_reprints_unchanged() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReconciliationTests.cs:line 218
+--- End of stack trace from previous location ---
+
+Total tests: 1
+     Failed: 1
+ Total time: 23.4469 Seconds
+
+[xUnit.net 00:00:22.06]     Alveara.Api.Tests.BillingReconciliationTests.More_than_sixty_real_transactions_reconcile_to_the_cent_after_every_step_and_an_issued_statement_reprints_unchanged [FAIL]
+Test Run Failed.

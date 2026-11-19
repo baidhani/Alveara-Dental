@@ -1,0 +1,29 @@
+# ALV-N024 R01: next-story impact
+
+- **Migration:** one more, `20261119034014_AddReceiptReplacementAndPayerEligibility`.
+  - `FinancialDocuments.ReplacesDocumentId`/`ReplacementReason` with a CHECK, a self foreign key and a filtered unique index.
+  - `TR_FinancialDocuments_Links` re-created with the per-payment application lock and guards 51294, 51295 and 51297.
+  - `TR_BillingEntries_Reversals` re-created with the payer rule 51142 widened to the guarantor and household.
+  - Down is refused (51296) once a replacement exists.
+  - ALV-N028's full run and the Windows installer path (ALV-N013) apply it. The dev database `AlveraDev` does not have it yet (migrate only with the owner's permission, after a backup).
+- **API shape:**
+  - The preview takes `replacesDocumentId`; issuing takes `replacementReason`.
+  - The document list adds `replacesNumber`, `replacementReason`, `supersededByNumber`, `paymentReversed`, `paymentRefunded` and `legacyDuplicate`.
+  - New `GET /api/patients/{id}/billing/payers`.
+  - The account view adds `adjustmentTotal`; standing adds `cannotChangeBecause`; responsibility adds `changed`; payment-method add answers `created`.
+  - Statement template version 3 adds `reversedByNumber` and `adjustmentTotal`; versions 1 and 2 are unchanged.
+- **Behaviour others may assert:**
+  - A second receipt for a payment is refused (`receipt_exists`), and only an explicit replacement with a reason makes another.
+  - A payer outside the patient, guarantor, household and recorded-responsible set is refused (`payer_not_eligible`, and 51142 in the database).
+  - New statements are version 3.
+  - The statement CSV starts with an identity block, uses practice-local times and has a ReversedBy column. This applies to every version on export.
+  - "Nothing was sent." is gone from the billing forms ("Not recorded: some entries need correcting.").
+  - "recorded by billing" now reads "recorded on this account".
+  - The responsibility form appears before the first charge.
+- **Specs:**
+  - `billing-ledger-real-backend` and `billing-statements-real-backend` are updated in source and not run; ALV-N028 runs them.
+  - `billing-real-backend` was not changed; it asserts "70.00 USD" in a server refusal message, which is untouched.
+- **Owner and review decisions carried:**
+  - Q-5ag: no "performed by" in billing views (do not add it later without a new decision).
+  - F-193, D-09 and D-10 go to ALV-N027 (billing sub-tabs, moving payment methods, the guarantor accounts view).
+- **Unassigned findings:** none added by this story (U-011 and U-012 were recorded during the ALV-N023 walkthrough).

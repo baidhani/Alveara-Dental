@@ -1,0 +1,5 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Results File: C:\.alvera-data\Test-Data\Temp\n024-stage1-1c1184b\trx\groupA.trx
+
+Passed!  - Failed:     0, Passed:    44, Skipped:     0, Total:    44, Duration: 1 m 36 s - Alveara.Api.Tests.dll (net10.0)

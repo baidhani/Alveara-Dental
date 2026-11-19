@@ -1,0 +1,87 @@
+control (e): service lock removed (the trigger's lock and 51295 must still leave exactly one receipt)
+filter: FullyQualifiedName~Tests.BillingReceiptConcurrencyTests.
+elapsed: 83 s
+exit: 1
+
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.50]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:02.11]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:02.15]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:12:05.7243524+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (71.6 h old)"]}}
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:12:19.769945+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":73,"migrate_ms":10710,"total_ms":14036,"backup_bytes":8507392}}
+[xUnit.net 00:00:25.72]       Assert.Contains() Failure: Item not found in collection
+[xUnit.net 00:00:25.72]       Collection: ["receipt_replaced", "receipt_busy"]
+[xUnit.net 00:00:25.72]       Not found:  "database:ConcurrencyConflictException"
+[xUnit.net 00:00:25.72]       Stack Trace:
+[xUnit.net 00:00:25.72]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(105,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_replacements_of_the_same_receipt_at_the_same_moment_make_exactly_one_every_time()
+[xUnit.net 00:00:25.72]         --- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_replacements_of_the_same_receipt_at_the_same_moment_make_exactly_one_every_time [3 s]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: ["receipt_replaced", "receipt_busy"]
+Not found:  "database:ConcurrencyConflictException"
+  Stack Trace:
+     at Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_replacements_of_the_same_receipt_at_the_same_moment_make_exactly_one_every_time() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 105
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:34.10]       Assert.Contains() Failure: Item not found in collection
+[xUnit.net 00:00:34.10]       Collection: ["receipt_exists", "receipt_busy"]
+[xUnit.net 00:00:34.10]       Not found:  "database:InvalidOperationException"
+[xUnit.net 00:00:34.10]       Stack Trace:
+[xUnit.net 00:00:34.10]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(86,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_first_receipts_of_one_payment_at_the_same_moment_issue_exactly_one_every_time()
+[xUnit.net 00:00:34.10]         --- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_first_receipts_of_one_payment_at_the_same_moment_issue_exactly_one_every_time [4 s]
+  Error Message:
+   Assert.Contains() Failure: Item not found in collection
+Collection: ["receipt_exists", "receipt_busy"]
+Not found:  "database:InvalidOperationException"
+  Stack Trace:
+     at Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_first_receipts_of_one_payment_at_the_same_moment_issue_exactly_one_every_time() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 86
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:41.60]       Assert.All() Failure: 1 out of 2 items in the collection did not pass.
+[xUnit.net 00:00:41.60]       [1]: Item:  Tuple (null, "database:InvalidOperationException")
+[xUnit.net 00:00:41.60]            Error: Assert.NotNull() Failure: Value is null
+[xUnit.net 00:00:41.60]       Stack Trace:
+[xUnit.net 00:00:41.60]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(122,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.The_same_issue_twice_at_the_same_moment_stores_one_receipt_and_both_callers_get_it()
+[xUnit.net 00:00:41.60]         --- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.BillingReceiptConcurrencyTests.The_same_issue_twice_at_the_same_moment_stores_one_receipt_and_both_callers_get_it [3 s]
+  Error Message:
+   Assert.All() Failure: 1 out of 2 items in the collection did not pass.
+[1]: Item:  Tuple (null, "database:InvalidOperationException")
+     Error: Assert.NotNull() Failure: Value is null
+  Stack Trace:
+     at Alveara.Api.Tests.BillingReceiptConcurrencyTests.The_same_issue_twice_at_the_same_moment_stores_one_receipt_and_both_callers_get_it() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 122
+--- End of stack trace from previous location ---
+[xUnit.net 00:00:51.76]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:51.76]       Expected: Tuple ("receipt_busy", 503)
+[xUnit.net 00:00:51.76]       Actual:   Tuple ("save_failed", 503)
+[xUnit.net 00:00:51.76]       Stack Trace:
+[xUnit.net 00:00:51.76]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(148,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing()
+[xUnit.net 00:00:51.76]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(149,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing()
+[xUnit.net 00:00:51.76]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(149,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing()
+[xUnit.net 00:00:51.76]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs(150,0): at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing()
+[xUnit.net 00:00:51.76]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:51.77]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:12:54.0720859+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":4,"fallbacks":0,"real_migration_fixtures":0,"build_ms":14036,"restore_ms_total":1559}}
+  Failed Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing [6 s]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple ("receipt_busy", 503)
+Actual:   Tuple ("save_failed", 503)
+  Stack Trace:
+     at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 148
+   at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 149
+   at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 149
+   at Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingReceiptConcurrencyTests.cs:line 150
+--- End of stack trace from previous location ---
+
+Total tests: 4
+     Failed: 4
+ Total time: 53.6856 Seconds
+
+[xUnit.net 00:00:25.72]     Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_replacements_of_the_same_receipt_at_the_same_moment_make_exactly_one_every_time [FAIL]
+[xUnit.net 00:00:34.10]     Alveara.Api.Tests.BillingReceiptConcurrencyTests.Two_first_receipts_of_one_payment_at_the_same_moment_issue_exactly_one_every_time [FAIL]
+[xUnit.net 00:00:41.60]     Alveara.Api.Tests.BillingReceiptConcurrencyTests.The_same_issue_twice_at_the_same_moment_stores_one_receipt_and_both_callers_get_it [FAIL]
+[xUnit.net 00:00:51.76]     Alveara.Api.Tests.BillingReceiptConcurrencyTests.A_receipt_that_cannot_get_its_payments_lock_in_time_is_refused_busy_and_writes_nothing [FAIL]
+Test Run Failed.

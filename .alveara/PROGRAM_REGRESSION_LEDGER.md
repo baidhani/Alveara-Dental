@@ -52,6 +52,10 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 | Migration `20261118143203_AddTreatmentPlanItemAppointmentLinks`: upgrade from the post-N022 schema on a copy of a populated database (legacy scheduled items and open legacy follow-up tasks upgraded as section 4.4 says), guards 51291/51292, Down refused 51293 once a link exists; the installer path (ALV-N013); the dev database `AlveraDev` | ALV-N023 | migration tests on test clones only; `AlveraDev` not migrated |
 | Client vitest/build/lint/`tsc -b` and the full mocked Playwright suite over the N023 screens (treatment plan, calendar booking form, appointment view, patient copy, clinical history) | ALV-N023 | focused only: 21 files 242 of 242 at `2ade215` |
 | Every other real-backend walkthrough and the chain after N023, including `treatment-plans-complete-real-backend` (updated in source to DR-4, PD-15 wording and the `TreatmentPlanItemTargetDateSet` event, not run), `follow-ups`, `work-queue`, `calendar`, `schedule`, `completion*` | ALV-N023 | only the new `treatment-plan-integrity` spec, 7 of 7 |
+| Full backend suite: also the ALV-N024 classes (new `BillingDocumentReplacementMigrationTests`, `BillingDocumentReplacementTests`, `BillingReceiptConcurrencyTests`, `BillingPayerEligibilityTests`, `BillingResponsibilityAndMethodAnswersTests`; changed `FinancialDocumentTemplateVersionTests`, `BillingDocumentTemplateVersionServiceTests`, `BillingDocumentServiceTests`, `BillingDocumentBuilderTests`, `BillingStatementsApiTests`, `BillingReconciliationTests`, `RealMigrationInventory*`) and every class that issues documents, records payments or reads responsibility | ALV-N024 | focused only: 22 classes 338 of 338 at `1c1184b` |
+| Migration `20261119034014_AddReceiptReplacementAndPayerEligibility`: upgrade on a copy of a populated database (existing duplicate receipts left unchanged, OQ-4), guards 51294/51295/51297, widened 51142, Down refused 51296; the installer path (ALV-N013); the dev database `AlveraDev` | ALV-N024 | migration tests on test clones only; `AlveraDev` not migrated |
+| Client vitest/build/lint/`tsc -b` and the full mocked Playwright suite over the N024 screens (billing panel, forms, documents, statement view, responsibility, household guarantor) | ALV-N024 | focused only: 5 files 83 of 83 at `1c1184b` |
+| Every other real-backend walkthrough and the chain after N024, including `billing-ledger-real-backend` and `billing-statements-real-backend` (updated in source: wording, payer label, CSV layout; not run) and `billing-real-backend` | ALV-N024 | only the new `billing-integrity` spec, 7 of 7 |
 
 ## ALV-N019 (item 56): PKG-01, PKG-15, DentalKeep brand migration
 
@@ -145,4 +149,11 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 - **Focused proof:** `.alveara/handoffs/ALV-N023/R01-evidence/TEST_RESULTS.md` (server 368/368, vitest 242/242, repo 58/58, browser spec 7/7, negative controls as designed).
 - **Approved (`.alveara/reviews/ALV-N023/R01.md`, final focused-proof approval, no package-level Stage 2):** ALV-N023 COMPLETE; the ALV-N023 rows above stay owed to ALV-N028.
 - **Deferred to ALV-N028:** the ALV-N023 rows above, plus every earlier row (unchanged).
+- **Not release-certified.**
+
+## ALV-N024 (item 61): PKG-09 financial issuance and reconciliation
+
+- **Implementation SHA (R01, Stage 1):** `1c1184b` (the swept tree; base `09aacd9`). Changed subsystems: financial documents (replacement link, per-payment receipt lock, guards 51294-51297, template version 3, CSV live export), payer eligibility (widened 51142), reconciliation (adjustment total), responsibility and payment-method answers, the billing and household screens; one migration.
+- **Focused proof:** `.alveara/handoffs/ALV-N024/R01-evidence/TEST_RESULTS.md` (server 338/338, vitest 83/83, repo 58/58, browser spec 7/7, negative controls per addendum 02).
+- **Deferred to ALV-N028:** the ALV-N024 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**

@@ -1,0 +1,22 @@
+control (f): READCOMMITTEDLOCK removed from the trigger (the concurrent direct-path test must fail)
+filter: FullyQualifiedName~Tests.BillingDocumentReplacementMigrationTests.Two_concurrent_direct_inserts_of_a_first_receipt_leave_exactly_one_every_time
+elapsed: 46 s
+exit: 0
+
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.48]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:02.48]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:02.51]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:05:12.7978282+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (71.5 h old)"]}}
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:05:25.3773627+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":73,"migrate_ms":9296,"total_ms":12567,"backup_bytes":8511488}}
+[xUnit.net 00:00:23.09]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:05:32.0477927+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":1,"fallbacks":0,"real_migration_fixtures":0,"build_ms":12567,"restore_ms_total":333}}
+  Passed Alveara.Api.Tests.BillingDocumentReplacementMigrationTests.Two_concurrent_direct_inserts_of_a_first_receipt_leave_exactly_one_every_time [1 s]
+
+Test Run Successful.
+Total tests: 1
+     Passed: 1
+ Total time: 24.3141 Seconds
+

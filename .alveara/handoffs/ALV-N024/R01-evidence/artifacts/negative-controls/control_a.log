@@ -1,0 +1,53 @@
+control (a): service one-receipt check removed (the trigger 51295 must still refuse a second receipt)
+filter: FullyQualifiedName~Tests.BillingDocumentReplacementTests.
+elapsed: 63 s
+exit: 1
+
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)
+[xUnit.net 00:00:00.64]   Discovering: Alveara.Api.Tests
+[xUnit.net 00:00:02.07]   Discovered:  Alveara.Api.Tests
+[xUnit.net 00:00:02.08]   Starting:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:00:52.4948757+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (71.4 h old)"]}}
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:01:07.9474117+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":73,"migrate_ms":12068,"total_ms":15437,"backup_bytes":8773632}}
+[xUnit.net 00:00:23.25]       Assert.Throws() Failure: No exception was thrown
+[xUnit.net 00:00:23.25]       Expected: typeof(Alveara.Api.Architecture.Billing.BillingException)
+[xUnit.net 00:00:23.25]       Stack Trace:
+[xUnit.net 00:00:23.25]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingTestBase.cs(16,0): at Alveara.Api.Tests.BillingTestBase.RefusedBilling[T](Func`1 action)
+[xUnit.net 00:00:23.25]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingDocumentReplacementTests.cs(123,0): at Alveara.Api.Tests.BillingDocumentReplacementTests.A_legacy_pair_is_left_as_it_is_with_a_neutral_notice_and_is_replaced_through_its_latest_receipt()
+[xUnit.net 00:00:23.25]         --- End of stack trace from previous location ---
+  Failed Alveara.Api.Tests.BillingDocumentReplacementTests.A_legacy_pair_is_left_as_it_is_with_a_neutral_notice_and_is_replaced_through_its_latest_receipt [2 s]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(Alveara.Api.Architecture.Billing.BillingException)
+  Stack Trace:
+     at Alveara.Api.Tests.BillingTestBase.RefusedBilling[T](Func`1 action) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingTestBase.cs:line 16
+   at Alveara.Api.Tests.BillingDocumentReplacementTests.A_legacy_pair_is_left_as_it_is_with_a_neutral_notice_and_is_replaced_through_its_latest_receipt() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingDocumentReplacementTests.cs:line 123
+--- End of stack trace from previous location ---
+  Passed Alveara.Api.Tests.BillingDocumentReplacementTests.The_list_says_when_a_receipts_payment_was_later_refunded_or_reversed_and_notes_write_money_as_on_screen [1 s]
+[xUnit.net 00:00:26.79]       Assert.Throws() Failure: No exception was thrown
+[xUnit.net 00:00:26.79]       Expected: typeof(Alveara.Api.Architecture.Billing.BillingException)
+[xUnit.net 00:00:26.79]       Stack Trace:
+[xUnit.net 00:00:26.79]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingTestBase.cs(16,0): at Alveara.Api.Tests.BillingTestBase.RefusedBilling[T](Func`1 action)
+[xUnit.net 00:00:26.79]         C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingDocumentReplacementTests.cs(39,0): at Alveara.Api.Tests.BillingDocumentReplacementTests.A_second_receipt_is_refused_and_a_replacement_with_a_reason_supersedes_the_first()
+[xUnit.net 00:00:26.79]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:26.80]   Finished:    Alveara.Api.Tests
+[TestDatabaseTemplate] {"timestamp":"2026-11-19T14:01:16.0492595+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":3,"fallbacks":0,"real_migration_fixtures":0,"build_ms":15437,"restore_ms_total":948}}
+  Failed Alveara.Api.Tests.BillingDocumentReplacementTests.A_second_receipt_is_refused_and_a_replacement_with_a_reason_supersedes_the_first [975 ms]
+  Error Message:
+   Assert.Throws() Failure: No exception was thrown
+Expected: typeof(Alveara.Api.Architecture.Billing.BillingException)
+  Stack Trace:
+     at Alveara.Api.Tests.BillingTestBase.RefusedBilling[T](Func`1 action) in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingTestBase.cs:line 16
+   at Alveara.Api.Tests.BillingDocumentReplacementTests.A_second_receipt_is_refused_and_a_replacement_with_a_reason_supersedes_the_first() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\BillingDocumentReplacementTests.cs:line 39
+--- End of stack trace from previous location ---
+
+Total tests: 3
+     Passed: 1
+     Failed: 2
+ Total time: 28.3051 Seconds
+
+[xUnit.net 00:00:23.24]     Alveara.Api.Tests.BillingDocumentReplacementTests.A_legacy_pair_is_left_as_it_is_with_a_neutral_notice_and_is_replaced_through_its_latest_receipt [FAIL]
+[xUnit.net 00:00:26.79]     Alveara.Api.Tests.BillingDocumentReplacementTests.A_second_receipt_is_refused_and_a_replacement_with_a_reason_supersedes_the_first [FAIL]
+Test Run Failed.
