@@ -483,3 +483,31 @@ describe("ALV-N024: payment methods, adjustments, refunded payments and field er
   });
 });
 
+describe("ALV-N024 R02 (CR-2): client proofs for F-207 and F-195", () => {
+  it("clears an older status line as soon as another billing or document action starts (F-207)", async () => {
+    const user = userEvent.setup();
+    const api = stubApi();
+    api.post["/billing/payments"] = () => json({ ...unapplied(), balanceOwed: 100 });
+    await openPanel(true);
+    const form = within(screen.getByRole("form", { name: "Record a payment" }));
+    await user.type(form.getByLabelText(/^Amount/), "10");
+    await user.selectOptions(form.getByLabelText("How it was received"), "Cash");
+    await user.click(form.getByRole("button", { name: "Record payment" }));
+    expect(await screen.findByText(/Payment of \$10\.00 recorded/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Reverse entry 3" }));                 // a row action
+    expect(status()).not.toHaveTextContent("Payment of $10.00 recorded");
+
+    await user.click(form.getByRole("button", { name: "Record payment" }));                                   // a new status line ...
+    await user.click(screen.getByRole("button", { name: "Preview a statement" }));                            // ... and a document action
+    expect(status()).not.toHaveTextContent(/Payment of|Not recorded/);
+  });
+
+  it("explains the account history and the timeline in two distinct sentences (F-195)", async () => {
+    stubApi();
+    await openPanel(false);
+    expect(screen.getByText(/^Every entry on this account in the order it was recorded, with the balance after it/)).toBeInTheDocument();
+    expect(screen.getByText(/^The same history as the account history above, told as dated events/)).toBeInTheDocument();
+  });
+});
+

@@ -14,8 +14,8 @@ namespace Alveara.Api.Migrations
     ///   the service already holds it, so on that path it does not wait) and then, reading with READCOMMITTEDLOCK (the database runs READ_COMMITTED_SNAPSHOT, and a snapshot read taken before
     ///   the wait could miss a receipt committed meanwhile): a replacement belongs to the same account, type and payment as the receipt it replaces (51294); a receipt for a payment that already
     ///   has another receipt nobody has replaced must replace the latest such receipt (51295; the row being inserted is excluded when looking for that prior receipt).
-    /// - TR_BillingEntries_Reversals is re-created with the payer rule widened (51142): the patient, anyone recorded as responsible for the account, the patient's registered guarantor or a
-    ///   member of the patient's recorded household, as read at the moment of the insert. Only inserted rows are checked, so stored rows are never re-judged.
+    /// - TR_BillingEntries_Reversals is re-created with the payer rule (51142) set to the service's: the patient, or an ACTIVE patient who is recorded as responsible for the account, the
+    ///   patient's registered guarantor or a member of the patient's recorded household (R02, CR-1), as read at the moment of the insert. Only inserted rows are checked, so stored rows are never re-judged.
     /// No existing row is changed. Down is refused (51296) once any replacement receipt exists, so no replacement history is lost; otherwise it restores both triggers exactly.
     /// </summary>
     public partial class AddReceiptReplacementAndPayerEligibility : Migration
@@ -147,12 +147,15 @@ END";
                AND NOT EXISTS (SELECT 1 FROM [BillingResponsibilities] r WHERE r.AccountId = i.AccountId AND r.ResponsiblePatientId = i.PaidByPatientId))
         THROW 51142, 'A payment is made by the patient or by someone recorded as responsible for the account.', 1;";
 
+        // ALV-N024 R02 (CR-1, owner decision 2026-11-19 "active only"): exactly the service's set - besides the patient, a payer must be an ACTIVE patient who is recorded as responsible for the
+        // account, the patient's registered guarantor, or a member of the patient's recorded household. (The rule of ALV-007-C01 accepted an inactive recorded-responsible party; it no longer does.)
         private const string WidenedPayerRule = @"
     IF EXISTS (SELECT 1 FROM inserted i WHERE i.PaidByPatientId IS NOT NULL AND i.PaidByPatientId <> i.PatientId
-               AND NOT EXISTS (SELECT 1 FROM [BillingResponsibilities] r WHERE r.AccountId = i.AccountId AND r.ResponsiblePatientId = i.PaidByPatientId)
-               AND NOT EXISTS (SELECT 1 FROM [Patients] p WHERE p.Id = i.PatientId AND p.GuarantorPatientId = i.PaidByPatientId)
-               AND NOT EXISTS (SELECT 1 FROM [Patients] p JOIN [Patients] q ON q.HouseholdId = p.HouseholdId WHERE p.Id = i.PatientId AND p.HouseholdId IS NOT NULL AND q.Id = i.PaidByPatientId))
-        THROW 51142, 'A payment is made by the patient, their guarantor, a household member or someone recorded as responsible for the account.', 1;";
+               AND (NOT EXISTS (SELECT 1 FROM [Patients] a WHERE a.Id = i.PaidByPatientId AND a.IsActive = 1)
+                    OR (NOT EXISTS (SELECT 1 FROM [BillingResponsibilities] r WHERE r.AccountId = i.AccountId AND r.ResponsiblePatientId = i.PaidByPatientId)
+                        AND NOT EXISTS (SELECT 1 FROM [Patients] p WHERE p.Id = i.PatientId AND p.GuarantorPatientId = i.PaidByPatientId)
+                        AND NOT EXISTS (SELECT 1 FROM [Patients] p JOIN [Patients] q ON q.HouseholdId = p.HouseholdId WHERE p.Id = i.PatientId AND p.HouseholdId IS NOT NULL AND q.Id = i.PaidByPatientId))))
+        THROW 51142, 'A payment is made by the patient, or by an active guarantor, household member or person recorded as responsible for the account.', 1;";
 
         // ALV-007-C02's reversal trigger with the payer rule passed in; every other check is unchanged.
         private static string ReversalsTrigger(string payerRule) => @"CREATE TRIGGER [TR_BillingEntries_Reversals] ON [BillingEntries] AFTER INSERT AS

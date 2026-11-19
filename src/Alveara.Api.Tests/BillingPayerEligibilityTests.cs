@@ -82,4 +82,31 @@ public class BillingPayerEligibilityTests : BillingTestBase
         var corrected = await Bill(s => s.CorrectEntryAsync(Ann, new CorrectionInput(2, "Wrong amount", 12m, "Cash", null, sibling, account.RowVersion, "fix-2"), S.Actor, default));
         Assert.Equal("Sam Sib", corrected.Entries.Last().PaidByName);
     }
+
+    [Fact]
+    public async Task R02_an_inactive_guarantor_household_member_or_responsible_party_is_not_offered_and_is_refused_for_a_payment_and_a_correction()
+    {
+        // ALV-N024 R02 (CR-1, owner decision "active only"): the same set as the database rule 51142
+        var (guarantor, sibling, _, _) = await FamilyAsync();
+        var responsible = await S.PatientAsync("Rae", "Resp");
+        var account = await ChargedAsync();
+        account = (await Bill(s => s.GetAccountAsync(Ann, default)));
+        await Bill(s => s.RecordResponsibilityAsync(Ann, new ResponsibilityInput(responsible, null, "Rae pays", account.RowVersion), S.Actor, default));
+        account = await Bill(s => s.GetAccountAsync(Ann, default));
+        account = await Pay(account, responsible, "p-r");                                                       // active responsible party: accepted
+        account = await Pay(account, guarantor, "p-g");
+        Assert.Equal(["Rae Resp", "Gia Guard"], account.Entries.Where(e => e.Kind == BillingKinds.Payment).Select(e => e.PaidByName));
+
+        await ExecuteAsync("UPDATE [Patients] SET [IsActive] = 0 WHERE [Id] IN ({0}, {1}, {2})", guarantor, sibling, responsible);
+        var choices = await Choices();
+        Assert.Equal([Ann], choices.Payers.Select(p => p.PatientId));
+        Assert.Equal(Ann, choices.DefaultPayerId);                                                            // the responsible party is inactive, so the patient
+        var before = await BillingCountsAsync();
+        foreach (var who in new[] { guarantor, sibling, responsible })
+        {
+            Assert.Equal("payer_not_eligible", (await RefusedBilling(() => Pay(account, who, $"x-{who:N}"))).Code);
+            Assert.Equal("payer_not_eligible", (await RefusedBilling(() => Bill(s => s.CorrectEntryAsync(Ann, new CorrectionInput(3, "Wrong amount", 12m, "Cash", null, who, account.RowVersion, $"fix-{who:N}"), S.Actor, default)))).Code);
+        }
+        Assert.Equal(before, await BillingCountsAsync());
+    }
 }

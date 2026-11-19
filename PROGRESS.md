@@ -3364,3 +3364,9 @@
   - What changed: slices 1-6 (5e4f799, f34cd43, c67f644, c8ef075, e2ce256, 9f7811f, c7fb422): receipt replacement and one receipt per payment (PD-17, guards 51294-51297, per-payment lock), payer eligibility (PD-18, widened 51142), statement template v3 and reconciliation (F-116, F-117), CSV live export (CR-2), responsibility and method answers, billing screens, billing-integrity spec; addenda 01 and 02 approved; Q-5ag not built (owner, reviewer carry-forward)
   - Verification: Stage 1 sweep on this commit (results in the R01 handoff)
   - Notes: final implementation commit of ALV-N024; not pushed.
+- [ ] ALV-N024 R02 corrections (review R01: CR-1 payer rule identical at every layer; CR-2 client proofs for F-207, F-196, F-195)
+  - Date: 2026-11-19
+  - Session: CC-20261115-m7x2
+  - What changed: migration 51142 now requires an ACTIVE guarantor, household member or recorded-responsible payer (owner decision "active only", the service's set; the unreleased migration corrected in place); new direct-SQL and service tests for active/inactive payers on payments and corrections; client tests for F-207 and F-195; billing-integrity spec asserts the rendered checkbox geometry (F-196) - which found the checkbox still stacked above its text (Diagnosis.css .alv-dx__form label column) - fixed with a more specific row rule in Billing.css
+  - Verification: server 5 classes 90/90 (166 s); vitest BillingLedgerPanel.test 31/31; billing-integrity spec 7/7 (checkbox at the left of its text on one 22.5 px line, flex row)
+  - Notes: the first F-196 browser run failed (12.25 px off-centre); diagnosed by recording the geometry, not by loosening. Not pushed.

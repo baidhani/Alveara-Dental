@@ -146,6 +146,21 @@ test("PAYER: the guarantor and the household are offered with how they are relat
   const who = form.getByLabel("Who paid");
   await expect(who.getByRole("option")).toHaveText(["Ann Alder (the patient)", "Hal Alder (household member (spouse))", "Gia Guard (registered guarantor)"]);
   await expect(who).toHaveValue(ids.gia);                                                                 // F-205: the responsible party (the registered guarantor) to start with
+  // ALV-N024 R02 (CR-2, F-196): the rendered checkbox keeps a checkbox's own size beside its text - not stretched to the width of a field, not on a line above its label
+  const choose = form.getByLabel(/Choose which charges this pays/);
+  const box = (await choose.boundingBox())!;
+  const line = (await form.locator("label.alv-bill__choose").boundingBox())!;
+  const text = (await form.locator("label.alv-bill__choose span").boundingBox())!;
+  evidence.checkbox = {
+    box, line, text,
+    styles: await choose.evaluate((el) => { const c = getComputedStyle(el), l = getComputedStyle(el.parentElement!); return { inputMargin: c.margin, inputHeight: c.height, inputDisplay: c.display, flexDirection: l.flexDirection, justifyContent: l.justifyContent, alignItems: l.alignItems, labelPadding: l.padding, labelLineHeight: l.lineHeight }; }),
+  };
+  writeFileSync(path.join(OUT, "checkbox-geometry.json"), JSON.stringify(evidence.checkbox, null, 2));
+  expect(box.width, "checkbox width").toBeLessThan(32);
+  expect(await choose.evaluate((el) => getComputedStyle(el.parentElement!).display)).toBe("flex");
+  expect(await choose.evaluate((el) => getComputedStyle(el.parentElement!).flexDirection)).toBe("row");
+  expect(box.x, "checkbox before its text").toBeLessThan(text.x);
+  expect(Math.abs(box.y + box.height / 2 - (line.y + line.height / 2)), "checkbox centred on its text line").toBeLessThan(8);
   await form.getByLabel(/^Amount/).fill("40");
   await form.getByLabel("How it was received").selectOption("Cash");
   await form.getByRole("button", { name: "Record payment" }).click();

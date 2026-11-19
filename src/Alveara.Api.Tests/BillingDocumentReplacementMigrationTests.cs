@@ -207,4 +207,42 @@ public class BillingDocumentReplacementMigrationTests : BillingTestBase
         Assert.Equal(2, await ReceiptsAsync(payment.Id));
         Assert.Equal((1, 1), (await CountAsync(LinksTrigger), await CountAsync(PayerTrigger)));
     }
+
+    [Fact]
+    public async Task R02_the_database_accepts_only_an_active_related_payer_for_payments_and_corrections()
+    {
+        // ALV-N024 R02 (CR-1, owner decision "active only"): 51142 enforces exactly the service's set - an ACTIVE guarantor, household member or recorded-responsible party
+        var guarantor = await S.PatientAsync("Gia", "Guard");
+        var sibling = await S.PatientAsync("Sam", "Sib");
+        var responsible = await S.PatientAsync("Rae", "Resp");
+        var household = Guid.NewGuid();
+        await ExecuteAsync("INSERT INTO [Households] ([Id],[CreatedAtUtc]) VALUES ({0}, SYSDATETIMEOFFSET())", household);
+        await ExecuteAsync("UPDATE [Patients] SET [GuarantorPatientId] = {0} WHERE [Id] = {1}", guarantor, Ann);
+        await ExecuteAsync("UPDATE [Patients] SET [HouseholdId] = {0}, [HouseholdRelationship] = 'Sibling' WHERE [Id] IN ({1}, {2})", household, Ann, sibling);
+        var account = await FundedAccountAsync();
+        await AddRowAsync(ResponsibilityRow(account, responsible, 1));
+        var number = 2;
+        var payers = new[] { guarantor, sibling, responsible };
+        var payments = new List<BillingEntry>();
+        foreach (var who in payers.Append(guarantor))                                                          // active: each may pay (a fourth payment is kept for the inactive corrections)
+        {
+            var payment = PaymentRow(account, -10m, number++, $"active-{payments.Count}");
+            await AddRowAsync(payment, e => e.PaidByPatientId = who);
+            payments.Add(payment);
+        }
+        for (var k = 0; k < payers.Length; k++)                                                               // active: each may be the payer of a correction (reversal + replacement)
+        {
+            await AddRowAsync(ReversalRow(account, payments[k], number++, $"rev-{k}"));
+            await AddRowAsync(PaymentRow(account, -10m, number++, $"repl-active-{k}"), e => { e.PaidByPatientId = payers[k]; e.ReplacesEntryId = payments[k].Id; });
+        }
+
+        await ExecuteAsync("UPDATE [Patients] SET [IsActive] = 0 WHERE [Id] IN ({0}, {1}, {2})", guarantor, sibling, responsible);
+        var before = await WithDb(db => db.BillingEntries.CountAsync(e => e.AccountId == account.Id));
+        foreach (var who in payers)                                                                            // inactive: refused for a payment ...
+            Assert.Equal(51142, (await SqlRefusal(() => AddRowAsync(PaymentRow(account, -10m, number, $"inactive-{who:N}"), e => e.PaidByPatientId = who))).Number);
+        await AddRowAsync(ReversalRow(account, payments[3], number++, "rev-3"));
+        foreach (var who in payers)                                                                            // ... and for a correction's replacement
+            Assert.Equal(51142, (await SqlRefusal(() => AddRowAsync(PaymentRow(account, -10m, number, $"repl-inactive-{who:N}"), e => { e.PaidByPatientId = who; e.ReplacesEntryId = payments[3].Id; }))).Number);
+        Assert.Equal(before + 1, await WithDb(db => db.BillingEntries.CountAsync(e => e.AccountId == account.Id)));   // only the second reversal was added
+    }
 }
