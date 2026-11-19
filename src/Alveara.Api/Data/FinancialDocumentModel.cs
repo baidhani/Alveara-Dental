@@ -57,6 +57,10 @@ internal static class FinancialDocumentModel
             e.HasIndex(x => new { x.AccountId, x.DocumentType, x.DocumentNumber }).IsUnique();
             e.HasIndex(x => new { x.AccountId, x.IdempotencyKey }).IsUnique();
             e.HasIndex(x => x.PaymentEntryId).HasFilter("[PaymentEntryId] IS NOT NULL");
+            // ALV-N024 (PD-17): a document is replaced at most once (a chain of replacements is allowed).
+            e.Property(x => x.ReplacementReason).HasMaxLength(FinancialDocumentLimits.ReplacementReasonMax);
+            e.HasOne<FinancialDocument>().WithMany().HasForeignKey(x => x.ReplacesDocumentId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.ReplacesDocumentId).IsUnique().HasFilter("[ReplacesDocumentId] IS NOT NULL");
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_FinancialDocuments_Immutable");
@@ -69,6 +73,8 @@ internal static class FinancialDocumentModel
                 t.HasCheckConstraint("CK_FinancialDocuments_Envelope", "ISJSON([EnvelopeJson]) = 1");
                 t.HasCheckConstraint("CK_FinancialDocuments_AsOf", "[AsOfUtc] <= [IssuedAtUtc]");
                 t.HasCheckConstraint("CK_FinancialDocuments_Key", $"LEN(LTRIM(RTRIM([IdempotencyKey]))) > 0 AND {NoControl("IdempotencyKey")}");
+                t.HasCheckConstraint("CK_FinancialDocuments_Replacement",
+                    "([ReplacesDocumentId] IS NULL AND [ReplacementReason] IS NULL) OR ([ReplacesDocumentId] IS NOT NULL AND [DocumentType] = 'Receipt' AND [ReplacementReason] IS NOT NULL AND LEN(LTRIM(RTRIM([ReplacementReason]))) > 0 AND " + NoControl("ReplacementReason") + ")");
             });
         });
     }

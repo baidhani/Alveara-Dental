@@ -68,6 +68,7 @@ public static class RealMigrationInventory
         new(typeof(DiagnosisFinalizedGuardMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N022 A2-R02: diagnosis finalized-encounter guard
         new(typeof(TypedLinkGuardMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N022 A3: typed clearance-document and perio-diagnosis links
         new(typeof(TreatmentPlanAppointmentLinkMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N023: appointment links of treatment-plan items (51291-51293)
+        new(typeof(BillingDocumentReplacementMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),   // ALV-N024: receipt replacement and payer eligibility (51294-51297, 51142)
         new(typeof(PermissionPolicySchemaTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(OdontogramCatalogueMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),
         new(typeof(PerioMigrationTests), RealMigrationReason.RollsTheSchemaBackAndForwardOnAClone, true),

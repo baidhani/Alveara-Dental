@@ -12,6 +12,8 @@ public static class FinancialDocumentLimits
     /// <summary>A SHA-256 content hash written as lower-case hexadecimal.</summary>
     public const int HashLength = 64;
     public const int EnvelopeMax = 2000;
+    /// <summary>ALV-N024: the longest reason a replacement receipt may carry.</summary>
+    public const int ReplacementReasonMax = 500;
 }
 
 /// <summary>
@@ -47,4 +49,8 @@ public class FinancialDocument
     public Guid CorrelationId { get; set; }
     public DateTimeOffset IssuedAtUtc { get; set; }
     public Guid IssuedByUserId { get; set; }
+    /// <summary>ALV-N024 (PD-17), receipts only: the earlier receipt of the same payment this one replaces. Set on the NEW row; the original is never changed, its "superseded by" is derived.</summary>
+    public Guid? ReplacesDocumentId { get; set; }
+    /// <summary>ALV-N024 (PD-17): why the replacement was issued. Set exactly when <see cref="ReplacesDocumentId"/> is.</summary>
+    public string? ReplacementReason { get; set; }
 }

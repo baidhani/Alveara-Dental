@@ -915,6 +915,13 @@ namespace Alveara.Api.Migrations
                     b.Property<Guid?>("PaymentEntryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ReplacementReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid?>("ReplacesDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("TemplateVersion")
                         .HasColumnType("int");
 
@@ -924,6 +931,10 @@ namespace Alveara.Api.Migrations
 
                     b.HasIndex("PaymentEntryId")
                         .HasFilter("[PaymentEntryId] IS NOT NULL");
+
+                    b.HasIndex("ReplacesDocumentId")
+                        .IsUnique()
+                        .HasFilter("[ReplacesDocumentId] IS NOT NULL");
 
                     b.HasIndex("AccountId", "IdempotencyKey")
                         .IsUnique();
@@ -952,6 +963,8 @@ namespace Alveara.Api.Migrations
                             t.HasCheckConstraint("CK_FinancialDocuments_Number", "[DocumentNumber] >= 1");
 
                             t.HasCheckConstraint("CK_FinancialDocuments_Payment", "([DocumentType] = 'Receipt' AND [PaymentEntryId] IS NOT NULL) OR ([DocumentType] = 'Statement' AND [PaymentEntryId] IS NULL)");
+
+                            t.HasCheckConstraint("CK_FinancialDocuments_Replacement", "([ReplacesDocumentId] IS NULL AND [ReplacementReason] IS NULL) OR ([ReplacesDocumentId] IS NOT NULL AND [DocumentType] = 'Receipt' AND [ReplacementReason] IS NOT NULL AND LEN(LTRIM(RTRIM([ReplacementReason]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [ReplacementReason] COLLATE Latin1_General_BIN2) = 0)");
 
                             t.HasCheckConstraint("CK_FinancialDocuments_Type", "[DocumentType] COLLATE Latin1_General_CS_AS IN ('Statement','Receipt')");
                         });
@@ -9155,6 +9168,11 @@ namespace Alveara.Api.Migrations
                     b.HasOne("Alveara.Api.Architecture.Billing.BillingEntry", null)
                         .WithMany()
                         .HasForeignKey("PaymentEntryId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Alveara.Api.Architecture.Billing.FinancialDocument", null)
+                        .WithMany()
+                        .HasForeignKey("ReplacesDocumentId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
