@@ -155,6 +155,7 @@ Each package appends one section: implementation SHA, changed subsystems, the ex
 
 - **Implementation SHA (R01, Stage 1):** `1c1184b` (the swept tree; base `09aacd9`). Changed subsystems: financial documents (replacement link, per-payment receipt lock, guards 51294-51297, template version 3, CSV live export), payer eligibility (widened 51142), reconciliation (adjustment total), responsibility and payment-method answers, the billing and household screens; one migration.
 - **R02 (corrections, `a995bff`):** 51142 made active-only (equal to the service); client proofs for F-207/F-195; F-196 CSS fixed. Focused: `.alveara/handoffs/ALV-N024/R02-evidence/TEST_RESULTS.md` (server 90/90, vitest 31/31, browser 7/7). The ALV-N024 rows above stay owed to ALV-N028.
+- **Approved (`.alveara/reviews/ALV-N024/R02.md`, closure-only authorization after R01 CHANGES_REQUIRED, no package-level Stage 2):** ALV-N024 COMPLETE; the ALV-N024 rows above stay owed to ALV-N028.
 - **Focused proof:** `.alveara/handoffs/ALV-N024/R01-evidence/TEST_RESULTS.md` (server 338/338, vitest 83/83, repo 58/58, browser spec 7/7, negative controls per addendum 02).
 - **Deferred to ALV-N028:** the ALV-N024 rows above, plus every earlier row (unchanged).
 - **Not release-certified.**

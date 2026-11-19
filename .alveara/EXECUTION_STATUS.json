@@ -173,12 +173,12 @@
       "dependencies": ["ALV-N023"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "AWAITING_REVIEW",
+      "status": "COMPLETE",
       "attempt": "R02",
-      "acceptance": {"total": 4, "passed": 0},
+      "acceptance": {"total": 4, "passed": 4},
       "tests": {"status": "passed", "summary": "Attempt R02 (corrections to R01, review CHANGES_REQUIRED CR-1/CR-2) on implementation a995bff: payer rule active-only at every layer (51142 equals the service set; owner decision), client proofs for F-207 and F-195, F-196 checkbox fixed and proven in the browser; focused 90/90 server, 31/31 vitest, billing-integrity 7/7. R01: Attempt R01 (Stage 1) on implementation 1c1184b (2026-11-19; the swept tree): one receipt per payment with a deliberate replacement and reason (PD-17; guards 51294-51297, per-payment lock before insert, Down refused 51296), legacy duplicates noticed not rewritten (OQ-4), payer eligibility (PD-18; widened 51142), statement template version 3 and the reconciliation identity (F-116, F-117), the statement CSV as a live export (CR-2), responsibility and method answers, billing screens. Server groups A/B/C 338/338; tsc, lint, build pass; vitest 83/83; repo checks 58/58; browser spec billing-integrity 7/7; controls (a)-(e) as designed (addendum 02), (f) an observation only. Q-5ag not built (owner; ADDENDUM-02 carry-forward). fullRegression DEFERRED_TO_ALV-N028; not release-certified."}, "demo": "real_backend_billing_integrity_7_of_7", "parentRegression": "n/a", "implementationCommit": "a995bff30b0730bae7005ce19a7ad85f0b6fe2e1", "evidenceCommit": "e9450f3c87ce01aef54bc673e6f2271e3f782e42", "handoffPath": ".alveara/handoffs/ALV-N024/R02.md",
-      "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null, "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
+      "review": {"decision": "APPROVED", "scope": "attempt R02 (corrections to R01, review CHANGES_REQUIRED CR-1/CR-2; closure-only authorization; deferred-regression route)", "decisionArtifact": ".alveara/reviews/ALV-N024/R02.md", "approvedAttempt": "R02", "reviewedImplementationCommit": "a995bff30b0730bae7005ce19a7ad85f0b6fe2e1", "reviewedEvidenceCommit": "e9450f3c87ce01aef54bc673e6f2271e3f782e42", "packageSha256": "5F2C866F17C0960BE7534B7BADE51AFB6AA525839EB318797BE08CCDCC2EBEAA", "priorAttempts": [{"attempt": "R01", "decision": "CHANGES_REQUIRED", "decisionArtifact": ".alveara/reviews/ALV-N024/R01.md", "packageSha256": "35A244D452083E3F46CFDBDA1255C98B0783D7B7C07F8BBBB9F63778AACAB5DA"}]},
+      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": "2026-11-19T15:30:00Z", "stage2": "NOT_REQUIRED_BY_REVIEW_R02", "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
       "schemaVersion": "2",
