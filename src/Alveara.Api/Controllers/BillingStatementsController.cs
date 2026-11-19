@@ -18,7 +18,7 @@ public record MoveAllocationRequest(int? PaymentEntryNumber, List<AllocationRequ
 public record CorrectionRequest(int? EntryNumber, string? Reason, decimal? Amount, string? Method, string? Note, Guid? PaidByPatientId, string? RowVersion, string? IdempotencyKey);
 
 /// <summary>Issue the previewed document: <c>previewToken</c> is what the preview returned; <c>idempotencyKey</c> makes a repeated issue return the same document.</summary>
-public record IssueDocumentRequest(string? PreviewToken, string? IdempotencyKey);
+public record IssueDocumentRequest(string? PreviewToken, string? IdempotencyKey, string? ReplacementReason = null);
 
 /// <summary>
 /// ALV-007-C02: refunds, moving what a payment pays, corrections, and the account's timeline, aging, statements and receipts. Reading (the timeline, aging, a preview, an issued document and its CSV) needs
@@ -67,8 +67,8 @@ public class BillingStatementsController(BillingService billing) : ControllerBas
     /// <summary>The statement or receipt as it would be issued now, with the token issuing needs. Nothing is stored.</summary>
     [HttpGet("api/patients/{patientId:guid}/billing/documents/preview")]
     [RequirePermission(Permission.ViewBilling)]
-    public Task<IActionResult> Preview(Guid patientId, [FromQuery] string? type, [FromQuery] int? paymentEntryNumber, CancellationToken ct) =>
-        Run(async () => Ok(await billing.PreviewDocumentAsync(patientId, new DocumentPreviewInput(type, paymentEntryNumber), ct)));
+    public Task<IActionResult> Preview(Guid patientId, [FromQuery] string? type, [FromQuery] int? paymentEntryNumber, [FromQuery] Guid? replacesDocumentId, CancellationToken ct) =>
+        Run(async () => Ok(await billing.PreviewDocumentAsync(patientId, new DocumentPreviewInput(type, paymentEntryNumber, replacesDocumentId), ct)));
 
     [HttpGet("api/patients/{patientId:guid}/billing/documents")]
     [RequirePermission(Permission.ViewBilling)]
@@ -114,5 +114,5 @@ public class BillingStatementsController(BillingService billing) : ControllerBas
     [RequirePermission(Permission.ManageBilling)]
     [RequireCsrfToken]
     public Task<IActionResult> Issue(Guid patientId, [FromBody] IssueDocumentRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await billing.IssueDocumentAsync(patientId, new IssueDocumentInput(request.PreviewToken, request.IdempotencyKey), Actor, ct)));
+        Run(async () => Ok(await billing.IssueDocumentAsync(patientId, new IssueDocumentInput(request.PreviewToken, request.IdempotencyKey, request.ReplacementReason), Actor, ct)));
 }

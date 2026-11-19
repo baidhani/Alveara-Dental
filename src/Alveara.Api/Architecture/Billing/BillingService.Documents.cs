@@ -25,7 +25,8 @@ public partial class BillingService
 {
     private static readonly JsonSerializerOptions TokenJson = new() { WriteIndented = false };
 
-    private sealed record PreviewToken(string T, int? P, int E, int A, int R, int S, string U, int V, string H);
+    /// <summary>The preview's binding: type, payment, cut-offs, instant, template version, hash and (ALV-N024) <c>X</c>, the id of the receipt a replacement replaces ("N" format; absent otherwise).</summary>
+    private sealed record PreviewToken(string T, int? P, int E, int A, int R, int S, string U, int V, string H, string? X = null);
 
     private static string EncodeToken(PreviewToken token) => "v1." + Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(token, TokenJson)).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
@@ -148,11 +149,16 @@ public partial class BillingService
         snapshot = await LoadSnapshotAsync(account.Id, cutOffs.AsOfUtc, ct);
         var version = FinancialDocumentBuilder.CurrentTemplateVersion;
         var (content, hash, _) = await BuildAsync(account, snapshot, cutOffs, type, type == FinancialDocumentTypes.Receipt ? input.PaymentEntryNumber : null, null, version, ct);
+        FinancialDocument? replaced = null;
+        if (type == FinancialDocumentTypes.Receipt)                                                       // ALV-N024: a payment that has a receipt gets a preview only as a deliberate replacement
+            replaced = await CheckReceiptRuleAsync(account.Id, (await PaymentIdAsync(account.Id, input.PaymentEntryNumber, ct))!.Value, input.PaymentEntryNumber!.Value, input.ReplacesDocumentId, ct);
+        else if (input.ReplacesDocumentId is not null)
+            throw BillingRules.Invalid(new Dictionary<string, string> { ["replacesDocumentId"] = "Only a receipt can be replaced; a later statement is a new statement." });
         if (transaction is not null) await transaction.CommitAsync(ct);
 
         var token = EncodeToken(new PreviewToken(type, type == FinancialDocumentTypes.Receipt ? input.PaymentEntryNumber : null, cutOffs.EntryNumber, cutOffs.AllocationNumber, cutOffs.ReleaseNumber,
-            cutOffs.ResponsibilitySequence, FinancialDocumentBuilder.Instant(cutOffs.AsOfUtc), version, hash));
-        return new DocumentPreview(type, cutOffs, version, hash, token, content as StatementContent, content as ReceiptContent);
+            cutOffs.ResponsibilitySequence, FinancialDocumentBuilder.Instant(cutOffs.AsOfUtc), version, hash, replaced?.Id.ToString("N")));
+        return new DocumentPreview(type, cutOffs, version, hash, token, content as StatementContent, content as ReceiptContent, replaced?.DocumentNumber);
     }
 
     /// <summary>Issues the previewed document: the same content, or nothing (<c>document_preview_stale</c>). The same key again returns the same document.</summary>
@@ -170,13 +176,41 @@ public partial class BillingService
         var cutOffs = new FinancialCutOffs(token.E, token.A, token.R, token.S, asOf);
 
         var account = await AccountForDocumentAsync(patientId, ct);
-        // A replay of an issue that already happened returns that document whatever version it was built with (a version-1 issue retried after the upgrade still finds its document); only a NEW issue needs
-        // a preview made with the current version.
-        var prior = await db.FinancialDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.AccountId == account.Id && d.IdempotencyKey == key, ct);
-        if (prior is not null)
-            return prior.DocumentType == type && prior.ContentHash == token.H && prior.AsOfEntryNumber == token.E && prior.AsOfUtc == asOf && (prior.PaymentEntryId is null) == (token.P is null)
-                ? await ViewOfDocumentAsync(prior, ct) : throw KeyReused();
+        var replay = await ReplayAsync(account.Id, key!, token, asOf, ct);
+        if (replay is not null) return replay;
+        if (type != FinancialDocumentTypes.Receipt) return await IssueCheckedAsync(account, patientId, token, type, cutOffs, asOf, key!, actor, null, null, ct);
 
+        // ALV-N024 (CR-1): one transaction per receipt issue; the payment's lock is taken BEFORE anything is inserted, then everything is read again.
+        Guid? replaces = token.X is null ? null
+            : Guid.TryParseExact(token.X, "N", out var named) ? named : throw new BillingException("document_preview_invalid", "The preview could not be read. Preview the document again and issue that.", 400);
+        var reason = CleanReplacementReason(replaces, input.ReplacementReason);
+        await using var transaction = db.Database.CurrentTransaction is null ? await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct) : null;
+        var paymentId = await PaymentIdAsync(account.Id, token.P, ct) ?? throw new BillingException("document_preview_stale", "The account has changed since this preview was made. Preview the document again.", 409);
+        await AcquireReceiptLockAsync(paymentId, ct);
+        replay = await ReplayAsync(account.Id, key!, token, asOf, ct);                                   // a contender with the same key won while this one waited
+        if (replay is null)
+        {
+            var replaced = await CheckReceiptRuleAsync(account.Id, paymentId, token.P!.Value, replaces, ct);
+            replay = await IssueCheckedAsync(account, patientId, token, type, cutOffs, asOf, key!, actor, replaced, reason, ct);
+        }
+        if (transaction is not null) await transaction.CommitAsync(ct);                                 // releases the lock; a throw above rolls everything back, lock included
+        return replay;
+    }
+
+    /// <summary>A replay of an issue that already happened returns that document whatever version it was built with (a version-1 issue retried after the upgrade still finds its document); the same key with a different preview is refused.</summary>
+    private async Task<IssuedDocumentView?> ReplayAsync(Guid accountId, string key, PreviewToken token, DateTimeOffset asOf, CancellationToken ct)
+    {
+        var prior = await db.FinancialDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.AccountId == accountId && d.IdempotencyKey == key, ct);
+        if (prior is null) return null;
+        return prior.DocumentType == token.T && prior.ContentHash == token.H && prior.AsOfEntryNumber == token.E && prior.AsOfUtc == asOf && (prior.PaymentEntryId is null) == (token.P is null)
+               && prior.ReplacesDocumentId?.ToString("N") == token.X
+            ? await ViewOfDocumentAsync(prior, ct) : throw KeyReused();
+    }
+
+    /// <summary>Rebuilds the previewed content, refuses if it changed, then stores the numbered document and its audit row in one save.</summary>
+    private async Task<IssuedDocumentView> IssueCheckedAsync(BillingAccount account, Guid patientId, PreviewToken token, string type, FinancialCutOffs cutOffs, DateTimeOffset asOf, string key, Guid actor,
+        FinancialDocument? replaced, string? reason, CancellationToken ct)
+    {
         DocumentEnvelope envelope;
         string hash;
         await using (var transaction = db.Database.CurrentTransaction is null ? await db.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, ct) : null)
@@ -206,20 +240,17 @@ public partial class BillingService
         {
             Id = Guid.NewGuid(), AccountId = account.Id, PatientId = patientId, DocumentType = type, DocumentNumber = number, PaymentEntryId = paymentId, AsOfEntryNumber = cutOffs.EntryNumber,
             AsOfAllocationNumber = cutOffs.AllocationNumber, AsOfReleaseNumber = cutOffs.ReleaseNumber, AsOfResponsibilitySequence = cutOffs.ResponsibilitySequence, AsOfUtc = asOf, TemplateVersion = token.V,
-            ContentHash = hash, EnvelopeJson = JsonSerializer.Serialize(envelope), IdempotencyKey = key!, CorrelationId = Guid.NewGuid(), IssuedAtUtc = now > asOf ? now : asOf, IssuedByUserId = actor,
+            ContentHash = hash, EnvelopeJson = JsonSerializer.Serialize(envelope), IdempotencyKey = key, CorrelationId = Guid.NewGuid(), IssuedAtUtc = now > asOf ? now : asOf, IssuedByUserId = actor,
+            ReplacesDocumentId = replaced?.Id, ReplacementReason = replaced is null ? null : reason,
         };
         db.FinancialDocuments.Add(document);
-        AuditService.Record(db, "FinancialDocumentIssued", nameof(BillingAccount), account.Id, actor, $"{type} {number} issued at entry {cutOffs.EntryNumber}.", correlationId: document.CorrelationId);
+        if (replaced is null)
+            AuditService.Record(db, "FinancialDocumentIssued", nameof(BillingAccount), account.Id, actor, $"{type} {number} issued at entry {cutOffs.EntryNumber}.", correlationId: document.CorrelationId);
+        else
+            AuditService.Record(db, "FinancialDocumentReplaced", nameof(BillingAccount), account.Id, actor, $"Receipt {number} replaces receipt {replaced.DocumentNumber} for payment {token.P}.", reason,
+                correlationId: document.CorrelationId);
         await SaveAsync(account.Id, ct);
         return await ViewOfDocumentAsync(document, ct);
-    }
-
-    private async Task<IssuedDocumentView> ViewOfDocumentAsync(FinancialDocument d, CancellationToken ct)
-    {
-        var names = await ClinicalNames.ResolveAsync(db, [(Guid?)d.IssuedByUserId], ct);
-        var paymentNumber = d.PaymentEntryId is Guid id ? await db.BillingEntries.AsNoTracking().Where(e => e.Id == id).Select(e => (int?)e.EntryNumber).FirstAsync(ct) : null;
-        return new IssuedDocumentView(d.Id, d.DocumentType, d.DocumentNumber, paymentNumber, new FinancialCutOffs(d.AsOfEntryNumber, d.AsOfAllocationNumber, d.AsOfReleaseNumber, d.AsOfResponsibilitySequence, d.AsOfUtc),
-            d.TemplateVersion, d.ContentHash, d.IssuedAtUtc, ClinicalNames.Name(names, d.IssuedByUserId));
     }
 
     public async Task<IReadOnlyList<IssuedDocumentView>> ListDocumentsAsync(Guid patientId, CancellationToken ct)
@@ -227,7 +258,12 @@ public partial class BillingService
         await RequirePatientAsync(patientId, ct);
         var rows = await db.FinancialDocuments.AsNoTracking().Where(d => d.PatientId == patientId).OrderBy(d => d.IssuedAtUtc).ThenBy(d => d.DocumentType).ThenBy(d => d.DocumentNumber).ToListAsync(ct);
         var views = new List<IssuedDocumentView>();
-        foreach (var row in rows) views.Add(await ViewOfDocumentAsync(row, ct));
+        var ledgers = new Dictionary<Guid, IReadOnlyList<LedgerEntry>>();
+        foreach (var row in rows)
+        {
+            if (!ledgers.TryGetValue(row.AccountId, out var math)) ledgers[row.AccountId] = math = (await LoadLedgerAsync(row.AccountId, ct)).Math;
+            views.Add(await ViewOfDocumentAsync(row, ct, math));
+        }
         return views;
     }
 
@@ -282,7 +318,7 @@ public partial class BillingService
             logger?.LogError("billing_document_hash_mismatch error_class={ErrorClass} document_type={Type} document_number={Number}", "ContractViolation", d.DocumentType, d.DocumentNumber);
             throw new BillingException("document_content_changed", "This document can no longer be shown exactly as it was issued.", 409);
         }
-        return new IssuedDocumentDetail(view, content as StatementContent, content as ReceiptContent, await CurrentStatusAsync(account.Id, d, view.PaymentEntryNumber, ct));
+        return new IssuedDocumentDetail(view, content as StatementContent, content as ReceiptContent, [.. ReplacementNotes(view), .. await CurrentStatusAsync(account.Id, d, view.PaymentEntryNumber, ct)]);
     }
 
     /// <summary>What has happened since a document was issued, as plain notes that sit beside it. They are not part of the document and not in its hash.</summary>
@@ -291,13 +327,13 @@ public partial class BillingService
         var ledger = await LoadLedgerAsync(accountId, ct);
         var notes = new List<string>();
         var later = ledger.Entries.Count(e => e.EntryNumber > d.AsOfEntryNumber);
-        if (later > 0) notes.Add($"{later} ledger {(later == 1 ? "entry has" : "entries have")} been recorded since this {d.DocumentType.ToLowerInvariant()} was issued; the account's current balance is {BillingLedgerMath.Balance(ledger.Math):F2} {AppMoney.Currency}.");
+        if (later > 0) notes.Add($"{later} ledger {(later == 1 ? "entry has" : "entries have")} been recorded since this {d.DocumentType.ToLowerInvariant()} was issued; the account's current balance is {NoteMoney(BillingLedgerMath.Balance(ledger.Math))}.");
         if (paymentNumber is int number)
         {
             var math = ledger.Math;
             if (BillingLedgerMath.Reversed(math).Contains(number)) notes.Add($"Payment {number} has since been reversed.");
             var refunded = BillingLedgerMath.Refunded(math, number);
-            if (refunded > 0) notes.Add($"{refunded:F2} {AppMoney.Currency} of payment {number} has since been refunded.");
+            if (refunded > 0) notes.Add($"{NoteMoney(refunded)} of payment {number} has since been refunded.");
         }
         return notes;
     }

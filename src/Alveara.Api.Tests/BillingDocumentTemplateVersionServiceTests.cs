@@ -72,6 +72,9 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
             AsOfEntryNumber = source.AsOfEntryNumber, AsOfAllocationNumber = source.AsOfAllocationNumber, AsOfReleaseNumber = source.AsOfReleaseNumber, AsOfResponsibilitySequence = source.AsOfResponsibilitySequence,
             AsOfUtc = source.AsOfUtc, TemplateVersion = storedVersion, ContentHash = OriginalFinancialDocumentBuilderV1.Hash(json), EnvelopeJson = JsonSerializer.Serialize(envelope), IdempotencyKey = key,
             CorrelationId = Guid.NewGuid(), IssuedAtUtc = source.IssuedAtUtc, IssuedByUserId = source.IssuedByUserId,
+            // ALV-N024 (PD-17): a payment has one receipt, so a second receipt of the same payment is stored as a replacement of the issued one. The replacement fields are not content and not hashed.
+            ReplacesDocumentId = source.DocumentType == FinancialDocumentTypes.Receipt ? source.Id : null,
+            ReplacementReason = source.DocumentType == FinancialDocumentTypes.Receipt ? "Stored again as a version-1 document (test fixture)" : null,
         };
         db.FinancialDocuments.Add(row);
         await db.SaveChangesAsync();

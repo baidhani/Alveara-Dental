@@ -48,13 +48,20 @@ public sealed record FinancialCutOffs(int EntryNumber, int AllocationNumber, int
 public sealed record DocumentEnvelope(DocumentParty Patient, DocumentParty Addressee, string AddresseeSource, string Currency, DocumentPractice? Practice = null, DocumentAgingBasis? AgingBasis = null);
 
 /// <summary>A preview: the content a person is reviewing, its hash, and the token that issuing must present. Exactly one of <c>Statement</c> and <c>Receipt</c> is set.</summary>
-public sealed record DocumentPreview(string DocumentType, FinancialCutOffs CutOffs, int TemplateVersion, string ContentHash, string PreviewToken, StatementContent? Statement, ReceiptContent? Receipt);
+public sealed record DocumentPreview(string DocumentType, FinancialCutOffs CutOffs, int TemplateVersion, string ContentHash, string PreviewToken, StatementContent? Statement, ReceiptContent? Receipt,
+    int? ReplacesNumber = null);
 
-public sealed record DocumentPreviewInput(string? DocumentType, int? PaymentEntryNumber);
-public sealed record IssueDocumentInput(string? PreviewToken, string? IdempotencyKey);
+/// <summary>ALV-N024 (PD-17): <c>ReplacesDocumentId</c> previews a deliberate replacement of that receipt (the latest one of its payment nobody has replaced); without it a receipt is previewed only for a payment that has none.</summary>
+public sealed record DocumentPreviewInput(string? DocumentType, int? PaymentEntryNumber, Guid? ReplacesDocumentId = null);
+/// <summary>ALV-N024 (PD-17): <c>ReplacementReason</c> is required when the preview was a replacement, and ignored otherwise.</summary>
+public sealed record IssueDocumentInput(string? PreviewToken, string? IdempotencyKey, string? ReplacementReason = null);
 
-/// <summary>An issued document as listed.</summary>
-public sealed record IssuedDocumentView(Guid Id, string DocumentType, int DocumentNumber, int? PaymentEntryNumber, FinancialCutOffs CutOffs, int TemplateVersion, string ContentHash, DateTimeOffset IssuedAtUtc, string? IssuedByName);
+/// <summary>
+/// An issued document as listed. ALV-N024 adds what is true of it now (never part of its content or hash): the receipt it replaces and why, the receipt that superseded it, whether its payment has since been
+/// reversed or (partly) refunded, and <c>LegacyDuplicate</c> - one of several receipts of one payment issued before replacements existed (OQ-4: shown with a neutral notice, never rewritten).
+/// </summary>
+public sealed record IssuedDocumentView(Guid Id, string DocumentType, int DocumentNumber, int? PaymentEntryNumber, FinancialCutOffs CutOffs, int TemplateVersion, string ContentHash, DateTimeOffset IssuedAtUtc, string? IssuedByName,
+    int? ReplacesNumber = null, string? ReplacementReason = null, int? SupersededByNumber = null, bool PaymentReversed = false, decimal PaymentRefunded = 0m, bool LegacyDuplicate = false);
 
 /// <summary>An issued document rebuilt exactly as issued, plus separate notes on what has happened since (never part of the issued content or its hash).</summary>
 public sealed record IssuedDocumentDetail(IssuedDocumentView Document, StatementContent? Statement, ReceiptContent? Receipt, IReadOnlyList<string> CurrentStatus);
