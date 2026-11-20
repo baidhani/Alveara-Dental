@@ -284,7 +284,9 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
         Assert.Empty(unpatched);                              // a new immutable-record trigger on one of these tables must carry the same line (see the AddPatientMerges migration)
         var patched = await NamesAsync($@"SELECT DISTINCT t.name AS [Value] FROM sys.triggers t JOIN sys.sql_modules m ON m.object_id = t.object_id
             WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN ({TableList}) AND t.name NOT LIKE 'TR[_]%[_]MergeScope' AND m.definition LIKE N'%alveara.patient_merge%'");
-        Assert.Equal(52, patched.Count);                      // 51 immutable-record triggers and TR_Patients_Merged, which has the line of its own
+        Assert.Equal(53, patched.Count);                      // 51 immutable-record triggers, TR_Patients_Merged (its own line) and, since ALV-N025 (U-017,
+                                                              // AddMergeTriggerIntegrityRepairs), TR_Clearances_DocumentSamePatient
+        Assert.Contains("TR_Clearances_DocumentSamePatient", patched);
         Assert.Contains("TR_Patients_Merged", patched);
     }
 
