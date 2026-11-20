@@ -125,13 +125,20 @@ describe("household and guarantor editor", () => {
     server.patients.get(MOM)!.householdRelationship = "Self";
     server.patients.get(KID)!.householdId = "h1";
     server.patients.get(KID)!.householdRelationship = "Child";
-    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
+    const confirm = vi.spyOn(window, "confirm");                                                      // ALV-N025 (F-042): asked in the page, never by the browser
     open(`/patients/${KID}/household`);
-    const button = await screen.findByRole("button", { name: "Remove Cal from household" });
 
-    await userEvent.click(button); // declined
+    await userEvent.click(await screen.findByRole("button", { name: "Remove Cal from household" }));
+    let dialog = screen.getByRole("alertdialog", { name: /Remove Cal .* from this household\?/ });
+    expect(dialog).toHaveTextContent("it is dissolved");                                               // ALV-N025 (F-202): one other member left
+    expect(within(dialog).getByRole("button", { name: "Keep in household" })).toHaveFocus();
+    await userEvent.click(within(dialog).getByRole("button", { name: "Keep in household" }));          // declined
     expect(server.callsTo("PUT", `/api/patients/${KID}/household`)).toHaveLength(0);
-    await userEvent.click(button); // confirmed
+
+    await userEvent.click(screen.getByRole("button", { name: "Remove Cal from household" }));
+    dialog = screen.getByRole("alertdialog", { name: /Remove Cal .* from this household\?/ });
+    await userEvent.click(within(dialog).getByRole("button", { name: "Remove from household" }));      // confirmed
+    expect(confirm).not.toHaveBeenCalled();
 
     await waitFor(() => expect(server.callsTo("PUT", `/api/patients/${KID}/household`)[0].body).toEqual({ anchorPatientId: null, relationship: null, rowVersion: "v1" }));
     expect(await screen.findByText("This patient is not in a household.")).toBeInTheDocument();

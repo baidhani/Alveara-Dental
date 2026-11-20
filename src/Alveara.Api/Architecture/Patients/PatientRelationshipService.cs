@@ -64,7 +64,22 @@ public class PatientRelationshipService(AlveraDbContext db, IPracticeClock clock
             PatientWrite.Touch(patient, now, actor);
             PatientWrite.Audit(db, PatientAuditEventsV2.HouseholdChanged, id, actor, "Left household.");
             // A household nobody belongs to carries no meaning; remove the empty grouping (the history above keeps the trail).
-            if (!await db.Patients.AnyAsync(p => p.HouseholdId == leaving && p.Id != id, ct))
+            // ALV-N025 (F-202, Q-5bd; owner decision OQ-5): nor does a household of one - when this leaves exactly one other member, that member's membership is
+            // cleared too (no household, no relationship: the neutral state leaving gives), with its own History rows and an audit row, and the household is removed.
+            // A merged-away record never changes (51233), so a household whose only other member is retired is left as it is.
+            var others = await db.Patients.Where(p => p.HouseholdId == leaving && p.Id != id).ToListAsync(ct);
+            if (others is [{ MergedAtUtc: null } last])
+            {
+                PatientWrite.History(db, last.Id, now, actor, "HouseholdChanged", "householdId", leaving.ToString(), null);
+                if (last.HouseholdRelationship is not null)
+                    PatientWrite.History(db, last.Id, now, actor, "HouseholdChanged", "householdRelationship", last.HouseholdRelationship, null);
+                last.HouseholdId = null;
+                last.HouseholdRelationship = null;
+                PatientWrite.Touch(last, now, actor);
+                PatientWrite.Audit(db, PatientAuditEventsV2.HouseholdChanged, last.Id, actor, $"Household {leaving} dissolved: patient {id} left and this patient was its only other member.");
+                others.Clear();
+            }
+            if (others.Count == 0)
                 db.Households.Remove(await db.Households.SingleAsync(h => h.Id == leaving, ct));
             await PatientWrite.SaveAsync(db, id, ct);
             return patient;

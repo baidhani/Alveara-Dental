@@ -51,7 +51,15 @@ export function PatientImportPage() {
 
   return (
     <div>
-      <PageHeader title="Import a patient" description="Bring one patient in from a file exported from DentalKeep. The whole file is checked first; nothing is stored unless it is correct." />
+      {/* ALV-N025 (F-147; owner: wording only): name the one file this page takes, and say the data package is not it */}
+      <PageHeader
+        title="Import a patient"
+        description="Bring one patient in from a single patient file - the .json file made by &quot;Export patient file&quot; on a patient's page. The whole file is checked first; nothing is stored unless it is correct."
+      />
+      <p className="alv-workspace__note">
+        The data package from Export patient data (a folder or .zip with manifest.json, a data folder and a readable record) is for reading and archiving. It cannot be
+        imported here or anywhere else in DentalKeep.
+      </p>
       <section aria-labelledby="import-choose" className="alv-fu-form">
         <h2 id="import-choose">Choose the file</h2>
         <label htmlFor="import-file">Patient file (.json, up to 256 KB)</label>

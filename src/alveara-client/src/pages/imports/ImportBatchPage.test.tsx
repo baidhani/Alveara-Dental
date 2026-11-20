@@ -90,10 +90,14 @@ describe("the dry-run", () => {
     server.rows = [makeRow({ rowNumber: 2 }), makeRow({ rowNumber: 3, status: "Rejected", reason: "invalid_fields", errors: { firstName: "First name is required." } })];
     renderPage();
 
-    await userEvent.setup().selectOptions(await screen.findByLabelText("Show"), "Rejected");
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("checkbox", { name: "Rejected" }));                        // ALV-N025 (F-144): statuses are ticked, several at once
 
-    await waitFor(() => expect(server.calls.some((c) => c.url.includes("/rows?status=Rejected"))).toBe(true));
+    await waitFor(() => expect(server.calls.some((c) => c.url.includes("/rows?status=Rejected&"))).toBe(true));
     await waitFor(() => expect(within(screen.getByRole("table", { name: "Row results" })).queryAllByRole("row")).toHaveLength(2));   // header + the one rejected row
+
+    await user.click(screen.getByRole("checkbox", { name: "Unresolved" }));
+    await waitFor(() => expect(server.calls.some((c) => c.url.includes("/rows?status=Rejected%2CUnresolved"))).toBe(true));
   });
 
   it("shows the total of the valid balances to check against the old system", async () => {

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ConfirmInline } from "../components/ConfirmInline";
 import type { FormEvent } from "react";
 import { Button } from "../components/Button";
 import { ConcurrencyConflictBanner } from "../components/ConcurrencyConflictBanner";
@@ -93,10 +94,14 @@ export function PatientDetailsPanel({ patient, onChanged }: { patient: PatientDe
     }
   }
 
-  async function toggleActive() {
+  // ALV-N025 (F-042): inactivating is asked in the page, not by the browser
+  const [confirmingInactivate, setConfirmingInactivate] = useState(false);
+
+  async function toggleActive(confirmed = false) {
     if (saving || !canEdit) return;
     const next = !patient.isActive;
-    if (!next && !window.confirm(`Inactivate ${patient.firstName} ${patient.lastName}? Their record, history and relationships are kept.`)) return;
+    if (!next && !confirmed) { setConfirmingInactivate(true); return; }
+    setConfirmingInactivate(false);
     setFormError(null);
     setNotice(null);
     setSaving(true);
@@ -154,9 +159,20 @@ export function PatientDetailsPanel({ patient, onChanged }: { patient: PatientDe
               ? "This patient is active. Inactivating hides them from search by default; nothing is deleted."
               : "This patient is inactive. Their record and history are kept; reactivate them to use them as a guarantor or household anchor."}
           </p>
-          <Button type="button" variant={patient.isActive ? "danger" : "primary"} onClick={toggleActive} disabled={saving}>
-            {patient.isActive ? "Inactivate patient" : "Reactivate patient"}
-          </Button>
+          {confirmingInactivate ? (
+            <ConfirmInline
+              title={`Inactivate ${patient.firstName} ${patient.lastName}?`}
+              message="Their record, history and relationships are kept; they are hidden from search by default."
+              confirmLabel="Inactivate patient"
+              cancelLabel="Keep active"
+              busy={saving}
+              onAnswer={(ok) => (ok ? void toggleActive(true) : setConfirmingInactivate(false))}
+            />
+          ) : (
+            <Button type="button" variant={patient.isActive ? "danger" : "primary"} onClick={() => void toggleActive()} disabled={saving}>
+              {patient.isActive ? "Inactivate patient" : "Reactivate patient"}
+            </Button>
+          )}
         </div>
       )}
     </section>

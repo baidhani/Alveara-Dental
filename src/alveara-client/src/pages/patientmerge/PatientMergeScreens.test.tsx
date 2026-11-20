@@ -69,6 +69,19 @@ async function openReview() {
   await screen.findByRole("heading", { name: /Merge Anne Lee into Ann Lee/ });
 }
 
+describe("ALV-N025 (Q-5cb, owner decision MRG-1): the merge keeps the surviving record's identity", () => {
+  it("explains that name and date of birth are never merge choices and how to keep the other record's identity instead", async () => {
+    await openReview();                                                                              // Anne Lee into Ann Lee: the first names differ
+    expect(screen.getByTestId("merge-identity-rule")).toHaveTextContent(
+      "The surviving record keeps its own name and date of birth. If the other record has the correct identity, cancel this merge and choose that record as the surviving record.");
+    expect(screen.getByRole("row", { name: /Name Anne Lee Ann Lee/ })).toBeInTheDocument();          // both identities shown side by side
+    for (const field of ["First name", "Last name", "Date of birth", "FirstName", "LastName", "DateOfBirth"])
+      expect(screen.queryByRole("group", { name: field })).not.toBeInTheDocument();                   // never offered as a choice
+    expect(screen.getByRole("group", { name: /Phone/ })).toBeInTheDocument();                        // every other differing field is
+    expect(screen.queryByText(/correct them on the patient's page/i)).not.toBeInTheDocument();
+  });
+});
+
 describe("the duplicate list", () => {
   it("lists a pair with its reasons, the match and a review action, and has no accessibility violations", async () => {
     const { container } = renderPage();

@@ -70,11 +70,13 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
     public async Task<IReadOnlyList<ImportRowView>> ListRowsAsync(Guid batchId, string? status, int limit, int after, CancellationToken ct)
     {
         var batch = await db.ImportBatches.AsNoTracking().SingleOrDefaultAsync(b => b.Id == batchId, ct) ?? throw new ImportException("batch_not_found", "There is no import batch with that id.", 404);
-        if (status is not null && !ImportRowStatus.All.Contains(status)) throw new ImportException("invalid_status", $"The status must be one of {string.Join(", ", ImportRowStatus.All)}.", 400);
+        // ALV-N025 (F-144): several statuses at once, comma separated ("Rejected,Unresolved"); one status works as before; none = every row
+        var statuses = (status ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToList();
+        if (statuses.Any(s => !ImportRowStatus.All.Contains(s))) throw new ImportException("invalid_status", $"Each status must be one of {string.Join(", ", ImportRowStatus.All)}.", 400);
         if (batch.DryRunAtUtc is null) throw new ImportException("dry_run_required", "Run the dry-run first; there are no results to show.", 409);
 
         var query = db.ImportBatchRows.AsNoTracking().Where(r => r.BatchId == batchId && r.RowNumber > after);
-        if (status is not null) query = query.Where(r => r.Status == status);
+        if (statuses.Count > 0) query = query.Where(r => statuses.Contains(r.Status));
         var rows = await query.OrderBy(r => r.RowNumber).Take(Math.Clamp(limit <= 0 ? DefaultLimit : limit, 1, MaxLimit)).ToListAsync(ct);
         return rows.Select(r => new ImportRowView(
             r.RowNumber, r.Status, r.Reason, r.ErrorsJson is null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(r.ErrorsJson),

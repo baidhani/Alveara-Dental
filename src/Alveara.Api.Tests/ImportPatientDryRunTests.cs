@@ -341,4 +341,21 @@ public class ImportPatientDryRunTests(ITestOutputHelper output) : IAsyncLifetime
         Assert.Equal(rows, await CountAsync(db => db.ImportBatchRows));
         Assert.Equal(0, await CountAsync(db => db.Patients));
     }
+
+    [Fact]
+    public async Task F144_the_rows_filter_by_several_statuses_at_once_and_refuses_an_unknown_one()
+    {
+        // ALV-N025 (F-144): "Rejected,Unresolved" lists both; one status works as before; an unknown status is refused
+        await RegisterAsync("Ann", "Rivera", "1950-01-10");
+        var batch = await PrepareAsync(Csv(
+            Row("Bo", "Moss", "1962-03-04", "555-300-3000"),                                                 // row 2: valid
+            Row("", "Moss", "1962-03-04", "555-300-3001"),                                                   // row 3: rejected (no first name)
+            Row("Anna", "Rivera", "1950-01-10", "555-200-2000")));                                           // row 4: unresolved (likely the registered Ann)
+        await DryRunAsync(batch);
+
+        Assert.Equal(new[] { 3, 4 }, (await RowsAsync(batch, "Rejected,Unresolved")).Select(r => r.RowNumber));
+        Assert.Equal(new[] { 3 }, (await RowsAsync(batch, "Rejected")).Select(r => r.RowNumber));
+        Assert.Equal(new[] { 2, 3, 4 }, (await RowsAsync(batch)).Select(r => r.RowNumber));
+        Assert.Equal("invalid_status", await CodeAsync(() => RowsAsync(batch, "Rejected,Nope")));
+    }
 }

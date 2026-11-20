@@ -522,4 +522,16 @@ public class PermissionPolicyWriteTests : IAsyncLifetime
         }
         Assert.Equal(HttpStatusCode.Unauthorized, (await _api.Factory.CreateClient().GetAsync("/api/auth/users")).StatusCode);
     }
+
+    [Fact]
+    public async Task Q5cl_an_office_manager_reads_the_matrix_but_the_api_refuses_every_change_to_it()
+    {
+        // ALV-N025 (Q-5cl, C8): the screen offers a manager no change (PermissionPolicyScreens tests the read-only matrix); the API matches it
+        var admin = await _api.SessionAsync("Admin");
+        var manager = await _api.SessionAsync("OfficeManager");
+        Assert.Equal(HttpStatusCode.OK, (await GetAsync(manager, "/api/auth/permission-matrix")).Status);
+        var version = await VersionAsync(admin);
+        Assert.Equal(HttpStatusCode.Forbidden, (await PutAsync(manager, "Billing", "ViewBackupStatus", "Grant", version, Key())).Status);
+        Assert.Equal(version, await VersionAsync(admin));                                                // nothing changed
+    }
 }

@@ -96,6 +96,13 @@ export function MergeReview({ sourceId, survivorId, onSwap, onCancel, onMerged }
         </div>
       )}
 
+      {/* ALV-N025 (Q-5cb; owner decision MRG-1): name and date of birth are never merge choices - the retired record keeps its unique name-and-birth-date key */}
+      {(briefName(source) !== briefName(survivor) || source.dateOfBirth !== survivor.dateOfBirth) && (
+        <p className="alv-workspace__note" data-testid="merge-identity-rule">
+          The surviving record keeps its own name and date of birth. If the other record has the correct identity, cancel this merge and choose that record as the surviving record.
+        </p>
+      )}
+
       {preview.identityConflicts.length > 0 && (
         <div role="alert" className="alv-fu-error alv-merge__identity">
           <strong>These records may be different people.</strong> They differ in {preview.identityConflicts.join(" and ")}. Merging two people into one chart is hard to undo.

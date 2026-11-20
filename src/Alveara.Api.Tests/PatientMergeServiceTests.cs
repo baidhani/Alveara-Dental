@@ -412,4 +412,23 @@ public class PatientMergeServiceTests : TreatmentPlanTestBase
         Assert.Equal(1, await ScalarAsync("SELECT COUNT(*) AS [Value] FROM [Patients] WHERE [Id] = @p AND [HouseholdId] = @h AND [HouseholdRelationship] = 'Parent'", new SqlParameter("@p", Bo), new SqlParameter("@h", household)));
         Assert.Contains(result.Resolutions, r => r.Subject == "Household" && r.Choice == "TookSource");
     }
+
+    [Fact]
+    public async Task MRG1_a_merge_with_identity_differences_keeps_the_survivors_name_and_birth_date_and_its_unique_key()
+    {
+        // ALV-N025 (Q-5cb, owner decision MRG-1): name and date of birth are never merge choices, so the unique name-and-birth-date key is never violated
+        var kept = await S.PatientAsync("Jon", "Marsh");
+        var gone = await S.PatientAsync("John", "Marsh");                                                 // another first name and (from the helper) another birth date
+        Patient before;
+        await using (var db = Fixture.CreateContext()) before = await db.Patients.AsNoTracking().SingleAsync(p => p.Id == kept);
+        var preview = await WithService(s => s.PreviewAsync(gone, kept, default));
+        Assert.DoesNotContain(preview.Conflicts, c => c.Field is "FirstName" or "LastName" or "DateOfBirth");
+
+        await MergeAsync(gone, kept, choices: preview.Conflicts.ToDictionary(c => c.Field, _ => "Survivor"), identityOk: true);
+
+        await using var check = Fixture.CreateContext();
+        var after = await check.Patients.AsNoTracking().SingleAsync(p => p.Id == kept);
+        Assert.Equal((before.FirstName, before.LastName, before.DateOfBirth, before.DuplicateKey), (after.FirstName, after.LastName, after.DateOfBirth, after.DuplicateKey));
+        Assert.NotNull((await check.Patients.AsNoTracking().SingleAsync(p => p.Id == gone)).MergedAtUtc);
+    }
 }

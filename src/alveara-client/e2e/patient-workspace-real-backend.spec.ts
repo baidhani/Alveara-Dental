@@ -280,18 +280,18 @@ test("INVALID RELATIONSHIPS are refused with the server's reason shown next to t
   await expect(desk.getByTestId("current-guarantor")).toContainText("responsible for themselves");
 
   // a guarantor of others cannot be inactivated
-  desk.once("dialog", (d) => d.accept());
   await desk.goto(`/patients/${ids.gus}`);
   await desk.getByRole("button", { name: "Inactivate patient" }).click();
+  await desk.getByRole("alertdialog").getByRole("button", { name: "Inactivate patient" }).click();   // ALV-N025 (F-042): the app's own dialog
   await expect(desk.getByRole("alert")).toContainText("guarantor for 1 active patient");
   await expect(header(desk)).not.toContainText("Inactive");
   evidence.invalidRelationships = ["guarantor_with_own_guarantor_refused", "guarantor_in_use_inactivation_refused"];
 });
 
 test("ACTIVE/INACTIVE: an inactivated patient is kept, hidden from default search, flagged in the header, and can be reactivated", async () => {
-  desk.once("dialog", (d) => d.accept());
   await desk.goto(`/patients/${ids.ann}`);
   await desk.getByRole("button", { name: "Inactivate patient" }).click();
+  await desk.getByRole("alertdialog").getByRole("button", { name: "Inactivate patient" }).click();   // ALV-N025 (F-042): the app's own dialog
   await expect(header(desk)).toContainText("Inactive");
 
   // later edits do not reactivate them

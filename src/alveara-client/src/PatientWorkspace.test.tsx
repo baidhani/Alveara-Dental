@@ -202,14 +202,19 @@ describe("editing a patient", () => {
   });
 
   it("inactivating asks first, keeps the record, and the header then shows Inactive; reactivating restores it", async () => {
-    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
+    const confirm = vi.spyOn(window, "confirm");                                                      // ALV-N025 (F-042): asked in the page, never by the browser
     open(`/patients/${A}`);
-    const button = await screen.findByRole("button", { name: "Inactivate patient" });
 
-    await userEvent.click(button); // declined
+    await userEvent.click(await screen.findByRole("button", { name: "Inactivate patient" }));
+    let dialog = screen.getByRole("alertdialog", { name: "Inactivate Ann Lee?" });
+    expect(within(dialog).getByRole("button", { name: "Keep active" })).toHaveFocus();
+    await userEvent.click(within(dialog).getByRole("button", { name: "Keep active" }));                // declined
     expect(server.callsTo("PUT", `/api/patients/${A}/active`)).toHaveLength(0);
 
-    await userEvent.click(button); // confirmed
+    await userEvent.click(screen.getByRole("button", { name: "Inactivate patient" }));
+    dialog = screen.getByRole("alertdialog", { name: "Inactivate Ann Lee?" });
+    await userEvent.click(within(dialog).getByRole("button", { name: "Inactivate patient" }));         // confirmed
+    expect(confirm).not.toHaveBeenCalled();
     await waitFor(() => expect(within(header()).getByText("Inactive")).toBeInTheDocument());
     expect(server.callsTo("PUT", `/api/patients/${A}/active`)[0].body).toMatchObject({ isActive: false, rowVersion: "v1" });
     expect(server.patients.has(A)).toBe(true);
@@ -220,11 +225,11 @@ describe("editing a patient", () => {
   });
 
   it("shows why a guarantor cannot be inactivated", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     server.fail(`PUT /api/patients/${A}/active`, json(409, { error: "guarantor_in_use", message: "This patient is the guarantor for 1 active patient. Give them another guarantor before inactivating." }));
     open(`/patients/${A}`);
 
     await userEvent.click(await screen.findByRole("button", { name: "Inactivate patient" }));
+    await userEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Inactivate patient" }));   // ALV-N025 (F-042)
 
     expect(await screen.findByRole("alert")).toHaveTextContent("guarantor for 1 active patient");
     expect(within(header()).queryByText("Inactive")).not.toBeInTheDocument();

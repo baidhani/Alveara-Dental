@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ConfirmInline } from "../components/ConfirmInline";
 import { Button } from "../components/Button";
 import { ConcurrencyConflictBanner } from "../components/ConcurrencyConflictBanner";
 import { PatientPicker } from "../components/PatientPicker";
@@ -68,10 +69,13 @@ export function HouseholdGuarantorPanel({ patient, onChanged }: { patient: Patie
       setHouseholdError, "Added to the household.", () => { setNewMember(null); setMemberRelationship(""); }
     );
 
-  const leaveHousehold = () =>
-    window.confirm(`Remove ${displayName(patient)} from this household? Their record is not changed otherwise.`)
-      ? run(() => setHousehold(patient.id, null, null, patient.rowVersion), setHouseholdError, "Removed from the household.")
-      : undefined;
+  // ALV-N025 (F-042): asked in the page, not by the browser; (F-202) a household left with one member is dissolved, and the question says so
+  const [confirmingLeave, setConfirmingLeave] = useState(false);
+  const leaveHousehold = () => setConfirmingLeave(true);
+  const answerLeave = (ok: boolean) => {
+    setConfirmingLeave(false);
+    if (ok) void run(() => setHousehold(patient.id, null, null, patient.rowVersion), setHouseholdError, "Removed from the household.");
+  };
 
   const saveOwnRelationship = () =>
     run(() => setHousehold(patient.id, otherMembers[0].id, ownRelationship, patient.rowVersion), setHouseholdError, "Relationship saved.");
@@ -188,12 +192,24 @@ export function HouseholdGuarantorPanel({ patient, onChanged }: { patient: Patie
               <Button type="button" variant="primary" disabled={!newMember || !memberRelationship || busy} onClick={addMember}>
                 Add to household
               </Button>
-              {household && (
+              {household && !confirmingLeave && (
                 <Button type="button" variant="danger" disabled={busy} onClick={leaveHousehold}>
                   Remove {patient.firstName} from household
                 </Button>
               )}
             </div>
+            {confirmingLeave && (
+              <ConfirmInline
+                title={`Remove ${displayName(patient)} from this household?`}
+                message={otherMembers.length === 1
+                  ? "Their record is not changed otherwise. The household would then have one member, so it is dissolved and that member is no longer in a household."
+                  : "Their record is not changed otherwise."}
+                confirmLabel="Remove from household"
+                cancelLabel="Keep in household"
+                busy={busy}
+                onAnswer={answerLeave}
+              />
+            )}
             {householdError && <p className="alv-form-field__error" role="alert">{householdError}</p>}
           </div>
         )}

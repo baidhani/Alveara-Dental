@@ -137,9 +137,11 @@ export const getMappingSuggestion = (id: string, signal?: AbortSignal) => reques
 export const saveMapping = (id: string, mapping: Record<string, string | null>) => requestWithCsrf<MappingSuggestion>(`${BASE}/${id}/mapping`, "PUT", { mapping });
 export const runDryRun = (id: string) => requestWithCsrf<DryRunResult>(`${BASE}/${id}/dry-run`, "POST");
 
-export function listRows(id: string, options: { status?: RowStatus; after?: number; limit?: number }, signal?: AbortSignal) {
+/** ALV-N025 (F-144): `status` may be one status or several (sent comma separated); none = every row. */
+export function listRows(id: string, options: { status?: RowStatus | RowStatus[]; after?: number; limit?: number }, signal?: AbortSignal) {
   const query = new URLSearchParams();
-  if (options.status) query.set("status", options.status);
+  const statuses = Array.isArray(options.status) ? options.status : options.status ? [options.status] : [];
+  if (statuses.length > 0) query.set("status", statuses.join(","));
   if (options.after) query.set("after", String(options.after));
   if (options.limit) query.set("limit", String(options.limit));
   return request<ImportRow[]>(`${BASE}/${id}/rows?${query}`, { signal });

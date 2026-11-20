@@ -6,14 +6,16 @@ import type { ImportRow, RowStatus } from "../../services/bulkImportApi";
 import { reasonText } from "./importFormat";
 
 const PAGE = 50;
-const FILTERS: (RowStatus | "")[] = ["", "Valid", "Rejected", "Unresolved", "Skipped", "Accepted"];
+const FILTERS: RowStatus[] = ["Valid", "Rejected", "Unresolved", "Skipped", "Accepted"];
 
 /**
  * What the dry-run (or the commit) decided about each row, a page at a time and filterable by status. A row shows its status and the reason in words, and a rejected row lists each field with the front desk's own
  * fixed message; nothing from the file is repeated. `refreshKey` changes whenever the batch does, so the table never shows results from an older dry-run.
  */
 export function ImportRowsTable({ batchId }: { batchId: string }) {
-  const [filter, setFilter] = useState<RowStatus | "">("");
+  // ALV-N025 (F-144): several statuses at once (for example Rejected and Unresolved together); none ticked = all rows
+  const [filter, setFilter] = useState<RowStatus[]>([]);
+  const filterKey = filter.join(",");
   const [rows, setRows] = useState<ImportRow[] | null>(null);
   const [more, setMore] = useState(false);
   const [failed, setFailed] = useState<string | null>(null);
@@ -21,17 +23,18 @@ export function ImportRowsTable({ batchId }: { batchId: string }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    listRows(batchId, { status: filter || undefined, limit: PAGE }, controller.signal)
+    listRows(batchId, { status: filter, limit: PAGE }, controller.signal)
       .then((page) => { setRows(page); setMore(page.length === PAGE); })
       .catch((e) => { if (!wasCancelled(e)) setFailed(importErrorMessage(e)); });
     return () => controller.abort();
-  }, [batchId, filter]);                                                                // the parent keys this table by the batch's state, so new results remount it
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the filter's content (filterKey), not the array's identity, decides a reload
+  }, [batchId, filterKey]);                                                                // the parent keys this table by the batch's state, so new results remount it
 
   const loadMore = async () => {
     if (!rows?.length) return;
     setLoadingMore(true);
     try {
-      const page = await listRows(batchId, { status: filter || undefined, limit: PAGE, after: rows[rows.length - 1].rowNumber });
+      const page = await listRows(batchId, { status: filter, limit: PAGE, after: rows[rows.length - 1].rowNumber });
       setRows([...rows, ...page]); setMore(page.length === PAGE);
     } catch (e) {
       setFailed(importErrorMessage(e));
@@ -44,13 +47,20 @@ export function ImportRowsTable({ batchId }: { batchId: string }) {
     <div className="alv-import__rows">
       <div className="alv-fu-toolbar">
         <h3>Row results</h3>
-        <label>Show <select value={filter} onChange={(e) => { setRows(null); setFailed(null); setFilter(e.target.value as RowStatus | ""); }}>
-          {FILTERS.map((f) => <option key={f} value={f}>{f || "All rows"}</option>)}
-        </select></label>
+        <fieldset className="alv-import__filter">
+          <legend>Show (none ticked: all rows)</legend>
+          {FILTERS.map((f) => (
+            <label key={f}>
+              <input type="checkbox" checked={filter.includes(f)}
+                onChange={(e) => { setRows(null); setFailed(null); setFilter(e.target.checked ? FILTERS.filter((x) => x === f || filter.includes(x)) : filter.filter((x) => x !== f)); }} />
+              {f}
+            </label>
+          ))}
+        </fieldset>
       </div>
       {failed && <ErrorState title="Could not load the row results" description={failed} />}
       {!rows && !failed && <LoadingState label="Loading the row results…" />}
-      {rows?.length === 0 && <p>No rows with this status.</p>}
+      {rows?.length === 0 && <p>{filter.length === 0 ? "No rows." : "No rows with these statuses."}</p>}
       {!!rows?.length && (
         <table className="alv-fu-table">
           <caption className="alv-fu-sr">Row results</caption>
