@@ -91,7 +91,7 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         OpenedDocument opened;
         try
         {
-            opened = await library.OpenAsync(documentId, Actor, ct);
+            opened = await library.OpenAsync(documentId, Actor, ct, download);   // ALV-N025 (DOC-1): a download is also logged on the patient
         }
         catch (DocumentException ex)
         {

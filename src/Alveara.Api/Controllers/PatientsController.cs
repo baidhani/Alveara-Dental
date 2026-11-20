@@ -17,6 +17,8 @@ public record UpdatePatientRequest(
     public PatientFields Fields => new(FirstName, MiddleName, LastName, DateOfBirth, Sex, Phone, Email, AddressLine1, AddressLine2, City, State, PostalCode, Country);
 }
 public record SetPatientActiveRequest(bool IsActive, string? RowVersion);
+/// <summary>ALV-N025 (OQ-1): a print request from an in-application Print button.</summary>
+public record PrintEventRequest(string? MaterialType, Guid? ResourceId);
 public record SaveRegistrationSettingsRequest(bool RequireEmail, bool RequireSex, string? RowVersion);
 public record SetGuarantorRequest(Guid? GuarantorPatientId, string? RowVersion);
 public record SetHouseholdRequest(Guid? AnchorPatientId, string? Relationship, string? RowVersion);
@@ -33,7 +35,7 @@ public record SetHouseholdRequest(Guid? AnchorPatientId, string? Relationship, s
 [Authorize]
 public class PatientsController(
     PatientRegistrationService registration, PatientEditService edits, PatientRelationshipService relationships, PatientDirectory directory,
-    PatientRegistrationSettingsService requirements) : ControllerBase
+    PatientRegistrationSettingsService requirements, Alveara.Api.Data.AlveraDbContext db) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -115,6 +117,8 @@ public class PatientsController(
         {
             var detail = await directory.GetDetailAsync(id, ct);
             if (detail is null) return NotFound(new { error = "patient_not_found" });
+            // ALV-N025 (PD-20): the workspace load is the one read that records an open - once per patient per session (SES-2: each open for a cookie without a sid)
+            await new Alveara.Api.Architecture.Auditing.PatientAccessRecorder(db).RecordOpenAsync(id, Actor, SessionCookies.SessionIdOf(User), DateTimeOffset.UtcNow, ct);
             var p = detail.Patient;
             return Ok(new
             {
@@ -156,4 +160,15 @@ public class PatientsController(
     [RequireCsrfToken]
     public Task<IActionResult> SetHousehold(Guid id, [FromBody] SetHouseholdRequest request, CancellationToken ct) =>
         Run(async () => Ok(Dto(await relationships.SetHouseholdAsync(id, request.AnchorPatientId, request.Relationship, request.RowVersion, Actor, ct))));
+
+    /// <summary>ALV-N025 (OQ-1): records that an in-application Print button was used for this patient's material (the request, not the paper). 204; 400/404 as stated.</summary>
+    [HttpPost("{id:guid}/print-events")]
+    [RequirePermission(Permission.ViewPatientRecords)]
+    [RequireCsrfToken]
+    public Task<IActionResult> RecordPrint(Guid id, [FromBody] PrintEventRequest request, CancellationToken ct) =>
+        Run(async () =>
+        {
+            await new Alveara.Api.Architecture.Auditing.PatientAccessRecorder(db).RecordPrintAsync(id, request.MaterialType, request.ResourceId, Actor, DateTimeOffset.UtcNow, ct);
+            return NoContent();
+        });
 }

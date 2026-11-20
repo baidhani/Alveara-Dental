@@ -43,7 +43,9 @@ describe("AuditLogPage keyboard access to the scrollable table", () => {
     render(<AuditLogPage />);
     const region = await screen.findByRole("region", { name: "Audit log entries (scrollable table)" });
 
-    // ALV-N025 (F-150): the filter controls come first; the table region is still reached by Tab, right after them
+    // ALV-N025 (F-150): the access-trail help comes first, then the filter controls; the table region is still reached by Tab, right after them
+    await userEvent.tab();
+    expect(screen.getByText("What the patient-access trail records")).toHaveFocus();
     for (const name of ["Event", "From", "To"]) {
       await userEvent.tab();
       expect(screen.getByLabelText(name)).toHaveFocus();

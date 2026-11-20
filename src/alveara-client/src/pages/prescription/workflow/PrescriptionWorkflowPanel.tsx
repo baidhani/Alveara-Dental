@@ -115,7 +115,7 @@ export function PrescriptionWorkflowPanel({ patient, canPrescribe = false }: Pro
         </>
       )}
 
-      {printing && <PrintPreview key={printing} prescriptionId={printing} onClose={() => setPrinting(null)} />}
+      {printing && <PrintPreview key={printing} prescriptionId={printing} patientId={patient.id} onClose={() => setPrinting(null)} />}
 
       <h3>Finalized prescriptions</h3>
       <PrescriptionRecordList records={records} canPrescribe={canPrescribe} onPrint={(id) => { setComposing(null); setPrinting(id); }} onAmend={(id) => void amend(id)} onEnd={end} />

@@ -37,7 +37,8 @@ public record AdminUserSummary(Guid Id, string Username, string Role, bool IsDis
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db, IEffectivePermissions permissions, IPracticeClock clock) : ControllerBase
+public class AuthController(AccountService accountService, IConfiguration configuration, AlveraDbContext db, IEffectivePermissions permissions, IPracticeClock clock,
+    ILogger<Alveara.Api.Architecture.Auditing.AuditSessionStore> sessionLogger) : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("AuthAttempts")]
@@ -151,8 +152,12 @@ public class AuthController(AccountService accountService, IConfiguration config
     [HttpPost("logout")]
     [Authorize]
     [RequireCsrfToken]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
     {
+        // ALV-N025 (BR-01): close this session's lifecycle row and write UserSignedOut - only if this sign-out closed it (a repeat, a race with the expiry pass,
+        // a cookie from before the release without a sid (SES-2) or a session whose row could not be written (SES-1) writes nothing)
+        if (SessionCookies.SessionIdOf(User) is { } sid && Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            await new Alveara.Api.Architecture.Auditing.AuditSessionStore(db, sessionLogger).SignOutAsync(sid, userId, DateTimeOffset.UtcNow, cancellationToken);
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok();
     }
@@ -470,20 +475,6 @@ public class AuthController(AccountService accountService, IConfiguration config
 
     // ---------- helpers ----------
 
-    private async Task SignInAsync(Alveara.Api.Architecture.Identity.UserAccount account)
-    {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, account.Id.ToString()),
-            new Claim(ClaimTypes.Name, account.Username),
-            new Claim(ClaimTypes.Role, account.Role.ToString()),
-            new Claim("security_stamp", account.SecurityStamp.ToString()),
-        };
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), new AuthenticationProperties
-        {
-            IsPersistent = false,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(account.SessionTimeoutMinutes),
-        });
-    }
+    /// <summary>Issues the sign-in cookie (and, ALV-N025, its audit-only session row): see <see cref="SessionCookies.IssueAsync"/>.</summary>
+    private Task SignInAsync(Alveara.Api.Architecture.Identity.UserAccount account) => SessionCookies.IssueAsync(HttpContext, account, db, sessionLogger);
 }

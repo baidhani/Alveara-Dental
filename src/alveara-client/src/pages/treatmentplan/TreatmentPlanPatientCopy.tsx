@@ -1,4 +1,5 @@
 import { DEFAULT_NUMBERING, displayTooth } from "../odontogram/toothNumbering";
+import { recordPrint } from "../../services/patientsApi";
 import type { PlanItem, TreatmentPlan } from "../../services/treatmentPlansApi";
 import { groupItems, phaseTitle, phaseWhen } from "./treatmentPlanLayout";
 import { dayOf, formatFee } from "./treatmentPlanRules";
@@ -59,7 +60,7 @@ export function TreatmentPlanPatientCopy({ plan, patientName, onClose }: Props) 
   return (
     <section className="alv-tp__copy" aria-label={`Patient copy of ${plan.title}`}>
       <div className="alv-tp__copy-actions alv-tp__no-print">
-        <button type="button" className="btn btn-primary btn-sm" onClick={() => window.print()}>Print this page</button>
+        <button type="button" className="btn btn-primary btn-sm" onClick={async () => { await recordPrint(plan.patientId, "TreatmentPlanPatientCopy", plan.id); window.print(); }}>Print this page</button>
         <button type="button" className="btn btn-outline-secondary btn-sm" onClick={onClose}>Close patient copy</button>
       </div>
       {practice?.name && (

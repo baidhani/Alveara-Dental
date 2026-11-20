@@ -119,6 +119,10 @@ VALUES ('{Guid.NewGuid()}', 'Rolled', 'Back', '1990-01-01', '555-111-2222', '5 O
         var archive = await ArchiveAsync();
 
         Assert.Equal(51302, SqlOf(await Assert.ThrowsAnyAsync<Exception>(DownAsync)).Number);
+        await using (var check = Fixture.CreateContext())
+            Assert.Contains("20261120011518_AddPatientMrn", await check.Database.GetAppliedMigrationsAsync());   // the MRN migration itself was not rolled back
+        // EF rolls each later migration back in its own transaction, so those went before AddPatientMrn's Down refused; put them back before reading through the model
+        await UpAsync();
 
         Assert.Equal(numbers, await NumbersAsync());                                                         // the column, every number ...
         Assert.Equal(archive, await ArchiveAsync());                                                         // ... and the archive are as they were

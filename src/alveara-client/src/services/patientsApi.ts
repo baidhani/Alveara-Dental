@@ -181,3 +181,17 @@ export function candidatesOf(err: unknown): DuplicateCandidate[] {
 }
 
 export const displayName = (p: { firstName: string; lastName: string }) => `${p.firstName} ${p.lastName}`;
+
+/**
+ * ALV-N025 (OQ-1): records that an in-application Print button was used for a patient's material (the request, not that paper came out), then the caller opens the
+ * browser's print dialog. It NEVER blocks printing: a failure is logged (print_event_failed) and printing goes ahead. Browser printing outside these buttons
+ * (Ctrl+P) is not recorded.
+ */
+export type PrintMaterial = "TreatmentPlanPatientCopy" | "Statement" | "Receipt" | "Prescription" | "ReadableRecord";
+export async function recordPrint(patientId: string, materialType: PrintMaterial, resourceId?: string): Promise<void> {
+  try {
+    await requestWithCsrf<void>(`/api/patients/${patientId}/print-events`, "POST", { materialType, resourceId: resourceId ?? null });
+  } catch (err) {
+    console.warn("print_event_failed", { materialType, error: err instanceof ApiError ? err.code : "network" });
+  }
+}

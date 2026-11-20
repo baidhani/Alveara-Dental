@@ -113,7 +113,9 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
             changes.Select(c => new StatusChangeEntry(c.ToStatus, c.Reason, ClinicalNames.Name(changeNames, c.ByUserId)!, c.AtUtc)).ToList());
     }
 
-    public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, CancellationToken ct)
+    /// <remarks>ALV-N025 (DOC-1): when the file goes out as a download - <paramref name="download"/>, or a type that is never shown inline - the patient-level
+    /// PatientDocumentDownloaded is written in the same transaction as DocumentOpened; inline viewing writes DocumentOpened only.</remarks>
+    public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, CancellationToken ct, bool download = false)
     {
         var row = await FindAsync(documentId, ct);
         var stream = await OpenStoredAsync(row, ct);
@@ -123,6 +125,8 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
             var correlation = Guid.NewGuid();
             await using var transaction = await db.Database.BeginTransactionAsync(ct);
             AuditService.Record(db, "DocumentOpened", "Document", row.Id, actor, "Document opened.", correlationId: correlation);
+            if (download || !InlineTypes.Contains(row.DetectedType))
+                AuditService.Record(db, PatientAccessEvents.DocumentDownloaded, "Patient", row.PatientId, actor, $"Document downloaded (document {row.Id}).", correlationId: correlation);
             await db.SaveChangesAsync(ct);
             db.DocumentEvents.Add(new DocumentEvent
             {

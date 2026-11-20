@@ -634,6 +634,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             await transaction.RollbackAsync(cancellationToken);
             throw new MfaNotEnabledException(); // already confirmed (or replaced again) by a concurrent request
         }
+        await AuditSessionStore.RevokeOpenAsync(db, account.Id, account.Id, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
 
         var oldActiveCodes = db.Set<MfaRecoveryCode>().Where(r => r.UserAccountId == userAccountId && !r.IsPending);
         db.Set<MfaRecoveryCode>().RemoveRange(oldActiveCodes);
@@ -670,6 +671,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                 if (previousRole == Role.Admin && !account.IsDisabled) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
                 account.Role = newRole;
                 BumpSecurityStamp(account);
+                await AuditSessionStore.RevokeOpenAsync(db, account.Id, performedByUserAccountId, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
                 AddAudit(AuditEventTypes.RoleChanged, account.Id, performedByUserAccountId,
                     $"Role changed for '{account.Username}' from {previousRole} to {newRole}.");
                 await db.SaveChangesAsync(cancellationToken);
@@ -699,6 +701,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
                 if (!enabled && account.Role == Role.Admin) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
                 account.IsDisabled = !enabled;
                 BumpSecurityStamp(account);
+                await AuditSessionStore.RevokeOpenAsync(db, account.Id, performedByUserAccountId, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
                 AddAudit(enabled ? AuditEventTypes.AccountEnabled : AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
                     $"Account '{account.Username}' {(enabled ? "enabled" : "disabled")}.{actorNote}");
                 await db.SaveChangesAsync(cancellationToken);
@@ -732,6 +735,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         if (account.Role == Role.Admin) await AdminAvailabilityGuard.EnsureAnotherAsync(db, account.Id, cancellationToken);
         account.IsDisabled = true;
         BumpSecurityStamp(account);
+        await AuditSessionStore.RevokeOpenAsync(db, account.Id, performedByUserAccountId, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
         AddAudit(AuditEventTypes.AccountDisabled, account.Id, performedByUserAccountId,
             $"Account '{account.Username}' disabled because its staff profile '{staffDisplayName}' was inactivated.{actorNote}");
         await db.SaveChangesAsync(cancellationToken);
@@ -826,6 +830,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
         account.FailedLoginAttempts = 0;
         account.LockedOutUntilUtc = null;
         BumpSecurityStamp(account);
+        await AuditSessionStore.RevokeOpenAsync(db, account.Id, account.Id, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
         AddAudit(AuditEventTypes.PasswordReset, account.Id, account.Id, "Password reset completed.");
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
@@ -840,6 +845,7 @@ public class AccountService(AlveraDbContext db, IDataProtectionProvider dataProt
             var account = await LoadLockedAsync(targetUserAccountId, cancellationToken);
             var actorNote = await ApplyTargetRulesAsync(performedByUserAccountId, account, AccountAction.RevokeSessions, cancellationToken);
             BumpSecurityStamp(account);
+            await AuditSessionStore.RevokeOpenAsync(db, account.Id, performedByUserAccountId, DateTimeOffset.UtcNow, cancellationToken);   // ALV-N025 (BR-01): the stamp rotated: open sessions close as Revoked, in this save
             AddAudit(AuditEventTypes.SessionsRevoked, account.Id, performedByUserAccountId, $"All sessions revoked for '{account.Username}'.{actorNote}");
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

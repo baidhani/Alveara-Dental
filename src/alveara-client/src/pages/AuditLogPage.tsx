@@ -63,6 +63,18 @@ export function AuditLogPage() {
         title="Audit log"
         description={`Who did what, and when - the most recent ${AUDIT_LOG_WINDOW} recorded actions of every kind (sign-ins, accounts and permissions, patients, clinical records, billing, documents, reports and more). Entries hold no patient details and cannot be edited or deleted once written.`}
       />
+      {/* ALV-N025 (PD-20, SES-1, SES-2, EXP-2, DOC-1, OQ-1): what the patient-access trail records, and its limits */}
+      <details className="alv-audit-log__help">
+        <summary>What the patient-access trail records</summary>
+        <ul>
+          <li>Opening a patient&apos;s record: once per patient per sign-in session (PatientRecordOpened). Searches and lists are not recorded.</li>
+          <li>Exports: PatientExported (export file), PatientDataPackageExported (data package) and PatientReadableRecordExported (readable record).</li>
+          <li>Document downloads: PatientDocumentDownloaded; viewing a document on screen is DocumentOpened.</li>
+          <li>Printing with the app&apos;s Print buttons: PatientMaterialPrinted - the print request, not that paper came out. Printing from the browser&apos;s own menu (Ctrl+P) is not recorded.</li>
+          <li>Sign-out and session expiry are recorded; expiry is recorded within about a minute after the session&apos;s fixed end time. A revoked session (password change, disabled account, sessions revoked) is recorded as SessionRevoked.</li>
+          <li>Limits: if a session&apos;s record could not be written at sign-in, that session has no sign-out or expiry entry; a session started before this record existed has no sign-out entry and its record opens are each listed.</li>
+        </ul>
+      </details>
 
       <form className="alv-audit-log__filters" aria-label="Filter the audit log" onSubmit={(e) => { e.preventDefault(); apply(); }}>
         <label htmlFor="audit-type">Event

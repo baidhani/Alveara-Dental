@@ -178,6 +178,7 @@ builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.IReminderChannel, 
 builder.Services.AddScoped<Alveara.Api.Architecture.FollowUps.FollowUpReminderService>();
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.FollowUps.FollowUpReminderJobHandler>();   // ALV-009-C01: reminder delivery runs on the durable job queue
 builder.Services.AddHostedService<Alveara.Api.Architecture.FollowUps.FollowUpReminderHostedService>();
+builder.Services.AddHostedService<Alveara.Api.Architecture.Auditing.AuditSessionExpiryHostedService>();   // ALV-N025 (BR-01): the session-expiry pass
 // ALV-009-C01: recall and accepted-treatment tasks, as durable background jobs (ALV-N002)
 builder.Services.AddScoped<Alveara.Api.Architecture.Recall.RecallScheduler>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Recall.UnscheduledTreatmentScheduler>();

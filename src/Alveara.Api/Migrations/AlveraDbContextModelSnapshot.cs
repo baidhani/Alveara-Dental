@@ -22,6 +22,61 @@ namespace Alveara.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Alveara.Api.Architecture.Auditing.AuditSession", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("EndAuditWritten")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("EndKind")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("EndedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("ExpiresAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("IssuedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SessionId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("EndedAtUtc", "ExpiresAtUtc");
+
+                    b.ToTable("AuditSessions");
+                });
+
+            modelBuilder.Entity("Alveara.Api.Architecture.Auditing.PatientRecordOpen", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("FirstOpenedAtUtc")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SessionId", "PatientId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("PatientRecordOpens");
+                });
+
             modelBuilder.Entity("Alveara.Api.Architecture.BackgroundWork.BackgroundJob", b =>
                 {
                     b.Property<Guid>("Id")

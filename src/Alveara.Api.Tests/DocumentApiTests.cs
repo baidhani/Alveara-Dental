@@ -413,4 +413,29 @@ public class DocumentApiTests : IAsyncLifetime
         Assert.NotEmpty(logs);
         Assert.All(logs, l => { Assert.DoesNotContain("okafor", l, StringComparison.OrdinalIgnoreCase); Assert.DoesNotContain("Bitewing", l, StringComparison.OrdinalIgnoreCase); });
     }
+
+    [Fact]
+    public async Task DOC1_viewing_a_file_inline_writes_DocumentOpened_only_and_a_download_also_writes_PatientDocumentDownloaded_on_the_patient()
+    {
+        // ALV-N025 (owner decision DOC-1): the patient-level download event only when the file goes out as an attachment
+        var admin = await _api.SessionAsync("Admin");
+        var doc = Str(await ImportedAsync(admin), "id");
+        async Task<(int Opened, int Downloaded)> CountsAsync()
+        {
+            await using var db = _fixture.CreateContext();
+            return (await db.AuditLogEntries.CountAsync(a => a.EventType == "DocumentOpened" && a.TargetUserAccountId == Guid.Parse(doc)),
+                await db.AuditLogEntries.CountAsync(a => a.EventType == "PatientDocumentDownloaded" && a.TargetUserAccountId == Guid.Parse(_patient)));
+        }
+
+        Assert.Equal(HttpStatusCode.OK, (await admin.Client.GetAsync($"/api/documents/{doc}/content")).StatusCode);          // a PNG is shown inline
+        Assert.Equal((1, 0), await CountsAsync());
+        var download = await admin.Client.GetAsync($"/api/documents/{doc}/content?download=true");
+        Assert.Equal(HttpStatusCode.OK, download.StatusCode);
+        Assert.Equal("attachment", download.Content.Headers.ContentDisposition?.DispositionType);
+        Assert.Equal((2, 1), await CountsAsync());
+        await using var check = _fixture.CreateContext();
+        var e = await check.AuditLogEntries.SingleAsync(a => a.EventType == "PatientDocumentDownloaded");
+        Assert.Equal(("Patient", admin.UserId), (e.EntityType, e.PerformedByUserAccountId));
+        Assert.Contains(doc, e.Details);
+    }
 }

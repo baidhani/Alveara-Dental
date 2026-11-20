@@ -27,7 +27,8 @@ public static class AuditService
         Guid? performedByUserAccountId,
         string details,
         string? reason = null,
-        Guid? correlationId = null)
+        Guid? correlationId = null,
+        DateTimeOffset? timestampUtc = null)   // ALV-N025: an event that happened at a known instant (a session's fixed deadline) carries that instant
     {
         db.AuditLogEntries.Add(new AuditLogEntry
         {
@@ -39,7 +40,7 @@ public static class AuditService
             Details = details,
             Reason = reason,
             CorrelationId = correlationId,
-            TimestampUtc = DateTimeOffset.UtcNow,
+            TimestampUtc = timestampUtc ?? DateTimeOffset.UtcNow,
         });
     }
 }

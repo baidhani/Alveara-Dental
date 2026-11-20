@@ -24,6 +24,8 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<StaffProfile> StaffProfiles => Set<StaffProfile>();
     public DbSet<ProviderProfile> ProviderProfiles => Set<ProviderProfile>();
     public DbSet<AuditLogEntry> AuditLogEntries => Set<AuditLogEntry>();
+    public DbSet<Architecture.Auditing.AuditSession> AuditSessions => Set<Architecture.Auditing.AuditSession>();             // ALV-N025 (PD-20, BR-01)
+    public DbSet<Architecture.Auditing.PatientRecordOpen> PatientRecordOpens => Set<Architecture.Auditing.PatientRecordOpen>(); // ALV-N025 (PD-20)
     public DbSet<MfaRecoveryCode> MfaRecoveryCodes => Set<MfaRecoveryCode>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<BootstrapState> BootstrapStates => Set<BootstrapState>();
@@ -327,6 +329,20 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
 
         // STORY-003: patients are registered, never deleted by the application. The unique DuplicateKey
         // is the database-level guarantee behind "duplicate entry" and concurrent double-registration.
+        // ALV-N025 (PD-20, BR-01): the audit-only session lifecycle and the once-per-session record opens
+        modelBuilder.Entity<Architecture.Auditing.AuditSession>(e =>
+        {
+            e.HasKey(s => s.SessionId);
+            e.Property(s => s.EndKind).HasMaxLength(20);
+            e.HasIndex(s => new { s.EndedAtUtc, s.ExpiresAtUtc });
+            e.HasIndex(s => s.UserId);
+        });
+        modelBuilder.Entity<Architecture.Auditing.PatientRecordOpen>(e =>
+        {
+            e.HasKey(o => new { o.SessionId, o.PatientId });
+            e.HasIndex(o => o.PatientId);
+        });
+
         modelBuilder.Entity<Patient>(e =>
         {
             e.Property(p => p.FirstName).HasMaxLength(80);

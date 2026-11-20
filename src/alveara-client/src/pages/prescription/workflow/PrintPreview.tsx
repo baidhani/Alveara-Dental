@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { recordPrint } from "../../../services/patientsApi";
 import { ApiError } from "../../../services/authApi";
 import { getPrint } from "../../../services/prescriptionWorkflowApi";
 import type { PrintContent } from "../../../services/prescriptionWorkflowApi";
@@ -31,13 +32,13 @@ export function PrescriptionPrint({ content }: { content: PrintContent }) {
   );
 }
 
-interface Props { prescriptionId: string; onClose: () => void }
+interface Props { prescriptionId: string; onClose: () => void; /** ALV-N025 (OQ-1): whose prescription - for the print record */ patientId?: string }
 
 /**
  * ALV-016-C01: the print preview of a finalized prescription. The server builds the content and records that it was prepared (who, when; never the contents); if it cannot, or if the prescription has nothing complete
  * to print, the screen says so and nothing is shown as printable. "Print" opens the browser's print dialog; if that cannot be opened the screen says so rather than appearing to have printed.
  */
-export function PrintPreview({ prescriptionId, onClose }: Props) {
+export function PrintPreview({ prescriptionId, onClose, patientId }: Props) {
   const [content, setContent] = useState<PrintContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -52,7 +53,8 @@ export function PrintPreview({ prescriptionId, onClose }: Props) {
   }, [prescriptionId]);
   useEffect(() => { heading.current?.focus(); }, []);
 
-  function print() {
+  async function print() {
+    if (patientId) await recordPrint(patientId, "Prescription", prescriptionId);   // never blocks printing
     try { window.print(); setNote(null); } catch { setNote("The print dialog could not be opened. Nothing was printed."); }
   }
 
