@@ -35,8 +35,11 @@ public static class PatientExportFormat
 /// <summary>The whole export file.</summary>
 public sealed record PatientExportDocument(string Format, int FormatVersion, Guid ExportId, string ExportedAtUtc, PatientExportSource Source, PatientExportPatient Patient);
 
-/// <summary>Where the record came from. <see cref="SourcePatientId"/> is informational: an import never uses it as an id.</summary>
-public sealed record PatientExportSource(string System, Guid SourcePatientId);
+/// <summary>
+/// Where the record came from. <see cref="SourcePatientId"/> and (ALV-N025, owner decision 2026-11-19: part of the pre-release version-1 contract, required)
+/// <see cref="Mrn"/> are informational: an import never uses either as an id, never reuses or reserves the MRN, and the imported patient gets its own new MRN.
+/// </summary>
+public sealed record PatientExportSource(string System, Guid SourcePatientId, long Mrn);
 
 /// <summary>
 /// The patient's identity and contact fields, exactly the ones registration holds and with its names and text forms (<see cref="PatientFields"/>): the date is <c>yyyy-MM-dd</c>, optional fields may be null.

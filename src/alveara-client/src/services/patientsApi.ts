@@ -26,6 +26,8 @@ export interface RegisterPatientInput {
 
 export interface PatientRecord extends RegisterPatientInput {
   id: string;
+  /** ALV-N025 (PD-21): the 11-digit patient number (MRN); a lookup reference, never identity. */
+  mrn: number;
   createdAtUtc: string;
   isActive?: boolean;
   rowVersion?: string;
@@ -43,6 +45,8 @@ export interface PatientSummary {
   city: string;
   state: string;
   isActive: boolean;
+  /** ALV-N025 (PD-21): the 11-digit patient number (MRN). */
+  mrn: number;
 }
 
 export interface PatientLink {
@@ -57,6 +61,8 @@ export interface HouseholdMember extends PatientLink {
 
 export interface PatientDetail extends RegisterPatientInput {
   id: string;
+  /** ALV-N025 (PD-21): the 11-digit patient number (MRN). */
+  mrn: number;
   age: number;
   createdAtUtc: string;
   updatedAtUtc: string | null;

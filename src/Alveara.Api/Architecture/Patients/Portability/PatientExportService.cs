@@ -28,7 +28,7 @@ public class PatientExportService(AlveraDbContext db, IPracticeClock clock)
         var document = new PatientExportDocument(
             PatientExportFormat.FormatName, PatientExportFormat.CurrentVersion, exportId,
             clock.UtcNow.UtcDateTime.ToString(PatientExportFormat.TimestampFormat),
-            new PatientExportSource(PatientExportFormat.SystemName, patient.Id),
+            new PatientExportSource(PatientExportFormat.SystemName, patient.Id, patient.Mrn),
             new PatientExportPatient(
                 patient.FirstName, patient.MiddleName, patient.LastName, patient.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), patient.Sex,
                 patient.Phone, patient.Email, patient.AddressLine1, patient.AddressLine2, patient.City, patient.State, patient.PostalCode));

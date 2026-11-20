@@ -23,7 +23,7 @@ One UTF-8 JSON document, `application/json`, downloaded as `dentalkeep-patient-<
   "formatVersion": 1,
   "exportId": "3f0c2b3e-8d5a-4a49-9a77-0e3f1f6a7b10",
   "exportedAtUtc": "2026-10-26T14:05:11Z",
-  "source": { "system": "DentalKeep", "sourcePatientId": "b2c1f4a0-0e1d-4a9e-8f3b-52d6a1c9e7aa" },
+  "source": { "system": "DentalKeep", "sourcePatientId": "b2c1f4a0-0e1d-4a9e-8f3b-52d6a1c9e7aa", "mrn": 63898432711 },
   "patient": {
     "firstName": "Ann",
     "middleName": null,
@@ -44,6 +44,7 @@ One UTF-8 JSON document, `application/json`, downloaded as `dentalkeep-patient-<
 - `format` and `formatVersion` identify the document so any reader can tell what it is. A reader that does not know a version must refuse it, not guess.
 - `exportId` is new for every export and is what makes an import repeatable (below). `exportedAtUtc` is the time the export was made.
 - `source.sourcePatientId` is informational (where the record came from); an import never uses it as an id.
+- `source.mrn` (ALV-N025) is the patient's record number (MRN) in the exporting system: required, a whole number of exactly 11 digits, and informational only. An import never uses it as an id and never reuses or reserves it; the imported patient always gets its own new MRN. (The format was not yet released, so this member was added to version 1 itself - owner decision 2026-11-19 - and earlier test files were regenerated; there is no older version-1 shape to read.)
 - `patient` holds exactly the identity and contact fields the registration form holds, with the same names, text forms and limits as the registration rules (`PatientInput`): dates are `yyyy-MM-dd`, optional fields may be `null`.
 - **Not in the file:** user account data, passwords or keys, internal row versions, household and guarantor links (they point at other records in this database), and clinical, financial and document data (those are in the export package, below). A patient who was merged away is not exported (the answer names the record that carries on).
 
@@ -59,7 +60,7 @@ The file is the request body of `POST api/patients/import` (CSRF token required;
 | `format` missing or not `alveara.patient-export` | `wrong_format` |
 | `formatVersion` missing, not a whole number, or not a version this system reads (only 1) | `unsupported_version` |
 | `exportId` missing or not a GUID | `export_id_invalid` |
-| `exportedAtUtc` not a UTC time such as `2026-10-26T14:05:11Z`; `source.sourcePatientId` not a GUID | `exported_at_invalid`, `source_patient_id_invalid` |
+| `exportedAtUtc` not a UTC time such as `2026-10-26T14:05:11Z`; `source.sourcePatientId` not a GUID; `source.mrn` not a whole number of 11 digits | `exported_at_invalid`, `source_patient_id_invalid`, `source_mrn_invalid` |
 | a member missing, unknown, repeated or of the wrong type (at the top, in `source` and in `patient`) | `missing_member`, `unknown_member`, `duplicate_member`, `wrong_type` |
 | any patient field missing or invalid under the registration rules (including the practice's own required fields) | `field_invalid` (one per field, with the field name) |
 

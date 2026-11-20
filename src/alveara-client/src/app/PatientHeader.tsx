@@ -46,6 +46,8 @@ export function PatientHeader() {
         <div className="alv-patient-header" data-testid="patient-header">
           <div className="alv-patient-header__identity">
             <span className="alv-patient-header__name">{displayName(state.patient)}</span>
+            {/* ALV-N025 (PD-21): the patient number, so two people with the same name can be told apart at a glance */}
+            {state.patient.mrn ? <span>MRN {state.patient.mrn}</span> : null}
             <span>
               DOB {state.patient.dateOfBirth} ({state.patient.age} y)
             </span>

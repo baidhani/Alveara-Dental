@@ -54,7 +54,7 @@ export function PatientSearchPage() {
           value={query}
           autoFocus
           autoComplete="off"
-          placeholder="e.g. lee ann, 1985-03-09 or 555-0100"
+          placeholder="e.g. lee ann, 1985-03-09, 555-0100 or an 11-digit MRN"
           onChange={(e) => setQuery(e.target.value)}
         />
         <label className="alv-workspace__checkbox">
@@ -78,6 +78,7 @@ export function PatientSearchPage() {
           <thead>
             <tr>
               <th scope="col">Name</th>
+              <th scope="col">MRN</th>
               <th scope="col">Date of birth</th>
               <th scope="col">Age</th>
               <th scope="col">Phone</th>
@@ -92,6 +93,7 @@ export function PatientSearchPage() {
                     {p.lastName}, {p.firstName}
                   </Link>
                 </td>
+                <td>{p.mrn}</td>
                 <td>{p.dateOfBirth}</td>
                 <td>{p.age}</td>
                 <td>{p.phone}</td>

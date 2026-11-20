@@ -43,7 +43,7 @@ public class PatientsController(
     {
         p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), p.Sex,
         p.Phone, p.Email, p.AddressLine1, p.AddressLine2, p.City, p.State, p.PostalCode, p.CreatedAtUtc,
-        p.IsActive, p.MergedAtUtc, rowVersion = Version(p),
+        p.IsActive, p.MergedAtUtc, rowVersion = Version(p), p.Mrn,   // ALV-N025 (PD-21)
     };
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
@@ -119,7 +119,7 @@ public class PatientsController(
             {
                 p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), age = detail.Age, p.Sex,
                 p.Phone, p.Email, p.AddressLine1, p.AddressLine2, p.City, p.State, p.PostalCode, p.CreatedAtUtc, p.UpdatedAtUtc,
-                p.IsActive, p.MergedAtUtc, rowVersion = Version(p),
+                p.IsActive, p.MergedAtUtc, rowVersion = Version(p), p.Mrn,   // ALV-N025 (PD-21)
                 guarantor = detail.Guarantor, guaranteeFor = detail.GuaranteeFor,
                 household = detail.HouseholdId is null ? null : new { id = detail.HouseholdId, relationship = p.HouseholdRelationship, members = detail.HouseholdMembers },
             });

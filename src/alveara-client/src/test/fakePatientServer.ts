@@ -20,8 +20,10 @@ type Stored = Omit<PatientDetail, "guarantor" | "guaranteeFor" | "household" | "
 export const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
+let nextMrn = 63898430001; // ALV-N025: each fake patient its own 11-digit MRN, as the server gives
 export function makePatient(over: Partial<Stored> & { id: string }): Stored {
   return {
+    mrn: nextMrn++,
     firstName: "Ann", middleName: "", lastName: "Lee", dateOfBirth: "1985-03-09", sex: "Female", phone: "555-010-0100", email: "",
     addressLine1: "1 Main St", addressLine2: "", city: "Austin", state: "TX", postalCode: "78701",
     createdAtUtc: "2026-10-01T12:00:00Z", updatedAtUtc: null, isActive: true, rowVersion: "v1",
@@ -74,7 +76,7 @@ export class FakePatientServer {
     return {
       id: p.id, firstName: p.firstName, middleName: p.middleName, lastName: p.lastName, dateOfBirth: p.dateOfBirth, sex: p.sex,
       phone: p.phone, email: p.email, addressLine1: p.addressLine1, addressLine2: p.addressLine2, city: p.city, state: p.state, postalCode: p.postalCode,
-      createdAtUtc: p.createdAtUtc, updatedAtUtc: p.updatedAtUtc, isActive: p.isActive, mergedAtUtc: p.mergedAtUtc ?? null, rowVersion: `v${p.version}`, age: 40,
+      createdAtUtc: p.createdAtUtc, updatedAtUtc: p.updatedAtUtc, isActive: p.isActive, mergedAtUtc: p.mergedAtUtc ?? null, rowVersion: `v${p.version}`, age: 40, mrn: p.mrn,
       guarantor: this.link(p.guarantorId),
       guaranteeFor: [...this.patients.values()].filter((o) => o.guarantorId === p.id).map((o) => this.link(o.id)!),
       household: p.householdId
@@ -127,7 +129,7 @@ export class FakePatientServer {
       const includeInactive = u.searchParams.get("includeInactive") === "true";
       const rows = [...this.patients.values()]
         .filter((p) => (includeInactive || p.isActive) && (q === "" || `${p.firstName} ${p.lastName}`.toLowerCase().includes(q)))
-        .map((p) => ({ id: p.id, firstName: p.firstName, middleName: null, lastName: p.lastName, dateOfBirth: p.dateOfBirth, age: 40, sex: p.sex, phone: p.phone, city: p.city, state: p.state, isActive: p.isActive }));
+        .map((p) => ({ id: p.id, firstName: p.firstName, middleName: null, lastName: p.lastName, dateOfBirth: p.dateOfBirth, age: 40, sex: p.sex, phone: p.phone, city: p.city, state: p.state, isActive: p.isActive, mrn: p.mrn }));
       return json(200, rows);
     }
     if (method === "GET" && id && !sub) {

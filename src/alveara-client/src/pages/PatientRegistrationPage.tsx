@@ -127,6 +127,7 @@ export function PatientRegistrationPage() {
           <p>
             {registered.firstName} {registered.lastName}, born {registered.dateOfBirth}, is now in the system.
           </p>
+          <p className="alv-patient-reg__id">Patient number (MRN): {registered.mrn}</p>
           <p className="alv-patient-reg__id">Patient ID: {registered.id}</p>
           <div className="alv-patient-reg__done-actions">
             <Button variant="primary" onClick={registerAnother} autoFocus>

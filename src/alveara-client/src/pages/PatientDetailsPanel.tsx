@@ -114,6 +114,7 @@ export function PatientDetailsPanel({ patient, onChanged }: { patient: PatientDe
   return (
     <section aria-labelledby="alv-details-title">
       <h2 id="alv-details-title" className="alv-workspace__section-title">Details</h2>
+      <p className="alv-workspace__note" data-testid="patient-mrn">Patient number (MRN): {patient.mrn}</p>
       {merged && <p className="alv-workspace__note">This record was merged into another and can no longer be changed. Open the record it was merged into to make changes.</p>}
       {!canEdit && !merged && <p className="alv-workspace__note">You can view this patient but not change them.</p>}
       {/* Saved confirmations are inline, announced politely, and use the same text-on-tint treatment as the status badges. */}

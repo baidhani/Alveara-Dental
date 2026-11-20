@@ -23,7 +23,7 @@ public sealed record PatientImportCheck(IReadOnlyList<PatientImportProblem> Prob
 public static class PatientImportValidator
 {
     private static readonly string[] TopMembers = ["format", "formatVersion", "exportId", "exportedAtUtc", "source", "patient"];
-    private static readonly string[] SourceMembers = ["system", "sourcePatientId"];
+    private static readonly string[] SourceMembers = ["system", "sourcePatientId", "mrn"];
     private static readonly string[] PatientMembers =
         ["firstName", "middleName", "lastName", "dateOfBirth", "sex", "phone", "email", "addressLine1", "addressLine2", "city", "state", "postalCode"];
 
@@ -94,6 +94,9 @@ public static class PatientImportValidator
                         problems.Add(new("wrong_type", "source.system", "'source.system' must be text."));
                     if (sourceMembers.TryGetValue("sourcePatientId", out var sourceId) && !(sourceId.ValueKind == JsonValueKind.String && Guid.TryParse(sourceId.GetString(), out _)))
                         problems.Add(new("source_patient_id_invalid", "source.sourcePatientId", "'source.sourcePatientId' must be a GUID."));
+                    // ALV-N025: the source system's MRN - informational only, but it must be a real one: a whole number of exactly 11 digits
+                    if (sourceMembers.TryGetValue("mrn", out var mrn) && !(mrn.ValueKind == JsonValueKind.Number && PatientMrn.IsMrnText(mrn.GetRawText())))
+                        problems.Add(new("source_mrn_invalid", "source.mrn", "'source.mrn' must be a whole number of 11 digits."));
                 }
             }
 

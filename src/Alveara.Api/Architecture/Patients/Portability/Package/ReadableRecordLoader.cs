@@ -26,6 +26,7 @@ public sealed partial class ReadableRecordLoader(AlveraDbContext db, IPracticeCl
         var summary = new List<ReadableFact>
         {
             new("Name", name),
+            new("Patient number (MRN)", patient.Mrn.ToString(Inv)),
             new("Date of birth", patient.DateOfBirth.ToString("yyyy-MM-dd", Inv)),
             new("Sex", Or(patient.Sex)),
             new("Phone", patient.Phone),

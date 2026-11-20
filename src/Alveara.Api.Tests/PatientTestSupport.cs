@@ -20,10 +20,22 @@ public sealed class PatientTestSupport(TestDatabaseFixture fixture)
     public static RegisterPatientRequest Request(string first, string last, string dob, string phone = "(555) 010-0100", string? email = null, Guid[]? acknowledged = null) =>
         new(first, null, last, dob, "Female", phone, email, "1 Main St", null, "Austin", "TX", "78701", acknowledged);
 
-    public async Task<Patient> RegisterAsync(string first, string last, string dob = "1985-03-09", string phone = "(555) 010-0100", string? email = null)
+    /// <summary>
+    /// ALV-N025: with <paramref name="acknowledgeLikely"/>, a likely-duplicate warning (possible_duplicate) is acknowledged with a reason and the registration made,
+    /// as the front desk does for a different person; an exact duplicate is never acknowledged (it cannot be). Off by default: every other caller is unchanged.
+    /// </summary>
+    public async Task<Patient> RegisterAsync(string first, string last, string dob = "1985-03-09", string phone = "(555) 010-0100", string? email = null, bool acknowledgeLikely = false)
     {
+        var request = Request(first, last, dob, phone, email);
+        if (acknowledgeLikely)
+        {
+            await using var check = fixture.CreateContext();
+            var likely = await Registration(check).CheckDuplicatesAsync(request.Fields, default);
+            if (likely.Count > 0 && likely.All(c => !c.Exact))
+                request = request with { AcknowledgedDuplicateIds = likely.Select(c => c.Id).ToArray(), OverrideReason = "Test data: a different person" };
+        }
         await using var db = fixture.CreateContext();
-        var result = await Registration(db).RegisterAsync(Request(first, last, dob, phone, email), $"seed-{Interlocked.Increment(ref _n)}-{Guid.NewGuid():N}", Actor, default);
+        var result = await Registration(db).RegisterAsync(request, $"seed-{Interlocked.Increment(ref _n)}-{Guid.NewGuid():N}", Actor, default);
         return result.Patient;
     }
 

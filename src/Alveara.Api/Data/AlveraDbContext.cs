@@ -353,6 +353,9 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.HasIndex(p => p.HouseholdId);
             e.HasIndex(p => p.GuarantorPatientId);
             e.HasIndex(p => p.DateOfBirth);
+            // ALV-N025 (PD-21): unique and immutable - EF refuses to send a changed MRN, and guard 51298 refuses one sent any other way
+            e.HasIndex(p => p.Mrn).IsUnique().HasDatabaseName(PatientMrn.IndexName);
+            e.Property(p => p.Mrn).Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Throw);
         });
 
         modelBuilder.Entity<PatientRegistrationSettings>(e =>
@@ -650,13 +653,42 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         ThrowIfAuditLogEntryMutationAttempted();
-        return base.SaveChanges(acceptAllChangesOnSuccess);
+        var fresh = PatientMrn.Unassigned(ChangeTracker);
+        if (fresh.Count == 0) return base.SaveChanges(acceptAllChangesOnSuccess);
+        var start = PatientMrn.SecondsOf(DateTimeOffset.UtcNow);
+        PatientMrn.Assign(fresh, start, PatientMrn.Taken(this, start, fresh.Count));
+        for (var attempt = 1; ; attempt++)
+        {
+            try { return base.SaveChanges(acceptAllChangesOnSuccess); }
+            catch (DbUpdateException ex) when (PatientMrn.IsCollision(ex))
+            {
+                if (attempt >= PatientMrn.MaxAttempts) throw PatientMrn.Busy();
+                PatientMrn.StepForward(fresh);
+            }
+        }
     }
 
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// ALV-N025 (PD-21): a patient added without an MRN gets one here - the current second, stepped past the numbers taken - and a unique-index collision with a
+    /// concurrent registration adds one and saves again, at most <see cref="PatientMrn.MaxAttempts"/> times, then <c>503 mrn_busy</c>. Inside a caller's
+    /// transaction EF rolls the failed attempt back to its savepoint, so a retry never leaves half a save behind.
+    /// </summary>
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         ThrowIfAuditLogEntryMutationAttempted();
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        var fresh = PatientMrn.Unassigned(ChangeTracker);
+        if (fresh.Count == 0) return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        var start = PatientMrn.SecondsOf(DateTimeOffset.UtcNow);
+        PatientMrn.Assign(fresh, start, await PatientMrn.TakenAsync(this, start, fresh.Count, cancellationToken));
+        for (var attempt = 1; ; attempt++)
+        {
+            try { return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken); }
+            catch (DbUpdateException ex) when (PatientMrn.IsCollision(ex))
+            {
+                if (attempt >= PatientMrn.MaxAttempts) throw PatientMrn.Busy();
+                PatientMrn.StepForward(fresh);
+            }
+        }
     }
 
     private void ThrowIfAuditLogEntryMutationAttempted()

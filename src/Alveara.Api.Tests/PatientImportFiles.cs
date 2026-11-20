@@ -13,7 +13,7 @@ internal static class PatientImportFiles
     {
         var document = new PatientExportDocument(
             PatientExportFormat.FormatName, PatientExportFormat.CurrentVersion, exportId ?? Guid.NewGuid(), "2026-10-26T14:05:11Z",
-            new PatientExportSource(PatientExportFormat.SystemName, Guid.NewGuid()),
+            new PatientExportSource(PatientExportFormat.SystemName, Guid.NewGuid(), 63898432711),
             new PatientExportPatient(first, null, last, dateOfBirth, "Male", "(555) 010-3344", null, "9 Oak Road", null, "Austin", "TX", "78701"));
         return JsonNode.Parse(JsonSerializer.Serialize(document, PatientExportFormat.JsonOptions))!.AsObject();
     }

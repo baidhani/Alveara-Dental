@@ -5992,6 +5992,9 @@ namespace Alveara.Api.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("nvarchar(80)");
 
+                    b.Property<long>("Mrn")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -6039,6 +6042,10 @@ namespace Alveara.Api.Migrations
                     b.HasIndex("HouseholdId");
 
                     b.HasIndex("LastName");
+
+                    b.HasIndex("Mrn")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Patients_Mrn");
 
                     b.HasIndex("RegistrationKey")
                         .IsUnique()

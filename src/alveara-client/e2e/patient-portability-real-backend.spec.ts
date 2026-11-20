@@ -145,6 +145,7 @@ test("EXPORT: the administrator downloads the patient's file in the documented J
   expect(file.format).toBe("alveara.patient-export");
   expect(file.formatVersion).toBe(1);
   expect(file.source.sourcePatientId).toBe(ids.cy);
+  expect(String(file.source.mrn)).toMatch(/^\d{11}$/);                                              // ALV-N025: the source MRN, informational only
   expect(file.patient).toMatchObject({ firstName: "Cy", lastName: `Moss${stamp}`, dateOfBirth: "1979-06-02", phone: "555-010-0311", city: "Austin", state: "TX", postalCode: "78701", middleName: null, email: null });
   await shot(admin, "01-export.png");
   await scanBothThemes(admin, "export");

@@ -275,6 +275,12 @@ public class PatientMergeSchemaTests : TreatmentPlanTestBase
     {
         var unpatched = await NamesAsync($@"SELECT DISTINCT t.name AS [Value] FROM sys.triggers t JOIN sys.sql_modules m ON m.object_id = t.object_id JOIN sys.trigger_events e ON e.object_id = t.object_id AND e.type = 2
             WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN ({TableList}) AND t.name NOT LIKE 'TR[_]%[_]MergeScope' AND m.definition NOT LIKE N'%alveara.patient_merge%'");
+        // ALV-N025 (owner decision 2026-11-19), the one named exception: TR_Patients_MrnImmutable (51298) only refuses an actual change of an MRN, which a valid merge
+        // never makes, so it never blocks a merge - and it must NOT stand aside, or an MRN would become changeable while a merge is in progress
+        // (MrnTests.The_mrn_guard_holds_inside_a_merge_session proves 51298 with the merge session set; MrnTests.Merge_and_unmerge_keep_both_numbers proves a merge passes).
+        const string MrnGuard = "TR_Patients_MrnImmutable";
+        Assert.Contains(MrnGuard, unpatched);                                                                // present, and without the stand-aside line
+        unpatched.Remove(MrnGuard);
         Assert.Empty(unpatched);                              // a new immutable-record trigger on one of these tables must carry the same line (see the AddPatientMerges migration)
         var patched = await NamesAsync($@"SELECT DISTINCT t.name AS [Value] FROM sys.triggers t JOIN sys.sql_modules m ON m.object_id = t.object_id
             WHERE t.parent_class = 1 AND OBJECT_NAME(t.parent_id) IN ({TableList}) AND t.name NOT LIKE 'TR[_]%[_]MergeScope' AND m.definition LIKE N'%alveara.patient_merge%'");

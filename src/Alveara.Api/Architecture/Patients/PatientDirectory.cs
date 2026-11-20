@@ -5,7 +5,8 @@ using Alveara.Api.Data;
 
 namespace Alveara.Api.Architecture.Patients;
 
-public record PatientSummary(Guid Id, string FirstName, string? MiddleName, string LastName, string DateOfBirth, int Age, string? Sex, string Phone, string City, string State, bool IsActive);
+/// ALV-N025 (PD-21): <c>Mrn</c> is last, so positional callers are unchanged apart from it.
+public record PatientSummary(Guid Id, string FirstName, string? MiddleName, string LastName, string DateOfBirth, int Age, string? Sex, string Phone, string City, string State, bool IsActive, long Mrn);
 public record PatientLink(Guid Id, string DisplayName, bool IsActive);
 public record HouseholdMember(Guid Id, string DisplayName, string? Relationship, bool IsActive);
 public record PatientDetail(
@@ -17,7 +18,8 @@ public record PatientHistoryRow(Guid Id, string ChangedAtUtc, Guid? ChangedByUse
 /// ALV-003-C01: read side - search, the identity summary/detail the shared patient header shows, and edit history.
 /// Searching is bounded (never more than <see cref="MaxResults"/> rows) and understands what front desk actually types:
 /// a birth date (yyyy-MM-dd), a phone number (any formatting; matched on its digits), or name words (each must start a
-/// first, middle or last name). Inactive patients are hidden unless asked for, never lost.
+/// first, middle or last name). Inactive patients are hidden unless asked for, never lost. ALV-N025 (PD-21): exactly 11 digits is first an MRN - that patient
+/// comes first - and then, as before, a phone number.
 /// </summary>
 public class PatientDirectory(AlveraDbContext db, IPracticeClock clock)
 {
@@ -30,6 +32,13 @@ public class PatientDirectory(AlveraDbContext db, IPracticeClock clock)
         if (!includeInactive) patients = patients.Where(p => p.IsActive);
 
         var q = query?.Trim() ?? "";
+        Patient? byMrn = null;
+        if (PatientMrn.IsMrnText(q))
+        {
+            var mrn = long.Parse(q, CultureInfo.InvariantCulture);
+            byMrn = await patients.SingleOrDefaultAsync(p => p.Mrn == mrn, ct);
+        }
+
         if (q.Length > 0)
         {
             if (DateOnly.TryParseExact(q, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dob))
@@ -52,6 +61,7 @@ public class PatientDirectory(AlveraDbContext db, IPracticeClock clock)
         }
 
         var rows = await patients.OrderBy(p => p.LastName).ThenBy(p => p.FirstName).ThenBy(p => p.DateOfBirth).Take(limit).ToListAsync(ct);
+        if (byMrn is not null) rows = rows.Where(p => p.Id != byMrn.Id).Prepend(byMrn).Take(limit).ToList();
         return rows.Select(ToSummary).ToList();
     }
 
@@ -89,7 +99,7 @@ public class PatientDirectory(AlveraDbContext db, IPracticeClock clock)
     }
 
     private PatientSummary ToSummary(Patient p) =>
-        new(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), AgeOn(p.DateOfBirth), p.Sex, p.Phone, p.City, p.State, p.IsActive);
+        new(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), AgeOn(p.DateOfBirth), p.Sex, p.Phone, p.City, p.State, p.IsActive, p.Mrn);
 
     public static string DisplayName(Patient p) => $"{p.FirstName} {p.LastName}";
 

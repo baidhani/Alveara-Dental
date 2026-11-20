@@ -157,8 +157,13 @@ public sealed class SchedulingTestSupport(TestDatabaseFixture fixture)
         return (await Scheduler(db).HistoryAsync(id, default))!;
     }
 
+    /// <summary>
+    /// A generic patient - a different person on every call, with the same phone and address as always. ALV-N025: the same name with another birth date and that
+    /// shared contact detail is now (rightly) a possible duplicate (F-145), so - as the front desk would for a different person - the helper registers anyway with a
+    /// reason. Only a likely-duplicate warning is acknowledged; an exact duplicate is still refused.
+    /// </summary>
     public Task<Guid> PatientAsync(string first = "Ann", string last = "Lee") =>
-        _patients.RegisterAsync(first, last, $"19{80 + _n++ % 19}-0{1 + _n % 9}-1{_n % 9}").ContinueWith(t => t.Result.Id);
+        _patients.RegisterAsync(first, last, $"19{80 + _n++ % 19}-0{1 + _n % 9}-1{_n % 9}", acknowledgeLikely: true).ContinueWith(t => t.Result.Id);
 
     public ScheduleAppointmentRequest Request(Guid patient, DateTime startLocal, Guid? provider = null, Guid? operatory = null, Guid? type = null, int? duration = null) =>
         new(patient, provider ?? ProviderA, operatory ?? Op1, type ?? Long60, startLocal, duration);

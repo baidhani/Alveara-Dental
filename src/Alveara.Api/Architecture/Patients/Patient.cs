@@ -10,6 +10,12 @@ public class Patient
 {
     public Guid Id { get; set; }
 
+    /// <summary>
+    /// ALV-N025 (PD-21): the Medical Record Number - 11 digits, unique, immutable, never reused; a lookup reference, not identity. Given by the context's save
+    /// (<see cref="PatientMrn"/>) when a patient is added with none; 0 only before that first save.
+    /// </summary>
+    public long Mrn { get; set; }
+
     // Demographics
     public required string FirstName { get; set; }
     public string? MiddleName { get; set; }

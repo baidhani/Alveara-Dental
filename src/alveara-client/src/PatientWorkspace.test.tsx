@@ -272,6 +272,19 @@ describe("patient search", () => {
     expect(within(screen.getByRole("table")).getByText("Inactive")).toBeInTheDocument();
   });
 
+  it("ALV-N025 (PD-21): the MRN is in the header, the details and the search results", async () => {
+    server.patients.get(B)!.mrn = 63898432711;
+    open(`/patients/${B}`);
+    await waitFor(() => expect(within(header()).getByText("MRN 63898432711")).toBeInTheDocument());
+    expect(await screen.findByTestId("patient-mrn")).toHaveTextContent("Patient number (MRN): 63898432711");
+
+    open("/patients");
+    const table = await screen.findByRole("table", { name: /Patients, in name order/ });
+    expect(within(table).getByRole("columnheader", { name: "MRN" })).toBeInTheDocument();
+    expect(within(table).getByText("63898432711")).toBeInTheDocument();
+    expect(screen.getByLabelText("Search patients")).toHaveAttribute("placeholder", expect.stringContaining("11-digit MRN"));
+  });
+
   it("says so when nothing matches, and when the search itself fails", async () => {
     open("/patients");
     await userEvent.type(await screen.findByLabelText("Search patients"), "zzz");
