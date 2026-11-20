@@ -1,5 +1,7 @@
 # ALV-N025 — Merge-integrity addendum (U-016, U-017; for independent review)
 
+**Revision 2** answers MERGE-ADDENDUM-R01 (CHANGES_REQUIRED, MA-01): the direct proof that the named MRN exception is absolute during a merge is added to the tests (section 5, item 6a) and the controls (item 7). Nothing else changed.
+
 **Status:** proposed, documents only. **No code for the fourth migration before an independent review approves it** (owner decision, 2026-11-19).
 **Amends:** `ALV-N025_PRE_IMPLEMENTATION_BRIEF.md`, revision 3 (approved in BRIEFING-R03), and the three-migration packaging recorded in its section 6 (owner decision MIG-1). This adds a **fourth forward migration** to ALV-N025.
 **Owner decision (2026-11-19, quoted):** "U-016 and U-017 are merge-integrity regressions, the same family as U-015, and leaving PatientMergeSchemaTests knowingly red would undermine this story's merge work." The full findings are in `docs/stabilization/UNASSIGNED_FINDINGS.md` (U-016, U-017), now assigned to ALV-N025.
@@ -13,7 +15,7 @@ During slice 3's focused run, `PatientMergeSchemaTests` failed two schema-wide r
 
 A read-only query on the dev database at `20261119034014` (the ALV-N024 schema, before any ALV-N025 schema change) showed the same gaps. They are therefore not caused by ALV-N025. `PatientMergeSchemaTests` was not in the focused groups of ALV-N022 A3 or ALV-N024.
 
-The MRN guard `TR_Patients_MrnImmutable` was also named by rule 2. That is handled separately, as a named exception by owner decision (51298 stays absolute), and is **not** part of this addendum.
+The MRN guard `TR_Patients_MrnImmutable` was also named by rule 2. That is handled separately, as a named exception by owner decision MRN-EX (51298 stays absolute), and is **not** repaired by this addendum. Its proof of the boundary is part of this addendum's test plan (MA-01, section 5).
 
 ## 2. U-016: the five columns missing from their merge-scope triggers
 
@@ -72,12 +74,21 @@ The trigger (ALV-N022 A3, error 51288) runs `AFTER INSERT, UPDATE` on `Clearance
    - inside a merge session, an INSERT is still refused (the stand-aside covers only updates).
 4. **U-016, direct SQL, for each of the five columns:** inside a merge session, an UPDATE of the column is refused with 51234. Outside a merge, the column behaves exactly as before the repair: the same statement gives the same outcome before and after.
 5. **Every other rule of each repaired trigger is preserved:** after Up, each repaired trigger's definition equals its pre-migration definition plus exactly the inserted text, with nothing else changed (string comparison of the definitions read before and after). After Down, each definition equals the pre-migration definition exactly.
-6. **`PatientMergeSchemaTests`** passes in full: both schema-wide rules, with the one named MRN exception decided by the owner.
+6. **`PatientMergeSchemaTests`** passes in full: both schema-wide rules, with the one named MRN exception decided by the owner. The rule asserts that `TR_Patients_MrnImmutable` is present among the triggers without the stand-aside line, and removes only that one name before requiring the list to be empty.
+6a. **The named MRN exception is absolute during a merge (MA-01):** `MrnTests.The_mrn_guard_holds_inside_a_merge_session`. Written in slice 3 (wip `82e387e`, passing), and kept in this addendum's focused group:
+    - on one connection it sets `alveara.patient_merge = 1` (`sp_set_session_context`), then tries `UPDATE [Patients] SET [Mrn] = [Mrn] + 1000000` by direct SQL and asserts **exactly 51298**;
+    - `AddPatientMrn` makes 51298 deterministic by setting `TR_Patients_MrnImmutable` to fire first for UPDATE (`sp_settriggerorder`), ahead of the merge-scope term `UPDATE([Mrn])` (51234);
+    - it asserts that the trigger's definition does **not** contain `alveara.patient_merge`;
+    - it asserts that the MRN is unchanged afterwards.
+    
+    **The ordinary valid merge proof is kept:** `MrnTests.Merge_and_unmerge_keep_both_numbers` (a real merge and its undo succeed, and both MRNs are unchanged), so the exception cannot block a normal merge. The new migration does not touch `TR_Patients_MrnImmutable`.
 7. **Controls:**
    - with the U-017 line removed, test 2 must fail;
-   - with one U-016 term removed, its test in 4 and the schema rule must fail.
+   - with one U-016 term removed, its test in 4 and the schema rule must fail;
+   - **MA-01:** with the standard stand-aside line added to `TR_Patients_MrnImmutable`, both 6a and the schema rule's named-exception assertion must fail;
+   - **MA-01:** with the trigger order not set, 6a must still never see the update succeed. It reports which guard answered, so a change of the first-firing guard is visible rather than silent.
 
-Focused groups: `MergeTriggerIntegrityTests`, `PatientMergeSchemaTests`, `PatientUnmergeSchemaTests`, `PatientMergeServiceTests`, `RetiredRecordGuardTests`.
+Focused groups: `MergeTriggerIntegrityTests`, `PatientMergeSchemaTests`, `PatientUnmergeSchemaTests`, `PatientMergeServiceTests`, `RetiredRecordGuardTests`, and `MrnTests` (for 6a and the valid-merge proof).
 
 ## 6. Disclosure
 
