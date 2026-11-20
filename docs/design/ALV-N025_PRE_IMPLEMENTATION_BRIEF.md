@@ -169,13 +169,19 @@ Implements the owner's decision (decision record, quoted in full there).
 - **Not in this story:** printed clinical and billing documents (treatment-plan patient copy, statements, receipts, prescriptions). Adding the MRN to them changes their content, and for statements and receipts their template version. Proposed for ALV-N026 (documents and printing) as OQ-2.
 - **Not identity:** it is a lookup reference; nothing authenticates with it.
 
-## 6. Schema and guards (migration `AddMrnCountryAndPatientAccess`; highest guard in use 51297)
+## 6. Schema and guards (three forward migrations; highest guard in use 51297)
+**Packaging clarification (owner decision, 2026-11-19, before slice 3; implementation packaging only, no product-scope change).** The single migration this section first named (`AddMrnCountryAndPatientAccess`) is replaced by three forward migrations, one per slice, each complete on its own. An applied migration is never edited afterwards. Each migration's Down independently refuses to delete recorded data.
+1. **`AddPatientMrn`** (slice 3): the MRN column, the deterministic backfill, the unique index, guard **51298**; its own guarded Down (**51300**).
+2. **`AddPatientCountry`** (slice 4): the Country column and the practice default-country setting, with their validation support.
+3. **`AddPatientAccessAudit`** (slice 5): `PatientRecordOpens` and `AuditSessions` with guards **51299** and **51301**. Its Down is refused (**51300**, the same "Down refused" code) once any access or session audit row exists; it never deletes them.
+
+The contents, unchanged:
 - `Patients.Mrn bigint` (backfilled, then NOT NULL, unique index); **51298** MRN immutable.
 - `Patients.Country char(2) NOT NULL DEFAULT 'US'`.
 - `PracticeSettings.DefaultCountry char(2) NULL`.
 - `PatientRecordOpens` (SessionId uniqueidentifier, PatientId, UserId, FirstOpenedAtUtc; PK (SessionId, PatientId); append-only **51299**).
 - `AuditSessions` (SessionId PK, UserId, IssuedAtUtc, ExpiresAtUtc, EndedAtUtc NULL, EndKind NULL CHECK IN ('SignedOut','Expired','Revoked'), EndAuditWritten bit; CHECK: EndedAtUtc and EndKind are both null or both set; an index on (EndedAtUtc, ExpiresAtUtc) for the processor); **51301** a closed row and the identifying columns never change; no delete (INSTEAD OF DELETE, 51301).
-- **Down** is refused (**51300**) once any patient was registered after the migration (their MRN would be lost); otherwise it removes the columns and both tables.
+- **Down** of `AddPatientMrn` is refused (**51300**) once any patient was registered after the migration (their MRN would be lost); otherwise it removes the MRN column, index and guard. `AddPatientCountry`'s Down removes only its column and setting. `AddPatientAccessAudit`'s Down is refused (**51300**) once either table holds a row; otherwise it removes both tables and their guards.
 - No change to stored Sex and State values: unmappable ones are surfaced for review (owner), not migrated.
 
 ## 7. Identifiers addressed
@@ -191,7 +197,7 @@ Implements the owner's decision (decision record, quoted in full there).
   - `PatientDuplicateDetectorTests` (the fixtures from the manual data: Carla Chen with 1992 vs 1997, case and spacing, contact matches);
   - `PatientRegistrationOverrideTests` (reason required, ids and reason audited);
   - `MrnTests` (generation, collision step, a concurrent registration race over 20 rounds, the retry cap, guard 51298, backfill determinism and rerun, search precedence, merge and unmerge keep MRNs);
-  - `MrnMigrationTests` (up on a populated clone, Down refused 51300, roll back and forward empty);
+  - `MrnMigrationTests` (up on a populated clone, Down refused 51300, roll back and forward empty); the access-audit migration's Down refused (51300) once a row exists (slice 5);
   - `DemographicsValidationTests` (Sex list, Country, US State list, other-country free text, the review list);
   - `PatientAccessTrailTests` (once per session, repeat writes nothing, a new session writes again, export, sign-out, expiry is written by the audit-session processor at the fixed deadline, independently of any returning cookie (the authoritative expiry proof is `AuditSessionLifecycleTests`), print events with outcome `requested` and no PHI, 51299)
   - `AuditSessionLifecycleTests` (BR-01, with an injected clock):
@@ -223,9 +229,9 @@ Implements the owner's decision (decision record, quoted in full there).
 ## 9. Slices (each committed as wip; code is shown to the owner before any test run)
 1. Actor names and the audit page (S1, S2, C1); observability (S9).
 2. Registration override, the duplicate rule, Not-a-duplicate, the picker (S3, C2, C6).
-3. MRN migration, generation, search and display (S4, C3), after approval of section 5.
-4. Demographics and Country (S5, C4).
-5. The patient-access trail and the session lifecycle (S6), after approval of sections 4 and 4a.
+3. MRN migration (`AddPatientMrn`), generation, search and display (S4, C3), after approval of section 5.
+4. Demographics and Country (S5, C4), migration `AddPatientCountry`.
+5. The patient-access trail and the session lifecycle (S6), migration `AddPatientAccessAudit`, after approval of sections 4 and 4a.
 6. Household, dialogs, imports, merge, the matrix (S7, S8, C5, C7, C8).
 7. Browser spec, controls, sweep, R01.
 
