@@ -152,7 +152,7 @@ test("NOT A DUPLICATE: the administrator can dismiss a suggested pair with a rea
   await admin.getByRole("button", { name: pair }).click();
   await admin.getByRole("button", { name: /^Confirm:/ }).click();
   await expect(admin.getByRole("alert")).toContainText("Write why these are different people");                       // a reason is required
-  await admin.getByLabel(/Why Ann Alder.* are different people/).fill("They are twins");
+  await admin.getByLabel("Reason (required)").fill("They are twins");
   await shot(admin, "01b-dismiss-reason.png");
   await admin.getByRole("button", { name: /^Confirm:/ }).click();
   await expect(admin.getByText(/are no longer suggested/)).toBeVisible();

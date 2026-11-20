@@ -207,6 +207,8 @@ public class ImportPatientDryRunTests(ITestOutputHelper output) : IAsyncLifetime
         {
             Row("Ann", "Rivera", "1950-01-10"), Row("Anne", "Rivera", "1950-01-10", "555-111-1111"), Row("Ann", "Rivera", "1950-01-11"), Row("Bob", "Moss", "1962-03-04", "555-222-2222"),
             Row("Bo", "Mose", "1962-03-04", "555-333-3333"), Row("Zed", "Zane", "1962-03-04", "555-300-3000"), Row("Dan", "Fox", "1990-01-01", "555-444-4444"), Row("Eve", "Zane", "1962-03-04", "555-555-5555", "x@example.test"),
+            // ALV-N025 (F-145, F-210): the same name with another birth date - flagged with a shared email, not without any shared contact detail (the file's address differs)
+            Row("Ann", "Rivera", "1960-01-10", "555-999-0000", "ann@example.test"), Row("Ann", "Rivera", "1970-01-10", "555-888-0000"),
         };
 
         foreach (var probe in probes)

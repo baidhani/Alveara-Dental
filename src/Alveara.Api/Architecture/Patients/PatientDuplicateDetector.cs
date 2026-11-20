@@ -11,15 +11,17 @@ namespace Alveara.Api.Architecture.Patients;
 /// Two strengths:
 /// - EXACT: same normalized name and birth date. This is STORY-003's duplicate rule and the database's unique key, so
 ///   it is refused outright, not overridable (it is the same person by every field the system holds for identity).
-/// - LIKELY: a human should look, but the front desk may proceed. Deliberately NOT included: the same full name with a
-///   different birth date (a parent and child routinely share a name), so STORY-003's behavior for that case is unchanged.
+/// - LIKELY: a human should look, but the front desk may proceed. The same full name with a different birth date ALONE is still not
+///   a match (a parent and child routinely share a name); ALV-N025 (F-145, F-210) adds it only with a matching contact detail (below).
 ///
 /// Likely rules (all deterministic, and ALL require the same birth date - a shared phone, email or surname alone is a normal
 /// family and must not raise a warning; each match names its reason for the comparison panel):
 ///   same birth date and same last name (twins, a typo in the first name);
 ///   same birth date and first name with a last name one or two typos away;
 ///   same birth date and same phone digits;
-///   same birth date and same email.
+///   same birth date and same email;
+///   ALV-N025: DIFFERENT birth date, same first and last name, and the same phone digits, email, or address line 1 with postal code
+///   (<see cref="Merge.PatientMatchRules.DifferentBirthDateReasons"/>, shared with the duplicate scan and the import).
 /// The candidate set is bounded (a database query on birth date, capped) so it stays cheap.
 /// </summary>
 public class PatientDuplicateDetector(AlveraDbContext db)
@@ -36,10 +38,18 @@ public class PatientDuplicateDetector(AlveraDbContext db)
             .Take(CandidateQueryCap)
             .ToListAsync(ct);
 
+        // ALV-N025: the same name with another birth date - a second bounded query, by the stored last name (the comparison then normalizes both names)
+        var namesakes = await db.Patients.AsNoTracking()
+            .Where(p => p.LastName == input.LastName && p.DateOfBirth != input.DateOfBirth && (excludePatientId == null || p.Id != excludePatientId))
+            .Take(CandidateQueryCap)
+            .ToListAsync(ct);
+
         var found = new List<DuplicateCandidate>();
-        foreach (var p in pool)
+        foreach (var p in pool.Concat(namesakes))
         {
-            var (exact, reasons) = Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email);
+            var (exact, reasons) = p.DateOfBirth == input.DateOfBirth
+                ? Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email)
+                : (false, CompareDifferentBirthDate(probe, p.FirstName, p.LastName, p.Phone, p.Email, p.AddressLine1, p.PostalCode));
             if (reasons.Count == 0) continue;
 
             found.Add(new DuplicateCandidate(p.Id, p.FirstName, p.MiddleName, p.LastName, p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), p.Phone, p.Email, p.City, p.State, p.IsActive, reasons, exact));
@@ -73,6 +83,10 @@ public class PatientDuplicateDetector(AlveraDbContext db)
         return (exact, reasons);
     }
 
+    /// <summary>ALV-N025: one registered person with a DIFFERENT birth date - the shared rule; never exact, so the front desk may proceed after reviewing.</summary>
+    internal static List<string> CompareDifferentBirthDate(DuplicateProbe probe, string existingFirst, string existingLast, string existingPhone, string? existingEmail, string? existingLine1, string? existingPostal) =>
+        Merge.PatientMatchRules.DifferentBirthDateReasons(probe.Facts, new Merge.PatientFacts(existingFirst, existingLast, existingPhone, existingEmail, existingLine1, existingPostal)).ToList();
+
     /// <summary>Levenshtein distance between two already-normalized names.</summary>
     internal static int EditDistance(string a, string b)
     {
@@ -90,7 +104,9 @@ public class PatientDuplicateDetector(AlveraDbContext db)
 }
 
 /// <summary>The person being compared, with the values the comparison needs already normalized.</summary>
-internal sealed record DuplicateProbe(string Last, string First, string PhoneDigits, string? Email)
+/// ALV-N025: <c>Facts</c> carries the raw values (with the address) for the different-birth-date rule; it is optional so existing callers are unchanged.
+internal sealed record DuplicateProbe(string Last, string First, string PhoneDigits, string? Email, Merge.PatientFacts Facts = default)
 {
-    public static DuplicateProbe From(CleanPatient input) => new(Patient.NormalizeName(input.LastName), Patient.NormalizeName(input.FirstName), PatientInput.DigitsOf(input.Phone), input.Email);
+    public static DuplicateProbe From(CleanPatient input) => new(Patient.NormalizeName(input.LastName), Patient.NormalizeName(input.FirstName), PatientInput.DigitsOf(input.Phone), input.Email,
+        new Merge.PatientFacts(input.FirstName, input.LastName, input.Phone, input.Email, input.AddressLine1, input.PostalCode));
 }

@@ -242,7 +242,7 @@ public class PatientIdentityApiTests : IAsyncLifetime
         Assert.Equal("possible_duplicate", body.GetProperty("error").GetString());
         Assert.Equal("Ann", body.GetProperty("candidates")[0].GetProperty("firstName").GetString());
 
-        var acknowledged = await desk.SendAsync(Req(HttpMethod.Post, "/api/patients", csrf, twin with { AcknowledgedDuplicateIds = [ann.GetProperty("id").GetGuid()] }, "k-2"));
+        var acknowledged = await desk.SendAsync(Req(HttpMethod.Post, "/api/patients", csrf, twin with { AcknowledgedDuplicateIds = [ann.GetProperty("id").GetGuid()], OverrideReason = "Different person: checked ID" }, "k-2"));
         Assert.Equal(HttpStatusCode.Created, acknowledged.StatusCode);
 
         var exact = await desk.SendAsync(Req(HttpMethod.Post, "/api/patients", csrf, Person("ann", "LEE"), "k-3"));

@@ -59,7 +59,7 @@ public class PatientDuplicateWarningTests : IAsyncLifetime
         var twin = Request("Anna", "Lee", "1985-03-09", phone: "(555) 777-0000");
         var warned = await RefusedAsync(twin);
 
-        var result = await RegisterAsync(twin with { AcknowledgedDuplicateIds = warned.Candidates.Select(c => c.Id).ToArray() }, "k-2");
+        var result = await RegisterAsync(twin with { AcknowledgedDuplicateIds = warned.Candidates.Select(c => c.Id).ToArray(), OverrideReason = "Different person: twin sibling" }, "k-2");
 
         Assert.True(result.Created);
         Assert.Equal(2, await PatientCountAsync());
@@ -68,6 +68,65 @@ public class PatientDuplicateWarningTests : IAsyncLifetime
         await using var db = _fixture.CreateContext();
         var audit = await db.AuditLogEntries.SingleAsync(a => a.TargetUserAccountId == result.Patient.Id);
         Assert.Contains("after reviewing possible duplicates", audit.Details);
+        Assert.Contains(existing.Id.ToString(), audit.Details);                                    // ALV-N025 (D-02a): the acknowledged ids ...
+        Assert.Equal("Different person: twin sibling", audit.Reason);                              // ... and the reason
+        Assert.DoesNotContain("Lee", audit.Details);                                               // still no patient name or contact data
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("   ")]
+    public async Task Registering_anyway_without_a_reason_is_refused_and_nothing_is_registered(string? reason)
+    {
+        await _s.RegisterAsync("Ann", "Lee", "1985-03-09");
+        var twin = Request("Anna", "Lee", "1985-03-09", phone: "(555) 777-0000");
+        var warned = await RefusedAsync(twin);
+
+        var refused = await RefusedAsync(twin with { AcknowledgedDuplicateIds = warned.Candidates.Select(c => c.Id).ToArray(), OverrideReason = reason }, "k-2");
+
+        Assert.Equal(("override_reason_required", 400), (refused.Code, refused.StatusCode));
+        Assert.True(refused.FieldErrors!.ContainsKey("overrideReason"));
+        Assert.Equal(1, await PatientCountAsync());
+    }
+
+    [Fact]
+    public async Task An_overlong_reason_is_refused_and_one_at_the_limit_is_kept()
+    {
+        await _s.RegisterAsync("Ann", "Lee", "1985-03-09");
+        var twin = Request("Anna", "Lee", "1985-03-09", phone: "(555) 777-0000");
+        var ack = (await RefusedAsync(twin)).Candidates.Select(c => c.Id).ToArray();
+
+        var tooLong = await RefusedAsync(twin with { AcknowledgedDuplicateIds = ack, OverrideReason = new string('r', PatientRegistrationService.MaxOverrideReasonLength + 1) }, "k-2");
+        Assert.Equal("override_reason_required", tooLong.Code);
+        Assert.True((await RegisterAsync(twin with { AcknowledgedDuplicateIds = ack, OverrideReason = new string('r', PatientRegistrationService.MaxOverrideReasonLength) }, "k-3")).Created);
+    }
+
+    [Theory]
+    [InlineData("(555) 010-0100", null, "9 Oak Ave", "Same name and phone number, different birth date")]
+    [InlineData("(555) 999-0000", "carla@example.test", "9 Oak Ave", "Same name and email, different birth date")]
+    [InlineData("(555) 999-0000", null, "1 MAIN ST", "Same name and address, different birth date")]
+    public async Task The_same_name_with_a_different_birth_date_and_a_shared_contact_detail_is_warned_never_refused(string phone, string? email, string line1, string reason)
+    {
+        await using (var db = _fixture.CreateContext())
+            await _s.Registration(db).RegisterAsync(Request("Carla", "Chen", "1992-04-02", "(555) 010-0100", "carla@example.test"), "k-seed", _s.Actor, default);
+        var probe = Request("Carla", "Chen", "1997-04-02", phone, email) with { AddressLine1 = line1 };
+
+        var refused = await RefusedAsync(probe);
+
+        Assert.Equal(("possible_duplicate", 409), (refused.Code, refused.StatusCode));               // a warning the desk may pass with a reason, not the exact-duplicate refusal
+        var candidate = Assert.Single(refused.Candidates);
+        Assert.False(candidate.Exact);
+        Assert.Equal([reason], candidate.Reasons);
+        Assert.True((await RegisterAsync(probe with { AcknowledgedDuplicateIds = [candidate.Id], OverrideReason = "Mother and daughter" }, "k-2")).Created);
+    }
+
+    [Fact]
+    public async Task The_same_name_with_a_different_birth_date_and_no_shared_contact_detail_registers_without_a_warning()
+    {
+        await using (var db = _fixture.CreateContext())
+            await _s.Registration(db).RegisterAsync(Request("Carla", "Chen", "1992-04-02", "(555) 010-0100", "carla@example.test"), "k-seed", _s.Actor, default);
+        var result = await RegisterAsync(Request("Carla", "Chen", "1997-04-02", "(555) 999-0000") with { AddressLine1 = "9 Oak Ave" }, "k-2");
+        Assert.True(result.Created);
     }
 
     [Fact]
@@ -84,7 +143,7 @@ public class PatientDuplicateWarningTests : IAsyncLifetime
         var unknown = await RefusedAsync(request with { AcknowledgedDuplicateIds = [Guid.NewGuid()] });
         Assert.Equal("possible_duplicate", unknown.Code);
 
-        Assert.True((await RegisterAsync(request with { AcknowledgedDuplicateIds = [a.Id, b.Id] }, "k-ok")).Created);
+        Assert.True((await RegisterAsync(request with { AcknowledgedDuplicateIds = [a.Id, b.Id], OverrideReason = "Different person: checked ID" }, "k-ok")).Created);
     }
 
     [Fact]
@@ -105,9 +164,15 @@ public class PatientDuplicateWarningTests : IAsyncLifetime
     {
         await _s.RegisterAsync("Ann", "Lee", "1985-03-09", "(555) 010-0100", "family@example.test");
 
-        // STORY-003's father/son case, and a spouse sharing phone + email: all normal families, none a duplicate.
-        Assert.True((await RegisterAsync(Request("Ann", "Lee", "2012-07-21", "(555) 010-0100", "family@example.test"), "k-son")).Created);
+        // A spouse sharing surname, phone, email and address: a normal family, no warning at all.
         Assert.True((await RegisterAsync(Request("Ben", "Lee", "1983-01-15", "(555) 010-0100", "family@example.test"), "k-spouse")).Created);
+        // STORY-003's father/son case: ALV-N025 (F-145, approved brief S3) - the SAME full name with a shared contact detail is now a warning (it may be one person
+        // typed with a wrong year); it is still never refused or merged: the desk registers the son after saying why.
+        var son = Request("Ann", "Lee", "2012-07-21", "(555) 010-0100", "family@example.test");
+        var warned = await RefusedAsync(son, "k-son");
+        Assert.Equal("possible_duplicate", warned.Code);
+        Assert.False(Assert.Single(warned.Candidates).Exact);
+        Assert.True((await RegisterAsync(son with { AcknowledgedDuplicateIds = [warned.Candidates[0].Id], OverrideReason = "Father and son" }, "k-son")).Created);
         Assert.Equal(3, await PatientCountAsync());
     }
 
@@ -142,7 +207,7 @@ public class PatientDuplicateWarningTests : IAsyncLifetime
         await _s.RegisterAsync("Ann", "Lee", "1985-03-09");
         var twin = Request("Anna", "Lee", "1985-03-09", phone: "(555) 777-0000");
         var warned = await RefusedAsync(twin, "k-a");
-        await RegisterAsync(twin with { AcknowledgedDuplicateIds = warned.Candidates.Select(c => c.Id).ToArray() }, "k-b");
+        await RegisterAsync(twin with { AcknowledgedDuplicateIds = warned.Candidates.Select(c => c.Id).ToArray(), OverrideReason = "Different person" }, "k-b");
         await RefusedAsync(Request("Ann", "Lee", "1985-03-09"), "k-c");
 
         await using var db = _fixture.CreateContext();
@@ -166,7 +231,7 @@ public class PatientDuplicateWarningTests : IAsyncLifetime
 
         var outcomes = await Task.WhenAll(Enumerable.Range(0, 8).Select(async i =>
         {
-            try { return (await RegisterAsync(twin with { AcknowledgedDuplicateIds = ack }, $"k-twin-{i}")).Created ? "created" : "replayed"; }
+            try { return (await RegisterAsync(twin with { AcknowledgedDuplicateIds = ack, OverrideReason = "Different person" }, $"k-twin-{i}")).Created ? "created" : "replayed"; }
             catch (PatientRegistrationException ex) { return ex.Code; }
         }));
 

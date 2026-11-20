@@ -51,7 +51,7 @@ export function PatientPicker({ label, excludeIds = [], disabled, selected, onSe
     return (
       <div className="alv-patient-picker">
         <p className="alv-patient-picker__selected" data-testid="picker-selected">
-          <span className="alv-patient-picker__label">{label}:</span> {displayName(selected)} (born {selected.dateOfBirth})
+          <span className="alv-patient-picker__label">{label}:</span> {displayName(selected)} (born {selected.dateOfBirth} · {selected.phone}{selected.city ? ` · ${selected.city}` : ""})
         </p>
         <Button type="button" onClick={() => { onSelect(null); setQuery(""); setResults(null); }} disabled={disabled}>
           Choose someone else
@@ -87,7 +87,7 @@ export function PatientPicker({ label, excludeIds = [], disabled, selected, onSe
           {visible.map((p) => (
             <li key={p.id}>
               <button type="button" className="alv-patient-picker__result" onClick={() => onSelect(p)} disabled={disabled}>
-                {displayName(p)} · born {p.dateOfBirth} · {p.phone}
+                {displayName(p)} · born {p.dateOfBirth} · {p.phone}{p.city ? ` · ${p.city}` : ""}
               </button>
             </li>
           ))}

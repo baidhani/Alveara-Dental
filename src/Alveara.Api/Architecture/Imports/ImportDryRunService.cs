@@ -100,12 +100,12 @@ public class ImportDryRunService(AlveraDbContext db, ImportFileStorage files, IO
         }
 
         var pools = await ImportPatientRows.LoadPoolsAsync(db, valid.Select(v => v.Clean.DateOfBirth).Distinct().ToList(), ct);
+        var namesakes = await ImportPatientRows.LoadNamesakesAsync(db, valid.Select(v => v.Clean.LastName).ToList(), ct);
         var earlier = new Dictionary<DateOnly, List<EarlierRow>>();                       // rows before this one, by birth date, that could still register
         foreach (var (number, clean) in valid)
         {
             var probe = DuplicateProbe.From(clean);
-            var pool = pools.GetValueOrDefault(clean.DateOfBirth) ?? [];
-            var matches = pool.Select(p => (Person: p, Match: PatientDuplicateDetector.Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email))).Where(m => m.Match.Reasons.Count > 0).ToList();
+            var matches = ImportPatientRows.Matches(clean, probe, pools, namesakes);
             var before = earlier.GetValueOrDefault(clean.DateOfBirth) ?? [];
             var fileMatches = before.Select(e => (Row: e, Match: PatientDuplicateDetector.Compare(probe, e.Probe.First, e.Probe.Last, e.Probe.PhoneDigits, e.Probe.Email))).Where(m => m.Match.Reasons.Count > 0).ToList();
 

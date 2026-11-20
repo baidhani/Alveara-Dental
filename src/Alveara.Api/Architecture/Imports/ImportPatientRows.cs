@@ -6,7 +6,8 @@ using Alveara.Api.Data;
 namespace Alveara.Api.Architecture.Imports;
 
 /// <summary>A registered patient, with only what the duplicate comparison needs.</summary>
-internal sealed record ImportExisting(Guid Id, DateOnly DateOfBirth, string FirstName, string LastName, string Phone, string? Email, string? RegistrationKey);
+/// ALV-N025: the address line 1 and postal code feed the different-birth-date rule.
+internal sealed record ImportExisting(Guid Id, DateOnly DateOfBirth, string FirstName, string LastName, string Phone, string? Email, string? RegistrationKey, string? AddressLine1 = null, string? PostalCode = null);
 
 /// <summary>
 /// ALV-018-C02: what the dry-run and the commit share when they read a patient file: the stored file read back and proved to be the uploaded one, a row's cells turned into the front desk's fields through the
@@ -60,10 +61,40 @@ internal static class ImportPatientRows
         foreach (var chunk in dates.Chunk(ChunkSize))
         {
             var found = await db.Patients.AsNoTracking().Where(p => chunk.Contains(p.DateOfBirth)).OrderBy(p => p.Id)
-                .Select(p => new ImportExisting(p.Id, p.DateOfBirth, p.FirstName, p.LastName, p.Phone, p.Email, p.RegistrationKey)).ToListAsync(ct);
+                .Select(p => new ImportExisting(p.Id, p.DateOfBirth, p.FirstName, p.LastName, p.Phone, p.Email, p.RegistrationKey, p.AddressLine1, p.PostalCode)).ToListAsync(ct);
             foreach (var group in found.GroupBy(p => p.DateOfBirth)) pools[group.Key] = group.Take(PoolCap).ToList();
         }
 
         return pools;
+    }
+
+    /// <summary>
+    /// ALV-N025 (F-145, F-210): the registered patients for a set of last names, in groups, keyed by the normalized last name, at most <see cref="PoolCap"/> per name -
+    /// the candidates of the different-birth-date rule (the same bound as the front desk's second query).
+    /// </summary>
+    public static async Task<Dictionary<string, List<ImportExisting>>> LoadNamesakesAsync(AlveraDbContext db, IReadOnlyList<string> lastNames, CancellationToken ct)
+    {
+        var pools = new Dictionary<string, List<ImportExisting>>();
+        foreach (var chunk in lastNames.Distinct(StringComparer.OrdinalIgnoreCase).Chunk(ChunkSize))
+        {
+            var found = await db.Patients.AsNoTracking().Where(p => chunk.Contains(p.LastName)).OrderBy(p => p.Id)
+                .Select(p => new ImportExisting(p.Id, p.DateOfBirth, p.FirstName, p.LastName, p.Phone, p.Email, p.RegistrationKey, p.AddressLine1, p.PostalCode)).ToListAsync(ct);
+            foreach (var group in found.GroupBy(p => Patient.NormalizeName(p.LastName))) pools[group.Key] = group.Take(PoolCap).ToList();
+        }
+
+        return pools;
+    }
+
+    /// <summary>
+    /// The registered patients a row matches, as the dry-run and the commit both judge them: the same-birth-date comparison over the birth-date pool, then (ALV-N025)
+    /// the different-birth-date rule over the namesakes - which is never Exact, so such a row is a likely duplicate for a person to review, never "already registered".
+    /// </summary>
+    public static List<(ImportExisting Person, (bool Exact, List<string> Reasons) Match)> Matches(CleanPatient clean, DuplicateProbe probe,
+        Dictionary<DateOnly, List<ImportExisting>> pools, Dictionary<string, List<ImportExisting>> namesakes)
+    {
+        var same = (pools.GetValueOrDefault(clean.DateOfBirth) ?? []).Select(p => (Person: p, Match: PatientDuplicateDetector.Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email)));
+        var other = (namesakes.GetValueOrDefault(probe.Last) ?? []).Where(p => p.DateOfBirth != clean.DateOfBirth)
+            .Select(p => (Person: p, Match: (Exact: false, Reasons: PatientDuplicateDetector.CompareDifferentBirthDate(probe, p.FirstName, p.LastName, p.Phone, p.Email, p.AddressLine1, p.PostalCode))));
+        return same.Concat(other).Where(m => m.Match.Reasons.Count > 0).ToList();
     }
 }

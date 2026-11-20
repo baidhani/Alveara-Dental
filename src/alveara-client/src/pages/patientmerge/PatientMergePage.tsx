@@ -107,8 +107,10 @@ export function PatientMergePage() {
                       <Button type="button" onClick={() => review(p)} aria-label={`Review ${briefName(p.first)} and ${briefName(p.second)}`}>Review</Button>
                       {dismissing === pairKey(p) ? (
                         <>
-                          <label className="alv-fu-sr" htmlFor={`why-${pairKey(p)}`}>Why {briefName(p.first)} and {briefName(p.second)} are different people</label>
-                          <input id={`why-${pairKey(p)}`} className="alv-form-field__input" value={dismissReason} maxLength={REASON_MAX} onChange={(e) => setDismissReason(e.target.value)} autoComplete="off" />
+                          {/* ALV-N025 (F-148): a visible, required reason with one line of instruction */}
+                          <label className="alv-merge__reason-label" htmlFor={`why-${pairKey(p)}`}>Reason (required)</label>
+                          <span id={`why-help-${pairKey(p)}`} className="alv-merge__reason-help">Say how you know {briefName(p.first)} and {briefName(p.second)} are different people, for example “different parents, checked ID”.</span>
+                          <input id={`why-${pairKey(p)}`} className="alv-form-field__input" value={dismissReason} maxLength={REASON_MAX} required aria-describedby={`why-help-${pairKey(p)}`} onChange={(e) => setDismissReason(e.target.value)} autoComplete="off" />
                           <Button type="button" variant="primary" disabled={busy} onClick={() => dismiss(p)} aria-label={`Confirm: ${briefName(p.first)} and ${briefName(p.second)} are not duplicates`}>Confirm</Button>
                           <Button type="button" onClick={() => { setDismissing(null); setDismissReason(""); setError(null); }}>Cancel</Button>
                         </>

@@ -128,12 +128,13 @@ public sealed class ImportCommitEngine(AlveraDbContext db, ImportFileStorage fil
         var keys = valid.Select(v => ImportPatientRows.RegistrationKey(batch.Id, v.Row.RowNumber)).ToList();
         var already = await db.Patients.AsNoTracking().Where(p => p.RegistrationKey != null && keys.Contains(p.RegistrationKey)).Select(p => new { RegistrationKey = p.RegistrationKey!, p.Id }).ToDictionaryAsync(p => p.RegistrationKey, p => p.Id, ct);   // a patient registered at the desk has no key: it can never match a row's key
         var pools = await ImportPatientRows.LoadPoolsAsync(db, valid.Select(v => v.Clean.DateOfBirth).Distinct().ToList(), ct);
+        var namesakes = await ImportPatientRows.LoadNamesakesAsync(db, valid.Select(v => v.Clean.LastName).ToList(), ct);
         foreach (var (row, clean) in valid)
         {
             if (already.TryGetValue(ImportPatientRows.RegistrationKey(batch.Id, row.RowNumber), out var id)) { plans.Add(new Plan(row, Verdict.Replay, clean, null, [id])); continue; }
 
             var probe = DuplicateProbe.From(clean);
-            var matches = (pools.GetValueOrDefault(clean.DateOfBirth) ?? []).Select(p => (Person: p, Match: PatientDuplicateDetector.Compare(probe, p.FirstName, p.LastName, p.Phone, p.Email))).Where(m => m.Match.Reasons.Count > 0).ToList();
+            var matches = ImportPatientRows.Matches(clean, probe, pools, namesakes);
             if (matches.Any(m => m.Match.Exact)) plans.Add(new Plan(row, Verdict.AlreadyRegistered, clean, null, matches.Where(m => m.Match.Exact).Select(m => m.Person.Id).Take(MaxMatched).ToList()));
             else if (matches.Count > 0 && row.Reason != ImportRowReason.ReviewedNewPerson)
                 plans.Add(new Plan(row, Verdict.Likely, clean, null, matches.OrderByDescending(m => m.Match.Reasons.Count).ThenBy(m => m.Person.LastName, StringComparer.OrdinalIgnoreCase).Select(m => m.Person.Id).Take(MaxMatched).ToList()));

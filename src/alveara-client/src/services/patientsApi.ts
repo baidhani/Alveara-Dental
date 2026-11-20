@@ -112,9 +112,10 @@ export const saveRegistrationSettings = (requireEmail: boolean, requireSex: bool
 
 export const HOUSEHOLD_RELATIONSHIPS = ["Self", "Spouse", "Parent", "Child", "Sibling", "Grandparent", "Grandchild", "Other"] as const;
 
-export async function registerPatient(input: RegisterPatientInput, idempotencyKey: string, acknowledgedDuplicateIds?: string[]): Promise<PatientRecord> {
+/** ALV-N025 (D-02a): registering anyway sends the acknowledged ids AND the reason; the server refuses one without the other (override_reason_required). */
+export async function registerPatient(input: RegisterPatientInput, idempotencyKey: string, acknowledgedDuplicateIds?: string[], overrideReason?: string): Promise<PatientRecord> {
   const csrfToken = await fetchCsrfToken();
-  const body = acknowledgedDuplicateIds && acknowledgedDuplicateIds.length > 0 ? { ...input, acknowledgedDuplicateIds } : input;
+  const body = acknowledgedDuplicateIds && acknowledgedDuplicateIds.length > 0 ? { ...input, acknowledgedDuplicateIds, overrideReason } : input;
   return request<PatientRecord>("/api/patients", {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken, "Idempotency-Key": idempotencyKey },

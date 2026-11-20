@@ -4,3 +4,16 @@
  */
 .alv-merge-banner .alv-fu-error a { color: inherit; font-weight: 600; text-decoration: underline; }
 .alv-merge-banner .alv-fu-error a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* ALV-N025 (F-148): the Not-a-duplicate reason is labelled on screen, with one line of instruction */
+.alv-merge__reason-label {
+  display: block;
+  font-weight: 600;
+}
+
+.alv-merge__reason-help {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}

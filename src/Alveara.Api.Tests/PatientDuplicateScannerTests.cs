@@ -85,9 +85,11 @@ public class PatientDuplicateScannerTests : IAsyncLifetime
     [Fact]
     public async Task A_shared_surname_phone_or_email_with_different_birth_dates_is_a_family_and_never_suggested()
     {
+        // ALV-N025 (F-145, F-210) changed one case of this rule: the SAME FIRST AND LAST NAME with a different birth date and a shared contact detail is now a
+        // lower-confidence suggestion (see the different-birth-date tests below). A shared surname, phone or email across birth dates is still a family.
         await AddAsync("Ann", "Lee", Dob, "(555) 010-0100", "family@example.test");
-        await AddAsync("Ann", "Lee", Dob.AddYears(-30), "(555) 010-0100", "family@example.test");     // the same name, phone and email, a parent
-        await AddAsync("Bo", "Lee", Dob.AddDays(1), "(555) 010-0100", "family@example.test");
+        await AddAsync("Bo", "Lee", Dob.AddYears(-30), "(555) 010-0100", "family@example.test");      // the same surname, phone and email, a parent
+        await AddAsync("Cy", "Lee", Dob.AddDays(1), "(555) 010-0100", "family@example.test");
         var result = await ScanAsync();
         Assert.Empty(result.Pairs);
         Assert.Equal(0, result.PatientsConsidered);                                                      // nobody shares a birth date, so nobody is even compared
@@ -165,9 +167,38 @@ public class PatientDuplicateScannerTests : IAsyncLifetime
     {
         await AddAsync("Ann", "Lee", Dob, Phone(1)); await AddAsync("Bo", "Kim", Dob, Phone(2));                                            // one birth date, two unrelated people
         await AddAsync("Ann", "Lee", Dob.AddYears(-30), Phone(3)); await AddAsync("Cy", "Park", Dob.AddYears(-30), Phone(4));              // another, two unrelated people; the two Lee records share a name across the dates
+        await using (var db = _fixture.CreateContext())                                                                                    // ALV-N025: and no contact detail - the address too differs
+            await db.Patients.Where(p => p.Phone == Phone(3)).ExecuteUpdateAsync(u => u.SetProperty(p => p.AddressLine1, "9 Oak Ave"));
         var result = await ScanAsync();
         Assert.Empty(result.Pairs);
         Assert.Equal(4, result.PatientsConsidered);
+    }
+
+    // ---------- ALV-N025 (F-145, F-210): the same name with a different birth date and a shared contact detail ----------
+
+    [Theory]
+    [InlineData("phone", PatientMatchRules.DifferentBirthPhoneReason)]
+    [InlineData("email", PatientMatchRules.DifferentBirthEmailReason)]
+    [InlineData("address", PatientMatchRules.DifferentBirthAddressReason)]
+    public async Task The_same_name_with_a_different_birth_date_and_one_shared_contact_detail_is_a_lower_confidence_suggestion(string shared, string reason)
+    {
+        var a = await AddAsync("Carla", "Chen", new DateOnly(1992, 4, 2), Phone(1), "carla@example.test");
+        var b = await AddAsync("CARLA", "chen", new DateOnly(1997, 4, 2), shared == "phone" ? Phone(1) : Phone(2), shared == "email" ? "Carla@Example.test" : "other@example.test");
+        if (shared != "address")
+            await using (var db = _fixture.CreateContext()) await db.Patients.Where(p => p.Id == b.Id).ExecuteUpdateAsync(u => u.SetProperty(p => p.AddressLine1, "9 Oak Ave"));
+        var pair = Assert.Single((await ScanAsync()).Pairs);
+        Assert.Equal(new[] { a.Id, b.Id }.Order(), new[] { pair.First.Id, pair.Second.Id }.Order());
+        Assert.Equal([reason], pair.Reasons);
+        Assert.True(pair.Score < PatientMatchRules.Score([PatientMatchRules.SameNameReason]));                // below an exact same-birth-date name match
+    }
+
+    [Fact]
+    public async Task The_same_name_with_a_different_birth_date_and_no_shared_contact_detail_is_not_suggested()
+    {
+        await AddAsync("Carla", "Chen", new DateOnly(1992, 4, 2), Phone(1), "carla@example.test");
+        var b = await AddAsync("Carla", "Chen", new DateOnly(1997, 4, 2), Phone(2), "other@example.test");
+        await using (var db = _fixture.CreateContext()) await db.Patients.Where(p => p.Id == b.Id).ExecuteUpdateAsync(u => u.SetProperty(p => p.PostalCode, "78702"));
+        Assert.Empty((await ScanAsync()).Pairs);                                                                                           // same line 1, other postal code: not the same address
     }
 
     [Fact]

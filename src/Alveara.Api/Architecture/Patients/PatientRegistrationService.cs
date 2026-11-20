@@ -10,12 +10,13 @@ namespace Alveara.Api.Architecture.Patients;
 
 /// <summary>
 /// The fields a front-desk user types in, plus (ALV-003-C01) the likely-duplicate candidates the user has looked at and chosen
-/// to register anyway. The extra member is optional and last, so STORY-003's callers are unchanged.
+/// to register anyway. The extra member is optional and last, so STORY-003's callers are unchanged. ALV-N025 (D-02a, F-036): registering
+/// anyway also needs <c>OverrideReason</c> - why this is a different person - which the audit keeps with the acknowledged ids.
 /// </summary>
 public record RegisterPatientRequest(
     string? FirstName, string? MiddleName, string? LastName, string? DateOfBirth, string? Sex,
     string? Phone, string? Email, string? AddressLine1, string? AddressLine2, string? City, string? State, string? PostalCode,
-    Guid[]? AcknowledgedDuplicateIds = null)
+    Guid[]? AcknowledgedDuplicateIds = null, string? OverrideReason = null)
 {
     public PatientFields Fields => new(FirstName, MiddleName, LastName, DateOfBirth, Sex, Phone, Email, AddressLine1, AddressLine2, City, State, PostalCode);
 }
@@ -47,6 +48,7 @@ public class PatientRegistrationService(
     PatientDuplicateDetector? detector = null, IMeasurementEventSink? measurements = null, ILogger<PatientRegistrationService>? logger = null)
 {
     private const int MaxIdempotencyKeyLength = 100;
+    public const int MaxOverrideReasonLength = 500;
     private readonly PatientDuplicateDetector _detector = detector ?? new PatientDuplicateDetector(db);
 
     /// <summary>Candidates for the "check before you create" panel, without registering anything.</summary>
@@ -99,7 +101,19 @@ public class PatientRegistrationService(
                 "These patients may be the same person. Review them, then register anyway only if this is a different person.", 409, candidates: candidates);
         }
 
-        var patient = StagePatient(clean, key, actor, overridden ? "Patient registered after reviewing possible duplicates." : "Patient registered.");
+        // ALV-N025 (D-02a): registering anyway needs a reason (checked only once every candidate is acknowledged, so the 409 with the candidates still comes first);
+        // the details hold the acknowledged patient ids (ids only - no names or contact data), the reason goes in the audit's Reason column
+        var reason = request.OverrideReason?.Trim();
+        if (overridden && string.IsNullOrEmpty(reason))
+            throw new PatientRegistrationException("override_reason_required", "Say why this is a different person before registering anyway.", 400,
+                new Dictionary<string, string> { ["overrideReason"] = "A reason is required to register anyway." });
+        if (overridden && reason!.Length > MaxOverrideReasonLength)
+            throw new PatientRegistrationException("override_reason_required", $"The reason can be at most {MaxOverrideReasonLength} characters.", 400,
+                new Dictionary<string, string> { ["overrideReason"] = $"At most {MaxOverrideReasonLength} characters." });
+
+        var patient = overridden
+            ? StagePatient(clean, key, actor, $"Patient registered after reviewing possible duplicates: {string.Join(", ", candidates.Select(c => c.Id).Order())}.", reason: reason)
+            : StagePatient(clean, key, actor, "Patient registered.");
 
         try
         {
@@ -124,7 +138,7 @@ public class PatientRegistrationService(
     /// job's own receipt). This is the one place a patient row is made from validated fields; <see cref="RegisterAsync"/> and the import both use it. The audit details must never hold patient values; the optional correlation id ties the entry to
     /// the operation that made it (an import batch).
     /// </summary>
-    internal Patient StagePatient(CleanPatient clean, string registrationKey, Guid actor, string auditDetails, Guid? correlationId = null)
+    internal Patient StagePatient(CleanPatient clean, string registrationKey, Guid actor, string auditDetails, Guid? correlationId = null, string? reason = null)
     {
         var patient = new Patient
         {
@@ -140,7 +154,7 @@ public class PatientRegistrationService(
             CreatedAtUtc = clock.UtcNow,
         };
         db.Patients.Add(patient);
-        AuditService.Record(db, PatientAuditEvents.Registered, nameof(Patient), patient.Id, actor, auditDetails, null, correlationId);
+        AuditService.Record(db, PatientAuditEvents.Registered, nameof(Patient), patient.Id, actor, auditDetails, reason, correlationId);
         return patient;
     }
 

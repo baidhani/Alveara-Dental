@@ -37,6 +37,7 @@ export function PatientRegistrationPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<{ message: string; existingId: string | null } | null>(null);
   const [duplicates, setDuplicates] = useState<Duplicates | null>(null);
+  const [reasonError, setReasonError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [registered, setRegistered] = useState<PatientRecord | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -56,15 +57,20 @@ export function PatientRegistrationPage() {
     requestAnimationFrame(() => formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus());
   }
 
-  async function attempt(acknowledged?: string[]) {
+  async function attempt(acknowledged?: string[], reason?: string) {
     setSaving(true);
+    setReasonError(null);
     try {
-      setRegistered(await registerPatient(values, attemptKey.current, acknowledged));
+      setRegistered(await registerPatient(values, attemptKey.current, acknowledged, reason));
       setDuplicates(null);
     } catch (err) {
       const serverFields = fieldErrorsOf(err);
       const candidates = candidatesOf(err);
-      if (Object.keys(serverFields).length > 0) {
+      if (err instanceof ApiError && err.code === "override_reason_required") {
+        // ALV-N025: the reason belongs to the comparison panel, not the form - keep the panel open and say what is wrong there
+        const fields = err.body.fieldErrors as Record<string, unknown> | undefined;
+        setReasonError(typeof fields?.overrideReason === "string" ? fields.overrideReason : err.message);
+      } else if (Object.keys(serverFields).length > 0) {
         setErrors(serverFields);
         setFormError({ message: "Some fields need attention before the patient can be registered.", existingId: null });
         focusFirstInvalid();
@@ -97,10 +103,10 @@ export function PatientRegistrationPage() {
     await attempt();
   }
 
-  function registerAnyway() {
+  function registerAnyway(reason: string) {
     if (saving || !duplicates) return;
     setFormError(null);
-    void attempt(duplicates.candidates.map((c) => c.id));
+    void attempt(duplicates.candidates.map((c) => c.id), reason);
   }
 
   function registerAnother() {
@@ -155,6 +161,7 @@ export function PatientRegistrationPage() {
             blocked={duplicates.blocked}
             busy={saving}
             onRegisterAnyway={registerAnyway}
+            reasonError={reasonError}
             onDismiss={() => {
               setDuplicates(null);
               formRef.current?.querySelector<HTMLElement>("input")?.focus();

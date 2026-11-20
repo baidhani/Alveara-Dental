@@ -173,7 +173,10 @@ describe("pairs dismissed as not a duplicate", () => {
   it("asks why, sends the pair and the reason, says the pair is no longer suggested and lists it with who and why", async () => {
     renderPage();
     await userEvent.click(await screen.findByRole("button", { name: "Ann Lee and Anne Lee are not duplicates" }));
-    await userEvent.type(screen.getByLabelText(/Why Ann Lee and Anne Lee are different people/), "They are twins");
+    const why = screen.getByLabelText("Reason (required)");                                          // ALV-N025 (F-148): a visible label
+    expect(why).toBeRequired();
+    expect(why).toHaveAccessibleDescription(/Ann Lee and Anne Lee are different people/);        // the instruction names the pair
+    await userEvent.type(why, "They are twins");
     await userEvent.click(screen.getByRole("button", { name: /Confirm: Ann Lee and Anne Lee are not duplicates/ }));
     expect(await screen.findByRole("status")).toHaveTextContent("Ann Lee and Anne Lee are no longer suggested.");
     const post = posts().find((c) => c.url.endsWith("/api/patient-merges/dismissals"))!;
@@ -210,7 +213,7 @@ describe("pairs dismissed as not a duplicate", () => {
     reply = (c) => (c.method === "POST" && c.url.endsWith("/api/patient-merges/dismissals") ? err(409, "already_merged") : null);
     renderPage();
     await userEvent.click(await screen.findByRole("button", { name: "Ann Lee and Anne Lee are not duplicates" }));
-    await userEvent.type(screen.getByLabelText(/Why Ann Lee and Anne Lee are different people/), "Twins");
+    await userEvent.type(screen.getByLabelText("Reason (required)"), "Twins");
     await userEvent.click(screen.getByRole("button", { name: /Confirm: Ann Lee and Anne Lee are not duplicates/ }));
     expect(await screen.findByRole("alert")).toHaveTextContent("already been merged");
     expect(screen.getByRole("button", { name: "Review Ann Lee and Anne Lee" })).toBeInTheDocument();

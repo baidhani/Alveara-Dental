@@ -54,3 +54,35 @@
   flex-wrap: wrap;
   margin-top: var(--space-4);
 }
+
+/* ALV-N025 (D-02a): the required reason for registering anyway */
+.alv-duplicates__reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+}
+
+.alv-duplicates__reason label {
+  font-weight: 600;
+}
+
+.alv-duplicates__hint {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.alv-duplicates__reason textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.alv-duplicates__error {
+  margin: 0;
+  color: var(--color-danger);
+}

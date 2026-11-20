@@ -138,6 +138,7 @@ test("DUPLICATE WARNING: a likely duplicate is shown side by side and nothing is
   await scanBothThemes(desk, "duplicate-comparison");
 
   // choose to register anyway: a human decided it is a different person
+  await panel.getByLabel("Why is this a different person? (required)").fill("Different person: checked ID");   // ALV-N025 (D-02a)
   await panel.getByRole("button", { name: /Register anyway/ }).click();
   const done = desk.getByRole("status", { name: "Registration complete" });
   await expect(done).toContainText("Anna Park");

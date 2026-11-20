@@ -66,7 +66,7 @@ describe("household and guarantor editor", () => {
     expect(screen.getByRole("button", { name: "Set guarantor" })).toBeDisabled(); // nobody chosen yet
 
     await pick("Choose a guarantor", "gus", /Gus Hale/);
-    expect(screen.getByTestId("picker-selected")).toHaveTextContent("Gus Hale (born 1950-01-01)");
+    expect(screen.getByTestId("picker-selected")).toHaveTextContent(/^Choose a guarantor: Gus Hale \(born 1950-01-01 · 555-010-0003( · [^)]+)?\)$/);   // ALV-N025 (F-211): enough to tell two people apart
     await userEvent.click(screen.getByRole("button", { name: "Set guarantor" }));
 
     await waitFor(() => expect(server.callsTo("PUT", `/api/patients/${KID}/guarantor`)).toHaveLength(1));

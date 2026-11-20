@@ -155,8 +155,9 @@ public class PatientRegistrationServiceTests : IAsyncLifetime
     [Fact]
     public async Task Different_people_with_the_same_name_but_different_birth_dates_are_both_registered()
     {
+        // ALV-N025 (F-145): a namesake with another birth date is a possible duplicate only when a contact detail matches too - here none does, so both register outright
         await RegisterAsync(Valid(dob: "1985-03-09"), "key-father");
-        await RegisterAsync(Valid(dob: "2012-07-21"), "key-son");
+        await RegisterAsync(Valid(dob: "2012-07-21") with { Phone = "(555) 020-0200", Email = "son@example.test", AddressLine1 = "9 Oak Ave", PostalCode = "78702" }, "key-son");
         Assert.Equal((2, 2), await CountsAsync());
     }
 

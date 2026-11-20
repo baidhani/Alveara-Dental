@@ -75,12 +75,33 @@ describe("duplicate comparison on the registration form", () => {
     await fillTwin(user);
     await user.click(screen.getByRole("button", { name: "Register patient" }));
 
-    await user.click(await screen.findByRole("button", { name: "Register anyway — this is a different person" }));
+    const anyway = await screen.findByRole("button", { name: "Register anyway — this is a different person" });
+    expect(anyway).toBeDisabled();                                                                   // ALV-N025 (D-02a): not without a reason
+    await user.type(screen.getByLabelText("Why is this a different person? (required)"), "   ");
+    expect(anyway).toBeDisabled();                                                                   // blanks are no reason
+    await user.type(screen.getByLabelText("Why is this a different person? (required)"), " Twin sister, checked ID ");
+    await user.click(anyway);
 
     expect(await screen.findByRole("status", { name: "Registration complete" })).toHaveTextContent("Anna Lee");
     expect(calls).toHaveLength(2);
-    expect(calls[1].body).toMatchObject({ firstName: "Anna", acknowledgedDuplicateIds: ["11111111-1111-1111-1111-111111111111", "33333333-3333-3333-3333-333333333333"] });
+    expect(calls[1].body).toMatchObject({ firstName: "Anna", acknowledgedDuplicateIds: ["11111111-1111-1111-1111-111111111111", "33333333-3333-3333-3333-333333333333"], overrideReason: "Twin sister, checked ID" });
     expect(calls[1].headers["Idempotency-Key"]).toBe(calls[0].headers["Idempotency-Key"]);
+  });
+
+  it("a reason the server refuses keeps the comparison open and says why there, not on the form", async () => {
+    mockApi((_c, n) => (n === 1
+      ? json(409, { error: "possible_duplicate", message: "m", candidates: [candidate()] })
+      : json(400, { error: "override_reason_required", message: "Say why this is a different person before registering anyway.", fieldErrors: { overrideReason: "A reason is required to register anyway." } })));
+    const user = userEvent.setup();
+    render(<PatientRegistrationPage />);
+    await fillTwin(user);
+    await user.click(screen.getByRole("button", { name: "Register patient" }));
+    await user.type(await screen.findByLabelText("Why is this a different person? (required)"), "x");
+    await user.click(screen.getByRole("button", { name: "Register anyway — this is a different person" }));
+
+    const panel = await screen.findByRole("region", { name: "These patients may be the same person" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent("A reason is required to register anyway.");
+    expect(screen.queryByText("Some fields need attention before the patient can be registered.")).not.toBeInTheDocument();
   });
 
   it("an exact match is blocked: the existing record is offered and there is no way to register anyway", async () => {
