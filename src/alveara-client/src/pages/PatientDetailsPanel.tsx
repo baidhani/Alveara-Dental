@@ -18,6 +18,7 @@ import "./PatientWorkspace.css";
 const toValues = (p: PatientDetail): PatientValues => ({
   firstName: p.firstName, middleName: p.middleName ?? "", lastName: p.lastName, dateOfBirth: p.dateOfBirth, sex: p.sex ?? "",
   phone: p.phone, email: p.email ?? "", addressLine1: p.addressLine1, addressLine2: p.addressLine2 ?? "", city: p.city, state: p.state, postalCode: p.postalCode,
+  country: p.country ?? "",
 });
 
 /**

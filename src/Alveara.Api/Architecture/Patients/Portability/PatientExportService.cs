@@ -31,7 +31,7 @@ public class PatientExportService(AlveraDbContext db, IPracticeClock clock)
             new PatientExportSource(PatientExportFormat.SystemName, patient.Id, patient.Mrn),
             new PatientExportPatient(
                 patient.FirstName, patient.MiddleName, patient.LastName, patient.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), patient.Sex,
-                patient.Phone, patient.Email, patient.AddressLine1, patient.AddressLine2, patient.City, patient.State, patient.PostalCode));
+                patient.Phone, patient.Email, patient.AddressLine1, patient.AddressLine2, patient.City, patient.State, patient.PostalCode, patient.Country));
         var content = JsonSerializer.SerializeToUtf8Bytes(document, PatientExportFormat.JsonOptions);
 
         AuditService.Record(db, AuditEventTypes.PatientExported, nameof(Patient), patient.Id, actor,

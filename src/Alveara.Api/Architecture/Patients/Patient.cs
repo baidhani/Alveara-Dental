@@ -33,6 +33,9 @@ public class Patient
     public required string State { get; set; }
     public required string PostalCode { get; set; }
 
+    /// <summary>ALV-N025 (F-033): ISO 3166-1 alpha-2, upper case. For "US", <see cref="State"/> holds a postal code of <see cref="Demographics.UsStates"/>.</summary>
+    public string Country { get; set; } = Demographics.UnitedStates;
+
     /// <summary>
     /// Normalized "last|first|date-of-birth" identity key (see <see cref="BuildDuplicateKey"/>). A unique
     /// index on it means two registrations of the same person cannot both succeed even when they race;

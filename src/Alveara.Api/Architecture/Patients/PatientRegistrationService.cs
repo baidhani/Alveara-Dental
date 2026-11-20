@@ -16,9 +16,10 @@ namespace Alveara.Api.Architecture.Patients;
 public record RegisterPatientRequest(
     string? FirstName, string? MiddleName, string? LastName, string? DateOfBirth, string? Sex,
     string? Phone, string? Email, string? AddressLine1, string? AddressLine2, string? City, string? State, string? PostalCode,
-    Guid[]? AcknowledgedDuplicateIds = null, string? OverrideReason = null)
+    Guid[]? AcknowledgedDuplicateIds = null, string? OverrideReason = null, string? Country = null)
 {
-    public PatientFields Fields => new(FirstName, MiddleName, LastName, DateOfBirth, Sex, Phone, Email, AddressLine1, AddressLine2, City, State, PostalCode);
+    /// <summary>ALV-N025 (F-033): <c>Country</c> is optional and last (blank = the practice's default country).</summary>
+    public PatientFields Fields => new(FirstName, MiddleName, LastName, DateOfBirth, Sex, Phone, Email, AddressLine1, AddressLine2, City, State, PostalCode, Country);
 }
 
 /// <summary>A registration was refused (STORY-003's type, kept so its callers and tests are unchanged).</summary>
@@ -147,7 +148,7 @@ public class PatientRegistrationService(
             DateOfBirth = clean.DateOfBirth, Sex = clean.Sex,
             Phone = clean.Phone, Email = clean.Email,
             AddressLine1 = clean.AddressLine1, AddressLine2 = clean.AddressLine2,
-            City = clean.City, State = clean.State, PostalCode = clean.PostalCode,
+            City = clean.City, State = clean.State, PostalCode = clean.PostalCode, Country = clean.Country,
             DuplicateKey = Patient.BuildDuplicateKey(clean.FirstName, clean.LastName, clean.DateOfBirth),
             RegistrationKey = registrationKey,
             CreatedByUserId = actor,

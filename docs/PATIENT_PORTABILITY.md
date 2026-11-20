@@ -36,7 +36,8 @@ One UTF-8 JSON document, `application/json`, downloaded as `dentalkeep-patient-<
     "addressLine2": null,
     "city": "Dallas",
     "state": "TX",
-    "postalCode": "75001"
+    "postalCode": "75001",
+    "country": "US"
   }
 }
 ```
@@ -45,6 +46,7 @@ One UTF-8 JSON document, `application/json`, downloaded as `dentalkeep-patient-<
 - `exportId` is new for every export and is what makes an import repeatable (below). `exportedAtUtc` is the time the export was made.
 - `source.sourcePatientId` is informational (where the record came from); an import never uses it as an id.
 - `source.mrn` (ALV-N025) is the patient's record number (MRN) in the exporting system: required, a whole number of exactly 11 digits, and informational only. An import never uses it as an id and never reuses or reserves it; the imported patient always gets its own new MRN. (The format was not yet released, so this member was added to version 1 itself - owner decision 2026-11-19 - and earlier test files were regenerated; there is no older version-1 shape to read.)
+- `patient.country` (ALV-N025) is the patient's country as an ISO 3166-1 alpha-2 code: required, and it must be a code from the list (a blank or unknown value is refused, `field_invalid`). Added to version 1 itself because the format was not yet released (owner decision DEM-4, 2026-11-19). For `US`, `state` must be a US postal code (state, DC, territory or armed-forces code); elsewhere it is free text.
 - `patient` holds exactly the identity and contact fields the registration form holds, with the same names, text forms and limits as the registration rules (`PatientInput`): dates are `yyyy-MM-dd`, optional fields may be `null`.
 - **Not in the file:** user account data, passwords or keys, internal row versions, household and guarantor links (they point at other records in this database), and clinical, financial and document data (those are in the export package, below). A patient who was merged away is not exported (the answer names the record that carries on).
 

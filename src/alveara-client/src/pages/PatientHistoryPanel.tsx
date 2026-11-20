@@ -8,7 +8,7 @@ import { showInstant } from "../time/practiceTime";
 const FIELD_LABELS: Record<string, string> = {
   firstName: "First name", middleName: "Middle name", lastName: "Last name", dateOfBirth: "Date of birth", sex: "Sex",
   phone: "Phone", email: "Email", addressLine1: "Address", addressLine2: "Address line 2", city: "City", state: "State",
-  postalCode: "Postal code", isActive: "Status", guarantorPatientId: "Guarantor", householdId: "Household", householdRelationship: "Household relationship",
+  postalCode: "Postal code", country: "Country", isActive: "Status", guarantorPatientId: "Guarantor", householdId: "Household", householdRelationship: "Household relationship",
 };
 
 /** Relationship fields hold other patients' ids; the history says THAT they changed, not an opaque id. */
@@ -60,7 +60,11 @@ export function PatientHistoryPanel({ patient }: { patient: PatientDetail }) {
               return (
                 <tr key={r.id}>
                   <td>{showInstant(r.changedAtUtc)}</td>
-                  <td>{FIELD_LABELS[r.fieldName] ?? r.fieldName}</td>
+                  <td>
+                    {FIELD_LABELS[r.fieldName] ?? r.fieldName}
+                    {/* ALV-N025 (DEM-1): a value standardized by the ALV-N025 migration - an automated system change, never a staff member's */}
+                    {r.changeType === "SystemNormalized" && <span className="alv-workspace__note"> (standardized automatically by the system)</span>}
+                  </td>
                   <td>{from}</td>
                   <td>{to}</td>
                 </tr>

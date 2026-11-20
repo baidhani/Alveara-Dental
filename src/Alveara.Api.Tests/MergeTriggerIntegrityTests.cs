@@ -67,6 +67,9 @@ public class MergeTriggerIntegrityTests : BillingTestBase
         catch (SqlException e) { return e.Number; }
     }
 
+    /// <summary>A stored trigger text turned into the ALTER that sets it (the text is the stored one; only its first word changes).</summary>
+    private static string AlterOf(string definition) => definition.StartsWith("CREATE", StringComparison.Ordinal) ? "ALTER" + definition[6..] : definition;
+
     private static int SqlNumber(Exception e)
     {
         for (Exception? x = e; x is not null; x = x.InnerException) if (x is SqlException s) return s.Number;
@@ -121,12 +124,19 @@ public class MergeTriggerIntegrityTests : BillingTestBase
         var document = await DocumentAsync(gone);
         var clearance = await ClearanceAsync(gone, document);
 
-        await MigrateToAsync(BeforeRepair);
-        var failed = await Assert.ThrowsAnyAsync<Exception>(() => MergeAsync(gone, kept));               // the pre-fix evidence: the clearance moves before its document
+        // the pre-fix evidence: TR_Clearances_DocumentSamePatient exactly as it was before the repair - the repair's own Down edit (only the stand-aside line removed;
+        // the definition test proves that is the previous text exactly). Migrating the whole schema back is not possible here: a later migration (AddPatientCountry)
+        // would go too, and today's merge code reads its column.
+        var repaired = (await DefinitionsAsync())["TR_Clearances_DocumentSamePatient"];
+        var preRepair = repaired.Replace("\n    " + Migrations.AddMergeTriggerIntegrityRepairs.StandAsideLine, "");
+        Assert.NotEqual(repaired, preRepair);
+        await OutcomeAsync(AlterOf(preRepair), inMerge: false);
+        var failed = await Assert.ThrowsAnyAsync<Exception>(() => MergeAsync(gone, kept));               // the clearance moves before its document
         Assert.Equal(51288, SqlNumber(failed));
         Assert.Equal((gone, gone), await OwnersAsync(clearance, document));                                 // nothing moved
 
-        await MigrateToAsync(null);
+        Assert.Equal(0, await OutcomeAsync(AlterOf(repaired), inMerge: false));                              // the repaired text again
+        Assert.Equal(AlterOf(repaired), AlterOf((await DefinitionsAsync())["TR_Clearances_DocumentSamePatient"]));   // restored exactly (first word aside)
         var merged = await MergeAsync(gone, kept);
         Assert.Equal((kept, kept), await OwnersAsync(clearance, document));                                 // they move together; VerifyAsync found no disagreement
 

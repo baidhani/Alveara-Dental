@@ -18,7 +18,7 @@ public class PatientExportServiceTests : IAsyncLifetime
 {
     private static readonly string[] TopLevelMembers = ["format", "formatVersion", "exportId", "exportedAtUtc", "source", "patient"];
     private static readonly string[] PatientMembers =
-        ["firstName", "middleName", "lastName", "dateOfBirth", "sex", "phone", "email", "addressLine1", "addressLine2", "city", "state", "postalCode"];
+        ["firstName", "middleName", "lastName", "dateOfBirth", "sex", "phone", "email", "addressLine1", "addressLine2", "city", "state", "postalCode", "country"];   // ALV-N025 (DEM-4): country added
 
     private readonly TestDatabaseFixture _fixture = new();
     private SchedulingTestSupport _s = null!;
@@ -73,6 +73,7 @@ public class PatientExportServiceTests : IAsyncLifetime
         Assert.Equal(patient.City, p.GetProperty("city").GetString());
         Assert.Equal(patient.State, p.GetProperty("state").GetString());
         Assert.Equal(patient.PostalCode, p.GetProperty("postalCode").GetString());
+        Assert.Equal(patient.Country, p.GetProperty("country").GetString());
         foreach (var optional in new[] { "middleName", "sex", "email", "addressLine2" })
             Assert.True(p.TryGetProperty(optional, out _), $"{optional} is written even when empty, so a reader can tell no value from a missing member");
     }

@@ -47,7 +47,8 @@ public class PatientRegistrationSettings
 }
 
 /// <summary>The extra required fields a practice has chosen. Default = none, i.e. STORY-003's rules.</summary>
-public record PatientRequirements(bool RequireEmail = false, bool RequireSex = false)
+/// <summary>ALV-N025: <c>DefaultCountry</c> is the practice's default country (PracticeSettings.DefaultCountry, else "US"), given to a patient entered without one.</summary>
+public record PatientRequirements(bool RequireEmail = false, bool RequireSex = false, string DefaultCountry = Demographics.UnitedStates)
 {
     public static readonly PatientRequirements None = new();
 }

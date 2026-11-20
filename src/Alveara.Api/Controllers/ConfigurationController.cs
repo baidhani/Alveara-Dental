@@ -10,7 +10,7 @@ using Alveara.Api.Architecture.Time;
 
 namespace Alveara.Api.Controllers;
 
-public record SavePracticeRequest(string? Name, string? Phone, string? AddressLine, string? RowVersion);
+public record SavePracticeRequest(string? Name, string? Phone, string? AddressLine, string? RowVersion, string? DefaultCountry = null);   // ALV-N025: DefaultCountry optional (null keeps it)
 public record SaveVisitWorkflowRequest(bool? ConfirmationRequired, bool? MarkReadyRequired, string? RowVersion);   // ALV-N021 A2 (OD-03, OD-04)
 public record SaveLocationRequest(string? Name, string? RowVersion);
 public record SaveOperatoryRequest(string? Name, string? RowVersion);
@@ -79,7 +79,7 @@ public class ConfigurationController(
     [RequirePermission(Permission.ManagePracticeConfiguration)]
     [RequireCsrfToken]
     public Task<IActionResult> SavePractice([FromBody] SavePracticeRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await practice.SavePracticeAsync(request.Name, request.Phone, request.AddressLine, request.RowVersion, Actor, ct)));
+        Run(async () => Ok(await practice.SavePracticeAsync(request.Name, request.Phone, request.AddressLine, request.RowVersion, Actor, ct, request.DefaultCountry)));
 
     /// <summary>ALV-N021 A2 (OD-03, OD-04): whether confirmation and marking ready are required; read with GET practice.</summary>
     [HttpPut("visit-workflow")]

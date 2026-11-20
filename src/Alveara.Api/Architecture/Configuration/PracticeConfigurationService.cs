@@ -6,7 +6,8 @@ namespace Alveara.Api.Architecture.Configuration;
 
 public record PracticeSettingsView(
     Guid? Id, string? Name, string? Phone, string? AddressLine, string TimeZoneId, string Currency, bool Configured, string? RowVersion,
-    bool ConfirmationRequired = true, bool MarkReadyRequired = true);   // ALV-N021 A2 (OD-03, OD-04): the two visit-workflow settings, read with the practice
+    bool ConfirmationRequired = true, bool MarkReadyRequired = true,   // ALV-N021 A2 (OD-03, OD-04): the two visit-workflow settings, read with the practice
+    string DefaultCountry = "US");                                    // ALV-N025 (F-033): the country a new patient starts with
 
 /// <summary>
 /// ALV-N003: practice information, the (single active) location, operatories, and appointment
@@ -25,8 +26,11 @@ public class PracticeConfigurationService(AlveraDbContext db, IPracticeClock clo
     }
 
     /// <summary>Creates the practice's settings on first save, thereafter updates them (version required).</summary>
-    public async Task<PracticeSettingsView> SavePracticeAsync(string? name, string? phone, string? addressLine, string? rowVersion, Guid actor, CancellationToken ct)
+    /// <remarks>ALV-N025: <paramref name="defaultCountry"/> null keeps the current one; otherwise it must be an ISO alpha-2 code from the list.</remarks>
+    public async Task<PracticeSettingsView> SavePracticeAsync(string? name, string? phone, string? addressLine, string? rowVersion, Guid actor, CancellationToken ct, string? defaultCountry = null)
     {
+        var country = defaultCountry is null ? null : Patients.Demographics.CanonicalCountry(defaultCountry)
+            ?? throw new ConfigurationException("country_invalid", "Default country must be a country from the list (a two-letter ISO code).");
         var cleanName = ConfigurationWrite.RequireName(name, "Practice name");
         var cleanPhone = ConfigurationWrite.OptionalText(phone, "Phone", 40);
         var cleanAddress = ConfigurationWrite.OptionalText(addressLine, "Address", 200);
@@ -34,7 +38,7 @@ public class PracticeConfigurationService(AlveraDbContext db, IPracticeClock clo
         var existing = await db.PracticeSettings.SingleOrDefaultAsync(ct);
         if (existing is null)
         {
-            existing = new PracticeSettings { Name = cleanName, Phone = cleanPhone, AddressLine = cleanAddress, UpdatedAtUtc = clock.UtcNow };
+            existing = new PracticeSettings { Name = cleanName, Phone = cleanPhone, AddressLine = cleanAddress, DefaultCountry = country, UpdatedAtUtc = clock.UtcNow };
             db.PracticeSettings.Add(existing);
             ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Created, nameof(PracticeSettings), existing.Id, actor, "Practice information created.");
         }
@@ -44,6 +48,7 @@ public class PracticeConfigurationService(AlveraDbContext db, IPracticeClock clo
             existing.Name = cleanName;
             existing.Phone = cleanPhone;
             existing.AddressLine = cleanAddress;
+            if (country is not null) existing.DefaultCountry = country;
             existing.UpdatedAtUtc = clock.UtcNow;
             ConfigurationWrite.Audit(db, ConfigurationAuditEvents.Updated, nameof(PracticeSettings), existing.Id, actor, "Practice information updated.");
         }
@@ -83,7 +88,7 @@ public class PracticeConfigurationService(AlveraDbContext db, IPracticeClock clo
         s?.Id, s?.Name, s?.Phone, s?.AddressLine,
         clock.PracticeTimeZone.Id, Money.Money.Currency, s is not null,
         s is null ? null : Convert.ToBase64String(s.RowVersion),
-        s?.ConfirmationRequired ?? true, s?.MarkReadyRequired ?? true);
+        s?.ConfirmationRequired ?? true, s?.MarkReadyRequired ?? true, s?.DefaultCountry ?? Patients.Demographics.UnitedStates);
 
     // ---------- Location (one active location in first release) ----------
 

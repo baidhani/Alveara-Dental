@@ -44,7 +44,8 @@ public class PatientImportService(AlveraDbContext db, PatientRegistrationService
 
         var parsed = check.Parsed;
         var f = parsed.Fields;
-        var request = new RegisterPatientRequest(f.FirstName, f.MiddleName, f.LastName, f.DateOfBirth, f.Sex, f.Phone, f.Email, f.AddressLine1, f.AddressLine2, f.City, f.State, f.PostalCode);
+        var request = new RegisterPatientRequest(f.FirstName, f.MiddleName, f.LastName, f.DateOfBirth, f.Sex, f.Phone, f.Email, f.AddressLine1, f.AddressLine2, f.City, f.State, f.PostalCode,
+            Country: f.Country);
 
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         try

@@ -21,7 +21,8 @@ public class PatientRegistrationSettingsService(AlveraDbContext db, IPracticeClo
     public static async Task<PatientRequirements> LoadRequirementsAsync(AlveraDbContext db, CancellationToken ct)
     {
         var row = await db.PatientRegistrationSettings.AsNoTracking().SingleOrDefaultAsync(ct);
-        return row is null ? PatientRequirements.None : new PatientRequirements(row.RequireEmail, row.RequireSex);
+        var country = Demographics.CanonicalCountry(await db.PracticeSettings.AsNoTracking().Select(p => p.DefaultCountry).FirstOrDefaultAsync(ct)) ?? Demographics.UnitedStates;   // ALV-N025
+        return row is null ? PatientRequirements.None with { DefaultCountry = country } : new PatientRequirements(row.RequireEmail, row.RequireSex, country);
     }
 
     public async Task<PatientRegistrationSettingsView> GetAsync(CancellationToken ct)

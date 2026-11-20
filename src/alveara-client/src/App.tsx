@@ -23,6 +23,7 @@ import { ProcedureCatalogPage } from "./pages/ProcedureCatalogPage";
 import { PatientRegistrationPage } from "./pages/PatientRegistrationPage";
 import { PatientRegistrationSettingsPage } from "./pages/PatientRegistrationSettingsPage";
 import { PatientSearchPage } from "./pages/PatientSearchPage";
+import { DemographicReviewPage } from "./pages/DemographicReviewPage";
 import { PatientClinicalTab, PatientDetailsTab, PatientSafetyTab, PatientOdontogramTab, PatientPerioTab, PatientDiagnosesTab, PatientPrescriptionsTab, PatientPrescriptionComposerTab, PatientFollowUpsTab, PatientExternalCasesTab, PatientTreatmentPlanTab, PatientBillingTab, PatientEncounterTab, PatientDocumentsTab, PatientFormTab, PatientFormsTab, PatientHistoryTab, PatientHouseholdTab, PatientWorkspacePage } from "./pages/PatientWorkspacePage";
 import { FormTemplatesPage } from "./pages/forms/FormTemplatesPage";
 import { LegacyPatientTemplatesRedirect, PracticeTemplatesPage } from "./pages/clinical/notes/PracticeTemplatesPage";
@@ -223,6 +224,14 @@ function createAppRouter() {
             element={
               <RequirePermission permission="RegisterPatients">
                 <PatientRegistrationPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/patients/demographic-review"
+            element={
+              <RequirePermission permission="EditPatients">
+                <DemographicReviewPage />
               </RequirePermission>
             }
           />

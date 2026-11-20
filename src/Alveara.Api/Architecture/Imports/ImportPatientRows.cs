@@ -51,7 +51,7 @@ internal static class ImportPatientRows
     {
         string? Cell(string field) => index.TryGetValue(field, out var i) && i >= 0 ? row[i] : null;
         return new PatientFields(Cell("firstName"), Cell("middleName"), Cell("lastName"), Cell("dateOfBirth"), Cell("sex"), Cell("phone"), Cell("email"),
-            Cell("addressLine1"), Cell("addressLine2"), Cell("city"), Cell("state"), Cell("postalCode"));
+            Cell("addressLine1"), Cell("addressLine2"), Cell("city"), Cell("state"), Cell("postalCode"), Cell("country"));
     }
 
     /// <summary>The registered patients for a set of birth dates, in groups (one query per group of dates), at most <see cref="PoolCap"/> for each date as in the front desk's check.</summary>

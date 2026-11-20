@@ -17,7 +17,11 @@ public class PatientEditService(AlveraDbContext db, IPracticeClock clock)
     {
         var patient = await db.Patients.SingleOrDefaultAsync(p => p.Id == id, ct) ?? throw NotFound();
         PatientWrite.ApplyExpectedVersion(db, patient, rowVersion);
-        var clean = PatientInput.Validate(fields, clock, await PatientRegistrationSettingsService.LoadRequirementsAsync(db, ct));
+        // ALV-N025 (DEM-2): the stored values, so an unchanged old Sex/State is kept rather than held to the new lists; an edit that sends no country keeps the patient's own
+        if (string.IsNullOrWhiteSpace(fields.Country)) fields = fields with { Country = patient.Country };
+        var existing = new PatientFields(patient.FirstName, patient.MiddleName, patient.LastName, patient.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), patient.Sex,
+            patient.Phone, patient.Email, patient.AddressLine1, patient.AddressLine2, patient.City, patient.State, patient.PostalCode, patient.Country);
+        var clean = PatientInput.Validate(fields, clock, await PatientRegistrationSettingsService.LoadRequirementsAsync(db, ct), existing);
 
         var now = clock.UtcNow;
         var changed = new List<string>();
@@ -42,6 +46,7 @@ public class PatientEditService(AlveraDbContext db, IPracticeClock clock)
         Track("city", patient.City, clean.City); patient.City = clean.City;
         Track("state", patient.State, clean.State); patient.State = clean.State;
         Track("postalCode", patient.PostalCode, clean.PostalCode); patient.PostalCode = clean.PostalCode;
+        Track("country", patient.Country, clean.Country); patient.Country = clean.Country;
 
         if (changed.Count == 0) { db.ChangeTracker.Clear(); return (await db.Patients.AsNoTracking().SingleAsync(p => p.Id == id, ct)); }
 

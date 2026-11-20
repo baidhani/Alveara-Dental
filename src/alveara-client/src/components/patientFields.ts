@@ -2,7 +2,7 @@ import type { PatientRequirements, RegisterPatientInput } from "../services/pati
 
 export type PatientValues = RegisterPatientInput;
 
-const KNOWN_SEX: Record<string, string> = { m: "Male", male: "Male", f: "Female", female: "Female", other: "Other", unknown: "Unknown" };
+const KNOWN_SEX: Record<string, string> = { m: "Male", male: "Male", f: "Female", female: "Female", other: "Other", unknown: "Unknown/unspecified", "unknown/unspecified": "Unknown/unspecified" };
 
 /** ALV-N022 A3 (F-067): imported rows hold "male" where registered ones hold "Male". The known values are SHOWN in one form; anything else is shown as stored. Nothing is rewritten. */
 export function displaySex(sex: string | null | undefined): string {
@@ -12,7 +12,7 @@ export function displaySex(sex: string | null | undefined): string {
 
 export const EMPTY_PATIENT: PatientValues = {
   firstName: "", middleName: "", lastName: "", dateOfBirth: "", sex: "",
-  phone: "", email: "", addressLine1: "", addressLine2: "", city: "", state: "", postalCode: "",
+  phone: "", email: "", addressLine1: "", addressLine2: "", city: "", state: "", postalCode: "", country: "",
 };
 
 /** The fields the server requires. Mirrored here so the front desk is prompted before a round trip; the server stays the authority. */
@@ -41,7 +41,7 @@ export function requiredFieldsFor(requirements: PatientRequirements = NO_EXTRA_R
 export function missingRequiredFields(values: PatientValues, requirements: PatientRequirements = NO_EXTRA_REQUIREMENTS): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const { name, label } of requiredFieldsFor(requirements)) {
-    if (values[name].trim() === "") errors[name] = `${label} is required.`;
+    if ((values[name] ?? "").trim() === "") errors[name] = `${label} is required.`;
   }
   return errors;
 }

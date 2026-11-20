@@ -25,7 +25,7 @@ public static class PatientImportValidator
     private static readonly string[] TopMembers = ["format", "formatVersion", "exportId", "exportedAtUtc", "source", "patient"];
     private static readonly string[] SourceMembers = ["system", "sourcePatientId", "mrn"];
     private static readonly string[] PatientMembers =
-        ["firstName", "middleName", "lastName", "dateOfBirth", "sex", "phone", "email", "addressLine1", "addressLine2", "city", "state", "postalCode"];
+        ["firstName", "middleName", "lastName", "dateOfBirth", "sex", "phone", "email", "addressLine1", "addressLine2", "city", "state", "postalCode", "country"];
 
     public static PatientImportCheck Validate(byte[] content, IPracticeClock clock, PatientRequirements requirements)
     {
@@ -119,7 +119,10 @@ public static class PatientImportValidator
                     }
 
                     fields = new PatientFields(Text("firstName"), Text("middleName"), Text("lastName"), Text("dateOfBirth"), Text("sex"), Text("phone"), Text("email"),
-                        Text("addressLine1"), Text("addressLine2"), Text("city"), Text("state"), Text("postalCode"));
+                        Text("addressLine1"), Text("addressLine2"), Text("city"), Text("state"), Text("postalCode"), Text("country"));
+                    // ALV-N025 (DEM-4): the file must name its country - a blank value is not taken as the practice default here
+                    if (!structural.Contains("country") && string.IsNullOrWhiteSpace(fields.Country))
+                        problems.Add(new("field_invalid", "patient.country", "Country is required (a two-letter ISO code)."));
                     try
                     {
                         PatientInput.Validate(fields, clock, requirements);

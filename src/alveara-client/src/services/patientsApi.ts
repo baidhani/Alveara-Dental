@@ -22,6 +22,8 @@ export interface RegisterPatientInput {
   city: string;
   state: string;
   postalCode: string;
+  /** ALV-N025 (F-033): ISO alpha-2; "" = the practice's default country. */
+  country: string;
 }
 
 export interface PatientRecord extends RegisterPatientInput {
@@ -136,6 +138,16 @@ export function searchPatients(query: string, includeInactive: boolean, signal?:
   const params = new URLSearchParams({ q: query, includeInactive: String(includeInactive), take: "25" });
   return request<PatientSummary[]>(`/api/patients?${params}`, { signal });
 }
+
+/** ALV-N025 (F-032, F-033): the demographic value lists and the practice's default country. */
+export interface CodeName { code: string; name: string }
+export interface DemographicOptions { sexValues: string[]; usStates: CodeName[]; countries: CodeName[]; defaultCountry: string }
+export const getDemographicOptions = (signal?: AbortSignal) => request<DemographicOptions>("/api/patients/demographic-options", { signal });
+
+/** ALV-N025: stored values that are not on their list, for staff to correct (EditPatients). */
+export interface DemographicReviewItem { patientId: string; displayName: string; mrn: number; field: "sex" | "state"; value: string }
+export interface DemographicReview { items: DemographicReviewItem[]; truncated: boolean }
+export const getDemographicReview = (signal?: AbortSignal) => request<DemographicReview>("/api/patients/demographic-review", { signal });
 
 export const getPatient = (id: string, signal?: AbortSignal) => request<PatientDetail>(`/api/patients/${id}`, { signal });
 export const getPatientHistory = (id: string, signal?: AbortSignal) => request<PatientHistoryRow[]>(`/api/patients/${id}/history`, { signal });

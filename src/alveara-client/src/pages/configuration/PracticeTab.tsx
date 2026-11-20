@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "../../components/Button";
 import { FormField } from "../../components/FormField";
+import { SelectField } from "../../components/SelectField";
+import { useDemographicOptions } from "../../components/useDemographicOptions";
 import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictBanner";
 import { ErrorState, LoadingState } from "../../components/StatePatterns";
 import { PermissionDenied } from "../../components/PermissionDenied";
@@ -15,7 +17,7 @@ import { LocationPanel } from "./SimpleTabs";
 import { VisitWorkflowPanel } from "./VisitWorkflowPanel";
 
 type State = { kind: "loading" } | { kind: "denied" } | { kind: "error" } | { kind: "loaded"; info: PracticeInfo };
-const toForm = (info: PracticeInfo) => ({ name: info.name ?? "", phone: info.phone ?? "", addressLine: info.addressLine ?? "" });
+const toForm = (info: PracticeInfo) => ({ name: info.name ?? "", phone: info.phone ?? "", addressLine: info.addressLine ?? "", defaultCountry: info.defaultCountry ?? "US" });
 
 /**
  * Practice information plus the single active location. Time zone and currency are shown
@@ -25,8 +27,9 @@ const toForm = (info: PracticeInfo) => ({ name: info.name ?? "", phone: info.pho
 export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean) => void }) {
   const { notify } = useNotifications();
   const [state, setState] = useState<State>({ kind: "loading" });
-  const [form, setForm] = useState({ name: "", phone: "", addressLine: "" });
-  const [initial, setInitial] = useState({ name: "", phone: "", addressLine: "" });
+  const [form, setForm] = useState({ name: "", phone: "", addressLine: "", defaultCountry: "US" });
+  const [initial, setInitial] = useState({ name: "", phone: "", addressLine: "", defaultCountry: "US" });
+  const countries = useDemographicOptions().countries;   // ALV-N025 (F-033)
   const [nameError, setNameError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [conflict, setConflict] = useState<ConcurrencyConflictProblem | null>(null);
@@ -96,6 +99,14 @@ export function PracticeTab({ onDirtyChange }: { onDirtyChange: (dirty: boolean)
           <FormField label="Practice name" value={form.name} maxLength={120} error={nameError ?? undefined} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <FormField label="Phone" value={form.phone} maxLength={40} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <FormField label="Address" value={form.addressLine} maxLength={200} onChange={(e) => setForm({ ...form, addressLine: e.target.value })} />
+          <SelectField
+            label="Default patient country"
+            hint="New patients start with this country; staff can change it per patient."
+            value={form.defaultCountry}
+            options={(countries.some((c) => c.code === form.defaultCountry) ? countries : [...countries, { code: form.defaultCountry, name: form.defaultCountry }])
+              .slice().sort((a, b) => a.name.localeCompare(b.name)).map((c) => ({ value: c.code, label: c.name }))}
+            onChange={(e) => setForm({ ...form, defaultCountry: e.target.value })}
+          />
           <FormField label="Time zone" value={state.info.timeZoneId} readOnly hint="Set by the deployment so every appointment time converts consistently." />
           <FormField label="Currency" value={state.info.currency} readOnly hint="Fixed for the first release." />
           </fieldset>

@@ -45,9 +45,10 @@ public sealed record PatientExportSource(string System, Guid SourcePatientId, lo
 /// The patient's identity and contact fields, exactly the ones registration holds and with its names and text forms (<see cref="PatientFields"/>): the date is <c>yyyy-MM-dd</c>, optional fields may be null.
 /// Household and guarantor links, clinical and financial data, files and user account data are deliberately not here.
 /// </summary>
+/// ALV-N025 (owner decision DEM-4): <c>Country</c> (ISO alpha-2) is a required member of the pre-release version-1 contract.
 public sealed record PatientExportPatient(
     string FirstName, string? MiddleName, string LastName, string DateOfBirth, string? Sex,
-    string Phone, string? Email, string AddressLine1, string? AddressLine2, string City, string State, string PostalCode);
+    string Phone, string? Email, string AddressLine1, string? AddressLine2, string City, string State, string PostalCode, string Country);
 
 /// <summary>What an export hands back to the caller: the bytes of the file and the name to save it under.</summary>
 public sealed record PatientExportFile(Guid ExportId, string FileName, byte[] Content);

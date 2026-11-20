@@ -26,6 +26,7 @@ public static class PatientImportFields
         ("city", "City", true, false, false, ["city", "town"]),
         ("state", "State", true, false, false, ["state", "province"]),
         ("postalCode", "Postal code", true, false, false, ["postalcode", "zip", "zipcode", "postcode"]),
+        ("country", "Country (two-letter code)", false, false, false, ["country", "countrycode", "nation"]),   // ALV-N025 (DEM-4): optional; blank = the practice default
     ];
 
     public static IReadOnlyList<ImportField> For(PatientRequirements requirements) =>

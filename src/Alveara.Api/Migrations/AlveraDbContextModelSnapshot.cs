@@ -2448,6 +2448,12 @@ namespace Alveara.Api.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("DefaultCountry")
+                        .HasMaxLength(2)
+                        .IsUnicode(false)
+                        .HasColumnType("char(2)")
+                        .IsFixedLength();
+
                     b.Property<bool>("MarkReadyRequired")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -5941,6 +5947,15 @@ namespace Alveara.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2)
+                        .IsUnicode(false)
+                        .HasColumnType("char(2)")
+                        .HasDefaultValue("US")
+                        .IsFixedLength();
 
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("datetimeoffset");

@@ -11,9 +11,10 @@ namespace Alveara.Api.Controllers;
 public record UpdatePatientRequest(
     string? FirstName, string? MiddleName, string? LastName, string? DateOfBirth, string? Sex,
     string? Phone, string? Email, string? AddressLine1, string? AddressLine2, string? City, string? State, string? PostalCode,
-    string? RowVersion)
+    string? RowVersion, string? Country = null)
 {
-    public PatientFields Fields => new(FirstName, MiddleName, LastName, DateOfBirth, Sex, Phone, Email, AddressLine1, AddressLine2, City, State, PostalCode);
+    /// <summary>ALV-N025: <c>Country</c> is optional and last; a request without it keeps the patient's country.</summary>
+    public PatientFields Fields => new(FirstName, MiddleName, LastName, DateOfBirth, Sex, Phone, Email, AddressLine1, AddressLine2, City, State, PostalCode, Country);
 }
 public record SetPatientActiveRequest(bool IsActive, string? RowVersion);
 public record SaveRegistrationSettingsRequest(bool RequireEmail, bool RequireSex, string? RowVersion);
@@ -43,7 +44,7 @@ public class PatientsController(
     {
         p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), p.Sex,
         p.Phone, p.Email, p.AddressLine1, p.AddressLine2, p.City, p.State, p.PostalCode, p.CreatedAtUtc,
-        p.IsActive, p.MergedAtUtc, rowVersion = Version(p), p.Mrn,   // ALV-N025 (PD-21)
+        p.IsActive, p.MergedAtUtc, rowVersion = Version(p), p.Mrn, p.Country,   // ALV-N025 (PD-21, F-033)
     };
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
@@ -119,7 +120,7 @@ public class PatientsController(
             {
                 p.Id, p.FirstName, p.MiddleName, p.LastName, dateOfBirth = p.DateOfBirth.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), age = detail.Age, p.Sex,
                 p.Phone, p.Email, p.AddressLine1, p.AddressLine2, p.City, p.State, p.PostalCode, p.CreatedAtUtc, p.UpdatedAtUtc,
-                p.IsActive, p.MergedAtUtc, rowVersion = Version(p), p.Mrn,   // ALV-N025 (PD-21)
+                p.IsActive, p.MergedAtUtc, rowVersion = Version(p), p.Mrn, p.Country,   // ALV-N025 (PD-21, F-033)
                 guarantor = detail.Guarantor, guaranteeFor = detail.GuaranteeFor,
                 household = detail.HouseholdId is null ? null : new { id = detail.HouseholdId, relationship = p.HouseholdRelationship, members = detail.HouseholdMembers },
             });

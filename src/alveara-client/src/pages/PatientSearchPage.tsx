@@ -43,7 +43,14 @@ export function PatientSearchPage() {
       <PageHeader
         title="Patients"
         description="Find a patient by name, date of birth or phone number."
-        actions={hasPermission("RegisterPatients") ? <ButtonLink to="/patients/register" variant="primary">Register new patient</ButtonLink> : undefined}
+        actions={
+          hasPermission("RegisterPatients") || hasPermission("EditPatients") ? (
+            <>
+              {hasPermission("EditPatients") && <ButtonLink to="/patients/demographic-review">Review demographics</ButtonLink>}
+              {hasPermission("RegisterPatients") && <ButtonLink to="/patients/register" variant="primary">Register new patient</ButtonLink>}
+            </>
+          ) : undefined
+        }
       />
       <div className="alv-workspace__search">
         <label htmlFor="patient-search" className="alv-workspace__label">Search patients</label>

@@ -32,6 +32,7 @@ public sealed partial class ReadableRecordLoader(AlveraDbContext db, IPracticeCl
             new("Phone", patient.Phone),
             new("Email", Or(patient.Email)),
             new("Address", string.Join(", ", new[] { patient.AddressLine1, patient.AddressLine2, patient.City, $"{patient.State} {patient.PostalCode}".Trim() }.Where(s => !string.IsNullOrWhiteSpace(s)))),
+            new("Country", Demographics.Countries.FirstOrDefault(c => c.Code == patient.Country)?.Name is { } countryName ? $"{countryName} ({patient.Country})" : patient.Country),
             new("Record status", patient.MergedAtUtc is not null ? $"Merged into another record on {Day(patient.MergedAtUtc.Value)}" : patient.IsActive ? "Active" : "Inactive"),
             new("Household relationship", Or(patient.HouseholdRelationship)),
             new("Registered", Day(patient.CreatedAtUtc)),

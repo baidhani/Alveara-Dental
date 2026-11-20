@@ -15,6 +15,7 @@ function mockApi(answer: (call: Call, n: number) => Response | Promise<Response>
     "fetch",
     vi.fn(async (url: string, init?: RequestInit) => {
       if (String(url).includes("csrf-token")) return json(200, { token: "csrf-1" });
+      if (String(url).includes("demographic-options")) return json(404, { error: "not_found" });   // ALV-N025: the form falls back to its built-in lists; not a registration call
       const call: Call = {
         url: String(url),
         method: init?.method ?? "GET",

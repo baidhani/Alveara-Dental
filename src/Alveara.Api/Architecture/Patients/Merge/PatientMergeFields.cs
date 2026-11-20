@@ -20,6 +20,7 @@ internal static class PatientMergeFields
         new("City", p => p.City, (p, v) => p.City = v, true),
         new("State", p => p.State, (p, v) => p.State = v, true),
         new("PostalCode", p => p.PostalCode, (p, v) => p.PostalCode = v, true),
+        new("Country", p => p.Country, (p, v) => p.Country = v, true),   // ALV-N025 (F-033)
     ];
 
     /// <summary>A value with only its meaning left: trimmed, and blank is no value.</summary>

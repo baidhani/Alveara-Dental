@@ -24,6 +24,8 @@ export interface PracticeInfo {
   currency: string;
   configured: boolean;
   rowVersion: string | null;
+  /** ALV-N025 (F-033): the country (ISO alpha-2) a new patient starts with; "US" when not set. */
+  defaultCountry?: string;
   /** ALV-N021 A2 (OD-03, OD-04): absent from older servers, so read as "required" when missing. */
   confirmationRequired?: boolean;
   markReadyRequired?: boolean;
@@ -101,7 +103,7 @@ const q = (includeInactive: boolean) => `?includeInactive=${includeInactive}`;
 
 // ---------- Practice ----------
 export const getPractice = () => request<PracticeInfo>("/api/config/practice");
-export const savePractice = (body: { name: string; phone: string; addressLine: string; rowVersion: string | null }) =>
+export const savePractice = (body: { name: string; phone: string; addressLine: string; rowVersion: string | null; defaultCountry?: string }) =>
   requestWithCsrf<PracticeInfo>("/api/config/practice", "PUT", body);
 /** ALV-N021 A2 (OD-03, OD-04): whether a visit must be confirmed before check-in and marked ready before seating. */
 export const saveVisitWorkflow = (body: { confirmationRequired: boolean; markReadyRequired: boolean; rowVersion: string | null }) =>

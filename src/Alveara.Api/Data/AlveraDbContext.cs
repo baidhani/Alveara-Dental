@@ -217,6 +217,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(s => s.Name).HasMaxLength(120);
             e.Property(s => s.Phone).HasMaxLength(40);
             e.Property(s => s.AddressLine).HasMaxLength(200);
+            e.Property(s => s.DefaultCountry).HasMaxLength(2).IsFixedLength().IsUnicode(false);   // ALV-N025
             e.Property(s => s.RowVersion).IsRowVersion();
             // ALV-N021 A2 (M1): both visit settings default to required, for the existing row too
             e.Property(s => s.ConfirmationRequired).HasDefaultValue(true);
@@ -339,6 +340,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(p => p.City).HasMaxLength(100);
             e.Property(p => p.State).HasMaxLength(50);
             e.Property(p => p.PostalCode).HasMaxLength(20);
+            e.Property(p => p.Country).HasMaxLength(2).IsFixedLength().IsUnicode(false).HasDefaultValue(Demographics.UnitedStates);   // ALV-N025
             e.Property(p => p.DuplicateKey).HasMaxLength(260);
             e.Property(p => p.RowVersion).IsRowVersion();
             e.Property(p => p.RegistrationKey).HasMaxLength(100);
