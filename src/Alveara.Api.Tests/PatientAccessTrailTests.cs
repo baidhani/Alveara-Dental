@@ -63,7 +63,7 @@ public class PatientAccessTrailTests : IAsyncLifetime
         Assert.Equal((2, 2), (await EventsAsync(PatientAccessEvents.RecordOpened), await OpenRowsAsync()));
 
         await using var db = _fixture.CreateContext();
-        var e = await db.AuditLogEntries.FirstAsync(a => a.EventType == PatientAccessEvents.RecordOpened && a.TargetUserAccountId == _patient);
+        var e = await db.AuditLogEntries.FirstAsync(a => a.EventType == PatientAccessEvents.RecordOpened && a.TargetUserAccountId == _patient && a.PerformedByUserAccountId == _admin.UserId);   // the admin's own row (two sessions wrote one each)
         Assert.Equal(("Patient", _admin.UserId), (e.EntityType, e.PerformedByUserAccountId));
         foreach (var leak in new[] { "Quinn", "Access" }) Assert.DoesNotContain(leak, e.Details);
     }
