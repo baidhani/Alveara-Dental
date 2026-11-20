@@ -67,7 +67,7 @@ async function fillValid(page: Page, first: string, last: string) {
   await page.getByLabel("Email").fill("demo.patient@example.test");
   await page.getByLabel("Address *").fill("1 Main St");
   await page.getByLabel("City *").fill("Austin");
-  await page.getByLabel("State *").fill("TX");
+  await page.getByLabel("State *").selectOption("TX");   // ALV-N025 (F-033): a US state is chosen from the list
   await page.getByLabel("Postal code *").fill("78701");
 }
 

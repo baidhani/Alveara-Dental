@@ -73,7 +73,7 @@ async function fillPatient(page: Page, p: { first: string; last: string; dob: st
   if (p.email) await page.getByLabel("Email").fill(p.email);
   await page.getByLabel("Address *").fill("1 Main St");
   await page.getByLabel("City *").fill("Austin");
-  await page.getByLabel("State *").fill("TX");
+  await page.getByLabel("State *").selectOption("TX");   // ALV-N025 (F-033): a US state is chosen from the list
   await page.getByLabel("Postal code *").fill("78701");
 }
 

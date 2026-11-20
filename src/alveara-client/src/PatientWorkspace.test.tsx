@@ -236,6 +236,15 @@ describe("editing a patient", () => {
   });
 });
 
+describe("ALV-N025 (BR-02): the History page needs patient access", () => {
+  it("an account without ViewPatientRecords that follows a History link directly gets the not-permitted state and no history is requested", async () => {
+    server.permissions = ["ViewAuditLog"];                                                                   // an audit reader without patient access
+    open(`/patients/${A}/history`);
+    expect(await screen.findByText("You don't have permission to view this")).toBeInTheDocument();
+    expect(server.callsTo("GET", `/api/patients/${A}/history`)).toHaveLength(0);
+  });
+});
+
 describe("history", () => {
   it("lists changes newest first, describing relationship changes without exposing ids", async () => {
     server.history[A] = [

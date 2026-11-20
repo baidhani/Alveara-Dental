@@ -3,7 +3,8 @@ import { PageHeader } from "../components/PageHeader";
 import { SafeLink } from "../components/SafeLink";
 import { EmptyState, ErrorState, LoadingState } from "../components/StatePatterns";
 import { PermissionDenied } from "../components/PermissionDenied";
-import { ApiError, getDemographicReview } from "../services/patientsApi";
+import { getDemographicReview } from "../services/patientsApi";
+import { ApiError } from "../services/authApi";
 import type { DemographicReview } from "../services/patientsApi";
 import "./PatientWorkspace.css";
 

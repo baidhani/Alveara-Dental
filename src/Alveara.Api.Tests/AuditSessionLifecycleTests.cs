@@ -69,6 +69,8 @@ public class AuditSessionLifecycleTests : IAsyncLifetime
         await using var db = _fixture.CreateContext();
         Assert.False(await new AuditSessionStore(db).SignOutAsync(open.SessionId, _admin.UserId, DateTimeOffset.UtcNow, default));   // a repeat closes nothing ...
         Assert.Equal(1, await EventsAsync(PatientAccessEvents.UserSignedOut, _admin.UserId));                                         // ... and writes nothing
+        await new AuditSessionStore(db).ExpirePassAsync(open.ExpiresAtUtc.AddMinutes(1), default);                                    // a pass after the deadline ...
+        Assert.Equal(0, await EventsAsync(PatientAccessEvents.SessionExpired, _admin.UserId));                                        // ... never reports a signed-out session expired
     }
 
     [Fact]
@@ -163,5 +165,38 @@ public class AuditSessionLifecycleTests : IAsyncLifetime
         Assert.NotEqual(before.SessionId, fresh.SessionId);
         Assert.Equal(1, await EventsAsync(PatientAccessEvents.SessionRevoked, _admin.UserId));
         Assert.Equal(HttpStatusCode.OK, (await _admin.Client.GetAsync("/api/auth/permissions")).StatusCode);              // still signed in
+    }
+
+    [Fact]
+    public async Task A_sign_out_racing_the_expiry_pass_leaves_exactly_one_end_event_over_twenty_rounds()
+    {
+        // BR-01: whichever conditional close wins, exactly one end event; never both, never none
+        for (var round = 0; round < 20; round++)
+        {
+            var row = await OpenRowAsync(_admin.UserId, DateTimeOffset.UtcNow.AddSeconds(-1));
+            using var barrier = new Barrier(2);
+            async Task SignOut() { await using var db = _fixture.CreateContext(); barrier.SignalAndWait(); await new AuditSessionStore(db).SignOutAsync(row.SessionId, _admin.UserId, DateTimeOffset.UtcNow, default); }
+            async Task Expire() { await using var db = _fixture.CreateContext(); barrier.SignalAndWait(); await new AuditSessionStore(db).ExpirePassAsync(DateTimeOffset.UtcNow, default); }
+            await Task.WhenAll(Task.Run(SignOut), Task.Run(Expire));
+
+            await using var check = _fixture.CreateContext();
+            var events = await check.AuditLogEntries.CountAsync(a => a.CorrelationId == row.SessionId
+                && (a.EventType == PatientAccessEvents.UserSignedOut || a.EventType == PatientAccessEvents.SessionExpired));
+            Assert.True(events == 1, $"round {round}: {events} end events");
+            Assert.NotNull((await check.AuditSessions.AsNoTracking().SingleAsync(s => s.SessionId == row.SessionId)).EndedAtUtc);
+        }
+    }
+
+    [Fact]
+    public async Task Authentication_never_reads_the_table_a_valid_cookie_works_with_its_row_closed_and_keeps_its_expiry()
+    {
+        var expiresBefore = JsonDocument.Parse(await _admin.Client.GetStringAsync("/api/auth/permissions")).RootElement.GetProperty("sessionExpiresAtUtc").GetDateTimeOffset();
+        var row = Assert.Single(await RowsAsync(_admin.UserId));
+        await using (var db = _fixture.CreateContext()) await new AuditSessionStore(db).ExpirePassAsync(row.ExpiresAtUtc.AddSeconds(1), default);   // closed as expired, though the cookie is still valid
+        Assert.Equal(AuditSessionEndKinds.Expired, Assert.Single(await RowsAsync(_admin.UserId)).EndKind);
+
+        var after = await _admin.Client.GetAsync("/api/auth/permissions");
+        Assert.Equal(HttpStatusCode.OK, after.StatusCode);                                                     // not a session store: the cookie decides
+        Assert.Equal(expiresBefore, JsonDocument.Parse(await after.Content.ReadAsStringAsync()).RootElement.GetProperty("sessionExpiresAtUtc").GetDateTimeOffset());   // never extended
     }
 }
