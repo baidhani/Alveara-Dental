@@ -1,0 +1,160 @@
+ALV-N025 negative controls - started 2026-11-20T08:36:59  (HEAD 7df91c2)
+
+====================================================================================================
+C1 MRN retry removed (collision is rethrown at once)
+  file: Alveara.Api\Data\AlveraDbContext.cs
+  edit: 2 occurrence(s) of the rule replaced
+  build: exit 0 (47s)
+  tests: Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 15 s - Alveara.Api.Tests.dll (net10.0) (21s)
+    caught by: Failed Alveara.Api.Tests.MrnTests.Concurrent_registrations_never_share_a_number_over_twenty_rounds [76 ms]
+    caught by: Failed Alveara.Api.Tests.MrnTests.Past_the_retry_cap_the_save_is_mrn_busy_and_leaves_no_patient_and_no_archive_row [124 ms]
+    Error Message:
+    System.AggregateException : One or more errors occurred. (A patient with the same name and date of birth is already registered.)
+    ---- Alveara.Api.Architecture.Patients.PatientRegistrationException : A patient with the same name and date of birth is already registered.
+    at System.Threading.Tasks.Task.ThrowIfExceptional(Boolean includeTaskCanceledExceptions)
+    Error Message:
+    Assert.Throws() Failure: Exception type was not an exact match
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C2 guard 51298 disabled (the trigger lets an MRN change)
+  file: Alveara.Api\Migrations\20261120011518_AddPatientMrn.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (25s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 15 s - Alveara.Api.Tests.dll (net10.0) (29s)
+    caught by: Failed Alveara.Api.Tests.MrnTests.A_number_never_changes_by_sql_or_through_ef [42 ms]
+    Error Message:
+    Assert.ThrowsAny() Failure: No exception was thrown
+    Expected: typeof(System.Exception)
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C3 once-per-session check removed (every open writes)
+  file: Alveara.Api\Architecture\Auditing\PatientAccessRecorder.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (21s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 19 s - Alveara.Api.Tests.dll (net10.0) (25s)
+    caught by: Failed Alveara.Api.Tests.PatientAccessTrailTests.A_record_open_is_written_once_per_patient_per_session_and_never_for_searches_or_the_history [192 ms]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C4 username fallback removed
+  file: Alveara.Api\Architecture\Clinical\ClinicalNames.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (22s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 17 s - Alveara.Api.Tests.dll (net10.0) (24s)
+    caught by: Failed Alveara.Api.Tests.AuditLogApiTests.A_person_is_named_by_staff_display_name_else_username_and_never_by_a_bare_id [62 ms]
+    Error Message:
+    Assert.Equal() Failure: Strings differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C5 different-birth-date rule removed
+  file: Alveara.Api\Architecture\Patients\Merge\PatientDuplicateScanner.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (16s)
+  tests: Failed!  - Failed:     3, Passed:     0, Skipped:     0, Total:     3, Duration: 15 s - Alveara.Api.Tests.dll (net10.0) (29s)
+    caught by: Failed Alveara.Api.Tests.PatientDuplicateWarningTests.The_same_name_with_a_different_birth_date_and_a_shared_contact_detail_is_warned_never_refused(phone: "(555) 010-0100", email: null, line1: "9 Oak Ave", reason: "Same name and phone number, different birth date") [636 ms]
+    caught by: Failed Alveara.Api.Tests.PatientDuplicateWarningTests.The_same_name_with_a_different_birth_date_and_a_shared_contact_detail_is_warned_never_refused(phone: "(555) 999-0000", email: "carla@example.test", line1: "9 Oak Ave", reason: "Same name and email, different birth date") [82 ms]
+    caught by: Failed Alveara.Api.Tests.PatientDuplicateWarningTests.The_same_name_with_a_different_birth_date_and_a_shared_contact_detail_is_warned_never_refused(phone: "(555) 999-0000", email: null, line1: "1 MAIN ST", reason: "Same name and address, different birth date") [96 ms]
+    Error Message:
+    Assert.Throws() Failure: No exception was thrown
+    Expected: typeof(Alveara.Api.Architecture.Patients.PatientRegistrationException)
+    Error Message:
+    Assert.Throws() Failure: No exception was thrown
+    Expected: typeof(Alveara.Api.Architecture.Patients.PatientRegistrationException)
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C6 WHERE EndedAtUtc IS NULL removed from the expiry pass
+  file: Alveara.Api\Architecture\Auditing\AuditSessionStore.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (16s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 15 s - Alveara.Api.Tests.dll (net10.0) (28s)
+    caught by: Failed Alveara.Api.Tests.AuditSessionLifecycleTests.A_sign_out_racing_the_expiry_pass_leaves_exactly_one_end_event_over_twenty_rounds [129 ms]
+    Error Message:
+    Microsoft.Data.SqlClient.SqlException : A closed session lifecycle record never changes.
+    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+    at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+    at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C7 permission check removed from the History route
+  file: Alveara.Api\Controllers\PatientsController.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (21s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 19 s - Alveara.Api.Tests.dll (net10.0) (26s)
+    caught by: Failed Alveara.Api.Tests.AuditLogApiTests.An_audit_reader_without_patient_access_sees_the_same_phi_free_row_and_is_refused_the_history_itself [348 ms]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C8 MA-01: the MRN guard given the merge stand-aside line
+  file: Alveara.Api\Migrations\20261120011518_AddPatientMrn.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (21s)
+  tests: Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 14 s - Alveara.Api.Tests.dll (net10.0) (21s)
+    caught by: Failed Alveara.Api.Tests.PatientMergeSchemaTests.Every_update_trigger_on_those_tables_stands_aside_for_a_merge_except_the_merge_scope_triggers_and_the_merged_mark [1 ms]
+    caught by: Failed Alveara.Api.Tests.MrnTests.The_mrn_guard_holds_inside_a_merge_session [1 ms]
+    Error Message:
+    Alveara.Api.Tests.TemplateBuildException : The template database could not be built: SqlException
+    ---- Microsoft.Data.SqlClient.SqlException : Incorrect syntax near 'alveara'.
+    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+    at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+    at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C9 MA-01: the MRN guard's trigger order not set
+  file: Alveara.Api\Migrations\20261120011518_AddPatientMrn.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (15s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 16 s - Alveara.Api.Tests.dll (net10.0) (29s)
+    caught by: Failed Alveara.Api.Tests.MrnTests.The_mrn_guard_holds_inside_a_merge_session [66 ms]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C10 U-017 stand-aside line not added
+  file: Alveara.Api\Migrations\20261120022648_AddMergeTriggerIntegrityRepairs.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (13s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 16 s - Alveara.Api.Tests.dll (net10.0) (27s)
+    caught by: Failed Alveara.Api.Tests.MergeTriggerIntegrityTests.U017_reproduced_before_the_repair_and_after_it_a_patient_with_a_document_linked_clearance_merges_and_unmerges [274 ms]
+    Error Message:
+    Assert.NotEqual() Failure: Strings are equal
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C11 U-016 term for Clearances.DocumentId not added
+  file: Alveara.Api\Migrations\20261120022648_AddMergeTriggerIntegrityRepairs.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (14s)
+  tests: Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 19 s - Alveara.Api.Tests.dll (net10.0) (32s)
+    caught by: Failed Alveara.Api.Tests.PatientMergeSchemaTests.Every_table_that_holds_a_patient_id_has_a_merge_scope_trigger_that_lists_every_other_column [271 ms]
+    caught by: Failed Alveara.Api.Tests.MergeTriggerIntegrityTests.U016_each_column_is_refused_inside_a_merge_only_after_the_repair_and_unchanged_outside_one [1 s]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+    Error Message:
+  restore: byte-identical (git diff clean)
+
+final rebuild of the restored tree: exit 0 (14s)
+
+SUMMARY
+  CAUGHT      C1 MRN retry removed (collision is rethrown at once)
+  CAUGHT      C2 guard 51298 disabled (the trigger lets an MRN change)
+  CAUGHT      C3 once-per-session check removed (every open writes)
+  CAUGHT      C4 username fallback removed
+  CAUGHT      C5 different-birth-date rule removed
+  CAUGHT      C6 WHERE EndedAtUtc IS NULL removed from the expiry pass
+  CAUGHT      C7 permission check removed from the History route
+  CAUGHT      C8 MA-01: the MRN guard given the merge stand-aside line
+  CAUGHT      C9 MA-01: the MRN guard's trigger order not set
+  CAUGHT      C10 U-017 stand-aside line not added
+  CAUGHT      C11 U-016 term for Clearances.DocumentId not added
+total 538s; all caught: True

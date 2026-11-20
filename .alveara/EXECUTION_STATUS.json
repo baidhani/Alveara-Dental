@@ -191,12 +191,12 @@
       "dependencies": ["ALV-N024"],
       "optional": false,
       "qualityGateContribution": ["Gate F"],
-      "status": "PLANNED",
-      "attempt": null,
+      "status": "AWAITING_REVIEW",
+      "attempt": "R01",
       "acceptance": {"total": 5, "passed": 0},
-      "tests": {"status": "not_started", "summary": null}, "demo": "not_started", "parentRegression": "n/a", "implementationCommit": null, "evidenceCommit": null, "handoffPath": null,
+      "tests": {"status": "passed", "summary": "Attempt R01 (Stage 1) on implementation f0c474b (final implementation 3dcaf8d + a test-only fix; sweep G1-G3 on 3dcaf8d, G4 and the client gates on f0c474b): actor names and the audit page with an opaque History link (BR-02), observability, U-015 restored; the register-anyway reason and the different-birth-date duplicate rule; MRN (AddPatientMrn with PatientMrnArchive, 51298/51302); merge-guard repairs U-016/U-017 (AddMergeTriggerIntegrityRepairs); demographics and Country (AddPatientCountry); the patient-access trail and the audit-only session lifecycle (AddPatientAccessAudit, 51299/51300/51301, SES-1); household dissolve, in-page confirms, import wording and multi-status filter, merge identity rule (MRG-1), matrix access proof. Server 487/487 (32 classes); tsc app/node, lint, vite build pass; vitest 2140/2141 (the one failure is U-018, a pre-existing flaky ALV-N024 test, failing 7/10 at its closure 996dec1); browser identity-audit-integrity 6/6; negative controls 11/11 caught. fullRegression DEFERRED_TO_ALV-N028; not release-certified."}, "demo": "real_backend_identity_audit_integrity_6_of_6", "parentRegression": "n/a", "implementationCommit": "f0c474baeb352e668b5011df4448ace6eefacf17", "evidenceCommit": null, "handoffPath": ".alveara/handoffs/ALV-N025/R01.md",
       "review": {"decision": "pending", "decisionArtifact": null, "approvedAttempt": null, "reviewedImplementationCommit": null, "reviewedEvidenceCommit": null},
-      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null
+      "blockingIssues": [], "revalidation": {"required": false, "reason": null}, "completedAt": null, "fullRegression": "DEFERRED_TO_ALV-N028", "releaseCertified": false, "regressionLedger": ".alveara/PROGRAM_REGRESSION_LEDGER.md"
     },
     {
       "schemaVersion": "2",

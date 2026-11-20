@@ -1,0 +1,19 @@
+{
+  "users": {
+    "desk": "desk-1795185331542",
+    "leaver": "leaver-1795185331542",
+    "auditor": "auditor-1795185331542",
+    "manager": "manager-1795185331542"
+  },
+  "registration": {
+    "mrn": "63930782135",
+    "overrideAudited": true
+  },
+  "recordOpenedRowsForThisSession": 1,
+  "signOutRecorded": true,
+  "historyBoundary": {
+    "adminFollowed": true,
+    "auditorRefused": true
+  },
+  "managerMatrixReadOnly": true
+}

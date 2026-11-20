@@ -3376,3 +3376,45 @@
   - What changed: ClinicalNames username fallback (one actor-name rule; follow-ups and assignee picker, U-011); AuditLogReader + AuditLogController (moved from AuthController, 521 -> 489 lines; names, event-type/date filters, event-types read, opaque historyEntryId on PatientUpdated, PHI-free); PatientWrite.History returns its id, edit audit carries it; guarantor/household audit details by id and relationship; permission history and encounter history names; SafeExceptionHandlingMiddleware ClientAborted + SQL number; MeasurementCategory.Of on failure paths; console UTC timestamp; client audit page (names, filters, heading, History link only with ViewPatientRecords), policy history, encounter history; U-015: new migration RestoreAppointmentRetiredRecordGuard re-adds the 51235 guard dropped by ALV-N021 A2 M6
   - Verification: server 12 classes 195/196 (230 s; the 1 failure exposed U-015), then RetiredRecordGuardTests + AppointmentMergeScopeMigrationTests 11/11 with the restore migration (58 s); vitest 7 files 104/105 then the audit page keyboard test updated to the new tab order (filters first) 13/13
   - Notes: U-015 recorded and assigned to ALV-N025 by the owner; new tests AuditLogApiTests (3, incl. BR-02), ObservabilityClassificationTests (9), 2 U015 tests, AuditLogPage.n025.test (4). Not pushed.
+- [ ] ALV-N025 slice 2: register-anyway reason, different-birth-date duplicate rule, Not-a-duplicate label, picker detail (written late under the catch-up rule)
+  - Date: 2026-11-19
+  - Session: CC-20261115-m7x2
+  - What changed: OverrideReason (override_reason_required, ids audited, reason in Reason); PatientMatchRules.DifferentBirthDateReasons used by registration, import and the scan; Not-a-duplicate visible required reason; picker phone and city (wip 9555568)
+  - Verification: server 8 classes 124/124 after fixing 2 test-setup failures; client 44/44
+  - Notes: four old tests changed to the approved rule (brief S3), not loosened. Not pushed.
+- [ ] ALV-N025 slice 3: patient MRN with archive (AddPatientMrn), search, display, export (written late under the catch-up rule)
+  - Date: 2026-11-19
+  - Session: CC-20261115-m7x2
+  - What changed: MRN allocation at save with retry and mrn_busy; PatientMrnArchive (MRN rollback addendum, ADDENDUM-R01); 51298 first in trigger order; search, header, details, export source.mrn (EXP-1); SchedulingTestSupport.PatientAsync acknowledges likely duplicates (wip 82e387e)
+  - Verification: MrnTests 10/10, MrnMigrationTests 5/5, client 56/56
+  - Notes: the archive design is the reviewed MRN rollback addendum; U-016/U-017 were found during this slice. Not pushed.
+- [ ] ALV-N025 merge-integrity repairs U-016/U-017 (AddMergeTriggerIntegrityRepairs) (written late under the catch-up rule)
+  - Date: 2026-11-20
+  - Session: CC-20261115-m7x2
+  - What changed: five merge-scope terms and the TR_Clearances_DocumentSamePatient stand-aside line by text edit (MERGE-ADDENDUM-R02); U-016 corrected to one exposed column (wip 57f30d8)
+  - Verification: MergeTriggerIntegrityTests + PatientMergeSchemaTests 18/18
+  - Notes: "cannot change" proofs for four columns (owner decision). Not pushed.
+- [ ] ALV-N025 slice 4: demographics lists and Country (AddPatientCountry) (written late under the catch-up rule)
+  - Date: 2026-11-20
+  - Session: CC-20261115-m7x2
+  - What changed: Sex/Country/US-State lists (DEM-1..DEM-4), normalization with SystemNormalized History rows, review endpoint and page, practice default country, export/CSV country (wip dd57ee3)
+  - Verification: server 139/142 then 25/25 after fixes; client 111/111
+  - Notes: this commit also introduced a client build defect (DemographicReviewPage import) found in slice 7; two client runs were made before the code was shown. Not pushed.
+- [ ] ALV-N025 slice 5: patient-access trail and audit-only session lifecycle (AddPatientAccessAudit) (written late under the catch-up rule)
+  - Date: 2026-11-20
+  - Session: CC-20261115-m7x2
+  - What changed: AuditSessions/PatientRecordOpens with 51299-51301, SessionCookies (one sid, one deadline; SES-1), sign-out/expiry/revocation exactly once, record opens, print events, download events (wip 96f5f62)
+  - Verification: server 127/127 after fixes (OUTPUT without INTO on a triggered table), client audit page 13/13
+  - Notes: the commit message's "103/127 first run" was never captured - do not quote it. Not pushed.
+- [ ] ALV-N025 slice 6: household dissolve, in-page confirms, import wording and multi-status filter, merge identity rule (written late under the catch-up rule)
+  - Date: 2026-11-20
+  - Session: CC-20261115-m7x2
+  - What changed: OQ-5 dissolve, ConfirmInline (F-042), F-147 wording, F-144 multi-status, MRG-1 explanation, Q-5cl API proof (wip 7df91c2)
+  - Verification: server 113/113, client 135/135 (first run)
+  - Notes: Not pushed.
+- [ ] ALV-N025 slice 7 and final implementation: browser spec, controls, sweep (implementation 3dcaf8d + test-only f0c474b)
+  - Date: 2026-11-20
+  - Session: CC-20261115-m7x2
+  - What changed: identity-audit-integrity-real-backend spec; session race and auth-independence tests; DemographicReviewPage build fix; fakePatientServer country; record-open actor check made deterministic
+  - Verification: server 487/487 (32 classes); tsc app/node, lint, vite build pass; vitest 2140/2141 (U-018 pre-existing, 7/10 at 996dec1); browser 6/6; negative controls 11/11
+  - Notes: client tsc claims in slices 1-6 were vacuous (root tsconfig checks nothing). Handoff .alveara/handoffs/ALV-N025/R01.md, AWAITING_REVIEW. Not pushed.

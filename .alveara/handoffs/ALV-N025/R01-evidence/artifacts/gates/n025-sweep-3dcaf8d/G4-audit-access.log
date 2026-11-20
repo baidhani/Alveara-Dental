@@ -1,0 +1,15 @@
+Test run for C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+[xUnit.net 00:02:58.71]     Alveara.Api.Tests.PatientAccessTrailTests.A_record_open_is_written_once_per_patient_per_session_and_never_for_searches_or_the_history [FAIL]
+  Failed Alveara.Api.Tests.PatientAccessTrailTests.A_record_open_is_written_once_per_patient_per_session_and_never_for_searches_or_the_history [546 ms]
+  Error Message:
+   Assert.Equal() Failure: Values differ
+Expected: Tuple ("Patient", 242e2cd6-fe54-411f-b790-c8698b8a8400)
+Actual:   Tuple ("Patient", 66f459b9-47fe-4232-adb6-f2178504db5a)
+  Stack Trace:
+     at Alveara.Api.Tests.PatientAccessTrailTests.A_record_open_is_written_once_per_patient_per_session_and_never_for_searches_or_the_history() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\PatientAccessTrailTests.cs:line 67
+   at Alveara.Api.Tests.PatientAccessTrailTests.A_record_open_is_written_once_per_patient_per_session_and_never_for_searches_or_the_history() in C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\PatientAccessTrailTests.cs:line 68
+--- End of stack trace from previous location ---
+Results File: C:\.alvera-data\Test-Data\Temp\n025-sweep-3dcaf8d\G4-audit-access.trx
+
+Failed!  - Failed:     1, Passed:   203, Skipped:     0, Total:   204, Duration: 3 m 9 s - Alveara.Api.Tests.dll (net10.0)

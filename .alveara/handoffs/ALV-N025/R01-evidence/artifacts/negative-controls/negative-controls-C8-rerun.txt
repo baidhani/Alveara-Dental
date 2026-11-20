@@ -1,0 +1,21 @@
+ALV-N025 negative controls - started 2026-11-20T08:46:30  (HEAD 7df91c2)
+
+====================================================================================================
+C8 MA-01: the MRN guard given the merge stand-aside line
+  file: Alveara.Api\Migrations\20261120011518_AddPatientMrn.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (14s)
+  tests: Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 16 s - Alveara.Api.Tests.dll (net10.0) (29s)
+    caught by: Failed Alveara.Api.Tests.MrnTests.The_mrn_guard_holds_inside_a_merge_session [53 ms]
+    caught by: Failed Alveara.Api.Tests.PatientMergeSchemaTests.Every_update_trigger_on_those_tables_stands_aside_for_a_merge_except_the_merge_scope_triggers_and_the_merged_mark [84 ms]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+    Error Message:
+    Assert.Contains() Failure: Item not found in collection
+  restore: byte-identical (git diff clean)
+
+final rebuild of the restored tree: exit 0 (17s)
+
+SUMMARY
+  CAUGHT      C8 MA-01: the MRN guard given the merge stand-aside line
+total 61s; all caught: True

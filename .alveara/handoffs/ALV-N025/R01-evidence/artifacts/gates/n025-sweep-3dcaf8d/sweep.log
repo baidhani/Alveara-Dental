@@ -1,0 +1,8 @@
+ALV-N025 sweep D on 3dcaf8d (0 changed files in the tree) - 2026-11-20T08:48:14-06:00
+build: exit 0
+G1-identity: exit 0, 98s - Passed!  - Failed:     0, Passed:   117, Skipped:     0, Total:   117, Duration: 1 m 32 s - Alveara.Api.Tests.dll (net10.0) - classes: PatientDuplicateWarningTests PatientRegistrationServiceTests PatientIdentityApiTests PatientDuplicateScannerTests PatientDuplicateReviewTests ImportPatientDryRunTests ImportCommitTests
+G2-mrn-merge: exit 0, 190s - Passed!  - Failed:     0, Passed:    69, Skipped:     0, Total:    69, Duration: 3 m 7 s - Alveara.Api.Tests.dll (net10.0) - classes: MrnTests MrnMigrationTests MergeTriggerIntegrityTests PatientMergeSchemaTests PatientUnmergeSchemaTests PatientMergeServiceTests RetiredRecordGuardTests HouseholdDissolveTests
+G3-demographics-files: exit 0, 101s - Passed!  - Failed:     0, Passed:    97, Skipped:     0, Total:    97, Duration: 1 m 36 s - Alveara.Api.Tests.dll (net10.0) - classes: DemographicsValidationTests DemographicsMigrationTests PatientExportServiceTests PatientImportValidatorTests PatientImportServiceTests PatientExportApiTests PatientImportApiTests PatientExportsApiTests
+G4-audit-access: exit 1, 192s - Failed!  - Failed:     1, Passed:   203, Skipped:     0, Total:   204, Duration: 3 m 9 s - Alveara.Api.Tests.dll (net10.0) - classes: AuditLogApiTests AuditSessionLifecycleTests PatientAccessTrailTests DocumentApiTests AuthControllerMfaConfirmSessionTests AccountServiceMfaTests ObservabilityClassificationTests PermissionPolicyWriteTests AppointmentSchedulerTests
+  Failed Alveara.Api.Tests.PatientAccessTrailTests.A_record_open_is_written_once_per_patient_per_session_and_never_for_searches_or_the_history [546 ms]
+STOP: G4-audit-access failed or exceeded 300 s
