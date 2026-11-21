@@ -49,3 +49,28 @@ Corrected from my earlier list: **PdfPig** is primarily a PDF reading and extrac
 - Skia PDF metadata (UUID from the current time): https://skia.googlesource.com/skia/+/main/src/pdf/SkPDFMetadata.cpp; the `SKDocumentPdfMetadata` API: https://learn.microsoft.com/dotnet/api/skiasharp.skdocumentpdfmetadata
 
 Third-party vendor articles (IronSoftware) were seen in the results but not relied on, because they come from a competitor.
+
+## Measured spike results (2026-11-20, scratch only, outside the repository)
+Method: the same prescription layout (practice, patient, MRN, address, medication table, signature line, a rotated CANCELLED watermark) rendered twice by **separate processes** about 2 s apart. Fonts: Arial regular and bold copied into a spike font folder. Outputs were byte-compared with `cmp`.
+
+**Typst 0.15.1** (official Windows x86_64 release zip, SHA-256 `19ce3551153c2fe7ee9fa2f95208310c8f4d3209fedb699e0333faf8913f6736`; the shipped LICENSE is Apache-2.0 and the NOTICE lists MIT third-party parts). Flags: `--ignore-system-fonts --ignore-embedded-fonts --font-path fonts`, data passed as JSON through `--input`, each run in its own copied folder.
+
+| Mode | Result | Varying fields |
+|---|---|---|
+| No timestamp | DIFFER (46 bytes) | `CreationDate`/`ModDate`, XMP dates and `xmpMM:InstanceID`, and the second trailer `/ID` (all derived from the wall clock) |
+| `--creation-timestamp` fixed | **IDENTICAL** (50,410 bytes) | none. Dates are written in UTC (`D:20261119120000Z`); the InstanceID and `/ID` follow the timestamp; font subset tags are stable |
+| Fixed plus `--pdf-standard a-2b` | **IDENTICAL** (53,663 bytes) | none |
+
+Not exercised: a different time zone (Windows ignored the `TZ` variable in the default run). The fixed mode writes UTC, so the time zone should not matter, but this is unproven on a second machine.
+
+**SkiaSharp 4.157.0** (SkiaSharp and NativeAssets.Win32 nuspecs: MIT). Direct drawing through `SKDocument.CreatePdf`.
+
+| Mode | Result | Notes |
+|---|---|---|
+| No dates | IDENTICAL (1,110,913 bytes) | no `/ID` and no XMP are written |
+| Fixed `Creation`/`Modified` | IDENTICAL | **Defect: a 12:00 UTC value is written as `D:20261119120000-06'00'`**, the UTC clock time labelled with the machine's local offset. The bytes depend on the host's time zone, and the date is wrong |
+| PDF/A (`PdfA = true`) with fixed dates | **DIFFER (104 bytes)** | trailer `/ID` and XMP `uuid:` change on every run (time-derived), as the source suggested |
+
+SkiaSharp also embedded about 1.1 MB of font data for two fonts, against Typst's 50 KB for the same page. There is no layout engine: the text positions were hand-coded.
+
+**Read:** Typst met the byte-for-byte requirement in every fixed mode tested. SkiaSharp meets it only without PDF/A and without dates (or with a work-around for the offset defect), and needs our own layout code. Neither is added to DentalKeep; this waits for review.
