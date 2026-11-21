@@ -115,7 +115,8 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 **Common rules:**
 - Issue rows are **append-only**: an INSTEAD OF UPDATE/DELETE trigger refuses any change.
 - They hold **no PDF**. Their envelopes hold only the identity and practice text shown.
-- **Merge scope (approved by review item 4 as a tested implementation detail).** They are scoped to the patient and join the established merge-scope pattern, with the established guard and stand-aside behaviour. The migration slice records the exact triggers and guard codes, and proves directly in SQL that:
+- **Ownership (owner decision 2026-11-21, `ALV-N026_ISSUE_ROW_OWNERSHIP_DECISION.md`, superseding this brief where they differ):** `PrescriptionIssues` and `TreatmentPlanCopyIssues` carry no `PatientId`; they reach the patient through their parent (enforced foreign key) and inherit its merge behaviour, so they are not added to the merge machinery. Only `ClinicalRecordCopyIssues` is directly patient-owned.
+- **Merge scope (approved by review item 4 as a tested implementation detail; now for `ClinicalRecordCopyIssues` only).** Patient-owned issue rows are scoped to the patient and join the established merge-scope pattern, with the established guard and stand-aside behaviour. The migration slice records the exact triggers and guard codes, and proves directly in SQL that:
   - an ordinary direct change of a row's patient scope is refused;
   - an approved patient merge reassigns the issue rows correctly without weakening their append-only protection.
 - Regeneration: rebuild from the cut-offs and the envelope, then render the recorded template version with the current approved bundle. Missing, inconsistent or unprovable versioned source data gives `integrity_mismatch` (409) **before rendering**, with a log entry carrying its `error_class`.
@@ -130,7 +131,7 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 - **Unchanged:** v1 to v3 rebuild with their own versions.
 
 ### 3.2 `PrescriptionIssues` (D1, D2, F-164)
-`Id`, `PrescriptionId`, `PatientId`, `IssueKind` (`Print` | `RecordCopy`), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`p2`), `StatusAtIssue`, `EventCutoffId` (the last `PrescriptionEvent` id at issue, or null if none), `EnvelopeJson`, `RenderBundleId`, `ContentHash` (**optional diagnostic**, per D1), `IdempotencyKey`, `CorrelationId`.
+`Id`, `PrescriptionId` (no `PatientId`: ownership decision), `IssueKind` (`Print` | `RecordCopy`), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`p2`), `StatusAtIssue`, `EventCutoffId` (the last `PrescriptionEvent` id at issue, or null if none), `EnvelopeJson`, `RenderBundleId`, `ContentHash` (**optional diagnostic**, per D1), `IdempotencyKey`, `CorrelationId`.
 - **`EnvelopeJson`** holds the patient name, date of birth and MRN; the prescriber name and (after G2) credential fields from the staff profile; and the practice name, phone and address.
 - **Rebuild sources:** `Prescription` and `PrescriptionDetail` (immutable), plus the status and reason as of `EventCutoffId` (from `PrescriptionEvent`), plus the envelope.
 - **`IssueKind = RecordCopy`** for an inactive status: the watermark, the status date and the reason.
@@ -150,7 +151,7 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 **Staff profile:** four nullable fields (`CredentialLabel`, `LicenseNumber`, `LicenseJurisdiction`, `Npi`), edited by an administrator, audited without values, and copied into the `PrescriptionIssue` envelope at issue.
 
 ### 3.3 `TreatmentPlanCopyIssues` (D3)
-`Id`, `PlanId`, `PatientId`, `RevisionNumber`, `ItemStateCutoffJson` (item id to the highest `TreatmentPlanItemState.Sequence` at issue), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`v2`, with the MRN), `EnvelopeJson` (practice, patient name and MRN), `RenderBundleId`, an optional `ContentHash`, `IdempotencyKey`, `CorrelationId`.
+`Id`, `PlanId` (no `PatientId`: ownership decision), `RevisionNumber`, `ItemStateCutoffJson` (item id to the highest `TreatmentPlanItemState.Sequence` at issue), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`v2`, with the MRN), `EnvelopeJson` (practice, patient name and MRN), `RenderBundleId`, an optional `ContentHash`, `IdempotencyKey`, `CorrelationId`.
 
 **Rebuild sources:**
 
