@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { BackupAlertBanner } from "./BackupAlertBanner";
 import { useEffect, useRef } from "react";
 import { usePersistedTheme } from "./useAppTheme";
 import { useServerConnection } from "../contexts/connectionStatusContext";
@@ -36,7 +37,9 @@ export function AppShell() {
     if (state.kind === "signed-in") navigate("/", { replace: true });
   }, [identityEpoch, state.kind, navigate]);
 
-  const visibleModules = moduleRegistry.filter((mod) => (!mod.requiredPermission || hasPermission(mod.requiredPermission)) && (!mod.anyPermission || mod.anyPermission.some((p) => hasPermission(p))));
+  const isAdmin = state.kind === "signed-in" && state.role === "Admin";
+  const visibleModules = moduleRegistry.filter((mod) => (!mod.requiredPermission || hasPermission(mod.requiredPermission)) && (!mod.anyPermission || mod.anyPermission.some((p) => hasPermission(p)))
+    && (!mod.requiredRole || (state.kind === "signed-in" && state.role === mod.requiredRole)));
 
   async function handleSignOut() {
     // Signing out discards any open draft, so it asks first like every other voluntary exit.
@@ -138,6 +141,9 @@ export function AppShell() {
             <button type="button" className="alv-shell__link-button" onClick={dismissPracticeZoneChange}>Dismiss</button>
           </div>
         )}
+
+        {/* ALV-N026 (PD-25): the administrators' banner for unacknowledged backup and restore failures */}
+        {isAdmin && <BackupAlertBanner />}
 
         {/* ALV-003-C01: the shared patient identity header (the placeholder this region held until patients existed). */}
         <PatientHeader />

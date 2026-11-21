@@ -211,6 +211,16 @@ public class RestoreDrillRecord
 }
 
 /// <summary>A notification the system tried to deliver and what happened - delivery never changes a backup's own status.</summary>
+/// <summary>ALV-N026 (PD-25): that an administrator acknowledged a backup failure alert. One per alert, append-only (the database refuses a change or a deletion). It hides the alert from the
+/// administrator banner; it never resolves the condition (System Status stays in warning until a later success).</summary>
+public class BackupAlertAcknowledgement
+{
+    public Guid Id { get; set; }
+    public Guid BackupNotificationRecordId { get; set; }
+    public Guid AcknowledgedByUserId { get; set; }
+    public DateTimeOffset AcknowledgedAtUtc { get; set; }
+}
+
 public class BackupNotificationRecord
 {
     public Guid Id { get; set; }

@@ -140,7 +140,7 @@ export function RestoreWizard({ record, archive, onClose, onChanged }: { record?
       {stage.kind === "material" && (
         <>
           <h3>Step 1 - recovery material</h3>
-          <FormField label="Recovery key file" type="file" accept=".pem,.key,.txt" onChange={(e) => readKeyFile(e.target.files?.[0])} hint="The key file you stored offline when the recovery key was created." />
+          <FormField label="Recovery key file" type="file" accept=".asc,.pem,.key,.txt"   /* ALV-N026 (F-153): the generated key is saved as .asc */ onChange={(e) => readKeyFile(e.target.files?.[0])} hint="The key file you stored offline when the recovery key was created." />
           <div className="alv-form-field">
             <label className="alv-form-field__label" htmlFor="wizard-key-text">
               Or paste the key file contents

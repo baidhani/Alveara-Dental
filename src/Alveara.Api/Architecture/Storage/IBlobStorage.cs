@@ -132,3 +132,6 @@ public sealed class LocalDiskBlobStorage : IBlobStorage
 
     private string PathFor(Guid blobId) => Path.Combine(_storageRoot, blobId.ToString("N"));
 }
+
+/// <summary>ALV-N026 (D-06): where the document store lives, so System Status can say whether it is reachable and how much space is free. The path itself is never sent to a client.</summary>
+public sealed record StorageRootInfo(string Path);

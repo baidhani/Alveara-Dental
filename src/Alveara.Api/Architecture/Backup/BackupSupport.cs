@@ -34,7 +34,8 @@ public sealed record BackupManifest(
     public static readonly JsonSerializerOptions Json = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 }
 
-public sealed record BackupNotification(string Kind, string Message, Guid? BackupRecordId);
+/// <remarks>ALV-N026 (PD-25): <c>AlertId</c> is the durable alert record's id, so the in-app channel can key its notifications on it (one per administrator per alert).</remarks>
+public sealed record BackupNotification(string Kind, string Message, Guid? BackupRecordId, Guid? AlertId = null);
 
 /// <summary>
 /// Success/failure notification for a LOCAL deployment (no internet mail assumed): the default

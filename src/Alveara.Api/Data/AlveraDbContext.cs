@@ -53,6 +53,7 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
     public DbSet<BackupRecord> BackupRecords => Set<BackupRecord>();
     public DbSet<RestoreDrillRecord> RestoreDrills => Set<RestoreDrillRecord>();
     public DbSet<BackupNotificationRecord> BackupNotifications => Set<BackupNotificationRecord>();
+    public DbSet<BackupAlertAcknowledgement> BackupAlertAcknowledgements => Set<BackupAlertAcknowledgement>();   // ALV-N026 (PD-25)
     public DbSet<DeploymentInvariantRecord> DeploymentInvariants => Set<DeploymentInvariantRecord>();
 
     // STORY-003: patient registration.
@@ -325,6 +326,15 @@ public class AlveraDbContext(DbContextOptions<AlveraDbContext> options) : DbCont
             e.Property(n => n.Delivery).HasConversion<string>().HasMaxLength(20);
             e.Property(n => n.DeliveryFailureCode).HasMaxLength(60);
             e.HasIndex(n => n.CreatedAtUtc);
+        });
+
+        // ALV-N026 (PD-25): one append-only acknowledgement per backup alert (TR_BackupAlertAcknowledgements_Immutable refuses a change or a deletion)
+        modelBuilder.Entity<BackupAlertAcknowledgement>(e =>
+        {
+            e.ToTable("BackupAlertAcknowledgements", t => t.HasTrigger("TR_BackupAlertAcknowledgements_Immutable"));
+            e.HasIndex(a => a.BackupNotificationRecordId).IsUnique();
+            e.HasOne<BackupNotificationRecord>().WithMany().HasForeignKey(a => a.BackupNotificationRecordId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<UserAccount>().WithMany().HasForeignKey(a => a.AcknowledgedByUserId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // STORY-003: patients are registered, never deleted by the application. The unique DuplicateKey

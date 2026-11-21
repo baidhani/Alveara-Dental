@@ -59,6 +59,7 @@ builder.Services.AddSingleton<IPracticeClock>(_ => new PracticeClock(practiceTim
 var storageRoot = builder.Configuration["StorageRoot"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "blobs");
 builder.Services.AddSingleton<IBlobStorage>(_ => new LocalDiskBlobStorage(storageRoot));
+builder.Services.AddSingleton(new Alveara.Api.Architecture.Storage.StorageRootInfo(storageRoot));   // ALV-N026 (D-06): System Status reads its reachability and free space
 builder.Services.AddSingleton(_ => new Alveara.Api.Architecture.Imports.ImportFileStorage(Path.Combine(storageRoot, "imports")));
 // ALV-N020-C01: the sign-in background derivatives, in their own folder and their own backup asset class (excluded from the documents class below).
 var loginBackgroundsRoot = Path.Combine(storageRoot, Alveara.Api.Architecture.LoginPresentation.LoginBackgroundStore.FolderName);
@@ -261,7 +262,12 @@ var backupPaths = new BackupPaths(
 builder.Services.AddSingleton(backupPaths);
 builder.Services.AddSingleton<IBackupSnapshotProvider>(_ => new SqlServerBackupSnapshotProvider(connectionString, backupPaths.DatabaseName));
 builder.Services.AddSingleton<IDatabaseRestoreProvider>(_ => new SqlServerRestoreProvider(connectionString));
-builder.Services.AddSingleton<IBackupNotifier, FileDropBackupNotifier>();
+builder.Services.AddSingleton<FileDropBackupNotifier>();
+// ALV-N026 (PD-25): every channel - the file drop always, and the administrators' inbox for failures and restore results
+builder.Services.AddSingleton<IBackupNotifier, CompositeBackupNotifier>();
+builder.Services.AddScoped<InAppBackupAlert>();
+builder.Services.AddScoped<BackupAlertService>();
+builder.Services.AddScoped<BackupHealth>();
 builder.Services.AddSingleton<IDeploymentSettingsProvider, RuntimeDeploymentSettingsProvider>();
 builder.Services.AddSingleton<DeploymentInvariantStatus>();
 builder.Services.AddHostedService<DeploymentInvariantMonitor>();

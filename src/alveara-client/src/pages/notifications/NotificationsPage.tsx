@@ -13,7 +13,8 @@ type State = { kind: "loading" } | { kind: "error" } | { kind: "loaded"; data: P
 
 const KIND_LABEL: Record<string, string> = { "document.duplicate_added": "A duplicate document was added", "message.received": "New message", "followup.due": "A follow-up is due",
   // ALV-N020 (F-021): sent Urgent to administrators and office managers; it carries no patient link, so it shows as text only
-  "staff.inactivation_failed": "A staff inactivation failed; the login was not disabled" };
+  "staff.inactivation_failed": "A staff inactivation failed; the login was not disabled",
+  "backup.alert": "A backup or restore check result for administrators; see System Status" };
 const when = (iso: string) => showInstant(iso);
 
 /** ALV-N015: the caller's own notifications. Unread ones can be marked read; only read ones can be hidden (a hidden entry is kept, never deleted). */

@@ -15,6 +15,8 @@ export interface ModuleDefinition {
   requiredPermission?: string;
   /** ALV-N018: the entry shows for a caller who holds any one of these (used instead of `requiredPermission`). */
   anyPermission?: string[];
+  /** ALV-N026 (D-06): the entry shows only for this role (System Status is administrator-only, whatever permissions are granted). */
+  requiredRole?: string;
   /** Optional override of when this entry is highlighted (default: the current path starts with `path`). */
   activeWhen?: (pathname: string) => boolean;
 }
@@ -40,7 +42,7 @@ const baseRegistry: ModuleDefinition[] = [
   { id: "external-cases", label: "Referrals & labs", path: "/external-cases", requiredPermission: "ViewExternalCases", activeWhen: (p) => p.startsWith("/external-cases") },
   { id: "messages", label: "Messages", path: "/messages" },
   SHOWCASE,
-  { id: "system-status", label: "System Status", path: "/system-status" },
+  { id: "system-status", label: "System Status", path: "/system-status", requiredRole: "Admin" },
   { id: "admin-users", label: "Security Administration", path: "/admin/users", anyPermission: ["ManageUsers", "ManageAccountStatus", "RevokeSessions"] },
   { id: "recall-settings", label: "Recall settings", path: "/admin/recall", requiredPermission: "ManageRecallSettings" },
   { id: "external-parties", label: "Outside parties", path: "/admin/external-parties", requiredPermission: "ManageExternalParties" },

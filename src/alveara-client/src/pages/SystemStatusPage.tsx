@@ -4,6 +4,10 @@ import { useSystemStatus, usePublicInternetSignal } from "../hooks/useSystemStat
 import type { SystemStatus } from "../hooks/useSystemStatus";
 import "./SystemStatusPage.css";
 import { showInstant } from "../time/practiceTime";
+import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { getAdminSystemStatus } from "../services/backupApi";
+import type { AdminSystemStatus } from "../services/backupApi";
 
 function StatusDot({ tone }: { tone: "success" | "warning" | "danger" | "unknown" }) {
   return <span className={`status-dot status-dot--${tone}`} aria-hidden="true" />;
@@ -101,7 +105,81 @@ function StatusGrid({ status, internetSignal }: { status: SystemStatus; internet
  * never silently keeps showing old "healthy" data once a poll starts failing — the "stale" state
  * says so explicitly, with the last time it was actually confirmed.
  */
+const GIB = 1024 * 1024 * 1024;
+const freeText = (bytes: number | null) => (bytes === null ? "Not known" : `${(bytes / GIB).toFixed(1)} GB free`);
+const when = (iso: string | null) => (iso ? showInstant(iso) : "Never");
+
+/**
+ * ALV-N026 (D-06, PD-25): the administrator's sections - backup and recovery, storage, staff accounts - from the administrator-only status endpoint. Counts and states only (no paths, keys,
+ * usernames or document names). A section the server could not read says so, never "healthy". The backup warning holds until a later success resolves the problem, whatever was acknowledged.
+ */
+export function AdminStatusSections() {
+  const [data, setData] = useState<AdminSystemStatus | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    getAdminSystemStatus(controller.signal).then(setData).catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    return () => controller.abort();
+  }, []);
+  if (failed) return <ErrorState title="Backup, storage and account status could not be read" description="Try again in a moment. This does not mean they are healthy." />;
+  if (!data) return <LoadingState label="Checking backup, storage and accounts…" />;
+  const { backup, storage, accounts } = data;
+  const unavailable = <p><StatusDot tone="unknown" />Could not be read right now; this does not mean it is healthy.</p>;
+  return (
+    <div className="status-grid" aria-label="Administrator status">
+      <div className="status-card">
+        <h3>Backup and recovery</h3>
+        {backup ? (
+          <>
+            <p><StatusDot tone={backup.warning ? "danger" : "success"} />{backup.warning ? "Needs attention" : "No problem found"}</p>
+            <ul>
+              <li>Last good backup: {when(backup.lastGoodBackupUtc)}</li>
+              <li>Last restore drill: {when(backup.lastRestoreDrillUtc)}{backup.lastRestoreDrillOutcome ? ` (${backup.lastRestoreDrillOutcome.toLowerCase()})` : ""}</li>
+              <li>Recovery key configured: {backup.recoveryKeyConfigured ? "Yes" : "No"}</li>
+              <li>Scheduled backups: {backup.scheduleEnabled ? (backup.overdue ? "Overdue" : "On time") : "Off"}</li>
+              <li>Unresolved failures: {backup.unresolvedFailures} (not yet acknowledged: {backup.unacknowledgedAlerts})</li>
+            </ul>
+            {backup.unresolvedFailures > 0 && <p className="status-caveat">A failure stays here until a later backup, verification or restore drill succeeds, even if it was acknowledged.</p>}
+          </>
+        ) : unavailable}
+      </div>
+      <div className="status-card">
+        <h3>Storage</h3>
+        {storage ? (
+          <>
+            <p><StatusDot tone={!storage.documentFolderReachable || storage.missingDocuments + storage.damagedDocuments > 0 ? "danger" : "success"} />
+              {storage.documentFolderReachable ? "Document folder reachable" : "Document folder NOT reachable"}</p>
+            <ul>
+              <li>Free space: {freeText(storage.freeBytes)}</li>
+              <li>Missing documents: {storage.missingDocuments}</li>
+              <li>Damaged documents: {storage.damagedDocuments}</li>
+            </ul>
+          </>
+        ) : unavailable}
+      </div>
+      <div className="status-card">
+        <h3>Staff accounts</h3>
+        {accounts ? (
+          <ul>
+            <li>Enabled: {accounts.enabled}</li>
+            <li>Disabled: {accounts.disabled}</li>
+            <li>Locked: {accounts.locked}</li>
+            <li>Enabled without MFA: {accounts.enabledWithoutMfa}</li>
+          </ul>
+        ) : unavailable}
+      </div>
+    </div>
+  );
+}
+
 export function SystemStatusPage() {
+  const { state: auth } = useAuth();
+  if (auth.kind !== "signed-in" || auth.role !== "Admin")
+    return <ErrorState title="System Status is for administrators" description="Ask a practice administrator if you need to know the state of the system." />;
+  return <SystemStatusContent />;
+}
+
+function SystemStatusContent() {
   const state = useSystemStatus();
   const internetSignal = usePublicInternetSignal();
 
@@ -133,6 +211,9 @@ export function SystemStatusPage() {
       )}
 
       {state.kind === "loaded" && <StatusGrid status={state.status} internetSignal={internetSignal} />}
+
+      <h2 className="alv-workspace__section-title">Backup, storage and staff accounts</h2>
+      <AdminStatusSections />
     </>
   );
 }

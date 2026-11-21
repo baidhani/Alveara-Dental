@@ -101,17 +101,26 @@ export function RestoreDrillList({ drills, onChanged }: { drills: RestoreDrill[]
   const [removing, setRemoving] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // ALV-N026 (F-154): one removal at a time, a busy state, and a result that stays until the next action
+  const [busy, setBusy] = useState(false);
+  const [lastResult, setLastResult] = useState<string | null>(null);
 
   async function remove(drill: RestoreDrill) {
+    if (busy) return;
+    setBusy(true);
     setError(null);
+    setLastResult(null);
     try {
       await removeRestoreTarget(drill.id, password);
       notify("success", "The isolated restore target was removed.");
+      setLastResult("The restored copy was removed.");
       setRemoving(null);
       setPassword("");
       onChanged();
     } catch (err) {
       setError(describeBackupError(err));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -119,6 +128,7 @@ export function RestoreDrillList({ drills, onChanged }: { drills: RestoreDrill[]
   return (
     <section className="alv-config-panel" aria-label="Restore drills">
       <h2 className="alv-config-panel__form-title">Restore drills</h2>
+      {lastResult && <p className="alv-config-panel__result" role="status">{lastResult}</p>}
       <table className="alv-config-panel__table">
         <thead>
           <tr>
@@ -148,10 +158,10 @@ export function RestoreDrillList({ drills, onChanged }: { drills: RestoreDrill[]
                       </p>
                     )}
                     <div className="alv-config-panel__form-actions">
-                      <Button variant="danger" onClick={() => remove(d)}>
-                        Remove the restored copy
+                      <Button variant="danger" onClick={() => remove(d)} disabled={busy}>
+                        {busy ? "Removing…" : "Remove the restored copy"}
                       </Button>
-                      <Button onClick={() => { setRemoving(null); setPassword(""); setError(null); }}>Cancel</Button>
+                      <Button onClick={() => { setRemoving(null); setPassword(""); setError(null); }} disabled={busy}>Cancel</Button>
                     </div>
                   </div>
                 )}

@@ -574,6 +574,31 @@ describe("Restore drills", () => {
     expect(await screen.findByText("The isolated restore target was removed.")).toBeInTheDocument();
     expect(api.calls.filter((c) => c.url.includes("/remove-target"))).toHaveLength(2);
   });
+
+  it("ALV-N026 (F-154): is busy while removing, cannot be clicked twice, and leaves a lasting result", async () => {
+    let release: (r: Response) => void = () => {};
+    const api = stubApi({ drills: [drill()], handlers: { "/remove-target": () => new Promise<Response>((resolve) => { release = resolve; }) } });
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: "Remove target…" }));
+    await userEvent.type(screen.getByLabelText("Your current password"), "right");
+    await userEvent.click(screen.getByRole("button", { name: "Remove the restored copy" }));
+    const busy = await screen.findByRole("button", { name: "Removing…" });
+    expect(busy).toBeDisabled();
+    await userEvent.click(busy);
+    expect(api.calls.filter((c) => c.url.includes("/remove-target"))).toHaveLength(1);
+    release(jsonResponse(drill({ targetRemoved: true })));
+    expect(await screen.findByText("The restored copy was removed.")).toBeInTheDocument();
+  });
+});
+
+describe("Restore wizard - ALV-N026 (F-153)", () => {
+  it("offers the generated .asc key file in the file picker", async () => {
+    stubApi({});
+    renderPage();
+    await userEvent.click(await screen.findByRole("button", { name: /Verify or restore/ }));
+    await screen.findByRole("dialog", { name: "Restore wizard" });
+    expect(screen.getByLabelText("Recovery key file").getAttribute("accept")).toContain(".asc");
+  });
 });
 
 describe("Accessibility", () => {

@@ -102,3 +102,19 @@ describe("AppShell — permission-aware navigation (ALV-N009)", () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe("AppShell - ALV-N026 (D-06): System Status is administrator-only", () => {
+  it("shows System Status to an administrator and not to anyone else, whatever they hold", async () => {
+    stubPermissions("OfficeManager", ["ViewBackupStatus", "ViewAuditLog"]);
+    const { unmount } = renderShell();
+    await waitFor(() => expect(screen.getByText("Dashboard content")).toBeInTheDocument());
+    expect(screen.queryByRole("link", { name: "System Status" })).not.toBeInTheDocument();
+    unmount();
+    vi.unstubAllGlobals();
+
+    stubPermissions("Admin", []);
+    renderShell();
+    expect(await screen.findByRole("link", { name: "System Status" })).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+});

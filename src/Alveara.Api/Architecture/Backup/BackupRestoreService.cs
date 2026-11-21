@@ -440,6 +440,7 @@ public class BackupRestoreService(
             }
             AuditService.Record(db, BackupAuditEvents.RestoreDrillCompleted, nameof(RestoreDrillRecord), drill.Id, actor, "Restore drill into an isolated target completed and validated.");
             await db.SaveChangesAsync(ct);
+            await NotifyFailureAsync(BackupAlertKinds.RestoreDrillSucceeded, $"Restore drill {drill.Id:N} succeeded.", recordId, CancellationToken.None);   // ALV-N026 (PD-25): restore results reach the administrators too
         }
         else
         {
@@ -597,13 +598,13 @@ public class BackupRestoreService(
         db.BackupNotifications.Add(row);
         try
         {
-            await notifier.DeliverAsync(new BackupNotification(kind, message, backupId), ct);
+            await notifier.DeliverAsync(new BackupNotification(kind, message, backupId, row.Id), ct);   // ALV-N026: the alert id keys the in-app notifications
             row.Delivery = BackupNotificationDelivery.Delivered;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             row.Delivery = BackupNotificationDelivery.Failed;
-            row.DeliveryFailureCode = "delivery_failed";
+            row.DeliveryFailureCode = ex is BackupDeliveryException d ? d.Code : "delivery_failed";   // ALV-N026: names the channel that failed (file drop, inbox or both)
         }
         await db.SaveChangesAsync(ct);
     }

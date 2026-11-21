@@ -24,7 +24,9 @@ public static class NotificationKinds
     /// <summary>ALV-N021 A2 (OD-15): an appointment's booked provider was changed. Sent Urgent to the old and the new provider's accounts; PHI-free (time and link only). The source key names the
     /// appointment and the reassignment event, so a retried reassignment sends nothing new. No patient, message or document.</summary>
     public const string AppointmentProviderReassigned = "appointment.provider_reassigned";
-    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue, StaffInactivationFailed, AppointmentProviderReassigned];
+    // ALV-N026 (PD-25): a backup failure or restore result for the administrators; only a source key (the durable alert record), no text, patient or document
+    public const string BackupAlert = "backup.alert";
+    public static readonly IReadOnlyList<string> All = [DocumentDuplicateAdded, MessageReceived, FollowUpDue, StaffInactivationFailed, AppointmentProviderReassigned, BackupAlert];
 }
 
 /// <summary>The producers whose immutable, ordered event history the consumer reads. One cursor row per source.</summary>

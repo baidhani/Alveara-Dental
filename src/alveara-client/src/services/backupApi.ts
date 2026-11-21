@@ -151,3 +151,37 @@ export const runRestoreDrill = (id: string, m: RecoveryMaterial) => requestWithC
 export const removeRestoreTarget = (drillId: string, currentPassword: string) =>
   requestWithCsrf<RestoreDrill>(`/api/backup/restore-drills/${drillId}/remove-target`, "POST", { currentPassword });
 export const sendTestNotification = () => requestWithCsrf<{ id: string; kind: string; delivery: string; deliveryFailureCode: string | null }>("/api/backup/notifications/test", "POST");
+
+// ---------- ALV-N026 (PD-25, D-06): backup alerts and the administrator's System Status ----------
+
+export type BackupAlertKind = "BackupFailed" | "BackupVerificationFailed" | "RestoreDrillFailed";
+export interface BackupAlert { id: string; kind: BackupAlertKind; createdAtUtc: string; delivery: string; deliveryFailureCode: string | null; acknowledged: boolean; acknowledgedAtUtc: string | null }
+
+/** The backup and restore failures no administrator has acknowledged yet (administrators only). */
+export function getUnacknowledgedBackupAlerts(signal?: AbortSignal): Promise<BackupAlert[]> {
+  return request<BackupAlert[]>("/api/backup/alerts/unacknowledged", { signal });
+}
+
+/** Acknowledges one alert (audited; acknowledging again changes nothing). It hides the alert from the banner; System Status stays in warning until the problem is resolved. */
+export function acknowledgeBackupAlert(id: string): Promise<BackupAlert> {
+  return requestWithCsrf<BackupAlert>(`/api/backup/alerts/${id}/acknowledge`, "POST");
+}
+
+export interface BackupHealth {
+  lastGoodBackupUtc: string | null; lastRestoreDrillUtc: string | null; lastRestoreDrillOutcome: string | null; recoveryKeyConfigured: boolean; scheduleEnabled: boolean;
+  overdue: boolean; unresolvedFailures: number; unacknowledgedAlerts: number; warning: boolean;
+}
+export interface StorageHealth { documentFolderReachable: boolean; freeBytes: number | null; missingDocuments: number; damagedDocuments: number }
+export interface AccountsSummary { enabled: number; disabled: number; locked: number; enabledWithoutMfa: number }
+/** A section the server could not read is null: shown as unavailable, never as healthy. */
+export interface AdminSystemStatus { backup: BackupHealth | null; storage: StorageHealth | null; accounts: AccountsSummary | null }
+
+export function getAdminSystemStatus(signal?: AbortSignal): Promise<AdminSystemStatus> {
+  return request<AdminSystemStatus>("/api/systemstatus/admin", { signal });
+}
+
+export const BACKUP_ALERT_LABELS: Record<BackupAlertKind, string> = {
+  BackupFailed: "A backup failed",
+  BackupVerificationFailed: "A backup failed its verification",
+  RestoreDrillFailed: "A restore drill failed",
+};

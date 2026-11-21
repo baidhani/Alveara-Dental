@@ -85,12 +85,19 @@ export function BackupRecoveryPage() {
 
   const refresh = useCallback(() => load(false), [load]);
 
+  // ALV-N026 (F-154): the result of the last action stays on the page until the next one (a toast alone was easy to miss)
+  const [lastResult, setLastResult] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+
   async function backupNow() {
+    if (running) return;
     setRunning(true);
     setActionError(null);
+    setLastResult(null);
     try {
       await runManualBackup();
       notify("success", "Backup completed.");
+      setLastResult("The backup completed.");
     } catch (err) {
       setActionError(describeBackupError(err));
     } finally {
@@ -100,11 +107,19 @@ export function BackupRecoveryPage() {
   }
 
   async function testNotification() {
+    if (testing) return;
+    setTesting(true);
+    setLastResult(null);
     try {
       const result = await sendTestNotification();
-      notify(result.delivery === "Delivered" ? "success" : "danger", result.delivery === "Delivered" ? "Test notification delivered." : "Test notification could NOT be delivered - check the notification folder.");
+      const text = result.delivery === "Delivered" ? "The test notification was delivered." : "The test notification could NOT be delivered - check the notification folder.";
+      notify(result.delivery === "Delivered" ? "success" : "danger", text);
+      setLastResult(text);
     } catch (err) {
       notify("danger", describeBackupError(err));
+      setLastResult(`The test notification failed: ${describeBackupError(err)}`);
+    } finally {
+      setTesting(false);
     }
     refresh();
   }
@@ -130,13 +145,14 @@ export function BackupRecoveryPage() {
                 <Button variant="primary" onClick={backupNow} disabled={running || !state.data.status.settings.recoveryKeyConfigured}>
                   {running ? "Backing up…" : "Run backup now"}
                 </Button>
-                <Button onClick={testNotification}>Send test notification</Button>
+                <Button onClick={testNotification} disabled={testing}>{testing ? "Sending…" : "Send test notification"}</Button>
               </div>
               {actionError && (
                 <p className="alv-form-field__error" role="alert">
                   Backup failed: {actionError}
                 </p>
               )}
+              {lastResult && <p className="alv-config-panel__result" role="status">{lastResult}</p>}
             </section>
           )}
 
