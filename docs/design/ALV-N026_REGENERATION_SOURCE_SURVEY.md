@@ -117,6 +117,46 @@ Proving an exact as-of reconstruction for every domain is a large separate proje
 
 **D5. Statements and receipts:** **keep the existing contract.** Add template v4 (PDF) and the bundle id to `FinancialDocument`. No new source is needed.
 
+## Owner decisions on D1 to D4 (2026-11-21, verbatim intent)
+These replace the recommendations above wherever the two differ.
+
+**D1. Prescriptions: yes, an issue row.**
+- Add an immutable `PrescriptionIssue` row recording:
+  - the status and event cut-off;
+  - the template version;
+  - the rendering bundle id;
+  - the small identity and practice envelope needed to reproduce what was shown.
+- **Do not store the generated PDF.**
+- **A PDF-byte hash is not required.** A canonical-content hash may be kept as **optional diagnostic evidence only**.
+
+**D2. Legacy `p1` prescriptions: refuse, and offer a new copy.**
+- Do not present a `p1` PDF as a historical reprint.
+- Offer a new p2 **record copy** generated today from the immutable prescription record, using today's applicable status.
+- It keeps the **original prescribed date** and never implies it is the earlier printout.
+- Inactive prescriptions (cancelled, discontinued, superseded) carry the required warning or watermark.
+
+**D3. Treatment-plan copy: yes, a server issue.**
+- Create an immutable `TreatmentPlanCopyIssue` row using:
+  - the plan revision;
+  - the item-state cut-off;
+  - the diagnosis labels at issue;
+  - the practice envelope.
+- Old browser copies are not recreated as originals. A later copy is a new server-issued copy.
+
+**D4. Clinical record copy: a new issue as of now.**
+- No historical reconstruction across the ~20 domains, and no full PHI duplicate.
+- Each request creates a new "clinical record copy generated as of [date/time]" from current controlled records, with issuance and audit metadata.
+- It never claims to be an earlier historical copy.
+
+**D5 (statements and receipts):** the existing contract is kept, as recommended. Under the fidelity decision, its existing canonical-content hash check is source verification, not a PDF-byte check.
+
+**Point for the brief (from D1):** with the hash optional for prescriptions, the "cannot verify, then refuse" rule (fidelity decision point 6) rests on three things:
+- the immutability of the sources (database triggers on `Prescription` and `PrescriptionDetail`, and the append-only `PrescriptionEvent`);
+- the stored event cut-off;
+- the stored envelope.
+
+A missing or inconsistent source or cut-off refuses with `integrity_mismatch`.
+
 ## Fidelity standard (owner decision, `ALV-N026_PDF_OUTPUT_FIDELITY_REQUIREMENT_DECISION.md`)
 **Byte-for-byte PDF equality is not a requirement.** The hashes in this survey are **canonical-content** hashes, taken over the source data a document shows, never over PDF bytes. A changed PDF encoding after an engine, runtime or font update is acceptable when the content checks pass.
 
