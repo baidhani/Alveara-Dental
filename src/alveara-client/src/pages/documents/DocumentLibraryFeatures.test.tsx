@@ -116,7 +116,7 @@ describe("the thumbnail view", () => {
     await open();
     await user.click(screen.getByRole("radio", { name: "Thumbnails" }));
     const card = within(screen.getByRole("list", { name: "Document thumbnails" }));
-    expect(card.getByRole("link", { name: "Open a.png" })).toHaveAttribute("href", "/api/documents/d-png/content");
+    expect(card.getByRole("button", { name: "Open a.png" })).toBeInTheDocument();          // ALV-N026 (F-131): a button that checks the file first, under "More" for a picture
     expect(card.getByRole("link", { name: "Download a.png" })).toBeInTheDocument();
     expect(card.getByRole("button", { name: "Edit a.png" })).toBeInTheDocument();
   });
@@ -172,7 +172,8 @@ describe("preview and history", () => {
       history: [
         { eventNumber: 1, kind: "Imported", atUtc: "2030-03-10T10:00:00Z", byName: "Olive Office", fromCategoryName: null, toCategoryName: null, relatedDocumentId: null },
         { eventNumber: 2, kind: "Categorized", atUtc: "2030-03-11T10:00:00Z", byName: "Olive Office", fromCategoryName: "Photo", toCategoryName: "Radiograph", relatedDocumentId: null },
-        { eventNumber: 3, kind: "Inactivated", atUtc: "2030-04-01T10:00:00Z", byName: "Olive Office", fromCategoryName: null, toCategoryName: null, relatedDocumentId: null },
+        { eventNumber: 3, kind: "MetadataEdited", atUtc: "2030-03-12T10:00:00Z", byName: "Olive Office", fromCategoryName: null, toCategoryName: null, relatedDocumentId: null },   // ALV-N026 (Q-5bk): an edit is in the history
+        { eventNumber: 4, kind: "Inactivated", atUtc: "2030-04-01T10:00:00Z", byName: "Olive Office", fromCategoryName: null, toCategoryName: null, relatedDocumentId: null },
       ],
       statusChanges: [{ toStatus: "Inactive", reason: "Duplicate scan.", byName: "Olive Office", atUtc: "2030-04-01T10:00:00Z" }, { toStatus: "Active", reason: null, byName: "Dr. Okafor", atUtc: "2030-04-02T10:00:00Z" }],
     })) });
@@ -181,7 +182,8 @@ describe("preview and history", () => {
     await user.click(screen.getByRole("button", { name: "Details bitewing.png" }));
     const panel = await screen.findByRole("region", { name: "Details of bitewing.png" });
     const history = within(panel).getByRole("list", { name: "History" });
-    expect(within(history).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(history).getAllByRole("listitem")).toHaveLength(4);
+    expect(within(history).getByText(/Details edited by Olive Office/)).toBeInTheDocument();
     expect(within(history).getByText(/Moved from Photo to Radiograph/)).toBeInTheDocument();
     const changes = within(panel).getByRole("list", { name: "Status changes" });
     expect(within(changes).getByText(/Made inactive: Duplicate scan\./)).toBeInTheDocument();

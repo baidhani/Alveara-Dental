@@ -80,12 +80,21 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         var filter = new DocumentLibraryFilter(ParseGuid(categoryId, "category", problems), ParseGuid(encounterId, "encounter", problems), toothKey, regionKey, ParseDate(from, "from", problems), ParseDate(to, "to", problems), text,
             status ?? (includeInactive ? DocumentLibraryFilter.StatusAll : null));
         if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The filter has entries that need correcting.", 400, problems);
-        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, await Scope(ct), ct), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
+        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, await Scope(ct), ct, await access.ReadsCasesAsync(User, ct)), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
     });
 
     [HttpGet("api/documents/{documentId:guid}")]
     [RequirePermission(Permission.ViewDocuments)]
     public Task<IActionResult> Get(Guid documentId, CancellationToken ct) => Run(async () => Ok(await library.GetAsync(documentId, await Scope(ct), ct)));
+
+    /// <summary>ALV-N026 (F-131): whether the file can be opened now (204), without opening or logging it: <c>file_missing</c> (404) or <c>file_corrupt</c> (409) otherwise.</summary>
+    [HttpGet("api/documents/{documentId:guid}/availability")]
+    [RequirePermission(Permission.ViewDocuments)]
+    public Task<IActionResult> Availability(Guid documentId, CancellationToken ct) => Run(async () =>
+    {
+        await library.CheckAvailableAsync(documentId, await Scope(ct), ct);
+        return NoContent();
+    });
 
     /// <summary>The file. Opening is logged first; if it cannot be logged nothing is returned.</summary>
     [HttpGet("api/documents/{documentId:guid}/content")]

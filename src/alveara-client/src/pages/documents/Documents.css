@@ -268,3 +268,15 @@
 .alv-documents__progress progress {
   width: min(320px, 100%);
 }
+
+/* ALV-N026 (F-171): the row's less frequent actions, under "More" (a native disclosure: keyboard and screen-reader friendly) */
+.alv-documents__more { display: inline-block; position: relative; }
+.alv-documents__more > summary { cursor: pointer; padding: 0.25rem 0.5rem; border: 1px solid currentColor; border-radius: 0.25rem; list-style: none; }
+.alv-documents__more > summary::-webkit-details-marker { display: none; }
+.alv-documents__more-items { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.25rem; }
+
+/* ALV-N026 (F-130): why a missing or damaged file offers no Open or Download */
+.alv-documents__unusable { display: block; font-size: 0.875rem; max-width: 22rem; }
+
+/* ALV-N026 (Q-5bk): the start of a document's description under its name */
+.alv-documents__description { display: block; font-size: 0.875rem; color: inherit; opacity: 0.85; overflow-wrap: anywhere; }

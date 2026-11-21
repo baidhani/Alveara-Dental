@@ -39,6 +39,8 @@ export interface DocumentView {
   inactivatedAtUtc: string | null;
   integrityStatus: "Unchecked" | "Ok" | "Missing" | "Corrupt";
   integrityCheckedAtUtc: string | null;
+  /** ALV-N026 (Q-5bs): how many referral or lab cases link the document; null when the signed-in user may not read cases. */
+  linkedCaseCount?: number | null;
 }
 
 export interface LibraryEntry {
@@ -104,6 +106,11 @@ export function newKey(): string {
 const base = (patientId: string) => `/api/patients/${patientId}/documents`;
 
 export const contentUrl = (documentId: string, download = false) => `/api/documents/${documentId}/content${download ? "?download=true" : ""}`;
+
+/** ALV-N026 (F-131): asks whether a document's file can be opened right now, without opening it (nothing is logged); rejects with the server's `file_missing` or `file_corrupt`. */
+export function checkAvailability(documentId: string): Promise<void> {
+  return request<void>(`/api/documents/${documentId}/availability`);
+}
 export const thumbnailUrl = (documentId: string) => `/api/documents/${documentId}/thumbnail`;
 
 /** The types and the size a thumbnail is offered for (the server enforces the same rule). */

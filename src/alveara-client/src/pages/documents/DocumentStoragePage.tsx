@@ -123,7 +123,7 @@ export function DocumentStoragePage() {
 
       <section className="alv-documents__section" aria-label="Unreferenced files">
         <h2 className="alv-workspace__section-title">Stored files nothing points to</h2>
-        <p className="alv-workspace__note">These files are on disk but no document uses them, for example after an import was interrupted. Only files older than an hour are listed, so an import in progress is never shown. Review them, select the ones to remove and confirm; nothing is removed automatically.</p>
+        <p className="alv-workspace__note">These files are on disk but no document uses them, for example after an import was interrupted. Only stored document files are counted: files directly in the documents folder named like a stored file. Patient-import files and sign-in backgrounds are kept in their own folders and are never listed, and neither are temporary files. Only files older than an hour are listed, so an import in progress is never shown. Review them, select the ones to remove and confirm; nothing is removed automatically.</p>
         {orphans.length === 0 ? <EmptyState title="No stored file is unreferenced" /> : (
           <>
             <ul className="alv-documents__types" aria-label="Stored files nothing points to">

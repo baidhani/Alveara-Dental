@@ -4,7 +4,7 @@ import { ConcurrencyConflictBanner } from "../../components/ConcurrencyConflictB
 import { EmptyState, ErrorState, LoadingState } from "../../components/StatePatterns";
 import { ApiError, isConcurrencyConflict } from "../../services/authApi";
 import type { ConcurrencyConflictProblem } from "../../services/authApi";
-import { contentUrl, listCategories, listDocumentEncounters, listLibrary, problemsOf, reactivateDocument } from "../../services/documentsApi";
+import { checkAvailability, contentUrl, listCategories, listDocumentEncounters, listLibrary, problemsOf, reactivateDocument } from "../../services/documentsApi";
 import type { CategoryView, DocumentLibrary, EncounterChoice, LibraryFilter } from "../../services/documentsApi";
 import type { PatientDetail } from "../../services/patientsApi";
 import { DocumentDetailsPanel } from "./DocumentDetailsPanel";
@@ -81,6 +81,28 @@ export function DocumentsPanel({ patient, canImport, canManage }: { patient: Pat
     }
   }
 
+  /**
+   * ALV-N026 (F-131): opens a document in a new tab only after the server says its file can be opened. The tab is opened at once (so the browser does not block it) and closed again if the check fails; the reason
+   * is then shown here, naming who can help, instead of a raw error page.
+   */
+  async function openChecked(id: string, title: string) {
+    setMessage(null); setError(null);
+    const tab = window.open("", "_blank");
+    if (tab) tab.opener = null;
+    try {
+      await checkAvailability(id);
+      if (tab) tab.location.href = contentUrl(id); else window.location.assign(contentUrl(id));
+    } catch (err) {
+      tab?.close();
+      const code = err instanceof ApiError ? err.code : null;
+      setError(code === "file_missing" ? `${title} cannot be opened: its file is missing from storage. The record is intact. Ask the practice administrator to check document storage.`
+        : code === "file_corrupt" ? `${title} cannot be opened: its file is damaged. The record is intact. Ask the practice administrator to check document storage.`
+        : err instanceof ApiError ? err.message : "Could not reach the server, so the document was not opened. Check your connection and try again.");
+    }
+  }
+
+  const filtered = Object.values(filter).some((v) => v !== undefined && v !== null && v !== "");
+
   const open = (set: (id: string | null) => void, id: string) => { setMessage(null); setEditing(null); setInactivating(null); setPreviewing(null); setDetails(null); set(id); };
   const handlers: EntryHandlers = {
     canEdit: canManage,   // ALV-N026 (PD-24): editing, inactivating and reactivating need ManageDocuments; importing no longer implies it
@@ -89,6 +111,7 @@ export function DocumentsPanel({ patient, canImport, canManage }: { patient: Pat
     onReactivate: (id) => void reactivate(id),
     onPreview: (id) => open(setPreviewing, id),
     onDetails: (id) => open(setDetails, id),
+    onOpen: (id, title) => void openChecked(id, title),
   };
 
   return (
@@ -107,6 +130,7 @@ export function DocumentsPanel({ patient, canImport, canManage }: { patient: Pat
             <label><input type="radio" name="alv-documents-view" checked={view === "list"} onChange={() => setView("list")} /> List</label>
             <label><input type="radio" name="alv-documents-view" checked={view === "grid"} onChange={() => setView("grid")} /> Thumbnails</label>
           </fieldset>
+          <p className="alv-workspace__note">PDFs open in your browser's own viewer in a new tab; pictures can also be previewed here. Other files are downloaded.</p>
           {message && <p className="alv-documents__status" role="status">{message}</p>}
           {error && <p className="alv-form-field__error" role="alert">{error}</p>}
           {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={() => { setConflict(null); reload(); }} />}
@@ -140,7 +164,9 @@ export function DocumentsPanel({ patient, canImport, canManage }: { patient: Pat
             <DocumentDetailsPanel documentId={details} title={library.entries.find((e) => e.id === details)!.title} onClose={() => setDetails(null)} />
           )}
           {library.entries.length === 0 ? (
-            <EmptyState title="No documents yet" description="Imported documents and signed forms for this patient appear here." />
+            filtered
+              ? <EmptyState title="No documents match this filter" description="Change the filters, or use Clear filters above to see every document." />
+              : <EmptyState title="No documents yet" description="Imported documents and signed forms for this patient appear here." />
           ) : view === "list" ? (
             <DocumentTable entries={library.entries} patientId={patient.id} encounters={encounters} handlers={handlers} />
           ) : (

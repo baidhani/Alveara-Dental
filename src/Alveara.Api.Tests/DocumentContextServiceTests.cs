@@ -37,7 +37,7 @@ public class DocumentContextServiceTests : DocumentTestBase
         WithDb(db => Status(db).InactivateAsync(doc.Id, rowVersion ?? doc.RowVersion, reason, S.Actor, DocumentReadScope.Everything, default));
 
     private Task<DocumentView> ReactivateAsync(DocumentView doc, string? rowVersion = null) => WithDb(db => Status(db).ReactivateAsync(doc.Id, rowVersion ?? doc.RowVersion, S.Actor, DocumentReadScope.Everything, default));
-    private Task<IReadOnlyList<LibraryEntry>> ListAsync(bool includeInactive = false) => WithDb(db => Library(db).ListAsync(Ann, null, DocumentReadScope.Everything, default, includeInactive));
+    private Task<IReadOnlyList<LibraryEntry>> ListAsync(bool includeInactive = false) => WithDb(db => Library(db).ListAsync(Ann, (Guid?)null, DocumentReadScope.Everything, default, includeInactive));
     private Task<DocumentDetail> GetAsync(Guid id) => WithDb(db => Library(db).GetAsync(id, DocumentReadScope.Everything, default));
 
     private async Task<List<string>> KindsAsync(Guid id) { await using var db = Fixture.CreateContext(); return await db.DocumentEvents.AsNoTracking().Where(e => e.DocumentId == id).OrderBy(e => e.EventNumber).Select(e => e.Kind).ToListAsync(); }

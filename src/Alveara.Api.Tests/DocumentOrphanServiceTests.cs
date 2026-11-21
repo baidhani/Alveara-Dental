@@ -31,6 +31,34 @@ public class DocumentOrphanServiceTests : DocumentTestBase
     private async Task<Guid> BlobOfAsync(Guid documentId) { await using var db = Fixture.CreateContext(); return (await db.Documents.AsNoTracking().SingleAsync(d => d.Id == documentId)).BlobId; }
     private async Task<List<string>> RemovalAuditAsync() { await using var db = Fixture.CreateContext(); return await db.AuditLogEntries.AsNoTracking().Where(a => a.EventType == "DocumentOrphanRemoved").Select(a => a.Details + "|" + a.TargetUserAccountId).ToListAsync(); }
 
+    // ---------- what counts ----------
+
+    /// <summary>
+    /// ALV-N026 (Q-5cx): only a file directly in the documents folder whose name is a stored-file id can be listed. Patient-import files (the <c>imports</c> subfolder) and sign-in backgrounds (their own
+    /// subfolder) share the storage root but are never listed, so a reviewer can never remove one of them by mistake; nor are a temporary file or a stray file with another name.
+    /// </summary>
+    [Fact]
+    public async Task Files_in_subfolders_and_files_that_are_not_stored_files_are_never_listed_as_unreferenced()
+    {
+        var orphan = await StrayAsync(TimeSpan.FromHours(3));
+        var old = DateTime.UtcNow.AddHours(-3);
+        foreach (var folder in new[] { "imports", Alveara.Api.Architecture.LoginPresentation.LoginBackgroundStore.FolderName })
+        {
+            Directory.CreateDirectory(Path.Combine(_storageRoot, folder));
+            var path = Path.Combine(_storageRoot, folder, Guid.NewGuid().ToString("N"));
+            await File.WriteAllBytesAsync(path, [9, 9, 9]);
+            File.SetLastWriteTimeUtc(path, old);
+        }
+        foreach (var name in new[] { Guid.NewGuid().ToString("N") + ".tmp-" + Guid.NewGuid().ToString("N"), "notes.txt" })
+        {
+            var path = Path.Combine(_storageRoot, name);
+            await File.WriteAllBytesAsync(path, [1]);
+            File.SetLastWriteTimeUtc(path, old);
+        }
+
+        Assert.Equal([orphan], (await OrphansAsync()).Select(o => o.BlobId));
+    }
+
     // ---------- removing ----------
 
     [Fact]

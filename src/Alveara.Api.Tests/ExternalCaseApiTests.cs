@@ -83,11 +83,11 @@ public class ExternalCaseApiTests : IAsyncLifetime
 
     private static List<string> Summaries(JsonElement page) => page.GetProperty("items").EnumerateArray().Select(i => Str(i.GetProperty("case"), "summary")).ToList();
 
-    private async Task<PatientDocument> DocumentAsync(Guid patient)
+    private async Task<PatientDocument> DocumentAsync(Guid patient, Guid? category = null)
     {
         var d = new PatientDocument
         {
-            Id = Guid.NewGuid(), PatientId = patient, CategoryId = DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2026, 10, 1), Description = "Panoramic film.", OriginalFileName = "pano.png", DetectedType = "png",
+            Id = Guid.NewGuid(), PatientId = patient, CategoryId = category ?? DocumentCategorySeeds.Radiograph, DocumentDate = new DateOnly(2026, 10, 1), Description = "Panoramic film.", OriginalFileName = "pano.png", DetectedType = "png",
             ContentType = "image/png", SizeBytes = 2048, Sha256 = new string('a', 64), BlobId = Guid.NewGuid(), ImportedByUserId = _dentist.UserId, ImportedAtUtc = DateTimeOffset.UtcNow, IdempotencyKey = $"doc-{Guid.NewGuid():N}", RequestHash = new string('a', 64),
         };
         await using var db = _fixture.CreateContext();
@@ -307,6 +307,26 @@ public class ExternalCaseApiTests : IAsyncLifetime
     }
 
     // ---------- documents ----------
+
+    /// <summary>ALV-N026 (Q-5bs, F-138): the documents library says how many cases link a document, to the staff who may read cases; to anyone else it says nothing.</summary>
+    [Fact]
+    public async Task The_library_shows_how_many_cases_link_a_document_only_to_staff_who_may_read_cases()
+    {
+        var c = await ReferralAsync();
+        var linked = await DocumentAsync(_ann, DocumentCategorySeeds.InsuranceCard); var alone = await DocumentAsync(_ann, DocumentCategorySeeds.Identification);
+        Assert.Equal(HttpStatusCode.OK, (await _dentist.SendAsync(HttpMethod.Put, $"/api/referrals/{Str(c, "id")}/documents/{linked.Id}")).Status);
+
+        int? CountOf(JsonElement body, Guid id)
+        {
+            var doc = body.GetProperty("entries").EnumerateArray().Single(e => Str(e, "id") == id.ToString()).GetProperty("document");
+            var value = doc.GetProperty("linkedCaseCount");
+            return value.ValueKind == JsonValueKind.Null ? null : value.GetInt32();
+        }
+        var byDentist = (await _dentist.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/documents")).Body;
+        Assert.Equal((1, 0), (CountOf(byDentist, linked.Id)!.Value, CountOf(byDentist, alone.Id)!.Value));
+        var byBilling = (await _billing.SendAsync(HttpMethod.Get, $"/api/patients/{_ann}/documents")).Body;                      // Billing does not read cases
+        Assert.Equal(((int?)null, (int?)null), (CountOf(byBilling, linked.Id), CountOf(byBilling, alone.Id)));
+    }
 
     [Fact]
     public async Task A_document_is_linked_not_copied_shown_in_the_case_and_flagged_when_it_goes_bad()

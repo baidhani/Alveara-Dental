@@ -100,6 +100,35 @@ public class DocumentStorageApiTests : IAsyncLifetime
         Assert.Equal(0, await db.DocumentIntegrity.CountAsync());
     }
 
+    // ---------- availability (ALV-N026, F-131) ----------
+
+    /// <summary>
+    /// The screen asks whether a file can be opened before it opens a tab, so a missing or damaged file is explained in the app instead of a raw error page. Asking opens nothing and logs nothing; a document the
+    /// caller may not read is not found, like everywhere else.
+    /// </summary>
+    [Fact]
+    public async Task Asking_whether_a_file_can_be_opened_answers_204_404_or_409_and_logs_no_open()
+    {
+        var office = await _api.SessionAsync("OfficeManager");
+        var (ok, _) = await ImportedAsync(office, 100, "fine-file.png");
+        var (damaged, damagedPath) = await ImportedAsync(office, 200, "damaged-file.png");
+        var (gone, gonePath) = await ImportedAsync(office, 300, "gone-file.png");
+        File.WriteAllBytes(damagedPath, [.. File.ReadAllBytes(damagedPath), 1]);                              // a different size: found without a full check
+        File.Delete(gonePath);
+
+        Assert.Equal(HttpStatusCode.NoContent, (await office.Client.GetAsync($"/api/documents/{ok}/availability")).StatusCode);
+        var missing = await office.SendAsync(HttpMethod.Get, $"/api/documents/{gone}/availability");
+        Assert.Equal((HttpStatusCode.NotFound, "file_missing"), (missing.Status, Str(missing.Body, "error")));
+        var corrupt = await office.SendAsync(HttpMethod.Get, $"/api/documents/{damaged}/availability");
+        Assert.Equal((HttpStatusCode.Conflict, "file_corrupt"), (corrupt.Status, Str(corrupt.Body, "error")));
+        Assert.Equal(HttpStatusCode.NotFound, (await office.Client.GetAsync($"/api/documents/{Guid.NewGuid()}/availability")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _api.Factory.CreateClient().GetAsync($"/api/documents/{ok}/availability")).StatusCode);
+
+        await using var db = _fixture.CreateContext();
+        Assert.Equal(0, await db.AuditLogEntries.CountAsync(a => a.EventType == "DocumentOpened"));                                   // asking is not opening
+        Assert.Equal(0, await db.DocumentEvents.CountAsync(e => e.Kind == Alveara.Api.Architecture.Documents.DocumentEventKinds.Opened));
+    }
+
     // ---------- the whole route ----------
 
     [Fact]

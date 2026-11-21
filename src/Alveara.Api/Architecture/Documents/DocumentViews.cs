@@ -19,7 +19,8 @@ public sealed record DocumentImportRequest(Guid PatientId, Stream Content, long 
 public sealed record DocumentView(Guid Id, Guid PatientId, Guid CategoryId, string CategoryCode, string CategoryName, DateOnly DocumentDate, string? Description, Guid? DuplicateOfDocumentId,
     string OriginalFileName, string DetectedType, bool TypeVerified, long SizeBytes, string Sha256, string ImportedByName, DateTimeOffset ImportedAtUtc, string RowVersion,
     Guid? EncounterId = null, string? ToothKey = null, string? RegionKey = null, string Status = "Active", string? InactiveReason = null, string? InactivatedByName = null, DateTimeOffset? InactivatedAtUtc = null,
-    string IntegrityStatus = "Unchecked", DateTimeOffset? IntegrityCheckedAtUtc = null);
+    string IntegrityStatus = "Unchecked", DateTimeOffset? IntegrityCheckedAtUtc = null, int? LinkedCaseCount = null);
+// ALV-N026 (Q-5bs, F-138): LinkedCaseCount is how many referral or lab cases link the document; null where the caller may not read cases (or the view was not asked for it).
 
 public sealed record DocumentImportResult(DocumentView Document, bool Replayed);
 

@@ -46,6 +46,8 @@ export interface Script {
   entries: LibraryEntry[]; max: number; loadFails: boolean; encounters: EncounterChoice[];
   import: (c: Call) => Response | Promise<Response>; edit: (c: Call) => Response;
   inactivate: (id: string, c: Call) => Response; reactivate: (id: string, c: Call) => Response; detail: (id: string) => Response;
+  /** ALV-N026 (F-131): the answer to "can this file be opened"; 204 by default. */
+  availability: (id: string) => Response;
 }
 
 export function stub(over: Partial<Script> = {}, xhr: FakeXhrOptions = {}) {
@@ -56,6 +58,7 @@ export function stub(over: Partial<Script> = {}, xhr: FakeXhrOptions = {}) {
     inactivate: () => json({ document: docOf({ status: "Inactive", inactiveReason: "Why.", rowVersion: "v3" }) }),
     reactivate: () => json({ document: docOf({ rowVersion: "v4" }) }),
     detail: (id) => json(detailOf(docOf({ id }))),
+    availability: () => new Response(null, { status: 204 }),
     ...over,
   };
   const calls: Call[] = [];
@@ -72,6 +75,7 @@ export function stub(over: Partial<Script> = {}, xhr: FakeXhrOptions = {}) {
     if (u.includes("/api/patients/p1/documents") && method === "GET") return Promise.resolve(script.loadFails ? json({ error: "server_error" }, 500) : json({ patientId: "p1", entries: script.entries, maxUploadBytes: script.max }));
     if (u.endsWith("/inactivate") && method === "POST") return Promise.resolve(script.inactivate(u.split("/").slice(-2)[0], call));
     if (u.endsWith("/reactivate") && method === "POST") return Promise.resolve(script.reactivate(u.split("/").slice(-2)[0], call));
+    if (u.endsWith("/availability") && method === "GET") return Promise.resolve(script.availability(u.split("/").slice(-2)[0]));
     if (/\/api\/documents\/[^/]+$/.test(u) && method === "GET") return Promise.resolve(script.detail(u.split("/").pop()!));
     if (u.includes("/api/documents/") && method === "PUT") return Promise.resolve(script.edit(call));
     return Promise.resolve(json({}));

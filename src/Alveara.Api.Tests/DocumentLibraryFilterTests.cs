@@ -112,7 +112,7 @@ public class DocumentLibraryFilterTests : DocumentTestBase
         Assert.Equal(Ids(ids, "inactive"), Of(await ListAsync(new DocumentLibraryFilter(Status: "Inactive"))));
         Assert.Equal(6, Of(await ListAsync(new DocumentLibraryFilter(Status: "All"))).Count);
         Assert.Equal(5, Of(await ListAsync(new DocumentLibraryFilter(Status: "Active"))).Count);
-        Assert.Equal(6, (await WithDb(db => Library(db).ListAsync(Ann, null, DocumentReadScope.Everything, default, includeInactive: true))).Count);
+        Assert.Equal(6, (await WithDb(db => Library(db).ListAsync(Ann, (Guid?)null, DocumentReadScope.Everything, default, includeInactive: true))).Count);
     }
 
     [Fact]

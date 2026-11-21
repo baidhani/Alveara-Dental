@@ -14,6 +14,8 @@ export interface EntryHandlers {
   onReactivate: (id: string) => void;
   onPreview: (id: string) => void;
   onDetails: (id: string) => void;
+  /** ALV-N026 (F-131): opens a document after checking the file can be opened; a failure is shown in the app. */
+  onOpen: (id: string, title: string) => void;
 }
 
 const damaged = (d: DocumentView | null) => d?.integrityStatus === "Missing" || d?.integrityStatus === "Corrupt";
@@ -28,6 +30,7 @@ export function EntryBadges({ entry }: { entry: LibraryEntry }) {
       {entry.isInactive && <span className="alv-documents__badge">Inactive</span>}
       {d?.integrityStatus === "Missing" && <span className="alv-documents__badge alv-documents__badge--void" title={d.integrityCheckedAtUtc ? `Checked ${formatDateTime(d.integrityCheckedAtUtc)}` : undefined}>File missing</span>}
       {d?.integrityStatus === "Corrupt" && <span className="alv-documents__badge alv-documents__badge--void" title={d.integrityCheckedAtUtc ? `Checked ${formatDateTime(d.integrityCheckedAtUtc)}` : undefined}>File damaged</span>}
+      {(d?.linkedCaseCount ?? 0) > 0 && <span className="alv-documents__badge">{d!.linkedCaseCount === 1 ? "Linked to a case" : `Linked to ${d!.linkedCaseCount} cases`}</span>}
     </>
   );
 }
@@ -45,19 +48,46 @@ export function EntryAbout({ document, encounters }: { document: DocumentView | 
   );
 }
 
+/** ALV-N026 (Q-5bk): the start of a description for the list; the whole of it is on hover and focus. */
+export const DESCRIPTION_SHOWN = 60;
+export function EntryDescription({ document }: { document: DocumentView | null }) {
+  const text = document?.description?.trim();
+  if (!text) return null;
+  const short = text.length > DESCRIPTION_SHOWN ? `${text.slice(0, DESCRIPTION_SHOWN).trimEnd()}…` : text;
+  return <span className="alv-documents__description" title={text} tabIndex={short === text ? undefined : 0} aria-label={short === text ? undefined : `Description: ${text}`}>{short}</span>;
+}
+
+/**
+ * ALV-N026 (F-130, F-131, F-171): the row's actions. The everyday ones stay in the row - Open (or Preview for a picture), Download and Details - and the changes (Edit, Inactivate or Reactivate) are under "More".
+ * A file found missing or damaged offers no Open, Preview or Download, and says why; Open checks the file first, so a problem found then is explained in the app instead of a raw error page.
+ */
 export function EntryActions({ entry, patientId, handlers }: { entry: LibraryEntry; patientId: string; handlers: EntryHandlers }) {
   if (entry.kind === "SignedForm") return <Link to={`/patients/${patientId}/forms/${entry.patientFormId}`} aria-label={`View form ${entry.title}`}>View form</Link>;
   const isPicture = entry.detectedType === "png" || entry.detectedType === "jpeg";
+  const unusable = damaged(entry.document);
   return (
     <>
-      {INLINE_TYPES.has(entry.detectedType) && <a href={contentUrl(entry.id)} target="_blank" rel="noopener noreferrer" aria-label={`Open ${entry.title}`}>Open</a>}
-      <a href={contentUrl(entry.id, true)} aria-label={`Download ${entry.title}`}>Download</a>
-      {isPicture && <Button type="button" onClick={() => handlers.onPreview(entry.id)} aria-label={`Preview ${entry.title}`}>Preview</Button>}
+      {unusable && (
+        <span className="alv-documents__unusable">
+          {entry.document?.integrityStatus === "Missing" ? "The file is missing" : "The file is damaged"}, so it cannot be opened. Ask the practice administrator to check document storage.
+        </span>
+      )}
+      {!unusable && isPicture && <Button type="button" onClick={() => handlers.onPreview(entry.id)} aria-label={`Preview ${entry.title}`}>Preview</Button>}
+      {!unusable && !isPicture && INLINE_TYPES.has(entry.detectedType) && <Button type="button" onClick={() => handlers.onOpen(entry.id, entry.title)} aria-label={`Open ${entry.title}`}>Open</Button>}
+      {!unusable && <a href={contentUrl(entry.id, true)} aria-label={`Download ${entry.title}`}>Download</a>}
       <Button type="button" onClick={() => handlers.onDetails(entry.id)} aria-label={`Details ${entry.title}`}>Details</Button>
-      {handlers.canEdit && <Button type="button" onClick={() => handlers.onEdit(entry.id)} aria-label={`Edit ${entry.title}`}>Edit</Button>}
-      {handlers.canEdit && (entry.isInactive
-        ? <Button type="button" onClick={() => handlers.onReactivate(entry.id)} aria-label={`Reactivate ${entry.title}`}>Reactivate</Button>
-        : <Button type="button" onClick={() => handlers.onInactivate(entry.id)} aria-label={`Inactivate ${entry.title}`}>Inactivate</Button>)}
+      {(handlers.canEdit || (!unusable && isPicture)) && (
+        <details className="alv-documents__more">
+          <summary aria-label={`More actions for ${entry.title}`}>More</summary>
+          <div className="alv-documents__more-items">
+            {!unusable && isPicture && <Button type="button" onClick={() => handlers.onOpen(entry.id, entry.title)} aria-label={`Open ${entry.title}`}>Open in a new tab</Button>}
+            {handlers.canEdit && <Button type="button" onClick={() => handlers.onEdit(entry.id)} aria-label={`Edit ${entry.title}`}>Edit</Button>}
+            {handlers.canEdit && (entry.isInactive
+              ? <Button type="button" onClick={() => handlers.onReactivate(entry.id)} aria-label={`Reactivate ${entry.title}`}>Reactivate</Button>
+              : <Button type="button" onClick={() => handlers.onInactivate(entry.id)} aria-label={`Inactivate ${entry.title}`}>Inactivate</Button>)}
+          </div>
+        </details>
+      )}
     </>
   );
 }
@@ -83,7 +113,7 @@ export function DocumentTable({ entries, patientId, encounters, handlers }: { en
       <tbody>
         {entries.map((entry) => (
           <tr key={`${entry.kind}-${entry.id}`}>
-            <td>{entry.title}<EntryBadges entry={entry} /></td>
+            <td>{entry.title}<EntryBadges entry={entry} /><EntryDescription document={entry.document} /></td>
             <td>{entry.categoryName}</td>
             <td><EntryAbout document={entry.document} encounters={encounters} /></td>
             <td>{formatDate(entry.date)}</td>
@@ -103,7 +133,7 @@ export function DocumentGrid({ entries, patientId, encounters, handlers }: { ent
       {entries.map((entry) => (
         <li key={`${entry.kind}-${entry.id}`} className="alv-documents__card">
           <Thumbnail entry={entry} />
-          <p className="alv-documents__card-title">{entry.title}<EntryBadges entry={entry} /></p>
+          <p className="alv-documents__card-title">{entry.title}<EntryBadges entry={entry} /><EntryDescription document={entry.document} /></p>
           <p className="alv-documents__card-meta">{entry.categoryName}, {formatDate(entry.date)}</p>
           <p className="alv-documents__card-meta"><EntryAbout document={entry.document} encounters={encounters} /></p>
           <div className="alv-documents__row-actions"><EntryActions entry={entry} patientId={patientId} handlers={handlers} /></div>

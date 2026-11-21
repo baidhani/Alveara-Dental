@@ -62,6 +62,10 @@ public class DocumentAccess(IEffectivePermissions permissions)
         var clinical = nonClinical && await permissions.HasAsync(role, Permission.ViewClinicalDocumentation, ct);
         return new DocumentReadScope(nonClinical, clinical);
     }
+
+    /// <summary>ALV-N026 (Q-5bs): whether the caller may read referral and lab cases, and so see that a document is linked to one.</summary>
+    public async Task<bool> ReadsCasesAsync(ClaimsPrincipal user, CancellationToken ct) =>
+        Enum.TryParse<Role>(user.FindFirstValue(ClaimTypes.Role), out var role) && await permissions.HasAsync(role, Permission.ViewExternalCases, ct);
 }
 
 /// <summary>ALV-N026 (PD-24): the refusal for importing into, or moving a document into, a category the caller may not read.</summary>

@@ -65,6 +65,7 @@ describe("the library", () => {
     stub();
     const { unmount } = await open();
     expect(screen.getByText("No documents yet")).toBeInTheDocument();
+    expect(screen.queryByText("No documents match this filter")).toBeNull();
     unmount();
     vi.unstubAllGlobals();
     stub({ loadFails: true });
@@ -80,6 +81,23 @@ describe("the library", () => {
     await user.selectOptions(filters.getByLabelText("Category"), "Photo");
     await user.click(filters.getByRole("button", { name: "Apply filters" }));
     await waitFor(() => expect(api.lists().some((c) => c.url.includes("categoryId=c-photo"))).toBe(true));
+  });
+
+  it("ALV-N026 (F-125): says no document matches a filter, rather than that there are none, and clears the filters on request", async () => {
+    const api = stub({ entries: [] });
+    const user = userEvent.setup();
+    await open();
+    const filters = within(screen.getByRole("search", { name: "Filter documents" }));
+    await user.selectOptions(filters.getByLabelText("Category"), "Photo");
+    await user.click(filters.getByRole("button", { name: "Apply filters" }));
+    expect(await screen.findByText("No documents match this filter")).toBeInTheDocument();
+    expect(screen.queryByText("No documents yet")).toBeNull();
+    const before = api.lists().length;
+    await user.click(filters.getByRole("button", { name: "Clear filters" }));                     // the filter form's own button
+    expect(await screen.findByText("No documents yet")).toBeInTheDocument();
+    await waitFor(() => expect(api.lists().length).toBeGreaterThan(before));
+    expect(api.lists().at(-1)!.url).not.toContain("categoryId");
+    expect(within(screen.getByRole("search", { name: "Filter documents" })).getByLabelText("Category")).toHaveValue("");
   });
 
   it("gives staff who cannot import no import form and no edit buttons, but they can still open and download", async () => {
@@ -119,13 +137,70 @@ describe("opening and downloading", () => {
       entryOf(docOf({ id: "d-tif", originalFileName: "c.tif", detectedType: "tiff" })), entryOf(docOf({ id: "d-txt", originalFileName: "d.txt", detectedType: "other" })),
     ] });
     await open();
-    expect(screen.getByRole("link", { name: "Open a.png" })).toHaveAttribute("href", "/api/documents/d-png/content");
-    expect(screen.getByRole("link", { name: "Open b.pdf" })).toHaveAttribute("href", "/api/documents/d-pdf/content");
-    expect(screen.queryByRole("link", { name: "Open c.tif" })).toBeNull();
-    expect(screen.queryByRole("link", { name: "Open d.txt" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Open a.png" })).toBeInTheDocument();                 // ALV-N026 (F-131): buttons that check the file before opening
+    expect(screen.getByRole("button", { name: "Open b.pdf" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Open c.tif" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Open d.txt" })).toBeNull();
     expect(screen.getByRole("link", { name: "Download c.tif" })).toHaveAttribute("href", "/api/documents/d-tif/content?download=true");
     expect(screen.getByRole("link", { name: "Download d.txt" })).toHaveAttribute("href", "/api/documents/d-txt/content?download=true");
-    expect(screen.getByRole("link", { name: "Open a.png" })).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("ALV-N026 (F-131): opens a file only after the server says it can be opened, in a tab with no opener", async () => {
+    const api = stub({ entries: [entryOf(docOf({ id: "d-pdf", originalFileName: "b.pdf", detectedType: "pdf" }))] });
+    const tab = { opener: {} as unknown, location: { href: "" }, close: vi.fn() };
+    const windowOpen = vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    try {
+      await open();
+      await userEvent.setup().click(screen.getByRole("button", { name: "Open b.pdf" }));
+      await waitFor(() => expect(tab.location.href).toBe("/api/documents/d-pdf/content"));
+      expect(tab.opener).toBeNull();
+      expect(api.calls.some((c) => c.url.endsWith("/api/documents/d-pdf/availability"))).toBe(true);
+      expect(tab.close).not.toHaveBeenCalled();
+    } finally { windowOpen.mockRestore(); }
+  });
+
+  it("ALV-N026 (F-131): explains a missing file in the app, names who can help, and closes the empty tab", async () => {
+    stub({ entries: [entryOf(docOf({ id: "d-pdf", originalFileName: "b.pdf", detectedType: "pdf" }))], availability: () => json({ error: "file_missing", message: "The stored file could not be found." }, 404) });
+    const tab = { opener: {} as unknown, location: { href: "" }, close: vi.fn() };
+    const windowOpen = vi.spyOn(window, "open").mockReturnValue(tab as unknown as Window);
+    try {
+      await open();
+      await userEvent.setup().click(screen.getByRole("button", { name: "Open b.pdf" }));
+      expect(await screen.findByRole("alert")).toHaveTextContent(/b\.pdf cannot be opened: its file is missing from storage\. The record is intact\. Ask the practice administrator/);
+      expect(tab.close).toHaveBeenCalled();
+      expect(tab.location.href).toBe("");
+    } finally { windowOpen.mockRestore(); }
+  });
+
+  it("ALV-N026 (F-130): offers no Open, Preview or Download for a file found missing or damaged, and says why", async () => {
+    stub({ entries: [
+      entryOf(docOf({ id: "d-gone", originalFileName: "gone.pdf", detectedType: "pdf", integrityStatus: "Missing" })),
+      entryOf(docOf({ id: "d-bad", originalFileName: "bad.png", detectedType: "png", integrityStatus: "Corrupt" })),
+    ] });
+    await open();
+    for (const name of ["gone.pdf", "bad.png"]) {
+      expect(screen.queryByRole("button", { name: `Open ${name}` })).toBeNull();
+      expect(screen.queryByRole("button", { name: `Preview ${name}` })).toBeNull();
+      expect(screen.queryByRole("link", { name: `Download ${name}` })).toBeNull();
+      expect(screen.getByRole("button", { name: `Details ${name}` })).toBeInTheDocument();
+    }
+    expect(screen.getByText(/The file is missing, so it cannot be opened\. Ask the practice administrator/)).toBeInTheDocument();
+    expect(screen.getByText(/The file is damaged, so it cannot be opened\. Ask the practice administrator/)).toBeInTheDocument();
+  });
+
+  it("ALV-N026 (F-171, Q-5bk, Q-5bs, Q-5bj): keeps the changes under More, shows the start of the description and a case mark, and says how files open", async () => {
+    const long = "A very long description of the scan that goes on well past the sixty characters the list shows.";
+    stub({ entries: [entryOf(docOf({ description: long, linkedCaseCount: 2 }))] });
+    await open();
+    const more = screen.getByText("More", { selector: "summary" });
+    expect(more.closest("details")).toContainElement(screen.getByRole("button", { name: "Edit bitewing.png" }));
+    expect(more.closest("details")).toContainElement(screen.getByRole("button", { name: "Inactivate bitewing.png" }));
+    const shown = screen.getByLabelText(`Description: ${long}`);
+    expect(shown).toHaveAttribute("title", long);
+    expect(shown.textContent!.endsWith("…")).toBe(true);
+    expect(shown.textContent!.length).toBeLessThanOrEqual(61);
+    expect(screen.getByText("Linked to 2 cases")).toBeInTheDocument();
+    expect(screen.getByText(/PDFs open in your browser's own viewer/)).toBeInTheDocument();
   });
 });
 

@@ -41,7 +41,7 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     /// document's own properties; the date range and the text apply to them as well (by signing date and form title).
     /// </summary>
     /// <remarks>ALV-N026 (PD-24): only documents in categories <paramref name="scope"/> may read are listed; the others are left out as if absent.</remarks>
-    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, DocumentLibraryFilter filter, DocumentReadScope scope, CancellationToken ct)
+    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, DocumentLibraryFilter filter, DocumentReadScope scope, CancellationToken ct, bool includeCaseLinks = false)
     {
         var f = CheckFilter(filter);
         var readable = await scope.ReadableCategoryIdsAsync(db, ct);
@@ -60,7 +60,7 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
         }
 
         var rows = await query.ToListAsync(ct);
-        var entries = (await DocumentMapper.ViewsAsync(db, rows, ct))
+        var entries = (await DocumentMapper.ViewsAsync(db, rows, ct, includeCaseLinks))
             .Select(v => new LibraryEntry(LibraryEntry.DocumentKind, v.Id, null, v.OriginalFileName, v.CategoryName, v.DocumentDate, v.DetectedType, v.SizeBytes, v.ImportedByName, v.ImportedAtUtc, false,
                 v.DuplicateOfDocumentId is not null, v, v.Status == DocumentStatuses.Inactive)).ToList();
 
@@ -169,7 +169,13 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     /// Opens a document's stored file after a cheap check, before anything is served or logged: the file is there with the size recorded at import, and the last full check did not find it damaged (opening does
     /// not re-hash a large file).
     /// </summary>
-    private async Task<Stream> OpenStoredAsync(PatientDocument row, CancellationToken ct)
+    /// <summary>
+    /// ALV-N026 (F-131): whether the document's file can be opened right now - the same cheap checks as opening (present, the recorded size, not found damaged) - without opening it and without logging
+    /// an open, so the screen can show a message in the app instead of a raw error page. <c>file_missing</c> (404) or <c>file_corrupt</c> (409) otherwise; a document the caller may not read is not found.
+    /// </summary>
+    public async Task CheckAvailableAsync(Guid documentId, DocumentReadScope scope, CancellationToken ct) => await CheckStoredAsync(await FindAsync(documentId, scope, ct), ct);
+
+    private async Task CheckStoredAsync(PatientDocument row, CancellationToken ct)
     {
         var info = await blobs.GetInfoAsync(row.BlobId, ct);
         if (info is null) throw Missing(row.Id);
@@ -179,6 +185,11 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
             logger?.LogError("document_file_corrupt document_id={DocumentId}", row.Id);
             throw new DocumentException("file_corrupt", "The stored file does not match what was imported, so it is not opened. Contact support; the record is intact.", 409);
         }
+    }
+
+    private async Task<Stream> OpenStoredAsync(PatientDocument row, CancellationToken ct)
+    {
+        await CheckStoredAsync(row, ct);
         try
         {
             return await blobs.OpenReadAsync(row.BlobId, ct);
