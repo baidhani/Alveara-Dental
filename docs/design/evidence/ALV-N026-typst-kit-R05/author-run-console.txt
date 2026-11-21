@@ -1,0 +1,11 @@
+﻿preflight: exit=0 version='typst 0.15.1 (9dfd3a08)' ok=True
+control: external @preview package import                 refused=True (package_unavailable)
+control: unapproved file outside root, absolute path      refused=True (absolute_path_refused)
+control: unapproved file outside root, relative escape    refused=True (path_escapes_root)
+control: bundled font file read as data                   refused=True (absolute_path_refused)
+control: unapproved file as JSON input                    refused=True (absolute_path_refused)
+prescription-p2            29368 bytes  runsIdentical=True  matchesExpected=True
+treatment-plan-copy-v1     27445 bytes  runsIdentical=True  matchesExpected=True
+statement-v4               27944 bytes  runsIdentical=True  matchesExpected=True
+receipt-v4                 24645 bytes  runsIdentical=True  matchesExpected=True
+OVERALL: PASS  (report: %TEMP%\typst-proof-results\results-CentralStandardTime.json)

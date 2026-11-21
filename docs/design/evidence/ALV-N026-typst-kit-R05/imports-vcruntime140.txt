@@ -1,0 +1,11 @@
+﻿file: vcruntime140.dll
+sha256: d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066
+machine: 0x8664  optional-header magic: 0x20B
+import: api-ms-win-crt-runtime-l1-1-0.dll
+import: api-ms-win-crt-string-l1-1-0.dll
+import: api-ms-win-crt-heap-l1-1-0.dll
+import: api-ms-win-crt-stdio-l1-1-0.dll
+import: api-ms-win-crt-convert-l1-1-0.dll
+import: KERNEL32.dll
+import count: 6
+delay-import: (none)

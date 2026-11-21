@@ -1,0 +1,58 @@
+﻿Microsoft Visual C++ runtime, app-local copy: provenance record (ALV-N026 Typst proof kit R05)
+
+SHIPPED FILE
+  Path in kit:      engine\vcruntime140.dll (unmodified)
+  File version:     14.44.35211.0 (ProductVersion 14.44.35211.0, ProductName "Microsoft Visual Studio")
+  Architecture:     x64 (PE machine 0x8664), matching engine\typst.exe
+  Size:             124544 bytes
+  SHA-256:          d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066
+  Authenticode:     Valid; signer CN=Microsoft Windows, O=Microsoft Corporation, L=Redmond, S=Washington, C=US
+
+SOURCE (Visual Studio distributable directory)
+  Product:          Microsoft Visual Studio 2022 Community (Visual Studio Installer catalog 17.14.35)
+  Directory:        [VisualStudioFolder]\VC\Redist\MSVC\14.44.35112\x64\Microsoft.VC143.CRT\vcruntime140.dll
+  Installed:        2025-09-13 (directory timestamp), by the Visual Studio Installer
+  Acquired for kit: 2026-11-21, copied unmodified
+
+VERSION RECONCILIATION (14.44.35112 vs 14.44.35211.0)
+  14.44.35112 is the version of the redistributable SET (the directory name). Visual Studio records the same
+  value in VC\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt. 14.44.35211.0 is the build version of the
+  files in that set. Evidence: the official redistributable package in the SAME directory,
+  VC\Redist\MSVC\14.44.35112\vc_redist.x64.exe, has ProductVersion/FileVersion 14.44.35211.0, as does every
+  runtime DLL in Microsoft.VC143.CRT.
+
+OFFICIAL MICROSOFT REDISTRIBUTABLE ARTIFACT (cross-check)
+  Artifact:         VC\Redist\MSVC\14.44.35112\vc_redist.x64.exe (the Microsoft Visual C++ Redistributable
+                    package installed by Visual Studio)
+  Version:          14.44.35211.0
+  Size:             25635768 bytes
+  SHA-256:          cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b
+  Authenticode:     Valid (Microsoft Corporation)
+  Result:           The package's x64 payload file "vcruntime140.dll_amd64" (124544 bytes) has SHA-256
+                    d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066, byte-identical to the
+                    shipped file. It was extracted to a scratch folder only (cabinets carved from the bundle,
+                    expand.exe); nothing was installed.
+
+REDISTRIBUTION BASIS
+  Source: "Visual Studio 2022 Redistribution", https://learn.microsoft.com/en-us/visualstudio/releases/2022/redistribution
+  (https://aka.ms/vs/17/redist.txt redirects there). Page ms.date 2025-11-11; accessed 2026-11-21.
+  Applicable entry: section "Visual C++ Runtime Files". "Subject to the License Terms for the software", you
+  may "copy and distribute with your program any of the files within the following folder and its subfolders
+  except as noted below. You may not modify these files.", with the folder given as "[VisualStudioFolder]\VC\redist".
+  The exclusions are "[VisualStudioFolder]VC\Redist\MSVC\[version]\debug_nonredist" and its onecore equivalent.
+  The shipped file is in the x64\Microsoft.VC143.CRT subfolder, which is not excluded. Distribution "is limited
+  to licensed Visual Studio users and is subject to its license terms" ("If you have a validly licensed copy
+  of such software").
+  MSVC-REDIST-LIST-POINTER.txt is Visual Studio's installed Redist.txt, kept only as a pointer. It is NOT the
+  licence evidence; the page above is.
+
+ENTITLEMENT
+  On 2026-11-21 the release owner affirmed that they are a validly licensed user of Microsoft Visual Studio
+  2022 (Community) and are entitled to redistribute this unmodified file under the Distributable Code terms above.
+
+SERVICING CAVEAT (for the product decision, not for this kit)
+  Microsoft ("Redistribute Visual C++ Files", page ms.date 2026-04-13) recommends central deployment with the
+  vc_redist packages because it lets Microsoft service the runtime. It does not recommend app-local
+  deployment "for servicing reasons". The PDF-library proposal must decide the production runtime strategy.
+
+Copyright (c) Microsoft Corporation. All rights reserved.

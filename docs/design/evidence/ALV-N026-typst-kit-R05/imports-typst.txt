@@ -1,0 +1,22 @@
+﻿file: typst.exe
+sha256: 081217a463adb006f8894b44227fe4b9c9e91fc85f5463d5948e8370db9bb31e
+machine: 0x8664  optional-header magic: 0x20B
+import: bcryptprimitives.dll
+import: api-ms-win-core-synch-l1-2-0.dll
+import: kernel32.dll
+import: shell32.dll
+import: ole32.dll
+import: crypt32.dll
+import: secur32.dll
+import: ntdll.dll
+import: ws2_32.dll
+import: VCRUNTIME140.dll
+import: api-ms-win-crt-math-l1-1-0.dll
+import: api-ms-win-crt-string-l1-1-0.dll
+import: api-ms-win-crt-convert-l1-1-0.dll
+import: api-ms-win-crt-heap-l1-1-0.dll
+import: api-ms-win-crt-runtime-l1-1-0.dll
+import: api-ms-win-crt-stdio-l1-1-0.dll
+import: api-ms-win-crt-locale-l1-1-0.dll
+import count: 17
+delay-import: (none)

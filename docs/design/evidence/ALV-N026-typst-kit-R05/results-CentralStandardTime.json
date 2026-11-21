@@ -1,0 +1,158 @@
+﻿{
+    "kit":  "ALV-N026 Typst proof kit R05",
+    "engine":  {
+                   "version":  "typst 0.15.1 (9dfd3a08)",
+                   "sha256":  "081217a463adb006f8894b44227fe4b9c9e91fc85f5463d5948e8370db9bb31e"
+               },
+    "runtimeDlls":  [
+                        {
+                            "path":  "engine\\vcruntime140.dll",
+                            "version":  "14.44.35211.0",
+                            "sha256":  "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066"
+                        }
+                    ],
+    "system":  {
+                   "windows":  "Microsoft Windows NT 10.0.26300.0",
+                   "powershell":  "5.1.26100.9818",
+                   "timeZoneId":  "Central Standard Time",
+                   "utcOffset":  "-06:00:00"
+               },
+    "preflight":  {
+                      "command":  "typst.exe --version",
+                      "exitCode":  0,
+                      "startError":  null,
+                      "timedOut":  false,
+                      "version":  "typst 0.15.1 (9dfd3a08)",
+                      "expectedVersion":  "typst 0.15.1 (9dfd3a08)",
+                      "started":  true
+                  },
+    "fonts":  {
+                  "NotoSans-Regular.ttf":  "478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823",
+                  "NotoSans-Bold.ttf":  "1df075a380fc7cb898acf64c1f7b3b4dd780de3caa860178bf929de35817a913"
+              },
+    "issueTimestamp":  1795089600,
+    "issueTimestampUtc":  "2026-11-19T12:00:00Z",
+    "controlledConfiguration":  {
+                                    "arguments":  "compile --root \u003cwork\u003e --ignore-system-fonts --ignore-embedded-fonts --font-path \u003ckit\u003e\\fonts --creation-timestamp 1795089600 --pdf-standard a-2b \u003cwork\u003e\\main.typ \u003cwork\u003e\\out.pdf",
+                                    "root":  "\u003cwork\u003e (fresh per render, deleted afterwards)",
+                                    "rootContents":  "common.typ, main.typ, input.json, no-packages\\ (empty)",
+                                    "TYPST_PACKAGE_PATH":  "\u003cwork\u003e\\no-packages (empty)",
+                                    "TYPST_PACKAGE_CACHE_PATH":  "\u003cwork\u003e\\no-packages (empty)",
+                                    "fontPath":  "\u003ckit\u003e\\fonts (2 files, hashes above)",
+                                    "proxies":  "HTTP_PROXY, HTTPS_PROXY, ALL_PROXY (and lower case) = http://127.0.0.1:9 (closed)",
+                                    "removed":  "TYPST_FONT_PATHS, TYPST_ROOT, TYPST_IGNORE_SYSTEM_FONTS, TYPST_IGNORE_EMBEDDED_FONTS, SOURCE_DATE_EPOCH, NO_PROXY",
+                                    "templateLint":  "no #import \"@...\" in any template: PASS",
+                                    "timeoutMs":  30000
+                                },
+    "negativeControls":  [
+                             {
+                                 "control":  "external @preview package import",
+                                 "expected":  "refused by Typst: package_unavailable, exit 1, no PDF",
+                                 "expectedErrorClass":  "package_unavailable",
+                                 "refused":  true,
+                                 "exitCode":  1,
+                                 "errorClass":  "package_unavailable",
+                                 "refusalCause":  "download attempted; connection refused at the closed proxy address (empty package folders alone did not prevent the attempt)",
+                                 "packageFolderEntriesAfter":  0
+                             },
+                             {
+                                 "control":  "unapproved file outside root, absolute path",
+                                 "expected":  "refused by Typst: absolute_path_refused, exit 1, no PDF",
+                                 "expectedErrorClass":  "absolute_path_refused",
+                                 "refused":  true,
+                                 "exitCode":  1,
+                                 "errorClass":  "absolute_path_refused",
+                                 "refusalCause":  "Typst refused a path outside --root",
+                                 "packageFolderEntriesAfter":  0
+                             },
+                             {
+                                 "control":  "unapproved file outside root, relative escape",
+                                 "expected":  "refused by Typst: path_escapes_root, exit 1, no PDF",
+                                 "expectedErrorClass":  "path_escapes_root",
+                                 "refused":  true,
+                                 "exitCode":  1,
+                                 "errorClass":  "path_escapes_root",
+                                 "refusalCause":  "Typst refused a path outside --root",
+                                 "packageFolderEntriesAfter":  0
+                             },
+                             {
+                                 "control":  "bundled font file read as data",
+                                 "expected":  "refused by Typst: absolute_path_refused, exit 1, no PDF",
+                                 "expectedErrorClass":  "absolute_path_refused",
+                                 "refused":  true,
+                                 "exitCode":  1,
+                                 "errorClass":  "absolute_path_refused",
+                                 "refusalCause":  "Typst refused a path outside --root",
+                                 "packageFolderEntriesAfter":  0
+                             },
+                             {
+                                 "control":  "unapproved file as JSON input",
+                                 "expected":  "refused by Typst: absolute_path_refused, exit 1, no PDF",
+                                 "expectedErrorClass":  "absolute_path_refused",
+                                 "refused":  true,
+                                 "exitCode":  1,
+                                 "errorClass":  "absolute_path_refused",
+                                 "refusalCause":  "Typst refused a path outside --root",
+                                 "packageFolderEntriesAfter":  0
+                             }
+                         ],
+    "results":  [
+                    {
+                        "template":  "prescription-p2",
+                        "templateSha256":  "7888fa6ab7956fc1cba5069592b22a05a808c158a3dc795f3a2d6debb20f9793",
+                        "commonTemplateSha256":  "d8aadede336ca66c9a02afc70987e3e59c646185ffe85feaec2be692ebeb8f06",
+                        "inputSha256":  "ecd92c21957887275587e2a2c91713557f104e649ed9f3d1c90e9aabb2ba050c",
+                        "expectedSha256":  "b9c68508cda5c7e61702c4e62d62e19467611729d1430238c1ce73532019d007",
+                        "expectedBytes":  29368,
+                        "run1Sha256":  "b9c68508cda5c7e61702c4e62d62e19467611729d1430238c1ce73532019d007",
+                        "run1Bytes":  29368,
+                        "run2Sha256":  "b9c68508cda5c7e61702c4e62d62e19467611729d1430238c1ce73532019d007",
+                        "run2Bytes":  29368,
+                        "runsIdentical":  true,
+                        "matchesExpected":  true
+                    },
+                    {
+                        "template":  "treatment-plan-copy-v1",
+                        "templateSha256":  "9a6a8aff7a2bedc3865f0880a345222ec6caa627f8809b3be35c24fc21f5ab0e",
+                        "commonTemplateSha256":  "d8aadede336ca66c9a02afc70987e3e59c646185ffe85feaec2be692ebeb8f06",
+                        "inputSha256":  "a866890261d651326b55671cc964d7c7c2a54d9214f42dcba0f6aa4c08a3148c",
+                        "expectedSha256":  "07689e545dab6e46e1cc426ba9588e2f1158a56445102cd592d093baeeb1d3c3",
+                        "expectedBytes":  27445,
+                        "run1Sha256":  "07689e545dab6e46e1cc426ba9588e2f1158a56445102cd592d093baeeb1d3c3",
+                        "run1Bytes":  27445,
+                        "run2Sha256":  "07689e545dab6e46e1cc426ba9588e2f1158a56445102cd592d093baeeb1d3c3",
+                        "run2Bytes":  27445,
+                        "runsIdentical":  true,
+                        "matchesExpected":  true
+                    },
+                    {
+                        "template":  "statement-v4",
+                        "templateSha256":  "eafa2eeb6f778bfe58e628915781903eefef53c9899020e6c2b10d693981347f",
+                        "commonTemplateSha256":  "d8aadede336ca66c9a02afc70987e3e59c646185ffe85feaec2be692ebeb8f06",
+                        "inputSha256":  "6f77a7d7c658738e6930264335915fdede7c9920d5eb1315d86c5fcb646f7c38",
+                        "expectedSha256":  "7db456de7bb33365b1257674f76d3945889d8136b2844bdf94a983d91a414354",
+                        "expectedBytes":  27944,
+                        "run1Sha256":  "7db456de7bb33365b1257674f76d3945889d8136b2844bdf94a983d91a414354",
+                        "run1Bytes":  27944,
+                        "run2Sha256":  "7db456de7bb33365b1257674f76d3945889d8136b2844bdf94a983d91a414354",
+                        "run2Bytes":  27944,
+                        "runsIdentical":  true,
+                        "matchesExpected":  true
+                    },
+                    {
+                        "template":  "receipt-v4",
+                        "templateSha256":  "a18dba122334d2fc57bf1fced7a34541c743b7bdc868c073562c165d04947dae",
+                        "commonTemplateSha256":  "d8aadede336ca66c9a02afc70987e3e59c646185ffe85feaec2be692ebeb8f06",
+                        "inputSha256":  "01c5a9426210c0bcf4a88d370bb633e83ee88d7e001bf666a30e90d39f716259",
+                        "expectedSha256":  "cdf31259a8b915a5d37d5c106431b84c0d72bfa645ef5d48949b29dca061ad42",
+                        "expectedBytes":  24645,
+                        "run1Sha256":  "cdf31259a8b915a5d37d5c106431b84c0d72bfa645ef5d48949b29dca061ad42",
+                        "run1Bytes":  24645,
+                        "run2Sha256":  "cdf31259a8b915a5d37d5c106431b84c0d72bfa645ef5d48949b29dca061ad42",
+                        "run2Bytes":  24645,
+                        "runsIdentical":  true,
+                        "matchesExpected":  true
+                    }
+                ],
+    "overall":  "PASS"
+}
