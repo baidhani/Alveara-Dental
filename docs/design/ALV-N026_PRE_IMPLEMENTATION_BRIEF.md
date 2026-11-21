@@ -1,0 +1,231 @@
+# ALV-N026 pre-implementation brief (revision 1): documents, prescriptions, printing, backup and status
+
+**Story:** ALV-N026 (plan item 63, R05 PKG-12). **Date:** 2026-11-21. **Status:** AWAITING_REVIEW (design only). No code, migration or configuration has been changed.
+
+**Inputs:**
+- `ALV-N026_FINDING_SURVEY.md`: 23 PKG-12 rows plus OQ-2 and U-008;
+- `ALV-N026_OWNER_DECISION_RECORD.md`;
+- `ALV-N026_PD-11_JURISDICTION_SCOPE_DECISION.md`;
+- `ALV-N026_PDF_OUTPUT_FIDELITY_REQUIREMENT_DECISION.md`;
+- `ALV-N026_REGENERATION_SOURCE_SURVEY.md` (D1 to D5);
+- `ALV-N026_PDF_LIBRARY_PROPOSAL-R04.md`.
+
+**Plan acceptance (item 63):** documents and signed forms keep their integrity and appropriate visibility; print output is accurate and privacy-safe; prescriptions keep their lifecycle truth; backup, restore and missing-file paths communicate safely.
+
+## 0. Gates before code (nothing below is coded until its gate passes)
+| Gate | Covers | State |
+|---|---|---|
+| G1. PDF library proposal R04 approved (escalation: new dependency) | Every PDF slice (S4 to S8) | AWAITING_REVIEW |
+| G2. PD-11 research note independently reviewed | Prescription **content fields** (S6 fields part) | **Not started.** It needs web research of official US sources, which the owner must permit |
+| G3. This brief approved, including the permission-model change (`ManageDocuments`, PD-24) | S1 | AWAITING_REVIEW |
+| G4. Release-store folders created and approved (after G1) | Adding the engine to the build | Waiting on G1 |
+
+Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
+
+## 1. Intended result (per finding)
+### Group A: documents and access (PD-24, U-008)
+| Id | Result |
+|---|---|
+| Q-5cn, Q-5cl, F-173 (PD-24) | **Each `DocumentCategory` gets a classification, `Clinical` or `NonClinical`.** Existing categories are mapped explicitly in the migration (section 5). An unknown or unreviewed category defaults to `Clinical`. **Clinical** documents need `ViewClinicalDocumentation` to list, open, download or preview; **non-clinical** ones need `ViewDocuments`. A new permission, **`ManageDocuments`**, is required for edit, inactivate and reactivate, and `ImportDocuments` no longer grants them. `ManageDocuments` never bypasses the read rule. A reclassification is audited. The server enforces all of this; the UI hides what the server would refuse. Direct-API tests cover each path |
+| U-008 | Dentist gets `ImportDocuments` by default. Hygienist and Assistant do not. Existing per-practice overrides are untouched |
+| F-130, F-131 | Open and Download are not offered for a Missing or Corrupt file; the row says why. Open goes through the app: a failure shows an in-app message naming the practice administrator, never a raw JSON tab |
+| F-125 | With a filter set, the empty state says "No documents match this filter" |
+| F-171 | Row actions are the primary action plus a "More" menu |
+| Q-5bk | A shortened description in the list, with the full text on hover or focus. A test checks that Details history shows edits |
+| Q-5bs, F-138 | A case-link mark on rows linked to a referral or lab case (ALV-N022's typed links) |
+| Q-5bj | Help text: PDFs open in the browser's viewer (by design) |
+| Q-5cx | Check the orphan report's rules (subfolders and non-blob files are not documents). Explain the count on the page. Fix the report if it counts non-blob files |
+
+### Group B: prescriptions and printing (PD-11, F-164, OQ-2, fidelity decision, D1 to D5)
+| Id | Result |
+|---|---|
+| F-108, F-109 | **Controlled documents print as server-side PDFs** (proposal R04): the browser opens or downloads the PDF, never the app page, so there is no browser header or footer, no internal URL and no blank second sheet. The four controlled materials and the clinical record copy move to PDF |
+| F-110 (PD-11) | The prescriber's fields come from **actual staff-profile data**, using neutral concepts (credential, licence identifier, issuing jurisdiction). The exact field list waits for **G2**. Nothing is invented, and the printout states its boundary (a US federal/common baseline, not a claim of compliance with every state) |
+| F-164, Q-5aq | Cancelled, discontinued and superseded prescriptions print as a **record copy** with a diagonal **"<STATUS> — DO NOT DISPENSE"** watermark plus the status date and reason. Active prescriptions print normally. Prints are audited |
+| F-165 | Plural units from a small fixed table (tablet/tablets, capsule/capsules; ml unchanged) |
+| Q-5am | The option label reads "Once only (single dose)". Stored values are unchanged |
+| Q-5ao | No change; a test proves a second Amend returns the open draft |
+| OQ-2 | The MRN on the prescription (p2), the treatment-plan copy (v2), and the statement and receipt (v4). **Earlier versions are regenerated with their own template versions; under the fidelity decision the "byte-for-byte" wording is superseded.** No backfill and no re-versioning of issued documents |
+| D1 | `PrescriptionIssue` row (section 3.2) |
+| D2 | A legacy `p1` print is never regenerated as historical. Instead, a new p2 **record copy** dated today, from the immutable record, with today's status, keeping the original prescribed date, watermarked if inactive |
+| D3 | The treatment-plan copy is built on the server with a `TreatmentPlanCopyIssue` row (section 3.3). Old browser copies are not recreated |
+| D4 | The clinical record copy is a new issue "generated as of <date/time>" from current records, with a `ClinicalRecordCopyIssue` row. No historical regeneration |
+| D5 | Statements and receipts keep the `FinancialDocument` contract. v4 adds the MRN, PDF output and the render bundle id |
+
+### Group C: backup, restore and System Status (PD-25, D-06)
+| Id | Result |
+|---|---|
+| F-152 (PD-25) | Backup failures and restore results go to **every administrator's in-app inbox**, with a persistent administrator banner. Acknowledgement is audited. System Status stays in warning until the condition is resolved. If creating a notification fails, the durable alert record, the existing file drop and the warning remain. No email |
+| F-153 | The restore wizard accepts `.asc` |
+| F-154 | Run backup, the restore drill and "Remove the restored copy" get a shared busy, disabled and idempotency-safe state with a lasting result message |
+| D-06 | System Status (administrator only) gains three sections. **Backup and recovery:** last good backup, last restore drill, recovery key configured yes/no, overdue state, unresolved PD-25 alerts. **Storage:** document-folder reachability, free space, missing and damaged counts. **Staff accounts:** enabled, disabled and locked totals, and accounts without MFA. Counts and states only, no sensitive detail. **Also (proposal R04):** PDF engine readiness |
+| Q-5ch | No change (retention by design) |
+
+## 2. Itemized changes
+### 2.1 Server
+- **`Permission`:** append `ManageDocuments` (ordinal last). Defaults: Admin and Office Manager, plus Dentist (**assumption A1**: Dentist edits clinical documents today through import). It is grantable. U-008: Dentist gets `ImportDocuments`.
+- **`DocumentCategory.Classification`** (`Clinical` | `NonClinical`, default `Clinical`). A category-settings endpoint changes it, with an audit event `DocumentCategoryReclassified`.
+- **`DocumentsController` and services:**
+  - read paths check the category classification against `ViewClinicalDocumentation` / `ViewDocuments`;
+  - edit, inactivate and reactivate require `ManageDocuments` plus the read right;
+  - listing filters out categories the caller cannot read (not 403 per row).
+- **PDF renderer service** (S4): implements proposal R04 sections 2, 4, 5 and 7. It runs `typst.exe` from the configured, hash-pinned location, and exposes `RenderAsync(templateId, templateVersion, canonicalJson)` returning a stream (no file retained). Readiness runs at startup and per batch, and is reported to System Status.
+- **Issue services:**
+  - `FinancialDocument` v4: adds the MRN to the envelope and content, a `RenderBundleId` column, and a PDF endpoint;
+  - `PrescriptionIssueService` (D1, D2, F-164);
+  - `TreatmentPlanCopyService` (D3);
+  - `ClinicalRecordCopyService` (D4, from `PatientReadableRecordService` content);
+  - each with a GET-PDF endpoint for issue and regeneration, an idempotency key and audit.
+- **Backup alerts:**
+  - a new `InAppBackupNotifier` is registered beside `FileDropBackupNotifier`, writing to the existing notification centre (`NotificationEntities`). This is not a new channel;
+  - durable alert records with acknowledgement;
+  - the banner data endpoint.
+- **System Status:** new admin-only sections built from existing services (backup history, the storage integrity report, account counts, PDF readiness).
+
+### 2.2 Client
+- **Documents panel:** classification-aware actions, a state-aware Open and Download, an in-app open-failure message, the filter empty state, a "More" menu, the description column, the case-link mark and help text. Category settings get the classification control.
+- **Print flows:** the prescription, plan copy, statement, receipt and clinical record copy open the server PDF. The `PrintPreview` and `window.print()` paths for these materials are removed.
+- **Prescriptions:** record-copy wording, the frequency label, and the p1 "new record copy" action.
+- **Backup:** `.asc` accepted, the busy state, the administrator banner and inbox entries.
+- **System Status:** the three sections plus PDF readiness.
+
+## 3. Data model for printed materials (D1 to D5; fidelity decision)
+**Common rules:**
+- Issue rows are **append-only**: an INSTEAD OF UPDATE/DELETE trigger refuses any change.
+- They hold **no PDF**. Their envelopes hold only the identity and practice text shown.
+- They are scoped to the patient, so they join the merge-scope trigger set under the existing rules. **Per the reviewer stop rule, the merge-scope change is part of this brief's review.**
+- Regeneration: rebuild from the cut-offs and the envelope, then render the recorded template version with the current approved bundle. A missing, inconsistent or unverifiable source gives `integrity_mismatch` (409) and a log entry with its `error_class`.
+
+### 3.1 Statements and receipts (D5)
+- **Kept:** the existing `FinancialDocument` contract (cut-offs, envelope, `ContentHash` check).
+- **Added:**
+  - template v4 (the MRN in the envelope and content);
+  - a nullable `RenderBundleId`;
+  - a PDF render of the existing content.
+- **Unchanged:** v1 to v3 rebuild with their own versions.
+
+### 3.2 `PrescriptionIssues` (D1, D2, F-164)
+`Id`, `PrescriptionId`, `PatientId`, `IssueKind` (`Print` | `RecordCopy`), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`p2`), `StatusAtIssue`, `EventCutoffId` (the last `PrescriptionEvent` id at issue, or null if none), `EnvelopeJson`, `RenderBundleId`, `ContentHash` (**optional diagnostic**, per D1), `IdempotencyKey`, `CorrelationId`.
+- **`EnvelopeJson`** holds the patient name, date of birth and MRN; the prescriber name and (after G2) credential fields from the staff profile; and the practice name, phone and address.
+- **Rebuild sources:** `Prescription` and `PrescriptionDetail` (immutable), plus the status and reason as of `EventCutoffId` (from `PrescriptionEvent`), plus the envelope.
+- **`IssueKind = RecordCopy`** for an inactive status: the watermark, the status date and the reason.
+- **Legacy `p1` (D2):** a request for a historical p1 print is refused (`legacy_print_unverifiable`). The UI offers "Issue a new record copy", which creates a p2 issue dated today with today's status and the original prescribed date.
+
+### 3.3 `TreatmentPlanCopyIssues` (D3)
+`Id`, `PlanId`, `PatientId`, `RevisionNumber`, `ItemStateCutoffJson` (item id to the highest `TreatmentPlanItemState.Sequence` at issue), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`v2`, with the MRN), `EnvelopeJson` (practice, patient name and MRN), `RenderBundleId`, an optional `ContentHash`, `IdempotencyKey`, `CorrelationId`.
+
+**Rebuild sources:**
+
+| Content | Source |
+|---|---|
+| Title, explanation, phases, placement | The revision (I) |
+| Fee | The item (I) |
+| Procedure code and description | `ProcedureVersion` (I) |
+| Acceptance, scheduling, completion | Item states at the cut-off (V) |
+| Diagnosis labels | `DiagnosisVersion` as of `IssuedAtUtc` (V) |
+| Practice and identity | The envelope |
+
+**Proof needed in the slice:**
+- the diagnosis label as of an instant equals the `DiagnosisVersion` with the greatest `OccurredAtUtc` at or before it;
+- the plan's reference code is immutable.
+
+If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
+
+### 3.4 `ClinicalRecordCopyIssues` (D4)
+`Id`, `PatientId`, `GeneratedAsOfUtc`, `IssuedByUserId`, `TemplateVersion`, `RenderBundleId`, an optional `ContentHash`, `IdempotencyKey`, `CorrelationId`.
+- The content is built from current records at `GeneratedAsOfUtc` and is titled "Clinical record copy generated as of <date/time>".
+- **No regeneration:** a later request is a new issue.
+- The existing `ExportPatientReadableRecord` permission and export history are kept.
+
+## 4. Permissions and audit
+- **New permission:** `ManageDocuments` (**escalation; G3**).
+- **Reads:**
+  - PDFs of a material need that material's existing read right (ViewBilling, prescriptions, plan or clinical rights) plus patient access;
+  - document reads follow the PD-24 classification.
+- **Audit events (PHI-free):**
+  - `DocumentCategoryReclassified`;
+  - `PrescriptionIssued` (kind and status);
+  - `PrescriptionLegacyPrintRefused`;
+  - `TreatmentPlanCopyIssued`;
+  - `ClinicalRecordCopyIssued`;
+  - `FinancialDocumentRegenerated`;
+  - `BackupAlertAcknowledged`.
+
+  Plus the existing patient-access print events (ALV-N025), with material type, template version and integrity outcome.
+- **Not in the audit:** names, the MRN or content.
+
+## 5. Schema and guards (forward migrations; the next guard number is 51303)
+1. **`AddDocumentClassificationAndManageDocuments`:**
+   - `DocumentCategories.Classification` (NOT NULL, default `Clinical`);
+   - **explicit mapping of the nine built-in categories** (`DocumentCategorySeeds`), listed in the migration and shown to the owner before it runs. **Assumption A2:**
+
+     | Classification | Categories |
+     |---|---|
+     | `Clinical` | Radiograph, Photo, Referral letter, Medical clearance, Lab report |
+     | `NonClinical` | Insurance card, Identification |
+     | `Clinical` until classified (**owner to confirm**) | Correspondence, Other |
+
+     Practice-added categories are `Clinical` until classified.
+   - permission defaults (`ManageDocuments`; Dentist `ImportDocuments`), with per-practice overrides untouched.
+2. **`AddPrintIssueRecords`:**
+   - three issue tables, append-only triggers (51303 onward) and merge-scope membership;
+   - `FinancialDocuments.RenderBundleId`.
+3. **`AddBackupAlertRecords`:** durable alert and acknowledgement records (append-only).
+
+**Rollback:** each migration has a Down that drops only what it added. Data written into new tables is lost on rollback; this is disclosed. Classification Down is a column drop.
+
+## 6. Tests (focused proof only; full regression is deferred to ALV-N028)
+| Area | Tests |
+|---|---|
+| PD-24 | A role matrix: a clinical and a non-clinical category × list, open, download, preview, edit, inactivate × each role. Direct API plus UI. `ManageDocuments` without read is refused. Reclassification audited. Unknown category is clinical. Overrides kept on migration |
+| Document UI | Missing or corrupt file has no Open or Download; open-failure message; filter empty state; More menu; description column; case-link mark |
+| PDF engine | Readiness pass and fail (not startable, wrong version, hash mismatch); timeout and kill; concurrency cap; import lint; isolation environment; no temporary file left behind |
+| Fidelity, per material | Each item below |
+
+**Fidelity, per material** (PDF text extraction plus layout checks, never byte hashes):
+- **Content:** exact identifiers, MRN, dates, amounts, prescriber and practice, status, watermark and notices; calculations; template selection.
+- **Unchanged by later edits:** a later change (patient renamed, practice edited, prescriber renamed, diagnosis corrected, later item state, later ledger entry) does not change a regenerated document.
+- **Integrity:** a tampered issue row or missing source gives `integrity_mismatch`.
+- **Idempotency:** the same key gives the same issue.
+
+**Material-specific tests:**
+
+| Area | Tests |
+|---|---|
+| Prescriptions | Active print; record copy for each inactive status (watermark, date, reason); p1 historical print refused with a new p2 copy offered; plural units; frequency label; second Amend returns the open draft; prescriber fields only from the profile (after G2) |
+| Financial | v1 to v3 still rebuild; v4 carries the MRN; no backfill |
+| Clinical record copy | Titled "generated as of"; a second request is a new issue |
+| Backup and status | In-app notifier delivers to every administrator; banner until resolved; acknowledgement audited; notification failure keeps the durable record and the file drop; `.asc` accepted; busy states; System Status sections admin-only with counts only |
+
+**Test cost:** each slice runs only its focused groups, within the 5-minute rule. Anything longer is asked for first.
+
+## 7. Slices (each committed as wip; the code is shown to the owner before any test run)
+| Slice | Content | Gate |
+|---|---|---|
+| S1 | PD-24 classification, `ManageDocuments`, U-008, migration 1 | G3 |
+| S2 | Document UI fixes (F-130/131/125/171, Q-5bk/bs/bj/cx) | G3 |
+| S3 | Backup alerts (PD-25), F-153, F-154, System Status (D-06), migration 3 | G3 |
+| S4 | PDF renderer service and readiness (engine from the approved store), migration 2 | G1, G4 |
+| S5 | Financial v4 PDFs | G1 |
+| S6 | Prescription p2: issue rows, record copy and watermark, p1 rule, F-165, Q-5am. The PD-11 fields come after G2 | G1; G2 for the fields |
+| S7 | Treatment-plan copy on the server (D3) | G1 |
+| S8 | Clinical record copy (D4); client print flows switched to PDFs | G1 |
+
+## 8. Open questions (for the owner or reviewer)
+1. **A1:** should Dentist hold `ManageDocuments` by default, or only Admin and Office Manager?
+2. **A2:** the classification of each built-in category, especially Correspondence and Other. The list is shown before migration 1.
+3. **G2:** permission for web research of official US prescription-content sources (PD-11).
+4. **The issue tables joining merge scope:** this needs reviewer confirmation under the stop rule.
+
+## 9. Out of scope
+- The installer work: the redistributable step, readiness at install, the firewall rule and the service account (ALV-N013).
+- Prescription jurisdiction profiles (the deferred follow-on story).
+- Email or SMTP alerts.
+- Any compliance claim beyond the US federal/common baseline.
+- Full regression (ALV-N028).
+
+## 10. Assumptions (logged)
+- **A1:** Dentist gets `ManageDocuments` by default (open question 1).
+- **A2:** the category mapping is as in section 5 (open question 2).
+- **A3:** the readable-record content (`PatientReadableRecordService`) is the clinical record copy's content source.
+- **A4:** the existing notification centre can hold administrator-only backup alerts without a new channel.
