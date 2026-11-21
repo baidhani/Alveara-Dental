@@ -1,8 +1,17 @@
-# ALV-N026 pre-implementation brief (revision 2): documents, prescriptions, printing, backup and status
+# ALV-N026 pre-implementation brief (revision 3): documents, prescriptions, printing, backup and status
 
 **Story:** ALV-N026 (plan item 63, R05 PKG-12). **Date:** 2026-11-21. **Status:** AWAITING_REVIEW (design only). No code, migration or configuration has been changed.
 
-**Revision 2 answers `ALV-N026_PRE_IMPLEMENTATION_BRIEF_REVIEW.md` (CHANGES_REQUIRED). The owner accepted the reviewer's positions on A1 and A2 on 2026-11-21.**
+**Revision 3 answers `ALV-N026_R02_PACKAGE_REVIEW.md` (CHANGES_REQUIRED). It is part of the corrected R03 package, together with proposal R05 and PD-11 note revision 2.**
+
+| Package review item | Where it is applied |
+|---|---|
+| 1. R04 references advanced to R05; G1 not approved until the package is approved | Inputs; section 0 (G1); sections 1 and 2.1 |
+| 2. The no-hash policy is consistent; the financial hash is internal evidence only | Sections 3 and 3.1 |
+| 3. Terminology: "General U.S.-oriented prescription layout; not a federal or state compliance profile" | Sections 1, 3.2a and 9 |
+| 4 to 7. PD-11 corrections (official sources, field classes, the four decisions, controlled-substance and signature boundary) | `ALV-N026_PD-11_RESEARCH_NOTE.md` revision 2; section 3.2a here (p2 field requirements); section 6 (tests) |
+
+**Revision 2 answered** `ALV-N026_PRE_IMPLEMENTATION_BRIEF_REVIEW.md` (CHANGES_REQUIRED). The owner accepted the reviewer's positions on A1 and A2 on 2026-11-21.**
 
 | Review item | Where it is applied |
 |---|---|
@@ -19,15 +28,15 @@
 - `ALV-N026_PD-11_JURISDICTION_SCOPE_DECISION.md`;
 - `ALV-N026_PDF_OUTPUT_FIDELITY_REQUIREMENT_DECISION.md`;
 - `ALV-N026_REGENERATION_SOURCE_SURVEY.md` (D1 to D5);
-- `ALV-N026_PDF_LIBRARY_PROPOSAL-R04.md`.
+- `ALV-N026_PDF_LIBRARY_PROPOSAL-R05.md` (a delta on its base, `ALV-N026_PDF_LIBRARY_PROPOSAL-R04.md`).
 
 **Plan acceptance (item 63):** documents and signed forms keep their integrity and appropriate visibility; print output is accurate and privacy-safe; prescriptions keep their lifecycle truth; backup, restore and missing-file paths communicate safely.
 
 ## 0. Gates before code (nothing below is coded until its gate passes)
 | Gate | Covers | State |
 |---|---|---|
-| G1. PDF library proposal R04 approved (escalation: new dependency) | Every PDF slice (S4 to S8) | AWAITING_REVIEW |
-| G2. PD-11 research note independently reviewed | Prescription **content fields** (S6 fields part) | **Research authorized** (owner 2026-11-21; review item 6): official US federal sources and clearly identified state examples only. The note is to follow |
+| G1. PDF library proposal R05 (with its R04 base) approved, as part of the corrected R03 package (escalation: new dependency) | Every PDF slice (S4 to S8) | AWAITING_REVIEW. Not approved until the corrected package is approved |
+| G2. PD-11 research note independently reviewed | Prescription **content fields** (S6 fields part) | AWAITING_REVIEW: `ALV-N026_PD-11_RESEARCH_NOTE.md` revision 2 (official sources only) |
 | G3. This brief approved, including the permission-model change (`ManageDocuments`, PD-24) | S1 | AWAITING_REVIEW |
 | G4. Release-store folders created and approved (after G1) | Adding the engine to the build | Waiting on G1 |
 
@@ -50,8 +59,8 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 ### Group B: prescriptions and printing (PD-11, F-164, OQ-2, fidelity decision, D1 to D5)
 | Id | Result |
 |---|---|
-| F-108, F-109 | **Controlled documents print as server-side PDFs** (proposal R04): the browser opens or downloads the PDF, never the app page, so there is no browser header or footer, no internal URL and no blank second sheet. The four controlled materials and the clinical record copy move to PDF |
-| F-110 (PD-11) | The prescriber's fields come from **actual staff-profile data**, using neutral concepts (credential, licence identifier, issuing jurisdiction). The exact field list waits for **G2**. Nothing is invented, and the printout states its boundary (a US federal/common baseline, not a claim of compliance with every state) |
+| F-108, F-109 | **Controlled documents print as server-side PDFs** (proposal R05): the browser opens or downloads the PDF, never the app page, so there is no browser header or footer, no internal URL and no blank second sheet. The four controlled materials and the clinical record copy move to PDF |
+| F-110 (PD-11) | The prescriber's fields come from **actual staff-profile data**, using neutral concepts (credential, licence identifier, issuing jurisdiction). The field list is in section 3.2a (subject to **G2**). Nothing is invented, and the printout states its boundary: **"General U.S.-oriented prescription layout; not a federal or state compliance profile."** The field list and its classification are in the PD-11 note revision 2 (section 3.2a below) |
 | F-164, Q-5aq | Cancelled, discontinued and superseded prescriptions print as a **record copy** with a diagonal **"<STATUS> — DO NOT DISPENSE"** watermark plus the status date and reason. Active prescriptions print normally. Prints are audited |
 | F-165 | Plural units from a small fixed table (tablet/tablets, capsule/capsules; ml unchanged) |
 | Q-5am | The option label reads "Once only (single dose)". Stored values are unchanged |
@@ -69,7 +78,7 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 | F-152 (PD-25) | Backup failures and restore results go to **every administrator's in-app inbox**, with a persistent administrator banner. Acknowledgement is audited. System Status stays in warning until the condition is resolved. If creating a notification fails, the durable alert record, the existing file drop and the warning remain. No email |
 | F-153 | The restore wizard accepts `.asc` |
 | F-154 | Run backup, the restore drill and "Remove the restored copy" get a shared busy, disabled and idempotency-safe state with a lasting result message |
-| D-06 | System Status (administrator only) gains three sections. **Backup and recovery:** last good backup, last restore drill, recovery key configured yes/no, overdue state, unresolved PD-25 alerts. **Storage:** document-folder reachability, free space, missing and damaged counts. **Staff accounts:** enabled, disabled and locked totals, and accounts without MFA. Counts and states only, no sensitive detail. **Also (proposal R04):** PDF engine readiness |
+| D-06 | System Status (administrator only) gains three sections. **Backup and recovery:** last good backup, last restore drill, recovery key configured yes/no, overdue state, unresolved PD-25 alerts. **Storage:** document-folder reachability, free space, missing and damaged counts. **Staff accounts:** enabled, disabled and locked totals, and accounts without MFA. Counts and states only, no sensitive detail. **Also (proposal R05):** PDF engine readiness |
 | Q-5ch | No change (retention by design) |
 
 ## 2. Itemized changes
@@ -82,7 +91,7 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
   - edit, inactivate and reactivate require `ManageDocuments` plus the read right;
   - listing filters out categories the caller cannot read (not 403 per row);
   - **moving a document to another category** (an edit) needs the read right of both the old and the new category.
-- **PDF renderer service** (S4): implements proposal R04 sections 2, 4, 5 and 7. It runs `typst.exe` from the configured, hash-pinned location, and exposes `RenderAsync(templateId, templateVersion, canonicalJson)` returning a stream (no file retained). Readiness runs at startup and per batch, and is reported to System Status.
+- **PDF renderer service** (S4): implements proposal R05 (R04 base) sections 2, 4, 5 and 7. It runs `typst.exe` from the configured, hash-pinned location, and exposes `RenderAsync(templateId, templateVersion, canonicalJson)` returning a stream (no file retained). Readiness runs at startup and per batch, and is reported to System Status.
 - **Issue services:**
   - `FinancialDocument` v4: adds the MRN to the envelope and content, a `RenderBundleId` column, and a PDF endpoint;
   - `PrescriptionIssueService` (D1, D2, F-164);
@@ -113,7 +122,7 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 - **Hashes:** any `ContentHash` is an **optional diagnostic only**, never an acceptance condition (fidelity decision; review item 5). Statements and receipts keep their existing hash check as source verification.
 
 ### 3.1 Statements and receipts (D5)
-- **Kept:** the existing `FinancialDocument` contract (cut-offs, envelope, `ContentHash` check).
+- **Kept:** the existing `FinancialDocument` contract (cut-offs and envelope). Its existing `ContentHash` comparison stays as internal source-verification evidence only; it is **not** an implementation acceptance gate (review item 2).
 - **Added:**
   - template v4 (the MRN in the envelope and content);
   - a nullable `RenderBundleId`;
@@ -126,6 +135,19 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 - **Rebuild sources:** `Prescription` and `PrescriptionDetail` (immutable), plus the status and reason as of `EventCutoffId` (from `PrescriptionEvent`), plus the envelope.
 - **`IssueKind = RecordCopy`** for an inactive status: the watermark, the status date and the reason.
 - **Legacy `p1` (D2):** a request for a historical p1 print is refused (`legacy_print_unverifiable`). The UI offers "Issue a new record copy", which creates a p2 issue dated today with today's status and the original prescribed date.
+
+### 3.2a p2 template and field requirements (PD-11 note revision 2; package review items 3 to 7)
+**The layout is a "General U.S.-oriented prescription layout; not a federal or state compliance profile."** Each field's class (L, CS, OPT) and its source basis are in the PD-11 note, section 3.
+
+| Field | Rule |
+|---|---|
+| Required (L) | Patient full name, address, date of birth, MRN; medication **exactly as recorded** (no "Strength" or "Dosage form" labels); dose; quantity; directions; refills; date of issue and date prescribed; prescriber name; status watermark with date and reason on inactive statuses; the boundary statement on every p2 |
+| Shown when present (L/OPT) | Prescriber address and telephone (practice); credential; licence identifier and issuing jurisdiction; NPI (validated as exactly 10 digits only) |
+| Never | DEA number; any controlled-substance detection or claim; any compliance claim; empty labels for absent optional fields |
+| Refusal | **Only** a missing patient address refuses (`print_incomplete`, naming the item). A missing credential, licence or NPI never refuses |
+| Signature | A "Prescriber signature" line may be printed. It is not described as a universal requirement |
+
+**Staff profile:** four nullable fields (`CredentialLabel`, `LicenseNumber`, `LicenseJurisdiction`, `Npi`), edited by an administrator, audited without values, and copied into the `PrescriptionIssue` envelope at issue.
 
 ### 3.3 `TreatmentPlanCopyIssues` (D3)
 `Id`, `PlanId`, `PatientId`, `RevisionNumber`, `ItemStateCutoffJson` (item id to the highest `TreatmentPlanItemState.Sequence` at issue), `IssuedAtUtc`, `IssuedByUserId`, `TemplateVersion` (`v2`, with the MRN), `EnvelopeJson` (practice, patient name and MRN), `RenderBundleId`, an optional `ContentHash`, `IdempotencyKey`, `CorrelationId`.
@@ -211,7 +233,8 @@ If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
 
 | Area | Tests |
 |---|---|
-| Prescriptions | Active print; record copy for each inactive status (watermark, date, reason); p1 historical print refused with a new p2 copy offered; plural units; frequency label; second Amend returns the open draft; prescriber fields only from the profile (after G2) |
+| Prescriptions | Active print; record copy for each inactive status (watermark, date, reason); p1 historical print refused with a new p2 copy offered; plural units; frequency label; second Amend returns the open draft |
+| p2 fields (after G2; PD-11 note section 6) | Required fields present with historical values; medication exactly as recorded with no Strength or Dosage-form labels; optional fields shown when present, with no empty labels and no refusal when absent; missing patient address gives `print_incomplete` with no PDF; boundary statement on every p2; no DEA field; no compliance or controlled-substance-detection text; NPI 10-digit validation (9, 11 or non-digit refused); a later profile edit does not change a regenerated earlier p2; profile edits audited without values |
 | Financial | v1 to v3 still rebuild; v4 carries the MRN; no backfill |
 | Clinical record copy | Titled "generated as of"; a second request is a new issue |
 | Backup and status | In-app notifier delivers to every administrator; banner until resolved; acknowledgement audited; notification failure keeps the durable record and the file drop; `.asc` accepted; busy states; System Status sections admin-only with counts only |
@@ -237,7 +260,7 @@ None open for the owner. A1, A2 and merge scope were resolved by the review and 
 - The installer work: the redistributable step, readiness at install, the firewall rule and the service account (ALV-N013).
 - Prescription jurisdiction profiles (the deferred follow-on story).
 - Email or SMTP alerts.
-- Any compliance claim beyond the US federal/common baseline.
+- Any compliance claim for any jurisdiction, payer or pharmacy (the layout is a general U.S.-oriented layout, not a compliance profile).
 - Full regression (ALV-N028).
 
 ## 10. Assumptions (logged)
