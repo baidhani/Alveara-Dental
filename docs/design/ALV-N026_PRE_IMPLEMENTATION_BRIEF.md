@@ -1,6 +1,17 @@
-# ALV-N026 pre-implementation brief (revision 1): documents, prescriptions, printing, backup and status
+# ALV-N026 pre-implementation brief (revision 2): documents, prescriptions, printing, backup and status
 
 **Story:** ALV-N026 (plan item 63, R05 PKG-12). **Date:** 2026-11-21. **Status:** AWAITING_REVIEW (design only). No code, migration or configuration has been changed.
+
+**Revision 2 answers `ALV-N026_PRE_IMPLEMENTATION_BRIEF_REVIEW.md` (CHANGES_REQUIRED). The owner accepted the reviewer's positions on A1 and A2 on 2026-11-21.**
+
+| Review item | Where it is applied |
+|---|---|
+| 1. A1: Dentist does not get `ManageDocuments` by default | Sections 1 (Group A), 2.1 and 10 |
+| 2. A2: the conservative category mapping; reclassification is configuration (`ManageDocumentSettings`) | Sections 1, 2.1 and 5 |
+| 3. Import requires `ImportDocuments` plus the read right for the chosen category | Sections 1, 2.1 and 6 |
+| 4. Merge scope approved as a tested implementation detail | Sections 3, 5 and 6 |
+| 5. No hash is a mandatory acceptance check; two precise integrity cases | Sections 3 and 6 |
+| 6. PD-11 research authorized (official US federal sources and identified state examples) | Section 0 (G2) |
 
 **Inputs:**
 - `ALV-N026_FINDING_SURVEY.md`: 23 PKG-12 rows plus OQ-2 and U-008;
@@ -16,7 +27,7 @@
 | Gate | Covers | State |
 |---|---|---|
 | G1. PDF library proposal R04 approved (escalation: new dependency) | Every PDF slice (S4 to S8) | AWAITING_REVIEW |
-| G2. PD-11 research note independently reviewed | Prescription **content fields** (S6 fields part) | **Not started.** It needs web research of official US sources, which the owner must permit |
+| G2. PD-11 research note independently reviewed | Prescription **content fields** (S6 fields part) | **Research authorized** (owner 2026-11-21; review item 6): official US federal sources and clearly identified state examples only. The note is to follow |
 | G3. This brief approved, including the permission-model change (`ManageDocuments`, PD-24) | S1 | AWAITING_REVIEW |
 | G4. Release-store folders created and approved (after G1) | Adding the engine to the build | Waiting on G1 |
 
@@ -26,8 +37,8 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 ### Group A: documents and access (PD-24, U-008)
 | Id | Result |
 |---|---|
-| Q-5cn, Q-5cl, F-173 (PD-24) | **Each `DocumentCategory` gets a classification, `Clinical` or `NonClinical`.** Existing categories are mapped explicitly in the migration (section 5). An unknown or unreviewed category defaults to `Clinical`. **Clinical** documents need `ViewClinicalDocumentation` to list, open, download or preview; **non-clinical** ones need `ViewDocuments`. A new permission, **`ManageDocuments`**, is required for edit, inactivate and reactivate, and `ImportDocuments` no longer grants them. `ManageDocuments` never bypasses the read rule. A reclassification is audited. The server enforces all of this; the UI hides what the server would refuse. Direct-API tests cover each path |
-| U-008 | Dentist gets `ImportDocuments` by default. Hygienist and Assistant do not. Existing per-practice overrides are untouched |
+| Q-5cn, Q-5cl, F-173 (PD-24) | **Each `DocumentCategory` gets a classification, `Clinical` or `NonClinical`.** The built-in categories are mapped explicitly in the migration (section 5). Practice-added and unrecognized categories default to `Clinical` until explicitly classified (deliberate privacy protection). **Clinical** documents need `ViewClinicalDocumentation` to list, open, download or preview; **non-clinical** ones need `ViewDocuments`. A new permission, **`ManageDocuments`**, is required for edit, inactivate and reactivate, and `ImportDocuments` no longer grants them. `ManageDocuments` never bypasses the read rule. **Changing a category's classification is practice configuration:** it needs the existing `ManageDocumentSettings` (administrator), is audited, and stays separate from `ManageDocuments`. **Import into a category needs both `ImportDocuments` and that category's read right**, so nobody can upload into a category they cannot read. The server enforces all of this; the UI hides what the server would refuse. Direct-API tests cover each path |
+| U-008 and permission defaults (review item 1) | **`ManageDocuments`:** Admin and Office Manager. **Dentist:** `ImportDocuments` only, not `ManageDocuments`. **Hygienist and Assistant:** neither by default. `ImportDocuments` allows import only (no edit, inactivate, reactivate or category administration). Existing per-practice overrides are untouched, and a practice may grant `ManageDocuments` through the permission policy |
 | F-130, F-131 | Open and Download are not offered for a Missing or Corrupt file; the row says why. Open goes through the app: a failure shows an in-app message naming the practice administrator, never a raw JSON tab |
 | F-125 | With a filter set, the empty state says "No documents match this filter" |
 | F-171 | Row actions are the primary action plus a "More" menu |
@@ -63,12 +74,14 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 
 ## 2. Itemized changes
 ### 2.1 Server
-- **`Permission`:** append `ManageDocuments` (ordinal last). Defaults: Admin and Office Manager, plus Dentist (**assumption A1**: Dentist edits clinical documents today through import). It is grantable. U-008: Dentist gets `ImportDocuments`.
-- **`DocumentCategory.Classification`** (`Clinical` | `NonClinical`, default `Clinical`). A category-settings endpoint changes it, with an audit event `DocumentCategoryReclassified`.
+- **`Permission`:** append `ManageDocuments` (ordinal last). Defaults: Admin and Office Manager only, and it is grantable. U-008: Dentist gets `ImportDocuments`; Hygienist and Assistant get neither.
+- **`DocumentCategory.Classification`** (`Clinical` | `NonClinical`, default `Clinical`). It is changed through the existing category-settings endpoints under **`ManageDocumentSettings`**, with an audit event `DocumentCategoryReclassified`.
 - **`DocumentsController` and services:**
   - read paths check the category classification against `ViewClinicalDocumentation` / `ViewDocuments`;
+  - **import requires `ImportDocuments` plus the read right of the chosen category**;
   - edit, inactivate and reactivate require `ManageDocuments` plus the read right;
-  - listing filters out categories the caller cannot read (not 403 per row).
+  - listing filters out categories the caller cannot read (not 403 per row);
+  - **moving a document to another category** (an edit) needs the read right of both the old and the new category.
 - **PDF renderer service** (S4): implements proposal R04 sections 2, 4, 5 and 7. It runs `typst.exe` from the configured, hash-pinned location, and exposes `RenderAsync(templateId, templateVersion, canonicalJson)` returning a stream (no file retained). Readiness runs at startup and per batch, and is reported to System Status.
 - **Issue services:**
   - `FinancialDocument` v4: adds the MRN to the envelope and content, a `RenderBundleId` column, and a PDF endpoint;
@@ -93,8 +106,11 @@ Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 **Common rules:**
 - Issue rows are **append-only**: an INSTEAD OF UPDATE/DELETE trigger refuses any change.
 - They hold **no PDF**. Their envelopes hold only the identity and practice text shown.
-- They are scoped to the patient, so they join the merge-scope trigger set under the existing rules. **Per the reviewer stop rule, the merge-scope change is part of this brief's review.**
-- Regeneration: rebuild from the cut-offs and the envelope, then render the recorded template version with the current approved bundle. A missing, inconsistent or unverifiable source gives `integrity_mismatch` (409) and a log entry with its `error_class`.
+- **Merge scope (approved by review item 4 as a tested implementation detail).** They are scoped to the patient and join the established merge-scope pattern, with the established guard and stand-aside behaviour. The migration slice records the exact triggers and guard codes, and proves directly in SQL that:
+  - an ordinary direct change of a row's patient scope is refused;
+  - an approved patient merge reassigns the issue rows correctly without weakening their append-only protection.
+- Regeneration: rebuild from the cut-offs and the envelope, then render the recorded template version with the current approved bundle. Missing, inconsistent or unprovable versioned source data gives `integrity_mismatch` (409) **before rendering**, with a log entry carrying its `error_class`.
+- **Hashes:** any `ContentHash` is an **optional diagnostic only**, never an acceptance condition (fidelity decision; review item 5). Statements and receipts keep their existing hash check as source verification.
 
 ### 3.1 Statements and receipts (D5)
 - **Kept:** the existing `FinancialDocument` contract (cut-offs, envelope, `ContentHash` check).
@@ -157,15 +173,14 @@ If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
 ## 5. Schema and guards (forward migrations; the next guard number is 51303)
 1. **`AddDocumentClassificationAndManageDocuments`:**
    - `DocumentCategories.Classification` (NOT NULL, default `Clinical`);
-   - **explicit mapping of the nine built-in categories** (`DocumentCategorySeeds`), listed in the migration and shown to the owner before it runs. **Assumption A2:**
+   - **explicit mapping of the nine built-in categories** (`DocumentCategorySeeds`; review item 2, owner accepted):
 
      | Classification | Categories |
      |---|---|
-     | `Clinical` | Radiograph, Photo, Referral letter, Medical clearance, Lab report |
+     | `Clinical` | Radiograph, Photo, Referral letter, Medical clearance, Lab report, Correspondence, Other |
      | `NonClinical` | Insurance card, Identification |
-     | `Clinical` until classified (**owner to confirm**) | Correspondence, Other |
 
-     Practice-added categories are `Clinical` until classified.
+     Practice-added and unrecognized categories are `Clinical` until explicitly classified.
    - permission defaults (`ManageDocuments`; Dentist `ImportDocuments`), with per-practice overrides untouched.
 2. **`AddPrintIssueRecords`:**
    - three issue tables, append-only triggers (51303 onward) and merge-scope membership;
@@ -177,7 +192,8 @@ If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
 ## 6. Tests (focused proof only; full regression is deferred to ALV-N028)
 | Area | Tests |
 |---|---|
-| PD-24 | A role matrix: a clinical and a non-clinical category × list, open, download, preview, edit, inactivate × each role. Direct API plus UI. `ManageDocuments` without read is refused. Reclassification audited. Unknown category is clinical. Overrides kept on migration |
+| PD-24 | A role matrix: a clinical and a non-clinical category × list, open, download, preview, import, edit, inactivate × each role. Direct API plus UI. `ManageDocuments` without the read right is refused. **Import into an unreadable category is refused** (direct API). Moving a document into an unreadable category is refused. Reclassification needs `ManageDocumentSettings` and is audited. An unknown or practice-added category is clinical. Defaults per review item 1. Overrides kept on migration |
+| Merge scope | Direct SQL: a scope change on each issue table is refused with its guard code. An approved merge reassigns the issue rows, and they stay append-only afterwards |
 | Document UI | Missing or corrupt file has no Open or Download; open-failure message; filter empty state; More menu; description column; case-link mark |
 | PDF engine | Readiness pass and fail (not startable, wrong version, hash mismatch); timeout and kill; concurrency cap; import lint; isolation environment; no temporary file left behind |
 | Fidelity, per material | Each item below |
@@ -185,7 +201,10 @@ If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
 **Fidelity, per material** (PDF text extraction plus layout checks, never byte hashes):
 - **Content:** exact identifiers, MRN, dates, amounts, prescriber and practice, status, watermark and notices; calculations; template selection.
 - **Unchanged by later edits:** a later change (patient renamed, practice edited, prescriber renamed, diagnosis corrected, later item state, later ledger entry) does not change a regenerated document.
-- **Integrity:** a tampered issue row or missing source gives `integrity_mismatch`.
+- **Integrity, two precise cases:**
+  - a direct modification of an issue row is refused by its append-only database guard;
+  - missing, inconsistent or unprovable versioned source data gives `integrity_mismatch` before any rendering.
+- **No hash assertion is an acceptance check:** PDF and canonical-content hashes are optional diagnostics only. Assertions are on historical values, warnings, calculations, version choice and rendered text or layout.
 - **Idempotency:** the same key gives the same issue.
 
 **Material-specific tests:**
@@ -211,11 +230,8 @@ If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
 | S7 | Treatment-plan copy on the server (D3) | G1 |
 | S8 | Clinical record copy (D4); client print flows switched to PDFs | G1 |
 
-## 8. Open questions (for the owner or reviewer)
-1. **A1:** should Dentist hold `ManageDocuments` by default, or only Admin and Office Manager?
-2. **A2:** the classification of each built-in category, especially Correspondence and Other. The list is shown before migration 1.
-3. **G2:** permission for web research of official US prescription-content sources (PD-11).
-4. **The issue tables joining merge scope:** this needs reviewer confirmation under the stop rule.
+## 8. Open questions
+None open for the owner. A1, A2 and merge scope were resolved by the review and accepted by the owner (2026-11-21). G2 research is authorized; its note goes to independent review before any prescription-content code.
 
 ## 9. Out of scope
 - The installer work: the redistributable step, readiness at install, the firewall rule and the service account (ALV-N013).
@@ -225,7 +241,6 @@ If either fails, the copy refuses (`integrity_mismatch`) rather than guessing.
 - Full regression (ALV-N028).
 
 ## 10. Assumptions (logged)
-- **A1:** Dentist gets `ManageDocuments` by default (open question 1).
-- **A2:** the category mapping is as in section 5 (open question 2).
+- **A1 and A2:** resolved (review items 1 and 2, accepted by the owner). They are no longer assumptions.
 - **A3:** the readable-record content (`PatientReadableRecordService`) is the clinical record copy's content source.
 - **A4:** the existing notification centre can hold administrator-only backup alerts without a new channel.
