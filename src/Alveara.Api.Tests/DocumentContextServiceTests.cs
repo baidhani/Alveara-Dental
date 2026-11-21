@@ -31,14 +31,14 @@ public class DocumentContextServiceTests : DocumentTestBase
         (await ImportAsync(Request(bytes, patient: patient) with { EncounterId = encounter, ToothKey = tooth, RegionKey = region })).Document;
 
     private Task<DocumentView> EditAsync(DocumentView doc, Guid? encounter = null, string? tooth = null, string? region = null, string? description = null, string? rowVersion = null) =>
-        WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(doc.CategoryId, doc.DocumentDate, description ?? doc.Description, rowVersion ?? doc.RowVersion, encounter, tooth, region), S.Actor, default));
+        WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(doc.CategoryId, doc.DocumentDate, description ?? doc.Description, rowVersion ?? doc.RowVersion, encounter, tooth, region), S.Actor, DocumentReadScope.Everything, default));
 
     private Task<DocumentView> InactivateAsync(DocumentView doc, string? reason = "Scanned under the wrong patient.", string? rowVersion = null) =>
-        WithDb(db => Status(db).InactivateAsync(doc.Id, rowVersion ?? doc.RowVersion, reason, S.Actor, default));
+        WithDb(db => Status(db).InactivateAsync(doc.Id, rowVersion ?? doc.RowVersion, reason, S.Actor, DocumentReadScope.Everything, default));
 
-    private Task<DocumentView> ReactivateAsync(DocumentView doc, string? rowVersion = null) => WithDb(db => Status(db).ReactivateAsync(doc.Id, rowVersion ?? doc.RowVersion, S.Actor, default));
-    private Task<IReadOnlyList<LibraryEntry>> ListAsync(bool includeInactive = false) => WithDb(db => Library(db).ListAsync(Ann, null, default, includeInactive));
-    private Task<DocumentDetail> GetAsync(Guid id) => WithDb(db => Library(db).GetAsync(id, default));
+    private Task<DocumentView> ReactivateAsync(DocumentView doc, string? rowVersion = null) => WithDb(db => Status(db).ReactivateAsync(doc.Id, rowVersion ?? doc.RowVersion, S.Actor, DocumentReadScope.Everything, default));
+    private Task<IReadOnlyList<LibraryEntry>> ListAsync(bool includeInactive = false) => WithDb(db => Library(db).ListAsync(Ann, null, DocumentReadScope.Everything, default, includeInactive));
+    private Task<DocumentDetail> GetAsync(Guid id) => WithDb(db => Library(db).GetAsync(id, DocumentReadScope.Everything, default));
 
     private async Task<List<string>> KindsAsync(Guid id) { await using var db = Fixture.CreateContext(); return await db.DocumentEvents.AsNoTracking().Where(e => e.DocumentId == id).OrderBy(e => e.EventNumber).Select(e => e.Kind).ToListAsync(); }
     private async Task<List<string>> AuditTypesAsync(Guid id) { await using var db = Fixture.CreateContext(); return await db.AuditLogEntries.AsNoTracking().Where(a => a.TargetUserAccountId == id).OrderBy(a => a.TimestampUtc).Select(a => a.EventType).ToListAsync(); }
@@ -181,7 +181,7 @@ public class DocumentContextServiceTests : DocumentTestBase
 
         var detail = await GetAsync(doc.Id);
         Assert.Equal(DocumentStatuses.Inactive, detail.Document.Status);
-        await using var opened = await WithDb(db => Library(db).OpenAsync(doc.Id, S.Actor, default));                         // inactive is hidden, not removed: the file is still there
+        await using var opened = await WithDb(db => Library(db).OpenAsync(doc.Id, S.Actor, DocumentReadScope.Everything, default));                         // inactive is hidden, not removed: the file is still there
         Assert.True(opened.SizeBytes > 0);
         Assert.Equal(2, FilesOnDisk());                                                                                         // both files are still on disk
     }
@@ -247,11 +247,11 @@ public class DocumentContextServiceTests : DocumentTestBase
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => InactivateAsync(doc));
         Assert.Equal(DocumentStatuses.Active, (await GetAsync(doc.Id)).Document.Status);
 
-        var none = await Refused(() => WithDb(db => Status(db).InactivateAsync(doc.Id, null, "Why.", S.Actor, default)));
+        var none = await Refused(() => WithDb(db => Status(db).InactivateAsync(doc.Id, null, "Why.", S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal(("row_version_required", 400), (none.Code, none.StatusCode));
-        var bad = await Refused(() => WithDb(db => Status(db).ReactivateAsync(doc.Id, "not base64!", S.Actor, default)));
+        var bad = await Refused(() => WithDb(db => Status(db).ReactivateAsync(doc.Id, "not base64!", S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal("row_version_invalid", bad.Code);
-        var missing = await Refused(() => WithDb(db => Status(db).InactivateAsync(Guid.NewGuid(), doc.RowVersion, "Why.", S.Actor, default)));
+        var missing = await Refused(() => WithDb(db => Status(db).InactivateAsync(Guid.NewGuid(), doc.RowVersion, "Why.", S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal(("document_not_found", 404), (missing.Code, missing.StatusCode));
     }
 

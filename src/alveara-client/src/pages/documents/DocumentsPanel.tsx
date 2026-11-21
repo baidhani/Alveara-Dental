@@ -24,7 +24,7 @@ const FILTER_FIELDS: Record<string, keyof FilterErrors> = { category: "category"
  * region, dates, status, a word), shown as a list or as thumbnails, and each document can be previewed (pictures), opened or downloaded, read (its history, with every inactivation and its reason) and, by staff
  * who may import, edited, made inactive (never deleted) and reactivated. Signed forms are read-only entries that link to the form. Wording and states are truthful: a failed load is an error, never an empty list.
  */
-export function DocumentsPanel({ patient, canImport }: { patient: PatientDetail; canImport: boolean }) {
+export function DocumentsPanel({ patient, canImport, canManage }: { patient: PatientDetail; canImport: boolean; canManage: boolean }) {
   const [library, setLibrary] = useState<DocumentLibrary | null>(null);
   const [categories, setCategories] = useState<CategoryView[]>([]);
   const [encounters, setEncounters] = useState<EncounterChoice[]>([]);
@@ -83,7 +83,7 @@ export function DocumentsPanel({ patient, canImport }: { patient: PatientDetail;
 
   const open = (set: (id: string | null) => void, id: string) => { setMessage(null); setEditing(null); setInactivating(null); setPreviewing(null); setDetails(null); set(id); };
   const handlers: EntryHandlers = {
-    canEdit: canImport,
+    canEdit: canManage,   // ALV-N026 (PD-24): editing, inactivating and reactivating need ManageDocuments; importing no longer implies it
     onEdit: (id) => open(setEditing, id),
     onInactivate: (id) => open(setInactivating, id),
     onReactivate: (id) => void reactivate(id),
@@ -99,7 +99,7 @@ export function DocumentsPanel({ patient, canImport }: { patient: PatientDetail;
       {library && !failed && (
         <>
           {canImport && (
-            <DocumentImportForm patientId={patient.id} categories={categories.filter((c) => c.isActive)} encounters={encounters} maxBytes={library.maxUploadBytes} onImported={reload} />
+            <DocumentImportForm patientId={patient.id} categories={categories.filter((c) => c.isActive && c.readable !== false)} encounters={encounters} maxBytes={library.maxUploadBytes} onImported={reload} />
           )}
           <DocumentFilters categories={categories} encounters={encounters} errors={filterErrors} onApply={(f) => { setFilterErrors({}); setFilter(f); }} />
           <fieldset className="alv-documents__view" role="radiogroup" aria-label="View">

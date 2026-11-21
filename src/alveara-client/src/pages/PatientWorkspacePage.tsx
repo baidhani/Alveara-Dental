@@ -126,7 +126,7 @@ export function PatientFormsTab() {
 export function PatientDocumentsTab() {
   const { patient } = useOutletContext<WorkspaceOutlet>();
   const { hasPermission } = useAuth();
-  return <DocumentsPanel patient={patient} canImport={hasPermission("ImportDocuments")} />;
+  return <DocumentsPanel patient={patient} canImport={hasPermission("ImportDocuments")} canManage={hasPermission("ManageDocuments")} />;
 }
 
 export function PatientFormTab() {

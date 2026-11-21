@@ -14,8 +14,8 @@ import { detailOf, docOf, entryOf, json, patient, stub } from "./documentsTestHa
  */
 type User = ReturnType<typeof userEvent.setup>;
 
-async function open(canImport = true) {
-  const view = render(<MemoryRouter><DocumentsPanel patient={patient} canImport={canImport} /></MemoryRouter>);
+async function open(canImport = true, canManage = canImport) {
+  const view = render(<MemoryRouter><DocumentsPanel patient={patient} canImport={canImport} canManage={canManage} /></MemoryRouter>);
   await screen.findByRole("heading", { name: "Documents" });
   await waitFor(() => expect(screen.queryByText(/Loading documents/i)).toBeNull());
   return view;

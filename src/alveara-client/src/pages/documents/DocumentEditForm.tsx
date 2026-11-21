@@ -28,7 +28,7 @@ export function DocumentEditForm({ document, categories, encounters, onSaved, on
   const [formError, setFormError] = useState<string | null>(null);
   const [conflict, setConflict] = useState<{ entityType: string; entityId: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const options = categories.filter((c) => c.isActive || c.id === document.categoryId);
+  const options = categories.filter((c) => (c.isActive && c.readable !== false) || c.id === document.categoryId);   // ALV-N026 (PD-24): never offer a category the user may not read
 
   async function save() {
     if (busy) return;

@@ -18,7 +18,8 @@ public class DocumentStorageApiTests : IAsyncLifetime
     private SchedulingApiHarness _api = null!;
     private Guid _patient;
     private string _storage = "";
-    private static readonly Guid Radiograph = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.Radiograph;
+    // ALV-N026 (PD-24): the storage tests import as the office manager, who may no longer file into clinical categories; the category is irrelevant to a storage check.
+    private static readonly Guid Filed = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.InsuranceCard;
 
     public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
@@ -39,7 +40,7 @@ public class DocumentStorageApiTests : IAsyncLifetime
         var file = new ByteArrayContent(Png(extra));
         file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
         form.Add(file, "file", name);
-        form.Add(new StringContent(Radiograph.ToString()), "categoryId");
+        form.Add(new StringContent(Filed.ToString()), "categoryId");
         form.Add(new StringContent("2026-10-01"), "documentDate");
         var request = new HttpRequestMessage(HttpMethod.Post, $"/api/patients/{_patient}/documents") { Content = form };
         request.Headers.Add("X-CSRF-Token", by.Csrf);

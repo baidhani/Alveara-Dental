@@ -4,15 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "jest-axe";
 import { DocumentsPanel } from "./DocumentsPanel";
-import { docOf, entryOf, json, patient, signedForm, stub } from "./documentsTestHarness";
+import { categories, docOf, entryOf, json, patient, signedForm, stub } from "./documentsTestHarness";
 
 /**
  * STORY-010: the Documents tab against a scripted API. The rules (types, sizes, duplicates, logging) are proven by the backend tests; what is proven here is the screen: who gets the import form and the edit
  * buttons, that the library lists documents and signed forms apart, that every wrong entry is named beside its box with what was typed kept, that a retry reuses its key and a new attempt does not, that a
  * duplicate is warned about and added only on an explicit choice, that an edit sends the version it read, and that only the types the server allows are offered to open in the browser.
  */
-async function open(canImport = true) {
-  const view = render(<MemoryRouter><DocumentsPanel patient={patient} canImport={canImport} /></MemoryRouter>);
+async function open(canImport = true, canManage = canImport) {
+  const view = render(<MemoryRouter><DocumentsPanel patient={patient} canImport={canImport} canManage={canManage} /></MemoryRouter>);
   await screen.findByRole("heading", { name: "Documents" });
   await screen.findByText(/Loading documents/i).catch(() => null);
   await waitFor(() => expect(screen.queryByText(/Loading documents/i)).toBeNull());
@@ -68,7 +68,7 @@ describe("the library", () => {
     unmount();
     vi.unstubAllGlobals();
     stub({ loadFails: true });
-    render(<MemoryRouter><DocumentsPanel patient={patient} canImport /></MemoryRouter>);
+    render(<MemoryRouter><DocumentsPanel patient={patient} canImport canManage /></MemoryRouter>);
     expect(await screen.findByText("Could not load the documents")).toBeInTheDocument();
   });
 
@@ -88,6 +88,27 @@ describe("the library", () => {
     expect(screen.queryByRole("form", { name: "Import a document" })).toBeNull();
     expect(screen.queryByRole("button", { name: /Edit/ })).toBeNull();
     expect(screen.getByRole("link", { name: "Download bitewing.png" })).toBeInTheDocument();
+  });
+
+  it("ALV-N026: gives staff who may import but not manage the import form and no edit or inactivate buttons", async () => {
+    stub({ entries: [entryOf(docOf())] });
+    await open(true, false);
+    expect(screen.getByRole("form", { name: "Import a document" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Edit/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Inactivate/ })).toBeNull();
+  });
+
+  it("ALV-N026: never offers a category the user may not read", async () => {
+    const photo = categories.find((c) => c.id === "c-photo")!;
+    photo.readable = false;
+    try {
+      stub();
+      await open();
+      const options = within(importForm().getByLabelText("Category")).getAllByRole("option").map((o) => o.textContent);
+      expect(options).toEqual(["Choose a category…", "Radiograph"]);
+    } finally {
+      photo.readable = true;
+    }
   });
 });
 

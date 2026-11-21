@@ -64,7 +64,9 @@ export interface StatusChange { toStatus: "Active" | "Inactive"; reason: string 
 export interface DocumentDetail { document: DocumentView; history: HistoryEntry[]; statusChanges: StatusChange[] | null }
 export interface DocumentProblem { field: string; code: string; message: string }
 export interface DuplicateSummary { documentId: string; categoryName: string; documentDate: string; importedByName: string; importedAtUtc: string }
-export interface CategoryView { id: string; code: string; name: string; sortOrder: number; isActive: boolean; rowVersion: string }
+/** ALV-N026 (PD-24): `classification` decides who may read a category's documents; `readable` says whether the signed-in user may read (and so file into) it. */
+export type DocumentClassification = "Clinical" | "NonClinical";
+export interface CategoryView { id: string; code: string; name: string; sortOrder: number; isActive: boolean; rowVersion: string; classification: DocumentClassification; readable?: boolean | null }
 export interface DocumentSettings { maxUploadBytes: number; minAllowedBytes: number; maxAllowedBytes: number; rowVersion: string }
 export interface BlockedExtension { extension: string; isBuiltIn: boolean; addedAtUtc: string }
 
@@ -185,7 +187,7 @@ export async function addCategory(name: string): Promise<CategoryView> {
   return (await requestWithCsrf<{ category: CategoryView }>("/api/document-categories", "POST", { name })).category;
 }
 
-export async function editCategory(id: string, change: { name?: string; isActive?: boolean; rowVersion: string }): Promise<CategoryView> {
+export async function editCategory(id: string, change: { name?: string; isActive?: boolean; classification?: DocumentClassification; rowVersion: string }): Promise<CategoryView> {
   return (await requestWithCsrf<{ category: CategoryView }>(`/api/document-categories/${id}`, "PUT", change)).category;
 }
 

@@ -95,7 +95,7 @@ public class DocumentSettingsServiceTests : DocumentTestBase
         var doc = (await ImportAsync(Request(category: DocumentCategorySeeds.Photo))).Document;
         var renamed = await EditCategoryAsync(await Seeded(DocumentCategorySeeds.Photo), name: "Clinical photo");
         Assert.Equal(("Clinical photo", "photo"), (renamed.Name, renamed.Code));
-        Assert.Equal("Clinical photo", (await WithDb(db => new DocumentLibraryService(db, new Alveara.Api.Architecture.Forms.PatientFormReader(db), _blobs, Clock).GetAsync(doc.Id, default))).Document.CategoryName);
+        Assert.Equal("Clinical photo", (await WithDb(db => new DocumentLibraryService(db, new Alveara.Api.Architecture.Forms.PatientFormReader(db), _blobs, Clock).GetAsync(doc.Id, DocumentReadScope.Everything, default))).Document.CategoryName);
         Assert.Equal(["DocumentCategoryRenamed"], await AuditTypesAsync("DocumentCategoryRenamed"));
 
         var clash = await Assert.ThrowsAsync<DocumentException>(() => EditCategoryAsync(renamed, name: "radiograph"));

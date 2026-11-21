@@ -33,7 +33,7 @@ public class DocumentIntegrityServiceTests : DocumentTestBase
 
     private static void Flip(string path) { var b = File.ReadAllBytes(path); b[^1] ^= 0xFF; File.WriteAllBytes(path, b); }
     private async Task<int> RowsAsync() { await using var db = Fixture.CreateContext(); return await db.DocumentIntegrity.CountAsync(); }
-    private async Task<DocumentView> ViewAsync(Guid id) => (await WithDb(db => Library(db).GetAsync(id, default))).Document;
+    private async Task<DocumentView> ViewAsync(Guid id) => (await WithDb(db => Library(db).GetAsync(id, DocumentReadScope.Everything, default))).Document;
 
     // ---------- one document ----------
 
@@ -169,7 +169,7 @@ public class DocumentIntegrityServiceTests : DocumentTestBase
     public async Task An_inactive_documents_file_is_checked_like_any_other()
     {
         var (id, path) = await ImportedAsync();
-        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(id, (await ViewAsync(id)).RowVersion, "Wrong patient.", S.Actor, default); return 0; });
+        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(id, (await ViewAsync(id)).RowVersion, "Wrong patient.", S.Actor, DocumentReadScope.Everything, default); return 0; });
         File.Delete(path);
         Assert.Equal(1, (await CheckAllAsync()).Missing);
     }
@@ -192,7 +192,7 @@ public class DocumentIntegrityServiceTests : DocumentTestBase
         File.SetLastWriteTimeUtc(docPath, DateTime.UtcNow.AddHours(-6));                                                       // old enough to be listed, if nothing pointed to it
         var (inactive, inactivePath) = await ImportedAsync(Png(333));
         File.SetLastWriteTimeUtc(inactivePath, DateTime.UtcNow.AddHours(-6));
-        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(inactive, (await ViewAsync(inactive)).RowVersion, "Duplicate.", S.Actor, default); return 0; });
+        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(inactive, (await ViewAsync(inactive)).RowVersion, "Duplicate.", S.Actor, DocumentReadScope.Everything, default); return 0; });
         var old = Stray(DateTimeOffset.UtcNow.AddHours(-3));
         var recent = Stray(DateTimeOffset.UtcNow.AddMinutes(-10));
         Stray(DateTimeOffset.UtcNow.AddHours(-5), $"{Guid.NewGuid():N}.tmp-{Guid.NewGuid():N}");                              // a file still being written is not a blob
@@ -224,7 +224,7 @@ public class DocumentIntegrityServiceTests : DocumentTestBase
 
     // ---------- opening ----------
 
-    private Task<OpenedDocument> OpenAsync(Guid id) => WithDb(db => Library(db).OpenAsync(id, S.Actor, default));
+    private Task<OpenedDocument> OpenAsync(Guid id) => WithDb(db => Library(db).OpenAsync(id, S.Actor, DocumentReadScope.Everything, default));
 
     [Fact]
     public async Task Opening_a_file_that_is_gone_or_cut_short_is_refused_with_a_clear_code_and_logs_no_open()

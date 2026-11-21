@@ -94,7 +94,7 @@ public class DocumentBackupRestoreTests : DocumentTestBase, IAsyncLifetime
         await Add("plain notes, nothing verified about this type"u8.ToArray(), "notes.txt", DocumentCategorySeeds.Correspondence);
         await Add(png, "bitewing again.png", DocumentCategorySeeds.Radiograph, "Same picture, added on purpose.", confirm: first.Id);
         var wrong = await Add(Png(900, 9), "wrong-patient-scan.png", DocumentCategorySeeds.Identification);
-        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(wrong.Id, wrong.RowVersion, "Scanned under the wrong patient.", S.Actor, default); return 0; });
+        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(wrong.Id, wrong.RowVersion, "Scanned under the wrong patient.", S.Actor, DocumentReadScope.Everything, default); return 0; });
         await WithDb(db => new DocumentIntegrityService(db, _blobs, Clock).CheckAllAsync(S.Actor, default));
 
         await using var read = Fixture.CreateContext();
@@ -113,7 +113,7 @@ public class DocumentBackupRestoreTests : DocumentTestBase, IAsyncLifetime
         // life goes on after the backup: a file is lost, a document is added and another is made inactive. The restore returns the state of the backup, not of today.
         File.Delete(Path.Combine(_env.BlobRoot, (await BlobOfAsync(expected[0].Id)).ToString("N")));
         var later = (await ImportAsync(Request(Png(5000, 1), "after-the-backup.png"))).Document;
-        await WithDb(async db => { var row = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == expected[2].Id); await new DocumentStatusService(db, Clock).InactivateAsync(row.Id, Convert.ToBase64String(row.RowVersion), "Changed after the backup.", S.Actor, default); return 0; });
+        await WithDb(async db => { var row = await db.Documents.AsNoTracking().SingleAsync(d => d.Id == expected[2].Id); await new DocumentStatusService(db, Clock).InactivateAsync(row.Id, Convert.ToBase64String(row.RowVersion), "Changed after the backup.", S.Actor, DocumentReadScope.Everything, default); return 0; });
 
         var drill = await DrillAsync(record.Id);
         Assert.Equal("Succeeded", drill.Outcome);

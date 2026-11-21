@@ -13,9 +13,9 @@ export const patient = { id: "p1" } as PatientDetail;
 export const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 export const categories: CategoryView[] = [
-  { id: "c-rad", code: "radiograph", name: "Radiograph", sortOrder: 10, isActive: true, rowVersion: "r1" },
-  { id: "c-photo", code: "photo", name: "Photo", sortOrder: 20, isActive: true, rowVersion: "r2" },
-  { id: "c-old", code: "other", name: "Other", sortOrder: 90, isActive: false, rowVersion: "r3" },
+  { id: "c-rad", code: "radiograph", name: "Radiograph", sortOrder: 10, isActive: true, rowVersion: "r1", classification: "Clinical", readable: true },
+  { id: "c-photo", code: "photo", name: "Photo", sortOrder: 20, isActive: true, rowVersion: "r2", classification: "Clinical", readable: true },
+  { id: "c-old", code: "other", name: "Other", sortOrder: 90, isActive: false, rowVersion: "r3", classification: "Clinical", readable: true },
 ];
 
 export const encounterOf = (id: string, atUtc: string): EncounterChoice => ({ id, encounterAtUtc: atUtc, status: "Finalized" });

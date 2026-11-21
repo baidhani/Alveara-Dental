@@ -61,18 +61,23 @@ Every file is served as a **download**: `Content-Disposition: attachment`, a gen
 | `GET /api/patients/{id}/documents` | The patient's library: documents and signed forms, optional `categoryId` filter (which leaves signed forms out), and the current `maxUploadBytes`. `404` for an unknown patient. | `ViewDocuments` |
 | `GET /api/documents/{id}` | One document's metadata and history. | `ViewDocuments` |
 | `GET /api/documents/{id}/content` | The file, under the serving rules above (`?download=true` forces a download of PDF, PNG and JPEG too). The open is logged first; if it cannot be logged nothing is returned. | `ViewDocuments` |
-| `PUT /api/documents/{id}` | Categorize / edit date and description (needs the row version). | `ImportDocuments` |
-| `GET /api/document-categories`, `POST`, `PUT /{id}` | List, add, rename, deactivate or reactivate a category. | read: `ViewDocuments`; write: `ManageDocumentSettings` |
+| `PUT /api/documents/{id}` | Categorize / edit date and description (needs the row version). Moving needs the right to read both categories (ALV-N026). | `ManageDocuments` (ALV-N026; was `ImportDocuments`) |
+| `GET /api/document-categories`, `POST`, `PUT /{id}` | List, add, rename, deactivate, reactivate or (ALV-N026) reclassify a category (Clinical or NonClinical; audited as `DocumentCategoryReclassified`). The list says, per category, whether the caller may read it. | read: `ViewDocuments`; write: `ManageDocumentSettings` |
 | `GET /api/document-settings`, `PUT` | The maximum size. | `ManageDocumentSettings` |
 | `GET /api/document-settings/blocked-extensions`, `POST`, `DELETE /{ext}` | The blocked list. Built-in entries cannot be deleted. | read: `ViewDocuments`; write: `ManageDocumentSettings` |
 
 Stable error codes (each with a message safe to show; wrong details also carry `problems`, each naming its field, and a duplicate carries a `detail` naming the existing document): `400` `file_empty`, `file_required`, `file_type_blocked`, `file_type_mismatch`, `executable_content`, `file_name_invalid`, `metadata_invalid`, `idempotency_key_required`, `row_version_required`, `row_version_invalid`; `413` `file_too_large` (a request larger than the limit is refused before its body is read); `404` `patient_not_found`, `document_not_found`, `category_not_found`, `file_missing`; `409` `duplicate_document`, `duplicate_confirmation_invalid`, `idempotency_key_reused`, `category_exists`, `last_active_category`, `built_in_locked`, `concurrency_conflict`; `503` `store_failed`, `save_failed` (nothing saved). Missing CSRF is `400`, no permission `403`, no session `401`.
 
+## Who may read which documents (ALV-N026, PD-24)
+
+Each category is **Clinical** or **NonClinical**. Every document route needs `ViewDocuments`; a document in a Clinical category also needs `ViewClinicalDocumentation`. A document the caller may not read is left out of lists and answered `404 document_not_found` everywhere else, exactly like one that does not exist, so its existence is not disclosed. The same rule applies to the documents linked to referral and lab cases, and the duplicate check on import considers only documents the importer may read. Built-in categories: Clinical = Radiograph, Photo, Referral letter, Medical clearance, Lab report, Correspondence, Other; NonClinical = Insurance card, Identification. A category a practice adds is Clinical until an administrator reclassifies it. Not yet covered: the readable-record export (U-019).
+
 ## Permissions (added to the existing fixed role table)
 
 | Permission | Roles |
 |---|---|
-| `ImportDocuments` | Admin, Office manager |
+| `ImportDocuments` | Admin, Office manager, Dentist (ALV-N026, U-008). Import only: importing into a category also needs the right to read it |
+| `ManageDocuments` | Admin, Office manager (ALV-N026, PD-24): edit, inactivate and reactivate a document the holder may read. Grantable; never bypasses the read rule |
 | `ViewDocuments` | Admin, Office manager, Front desk, Dentist, Hygienist, Assistant, Billing |
 | `ManageDocumentSettings` | Admin |
 

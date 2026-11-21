@@ -17,11 +17,11 @@ public class DocumentLibraryServiceTests : DocumentTestBase
     private DocumentLibraryService Library(Alveara.Api.Data.AlveraDbContext db) => new(db, new PatientFormReader(db), _blobs, Clock);
     private DocumentEditService Editor(Alveara.Api.Data.AlveraDbContext db) => new(db, Clock);
 
-    private Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid? patient = null, Guid? category = null) => WithDb(db => Library(db).ListAsync(patient ?? Ann, category, default));
-    private Task<DocumentDetail> GetAsync(Guid id) => WithDb(db => Library(db).GetAsync(id, default));
-    private Task<OpenedDocument> OpenAsync(Guid id, Guid? actor = null) => WithDb(db => Library(db).OpenAsync(id, actor ?? S.Actor, default));
+    private Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid? patient = null, Guid? category = null) => WithDb(db => Library(db).ListAsync(patient ?? Ann, category, DocumentReadScope.Everything, default));
+    private Task<DocumentDetail> GetAsync(Guid id) => WithDb(db => Library(db).GetAsync(id, DocumentReadScope.Everything, default));
+    private Task<OpenedDocument> OpenAsync(Guid id, Guid? actor = null) => WithDb(db => Library(db).OpenAsync(id, actor ?? S.Actor, DocumentReadScope.Everything, default));
     private Task<DocumentView> EditAsync(DocumentView doc, Guid? category = null, DateOnly? date = null, string? description = null, string? rowVersion = null, bool keepDescription = false) =>
-        WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(category ?? doc.CategoryId, date ?? doc.DocumentDate, description ?? doc.Description, rowVersion ?? doc.RowVersion), S.Actor, default));
+        WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(category ?? doc.CategoryId, date ?? doc.DocumentDate, description ?? doc.Description, rowVersion ?? doc.RowVersion), S.Actor, DocumentReadScope.Everything, default));
     private async Task<DocumentView> ImportedAsync(byte[]? bytes = null, string name = "bitewing.png", Guid? patient = null, Guid? category = null, DateOnly? date = null) =>
         (await ImportAsync(Request(bytes, name, patient, category, date))).Document;
     private async Task<List<string>> KindsAsync(Guid documentId) { await using var db = Fixture.CreateContext(); return await db.DocumentEvents.AsNoTracking().Where(e => e.DocumentId == documentId).OrderBy(e => e.EventNumber).Select(e => e.Kind).ToListAsync(); }
@@ -223,7 +223,7 @@ public class DocumentLibraryServiceTests : DocumentTestBase
     {
         var doc = await ImportedAsync();
         var e = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(doc.Id,
-            new DocumentEditInput(Guid.NewGuid(), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3)), new string('x', 501), doc.RowVersion), S.Actor, default)));
+            new DocumentEditInput(Guid.NewGuid(), DateOnly.FromDateTime(DateTime.UtcNow.AddDays(3)), new string('x', 501), doc.RowVersion), S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal(DocumentErrorCodes.MetadataInvalid, e.Code);
         Assert.Equal(["category", "description", "documentDate"], e.Problems.Select(p => p.Field).Order());
         Assert.Equal(doc.RowVersion, (await GetAsync(doc.Id)).Document.RowVersion);
@@ -250,11 +250,11 @@ public class DocumentLibraryServiceTests : DocumentTestBase
         await Assert.ThrowsAsync<ConcurrencyConflictException>(() => EditAsync(doc, description: "Second change from the old screen."));
         Assert.Equal("First change.", (await GetAsync(doc.Id)).Document.Description);
 
-        var none = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(doc.CategoryId, doc.DocumentDate, "x", null), S.Actor, default)));
+        var none = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(doc.CategoryId, doc.DocumentDate, "x", null), S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal(("row_version_required", 400), (none.Code, none.StatusCode));
-        var bad = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(doc.CategoryId, doc.DocumentDate, "x", "not base64!"), S.Actor, default)));
+        var bad = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(doc.Id, new DocumentEditInput(doc.CategoryId, doc.DocumentDate, "x", "not base64!"), S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal("row_version_invalid", bad.Code);
-        var missing = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(Guid.NewGuid(), new DocumentEditInput(doc.CategoryId, doc.DocumentDate, "x", doc.RowVersion), S.Actor, default)));
+        var missing = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => Editor(db).UpdateAsync(Guid.NewGuid(), new DocumentEditInput(doc.CategoryId, doc.DocumentDate, "x", doc.RowVersion), S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal("document_not_found", missing.Code);
     }
 

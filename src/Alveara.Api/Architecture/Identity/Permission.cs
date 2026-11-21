@@ -165,4 +165,8 @@ public enum Permission
     // ALV-N021 A2 (OD-27): recording a payment and applying it to open charges, without any other billing write (no charge, reversal, adjustment, waiver, refund or method change).
     // Default FrontDesk; ManageBilling holders may do the same through ManageBilling. Grantable.
     CollectPayments,
+
+    // ALV-N026 (PD-24): editing, inactivating and reactivating a document. ImportDocuments no longer implies it. It never bypasses the read rule (a clinical document also needs
+    // ViewClinicalDocumentation). Default Admin and OfficeManager; grantable. Appended last so existing ordinals are undisturbed.
+    ManageDocuments,
 }

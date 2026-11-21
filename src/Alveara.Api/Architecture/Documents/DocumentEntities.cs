@@ -34,6 +34,25 @@ public static class IntegrityStatuses
     public static readonly IReadOnlyList<string> All = [Unchecked, Ok, Missing, Corrupt];
 }
 
+/// <summary>
+/// ALV-N026 (PD-24): who may read the documents of a category. A Clinical document needs ViewClinicalDocumentation (as well as the ViewDocuments every document endpoint requires); a NonClinical
+/// one needs only ViewDocuments. A new or unrecognized category is Clinical until an administrator classifies it, so nothing becomes broadly visible by accident.
+/// </summary>
+public static class DocumentClassifications
+{
+    public const string Clinical = "Clinical";
+    public const string NonClinical = "NonClinical";
+    public static readonly IReadOnlyList<string> All = [Clinical, NonClinical];
+
+    /// <summary>The owner-approved mapping of the built-in categories (ALV-N026 final design review): only the insurance card and identification are non-clinical.</summary>
+    public static readonly IReadOnlyDictionary<Guid, string> Seeds = new Dictionary<Guid, string>
+    {
+        [DocumentCategorySeeds.Radiograph] = Clinical, [DocumentCategorySeeds.Photo] = Clinical, [DocumentCategorySeeds.ReferralLetter] = Clinical,
+        [DocumentCategorySeeds.MedicalClearance] = Clinical, [DocumentCategorySeeds.LabReport] = Clinical, [DocumentCategorySeeds.Correspondence] = Clinical,
+        [DocumentCategorySeeds.Other] = Clinical, [DocumentCategorySeeds.InsuranceCard] = NonClinical, [DocumentCategorySeeds.Identification] = NonClinical,
+    };
+}
+
 /// <summary>The categories every installation starts with. Fixed ids and codes: a category is renamed or deactivated, never deleted, and its code never changes.</summary>
 public static class DocumentCategorySeeds
 {
@@ -69,6 +88,8 @@ public class DocumentCategory
     public required string Name { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; } = true;
+    /// <summary>ALV-N026 (PD-24): one of <see cref="DocumentClassifications"/>. Changed only by an administrator (ManageDocumentSettings), and audited.</summary>
+    public string Classification { get; set; } = DocumentClassifications.Clinical;
     public byte[] RowVersion { get; set; } = [];
 }
 

@@ -24,6 +24,7 @@ public static class PermissionMatrix
             Permission.ViewSafetyIndicator, // ALV-N011
             Permission.ManagePrescriptions, Permission.ViewPrescriptions, // STORY-016: prescribes
             Permission.ViewDocuments, // STORY-010: reads the library
+            Permission.ImportDocuments, // ALV-N026 (U-008): imports documents; editing and inactivating need ManageDocuments, which a Dentist does not hold by default
             Permission.SendMessages, // ALV-N015
             Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009
             Permission.ViewExternalCases, Permission.ManageExternalCases, // ALV-009-C02: refers and orders lab work
@@ -81,6 +82,7 @@ public static class PermissionMatrix
             Permission.UpdateVisitFlow, // ALV-011-C01; ALV-N021 A2 (OD-07): the chairside default is removed (grantable back by an administrator)
             Permission.ReassignAppointmentProvider, // ALV-N021 A2 (OD-13)
             Permission.ImportDocuments, Permission.ViewDocuments, // STORY-010: imports and categorizes; the settings stay with the administrator
+            Permission.ManageDocuments, // ALV-N026 (PD-24): edits, inactivates and reactivates documents it may read; never a way round the read rule
             Permission.ManageDocumentStorage, // ALV-010-C01: checks the stored files and reviews the ones nothing points to
             Permission.SendMessages, Permission.ReceiveDocumentNotifications, // ALV-N015: sends messages; is told when a duplicate document is imported
             Permission.ViewFollowUps, Permission.ManageFollowUps, // STORY-009

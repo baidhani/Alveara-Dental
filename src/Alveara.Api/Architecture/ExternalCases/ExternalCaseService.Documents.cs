@@ -12,12 +12,15 @@ public partial class ExternalCaseService
     /// that is not this patient's (or does not exist) is <c>document_invalid</c> (400); an inactive one is <c>document_inactive</c> (409); a finished case takes no more changes (<c>case_closed</c>, 409). The link, its
     /// history entry and its audit entry are one save.
     /// </summary>
-    public async Task<DocumentLinkResult> LinkDocumentAsync(Guid actor, string kind, Guid caseId, Guid documentId, CancellationToken ct)
+    /// <remarks>ALV-N026 (PD-24): a document in a category the caller may not read is refused exactly like one of another patient (<c>document_invalid</c>), so its existence is not disclosed.
+    /// <paramref name="scope"/> null means no restriction (callers not acting for a person); the controller always passes the caller's.</remarks>
+    public async Task<DocumentLinkResult> LinkDocumentAsync(Guid actor, string kind, Guid caseId, Guid documentId, CancellationToken ct, DocumentReadScope? scope = null)
     {
         var c = await LoadAsync(kind, caseId, false, ct);
         RequireOpen(c);
-        var doc = await db.Documents.AsNoTracking().Where(d => d.Id == documentId && d.PatientId == c.PatientId).Select(d => new { d.Status }).FirstOrDefaultAsync(ct)
-            ?? throw new ExternalCaseException("document_invalid", "Choose a document of this patient.", 400);
+        var doc = await db.Documents.AsNoTracking().Where(d => d.Id == documentId && d.PatientId == c.PatientId).Select(d => new { d.Status, d.CategoryId }).FirstOrDefaultAsync(ct);
+        if (doc is null || (scope is not null && !await scope.ReadsCategoryAsync(db, doc.CategoryId, ct)))
+            throw new ExternalCaseException("document_invalid", "Choose a document of this patient.", 400);
         if (await LinkExistsAsync(kind, caseId, documentId, ct)) return new DocumentLinkResult(documentId, true, true);
         if (doc.Status != DocumentStatuses.Active) throw new ExternalCaseException("document_inactive", "That document is inactive. Make it active in the document library first.", 409);
 
@@ -60,13 +63,17 @@ public partial class ExternalCaseService
     }
 
     /// <summary>The documents linked to a case, oldest link first. A link whose document can no longer be shown is flagged, never dropped, so a broken link is seen rather than silently missing.</summary>
-    public async Task<IReadOnlyList<CaseDocumentView>> DocumentsAsync(string kind, Guid caseId, CancellationToken ct)
+    /// <remarks>ALV-N026 (PD-24): links to documents in categories the caller may not read are left out (as if absent), so neither the document nor its name is disclosed.
+    /// <paramref name="scope"/> null means no restriction; the controller always passes the caller's.</remarks>
+    public async Task<IReadOnlyList<CaseDocumentView>> DocumentsAsync(string kind, Guid caseId, CancellationToken ct, DocumentReadScope? scope = null)
     {
         await LoadAsync(kind, caseId, false, ct);
+        var readable = (scope ?? DocumentReadScope.Everything).Classifications;
         var links = db.ExternalCaseDocuments.AsNoTracking().Where(l => kind == ExternalCaseKinds.Referral ? l.ReferralCaseId == caseId : l.LabCaseId == caseId);
         var rows = await (from l in links
                           join d in db.Documents.AsNoTracking() on l.DocumentId equals d.Id
                           join cat in db.DocumentCategories.AsNoTracking() on d.CategoryId equals cat.Id
+                          where readable.Contains(cat.Classification)
                           join i in db.DocumentIntegrity.AsNoTracking() on d.Id equals i.DocumentId into integrity
                           from i in integrity.DefaultIfEmpty()
                           orderby l.LinkedAtUtc

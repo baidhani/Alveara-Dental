@@ -395,7 +395,7 @@ public class DocumentImportServiceTests : DocumentTestBase
     public async Task A_cancelled_import_leaves_nothing_behind()
     {
         using var cts = new CancellationTokenSource(); cts.Cancel();
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => WithDb(db => new DocumentImportService(db, _blobs, Clock).ImportAsync(Request(), S.Actor, cts.Token)));
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => WithDb(db => new DocumentImportService(db, _blobs, Clock).ImportAsync(Request(), S.Actor, DocumentReadScope.Everything, cts.Token)));
         await AssertNothingRecordedAsync();
     }
 

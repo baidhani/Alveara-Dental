@@ -193,6 +193,7 @@ builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.Exter
 builder.Services.AddScoped<IBackgroundJobHandler, Alveara.Api.Architecture.ExternalCases.ExternalCaseTaskCloseJobHandler>();
 builder.Services.AddHostedService<Alveara.Api.Architecture.Recall.FollowUpWorkHostedService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentLibraryService>();
+builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentAccess>();   // ALV-N026 (PD-24): who may read which documents
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentEditService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentStatusService>();
 builder.Services.AddScoped<Alveara.Api.Architecture.Documents.DocumentIntegrityService>();

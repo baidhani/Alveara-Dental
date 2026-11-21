@@ -15,7 +15,7 @@ namespace Alveara.Api.Controllers;
 /// </summary>
 [ApiController]
 [Authorize]
-public class ExternalCasesController(ExternalCaseService cases, ExternalPartyService parties, IEffectivePermissions permissions) : ControllerBase
+public class ExternalCasesController(ExternalCaseService cases, ExternalPartyService parties, IEffectivePermissions permissions, Alveara.Api.Architecture.Documents.DocumentAccess documentAccess) : ControllerBase
 {
     private const string KindRoute = "{route:regex(^(referrals|lab-cases)$)}";
 
@@ -111,13 +111,13 @@ public class ExternalCasesController(ExternalCaseService cases, ExternalPartySer
     [HttpGet($"api/{KindRoute}/{{id:guid}}/documents")]
     [RequirePermission(Permission.ViewExternalCases)]
     public async Task<IActionResult> Documents(string route, Guid id, CancellationToken ct) =>
-        await NeedsAsync(Permission.ViewDocuments, ct) ?? await Run(async () => await cases.DocumentsAsync(KindOf(route), id, ct));
+        await NeedsAsync(Permission.ViewDocuments, ct) ?? await Run(async () => await cases.DocumentsAsync(KindOf(route), id, ct, await documentAccess.ScopeAsync(User, ct)));   // ALV-N026 (PD-24)
 
     [HttpPut($"api/{KindRoute}/{{id:guid}}/documents/{{documentId:guid}}")]
     [RequirePermission(Permission.ManageExternalCases)]
     [RequireCsrfToken]
     public async Task<IActionResult> LinkDocument(string route, Guid id, Guid documentId, CancellationToken ct) =>
-        await NeedsAsync(Permission.ViewDocuments, ct) ?? await Run(async () => await cases.LinkDocumentAsync(Actor, KindOf(route), id, documentId, ct));
+        await NeedsAsync(Permission.ViewDocuments, ct) ?? await Run(async () => await cases.LinkDocumentAsync(Actor, KindOf(route), id, documentId, ct, await documentAccess.ScopeAsync(User, ct)));   // ALV-N026 (PD-24)
 
     [HttpDelete($"api/{KindRoute}/{{id:guid}}/documents/{{documentId:guid}}")]
     [RequirePermission(Permission.ManageExternalCases)]

@@ -2727,6 +2727,13 @@ namespace Alveara.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Classification")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Clinical");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -2761,6 +2768,8 @@ namespace Alveara.Api.Migrations
                         {
                             t.HasTrigger("TR_DocumentCategories_Guard");
 
+                            t.HasCheckConstraint("CK_DocumentCategories_Classification", "[Classification] IN (N'Clinical', N'NonClinical')");
+
                             t.HasCheckConstraint("CK_DocumentCategories_Code", "[Code] COLLATE Latin1_General_BIN2 NOT LIKE '%[^a-z0-9_]%' AND LEN([Code]) > 0");
 
                             t.HasCheckConstraint("CK_DocumentCategories_Name", "LEN(LTRIM(RTRIM([Name]))) > 0 AND PATINDEX(N'%[' + NCHAR(1) + N'-' + NCHAR(31) + N']%', [Name] COLLATE Latin1_General_BIN2) = 0");
@@ -2772,6 +2781,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000001"),
+                            Classification = "Clinical",
                             Code = "radiograph",
                             IsActive = true,
                             Name = "Radiograph",
@@ -2781,6 +2791,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000002"),
+                            Classification = "Clinical",
                             Code = "photo",
                             IsActive = true,
                             Name = "Photo",
@@ -2790,6 +2801,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000003"),
+                            Classification = "Clinical",
                             Code = "referral_letter",
                             IsActive = true,
                             Name = "Referral letter",
@@ -2799,6 +2811,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000004"),
+                            Classification = "Clinical",
                             Code = "medical_clearance",
                             IsActive = true,
                             Name = "Medical clearance",
@@ -2808,6 +2821,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000005"),
+                            Classification = "Clinical",
                             Code = "lab_report",
                             IsActive = true,
                             Name = "Lab report",
@@ -2817,6 +2831,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000006"),
+                            Classification = "NonClinical",
                             Code = "insurance_card",
                             IsActive = true,
                             Name = "Insurance card",
@@ -2826,6 +2841,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000007"),
+                            Classification = "NonClinical",
                             Code = "identification",
                             IsActive = true,
                             Name = "Identification",
@@ -2835,6 +2851,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000008"),
+                            Classification = "Clinical",
                             Code = "correspondence",
                             IsActive = true,
                             Name = "Correspondence",
@@ -2844,6 +2861,7 @@ namespace Alveara.Api.Migrations
                         new
                         {
                             Id = new Guid("d0c00000-0000-0000-0000-000000000009"),
+                            Classification = "Clinical",
                             Code = "other",
                             IsActive = true,
                             Name = "Other",

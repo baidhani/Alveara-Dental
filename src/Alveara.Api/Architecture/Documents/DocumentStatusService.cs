@@ -20,11 +20,11 @@ public class DocumentStatusService(AlveraDbContext db, IPracticeClock clock, ILo
 {
     private const int ReasonMax = 500;
 
-    public async Task<DocumentView> InactivateAsync(Guid documentId, string? rowVersion, string? rawReason, Guid actor, CancellationToken ct)
+    public async Task<DocumentView> InactivateAsync(Guid documentId, string? rowVersion, string? rawReason, Guid actor, DocumentReadScope scope, CancellationToken ct)
     {
         var expected = DocumentRowVersion.Parse(rowVersion);
         var reason = CheckReason(rawReason);
-        var document = await FindAsync(documentId, ct);
+        var document = await FindAsync(documentId, scope, ct);
         if (document.Status == DocumentStatuses.Inactive) return await DocumentMapper.ViewAsync(db, document, ct);
         db.Entry(document).Property(d => d.RowVersion).OriginalValue = expected;
 
@@ -34,10 +34,10 @@ public class DocumentStatusService(AlveraDbContext db, IPracticeClock clock, ILo
         return await DocumentMapper.ViewAsync(db, document, ct);
     }
 
-    public async Task<DocumentView> ReactivateAsync(Guid documentId, string? rowVersion, Guid actor, CancellationToken ct)
+    public async Task<DocumentView> ReactivateAsync(Guid documentId, string? rowVersion, Guid actor, DocumentReadScope scope, CancellationToken ct)
     {
         var expected = DocumentRowVersion.Parse(rowVersion);
-        var document = await FindAsync(documentId, ct);
+        var document = await FindAsync(documentId, scope, ct);
         if (document.Status == DocumentStatuses.Active) return await DocumentMapper.ViewAsync(db, document, ct);
         db.Entry(document).Property(d => d.RowVersion).OriginalValue = expected;
 
@@ -90,8 +90,13 @@ public class DocumentStatusService(AlveraDbContext db, IPracticeClock clock, ILo
             new(DocumentErrorCodes.MetadataInvalid, "That entry needs correcting. Nothing was changed.", 400, [new DocumentProblem("reason", code, message)]);
     }
 
-    private async Task<PatientDocument> FindAsync(Guid documentId, CancellationToken ct) =>
-        await db.Documents.SingleOrDefaultAsync(d => d.Id == documentId, ct) ?? throw new DocumentException("document_not_found", "That document was not found.", 404);
+    /// <summary>ALV-N026 (PD-24): a document the caller may not read is <c>document_not_found</c> (404), as if absent.</summary>
+    private async Task<PatientDocument> FindAsync(Guid documentId, DocumentReadScope scope, CancellationToken ct)
+    {
+        var document = await db.Documents.SingleOrDefaultAsync(d => d.Id == documentId, ct);
+        if (document is null || !await scope.ReadsCategoryAsync(db, document.CategoryId, ct)) throw new DocumentException("document_not_found", "That document was not found.", 404);
+        return document;
+    }
 }
 
 /// <summary>Reads the row version a caller echoes: required, and a value that is not one is refused rather than guessed at.</summary>

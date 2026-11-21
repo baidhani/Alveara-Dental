@@ -95,9 +95,9 @@ export function DocumentSettingsPage() {
       {actionError && <p className="alv-form-field__error" role="alert">{actionError}</p>}
       {conflict && <ConcurrencyConflictBanner problem={conflict} onReload={() => { setConflict(null); setRenaming(null); void reload(); }} />}
 
-      <Section title="Categories" intro="A category is renamed or stopped, never deleted, so documents keep the category they were filed under. At least one category stays in use.">
+      <Section title="Categories" intro="A category is renamed or stopped, never deleted, so documents keep the category they were filed under. At least one category stays in use. Clinical documents can be seen only by staff with access to clinical documentation; a new category is clinical until you change it.">
         <table className="alv-documents__table" aria-label="Categories">
-          <thead><tr><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+          <thead><tr><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Who may see its documents</th><th scope="col">Actions</th></tr></thead>
           <tbody>
             {categories.map((c) => (
               <tr key={c.id}>
@@ -107,6 +107,7 @@ export function DocumentSettingsPage() {
                   ) : c.name}
                 </td>
                 <td>{c.isActive ? "In use" : "Not in use"}</td>
+                <td>{c.classification === "NonClinical" ? "Non-clinical: all staff who read documents" : "Clinical: staff with clinical access only"}</td>
                 <td className="alv-documents__row-actions">
                   {renaming?.id === c.id ? (
                     <>
@@ -119,6 +120,15 @@ export function DocumentSettingsPage() {
                       <Button type="button" aria-label={c.isActive ? `Stop using ${c.name}` : `Use ${c.name} again`} disabled={busy}
                         onClick={() => void act(async () => { await editCategory(c.id, { isActive: !c.isActive, rowVersion: c.rowVersion }); return c.isActive ? `${c.name} is no longer in use.` : `${c.name} is in use again.`; })}>
                         {c.isActive ? "Stop using" : "Use again"}
+                      </Button>
+                      {/* ALV-N026 (PD-24): reclassifying is audited on the server and takes effect at once for everyone */}
+                      <Button type="button" aria-label={c.classification === "NonClinical" ? `Make ${c.name} clinical` : `Make ${c.name} non-clinical`} disabled={busy}
+                        onClick={() => void act(async () => {
+                          const next = c.classification === "NonClinical" ? "Clinical" : "NonClinical";
+                          await editCategory(c.id, { classification: next, rowVersion: c.rowVersion });
+                          return next === "Clinical" ? `${c.name} is now clinical: only staff with clinical access see its documents.` : `${c.name} is now non-clinical: all staff who read documents see them.`;
+                        })}>
+                        {c.classification === "NonClinical" ? "Make clinical" : "Make non-clinical"}
                       </Button>
                     </>
                   )}

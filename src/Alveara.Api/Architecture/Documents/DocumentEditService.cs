@@ -14,16 +14,20 @@ namespace Alveara.Api.Architecture.Documents;
 /// </summary>
 public class DocumentEditService(AlveraDbContext db, IPracticeClock clock, ILogger<DocumentEditService>? logger = null)
 {
-    public async Task<DocumentView> UpdateAsync(Guid documentId, DocumentEditInput input, Guid actor, CancellationToken ct)
+    /// <remarks>ALV-N026 (PD-24): the caller must be able to read the document's category (otherwise <c>document_not_found</c>, 404, as if absent) and, when moving it, the new category too
+    /// (<c>category_not_permitted</c>, 403): nobody can move a document out of sight or into a category they cannot read.</remarks>
+    public async Task<DocumentView> UpdateAsync(Guid documentId, DocumentEditInput input, Guid actor, DocumentReadScope scope, CancellationToken ct)
     {
         var expected = ParseRowVersion(input.RowVersion);
-        var document = await db.Documents.SingleOrDefaultAsync(d => d.Id == documentId, ct) ?? throw new DocumentException("document_not_found", "That document was not found.", 404);
+        var document = await db.Documents.SingleOrDefaultAsync(d => d.Id == documentId, ct);
+        if (document is null || !await scope.ReadsCategoryAsync(db, document.CategoryId, ct)) throw new DocumentException("document_not_found", "That document was not found.", 404);
         db.Entry(document).Property(d => d.RowVersion).OriginalValue = expected;
 
         var meta = await DocumentMetadataChecker.CheckAsync(db, clock, document.PatientId, input.CategoryId, input.DocumentDate, input.Description, input.EncounterId, input.ToothKey, input.RegionKey, document.CategoryId, ct);
         var (category, description) = (meta.Category, meta.Description);
         var date = input.DocumentDate!.Value;
         var recategorized = category.Id != document.CategoryId;
+        if (recategorized && !await scope.ReadsCategoryAsync(db, category.Id, ct)) throw DocumentAccessErrors.CategoryNotPermitted();
         var detailsChanged = date != document.DocumentDate || description != document.Description
             || meta.EncounterId != document.EncounterId || meta.ToothKey != document.ToothKey || meta.RegionKey != document.RegionKey;
         if (!recategorized && !detailsChanged) return await DocumentMapper.ViewAsync(db, document, ct);     // nothing changed: nothing is saved and nothing is logged

@@ -62,10 +62,12 @@ public sealed class OpenedDocument(Stream content, string fileName, string conte
     public ValueTask DisposeAsync() => Content.DisposeAsync();
 }
 
-public sealed record CategoryView(Guid Id, string Code, string Name, int SortOrder, bool IsActive, string RowVersion);
+/// <remarks>ALV-N026 (PD-24): <c>Classification</c> is Clinical or NonClinical; <c>Readable</c> says whether the caller may read (and so file into) its documents. It is null where the caller's scope is not known.</remarks>
+public sealed record CategoryView(Guid Id, string Code, string Name, int SortOrder, bool IsActive, string RowVersion, string Classification = DocumentClassifications.Clinical, bool? Readable = null);
 
 /// <summary>A rename and/or a deactivation or reactivation. Leave a field null to leave it as it is.</summary>
-public sealed record CategoryEditInput(string? Name, bool? IsActive, string? RowVersion);
+/// <remarks>ALV-N026 (PD-24): <c>Classification</c>, when given, reclassifies the category (Clinical or NonClinical); it is audited as DocumentCategoryReclassified.</remarks>
+public sealed record CategoryEditInput(string? Name, bool? IsActive, string? RowVersion, string? Classification = null);
 
 public sealed record DocumentSettingsView(long MaxUploadBytes, long MinAllowedBytes, long MaxAllowedBytes, string RowVersion);
 

@@ -29,7 +29,9 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
 {
     private const int KeyMax = 64;
 
-    public async Task<DocumentImportResult> ImportAsync(DocumentImportRequest request, Guid actor, CancellationToken ct)
+    /// <remarks>ALV-N026 (PD-24): importing into a category needs the right to read it (<c>category_not_permitted</c>, 403, before anything is stored). The duplicate check considers only documents the
+    /// importer may read, so it never discloses a document in a category they cannot see; an unseen copy is not reported and the import is an ordinary document.</remarks>
+    public async Task<DocumentImportResult> ImportAsync(DocumentImportRequest request, Guid actor, DocumentReadScope scope, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         var key = CheckKey(request.IdempotencyKey);
@@ -46,6 +48,7 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
         var type = DocumentFileRules.Classify(detected);
         var meta = await DocumentMetadataChecker.CheckAsync(db, clock, request.PatientId, request.CategoryId, request.DocumentDate, request.Description, request.EncounterId, request.ToothKey, request.RegionKey, null, ct);
         var (category, description) = (meta.Category, meta.Description);
+        if (!scope.Allows(category.Classification)) throw DocumentAccessErrors.CategoryNotPermitted();
 
         request.Content.Position = 0;
         var blob = await StoreAsync(request.Content, ct);
@@ -61,7 +64,7 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
                 return await ReplayAsync(existing, hash, ct);
             }
 
-            var duplicateOf = await CheckDuplicateAsync(request, blob.Sha256Hash, ct);
+            var duplicateOf = await CheckDuplicateAsync(request, blob.Sha256Hash, scope, ct);
             var document = new PatientDocument
             {
                 Id = Guid.NewGuid(), PatientId = request.PatientId, CategoryId = category.Id, DocumentDate = request.DocumentDate!.Value, Description = description, DuplicateOfDocumentId = duplicateOf,
@@ -129,9 +132,10 @@ public class DocumentImportService(AlveraDbContext db, IBlobStorage blobs, IPrac
     }
 
     /// <summary>The document this one duplicates (when the importer confirmed it), or null when it is not a duplicate. Refuses an unconfirmed duplicate and a confirmation that does not match.</summary>
-    private async Task<Guid?> CheckDuplicateAsync(DocumentImportRequest r, string sha256, CancellationToken ct)
+    private async Task<Guid?> CheckDuplicateAsync(DocumentImportRequest r, string sha256, DocumentReadScope scope, CancellationToken ct)
     {
-        var same = await db.Documents.AsNoTracking().Where(d => d.PatientId == r.PatientId && d.Sha256 == sha256 && d.Status == DocumentStatuses.Active).OrderBy(d => d.ImportedAtUtc).ThenBy(d => d.Id).ToListAsync(ct);
+        var readable = await scope.ReadableCategoryIdsAsync(db, ct);
+        var same = await db.Documents.AsNoTracking().Where(d => d.PatientId == r.PatientId && d.Sha256 == sha256 && d.Status == DocumentStatuses.Active && readable.Contains(d.CategoryId)).OrderBy(d => d.ImportedAtUtc).ThenBy(d => d.Id).ToListAsync(ct);
         if (same.Count == 0)
         {
             if (r.ConfirmDuplicateOf is not null) throw InvalidConfirmation();

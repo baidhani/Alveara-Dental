@@ -207,7 +207,7 @@ public class DocumentOrphanServiceTests : DocumentTestBase
         File.Delete(PathOf(await BlobOfAsync(doc.Id)));
         var report = await WithDb(db => Integrity(db).CheckAllAsync(S.Actor, default));
         Assert.Equal(1, report.Missing);
-        var e = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => new DocumentLibraryService(db, new Alveara.Api.Architecture.Forms.PatientFormReader(db), _blobs, Clock).OpenAsync(doc.Id, S.Actor, default)));
+        var e = await Assert.ThrowsAsync<DocumentException>(() => WithDb(db => new DocumentLibraryService(db, new Alveara.Api.Architecture.Forms.PatientFormReader(db), _blobs, Clock).OpenAsync(doc.Id, S.Actor, DocumentReadScope.Everything, default)));
         Assert.Equal("file_missing", e.Code);
     }
 }

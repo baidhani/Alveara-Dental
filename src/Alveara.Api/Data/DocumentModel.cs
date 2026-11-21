@@ -26,16 +26,18 @@ internal static class DocumentModel
             e.ToTable("DocumentCategories");
             e.Property(x => x.Code).HasMaxLength(40);
             e.Property(x => x.Name).HasMaxLength(80);
+            e.Property(x => x.Classification).HasMaxLength(20).HasDefaultValue(DocumentClassifications.Clinical);   // ALV-N026: a category added by any path is Clinical until classified
             e.Property(x => x.RowVersion).IsRowVersion();
             e.HasIndex(x => x.Code).IsUnique();
             e.HasIndex(x => x.Name).IsUnique();
             e.ToTable(t =>
             {
                 t.HasTrigger("TR_DocumentCategories_Guard");
+                t.HasCheckConstraint("CK_DocumentCategories_Classification", "[Classification] IN (N'Clinical', N'NonClinical')");
                 t.HasCheckConstraint("CK_DocumentCategories_Code", "[Code] COLLATE Latin1_General_BIN2 NOT LIKE '%[^a-z0-9_]%' AND LEN([Code]) > 0");
                 t.HasCheckConstraint("CK_DocumentCategories_Name", $"LEN(LTRIM(RTRIM([Name]))) > 0 AND {PrescriptionModel.NoControl("Name")}");
             });
-            e.HasData(DocumentCategorySeeds.All.Select((c, i) => new DocumentCategory { Id = c.Id, Code = c.Code, Name = c.Name, SortOrder = (i + 1) * 10, IsActive = true }));
+            e.HasData(DocumentCategorySeeds.All.Select((c, i) => new DocumentCategory { Id = c.Id, Code = c.Code, Name = c.Name, SortOrder = (i + 1) * 10, IsActive = true, Classification = DocumentClassifications.Seeds[c.Id] }));
         });
 
         modelBuilder.Entity<PatientDocument>(e =>

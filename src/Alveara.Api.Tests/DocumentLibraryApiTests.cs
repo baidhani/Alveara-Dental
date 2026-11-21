@@ -21,7 +21,9 @@ public class DocumentLibraryApiTests : IAsyncLifetime
     private Guid _otherPatient;
     private Guid _encounter;
     private Guid _otherEncounter;
-    private static readonly Guid Radiograph = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.Radiograph;
+    // ALV-N026 (PD-24): these tests are about the library itself, and most of them act as the office manager, who may no longer read (or file into) clinical categories.
+    // They file into a NonClinical category; who may read which classification is proven in DocumentClassificationAccessApiTests.
+    private static readonly Guid Filed = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.InsuranceCard;
 
     public Task InitializeAsync() => _fixture.InitializeOwnerAsync(async () =>
     {
@@ -49,7 +51,7 @@ public class DocumentLibraryApiTests : IAsyncLifetime
         var file = new ByteArrayContent(bytes ?? Png());
         file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
         form.Add(file, "file", "bitewing.png");
-        form.Add(new StringContent(Radiograph.ToString()), "categoryId");
+        form.Add(new StringContent(Filed.ToString()), "categoryId");
         form.Add(new StringContent("2026-10-01"), "documentDate");
         if (encounter is not null) form.Add(new StringContent(encounter), "encounterId");
         if (tooth is not null) form.Add(new StringContent(tooth), "toothKey");
@@ -143,7 +145,7 @@ public class DocumentLibraryApiTests : IAsyncLifetime
             using var form = new MultipartFormDataContent();
             var file = new ByteArrayContent(Png(salt)); file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
             form.Add(file, "file", name);
-            form.Add(new StringContent(Radiograph.ToString()), "categoryId");
+            form.Add(new StringContent(Filed.ToString()), "categoryId");
             form.Add(new StringContent(salt == 3 ? "2026-09-01" : "2026-03-01"), "documentDate");
             if (tooth is not null) form.Add(new StringContent(tooth), "toothKey");
             if (region is not null) form.Add(new StringContent(region), "regionKey");
@@ -200,7 +202,7 @@ public class DocumentLibraryApiTests : IAsyncLifetime
 
         using var form = new MultipartFormDataContent();
         var text = new ByteArrayContent("just text"u8.ToArray()); text.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
-        form.Add(text, "file", "notes.txt"); form.Add(new StringContent(Radiograph.ToString()), "categoryId"); form.Add(new StringContent("2026-10-01"), "documentDate");
+        form.Add(text, "file", "notes.txt"); form.Add(new StringContent(Filed.ToString()), "categoryId"); form.Add(new StringContent("2026-10-01"), "documentDate");
         var request = new HttpRequestMessage(HttpMethod.Post, $"/api/patients/{_patient}/documents") { Content = form };
         request.Headers.Add("X-CSRF-Token", office.Csrf); request.Headers.Add("Idempotency-Key", $"k-{Guid.NewGuid():N}");
         var notes = JsonDocument.Parse(await (await office.Client.SendAsync(request)).Content.ReadAsStringAsync()).RootElement.GetProperty("document");

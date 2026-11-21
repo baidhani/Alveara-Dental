@@ -16,7 +16,7 @@ namespace Alveara.Api.Tests;
 public class DocumentLibraryFilterTests : DocumentTestBase
 {
     private DocumentLibraryService Library(AlveraDbContext db) => new(db, new PatientFormReader(db), _blobs, Clock);
-    private Task<IReadOnlyList<LibraryEntry>> ListAsync(DocumentLibraryFilter filter, Guid? patient = null) => WithDb(db => Library(db).ListAsync(patient ?? Ann, filter, default));
+    private Task<IReadOnlyList<LibraryEntry>> ListAsync(DocumentLibraryFilter filter, Guid? patient = null) => WithDb(db => Library(db).ListAsync(patient ?? Ann, filter, DocumentReadScope.Everything, default));
 
     private async Task<Guid> EncounterAsync()
     {
@@ -45,7 +45,7 @@ public class DocumentLibraryFilterTests : DocumentTestBase
             ["plain"] = (await ImportedAsync("scan-of-id.png", 5, DocumentCategorySeeds.Identification, D1, null)).Id,
         };
         var gone = await ImportedAsync("old-scan.png", 6, DocumentCategorySeeds.Radiograph, D1, "Wrong patient");
-        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(gone.Id, gone.RowVersion, "Wrong patient.", S.Actor, default); return 0; });
+        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(gone.Id, gone.RowVersion, "Wrong patient.", S.Actor, DocumentReadScope.Everything, default); return 0; });
         ids["inactive"] = gone.Id;
         return (ids, encounter);
     }
@@ -112,7 +112,7 @@ public class DocumentLibraryFilterTests : DocumentTestBase
         Assert.Equal(Ids(ids, "inactive"), Of(await ListAsync(new DocumentLibraryFilter(Status: "Inactive"))));
         Assert.Equal(6, Of(await ListAsync(new DocumentLibraryFilter(Status: "All"))).Count);
         Assert.Equal(5, Of(await ListAsync(new DocumentLibraryFilter(Status: "Active"))).Count);
-        Assert.Equal(6, (await WithDb(db => Library(db).ListAsync(Ann, null, default, includeInactive: true))).Count);
+        Assert.Equal(6, (await WithDb(db => Library(db).ListAsync(Ann, null, DocumentReadScope.Everything, default, includeInactive: true))).Count);
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public class DocumentLibraryFilterTests : DocumentTestBase
 
     // ---------- thumbnails ----------
 
-    private Task<OpenedDocument> ThumbAsync(Guid id) => WithDb(db => Library(db).OpenThumbnailAsync(id, default));
+    private Task<OpenedDocument> ThumbAsync(Guid id) => WithDb(db => Library(db).OpenThumbnailAsync(id, DocumentReadScope.Everything, default));
     private async Task<int> OpensAsync() { await using var db = Fixture.CreateContext(); return await db.DocumentEvents.CountAsync(e => e.Kind == DocumentEventKinds.Opened); }
 
     [Fact]
@@ -247,7 +247,7 @@ public class DocumentLibraryFilterTests : DocumentTestBase
     public async Task An_inactive_pictures_thumbnail_is_still_served_because_it_is_hidden_not_removed()
     {
         var doc = (await ImportAsync(Request(Png(100), "i.png"))).Document;
-        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(doc.Id, doc.RowVersion, "Wrong patient.", S.Actor, default); return 0; });
+        await WithDb(async db => { await new DocumentStatusService(db, Clock).InactivateAsync(doc.Id, doc.RowVersion, "Wrong patient.", S.Actor, DocumentReadScope.Everything, default); return 0; });
         await using var thumb = await ThumbAsync(doc.Id);
         Assert.True(thumb.SizeBytes > 0);
     }

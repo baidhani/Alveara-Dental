@@ -14,13 +14,14 @@ public record DocumentEditRequest(Guid? CategoryId, DateOnly? DocumentDate, stri
 public record InactivateDocumentRequest(string? Reason, string? RowVersion);
 public record ReactivateDocumentRequest(string? RowVersion);
 public record AddCategoryRequest(string? Name);
-public record EditCategoryRequest(string? Name, bool? IsActive, string? RowVersion);
+public record EditCategoryRequest(string? Name, bool? IsActive, string? RowVersion, string? Classification = null);
 public record SizeLimitRequest(long? MaxUploadBytes, string? RowVersion);
 public record BlockedExtensionRequest(string? Extension);
 
 /// <summary>
-/// STORY-010: documents (docs/DOCUMENTS.md). Reading the library, a document and its file needs <see cref="Permission.ViewDocuments"/>; importing and editing need <see cref="Permission.ImportDocuments"/>
-/// (administrator, office manager) plus a CSRF token; the categories' changes, the size limit and the blocked types need <see cref="Permission.ManageDocumentSettings"/> (administrator). A refusal returns a stable
+/// STORY-010: documents (docs/DOCUMENTS.md). Reading the library, a document and its file needs <see cref="Permission.ViewDocuments"/>; importing needs <see cref="Permission.ImportDocuments"/>, and editing, inactivating
+/// and reactivating need <see cref="Permission.ManageDocuments"/> (ALV-N026), each plus a CSRF token; ALV-N026 (PD-24): a Clinical document also needs ViewClinicalDocumentation, and one the caller may not
+/// read is answered as not found; the categories' changes, the size limit and the blocked types need <see cref="Permission.ManageDocumentSettings"/> (administrator). A refusal returns a stable
 /// <c>error</c> code, a message safe to show and, where there are any, <c>problems</c> (each naming its field) and a <c>detail</c> (the existing document for <c>duplicate_document</c>): <c>file_empty</c>,
 /// <c>file_required</c>, <c>file_type_blocked</c>, <c>file_type_mismatch</c>, <c>executable_content</c>, <c>file_name_invalid</c>, <c>metadata_invalid</c>, <c>idempotency_key_required</c>,
 /// <c>row_version_required</c> and <c>row_version_invalid</c> (400), <c>file_too_large</c> (413), <c>*_not_found</c> and <c>file_missing</c> (404), <c>duplicate_document</c>,
@@ -32,12 +33,15 @@ public record BlockedExtensionRequest(string? Extension);
 /// </summary>
 [ApiController]
 [Authorize]
-public class DocumentsController(DocumentImportService importer, DocumentLibraryService library, DocumentEditService editor, DocumentStatusService status, DocumentSettingsService settings) : ControllerBase
+public class DocumentsController(DocumentImportService importer, DocumentLibraryService library, DocumentEditService editor, DocumentStatusService status, DocumentSettingsService settings, DocumentAccess access) : ControllerBase
 {
     /// <summary>Room for the multipart boundaries and the small text fields around the file when the request size is compared with the limit.</summary>
     private const long FormOverheadBytes = 1_048_576;
 
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    /// <summary>ALV-N026 (PD-24): the classifications of document the caller may read (a Clinical one also needs ViewClinicalDocumentation).</summary>
+    private Task<DocumentReadScope> Scope(CancellationToken ct) => access.ScopeAsync(User, ct);
 
     private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
     {
@@ -76,12 +80,12 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         var filter = new DocumentLibraryFilter(ParseGuid(categoryId, "category", problems), ParseGuid(encounterId, "encounter", problems), toothKey, regionKey, ParseDate(from, "from", problems), ParseDate(to, "to", problems), text,
             status ?? (includeInactive ? DocumentLibraryFilter.StatusAll : null));
         if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The filter has entries that need correcting.", 400, problems);
-        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, ct), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
+        return Ok(new { patientId, entries = await library.ListAsync(patientId, filter, await Scope(ct), ct), maxUploadBytes = (await settings.GetSettingsAsync(ct)).MaxUploadBytes });
     });
 
     [HttpGet("api/documents/{documentId:guid}")]
     [RequirePermission(Permission.ViewDocuments)]
-    public Task<IActionResult> Get(Guid documentId, CancellationToken ct) => Run(async () => Ok(await library.GetAsync(documentId, ct)));
+    public Task<IActionResult> Get(Guid documentId, CancellationToken ct) => Run(async () => Ok(await library.GetAsync(documentId, await Scope(ct), ct)));
 
     /// <summary>The file. Opening is logged first; if it cannot be logged nothing is returned.</summary>
     [HttpGet("api/documents/{documentId:guid}/content")]
@@ -91,7 +95,7 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         OpenedDocument opened;
         try
         {
-            opened = await library.OpenAsync(documentId, Actor, ct, download);   // ALV-N025 (DOC-1): a download is also logged on the patient
+            opened = await library.OpenAsync(documentId, Actor, await Scope(ct), ct, download);   // ALV-N025 (DOC-1): a download is also logged on the patient
         }
         catch (DocumentException ex)
         {
@@ -114,7 +118,7 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         OpenedDocument opened;
         try
         {
-            opened = await library.OpenThumbnailAsync(documentId, ct);
+            opened = await library.OpenThumbnailAsync(documentId, await Scope(ct), ct);
         }
         catch (DocumentException ex)
         {
@@ -156,34 +160,35 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
         if (problems.Count > 0) throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "The document has entries that need correcting. Nothing was imported.", 400, problems);
 
         await using var content = file.OpenReadStream();
-        var result = await importer.ImportAsync(new DocumentImportRequest(patientId, content, file.Length, file.FileName, category, date, form["description"].ToString(), idempotencyKey, confirm, encounter, form["toothKey"].ToString(), form["regionKey"].ToString()), Actor, ct);
+        var result = await importer.ImportAsync(new DocumentImportRequest(patientId, content, file.Length, file.FileName, category, date, form["description"].ToString(), idempotencyKey, confirm, encounter, form["toothKey"].ToString(), form["regionKey"].ToString()), Actor, await Scope(ct), ct);
         return StatusCode(result.Replayed ? StatusCodes.Status200OK : StatusCodes.Status201Created, new { document = result.Document, replayed = result.Replayed });
     });
 
+    /// <summary>ALV-N026 (PD-24): editing needs ManageDocuments (ImportDocuments no longer implies it) and the right to read the document's category, and a new category's.</summary>
     [HttpPut("api/documents/{documentId:guid}")]
-    [RequirePermission(Permission.ImportDocuments)]
+    [RequirePermission(Permission.ManageDocuments)]
     [RequireCsrfToken]
     public Task<IActionResult> Edit(Guid documentId, [FromBody] DocumentEditRequest request, CancellationToken ct) =>
-        Run(async () => Ok(new { document = await editor.UpdateAsync(documentId, new DocumentEditInput(request.CategoryId, request.DocumentDate, request.Description, request.RowVersion, request.EncounterId, request.ToothKey, request.RegionKey), Actor, ct) }));
+        Run(async () => Ok(new { document = await editor.UpdateAsync(documentId, new DocumentEditInput(request.CategoryId, request.DocumentDate, request.Description, request.RowVersion, request.EncounterId, request.ToothKey, request.RegionKey), Actor, await Scope(ct), ct) }));
 
     /// <summary>Hides the document from the library (it is never deleted). Needs a reason; repeating it changes nothing.</summary>
     [HttpPost("api/documents/{documentId:guid}/inactivate")]
-    [RequirePermission(Permission.ImportDocuments)]
+    [RequirePermission(Permission.ManageDocuments)]
     [RequireCsrfToken]
     public Task<IActionResult> Inactivate(Guid documentId, [FromBody] InactivateDocumentRequest request, CancellationToken ct) =>
-        Run(async () => Ok(new { document = await status.InactivateAsync(documentId, request.RowVersion, request.Reason, Actor, ct) }));
+        Run(async () => Ok(new { document = await status.InactivateAsync(documentId, request.RowVersion, request.Reason, Actor, await Scope(ct), ct) }));
 
     [HttpPost("api/documents/{documentId:guid}/reactivate")]
-    [RequirePermission(Permission.ImportDocuments)]
+    [RequirePermission(Permission.ManageDocuments)]
     [RequireCsrfToken]
     public Task<IActionResult> Reactivate(Guid documentId, [FromBody] ReactivateDocumentRequest request, CancellationToken ct) =>
-        Run(async () => Ok(new { document = await status.ReactivateAsync(documentId, request.RowVersion, Actor, ct) }));
+        Run(async () => Ok(new { document = await status.ReactivateAsync(documentId, request.RowVersion, Actor, await Scope(ct), ct) }));
 
     // ---------- categories ----------
 
     [HttpGet("api/document-categories")]
     [RequirePermission(Permission.ViewDocuments)]
-    public Task<IActionResult> Categories([FromQuery] bool includeInactive, CancellationToken ct) => Run(async () => Ok(new { categories = await settings.ListCategoriesAsync(includeInactive, ct) }));
+    public Task<IActionResult> Categories([FromQuery] bool includeInactive, CancellationToken ct) => Run(async () => Ok(new { categories = await settings.ListCategoriesAsync(includeInactive, ct, await Scope(ct)) }));
 
     [HttpPost("api/document-categories")]
     [RequirePermission(Permission.ManageDocumentSettings)]
@@ -195,7 +200,7 @@ public class DocumentsController(DocumentImportService importer, DocumentLibrary
     [RequirePermission(Permission.ManageDocumentSettings)]
     [RequireCsrfToken]
     public Task<IActionResult> EditCategory(Guid categoryId, [FromBody] EditCategoryRequest request, CancellationToken ct) =>
-        Run(async () => Ok(new { category = await settings.UpdateCategoryAsync(categoryId, new CategoryEditInput(request.Name, request.IsActive, request.RowVersion), Actor, ct) }));
+        Run(async () => Ok(new { category = await settings.UpdateCategoryAsync(categoryId, new CategoryEditInput(request.Name, request.IsActive, request.RowVersion, request.Classification), Actor, ct) }));
 
     // ---------- the size limit and the blocked types ----------
 

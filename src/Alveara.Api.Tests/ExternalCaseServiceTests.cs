@@ -351,6 +351,20 @@ public class ExternalCaseServiceTests : TreatmentPlanTestBase
         return d;
     }
 
+    /// <summary>ALV-N026 (PD-24): a caller who may not read Clinical documents neither sees a linked clinical document in a case nor can link one; the refusal is the same as for another patient's document.</summary>
+    [Fact]
+    public async Task A_clinical_document_is_neither_shown_in_a_case_nor_linkable_for_a_caller_who_may_not_read_it()
+    {
+        var c = await NewReferralAsync(); var doc = await DocumentAsync(Ann);                                                                       // a Radiograph: Clinical
+        var nonClinicalOnly = new Alveara.Api.Architecture.Documents.DocumentReadScope(NonClinical: true, Clinical: false);
+        Assert.Equal("document_invalid", (await Refused(() => Cases(s => s.LinkDocumentAsync(S.Actor, Referral, c.Id, doc.Id, default, nonClinicalOnly)))).Code);
+        Assert.Empty(await Cases(s => s.DocumentsAsync(Referral, c.Id, default)));                                                                   // and nothing was linked
+
+        await Cases(s => s.LinkDocumentAsync(S.Actor, Referral, c.Id, doc.Id, default, Alveara.Api.Architecture.Documents.DocumentReadScope.Everything));
+        Assert.Empty(await Cases(s => s.DocumentsAsync(Referral, c.Id, default, nonClinicalOnly)));                                                 // hidden from that caller
+        Assert.Single(await Cases(s => s.DocumentsAsync(Referral, c.Id, default, new Alveara.Api.Architecture.Documents.DocumentReadScope(true, true))));   // shown to a clinical reader
+    }
+
     [Fact]
     public async Task A_document_is_linked_not_copied_linking_it_twice_is_a_quiet_replay_and_unlinking_leaves_the_document()
     {

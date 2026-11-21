@@ -81,7 +81,7 @@ public abstract class DocumentTestBase : SafetyTestBase
     }
 
     protected Task<DocumentImportResult> ImportAsync(DocumentImportRequest request, Guid? actor = null) =>
-        WithDb(db => new DocumentImportService(db, _blobs, Clock).ImportAsync(request, actor ?? S.Actor, default));
+        WithDb(db => new DocumentImportService(db, _blobs, Clock).ImportAsync(request, actor ?? S.Actor, DocumentReadScope.Everything, default));
 
     protected static async Task<DocumentException> Refused(Func<Task<DocumentImportResult>> action) => await Assert.ThrowsAsync<DocumentException>(action);
 

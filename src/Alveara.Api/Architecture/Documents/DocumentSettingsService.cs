@@ -27,8 +27,10 @@ public class DocumentSettingsService(AlveraDbContext db, IPracticeClock clock, I
 
     // ---------- categories ----------
 
-    public async Task<IReadOnlyList<CategoryView>> ListCategoriesAsync(bool includeInactive, CancellationToken ct) =>
-        (await db.DocumentCategories.AsNoTracking().Where(c => includeInactive || c.IsActive).OrderBy(c => c.SortOrder).ThenBy(c => c.Name).ToListAsync(ct)).Select(View).ToList();
+    /// <remarks>ALV-N026 (PD-24): with a <paramref name="scope"/>, each category says whether the caller may read (and so file into) it; the import form offers only those.</remarks>
+    public async Task<IReadOnlyList<CategoryView>> ListCategoriesAsync(bool includeInactive, CancellationToken ct, DocumentReadScope? scope = null) =>
+        (await db.DocumentCategories.AsNoTracking().Where(c => includeInactive || c.IsActive).OrderBy(c => c.SortOrder).ThenBy(c => c.Name).ToListAsync(ct))
+            .Select(c => View(c) with { Readable = scope?.Allows(c.Classification) }).ToList();
 
     public async Task<CategoryView> AddCategoryAsync(string? rawName, Guid actor, CancellationToken ct)
     {
@@ -66,6 +68,19 @@ public class DocumentSettingsService(AlveraDbContext db, IPracticeClock clock, I
                 if ((await db.DocumentCategories.AsNoTracking().Where(c => c.Id != categoryId).Select(c => c.Name).ToListAsync(ct)).Any(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase))) throw NameInUse();
                 category.Name = name;
                 AuditService.Record(db, "DocumentCategoryRenamed", "DocumentCategory", category.Id, actor, $"Category renamed (code {category.Code}).", correlationId: correlation);
+            }
+        }
+        if (input.Classification is not null)
+        {
+            var classification = input.Classification.Trim();
+            if (!DocumentClassifications.All.Contains(classification))
+                throw new DocumentException(DocumentErrorCodes.MetadataInvalid, "That entry needs correcting. Nothing was changed.", 400,
+                    [new DocumentProblem("classification", "unknown", $"The classification is {string.Join(" or ", DocumentClassifications.All)}.")]);
+            if (classification != category.Classification)
+            {
+                var from = category.Classification;
+                category.Classification = classification;
+                AuditService.Record(db, "DocumentCategoryReclassified", "DocumentCategory", category.Id, actor, $"Category reclassified from {from} to {classification} (code {category.Code}).", correlationId: correlation);
             }
         }
         if (input.IsActive is { } active && active != category.IsActive)
@@ -237,7 +252,7 @@ public class DocumentSettingsService(AlveraDbContext db, IPracticeClock clock, I
     private static DocumentException Invalid(string field, string code, string message) =>
         new(DocumentErrorCodes.MetadataInvalid, "That entry needs correcting. Nothing was saved.", 400, [new DocumentProblem(field, code, message)]);
 
-    private static CategoryView View(DocumentCategory c) => new(c.Id, c.Code, c.Name, c.SortOrder, c.IsActive, Convert.ToBase64String(c.RowVersion));
+    private static CategoryView View(DocumentCategory c) => new(c.Id, c.Code, c.Name, c.SortOrder, c.IsActive, Convert.ToBase64String(c.RowVersion), c.Classification);
 
     private static DocumentSettingsView SettingsView(DocumentSettings s) =>
         new(s.MaxUploadBytes, DocumentFileRules.MinUploadLimitBytes, DocumentFileRules.MaxUploadLimitBytes, Convert.ToBase64String(s.RowVersion));

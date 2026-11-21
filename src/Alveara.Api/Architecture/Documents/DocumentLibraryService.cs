@@ -40,10 +40,12 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     /// (<c>metadata_invalid</c>, naming the field) rather than ignored; text is matched literally. Inactive documents are left out unless the status asks for them. Signed forms are listed only when nothing narrows to a
     /// document's own properties; the date range and the text apply to them as well (by signing date and form title).
     /// </summary>
-    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, DocumentLibraryFilter filter, CancellationToken ct)
+    /// <remarks>ALV-N026 (PD-24): only documents in categories <paramref name="scope"/> may read are listed; the others are left out as if absent.</remarks>
+    public async Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, DocumentLibraryFilter filter, DocumentReadScope scope, CancellationToken ct)
     {
         var f = CheckFilter(filter);
-        var query = db.Documents.AsNoTracking().Where(d => d.PatientId == patientId);
+        var readable = await scope.ReadableCategoryIdsAsync(db, ct);
+        var query = db.Documents.AsNoTracking().Where(d => d.PatientId == patientId && readable.Contains(d.CategoryId));
         if (f.CategoryId is { } category) query = query.Where(d => d.CategoryId == category);
         if (f.EncounterId is { } encounter) query = query.Where(d => d.EncounterId == encounter);
         if (f.ToothKey is { } tooth) query = query.Where(d => d.ToothKey == tooth);
@@ -76,8 +78,8 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     }
 
     /// <summary>The patient's library. Inactive documents are left out unless <paramref name="includeInactive"/> is set (they are never deleted, only hidden).</summary>
-    public Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, Guid? categoryId, CancellationToken ct, bool includeInactive = false) =>
-        ListAsync(patientId, new DocumentLibraryFilter(CategoryId: categoryId, Status: includeInactive ? DocumentLibraryFilter.StatusAll : DocumentLibraryFilter.StatusActive), ct);
+    public Task<IReadOnlyList<LibraryEntry>> ListAsync(Guid patientId, Guid? categoryId, DocumentReadScope scope, CancellationToken ct, bool includeInactive = false) =>
+        ListAsync(patientId, new DocumentLibraryFilter(CategoryId: categoryId, Status: includeInactive ? DocumentLibraryFilter.StatusAll : DocumentLibraryFilter.StatusActive), scope, ct);
 
     private static DocumentLibraryFilter CheckFilter(DocumentLibraryFilter filter)
     {
@@ -97,9 +99,9 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
         return filter with { ToothKey = tooth, RegionKey = region, Text = text, Status = status };
     }
 
-    public async Task<DocumentDetail> GetAsync(Guid documentId, CancellationToken ct)
+    public async Task<DocumentDetail> GetAsync(Guid documentId, DocumentReadScope scope, CancellationToken ct)
     {
-        var row = await FindAsync(documentId, ct);
+        var row = await FindAsync(documentId, scope, ct);
         var events = await db.DocumentEvents.AsNoTracking().Where(e => e.DocumentId == documentId).OrderBy(e => e.EventNumber).ToListAsync(ct);
         var names = await ClinicalNames.ResolveAsync(db, events.Select(e => (Guid?)e.ByUserId), ct);
         var categoryIds = events.SelectMany(e => new[] { e.FromCategoryId, e.ToCategoryId }).Where(i => i is not null).Select(i => i!.Value).Distinct().ToList();
@@ -115,9 +117,9 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
 
     /// <remarks>ALV-N025 (DOC-1): when the file goes out as a download - <paramref name="download"/>, or a type that is never shown inline - the patient-level
     /// PatientDocumentDownloaded is written in the same transaction as DocumentOpened; inline viewing writes DocumentOpened only.</remarks>
-    public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, CancellationToken ct, bool download = false)
+    public async Task<OpenedDocument> OpenAsync(Guid documentId, Guid actor, DocumentReadScope scope, CancellationToken ct, bool download = false)
     {
-        var row = await FindAsync(documentId, ct);
+        var row = await FindAsync(documentId, scope, ct);
         var stream = await OpenStoredAsync(row, ct);
 
         try
@@ -155,9 +157,9 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
     /// The thumbnail of a picture: the stored PNG or JPEG itself (the browser scales it), up to <see cref="ThumbnailMaxBytes"/>, with the same checks as opening but <b>no history row and no log entry</b>: a thumbnail
     /// is decoration in a list, and only a deliberate open or preview is a view. Any other type is <c>not_an_image</c> (415) and a larger picture <c>thumbnail_too_large</c> (413), so a screen can show an icon.
     /// </summary>
-    public async Task<OpenedDocument> OpenThumbnailAsync(Guid documentId, CancellationToken ct)
+    public async Task<OpenedDocument> OpenThumbnailAsync(Guid documentId, DocumentReadScope scope, CancellationToken ct)
     {
-        var row = await FindAsync(documentId, ct);
+        var row = await FindAsync(documentId, scope, ct);
         if (row.DetectedType is not ("png" or "jpeg")) throw new DocumentException("not_an_image", "Only PNG and JPEG pictures have a thumbnail.", 415);
         if (row.SizeBytes > ThumbnailMaxBytes) throw new DocumentException("thumbnail_too_large", "This picture is too large for a thumbnail. Open it to see it.", 413);
         return new OpenedDocument(await OpenStoredAsync(row, ct), row.OriginalFileName, row.ContentType, true, row.SizeBytes);
@@ -193,6 +195,11 @@ public class DocumentLibraryService(AlveraDbContext db, PatientFormReader forms,
         return new DocumentException("file_missing", "The stored file could not be found. Contact support; the record is intact.", 404);
     }
 
-    private async Task<PatientDocument> FindAsync(Guid documentId, CancellationToken ct) =>
-        await db.Documents.AsNoTracking().SingleOrDefaultAsync(d => d.Id == documentId, ct) ?? throw new DocumentException("document_not_found", "That document was not found.", 404);
+    /// <summary>ALV-N026 (PD-24): a document in a category <paramref name="scope"/> may not read is <c>document_not_found</c> (404), exactly like one that does not exist.</summary>
+    private async Task<PatientDocument> FindAsync(Guid documentId, DocumentReadScope scope, CancellationToken ct)
+    {
+        var row = await db.Documents.AsNoTracking().SingleOrDefaultAsync(d => d.Id == documentId, ct);
+        if (row is null || !await scope.ReadsCategoryAsync(db, row.CategoryId, ct)) throw new DocumentException("document_not_found", "That document was not found.", 404);
+        return row;
+    }
 }

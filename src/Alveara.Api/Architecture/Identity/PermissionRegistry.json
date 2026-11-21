@@ -240,6 +240,10 @@
     {
       "name": "CollectPayments",
       "status": "Active"
+    },
+    {
+      "name": "ManageDocuments",
+      "status": "Active"
     }
   ]
 }

@@ -22,7 +22,7 @@ public class ExternalCaseControllerPermissionTests : TreatmentPlanTestBase
     {
         public Task<PermissionOutcome> CheckAsync(Role role, Permission permission, CancellationToken ct = default) => Task.FromResult(withheld.Contains(permission) ? PermissionOutcome.Denied : PermissionOutcome.Allowed);
         public Task<PermissionOutcome> CheckAnyAsync(Role role, IReadOnlyCollection<Permission> permissions, CancellationToken ct = default) => throw new NotSupportedException();
-        public Task<bool> HasAsync(Role role, Permission permission, CancellationToken ct = default) => throw new NotSupportedException();
+        public Task<bool> HasAsync(Role role, Permission permission, CancellationToken ct = default) => Task.FromResult(!withheld.Contains(permission));   // ALV-N026: the document read rule asks HasAsync; same answer as CheckAsync
         public Task<IReadOnlySet<Permission>> PermissionsForAsync(Role role, CancellationToken ct = default) => throw new NotSupportedException();
         public Task<IReadOnlyDictionary<Role, IReadOnlySet<Permission>>> MatrixAsync(CancellationToken ct = default) => throw new NotSupportedException();
         public Task<PolicyRead> SnapshotAsync(CancellationToken ct = default) => throw new NotSupportedException();
@@ -45,7 +45,7 @@ public class ExternalCaseControllerPermissionTests : TreatmentPlanTestBase
 
     private async Task<T> WithController<T>(IEffectivePermissions seam, Func<ExternalCasesController, Task<T>> action) => await WithDb(db =>
     {
-        var controller = new ExternalCasesController(new ExternalCaseService(db, PatientTestSupport.Clock), new ExternalPartyService(db, PatientTestSupport.Clock), seam)
+        var controller = new ExternalCasesController(new ExternalCaseService(db, PatientTestSupport.Clock), new ExternalPartyService(db, PatientTestSupport.Clock), seam, new Alveara.Api.Architecture.Documents.DocumentAccess(seam))
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, S.Actor.ToString()), new Claim(ClaimTypes.Role, "Dentist")], "test")) } },
         };

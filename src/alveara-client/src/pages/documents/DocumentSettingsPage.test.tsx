@@ -14,7 +14,7 @@ import { DocumentSettingsPage } from "./DocumentSettingsPage";
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 const MB = 1024 * 1024;
 
-const cat = (id: string, name: string, over: Partial<CategoryView> = {}): CategoryView => ({ id, code: name.toLowerCase().replace(/\W+/g, "_"), name, sortOrder: 10, isActive: true, rowVersion: `rv-${id}`, ...over });
+const cat = (id: string, name: string, over: Partial<CategoryView> = {}): CategoryView => ({ id, code: name.toLowerCase().replace(/\W+/g, "_"), name, sortOrder: 10, isActive: true, rowVersion: `rv-${id}`, classification: "Clinical", ...over });
 const settingsOf = (over: Partial<DocumentSettings> = {}): DocumentSettings => ({ maxUploadBytes: 100 * MB, minAllowedBytes: 1 * MB, maxAllowedBytes: 1024 * MB, rowVersion: "sv1", ...over });
 const blocked = (extension: string, isBuiltIn: boolean): BlockedExtension => ({ extension, isBuiltIn, addedAtUtc: "2030-01-01T00:00:00Z" });
 

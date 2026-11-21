@@ -59,9 +59,9 @@ public class DocumentApiTests : IAsyncLifetime
         return (response.StatusCode, text.Length == 0 ? default : JsonDocument.Parse(text).RootElement.Clone());
     }
 
-    private async Task<JsonElement> ImportedAsync(Session by, byte[]? bytes = null, string fileName = "bitewing.png")
+    private async Task<JsonElement> ImportedAsync(Session by, byte[]? bytes = null, string fileName = "bitewing.png", string category = "default")
     {
-        var r = await UploadAsync(by, bytes, fileName);
+        var r = await UploadAsync(by, bytes, fileName, category);
         Assert.Equal(HttpStatusCode.Created, r.Status);
         return r.Body.GetProperty("document");
     }
@@ -94,33 +94,41 @@ public class DocumentApiTests : IAsyncLifetime
     public async Task The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(string role, bool allowed)
     {
         var admin = await _api.SessionAsync("Admin");
-        var doc = Str(await ImportedAsync(admin), "id");
+        // ALV-N026 (PD-24): a NonClinical document, which every working role reads; a Clinical one is proven role by role in DocumentClassificationAccessApiTests
+        var doc = Str(await ImportedAsync(admin, category: Alveara.Api.Architecture.Documents.DocumentCategorySeeds.InsuranceCard.ToString()), "id");
         var by = await _api.SessionAsync(role);
         var expected = allowed ? HttpStatusCode.OK : HttpStatusCode.Forbidden;
         foreach (var url in new[] { $"/api/patients/{_patient}/documents", $"/api/documents/{doc}", $"/api/documents/{doc}/content", "/api/document-categories", "/api/document-settings/blocked-extensions" })
             Assert.Equal(expected, (await by.Client.GetAsync(url)).StatusCode);
     }
 
+    /// <summary>
+    /// ALV-N026 (U-008, PD-24): importing and editing are separate rights. Import: the administrator, the office manager and (new) the dentist. Edit, inactivate and reactivate need ManageDocuments: the
+    /// administrator and the office manager. Both documents here are NonClinical, so every role could read them: this test is about the two write rights only.
+    /// </summary>
     [Theory]
-    [InlineData("Admin", true)] [InlineData("OfficeManager", true)]
-    [InlineData("FrontDesk", false)] [InlineData("Dentist", false)] [InlineData("Hygienist", false)] [InlineData("Assistant", false)] [InlineData("Billing", false)]
-    public async Task Only_the_administrator_and_office_manager_import_and_edit_documents(string role, bool allowed)
+    [InlineData("Admin", true, true)] [InlineData("OfficeManager", true, true)] [InlineData("Dentist", true, false)]
+    [InlineData("FrontDesk", false, false)] [InlineData("Hygienist", false, false)] [InlineData("Assistant", false, false)] [InlineData("Billing", false, false)]
+    public async Task Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(string role, bool mayImport, bool mayEdit)
     {
+        var insurance = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.InsuranceCard.ToString();
+        var identification = Alveara.Api.Architecture.Documents.DocumentCategorySeeds.Identification;
         var admin = await _api.SessionAsync("Admin");
-        var existing = await ImportedAsync(admin, Png(50));
+        var existing = await ImportedAsync(admin, Png(50), category: insurance);
         var by = await _api.SessionAsync(role);
-        var before = await CountsAsync();
 
-        var import = await UploadAsync(by, Png(60));
-        var edit = await by.SendAsync(HttpMethod.Put, $"/api/documents/{Str(existing, "id")}", new { categoryId = Photo, documentDate = "2026-10-01", description = "x", rowVersion = Str(existing, "rowVersion") });
-        if (allowed)
-        {
-            Assert.Equal(HttpStatusCode.Created, import.Status);
-            Assert.Equal(HttpStatusCode.OK, edit.Status);
-        }
+        var before = await CountsAsync();
+        var import = await UploadAsync(by, Png(60), category: insurance);
+        Assert.Equal(mayImport ? HttpStatusCode.Created : HttpStatusCode.Forbidden, import.Status);
+        if (!mayImport) Assert.Equal(before, await CountsAsync());
+
+        before = await CountsAsync();
+        var edit = await by.SendAsync(HttpMethod.Put, $"/api/documents/{Str(existing, "id")}", new { categoryId = identification, documentDate = "2026-10-01", description = "x", rowVersion = Str(existing, "rowVersion") });
+        var inactivate = await by.SendAsync(HttpMethod.Post, $"/api/documents/{Str(existing, "id")}/inactivate", new { reason = "Wrong patient.", rowVersion = Str(existing, "rowVersion") });
+        if (mayEdit) Assert.Equal(HttpStatusCode.OK, edit.Status);
         else
         {
-            Assert.Equal((HttpStatusCode.Forbidden, HttpStatusCode.Forbidden), (import.Status, edit.Status));
+            Assert.Equal((HttpStatusCode.Forbidden, HttpStatusCode.Forbidden), (edit.Status, inactivate.Status));
             Assert.Equal(before, await CountsAsync());
         }
     }
@@ -168,7 +176,7 @@ public class DocumentApiTests : IAsyncLifetime
     [Fact]
     public async Task A_document_is_imported_listed_read_downloaded_edited_and_its_history_kept()
     {
-        var office = await _api.SessionAsync("OfficeManager");
+        var office = await _api.SessionAsync("Admin");   // ALV-N026 (PD-24): a Radiograph is Clinical, which the office manager no longer reads; the administrator walks the whole route
         var bytes = Png(500);
         var r = await UploadAsync(office, bytes, "Ann Lee bitewing.png", description: "  Left side.  ", key: "route-1");
         Assert.Equal(HttpStatusCode.Created, r.Status);
