@@ -267,7 +267,7 @@ describe("statements and receipts", () => {
     expect(within(notice).getByText(/Since it was issued \(not part of the document\)/)).toBeInTheDocument();
     expect(within(notice).getByText(/2 ledger entries have been recorded since/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Download CSV" })).toHaveAttribute("href", "/api/patients/" + P + "/billing/documents/d1/csv");
-    expect(screen.getByRole("button", { name: "Print" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Print (PDF)" })).toBeInTheDocument();   // ALV-N026 S5: printing opens the server-made PDF
   });
 
   it("says a stale preview was not issued and shows the new preview to review instead", async () => {

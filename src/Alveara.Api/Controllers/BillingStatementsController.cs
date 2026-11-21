@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Alveara.Api.Architecture.Billing;
 using Alveara.Api.Architecture.Concurrency;
 using Alveara.Api.Architecture.Identity;
+using Alveara.Api.Architecture.Pdf;
+using Alveara.Api.Architecture.Time;
 
 namespace Alveara.Api.Controllers;
 
@@ -27,7 +29,7 @@ public record IssueDocumentRequest(string? PreviewToken, string? IdempotencyKey,
 /// </summary>
 [ApiController]
 [Authorize]
-public class BillingStatementsController(BillingService billing) : ControllerBase
+public class BillingStatementsController(BillingService billing, PdfEngine pdf, IPracticeClock clock, Alveara.Api.Data.AlveraDbContext db) : ControllerBase
 {
     private Guid Actor => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -79,6 +81,35 @@ public class BillingStatementsController(BillingService billing) : ControllerBas
     [RequirePermission(Permission.ViewBilling)]
     public Task<IActionResult> Document(Guid patientId, Guid documentId, CancellationToken ct) => Run(async () => Ok(await billing.GetDocumentAsync(patientId, documentId, Actor, ct)));
 
+    /// <summary>
+    /// ALV-N026 S5: an issued statement or receipt as a PDF. It is rebuilt from the ledger and checked against its content hash first (<c>document_content_changed</c>, 409, and no PDF otherwise); a
+    /// version-4 document renders with its own template, an earlier one with the legacy template and the reprint label. The print is recorded on the server (the billing reprint and the patient's
+    /// access trail, with the template version and the engine bundle), so the screen records nothing itself. 503 <c>pdf_engine_unavailable</c> or <c>pdf_engine_untrusted</c> while PDFs cannot be made.
+    /// </summary>
+    [HttpGet("api/patients/{patientId:guid}/billing/documents/{documentId:guid}/pdf")]
+    [RequirePermission(Permission.ViewBilling)]
+    public Task<IActionResult> DocumentPdf(Guid patientId, Guid documentId, CancellationToken ct) => Run(async () =>
+    {
+        var detail = await billing.GetDocumentAsync(patientId, documentId, Actor, ct);                                   // the hash-checked rebuild; records FinancialDocumentReprinted
+        var request = FinancialDocumentPdf.For(detail, clock, clock.UtcNow);
+        PdfRenderResult rendered;
+        try
+        {
+            rendered = await pdf.RenderAsync(request.TemplateId, request.TemplateVersion, request.InputJson, ct);
+        }
+        catch (PdfEngineException ex)
+        {
+            return StatusCode(ex.StatusCode, new { error = ex.Code, message = ex.Message });
+        }
+        await new Alveara.Api.Architecture.Auditing.PatientAccessRecorder(db).RecordPrintAsync(patientId, detail.Statement is not null ? "Statement" : "Receipt", documentId, Actor, clock.UtcNow, ct);
+        Alveara.Api.Architecture.Auditing.AuditService.Record(db, "FinancialDocumentPdfProduced", "FinancialDocument", documentId, Actor,
+            $"{request.TemplateId} {request.TemplateVersion} (document template version {detail.Document.TemplateVersion}) with {rendered.BundleId}.");
+        await db.SaveChangesAsync(ct);
+        Response.Headers["Cache-Control"] = "private, no-store";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        return File(rendered.Pdf, "application/pdf", request.FileName);
+    });
+
     [HttpGet("api/patients/{patientId:guid}/billing/documents/{documentId:guid}/csv")]
     [RequirePermission(Permission.ViewBilling)]
     public Task<IActionResult> DocumentCsv(Guid patientId, Guid documentId, CancellationToken ct) =>
@@ -114,5 +145,5 @@ public class BillingStatementsController(BillingService billing) : ControllerBas
     [RequirePermission(Permission.ManageBilling)]
     [RequireCsrfToken]
     public Task<IActionResult> Issue(Guid patientId, [FromBody] IssueDocumentRequest request, CancellationToken ct) =>
-        Run(async () => Ok(await billing.IssueDocumentAsync(patientId, new IssueDocumentInput(request.PreviewToken, request.IdempotencyKey, request.ReplacementReason), Actor, ct)));
+        Run(async () => Ok(await billing.IssueDocumentAsync(patientId, new IssueDocumentInput(request.PreviewToken, request.IdempotencyKey, request.ReplacementReason), Actor, ct, pdf.BundleId)));   // ALV-N026 S5
 }

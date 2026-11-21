@@ -94,6 +94,8 @@ export const issueDocument = (patientId: string, idempotencyKey: string, preview
 export const listDocuments = (patientId: string, signal?: AbortSignal) => request<IssuedDocument[]>(`${base(patientId)}/documents`, { signal });
 export const getDocument = (patientId: string, documentId: string, signal?: AbortSignal) => request<IssuedDocumentDetail>(`${base(patientId)}/documents/${documentId}`, { signal });
 export const documentCsvUrl = (patientId: string, documentId: string) => `${base(patientId)}/documents/${documentId}/csv`;
+/** ALV-N026 S5: the issued document as a server-made PDF (hash-checked first; the server records the print). */
+export const documentPdfUrl = (patientId: string, documentId: string) => `${base(patientId)}/documents/${documentId}/pdf`;
 
 /** Whether a response really is the shape asked for, so a screen never draws from a body that is something else. */
 export const isTimeline = (x: unknown): x is TimelineEvent[] => Array.isArray(x) && x.every((e) => typeof e === "object" && e !== null && typeof (e as TimelineEvent).type === "string");

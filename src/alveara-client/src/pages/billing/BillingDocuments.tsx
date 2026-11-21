@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useId, useImperativeHandle, useRef, useState } from "react";
-import { recordPrint } from "../../services/patientsApi";
+import { openPdf } from "../../services/pdfApi";
 import type { Ref } from "react";
 import { newKey } from "../../services/clinicalApi";
 import { ApiError } from "../../services/authApi";
 import {
-  documentCsvUrl, getDocument, isDocumentDetail, isDocumentList, isDocumentPreview, issueDocument, listDocuments, previewDocument,
+  documentCsvUrl, documentPdfUrl, getDocument, isDocumentDetail, isDocumentList, isDocumentPreview, issueDocument, listDocuments, previewDocument,
 } from "../../services/billingStatementsApi";
 import type { DocumentPreview, IssuedDocument, IssuedDocumentDetail } from "../../services/billingStatementsApi";
 import { documentStatus } from "./documentStatus";
@@ -192,7 +192,8 @@ export function BillingDocuments({ patientId, canWrite, controlRef, version, onA
             </div>
           )}
           <div className="alv-clinical__row-actions">
-            <button type="button" className="btn btn-outline-secondary" onClick={async () => { await recordPrint(patientId, detail.receipt ? "Receipt" : "Statement", detail.document.id); window.print(); }}>Print</button>
+            {/* ALV-N026 S5: printing opens the server-made PDF (the server records the print); a refusal is shown here */}
+            <button type="button" className="btn btn-outline-secondary" onClick={() => { setMessage(null); openPdf(documentPdfUrl(patientId, detail.document.id)).catch((err) => setMessage(err instanceof ApiError ? err.message : "The document could not be opened as a PDF.")); }}>Print (PDF)</button>
             {detail.statement && <a className="alv-workspace__link" href={documentCsvUrl(patientId, detail.document.id)} download>Download CSV</a>}
             {canWrite && detail.receipt && !current.supersededByNumber && !current.paymentReversed && (
               <button type="button" className="btn btn-outline-secondary" disabled={busy} onClick={() => void startPreview("Receipt", detail.receipt!.paymentNumber, current)}>Issue a replacement for receipt {current.documentNumber}…</button>

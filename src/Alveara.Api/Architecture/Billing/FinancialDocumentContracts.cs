@@ -14,7 +14,8 @@ public sealed record DocumentServiceDay(int Number, string ServiceLocalDate);
 public sealed record DocumentPractice(string Name, string? Phone, string? AddressLine);
 
 /// <summary>Who a document is about or addressed to. <c>IsSelf</c> is true when it is the account's own patient.</summary>
-public sealed record DocumentParty(Guid PatientId, string Name, bool IsSelf);
+/// <remarks>ALV-N026 (OQ-2): <c>Mrn</c> is set on template version 4 and later only, and left out of the JSON when null, so a version 1-3 party serializes (and hashes) exactly as before.</remarks>
+public sealed record DocumentParty(Guid PatientId, string Name, bool IsSelf, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] long? Mrn = null);
 
 /// <summary>One ledger entry as a document shows it. Amounts are fixed two-place text so the canonical bytes (and so the hash) never depend on how a number was stored or computed.</summary>
 /// ALV-N024: <c>ReversedByNumber</c> (template version 3 only) names the reversal that undid this line; it is left out of the JSON when null, so a version-1 or version-2 line serializes as before.
@@ -48,7 +49,10 @@ public sealed record FinancialCutOffs(int EntryNumber, int AllocationNumber, int
 /// The non-financial display envelope stored with an issued document, so a reprint shows the same names (the addressee as resolved on the day) whatever has changed since. A version-2 statement also stores its
 /// frozen <see cref="DocumentAgingBasis"/> here (dates only); version-1 documents have none.
 /// </summary>
-public sealed record DocumentEnvelope(DocumentParty Patient, DocumentParty Addressee, string AddresseeSource, string Currency, DocumentPractice? Practice = null, DocumentAgingBasis? AgingBasis = null);
+/// <remarks>ALV-N026 S5: <c>RenderBundleId</c> records the PDF engine bundle current when a version-4 document was issued (stored on the document's own immutable row, never part of its content or
+/// hash); left out when null, so earlier envelopes read back unchanged.</remarks>
+public sealed record DocumentEnvelope(DocumentParty Patient, DocumentParty Addressee, string AddresseeSource, string Currency, DocumentPractice? Practice = null, DocumentAgingBasis? AgingBasis = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? RenderBundleId = null);
 
 /// <summary>A preview: the content a person is reviewing, its hash, and the token that issuing must present. Exactly one of <c>Statement</c> and <c>Receipt</c> is set.</summary>
 public sealed record DocumentPreview(string DocumentType, FinancialCutOffs CutOffs, int TemplateVersion, string ContentHash, string PreviewToken, StatementContent? Statement, ReceiptContent? Receipt,

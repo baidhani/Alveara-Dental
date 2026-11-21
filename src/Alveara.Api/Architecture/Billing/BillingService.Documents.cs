@@ -78,7 +78,7 @@ public partial class BillingService
     }
 
     /// <summary>Who the document is about and who it is addressed to, as the responsibility history stood at the cut-offs. A payer, when given, is who a receipt is for.</summary>
-    private async Task<DocumentEnvelope> ResolveEnvelopeAsync(BillingAccount account, FinancialCutOffs cutOffs, Guid? payer, CancellationToken ct)
+    private async Task<DocumentEnvelope> ResolveEnvelopeAsync(BillingAccount account, FinancialCutOffs cutOffs, Guid? payer, int templateVersion, CancellationToken ct)
     {
         var patient = await db.Patients.AsNoTracking().FirstAsync(p => p.Id == account.PatientId, ct);
         var rows = await db.BillingResponsibilities.AsNoTracking().Where(r => r.AccountId == account.Id && r.Sequence <= cutOffs.ResponsibilitySequence).OrderBy(r => r.Sequence).ToListAsync(ct);
@@ -92,7 +92,8 @@ public partial class BillingService
         if (payer is Guid paid) (responsible, source) = (paid, "Payer");
         var addressee = responsible == patient.Id ? patient : await db.Patients.AsNoTracking().FirstAsync(p => p.Id == responsible, ct);
         var practice = await db.PracticeSettings.AsNoTracking().FirstOrDefaultAsync(ct);
-        return new DocumentEnvelope(new DocumentParty(patient.Id, NameOf(patient), true), new DocumentParty(addressee.Id, NameOf(addressee), addressee.Id == patient.Id), source, AppMoney.Currency,
+        // ALV-N026 (OQ-2): version 4 and later carry the patient's MRN; earlier versions never do, so they rebuild exactly as issued
+        return new DocumentEnvelope(new DocumentParty(patient.Id, NameOf(patient), true, templateVersion >= 4 ? patient.Mrn : null), new DocumentParty(addressee.Id, NameOf(addressee), addressee.Id == patient.Id), source, AppMoney.Currency,
             practice is null ? null : new DocumentPractice(practice.Name, practice.Phone, practice.AddressLine));
     }
 
@@ -116,7 +117,7 @@ public partial class BillingService
         {
             if (envelope is null)
             {
-                envelope = await ResolveEnvelopeAsync(account, cutOffs, null, ct);
+                envelope = await ResolveEnvelopeAsync(account, cutOffs, null, templateVersion, ct);
                 if (templateVersion >= 2) envelope = envelope with { AgingBasis = FinancialDocumentBuilder.PracticeBasis(snapshot, cutOffs, clock.PracticeTimeZone) };
             }
             var statement = FinancialDocumentBuilder.Statement(snapshot, cutOffs, envelope, templateVersion);
@@ -128,7 +129,7 @@ public partial class BillingService
         if (envelope is null)
         {
             var payer = await db.BillingEntries.AsNoTracking().Where(e => e.AccountId == account.Id && e.EntryNumber == payment.Number).Select(e => e.PaidByPatientId).FirstAsync(ct);
-            envelope = await ResolveEnvelopeAsync(account, cutOffs, payer ?? account.PatientId, ct);
+            envelope = await ResolveEnvelopeAsync(account, cutOffs, payer ?? account.PatientId, templateVersion, ct);
         }
         var receipt = FinancialDocumentBuilder.Receipt(snapshot, cutOffs, envelope, payment.Number, templateVersion);
         return (receipt, FinancialDocumentBuilder.HashOf(receipt), envelope);
@@ -162,7 +163,8 @@ public partial class BillingService
     }
 
     /// <summary>Issues the previewed document: the same content, or nothing (<c>document_preview_stale</c>). The same key again returns the same document.</summary>
-    public async Task<IssuedDocumentView> IssueDocumentAsync(Guid patientId, IssueDocumentInput input, Guid actor, CancellationToken ct)
+    /// <param name="renderBundleId">ALV-N026 S5: the PDF engine bundle current at issue, recorded on a version-4 document's own row (never in its content or hash).</param>
+    public async Task<IssuedDocumentView> IssueDocumentAsync(Guid patientId, IssueDocumentInput input, Guid actor, CancellationToken ct, string? renderBundleId = null)
     {
         await RequirePatientAsync(patientId, ct);
         var errors = new Dictionary<string, string>();
@@ -178,7 +180,7 @@ public partial class BillingService
         var account = await AccountForDocumentAsync(patientId, ct);
         var replay = await ReplayAsync(account.Id, key!, token, asOf, ct);
         if (replay is not null) return replay;
-        if (type != FinancialDocumentTypes.Receipt) return await IssueCheckedAsync(account, patientId, token, type, cutOffs, asOf, key!, actor, null, null, ct);
+        if (type != FinancialDocumentTypes.Receipt) return await IssueCheckedAsync(account, patientId, token, type, cutOffs, asOf, key!, actor, null, null, ct, renderBundleId);
 
         // ALV-N024 (CR-1): one transaction per receipt issue; the payment's lock is taken BEFORE anything is inserted, then everything is read again.
         Guid? replaces = token.X is null ? null
@@ -191,7 +193,7 @@ public partial class BillingService
         if (replay is null)
         {
             var replaced = await CheckReceiptRuleAsync(account.Id, paymentId, token.P!.Value, replaces, ct);
-            replay = await IssueCheckedAsync(account, patientId, token, type, cutOffs, asOf, key!, actor, replaced, reason, ct);
+            replay = await IssueCheckedAsync(account, patientId, token, type, cutOffs, asOf, key!, actor, replaced, reason, ct, renderBundleId);
         }
         if (transaction is not null) await transaction.CommitAsync(ct);                                 // releases the lock; a throw above rolls everything back, lock included
         return replay;
@@ -209,7 +211,7 @@ public partial class BillingService
 
     /// <summary>Rebuilds the previewed content, refuses if it changed, then stores the numbered document and its audit row in one save.</summary>
     private async Task<IssuedDocumentView> IssueCheckedAsync(BillingAccount account, Guid patientId, PreviewToken token, string type, FinancialCutOffs cutOffs, DateTimeOffset asOf, string key, Guid actor,
-        FinancialDocument? replaced, string? reason, CancellationToken ct)
+        FinancialDocument? replaced, string? reason, CancellationToken ct, string? renderBundleId = null)
     {
         DocumentEnvelope envelope;
         string hash;
@@ -240,7 +242,7 @@ public partial class BillingService
         {
             Id = Guid.NewGuid(), AccountId = account.Id, PatientId = patientId, DocumentType = type, DocumentNumber = number, PaymentEntryId = paymentId, AsOfEntryNumber = cutOffs.EntryNumber,
             AsOfAllocationNumber = cutOffs.AllocationNumber, AsOfReleaseNumber = cutOffs.ReleaseNumber, AsOfResponsibilitySequence = cutOffs.ResponsibilitySequence, AsOfUtc = asOf, TemplateVersion = token.V,
-            ContentHash = hash, EnvelopeJson = JsonSerializer.Serialize(envelope), IdempotencyKey = key, CorrelationId = Guid.NewGuid(), IssuedAtUtc = now > asOf ? now : asOf, IssuedByUserId = actor,
+            ContentHash = hash, EnvelopeJson = JsonSerializer.Serialize(token.V >= 4 && renderBundleId is not null ? envelope with { RenderBundleId = renderBundleId } : envelope), IdempotencyKey = key, CorrelationId = Guid.NewGuid(), IssuedAtUtc = now > asOf ? now : asOf, IssuedByUserId = actor,
             ReplacesDocumentId = replaced?.Id, ReplacementReason = replaced is null ? null : reason,
         };
         db.FinancialDocuments.Add(document);

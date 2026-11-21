@@ -13,6 +13,9 @@
     <EmbeddedResource Include="..\..\build\pdf-engine.manifest.json" LogicalName="Alveara.Api.pdf-engine.manifest.json" />
     <EmbeddedResource Include="Pdf\Templates\templates.manifest.json" LogicalName="Alveara.Api.PdfTemplates.templates.manifest.json" />
     <EmbeddedResource Include="Pdf\Templates\selftest\v1\main.typ" LogicalName="Alveara.Api.PdfTemplates.selftest.v1.main.typ" />
+    <EmbeddedResource Include="Pdf\Templates\statement\v4\main.typ" LogicalName="Alveara.Api.PdfTemplates.statement.v4.main.typ" />
+    <EmbeddedResource Include="Pdf\Templates\receipt\v4\main.typ" LogicalName="Alveara.Api.PdfTemplates.receipt.v4.main.typ" />
+    <EmbeddedResource Include="Pdf\Templates\financial-legacy\v1\main.typ" LogicalName="Alveara.Api.PdfTemplates.financial-legacy.v1.main.typ" />
   </ItemGroup>
 
   <ItemGroup>

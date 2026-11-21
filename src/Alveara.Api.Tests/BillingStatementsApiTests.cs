@@ -304,4 +304,121 @@ END");
         await Sql("DROP TRIGGER [TR_Test_RefuseBillingAudit]");
         Assert.Equal(HttpStatusCode.OK, (await billing.SendAsync(HttpMethod.Post, Url("/refunds"), new { paymentEntryNumber = 3, amount = 80m, method = "Cash", reason = "x", rowVersion = v, idempotencyKey = "rf-1" })).Status);   // the same request now succeeds
     }
+
+    // ---------- ALV-N026 S5: statements and receipts as server-made PDFs ----------
+
+    /// <summary>The text a person sees in a PDF, read with a real PDF reader (PdfPig, a test-only dependency): never a byte comparison.</summary>
+    private static string PdfText(byte[] pdf)
+    {
+        using var document = UglyToad.PdfPig.PdfDocument.Open(pdf);
+        return string.Join("\n", document.GetPages().Select(p => UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor.ContentOrderTextExtractor.GetText(p)));
+    }
+
+    private async Task<(Session Billing, string StatementId, string ReceiptId)> IssuedBothAsync()
+    {
+        var (billing, _) = await PaidAsync();
+        var preview = await billing.SendAsync(HttpMethod.Get, Url("/documents/preview?type=Statement"));
+        var statement = await billing.SendAsync(HttpMethod.Post, Url("/documents"), new { previewToken = preview.Body.GetProperty("previewToken").GetString(), idempotencyKey = "pdf-s" });
+        var receiptPreview = await billing.SendAsync(HttpMethod.Get, Url("/documents/preview?type=Receipt&paymentEntryNumber=3"));
+        var receipt = await billing.SendAsync(HttpMethod.Post, Url("/documents"), new { previewToken = receiptPreview.Body.GetProperty("previewToken").GetString(), idempotencyKey = "pdf-r" });
+        return (billing, statement.Body.GetProperty("id").GetString()!, receipt.Body.GetProperty("id").GetString()!);
+    }
+
+    private async Task<byte[]> PdfAsync(Session by, string documentId)
+    {
+        var response = await by.Client.GetAsync(Url($"/documents/{documentId}/pdf"));
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("application/pdf", response.Content.Headers.ContentType?.MediaType);
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
+    [Fact]
+    public async Task A_version_4_statement_pdf_shows_the_issued_values_the_mrn_and_its_version_and_records_the_print_and_the_bundle()
+    {
+        var (billing, statementId, _) = await IssuedBothAsync();
+        long mrn;
+        await using (var db = _fixture.CreateContext())
+        {
+            mrn = (await db.Patients.AsNoTracking().SingleAsync(p => p.Id == _ann)).Mrn;
+            var row = await db.FinancialDocuments.AsNoTracking().SingleAsync(d => d.Id == Guid.Parse(statementId));
+            Assert.Equal(4, row.TemplateVersion);
+            var envelope = JsonSerializer.Deserialize<Alveara.Api.Architecture.Billing.DocumentEnvelope>(row.EnvelopeJson)!;          // read, not text-matched: the JSON writer escapes "+"
+            Assert.StartsWith("typst-0.15.1+noto-sans-2.015+vcrt-", envelope.RenderBundleId);                                       // recorded on the document's own row
+            Assert.Equal(mrn, envelope.Patient.Mrn);
+        }
+
+        var text = PdfText(await PdfAsync(billing, statementId));
+        Assert.Contains("Statement 1", text);
+        Assert.Contains($"MRN {mrn}", text);
+        Assert.Contains("Procedure 1", text);                                                                               // the charge's procedure as it was posted
+        Assert.Contains("$50.00", text);                                                                                    // the balance owed
+        Assert.Contains("-$150.00", text);                                                                                  // the payment line, as the ledger records it
+        Assert.Contains("template version 4", text);
+        Assert.DoesNotContain("Reprint generated", text);                                                                    // only a document issued before PDFs carries the legacy label
+
+        await using var check = _fixture.CreateContext();
+        var produced = await check.AuditLogEntries.AsNoTracking().SingleAsync(a => a.EventType == "FinancialDocumentPdfProduced");
+        Assert.Contains("statement v4", produced.Details);
+        Assert.Contains("typst-0.15.1+noto-sans-2.015+vcrt-", produced.Details);
+        Assert.Equal(1, await check.AuditLogEntries.CountAsync(a => a.EventType == Alveara.Api.Architecture.Auditing.PatientAccessEvents.MaterialPrinted && a.TargetUserAccountId == _ann));
+    }
+
+    [Fact]
+    public async Task A_version_4_receipt_pdf_shows_the_payment_its_method_and_what_it_paid()
+    {
+        var (billing, _, receiptId) = await IssuedBothAsync();
+        var text = PdfText(await PdfAsync(billing, receiptId));
+        Assert.Contains("Receipt 1", text);
+        Assert.Contains("$150.00", text);
+        Assert.Contains("Cash", text);
+        Assert.Contains("$60.00", text);                                                                                    // applied to charge 1
+        Assert.Contains("$40.00", text);                                                                                    // applied to charge 2
+        Assert.Contains("Balance owed", text);
+    }
+
+    /// <summary>A document issued before PDFs (here a version-3 statement) is shown only after its content hash checks out, with the owner's label; a mismatch gives no PDF at all.</summary>
+    [Fact]
+    public async Task A_version_3_statement_prints_with_the_legacy_label_and_a_hash_mismatch_prints_nothing()
+    {
+        var (billing, statementId, _) = await IssuedBothAsync();
+        var detail = (await billing.SendAsync(HttpMethod.Get, Url($"/documents/{statementId}"))).Body;
+        var content = JsonSerializer.Deserialize<Alveara.Api.Architecture.Billing.StatementContent>(detail.GetProperty("statement").GetRawText(), new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+        var v3 = content with { TemplateVersion = 3, Patient = content.Patient with { Mrn = null } };
+        Guid legacyId = Guid.NewGuid(), badId = Guid.NewGuid();
+        await using (var db = _fixture.CreateContext())
+        {
+            var source = await db.FinancialDocuments.AsNoTracking().SingleAsync(d => d.Id == Guid.Parse(statementId));
+            var envelope = JsonSerializer.Deserialize<Alveara.Api.Architecture.Billing.DocumentEnvelope>(source.EnvelopeJson)!;
+            var v3Envelope = JsonSerializer.Serialize(envelope with { Patient = envelope.Patient with { Mrn = null }, RenderBundleId = null });
+            Alveara.Api.Architecture.Billing.FinancialDocument Copy(Guid id, int number, string hash) => new()
+            {
+                Id = id, AccountId = source.AccountId, PatientId = source.PatientId, DocumentType = source.DocumentType, DocumentNumber = number, AsOfEntryNumber = source.AsOfEntryNumber,
+                AsOfAllocationNumber = source.AsOfAllocationNumber, AsOfReleaseNumber = source.AsOfReleaseNumber, AsOfResponsibilitySequence = source.AsOfResponsibilitySequence, AsOfUtc = source.AsOfUtc,
+                TemplateVersion = 3, ContentHash = hash, EnvelopeJson = v3Envelope, IdempotencyKey = $"legacy-{number}", CorrelationId = Guid.NewGuid(), IssuedAtUtc = source.IssuedAtUtc, IssuedByUserId = source.IssuedByUserId,
+            };
+            db.FinancialDocuments.Add(Copy(legacyId, 2, Alveara.Api.Architecture.Billing.FinancialDocumentBuilder.HashOf(v3)));
+            db.FinancialDocuments.Add(Copy(badId, 3, new string('0', 64)));
+            await db.SaveChangesAsync();
+        }
+
+        var text = PdfText(await PdfAsync(billing, legacyId.ToString()));
+        Assert.Contains("Reprint generated", text);
+        Assert.Contains("from the verified record. This is not the original browser printout.", text);
+        Assert.Contains("template version 3", text);
+        Assert.DoesNotContain("MRN", text);                                                                                 // a version-3 document never carried one
+
+        var refused = await billing.SendAsync(HttpMethod.Get, Url($"/documents/{badId}/pdf"));
+        Assert.Equal((HttpStatusCode.Conflict, "document_content_changed"), (refused.Status, Error(refused.Body)));
+        await using var check = _fixture.CreateContext();
+        Assert.Equal(1, await check.AuditLogEntries.CountAsync(a => a.EventType == "FinancialDocumentPdfProduced"));             // only the verified one
+    }
+
+    [Fact]
+    public async Task Only_staff_who_see_billing_get_a_document_pdf()
+    {
+        var (_, statementId, _) = await IssuedBothAsync();
+        Assert.Equal(HttpStatusCode.Forbidden, (await (await _api.SessionAsync("Hygienist")).Client.GetAsync(Url($"/documents/{statementId}/pdf"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await _api.Factory.CreateClient().GetAsync(Url($"/documents/{statementId}/pdf"))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await (await _api.SessionAsync("FrontDesk")).Client.GetAsync(Url($"/documents/{statementId}/pdf"))).StatusCode);
+    }
 }

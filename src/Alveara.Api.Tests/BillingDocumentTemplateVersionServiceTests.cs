@@ -126,7 +126,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
     {
         await PaidAsync();
         var statement = await Issue((await Preview("Statement")).PreviewToken, "now-s");
-        var (unknown, _) = await StoreAsVersion1Async(statement.Id, 2, "unknown", storedVersion: 4);                      // ALV-N024: 3 is supported now, so the unknown version is 4
+        var (unknown, _) = await StoreAsVersion1Async(statement.Id, 2, "unknown", storedVersion: 5);                      // ALV-N026: 4 is supported now, so the unknown version is 5
         Assert.Equal("document_template_unsupported", (await RefusedBilling(() => Get(unknown))).Code);
         Assert.Equal("document_template_unsupported", (await RefusedBilling(() => Bill(b => b.GetStatementCsvAsync(Ann, unknown, S.Actor, default)))).Code);
     }
@@ -136,7 +136,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
     {
         await PaidAsync();
         var preview = await Preview("Statement");
-        Assert.Equal(3, preview.TemplateVersion);                                                         // the current version (3 since ALV-N024)
+        Assert.Equal(FinancialDocumentBuilder.CurrentTemplateVersion, preview.TemplateVersion);           // the current version (4 since ALV-N026)
         var oldToken = TokenWith(preview.PreviewToken, t => t["V"] = JsonSerializer.SerializeToElement(1));
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Issue(oldToken, "late"))).Code);
         Assert.Empty(await Bill(s => s.ListDocumentsAsync(Ann, default)));
@@ -168,7 +168,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
         await PaidAsync();
         var preview = await Preview("Statement");
         var issued = await Issue(preview.PreviewToken, "now-s");
-        Assert.Equal((3, preview.ContentHash), (issued.TemplateVersion, issued.ContentHash));             // a new statement is version 3 (ALV-N024), which keeps version 2's frozen basis
+        Assert.Equal((FinancialDocumentBuilder.CurrentTemplateVersion, preview.ContentHash), (issued.TemplateVersion, issued.ContentHash));   // a new statement is the current version (4 since ALV-N026), which keeps version 2's frozen basis
         await using (var db = Fixture.CreateContext())
         {
             var envelope = JsonSerializer.Deserialize<DocumentEnvelope>((await db.FinancialDocuments.AsNoTracking().FirstAsync(d => d.Id == issued.Id)).EnvelopeJson)!;
@@ -190,7 +190,7 @@ public class BillingDocumentTemplateVersionServiceTests : BillingTestBase
         var preview = await Preview("Statement");
         Assert.Equal("document_preview_stale", (await RefusedBilling(() => Issue(preview.PreviewToken, "moved", TokyoClock))).Code);
         Assert.Empty(await Bill(s => s.ListDocumentsAsync(Ann, default)));
-        Assert.Equal(3, (await Issue(preview.PreviewToken, "same-zone")).TemplateVersion);                // the current version (3 since ALV-N024)
+        Assert.Equal(FinancialDocumentBuilder.CurrentTemplateVersion, (await Issue(preview.PreviewToken, "same-zone")).TemplateVersion);   // the current version (4 since ALV-N026)
     }
 
     [Fact]

@@ -25,15 +25,16 @@ public sealed record LedgerSnapshot(IReadOnlyList<SnapshotEntry> Entries, IReadO
 ///   offset, so DST is handled) and carried in the envelope and the content. Thresholds, amounts and cut-offs are unchanged.
 /// - <b>Version 3</b> (ALV-N024, current): as version 2, plus each reversed line names its reversal (<c>ReversedByNumber</c>, F-117) and the statement carries <c>AdjustmentTotal</c>, the adjustments
 ///   that are in the balance but in no charge-age bucket (F-116). Receipts differ only in the version they carry.
+/// - <b>Version 4</b> (ALV-N026, current): as version 3, plus the patient's MRN (OQ-2) in the patient party; issued and reprinted as a server-side PDF. Versions 1-3 rebuild exactly as before.
 /// - Any other version is refused (<see cref="UnsupportedTemplateVersionException"/>); nothing ever falls back to the current version.
 /// </summary>
 public static class FinancialDocumentBuilder
 {
     /// <summary>The version new previews and issues use.</summary>
-    public const int CurrentTemplateVersion = 3;
+    public const int CurrentTemplateVersion = 4;
     public const string PracticeLocalDaysPolicy = "PracticeLocalCalendarDays";
 
-    public static bool IsSupported(int templateVersion) => templateVersion is 1 or 2 or 3;
+    public static bool IsSupported(int templateVersion) => templateVersion is 1 or 2 or 3 or 4;
 
     public static void RequireSupported(int templateVersion)
     {
