@@ -38,7 +38,7 @@
 | G1. PDF library proposal R05 (with its R04 base) approved, as part of the corrected R03 package (escalation: new dependency) | Every PDF slice (S4 to S8) | AWAITING_REVIEW. Not approved until the corrected package is approved |
 | G2. PD-11 research note independently reviewed | Prescription **content fields** (S6 fields part) | AWAITING_REVIEW: `ALV-N026_PD-11_RESEARCH_NOTE.md` revision 2 (official sources only) |
 | G3. This brief approved, including the permission-model change (`ManageDocuments`, PD-24) | S1 | AWAITING_REVIEW |
-| G4. Release-store folders created and approved (after G1) | Adding the engine to the build | Waiting on G1 |
+| G4. Release-store folders created and approved (after G1) | Adding the engine to the build | Folders created and verified 2026-11-21 (`ALV-N026_G4_RELEASE_STORE_RECORD.md`); awaiting reviewer confirmation |
 
 Slices S2 and S3 (backup, status and the document UI fixes) depend only on G3.
 
