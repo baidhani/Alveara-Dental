@@ -102,6 +102,17 @@ public class SystemStatusController(AlveraDbContext db, BackgroundJobRunnerHeart
         {
             log.LogError("event=system_status_accounts_unavailable outcome=failure error_class={ErrorClass}", ex.GetType().Name);
         }
-        return Ok(new { backup, storage, accounts });
+        // ALV-N026 S4: whether PDFs can be made now (the last readiness result, checked again here when it is stale); the reason class only, never a path
+        object? pdfEngine = null;
+        try
+        {
+            var readiness = await services.GetRequiredService<Alveara.Api.Architecture.Pdf.PdfEngine>().ReadinessAsync(ct);
+            pdfEngine = new { ready = readiness.Ready, code = readiness.Code, errorClass = readiness.ErrorClass, reason = readiness.Reason, bundleId = readiness.BundleId, checkedAtUtc = readiness.CheckedAtUtc };
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            log.LogError("event=system_status_pdf_unavailable outcome=failure error_class={ErrorClass}", ex.GetType().Name);
+        }
+        return Ok(new { backup, storage, accounts, pdfEngine });
     }
 }

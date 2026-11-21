@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Architecture\Identity\PermissionRegistry.json" LogicalName="Alveara.Api.PermissionRegistry.json" />
+    <!-- ALV-N026 S4: the reviewed PDF engine pins and the approved template versions travel inside the assembly, so they cannot be changed on the server.
+         Each template file is listed explicitly ("Alveara.Api.PdfTemplates.<id>.<version>.<file>"): a new template version is a reviewed addition here and in templates.manifest.json. -->
+    <EmbeddedResource Include="..\..\build\pdf-engine.manifest.json" LogicalName="Alveara.Api.pdf-engine.manifest.json" />
+    <EmbeddedResource Include="Pdf\Templates\templates.manifest.json" LogicalName="Alveara.Api.PdfTemplates.templates.manifest.json" />
+    <EmbeddedResource Include="Pdf\Templates\selftest\v1\main.typ" LogicalName="Alveara.Api.PdfTemplates.selftest.v1.main.typ" />
   </ItemGroup>
 
   <ItemGroup>

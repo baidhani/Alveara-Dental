@@ -268,6 +268,10 @@ builder.Services.AddSingleton<IBackupNotifier, CompositeBackupNotifier>();
 builder.Services.AddScoped<InAppBackupAlert>();
 builder.Services.AddScoped<BackupAlertService>();
 builder.Services.AddScoped<BackupHealth>();
+// ALV-N026 S4: the server-side PDF engine (readiness at startup and before renders; no fallback; nothing else depends on it)
+builder.Services.Configure<Alveara.Api.Architecture.Pdf.PdfOptions>(builder.Configuration.GetSection(Alveara.Api.Architecture.Pdf.PdfOptions.SectionName));
+builder.Services.AddSingleton<Alveara.Api.Architecture.Pdf.PdfEngine>();
+builder.Services.AddHostedService<Alveara.Api.Architecture.Pdf.PdfEngineStartupCheck>();
 builder.Services.AddSingleton<IDeploymentSettingsProvider, RuntimeDeploymentSettingsProvider>();
 builder.Services.AddSingleton<DeploymentInvariantStatus>();
 builder.Services.AddHostedService<DeploymentInvariantMonitor>();

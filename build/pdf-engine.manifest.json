@@ -1,0 +1,29 @@
+{
+  "_comment": "ALV-N026 S4 (G4 review rule): the reviewed, version-controlled trust source for the PDF engine bundle. The release store's SHA256SUMS.txt files are inventory only. Change only by a reviewed commit; a new version is a new entry set, never an edit of these values.",
+  "engine": {
+    "name": "typst",
+    "version": "0.15.1",
+    "expectedVersionOutput": "typst 0.15.1 (9dfd3a08)",
+    "storeFolder": "typst\\0.15.1\\windows-x64",
+    "zipFile": "typst-x86_64-pc-windows-msvc.zip",
+    "zipSha256": "19ce3551153c2fe7ee9fa2f95208310c8f4d3209fedb699e0333faf8913f6736",
+    "exeEntry": "typst-x86_64-pc-windows-msvc/typst.exe",
+    "exeSha256": "081217a463adb006f8894b44227fe4b9c9e91fc85f5463d5948e8370db9bb31e"
+  },
+  "fonts": {
+    "name": "noto-sans",
+    "version": "2.015",
+    "storeFolder": "fonts\\noto-sans\\2.015",
+    "files": {
+      "NotoSans-Regular.ttf": "478c558ea716033cd60c03438f628dfa75694dcf6b5f6d505a2f05fd2b4f3823",
+      "NotoSans-Bold.ttf": "1df075a380fc7cb898acf64c1f7b3b4dd780de3caa860178bf929de35817a913"
+    }
+  },
+  "msvcRuntime": {
+    "version": "14.44.35211.0",
+    "storeFolder": "msvc-runtime\\14.44.35211.0\\x64",
+    "redistFile": "vc_redist.x64.exe",
+    "redistSha256": "cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b",
+    "requiredSignerOrganization": "Microsoft Corporation"
+  }
+}

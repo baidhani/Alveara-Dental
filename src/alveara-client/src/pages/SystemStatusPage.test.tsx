@@ -86,7 +86,8 @@ describe("SystemStatusPage - ALV-N026 administrator sections", () => {
     vi.stubGlobal("fetch", vi.fn().mockImplementation((url: string) => Promise.resolve(jsonResponse(String(url).includes("/admin")
       ? { backup: { lastGoodBackupUtc: null, lastRestoreDrillUtc: null, lastRestoreDrillOutcome: null, recoveryKeyConfigured: true, scheduleEnabled: true, overdue: true, unresolvedFailures: 1, unacknowledgedAlerts: 0, warning: true },
           storage: { documentFolderReachable: true, freeBytes: 5 * 1024 * 1024 * 1024, missingDocuments: 2, damagedDocuments: 1 },
-          accounts: { enabled: 7, disabled: 2, locked: 1, enabledWithoutMfa: 3 } }
+          accounts: { enabled: 7, disabled: 2, locked: 1, enabledWithoutMfa: 3 },
+          pdfEngine: { ready: false, code: "pdf_engine_unavailable", errorClass: "EngineMissing", reason: "The PDF engine is not installed.", bundleId: "typst-0.15.1+noto-sans-2.015+vcrt-missing", checkedAtUtc: "2030-01-01T00:00:00Z" } }
       : health))));
     render(asAdmin(<SystemStatusPage />));
     expect(await screen.findByText("Needs attention")).toBeInTheDocument();
@@ -96,6 +97,8 @@ describe("SystemStatusPage - ALV-N026 administrator sections", () => {
     expect(screen.getByText("Free space: 5.0 GB free")).toBeInTheDocument();
     expect(screen.getByText("Missing documents: 2")).toBeInTheDocument();
     expect(screen.getByText("Enabled without MFA: 3")).toBeInTheDocument();
+    expect(screen.getByText("Unavailable")).toBeInTheDocument();                                   // ALV-N026 S4: the PDF engine line
+    expect(screen.getByText(/The PDF engine is not installed\. Other work is unaffected/)).toBeInTheDocument();
     vi.unstubAllGlobals();
   });
 
@@ -104,7 +107,7 @@ describe("SystemStatusPage - ALV-N026 administrator sections", () => {
       ? { backup: null, storage: null, accounts: { enabled: 1, disabled: 0, locked: 0, enabledWithoutMfa: 0 } }
       : health))));
     render(asAdmin(<SystemStatusPage />));
-    expect(await screen.findAllByText(/Could not be read right now; this does not mean it is healthy\./)).toHaveLength(2);
+    expect(await screen.findAllByText(/Could not be read right now; this does not mean it is healthy\./)).toHaveLength(3);   // backup, storage and (ALV-N026 S4) the PDF engine, which this answer leaves out
     vi.unstubAllGlobals();
   });
 });

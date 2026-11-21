@@ -50,6 +50,9 @@ public class BackupAlertApiTests : IAsyncLifetime
         var json = System.Text.Json.JsonDocument.Parse(body).RootElement;
         foreach (var section in new[] { "backup", "storage", "accounts" }) Assert.NotEqual(System.Text.Json.JsonValueKind.Null, json.GetProperty(section).ValueKind);
         Assert.True(json.GetProperty("accounts").GetProperty("enabled").GetInt32() >= 1);
+        var pdf = json.GetProperty("pdfEngine");                                                                               // ALV-N026 S4: the engine readiness line
+        Assert.True(pdf.GetProperty("ready").GetBoolean(), pdf.ToString());
+        Assert.StartsWith("typst-0.15.1+noto-sans-2.015+vcrt-", pdf.GetProperty("bundleId").GetString());
         Assert.True(json.GetProperty("storage").GetProperty("documentFolderReachable").ValueKind is System.Text.Json.JsonValueKind.True or System.Text.Json.JsonValueKind.False);
         Assert.DoesNotContain(":\\\\", body);                                                                                 // no Windows path
         Assert.DoesNotContain("BEGIN PGP", body);

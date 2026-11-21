@@ -30,6 +30,10 @@ $env:ConnectionStrings__Alveara        = $DevConnectionString
 $env:StorageRoot                       = $DevStorageDir
 $env:DataProtectionKeysPath            = $DevKeysDir
 $env:Backup__Root                      = $DevBackupDir
+# ALV-N026 S4: the PDF engine provisioned by .\scripts\Install-PdfEngine.ps1 (without it PDFs are unavailable; nothing else is affected)
+$env:Pdf__EngineDirectory              = Join-Path $DevData 'PdfEngine'
+$env:Pdf__FontDirectory                = Join-Path $DevData 'PdfEngineonts'
+$env:Pdf__WorkDirectory                = Join-Path $DevData 'PdfWork'
 $env:AdminBootstrapSecret              = $BootstrapSecret
 $env:AuthAttemptRateLimit__PermitLimit = '500'
 

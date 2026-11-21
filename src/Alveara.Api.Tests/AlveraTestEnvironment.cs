@@ -31,6 +31,8 @@ internal static class AlveraTestEnvironment
     public static string StorageFolder => Ensure(Path.Combine(TestData, "Storage"));
     public static string KeysFolder => Ensure(Path.Combine(TestData, "Keys"));
     public static string TempFolder => Ensure(Path.Combine(TestData, "Temp"));
+    /// <summary>ALV-N026 S4: the PDF engine provisioned by <c>scripts\Install-PdfEngine.ps1 -ForTests</c>. Not created here: the script refuses a folder it did not fill.</summary>
+    public static string PdfEngineFolder => Path.Combine(TestData, "PdfEngine");
 
     /// <summary>The folder exists when it is returned: SQL Server does not create missing folders for a backup or a database file, and a test should not have to remember to.</summary>
     private static string Ensure(string folder)
@@ -60,6 +62,9 @@ internal static class AlveraTestEnvironment
             Directory.CreateDirectory(folder);
             Environment.SetEnvironmentVariable(name, folder);
         }
+        // ALV-N026 S4: the API a test starts looks for the PDF engine in Test-Data (provisioned by Install-PdfEngine.ps1 -ForTests); these folders are not created here
+        foreach (var (name, folder) in new Dictionary<string, string> { ["Pdf__EngineDirectory"] = PdfEngineFolder, ["Pdf__FontDirectory"] = Path.Combine(PdfEngineFolder, "fonts"), ["Pdf__WorkDirectory"] = Path.Combine(TempFolder, "pdf") })
+            if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name))) Environment.SetEnvironmentVariable(name, folder);
     }
 
     public static string MasterConnectionString => ConnectionStringFor("master");

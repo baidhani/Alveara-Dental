@@ -174,7 +174,9 @@ export interface BackupHealth {
 export interface StorageHealth { documentFolderReachable: boolean; freeBytes: number | null; missingDocuments: number; damagedDocuments: number }
 export interface AccountsSummary { enabled: number; disabled: number; locked: number; enabledWithoutMfa: number }
 /** A section the server could not read is null: shown as unavailable, never as healthy. */
-export interface AdminSystemStatus { backup: BackupHealth | null; storage: StorageHealth | null; accounts: AccountsSummary | null }
+/** ALV-N026 S4: whether PDFs can be produced now; the reason class only. */
+export interface PdfEngineHealth { ready: boolean; code: string | null; errorClass: string | null; reason: string | null; bundleId: string; checkedAtUtc: string }
+export interface AdminSystemStatus { backup: BackupHealth | null; storage: StorageHealth | null; accounts: AccountsSummary | null; pdfEngine?: PdfEngineHealth | null }
 
 export function getAdminSystemStatus(signal?: AbortSignal): Promise<AdminSystemStatus> {
   return request<AdminSystemStatus>("/api/systemstatus/admin", { signal });

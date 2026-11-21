@@ -123,7 +123,7 @@ export function AdminStatusSections() {
   }, []);
   if (failed) return <ErrorState title="Backup, storage and account status could not be read" description="Try again in a moment. This does not mean they are healthy." />;
   if (!data) return <LoadingState label="Checking backup, storage and accounts…" />;
-  const { backup, storage, accounts } = data;
+  const { backup, storage, accounts, pdfEngine } = data;
   const unavailable = <p><StatusDot tone="unknown" />Could not be read right now; this does not mean it is healthy.</p>;
   return (
     <div className="status-grid" aria-label="Administrator status">
@@ -154,6 +154,16 @@ export function AdminStatusSections() {
               <li>Missing documents: {storage.missingDocuments}</li>
               <li>Damaged documents: {storage.damagedDocuments}</li>
             </ul>
+          </>
+        ) : unavailable}
+      </div>
+      <div className="status-card">
+        <h3>PDF documents</h3>
+        {pdfEngine ? (
+          <>
+            <p><StatusDot tone={pdfEngine.ready ? "success" : "danger"} />{pdfEngine.ready ? "Ready" : "Unavailable"}</p>
+            {!pdfEngine.ready && <p className="status-caveat">{pdfEngine.reason} Other work is unaffected; documents cannot be issued as PDFs until this is fixed.</p>}
+            <p className="status-caveat">Engine bundle: {pdfEngine.bundleId}</p>
           </>
         ) : unavailable}
       </div>

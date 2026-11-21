@@ -1,0 +1,3 @@
+# ALV-N026 S4: PDF templates and their manifest are pinned by SHA-256 of their exact bytes; never convert their line endings.
+src/Alveara.Api/Pdf/Templates/** -text
+build/pdf-engine.manifest.json -text

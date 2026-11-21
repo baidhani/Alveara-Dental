@@ -1,0 +1,6 @@
+{
+  "_comment": "ALV-N026 S4: the approved PDF template versions and the SHA-256 of each file. A template change is a new version (a new folder and entry), never an edit of an approved one.",
+  "templates": {
+    "selftest/v1": { "main.typ": "053f5f26bfcb236b42d9f24e13780590edf35fc86a6eb3e93f4e4a4aee0ec812" }
+  }
+}
