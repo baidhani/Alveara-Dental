@@ -1,0 +1,754 @@
+run,group,test,outcome,duration
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Dentist"", allowed: True)",Passed,00:00:00.9828294
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.An_engine_that_reports_another_version_is_untrusted,Passed,00:00:00.0609196
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Assistant"", allowed: True)",Passed,00:00:00.8492172
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Billing"", allowed: False)",Passed,00:00:00.6535806
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.No_drug_knowledge_source_is_configured_and_nothing_claims_interaction_checking_or_dose_appropriateness,Passed,00:00:00.0820851
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.An_engine_that_differs_from_the_approved_one_is_untrusted_and_never_run,Passed,00:00:00.8690003
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 1, unit: ""capsule"", expected: ""1 capsule"")",Passed,00:00:00.0000013
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.An_unknown_template_is_refused,Passed,00:00:00.1710627
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Assistant"", allowed: False)",Passed,00:00:00.5447130
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_issue_table_has_no_patient_column_and_is_not_in_the_merge_registry,Passed,00:00:00.0406659
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_missing_patient_address_refuses_with_print_incomplete_and_issues_nothing,Passed,00:00:00.6795944
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.No_more_than_two_renders_run_at_once,Passed,00:00:01.6703240
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Admin"", allowed: True)",Passed,00:00:00.7840964
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing,Passed,00:00:00.7171123
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_refusals_carry_stable_codes_and_the_details_the_screen_needs_and_nothing_is_saved,Passed,00:00:00.8021544
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_saved_before_the_workflow_cannot_be_printed_and_says_so,Passed,00:00:00.6086611
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Finalizing_a_finalized_draft_returns_the_prescription_it_became_and_two_simultaneous_finalizations_make_one,Passed,00:00:00.1676261
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.7685972
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.A_template_cannot_read_outside_its_own_folder_and_the_failure_is_not_retried,Passed,00:00:00.2045501
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.The_provisioned_engine_is_ready_with_the_pinned_bundle,Passed,00:00:00.0909645
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: ""medicationAdded"")",Passed,00:00:00.2476319
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Admin"", allowed: True)",Passed,00:00:00.7217014
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_saved_incomplete_and_is_logged_with_the_user_and_the_time_without_any_clinical_content,Passed,00:00:00.0711223
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 21, unit: ""capsule"", expected: ""21 capsules"")",Passed,00:00:00.0000010
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_retired_browser_print_is_refused_as_unverifiable,Passed,00:00:00.6341713
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.A_render_that_runs_too_long_is_killed_at_the_timeout_retried_once_and_leaves_nothing_behind,Passed,00:00:04.2320158
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_refused_when_the_original_ended_in_the_meantime_or_never_existed_and_a_story_016_prescription_can_be_amended_by_filling_in_the_rest,Passed,00:00:00.1352163
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 5, unit: ""g"", expected: ""5 g"")",Passed,00:00:00.0000028
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits,Passed,00:00:00.8181110
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Creating_a_draft_twice_under_one_key_returns_it_and_the_same_key_for_a_different_entry_is_refused,Passed,00:00:00.1038528
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_cancellations_record_one_event_and_a_failed_log_records_nothing,Passed,00:00:00.1446803
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values,Passed,00:00:00.4914736
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incorrect_draft_is_refused_with_every_problem_named_and_nothing_is_saved,Passed,00:00:00.0163223
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.The_prescriptions_tab_list_shows_status_details_and_which_version_replaced_which,Passed,00:00:00.2083639
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.There_is_no_way_to_edit_or_delete_a_prescription_or_to_delete_a_draft,Passed,00:00:00.6313872
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_print_is_issued_once_per_key_and_its_pdf_shows_the_prescription_as_recorded_with_the_boundary_and_no_dea_field,Passed,00:00:00.7738275
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.InstallPdfEngineScriptTests.A_source_that_does_not_match_the_manifest_is_refused_and_no_target_is_left,Passed,00:00:00.8108649
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_finalized_draft_cannot_be_discarded_and_nothing_about_it_changes,Passed,00:00:00.1791944
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.Absent_prescriber_details_are_left_off_without_empty_labels_and_never_refuse,Passed,00:00:00.6904049
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 2, unit: ""tube"", expected: ""2 tubes"")",Passed,00:00:00.0000010
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_goes_from_a_draft_to_finalized_printed_and_cancelled_and_every_step_is_logged,Passed,00:00:00.8263843
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_discarded_draft_is_kept_cannot_be_changed_and_discarding_it_again_changes_nothing,Passed,00:00:00.0914755
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_no_draft_is_created_and_the_same_request_works_once_it_is_back,Passed,00:00:00.0587397
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_safety_context_cannot_be_read_no_draft_is_created,Passed,00:00:00.0128780
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_changed_by_someone_else_is_not_finalized_on_a_stale_version,Passed,00:00:00.1668501
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.A_missing_engine_is_unavailable_and_says_so,Passed,00:00:00.0014444
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.While_the_engine_is_not_ready_a_render_is_refused_with_its_reason,Passed,00:00:00.0073146
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_cancelled_with_a_reason_once_and_the_log_never_contains_the_reason,Passed,00:00:00.2555661
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_creations_under_one_key_make_one_draft,Passed,00:00:00.0481740
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_to_the_allergy_list_stops_the_finalization_with_what_changed_and_acknowledging_it_lets_it_go_ahead,Passed,00:00:00.8172484
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_options_say_that_no_drug_knowledge_source_is_configured,Passed,00:00:00.4334047
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: ""12345678901"")",Passed,00:00:00.2779233
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_complete_draft_is_finalized_into_a_prescription_with_its_details_event_and_log_entry_in_one_save,Passed,00:00:00.1381562
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_allergy_list_that_was_never_reviewed_is_never_treated_as_clear_at_finalization,Passed,00:00:00.1458350
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: ""allergyAdded"")",Passed,00:00:00.1708040
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.Every_approved_template_matches_its_pin_and_imports_no_package,Passed,00:00:00.0010127
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.Anonymous_callers_get_401_from_every_route,Passed,00:00:00.0908211
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.7529233
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionIssueOwnershipTests.After_an_approved_merge_of_the_parent_the_unchanged_issue_is_reached_only_through_the_survivors_prescription,Passed,00:00:02.3914917
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Acknowledging_the_lists_as_they_are_lets_the_finalization_go_ahead_and_editing_the_draft_does_not_acknowledge_anything,Passed,00:00:00.1792454
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Hygienist"", allowed: True)",Passed,00:00:00.9035546
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_allergies_not_established_without_a_verdict,Passed,00:00:00.5112881
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.InstallPdfEngineScriptTests.A_repeat_run_on_the_provisioned_test_engine_changes_nothing,Passed,00:00:00.4732179
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Billing"", allowed: False)",Passed,00:00:00.8190507
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incomplete_draft_cannot_be_finalized_and_each_missing_part_is_named,Passed,00:00:00.1170149
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.A_render_returns_a_pdf_records_the_bundle_and_leaves_no_folder_behind,Passed,00:00:00.2497684
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 0.5, unit: ""tablet"", expected: ""0.5 tablets"")",Passed,00:00:00.0001624
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 100, unit: ""mL"", expected: ""100 mL"")",Passed,00:00:00.0000015
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_medication_that_matches_a_recorded_allergy_is_not_finalized_until_the_prescriber_gives_their_own_words,Passed,00:00:00.1509890
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_no_recorded_match_as_a_name_comparison_and_a_later_allergy_chart_change_does_not_rewrite_it,Passed,00:00:00.8431879
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.InstallPdfEngineScriptTests.A_target_holding_anything_else_is_refused_and_left_as_it_was,Passed,00:00:00.4203401
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_a_reviewed_recorded_match_with_the_matching_name_only,Passed,00:00:00.8971016
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.The_embedded_manifest_carries_the_reviewed_pins,Passed,00:00:00.0023857
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 30, unit: ""tablet"", expected: ""30 tablets"")",Passed,00:00:00.0003327
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Hygienist"", allowed: False)",Passed,00:00:01.9557691
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_edited_and_the_edit_is_logged_a_stale_edit_is_refused_and_an_unchanged_one_is_quiet,Passed,00:00:00.1281411
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_allergy_check_cannot_be_made_at_finalization_nothing_is_saved,Passed,00:00:00.1562291
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.7441839
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_discontinued_and_a_story_016_prescription_can_be_ended_too,Passed,00:00:00.5225376
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: ""123456789"")",Passed,00:00:00.3772000
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.7197485
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_ended_prescription_is_not_printed_to_dispense_and_its_record_copy_carries_the_watermark_date_and_reason,Passed,00:00:01.2099332
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionPdfTextTests.A_single_dose_reads_as_such_and_every_stored_frequency_stays_as_it_is,Passed,00:00:00.0002922
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Dentist"", allowed: True)",Passed,00:00:00.7714796
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_database_refuses_a_change_or_a_deletion_of_an_issue,Passed,00:00:00.3698189
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_change_to_the_allergy_list_after_the_draft_was_started_stops_the_finalization_and_says_what_changed,Passed,00:00:00.3517913
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_a_new_draft_that_replaces_the_prescription_only_when_it_is_finalized_and_the_original_is_never_edited,Passed,00:00:00.4733222
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: ""12345678a0"")",Passed,00:00:00.2574269
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PdfEngineTests.A_font_that_differs_from_the_approved_one_is_untrusted,Passed,00:00:00.0090511
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_nothing_is_finalized_and_the_same_click_works_once_it_is_back,Passed,00:00:00.1763981
+n026-final-baaeb51,G3G5-prescriptions-pdf,"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: ""allergyListBecomesUnknown"")",Passed,00:00:00.0889370
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionPdfTextTests.The_boundary_states_what_the_layout_is_not_and_claims_no_compliance,Passed,00:00:00.0001188
+n026-final-baaeb51,G3G5-prescriptions-pdf,Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_amendment_replaces_a_prescription_through_the_api_and_the_old_one_stays_as_it_was,Passed,00:00:00.7887514
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""Dentist"", readsClinical: True)",Passed,00:00:00.7187281
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.The_nine_starting_categories_are_listed_in_order_and_inactive_ones_only_when_asked_for,Passed,00:00:00.0476585
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_is_normalized_blocked_for_the_next_import_and_logged_and_adding_it_again_changes_nothing(typed: "".SWF "", stored: ""swf"")",Passed,00:00:00.0179077
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.Listing_the_library_of_an_unknown_patient_is_404_not_an_empty_list,Passed,00:00:00.2400382
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_document_may_have_no_description_and_a_file_of_another_type_is_stored_as_not_verified,Passed,00:00:00.1467902
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""Billing"", mayImport: False, mayEdit: False)",Passed,00:00:00.5933906
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.One_document_is_read_with_its_history_in_order_naming_who_and_when,Passed,00:00:00.2041534
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Saving_without_changing_anything_writes_nothing,Passed,00:00:00.1004621
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: null),Passed,00:00:00.1345396
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Filtering_by_a_category_leaves_signed_forms_out,Passed,00:00:00.2560988
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.The_list_filters_by_kind_status_overdue_patient_and_party_with_counts_and_a_sensible_order,Passed,00:00:00.7071980
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.ExternalCaseServiceTests.A_party_needs_a_kind_from_the_closed_set_and_a_plain_one_line_name(kind: ""LabVendor"", name: ""two\nlines"", code: ""name_invalid"")",Passed,00:00:00.0028436
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.Simultaneous_imports_with_one_key_make_one_document_whichever_one_wins,Passed,00:00:00.2628301
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_document_is_linked_not_copied_shown_in_the_case_and_flagged_when_it_goes_bad,Passed,00:00:00.3363186
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: ""Dentist"", allowed: False)",Passed,00:00:00.5247916
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_mixed_request_gets_one_outcome_per_file_and_only_the_valid_ones_are_removed,Passed,00:00:00.1504023
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""Dentist"", allowed: False)",Passed,00:00:00.5750907
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: ""scan.tif"", kind: ""tiff"", contentType: ""application/octet-stream"", inline: False)",Passed,00:00:00.3041749
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: OfficeManager, held: True)",Passed,00:00:00.0053061
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.The_library_shows_how_many_cases_link_a_document_only_to_staff_who_may_read_cases,Passed,00:00:00.2976770
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.Wrong_details_are_listed_field_by_field_including_a_date_that_is_not_a_date,Passed,00:00:00.3184123
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.A_wrong_edit_names_each_field_and_changes_nothing,Passed,00:00:00.1075371
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_stale_status_change_is_refused_a_version_is_required_and_an_unknown_document_is_not_found,Passed,00:00:00.2073080
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.A_png_and_a_jpeg_have_a_thumbnail_that_is_the_stored_picture_and_serving_it_writes_no_open,Passed,00:00:00.2027716
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: 0),Passed,00:00:00.0191995
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""regionKey"", problem: ""tmj"")",Passed,00:00:00.0455239
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Assistant, held: False)",Passed,00:00:00.0003062
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""regionKey"", problem: ""with-tooth"")",Passed,00:00:00.0327279
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Opening_a_file_returns_the_stored_bytes_with_the_servers_own_type_and_logs_the_open_in_the_history_and_the_log,Passed,00:00:00.1822234
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.Nothing_named_or_too_many_named_is_refused,Passed,00:00:00.2596421
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""Dentist"", allowed: True)",Passed,00:00:00.6652995
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""Assistant"", mayImport: False, mayEdit: False)",Passed,00:00:00.7478348
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_file_over_the_configured_maximum_is_refused_before_it_is_stored_and_one_at_the_maximum_is_accepted,Passed,00:00:00.1602344
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_that_was_missing_and_is_back_with_the_right_size_opens_without_waiting_for_a_re_check,Passed,00:00:00.1694260
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.4718101
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.An_inactive_documents_file_is_checked_like_any_other,Passed,00:00:00.1496734
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: ""tar/gz"")",Passed,00:00:00.0032654
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""Admin"", readsClinical: True)",Passed,00:00:00.5970945
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_goes_out_is_acknowledged_comes_back_and_may_be_sent_back_for_a_remake_which_needs_a_note,Passed,00:00:00.2245427
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.Anonymous_callers_get_401_and_a_missing_csrf_token_is_refused_for_both_routes,Passed,00:00:00.4099728
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.Simultaneous_removals_of_one_file_remove_it_once_and_log_it_once,Passed,00:00:04.5480015
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.An_unknown_document_is_not_found,Passed,00:00:00.0104987
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Deactivating_and_reactivating_a_category_are_logged_and_repeating_them_changes_nothing,Passed,00:00:00.0275208
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_failing_log_write_saves_no_result,Passed,00:00:00.1655770
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: Admin, import: True, view: True, settings: True, manage: True)",Passed,00:00:00.0000083
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.Signed_forms_appear_unless_a_filter_narrows_to_a_documents_own_properties_and_the_date_and_text_filters_apply_to_them_too,Passed,00:00:00.3289734
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.4193654
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.No_response_names_where_a_file_is_stored_or_which_blob_it_is,Passed,00:00:00.5002938
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.A_removal_without_a_csrf_token_is_refused_and_removes_nothing,Passed,00:00:00.2649425
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.Each_filter_picks_exactly_its_documents,Passed,00:00:00.3360664
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.An_inactive_document_leaves_the_library_unless_asked_for_and_shows_its_reason_who_and_when_and_the_log_never_carries_the_reason,Passed,00:00:00.6533670
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: ""FrontDesk"")",Passed,00:00:00.5845118
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: """")",Passed,00:00:00.0130645
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: Dentist, import: True, view: True, settings: False, manage: False)",Passed,00:00:00.0000030
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""encounter"", problem: ""another-patient"")",Passed,00:00:00.0361299
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_confirmation_naming_an_inactive_document_is_refused,Passed,00:00:00.1256660
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.Opening_a_file_that_is_gone_or_cut_short_is_refused_with_a_clear_code_and_logs_no_open,Passed,00:00:00.2191836
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: null),Passed,00:00:00.0033835
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: ""script.js"")",Passed,00:00:00.0197092
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.The_library_lists_the_patients_documents_newest_date_first_with_their_details_and_nobody_elses,Passed,00:00:00.2192393
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: ""notes.txt"", kind: ""other"", contentType: ""application/octet-stream"", inline: False)",Passed,00:00:00.4385752
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.A_thumbnail_is_the_stored_picture_served_safely_without_an_open_being_logged_and_other_types_and_large_pictures_have_none,Passed,00:00:00.6264571
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.The_same_request_with_the_same_context_is_a_replay_and_a_different_tooth_under_the_same_key_is_refused,Passed,00:00:00.1277121
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""Assistant"", allowed: True)",Passed,00:00:00.6542891
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""toothKey"", problem: ""99"")",Passed,00:00:00.0293883
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.An_import_whose_clean_up_failed_leaves_a_file_that_is_found_later_and_the_failure_was_reported_at_the_time,Passed,00:00:00.0595322
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: null),Passed,00:00:00.0044567
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_duplicate_warning_uses_up_no_save_key_so_the_confirmed_retry_may_reuse_it,Passed,00:00:00.1737298
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentBackupRestoreTests.The_recovered_application_serves_the_restored_documents_and_their_storage_report_is_clean,Passed,00:00:02.0166597
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_document_of_another_patient_or_an_inactive_one_cannot_be_linked_and_a_finished_case_takes_no_links,Passed,00:00:00.2380448
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_confirmation_for_a_file_that_is_not_a_duplicate_is_refused,Passed,00:00:00.1802068
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.Anonymous_callers_get_401_from_the_removal_route,Passed,00:00:00.1031966
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.5398751
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentClassificationAccessApiTests.The_duplicate_check_never_discloses_a_document_the_importer_may_not_read,Passed,00:00:00.6507919
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Unassigned, held: False)",Passed,00:00:00.0000015
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.The_administrator_manages_categories_the_size_limit_and_the_blocked_types,Passed,00:00:01.0321707
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_that_cannot_be_read_just_now_is_skipped_and_its_last_result_is_left_alone,Passed,00:00:00.2233343
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentClassificationAccessApiTests.Importing_into_a_category_the_importer_may_not_read_is_refused_and_stores_nothing,Passed,00:00:00.7267309
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""Assistant"", allowed: False)",Passed,00:00:01.0135029
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: FrontDesk, import: False, view: True, settings: False, manage: False)",Passed,00:00:00.0000059
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.Asking_whether_a_file_can_be_opened_answers_204_404_or_409_and_logs_no_open,Passed,00:00:00.6176857
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_name_already_in_use_is_refused_whatever_the_case,Passed,00:00:00.0156508
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_failure_to_remove_the_file_does_not_hide_the_original_error,Passed,00:00:00.0684873
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentBackupRestoreTests.A_backup_whose_file_no_longer_matches_the_hash_recorded_at_import_fails_the_restore_validation,Passed,00:00:04.3937606
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.The_roles_that_see_follow_ups_read_cases_billing_and_anonymous_callers_do_not,Passed,00:00:00.5126785
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.An_unreferenced_old_file_is_removed_and_logged_with_its_id_the_user_and_the_time_and_nothing_else,Passed,00:00:00.0261524
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: ""   "")",Passed,00:00:00.1272908
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.Filters_combine_so_a_document_must_match_all_of_them,Passed,00:00:00.2980953
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentClassificationAccessApiTests.The_migration_mapped_the_built_in_categories_as_approved_and_a_practice_added_category_is_clinical,Passed,00:00:00.3211979
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.ExternalCaseServiceTests.A_party_needs_a_kind_from_the_closed_set_and_a_plain_one_line_name(kind: ""Dentist"", name: ""Name"", code: ""kind_invalid"")",Passed,00:00:00.0029378
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.Text_is_matched_literally_so_a_percent_sign_or_underscore_is_not_a_wildcard,Passed,00:00:00.1818940
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_failing_log_write_fails_the_import_and_removes_the_stored_file,Passed,00:00:00.0687113
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""Assistant"", allowed: False)",Passed,00:00:00.6058344
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: ""text"", problem: ""too-long"")",Passed,00:00:00.0001649
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.The_type_comes_from_the_content_not_from_the_name,Passed,00:00:00.1889236
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.The_library_is_filtered_by_encounter_tooth_region_date_status_and_text_through_the_query_and_the_filters_combine,Passed,00:00:01.1523528
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.A_failing_log_write_means_the_file_is_not_opened_and_nothing_is_recorded,Passed,00:00:00.1215765
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Two_names_that_make_the_same_code_still_get_different_codes,Passed,00:00:00.0127367
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.One_save_writes_the_document_the_history_row_and_the_log_with_the_user_and_time_and_the_log_carries_no_filename_description_or_patient,Passed,00:00:00.1743562
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_referral_is_made_once_per_key_and_goes_through_its_statuses_with_a_history_that_names_who,Passed,00:00:00.2386703
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.A_file_over_the_limit_is_refused_with_413_before_it_is_stored,Passed,00:00:00.3874282
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: Billing, import: False, view: True, settings: False, manage: False)",Passed,00:00:00.0000027
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.ExternalCaseServiceTests.A_party_needs_a_kind_from_the_closed_set_and_a_plain_one_line_name(kind: ""LabVendor"", name: ""   "", code: ""name_invalid"")",Passed,00:00:00.0041361
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Billing, held: False)",Passed,00:00:00.0000018
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""Dentist"", mayImport: True, mayEdit: False)",Passed,00:00:00.6669385
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_deactivated_category_is_refused_for_a_new_import_and_a_document_keeps_its_category_when_it_is_deactivated_later,Passed,00:00:00.2430658
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: ""pdf.exe"")",Passed,00:00:00.0092241
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""OfficeManager"", mayImport: True, mayEdit: True)",Passed,00:00:00.9177313
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.The_limits_themselves_are_accepted_a_missing_value_is_refused_and_the_same_value_changes_nothing,Passed,00:00:00.0316057
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""OfficeManager"")",Passed,00:00:00.5477869
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_lab_case_links_a_tooth_goes_out_and_back_and_may_be_sent_back_for_a_remake_with_a_note,Passed,00:00:00.3380973
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.Running_the_check_twice_gives_the_same_result_and_no_extra_rows,Passed,00:00:00.1693778
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: null),Passed,00:00:00.0124355
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.An_inactive_pictures_thumbnail_is_still_served_because_it_is_hidden_not_removed,Passed,00:00:00.1929527
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""Assistant"", readsClinical: True)",Passed,00:00:00.7351747
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_category_can_be_renamed_and_deactivated_in_one_change_with_both_logged,Passed,00:00:00.0174283
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: ""bad\x01reason"")",Passed,00:00:00.1197808
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.The_date_range_includes_both_of_its_ends,Passed,00:00:00.2385325
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.An_intact_file_is_ok_and_the_result_is_kept_with_who_and_when_without_moving_the_documents_row_version,Passed,00:00:00.1945201
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.One_patients_filter_never_shows_another_patients_documents,Passed,00:00:00.2551851
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""Billing"", allowed: False)",Passed,00:00:00.3774032
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Simultaneous_additions_of_one_type_make_one_entry_and_one_log_entry,Passed,00:00:00.0190416
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Two_simultaneous_edits_of_one_version_let_exactly_one_win,Passed,00:00:00.2087313
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""Admin"")",Passed,00:00:00.3719313
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.The_same_file_named_twice_is_handled_once,Passed,00:00:00.0197469
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_clinical_document_is_neither_shown_in_a_case_nor_linkable_for_a_caller_who_may_not_read_it,Passed,00:00:00.2200229
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_failing_store_saves_nothing_and_reports_a_clear_error,Passed,00:00:00.1316325
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.Repeating_an_inactivation_or_a_reactivation_changes_nothing_and_logs_nothing,Passed,00:00:00.1159929
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""FrontDesk"", readsClinical: False)",Passed,00:00:00.7302170
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.The_same_key_for_a_different_file_or_different_details_is_refused,Passed,00:00:00.1641282
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_is_edited_the_same_way,Passed,00:00:00.2275521
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_new_category_gets_a_stable_code_goes_last_and_can_be_used_for_an_import_and_is_logged,Passed,00:00:00.1401959
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.Reactivating_returns_the_document_to_the_library_and_keeps_the_old_reason_in_the_status_history,Passed,00:00:00.7262122
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.Unknown_documents_are_404_and_a_stale_or_missing_version_is_refused,Passed,00:00:00.5991185
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: ""periodontist"", expected: ""letter"")",Passed,00:00:00.2914723
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: ""status"", problem: ""Deleted"")",Passed,00:00:00.0006598
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: ""..\\..\\x‮gnp.exe"")",Passed,00:00:00.0182055
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_windows_program_is_refused_even_under_a_harmless_name,Passed,00:00:00.0220050
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.An_inactive_document_is_hidden_from_the_library_by_default_shown_and_flagged_when_asked_for_and_is_still_readable_and_openable,Passed,00:00:00.1993390
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentClassificationAccessApiTests.ManageDocuments_never_bypasses_the_read_rule_and_nobody_moves_a_document_into_a_category_they_cannot_read,Passed,00:00:00.7803390
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.An_unknown_patient_is_refused,Passed,00:00:00.0169998
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_file_whose_content_is_not_the_type_it_claims_is_refused,Passed,00:00:00.0148961
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_cancelled_import_leaves_nothing_behind,Passed,00:00:00.0148073
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: ""report.pdf.exe"")",Passed,00:00:00.0202970
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""encounter"", problem: ""unknown"")",Passed,00:00:00.0389647
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_patients_timeline_holds_what_happened_to_their_cases_newest_first_and_nobody_elses,Passed,00:00:00.3550766
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.Anonymous_callers_get_401_from_every_route,Passed,00:00:00.4472398
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""OfficeManager"", allowed: True)",Passed,00:00:00.7915720
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: ""toothKey"", problem: ""99"")",Passed,00:00:00.0001957
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.The_same_file_for_the_same_patient_is_warned_about_with_the_existing_document_and_nothing_is_stored_or_recorded,Passed,00:00:00.1929779
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.A_failing_log_write_fails_the_edit_and_changes_nothing,Passed,00:00:00.1383739
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_cancelled_run_saves_nothing,Passed,00:00:00.1531856
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentPermissionTests.Nobody_can_import_or_manage_a_document_without_being_able_to_view_documents,Passed,00:00:00.0002494
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_re_check_replaces_the_result_so_a_restored_file_is_ok_again_and_there_is_one_row_per_document,Passed,00:00:00.1723439
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.A_document_is_imported_with_an_encounter_and_a_tooth_and_read_back_with_them,Passed,00:00:00.6119713
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.Each_refusal_has_its_stable_code_and_status,Passed,00:00:00.4822066
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.Files_in_subfolders_and_files_that_are_not_stored_files_are_never_listed_as_unreferenced,Passed,00:00:00.0112166
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: Hygienist, import: False, view: True, settings: False, manage: False)",Passed,00:00:00.0000026
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""Hygienist"", allowed: False)",Passed,00:00:00.8289351
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""Dentist"", allowed: False)",Passed,00:00:00.5587432
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_run_over_every_document_counts_what_it_found_lists_the_problems_and_logs_only_counts,Passed,00:00:00.2619588
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: ""pic.png"", kind: ""png"", contentType: ""image/png"", inline: True)",Passed,00:00:00.3595099
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_stored_file_nothing_points_to_is_listed_once_it_is_older_than_an_hour_and_the_files_of_documents_are_not,Passed,00:00:00.3171858
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""Dentist"", allowed: False)",Passed,00:00:00.3921933
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: ""Admin"", allowed: True)",Passed,00:00:00.3263822
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.An_unknown_document_is_404_and_the_log_never_carries_a_file_name,Passed,00:00:00.3963896
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: ""Admin"")",Passed,00:00:00.2617168
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_failing_log_write_means_the_file_is_not_removed,Passed,00:00:00.0283500
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: ""OfficeManager"")",Passed,00:00:00.4389061
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryServiceTests.Only_pdf_png_and_jpeg_may_be_shown_in_the_browser_and_every_other_file_is_a_download(type: ""tiff"", inline: False)",Passed,00:00:00.1531102
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: """")",Passed,00:00:00.0038743
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""Assistant"")",Passed,00:00:00.6004438
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_bad_filter_is_refused_with_a_stable_code,Passed,00:00:00.0275724
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: OfficeManager, import: True, view: True, settings: False, manage: True)",Passed,00:00:00.0000036
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_confirmed_duplicate_is_added_and_recorded_as_one_in_the_history_and_the_log,Passed,00:00:00.1889655
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_category_name_over_eighty_characters_is_refused_and_exactly_eighty_is_accepted,Passed,00:00:00.0110468
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.An_edit_sets_and_clears_the_context_and_a_wrong_context_is_refused,Passed,00:00:00.6690823
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.Simultaneous_imports_get_history_numbers_with_no_gap_and_no_reuse_and_a_failed_import_does_not_leave_a_hole,Passed,00:00:00.3158788
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_failing_log_write_means_the_blocked_list_does_not_change,Passed,00:00:00.0151416
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.The_size_limit_starts_at_one_hundred_megabytes_with_its_allowed_range,Passed,00:00:00.0041604
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Removing_an_unusable_extension_is_refused,Passed,00:00:00.0007789
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""Hygienist"", mayImport: False, mayEdit: False)",Passed,00:00:00.6114003
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_confirmation_that_does_not_match_is_refused_and_stores_nothing,Passed,00:00:00.1583842
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: ""page.HTML"")",Passed,00:00:00.0202681
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.5781004
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""OfficeManager"", allowed: True)",Passed,00:00:00.3832806
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentClassificationAccessApiTests.Reclassifying_a_category_needs_ManageDocumentSettings_is_audited_and_takes_effect_at_once,Passed,00:00:00.6689872
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_cancellation_needs_its_reason_and_a_cancelled_case_is_final,Passed,00:00:00.1167092
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.An_overdue_case_reaches_the_work_queue_as_an_unassigned_task_that_names_its_case,Passed,00:00:00.7715533
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_stale_limit_change_is_refused_and_a_version_is_required,Passed,00:00:00.0342817
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""Billing"", allowed: True)",Passed,00:00:00.4554081
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""Billing"", allowed: False)",Passed,00:00:00.5966888
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.A_wrong_tooth_region_or_encounter_is_named_field_by_field_and_nothing_is_stored,Passed,00:00:00.4360348
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: ""regionKey"", problem: ""with-tooth"")",Passed,00:00:00.0016542
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.Reactivating_clears_the_status_fields_and_keeps_the_old_reason_in_the_status_history_in_order,Passed,00:00:00.1911122
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_made_inactive_instead_of_deleted_drops_out_of_the_default_list_and_can_be_made_active_again,Passed,00:00:00.0382578
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Recategorizing_changes_the_category_keeps_the_old_one_in_the_history_and_logs_it_and_leaves_the_file_untouched,Passed,00:00:00.1462807
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.No_filter_shows_the_active_documents_and_leaves_out_the_inactive_one,Passed,00:00:00.2904567
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""Hygienist"", readsClinical: True)",Passed,00:00:00.6989557
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_document_whose_file_was_lost_afterwards_is_found_by_the_storage_check_and_refused_when_opened,Passed,00:00:00.1345020
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.Only_the_roles_that_manage_cases_create_and_move_them_and_only_the_office_manager_and_admin_maintain_the_party_list,Passed,00:00:00.1618275
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_failing_log_write_for_a_confirmed_duplicate_fails_that_import_too_and_changes_nothing,Passed,00:00:00.1733765
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: ""a|b.png"")",Passed,00:00:00.0175597
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""OfficeManager"", allowed: True)",Passed,00:00:00.9237426
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.A_stale_edit_is_refused_and_changes_nothing_and_a_missing_version_is_required,Passed,00:00:00.1106606
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_failing_log_write_changes_nothing_for_an_inactivation_or_a_reactivation,Passed,00:00:00.0819291
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""Dentist"")",Passed,00:00:00.5621051
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_failing_log_write_leaves_the_limit_as_it_was,Passed,00:00:00.0161595
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.Saving_the_same_context_again_writes_nothing_and_the_log_never_carries_the_tooth_or_the_encounter,Passed,00:00:00.1588749
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_is_normalized_blocked_for_the_next_import_and_logged_and_adding_it_again_changes_nothing(typed: ""  .Iso"", stored: ""iso"")",Passed,00:00:00.0191673
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""toothKey"", problem: ""6"")",Passed,00:00:00.0386921
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Only_the_administrator_reads_or_changes_the_document_settings(role: ""Billing"", allowed: False)",Passed,00:00:00.4058316
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Changing_the_category_and_the_details_together_writes_both_history_rows_and_both_log_entries_in_order,Passed,00:00:00.4912439
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""OfficeManager"", allowed: True)",Passed,00:00:00.6399450
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.A_deactivated_category_cannot_be_chosen_but_a_document_that_already_has_it_can_still_be_edited,Passed,00:00:00.1395769
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: FrontDesk, held: False)",Passed,00:00:00.0000017
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: 1073741825),Passed,00:00:00.0115999
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.The_library_can_be_filtered_by_category_and_a_duplicate_is_marked,Passed,00:00:00.1332016
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_failing_log_write_means_a_category_is_not_added_or_changed,Passed,00:00:00.0153726
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Hygienist, held: False)",Passed,00:00:00.0000025
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""Admin"", allowed: True)",Passed,00:00:00.2358756
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.Two_identical_creates_at_once_make_one_case,Passed,00:00:00.1016520
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryServiceTests.Only_pdf_png_and_jpeg_may_be_shown_in_the_browser_and_every_other_file_is_a_download(type: ""other"", inline: False)",Passed,00:00:00.1445784
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_file_that_was_inactivated_is_not_a_duplicate_for_the_next_import_of_the_same_content_but_an_active_one_still_is,Passed,00:00:00.1375307
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Dentist, held: False)",Passed,00:00:00.0000017
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: ""bad\x01name"")",Passed,00:00:00.0046178
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.An_edit_sets_changes_and_clears_the_encounter_tooth_and_region_with_a_history_row_and_a_log_entry_each_time,Passed,00:00:00.1873873
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.The_status_filter_shows_active_inactive_or_all_and_a_legacy_include_inactive_listing_still_works,Passed,00:00:00.2460968
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: """")",Passed,00:00:00.0039529
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.Anonymous_callers_get_401_from_every_route,Passed,00:00:00.5415444
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.Inactivating_a_document_records_the_reason_who_and_when_in_one_save_with_a_history_row_and_a_log_entry_that_does_not_carry_the_reason,Passed,00:00:00.1454476
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_crash_between_storing_the_file_and_recording_the_document_leaves_a_file_the_review_finds_and_removes,Passed,00:00:00.0198816
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""FrontDesk"")",Passed,00:00:00.5193512
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_file_a_document_points_to_is_never_removed_however_old_it_is,Passed,00:00:00.1168139
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""Hygienist"")",Passed,00:00:00.4957626
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.A_check_without_a_csrf_token_is_refused_and_saves_nothing,Passed,00:00:00.4322797
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_made_once_per_kind_and_name_a_repeat_answers_with_it_and_other_contact_details_are_a_conflict,Passed,00:00:00.0379298
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_with_changed_content_of_the_same_size_and_a_file_that_was_cut_short_are_both_corrupt,Passed,00:00:00.3155234
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_link_whose_document_went_bad_after_linking_is_shown_as_broken_with_the_reason_and_not_dropped,Passed,00:00:00.2250181
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Opening_when_the_stored_file_is_missing_says_so_and_logs_no_open,Passed,00:00:00.1402384
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_is_normalized_blocked_for_the_next_import_and_logged_and_adding_it_again_changes_nothing(typed: ""swf"", stored: ""swf"")",Passed,00:00:00.0222138
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.An_unknown_document_is_not_found,Passed,00:00:00.0054649
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_document_may_be_about_a_region_or_about_nothing_in_particular,Passed,00:00:00.1609124
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseControllerPermissionTests.With_the_document_permission_the_same_actions_link_list_and_unlink,Passed,00:00:00.3752344
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryServiceTests.Only_pdf_png_and_jpeg_may_be_shown_in_the_browser_and_every_other_file_is_a_download(type: ""pdf"", inline: True)",Passed,00:00:00.1066596
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_file_that_gained_a_document_after_the_reviewer_saw_it_is_not_removed,Passed,00:00:00.1715942
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_party_is_edited_with_its_version_and_a_stale_version_a_taken_name_and_no_change_are_refused,Passed,00:00:00.0571185
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""FrontDesk"", allowed: True)",Passed,00:00:00.7098756
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""Admin"", allowed: True)",Passed,00:00:00.4715066
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.A_removal_that_names_nothing_or_too_many_files_or_something_that_is_not_an_id_is_refused,Passed,00:00:00.2913930
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""Admin"", allowed: True)",Passed,00:00:00.6840907
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: ""has\x01control"")",Passed,00:00:00.0129004
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentPermissionTests.ImportDocuments_does_not_imply_ManageDocuments,Passed,00:00:00.0000961
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: ""run.bat. "")",Passed,00:00:00.0214519
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.Every_wrong_entry_is_listed_and_nothing_is_stored_for_an_incorrect_category_or_metadata,Passed,00:00:00.0299525
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: ""MOLAR"", expected: ""xray16"")",Passed,00:00:00.2823661
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: ""range"", problem: ""from-after-to"")",Passed,00:00:00.0001320
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_stale_category_change_is_refused_a_version_is_required_and_an_unknown_category_is_not_found,Passed,00:00:00.0311336
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.An_empty_file_is_refused,Passed,00:00:00.0200008
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentBackupRestoreTests.A_backup_that_lacks_a_documents_file_fails_the_restore_validation_instead_of_being_trusted,Passed,00:00:05.2355605
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.An_added_type_can_be_removed_and_is_then_accepted_and_removing_it_again_changes_nothing,Passed,00:00:00.1486889
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Whoever_may_read_documents_can_list_the_patients_encounters_for_the_picker_with_nothing_clinical(role: ""Billing"")",Passed,00:00:00.4399218
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.The_staff_who_read_the_library_see_thumbnails_and_anonymous_callers_do_not(role: ""Billing"")",Passed,00:00:00.5844578
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: Unassigned, import: False, view: False, settings: False, manage: False)",Passed,00:00:00.0003507
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.ExternalCaseServiceTests.A_party_needs_a_kind_from_the_closed_set_and_a_plain_one_line_name(kind: null, name: ""Name"", code: ""kind_invalid"")",Passed,00:00:00.0030940
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_referral_goes_from_draft_to_sent_to_received_to_completed_with_its_dates_closure_and_history,Passed,00:00:00.1369714
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_file_younger_than_an_hour_is_never_removed_because_it_may_be_an_import_in_progress,Passed,00:00:00.0156497
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_write_without_a_csrf_token_changes_nothing,Passed,00:00:00.1483199
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.The_original_name_is_normalized_and_never_decides_where_the_file_is_stored,Passed,00:00:00.1322828
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: ""CON.png"")",Passed,00:00:00.0165852
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.Simultaneous_inactivations_make_exactly_one_status_change_whoever_wins,Passed,00:00:00.2180243
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.A_file_can_be_forced_to_download_and_an_unusual_name_is_carried_safely,Passed,00:00:00.4438080
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Signed_forms_appear_in_the_library_read_only_labelled_and_flagged_when_voided_and_are_left_alone_by_the_library,Passed,00:00:00.5947979
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.Other_types_and_pictures_over_five_megabytes_have_no_thumbnail_and_the_reason_is_a_code_not_a_guess,Passed,00:00:00.2219023
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentBackupRestoreTests.An_empty_library_restores_and_the_check_passes_because_there_is_nothing_to_lose,Passed,00:00:01.1399646
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.A_missing_or_damaged_picture_has_no_thumbnail_and_an_unknown_document_is_not_found,Passed,00:00:00.2093689
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: ""front view"", expected: ""photo"")",Passed,00:00:00.2683782
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.A_damaged_or_missing_file_is_found_named_refused_when_opened_and_served_again_after_a_re_check_finds_it_intact,Passed,00:00:00.6892417
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: ""molar"", expected: ""xray16"")",Passed,00:00:00.2241413
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.An_unusable_file_name_is_refused(name: ""   "")",Passed,00:00:00.0214501
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_wrong_filter_is_named_and_refused_not_silently_ignored(field: ""regionKey"", problem: ""Nose"")",Passed,00:00:00.0001589
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.Nothing_in_a_response_or_a_log_entry_carries_the_file_name_or_description,Passed,00:00:00.3805189
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_party_is_made_once_edited_with_its_version_and_made_inactive_and_active_again,Passed,00:00:00.1493636
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_that_is_not_on_disk_is_missing,Passed,00:00:00.1584746
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.DOC1_viewing_a_file_inline_writes_DocumentOpened_only_and_a_download_also_writes_PatientDocumentDownloaded_on_the_patient,Passed,00:00:00.4946334
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""Billing"", readsClinical: False)",Passed,00:00:00.7976716
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.An_imported_document_is_stored_and_linked_to_its_patient_with_the_right_category_date_description_hash_and_type,Passed,00:00:00.1540052
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing,Passed,00:00:00.4944460
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.The_text_the_dates_the_tooth_the_encounter_and_the_plan_item_are_checked_before_anything_is_stored,Passed,00:00:00.2033965
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_see_the_storage_report_and_run_the_check(role: ""Admin"", allowed: True)",Passed,00:00:00.4942405
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.Today_is_accepted_as_a_date_and_the_day_after_is_not,Passed,00:00:00.1222002
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Changing_the_limit_is_logged_and_takes_effect_on_the_next_import,Passed,00:00:00.0294675
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentClassificationAccessApiTests.The_category_list_says_which_categories_the_caller_may_read_and_file_into,Passed,00:00:00.8670609
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Every_file_is_a_download_except_pdf_and_png_and_jpeg_which_are_shown_under_a_restrictive_policy(name: ""scan.pdf"", kind: ""pdf"", contentType: ""application/pdf"", inline: True)",Passed,00:00:00.3217456
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Adding_a_built_in_type_again_is_quiet_and_removing_one_is_refused,Passed,00:00:00.0159936
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_reason_of_exactly_five_hundred_characters_is_accepted_and_one_more_is_refused,Passed,00:00:00.1575486
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""FrontDesk"", mayImport: False, mayEdit: False)",Passed,00:00:00.5956081
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.A_wrong_filter_is_named_and_refused_with_400,Passed,00:00:00.3553515
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: ""OfficeManager"", readsClinical: False)",Passed,00:00:00.7002329
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: ""!!!"")",Passed,00:00:00.0050317
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.Each_refusal_has_its_stable_code_and_status_and_stores_nothing,Passed,00:00:00.3523862
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_document_is_linked_not_copied_linking_it_twice_is_a_quiet_replay_and_unlinking_leaves_the_document,Passed,00:00:00.2131399
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentStorageApiTests.A_reviewer_lists_the_unreferenced_files_removes_the_ones_they_saw_and_each_outcome_is_reported,Passed,00:00:00.5940747
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseControllerPermissionTests.Without_the_document_permission_the_three_document_actions_refuse_and_store_nothing,Passed,00:00:00.1367655
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseApiTests.A_stale_edit_and_two_people_moving_one_case_at_once_cannot_both_win_and_lose_nothing,Passed,00:00:00.2838409
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.A_document_is_imported_with_an_encounter_of_its_patient_and_a_tooth,Passed,00:00:00.1637885
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.An_edit_needs_the_current_version_changes_something_and_a_sent_case_keeps_its_party,Passed,00:00:00.2241500
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryServiceTests.Editing_the_date_and_description_is_logged_as_a_metadata_edit,Passed,00:00:00.1781078
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.A_duplicate_is_warned_about_with_409_and_added_only_with_the_confirmation,Passed,00:00:00.5050287
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.Every_change_to_a_case_is_in_the_audit_log_with_ids_and_status_names_only,Passed,00:00:00.1577573
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""Billing"", allowed: False)",Passed,00:00:00.5966262
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: ""setup.exe"")",Passed,00:00:00.0214660
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_type_an_admin_added_to_the_blocked_list_is_refused_and_a_removed_one_is_accepted_again,Passed,00:00:00.1375415
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_reader_that_has_seen_a_number_has_seen_every_lower_one,Passed,00:00:00.2161024
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: ""seventeen-letters-x"")",Passed,00:00:00.0039012
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.Importing_is_the_administrators_office_managers_and_dentists_and_editing_needs_ManageDocuments(role: ""Admin"", mayImport: True, mayEdit: True)",Passed,00:00:00.6250400
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_move_the_rules_do_not_allow_an_unknown_status_and_a_bad_date_are_refused_and_store_nothing,Passed,00:00:00.1021214
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.A_declared_length_that_is_smaller_than_the_real_file_cannot_get_a_large_file_past_the_limit,Passed,00:00:00.0328025
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.3454571
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_missing_or_unusable_reason_is_refused_and_changes_nothing(reason: """")",Passed,00:00:00.1307738
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.The_blocked_list_shows_the_fifteen_built_in_types_as_locked,Passed,00:00:00.0056520
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_referral_is_a_draft_with_its_history_and_an_audit_entry_that_does_not_carry_the_reason,Passed,00:00:00.0933348
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""Hygienist"", allowed: False)",Passed,00:00:00.3628719
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryApiTests.Only_the_administrator_and_office_manager_inactivate_and_reactivate(role: ""Hygienist"", allowed: False)",Passed,00:00:00.5809851
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.The_summary_counts_each_stored_result_and_the_documents_never_checked_and_lists_the_problems_and_the_orphans,Passed,00:00:00.2800386
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""regionKey"", problem: ""Nose"")",Passed,00:00:00.0331737
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.A_document_is_imported_listed_read_downloaded_edited_and_its_history_kept,Passed,00:00:00.6828664
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentContextServiceTests.A_wrong_tooth_region_or_encounter_is_named_beside_its_field_and_stores_nothing(field: ""toothKey"", problem: ""1A"")",Passed,00:00:00.0332364
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_stale_version_is_refused_and_two_people_moving_the_same_case_at_once_cannot_both_win,Passed,00:00:00.2228403
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentImportServiceTests.The_same_request_repeated_with_the_same_key_returns_the_same_document_and_changes_nothing,Passed,00:00:00.1555342
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.Documents_are_imported_by_the_administrator_office_manager_and_dentist_managed_by_the_administrator_and_office_manager_and_configured_by_the_administrator(role: Assistant, import: False, view: True, settings: False, manage: False)",Passed,00:00:00.0001607
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_case_needs_an_active_outside_party_of_the_matching_kind_and_a_real_patient,Passed,00:00:00.0533886
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.A_lab_case_for_a_planned_treatment_takes_the_planned_tooth_unless_another_is_given,Passed,00:00:00.9901438
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryApiTests.The_encounter_picker_list_for_an_unknown_patient_is_a_404,Passed,00:00:00.4089975
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_missing_or_invalid_save_key_is_refused(key: ""   "")",Passed,00:00:00.0142346
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentLibraryFilterTests.A_word_is_matched_in_the_file_name_or_the_description_whatever_the_case(text: "".png"", expected: ""xray16,xray26,photo,letter,plain"")",Passed,00:00:00.2388747
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_category_name_is_refused(name: ""   "")",Passed,00:00:00.0100859
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: -5),Passed,00:00:00.0141710
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.A_limit_outside_one_megabyte_to_one_gigabyte_is_refused(bytes: 1048575),Passed,00:00:00.0081163
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.ExternalCaseServiceTests.Making_the_same_referral_twice_with_the_same_key_gives_one_case_and_a_different_request_under_that_key_is_refused,Passed,00:00:00.1559953
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentIntegrityServiceTests.A_file_the_last_check_found_corrupt_is_not_served_until_a_re_check_finds_it_intact,Passed,00:00:00.1828474
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentPermissionTests.The_storage_check_and_the_review_of_unreferenced_files_are_held_by_the_administrator_and_office_manager(role: Admin, held: True)",Passed,00:00:00.0000064
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentApiTests.The_staff_who_work_with_a_patients_file_read_the_library_and_the_category_list(role: ""Hygienist"", allowed: True)",Passed,00:00:00.6119270
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.Renaming_keeps_the_code_and_every_document_in_it_and_is_logged_and_a_name_in_use_is_refused,Passed,00:00:00.1443582
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentBackupRestoreTests.Documents_survive_a_backup_and_a_restore_byte_for_byte_with_their_records_history_and_status_changes,Passed,00:00:01.9669336
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentContextServiceTests.An_edit_with_a_wrong_tooth_region_or_encounter_is_refused_and_changes_nothing,Passed,00:00:00.1700778
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentApiTests.The_same_key_for_a_different_file_is_refused_with_409,Passed,00:00:00.5577723
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.A_removal_that_cannot_delete_the_file_is_logged_as_nothing_and_does_not_stop_the_others,Passed,00:00:00.0241784
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentSettingsServiceTests.The_last_active_category_cannot_be_deactivated,Passed,00:00:00.0321868
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentLibraryFilterTests.A_text_of_exactly_one_hundred_characters_is_accepted,Passed,00:00:00.3547497
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentImportServiceTests.A_blocked_file_type_is_refused_whatever_the_case_or_trick(name: ""setup.exe::$DATA"")",Passed,00:00:00.0221663
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentStorageApiTests.Only_the_administrator_and_office_manager_remove_unreferenced_files(role: ""Assistant"", allowed: False)",Passed,00:00:00.3837491
+n026-sweep-77caf04,G1-documents,"Alveara.Api.Tests.DocumentSettingsServiceTests.An_unusable_extension_is_refused(ext: ""a b"")",Passed,00:00:00.0031020
+n026-sweep-77caf04,G1-documents,Alveara.Api.Tests.DocumentOrphanServiceTests.Repeating_a_removal_changes_nothing_and_logs_nothing_more,Passed,00:00:00.0211485
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 1000003),Passed,00:00:00.0852731
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 65537),Passed,00:00:00.0877078
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.Settings_are_validated_versioned_and_audited_over_the_api,Passed,00:00:00.3622162
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_encrypted_data_packets_version_byte_is_the_one_byte_whose_change_cannot_alter_the_plaintext,Passed,00:00:00.3006833
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.A_backup_cannot_be_made_before_the_recovery_key_is_set_up,Passed,00:00:00.2866432
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupAlertApiTests.The_administrator_sections_and_the_alerts_are_for_administrators_only(role: ""Admin"", expected: OK)",Passed,00:00:00.3594935
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_recovery_passphrase_is_generated_with_high_entropy_and_a_weak_chosen_one_is_rejected,Passed,00:00:00.0017958
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupAlertApiTests.The_administrator_sections_and_the_alerts_are_for_administrators_only(role: ""FrontDesk"", expected: Forbidden)",Passed,00:00:00.4176239
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupAlertApiTests.The_administrator_sections_and_the_alerts_are_for_administrators_only(role: ""OfficeManager"", expected: Forbidden)",Passed,00:00:00.4174119
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.SystemStatusTests.Reports_database_reachable_false_without_crashing_when_the_database_is_unreachable,Passed,00:00:02.7796983
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Appending_data_after_the_message_is_detected,Passed,00:00:00.1170751
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 1),Passed,00:00:00.0750194
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Truncation_at_any_point_is_detected,Passed,00:00:00.2502338
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.When_the_file_drop_fails_the_inbox_still_delivers_and_the_failed_channel_is_named,Passed,00:00:00.2952127
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 5242897),Passed,00:00:00.1287689
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.A_drill_with_the_wrong_key_returns_a_safe_failure_and_never_echoes_the_key_material,Passed,00:00:02.9615348
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.Acknowledging_is_audited_once_hides_the_alert_from_the_banner_and_is_history_the_database_will_not_change,Passed,00:00:00.2839018
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.A_failure_keeps_System_Status_warning_until_a_later_success_even_when_acknowledged,Passed,00:00:00.2868859
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertApiTests.The_administrator_sections_hold_counts_and_states_only,Passed,00:00:00.2946886
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.The_recovery_key_and_its_generated_passphrase_are_shown_once_never_cached_never_echoed_and_replacing_it_is_explicit,Passed,00:00:02.6936619
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Swapping_two_blocks_of_the_body_is_detected,Passed,00:00:00.0800018
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 65536),Passed,00:00:00.0773952
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_server_side_public_key_alone_can_never_decrypt,Passed,00:00:00.0340184
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertApiTests.Anonymous_callers_get_401_from_the_administrator_routes,Passed,00:00:00.1172216
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupCryptoTests.Whatever_FIXED_bytes_follow_the_retired_container_magic_the_reason_is_not_a_backup(body: ""ones"")",Passed,00:00:00.0007246
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.A_failed_backup_returns_only_a_stable_code_and_message_and_shows_as_the_latest_failure,Passed,00:00:02.3261047
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.A_failure_reaches_every_enabled_administrator_once_urgently_and_no_one_else_however_often_it_is_delivered,Passed,00:00:00.3838323
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.SystemStatusTests.Reports_database_reachable_true_against_the_real_migrated_test_database,Passed,00:00:00.6173248
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.A_damaged_first_byte_of_the_encrypted_data_is_always_reported_as_a_corrupt_backup_never_as_a_raw_library_exception,Passed,00:00:04.4917537
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 65535),Passed,00:00:00.0755716
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.A_wrong_passphrase_or_a_different_recovery_key_is_reported_as_wrong_recovery_material,Passed,00:00:02.1163609
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_ciphertext_does_not_contain_the_plaintext_and_differs_on_every_encryption,Passed,00:00:00.0666345
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Content_of_every_size_round_trips_exactly(length: 0),Passed,00:00:00.0768699
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.Sensitive_actions_require_the_current_password_and_a_wrong_one_is_refused_and_audited,Passed,00:00:00.8045576
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.Repeated_wrong_passwords_on_a_sensitive_action_lock_the_account_so_the_step_up_is_not_a_password_oracle,Passed,00:00:00.3840868
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_backup_is_a_standard_OpenPGP_message_encrypted_with_AES_256_and_integrity_protection_for_the_recovery_key,Passed,00:00:00.0372201
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.A_failing_destination_is_reported_as_an_IO_failure_not_as_a_corrupt_backup,Passed,00:00:01.5713183
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.Only_a_failure_is_acknowledged_and_an_unknown_alert_is_not_found,Passed,00:00:00.2039598
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.A_restore_drill_success_reaches_administrators_as_normal_and_a_plain_backup_success_stays_a_file_only,Passed,00:00:00.2914969
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupCryptoTests.Whatever_FIXED_bytes_follow_the_retired_container_magic_the_reason_is_not_a_backup(body: ""stride"")",Passed,00:00:00.0004742
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_recovery_key_is_a_standard_armored_OpenPGP_key_pair_with_a_separate_encryption_key,Passed,00:00:00.0006420
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.The_recipient_key_id_is_readable_from_the_file_without_any_secret,Passed,00:00:00.0337121
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.Backup_endpoints_require_authentication_and_the_right_permission_per_role,Passed,00:00:00.7786100
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.A_file_that_is_not_a_backup_is_rejected_with_its_own_reason,Passed,00:00:00.0021132
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupAlertApiTests.The_administrator_sections_and_the_alerts_are_for_administrators_only(role: ""Dentist"", expected: Forbidden)",Passed,00:00:00.4024827
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupCryptoTests.Whatever_FIXED_bytes_follow_the_retired_container_magic_the_reason_is_not_a_backup(body: ""text"")",Passed,00:00:00.0003732
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupCryptoTests.Whatever_FIXED_bytes_follow_the_retired_container_magic_the_reason_is_not_a_backup(body: ""zeros"")",Passed,00:00:00.0004050
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.A_large_multi_chunk_file_streams_through_encryption_and_decryption_intact_and_tampering_deep_inside_it_is_detected,Passed,00:00:01.8300925
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupAlertApiTests.The_administrator_sections_and_the_alerts_are_for_administrators_only(role: ""Billing"", expected: Forbidden)",Passed,00:00:00.4382669
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.When_the_inbox_fails_the_file_drop_still_happens_and_the_failed_channel_is_named,Passed,00:00:00.2373229
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.Manual_backup_verification_and_restore_drill_work_end_to_end_over_the_api_and_are_all_audited,Passed,00:00:06.4853240
+n026-sweep-77caf04,G2-backup-status,"Alveara.Api.Tests.BackupCryptoTests.Whatever_FIXED_bytes_follow_the_retired_container_magic_the_reason_is_not_a_backup(body: ""ascending"")",Passed,00:00:00.0019252
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.Altering_any_part_of_the_file_is_detected_and_never_yields_plaintext,Passed,00:00:00.9421015
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.State_changing_backup_calls_require_a_csrf_token,Passed,00:00:00.3608775
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupCryptoTests.A_real_GnuPG_decrypts_our_backup_with_the_recovery_key_and_we_decrypt_what_GnuPG_encrypts_to_our_key,Passed,00:00:01.6433425
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.The_test_notification_endpoint_makes_notification_delivery_testable_and_visible,Passed,00:00:00.2845478
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertTests.A_schedule_with_no_backup_inside_its_interval_plus_an_hour_is_overdue,Passed,00:00:00.3363204
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupAlertApiTests.Acknowledging_needs_a_csrf_token_and_answers_404_for_an_unknown_alert,Passed,00:00:00.4647393
+n026-sweep-77caf04,G2-backup-status,Alveara.Api.Tests.BackupApiTests.There_is_no_endpoint_that_restores_over_the_live_data,Passed,00:00:00.2582414
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.InstallPdfEngineScriptTests.A_target_holding_anything_else_is_refused_and_left_as_it_was,Passed,00:00:00.6156327
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.A_render_returns_a_pdf_records_the_bundle_and_leaves_no_folder_behind,Passed,00:00:00.3017797
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.A_render_that_runs_too_long_is_killed_at_the_timeout_retried_once_and_leaves_nothing_behind,Passed,00:00:04.1613995
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.An_unknown_template_is_refused,Passed,00:00:00.1849972
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.A_font_that_differs_from_the_approved_one_is_untrusted,Passed,00:00:00.0075909
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.Every_approved_template_matches_its_pin_and_imports_no_package,Passed,00:00:00.0011708
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.A_template_cannot_read_outside_its_own_folder_and_the_failure_is_not_retried,Passed,00:00:00.1539655
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.A_missing_engine_is_unavailable_and_says_so,Passed,00:00:00.0010215
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.The_embedded_manifest_carries_the_reviewed_pins,Passed,00:00:00.0021095
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.The_provisioned_engine_is_ready_with_the_pinned_bundle,Passed,00:00:00.0984255
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.An_engine_that_differs_from_the_approved_one_is_untrusted_and_never_run,Passed,00:00:00.9582448
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.No_more_than_two_renders_run_at_once,Passed,00:00:01.6116218
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.An_engine_that_reports_another_version_is_untrusted,Passed,00:00:00.0590995
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.InstallPdfEngineScriptTests.A_source_that_does_not_match_the_manifest_is_refused_and_no_target_is_left,Passed,00:00:00.7666320
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.PdfEngineTests.While_the_engine_is_not_ready_a_render_is_refused_with_its_reason,Passed,00:00:00.0094207
+n026-sweep-77caf04,G3-pdf-engine,Alveara.Api.Tests.InstallPdfEngineScriptTests.A_repeat_run_on_the_provisioned_test_engine_changes_nothing,Passed,00:00:00.6224326
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_reprint_whose_content_no_longer_matches_its_stored_hash_is_refused,Passed,00:00:01.9998066
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""Admin"", allowed: True)",Passed,00:00:00.3290744
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Live_aging_and_a_statement_made_at_the_same_instant_agree,Passed,00:00:00.8467462
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_version_4_receipt_pdf_shows_the_payment_its_method_and_what_it_paid,Passed,00:00:01.6420969
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: ""v1.AAAA"")",Passed,00:00:00.9137414
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.Showing_and_exporting_a_document_are_audited_and_a_refused_reprint_leaves_no_trace,Passed,00:00:00.9111685
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_1_preview_made_before_the_upgrade_is_stale_and_must_be_previewed_again,Passed,00:00:00.7305479
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_ledger_that_moved_on_after_the_preview_still_issues_exactly_the_reviewed_content,Passed,00:00:01.0556461
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.Anonymous_callers_get_401_from_every_new_endpoint,Passed,00:00:00.0987354
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.Only_staff_who_see_billing_get_a_document_pdf,Passed,00:00:01.7497115
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""Billing"", allowed: True)",Passed,00:00:00.4317495
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.Nothing_can_be_put_on_a_document_before_anything_is_billed,Passed,00:00:00.0092966
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.Issuing_the_same_preview_with_the_same_key_returns_the_same_document_and_another_use_of_the_key_is_refused,Passed,00:00:01.6581842
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_version_3_statement_prints_with_the_legacy_label_and_a_hash_mismatch_prints_nothing,Passed,00:00:02.1064442
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_stale_preview_and_a_preview_that_cannot_be_read_are_refused_with_their_codes_and_nothing_is_issued,Passed,00:00:01.2506739
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_for_a_reversed_payment_or_something_that_is_not_a_payment_is_refused,Passed,00:00:00.8297687
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_exports_as_csv_with_one_row_per_ledger_line,Passed,00:00:00.9999166
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""Dentist"", allowed: True)",Passed,00:00:00.4847184
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""Assistant"", allowed: False)",Passed,00:00:00.4994782
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_preview_whose_content_would_now_differ_is_refused_as_stale_and_nothing_is_issued,Passed,00:00:00.9721302
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Negative_control_a_version_1_row_rebuilt_as_version_2_does_not_match_and_is_not_shown,Passed,00:00:00.7339310
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_document_with_an_unknown_template_version_is_refused_not_rebuilt_with_the_current_one,Passed,00:00:00.9336410
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.An_issued_statement_reprints_exactly_as_issued_and_what_happened_since_is_listed_apart,Passed,00:00:01.3017169
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.The_practice_as_it_was_on_the_day_is_kept_with_the_document_and_a_change_before_issue_makes_the_preview_stale,Passed,00:00:00.9850879
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_is_addressed_to_who_was_responsible_on_the_day_and_a_reprint_keeps_that_addressee,Passed,00:00:01.1781699
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""OfficeManager"", allowed: True)",Passed,00:00:00.4916385
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""Hygienist"", allowed: False)",Passed,00:00:00.4600127
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_practice_zone_change_between_preview_and_issue_makes_the_preview_stale,Passed,00:00:00.7793785
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_token_with_a_changed_hash_or_cut_offs_beyond_the_history_is_stale,Passed,00:00:00.9505170
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.The_refusal_codes_the_screen_relies_on_come_back_from_the_routes,Passed,00:00:01.1585397
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.4352020
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""Hygienist"", allowed: False)",Passed,00:00:00.3675927
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""FrontDesk"", allowed: True)",Passed,00:00:00.4309858
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: ""OfficeManager"", allowed: True)",Passed,00:00:01.7126101
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""Assistant"", allowed: False)",Passed,00:00:00.2538538
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_preview_shows_the_ledger_and_issuing_it_stores_a_numbered_document_with_no_amount,Passed,00:00:00.9513402
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: ""garbage"")",Passed,00:00:00.9110765
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Retrying_an_issue_that_already_happened_under_version_1_returns_that_original_document,Passed,00:00:01.0066593
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_shows_the_payment_and_later_a_reversal_or_refund_is_a_separate_note,Passed,00:00:00.9894116
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_payment_is_corrected_through_the_route_with_an_exact_reversal_and_a_linked_unapplied_replacement,Passed,00:00:01.5263446
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_1_statement_and_receipt_reprint_and_export_byte_for_byte_as_the_original_builder_made_them,Passed,00:00:00.9344332
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: ""v1."")",Passed,00:00:00.8686696
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.Every_change_needs_a_csrf_token,Passed,00:00:01.3791672
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""Dentist"", allowed: False)",Passed,00:00:00.3323202
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_2_statement_stores_its_frozen_basis_and_reprints_identically_after_the_practice_zone_changes,Passed,00:00:00.9670752
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""Admin"", allowed: True)",Passed,00:00:00.1879343
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.When_the_log_cannot_be_written_a_refund_a_move_a_correction_and_an_issue_answer_503_and_store_nothing_not_even_the_releases_a_move_saved_first,Passed,00:00:03.1751625
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: ""Billing"", allowed: True)",Passed,00:00:00.2800273
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_refund_a_move_and_a_correction_through_the_routes_leave_a_history_that_always_verifies,Passed,00:00:01.7137419
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_statement_and_a_receipt_are_previewed_issued_listed_reprinted_and_the_statement_exported,Passed,00:00:01.6276572
+n026-sweep-77caf04,G4-financial,Alveara.Api.Tests.BillingStatementsApiTests.A_version_4_statement_pdf_shows_the_issued_values_the_mrn_and_its_version_and_records_the_print_and_the_bundle,Passed,00:00:01.5832097
+n026-sweep-77caf04,G4-financial,"Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: """")",Passed,00:00:00.8528376
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_options_say_that_no_drug_knowledge_source_is_configured,Passed,00:00:00.4395978
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.7970977
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionPdfTextTests.The_boundary_states_what_the_layout_is_not_and_claims_no_compliance,Passed,00:00:00.0001114
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.8370215
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.No_drug_knowledge_source_is_configured_and_nothing_claims_interaction_checking_or_dose_appropriateness,Passed,00:00:00.0859518
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_issue_table_has_no_patient_column_and_is_not_in_the_merge_registry,Passed,00:00:00.0300909
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.The_prescriptions_tab_list_shows_status_details_and_which_version_replaced_which,Passed,00:00:00.1624429
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing,Passed,00:00:00.7478340
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Billing"", allowed: False)",Passed,00:00:00.8135795
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: ""allergyListBecomesUnknown"")",Passed,00:00:00.1356542
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Acknowledging_the_lists_as_they_are_lets_the_finalization_go_ahead_and_editing_the_draft_does_not_acknowledge_anything,Passed,00:00:00.2925709
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Admin"", allowed: True)",Passed,00:00:00.7799268
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_complete_draft_is_finalized_into_a_prescription_with_its_details_event_and_log_entry_in_one_save,Passed,00:00:00.2687165
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_discontinued_and_a_story_016_prescription_can_be_ended_too,Passed,00:00:00.2834442
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_changed_by_someone_else_is_not_finalized_on_a_stale_version,Passed,00:00:00.1097693
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 21, unit: ""capsule"", expected: ""21 capsules"")",Passed,00:00:00.0000019
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_database_refuses_a_change_or_a_deletion_of_an_issue,Passed,00:00:00.1116390
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Hygienist"", allowed: False)",Passed,00:00:01.8888568
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.Anonymous_callers_get_401_from_every_route,Passed,00:00:00.1190657
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incorrect_draft_is_refused_with_every_problem_named_and_nothing_is_saved,Passed,00:00:00.0156710
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_edited_and_the_edit_is_logged_a_stale_edit_is_refused_and_an_unchanged_one_is_quiet,Passed,00:00:00.1668761
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: ""12345678a0"")",Passed,00:00:00.2868607
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 30, unit: ""tablet"", expected: ""30 tablets"")",Passed,00:00:00.0009402
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_allergy_check_cannot_be_made_at_finalization_nothing_is_saved,Passed,00:00:00.0711997
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionPdfTextTests.A_single_dose_reads_as_such_and_every_stored_frequency_stays_as_it_is,Passed,00:00:00.0012001
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_no_draft_is_created_and_the_same_request_works_once_it_is_back,Passed,00:00:00.0406482
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Dentist"", allowed: True)",Passed,00:00:01.0413722
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_medication_that_matches_a_recorded_allergy_is_not_finalized_until_the_prescriber_gives_their_own_words,Passed,00:00:00.2324655
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values,Passed,00:00:00.4991401
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_safety_context_cannot_be_read_no_draft_is_created,Passed,00:00:00.0094084
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Hygienist"", allowed: True)",Passed,00:00:00.8585263
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 0.5, unit: ""tablet"", expected: ""0.5 tablets"")",Passed,00:00:00.0002974
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Assistant"", allowed: True)",Passed,00:00:00.8351023
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.8104046
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_saved_incomplete_and_is_logged_with_the_user_and_the_time_without_any_clinical_content,Passed,00:00:00.0743302
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: ""allergyAdded"")",Passed,00:00:00.1277143
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_creations_under_one_key_make_one_draft,Passed,00:00:00.0555968
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Assistant"", allowed: False)",Passed,00:00:00.8515571
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_refusals_carry_stable_codes_and_the_details_the_screen_needs_and_nothing_is_saved,Passed,00:00:00.7768884
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 5, unit: ""g"", expected: ""5 g"")",Passed,00:00:00.0000047
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_a_new_draft_that_replaces_the_prescription_only_when_it_is_finalized_and_the_original_is_never_edited,Passed,00:00:00.8460712
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_to_the_allergy_list_stops_the_finalization_with_what_changed_and_acknowledging_it_lets_it_go_ahead,Passed,00:00:00.8023304
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_amendment_replaces_a_prescription_through_the_api_and_the_old_one_stays_as_it_was,Passed,00:00:00.7853122
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_saved_before_the_workflow_cannot_be_printed_and_says_so,Passed,00:00:00.8174617
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.8845029
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_goes_from_a_draft_to_finalized_printed_and_cancelled_and_every_step_is_logged,Passed,00:00:00.9271951
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_refused_when_the_original_ended_in_the_meantime_or_never_existed_and_a_story_016_prescription_can_be_amended_by_filling_in_the_rest,Passed,00:00:00.2086190
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: ""medicationAdded"")",Passed,00:00:00.2620083
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_retired_browser_print_is_refused_as_unverifiable,Passed,00:00:00.8862497
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_cancelled_with_a_reason_once_and_the_log_never_contains_the_reason,Passed,00:00:00.2412198
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Creating_a_draft_twice_under_one_key_returns_it_and_the_same_key_for_a_different_entry_is_refused,Passed,00:00:00.0522577
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: ""123456789"")",Passed,00:00:00.2831069
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_finalized_draft_cannot_be_discarded_and_nothing_about_it_changes,Passed,00:00:00.1083058
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: ""Admin"", allowed: True)",Passed,00:00:00.8236656
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_ended_prescription_is_not_printed_to_dispense_and_its_record_copy_carries_the_watermark_date_and_reason,Passed,00:00:01.2227024
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incomplete_draft_cannot_be_finalized_and_each_missing_part_is_named,Passed,00:00:00.0963075
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_missing_patient_address_refuses_with_print_incomplete_and_issues_nothing,Passed,00:00:00.7473011
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_print_is_issued_once_per_key_and_its_pdf_shows_the_prescription_as_recorded_with_the_boundary_and_no_dea_field,Passed,00:00:00.8566683
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits,Passed,00:00:00.8392319
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_nothing_is_finalized_and_the_same_click_works_once_it_is_back,Passed,00:00:00.1704927
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionIssueOwnershipTests.After_an_approved_merge_of_the_parent_the_unchanged_issue_is_reached_only_through_the_survivors_prescription,Passed,00:00:02.4267252
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 2, unit: ""tube"", expected: ""2 tubes"")",Passed,00:00:00.0000032
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Billing"", allowed: False)",Passed,00:00:00.8086778
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: ""Dentist"", allowed: True)",Passed,00:00:00.8771046
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 1, unit: ""capsule"", expected: ""1 capsule"")",Passed,00:00:00.0000020
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Finalizing_a_finalized_draft_returns_the_prescription_it_became_and_two_simultaneous_finalizations_make_one,Passed,00:00:00.1646945
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: ""12345678901"")",Passed,00:00:00.2918288
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.Absent_prescriber_details_are_left_off_without_empty_labels_and_never_refuse,Passed,00:00:00.8113784
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowApiTests.There_is_no_way_to_edit_or_delete_a_prescription_or_to_delete_a_draft,Passed,00:00:00.7139965
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_allergy_list_that_was_never_reviewed_is_never_treated_as_clear_at_finalization,Passed,00:00:00.1038908
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_discarded_draft_is_kept_cannot_be_changed_and_discarding_it_again_changes_nothing,Passed,00:00:00.1593546
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_cancellations_record_one_event_and_a_failed_log_records_nothing,Passed,00:00:00.2344568
+n026-sweep-77caf04,G5-prescriptions,Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_change_to_the_allergy_list_after_the_draft_was_started_stops_the_finalization_and_says_what_changed,Passed,00:00:00.2229752
+n026-sweep-77caf04,G5-prescriptions,"Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 100, unit: ""mL"", expected: ""100 mL"")",Passed,00:00:00.0000019
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""Admin"", allowed: True)",Passed,00:00:01.4585474
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyDiagnosisLabelTests.A_tie_on_the_time_takes_the_higher_version_number,Passed,00:00:00.0002322
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyIssueOwnershipTests.After_an_approved_merge_of_the_parent_the_unchanged_issue_is_reached_only_through_the_survivors_plan_and_still_rebuilds,Passed,00:00:02.6537761
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyApiTests.A_reprint_is_unchanged_by_a_later_rename_revision_answer_withdrawal_and_diagnosis_correction_while_a_new_issue_shows_them,Passed,00:00:01.3666801
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyApiTests.A_copy_whose_recorded_sources_no_longer_match_is_refused_with_integrity_mismatch_before_rendering,Passed,00:00:00.9489772
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""Billing"", allowed: False)",Passed,00:00:01.5604897
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyApiTests.Issuing_refuses_a_missing_key_an_unknown_plan_and_a_withdrawn_plan_and_an_unknown_issue_is_404,Passed,00:00:00.6927847
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyApiTests.A_copy_is_issued_once_per_key_and_its_pdf_shows_the_patient_words_the_mrn_and_the_estimate_and_records_the_print,Passed,00:00:01.2557436
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.8025977
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""Dentist"", allowed: True)",Passed,00:00:00.9488865
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyDiagnosisLabelTests.The_label_is_the_latest_version_at_or_before_the_instant,Passed,00:00:00.0009599
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""Assistant"", allowed: True)",Passed,00:00:02.6475250
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyIssueOwnershipTests.The_issue_table_has_no_patient_column_and_is_not_in_the_merge_registry,Passed,00:00:00.0166659
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""Hygienist"", allowed: True)",Passed,00:00:00.8889922
+n026-sweep-77caf04,G6-plan-copy,"Alveara.Api.Tests.TreatmentPlanCopyApiTests.Whoever_may_read_plans_may_issue_and_open_a_copy_and_no_one_else(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.7905614
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyDiagnosisLabelTests.No_version_by_the_instant_gives_no_label,Passed,00:00:00.0004996
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyIssueOwnershipTests.The_database_refuses_a_change_or_a_deletion_of_an_issue,Passed,00:00:00.8273006
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyApiTests.Anonymous_callers_get_401_from_both_routes,Passed,00:00:00.1103538
+n026-sweep-77caf04,G6-plan-copy,Alveara.Api.Tests.TreatmentPlanCopyApiTests.A_reference_code_set_after_the_issue_leaves_the_reprint_without_it_and_a_code_at_issue_is_printed,Passed,00:00:00.8371922
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyOwnershipTests.The_table_is_registered_as_patient_owned_with_its_replay_key_and_carries_both_merge_guards,Passed,00:00:00.0107939
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyOwnershipTests.Inside_a_merge_only_the_patient_id_may_change_and_no_row_may_be_added_or_removed,Passed,00:00:00.1696402
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ExportDomainCatalogTests.Every_table_that_holds_a_patient_id_is_in_a_domain_the_package_carries,Passed,00:00:00.0015215
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""Admin"", allowed: True)",Passed,00:00:00.6315463
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyApiTests.Anonymous_callers_get_401,Passed,00:00:00.0873633
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.TreatmentPlanItemAppointmentLinkMergeTests.Outside_a_merge_the_patient_of_a_link_cannot_be_changed_and_a_link_is_never_edited_or_deleted,Passed,00:00:00.7430319
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_that_fails_part_way_changes_nothing_and_the_same_request_succeeds_once_the_fault_is_gone(point: ""while the rows move back"", table: ""ToothFindings"", when: ""AFTER UPDATE"", body: ""IF CONVERT(int, SESSION_CONTEXT(N'alveara.patient_""···)",Passed,00:00:04.3083598
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""Billing"", allowed: False)",Passed,00:00:00.3730109
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.TreatmentPlanItemAppointmentLinkMergeTests.The_table_is_registered_and_carries_both_merge_guards_and_a_merged_away_record_takes_no_new_link,Passed,00:00:02.4882032
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.The_guard_is_for_new_records_only_a_retired_patients_existing_rows_can_still_be_changed,Passed,00:00:01.7727459
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientIdExceptionTests.No_column_is_both_registered_and_excepted_and_no_exception_is_declared_twice,Passed,00:00:00.0018661
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""Assistant"", allowed: False)",Passed,00:00:00.3851084
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.Inside_a_merge_nothing_but_the_patient_id_may_be_set_and_no_row_may_be_added_or_removed,Passed,00:00:00.1677676
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientIdExceptionTests.The_record_opens_are_the_one_exception_today_with_the_owners_handling_and_reason,Passed,00:00:00.0045796
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyOwnershipTests.An_approved_merge_moves_the_copy_to_the_survivor_untouched_and_its_undo_moves_it_back,Passed,00:00:02.2164427
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.MergeTriggerIntegrityTests.U016_a_clearance_version_document_never_changes_inside_a_merge_and_is_refused_outside_one,Passed,00:00:00.1344395
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_record_that_was_merged_away_refuses_edits_with_a_clear_409_and_stays_out_of_the_patient_search,Passed,00:00:01.5953114
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.MergeTriggerIntegrityTests.Each_repaired_trigger_is_its_previous_text_plus_exactly_the_inserted_text_and_down_gives_the_previous_text_back,Passed,00:00:02.6858162
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.MergeTriggerIntegrityTests.U017_rule_is_kept_outside_a_merge_and_for_an_insert_inside_one,Passed,00:00:00.1238361
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.The_log_lists_each_merge_with_who_when_why_and_between_which_records,Passed,00:00:01.5714980
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.The_lineage_its_moves_and_its_resolutions_are_never_changed_or_deleted,Passed,00:00:00.1210537
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""FrontDesk"", allowed: False)",Passed,00:00:00.3922392
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.Every_table_that_holds_a_patient_id_has_a_merge_scope_trigger_that_lists_every_other_column,Passed,00:00:01.1787449
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ExportDomainCatalogTests.Every_exclusion_has_a_reason_and_every_domain_a_stable_key_and_a_title,Passed,00:00:00.0027496
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyOwnershipTests.The_database_refuses_a_change_a_deletion_and_a_direct_change_of_patient_outside_a_merge,Passed,00:00:00.3766037
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyApiTests.A_missing_key_or_an_unknown_patient_is_refused_and_nothing_is_recorded,Passed,00:00:00.2682133
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.MergeTriggerIntegrityTests.U016_each_column_is_refused_inside_a_merge_only_after_the_repair_and_unchanged_outside_one,Passed,00:00:01.3653194
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.The_migration_rolls_back_and_forward_while_no_merge_exists_and_refuses_to_roll_back_over_one,Passed,00:00:10.5700985
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_merge_needs_a_csrf_token_and_a_key_and_a_repeat_is_the_merge_already_made,Passed,00:00:01.6818464
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.The_preview_does_the_work_and_rolls_it_back_so_it_changes_nothing_and_promises_what_the_undo_does,Passed,00:00:04.5939258
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.A_merged_patients_own_row_can_have_its_guarantor_repointed_inside_a_merge_and_nothing_else_about_it,Passed,00:00:00.1127513
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.After_an_undo_the_record_can_be_merged_away_again_and_that_merge_can_be_undone_in_turn,Passed,00:00:05.3325809
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_that_fails_part_way_changes_nothing_and_the_same_request_succeeds_once_the_fault_is_gone(point: ""when the undo is recorded"", table: ""PatientUnmerges"", when: ""AFTER INSERT"", body: ""THROW 59021, 'the undo could not be recorded', 1;"")",Passed,00:00:04.5429350
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ExportDomainCatalogTests.The_catalog_names_the_domains_and_exclusion_groups_the_manifest_will_report_today,Passed,00:00:00.0002432
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_pair_dismissed_as_not_a_duplicate_leaves_the_list_is_listed_with_who_and_why_and_comes_back_when_restored,Passed,00:00:00.2562000
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyOwnershipTests.A_merged_away_record_takes_no_new_copy_and_the_service_says_why,Passed,00:00:01.7793636
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_merge_can_be_previewed_and_undone_over_http_with_the_same_confirmation_key_and_version_rules_and_the_log_says_so,Passed,00:00:02.5642571
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.The_merge_value_does_not_outlive_its_connection,Passed,00:00:00.0592810
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_made_before_ledgers_existed_cannot_be_undone_and_neither_can_one_whose_survivor_was_merged_away_since,Passed,00:00:05.9476870
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""Hygienist"", allowed: False)",Passed,00:00:00.3887798
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientOwnedDataTests.The_columns_that_only_point_at_a_patient_are_exactly_the_five_references_and_everything_else_is_owned_data,Passed,00:00:00.0007672
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ExportDomainCatalogTests.A_table_that_holds_credentials_or_keys_is_never_in_a_domain_the_package_carries,Passed,00:00:00.0015671
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.MergeTriggerIntegrityTests.U017_reproduced_before_the_repair_and_after_it_a_patient_with_a_document_linked_clearance_merges_and_unmerges,Passed,00:00:02.7648175
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientOwnedDataTests.Every_uniqueness_rule_that_includes_a_patient_id_is_declared_with_how_a_merge_handles_a_collision,Passed,00:00:00.0018781
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientIdExceptionTests.Every_exception_names_a_real_patient_id_column_and_states_its_merge_and_export_handling_and_a_reason,Passed,00:00:00.0021497
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.A_patient_that_was_merged_away_cannot_be_the_survivor_but_a_survivor_can_itself_be_merged_later,Passed,00:00:00.0469071
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.TreatmentPlanItemAppointmentLinkMergeTests.The_patient_export_carries_the_patients_links_and_checkout_outcomes_and_never_the_record_opens,Passed,00:00:00.4419856
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientOwnedDataTests.A_rule_on_the_patient_id_alone_is_one_per_patient_a_replay_key_rule_is_a_replay_key_and_the_rest_are_natural_keys,Passed,00:00:00.0041472
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.TreatmentPlanItemAppointmentLinkMergeTests.An_approved_merge_moves_the_link_with_its_plan_item_and_appointment_and_its_undo_moves_it_back,Passed,00:00:03.4367210
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyApiTests.A_second_request_is_a_new_issue_and_a_retry_with_the_same_key_returns_the_same_issue,Passed,00:00:00.9302472
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_that_fails_part_way_changes_nothing_and_the_same_request_succeeds_once_the_fault_is_gone(point: ""when the retired record is made active again"", table: ""Patients"", when: ""AFTER UPDATE"", body: ""IF ISNULL(CONVERT(int, SESSION_CONTEXT(N'alveara.p""···)",Passed,00:00:03.5497646
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ClinicalRecordCopyApiTests.A_copy_is_a_pdf_generated_as_of_now_with_the_name_the_mrn_and_the_sections_and_is_recorded_and_audited,Passed,00:00:00.4754012
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_patients_own_page_can_read_where_it_stands_in_the_merge_lineage_whoever_may_view_patients,Passed,00:00:02.6053691
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.A_patient_is_marked_merged_only_by_a_lineage_with_the_same_time_and_then_never_changes,Passed,00:00:00.0633666
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.A_field_edited_after_the_merge_is_kept_while_the_untouched_ones_are_put_back,Passed,00:00:04.4924757
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""OfficeManager"", allowed: False)",Passed,00:00:00.3804705
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.Inside_a_merge_a_patient_id_can_be_moved_where_the_record_was_immutable_and_without_the_value_nothing_changes,Passed,00:00:00.3287098
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.A_merge_and_its_undo_leave_every_row_of_both_charts_where_it_was_and_the_record_active_again_with_its_own_lineage_and_audit,Passed,00:00:04.9483270
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.ClinicalRecordCopyApiTests.Only_holders_of_the_readable_record_right_may_make_a_copy(role: ""Dentist"", allowed: False)",Passed,00:00:00.3845572
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_merge_needs_explicit_confirmation_and_records_that_look_like_different_people_need_their_own,Passed,00:00:02.2398823
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientIdExceptionTests.An_exception_excluded_from_export_is_in_an_excluded_group_and_in_no_carried_domain,Passed,00:00:00.0058535
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.U015_the_restore_migration_puts_the_appointment_guard_back_and_its_rollback_takes_only_that_out,Passed,00:00:03.9964330
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.The_migration_takes_the_check_out_and_puts_it_back,Passed,00:00:09.0368627
+n026-sweep-77caf04,G7-record-copy-merge,"Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_that_fails_part_way_changes_nothing_and_the_same_request_succeeds_once_the_fault_is_gone(point: ""when the audit entries are written"", table: ""AuditLogEntries"", when: ""AFTER INSERT"", body: ""IF EXISTS (SELECT 1 FROM inserted WHERE [EventType""···)",Passed,00:00:03.8570100
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientOwnedDataTests.The_registry_lists_exactly_the_columns_of_the_model_that_hold_a_patient_id,Passed,00:00:00.0019600
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_is_refused_without_confirmation_a_reason_or_a_key_for_an_unknown_merge_and_for_a_stale_record_and_changes_nothing,Passed,00:00:04.6755553
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.A_new_record_for_a_patient_that_was_merged_away_is_refused_where_the_same_record_for_an_active_patient_is_not,Passed,00:00:01.8974235
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.A_move_counts_rows_once_per_column_and_a_resolution_is_a_field_kept_or_taken_or_a_record_left_behind,Passed,00:00:00.0513088
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.Records_made_after_the_merge_that_depend_on_rows_that_would_move_back_stop_the_undo_and_nothing_changes,Passed,00:00:04.7626248
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientOwnedDataTests.The_registry_names_fifty_six_tables_and_fifty_eight_columns_today,Passed,00:00:00.0026922
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientOwnedDataTests.A_column_is_marked_as_a_foreign_key_to_the_patient_table_exactly_when_the_model_says_it_is,Passed,00:00:00.0067163
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.A_lineage_names_two_different_patients_a_reason_and_a_key_and_a_patient_is_retired_once,Passed,00:00:00.0515455
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.The_duplicate_list_suggests_the_pair_with_its_reasons_and_the_preview_names_what_would_move,Passed,00:00:00.2320322
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.The_error_handler_answers_the_databases_refusal_with_a_plain_409_and_never_sends_its_text_while_any_other_failure_stays_a_generic_500,Passed,00:00:01.2094626
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.Every_merge_scope_trigger_on_a_table_that_owns_a_patient_id_carries_the_check_and_no_other_does,Passed,00:00:00.0625570
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.U015_a_new_appointment_for_a_merged_away_patient_is_refused_by_the_database_and_an_active_patient_stays_schedulable,Passed,00:00:01.9552136
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.An_undo_is_refused_when_a_row_the_ledger_names_is_no_longer_on_the_surviving_record_and_nothing_is_changed,Passed,00:00:02.5015877
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.TreatmentPlanItemAppointmentLinkMergeTests.Inside_a_merge_only_the_patient_id_may_change_and_no_row_may_be_added_or_removed,Passed,00:00:00.7646368
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeSchemaTests.Every_update_trigger_on_those_tables_stands_aside_for_a_merge_except_the_merge_scope_triggers_and_the_merged_mark,Passed,00:00:00.6103888
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_new_record_for_a_merged_away_patient_is_a_clear_409_from_the_screens_and_the_surviving_record_still_takes_one,Passed,00:00:01.9443078
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientUnmergeServiceTests.A_repeat_with_the_same_key_is_the_undo_already_made_and_the_same_key_for_another_merge_is_refused,Passed,00:00:06.2514002
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.RetiredRecordGuardTests.During_a_merge_a_new_row_for_a_retired_patient_is_answered_by_the_merge_scope_rule_and_not_by_the_retired_record_check,Passed,00:00:02.2910141
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.A_record_changed_after_it_was_reviewed_is_409_and_a_conflicting_field_needs_an_answer_over_http,Passed,00:00:01.1693250
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.ExportDomainCatalogTests.Every_table_of_the_model_is_named_in_the_catalog_exactly_once,Passed,00:00:00.0020948
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.PatientMergeApiTests.Only_the_administrator_may_use_any_of_the_nine_endpoints_and_an_anonymous_caller_sees_nothing,Passed,00:00:00.4491123
+n026-sweep-77caf04,G7-record-copy-merge,Alveara.Api.Tests.MergeTriggerIntegrityTests.U016_a_perio_link_diagnosis_and_a_financial_document_replacement_never_change_inside_a_merge_and_are_refused_outside_one,Passed,00:00:01.9600327

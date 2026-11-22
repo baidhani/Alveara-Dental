@@ -1,0 +1,22 @@
+ALV-N026 sweep on 77caf04 (1 changed files in the tree) - 2026-11-22T09:07:31-06:00
+leak count before: 1 AlveraTest_ database(s)
+build: exit 0
+G1-documents: exit 0, 369s - Passed!  - Failed:     0, Passed:   354, Skipped:     0, Total:   354, Duration: 5 m 58 s - Alveara.Api.Tests.dll (net10.0) - classes: DocumentApiTests DocumentBackupRestoreTests DocumentClassificationAccessApiTests DocumentContextServiceTests DocumentImportServiceTests DocumentIntegrityServiceTests DocumentLibraryApiTests DocumentLibraryFilterTests DocumentLibraryServiceTests DocumentOrphanServiceTests DocumentPermissionTests DocumentSettingsServiceTests DocumentStorageApiTests ExternalCaseControllerPermissionTests ExternalCaseServiceTests ExternalCaseApiTests
+G2-backup-status: exit 0, 78s - Passed!  - Failed:     0, Passed:    59, Skipped:     0, Total:    59, Duration: 58 s - Alveara.Api.Tests.dll (net10.0) - classes: BackupAlertApiTests BackupAlertTests BackupApiTests BackupCryptoTests SystemStatusTests
+G3-pdf-engine: exit 0, 13s - Passed!  - Failed:     0, Passed:    16, Skipped:     0, Total:    16, Duration: 9 s - Alveara.Api.Tests.dll (net10.0) - classes: PdfEngineTests InstallPdfEngineScriptTests
+G4-financial: exit 0, 101s - Passed!  - Failed:     0, Passed:    52, Skipped:     0, Total:    52, Duration: 1 m 36 s - Alveara.Api.Tests.dll (net10.0) - classes: BillingDocumentTemplateVersionServiceTests BillingStatementsApiTests BillingDocumentServiceTests
+G5-prescriptions: exit 0, 89s - Passed!  - Failed:     0, Passed:    74, Skipped:     0, Total:    74, Duration: 1 m 24 s - Alveara.Api.Tests.dll (net10.0) - classes: PrescriptionIssueOwnershipTests PrescriptionPdfTextTests PrescriptionWorkflowApiTests PrescriptionWorkflowServiceTests
+G6-plan-copy: exit 0, 47s - Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 43 s - Alveara.Api.Tests.dll (net10.0) - classes: TreatmentPlanCopyApiTests TreatmentPlanCopyIssueOwnershipTests TreatmentPlanCopyDiagnosisLabelTests
+G7-record-copy-merge: exit 0, 212s - Passed!  - Failed:     0, Passed:    86, Skipped:     0, Total:    86, Duration: 3 m 28 s - Alveara.Api.Tests.dll (net10.0) - classes: ClinicalRecordCopyApiTests ClinicalRecordCopyOwnershipTests ExportDomainCatalogTests PatientOwnedDataTests PatientIdExceptionTests TreatmentPlanItemAppointmentLinkMergeTests PatientMergeSchemaTests RetiredRecordGuardTests MergeTriggerIntegrityTests PatientMergeApiTests PatientUnmergeServiceTests
+tsc app: exit 0 (10s)
+tsc node: exit 0 (2s)
+lint: exit 0 (2s) - 
+vite build: exit 0 (3s)
+vitest (focused): exit 1 (204s) - Tests  2 failed | 355 passed (357)
+     × issues a replacement only with a reason, sending the receipt it replaces and the reason 64ms
+     × lists what is true of each document now: superseded, replaces, reversed, refunded and legacy duplicates (F-115, OQ-4) 25ms
+ FAIL  src/pages/billing/BillingStatementsPanel.test.tsx > ALV-N024: one receipt per payment, replacements, document status and the version-3 statement > issues a replacement only with a reason, sending the receipt it replaces and the reason
+ FAIL  src/pages/billing/BillingStatementsPanel.test.tsx > ALV-N024: one receipt per payment, replacements, document status and the version-3 statement > lists what is true of each document now: superseded, replaces, reversed, refunded and legacy duplicates (F-115, OQ-4)
+node --test: exit 1 (6s) - 
+leak count after: 1 AlveraTest_ database(s)
+done 2026-11-22T09:27:11-06:00

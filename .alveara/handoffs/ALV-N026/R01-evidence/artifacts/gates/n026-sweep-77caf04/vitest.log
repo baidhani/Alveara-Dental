@@ -1,0 +1,1524 @@
+
+ RUN  v5.0.2 C:/Users/firas/Documents/AI-Project-[Alveara-Dental]/src/alveara-client
+
+ ❯ src/pages/billing/BillingStatementsPanel.test.tsx (22 tests | 2 failed) 5181ms
+   ❯ ALV-N024: one receipt per payment, replacements, document status and the version-3 statement (4)
+     × issues a replacement only with a reason, sending the receipt it replaces and the reason 64ms
+     × lists what is true of each document now: superseded, replaces, reversed, refunded and legacy duplicates (F-115, OQ-4) 25ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/billing/BillingStatementsPanel.test.tsx > ALV-N024: one receipt per payment, replacements, document status and the version-3 statement > issues a replacement only with a reason, sending the receipt it replaces and the reason
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "View receipt 1"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "Billing":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-title"[39m
+    [33mclass[39m=[32m"alv-clinical alv-dx alv-bill"[39m
+  [36m/>[39m
+
+  Name "Who is responsible for this account":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"_r_2g_-title"[39m
+    [33mclass[39m=[32m"alv-bill__responsibility"[39m
+  [36m/>[39m
+
+  Name "Completed procedures ready to bill":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-ready-title"[39m
+  [36m/>[39m
+
+  Name "Statements and receipts":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-docs-title"[39m
+  [36m/>[39m
+
+  Name "Timeline":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-timeline-title"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Billing":
+  [36m<h2[39m
+    [33mclass[39m=[32m"alv-workspace__section-title"[39m
+    [33mid[39m=[32m"alv-bill-title"[39m
+  [36m/>[39m
+
+  Name "Who is responsible for this account":
+  [36m<h3[39m
+    [33mid[39m=[32m"_r_2g_-title"[39m
+  [36m/>[39m
+
+  Name "Completed procedures ready to bill":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-bill-ready-title"[39m
+  [36m/>[39m
+
+  Name "Account history":
+  [36m<h3 />[39m
+
+  Name "Record a payment":
+  [36m<h3 />[39m
+
+  Name "Record an adjustment":
+  [36m<h3 />[39m
+
+  Name "Statements and receipts":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-bill-docs-title"[39m
+  [36m/>[39m
+
+  Name "Timeline":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-bill-timeline-title"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-bill__balance"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"alv-clinical__status"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  form:
+
+  Name "Record who is responsible":
+  [36m<form[39m
+    [33maria-label[39m=[32m"Record who is responsible"[39m
+    [33mclass[39m=[32m"alv-dx__form"[39m
+    [33mnovalidate[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Record a payment":
+  [36m<form[39m
+    [33maria-label[39m=[32m"Record a payment"[39m
+    [33mclass[39m=[32m"alv-dx__form"[39m
+    [33mnovalidate[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Record an adjustment":
+  [36m<form[39m
+    [33maria-label[39m=[32m"Record an adjustment"[39m
+    [33mclass[39m=[32m"alv-dx__form"[39m
+    [33mnovalidate[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Add a payment method":
+  [36m<form[39m
+    [33maria-label[39m=[32m"Add a payment method"[39m
+    [33mclass[39m=[32m"alv-dx__form"[39m
+    [33mnovalidate[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  combobox:
+
+  Name "Responsible party":
+  [36m<select[39m
+    [33mid[39m=[32m"_r_2g_-who"[39m
+  [36m/>[39m
+
+  Name "How it was received":
+  [36m<select[39m
+    [33mid[39m=[32m"_r_2h_-method"[39m
+  [36m/>[39m
+
+  Name "It is a kind of":
+  [36m<select[39m
+    [33mid[39m=[32m"_r_2k_-kind"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  option:
+
+  Name "The patient":
+  [36m<option[39m
+    [33mvalue[39m=[32m"aaaaaaaa-0000-0000-0000-000000000001"[39m
+  [36m/>[39m
+
+  Name "Choose a method":
+  [36m<option[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Card":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Card"[39m
+  [36m/>[39m
+
+  Name "Cash":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Cash"[39m
+  [36m/>[39m
+
+  Name "Check":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Check"[39m
+  [36m/>[39m
+
+  Name "Other":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Other"[39m
+  [36m/>[39m
+
+  Name "Cash":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Cash"[39m
+  [36m/>[39m
+
+  Name "Check":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Check"[39m
+  [36m/>[39m
+
+  Name "Card":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Card"[39m
+  [36m/>[39m
+
+  Name "Other":
+  [36m<option[39m
+    [33mvalue[39m=[32m"Other"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Why (optional)":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_2g_-why"[39m
+    [33mmaxlength[39m=[32m"500"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Amount (US dollars)":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_2h_-amount"[39m
+    [33minputmode[39m=[32m"decimal"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Note (optional)":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_2h_-note"[39m
+    [33mmaxlength[39m=[32m"500"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Amount (US dollars, negative to reduce)":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_2i_-amount"[39m
+    [33minputmode[39m=[32m"decimal"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Reason":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_2i_-reason"[39m
+    [33mmaxlength[39m=[32m"500"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  Name "Method name":
+  [36m<input[39m
+    [33mid[39m=[32m"_r_2k_-name"[39m
+    [33mmaxlength[39m=[32m"40"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Record responsibility":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-primary"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  Name "Reverse entry 1":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Reverse entry 2":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Refund payment 3":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Move payment 3":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Correct entry 3":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Receipt for payment 3":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Reverse entry 3":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Record payment":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-primary"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  Name "Record adjustment":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-primary"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  Name "Preview a statement":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Show the timeline":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Add method":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-primary"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  table:
+
+  Name "Account history":
+  [36m<table[39m
+    [33maria-label[39m=[32m"Account history"[39m
+    [33mclass[39m=[32m"alv-bill__table"[39m
+  [36m/>[39m
+
+  Name "Payment methods":
+  [36m<table[39m
+    [33maria-label[39m=[32m"Payment methods"[39m
+    [33mclass[39m=[32m"alv-bill__table"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  [36m<thead />[39m
+
+  Name "":
+  [36m<tbody />[39m
+
+  Name "":
+  [36m<thead />[39m
+
+  Name "":
+  [36m<tbody />[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "# Date Entry Details Amount Balance owed after Recorded by Actions":
+  [36m<tr />[39m
+
+  Name "1 1/1/2030 Charge PERIO-1 Periodontal maintenance(Paid $50.00, open $50.00) $100.00 $100.00 Beth Billing Reverse entry 1":
+  [36m<tr />[39m
+
+  Name "2 1/1/2030 Charge SCALE-1 Scaling(Paid $40.00, open $30.00) $70.00 $170.00 Beth Billing Reverse entry 2":
+  [36m<tr />[39m
+
+  Name "3 1/1/2030 Payment Cash(Applied $90.00, unapplied $0.00) -$90.00 $80.00 Beth Billing Refund payment 3 Move payment 3 Correct entry 3 Receipt for payment 3 Reverse entry 3":
+  [36m<tr />[39m
+
+  Name "Method Kind Status Actions":
+  [36m<tr />[39m
+
+  Name "Card (built in) Card In use":
+  [36m<tr />[39m
+
+  Name "Cash (built in) Cash In use":
+  [36m<tr />[39m
+
+  Name "Check (built in) Check In use":
+  [36m<tr />[39m
+
+  Name "Other (built in) Other In use":
+  [36m<tr />[39m
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "#":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Date":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Entry":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Details":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Amount":
+  [36m<th[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Balance owed after":
+  [36m<th[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Recorded by":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Actions":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Method":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Kind":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Status":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Actions":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  cell:
+
+  Name "1":
+  [36m<td />[39m
+
+  Name "1/1/2030":
+  [36m<td />[39m
+
+  Name "Charge":
+  [36m<td />[39m
+
+  Name "PERIO-1 Periodontal maintenance(Paid $50.00, open $50.00)":
+  [36m<td />[39m
+
+  Name "$100.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "$100.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "Beth Billing":
+  [36m<td />[39m
+
+  Name "Reverse entry 1":
+  [36m<td />[39m
+
+  Name "2":
+  [36m<td />[39m
+
+  Name "1/1/2030":
+  [36m<td />[39m
+
+  Name "Charge":
+  [36m<td />[39m
+
+  Name "SCALE-1 Scaling(Paid $40.00, open $30.00)":
+  [36m<td />[39m
+
+  Name "$70.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "$170.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "Beth Billing":
+  [36m<td />[39m
+
+  Name "Reverse entry 2":
+  [36m<td />[39m
+
+  Name "3":
+  [36m<td />[39m
+
+  Name "1/1/2030":
+  [36m<td />[39m
+
+  Name "Payment":
+  [36m<td />[39m
+
+  Name "Cash(Applied $90.00, unapplied $0.00)":
+  [36m<td />[39m
+
+  Name "-$90.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "$80.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "Beth Billing":
+  [36m<td />[39m
+
+  Name "Refund payment 3 Move payment 3 Correct entry 3 Receipt for payment 3 Reverse entry 3":
+  [36m<td />[39m
+
+  Name "Card (built in)":
+  [36m<td />[39m
+
+  Name "Card":
+  [36m<td />[39m
+
+  Name "In use":
+  [36m<td />[39m
+
+  Name "":
+  [36m<td />[39m
+
+  Name "Cash (built in)":
+  [36m<td />[39m
+
+  Name "Cash":
+  [36m<td />[39m
+
+  Name "In use":
+  [36m<td />[39m
+
+  Name "":
+  [36m<td />[39m
+
+  Name "Check (built in)":
+  [36m<td />[39m
+
+  Name "Check":
+  [36m<td />[39m
+
+  Name "In use":
+  [36m<td />[39m
+
+  Name "":
+  [36m<td />[39m
+
+  Name "Other (built in)":
+  [36m<td />[39m
+
+  Name "Other":
+  [36m<td />[39m
+
+  Name "In use":
+  [36m<td />[39m
+
+  Name "":
+  [36m<td />[39m
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "Choose which charges this pays (otherwise the oldest are paid first)":
+  [36m<input[39m
+    [33mtype[39m=[32m"checkbox"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  [36m<details[39m
+    [33mclass[39m=[32m"alv-bill__methods"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"alv-bill-title"[39m
+      [33mclass[39m=[32m"alv-clinical alv-dx alv-bill"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-workspace__section-title"[39m
+        [33mid[39m=[32m"alv-bill-title"[39m
+      [36m>[39m
+        [0mBilling[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mCharges, payments, adjustments and reversals for this patient. Nothing recorded is ever edited or deleted: a mistake is corrected with an adjustment or a reversal that says why. The balance owed is calculated from the history every time.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"alv-clinical__status"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mNothing has been recorded in this visit.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-bill__balance"[39m
+      [36m>[39m
+        [36m<strong>[39m
+          [0mBalance owed: [0m
+          [0m$80.00[0m
+        [36m</strong>[39m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mStill to pay on charges: [0m
+        [0m$80.00[0m
+        [0m. Payments not yet applied to a charge: [0m
+        [0m$0.00[0m
+        [0m.[0m
+      [36m</p>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"_r_2g_-title"[39m
+        [33mclass[39m=[32m"alv-bill__responsibility"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"_r_2g_-title"[39m
+        [36m>[39m
+          [0mWho is responsible for this account[0m
+        [36m</h3>[39m
+        [36m<p>[39m
+          [36m<strong>[39m
+            [0mAnn Alder (the patient)[0m
+          [36m</strong>[39m
+          [0m - [0m
+          [0mthe patient, because no guarantor is registered and none has been recorded[0m
+          [0m.[0m
+        [36m</p>[39m
+        [36m<form[39m
+          [33maria-label[39m=[32m"Record who is responsible"[39m
+          [33mclass[39m=[32m"alv-dx__form"[39m
+          [33mnovalidate[39m=[32m""[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"_r_2g_-who"[39m
+          [36m>[39m
+            [0mResponsible party[0m
+            [36m<select[39m
+              [33mid[39m=[32m"_r_2g_-who"[39m
+            [36m>[39m
+              [36m<option[39m
+                [33mvalue[39m=[32m"aaaaaaaa-0000-0000-0000-000000000001"[39m
+              [36m>[39m
+                [0mThe patient[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<label[39m
+            [33mfor[39m=[32m"_r_2g_-why"[39m
+          [36m>[39m
+            [0mWhy (optional)[0m
+            [36m<input[39m
+              [33mid[39m=[32m"_r_2g_-why"[39m
+              [33mmaxlength[39m=[32m"500"[39m
+              [33mtype[39m=[32m"text"[39m
+              [33mvalue[39m=[32m""[39m
+            [36m/>[39m
+          [36m</label>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"alv-clinical__row-actions"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"btn btn-primary"[39m
+              [33mtype[39m=[32m"submit"[39m
+            [36m>[39m
+              [0mRecord responsibility[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</form>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"alv-bill-ready-title"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"alv-bill-ready-title"[39m
+        [36m>[39m
+          [0mCompleted procedures ready to bill[0m
+        [36m</h3>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mNo completed procedure is waiting to be billed.[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<h3>[39m
+        [0mAccount history[0m
+      [36m</h3>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mEvery entry on this account in the order it was recorded, with the balance after it and what each can still do. The timeline further down tells the same history as dated events, with where each charge came from.[0m
+      [36m</p>[39m
+      [36m<table[39m
+        [33maria-label[39m=[32m"Account history"[39m
+        [33mclass[39m=[32m"alv-bill__table"[39m
+      [36m>[39m
+        [36m<thead>[39m
+          [36m<tr>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0m#[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mDate[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mEntry[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mDetails[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mAmount[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mBalance owed after[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mRecorded by[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mActions[0m
+            [36m</th>[39m
+          [36m</tr>[39m
+        [36m</thead>[39m
+        [36m<tbody>[39m
+          [36m<tr>[39m
+            [36m<td>[39m
+              [0m1[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0m1/1/2030[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mCharge[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mPERIO-1 Periodontal maintenance[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-bill__standing"[39m
+              [36m>[39m
+                [0m ([0m
+                [0mPaid $50.00, open $50.00[0m
+                [0m)[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m$100.00[0m...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/billing/BillingStatementsPanel.test.tsx:411:34
+    409|     });
+    410|     await openPanel(true);
+    411|     await userEvent.click(screen.getByRole("button", { name: "View rec…
+       |                                  ^
+    412|     await userEvent.click(await screen.findByRole("button", { name: /I…
+    413|     expect(await screen.findByText(/It will replace receipt 1\./)).toB…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/pages/billing/BillingStatementsPanel.test.tsx > ALV-N024: one receipt per payment, replacements, document status and the version-3 statement > lists what is true of each document now: superseded, replaces, reversed, refunded and legacy duplicates (F-115, OQ-4)
+TestingLibraryElementError: Unable to find an accessible element with the role "table" and name "Issued documents"
+
+Here are the accessible roles:
+
+  region:
+
+  Name "Billing":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-title"[39m
+    [33mclass[39m=[32m"alv-clinical alv-dx alv-bill"[39m
+  [36m/>[39m
+
+  Name "Who is responsible for this account":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"_r_2l_-title"[39m
+    [33mclass[39m=[32m"alv-bill__responsibility"[39m
+  [36m/>[39m
+
+  Name "Completed procedures ready to bill":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-ready-title"[39m
+  [36m/>[39m
+
+  Name "Statements and receipts":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-docs-title"[39m
+  [36m/>[39m
+
+  Name "Timeline":
+  [36m<section[39m
+    [33maria-labelledby[39m=[32m"alv-bill-timeline-title"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  heading:
+
+  Name "Billing":
+  [36m<h2[39m
+    [33mclass[39m=[32m"alv-workspace__section-title"[39m
+    [33mid[39m=[32m"alv-bill-title"[39m
+  [36m/>[39m
+
+  Name "Who is responsible for this account":
+  [36m<h3[39m
+    [33mid[39m=[32m"_r_2l_-title"[39m
+  [36m/>[39m
+
+  Name "Completed procedures ready to bill":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-bill-ready-title"[39m
+  [36m/>[39m
+
+  Name "Account history":
+  [36m<h3 />[39m
+
+  Name "Statements and receipts":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-bill-docs-title"[39m
+  [36m/>[39m
+
+  Name "Timeline":
+  [36m<h3[39m
+    [33mid[39m=[32m"alv-bill-timeline-title"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-bill__balance"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p />[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"alv-clinical__meta"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33maria-live[39m=[32m"polite"[39m
+    [33mclass[39m=[32m"alv-clinical__status"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  [36m<strong />[39m
+
+  Name "":
+  [36m<strong />[39m
+
+  --------------------------------------------------
+  table:
+
+  Name "Account history":
+  [36m<table[39m
+    [33maria-label[39m=[32m"Account history"[39m
+    [33mclass[39m=[32m"alv-bill__table"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  [36m<thead />[39m
+
+  Name "":
+  [36m<tbody />[39m
+
+  --------------------------------------------------
+  row:
+
+  Name "# Date Entry Details Amount Balance owed after Recorded by Actions":
+  [36m<tr />[39m
+
+  Name "1 1/1/2030 Charge PERIO-1 Periodontal maintenance(Paid $50.00, open $50.00) $100.00 $100.00 Beth Billing":
+  [36m<tr />[39m
+
+  Name "2 1/1/2030 Charge SCALE-1 Scaling(Paid $40.00, open $30.00) $70.00 $170.00 Beth Billing":
+  [36m<tr />[39m
+
+  Name "3 1/1/2030 Payment Cash(Applied $90.00, unapplied $0.00) -$90.00 $80.00 Beth Billing Receipt for payment 3":
+  [36m<tr />[39m
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "#":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Date":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Entry":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Details":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Amount":
+  [36m<th[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Balance owed after":
+  [36m<th[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Recorded by":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  Name "Actions":
+  [36m<th[39m
+    [33mscope[39m=[32m"col"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  cell:
+
+  Name "1":
+  [36m<td />[39m
+
+  Name "1/1/2030":
+  [36m<td />[39m
+
+  Name "Charge":
+  [36m<td />[39m
+
+  Name "PERIO-1 Periodontal maintenance(Paid $50.00, open $50.00)":
+  [36m<td />[39m
+
+  Name "$100.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "$100.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "Beth Billing":
+  [36m<td />[39m
+
+  Name "":
+  [36m<td />[39m
+
+  Name "2":
+  [36m<td />[39m
+
+  Name "1/1/2030":
+  [36m<td />[39m
+
+  Name "Charge":
+  [36m<td />[39m
+
+  Name "SCALE-1 Scaling(Paid $40.00, open $30.00)":
+  [36m<td />[39m
+
+  Name "$70.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "$170.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "Beth Billing":
+  [36m<td />[39m
+
+  Name "":
+  [36m<td />[39m
+
+  Name "3":
+  [36m<td />[39m
+
+  Name "1/1/2030":
+  [36m<td />[39m
+
+  Name "Payment":
+  [36m<td />[39m
+
+  Name "Cash(Applied $90.00, unapplied $0.00)":
+  [36m<td />[39m
+
+  Name "-$90.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "$80.00":
+  [36m<td[39m
+    [33mclass[39m=[32m"alv-bill__num"[39m
+  [36m/>[39m
+
+  Name "Beth Billing":
+  [36m<td />[39m
+
+  Name "Receipt for payment 3":
+  [36m<td />[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Receipt for payment 3":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Preview a statement":
+  [36m<button[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Show the timeline":
+  [36m<button[39m
+    [33maria-expanded[39m=[32m"false"[39m
+    [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-labelledby[39m=[32m"alv-bill-title"[39m
+      [33mclass[39m=[32m"alv-clinical alv-dx alv-bill"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"alv-workspace__section-title"[39m
+        [33mid[39m=[32m"alv-bill-title"[39m
+      [36m>[39m
+        [0mBilling[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mCharges, payments, adjustments and reversals for this patient. Nothing recorded is ever edited or deleted: a mistake is corrected with an adjustment or a reversal that says why. The balance owed is calculated from the history every time.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33maria-live[39m=[32m"polite"[39m
+        [33mclass[39m=[32m"alv-clinical__status"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mYou can read this but your role cannot change it.[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-bill__balance"[39m
+      [36m>[39m
+        [36m<strong>[39m
+          [0mBalance owed: [0m
+          [0m$80.00[0m
+        [36m</strong>[39m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mStill to pay on charges: [0m
+        [0m$80.00[0m
+        [0m. Payments not yet applied to a charge: [0m
+        [0m$0.00[0m
+        [0m.[0m
+      [36m</p>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"_r_2l_-title"[39m
+        [33mclass[39m=[32m"alv-bill__responsibility"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"_r_2l_-title"[39m
+        [36m>[39m
+          [0mWho is responsible for this account[0m
+        [36m</h3>[39m
+        [36m<p>[39m
+          [36m<strong>[39m
+            [0mAnn Alder (the patient)[0m
+          [36m</strong>[39m
+          [0m - [0m
+          [0mthe patient, because no guarantor is registered and none has been recorded[0m
+          [0m.[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"alv-bill-ready-title"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"alv-bill-ready-title"[39m
+        [36m>[39m
+          [0mCompleted procedures ready to bill[0m
+        [36m</h3>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mNo completed procedure is waiting to be billed.[0m
+        [36m</p>[39m
+      [36m</section>[39m
+      [36m<h3>[39m
+        [0mAccount history[0m
+      [36m</h3>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"alv-clinical__meta"[39m
+      [36m>[39m
+        [0mEvery entry on this account in the order it was recorded, with the balance after it and what each can still do. The timeline further down tells the same history as dated events, with where each charge came from.[0m
+      [36m</p>[39m
+      [36m<table[39m
+        [33maria-label[39m=[32m"Account history"[39m
+        [33mclass[39m=[32m"alv-bill__table"[39m
+      [36m>[39m
+        [36m<thead>[39m
+          [36m<tr>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0m#[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mDate[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mEntry[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mDetails[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mAmount[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mBalance owed after[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mRecorded by[0m
+            [36m</th>[39m
+            [36m<th[39m
+              [33mscope[39m=[32m"col"[39m
+            [36m>[39m
+              [0mActions[0m
+            [36m</th>[39m
+          [36m</tr>[39m
+        [36m</thead>[39m
+        [36m<tbody>[39m
+          [36m<tr>[39m
+            [36m<td>[39m
+              [0m1[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0m1/1/2030[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mCharge[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mPERIO-1 Periodontal maintenance[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-bill__standing"[39m
+              [36m>[39m
+                [0m ([0m
+                [0mPaid $50.00, open $50.00[0m
+                [0m)[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m$100.00[0m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m$100.00[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mBeth Billing[0m
+            [36m</td>[39m
+            [36m<td />[39m
+          [36m</tr>[39m
+          [36m<tr>[39m
+            [36m<td>[39m
+              [0m2[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0m1/1/2030[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mCharge[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mSCALE-1 Scaling[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-bill__standing"[39m
+              [36m>[39m
+                [0m ([0m
+                [0mPaid $40.00, open $30.00[0m
+                [0m)[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m$70.00[0m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m$170.00[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mBeth Billing[0m
+            [36m</td>[39m
+            [36m<td />[39m
+          [36m</tr>[39m
+          [36m<tr>[39m
+            [36m<td>[39m
+              [0m3[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0m1/1/2030[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mPayment[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mCash[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"alv-bill__standing"[39m
+              [36m>[39m
+                [0m ([0m
+                [0mApplied $90.00, unapplied $0.00[0m
+                [0m)[0m
+              [36m</span>[39m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m-$90.00[0m
+            [36m</td>[39m
+            [36m<td[39m
+              [33mclass[39m=[32m"alv-bill__num"[39m
+            [36m>[39m
+              [0m$80.00[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [0mBeth Billing[0m
+            [36m</td>[39m
+            [36m<td>[39m
+              [36m<button[39m
+                [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+                [33mtype[39m=[32m"button"[39m
+              [36m>[39m
+                [0mReceipt for payment [0m
+                [0m3[0m
+              [36m</button>[39m
+            [36m</td>[39m
+          [36m</tr>[39m
+        [36m</tbody>[39m
+      [36m</table>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"alv-bill-docs-title"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"alv-bill-docs-title"[39m
+        [36m>[39m
+          [0mStatements and receipts[0m
+        [36m</h3>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mA statement or receipt is the account's history up to a moment. Preview it, check it, then issue exactly what you reviewed; an issued document never changes. A payment has one receipt; another is issued only as a replacement, with a reason.[0m
+        [36m</p>[39m
+        [36m<p[39m
+          [33maria-live[39m=[32m"polite"[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m/>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"alv-clinical__row-actions"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0mPreview a statement[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33maria-labelledby[39m=[32m"alv-bill-timeline-title"[39m
+      [36m>[39m
+        [36m<h3[39m
+          [33mid[39m=[32m"alv-bill-timeline-title"[39m
+        [36m>[39m
+          [0mTimeline[0m
+        [36m</h3>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"alv-clinical__meta"[39m
+        [36m>[39m
+          [0mThe same history as the account history above, told as dated events: when each charge, payment, application and document happened, and where each charge came from.[0m
+        [36m</p>[39m
+        [36m<button[39m
+          [33maria-expanded[39m=[32m"false"[39m
+          [33mclass[39m=[32m"btn btn-outline-secondary"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [0mShow the timeline[0m
+        [36m</button>[39m
+      [36m</section>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/billing/BillingStatementsPanel.test.tsx:433:32
+    431|     ] });
+    432|     await openPanel(false);
+    433|     const rows = within(screen.getByRole("table", { name: "Issued docu…
+       |                                ^
+    434|     expect(rows.map((r) => within(r).getAllByRole("cell")[4].textConte…
+    435|       "Superseded by receipt 2", "Replaces receipt 1; $20.00 refunded"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 23 passed (24)
+      Tests  2 failed | 355 passed (357)
+   Start at  09:23:44
+   Duration  199.91s (tests 71%, environment 18%, setup 7%, transform 4%, import 1%)
+

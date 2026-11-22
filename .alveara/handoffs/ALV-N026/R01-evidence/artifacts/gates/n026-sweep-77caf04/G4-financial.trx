@@ -1,0 +1,671 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="7de7bb10-7ce5-4009-a31e-3d80d434100f" name="firas@FEERCY-LEGION7I 2026-11-22 09:16:15" runUser="FEERCY-LEGION7I\firas" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-22T09:16:15.1177101-06:00" queuing="2026-11-22T09:16:15.1177103-06:00" start="2026-11-22T09:15:53.0197004-06:00" finish="2026-11-22T09:17:32.2649798-06:00" />
+  <TestSettings name="default" id="fd643509-b015-4971-8668-f25dff761b9e">
+    <Deployment runDeploymentRoot="firas_FEERCY-LEGION7I_2026-11-22_09_16_15" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="4916f507-300b-4e32-bbd2-50d24aa24198" testId="49b512d4-5f93-9af5-543d-94331d052a27" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_reprint_whose_content_no_longer_matches_its_stored_hash_is_refused" computerName="FEERCY-LEGION7I" duration="00:00:01.9998066" startTime="2026-11-22T09:17:16.1127496-06:00" endTime="2026-11-22T09:17:18.8962742-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4916f507-300b-4e32-bbd2-50d24aa24198" />
+    <UnitTestResult executionId="cd7b4749-72a2-4cf9-a4b7-18a8d8b2e588" testId="ee125cf0-333b-1268-858d-e6b14146238b" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Admin&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.3290744" startTime="2026-11-22T09:16:18.4213966-06:00" endTime="2026-11-22T09:16:19.2480373-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cd7b4749-72a2-4cf9-a4b7-18a8d8b2e588" />
+    <UnitTestResult executionId="0abd96be-6f1d-453e-9be2-43d96ad522b7" testId="a0050055-4b25-2d69-69d9-646723228e53" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Live_aging_and_a_statement_made_at_the_same_instant_agree" computerName="FEERCY-LEGION7I" duration="00:00:00.8467462" startTime="2026-11-22T09:17:29.5209165-06:00" endTime="2026-11-22T09:17:30.8506665-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0abd96be-6f1d-453e-9be2-43d96ad522b7" />
+    <UnitTestResult executionId="f285537e-0db3-4da8-8f77-646cd14620a7" testId="453e8ea5-66ed-c44b-1940-0dbf6b0d6adf" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_version_4_receipt_pdf_shows_the_payment_its_method_and_what_it_paid" computerName="FEERCY-LEGION7I" duration="00:00:01.6420969" startTime="2026-11-22T09:16:33.0723743-06:00" endTime="2026-11-22T09:16:35.2334997-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f285537e-0db3-4da8-8f77-646cd14620a7" />
+    <UnitTestResult executionId="09316164-b42e-49a2-9db9-5c3f0ebb1fa1" testId="beaf46b7-4049-f780-6856-866a3512669b" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;v1.AAAA&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.9137414" startTime="2026-11-22T09:17:05.7214831-06:00" endTime="2026-11-22T09:17:07.1827484-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="09316164-b42e-49a2-9db9-5c3f0ebb1fa1" />
+    <UnitTestResult executionId="d836fe77-a1d9-4306-9e5b-585a5e4fdfad" testId="fabd7248-0f0a-9b55-7fc5-26a7ef30ff4a" testName="Alveara.Api.Tests.BillingDocumentServiceTests.Showing_and_exporting_a_document_are_audited_and_a_refused_reprint_leaves_no_trace" computerName="FEERCY-LEGION7I" duration="00:00:00.9111685" startTime="2026-11-22T09:16:58.0330143-06:00" endTime="2026-11-22T09:16:59.5739056-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d836fe77-a1d9-4306-9e5b-585a5e4fdfad" />
+    <UnitTestResult executionId="47d782dd-ab7f-4091-aa66-2ba34fc6a771" testId="8cf52110-3488-f418-70a2-37a6714e2986" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_1_preview_made_before_the_upgrade_is_stale_and_must_be_previewed_again" computerName="FEERCY-LEGION7I" duration="00:00:00.7305479" startTime="2026-11-22T09:17:23.7265507-06:00" endTime="2026-11-22T09:17:24.9592969-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="47d782dd-ab7f-4091-aa66-2ba34fc6a771" />
+    <UnitTestResult executionId="ee386c72-d7f4-401e-b35c-3d9d2158324a" testId="74536b64-3aec-5437-5b87-d068f7deb921" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_ledger_that_moved_on_after_the_preview_still_issues_exactly_the_reviewed_content" computerName="FEERCY-LEGION7I" duration="00:00:01.0556461" startTime="2026-11-22T09:17:01.1591051-06:00" endTime="2026-11-22T09:17:02.7807283-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ee386c72-d7f4-401e-b35c-3d9d2158324a" />
+    <UnitTestResult executionId="af845a60-ee84-4cfd-8832-c8ca3746ac9b" testId="53570d4b-9d28-abc5-0803-33ab5af122e5" testName="Alveara.Api.Tests.BillingStatementsApiTests.Anonymous_callers_get_401_from_every_new_endpoint" computerName="FEERCY-LEGION7I" duration="00:00:00.0987354" startTime="2026-11-22T09:16:49.3275897-06:00" endTime="2026-11-22T09:16:49.9235353-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="af845a60-ee84-4cfd-8832-c8ca3746ac9b" />
+    <UnitTestResult executionId="132a0e4a-28ef-4087-aab6-298f95203ff2" testId="866e1bef-c96f-42f2-5642-405c97a3782b" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_staff_who_see_billing_get_a_document_pdf" computerName="FEERCY-LEGION7I" duration="00:00:01.7497115" startTime="2026-11-22T09:16:35.2340139-06:00" endTime="2026-11-22T09:16:37.4397304-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="132a0e4a-28ef-4087-aab6-298f95203ff2" />
+    <UnitTestResult executionId="896b9101-8a5d-4b49-963a-b1c51131e87d" testId="04b73414-cc21-0b28-b6c4-06dc223b56c0" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Billing&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.4317495" startTime="2026-11-22T09:16:15.1035101-06:00" endTime="2026-11-22T09:16:16.0749001-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="896b9101-8a5d-4b49-963a-b1c51131e87d" />
+    <UnitTestResult executionId="f5d1a64a-0383-463c-b88f-bb8a2b10088e" testId="19464e94-2edc-70de-d1ea-05d92c85ca6b" testName="Alveara.Api.Tests.BillingDocumentServiceTests.Nothing_can_be_put_on_a_document_before_anything_is_billed" computerName="FEERCY-LEGION7I" duration="00:00:00.0092966" startTime="2026-11-22T09:16:54.3543209-06:00" endTime="2026-11-22T09:16:54.8596072-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f5d1a64a-0383-463c-b88f-bb8a2b10088e" />
+    <UnitTestResult executionId="64932434-60a4-4061-8f10-c3fa879b6895" testId="317927ed-2218-7d16-6069-50c518d0303a" testName="Alveara.Api.Tests.BillingDocumentServiceTests.Issuing_the_same_preview_with_the_same_key_returns_the_same_document_and_another_use_of_the_key_is_refused" computerName="FEERCY-LEGION7I" duration="00:00:01.6581842" startTime="2026-11-22T09:16:52.0870445-06:00" endTime="2026-11-22T09:16:54.3538061-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="64932434-60a4-4061-8f10-c3fa879b6895" />
+    <UnitTestResult executionId="2d67b317-0868-4f92-9f0f-69df451adf0a" testId="de3d80c8-c458-1b32-682c-60534d2fcc6b" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_version_3_statement_prints_with_the_legacy_label_and_a_hash_mismatch_prints_nothing" computerName="FEERCY-LEGION7I" duration="00:00:02.1064442" startTime="2026-11-22T09:16:30.5096838-06:00" endTime="2026-11-22T09:16:33.0716823-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2d67b317-0868-4f92-9f0f-69df451adf0a" />
+    <UnitTestResult executionId="22097444-75e7-4657-9044-f9a2d9b388bc" testId="f4681c9f-1deb-80cb-0c48-f2b9708714b0" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_stale_preview_and_a_preview_that_cannot_be_read_are_refused_with_their_codes_and_nothing_is_issued" computerName="FEERCY-LEGION7I" duration="00:00:01.2506739" startTime="2026-11-22T09:16:37.4403757-06:00" endTime="2026-11-22T09:16:39.1998520-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="22097444-75e7-4657-9044-f9a2d9b388bc" />
+    <UnitTestResult executionId="220c6482-f53b-4028-9b7e-d8d66baa684c" testId="bfbed539-ebd9-adc3-a0da-93eee72a9639" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_for_a_reversed_payment_or_something_that_is_not_a_payment_is_refused" computerName="FEERCY-LEGION7I" duration="00:00:00.8297687" startTime="2026-11-22T09:17:10.0998933-06:00" endTime="2026-11-22T09:17:11.4818803-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="220c6482-f53b-4028-9b7e-d8d66baa684c" />
+    <UnitTestResult executionId="5f413995-a5f6-4833-983d-abcd9abd8ca1" testId="78160e9c-1aeb-0c30-6d17-77056456f278" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_exports_as_csv_with_one_row_per_ledger_line" computerName="FEERCY-LEGION7I" duration="00:00:00.9999166" startTime="2026-11-22T09:17:14.4665934-06:00" endTime="2026-11-22T09:17:16.1125488-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5f413995-a5f6-4833-983d-abcd9abd8ca1" />
+    <UnitTestResult executionId="0c593e8a-d61f-4027-999b-2ce8213bad3b" testId="097dc381-8b81-7ac0-e4c9-0bc5e4e97688" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Dentist&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.4847184" startTime="2026-11-22T09:16:20.1493633-06:00" endTime="2026-11-22T09:16:21.2051624-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0c593e8a-d61f-4027-999b-2ce8213bad3b" />
+    <UnitTestResult executionId="10acfaef-9056-475a-a528-9ff0c348c91f" testId="cf080515-91a0-3ef4-f1bd-3b9bf756b2d2" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Assistant&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.4994782" startTime="2026-11-22T09:16:16.0761450-06:00" endTime="2026-11-22T09:16:17.4257238-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="10acfaef-9056-475a-a528-9ff0c348c91f" />
+    <UnitTestResult executionId="0fdedb85-96f4-496b-81b5-4201970d7ca8" testId="d44ab949-f702-8b46-39a1-550f81552264" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_preview_whose_content_would_now_differ_is_refused_as_stale_and_nothing_is_issued" computerName="FEERCY-LEGION7I" duration="00:00:00.9721302" startTime="2026-11-22T09:17:12.9294514-06:00" endTime="2026-11-22T09:17:14.4663209-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0fdedb85-96f4-496b-81b5-4201970d7ca8" />
+    <UnitTestResult executionId="602c6534-8392-4d75-9f3a-e5ab685d666b" testId="3df080f3-638d-e787-c392-e6b05d78629d" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Negative_control_a_version_1_row_rebuilt_as_version_2_does_not_match_and_is_not_shown" computerName="FEERCY-LEGION7I" duration="00:00:00.7339310" startTime="2026-11-22T09:17:22.5253419-06:00" endTime="2026-11-22T09:17:23.7263322-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="602c6534-8392-4d75-9f3a-e5ab685d666b" />
+    <UnitTestResult executionId="e8cc7e48-732b-4b6a-b5aa-b131cf8cb87b" testId="f3f4c385-9b5d-bb25-ec65-141d22d8e8ed" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_document_with_an_unknown_template_version_is_refused_not_rebuilt_with_the_current_one" computerName="FEERCY-LEGION7I" duration="00:00:00.9336410" startTime="2026-11-22T09:17:20.9967044-06:00" endTime="2026-11-22T09:17:22.5249182-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e8cc7e48-732b-4b6a-b5aa-b131cf8cb87b" />
+    <UnitTestResult executionId="13a10665-eef4-4f19-aeeb-d2eaf65a5b13" testId="183a2332-c39a-65e2-14eb-4acc76defc45" testName="Alveara.Api.Tests.BillingDocumentServiceTests.An_issued_statement_reprints_exactly_as_issued_and_what_happened_since_is_listed_apart" computerName="FEERCY-LEGION7I" duration="00:00:01.3017169" startTime="2026-11-22T09:17:18.8967186-06:00" endTime="2026-11-22T09:17:20.9958419-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="13a10665-eef4-4f19-aeeb-d2eaf65a5b13" />
+    <UnitTestResult executionId="ce86f245-fb56-46ea-b0e0-e7cb9ef57ac1" testId="6afb5c41-8f95-7138-4b94-25fb4c045e2a" testName="Alveara.Api.Tests.BillingDocumentServiceTests.The_practice_as_it_was_on_the_day_is_kept_with_the_document_and_a_change_before_issue_makes_the_preview_stale" computerName="FEERCY-LEGION7I" duration="00:00:00.9850879" startTime="2026-11-22T09:17:08.5961249-06:00" endTime="2026-11-22T09:17:10.0996708-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ce86f245-fb56-46ea-b0e0-e7cb9ef57ac1" />
+    <UnitTestResult executionId="130c00e2-b612-4c08-85ed-bae8bb028d0e" testId="42efcdd1-ac73-21a8-e8b7-29cbe090f8a3" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_is_addressed_to_who_was_responsible_on_the_day_and_a_reprint_keeps_that_addressee" computerName="FEERCY-LEGION7I" duration="00:00:01.1781699" startTime="2026-11-22T09:16:56.3469205-06:00" endTime="2026-11-22T09:16:58.0326296-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="130c00e2-b612-4c08-85ed-bae8bb028d0e" />
+    <UnitTestResult executionId="247993d5-fe2b-4a0a-ad6d-c79011dfddfc" testId="c41ef624-9241-b761-504e-825e68241604" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;OfficeManager&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.4916385" startTime="2026-11-22T09:16:25.7634019-06:00" endTime="2026-11-22T09:16:26.9390754-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="247993d5-fe2b-4a0a-ad6d-c79011dfddfc" />
+    <UnitTestResult executionId="2340939d-e434-479d-bd04-3336ab5cf1cd" testId="52315ba6-d55c-0ad7-19a7-bb4d39c4d696" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Hygienist&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.4600127" startTime="2026-11-22T09:16:17.4260418-06:00" endTime="2026-11-22T09:16:18.4210312-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2340939d-e434-479d-bd04-3336ab5cf1cd" />
+    <UnitTestResult executionId="35e2e0ca-f18b-476d-b4d1-3978b8095bf2" testId="d0ca2eb3-5750-610f-101b-5c0474654bcd" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_practice_zone_change_between_preview_and_issue_makes_the_preview_stale" computerName="FEERCY-LEGION7I" duration="00:00:00.7793785" startTime="2026-11-22T09:17:30.8508952-06:00" endTime="2026-11-22T09:17:32.1162416-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="35e2e0ca-f18b-476d-b4d1-3978b8095bf2" />
+    <UnitTestResult executionId="455d56dc-0bf1-4f52-a6d9-5bdba355d4ba" testId="43448d17-b53f-ab0e-ffe9-f9f53f6ad92e" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_with_a_changed_hash_or_cut_offs_beyond_the_history_is_stale" computerName="FEERCY-LEGION7I" duration="00:00:00.9505170" startTime="2026-11-22T09:16:54.8598815-06:00" endTime="2026-11-22T09:16:56.3466674-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="455d56dc-0bf1-4f52-a6d9-5bdba355d4ba" />
+    <UnitTestResult executionId="c60a1958-8772-465c-8d39-de6789beaca2" testId="d5e87475-11ee-00b3-01cc-6173bffe752b" testName="Alveara.Api.Tests.BillingStatementsApiTests.The_refusal_codes_the_screen_relies_on_come_back_from_the_routes" computerName="FEERCY-LEGION7I" duration="00:00:01.1585397" startTime="2026-11-22T09:16:39.2003938-06:00" endTime="2026-11-22T09:16:40.8494420-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c60a1958-8772-465c-8d39-de6789beaca2" />
+    <UnitTestResult executionId="2198cae4-2129-4605-94b9-fc88461576e6" testId="163e3e61-2e43-c5e6-fe85-fa015b08cce0" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;FrontDesk&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.4352020" startTime="2026-11-22T09:16:27.7754228-06:00" endTime="2026-11-22T09:16:28.7091247-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2198cae4-2129-4605-94b9-fc88461576e6" />
+    <UnitTestResult executionId="d85afd1e-594a-43ee-bb92-37a8466454cb" testId="b31a48fd-70ed-6237-605b-d5ccd5514e4d" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Hygienist&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.3675927" startTime="2026-11-22T09:16:26.9393846-06:00" endTime="2026-11-22T09:16:27.7751517-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d85afd1e-594a-43ee-bb92-37a8466454cb" />
+    <UnitTestResult executionId="6d03b628-3db5-4354-85fa-016a6bb2c11f" testId="1bd3faf1-1a17-9d0b-d046-3dc6a2331b9c" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;FrontDesk&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.4309858" startTime="2026-11-22T09:16:19.2487748-06:00" endTime="2026-11-22T09:16:20.1491850-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6d03b628-3db5-4354-85fa-016a6bb2c11f" />
+    <UnitTestResult executionId="9f789c5c-98b1-4d53-b322-2450eebe7c97" testId="f8907121-45d7-b120-abc2-1216870c2e75" testName="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;OfficeManager&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:01.7126101" startTime="2026-11-22T09:15:55.1293388-06:00" endTime="2026-11-22T09:16:15.0854401-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9f789c5c-98b1-4d53-b322-2450eebe7c97" />
+    <UnitTestResult executionId="775301c3-0214-4db0-a605-308d79ab613d" testId="66057a08-d9f4-962b-9db5-386331740f7d" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Assistant&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.2538538" startTime="2026-11-22T09:16:24.9433855-06:00" endTime="2026-11-22T09:16:25.7632086-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="775301c3-0214-4db0-a605-308d79ab613d" />
+    <UnitTestResult executionId="8c726770-22c1-4ffe-b524-3a80adac189c" testId="8390736b-2b3e-dca2-cc77-ebaebc071900" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_preview_shows_the_ledger_and_issuing_it_stores_a_numbered_document_with_no_amount" computerName="FEERCY-LEGION7I" duration="00:00:00.9513402" startTime="2026-11-22T09:17:11.4820829-06:00" endTime="2026-11-22T09:17:12.9292447-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8c726770-22c1-4ffe-b524-3a80adac189c" />
+    <UnitTestResult executionId="39c612b1-a939-4938-8806-8ec0024d6e95" testId="5128c8c8-82ed-50e6-f009-93461ab6ce8b" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;garbage&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.9110765" startTime="2026-11-22T09:17:02.7810128-06:00" endTime="2026-11-22T09:17:04.2771881-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="39c612b1-a939-4938-8806-8ec0024d6e95" />
+    <UnitTestResult executionId="152c4314-730b-4f6a-a653-4cf0bf2417b4" testId="2d1d9b81-4848-f5e6-535f-e2bd764a8c32" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Retrying_an_issue_that_already_happened_under_version_1_returns_that_original_document" computerName="FEERCY-LEGION7I" duration="00:00:01.0066593" startTime="2026-11-22T09:17:27.9277122-06:00" endTime="2026-11-22T09:17:29.5206978-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="152c4314-730b-4f6a-a653-4cf0bf2417b4" />
+    <UnitTestResult executionId="a3d2883c-2880-4df9-9be9-2b19717f04ae" testId="07d115c4-7910-5213-cf7d-611d17feb1b7" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_shows_the_payment_and_later_a_reversal_or_refund_is_a_separate_note" computerName="FEERCY-LEGION7I" duration="00:00:00.9894116" startTime="2026-11-22T09:16:59.5742493-06:00" endTime="2026-11-22T09:17:01.1588256-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a3d2883c-2880-4df9-9be9-2b19717f04ae" />
+    <UnitTestResult executionId="d93487e6-2962-4a08-9949-f7be378fe9fa" testId="666052a6-8ff0-e297-aaf9-8df62ab95237" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_payment_is_corrected_through_the_route_with_an_exact_reversal_and_a_linked_unapplied_replacement" computerName="FEERCY-LEGION7I" duration="00:00:01.5263446" startTime="2026-11-22T09:16:45.0011445-06:00" endTime="2026-11-22T09:16:47.0191675-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d93487e6-2962-4a08-9949-f7be378fe9fa" />
+    <UnitTestResult executionId="22586ead-9fdb-45a4-ae7c-f03377d321cd" testId="5b6c6c70-b462-e69b-ba14-578545549382" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_1_statement_and_receipt_reprint_and_export_byte_for_byte_as_the_original_builder_made_them" computerName="FEERCY-LEGION7I" duration="00:00:00.9344332" startTime="2026-11-22T09:17:24.9595183-06:00" endTime="2026-11-22T09:17:26.4305650-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="22586ead-9fdb-45a4-ae7c-f03377d321cd" />
+    <UnitTestResult executionId="957a4dae-8662-408f-9f8d-cd5fec36d4e7" testId="f1748fa7-4329-a687-6546-efd1e4946911" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;v1.&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.8686696" startTime="2026-11-22T09:17:04.2773942-06:00" endTime="2026-11-22T09:17:05.7212867-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="957a4dae-8662-408f-9f8d-cd5fec36d4e7" />
+    <UnitTestResult executionId="a4db3b00-4caa-4158-a59d-e855b582a14c" testId="9d2008a5-5943-4bd2-1803-b9d84ac5c492" testName="Alveara.Api.Tests.BillingStatementsApiTests.Every_change_needs_a_csrf_token" computerName="FEERCY-LEGION7I" duration="00:00:01.3791672" startTime="2026-11-22T09:16:42.9484693-06:00" endTime="2026-11-22T09:16:45.0005824-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a4db3b00-4caa-4158-a59d-e855b582a14c" />
+    <UnitTestResult executionId="90622daf-66c8-417b-89f5-0e4a98e96bd6" testId="3dc86fe9-f89f-7ebd-8804-9044749b2939" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Dentist&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.3323202" startTime="2026-11-22T09:16:29.8619467-06:00" endTime="2026-11-22T09:16:30.5094447-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="90622daf-66c8-417b-89f5-0e4a98e96bd6" />
+    <UnitTestResult executionId="59661bfb-8a01-4510-80c5-e663011052cf" testId="46c0158c-d548-673f-0f30-b9340c2b2ceb" testName="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_2_statement_stores_its_frozen_basis_and_reprints_identically_after_the_practice_zone_changes" computerName="FEERCY-LEGION7I" duration="00:00:00.9670752" startTime="2026-11-22T09:17:26.4308013-06:00" endTime="2026-11-22T09:17:27.9274772-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="59661bfb-8a01-4510-80c5-e663011052cf" />
+    <UnitTestResult executionId="46b8bacf-627e-4989-969a-9b6d7c9f2948" testId="8ce3890c-b931-2c91-0ed0-ad101e0367be" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Admin&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.1879343" startTime="2026-11-22T09:16:28.7092755-06:00" endTime="2026-11-22T09:16:29.2174870-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="46b8bacf-627e-4989-969a-9b6d7c9f2948" />
+    <UnitTestResult executionId="7b1582e9-0947-4ae1-a0b0-4ad34086d826" testId="c2d5e3d3-796c-7d0d-1774-b4173c5abf0e" testName="Alveara.Api.Tests.BillingStatementsApiTests.When_the_log_cannot_be_written_a_refund_a_move_a_correction_and_an_issue_answer_503_and_store_nothing_not_even_the_releases_a_move_saved_first" computerName="FEERCY-LEGION7I" duration="00:00:03.1751625" startTime="2026-11-22T09:16:21.2071579-06:00" endTime="2026-11-22T09:16:24.9426060-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b1582e9-0947-4ae1-a0b0-4ad34086d826" />
+    <UnitTestResult executionId="4db129b3-68fc-4a25-b514-83583139016b" testId="ab3e24d2-f761-0367-6dfb-a04f47b8e04f" testName="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Billing&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.2800273" startTime="2026-11-22T09:16:29.2176497-06:00" endTime="2026-11-22T09:16:29.8617466-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4db129b3-68fc-4a25-b514-83583139016b" />
+    <UnitTestResult executionId="a430f827-f1c8-4f6a-ba98-6eee0fba3b29" testId="4d4bd9e9-4057-06f8-4fda-a064d26e8524" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_refund_a_move_and_a_correction_through_the_routes_leave_a_history_that_always_verifies" computerName="FEERCY-LEGION7I" duration="00:00:01.7137419" startTime="2026-11-22T09:16:47.0196572-06:00" endTime="2026-11-22T09:16:49.3270246-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a430f827-f1c8-4f6a-ba98-6eee0fba3b29" />
+    <UnitTestResult executionId="027aa28e-cc00-4279-bd80-99dc2c11b405" testId="b0f03a1f-0c16-aa54-6cbc-522fa97aaa9d" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_statement_and_a_receipt_are_previewed_issued_listed_reprinted_and_the_statement_exported" computerName="FEERCY-LEGION7I" duration="00:00:01.6276572" startTime="2026-11-22T09:16:49.9238098-06:00" endTime="2026-11-22T09:16:52.0797973-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="027aa28e-cc00-4279-bd80-99dc2c11b405" />
+    <UnitTestResult executionId="e4843ce1-a5d0-4885-a148-9c0bb86fd7c5" testId="664f6051-6d8c-51cc-0c9d-2b93b8b1ce48" testName="Alveara.Api.Tests.BillingStatementsApiTests.A_version_4_statement_pdf_shows_the_issued_values_the_mrn_and_its_version_and_records_the_print_and_the_bundle" computerName="FEERCY-LEGION7I" duration="00:00:01.5832097" startTime="2026-11-22T09:16:40.8501591-06:00" endTime="2026-11-22T09:16:42.9478825-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e4843ce1-a5d0-4885-a148-9c0bb86fd7c5" />
+    <UnitTestResult executionId="ab7e114b-b211-4787-bf94-6dfe664261f5" testId="efd0cdc7-5d37-1c57-aa40-8cdfc613f339" testName="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.8528376" startTime="2026-11-22T09:17:07.1829373-06:00" endTime="2026-11-22T09:17:08.5958871-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ab7e114b-b211-4787-bf94-6dfe664261f5" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_2_statement_stores_its_frozen_basis_and_reprints_identically_after_the_practice_zone_changes" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="46c0158c-d548-673f-0f30-b9340c2b2ceb">
+      <Execution id="59661bfb-8a01-4510-80c5-e663011052cf" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="A_version_2_statement_stores_its_frozen_basis_and_reprints_identically_after_the_practice_zone_changes" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_refund_a_move_and_a_correction_through_the_routes_leave_a_history_that_always_verifies" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="4d4bd9e9-4057-06f8-4fda-a064d26e8524">
+      <Execution id="a430f827-f1c8-4f6a-ba98-6eee0fba3b29" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_refund_a_move_and_a_correction_through_the_routes_leave_a_history_that_always_verifies" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_1_statement_and_receipt_reprint_and_export_byte_for_byte_as_the_original_builder_made_them" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="5b6c6c70-b462-e69b-ba14-578545549382">
+      <Execution id="22586ead-9fdb-45a4-ae7c-f03377d321cd" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="A_version_1_statement_and_receipt_reprint_and_export_byte_for_byte_as_the_original_builder_made_them" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Hygienist&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="52315ba6-d55c-0ad7-19a7-bb4d39c4d696">
+      <Execution id="2340939d-e434-479d-bd04-3336ab5cf1cd" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_preview_whose_content_would_now_differ_is_refused_as_stale_and_nothing_is_issued" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="d44ab949-f702-8b46-39a1-550f81552264">
+      <Execution id="0fdedb85-96f4-496b-81b5-4201970d7ca8" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_preview_whose_content_would_now_differ_is_refused_as_stale_and_nothing_is_issued" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_version_1_preview_made_before_the_upgrade_is_stale_and_must_be_previewed_again" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="8cf52110-3488-f418-70a2-37a6714e2986">
+      <Execution id="47d782dd-ab7f-4091-aa66-2ba34fc6a771" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="A_version_1_preview_made_before_the_upgrade_is_stale_and_must_be_previewed_again" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.The_practice_as_it_was_on_the_day_is_kept_with_the_document_and_a_change_before_issue_makes_the_preview_stale" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="6afb5c41-8f95-7138-4b94-25fb4c045e2a">
+      <Execution id="ce86f245-fb56-46ea-b0e0-e7cb9ef57ac1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="The_practice_as_it_was_on_the_day_is_kept_with_the_document_and_a_change_before_issue_makes_the_preview_stale" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Every_change_needs_a_csrf_token" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="9d2008a5-5943-4bd2-1803-b9d84ac5c492">
+      <Execution id="a4db3b00-4caa-4158-a59d-e855b582a14c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Every_change_needs_a_csrf_token" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_statement_and_a_receipt_are_previewed_issued_listed_reprinted_and_the_statement_exported" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b0f03a1f-0c16-aa54-6cbc-522fa97aaa9d">
+      <Execution id="027aa28e-cc00-4279-bd80-99dc2c11b405" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_statement_and_a_receipt_are_previewed_issued_listed_reprinted_and_the_statement_exported" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_exports_as_csv_with_one_row_per_ledger_line" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="78160e9c-1aeb-0c30-6d17-77056456f278">
+      <Execution id="5f413995-a5f6-4833-983d-abcd9abd8ca1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_statement_exports_as_csv_with_one_row_per_ledger_line" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;OfficeManager&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f8907121-45d7-b120-abc2-1216870c2e75">
+      <Execution id="9f789c5c-98b1-4d53-b322-2450eebe7c97" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_is_addressed_to_who_was_responsible_on_the_day_and_a_reprint_keeps_that_addressee" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="42efcdd1-ac73-21a8-e8b7-29cbe090f8a3">
+      <Execution id="130c00e2-b612-4c08-85ed-bae8bb028d0e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_statement_is_addressed_to_who_was_responsible_on_the_day_and_a_reprint_keeps_that_addressee" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Billing&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="ab3e24d2-f761-0367-6dfb-a04f47b8e04f">
+      <Execution id="4db129b3-68fc-4a25-b514-83583139016b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.Showing_and_exporting_a_document_are_audited_and_a_refused_reprint_leaves_no_trace" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="fabd7248-0f0a-9b55-7fc5-26a7ef30ff4a">
+      <Execution id="d836fe77-a1d9-4306-9e5b-585a5e4fdfad" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="Showing_and_exporting_a_document_are_audited_and_a_refused_reprint_leaves_no_trace" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_version_3_statement_prints_with_the_legacy_label_and_a_hash_mismatch_prints_nothing" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="de3d80c8-c458-1b32-682c-60534d2fcc6b">
+      <Execution id="2d67b317-0868-4f92-9f0f-69df451adf0a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_version_3_statement_prints_with_the_legacy_label_and_a_hash_mismatch_prints_nothing" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_ledger_that_moved_on_after_the_preview_still_issues_exactly_the_reviewed_content" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="74536b64-3aec-5437-5b87-d068f7deb921">
+      <Execution id="ee386c72-d7f4-401e-b35c-3d9d2158324a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_ledger_that_moved_on_after_the_preview_still_issues_exactly_the_reviewed_content" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_statement_preview_shows_the_ledger_and_issuing_it_stores_a_numbered_document_with_no_amount" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="8390736b-2b3e-dca2-cc77-ebaebc071900">
+      <Execution id="8c726770-22c1-4ffe-b524-3a80adac189c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_statement_preview_shows_the_ledger_and_issuing_it_stores_a_numbered_document_with_no_amount" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Negative_control_a_version_1_row_rebuilt_as_version_2_does_not_match_and_is_not_shown" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="3df080f3-638d-e787-c392-e6b05d78629d">
+      <Execution id="602c6534-8392-4d75-9f3a-e5ab685d666b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="Negative_control_a_version_1_row_rebuilt_as_version_2_does_not_match_and_is_not_shown" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.The_refusal_codes_the_screen_relies_on_come_back_from_the_routes" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="d5e87475-11ee-00b3-01cc-6173bffe752b">
+      <Execution id="c60a1958-8772-465c-8d39-de6789beaca2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="The_refusal_codes_the_screen_relies_on_come_back_from_the_routes" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Assistant&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="66057a08-d9f4-962b-9db5-386331740f7d">
+      <Execution id="775301c3-0214-4db0-a605-308d79ab613d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;v1.AAAA&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="beaf46b7-4049-f780-6856-866a3512669b">
+      <Execution id="09316164-b42e-49a2-9db9-5c3f0ebb1fa1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_token_that_is_not_a_preview_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_reprint_whose_content_no_longer_matches_its_stored_hash_is_refused" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="49b512d4-5f93-9af5-543d-94331d052a27">
+      <Execution id="4916f507-300b-4e32-bbd2-50d24aa24198" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_reprint_whose_content_no_longer_matches_its_stored_hash_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Anonymous_callers_get_401_from_every_new_endpoint" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="53570d4b-9d28-abc5-0803-33ab5af122e5">
+      <Execution id="af845a60-ee84-4cfd-8832-c8ca3746ac9b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Anonymous_callers_get_401_from_every_new_endpoint" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_with_a_changed_hash_or_cut_offs_beyond_the_history_is_stale" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="43448d17-b53f-ab0e-ffe9-f9f53f6ad92e">
+      <Execution id="455d56dc-0bf1-4f52-a6d9-5bdba355d4ba" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_token_with_a_changed_hash_or_cut_offs_beyond_the_history_is_stale" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Live_aging_and_a_statement_made_at_the_same_instant_agree" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a0050055-4b25-2d69-69d9-646723228e53">
+      <Execution id="0abd96be-6f1d-453e-9be2-43d96ad522b7" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="Live_aging_and_a_statement_made_at_the_same_instant_agree" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Hygienist&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b31a48fd-70ed-6237-605b-d5ccd5514e4d">
+      <Execution id="d85afd1e-594a-43ee-bb92-37a8466454cb" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Assistant&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="cf080515-91a0-3ef4-f1bd-3b9bf756b2d2">
+      <Execution id="10acfaef-9056-475a-a528-9ff0c348c91f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.Nothing_can_be_put_on_a_document_before_anything_is_billed" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="19464e94-2edc-70de-d1ea-05d92c85ca6b">
+      <Execution id="f5d1a64a-0383-463c-b88f-bb8a2b10088e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="Nothing_can_be_put_on_a_document_before_anything_is_billed" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_practice_zone_change_between_preview_and_issue_makes_the_preview_stale" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="d0ca2eb3-5750-610f-101b-5c0474654bcd">
+      <Execution id="35e2e0ca-f18b-476d-b4d1-3978b8095bf2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="A_practice_zone_change_between_preview_and_issue_makes_the_preview_stale" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.Issuing_the_same_preview_with_the_same_key_returns_the_same_document_and_another_use_of_the_key_is_refused" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="317927ed-2218-7d16-6069-50c518d0303a">
+      <Execution id="64932434-60a4-4061-8f10-c3fa879b6895" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="Issuing_the_same_preview_with_the_same_key_returns_the_same_document_and_another_use_of_the_key_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.When_the_log_cannot_be_written_a_refund_a_move_a_correction_and_an_issue_answer_503_and_store_nothing_not_even_the_releases_a_move_saved_first" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="c2d5e3d3-796c-7d0d-1774-b4173c5abf0e">
+      <Execution id="7b1582e9-0947-4ae1-a0b0-4ad34086d826" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="When_the_log_cannot_be_written_a_refund_a_move_a_correction_and_an_issue_answer_503_and_store_nothing_not_even_the_releases_a_move_saved_first" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_version_4_statement_pdf_shows_the_issued_values_the_mrn_and_its_version_and_records_the_print_and_the_bundle" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="664f6051-6d8c-51cc-0c9d-2b93b8b1ce48">
+      <Execution id="e4843ce1-a5d0-4885-a148-9c0bb86fd7c5" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_version_4_statement_pdf_shows_the_issued_values_the_mrn_and_its_version_and_records_the_print_and_the_bundle" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="efd0cdc7-5d37-1c57-aa40-8cdfc613f339">
+      <Execution id="ab7e114b-b211-4787-bf94-6dfe664261f5" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_token_that_is_not_a_preview_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.An_issued_statement_reprints_exactly_as_issued_and_what_happened_since_is_listed_apart" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="183a2332-c39a-65e2-14eb-4acc76defc45">
+      <Execution id="13a10665-eef4-4f19-aeeb-d2eaf65a5b13" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="An_issued_statement_reprints_exactly_as_issued_and_what_happened_since_is_listed_apart" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_stale_preview_and_a_preview_that_cannot_be_read_are_refused_with_their_codes_and_nothing_is_issued" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f4681c9f-1deb-80cb-0c48-f2b9708714b0">
+      <Execution id="22097444-75e7-4657-9044-f9a2d9b388bc" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_stale_preview_and_a_preview_that_cannot_be_read_are_refused_with_their_codes_and_nothing_is_issued" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_shows_the_payment_and_later_a_reversal_or_refund_is_a_separate_note" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="07d115c4-7910-5213-cf7d-611d17feb1b7">
+      <Execution id="a3d2883c-2880-4df9-9be9-2b19717f04ae" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_receipt_shows_the_payment_and_later_a_reversal_or_refund_is_a_separate_note" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;garbage&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="5128c8c8-82ed-50e6-f009-93461ab6ce8b">
+      <Execution id="39c612b1-a939-4938-8806-8ec0024d6e95" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_token_that_is_not_a_preview_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_payment_is_corrected_through_the_route_with_an_exact_reversal_and_a_linked_unapplied_replacement" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="666052a6-8ff0-e297-aaf9-8df62ab95237">
+      <Execution id="d93487e6-2962-4a08-9949-f7be378fe9fa" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_payment_is_corrected_through_the_route_with_an_exact_reversal_and_a_linked_unapplied_replacement" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.A_version_4_receipt_pdf_shows_the_payment_its_method_and_what_it_paid" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="453e8ea5-66ed-c44b-1940-0dbf6b0d6adf">
+      <Execution id="f285537e-0db3-4da8-8f77-646cd14620a7" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="A_version_4_receipt_pdf_shows_the_payment_its_method_and_what_it_paid" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.Retrying_an_issue_that_already_happened_under_version_1_returns_that_original_document" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="2d1d9b81-4848-f5e6-535f-e2bd764a8c32">
+      <Execution id="152c4314-730b-4f6a-a653-4cf0bf2417b4" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="Retrying_an_issue_that_already_happened_under_version_1_returns_that_original_document" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Admin&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="ee125cf0-333b-1268-858d-e6b14146238b">
+      <Execution id="cd7b4749-72a2-4cf9-a4b7-18a8d8b2e588" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Billing&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="04b73414-cc21-0b28-b6c4-06dc223b56c0">
+      <Execution id="896b9101-8a5d-4b49-963a-b1c51131e87d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;FrontDesk&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="163e3e61-2e43-c5e6-fe85-fa015b08cce0">
+      <Execution id="2198cae4-2129-4605-94b9-fc88461576e6" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;FrontDesk&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="1bd3faf1-1a17-9d0b-d046-3dc6a2331b9c">
+      <Execution id="6d03b628-3db5-4354-85fa-016a6bb2c11f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Dentist&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="3dc86fe9-f89f-7ebd-8804-9044749b2939">
+      <Execution id="90622daf-66c8-417b-89f5-0e4a98e96bd6" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews(role: &quot;Dentist&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="097dc381-8b81-7ac0-e4c9-0bc5e4e97688">
+      <Execution id="0c593e8a-d61f-4027-999b-2ce8213bad3b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Whoever_can_see_billing_can_read_the_timeline_aging_documents_and_previews" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_staff_who_see_billing_get_a_document_pdf" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="866e1bef-c96f-42f2-5642-405c97a3782b">
+      <Execution id="132a0e4a-28ef-4087-aab6-298f95203ff2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_staff_who_see_billing_get_a_document_pdf" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests.A_document_with_an_unknown_template_version_is_refused_not_rebuilt_with_the_current_one" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f3f4c385-9b5d-bb25-ec65-141d22d8e8ed">
+      <Execution id="e8cc7e48-732b-4b6a-b5aa-b131cf8cb87b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentTemplateVersionServiceTests" name="A_document_with_an_unknown_template_version_is_refused_not_rebuilt_with_the_current_one" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_token_that_is_not_a_preview_is_refused(token: &quot;v1.&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f1748fa7-4329-a687-6546-efd1e4946911">
+      <Execution id="957a4dae-8662-408f-9f8d-cd5fec36d4e7" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_token_that_is_not_a_preview_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingDocumentServiceTests.A_receipt_for_a_reversed_payment_or_something_that_is_not_a_payment_is_refused" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="bfbed539-ebd9-adc3-a0da-93eee72a9639">
+      <Execution id="220c6482-f53b-4028-9b7e-d8d66baa684c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingDocumentServiceTests" name="A_receipt_for_a_reversed_payment_or_something_that_is_not_a_payment_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;Admin&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="8ce3890c-b931-2c91-0ed0-ad101e0367be">
+      <Execution id="46b8bacf-627e-4989-969a-9b6d7c9f2948" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.BillingStatementsApiTests.Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue(role: &quot;OfficeManager&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="c41ef624-9241-b761-504e-825e68241604">
+      <Execution id="247993d5-fe2b-4a0a-ad6d-c79011dfddfc" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.BillingStatementsApiTests" name="Only_billing_the_practice_manager_and_the_administrator_can_refund_move_correct_or_issue" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="49b512d4-5f93-9af5-543d-94331d052a27" executionId="4916f507-300b-4e32-bbd2-50d24aa24198" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ee125cf0-333b-1268-858d-e6b14146238b" executionId="cd7b4749-72a2-4cf9-a4b7-18a8d8b2e588" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a0050055-4b25-2d69-69d9-646723228e53" executionId="0abd96be-6f1d-453e-9be2-43d96ad522b7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="453e8ea5-66ed-c44b-1940-0dbf6b0d6adf" executionId="f285537e-0db3-4da8-8f77-646cd14620a7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="beaf46b7-4049-f780-6856-866a3512669b" executionId="09316164-b42e-49a2-9db9-5c3f0ebb1fa1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fabd7248-0f0a-9b55-7fc5-26a7ef30ff4a" executionId="d836fe77-a1d9-4306-9e5b-585a5e4fdfad" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8cf52110-3488-f418-70a2-37a6714e2986" executionId="47d782dd-ab7f-4091-aa66-2ba34fc6a771" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="74536b64-3aec-5437-5b87-d068f7deb921" executionId="ee386c72-d7f4-401e-b35c-3d9d2158324a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="53570d4b-9d28-abc5-0803-33ab5af122e5" executionId="af845a60-ee84-4cfd-8832-c8ca3746ac9b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="866e1bef-c96f-42f2-5642-405c97a3782b" executionId="132a0e4a-28ef-4087-aab6-298f95203ff2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="04b73414-cc21-0b28-b6c4-06dc223b56c0" executionId="896b9101-8a5d-4b49-963a-b1c51131e87d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="19464e94-2edc-70de-d1ea-05d92c85ca6b" executionId="f5d1a64a-0383-463c-b88f-bb8a2b10088e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="317927ed-2218-7d16-6069-50c518d0303a" executionId="64932434-60a4-4061-8f10-c3fa879b6895" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="de3d80c8-c458-1b32-682c-60534d2fcc6b" executionId="2d67b317-0868-4f92-9f0f-69df451adf0a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f4681c9f-1deb-80cb-0c48-f2b9708714b0" executionId="22097444-75e7-4657-9044-f9a2d9b388bc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bfbed539-ebd9-adc3-a0da-93eee72a9639" executionId="220c6482-f53b-4028-9b7e-d8d66baa684c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="78160e9c-1aeb-0c30-6d17-77056456f278" executionId="5f413995-a5f6-4833-983d-abcd9abd8ca1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="097dc381-8b81-7ac0-e4c9-0bc5e4e97688" executionId="0c593e8a-d61f-4027-999b-2ce8213bad3b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf080515-91a0-3ef4-f1bd-3b9bf756b2d2" executionId="10acfaef-9056-475a-a528-9ff0c348c91f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d44ab949-f702-8b46-39a1-550f81552264" executionId="0fdedb85-96f4-496b-81b5-4201970d7ca8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3df080f3-638d-e787-c392-e6b05d78629d" executionId="602c6534-8392-4d75-9f3a-e5ab685d666b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f3f4c385-9b5d-bb25-ec65-141d22d8e8ed" executionId="e8cc7e48-732b-4b6a-b5aa-b131cf8cb87b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="183a2332-c39a-65e2-14eb-4acc76defc45" executionId="13a10665-eef4-4f19-aeeb-d2eaf65a5b13" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6afb5c41-8f95-7138-4b94-25fb4c045e2a" executionId="ce86f245-fb56-46ea-b0e0-e7cb9ef57ac1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="42efcdd1-ac73-21a8-e8b7-29cbe090f8a3" executionId="130c00e2-b612-4c08-85ed-bae8bb028d0e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c41ef624-9241-b761-504e-825e68241604" executionId="247993d5-fe2b-4a0a-ad6d-c79011dfddfc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="52315ba6-d55c-0ad7-19a7-bb4d39c4d696" executionId="2340939d-e434-479d-bd04-3336ab5cf1cd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d0ca2eb3-5750-610f-101b-5c0474654bcd" executionId="35e2e0ca-f18b-476d-b4d1-3978b8095bf2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="43448d17-b53f-ab0e-ffe9-f9f53f6ad92e" executionId="455d56dc-0bf1-4f52-a6d9-5bdba355d4ba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d5e87475-11ee-00b3-01cc-6173bffe752b" executionId="c60a1958-8772-465c-8d39-de6789beaca2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="163e3e61-2e43-c5e6-fe85-fa015b08cce0" executionId="2198cae4-2129-4605-94b9-fc88461576e6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b31a48fd-70ed-6237-605b-d5ccd5514e4d" executionId="d85afd1e-594a-43ee-bb92-37a8466454cb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1bd3faf1-1a17-9d0b-d046-3dc6a2331b9c" executionId="6d03b628-3db5-4354-85fa-016a6bb2c11f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f8907121-45d7-b120-abc2-1216870c2e75" executionId="9f789c5c-98b1-4d53-b322-2450eebe7c97" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="66057a08-d9f4-962b-9db5-386331740f7d" executionId="775301c3-0214-4db0-a605-308d79ab613d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8390736b-2b3e-dca2-cc77-ebaebc071900" executionId="8c726770-22c1-4ffe-b524-3a80adac189c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5128c8c8-82ed-50e6-f009-93461ab6ce8b" executionId="39c612b1-a939-4938-8806-8ec0024d6e95" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2d1d9b81-4848-f5e6-535f-e2bd764a8c32" executionId="152c4314-730b-4f6a-a653-4cf0bf2417b4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="07d115c4-7910-5213-cf7d-611d17feb1b7" executionId="a3d2883c-2880-4df9-9be9-2b19717f04ae" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="666052a6-8ff0-e297-aaf9-8df62ab95237" executionId="d93487e6-2962-4a08-9949-f7be378fe9fa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b6c6c70-b462-e69b-ba14-578545549382" executionId="22586ead-9fdb-45a4-ae7c-f03377d321cd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f1748fa7-4329-a687-6546-efd1e4946911" executionId="957a4dae-8662-408f-9f8d-cd5fec36d4e7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9d2008a5-5943-4bd2-1803-b9d84ac5c492" executionId="a4db3b00-4caa-4158-a59d-e855b582a14c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3dc86fe9-f89f-7ebd-8804-9044749b2939" executionId="90622daf-66c8-417b-89f5-0e4a98e96bd6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46c0158c-d548-673f-0f30-b9340c2b2ceb" executionId="59661bfb-8a01-4510-80c5-e663011052cf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8ce3890c-b931-2c91-0ed0-ad101e0367be" executionId="46b8bacf-627e-4989-969a-9b6d7c9f2948" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c2d5e3d3-796c-7d0d-1774-b4173c5abf0e" executionId="7b1582e9-0947-4ae1-a0b0-4ad34086d826" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ab3e24d2-f761-0367-6dfb-a04f47b8e04f" executionId="4db129b3-68fc-4a25-b514-83583139016b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4d4bd9e9-4057-06f8-4fda-a064d26e8524" executionId="a430f827-f1c8-4f6a-ba98-6eee0fba3b29" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b0f03a1f-0c16-aa54-6cbc-522fa97aaa9d" executionId="027aa28e-cc00-4279-bd80-99dc2c11b405" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="664f6051-6d8c-51cc-0c9d-2b93b8b1ce48" executionId="e4843ce1-a5d0-4885-a148-9c0bb86fd7c5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="efd0cdc7-5d37-1c57-aa40-8cdfc613f339" executionId="ab7e114b-b211-4787-bf94-6dfe664261f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="52" executed="52" passed="52" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.33]   Discovering: Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:01.61]   Discovered:  Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:01.65]   Starting:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-22T15:15:56.0205726+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (144.6 h old)"]}}&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-22T15:16:11.1778296+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":84,"migrate_ms":11827,"total_ms":15149,"backup_bytes":8577024}}&#xD;
+2026-11-22T15:16:13.654Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:13.656Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:13.656Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:13.746Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:13.851Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:15.035Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:15.693Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:15.693Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:15.693Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:15.702Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:15.773Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:16.032Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:16.988Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:16.988Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:16.988Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:17.000Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:17.138Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:17.395Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:18.019Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:18.019Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:18.019Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:18.031Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:18.169Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:18.393Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:18.964Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:18.964Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:18.964Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:18.977Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:19.114Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:19.212Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:19.756Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:19.756Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:19.756Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:19.768Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:19.863Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:20.113Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:20.778Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:20.778Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:20.778Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:20.794Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:20.952Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:21.169Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:21.787Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:21.787Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:21.787Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:21.828Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:21.967Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:24.569Z fail: Alveara.Api.Architecture.Billing.BillingService[0]&#xD;
+      billing_save_failed error_class=SqlException sql_error=59030&#xD;
+2026-11-22T15:16:24.670Z fail: Alveara.Api.Architecture.Billing.BillingService[0]&#xD;
+      billing_save_failed error_class=SqlException sql_error=59030&#xD;
+2026-11-22T15:16:24.722Z fail: Alveara.Api.Architecture.Billing.BillingService[0]&#xD;
+      billing_save_failed error_class=SqlException sql_error=59030&#xD;
+2026-11-22T15:16:24.813Z fail: Alveara.Api.Architecture.Billing.BillingService[0]&#xD;
+      billing_save_failed error_class=SqlException sql_error=59030&#xD;
+2026-11-22T15:16:24.866Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:25.524Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:25.524Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:25.524Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:25.534Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:25.610Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:25.727Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:26.503Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:26.503Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:26.503Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:26.521Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:26.650Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:26.907Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:27.418Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:27.418Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:27.418Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:27.427Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:27.507Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:27.738Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:28.337Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:28.337Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:28.337Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:28.354Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:28.484Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:28.689Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:29.054Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:29.054Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:29.054Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:29.064Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:29.152Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:29.193Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:29.593Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:29.593Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:29.593Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:29.602Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:29.691Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:29.827Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:30.189Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:30.189Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:30.189Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:30.210Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:30.297Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:30.487Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:30.880Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:30.880Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:30.880Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:30.900Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:30.982Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:32.618Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=financial-legacy version=v1 bytes=42519 duration_ms=61.7853&#xD;
+2026-11-22T15:16:32.933Z fail: Alveara.Api.Architecture.Billing.BillingService[0]&#xD;
+      billing_document_hash_mismatch error_class=ContractViolation document_type=Statement document_number=3&#xD;
+2026-11-22T15:16:32.948Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:33.590Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:33.590Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:33.590Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:33.618Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:33.734Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:35.162Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=receipt version=v4 bytes=31560 duration_ms=59.7055&#xD;
+2026-11-22T15:16:35.171Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:35.694Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:35.694Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:35.694Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:35.715Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:35.824Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:37.367Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=statement version=v4 bytes=42080 duration_ms=57.3353&#xD;
+2026-11-22T15:16:37.370Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:37.944Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:37.944Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:37.944Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:37.975Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:38.111Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:39.130Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:39.722Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:39.722Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:39.722Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:39.729Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:39.869Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:40.799Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:41.363Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:41.363Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:41.363Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:41.370Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:41.501Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:42.856Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=statement version=v4 bytes=42074 duration_ms=69.1621&#xD;
+2026-11-22T15:16:42.884Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:43.631Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:43.631Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:43.631Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:43.638Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:43.774Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:44.930Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:45.524Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:45.524Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:45.524Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:45.530Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:45.670Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:46.958Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:47.617Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:47.617Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:47.617Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:47.638Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:47.778Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:49.249Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:49.852Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:49.852Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:49.852Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:49.861Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:49.885Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T15:16:50.447Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T15:16:50.447Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T15:16:50.447Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T15:16:50.454Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T15:16:50.593Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T15:16:52.004Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+[xUnit.net 00:01:38.67]   Finished:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-22T15:17:32.1408742+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":52,"fallbacks":0,"real_migration_fixtures":0,"build_ms":15149,"restore_ms_total":15015}}&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

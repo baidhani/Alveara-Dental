@@ -1,0 +1,1101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="e58fa6d2-4a46-4676-bf65-1113c83ea838" name="firas@FEERCY-LEGION7I 2026-11-22 10:13:03" runUser="FEERCY-LEGION7I\firas" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-22T10:13:03.7936663-06:00" queuing="2026-11-22T10:13:03.7936669-06:00" start="2026-11-22T10:12:40.8431407-06:00" finish="2026-11-22T10:14:19.4611954-06:00" />
+  <TestSettings name="default" id="41c97eff-086e-4f23-a4ba-a5b7879ab0bb">
+    <Deployment runDeploymentRoot="firas_FEERCY-LEGION7I_2026-11-22_10_13_03" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="ba5f830e-6287-4618-afd2-dcc279ac4051" testId="3fe3f0fb-2253-d1ac-8ec8-763004a8232a" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Dentist&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.9828294" startTime="2026-11-22T10:13:19.2223813-06:00" endTime="2026-11-22T10:13:20.6953979-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ba5f830e-6287-4618-afd2-dcc279ac4051" />
+    <UnitTestResult executionId="0424cfdd-5983-41b9-99c3-5ab93e72ded4" testId="6bdeafb4-f6e3-3b40-223b-169239b05f59" testName="Alveara.Api.Tests.PdfEngineTests.An_engine_that_reports_another_version_is_untrusted" computerName="FEERCY-LEGION7I" duration="00:00:00.0609196" startTime="2026-11-22T10:13:16.6187261-06:00" endTime="2026-11-22T10:13:16.6799171-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0424cfdd-5983-41b9-99c3-5ab93e72ded4" />
+    <UnitTestResult executionId="1dfdfb02-4a6f-48af-a3eb-d48b0cb63bd9" testId="f2f8290a-03ba-2a29-835a-e753eded9e2d" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Assistant&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.8492172" startTime="2026-11-22T10:13:39.0507630-06:00" endTime="2026-11-22T10:13:40.3521342-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1dfdfb02-4a6f-48af-a3eb-d48b0cb63bd9" />
+    <UnitTestResult executionId="b90faa99-af69-4a8b-badc-7765f9f3a8a6" testId="1d09aa54-1ea9-9de6-51f7-c28b6e771f66" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Billing&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.6535806" startTime="2026-11-22T10:13:40.3523608-06:00" endTime="2026-11-22T10:13:41.5102972-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b90faa99-af69-4a8b-badc-7765f9f3a8a6" />
+    <UnitTestResult executionId="22ce8ae4-3a98-4501-9221-ca2b16acd435" testId="d21765b6-ef6d-3f7a-8691-9e9c9bbbc5a0" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.No_drug_knowledge_source_is_configured_and_nothing_claims_interaction_checking_or_dose_appropriateness" computerName="FEERCY-LEGION7I" duration="00:00:00.0820851" startTime="2026-11-22T10:14:01.3782626-06:00" endTime="2026-11-22T10:14:01.9387011-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="22ce8ae4-3a98-4501-9221-ca2b16acd435" />
+    <UnitTestResult executionId="78219ed9-e14b-4d52-be13-97bb07a30a95" testId="782f3318-b4d8-b73a-ca95-433c3e7475ee" testName="Alveara.Api.Tests.PdfEngineTests.An_engine_that_differs_from_the_approved_one_is_untrusted_and_never_run" computerName="FEERCY-LEGION7I" duration="00:00:00.8690003" startTime="2026-11-22T10:13:09.2170530-06:00" endTime="2026-11-22T10:13:10.0866175-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="78219ed9-e14b-4d52-be13-97bb07a30a95" />
+    <UnitTestResult executionId="6671615d-d929-4fcd-b7d4-e6022ebc3d76" testId="69e050bc-8ed4-cd04-aaf8-5cfe2af4e4a1" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 1, unit: &quot;capsule&quot;, expected: &quot;1 capsule&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0000013" startTime="2026-11-22T10:13:09.2080262-06:00" endTime="2026-11-22T10:13:09.2080424-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6671615d-d929-4fcd-b7d4-e6022ebc3d76" />
+    <UnitTestResult executionId="498461df-5b92-4ffe-a4f3-607945a8a90e" testId="cb7ed71e-8425-730c-dd2a-526171f760a2" testName="Alveara.Api.Tests.PdfEngineTests.An_unknown_template_is_refused" computerName="FEERCY-LEGION7I" duration="00:00:00.1710627" startTime="2026-11-22T10:13:10.3372875-06:00" endTime="2026-11-22T10:13:10.5087959-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="498461df-5b92-4ffe-a4f3-607945a8a90e" />
+    <UnitTestResult executionId="c6e99011-5349-4abd-b794-f2719ab5d917" testId="aab87f83-cdbd-9c3f-e844-642fd4b6e2bb" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Assistant&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.5447130" startTime="2026-11-22T10:13:21.9018681-06:00" endTime="2026-11-22T10:13:22.8149040-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c6e99011-5349-4abd-b794-f2719ab5d917" />
+    <UnitTestResult executionId="fb574342-74c7-49dc-9be2-dd2dba6140f1" testId="3ce791c4-a926-bbcf-0ef1-e46f87de6891" testName="Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_issue_table_has_no_patient_column_and_is_not_in_the_merge_registry" computerName="FEERCY-LEGION7I" duration="00:00:00.0406659" startTime="2026-11-22T10:13:06.8376361-06:00" endTime="2026-11-22T10:13:07.4933018-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fb574342-74c7-49dc-9be2-dd2dba6140f1" />
+    <UnitTestResult executionId="1887666d-ba00-43a1-a7ab-19ed51470fae" testId="e0a40397-114d-5617-0bbe-c144686fcd0e" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_missing_patient_address_refuses_with_print_incomplete_and_issues_nothing" computerName="FEERCY-LEGION7I" duration="00:00:00.6795944" startTime="2026-11-22T10:13:29.4609102-06:00" endTime="2026-11-22T10:13:30.6445795-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1887666d-ba00-43a1-a7ab-19ed51470fae" />
+    <UnitTestResult executionId="2f81d7c7-e479-4269-9ecf-e4eabeb71d54" testId="37ba3c12-4526-ef79-3a4b-c697090c1d42" testName="Alveara.Api.Tests.PdfEngineTests.No_more_than_two_renders_run_at_once" computerName="FEERCY-LEGION7I" duration="00:00:01.6703240" startTime="2026-11-22T10:13:10.7147890-06:00" endTime="2026-11-22T10:13:12.3856142-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2f81d7c7-e479-4269-9ecf-e4eabeb71d54" />
+    <UnitTestResult executionId="3924b82b-4180-4272-81f6-e09b0da980bc" testId="4a79a416-0728-ae56-309f-b3e0a15a3ac8" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Admin&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.7840964" startTime="2026-11-22T10:13:20.6956036-06:00" endTime="2026-11-22T10:13:21.9016487-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3924b82b-4180-4272-81f6-e09b0da980bc" />
+    <UnitTestResult executionId="e1143d64-1669-4449-b5bc-994bf95a9cc2" testId="ab0a58c0-91f2-9ffa-5c09-0dddbceda4b0" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing" computerName="FEERCY-LEGION7I" duration="00:00:00.7171123" startTime="2026-11-22T10:13:49.2819054-06:00" endTime="2026-11-22T10:13:50.4506599-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e1143d64-1669-4449-b5bc-994bf95a9cc2" />
+    <UnitTestResult executionId="6f0c7447-c411-4052-b869-a2640a035653" testId="ccaca46a-3792-6329-b642-dc6d981bee4b" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_refusals_carry_stable_codes_and_the_details_the_screen_needs_and_nothing_is_saved" computerName="FEERCY-LEGION7I" duration="00:00:00.8021544" startTime="2026-11-22T10:13:34.2782839-06:00" endTime="2026-11-22T10:13:35.6707563-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6f0c7447-c411-4052-b869-a2640a035653" />
+    <UnitTestResult executionId="847e45da-cdb4-464c-a0d5-f1852c1cdb6b" testId="f601d7dc-e595-4859-4693-92b2a67b7640" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_saved_before_the_workflow_cannot_be_printed_and_says_so" computerName="FEERCY-LEGION7I" duration="00:00:00.6086611" startTime="2026-11-22T10:13:28.3950710-06:00" endTime="2026-11-22T10:13:29.4607060-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="847e45da-cdb4-464c-a0d5-f1852c1cdb6b" />
+    <UnitTestResult executionId="53323cbf-1f8d-4448-80e3-97df2627223b" testId="f214e20b-4519-06c9-30a8-c75ced6a6d44" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Finalizing_a_finalized_draft_returns_the_prescription_it_became_and_two_simultaneous_finalizations_make_one" computerName="FEERCY-LEGION7I" duration="00:00:00.1676261" startTime="2026-11-22T10:14:10.7295066-06:00" endTime="2026-11-22T10:14:11.3006343-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53323cbf-1f8d-4448-80e3-97df2627223b" />
+    <UnitTestResult executionId="0640be87-ea41-4292-b4d9-710ae495b86c" testId="8efaf10c-9013-b931-c2d0-9b1d98e61627" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;FrontDesk&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.7685972" startTime="2026-11-22T10:13:42.7585714-06:00" endTime="2026-11-22T10:13:44.0756068-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0640be87-ea41-4292-b4d9-710ae495b86c" />
+    <UnitTestResult executionId="4ee7bd2f-6f64-4635-8b35-a8268d2f62e0" testId="86a46e6f-9f02-20a7-6866-75100db58c6c" testName="Alveara.Api.Tests.PdfEngineTests.A_template_cannot_read_outside_its_own_folder_and_the_failure_is_not_retried" computerName="FEERCY-LEGION7I" duration="00:00:00.2045501" startTime="2026-11-22T10:13:10.5090164-06:00" endTime="2026-11-22T10:13:10.7140848-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4ee7bd2f-6f64-4635-8b35-a8268d2f62e0" />
+    <UnitTestResult executionId="921ab1e1-d571-4b5d-995d-7a248fdf69e4" testId="0e86434f-9b2f-bbcc-e29d-15cdd60412a7" testName="Alveara.Api.Tests.PdfEngineTests.The_provisioned_engine_is_ready_with_the_pinned_bundle" computerName="FEERCY-LEGION7I" duration="00:00:00.0909645" startTime="2026-11-22T10:13:16.6817229-06:00" endTime="2026-11-22T10:13:16.7729530-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="921ab1e1-d571-4b5d-995d-7a248fdf69e4" />
+    <UnitTestResult executionId="5f036ccd-d7a1-4d43-b74d-694f767301e6" testId="a07c2830-fa6a-1742-3169-251b624db9d3" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;medicationAdded&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.2476319" startTime="2026-11-22T10:14:04.0626297-06:00" endTime="2026-11-22T10:14:04.7107152-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5f036ccd-d7a1-4d43-b74d-694f767301e6" />
+    <UnitTestResult executionId="e5cb685b-4fe8-400a-a409-0b5d85564bfa" testId="ff6ee790-f7f2-9338-9def-1f51d3fb3811" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Admin&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.7217014" startTime="2026-11-22T10:13:37.8537400-06:00" endTime="2026-11-22T10:13:39.0505780-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e5cb685b-4fe8-400a-a409-0b5d85564bfa" />
+    <UnitTestResult executionId="6077436d-6cec-405e-b8bb-f92da5a0ad0f" testId="b26cce54-f4e5-2078-361b-8e4c45521e2b" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_saved_incomplete_and_is_logged_with_the_user_and_the_time_without_any_clinical_content" computerName="FEERCY-LEGION7I" duration="00:00:00.0711223" startTime="2026-11-22T10:14:06.6455796-06:00" endTime="2026-11-22T10:14:07.1085747-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6077436d-6cec-405e-b8bb-f92da5a0ad0f" />
+    <UnitTestResult executionId="2e4f36d7-f01f-45df-a808-b57e48452a1f" testId="47c16811-0565-7877-24f8-0904305f63cb" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 21, unit: &quot;capsule&quot;, expected: &quot;21 capsules&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0000010" startTime="2026-11-22T10:13:09.2081563-06:00" endTime="2026-11-22T10:13:09.2081702-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2e4f36d7-f01f-45df-a808-b57e48452a1f" />
+    <UnitTestResult executionId="574692a5-60aa-411f-ac4d-5ad73fbd8265" testId="dd9af5c9-dfd9-db4c-cd81-86090667b3e5" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_retired_browser_print_is_refused_as_unverifiable" computerName="FEERCY-LEGION7I" duration="00:00:00.6341713" startTime="2026-11-22T10:13:27.2974610-06:00" endTime="2026-11-22T10:13:28.3948464-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="574692a5-60aa-411f-ac4d-5ad73fbd8265" />
+    <UnitTestResult executionId="afefc3bf-3162-4e8f-a299-961f0ea96a0a" testId="e28bcd5d-eae0-54f5-997b-9a0697255744" testName="Alveara.Api.Tests.PdfEngineTests.A_render_that_runs_too_long_is_killed_at_the_timeout_retried_once_and_leaves_nothing_behind" computerName="FEERCY-LEGION7I" duration="00:00:04.2320158" startTime="2026-11-22T10:13:12.3860053-06:00" endTime="2026-11-22T10:13:16.6183898-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="afefc3bf-3162-4e8f-a299-961f0ea96a0a" />
+    <UnitTestResult executionId="d70e7809-d841-4b72-8800-0725ace389c0" testId="11b418f1-c309-9a89-5ca7-e805b06279c9" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_refused_when_the_original_ended_in_the_meantime_or_never_existed_and_a_story_016_prescription_can_be_amended_by_filling_in_the_rest" computerName="FEERCY-LEGION7I" duration="00:00:00.1352163" startTime="2026-11-22T10:14:13.5588488-06:00" endTime="2026-11-22T10:14:14.0581645-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d70e7809-d841-4b72-8800-0725ace389c0" />
+    <UnitTestResult executionId="c5736941-b205-4bf6-b42c-be4fc42cea96" testId="ed40336f-803a-3541-04de-63b85d9b6961" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 5, unit: &quot;g&quot;, expected: &quot;5 g&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0000028" startTime="2026-11-22T10:13:09.2079701-06:00" endTime="2026-11-22T10:13:09.2079933-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c5736941-b205-4bf6-b42c-be4fc42cea96" />
+    <UnitTestResult executionId="c72e2296-8e1a-4bd7-ac06-14c1a9581be2" testId="73bbaf29-7fae-5538-e820-9705aa92d0bd" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits" computerName="FEERCY-LEGION7I" duration="00:00:00.8181110" startTime="2026-11-22T10:13:46.6994038-06:00" endTime="2026-11-22T10:13:48.0040277-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c72e2296-8e1a-4bd7-ac06-14c1a9581be2" />
+    <UnitTestResult executionId="0fcb4baf-5e65-40db-9fe9-3e8755ab65f4" testId="afb5dc0b-c25b-07c9-df59-367ee201f9e9" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Creating_a_draft_twice_under_one_key_returns_it_and_the_same_key_for_a_different_entry_is_refused" computerName="FEERCY-LEGION7I" duration="00:00:00.1038528" startTime="2026-11-22T10:14:14.0582734-06:00" endTime="2026-11-22T10:14:14.5884138-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0fcb4baf-5e65-40db-9fe9-3e8755ab65f4" />
+    <UnitTestResult executionId="47e6d2a5-12c0-4ded-8f2a-3598a4110e67" testId="999d6831-ec76-26ca-5aaa-a112c744aaed" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_cancellations_record_one_event_and_a_failed_log_records_nothing" computerName="FEERCY-LEGION7I" duration="00:00:00.1446803" startTime="2026-11-22T10:14:11.3007669-06:00" endTime="2026-11-22T10:14:11.8601874-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="47e6d2a5-12c0-4ded-8f2a-3598a4110e67" />
+    <UnitTestResult executionId="7af9e24e-b8eb-4e40-9d78-9155805f8b77" testId="61fd779e-0c33-30e3-73b9-ae7e63806cad" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values" computerName="FEERCY-LEGION7I" duration="00:00:00.4914736" startTime="2026-11-22T10:13:31.6833133-06:00" endTime="2026-11-22T10:13:32.6218094-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7af9e24e-b8eb-4e40-9d78-9155805f8b77" />
+    <UnitTestResult executionId="1adc0427-1804-4c4c-bf71-a15860f91cfb" testId="57e3a97b-eb0a-1c16-fc47-4b4067c1eafa" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incorrect_draft_is_refused_with_every_problem_named_and_nothing_is_saved" computerName="FEERCY-LEGION7I" duration="00:00:00.0163223" startTime="2026-11-22T10:14:14.5886391-06:00" endTime="2026-11-22T10:14:15.1715711-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1adc0427-1804-4c4c-bf71-a15860f91cfb" />
+    <UnitTestResult executionId="425d62a0-40d3-47b2-bcc1-13997efdda93" testId="0fecfa06-32fb-7e99-029b-ee35750850f1" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.The_prescriptions_tab_list_shows_status_details_and_which_version_replaced_which" computerName="FEERCY-LEGION7I" duration="00:00:00.2083639" startTime="2026-11-22T10:14:07.7723354-06:00" endTime="2026-11-22T10:14:08.4421830-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="425d62a0-40d3-47b2-bcc1-13997efdda93" />
+    <UnitTestResult executionId="c52e6458-0d3e-4ccb-b074-c966b7ac6b22" testId="98509cd6-945a-bb3c-8d5d-fe7b5f41c3c0" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.There_is_no_way_to_edit_or_delete_a_prescription_or_to_delete_a_draft" computerName="FEERCY-LEGION7I" duration="00:00:00.6313872" startTime="2026-11-22T10:13:30.6448380-06:00" endTime="2026-11-22T10:13:31.6831080-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c52e6458-0d3e-4ccb-b074-c966b7ac6b22" />
+    <UnitTestResult executionId="6191a982-0b48-4937-af29-df442a8395ea" testId="b130e719-8ab2-708d-33d8-87facb65a6a2" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_print_is_issued_once_per_key_and_its_pdf_shows_the_prescription_as_recorded_with_the_boundary_and_no_dea_field" computerName="FEERCY-LEGION7I" duration="00:00:00.7738275" startTime="2026-11-22T10:13:50.4508726-06:00" endTime="2026-11-22T10:13:51.6867276-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6191a982-0b48-4937-af29-df442a8395ea" />
+    <UnitTestResult executionId="5321ed30-5a87-4833-bc52-15a49706d721" testId="e946d8c2-5eb5-a1ea-a854-0b1c1d654e1e" testName="Alveara.Api.Tests.InstallPdfEngineScriptTests.A_source_that_does_not_match_the_manifest_is_refused_and_no_target_is_left" computerName="FEERCY-LEGION7I" duration="00:00:00.8108649" startTime="2026-11-22T10:13:07.5010100-06:00" endTime="2026-11-22T10:13:08.3125816-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5321ed30-5a87-4833-bc52-15a49706d721" />
+    <UnitTestResult executionId="87e575bd-1cd9-4694-81b0-d4fbf29f0b79" testId="5227799a-e864-8b3f-9467-f3baa3db2ea7" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_finalized_draft_cannot_be_discarded_and_nothing_about_it_changes" computerName="FEERCY-LEGION7I" duration="00:00:00.1791944" startTime="2026-11-22T10:14:05.4165512-06:00" endTime="2026-11-22T10:14:06.1164270-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="87e575bd-1cd9-4694-81b0-d4fbf29f0b79" />
+    <UnitTestResult executionId="52bfc173-6412-4f00-8df0-b6c793b4a3d4" testId="978ccc1e-4f3f-b494-9f2b-da62aaab9a92" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Absent_prescriber_details_are_left_off_without_empty_labels_and_never_refuse" computerName="FEERCY-LEGION7I" duration="00:00:00.6904049" startTime="2026-11-22T10:13:52.9782211-06:00" endTime="2026-11-22T10:13:54.1276285-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="52bfc173-6412-4f00-8df0-b6c793b4a3d4" />
+    <UnitTestResult executionId="eafb71df-5a73-4fd3-8ba5-30410d087828" testId="75d4a2bd-7b5c-eefb-e354-ccb7f44e8bf2" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 2, unit: &quot;tube&quot;, expected: &quot;2 tubes&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0000010" startTime="2026-11-22T10:13:09.2081176-06:00" endTime="2026-11-22T10:13:09.2081319-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eafb71df-5a73-4fd3-8ba5-30410d087828" />
+    <UnitTestResult executionId="76153a88-e9ab-4ac4-82d9-0888a3a632c3" testId="5e8a23d7-ea14-81cc-4d24-ae372f803666" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_goes_from_a_draft_to_finalized_printed_and_cancelled_and_every_step_is_logged" computerName="FEERCY-LEGION7I" duration="00:00:00.8263843" startTime="2026-11-22T10:13:48.0042807-06:00" endTime="2026-11-22T10:13:49.2815149-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="76153a88-e9ab-4ac4-82d9-0888a3a632c3" />
+    <UnitTestResult executionId="3766ea74-594d-413e-a505-626b19c7e27d" testId="02763f82-028a-d94b-e4be-0708f07c5a33" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_discarded_draft_is_kept_cannot_be_changed_and_discarding_it_again_changes_nothing" computerName="FEERCY-LEGION7I" duration="00:00:00.0914755" startTime="2026-11-22T10:14:15.1717097-06:00" endTime="2026-11-22T10:14:15.9906515-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3766ea74-594d-413e-a505-626b19c7e27d" />
+    <UnitTestResult executionId="c72def95-94ae-4ec6-a211-c136e117995d" testId="1d22dcb1-b773-3ceb-875b-90de561d2a0b" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_no_draft_is_created_and_the_same_request_works_once_it_is_back" computerName="FEERCY-LEGION7I" duration="00:00:00.0587397" startTime="2026-11-22T10:14:08.4423335-06:00" endTime="2026-11-22T10:14:08.9660559-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c72def95-94ae-4ec6-a211-c136e117995d" />
+    <UnitTestResult executionId="893782e2-e955-45eb-a322-dcb62854ef52" testId="01eff86a-e265-0bbe-aaec-a7d8754c6aca" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_safety_context_cannot_be_read_no_draft_is_created" computerName="FEERCY-LEGION7I" duration="00:00:00.0128780" startTime="2026-11-22T10:14:09.5869304-06:00" endTime="2026-11-22T10:14:10.0156535-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="893782e2-e955-45eb-a322-dcb62854ef52" />
+    <UnitTestResult executionId="4f3d81b2-0ff4-43d4-bbf2-47399a10ac3d" testId="db9f35aa-e203-cf08-a8b6-dbad5bd013e3" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_changed_by_someone_else_is_not_finalized_on_a_stale_version" computerName="FEERCY-LEGION7I" duration="00:00:00.1668501" startTime="2026-11-22T10:14:08.9661829-06:00" endTime="2026-11-22T10:14:09.5867744-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4f3d81b2-0ff4-43d4-bbf2-47399a10ac3d" />
+    <UnitTestResult executionId="1e824273-9fad-4ca6-80b8-257a55b28009" testId="156d4f19-934e-7e76-53d6-1f100473ed09" testName="Alveara.Api.Tests.PdfEngineTests.A_missing_engine_is_unavailable_and_says_so" computerName="FEERCY-LEGION7I" duration="00:00:00.0014444" startTime="2026-11-22T10:13:16.6801019-06:00" endTime="2026-11-22T10:13:16.6816141-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1e824273-9fad-4ca6-80b8-257a55b28009" />
+    <UnitTestResult executionId="00c221cd-68fd-456d-ad66-e11d2a7d7bd0" testId="0943cce8-0ddc-f3d1-8922-4435458f2763" testName="Alveara.Api.Tests.PdfEngineTests.While_the_engine_is_not_ready_a_render_is_refused_with_its_reason" computerName="FEERCY-LEGION7I" duration="00:00:00.0073146" startTime="2026-11-22T10:13:09.2095345-06:00" endTime="2026-11-22T10:13:09.2169463-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="00c221cd-68fd-456d-ad66-e11d2a7d7bd0" />
+    <UnitTestResult executionId="4398aa44-420f-4618-9505-722a22d0bb73" testId="98528a06-c53f-c1b7-307a-b4c54624b6d7" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_cancelled_with_a_reason_once_and_the_log_never_contains_the_reason" computerName="FEERCY-LEGION7I" duration="00:00:00.2555661" startTime="2026-11-22T10:14:01.9390105-06:00" endTime="2026-11-22T10:14:02.7500471-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4398aa44-420f-4618-9505-722a22d0bb73" />
+    <UnitTestResult executionId="3cb38e6e-a462-46db-88ba-ecabaae1a3a2" testId="a9479818-79fe-69d5-25ed-c39bc7632104" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_creations_under_one_key_make_one_draft" computerName="FEERCY-LEGION7I" duration="00:00:00.0481740" startTime="2026-11-22T10:14:06.1165838-06:00" endTime="2026-11-22T10:14:06.6454531-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3cb38e6e-a462-46db-88ba-ecabaae1a3a2" />
+    <UnitTestResult executionId="8a55ad52-5577-41ac-a66c-73b78a6c11de" testId="1c096333-4235-5088-fab3-8ed69a47078a" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_to_the_allergy_list_stops_the_finalization_with_what_changed_and_acknowledging_it_lets_it_go_ahead" computerName="FEERCY-LEGION7I" duration="00:00:00.8172484" startTime="2026-11-22T10:13:58.4950523-06:00" endTime="2026-11-22T10:13:59.8127729-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8a55ad52-5577-41ac-a66c-73b78a6c11de" />
+    <UnitTestResult executionId="6dcef014-2d0e-4e50-b999-5517ed5f6978" testId="46580e9c-ecfd-368c-ce30-6233ffa039fa" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_options_say_that_no_drug_knowledge_source_is_configured" computerName="FEERCY-LEGION7I" duration="00:00:00.4334047" startTime="2026-11-22T10:13:26.4408911-06:00" endTime="2026-11-22T10:13:27.2970944-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6dcef014-2d0e-4e50-b999-5517ed5f6978" />
+    <UnitTestResult executionId="2de93705-2e06-4552-821d-991018e09a7e" testId="86ae267a-e4bd-8d8a-c738-1b1d56e12ad9" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: &quot;12345678901&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.2779233" startTime="2026-11-22T10:13:36.4271488-06:00" endTime="2026-11-22T10:13:37.1458007-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2de93705-2e06-4552-821d-991018e09a7e" />
+    <UnitTestResult executionId="ec9261b6-dca2-4a6f-8e54-2586d1bf0e7c" testId="4c391e05-f0c5-851f-10d6-4ad967d03c46" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_complete_draft_is_finalized_into_a_prescription_with_its_details_event_and_log_entry_in_one_save" computerName="FEERCY-LEGION7I" duration="00:00:00.1381562" startTime="2026-11-22T10:14:15.9907726-06:00" endTime="2026-11-22T10:14:16.5355537-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ec9261b6-dca2-4a6f-8e54-2586d1bf0e7c" />
+    <UnitTestResult executionId="9e3e5fa6-b3c7-4678-b1c9-294d1760d45d" testId="9d38b36c-fdd7-fb4d-670f-dc8ac32a77ba" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_allergy_list_that_was_never_reviewed_is_never_treated_as_clear_at_finalization" computerName="FEERCY-LEGION7I" duration="00:00:00.1458350" startTime="2026-11-22T10:14:10.0157862-06:00" endTime="2026-11-22T10:14:10.7293630-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9e3e5fa6-b3c7-4678-b1c9-294d1760d45d" />
+    <UnitTestResult executionId="de5c5ef0-13e6-479b-ad67-3ce6886891b9" testId="c5c7857c-d7dc-d78a-bdaa-604fcddd4c74" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;allergyAdded&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.1708040" startTime="2026-11-22T10:14:04.7108338-06:00" endTime="2026-11-22T10:14:05.4163831-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="de5c5ef0-13e6-479b-ad67-3ce6886891b9" />
+    <UnitTestResult executionId="e5d8d969-7f15-47c2-936a-26cd1e200e97" testId="82251293-33ab-b961-3a6a-18291240cc97" testName="Alveara.Api.Tests.PdfEngineTests.Every_approved_template_matches_its_pin_and_imports_no_package" computerName="FEERCY-LEGION7I" duration="00:00:00.0010127" startTime="2026-11-22T10:13:16.7731029-06:00" endTime="2026-11-22T10:13:16.7741789-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e5d8d969-7f15-47c2-936a-26cd1e200e97" />
+    <UnitTestResult executionId="5e469cab-8fe2-4e5f-af3e-e03f9f9af97e" testId="985de354-edc5-00f1-f13c-6a4c4f35c0e1" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Anonymous_callers_get_401_from_every_route" computerName="FEERCY-LEGION7I" duration="00:00:00.0908211" startTime="2026-11-22T10:13:57.9783162-06:00" endTime="2026-11-22T10:13:58.4947210-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5e469cab-8fe2-4e5f-af3e-e03f9f9af97e" />
+    <UnitTestResult executionId="d5bae167-aa4d-4ab9-a533-bf85ada70339" testId="da9f6fa8-648a-9aa8-83ba-5fd117d4569f" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;OfficeManager&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.7529233" startTime="2026-11-22T10:13:44.0758239-06:00" endTime="2026-11-22T10:13:45.3322474-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d5bae167-aa4d-4ab9-a533-bf85ada70339" />
+    <UnitTestResult executionId="e9de715b-d9a3-4c10-a14d-98e90833b2a1" testId="e1cc74df-cccd-392d-13a7-3efe75d8ea38" testName="Alveara.Api.Tests.PrescriptionIssueOwnershipTests.After_an_approved_merge_of_the_parent_the_unchanged_issue_is_reached_only_through_the_survivors_prescription" computerName="FEERCY-LEGION7I" duration="00:00:02.3914917" startTime="2026-11-22T10:13:03.7718660-06:00" endTime="2026-11-22T10:13:06.8358476-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e9de715b-d9a3-4c10-a14d-98e90833b2a1" />
+    <UnitTestResult executionId="6df65fcc-cf64-4d54-b60d-31fb6cfe0d97" testId="74cb8c73-6bfc-4261-1819-2663ad350d19" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Acknowledging_the_lists_as_they_are_lets_the_finalization_go_ahead_and_editing_the_draft_does_not_acknowledge_anything" computerName="FEERCY-LEGION7I" duration="00:00:00.1792454" startTime="2026-11-22T10:14:12.3844393-06:00" endTime="2026-11-22T10:14:13.0304655-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6df65fcc-cf64-4d54-b60d-31fb6cfe0d97" />
+    <UnitTestResult executionId="50aed7fe-0c17-4f26-b7c9-bd691954d570" testId="079b2ae9-6208-0c2f-f48c-09422ecd88b6" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Hygienist&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.9035546" startTime="2026-11-22T10:13:45.3324213-06:00" endTime="2026-11-22T10:13:46.6991311-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="50aed7fe-0c17-4f26-b7c9-bd691954d570" />
+    <UnitTestResult executionId="9715dc79-e863-4c3e-8343-b72d0fc10b1f" testId="54299dde-72fe-273f-1898-b9ecb9a05af1" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_allergies_not_established_without_a_verdict" computerName="FEERCY-LEGION7I" duration="00:00:00.5112881" startTime="2026-11-22T10:13:54.1278418-06:00" endTime="2026-11-22T10:13:55.1041046-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9715dc79-e863-4c3e-8343-b72d0fc10b1f" />
+    <UnitTestResult executionId="53d54926-b1e2-4b35-89dc-c07f8ff61498" testId="75829b28-a9ff-73f7-814e-959be7893874" testName="Alveara.Api.Tests.InstallPdfEngineScriptTests.A_repeat_run_on_the_provisioned_test_engine_changes_nothing" computerName="FEERCY-LEGION7I" duration="00:00:00.4732179" startTime="2026-11-22T10:13:08.7334758-06:00" endTime="2026-11-22T10:13:09.2068333-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53d54926-b1e2-4b35-89dc-c07f8ff61498" />
+    <UnitTestResult executionId="044abb66-d1b6-47c8-858f-f2f0de6f15be" testId="0145b855-8576-64d0-ef0b-473a9c46c53f" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Billing&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.8190507" startTime="2026-11-22T10:13:22.8150309-06:00" endTime="2026-11-22T10:13:24.0752927-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="044abb66-d1b6-47c8-858f-f2f0de6f15be" />
+    <UnitTestResult executionId="95fee67d-5c0f-41c6-9742-27daadac20f1" testId="3da16adc-6a18-0684-b9e8-4c0d75219a2e" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incomplete_draft_cannot_be_finalized_and_each_missing_part_is_named" computerName="FEERCY-LEGION7I" duration="00:00:00.1170149" startTime="2026-11-22T10:14:07.1087122-06:00" endTime="2026-11-22T10:14:07.7721668-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="95fee67d-5c0f-41c6-9742-27daadac20f1" />
+    <UnitTestResult executionId="2b5ff17f-eb27-4953-8888-1347fe5c83ff" testId="24ece332-d16d-2036-2bd3-a865cfd7f54f" testName="Alveara.Api.Tests.PdfEngineTests.A_render_returns_a_pdf_records_the_bundle_and_leaves_no_folder_behind" computerName="FEERCY-LEGION7I" duration="00:00:00.2497684" startTime="2026-11-22T10:13:10.0868821-06:00" endTime="2026-11-22T10:13:10.3370811-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2b5ff17f-eb27-4953-8888-1347fe5c83ff" />
+    <UnitTestResult executionId="b31c506f-be0a-48ef-9b2b-41a0bf130aef" testId="98ebe10c-d8e1-0bad-018d-b072cb6c4eb6" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 0.5, unit: &quot;tablet&quot;, expected: &quot;0.5 tablets&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0001624" startTime="2026-11-22T10:13:09.2077236-06:00" endTime="2026-11-22T10:13:09.2079165-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b31c506f-be0a-48ef-9b2b-41a0bf130aef" />
+    <UnitTestResult executionId="5777f10b-c805-49db-9b9f-f511d4e70157" testId="f8f60b0c-6d48-9bf2-ea10-0c806302f36c" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 100, unit: &quot;mL&quot;, expected: &quot;100 mL&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0000015" startTime="2026-11-22T10:13:09.2080725-06:00" endTime="2026-11-22T10:13:09.2080928-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5777f10b-c805-49db-9b9f-f511d4e70157" />
+    <UnitTestResult executionId="1b406e5d-e39f-4c1a-ad1d-b3da33f4cc83" testId="fc159ad4-4f39-ee8c-eb2f-afb85b1382ff" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_medication_that_matches_a_recorded_allergy_is_not_finalized_until_the_prescriber_gives_their_own_words" computerName="FEERCY-LEGION7I" duration="00:00:00.1509890" startTime="2026-11-22T10:14:13.0307345-06:00" endTime="2026-11-22T10:14:13.5587370-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1b406e5d-e39f-4c1a-ad1d-b3da33f4cc83" />
+    <UnitTestResult executionId="be770290-9e8a-421e-a3f6-2afb90cf9841" testId="01f5b85c-46ff-5814-b953-ed4e373c02e2" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_no_recorded_match_as_a_name_comparison_and_a_later_allergy_chart_change_does_not_rewrite_it" computerName="FEERCY-LEGION7I" duration="00:00:00.8431879" startTime="2026-11-22T10:13:51.6869756-06:00" endTime="2026-11-22T10:13:52.9779775-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="be770290-9e8a-421e-a3f6-2afb90cf9841" />
+    <UnitTestResult executionId="add4ce41-7c95-4da1-87f4-0f3f7faf4f9d" testId="72a072fa-5c47-973a-6f3a-b9e8b6746e95" testName="Alveara.Api.Tests.InstallPdfEngineScriptTests.A_target_holding_anything_else_is_refused_and_left_as_it_was" computerName="FEERCY-LEGION7I" duration="00:00:00.4203401" startTime="2026-11-22T10:13:08.3128191-06:00" endTime="2026-11-22T10:13:08.7333065-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="add4ce41-7c95-4da1-87f4-0f3f7faf4f9d" />
+    <UnitTestResult executionId="620a91ef-cf69-4c7e-9208-170fc4a6144a" testId="3e09a855-d182-42c1-5abc-be403c9068fe" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_a_reviewed_recorded_match_with_the_matching_name_only" computerName="FEERCY-LEGION7I" duration="00:00:00.8971016" startTime="2026-11-22T10:13:55.1043816-06:00" endTime="2026-11-22T10:13:56.6842680-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="620a91ef-cf69-4c7e-9208-170fc4a6144a" />
+    <UnitTestResult executionId="d2152cdb-a780-4568-89ce-2cded0d04d1c" testId="7e464f5c-f96e-9cce-fd7e-f1be441a2a25" testName="Alveara.Api.Tests.PdfEngineTests.The_embedded_manifest_carries_the_reviewed_pins" computerName="FEERCY-LEGION7I" duration="00:00:00.0023857" startTime="2026-11-22T10:13:16.7742530-06:00" endTime="2026-11-22T10:13:16.7766976-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d2152cdb-a780-4568-89ce-2cded0d04d1c" />
+    <UnitTestResult executionId="76c8a059-ff35-404e-bb23-743e4376be36" testId="fd3c3532-d013-855a-0864-237395b16e13" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 30, unit: &quot;tablet&quot;, expected: &quot;30 tablets&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0003327" startTime="2026-11-22T10:13:09.2072649-06:00" endTime="2026-11-22T10:13:09.2076522-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="76c8a059-ff35-404e-bb23-743e4376be36" />
+    <UnitTestResult executionId="60c46d96-b4aa-42c3-99f7-7bea57742e2e" testId="c468f8d9-8b42-f24b-000d-4e842db8979e" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Hygienist&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:01.9557691" startTime="2026-11-22T10:13:16.7863846-06:00" endTime="2026-11-22T10:13:19.2221055-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="60c46d96-b4aa-42c3-99f7-7bea57742e2e" />
+    <UnitTestResult executionId="db403f62-2ca0-4c3a-809f-178e1b74276e" testId="a8843699-fa69-acb9-993d-e425c7f0ecc6" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_edited_and_the_edit_is_logged_a_stale_edit_is_refused_and_an_unchanged_one_is_quiet" computerName="FEERCY-LEGION7I" duration="00:00:00.1281411" startTime="2026-11-22T10:14:11.8603430-06:00" endTime="2026-11-22T10:14:12.3842288-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="db403f62-2ca0-4c3a-809f-178e1b74276e" />
+    <UnitTestResult executionId="c54bb917-6da3-44de-a03f-4d3cc757ac4a" testId="7fb90ec0-8819-369b-e860-2037515c45ca" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_allergy_check_cannot_be_made_at_finalization_nothing_is_saved" computerName="FEERCY-LEGION7I" duration="00:00:00.1562291" startTime="2026-11-22T10:14:00.7754869-06:00" endTime="2026-11-22T10:14:01.3780048-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c54bb917-6da3-44de-a03f-4d3cc757ac4a" />
+    <UnitTestResult executionId="20da72ca-8f0b-4599-b126-316304b5572a" testId="64082d6e-6d5f-4983-99e1-fe839a5027a3" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;FrontDesk&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.7441839" startTime="2026-11-22T10:13:24.0754982-06:00" endTime="2026-11-22T10:13:25.2618791-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="20da72ca-8f0b-4599-b126-316304b5572a" />
+    <UnitTestResult executionId="65511520-1901-481d-878b-86e089d29c1e" testId="f99ab5c6-b7eb-9952-46ec-fba4d0be60a4" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_discontinued_and_a_story_016_prescription_can_be_ended_too" computerName="FEERCY-LEGION7I" duration="00:00:00.5225376" startTime="2026-11-22T10:14:16.5356704-06:00" endTime="2026-11-22T10:14:17.9260055-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="65511520-1901-481d-878b-86e089d29c1e" />
+    <UnitTestResult executionId="54b859ca-4a5e-486f-84b1-678daaabd930" testId="222c94a4-d1a1-3c87-8a17-96e5973b6763" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: &quot;123456789&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.3772000" startTime="2026-11-22T10:13:35.6709893-06:00" endTime="2026-11-22T10:13:36.4269639-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="54b859ca-4a5e-486f-84b1-678daaabd930" />
+    <UnitTestResult executionId="29236e49-ff5d-4e3b-b9c4-558ca59a38c1" testId="fd1a82c4-8913-98e1-9aab-9dc6cbec26d5" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;OfficeManager&quot;, allowed: False)" computerName="FEERCY-LEGION7I" duration="00:00:00.7197485" startTime="2026-11-22T10:13:25.2620781-06:00" endTime="2026-11-22T10:13:26.4406796-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="29236e49-ff5d-4e3b-b9c4-558ca59a38c1" />
+    <UnitTestResult executionId="a18dfa25-09dc-4313-acaa-b438b9a2127f" testId="de1e8791-bac2-7d3c-f51e-23c878053edc" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_ended_prescription_is_not_printed_to_dispense_and_its_record_copy_carries_the_watermark_date_and_reason" computerName="FEERCY-LEGION7I" duration="00:00:01.2099332" startTime="2026-11-22T10:13:32.6220152-06:00" endTime="2026-11-22T10:13:34.2780759-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a18dfa25-09dc-4313-acaa-b438b9a2127f" />
+    <UnitTestResult executionId="f2776085-043d-48ef-8f1e-61527b253170" testId="84b8cd5c-6c4c-3fd7-379b-fdd106069bde" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.A_single_dose_reads_as_such_and_every_stored_frequency_stays_as_it_is" computerName="FEERCY-LEGION7I" duration="00:00:00.0002922" startTime="2026-11-22T10:13:09.2090617-06:00" endTime="2026-11-22T10:13:09.2093793-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f2776085-043d-48ef-8f1e-61527b253170" />
+    <UnitTestResult executionId="2297c695-5def-415a-aed8-358636f6f34e" testId="79c74730-6fcf-117c-b42c-cf5ee7e0d1e6" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Dentist&quot;, allowed: True)" computerName="FEERCY-LEGION7I" duration="00:00:00.7714796" startTime="2026-11-22T10:13:41.5105254-06:00" endTime="2026-11-22T10:13:42.7583533-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2297c695-5def-415a-aed8-358636f6f34e" />
+    <UnitTestResult executionId="7a17a00c-5555-40b0-a3ef-0031b996f33c" testId="b0982fec-83ef-1faf-a277-abb869a1c390" testName="Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_database_refuses_a_change_or_a_deletion_of_an_issue" computerName="FEERCY-LEGION7I" duration="00:00:00.3698189" startTime="2026-11-22T10:12:43.9407962-06:00" endTime="2026-11-22T10:13:03.7442339-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7a17a00c-5555-40b0-a3ef-0031b996f33c" />
+    <UnitTestResult executionId="01145ef4-f3ea-4a58-9c6e-f8ed6abf67b3" testId="2cfa49fe-a8b8-eccf-5f51-5f73fc579422" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_change_to_the_allergy_list_after_the_draft_was_started_stops_the_finalization_and_says_what_changed" computerName="FEERCY-LEGION7I" duration="00:00:00.3517913" startTime="2026-11-22T10:14:17.9262101-06:00" endTime="2026-11-22T10:14:19.2917718-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="01145ef4-f3ea-4a58-9c6e-f8ed6abf67b3" />
+    <UnitTestResult executionId="aef81997-3e73-4286-89d2-59b264cd94d3" testId="67822f79-7633-6fd4-863c-5ddf91cbd595" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_a_new_draft_that_replaces_the_prescription_only_when_it_is_finalized_and_the_original_is_never_edited" computerName="FEERCY-LEGION7I" duration="00:00:00.4733222" startTime="2026-11-22T10:13:59.8132952-06:00" endTime="2026-11-22T10:14:00.7752673-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="aef81997-3e73-4286-89d2-59b264cd94d3" />
+    <UnitTestResult executionId="b5ef6f13-7550-43e9-b8cf-cd39f30792a9" testId="c6d1a2d4-4307-b63c-acae-cabe6415ceb1" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: &quot;12345678a0&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.2574269" startTime="2026-11-22T10:13:37.1459676-06:00" endTime="2026-11-22T10:13:37.8535054-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b5ef6f13-7550-43e9-b8cf-cd39f30792a9" />
+    <UnitTestResult executionId="10037626-3012-458d-8013-37a04a67ef01" testId="7dd26d6c-cd39-be2a-e22c-43be97350340" testName="Alveara.Api.Tests.PdfEngineTests.A_font_that_differs_from_the_approved_one_is_untrusted" computerName="FEERCY-LEGION7I" duration="00:00:00.0090511" startTime="2026-11-22T10:13:16.7767706-06:00" endTime="2026-11-22T10:13:16.7860594-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="10037626-3012-458d-8013-37a04a67ef01" />
+    <UnitTestResult executionId="0dbc82b9-517f-4b7a-a4b1-3b6cc145de25" testId="cfc1b4cc-43f8-7e00-6252-aa0eeb4b7ba5" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_nothing_is_finalized_and_the_same_click_works_once_it_is_back" computerName="FEERCY-LEGION7I" duration="00:00:00.1763981" startTime="2026-11-22T10:14:02.7502125-06:00" endTime="2026-11-22T10:14:03.4228471-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0dbc82b9-517f-4b7a-a4b1-3b6cc145de25" />
+    <UnitTestResult executionId="3bd2c0ed-d333-4487-9190-757e45ef6e65" testId="f16307aa-6943-5cd0-cc27-051ca2b9f56c" testName="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;allergyListBecomesUnknown&quot;)" computerName="FEERCY-LEGION7I" duration="00:00:00.0889370" startTime="2026-11-22T10:14:03.4229913-06:00" endTime="2026-11-22T10:14:04.0625257-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3bd2c0ed-d333-4487-9190-757e45ef6e65" />
+    <UnitTestResult executionId="6c5062db-12e3-473a-abd1-160882e94e46" testId="a5afb7d2-a5e9-a6fe-7f8b-47c349a53a39" testName="Alveara.Api.Tests.PrescriptionPdfTextTests.The_boundary_states_what_the_layout_is_not_and_claims_no_compliance" computerName="FEERCY-LEGION7I" duration="00:00:00.0001188" startTime="2026-11-22T10:13:09.2088496-06:00" endTime="2026-11-22T10:13:09.2089991-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6c5062db-12e3-473a-abd1-160882e94e46" />
+    <UnitTestResult executionId="c42d244c-c4c2-4ed6-ba2f-5039c99b7124" testId="54fe7f92-c8cf-c893-5175-a46415189d5e" testName="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_amendment_replaces_a_prescription_through_the_api_and_the_old_one_stays_as_it_was" computerName="FEERCY-LEGION7I" duration="00:00:00.7887514" startTime="2026-11-22T10:13:56.6844850-06:00" endTime="2026-11-22T10:13:57.9781217-06:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c42d244c-c4c2-4ed6-ba2f-5039c99b7124" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_retired_browser_print_is_refused_as_unverifiable" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="dd9af5c9-dfd9-db4c-cd81-86090667b3e5">
+      <Execution id="574692a5-60aa-411f-ac4d-5ad73fbd8265" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_retired_browser_print_is_refused_as_unverifiable" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Creating_a_draft_twice_under_one_key_returns_it_and_the_same_key_for_a_different_entry_is_refused" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="afb5dc0b-c25b-07c9-df59-367ee201f9e9">
+      <Execution id="0fcb4baf-5e65-40db-9fe9-3e8755ab65f4" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Creating_a_draft_twice_under_one_key_returns_it_and_the_same_key_for_a_different_entry_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Acknowledging_the_lists_as_they_are_lets_the_finalization_go_ahead_and_editing_the_draft_does_not_acknowledge_anything" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="74cb8c73-6bfc-4261-1819-2663ad350d19">
+      <Execution id="6df65fcc-cf64-4d54-b60d-31fb6cfe0d97" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Acknowledging_the_lists_as_they_are_lets_the_finalization_go_ahead_and_editing_the_draft_does_not_acknowledge_anything" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_safety_context_cannot_be_read_no_draft_is_created" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="01eff86a-e265-0bbe-aaec-a7d8754c6aca">
+      <Execution id="893782e2-e955-45eb-a322-dcb62854ef52" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="When_the_safety_context_cannot_be_read_no_draft_is_created" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_changed_by_someone_else_is_not_finalized_on_a_stale_version" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="db9f35aa-e203-cf08-a8b6-dbad5bd013e3">
+      <Execution id="4f3d81b2-0ff4-43d4-bbf2-47399a10ac3d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_draft_changed_by_someone_else_is_not_finalized_on_a_stale_version" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.A_render_returns_a_pdf_records_the_bundle_and_leaves_no_folder_behind" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="24ece332-d16d-2036-2bd3-a865cfd7f54f">
+      <Execution id="2b5ff17f-eb27-4953-8888-1347fe5c83ff" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="A_render_returns_a_pdf_records_the_bundle_and_leaves_no_folder_behind" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_single_dose_reads_as_such_and_every_stored_frequency_stays_as_it_is" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="84b8cd5c-6c4c-3fd7-379b-fdd106069bde">
+      <Execution id="f2776085-043d-48ef-8f1e-61527b253170" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_single_dose_reads_as_such_and_every_stored_frequency_stays_as_it_is" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.A_missing_engine_is_unavailable_and_says_so" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="156d4f19-934e-7e76-53d6-1f100473ed09">
+      <Execution id="1e824273-9fad-4ca6-80b8-257a55b28009" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="A_missing_engine_is_unavailable_and_says_so" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.A_render_that_runs_too_long_is_killed_at_the_timeout_retried_once_and_leaves_nothing_behind" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="e28bcd5d-eae0-54f5-997b-9a0697255744">
+      <Execution id="afefc3bf-3162-4e8f-a299-961f0ea96a0a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="A_render_that_runs_too_long_is_killed_at_the_timeout_retried_once_and_leaves_nothing_behind" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Billing&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="1d09aa54-1ea9-9de6-51f7-c28b6e771f66">
+      <Execution id="b90faa99-af69-4a8b-badc-7765f9f3a8a6" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_database_refuses_a_change_or_a_deletion_of_an_issue" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b0982fec-83ef-1faf-a277-abb869a1c390">
+      <Execution id="7a17a00c-5555-40b0-a3ef-0031b996f33c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionIssueOwnershipTests" name="The_database_refuses_a_change_or_a_deletion_of_an_issue" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_medication_that_matches_a_recorded_allergy_is_not_finalized_until_the_prescriber_gives_their_own_words" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="fc159ad4-4f39-ee8c-eb2f-afb85b1382ff">
+      <Execution id="1b406e5d-e39f-4c1a-ad1d-b3da33f4cc83" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_medication_that_matches_a_recorded_allergy_is_not_finalized_until_the_prescriber_gives_their_own_words" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_refused_when_the_original_ended_in_the_meantime_or_never_existed_and_a_story_016_prescription_can_be_amended_by_filling_in_the_rest" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="11b418f1-c309-9a89-5ca7-e805b06279c9">
+      <Execution id="d70e7809-d841-4b72-8800-0725ace389c0" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="An_amendment_is_refused_when_the_original_ended_in_the_meantime_or_never_existed_and_a_story_016_prescription_can_be_amended_by_filling_in_the_rest" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_amendment_replaces_a_prescription_through_the_api_and_the_old_one_stays_as_it_was" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="54fe7f92-c8cf-c893-5175-a46415189d5e">
+      <Execution id="c42d244c-c4c2-4ed6-ba2f-5039c99b7124" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="An_amendment_replaces_a_prescription_through_the_api_and_the_old_one_stays_as_it_was" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;OfficeManager&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="da9f6fa8-648a-9aa8-83ba-5fd117d4569f">
+      <Execution id="d5bae167-aa4d-4ab9-a533-bf85ada70339" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 100, unit: &quot;mL&quot;, expected: &quot;100 mL&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f8f60b0c-6d48-9bf2-ea10-0c806302f36c">
+      <Execution id="5777f10b-c805-49db-9b9f-f511d4e70157" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Hygienist&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="c468f8d9-8b42-f24b-000d-4e842db8979e">
+      <Execution id="60c46d96-b4aa-42c3-99f7-7bea57742e2e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Assistant&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f2f8290a-03ba-2a29-835a-e753eded9e2d">
+      <Execution id="1dfdfb02-4a6f-48af-a3eb-d48b0cb63bd9" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Assistant&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="aab87f83-cdbd-9c3f-e844-642fd4b6e2bb">
+      <Execution id="c6e99011-5349-4abd-b794-f2719ab5d917" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.InstallPdfEngineScriptTests.A_repeat_run_on_the_provisioned_test_engine_changes_nothing" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="75829b28-a9ff-73f7-814e-959be7893874">
+      <Execution id="53d54926-b1e2-4b35-89dc-c07f8ff61498" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.InstallPdfEngineScriptTests" name="A_repeat_run_on_the_provisioned_test_engine_changes_nothing" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_to_the_allergy_list_stops_the_finalization_with_what_changed_and_acknowledging_it_lets_it_go_ahead" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="1c096333-4235-5088-fab3-8ed69a47078a">
+      <Execution id="8a55ad52-5577-41ac-a66c-73b78a6c11de" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_change_to_the_allergy_list_stops_the_finalization_with_what_changed_and_acknowledging_it_lets_it_go_ahead" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;OfficeManager&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="fd1a82c4-8913-98e1-9aab-9dc6cbec26d5">
+      <Execution id="29236e49-ff5d-4e3b-b9c4-558ca59a38c1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_refusals_carry_stable_codes_and_the_details_the_screen_needs_and_nothing_is_saved" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="ccaca46a-3792-6329-b642-dc6d981bee4b">
+      <Execution id="6f0c7447-c411-4052-b869-a2640a035653" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_refusals_carry_stable_codes_and_the_details_the_screen_needs_and_nothing_is_saved" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_discarded_draft_is_kept_cannot_be_changed_and_discarding_it_again_changes_nothing" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="02763f82-028a-d94b-e4be-0708f07c5a33">
+      <Execution id="3766ea74-594d-413e-a505-626b19c7e27d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_discarded_draft_is_kept_cannot_be_changed_and_discarding_it_again_changes_nothing" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.The_boundary_states_what_the_layout_is_not_and_claims_no_compliance" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a5afb7d2-a5e9-a6fe-7f8b-47c349a53a39">
+      <Execution id="6c5062db-12e3-473a-abd1-160882e94e46" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="The_boundary_states_what_the_layout_is_not_and_claims_no_compliance" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;FrontDesk&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="8efaf10c-9013-b931-c2d0-9b1d98e61627">
+      <Execution id="0640be87-ea41-4292-b4d9-710ae495b86c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;allergyListBecomesUnknown&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f16307aa-6943-5cd0-cc27-051ca2b9f56c">
+      <Execution id="3bd2c0ed-d333-4487-9190-757e45ef6e65" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_cancelled_with_a_reason_once_and_the_log_never_contains_the_reason" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="98528a06-c53f-c1b7-307a-b4c54624b6d7">
+      <Execution id="4398aa44-420f-4618-9505-722a22d0bb73" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_prescription_is_cancelled_with_a_reason_once_and_the_log_never_contains_the_reason" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_ended_prescription_is_not_printed_to_dispense_and_its_record_copy_carries_the_watermark_date_and_reason" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="de1e8791-bac2-7d3c-f51e-23c878053edc">
+      <Execution id="a18dfa25-09dc-4313-acaa-b438b9a2127f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="An_ended_prescription_is_not_printed_to_dispense_and_its_record_copy_carries_the_watermark_date_and_reason" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;FrontDesk&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="64082d6e-6d5f-4983-99e1-fe839a5027a3">
+      <Execution id="20da72ca-8f0b-4599-b126-316304b5572a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 21, unit: &quot;capsule&quot;, expected: &quot;21 capsules&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="47c16811-0565-7877-24f8-0904305f63cb">
+      <Execution id="2e4f36d7-f01f-45df-a808-b57e48452a1f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.The_provisioned_engine_is_ready_with_the_pinned_bundle" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="0e86434f-9b2f-bbcc-e29d-15cdd60412a7">
+      <Execution id="921ab1e1-d571-4b5d-995d-7a248fdf69e4" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="The_provisioned_engine_is_ready_with_the_pinned_bundle" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.InstallPdfEngineScriptTests.A_source_that_does_not_match_the_manifest_is_refused_and_no_target_is_left" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="e946d8c2-5eb5-a1ea-a854-0b1c1d654e1e">
+      <Execution id="5321ed30-5a87-4833-bc52-15a49706d721" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.InstallPdfEngineScriptTests" name="A_source_that_does_not_match_the_manifest_is_refused_and_no_target_is_left" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.A_font_that_differs_from_the_approved_one_is_untrusted" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="7dd26d6c-cd39-be2a-e22c-43be97350340">
+      <Execution id="10037626-3012-458d-8013-37a04a67ef01" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="A_font_that_differs_from_the_approved_one_is_untrusted" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Admin&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="4a79a416-0728-ae56-309f-b3e0a15a3ac8">
+      <Execution id="3924b82b-4180-4272-81f6-e09b0da980bc" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Hygienist&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="079b2ae9-6208-0c2f-f48c-09422ecd88b6">
+      <Execution id="50aed7fe-0c17-4f26-b7c9-bd691954d570" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Absent_prescriber_details_are_left_off_without_empty_labels_and_never_refuse" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="978ccc1e-4f3f-b494-9f2b-da62aaab9a92">
+      <Execution id="52bfc173-6412-4f00-8df0-b6c793b4a3d4" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Absent_prescriber_details_are_left_off_without_empty_labels_and_never_refuse" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="61fd779e-0c33-30e3-73b9-ae7e63806cad">
+      <Execution id="7af9e24e-b8eb-4e40-9d78-9155805f8b77" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_an_administrator_records_prescriber_details_and_the_audit_keeps_no_values" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.The_prescriptions_tab_list_shows_status_details_and_which_version_replaced_which" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="0fecfa06-32fb-7e99-029b-ee35750850f1">
+      <Execution id="425d62a0-40d3-47b2-bcc1-13997efdda93" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="The_prescriptions_tab_list_shows_status_details_and_which_version_replaced_which" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_saved_incomplete_and_is_logged_with_the_user_and_the_time_without_any_clinical_content" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b26cce54-f4e5-2078-361b-8e4c45521e2b">
+      <Execution id="6077436d-6cec-405e-b8bb-f92da5a0ad0f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_draft_can_be_saved_incomplete_and_is_logged_with_the_user_and_the_time_without_any_clinical_content" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 1, unit: &quot;capsule&quot;, expected: &quot;1 capsule&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="69e050bc-8ed4-cd04-aaf8-5cfe2af4e4a1">
+      <Execution id="6671615d-d929-4fcd-b7d4-e6022ebc3d76" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.No_drug_knowledge_source_is_configured_and_nothing_claims_interaction_checking_or_dose_appropriateness" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="d21765b6-ef6d-3f7a-8691-9e9c9bbbc5a0">
+      <Execution id="22ce8ae4-3a98-4501-9221-ca2b16acd435" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="No_drug_knowledge_source_is_configured_and_nothing_claims_interaction_checking_or_dose_appropriateness" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_amendment_is_a_new_draft_that_replaces_the_prescription_only_when_it_is_finalized_and_the_original_is_never_edited" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="67822f79-7633-6fd4-863c-5ddf91cbd595">
+      <Execution id="aef81997-3e73-4286-89d2-59b264cd94d3" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="An_amendment_is_a_new_draft_that_replaces_the_prescription_only_when_it_is_finalized_and_the_original_is_never_edited" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Billing&quot;, allowed: False)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="0145b855-8576-64d0-ef0b-473a9c46c53f">
+      <Execution id="044abb66-d1b6-47c8-858f-f2f0de6f15be" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 0.5, unit: &quot;tablet&quot;, expected: &quot;0.5 tablets&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="98ebe10c-d8e1-0bad-018d-b072cb6c4eb6">
+      <Execution id="b31c506f-be0a-48ef-9b2b-41a0bf130aef" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Dentist&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="79c74730-6fcf-117c-b42c-cf5ee7e0d1e6">
+      <Execution id="2297c695-5def-415a-aed8-358636f6f34e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_clinical_team_reads_the_workflow_and_everyone_else_is_refused(role: &quot;Admin&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="ff6ee790-f7f2-9338-9def-1f51d3fb3811">
+      <Execution id="e5cb685b-4fe8-400a-a409-0b5d85564bfa" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_clinical_team_reads_the_workflow_and_everyone_else_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Anonymous_callers_get_401_from_every_route" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="985de354-edc5-00f1-f13c-6a4c4f35c0e1">
+      <Execution id="5e469cab-8fe2-4e5f-af3e-e03f9f9af97e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Anonymous_callers_get_401_from_every_route" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_cancellations_record_one_event_and_a_failed_log_records_nothing" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="999d6831-ec76-26ca-5aaa-a112c744aaed">
+      <Execution id="47e6d2a5-12c0-4ded-8f2a-3598a4110e67" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Two_simultaneous_cancellations_record_one_event_and_a_failed_log_records_nothing" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_change_without_a_csrf_token_is_refused_and_changes_nothing" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="ab0a58c0-91f2-9ffa-5c09-0dddbceda4b0">
+      <Execution id="e1143d64-1669-4449-b5bc-994bf95a9cc2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_change_without_a_csrf_token_is_refused_and_changes_nothing" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.No_more_than_two_renders_run_at_once" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="37ba3c12-4526-ef79-3a4b-c697090c1d42">
+      <Execution id="2f81d7c7-e479-4269-9ecf-e4eabeb71d54" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="No_more_than_two_renders_run_at_once" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_no_recorded_match_as_a_name_comparison_and_a_later_allergy_chart_change_does_not_rewrite_it" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="01f5b85c-46ff-5814-b953-ed4e373c02e2">
+      <Execution id="be770290-9e8a-421e-a3f6-2afb90cf9841" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_pdf_states_no_recorded_match_as_a_name_comparison_and_a_later_allergy_chart_change_does_not_rewrite_it" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incorrect_draft_is_refused_with_every_problem_named_and_nothing_is_saved" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="57e3a97b-eb0a-1c16-fc47-4b4067c1eafa">
+      <Execution id="1adc0427-1804-4c4c-bf71-a15860f91cfb" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="An_incorrect_draft_is_refused_with_every_problem_named_and_nothing_is_saved" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_saved_before_the_workflow_cannot_be_printed_and_says_so" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f601d7dc-e595-4859-4693-92b2a67b7640">
+      <Execution id="847e45da-cdb4-464c-a0d5-f1852c1cdb6b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_prescription_saved_before_the_workflow_cannot_be_printed_and_says_so" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_missing_patient_address_refuses_with_print_incomplete_and_issues_nothing" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="e0a40397-114d-5617-0bbe-c144686fcd0e">
+      <Execution id="1887666d-ba00-43a1-a7ab-19ed51470fae" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_missing_patient_address_refuses_with_print_incomplete_and_issues_nothing" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 5, unit: &quot;g&quot;, expected: &quot;5 g&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="ed40336f-803a-3541-04de-63b85d9b6961">
+      <Execution id="c5736941-b205-4bf6-b42c-be4fc42cea96" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 2, unit: &quot;tube&quot;, expected: &quot;2 tubes&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="75d4a2bd-7b5c-eefb-e354-ccb7f44e8bf2">
+      <Execution id="eafb71df-5a73-4fd3-8ba5-30410d087828" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_no_draft_is_created_and_the_same_request_works_once_it_is_back" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="1d22dcb1-b773-3ceb-875b-90de561d2a0b">
+      <Execution id="c72def95-94ae-4ec6-a211-c136e117995d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="When_the_log_cannot_be_written_no_draft_is_created_and_the_same_request_works_once_it_is_back" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_prescription_is_discontinued_and_a_story_016_prescription_can_be_ended_too" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f99ab5c6-b7eb-9952-46ec-fba4d0be60a4">
+      <Execution id="65511520-1901-481d-878b-86e089d29c1e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_prescription_is_discontinued_and_a_story_016_prescription_can_be_ended_too" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionIssueOwnershipTests.After_an_approved_merge_of_the_parent_the_unchanged_issue_is_reached_only_through_the_survivors_prescription" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="e1cc74df-cccd-392d-13a7-3efe75d8ea38">
+      <Execution id="e9de715b-d9a3-4c10-a14d-98e90833b2a1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionIssueOwnershipTests" name="After_an_approved_merge_of_the_parent_the_unchanged_issue_is_reached_only_through_the_survivors_prescription" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_allergy_check_cannot_be_made_at_finalization_nothing_is_saved" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="7fb90ec0-8819-369b-e860-2037515c45ca">
+      <Execution id="c54bb917-6da3-44de-a03f-4d3cc757ac4a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="When_the_allergy_check_cannot_be_made_at_finalization_nothing_is_saved" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.The_embedded_manifest_carries_the_reviewed_pins" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="7e464f5c-f96e-9cce-fd7e-f1be441a2a25">
+      <Execution id="d2152cdb-a780-4568-89ce-2cded0d04d1c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="The_embedded_manifest_carries_the_reviewed_pins" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.An_engine_that_differs_from_the_approved_one_is_untrusted_and_never_run" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="782f3318-b4d8-b73a-ca95-433c3e7475ee">
+      <Execution id="78219ed9-e14b-4d52-be13-97bb07a30a95" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="An_engine_that_differs_from_the_approved_one_is_untrusted_and_never_run" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.An_unknown_template_is_refused" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="cb7ed71e-8425-730c-dd2a-526171f760a2">
+      <Execution id="498461df-5b92-4ffe-a4f3-607945a8a90e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="An_unknown_template_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.Every_approved_template_matches_its_pin_and_imports_no_package" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="82251293-33ab-b961-3a6a-18291240cc97">
+      <Execution id="e5d8d969-7f15-47c2-936a-26cd1e200e97" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="Every_approved_template_matches_its_pin_and_imports_no_package" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.There_is_no_way_to_edit_or_delete_a_prescription_or_to_delete_a_draft" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="98509cd6-945a-bb3c-8d5d-fe7b5f41c3c0">
+      <Execution id="c52e6458-0d3e-4ccb-b074-c966b7ac6b22" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="There_is_no_way_to_edit_or_delete_a_prescription_or_to_delete_a_draft" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.While_the_engine_is_not_ready_a_render_is_refused_with_its_reason" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="0943cce8-0ddc-f3d1-8922-4435458f2763">
+      <Execution id="00c221cd-68fd-456d-ad66-e11d2a7d7bd0" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="While_the_engine_is_not_ready_a_render_is_refused_with_its_reason" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_allergy_list_that_was_never_reviewed_is_never_treated_as_clear_at_finalization" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="9d38b36c-fdd7-fb4d-670f-dc8ac32a77ba">
+      <Execution id="9e3e5fa6-b3c7-4678-b1c9-294d1760d45d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="An_allergy_list_that_was_never_reviewed_is_never_treated_as_clear_at_finalization" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_print_is_issued_once_per_key_and_its_pdf_shows_the_prescription_as_recorded_with_the_boundary_and_no_dea_field" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="b130e719-8ab2-708d-33d8-87facb65a6a2">
+      <Execution id="6191a982-0b48-4937-af29-df442a8395ea" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_print_is_issued_once_per_key_and_its_pdf_shows_the_prescription_as_recorded_with_the_boundary_and_no_dea_field" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionIssueOwnershipTests.The_issue_table_has_no_patient_column_and_is_not_in_the_merge_registry" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="3ce791c4-a926-bbcf-0ef1-e46f87de6891">
+      <Execution id="fb574342-74c7-49dc-9be2-dd2dba6140f1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionIssueOwnershipTests" name="The_issue_table_has_no_patient_column_and_is_not_in_the_merge_registry" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_draft_can_be_edited_and_the_edit_is_logged_a_stale_edit_is_refused_and_an_unchanged_one_is_quiet" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a8843699-fa69-acb9-993d-e425c7f0ecc6">
+      <Execution id="db403f62-2ca0-4c3a-809f-178e1b74276e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_draft_can_be_edited_and_the_edit_is_logged_a_stale_edit_is_refused_and_an_unchanged_one_is_quiet" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.When_the_log_cannot_be_written_nothing_is_finalized_and_the_same_click_works_once_it_is_back" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="cfc1b4cc-43f8-7e00-6252-aa0eeb4b7ba5">
+      <Execution id="0dbc82b9-517f-4b7a-a4b1-3b6cc145de25" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="When_the_log_cannot_be_written_nothing_is_finalized_and_the_same_click_works_once_it_is_back" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_change_to_the_allergy_list_after_the_draft_was_started_stops_the_finalization_and_says_what_changed" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="2cfa49fe-a8b8-eccf-5f51-5f73fc579422">
+      <Execution id="01145ef4-f3ea-4a58-9c6e-f8ed6abf67b3" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_change_to_the_allergy_list_after_the_draft_was_started_stops_the_finalization_and_says_what_changed" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Finalizing_a_finalized_draft_returns_the_prescription_it_became_and_two_simultaneous_finalizations_make_one" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="f214e20b-4519-06c9-30a8-c75ced6a6d44">
+      <Execution id="53323cbf-1f8d-4448-80e3-97df2627223b" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Finalizing_a_finalized_draft_returns_the_prescription_it_became_and_two_simultaneous_finalizations_make_one" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_allergies_not_established_without_a_verdict" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="54299dde-72fe-273f-1898-b9ecb9a05af1">
+      <Execution id="9715dc79-e863-4c3e-8343-b72d0fc10b1f" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_pdf_states_allergies_not_established_without_a_verdict" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_complete_draft_is_finalized_into_a_prescription_with_its_details_event_and_log_entry_in_one_save" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="4c391e05-f0c5-851f-10d6-4ad967d03c46">
+      <Execution id="ec9261b6-dca2-4a6f-8e54-2586d1bf0e7c" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_complete_draft_is_finalized_into_a_prescription_with_its_details_event_and_log_entry_in_one_save" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.An_incomplete_draft_cannot_be_finalized_and_each_missing_part_is_named" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="3da16adc-6a18-0684-b9e8-4c0d75219a2e">
+      <Execution id="95fee67d-5c0f-41c6-9742-27daadac20f1" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="An_incomplete_draft_cannot_be_finalized_and_each_missing_part_is_named" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_pdf_states_a_reviewed_recorded_match_with_the_matching_name_only" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="3e09a855-d182-42c1-5abc-be403c9068fe">
+      <Execution id="620a91ef-cf69-4c7e-9208-170fc4a6144a" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_pdf_states_a_reviewed_recorded_match_with_the_matching_name_only" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.InstallPdfEngineScriptTests.A_target_holding_anything_else_is_refused_and_left_as_it_was" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="72a072fa-5c47-973a-6f3a-b9e8b6746e95">
+      <Execution id="add4ce41-7c95-4da1-87f4-0f3f7faf4f9d" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.InstallPdfEngineScriptTests" name="A_target_holding_anything_else_is_refused_and_left_as_it_was" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: &quot;123456789&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="222c94a4-d1a1-3c87-8a17-96e5973b6763">
+      <Execution id="54b859ca-4a5e-486f-84b1-678daaabd930" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="An_npi_that_is_not_exactly_ten_digits_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="73bbaf29-7fae-5538-e820-9705aa92d0bd">
+      <Execution id="c72e2296-8e1a-4bd7-ac06-14c1a9581be2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_reprint_shows_what_was_issued_not_later_patient_or_prescriber_edits" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.A_prescription_goes_from_a_draft_to_finalized_printed_and_cancelled_and_every_step_is_logged" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="5e8a23d7-ea14-81cc-4d24-ae372f803666">
+      <Execution id="76153a88-e9ab-4ac4-82d9-0888a3a632c3" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="A_prescription_goes_from_a_draft_to_finalized_printed_and_cancelled_and_every_step_is_logged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: &quot;12345678a0&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="c6d1a2d4-4307-b63c-acae-cabe6415ceb1">
+      <Execution id="b5ef6f13-7550-43e9-b8cf-cd39f30792a9" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="An_npi_that_is_not_exactly_ten_digits_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.An_npi_that_is_not_exactly_ten_digits_is_refused(npi: &quot;12345678901&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="86ae267a-e4bd-8d8a-c738-1b1d56e12ad9">
+      <Execution id="2de93705-2e06-4552-821d-991018e09a7e" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="An_npi_that_is_not_exactly_ten_digits_is_refused" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.A_template_cannot_read_outside_its_own_folder_and_the_failure_is_not_retried" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="86a46e6f-9f02-20a7-6866-75100db58c6c">
+      <Execution id="4ee7bd2f-6f64-4635-8b35-a8268d2f62e0" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="A_template_cannot_read_outside_its_own_folder_and_the_failure_is_not_retried" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionPdfTextTests.A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged(value: 30, unit: &quot;tablet&quot;, expected: &quot;30 tablets&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="fd3c3532-d013-855a-0864-237395b16e13">
+      <Execution id="76c8a059-ff35-404e-bb23-743e4376be36" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionPdfTextTests" name="A_quantity_uses_the_plural_from_the_fixed_table_and_leaves_other_units_unchanged" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Two_simultaneous_creations_under_one_key_make_one_draft" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a9479818-79fe-69d5-25ed-c39bc7632104">
+      <Execution id="3cb38e6e-a462-46db-88ba-ecabaae1a3a2" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Two_simultaneous_creations_under_one_key_make_one_draft" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.Only_dentists_and_administrators_can_change_anything_in_the_workflow(role: &quot;Dentist&quot;, allowed: True)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="3fe3f0fb-2253-d1ac-8ec8-763004a8232a">
+      <Execution id="ba5f830e-6287-4618-afd2-dcc279ac4051" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="Only_dentists_and_administrators_can_change_anything_in_the_workflow" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PdfEngineTests.An_engine_that_reports_another_version_is_untrusted" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="6bdeafb4-f6e3-3b40-223b-169239b05f59">
+      <Execution id="0424cfdd-5983-41b9-99c3-5ab93e72ded4" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PdfEngineTests" name="An_engine_that_reports_another_version_is_untrusted" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;medicationAdded&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="a07c2830-fa6a-1742-3169-251b624db9d3">
+      <Execution id="5f036ccd-d7a1-4d43-b74d-694f767301e6" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.A_finalized_draft_cannot_be_discarded_and_nothing_about_it_changes" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="5227799a-e864-8b3f-9467-f3baa3db2ea7">
+      <Execution id="87e575bd-1cd9-4694-81b0-d4fbf29f0b79" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="A_finalized_draft_cannot_be_discarded_and_nothing_about_it_changes" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowApiTests.The_options_say_that_no_drug_knowledge_source_is_configured" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="46580e9c-ecfd-368c-ce30-6233ffa039fa">
+      <Execution id="6dcef014-2d0e-4e50-b999-5517ed5f6978" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowApiTests" name="The_options_say_that_no_drug_knowledge_source_is_configured" />
+    </UnitTest>
+    <UnitTest name="Alveara.Api.Tests.PrescriptionWorkflowServiceTests.Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught(change: &quot;allergyAdded&quot;)" storage="c:\users\firas\documents\ai-project-[alveara-dental]\src\alveara.api.tests\bin\debug\net10.0\alveara.api.tests.dll" id="c5c7857c-d7dc-d78a-bdaa-604fcddd4c74">
+      <Execution id="de5c5ef0-13e6-479b-ad67-3ce6886891b9" />
+      <TestMethod codeBase="C:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api.Tests\bin\Debug\net10.0\Alveara.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Alveara.Api.Tests.PrescriptionWorkflowServiceTests" name="Any_change_to_an_allergy_a_medication_or_how_far_the_allergy_list_can_be_relied_on_is_caught" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="3fe3f0fb-2253-d1ac-8ec8-763004a8232a" executionId="ba5f830e-6287-4618-afd2-dcc279ac4051" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6bdeafb4-f6e3-3b40-223b-169239b05f59" executionId="0424cfdd-5983-41b9-99c3-5ab93e72ded4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f2f8290a-03ba-2a29-835a-e753eded9e2d" executionId="1dfdfb02-4a6f-48af-a3eb-d48b0cb63bd9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1d09aa54-1ea9-9de6-51f7-c28b6e771f66" executionId="b90faa99-af69-4a8b-badc-7765f9f3a8a6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d21765b6-ef6d-3f7a-8691-9e9c9bbbc5a0" executionId="22ce8ae4-3a98-4501-9221-ca2b16acd435" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="782f3318-b4d8-b73a-ca95-433c3e7475ee" executionId="78219ed9-e14b-4d52-be13-97bb07a30a95" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="69e050bc-8ed4-cd04-aaf8-5cfe2af4e4a1" executionId="6671615d-d929-4fcd-b7d4-e6022ebc3d76" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cb7ed71e-8425-730c-dd2a-526171f760a2" executionId="498461df-5b92-4ffe-a4f3-607945a8a90e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="aab87f83-cdbd-9c3f-e844-642fd4b6e2bb" executionId="c6e99011-5349-4abd-b794-f2719ab5d917" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3ce791c4-a926-bbcf-0ef1-e46f87de6891" executionId="fb574342-74c7-49dc-9be2-dd2dba6140f1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e0a40397-114d-5617-0bbe-c144686fcd0e" executionId="1887666d-ba00-43a1-a7ab-19ed51470fae" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="37ba3c12-4526-ef79-3a4b-c697090c1d42" executionId="2f81d7c7-e479-4269-9ecf-e4eabeb71d54" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4a79a416-0728-ae56-309f-b3e0a15a3ac8" executionId="3924b82b-4180-4272-81f6-e09b0da980bc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ab0a58c0-91f2-9ffa-5c09-0dddbceda4b0" executionId="e1143d64-1669-4449-b5bc-994bf95a9cc2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ccaca46a-3792-6329-b642-dc6d981bee4b" executionId="6f0c7447-c411-4052-b869-a2640a035653" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f601d7dc-e595-4859-4693-92b2a67b7640" executionId="847e45da-cdb4-464c-a0d5-f1852c1cdb6b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f214e20b-4519-06c9-30a8-c75ced6a6d44" executionId="53323cbf-1f8d-4448-80e3-97df2627223b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8efaf10c-9013-b931-c2d0-9b1d98e61627" executionId="0640be87-ea41-4292-b4d9-710ae495b86c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="86a46e6f-9f02-20a7-6866-75100db58c6c" executionId="4ee7bd2f-6f64-4635-8b35-a8268d2f62e0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0e86434f-9b2f-bbcc-e29d-15cdd60412a7" executionId="921ab1e1-d571-4b5d-995d-7a248fdf69e4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a07c2830-fa6a-1742-3169-251b624db9d3" executionId="5f036ccd-d7a1-4d43-b74d-694f767301e6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ff6ee790-f7f2-9338-9def-1f51d3fb3811" executionId="e5cb685b-4fe8-400a-a409-0b5d85564bfa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b26cce54-f4e5-2078-361b-8e4c45521e2b" executionId="6077436d-6cec-405e-b8bb-f92da5a0ad0f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="47c16811-0565-7877-24f8-0904305f63cb" executionId="2e4f36d7-f01f-45df-a808-b57e48452a1f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd9af5c9-dfd9-db4c-cd81-86090667b3e5" executionId="574692a5-60aa-411f-ac4d-5ad73fbd8265" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e28bcd5d-eae0-54f5-997b-9a0697255744" executionId="afefc3bf-3162-4e8f-a299-961f0ea96a0a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="11b418f1-c309-9a89-5ca7-e805b06279c9" executionId="d70e7809-d841-4b72-8800-0725ace389c0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ed40336f-803a-3541-04de-63b85d9b6961" executionId="c5736941-b205-4bf6-b42c-be4fc42cea96" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="73bbaf29-7fae-5538-e820-9705aa92d0bd" executionId="c72e2296-8e1a-4bd7-ac06-14c1a9581be2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="afb5dc0b-c25b-07c9-df59-367ee201f9e9" executionId="0fcb4baf-5e65-40db-9fe9-3e8755ab65f4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="999d6831-ec76-26ca-5aaa-a112c744aaed" executionId="47e6d2a5-12c0-4ded-8f2a-3598a4110e67" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="61fd779e-0c33-30e3-73b9-ae7e63806cad" executionId="7af9e24e-b8eb-4e40-9d78-9155805f8b77" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="57e3a97b-eb0a-1c16-fc47-4b4067c1eafa" executionId="1adc0427-1804-4c4c-bf71-a15860f91cfb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0fecfa06-32fb-7e99-029b-ee35750850f1" executionId="425d62a0-40d3-47b2-bcc1-13997efdda93" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="98509cd6-945a-bb3c-8d5d-fe7b5f41c3c0" executionId="c52e6458-0d3e-4ccb-b074-c966b7ac6b22" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b130e719-8ab2-708d-33d8-87facb65a6a2" executionId="6191a982-0b48-4937-af29-df442a8395ea" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e946d8c2-5eb5-a1ea-a854-0b1c1d654e1e" executionId="5321ed30-5a87-4833-bc52-15a49706d721" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5227799a-e864-8b3f-9467-f3baa3db2ea7" executionId="87e575bd-1cd9-4694-81b0-d4fbf29f0b79" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="978ccc1e-4f3f-b494-9f2b-da62aaab9a92" executionId="52bfc173-6412-4f00-8df0-b6c793b4a3d4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="75d4a2bd-7b5c-eefb-e354-ccb7f44e8bf2" executionId="eafb71df-5a73-4fd3-8ba5-30410d087828" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5e8a23d7-ea14-81cc-4d24-ae372f803666" executionId="76153a88-e9ab-4ac4-82d9-0888a3a632c3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="02763f82-028a-d94b-e4be-0708f07c5a33" executionId="3766ea74-594d-413e-a505-626b19c7e27d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1d22dcb1-b773-3ceb-875b-90de561d2a0b" executionId="c72def95-94ae-4ec6-a211-c136e117995d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="01eff86a-e265-0bbe-aaec-a7d8754c6aca" executionId="893782e2-e955-45eb-a322-dcb62854ef52" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="db9f35aa-e203-cf08-a8b6-dbad5bd013e3" executionId="4f3d81b2-0ff4-43d4-bbf2-47399a10ac3d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="156d4f19-934e-7e76-53d6-1f100473ed09" executionId="1e824273-9fad-4ca6-80b8-257a55b28009" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0943cce8-0ddc-f3d1-8922-4435458f2763" executionId="00c221cd-68fd-456d-ad66-e11d2a7d7bd0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="98528a06-c53f-c1b7-307a-b4c54624b6d7" executionId="4398aa44-420f-4618-9505-722a22d0bb73" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a9479818-79fe-69d5-25ed-c39bc7632104" executionId="3cb38e6e-a462-46db-88ba-ecabaae1a3a2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1c096333-4235-5088-fab3-8ed69a47078a" executionId="8a55ad52-5577-41ac-a66c-73b78a6c11de" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="46580e9c-ecfd-368c-ce30-6233ffa039fa" executionId="6dcef014-2d0e-4e50-b999-5517ed5f6978" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="86ae267a-e4bd-8d8a-c738-1b1d56e12ad9" executionId="2de93705-2e06-4552-821d-991018e09a7e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4c391e05-f0c5-851f-10d6-4ad967d03c46" executionId="ec9261b6-dca2-4a6f-8e54-2586d1bf0e7c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9d38b36c-fdd7-fb4d-670f-dc8ac32a77ba" executionId="9e3e5fa6-b3c7-4678-b1c9-294d1760d45d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c5c7857c-d7dc-d78a-bdaa-604fcddd4c74" executionId="de5c5ef0-13e6-479b-ad67-3ce6886891b9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="82251293-33ab-b961-3a6a-18291240cc97" executionId="e5d8d969-7f15-47c2-936a-26cd1e200e97" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="985de354-edc5-00f1-f13c-6a4c4f35c0e1" executionId="5e469cab-8fe2-4e5f-af3e-e03f9f9af97e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="da9f6fa8-648a-9aa8-83ba-5fd117d4569f" executionId="d5bae167-aa4d-4ab9-a533-bf85ada70339" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e1cc74df-cccd-392d-13a7-3efe75d8ea38" executionId="e9de715b-d9a3-4c10-a14d-98e90833b2a1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="74cb8c73-6bfc-4261-1819-2663ad350d19" executionId="6df65fcc-cf64-4d54-b60d-31fb6cfe0d97" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="079b2ae9-6208-0c2f-f48c-09422ecd88b6" executionId="50aed7fe-0c17-4f26-b7c9-bd691954d570" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="54299dde-72fe-273f-1898-b9ecb9a05af1" executionId="9715dc79-e863-4c3e-8343-b72d0fc10b1f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="75829b28-a9ff-73f7-814e-959be7893874" executionId="53d54926-b1e2-4b35-89dc-c07f8ff61498" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0145b855-8576-64d0-ef0b-473a9c46c53f" executionId="044abb66-d1b6-47c8-858f-f2f0de6f15be" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3da16adc-6a18-0684-b9e8-4c0d75219a2e" executionId="95fee67d-5c0f-41c6-9742-27daadac20f1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="24ece332-d16d-2036-2bd3-a865cfd7f54f" executionId="2b5ff17f-eb27-4953-8888-1347fe5c83ff" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="98ebe10c-d8e1-0bad-018d-b072cb6c4eb6" executionId="b31c506f-be0a-48ef-9b2b-41a0bf130aef" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f8f60b0c-6d48-9bf2-ea10-0c806302f36c" executionId="5777f10b-c805-49db-9b9f-f511d4e70157" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fc159ad4-4f39-ee8c-eb2f-afb85b1382ff" executionId="1b406e5d-e39f-4c1a-ad1d-b3da33f4cc83" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="01f5b85c-46ff-5814-b953-ed4e373c02e2" executionId="be770290-9e8a-421e-a3f6-2afb90cf9841" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="72a072fa-5c47-973a-6f3a-b9e8b6746e95" executionId="add4ce41-7c95-4da1-87f4-0f3f7faf4f9d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3e09a855-d182-42c1-5abc-be403c9068fe" executionId="620a91ef-cf69-4c7e-9208-170fc4a6144a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7e464f5c-f96e-9cce-fd7e-f1be441a2a25" executionId="d2152cdb-a780-4568-89ce-2cded0d04d1c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fd3c3532-d013-855a-0864-237395b16e13" executionId="76c8a059-ff35-404e-bb23-743e4376be36" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c468f8d9-8b42-f24b-000d-4e842db8979e" executionId="60c46d96-b4aa-42c3-99f7-7bea57742e2e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a8843699-fa69-acb9-993d-e425c7f0ecc6" executionId="db403f62-2ca0-4c3a-809f-178e1b74276e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7fb90ec0-8819-369b-e860-2037515c45ca" executionId="c54bb917-6da3-44de-a03f-4d3cc757ac4a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="64082d6e-6d5f-4983-99e1-fe839a5027a3" executionId="20da72ca-8f0b-4599-b126-316304b5572a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f99ab5c6-b7eb-9952-46ec-fba4d0be60a4" executionId="65511520-1901-481d-878b-86e089d29c1e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="222c94a4-d1a1-3c87-8a17-96e5973b6763" executionId="54b859ca-4a5e-486f-84b1-678daaabd930" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fd1a82c4-8913-98e1-9aab-9dc6cbec26d5" executionId="29236e49-ff5d-4e3b-b9c4-558ca59a38c1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="de1e8791-bac2-7d3c-f51e-23c878053edc" executionId="a18dfa25-09dc-4313-acaa-b438b9a2127f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="84b8cd5c-6c4c-3fd7-379b-fdd106069bde" executionId="f2776085-043d-48ef-8f1e-61527b253170" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="79c74730-6fcf-117c-b42c-cf5ee7e0d1e6" executionId="2297c695-5def-415a-aed8-358636f6f34e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b0982fec-83ef-1faf-a277-abb869a1c390" executionId="7a17a00c-5555-40b0-a3ef-0031b996f33c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2cfa49fe-a8b8-eccf-5f51-5f73fc579422" executionId="01145ef4-f3ea-4a58-9c6e-f8ed6abf67b3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="67822f79-7633-6fd4-863c-5ddf91cbd595" executionId="aef81997-3e73-4286-89d2-59b264cd94d3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c6d1a2d4-4307-b63c-acae-cabe6415ceb1" executionId="b5ef6f13-7550-43e9-b8cf-cd39f30792a9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7dd26d6c-cd39-be2a-e22c-43be97350340" executionId="10037626-3012-458d-8013-37a04a67ef01" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cfc1b4cc-43f8-7e00-6252-aa0eeb4b7ba5" executionId="0dbc82b9-517f-4b7a-a4b1-3b6cc145de25" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f16307aa-6943-5cd0-cc27-051ca2b9f56c" executionId="3bd2c0ed-d333-4487-9190-757e45ef6e65" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a5afb7d2-a5e9-a6fe-7f8b-47c349a53a39" executionId="6c5062db-12e3-473a-abd1-160882e94e46" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="54fe7f92-c8cf-c893-5175-a46415189d5e" executionId="c42d244c-c4c2-4ed6-ba2f-5039c99b7124" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="93" executed="93" passed="93" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.57]   Discovering: Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.33]   Discovered:  Alveara.Api.Tests&#xD;
+[xUnit.net 00:00:02.38]   Starting:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-22T16:12:44.9543963+00:00","level":"warn","service":"backend-tests","role":"run","event":"template_leftover_reported","outcome":"success","context":{"count":1,"leftovers":["backup AlveraTemplate_c07fd9ca1dd643b1b16246bdc35a5ce7.bak (145.6 h old)"]}}&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-22T16:13:01.4433641+00:00","level":"info","service":"backend-tests","role":"run","event":"template_built","outcome":"success","context":{"migrations":84,"migrate_ms":13116,"total_ms":16480,"backup_bytes":8577024}}&#xD;
+2026-11-22T16:13:17.519Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:17.521Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:17.521Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:17.603Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:17.640Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:18.912Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=8d248e75-9746-4886-95ae-02bb6825cfad allergy_outcome=NoRecordedMatch amendment=False duration_ms=106.343&#xD;
+2026-11-22T16:13:19.178Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:19.837Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:19.837Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:19.837Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:19.850Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:19.941Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:20.323Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=c2a3029f-c925-400d-9b30-5db597c12dd9 allergy_outcome=NoRecordedMatch amendment=False duration_ms=66.1625&#xD;
+2026-11-22T16:13:20.527Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=682a289f-0b39-4c7b-9e50-bcbfa9680225 allergy_outcome=NoRecordedMatch amendment=False duration_ms=18.4968&#xD;
+2026-11-22T16:13:20.656Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:21.168Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:21.168Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:21.168Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:21.180Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:21.304Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:21.683Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=21ed7074-2cc4-439c-bc0a-16d58757164b allergy_outcome=NoRecordedMatch amendment=False duration_ms=71.3308&#xD;
+2026-11-22T16:13:21.786Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=0e139a71-c627-4dbe-8ab1-fdaf8e05459b allergy_outcome=NoRecordedMatch amendment=False duration_ms=18.0799&#xD;
+2026-11-22T16:13:21.865Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:22.334Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:22.334Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:22.334Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:22.347Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:22.493Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:22.691Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=29176c73-b31e-4a9d-9734-6a7956928def allergy_outcome=NoRecordedMatch amendment=False duration_ms=33.0764&#xD;
+2026-11-22T16:13:22.788Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:23.312Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:23.312Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:23.312Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:23.348Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:23.467Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:23.844Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=5a91f8a7-747a-443a-a3fe-2d7715f28703 allergy_outcome=NoRecordedMatch amendment=False duration_ms=69.5339&#xD;
+2026-11-22T16:13:24.033Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:24.555Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:24.555Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:24.555Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:24.566Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:24.640Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:25.009Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=862e5a51-d3e9-426d-8b39-54c32b7eb96e allergy_outcome=NoRecordedMatch amendment=False duration_ms=79.891&#xD;
+2026-11-22T16:13:25.222Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:25.751Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:25.752Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:25.752Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:25.764Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:25.848Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:26.205Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=8a2bf0f4-650e-4660-9f9b-2b2394026a55 allergy_outcome=NoRecordedMatch amendment=False duration_ms=63.2809&#xD;
+2026-11-22T16:13:26.403Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:26.919Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:26.919Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:26.919Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:26.938Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:27.053Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:27.263Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:27.805Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:27.805Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:27.805Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:27.824Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:27.956Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:28.327Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=b8f97bf9-3ace-4849-bcd2-6322e5a3eefb allergy_outcome=NoRecordedMatch amendment=False duration_ms=65.0743&#xD;
+2026-11-22T16:13:28.358Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:28.882Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:28.882Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:28.882Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:28.889Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:29.036Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:29.350Z info: Alveara.Api.Architecture.Prescribing.PrescriptionService[0]&#xD;
+      prescription_recorded correlation_id=463e6de0-a796-4f18-8c70-45ce64d492ef allergy_outcome=NoRecordedMatch duration_ms=23.0539&#xD;
+2026-11-22T16:13:29.424Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:29.997Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:29.997Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:29.997Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:30.005Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:30.144Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:30.544Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=8554bd3a-af24-4e80-9c82-fbb58c7296ba allergy_outcome=NoRecordedMatch amendment=False duration_ms=65.8124&#xD;
+2026-11-22T16:13:30.608Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:31.071Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:31.071Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:31.071Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:31.079Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:31.224Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:31.598Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=da16d8a8-d336-470d-9b00-bbe6b07e2629 allergy_outcome=NoRecordedMatch amendment=False duration_ms=47.6111&#xD;
+2026-11-22T16:13:31.644Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:32.170Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:32.170Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:32.170Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:32.177Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:32.325Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:32.592Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:33.074Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:33.074Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:33.074Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:33.081Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:33.242Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:33.593Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=1ef123ea-b5ac-4f19-b7fe-a61e7a39cb11 allergy_outcome=NoRecordedMatch amendment=False duration_ms=81.597&#xD;
+2026-11-22T16:13:33.839Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=34954 duration_ms=60.275&#xD;
+2026-11-22T16:13:34.224Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:34.900Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:34.900Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:34.900Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:34.909Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:35.052Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:35.635Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:36.238Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:36.238Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:36.238Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:36.245Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:36.379Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:36.398Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:36.910Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:36.910Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:36.910Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:36.938Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:37.082Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:37.114Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:37.647Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:37.647Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:37.647Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:37.654Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:37.800Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:37.824Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:38.373Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:38.373Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:38.373Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:38.380Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:38.515Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:38.866Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=a03e689b-f798-4a14-90dc-b7e5782de7eb allergy_outcome=NoRecordedMatch amendment=False duration_ms=66.9838&#xD;
+2026-11-22T16:13:39.015Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:39.532Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:39.532Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:39.532Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:39.539Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:39.686Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:40.107Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=e2acdba1-ee31-414c-bcf2-a0f28963e6c0 allergy_outcome=NoRecordedMatch amendment=False duration_ms=67.4182&#xD;
+2026-11-22T16:13:40.299Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:40.891Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:40.891Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:40.891Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:40.915Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:41.061Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:41.320Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=f593909e-e19d-475f-a4f7-8141cd991fd4 allergy_outcome=NoRecordedMatch amendment=False duration_ms=63.0459&#xD;
+2026-11-22T16:13:41.468Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:42.011Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:42.011Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:42.011Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:42.036Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:42.176Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:42.517Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=c65b1deb-9c29-4923-8969-87b481b8154f allergy_outcome=NoRecordedMatch amendment=False duration_ms=63.4942&#xD;
+2026-11-22T16:13:42.705Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:43.358Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:43.358Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:43.358Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:43.366Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:43.512Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:43.894Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=f6becb05-f43e-43b9-96f8-4b27a9dd3acd allergy_outcome=NoRecordedMatch amendment=False duration_ms=58.7151&#xD;
+2026-11-22T16:13:44.032Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:44.603Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:44.603Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:44.603Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:44.611Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:44.755Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:45.108Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=346f77c8-b61a-4c4d-8bed-8c203d28e528 allergy_outcome=NoRecordedMatch amendment=False duration_ms=63.0664&#xD;
+2026-11-22T16:13:45.285Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:45.817Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:45.817Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:45.817Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:45.825Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:45.966Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:46.454Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=ded38b90-6110-4317-a19e-57b56a4619f7 allergy_outcome=NoRecordedMatch amendment=False duration_ms=89.5424&#xD;
+2026-11-22T16:13:46.656Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:47.229Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:47.229Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:47.229Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:47.266Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:47.407Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:47.802Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=1554b001-d716-420a-a898-c5595aba9cf4 allergy_outcome=NoRecordedMatch amendment=False duration_ms=62.2155&#xD;
+2026-11-22T16:13:47.951Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=34133 duration_ms=65.4547&#xD;
+2026-11-22T16:13:47.961Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:48.478Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:48.478Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:48.478Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:48.513Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:48.659Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:49.140Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=c842b88d-b71c-4559-ba83-adaef3d19184 allergy_outcome=NoRecordedMatch amendment=False duration_ms=58.7001&#xD;
+2026-11-22T16:13:49.237Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:49.787Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:49.787Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:49.787Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:49.795Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:49.933Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:50.319Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=989588c3-47a3-43eb-9307-65472a15f041 allergy_outcome=NoRecordedMatch amendment=False duration_ms=67.7354&#xD;
+2026-11-22T16:13:50.412Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:50.947Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:50.947Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:50.947Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:50.954Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:51.100Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:51.452Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=02ab80f7-df62-4089-b35d-bfebb9fe9f88 allergy_outcome=NoRecordedMatch amendment=False duration_ms=61.3669&#xD;
+2026-11-22T16:13:51.612Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=34279 duration_ms=61.1694&#xD;
+2026-11-22T16:13:51.642Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:52.158Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:52.158Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:52.158Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:52.166Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:52.289Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:52.605Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=5696c6b9-a46c-4b34-9d5f-902cb3038c91 allergy_outcome=NoRecordedMatch amendment=False duration_ms=38.7692&#xD;
+2026-11-22T16:13:52.699Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=33515 duration_ms=47.7627&#xD;
+2026-11-22T16:13:52.851Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=33515 duration_ms=62.9688&#xD;
+2026-11-22T16:13:52.925Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=33540 duration_ms=61.3652&#xD;
+2026-11-22T16:13:52.931Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:53.498Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:53.498Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:53.498Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:53.505Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:53.642Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:53.978Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=737b7ac4-d481-4a9e-af19-28bc924a1db0 allergy_outcome=NoRecordedMatch amendment=False duration_ms=50.5853&#xD;
+2026-11-22T16:13:54.090Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=33164 duration_ms=49.583&#xD;
+2026-11-22T16:13:54.094Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:54.626Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:54.626Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:54.626Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:54.632Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:54.735Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:54.928Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=8754c7a6-e274-4232-952a-58ca7950b16c allergy_outcome=NotEstablished amendment=False duration_ms=45.1617&#xD;
+2026-11-22T16:13:55.058Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=33477 duration_ms=64.308&#xD;
+2026-11-22T16:13:55.064Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:55.815Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:55.815Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:55.815Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:55.823Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:55.969Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:56.453Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=1e303152-19b9-4372-846c-5403f7dfe6d0 allergy_outcome=RecordedAllergyMatch amendment=False duration_ms=90.1215&#xD;
+2026-11-22T16:13:56.606Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_rendered outcome=success template=prescription version=p2 bytes=33419 duration_ms=65.3051&#xD;
+2026-11-22T16:13:56.642Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:57.223Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:57.223Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:57.223Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:57.231Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:57.374Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:57.822Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=bd6200b8-8c8e-43d0-932c-92c2e48dde62 allergy_outcome=NoRecordedMatch amendment=False duration_ms=67.2265&#xD;
+2026-11-22T16:13:57.919Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=1ef49f07-7315-4da5-aeed-734bf38b2c23 allergy_outcome=NoRecordedMatch amendment=True duration_ms=33.9419&#xD;
+2026-11-22T16:13:57.939Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:58.431Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:58.431Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:58.431Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:58.439Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:58.464Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+2026-11-22T16:13:59.015Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application started. Press Ctrl+C to shut down.&#xD;
+2026-11-22T16:13:59.015Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Hosting environment: Development&#xD;
+2026-11-22T16:13:59.015Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Content root path: c:\Users\firas\Documents\AI-Project-[Alveara-Dental]\src\Alveara.Api&#xD;
+2026-11-22T16:13:59.022Z warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]&#xD;
+      Failed to determine the https port for redirect.&#xD;
+2026-11-22T16:13:59.163Z info: Alveara.Api.Architecture.Pdf.PdfEngine[0]&#xD;
+      event=pdf_engine_ready outcome=success bundle=typst-0.15.1+noto-sans-2.015+vcrt-14.51.36247.0&#xD;
+2026-11-22T16:13:59.708Z info: Alveara.Api.Architecture.Prescribing.PrescriptionFinalizeService[0]&#xD;
+      prescription_finalized correlation_id=4df408d8-a5f2-4332-bb93-1377aac3d537 allergy_outcome=NotEstablished amendment=False duration_ms=56.0709&#xD;
+2026-11-22T16:13:59.763Z info: Microsoft.Hosting.Lifetime[0]&#xD;
+      Application is shutting down...&#xD;
+[xUnit.net 00:01:37.77]   Finished:    Alveara.Api.Tests&#xD;
+[TestDatabaseTemplate] {"timestamp":"2026-11-22T16:14:19.3248528+00:00","level":"info","service":"backend-tests","role":"run","event":"template_summary","outcome":"success","context":{"builds":1,"rebuilds":0,"clones":68,"fallbacks":0,"real_migration_fixtures":0,"build_ms":16480,"restore_ms_total":19739}}&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

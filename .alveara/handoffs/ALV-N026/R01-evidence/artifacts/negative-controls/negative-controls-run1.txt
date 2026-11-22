@@ -1,0 +1,97 @@
+ALV-N026 negative controls - started 2026-11-22T10:06:42  (HEAD baaeb51)
+
+====================================================================================================
+C1 clinical-category read rule removed (ViewDocuments alone reads clinical documents)
+  file: Alveara.Api\Architecture\Documents\DocumentAccess.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (30s)
+  tests: Failed!  - Failed:     3, Passed:     4, Skipped:     0, Total:     7, Duration: 30 s - Alveara.Api.Tests.dll (net10.0) (37s)
+    caught by: Failed Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: "OfficeManager", readsClinical: False) [639 ms]
+    caught by: Failed Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: "Billing", readsClinical: False) [607 ms]
+    caught by: Failed Alveara.Api.Tests.DocumentClassificationAccessApiTests.A_clinical_document_is_read_only_with_clinical_access_and_is_otherwise_answered_as_not_found(role: "FrontDesk", readsClinical: False) [528 ms]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+    Error Message:
+    Assert.Equal() Failure: Values differ
+    Error Message:
+    Assert.Equal() Failure: Values differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C2 plan-copy integrity check on the recorded reference code removed
+  file: Alveara.Api\Architecture\Treatment\TreatmentPlanCopyIssues.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (20s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 20 s - Alveara.Api.Tests.dll (net10.0) (34s)
+    caught by: Failed Alveara.Api.Tests.TreatmentPlanCopyApiTests.A_copy_whose_recorded_sources_no_longer_match_is_refused_with_integrity_mismatch_before_rendering [3 s]
+    Error Message:
+    Assert.Equal() Failure: Values differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C3 record-copy key replay broken (the stored key is never found)
+  file: Alveara.Api\Architecture\Patients\Portability\Package\ClinicalRecordCopy.cs
+  edit: 2 occurrence(s) of the rule replaced
+  build: exit 0 (15s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 21 s - Alveara.Api.Tests.dll (net10.0) (35s)
+    caught by: Failed Alveara.Api.Tests.ClinicalRecordCopyApiTests.A_second_request_is_a_new_issue_and_a_retry_with_the_same_key_returns_the_same_issue [1 s]
+    Error Message:
+    Assert.All() Failure: 1 out of 3 items in the collection did not pass.
+    Error: Assert.Equal() Failure: Values differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C4 backup alert reaches only one administrator
+  file: Alveara.Api\Architecture\Backup\BackupAlerts.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (15s)
+  tests: Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 18 s - Alveara.Api.Tests.dll (net10.0) (33s)
+    caught by: Failed Alveara.Api.Tests.BackupAlertTests.A_failure_reaches_every_enabled_administrator_once_urgently_and_no_one_else_however_often_it_is_delivered [1 s]
+    Error Message:
+    Assert.Equal() Failure: Collections differ
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C5 named exception silently dropped (PatientRecordOpens in neither list)
+  file: Alveara.Api\Architecture\Patients\Merge\PatientIdExceptions.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (22s)
+  tests: Failed!  - Failed:     4, Passed:     2, Skipped:     0, Total:     6, Duration: 846 ms - Alveara.Api.Tests.dll (net10.0) (8s)
+    caught by: Failed Alveara.Api.Tests.ExportDomainCatalogTests.Every_table_that_holds_a_patient_id_is_in_a_domain_the_package_carries [797 ms]
+    caught by: Failed Alveara.Api.Tests.PatientOwnedDataTests.The_registry_lists_exactly_the_columns_of_the_model_that_hold_a_patient_id [21 ms]
+    caught by: Failed Alveara.Api.Tests.PatientIdExceptionTests.Every_exception_names_a_real_patient_id_column_and_states_its_merge_and_export_handling_and_a_reason [< 1 ms]
+    caught by: Failed Alveara.Api.Tests.PatientIdExceptionTests.The_record_opens_are_the_one_exception_today_with_the_owners_handling_and_reason [< 1 ms]
+    Error Message:
+    Error Message:
+    Assert.Equal() Failure: Collections differ
+    Failed Alveara.Api.Tests.PatientIdExceptionTests.Every_exception_names_a_real_patient_id_column_and_states_its_merge_and_export_handling_and_a_reason [< 1 ms]
+    Error Message:
+    Assert.NotEmpty() Failure: Collection was empty
+  restore: byte-identical (git diff clean)
+
+====================================================================================================
+C6 appointment-link merge stand-aside removed (U-022 repair undone)
+  file: Alveara.Api\Migrations\20261122140138_AddTreatmentPlanItemAppointmentLinksMergeScope.cs
+  edit: 1 occurrence(s) of the rule replaced
+  build: exit 0 (27s)
+  tests: Failed!  - Failed:     2, Passed:     0, Skipped:     0, Total:     2, Duration: 25 s - Alveara.Api.Tests.dll (net10.0) (33s)
+    caught by: Failed Alveara.Api.Tests.TreatmentPlanItemAppointmentLinkMergeTests.An_approved_merge_moves_the_link_with_its_plan_item_and_appointment_and_its_undo_moves_it_back [3 s]
+    caught by: Failed Alveara.Api.Tests.PatientMergeSchemaTests.Every_update_trigger_on_those_tables_stands_aside_for_a_merge_except_the_merge_scope_triggers_and_the_merged_mark [88 ms]
+    Error Message:
+    Microsoft.Data.SqlClient.SqlException : The appointment-link history of a treatment-plan item is append-only.
+    at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+    at Microsoft.Data.SqlClient.Connection.SqlConnectionInternal.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+    at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, SqlCommand command, Boolean callerHasConnectionLock, Boolean asyncClose)
+    Error Message:
+  restore: byte-identical (git diff clean)
+
+final rebuild of the restored tree: exit 0 (17s)
+
+SUMMARY
+  CAUGHT      C1 clinical-category read rule removed (ViewDocuments alone reads clinical documents)
+  CAUGHT      C2 plan-copy integrity check on the recorded reference code removed
+  CAUGHT      C3 record-copy key replay broken (the stored key is never found)
+  CAUGHT      C4 backup alert reaches only one administrator
+  CAUGHT      C5 named exception silently dropped (PatientRecordOpens in neither list)
+  CAUGHT      C6 appointment-link merge stand-aside removed (U-022 repair undone)
+total 328s; all caught: True
