@@ -1,0 +1,125 @@
+{
+  "axe": {
+    "composer-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "composer-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incomplete-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "incomplete-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "confirmation-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "confirmation-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "print-pdf-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "print-pdf-dark": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-changed-light": {
+      "blocking": 0,
+      "violations": []
+    },
+    "list-changed-dark": {
+      "blocking": 0,
+      "violations": []
+    }
+  },
+  "stamp": 1795383247085,
+  "draft": {
+    "savedIncomplete": true,
+    "survivedReload": true,
+    "finalizedWhileIncomplete": 0
+  },
+  "finalized": {
+    "recorded": 1,
+    "loggedWithUser": true,
+    "containsNoClinicalContent": true
+  },
+  "recordCopyArrivals": [
+    "new tab",
+    "download on the new tab"
+  ],
+  "recordCopyIntercepted": {
+    "status": 200,
+    "contentType": "application/pdf",
+    "contentLength": "34822",
+    "observedBytes": 0
+  },
+  "print": {
+    "flow": "server PDF",
+    "arrivals": {
+      "first": [
+        "new tab",
+        "download on the new tab"
+      ],
+      "again": [
+        "new tab",
+        "download on the new tab"
+      ],
+      "recordCopy": [
+        "new tab",
+        "download on the new tab"
+      ]
+    },
+    "intercepted": {
+      "first": {
+        "status": 200,
+        "contentType": "application/pdf",
+        "contentLength": "33145",
+        "observedBytes": 0
+      },
+      "again": {
+        "status": 200,
+        "contentType": "application/pdf",
+        "contentLength": "33144",
+        "observedBytes": 0
+      },
+      "recordCopy": {
+        "status": 200,
+        "contentType": "application/pdf",
+        "contentLength": "34822",
+        "observedBytes": 0
+      }
+    },
+    "followUpBytes": {
+      "first": 33145,
+      "again": 33144
+    },
+    "windowPrintCalls": 0,
+    "issues": 3
+  },
+  "failurePath": {
+    "finalizedWhileLogDown": 0,
+    "finalizedAfter": 1
+  },
+  "readOnly": {
+    "hygienistWrite": 403,
+    "frontDeskRead": 403
+  },
+  "staleLists": {
+    "acknowledged": true,
+    "finalized": 1
+  },
+  "trust": {
+    "finalized": 7,
+    "auditEntries": 7,
+    "clinicalContentInLog": false
+  }
+}
